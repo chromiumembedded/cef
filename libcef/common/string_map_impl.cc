@@ -29,8 +29,9 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
   DCHECK(value);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
   StringMap::const_iterator it = impl->find(CefString(key));
-  if (it == impl->end())
+  if (it == impl->end()) {
     return 0;
+  }
 
   const CefString& val = it->second;
   return cef_string_set(val.c_str(), val.length(), value, true);
@@ -43,13 +44,15 @@ CEF_EXPORT int cef_string_map_key(cef_string_map_t map,
   DCHECK(key);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
   DCHECK_LT(index, impl->size());
-  if (index >= impl->size())
+  if (index >= impl->size()) {
     return 0;
+  }
 
   StringMap::const_iterator it = impl->begin();
   for (size_t ct = 0; it != impl->end(); ++it, ct++) {
-    if (ct == index)
+    if (ct == index) {
       return cef_string_set(it->first.c_str(), it->first.length(), key, true);
+    }
   }
   return 0;
 }
@@ -61,8 +64,9 @@ CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
   DCHECK(value);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
   DCHECK_LT(index, impl->size());
-  if (index >= impl->size())
+  if (index >= impl->size()) {
     return 0;
+  }
 
   StringMap::const_iterator it = impl->begin();
   for (size_t ct = 0; it != impl->end(); ++it, ct++) {

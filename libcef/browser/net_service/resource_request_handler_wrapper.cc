@@ -165,15 +165,17 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     virtual ~DestructionObserver() {
       CEF_REQUIRE_UIT();
-      if (!registered_)
+      if (!registered_) {
         return;
+      }
 
       // Verify that the browser or context still exists before attempting to
       // remove the observer.
       if (browser_info_) {
         auto browser = browser_info_->browser();
-        if (browser)
+        if (browser) {
           browser->RemoveObserver(this);
+        }
       } else if (CefContext::Get()) {
         // Network requests may be torn down during shutdown, so we can't check
         // CONTEXT_STATE_VALID() here.
@@ -345,8 +347,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       base::AutoLock lock_scope(lock_);
       // May be nullptr if the InterceptedRequestHandlerWrapper has already
       // been deleted.
-      if (!wrapper_)
+      if (!wrapper_) {
         return;
+      }
       wrapper_->SetInitialized(std::move(init_state));
       wrapper_ = nullptr;
     }
@@ -401,8 +404,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     // Continue any pending requests.
     if (!pending_requests_.empty()) {
-      for (const auto& request : pending_requests_)
+      for (const auto& request : pending_requests_) {
         request->Run(this);
+      }
       pending_requests_.clear();
     }
   }
@@ -555,8 +559,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     // True if there's a possibility that the client might handle the request.
     const bool maybe_intercept_request = handler || scheme_factory;
-    if (!maybe_intercept_request && requestPtr)
+    if (!maybe_intercept_request && requestPtr) {
       requestPtr = nullptr;
+    }
 
     // May have a handler and/or scheme factory.
     state->Reset(handler, scheme_factory, requestPtr, request_was_redirected,
@@ -812,16 +817,19 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    if (!state->handler_)
+    if (!state->handler_) {
       return;
+    }
 
-    if (!state->pending_response_)
+    if (!state->pending_response_) {
       state->pending_response_ = new CefResponseImpl();
-    else
+    } else {
       state->pending_response_->SetReadOnly(false);
+    }
 
-    if (headers)
+    if (headers) {
       state->pending_response_->SetResponseHeaders(*headers);
+    }
 
     state->pending_response_->SetReadOnly(true);
   }
@@ -1120,8 +1128,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
  private:
   void CallHandlerOnComplete(RequestState* state,
                              const network::URLLoaderCompletionStatus& status) {
-    if (!state->handler_ || !state->pending_request_)
+    if (!state->handler_ || !state->pending_request_) {
       return;
+    }
 
     // The request object may be currently flagged as writable in cases where we
     // abort a request that is waiting on a pending callack.
@@ -1178,8 +1187,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
           init_state_->iothread_state_->GetHandler(
               init_state_->global_id_, /*require_frame_match=*/false);
       if (context_handler) {
-        if (!requestPtr)
+        if (!requestPtr) {
           requestPtr = MakeRequest(request, request_id, true);
+        }
 
         handler = context_handler->GetResourceRequestHandler(
             init_state_->browser_, init_state_->frame_, requestPtr.get(),
@@ -1202,16 +1212,18 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
   RequestState* GetState(int32_t request_id) const {
     RequestMap::const_iterator it = request_map_.find(request_id);
-    if (it != request_map_.end())
+    if (it != request_map_.end()) {
       return it->second.get();
+    }
     return nullptr;
   }
 
   void RemoveState(int32_t request_id) {
     RequestMap::iterator it = request_map_.find(request_id);
     DCHECK(it != request_map_.end());
-    if (it != request_map_.end())
+    if (it != request_map_.end()) {
       request_map_.erase(it);
+    }
   }
 
   // Stop accepting new requests and cancel pending/in-flight requests when the
@@ -1269,10 +1281,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       bool read_only) {
     CefRefPtr<CefRequestImpl> requestPtr = new CefRequestImpl();
     requestPtr->Set(request, request_id);
-    if (read_only)
+    if (read_only) {
       requestPtr->SetReadOnly(true);
-    else
+    } else {
       requestPtr->SetTrackChanges(true);
+    }
     return requestPtr;
   }
 
@@ -1399,8 +1412,9 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   // TODO(navigation): Can we determine the |is_download| value?
   const bool is_download = false;
   url::Origin request_initiator;
-  if (request.request_initiator.has_value())
+  if (request.request_initiator.has_value()) {
     request_initiator = *request.request_initiator;
+  }
 
   auto init_state =
       std::make_unique<InterceptedRequestHandlerWrapper::InitState>();

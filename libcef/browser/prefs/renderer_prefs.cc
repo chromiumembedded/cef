@@ -82,12 +82,15 @@ void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
   web.dom_paste_enabled = prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
   web.tabs_to_links = prefs->GetBoolean(prefs::kWebkitTabsToLinks);
 
-  if (!prefs->GetBoolean(prefs::kWebKitJavascriptEnabled))
+  if (!prefs->GetBoolean(prefs::kWebKitJavascriptEnabled)) {
     web.javascript_enabled = false;
-  if (!prefs->GetBoolean(prefs::kWebKitWebSecurityEnabled))
+  }
+  if (!prefs->GetBoolean(prefs::kWebKitWebSecurityEnabled)) {
     web.web_security_enabled = false;
-  if (!prefs->GetBoolean(prefs::kWebKitPluginsEnabled))
+  }
+  if (!prefs->GetBoolean(prefs::kWebKitPluginsEnabled)) {
     web.plugins_enabled = false;
+  }
   web.loads_images_automatically =
       prefs->GetBoolean(prefs::kWebKitLoadsImagesAutomatically);
 
@@ -143,14 +146,16 @@ void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
 void SetExtensionPrefs(content::WebContents* web_contents,
                        content::RenderViewHost* rvh,
                        blink::web_pref::WebPreferences& web) {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return;
+  }
 
   const extensions::ExtensionRegistry* registry =
       extensions::ExtensionRegistry::Get(
           rvh->GetProcess()->GetBrowserContext());
-  if (!registry)
+  if (!registry) {
     return;
+  }
 
   // Note: it's not possible for kExtensionsScheme to change during the lifetime
   // of the process.
@@ -161,8 +166,9 @@ void SetExtensionPrefs(content::WebContents* web_contents,
   // would get the wrong preferences.
   const GURL& site_url =
       web_contents->GetPrimaryMainFrame()->GetSiteInstance()->GetSiteURL();
-  if (!site_url.SchemeIs(extensions::kExtensionScheme))
+  if (!site_url.SchemeIs(extensions::kExtensionScheme)) {
     return;
+  }
 
   const extensions::Extension* extension =
       registry->enabled_extensions().GetByID(site_url.host());
@@ -236,12 +242,15 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
               command_line->GetSwitchValueASCII(switches::kDefaultEncoding));
   }
 
-  if (command_line->HasSwitch(switches::kDisableJavascriptDomPaste))
+  if (command_line->HasSwitch(switches::kDisableJavascriptDomPaste)) {
     SetBool(prefs, prefs::kWebKitDomPasteEnabled, false);
-  if (command_line->HasSwitch(switches::kDisableImageLoading))
+  }
+  if (command_line->HasSwitch(switches::kDisableImageLoading)) {
     SetBool(prefs, prefs::kWebKitLoadsImagesAutomatically, false);
-  if (command_line->HasSwitch(switches::kDisableTabToLinks))
+  }
+  if (command_line->HasSwitch(switches::kDisableTabToLinks)) {
     SetBool(prefs, prefs::kWebkitTabsToLinks, false);
+  }
 }
 
 void SetDefaultPrefs(blink::web_pref::WebPreferences& web) {
@@ -297,17 +306,22 @@ void SetCefPrefs(const CefBrowserSettings& cef,
         CefString(&cef.fantasy_font_family);
   }
 
-  if (cef.default_font_size > 0)
+  if (cef.default_font_size > 0) {
     web.default_font_size = cef.default_font_size;
-  if (cef.default_fixed_font_size > 0)
+  }
+  if (cef.default_fixed_font_size > 0) {
     web.default_fixed_font_size = cef.default_fixed_font_size;
-  if (cef.minimum_font_size > 0)
+  }
+  if (cef.minimum_font_size > 0) {
     web.minimum_font_size = cef.minimum_font_size;
-  if (cef.minimum_logical_font_size > 0)
+  }
+  if (cef.minimum_logical_font_size > 0) {
     web.minimum_logical_font_size = cef.minimum_logical_font_size;
+  }
 
-  if (cef.default_encoding.length > 0)
+  if (cef.default_encoding.length > 0) {
     web.default_encoding = CefString(&cef.default_encoding);
+  }
 
   SET_STATE(cef.remote_fonts, web.remote_fonts_enabled);
   SET_STATE(cef.javascript, web.javascript_enabled);

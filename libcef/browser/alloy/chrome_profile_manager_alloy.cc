@@ -51,8 +51,9 @@ Profile* ChromeProfileManagerAlloy::GetProfile(
 }
 
 bool ChromeProfileManagerAlloy::IsValidProfile(const void* profile) {
-  if (!profile)
+  if (!profile) {
     return false;
+  }
   return !!CefBrowserContext::FromBrowserContext(
       static_cast<const content::BrowserContext*>(profile));
 }

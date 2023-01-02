@@ -338,8 +338,9 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
     root_view_.reset(root_view_ref_);
   }
   void Detach() override {
-    if (root_view_)
+    if (root_view_) {
       root_view_.reset();
+    }
     root_view_ref_ = nullptr;
   }
   void GetDebugInfo(base::DictionaryValue* info,
@@ -454,10 +455,11 @@ CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::GetTypeString() {
 CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::ToString(bool include_children) {
   CEF_REQUIRE_UIT_RETURN(CefString());
   std::unique_ptr<base::DictionaryValue> info(new base::DictionaryValue());
-  if (IsValid())
+  if (IsValid()) {
     GetDebugInfo(info.get(), include_children);
-  else
+  } else {
     info->SetString("type", GetDebugType());
+  }
 
   std::string json_string;
   base::JSONWriter::WriteWithOptions(*info, 0, &json_string);
@@ -477,8 +479,9 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsAttached() {
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsSame(CefRefPtr<CefView> that) {
   CEF_REQUIRE_UIT_RETURN(false);
   CefViewImpl* that_impl = static_cast<CefViewImpl*>(that.get());
-  if (!that_impl)
+  if (!that_impl) {
     return false;
+  }
   return this == that_impl;
 }
 
@@ -489,8 +492,9 @@ CEF_VIEW_IMPL_T CefRefPtr<CefViewDelegate> CEF_VIEW_IMPL_D::GetDelegate() {
 
 CEF_VIEW_IMPL_T CefRefPtr<CefWindow> CEF_VIEW_IMPL_D::GetWindow() {
   CEF_REQUIRE_UIT_RETURN(nullptr);
-  if (root_view())
+  if (root_view()) {
     return view_util::GetWindowFor(root_view()->GetWidget());
+  }
   return nullptr;
 }
 
@@ -511,24 +515,27 @@ CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetGroupID() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetGroupID(int group_id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view()->GetGroup() != -1)
+  if (root_view()->GetGroup() != -1) {
     return;
+  }
   root_view()->SetGroup(group_id);
 }
 
 CEF_VIEW_IMPL_T CefRefPtr<CefView> CEF_VIEW_IMPL_D::GetParentView() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   views::View* view = root_view()->parent();
-  if (!view)
+  if (!view) {
     return nullptr;
+  }
   return view_util::GetFor(view, true);
 }
 
 CEF_VIEW_IMPL_T CefRefPtr<CefView> CEF_VIEW_IMPL_D::GetViewForID(int id) {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   views::View* view = root_view()->GetViewByID(id);
-  if (!view)
+  if (!view) {
     return nullptr;
+  }
   return view_util::GetFor(view, true);
 }
 
@@ -681,8 +688,9 @@ CEF_VIEW_IMPL_T cef_color_t CEF_VIEW_IMPL_D::GetBackgroundColor() {
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToScreen(CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
-  if (!view_util::ConvertPointToScreen(root_view(), &gfx_point, false))
+  if (!view_util::ConvertPointToScreen(root_view(), &gfx_point, false)) {
     return false;
+  }
   point = CefPoint(gfx_point.x(), gfx_point.y());
   return true;
 }
@@ -690,8 +698,9 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToScreen(CefPoint& point) {
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointFromScreen(CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
-  if (!view_util::ConvertPointFromScreen(root_view(), &gfx_point, false))
+  if (!view_util::ConvertPointFromScreen(root_view(), &gfx_point, false)) {
     return false;
+  }
   point = CefPoint(gfx_point.x(), gfx_point.y());
   return true;
 }
@@ -699,8 +708,9 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointFromScreen(CefPoint& point) {
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToWindow(CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
-  if (!view_util::ConvertPointToWindow(root_view(), &gfx_point))
+  if (!view_util::ConvertPointToWindow(root_view(), &gfx_point)) {
     return false;
+  }
   point = CefPoint(gfx_point.x(), gfx_point.y());
   return true;
 }
@@ -708,8 +718,9 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToWindow(CefPoint& point) {
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointFromWindow(CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
-  if (!view_util::ConvertPointFromWindow(root_view(), &gfx_point))
+  if (!view_util::ConvertPointFromWindow(root_view(), &gfx_point)) {
     return false;
+  }
   point = CefPoint(gfx_point.x(), gfx_point.y());
   return true;
 }
@@ -718,11 +729,13 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToView(
     CefRefPtr<CefView> view,
     CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (!root_view()->GetWidget())
+  if (!root_view()->GetWidget()) {
     return false;
+  }
   views::View* target_view = view_util::GetFor(view);
-  if (!target_view || target_view->GetWidget() != root_view()->GetWidget())
+  if (!target_view || target_view->GetWidget() != root_view()->GetWidget()) {
     return false;
+  }
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
   views::View::ConvertPointToTarget(root_view(), target_view, &gfx_point);
   point = CefPoint(gfx_point.x(), gfx_point.y());
@@ -733,11 +746,13 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointFromView(
     CefRefPtr<CefView> view,
     CefPoint& point) {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (!root_view()->GetWidget())
+  if (!root_view()->GetWidget()) {
     return false;
+  }
   views::View* target_view = view_util::GetFor(view);
-  if (!target_view || target_view->GetWidget() != root_view()->GetWidget())
+  if (!target_view || target_view->GetWidget() != root_view()->GetWidget()) {
     return false;
+  }
   gfx::Point gfx_point = gfx::Point(point.x, point.y);
   views::View::ConvertPointToTarget(target_view, root_view(), &gfx_point);
   point = CefPoint(gfx_point.x(), gfx_point.y());

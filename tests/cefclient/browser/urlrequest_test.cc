@@ -37,8 +37,9 @@ class RequestClient : public CefURLRequestClient {
 
   void Detach() {
     CEF_REQUIRE_UI_THREAD();
-    if (!callback_.is_null())
+    if (!callback_.is_null()) {
       callback_.Reset();
+    }
   }
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
@@ -98,8 +99,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (!test_runner::IsTestURL(url, kTestUrlPath))
+    if (!test_runner::IsTestURL(url, kTestUrlPath)) {
       return false;
+    }
 
     const std::string& message_name = request;
     if (message_name.find(kTestMessageName) == 0) {
@@ -160,10 +162,11 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                          const std::string& download_data) {
     CEF_REQUIRE_UI_THREAD();
 
-    if (error_code == ERR_NONE)
+    if (error_code == ERR_NONE) {
       callback_->Success(download_data);
-    else
+    } else {
       callback_->Failure(error_code, test_runner::GetErrorString(error_code));
+    }
 
     callback_ = nullptr;
     urlrequest_ = nullptr;

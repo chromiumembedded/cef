@@ -52,8 +52,9 @@ class ObserverRegistration : public CefRegistration {
     }
 
     registration->Initialize();
-    if (!callback.is_null())
+    if (!callback.is_null()) {
       std::move(callback).Run();
+    }
   }
 
  private:

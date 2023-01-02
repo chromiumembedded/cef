@@ -46,12 +46,14 @@ void GetCompositionSelectionRange(HIMC imc,
     ::ImmGetCompositionString(imc, GCS_COMPATTR, &attribute_data[0],
                               attribute_size);
     for (start = 0; start < attribute_size; ++start) {
-      if (IsSelectionAttribute(attribute_data[start]))
+      if (IsSelectionAttribute(attribute_data[start])) {
         break;
+      }
     }
     for (end = start; end < attribute_size; ++end) {
-      if (!IsSelectionAttribute(attribute_data[end]))
+      if (!IsSelectionAttribute(attribute_data[end])) {
         break;
+      }
     }
 
     *target_start = start;
@@ -133,8 +135,9 @@ void OsrImeHandlerWin::CreateImeWindow() {
   if (PRIMARYLANGID(input_language_id_) == LANG_CHINESE ||
       PRIMARYLANGID(input_language_id_) == LANG_JAPANESE) {
     if (!system_caret_) {
-      if (::CreateCaret(hwnd_, nullptr, 1, 1))
+      if (::CreateCaret(hwnd_, nullptr, 1, 1)) {
         system_caret_ = true;
+      }
     }
   }
 }
@@ -149,24 +152,28 @@ void OsrImeHandlerWin::DestroyImeWindow() {
 
 void OsrImeHandlerWin::MoveImeWindow() {
   // Does nothing when the target window has no input focus.
-  if (GetFocus() != hwnd_)
+  if (GetFocus() != hwnd_) {
     return;
+  }
 
   CefRect rc = ime_rect_;
   int location = cursor_index_;
 
   // If location is not specified fall back to the composition range start.
-  if (location == -1)
+  if (location == -1) {
     location = composition_range_.from;
+  }
 
   // Offset location by the composition range start if required.
-  if (location >= composition_range_.from)
+  if (location >= composition_range_.from) {
     location -= composition_range_.from;
+  }
 
-  if (location < static_cast<int>(composition_bounds_.size()))
+  if (location < static_cast<int>(composition_bounds_.size())) {
     rc = composition_bounds_[location];
-  else
+  } else {
     return;
+  }
 
   HIMC imc = ::ImmGetContext(hwnd_);
   if (imc) {
@@ -251,8 +258,9 @@ void OsrImeHandlerWin::GetCompositionInfo(
   // Find out the range selected by the user.
   int target_start = length;
   int target_end = length;
-  if (lparam & GCS_COMPATTR)
+  if (lparam & GCS_COMPATTR) {
     GetCompositionSelectionRange(imc, &target_start, &target_end);
+  }
 
   // Retrieve the selection range information. If CS_NOMOVECARET is specified
   // it means the cursor should not be moved and we therefore place the caret at
@@ -271,8 +279,9 @@ void OsrImeHandlerWin::GetCompositionInfo(
   }
 
   // Retrieve the clause segmentations and convert them to underlines.
-  if (lparam & GCS_COMPCLAUSE)
+  if (lparam & GCS_COMPCLAUSE) {
     GetCompositionUnderlines(imc, target_start, target_end, underlines);
+  }
 
   // Set default underlines in case there is no clause information.
   if (!underlines.size()) {
@@ -304,11 +313,13 @@ bool OsrImeHandlerWin::GetString(HIMC imc,
                                  WPARAM lparam,
                                  int type,
                                  CefString& result) {
-  if (!(lparam & type))
+  if (!(lparam & type)) {
     return false;
+  }
   LONG string_size = ::ImmGetCompositionString(imc, type, nullptr, 0);
-  if (string_size <= 0)
+  if (string_size <= 0) {
     return false;
+  }
 
   // For trailing nullptr - ImmGetCompositionString excludes that.
   string_size += sizeof(WCHAR);

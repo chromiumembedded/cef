@@ -72,8 +72,9 @@ void CefIOThreadState::RegisterSchemeHandlerFactory(
   } else {
     // Remove the existing factory, if any.
     auto it = scheme_handler_factory_map_.find(key);
-    if (it != scheme_handler_factory_map_.end())
+    if (it != scheme_handler_factory_map_.end()) {
       scheme_handler_factory_map_.erase(it);
+    }
   }
 }
 
@@ -90,8 +91,9 @@ CefRefPtr<CefSchemeHandlerFactory> CefIOThreadState::GetSchemeHandlerFactory(
     const GURL& url) {
   CEF_REQUIRE_IOT();
 
-  if (scheme_handler_factory_map_.empty())
+  if (scheme_handler_factory_map_.empty()) {
     return nullptr;
+  }
 
   const std::string& scheme_lower = url.scheme();
   const std::string& domain_lower =
@@ -104,15 +106,17 @@ CefRefPtr<CefSchemeHandlerFactory> CefIOThreadState::GetSchemeHandlerFactory(
     // Try for a match with hostname first.
     const auto it = scheme_handler_factory_map_.find(
         std::make_pair(scheme_lower, domain_lower));
-    if (it != scheme_handler_factory_map_.end())
+    if (it != scheme_handler_factory_map_.end()) {
       return it->second;
+    }
   }
 
   // Try for a match with no specified hostname.
   const auto it = scheme_handler_factory_map_.find(
       std::make_pair(scheme_lower, std::string()));
-  if (it != scheme_handler_factory_map_.end())
+  if (it != scheme_handler_factory_map_.end()) {
     return it->second;
+  }
 
   return nullptr;
 }

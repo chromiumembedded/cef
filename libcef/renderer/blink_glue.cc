@@ -49,20 +49,23 @@ namespace blink_glue {
 const int64_t kInvalidFrameId = -1;
 
 bool CanGoBack(blink::WebView* view) {
-  if (!view)
+  if (!view) {
     return false;
+  }
   return view->HistoryBackListCount() > 0;
 }
 
 bool CanGoForward(blink::WebView* view) {
-  if (!view)
+  if (!view) {
     return false;
+  }
   return view->HistoryForwardListCount() > 0;
 }
 
 void GoBack(blink::WebView* view) {
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebFrame* main_frame = view->MainFrame();
   if (main_frame && main_frame->IsWebLocalFrame()) {
@@ -76,8 +79,9 @@ void GoBack(blink::WebView* view) {
 }
 
 void GoForward(blink::WebView* view) {
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebFrame* main_frame = view->MainFrame();
   if (main_frame && main_frame->IsWebLocalFrame()) {
@@ -102,8 +106,9 @@ blink::WebString DumpDocumentText(blink::WebLocalFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
   blink::WebElement document_element = frame->GetDocument().DocumentElement();
-  if (document_element.IsNull())
+  if (document_element.IsNull()) {
     return blink::WebString();
+  }
 
   blink::Element* web_element = document_element.Unwrap<blink::Element>();
   return blink::WebString(web_element->innerText());
@@ -188,12 +193,14 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     int start_line,
     v8::Local<v8::Context> context,
     v8::TryCatch& tryCatch) {
-  if (start_line < 1)
+  if (start_line < 1) {
     start_line = 1;
+  }
 
   blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
-  if (!frame)
+  if (!frame) {
     return v8::Local<v8::Value>();
+  }
 
   auto* script = blink::ClassicScript::Create(
       source, blink::KURL(source_url), blink::KURL(source_url),

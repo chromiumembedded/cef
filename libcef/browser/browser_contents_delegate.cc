@@ -130,8 +130,9 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
     if (auto handler = c->GetRequestHandler()) {
       // May return nullptr for omnibox navigations.
       auto frame = browser()->GetFrame(params.frame_tree_node_id);
-      if (!frame)
+      if (!frame) {
         frame = browser()->GetMainFrame();
+      }
       cancel = handler->OnOpenURLFromTab(
           browser(), frame, params.url.spec(),
           static_cast<cef_window_open_disposition_t>(params.disposition),
@@ -283,8 +284,9 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
-  if (event.skip_in_browser)
+  if (event.skip_in_browser) {
     return false;
+  }
 
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
@@ -368,14 +370,15 @@ void CefBrowserContentsDelegate::RenderViewReady() {
 void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     base::TerminationStatus status) {
   cef_termination_status_t ts = TS_ABNORMAL_TERMINATION;
-  if (status == base::TERMINATION_STATUS_PROCESS_WAS_KILLED)
+  if (status == base::TERMINATION_STATUS_PROCESS_WAS_KILLED) {
     ts = TS_PROCESS_WAS_KILLED;
-  else if (status == base::TERMINATION_STATUS_PROCESS_CRASHED)
+  } else if (status == base::TERMINATION_STATUS_PROCESS_CRASHED) {
     ts = TS_PROCESS_CRASHED;
-  else if (status == base::TERMINATION_STATUS_OOM)
+  } else if (status == base::TERMINATION_STATUS_OOM) {
     ts = TS_PROCESS_OOM;
-  else if (status != base::TERMINATION_STATUS_ABNORMAL_TERMINATION)
+  } else if (status != base::TERMINATION_STATUS_ABNORMAL_TERMINATION) {
     return;
+  }
 
   if (auto c = client()) {
     if (auto handler = c->GetRequestHandler()) {
@@ -389,14 +392,16 @@ void CefBrowserContentsDelegate::OnFrameFocused(
     content::RenderFrameHost* render_frame_host) {
   CefRefPtr<CefFrameHostImpl> frame = static_cast<CefFrameHostImpl*>(
       browser_info_->GetFrameForHost(render_frame_host).get());
-  if (!frame || frame->IsFocused())
+  if (!frame || frame->IsFocused()) {
     return;
+  }
 
   CefRefPtr<CefFrameHostImpl> previous_frame = focused_frame_;
-  if (frame->IsMain())
+  if (frame->IsMain()) {
     focused_frame_ = nullptr;
-  else
+  } else {
     focused_frame_ = frame;
+  }
 
   if (!previous_frame) {
     // The main frame is focused by default.
@@ -449,8 +454,9 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
 
   // Skip calls where the navigation has not yet committed and there is no
   // error code. For example, when creating a browser without loading a URL.
-  if (!navigation_handle->HasCommitted() && error_code == net::OK)
+  if (!navigation_handle->HasCommitted() && error_code == net::OK) {
     return;
+  }
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
   const auto global_id = frame_util::GetGlobalId(navigation_handle);
@@ -532,10 +538,11 @@ void CefBrowserContentsDelegate::DidFinishLoad(
 void CefBrowserContentsDelegate::TitleWasSet(content::NavigationEntry* entry) {
   // |entry| may be NULL if a popup is created via window.open and never
   // navigated.
-  if (entry)
+  if (entry) {
     OnTitleChange(entry->GetTitle());
-  else if (web_contents())
+  } else if (web_contents()) {
     OnTitleChange(web_contents()->GetTitle());
+  }
 }
 
 void CefBrowserContentsDelegate::DidUpdateFaviconURL(
@@ -594,8 +601,9 @@ void CefBrowserContentsDelegate::Observe(
 bool CefBrowserContentsDelegate::OnSetFocus(cef_focus_source_t source) {
   // SetFocus() might be called while inside the OnSetFocus() callback. If
   // so, don't re-enter the callback.
-  if (is_in_onsetfocus_)
+  if (is_in_onsetfocus_) {
     return true;
+  }
 
   if (auto c = client()) {
     if (auto handler = c->GetFocusHandler()) {
@@ -624,8 +632,9 @@ CefRefPtr<CefBrowser> CefBrowserContentsDelegate::browser() const {
 CefBrowserPlatformDelegate* CefBrowserContentsDelegate::platform_delegate()
     const {
   auto browser = browser_info_->browser();
-  if (browser)
+  if (browser) {
     return browser->platform_delegate();
+  }
   return nullptr;
 }
 
@@ -686,8 +695,9 @@ void CefBrowserContentsDelegate::OnTitleChange(const std::u16string& title) {
 }
 
 void CefBrowserContentsDelegate::OnFullscreenModeChange(bool fullscreen) {
-  if (fullscreen == is_fullscreen_)
+  if (fullscreen == is_fullscreen_) {
     return;
+  }
 
   is_fullscreen_ = fullscreen;
   OnStateChanged(State::kFullscreen);

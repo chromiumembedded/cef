@@ -134,11 +134,13 @@ void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     return;
   }
 
-  if (contents_delegate_->OnSetFocus(source))
+  if (contents_delegate_->OnSetFocus(source)) {
     return;
+  }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SetFocus(true);
+  }
 
   if (browser_) {
     const int tab_index = GetCurrentTabIndex();
@@ -164,8 +166,9 @@ CefWindowHandle ChromeBrowserHostImpl::GetWindowHandle() {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Always return the most up-to-date window handle for a views-hosted
     // browser since it may change if the view is re-parented.
-    if (platform_delegate_)
+    if (platform_delegate_) {
       return platform_delegate_->GetHostWindowHandle();
+    }
   }
   return host_window_handle_;
 }
@@ -337,8 +340,9 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
 
   if (browser_) {
     GURL gurl = params.url;
-    if (!url_util::FixupGURL(gurl))
+    if (!url_util::FixupGURL(gurl)) {
       return false;
+    }
 
     // This is generally equivalent to calling Browser::OpenURL, except:
     // 1. It doesn't trigger a call to CefRequestHandler::OnOpenURLFromTab, and
@@ -354,8 +358,9 @@ bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
     nav_params.source_contents = GetWebContents();
 
     nav_params.tabstrip_add_types = AddTabTypes::ADD_NONE;
-    if (params.user_gesture)
+    if (params.user_gesture) {
       nav_params.window_action = NavigateParams::SHOW_WINDOW;
+    }
     ::Navigate(&nav_params);
     return true;
   }
@@ -498,8 +503,9 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   browser_ = browser;
   static_cast<CefBrowserPlatformDelegateChrome*>(platform_delegate_.get())
       ->set_chrome_browser(browser);
-  if (browser_)
+  if (browser_) {
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
+  }
 }
 
 void ChromeBrowserHostImpl::WindowDestroyed() {

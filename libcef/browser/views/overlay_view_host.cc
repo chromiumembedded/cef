@@ -263,16 +263,18 @@ void CefOverlayViewHost::MoveIfNecessary() {
 
 void CefOverlayViewHost::SetOverlayBounds(const gfx::Rect& bounds) {
   // Avoid re-entrancy of this method.
-  if (bounds_changing_)
+  if (bounds_changing_) {
     return;
+  }
 
   gfx::Rect new_bounds = bounds;
 
   // Keep the result inside the widget.
   new_bounds.Intersect(window_view_->bounds());
 
-  if (new_bounds == bounds_)
+  if (new_bounds == bounds_) {
     return;
+  }
 
   bounds_changing_ = true;
 
@@ -286,8 +288,9 @@ void CefOverlayViewHost::SetOverlayBounds(const gfx::Rect& bounds) {
 }
 
 void CefOverlayViewHost::SetOverlayInsets(const CefInsets& insets) {
-  if (insets == insets_)
+  if (insets == insets_) {
     return;
+  }
   insets_ = insets;
   MoveIfNecessary();
 }

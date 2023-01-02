@@ -85,8 +85,9 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
 
   std::string error;
   auto result = cef_details_.OpenTab(options, user_gesture(), &error);
-  if (!result)
+  if (!result) {
     return RespondNow(Error(error));
+  }
 
   // Return data about the newly created tab.
   return RespondNow(has_callback() ? OneArgument(base::Value(result->ToValue()))
@@ -99,8 +100,9 @@ content::WebContents* BaseAPIFunction::GetWebContents(int tab_id) {
   // Find a browser that we can access, or set |error_| and return nullptr.
   CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error_);
-  if (!browser)
+  if (!browser) {
     return nullptr;
+  }
 
   return browser->web_contents();
 }
@@ -112,8 +114,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
 
   tab_id_ = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id_);
-  if (!web_contents)
+  if (!web_contents) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   web_contents_ = web_contents;
 
@@ -124,19 +127,22 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
   // Navigate the tab to a new location if the url is different.
   if (params->update_properties.url.has_value()) {
     std::string updated_url = *params->update_properties.url;
-    if (!UpdateURL(updated_url, tab_id_, &error_))
+    if (!UpdateURL(updated_url, tab_id_, &error_)) {
       return RespondNow(Error(std::move(error_)));
+    }
   }
 
   bool active = false;
   // TODO(rafaelw): Setting |active| from js doesn't make much sense.
   // Move tab selection management up to window.
-  if (params->update_properties.selected.has_value())
+  if (params->update_properties.selected.has_value()) {
     active = *params->update_properties.selected;
+  }
 
   // The 'active' property has replaced 'selected'.
-  if (params->update_properties.active.has_value())
+  if (params->update_properties.active.has_value()) {
     active = *params->update_properties.active;
+  }
 
   if (active) {
     // TODO: Activate the tab at |tab_id_|.
@@ -168,8 +174,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
 
   if (params->update_properties.opener_tab_id.has_value()) {
     int opener_id = *params->update_properties.opener_tab_id;
-    if (opener_id == tab_id_)
+    if (opener_id == tab_id_) {
       return RespondNow(Error("Cannot set a tab's opener to itself."));
+    }
 
     // TODO: Set the opener for the tab at |tab_id_|.
     NOTIMPLEMENTED();
@@ -227,8 +234,9 @@ bool TabsUpdateFunction::UpdateURL(const std::string& url_string,
 }
 
 ExtensionFunction::ResponseValue TabsUpdateFunction::GetResult() {
-  if (!has_callback())
+  if (!has_callback()) {
     return NoArguments();
+  }
 
   return ArgumentList(tabs::Get::Results::Create(cef_details_.CreateTabObject(
       AlloyBrowserHostImpl::GetBrowserForContents(web_contents_),
@@ -241,11 +249,13 @@ ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()
 ExecuteCodeInTabFunction::~ExecuteCodeInTabFunction() {}
 
 ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
-  if (init_result_)
+  if (init_result_) {
     return init_result_.value();
+  }
 
-  if (args().size() < 2)
+  if (args().size() < 2) {
     return set_init_result(VALIDATION_FAILURE);
+  }
 
   const auto& tab_id_value = args()[0];
   // |tab_id| is optional so it's ok if it's not there.
@@ -260,18 +270,21 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
 
   // |details| are not optional.
   const base::Value& details_value = args()[1];
-  if (!details_value.is_dict())
+  if (!details_value.is_dict()) {
     return set_init_result(VALIDATION_FAILURE);
+  }
   std::unique_ptr<InjectDetails> details(new InjectDetails());
-  if (!InjectDetails::Populate(details_value, details.get()))
+  if (!InjectDetails::Populate(details_value, details.get())) {
     return set_init_result(VALIDATION_FAILURE);
+  }
 
   // Find a browser that we can access, or fail with error.
   std::string error;
   CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdFirstTime(tab_id, &error);
-  if (!browser)
+  if (!browser) {
     return set_init_result_error(error);
+  }
 
   execute_tab_id_ = browser->GetIdentifier();
   details_ = std::move(details);
@@ -293,8 +306,9 @@ bool ExecuteCodeInTabFunction::CanExecuteScriptOnPage(std::string* error) {
 
   CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
-  if (!browser)
+  if (!browser) {
     return false;
+  }
 
   int frame_id = details_->frame_id ? *details_->frame_id
                                     : ExtensionApiFrameIdMap::kTopFrameId;
@@ -348,8 +362,9 @@ ScriptExecutor* ExecuteCodeInTabFunction::GetScriptExecutor(
 
   CefRefPtr<AlloyBrowserHostImpl> browser =
       cef_details_.GetBrowserForTabIdAgain(execute_tab_id_, error);
-  if (!browser)
+  if (!browser) {
     return nullptr;
+  }
 
   return CefExtensionWebContentsObserver::FromWebContents(
              browser->web_contents())
@@ -406,12 +421,14 @@ ExtensionFunction::ResponseAction TabsSetZoomFunction::Run() {
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
-  if (!web_contents)
+  if (!web_contents) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   GURL url(web_contents->GetVisibleURL());
-  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_))
+  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_)) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   ZoomController* zoom_controller =
       ZoomController::FromWebContents(web_contents);
@@ -436,8 +453,9 @@ ExtensionFunction::ResponseAction TabsGetZoomFunction::Run() {
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
-  if (!web_contents)
+  if (!web_contents) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   double zoom_level =
       zoom::ZoomController::FromWebContents(web_contents)->GetZoomLevel();
@@ -455,13 +473,15 @@ ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
-  if (!web_contents)
+  if (!web_contents) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   GURL url(web_contents->GetVisibleURL());
   std::string error;
-  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_))
+  if (extension()->permissions_data()->IsRestrictedUrl(url, &error_)) {
     return RespondNow(Error(std::move(error_)));
+  }
 
   // "per-origin" scope is only available in "automatic" mode.
   if (params->zoom_settings.scope == tabs::ZOOM_SETTINGS_SCOPE_PER_ORIGIN &&
@@ -504,8 +524,9 @@ ExtensionFunction::ResponseAction TabsGetZoomSettingsFunction::Run() {
 
   int tab_id = params->tab_id ? *params->tab_id : -1;
   content::WebContents* web_contents = GetWebContents(tab_id);
-  if (!web_contents)
+  if (!web_contents) {
     return RespondNow(Error(std::move(error_)));
+  }
   ZoomController* zoom_controller =
       ZoomController::FromWebContents(web_contents);
 

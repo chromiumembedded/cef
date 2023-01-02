@@ -41,8 +41,9 @@ struct CefBrowserCreateParams {
     settings = that.settings;
     request_context = that.request_context;
     extra_info = that.extra_info;
-    if (that.window_info)
+    if (that.window_info) {
       MaybeSetWindowInfo(*that.window_info);
+    }
     browser_view = that.browser_view;
     return *this;
   }

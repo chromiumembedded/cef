@@ -88,8 +88,9 @@ void CefSSLHostStateDelegate::Clear(
        it != cert_policy_for_host_.end();) {
     auto next_it = std::next(it);
 
-    if (host_filter.Run(it->first))
+    if (host_filter.Run(it->first)) {
       cert_policy_for_host_.erase(it);
+    }
 
     it = next_it;
   }

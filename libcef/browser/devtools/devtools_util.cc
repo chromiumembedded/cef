@@ -25,16 +25,19 @@ bool ParseEvent(const base::StringPiece& message,
   static const char kMethodEnd[] = "\"";
   static const char kParamsStart[] = ",\"params\":";
 
-  if (!base::StartsWith(message, kMethodStart))
+  if (!base::StartsWith(message, kMethodStart)) {
     return false;
+  }
 
   const size_t method_start = sizeof(kMethodStart) - 1;
   const size_t method_end = message.find(kMethodEnd, method_start);
-  if (method_end == base::StringPiece::npos)
+  if (method_end == base::StringPiece::npos) {
     return false;
+  }
   method = message.substr(method_start, method_end - method_start);
-  if (method.empty())
+  if (method.empty()) {
     return false;
+  }
 
   size_t remainder_start = method_end + sizeof(kMethodEnd) - 1;
   if (remainder_start == message.size() - 1) {
@@ -52,8 +55,9 @@ bool ParseEvent(const base::StringPiece& message,
       return false;
     }
 
-    if (!IsValidDictionary(params, /*allow_empty=*/true))
+    if (!IsValidDictionary(params, /*allow_empty=*/true)) {
       return false;
+    }
   }
 
   return true;
@@ -72,16 +76,19 @@ bool ParseResult(const base::StringPiece& message,
   static const char kResultStart[] = "\"result\":";
   static const char kErrorStart[] = "\"error\":";
 
-  if (!base::StartsWith(message, kIdStart))
+  if (!base::StartsWith(message, kIdStart)) {
     return false;
+  }
 
   const size_t id_start = sizeof(kIdStart) - 1;
   const size_t id_end = message.find(kIdEnd, id_start);
-  if (id_end == base::StringPiece::npos)
+  if (id_end == base::StringPiece::npos) {
     return false;
+  }
   const base::StringPiece& id_str = message.substr(id_start, id_end - id_start);
-  if (id_str.empty() || !base::StringToInt(id_str, &message_id))
+  if (id_str.empty() || !base::StringToInt(id_str, &message_id)) {
     return false;
+  }
 
   size_t remainder_start = id_end + sizeof(kIdEnd) - 1;
   const base::StringPiece& remainder = message.substr(remainder_start);
@@ -102,8 +109,9 @@ bool ParseResult(const base::StringPiece& message,
     return false;
   }
 
-  if (!IsValidDictionary(result, /*allow_empty=*/true))
+  if (!IsValidDictionary(result, /*allow_empty=*/true)) {
     return false;
+  }
 
   return true;
 }
@@ -116,8 +124,9 @@ bool ProtocolParser::IsValidMessage(const base::StringPiece& message) {
 }
 
 bool ProtocolParser::Initialize(const base::StringPiece& message) {
-  if (status_ != UNINITIALIZED)
+  if (status_ != UNINITIALIZED) {
     return false;
+  }
 
   if (ParseEvent(message, method_, params_)) {
     status_ = EVENT;

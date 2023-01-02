@@ -47,8 +47,9 @@ class ChildWindowDelegate : public CefWindowDelegate {
 
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override {
     CefRect initial_bounds(window_info_.bounds);
-    if (initial_bounds.IsEmpty())
+    if (initial_bounds.IsEmpty()) {
       return CefRect(0, 0, 800, 600);
+    }
     return initial_bounds;
   }
 
@@ -174,15 +175,18 @@ CefRefPtr<CefBrowserHostBase> MaybeCreateChildBrowser(
     const CefBrowserCreateParams& create_params) {
   // If the BrowserView already exists it means that we're dealing with a popup
   // and we'll instead create the Window in OnPopupBrowserViewCreated.
-  if (create_params.browser_view)
+  if (create_params.browser_view) {
     return nullptr;
+  }
 
-  if (!create_params.window_info)
+  if (!create_params.window_info) {
     return nullptr;
+  }
 
   const auto parent_handle = GetParentHandle(*create_params.window_info);
-  if (parent_handle == gfx::kNullAcceleratedWidget)
+  if (parent_handle == gfx::kNullAcceleratedWidget) {
     return nullptr;
+  }
 
   // Create the BrowserView.
   auto browser_view = CefBrowserViewImpl::Create(

@@ -14,8 +14,9 @@ const int kDefaultFrameRate = 30;
 }  // namespace
 
 int ClampFrameRate(int frame_rate) {
-  if (frame_rate < 1)
+  if (frame_rate < 1) {
     return kDefaultFrameRate;
+  }
 
   return frame_rate;
 }

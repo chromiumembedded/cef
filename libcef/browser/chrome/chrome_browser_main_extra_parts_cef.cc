@@ -18,8 +18,9 @@ ChromeBrowserMainExtraPartsCef::~ChromeBrowserMainExtraPartsCef() = default;
 
 void ChromeBrowserMainExtraPartsCef::PostProfileInit(Profile* profile,
                                                      bool is_initial_profile) {
-  if (!is_initial_profile)
+  if (!is_initial_profile) {
     return;
+  }
 
   CefRequestContextSettings settings;
   CefContext::Get()->PopulateGlobalRequestContextSettings(&settings);

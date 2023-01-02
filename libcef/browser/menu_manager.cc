@@ -109,13 +109,15 @@ CefMenuManager::~CefMenuManager() {
 
 void CefMenuManager::Destroy() {
   CancelContextMenu();
-  if (runner_)
+  if (runner_) {
     runner_.reset(nullptr);
+  }
 }
 
 bool CefMenuManager::IsShowingContextMenu() {
-  if (!web_contents())
+  if (!web_contents()) {
     return false;
+  }
   return web_contents()->IsShowingContextMenu();
 }
 
@@ -128,8 +130,9 @@ bool CefMenuManager::CreateContextMenu(
   // the second mouse event arrives. In this case, |HandleContextMenu()| will
   // get called multiple times - if so, don't create another context menu.
   // TODO(asvitkine): Fix the renderer so that it doesn't do this.
-  if (IsShowingContextMenu())
+  if (IsShowingContextMenu()) {
     return true;
+  }
 
   params_ = params;
   model_->Clear();
@@ -188,8 +191,9 @@ bool CefMenuManager::CreateContextMenu(
     }
   }
 
-  if (custom_menu)
+  if (custom_menu) {
     return true;
+  }
 
   if (!runner_ || !runner_->RunContextMenu(browser_, model_.get(), params_)) {
     LOG(ERROR) << "Default context menu implementation is not available; "
@@ -201,10 +205,11 @@ bool CefMenuManager::CreateContextMenu(
 
 void CefMenuManager::CancelContextMenu() {
   if (IsShowingContextMenu()) {
-    if (custom_menu_callback_)
+    if (custom_menu_callback_) {
       custom_menu_callback_->Cancel();
-    else if (runner_)
+    } else if (runner_) {
       runner_->CancelContextMenu();
+    }
   }
 }
 
@@ -227,8 +232,9 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
       std::ignore = paramsPtr->Detach(nullptr);
       DCHECK(paramsPtr->HasOneRef());
 
-      if (handled)
+      if (handled) {
         return;
+      }
     }
   }
 
@@ -238,15 +244,18 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
 
 void CefMenuManager::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
   // May be called for sub-menus as well.
-  if (source.get() != model_.get())
+  if (source.get() != model_.get()) {
     return;
+  }
 
-  if (!web_contents())
+  if (!web_contents()) {
     return;
+  }
 
   // May be called multiple times.
-  if (IsShowingContextMenu())
+  if (IsShowingContextMenu()) {
     return;
+  }
 
   // Notify the host before showing the context menu.
   web_contents()->SetShowingContextMenu(true);
@@ -254,11 +263,13 @@ void CefMenuManager::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
 
 void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   // May be called for sub-menus as well.
-  if (source.get() != model_.get())
+  if (source.get() != model_.get()) {
     return;
+  }
 
-  if (!web_contents())
+  if (!web_contents()) {
     return;
+  }
 
   DCHECK(IsShowingContextMenu());
 
@@ -278,8 +289,9 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
 
 bool CefMenuManager::FormatLabel(CefRefPtr<CefMenuModelImpl> source,
                                  std::u16string& label) {
-  if (!runner_)
+  if (!runner_) {
     return false;
+  }
   return runner_->FormatLabel(label);
 }
 
@@ -287,8 +299,9 @@ void CefMenuManager::ExecuteCommandCallback(int command_id,
                                             cef_event_flags_t event_flags) {
   DCHECK(IsShowingContextMenu());
   DCHECK(custom_menu_callback_);
-  if (command_id != kInvalidCommandId)
+  if (command_id != kInvalidCommandId) {
     ExecuteCommand(model_, command_id, event_flags);
+  }
   MenuClosed(model_);
   custom_menu_callback_ = nullptr;
 }
@@ -320,20 +333,27 @@ void CefMenuManager::CreateDefaultModel() {
     model_->AddItem(MENU_ID_SELECT_ALL,
                     GetLabel(IDS_CONTENT_CONTEXT_SELECTALL));
 
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_UNDO))
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_UNDO)) {
       model_->SetEnabled(MENU_ID_UNDO, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_REDO))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_REDO)) {
       model_->SetEnabled(MENU_ID_REDO, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_CUT))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_CUT)) {
       model_->SetEnabled(MENU_ID_CUT, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_COPY))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_COPY)) {
       model_->SetEnabled(MENU_ID_COPY, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_PASTE))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_PASTE)) {
       model_->SetEnabled(MENU_ID_PASTE, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_DELETE))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_DELETE)) {
       model_->SetEnabled(MENU_ID_DELETE, false);
-    if (!(params_.edit_flags & CM_EDITFLAG_CAN_SELECT_ALL))
+    }
+    if (!(params_.edit_flags & CM_EDITFLAG_CAN_SELECT_ALL)) {
       model_->SetEnabled(MENU_ID_SELECT_ALL, false);
+    }
 
     if (!params_.misspelled_word.empty()) {
       // Always add a separator before the list of dictionary suggestions or
@@ -374,10 +394,12 @@ void CefMenuManager::CreateDefaultModel() {
     model_->AddItem(MENU_ID_VIEW_SOURCE,
                     GetLabel(IDS_CONTENT_CONTEXT_VIEWPAGESOURCE));
 
-    if (!browser_->CanGoBack())
+    if (!browser_->CanGoBack()) {
       model_->SetEnabled(MENU_ID_BACK, false);
-    if (!browser_->CanGoForward())
+    }
+    if (!browser_->CanGoForward()) {
       model_->SetEnabled(MENU_ID_FORWARD, false);
+    }
   }
 }
 
@@ -467,16 +489,18 @@ void CefMenuManager::ExecuteDefaultCommand(int command_id) {
 
 bool CefMenuManager::IsCustomContextMenuCommand(int command_id) {
   // Verify that the command ID is in the correct range.
-  if (command_id < MENU_ID_CUSTOM_FIRST || command_id > MENU_ID_CUSTOM_LAST)
+  if (command_id < MENU_ID_CUSTOM_FIRST || command_id > MENU_ID_CUSTOM_LAST) {
     return false;
+  }
 
   command_id -= MENU_ID_CUSTOM_FIRST;
 
   // Verify that the specific command ID was passed from the renderer process.
   if (!params_.custom_items.empty()) {
     for (size_t i = 0; i < params_.custom_items.size(); ++i) {
-      if (static_cast<int>(params_.custom_items[i]->action) == command_id)
+      if (static_cast<int>(params_.custom_items[i]->action) == command_id) {
         return true;
+      }
     }
   }
   return false;

@@ -29,8 +29,9 @@ bool PrintPreviewEnabled() {
   // Not currently supported on macOS.
   return false;
 #else
-  if (!PdfExtensionEnabled())
+  if (!PdfExtensionEnabled()) {
     return false;
+  }
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisablePrintPreview)) {

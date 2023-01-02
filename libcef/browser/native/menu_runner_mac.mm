@@ -45,8 +45,9 @@ bool CefMenuRunnerMac::RunContextMenu(
   // Show the menu. Blocks until the menu is dismissed.
   if (browser->IsWindowless()) {
     // Don't show the menu unless a native window handle exists.
-    if (!browser->GetWindowHandle())
+    if (!browser->GetWindowHandle()) {
       return false;
+    }
 
     const gfx::Point& screen_point = browser->GetScreenPoint(
         gfx::Point(params.x, params.y), /*want_dip_coords=*/true);
@@ -85,6 +86,7 @@ bool CefMenuRunnerMac::RunContextMenu(
 }
 
 void CefMenuRunnerMac::CancelContextMenu() {
-  if (menu_controller_.get())
+  if (menu_controller_.get()) {
     [menu_controller_ cancel];
+  }
 }

@@ -50,8 +50,9 @@ class WebContentsUserDataAdapter : public base::SupportsUserData::Data {
     WebContentsUserDataAdapter* adapter =
         static_cast<WebContentsUserDataAdapter*>(
             web_contents->GetUserData(UserDataKey()));
-    if (adapter)
+    if (adapter) {
       return adapter->browser_;
+    }
     return nullptr;
   }
 
@@ -82,8 +83,9 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForHost(
   CEF_REQUIRE_UIT();
   content::WebContents* web_contents = content::WebContents::FromRenderViewHost(
       const_cast<content::RenderViewHost*>(host));
-  if (web_contents)
+  if (web_contents) {
     return GetBrowserForContents(web_contents);
+  }
   return nullptr;
 }
 
@@ -95,8 +97,9 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForHost(
   content::WebContents* web_contents =
       content::WebContents::FromRenderFrameHost(
           const_cast<content::RenderFrameHost*>(host));
-  if (web_contents)
+  if (web_contents) {
     return GetBrowserForContents(web_contents);
+  }
   return nullptr;
 }
 
@@ -119,8 +122,9 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalId(
     // Use the non-thread-safe but potentially faster approach.
     content::RenderFrameHost* render_frame_host =
         content::RenderFrameHost::FromID(global_id);
-    if (!render_frame_host)
+    if (!render_frame_host) {
       return nullptr;
+    }
     return GetBrowserForHost(render_frame_host);
   } else {
     // Use the thread-safe approach.
@@ -150,8 +154,9 @@ CefBrowserHostBase::GetBrowserForTopLevelNativeWindow(
   for (const auto& browser_info :
        CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
     if (auto browser = browser_info->browser()) {
-      if (browser->GetTopLevelNativeWindow() == owning_window)
+      if (browser->GetTopLevelNativeWindow() == owning_window) {
         return browser;
+      }
     }
   }
 
@@ -165,8 +170,9 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetLikelyFocusedBrowser() {
   for (const auto& browser_info :
        CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
     if (auto browser = browser_info->browser()) {
-      if (browser->IsFocused())
+      if (browser->IsFocused()) {
         return browser;
+      }
     }
   }
 
@@ -240,10 +246,11 @@ void CefBrowserHostBase::SetFocus(bool focus) {
     return;
   }
 
-  if (focus)
+  if (focus) {
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
-  else if (platform_delegate_)
+  } else if (platform_delegate_) {
     platform_delegate_->SetFocus(false);
+  }
 }
 
 void CefBrowserHostBase::RunFileDialog(
@@ -262,8 +269,9 @@ void CefBrowserHostBase::RunFileDialog(
 
   if (!callback || !EnsureFileDialogManager()) {
     LOG(ERROR) << "File dialog canceled due to invalid state.";
-    if (callback)
+    if (callback) {
       callback->OnFileDialogDismissed({});
+    }
     return;
   }
 
@@ -279,20 +287,24 @@ void CefBrowserHostBase::StartDownload(const CefString& url) {
   }
 
   GURL gurl = GURL(url.ToString());
-  if (gurl.is_empty() || !gurl.is_valid())
+  if (gurl.is_empty() || !gurl.is_valid()) {
     return;
+  }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   auto browser_context = web_contents->GetBrowserContext();
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   content::DownloadManager* manager = browser_context->GetDownloadManager();
-  if (!manager)
+  if (!manager) {
     return;
+  }
 
   std::unique_ptr<download::DownloadUrlParameters> params(
       content::DownloadRequestUtils::CreateDownloadForWebContentsMainFrame(
@@ -314,16 +326,19 @@ void CefBrowserHostBase::DownloadImage(
     return;
   }
 
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   GURL gurl = GURL(image_url.ToString());
-  if (gurl.is_empty() || !gurl.is_valid())
+  if (gurl.is_empty() || !gurl.is_valid()) {
     return;
+  }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   web_contents->DownloadImage(
       gurl, is_favicon, gfx::Size(max_image_size, max_image_size),
@@ -356,8 +371,9 @@ void CefBrowserHostBase::Print() {
   }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   const bool print_preview_disabled =
       !platform_delegate_ || !platform_delegate_->IsPrintPreviewSupported();
@@ -374,16 +390,18 @@ void CefBrowserHostBase::PrintToPDF(const CefString& path,
   }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   print_util::PrintToPDF(web_contents, path, settings, callback);
 }
 
 bool CefBrowserHostBase::SendDevToolsMessage(const void* message,
                                              size_t message_size) {
-  if (!message || message_size == 0)
+  if (!message || message_size == 0) {
     return false;
+  }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
     std::string message_str(static_cast<const char*>(message), message_size);
@@ -397,8 +415,9 @@ bool CefBrowserHostBase::SendDevToolsMessage(const void* message,
     return false;
   }
 
-  if (!EnsureDevToolsManager())
+  if (!EnsureDevToolsManager()) {
     return false;
+  }
   return devtools_manager_->SendDevToolsMessage(message, message_size);
 }
 
@@ -414,15 +433,17 @@ int CefBrowserHostBase::ExecuteDevToolsMethod(
     return 0;
   }
 
-  if (!EnsureDevToolsManager())
+  if (!EnsureDevToolsManager()) {
     return 0;
+  }
   return devtools_manager_->ExecuteDevToolsMethod(message_id, method, params);
 }
 
 CefRefPtr<CefRegistration> CefBrowserHostBase::AddDevToolsMessageObserver(
     CefRefPtr<CefDevToolsMessageObserver> observer) {
-  if (!observer)
+  if (!observer) {
     return nullptr;
+  }
   auto registration = CefDevToolsManager::CreateRegistration(observer);
   InitializeDevToolsRegistrationOnUIThread(registration);
   return registration.get();
@@ -432,8 +453,9 @@ void CefBrowserHostBase::GetNavigationEntries(
     CefRefPtr<CefNavigationEntryVisitor> visitor,
     bool current_only) {
   DCHECK(visitor.get());
-  if (!visitor.get())
+  if (!visitor.get()) {
     return;
+  }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(
@@ -443,8 +465,9 @@ void CefBrowserHostBase::GetNavigationEntries(
   }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   content::NavigationController& controller = web_contents->GetController();
   const int total = controller.GetEntryCount();
@@ -476,11 +499,13 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostBase::GetVisibleNavigationEntry() {
 
   content::NavigationEntry* entry = nullptr;
   auto web_contents = GetWebContents();
-  if (web_contents)
+  if (web_contents) {
     entry = web_contents->GetController().GetVisibleEntry();
+  }
 
-  if (!entry)
+  if (!entry) {
     return nullptr;
+  }
 
   return new CefNavigationEntryImpl(entry);
 }
@@ -494,8 +519,9 @@ void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->NotifyMoveOrResizeStarted();
+  }
 #endif
 }
 
@@ -508,8 +534,9 @@ void CefBrowserHostBase::ReplaceMisspelling(const CefString& word) {
   }
 
   auto web_contents = GetWebContents();
-  if (web_contents)
+  if (web_contents) {
     web_contents->ReplaceMisspelling(word);
+  }
 }
 
 void CefBrowserHostBase::AddWordToDictionary(const CefString& word) {
@@ -521,15 +548,17 @@ void CefBrowserHostBase::AddWordToDictionary(const CefString& word) {
   }
 
   auto web_contents = GetWebContents();
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   SpellcheckService* spellcheck = nullptr;
   content::BrowserContext* browser_context = web_contents->GetBrowserContext();
   if (browser_context) {
     spellcheck = SpellcheckServiceFactory::GetForContext(browser_context);
-    if (spellcheck)
+    if (spellcheck) {
       spellcheck->GetCustomDictionary()->AddWord(word);
+    }
   }
 #if BUILDFLAG(IS_MAC)
   if (spellcheck && spellcheck::UseBrowserSpellChecker()) {
@@ -545,8 +574,9 @@ void CefBrowserHostBase::SendKeyEvent(const CefKeyEvent& event) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SendKeyEvent(event);
+  }
 }
 
 void CefBrowserHostBase::SendMouseClickEvent(const CefMouseEvent& event,
@@ -753,8 +783,9 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64 identifier) {
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(const CefString& name) {
   for (const auto& frame : browser_info_->GetAllFrames()) {
-    if (frame->GetName() == name)
+    if (frame->GetName() == name) {
       return frame;
+    }
   }
   return nullptr;
 }
@@ -764,12 +795,14 @@ size_t CefBrowserHostBase::GetFrameCount() {
 }
 
 void CefBrowserHostBase::GetFrameIdentifiers(std::vector<int64>& identifiers) {
-  if (identifiers.size() > 0)
+  if (identifiers.size() > 0) {
     identifiers.clear();
+  }
 
   const auto frames = browser_info_->GetAllFrames();
-  if (frames.empty())
+  if (frames.empty()) {
     return;
+  }
 
   identifiers.reserve(frames.size());
   for (const auto& frame : frames) {
@@ -778,12 +811,14 @@ void CefBrowserHostBase::GetFrameIdentifiers(std::vector<int64>& identifiers) {
 }
 
 void CefBrowserHostBase::GetFrameNames(std::vector<CefString>& names) {
-  if (names.size() > 0)
+  if (names.size() > 0) {
     names.clear();
+  }
 
   const auto frames = browser_info_->GetAllFrames();
-  if (frames.empty())
+  if (frames.empty()) {
     return;
+  }
 
   names.reserve(frames.size());
   for (const auto& frame : frames) {
@@ -821,8 +856,9 @@ void CefBrowserHostBase::OnWebContentsDestroyed(
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForHost(
     const content::RenderFrameHost* host) {
   CEF_REQUIRE_UIT();
-  if (!host)
+  if (!host) {
     return nullptr;
+  }
 
   return browser_info_->GetFrameForHost(host);
 }
@@ -870,8 +906,9 @@ bool CefBrowserHostBase::Navigate(const content::OpenURLParams& params) {
   auto web_contents = GetWebContents();
   if (web_contents) {
     GURL gurl = params.url;
-    if (!url_util::FixupGURL(gurl))
+    if (!url_util::FixupGURL(gurl)) {
       return false;
+    }
 
     web_contents->GetController().LoadURL(
         gurl, params.referrer, params.transition, params.extra_headers);
@@ -887,8 +924,9 @@ void CefBrowserHostBase::ViewText(const std::string& text) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->ViewText(text);
+  }
 }
 
 void CefBrowserHostBase::RunFileChooserForBrowser(
@@ -965,8 +1003,9 @@ void CefBrowserHostBase::OnBrowserDestroyed() {
     file_dialog_manager_.reset();
   }
 
-  for (auto& observer : observers_)
+  for (auto& observer : observers_) {
     observer.OnBrowserDestroyed(this);
+  }
 }
 
 int CefBrowserHostBase::browser_id() const {
@@ -991,8 +1030,9 @@ content::WebContents* CefBrowserHostBase::GetWebContents() const {
 content::BrowserContext* CefBrowserHostBase::GetBrowserContext() const {
   CEF_REQUIRE_UIT();
   auto web_contents = GetWebContents();
-  if (web_contents)
+  if (web_contents) {
     return web_contents->GetBrowserContext();
+  }
   return nullptr;
 }
 
@@ -1006,15 +1046,17 @@ CefMediaStreamRegistrar* CefBrowserHostBase::GetMediaStreamRegistrar() {
 
 views::Widget* CefBrowserHostBase::GetWindowWidget() const {
   CEF_REQUIRE_UIT();
-  if (!platform_delegate_)
+  if (!platform_delegate_) {
     return nullptr;
+  }
   return platform_delegate_->GetWindowWidget();
 }
 
 CefRefPtr<CefBrowserView> CefBrowserHostBase::GetBrowserView() const {
   CEF_REQUIRE_UIT();
-  if (is_views_hosted_ && platform_delegate_)
+  if (is_views_hosted_ && platform_delegate_) {
     return platform_delegate_->GetBrowserView();
+  }
   return nullptr;
 }
 
@@ -1055,8 +1097,9 @@ bool CefBrowserHostBase::IsVisible() const {
 
 bool CefBrowserHostBase::EnsureDevToolsManager() {
   CEF_REQUIRE_UIT();
-  if (!contents_delegate_->web_contents())
+  if (!contents_delegate_->web_contents()) {
     return false;
+  }
 
   if (!devtools_manager_) {
     devtools_manager_ = std::make_unique<CefDevToolsManager>(this);
@@ -1075,15 +1118,17 @@ void CefBrowserHostBase::InitializeDevToolsRegistrationOnUIThread(
     return;
   }
 
-  if (!EnsureDevToolsManager())
+  if (!EnsureDevToolsManager()) {
     return;
+  }
   devtools_manager_->InitializeRegistrationOnUIThread(registration);
 }
 
 bool CefBrowserHostBase::EnsureFileDialogManager() {
   CEF_REQUIRE_UIT();
-  if (!contents_delegate_->web_contents())
+  if (!contents_delegate_->web_contents()) {
     return false;
+  }
 
   if (!file_dialog_manager_) {
     file_dialog_manager_ = std::make_unique<CefFileDialogManager>(this);

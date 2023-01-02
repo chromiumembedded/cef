@@ -67,8 +67,9 @@ void CefBrowserPlatformDelegate::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   // Indicate that the view has an external parent (namely us). This setting is
   // required for proper focus handling on Windows and Linux.
-  if (HasExternalParent() && render_view_host->GetWidget()->GetView())
+  if (HasExternalParent() && render_view_host->GetWidget()->GetView()) {
     render_view_host->GetWidget()->GetView()->SetHasExternalParent(true);
+  }
 }
 
 void CefBrowserPlatformDelegate::RenderViewReady() {}
@@ -367,8 +368,9 @@ gfx::Point CefBrowserPlatformDelegate::GetDialogPosition(
 }
 
 gfx::Size CefBrowserPlatformDelegate::GetMaximumDialogSize() {
-  if (!web_contents_)
+  if (!web_contents_) {
     return gfx::Size();
+  }
 
   // The dialog should try to fit within the overlay for the web contents.
   // Note that, for things like print preview, this is just a suggested maximum.
@@ -406,33 +408,47 @@ int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
     uint32 cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
     result |= blink::WebInputEvent::kCapsLockOn;
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
     result |= blink::WebInputEvent::kShiftKey;
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
     result |= blink::WebInputEvent::kControlKey;
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
     result |= blink::WebInputEvent::kAltKey;
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= blink::WebInputEvent::kLeftButtonDown;
-  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result |= blink::WebInputEvent::kMiddleButtonDown;
-  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= blink::WebInputEvent::kRightButtonDown;
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
     result |= blink::WebInputEvent::kMetaKey;
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
+  }
+  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
     result |= blink::WebInputEvent::kNumLockOn;
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD) {
     result |= blink::WebInputEvent::kIsKeyPad;
-  if (cef_modifiers & EVENTFLAG_IS_LEFT)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_LEFT) {
     result |= blink::WebInputEvent::kIsLeft;
-  if (cef_modifiers & EVENTFLAG_IS_RIGHT)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_RIGHT) {
     result |= blink::WebInputEvent::kIsRight;
-  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN) {
     result |= blink::WebInputEvent::kAltGrKey;
-  if (cef_modifiers & EVENTFLAG_IS_REPEAT)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
     result |= blink::WebInputEvent::kIsAutoRepeat;
+  }
   return result;
 }

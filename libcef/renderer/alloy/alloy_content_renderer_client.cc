@@ -129,8 +129,9 @@ AlloyContentRendererClient* AlloyContentRendererClient::Get() {
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyContentRendererClient::GetCurrentTaskRunner() {
   // Check if currently on the render thread.
-  if (CEF_CURRENTLY_ON_RT())
+  if (CEF_CURRENTLY_ON_RT()) {
     return render_task_runner_;
+  }
   return nullptr;
 }
 
@@ -138,8 +139,9 @@ void AlloyContentRendererClient::RunSingleProcessCleanup() {
   DCHECK(content::RenderProcessHost::run_renderer_in_process());
 
   // Make sure the render thread was actually started.
-  if (!render_task_runner_.get())
+  if (!render_task_runner_.get()) {
     return;
+  }
 
   if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     RunSingleProcessCleanupOnUIThread();
@@ -160,8 +162,9 @@ void AlloyContentRendererClient::RunSingleProcessCleanup() {
       base::AutoLock lock_scope(single_process_cleanup_lock_);
       complete = single_process_cleanup_complete_;
     }
-    if (!complete)
+    if (!complete) {
       base::PlatformThread::YieldCurrentThread();
+    }
   } while (!complete);
 }
 
@@ -218,16 +221,18 @@ void AlloyContentRendererClient::RenderThreadStarted() {
     // If the command-line switch is specified then set the value that will be
     // checked in RenderThreadImpl::Init(). Otherwise, remove the application-
     // level value.
-    if (command_line->HasSwitch(switches::kDisableScrollBounce))
+    if (command_line->HasSwitch(switches::kDisableScrollBounce)) {
       value.reset(base::SysUTF8ToCFStringRef("false"));
+    }
 
     CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
     CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
   }
 #endif  // BUILDFLAG(IS_MAC)
 
-  if (extensions::ExtensionsEnabled())
+  if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RenderThreadStarted();
+  }
 }
 
 void AlloyContentRendererClient::ExposeInterfacesToBrowser(
@@ -317,8 +322,9 @@ bool AlloyContentRendererClient::IsPluginHandledExternally(
     const blink::WebElement& plugin_element,
     const GURL& original_url,
     const std::string& mime_type) {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return false;
+  }
 
   DCHECK(plugin_element.HasHTMLTagName("object") ||
          plugin_element.HasHTMLTagName("embed"));
@@ -390,8 +396,9 @@ void AlloyContentRendererClient::WillSendRequest(
     extensions_renderer_client_->WillSendRequest(frame, transition_type, url,
                                                  site_for_cookies,
                                                  initiator_origin, new_url);
-    if (!new_url->is_empty())
+    if (!new_url->is_empty()) {
       return;
+    }
   }
 }
 
@@ -417,20 +424,23 @@ void AlloyContentRendererClient::GetSupportedKeySystems(
 
 void AlloyContentRendererClient::RunScriptsAtDocumentStart(
     content::RenderFrame* render_frame) {
-  if (extensions::ExtensionsEnabled())
+  if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RunScriptsAtDocumentStart(render_frame);
+  }
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentEnd(
     content::RenderFrame* render_frame) {
-  if (extensions::ExtensionsEnabled())
+  if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RunScriptsAtDocumentEnd(render_frame);
+  }
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentIdle(
     content::RenderFrame* render_frame) {
-  if (extensions::ExtensionsEnabled())
+  if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RunScriptsAtDocumentIdle(render_frame);
+  }
 }
 
 void AlloyContentRendererClient::DevToolsAgentAttached() {
@@ -468,30 +478,34 @@ AlloyContentRendererClient::CreateURLLoaderThrottleProvider(
 void AlloyContentRendererClient::AppendContentSecurityPolicy(
     const blink::WebURL& url,
     blink::WebVector<blink::WebContentSecurityPolicyHeader>* csp) {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return;
+  }
 
   // Don't apply default CSP to PDF renderers.
   // TODO(crbug.com/1252096): Lock down the CSP once style and script are no
   // longer injected inline by `pdf::PluginResponseWriter`. That class may be a
   // better place to define such CSP, or we may continue doing so here.
-  if (pdf::IsPdfRenderer())
+  if (pdf::IsPdfRenderer()) {
     return;
+  }
 
   DCHECK(csp);
   GURL gurl(url);
   const extensions::Extension* extension =
       extensions::RendererExtensionRegistry::Get()->GetExtensionOrAppByURL(
           gurl);
-  if (!extension)
+  if (!extension) {
     return;
+  }
 
   // Append a minimum CSP to ensure the extension can't relax the default
   // applied CSP through means like Service Worker.
   const std::string* default_csp =
       extensions::CSPInfo::GetMinimumCSPToAppend(*extension, gurl.path());
-  if (!default_csp)
+  if (!default_csp) {
     return;
+  }
 
   csp->push_back({blink::WebString::FromUTF8(*default_csp),
                   network::mojom::ContentSecurityPolicyType::kEnforce,
@@ -554,8 +568,9 @@ void AlloyContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   // this task will only execute when running in multi-threaded message loop
   // mode (because otherwise the UI message loop has already stopped). Therefore
   // we need to explicitly delete the object when not running in this mode.
-  if (!CefContext::Get()->settings().multi_threaded_message_loop)
+  if (!CefContext::Get()->settings().multi_threaded_message_loop) {
     delete host;
+  }
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

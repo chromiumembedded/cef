@@ -25,15 +25,18 @@ ClientApp::ClientApp() {}
 ClientApp::ProcessType ClientApp::GetProcessType(
     CefRefPtr<CefCommandLine> command_line) {
   // The command-line flag won't be specified for the browser process.
-  if (!command_line->HasSwitch(kProcessType))
+  if (!command_line->HasSwitch(kProcessType)) {
     return BrowserProcess;
+  }
 
   const std::string& process_type = command_line->GetSwitchValue(kProcessType);
-  if (process_type == kRendererProcess)
+  if (process_type == kRendererProcess) {
     return RendererProcess;
+  }
 #if defined(OS_LINUX)
-  else if (process_type == kZygoteProcess)
+  else if (process_type == kZygoteProcess) {
     return ZygoteProcess;
+  }
 #endif
 
   return OtherProcess;

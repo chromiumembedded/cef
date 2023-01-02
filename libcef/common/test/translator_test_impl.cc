@@ -244,14 +244,16 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
   // PRIMITIVE LIST VALUES
 
   bool SetIntList(const std::vector<int>& val) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0] == TEST_INT_VAL && val[1] == TEST_INT_VAL2;
   }
 
   bool GetIntListByRef(IntList& val) override {
-    if (val.size() != GetIntListSize())
+    if (val.size() != GetIntListSize()) {
       return false;
+    }
     val.clear();
     val.push_back(TEST_INT_VAL);
     val.push_back(TEST_INT_VAL2);
@@ -273,15 +275,17 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
   // STRING LIST VALUES
 
   bool SetStringList(const std::vector<CefString>& val) override {
-    if (val.size() != 3U)
+    if (val.size() != 3U) {
       return false;
+    }
     return val[0] == TEST_STRING_VAL && val[1] == TEST_STRING_VAL2 &&
            val[2] == TEST_STRING_VAL3;
   }
 
   bool GetStringListByRef(StringList& val) override {
-    if (val.size() != 0U)
+    if (val.size() != 0U) {
       return false;
+    }
     val.push_back(TEST_STRING_VAL);
     val.push_back(TEST_STRING_VAL2);
     val.push_back(TEST_STRING_VAL3);
@@ -291,26 +295,31 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
   // STRING MAP VALUES
 
   bool SetStringMap(const StringMap& val) override {
-    if (val.size() != 3U)
+    if (val.size() != 3U) {
       return false;
+    }
 
     StringMap::const_iterator it;
 
     it = val.find(TEST_STRING_KEY);
-    if (it == val.end() || it->second != TEST_STRING_VAL)
+    if (it == val.end() || it->second != TEST_STRING_VAL) {
       return false;
+    }
     it = val.find(TEST_STRING_KEY2);
-    if (it == val.end() || it->second != TEST_STRING_VAL2)
+    if (it == val.end() || it->second != TEST_STRING_VAL2) {
       return false;
+    }
     it = val.find(TEST_STRING_KEY3);
-    if (it == val.end() || it->second != TEST_STRING_VAL3)
+    if (it == val.end() || it->second != TEST_STRING_VAL3) {
       return false;
+    }
     return true;
   }
 
   bool GetStringMapByRef(std::map<CefString, CefString>& val) override {
-    if (val.size() != 0U)
+    if (val.size() != 0U) {
       return false;
+    }
 
     val.insert(std::make_pair(TEST_STRING_KEY, TEST_STRING_VAL));
     val.insert(std::make_pair(TEST_STRING_KEY2, TEST_STRING_VAL2));
@@ -322,26 +331,31 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
 
   bool SetStringMultimap(
       const std::multimap<CefString, CefString>& val) override {
-    if (val.size() != 3U)
+    if (val.size() != 3U) {
       return false;
+    }
 
     StringMultimap::const_iterator it;
 
     it = val.find(TEST_STRING_KEY);
-    if (it == val.end() || it->second != TEST_STRING_VAL)
+    if (it == val.end() || it->second != TEST_STRING_VAL) {
       return false;
+    }
     it = val.find(TEST_STRING_KEY2);
-    if (it == val.end() || it->second != TEST_STRING_VAL2)
+    if (it == val.end() || it->second != TEST_STRING_VAL2) {
       return false;
+    }
     it = val.find(TEST_STRING_KEY3);
-    if (it == val.end() || it->second != TEST_STRING_VAL3)
+    if (it == val.end() || it->second != TEST_STRING_VAL3) {
       return false;
+    }
     return true;
   }
 
   bool GetStringMultimapByRef(StringMultimap& val) override {
-    if (val.size() != 0U)
+    if (val.size() != 0U) {
       return false;
+    }
 
     val.insert(std::make_pair(TEST_STRING_KEY, TEST_STRING_VAL));
     val.insert(std::make_pair(TEST_STRING_KEY2, TEST_STRING_VAL2));
@@ -364,15 +378,17 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
   // STRUCT LIST VALUES
 
   bool SetPointList(const std::vector<CefPoint>& val) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0].x == TEST_X_VAL && val[0].y == TEST_Y_VAL &&
            val[1].x == TEST_X_VAL2 && val[1].y == TEST_Y_VAL2;
   }
 
   bool GetPointListByRef(PointList& val) override {
-    if (val.size() != GetPointListSize())
+    if (val.size() != GetPointListSize()) {
       return false;
+    }
     val.clear();
     val.push_back(CefPoint(TEST_X_VAL, TEST_Y_VAL));
     val.push_back(CefPoint(TEST_X_VAL2, TEST_Y_VAL2));
@@ -413,16 +429,18 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       const std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary>>& val,
       int val1,
       int val2) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
   bool GetRefPtrLibraryListByRef(RefPtrLibraryList& val,
                                  int val1,
                                  int val2) override {
-    if (val.size() != GetRefPtrLibraryListSize())
+    if (val.size() != GetRefPtrLibraryListSize()) {
       return false;
+    }
     val.clear();
     val.push_back(new CefTranslatorTestRefPtrLibraryChildImpl(val1, 0));
     val.push_back(new CefTranslatorTestRefPtrLibraryImpl(val2));
@@ -458,8 +476,9 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       const std::vector<CefRefPtr<CefTranslatorTestRefPtrClient>>& val,
       int val1,
       int val2) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
@@ -467,8 +486,9 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       RefPtrClientList& val,
       CefRefPtr<CefTranslatorTestRefPtrClient> val1,
       CefRefPtr<CefTranslatorTestRefPtrClient> val2) override {
-    if (val.size() != GetRefPtrClientListSize())
+    if (val.size() != GetRefPtrClientListSize()) {
       return false;
+    }
     val.clear();
     val.push_back(val1);
     val.push_back(val2);
@@ -542,8 +562,9 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       const std::vector<CefRawPtr<CefTranslatorTestScopedLibrary>>& val,
       int val1,
       int val2) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
@@ -564,8 +585,9 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       const std::vector<CefRawPtr<CefTranslatorTestScopedClient>>& val,
       int val1,
       int val2) override {
-    if (val.size() != 2U)
+    if (val.size() != 2U) {
       return false;
+    }
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 

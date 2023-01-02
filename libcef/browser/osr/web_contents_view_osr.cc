@@ -38,8 +38,9 @@ void CefWebContentsViewOSR::RenderViewCreated() {
     auto host = web_contents_->GetRenderViewHost();
     CefRenderWidgetHostViewOSR* view =
         static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
-    if (view)
+    if (view) {
       view->InstallTransparency();
+    }
   }
 }
 
@@ -74,8 +75,9 @@ void CefWebContentsViewOSR::GotFocus(
   if (web_contents_) {
     content::WebContentsImpl* web_contents_impl =
         static_cast<content::WebContentsImpl*>(web_contents_);
-    if (web_contents_impl)
+    if (web_contents_impl) {
       web_contents_impl->NotifyWebContentsFocused(render_widget_host);
+    }
   }
 }
 
@@ -84,14 +86,16 @@ void CefWebContentsViewOSR::LostFocus(
   if (web_contents_) {
     content::WebContentsImpl* web_contents_impl =
         static_cast<content::WebContentsImpl*>(web_contents_);
-    if (web_contents_impl)
+    if (web_contents_impl) {
       web_contents_impl->NotifyWebContentsLostFocus(render_widget_host);
+    }
   }
 }
 
 void CefWebContentsViewOSR::TakeFocus(bool reverse) {
-  if (web_contents_->GetDelegate())
+  if (web_contents_->GetDelegate()) {
     web_contents_->GetDelegate()->TakeFocus(web_contents_, reverse);
+  }
 }
 
 void CefWebContentsViewOSR::FullscreenStateChanged(bool is_fullscreen) {}
@@ -188,8 +192,9 @@ void CefWebContentsViewOSR::StartDragging(
 void CefWebContentsViewOSR::UpdateDragCursor(
     ui::mojom::DragOperation operation) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     browser->UpdateDragCursor(operation);
+  }
 }
 
 CefRenderWidgetHostViewOSR* CefWebContentsViewOSR::GetView() const {
@@ -202,8 +207,9 @@ CefRenderWidgetHostViewOSR* CefWebContentsViewOSR::GetView() const {
 
 AlloyBrowserHostImpl* CefWebContentsViewOSR::GetBrowser() const {
   CefRenderWidgetHostViewOSR* view = GetView();
-  if (view)
+  if (view) {
     return view->browser_impl().get();
+  }
   return nullptr;
 }
 

@@ -81,10 +81,11 @@ class DialogTestHandler : public TestHandler {
   }
 
   void ExecuteCallback(CefRefPtr<CefFileDialogCallback> callback) {
-    if (config_.callback_cancel)
+    if (config_.callback_cancel) {
       callback->Cancel();
-    else
+    } else {
       callback->Continue(config_.callback_paths);
+    }
   }
 
   // CefDialogHandler

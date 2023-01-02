@@ -277,22 +277,25 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefDictionaryValue> extra_info) override {
-    if (!extra_info || !extra_info->HasKey(kFrameNavTestCmdKey))
+    if (!extra_info || !extra_info->HasKey(kFrameNavTestCmdKey)) {
       return;
+    }
 
     FrameNavFactoryId factory_id =
         static_cast<FrameNavFactoryId>(extra_info->GetInt(kFrameNavTestCmdKey));
     run_test_ = factory_id != FNF_ID_INVALID;
-    if (!run_test_)
+    if (!run_test_) {
       return;
+    }
 
     factory_ = FrameNavExpectationsFactoryRenderer::FromID(factory_id);
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
       CefRefPtr<ClientAppRenderer> app) override {
-    if (!run_test_)
+    if (!run_test_) {
       return nullptr;
+    }
 
     return this;
   }
@@ -324,8 +327,9 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
   // Create a new expectations object if one does not already exist for the
   // current navigation.
   void CreateExpectationsIfNecessary() {
-    if (expectations_)
+    if (expectations_) {
       return;
+    }
     expectations_ = factory_->Create(
         nav_, base::BindOnce(&FrameNavRendererTest::SendTestResults, this));
   }
@@ -424,8 +428,9 @@ class FrameNavTestHandler : public TestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
     const std::string& url = request->GetURL();
-    if (IgnoreURL(url))
+    if (IgnoreURL(url)) {
       return nullptr;
+    }
 
     EXPECT_TRUE(expectations_->GetResourceHandler(browser, frame))
         << "nav = " << nav_;
@@ -497,8 +502,9 @@ class FrameNavTestHandler : public TestHandler {
   }
 
   void DestroyTest() override {
-    if (got_destroyed_)
+    if (got_destroyed_) {
       return;
+    }
 
     got_destroyed_.yes();
 
@@ -620,8 +626,9 @@ class FrameNavExpectationsBrowserSingleNav
  private:
   void SignalCompleteIfDone(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame) {
-    if (got_renderer_done_ && got_load_end_ && got_loading_state_change_end_)
+    if (got_renderer_done_ && got_load_end_ && got_loading_state_change_end_) {
       SignalComplete(browser, frame);
+    }
   }
 
   TrackCallback got_load_start_;
@@ -690,8 +697,9 @@ class FrameNavExpectationsRendererSingleNav
  private:
   void SignalCompleteIfDone(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame) {
-    if (got_load_end_ && got_loading_state_change_end_)
+    if (got_load_end_ && got_loading_state_change_end_) {
       SignalComplete(browser, frame);
+    }
   }
 
   TrackCallback got_load_start_;
@@ -1053,8 +1061,9 @@ class FrameNavExpectationsBrowserMultiNav : public FrameNavExpectationsBrowser {
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
-    if (!isLoading)
+    if (!isLoading) {
       SignalCompleteIfDone(browser, browser->GetMainFrame());
+    }
     return true;
   }
 
@@ -1085,8 +1094,9 @@ class FrameNavExpectationsBrowserMultiNav : public FrameNavExpectationsBrowser {
  private:
   void SignalCompleteIfDone(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame) {
-    if (IsNavigationDone())
+    if (IsNavigationDone()) {
       SignalComplete(browser, frame);
+    }
   }
 
   TrackCallback got_finalize_;
@@ -1108,8 +1118,9 @@ class FrameNavExpectationsRendererMultiNav
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
-    if (!isLoading)
+    if (!isLoading) {
       SignalCompleteIfDone(browser, browser->GetMainFrame());
+    }
     return true;
   }
 
@@ -1131,8 +1142,9 @@ class FrameNavExpectationsRendererMultiNav
  private:
   void SignalCompleteIfDone(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame) {
-    if (IsNavigationDone())
+    if (IsNavigationDone()) {
       SignalComplete(browser, frame);
+    }
   }
 
   TrackCallback got_finalize_;
@@ -1393,8 +1405,9 @@ class FrameNavExpectationsBrowserTestMultiNav
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
-    if (!isLoading)
+    if (!isLoading) {
       got_load_state_change_done_.yes();
+    }
     V_DECLARE();
     if (isLoading && nav() == 0) {
       V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, nullptr, std::string()));
@@ -1438,8 +1451,9 @@ class FrameNavExpectationsBrowserTestMultiNav
                       const std::string& url) override {
     V_DECLARE();
     std::string expected_url;
-    if (nav() > 0)
+    if (nav() > 0) {
       expected_url = GetPreviousMainURL();
+    }
     V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, expected_url));
     V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
@@ -1449,8 +1463,9 @@ class FrameNavExpectationsBrowserTestMultiNav
                           CefRefPtr<CefFrame> frame) override {
     V_DECLARE();
     std::string expected_url;
-    if (nav() > 0)
+    if (nav() > 0) {
       expected_url = GetPreviousMainURL();
+    }
     V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, expected_url));
     V_EXPECT_TRUE(parent::GetResourceHandler(browser, frame));
     V_RETURN();
@@ -1502,8 +1517,9 @@ class FrameNavExpectationsRendererTestMultiNav
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                             bool isLoading) override {
-    if (!isLoading)
+    if (!isLoading) {
       got_load_state_change_done_.yes();
+    }
     V_DECLARE();
     V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, nullptr, GetMainURL()));
     V_EXPECT_TRUE(parent::OnLoadingStateChange(browser, isLoading));
@@ -1627,8 +1643,9 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
     auto it = expected_names.find(nameStr);
     V_EXPECT_FALSE(it == expected_names.end())
         << "Unexpected name: \"" << nameStr << "\"";
-    if (it != expected_names.end())
+    if (it != expected_names.end()) {
       expected_names.erase(it);
+    }
   }
 
   for (const auto& name : expected_names) {
@@ -1744,8 +1761,9 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   for (const auto& ident : idents) {
     auto it = expected_idents.find(ident);
     V_EXPECT_FALSE(it == expected_idents.end()) << "Unexpected id: " << ident;
-    if (it != expected_idents.end())
+    if (it != expected_idents.end()) {
       expected_idents.erase(it);
+    }
   }
 
   for (const auto& ident : expected_idents) {
@@ -1999,8 +2017,9 @@ class FrameNavExpectationsRendererTestNestedIframes
 
   FrameNavExpectationsRendererTestNestedIframes(int nav, bool same_origin)
       : parent(nav) {
-    if (same_origin)
+    if (same_origin) {
       origin_ = kFrameNavOrigin0;
+    }
   }
 
   bool IsNavigationDone() const override {

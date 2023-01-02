@@ -15,8 +15,9 @@
 CefRefPtr<CefZipReader> CefZipReader::Create(
     CefRefPtr<CefStreamReader> stream) {
   CefRefPtr<CefZipReaderImpl> impl(new CefZipReaderImpl());
-  if (!impl->Initialize(stream))
+  if (!impl->Initialize(stream)) {
     return nullptr;
+  }
   return impl.get();
 }
 
@@ -89,8 +90,9 @@ CefZipReaderImpl::~CefZipReaderImpl() {
     if (!VerifyContext()) {
       // Close() is supposed to be called directly. We'll try to free the reader
       // now on the wrong thread but there's no guarantee this call won't crash.
-      if (has_fileopen_)
+      if (has_fileopen_) {
         unzCloseCurrentFile(reader_);
+      }
       unzClose(reader_);
     } else {
       Close();
@@ -117,11 +119,13 @@ bool CefZipReaderImpl::Initialize(CefRefPtr<CefStreamReader> stream) {
 }
 
 bool CefZipReaderImpl::MoveToFirstFile() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (has_fileopen_)
+  if (has_fileopen_) {
     CloseFile();
+  }
 
   has_fileinfo_ = false;
 
@@ -129,11 +133,13 @@ bool CefZipReaderImpl::MoveToFirstFile() {
 }
 
 bool CefZipReaderImpl::MoveToNextFile() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (has_fileopen_)
+  if (has_fileopen_) {
     CloseFile();
+  }
 
   has_fileinfo_ = false;
 
@@ -142,11 +148,13 @@ bool CefZipReaderImpl::MoveToNextFile() {
 
 bool CefZipReaderImpl::MoveToFile(const CefString& fileName,
                                   bool caseSensitive) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (has_fileopen_)
+  if (has_fileopen_) {
     CloseFile();
+  }
 
   has_fileinfo_ = false;
 
@@ -156,11 +164,13 @@ bool CefZipReaderImpl::MoveToFile(const CefString& fileName,
 }
 
 bool CefZipReaderImpl::Close() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (has_fileopen_)
+  if (has_fileopen_) {
     CloseFile();
+  }
 
   int result = unzClose(reader_);
   reader_ = nullptr;
@@ -168,32 +178,37 @@ bool CefZipReaderImpl::Close() {
 }
 
 CefString CefZipReaderImpl::GetFileName() {
-  if (!VerifyContext() || !GetFileInfo())
+  if (!VerifyContext() || !GetFileInfo()) {
     return CefString();
+  }
 
   return filename_;
 }
 
 int64 CefZipReaderImpl::GetFileSize() {
-  if (!VerifyContext() || !GetFileInfo())
+  if (!VerifyContext() || !GetFileInfo()) {
     return -1;
+  }
 
   return filesize_;
 }
 
 CefBaseTime CefZipReaderImpl::GetFileLastModified() {
-  if (!VerifyContext() || !GetFileInfo())
+  if (!VerifyContext() || !GetFileInfo()) {
     return CefBaseTime();
+  }
 
   return base::Time::FromTimeT(filemodified_);
 }
 
 bool CefZipReaderImpl::OpenFile(const CefString& password) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (has_fileopen_)
+  if (has_fileopen_) {
     CloseFile();
+  }
 
   bool ret;
 
@@ -204,14 +219,16 @@ bool CefZipReaderImpl::OpenFile(const CefString& password) {
     ret = (unzOpenCurrentFilePassword(reader_, passwordStr.c_str()) == UNZ_OK);
   }
 
-  if (ret)
+  if (ret) {
     has_fileopen_ = true;
+  }
   return ret;
 }
 
 bool CefZipReaderImpl::CloseFile() {
-  if (!VerifyContext() || !has_fileopen_)
+  if (!VerifyContext() || !has_fileopen_) {
     return false;
+  }
 
   has_fileopen_ = false;
   has_fileinfo_ = false;
@@ -220,29 +237,33 @@ bool CefZipReaderImpl::CloseFile() {
 }
 
 int CefZipReaderImpl::ReadFile(void* buffer, size_t bufferSize) {
-  if (!VerifyContext() || !has_fileopen_)
+  if (!VerifyContext() || !has_fileopen_) {
     return -1;
+  }
 
   return unzReadCurrentFile(reader_, buffer, bufferSize);
 }
 
 int64 CefZipReaderImpl::Tell() {
-  if (!VerifyContext() || !has_fileopen_)
+  if (!VerifyContext() || !has_fileopen_) {
     return -1;
+  }
 
   return unztell64(reader_);
 }
 
 bool CefZipReaderImpl::Eof() {
-  if (!VerifyContext() || !has_fileopen_)
+  if (!VerifyContext() || !has_fileopen_) {
     return true;
+  }
 
   return (unzeof(reader_) == 1 ? true : false);
 }
 
 bool CefZipReaderImpl::GetFileInfo() {
-  if (has_fileinfo_)
+  if (has_fileinfo_) {
     return true;
+  }
 
   char file_name[512] = {0};
   unz_file_info file_info;

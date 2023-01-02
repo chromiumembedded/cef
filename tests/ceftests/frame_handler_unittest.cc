@@ -132,8 +132,9 @@ struct FrameStatus {
       ss << ident_str_ << "(";
       for (int i = 0; i <= LOAD_END; ++i) {
         ss << GetCallbackName(i) << "=" << got_callback_[i];
-        if (i < LOAD_END)
+        if (i < LOAD_END) {
           ss << " ";
+        }
       }
       ss << ")";
       *msg += ss.str();
@@ -316,8 +317,9 @@ struct FrameStatus {
     EXPECT_GE(pending_queries_.size(), 1U);
     const std::string& expected_query = pending_queries_.front();
     EXPECT_STREQ(expected_query.c_str(), received_query.c_str());
-    if (expected_query == received_query)
+    if (expected_query == received_query) {
       pending_queries_.pop();
+    }
 
     EXPECT_LT(delivered_query_ct_, expected_query_ct_);
     delivered_query_ct_++;
@@ -359,8 +361,9 @@ struct FrameStatus {
   }
 
   bool IsExpectedCallback(int callback) const {
-    if (!is_main_ && IsMainFrameOnlyCallback(callback))
+    if (!is_main_ && IsMainFrameOnlyCallback(callback)) {
       return false;
+    }
 
     if (is_main_) {
       if ((callback == MAIN_FRAME_INITIAL_ASSIGNED ||
@@ -478,8 +481,9 @@ struct FrameStatus {
     EXPECT_TRUE(got_callback_[callback]) << GetCallbackName(callback);
     got_callback_[callback].reset();
 
-    if (expect_query)
+    if (expect_query) {
       delivered_query_ct_--;
+    }
   }
 
   const int64 frame_id_;
@@ -697,15 +701,17 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
 
   virtual bool AllQueriesDelivered(std::string* msg = nullptr) const {
     EXPECT_UI_THREAD();
-    if (pending_main_frame_)
+    if (pending_main_frame_) {
       return false;
+    }
     return current_main_frame_->AllQueriesDelivered(msg);
   }
 
   virtual bool AllFramesLoaded(std::string* msg = nullptr) const {
     EXPECT_UI_THREAD();
-    if (pending_main_frame_)
+    if (pending_main_frame_) {
       return false;
+    }
     return current_main_frame_->IsLoaded(msg);
   }
 
@@ -984,13 +990,15 @@ class FrameStatusMap {
   }
 
   bool AllFramesDetached() const {
-    if (size() != expected_frame_ct_)
+    if (size() != expected_frame_ct_) {
       return false;
+    }
 
     Map::const_iterator it = frame_map_.begin();
     for (; it != frame_map_.end(); ++it) {
-      if (!it->second->IsDetached())
+      if (!it->second->IsDetached()) {
         return false;
+      }
     }
 
     return true;
@@ -1181,24 +1189,27 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   bool AllQueriesDelivered(std::string* msg = nullptr) const override {
     if (!NavigateOrderMainTestHandler::AllQueriesDelivered(msg)) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " MAIN PENDING";
+      }
 #endif
       return false;
     }
 
     if (frame_maps_.empty()) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " NO SUBS";
+      }
 #endif
       return false;
     }
 
     if (!frame_maps_.back()->AllQueriesDelivered(msg)) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " SUBS PENDING";
+      }
 #endif
       return false;
     }
@@ -1208,24 +1219,27 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   bool AllFramesLoaded(std::string* msg = nullptr) const override {
     if (!NavigateOrderMainTestHandler::AllFramesLoaded(msg)) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " MAIN PENDING";
+      }
 #endif
       return false;
     }
 
     if (frame_maps_.empty()) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " NO SUBS";
+      }
 #endif
       return false;
     }
 
     if (!frame_maps_.back()->AllFramesLoaded(msg)) {
 #if VERBOSE_DEBUGGING
-      if (msg)
+      if (msg) {
         *msg += " SUBS PENDING";
+      }
 #endif
       return false;
     }
@@ -1241,8 +1255,9 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
 
   FrameStatusMap* GetFrameMap(CefRefPtr<CefFrame> frame) const {
     for (auto& map : frame_maps_) {
-      if (map->Contains(frame))
+      if (map->Contains(frame)) {
         return map.get();
+      }
     }
     return nullptr;
   }
@@ -1266,8 +1281,9 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   }
 
   FrameStatusMap* GetOrCreateFrameMap(CefRefPtr<CefFrame> frame) {
-    if (auto map = GetFrameMap(frame))
+    if (auto map = GetFrameMap(frame)) {
       return map;
+    }
 
     if (frame_maps_.empty() ||
         frame_maps_.back()->size() >= expected_frame_ct_) {

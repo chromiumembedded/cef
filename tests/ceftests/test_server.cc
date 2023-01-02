@@ -47,8 +47,9 @@ std::string GetHost(bool https_server, bool include_port) {
 
   const auto scheme_offset = origin.find("//");
   const auto& origin_without_scheme = origin.substr(scheme_offset + 2);
-  if (include_port)
+  if (include_port) {
     return origin_without_scheme;
+  }
 
   const auto port_offset = origin_without_scheme.find(':');
   return origin_without_scheme.substr(0, port_offset);

@@ -106,8 +106,9 @@ struct CefCToCppScoped<ClassName, BaseName, StructName>::WrapperStruct {
 template <class ClassName, class BaseName, class StructName>
 CefOwnPtr<BaseName> CefCToCppScoped<ClassName, BaseName, StructName>::Wrap(
     StructName* s) {
-  if (!s)
+  if (!s) {
     return CefOwnPtr<BaseName>();
+  }
 
   // Wrap their structure with the CefCToCpp object.
   WrapperStruct* wrapperStruct = new WrapperStruct;
@@ -120,15 +121,17 @@ CefOwnPtr<BaseName> CefCToCppScoped<ClassName, BaseName, StructName>::Wrap(
 template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
     CefOwnPtr<BaseName> c) {
-  if (!c.get())
+  if (!c.get()) {
     return nullptr;
+  }
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c.get());
 
   // If the type does not match this object then we need to unwrap as the
   // derived type.
-  if (wrapperStruct->type_ != kWrapperType)
+  if (wrapperStruct->type_ != kWrapperType) {
     return UnwrapDerivedOwn(wrapperStruct->type_, std::move(c));
+  }
 
   StructName* orig_struct = wrapperStruct->struct_;
 
@@ -149,15 +152,17 @@ StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
 template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapRaw(
     CefRawPtr<BaseName> c) {
-  if (!c)
+  if (!c) {
     return nullptr;
+  }
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c);
 
   // If the type does not match this object then we need to unwrap as the
   // derived type.
-  if (wrapperStruct->type_ != kWrapperType)
+  if (wrapperStruct->type_ != kWrapperType) {
     return UnwrapDerivedRaw(wrapperStruct->type_, c);
+  }
 
   // Return the original structure.
   return wrapperStruct->struct_;
@@ -177,8 +182,9 @@ void CefCToCppScoped<ClassName, BaseName, StructName>::operator delete(
 
   // If we own the object (base->del != NULL) then notify the other side that
   // the object has been deleted.
-  if (base && base->del)
+  if (base && base->del) {
     base->del(base);
+  }
 
   // Delete the wrapper structure without executing ~CefCToCppScoped() an
   // additional time.

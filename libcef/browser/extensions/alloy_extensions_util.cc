@@ -11,8 +11,9 @@ namespace alloy {
 
 int GetTabIdForWebContents(content::WebContents* web_contents) {
   auto browser = AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (!browser)
+  if (!browser) {
     return -1;
+  }
   return browser->GetIdentifier();
 }
 

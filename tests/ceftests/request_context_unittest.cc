@@ -207,10 +207,11 @@ class PopupTestHandler : public TestHandler {
 
   PopupTestHandler(bool same_origin, Mode mode) : mode_(mode) {
     url_ = "http://tests-simple-rch1.com/nav1.html";
-    if (same_origin)
+    if (same_origin) {
       popup_url_ = "http://tests-simple-rch1.com/pop1.html";
-    else
+    } else {
       popup_url_ = "http://tests-simple-rch2.com/pop1.html";
+    }
   }
 
   void RunTest() override {
@@ -297,10 +298,11 @@ class PopupTestHandler : public TestHandler {
 
     EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
 
-    if (mode_ == MODE_WINDOW_OPEN)
+    if (mode_ == MODE_WINDOW_OPEN) {
       EXPECT_FALSE(user_gesture);
-    else
+    } else {
       EXPECT_TRUE(user_gesture);
+    }
 
     return false;
   }
@@ -308,8 +310,9 @@ class PopupTestHandler : public TestHandler {
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnBeforeClose(browser);
 
-    if (browser->IsPopup())
+    if (browser->IsPopup()) {
       FinishTest();
+    }
   }
 
  protected:
@@ -488,8 +491,9 @@ class PopupNavTestHandler : public TestHandler {
                        "'); }</script>Page</html>";
     AddResource(kPopupNavPageUrl, page, "text/html");
     AddResource(kPopupNavPopupUrl, "<html>Popup</html>", "text/html");
-    if (mode_ == NAVIGATE_AFTER_CREATION)
+    if (mode_ == NAVIGATE_AFTER_CREATION) {
       AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
+    }
 
     CefRefPtr<CefRequestContext> request_context =
         CreateTestRequestContext(rc_mode_, rc_cache_path_);
@@ -640,8 +644,9 @@ class PopupNavTestHandler : public TestHandler {
     bool destroy_test = false;
     if (mode_ == ALLOW_CLOSE_POPUP_FIRST || mode_ == NAVIGATE_AFTER_CREATION) {
       // Destroy the test after the popup browser closes.
-      if (browser->IsPopup())
+      if (browser->IsPopup()) {
         destroy_test = true;
+      }
     } else if (mode_ == ALLOW_CLOSE_POPUP_LAST ||
                mode_ == DESTROY_PARENT_BEFORE_CREATION ||
                mode_ == DESTROY_PARENT_BEFORE_CREATION_FORCE ||
@@ -650,8 +655,9 @@ class PopupNavTestHandler : public TestHandler {
                mode_ == DESTROY_PARENT_AFTER_CREATION ||
                mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE) {
       // Destroy the test after the main browser closes.
-      if (!browser->IsPopup())
+      if (!browser->IsPopup()) {
         destroy_test = true;
+      }
     }
 
     if (destroy_test) {
@@ -836,12 +842,13 @@ class MethodTestHandler : public TestHandler {
         browser->GetHost()->GetRequestContext();
     CefRefPtr<CompletionCallback> callback =
         new CompletionCallback(this, browser);
-    if (method_ == METHOD_CLEAR_CERTIFICATE_EXCEPTIONS)
+    if (method_ == METHOD_CLEAR_CERTIFICATE_EXCEPTIONS) {
       context->ClearCertificateExceptions(callback);
-    else if (method_ == METHOD_CLOSE_ALL_CONNECTIONS)
+    } else if (method_ == METHOD_CLOSE_ALL_CONNECTIONS) {
       context->CloseAllConnections(callback);
-    else if (method_ == METHOD_RESOLVE_HOST)
+    } else if (method_ == METHOD_RESOLVE_HOST) {
       context->ResolveHost(kResolveOrigin, callback);
+    }
   }
 
   void OnCompleteCallback(CefRefPtr<CefBrowser> browser) {

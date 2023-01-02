@@ -77,8 +77,9 @@ class RequestManager {
   }
 
   void Remove(int32_t request_id) {
-    if (request_id > kInitialRequestID)
+    if (request_id > kInitialRequestID) {
       return;
+    }
 
     base::AutoLock lock_scope(lock_);
     RequestMap::iterator it = map_.find(request_id);
@@ -87,8 +88,9 @@ class RequestManager {
   }
 
   absl::optional<CefBrowserURLRequest::RequestInfo> Get(int32_t request_id) {
-    if (request_id > kInitialRequestID)
+    if (request_id > kInitialRequestID) {
       return absl::nullopt;
+    }
 
     base::AutoLock lock_scope(lock_);
     RequestMap::const_iterator it = map_.find(request_id);
@@ -143,8 +145,9 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
 
     const GURL& url = GURL(request_->GetURL().ToString());
-    if (!url.is_valid())
+    if (!url.is_valid()) {
       return false;
+    }
 
     if (!request_context_) {
       request_context_ = CefRequestContext::GetGlobalContext();
@@ -166,8 +169,9 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
 
     // The request may already be complete or canceled.
-    if (!url_request_)
+    if (!url_request_) {
       return;
+    }
 
     DCHECK_EQ(status_, UR_IO_PENDING);
     status_ = UR_CANCELED;
@@ -252,8 +256,9 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
 
     // The request may have been canceled.
-    if (!url_request_)
+    if (!url_request_) {
       return;
+    }
 
     if (!loader_factory_getter) {
       // Cancel the request immediately.
@@ -463,8 +468,9 @@ class CefBrowserURLRequest::Context
     DCHECK_EQ(status_, UR_IO_PENDING);
 
     upload_data_size_ = total;
-    if (position == total)
+    if (position == total) {
       got_upload_progress_complete_ = true;
+    }
 
     client_->OnUploadProgress(url_request_.get(), position, total);
   }
@@ -511,8 +517,9 @@ class CefBrowserURLRequest::Context
     DCHECK(CalledOnValidThread());
 
     // The request may already be complete or canceled.
-    if (!url_request_)
+    if (!url_request_) {
       return;
+    }
 
     // Status will be UR_IO_PENDING if we're called when the request is complete
     // (via SimpleURLLoaderStreamConsumer or OnHeadersOnly). We can only call
@@ -528,8 +535,9 @@ class CefBrowserURLRequest::Context
       response_was_cached_ = loader_->LoadedFromCache();
     }
 
-    if (success)
+    if (success) {
       NotifyUploadProgressIfNecessary();
+    }
 
     client_->OnRequestComplete(url_request_.get());
 
@@ -629,50 +637,58 @@ CefBrowserURLRequest::CefBrowserURLRequest(
 CefBrowserURLRequest::~CefBrowserURLRequest() {}
 
 bool CefBrowserURLRequest::Start() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
   return context_->Start();
 }
 
 CefRefPtr<CefRequest> CefBrowserURLRequest::GetRequest() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->request();
 }
 
 CefRefPtr<CefURLRequestClient> CefBrowserURLRequest::GetClient() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->client();
 }
 
 CefURLRequest::Status CefBrowserURLRequest::GetRequestStatus() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return UR_UNKNOWN;
+  }
   return context_->status();
 }
 
 CefURLRequest::ErrorCode CefBrowserURLRequest::GetRequestError() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return ERR_NONE;
+  }
   return context_->response()->GetError();
 }
 
 CefRefPtr<CefResponse> CefBrowserURLRequest::GetResponse() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->response();
 }
 
 bool CefBrowserURLRequest::ResponseWasCached() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
   return context_->response_was_cached();
 }
 
 void CefBrowserURLRequest::Cancel() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
   return context_->Cancel();
 }
 

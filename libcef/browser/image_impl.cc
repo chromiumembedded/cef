@@ -85,12 +85,14 @@ bool CefImageImpl::IsEmpty() {
 
 bool CefImageImpl::IsSame(CefRefPtr<CefImage> that) {
   CefImageImpl* that_impl = static_cast<CefImageImpl*>(that.get());
-  if (!that_impl)
+  if (!that_impl) {
     return false;
+  }
 
   // Quick check for the same object.
-  if (this == that_impl)
+  if (this == that_impl) {
     return true;
+  }
 
   base::AutoLock lock_scope(lock_);
   return image_.AsImageSkia().BackedBySameObjectAs(
@@ -108,10 +110,12 @@ bool CefImageImpl::AddBitmap(float scale_factor,
   const SkAlphaType at = GetSkAlphaType(alpha_type);
 
   // Make sure the client passed in the expected values.
-  if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType)
+  if (ct != kBGRA_8888_SkColorType && ct != kRGBA_8888_SkColorType) {
     return false;
-  if (pixel_data_size != pixel_width * pixel_height * 4U)
+  }
+  if (pixel_data_size != pixel_width * pixel_height * 4U) {
     return false;
+  }
 
   SkBitmap bitmap;
   if (!bitmap.tryAllocPixels(
@@ -142,8 +146,9 @@ bool CefImageImpl::AddJPEG(float scale_factor,
                            size_t jpeg_data_size) {
   std::unique_ptr<SkBitmap> bitmap(gfx::JPEGCodec::Decode(
       static_cast<const unsigned char*>(jpeg_data), jpeg_data_size));
-  if (!bitmap.get())
+  if (!bitmap.get()) {
     return false;
+  }
 
   return AddBitmap(scale_factor, *bitmap);
 }
@@ -179,12 +184,14 @@ bool CefImageImpl::GetRepresentationInfo(float scale_factor,
                                          int& pixel_height) {
   base::AutoLock lock_scope(lock_);
   gfx::ImageSkia image_skia = image_.AsImageSkia();
-  if (image_skia.isNull())
+  if (image_skia.isNull()) {
     return false;
+  }
 
   const gfx::ImageSkiaRep& rep = image_skia.GetRepresentation(scale_factor);
-  if (rep.is_null())
+  if (rep.is_null()) {
     return false;
+  }
 
   actual_scale_factor = rep.scale();
   pixel_width = rep.GetBitmap().width();
@@ -202,8 +209,9 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
 
   base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
-  if (!bitmap)
+  if (!bitmap) {
     return nullptr;
+  }
 
   DCHECK(bitmap->readyToDraw());
 
@@ -216,8 +224,9 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsBitmap(float scale_factor,
                                   bitmap->computeByteSize());
   } else {
     SkBitmap desired_bitmap;
-    if (!ConvertBitmap(*bitmap, &desired_bitmap, desired_ct, desired_at))
+    if (!ConvertBitmap(*bitmap, &desired_bitmap, desired_ct, desired_at)) {
       return nullptr;
+    }
     DCHECK(desired_bitmap.readyToDraw());
     return CefBinaryValue::Create(desired_bitmap.getPixels(),
                                   desired_bitmap.computeByteSize());
@@ -230,12 +239,14 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsPNG(float scale_factor,
                                                  int& pixel_height) {
   base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
-  if (!bitmap)
+  if (!bitmap) {
     return nullptr;
+  }
 
   std::vector<unsigned char> compressed;
-  if (!WritePNG(*bitmap, &compressed, with_transparency))
+  if (!WritePNG(*bitmap, &compressed, with_transparency)) {
     return nullptr;
+  }
 
   pixel_width = bitmap->width();
   pixel_height = bitmap->height();
@@ -249,12 +260,14 @@ CefRefPtr<CefBinaryValue> CefImageImpl::GetAsJPEG(float scale_factor,
                                                   int& pixel_height) {
   base::AutoLock lock_scope(lock_);
   const SkBitmap* bitmap = GetBitmap(scale_factor);
-  if (!bitmap)
+  if (!bitmap) {
     return nullptr;
+  }
 
   std::vector<unsigned char> compressed;
-  if (!WriteJPEG(*bitmap, &compressed, quality))
+  if (!WriteJPEG(*bitmap, &compressed, quality)) {
     return nullptr;
+  }
 
   pixel_width = bitmap->width();
   pixel_height = bitmap->height();
@@ -269,8 +282,9 @@ void CefImageImpl::AddBitmaps(int32_t scale_1x_size,
     int32_t min_size = std::numeric_limits<int32_t>::max();
     for (const SkBitmap& bitmap : bitmaps) {
       const int32_t size = std::max(bitmap.width(), bitmap.height());
-      if (size < min_size)
+      if (size < min_size) {
         min_size = size;
+      }
     }
     scale_1x_size = min_size;
   }
@@ -293,8 +307,9 @@ gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
 
   const SkBitmap* bitmap = GetBitmap(scale_factor);
   gfx::ImageSkia image_skia;
-  if (bitmap)
+  if (bitmap) {
     image_skia.AddRepresentation(gfx::ImageSkiaRep(*bitmap, 1.0f));
+  }
   return image_skia;
 }
 
@@ -315,8 +330,9 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
   // CHECKs in ImageSkiaRep and eventual conversion to N32 at some later point
   // in the compositing pipeline.
   SkBitmap n32_bitmap;
-  if (!skia::SkBitmapToN32OpaqueOrPremul(bitmap, &n32_bitmap))
+  if (!skia::SkBitmapToN32OpaqueOrPremul(bitmap, &n32_bitmap)) {
     return false;
+  }
 
   gfx::ImageSkiaRep skia_rep(n32_bitmap, scale_factor);
   base::AutoLock lock_scope(lock_);
@@ -331,12 +347,14 @@ bool CefImageImpl::AddBitmap(float scale_factor, const SkBitmap& bitmap) {
 const SkBitmap* CefImageImpl::GetBitmap(float scale_factor) const {
   lock_.AssertAcquired();
   gfx::ImageSkia image_skia = image_.AsImageSkia();
-  if (image_skia.isNull())
+  if (image_skia.isNull()) {
     return nullptr;
+  }
 
   const gfx::ImageSkiaRep& rep = image_skia.GetRepresentation(scale_factor);
-  if (rep.is_null())
+  if (rep.is_null()) {
     return nullptr;
+  }
 
   return &rep.GetBitmap();
 }
@@ -353,8 +371,9 @@ bool CefImageImpl::ConvertBitmap(const SkBitmap& src_bitmap,
 
   SkImageInfo target_info = SkImageInfo::Make(
       src_bitmap.width(), src_bitmap.height(), target_ct, target_at);
-  if (!target_bitmap->tryAllocPixels(target_info))
+  if (!target_bitmap->tryAllocPixels(target_info)) {
     return false;
+  }
 
   if (!src_bitmap.readPixels(target_info, target_bitmap->getPixels(),
                              target_bitmap->rowBytes(), 0, 0)) {

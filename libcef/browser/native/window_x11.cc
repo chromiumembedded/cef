@@ -46,16 +46,18 @@ bool PropertyExists(x11::Window window, x11::Atom property) {
 // Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
 bool IsWindowVisible(x11::Window window) {
   auto response = x11::Connection::Get()->GetWindowAttributes({window}).Sync();
-  if (!response || response->map_state != x11::MapState::Viewable)
+  if (!response || response->map_state != x11::MapState::Viewable) {
     return false;
+  }
 
   // Minimized windows are not visible.
   std::vector<x11::Atom> wm_states;
   if (x11::GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
                             &wm_states)) {
     x11::Atom hidden_atom = x11::GetAtom("_NET_WM_STATE_HIDDEN");
-    if (base::Contains(wm_states, hidden_atom))
+    if (base::Contains(wm_states, hidden_atom)) {
       return false;
+    }
   }
 
   // Do not check _NET_CURRENT_DESKTOP/_NET_WM_DESKTOP since some
@@ -79,8 +81,9 @@ x11::Window FindToplevelParent(x11::Window window) {
 
   do {
     auto query_tree = x11::Connection::Get()->QueryTree({window}).Sync();
-    if (!query_tree)
+    if (!query_tree) {
       break;
+    }
 
     top_level_window = window;
     if (!PropertyExists(query_tree->parent, x11::GetAtom(kNetWMPid)) ||
@@ -97,8 +100,9 @@ x11::Window FindToplevelParent(x11::Window window) {
 }  // namespace
 
 CEF_EXPORT XDisplay* cef_get_xdisplay() {
-  if (!CEF_CURRENTLY_ON(CEF_UIT))
+  if (!CEF_CURRENTLY_ON(CEF_UIT)) {
     return nullptr;
+  }
   return x11::Connection::Get()->GetXlibDisplay();
 }
 
@@ -111,8 +115,9 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
       parent_xwindow_(parent_xwindow),
       bounds_(bounds),
       weak_ptr_factory_(this) {
-  if (parent_xwindow_ == x11::Window::None)
+  if (parent_xwindow_ == x11::Window::None) {
     parent_xwindow_ = ui::GetX11RootWindow();
+  }
 
   x11::VisualId visual;
   uint8_t depth;
@@ -184,8 +189,9 @@ CefWindowX11::~CefWindowX11() {
 }
 
 void CefWindowX11::Close() {
-  if (xwindow_ == x11::Window::None)
+  if (xwindow_ == x11::Window::None) {
     return;
+  }
 
   ui::SendClientMessage(
       xwindow_, xwindow_, x11::GetAtom(kWMProtocols),
@@ -194,13 +200,15 @@ void CefWindowX11::Close() {
       x11::EventMask::NoEvent);
 
   auto host = GetHost();
-  if (host)
+  if (host) {
     host->Close();
+  }
 }
 
 void CefWindowX11::Show() {
-  if (xwindow_ == x11::Window::None)
+  if (xwindow_ == x11::Window::None) {
     return;
+  }
 
   if (!window_mapped_) {
     // Before we map the window, set size hints. Otherwise, some window managers
@@ -245,8 +253,9 @@ void CefWindowX11::Show() {
 }
 
 void CefWindowX11::Hide() {
-  if (xwindow_ == x11::Window::None)
+  if (xwindow_ == x11::Window::None) {
     return;
+  }
 
   if (window_mapped_) {
     ui::WithdrawWindow(xwindow_);
@@ -255,8 +264,9 @@ void CefWindowX11::Hide() {
 }
 
 void CefWindowX11::Focus() {
-  if (xwindow_ == x11::Window::None || !window_mapped_)
+  if (xwindow_ == x11::Window::None || !window_mapped_) {
     return;
+  }
 
   x11::Window focus_target = xwindow_;
 
@@ -277,8 +287,9 @@ void CefWindowX11::Focus() {
 }
 
 void CefWindowX11::SetBounds(const gfx::Rect& bounds) {
-  if (xwindow_ == x11::Window::None)
+  if (xwindow_ == x11::Window::None) {
     return;
+  }
 
   x11::ConfigureWindowRequest req{.window = xwindow_};
 
@@ -338,30 +349,35 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
 }
 
 void CefWindowX11::OnEvent(const x11::Event& event) {
-  if (event.window() != xwindow_)
+  if (event.window() != xwindow_) {
     return;
+  }
   ProcessXEvent(event);
 }
 
 void CefWindowX11::ContinueFocus() {
-  if (!focus_pending_)
+  if (!focus_pending_) {
     return;
-  if (browser_.get())
+  }
+  if (browser_.get()) {
     browser_->SetFocus(true);
+  }
   focus_pending_ = false;
 }
 
 bool CefWindowX11::TopLevelAlwaysOnTop() const {
   auto toplevel_window = FindToplevelParent(xwindow_);
-  if (toplevel_window == x11::Window::None)
+  if (toplevel_window == x11::Window::None) {
     return false;
+  }
 
   std::vector<x11::Atom> wm_states;
   if (x11::GetArrayProperty(toplevel_window, x11::GetAtom(kNetWMState),
                             &wm_states)) {
     x11::Atom keep_above_atom = x11::GetAtom(kNetWMStateKeepAbove);
-    if (base::Contains(wm_states, keep_above_atom))
+    if (base::Contains(wm_states, keep_above_atom)) {
       return true;
+    }
   }
   return false;
 }
@@ -434,8 +450,9 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
       // Cancel the pending focus change if some other window has gained focus
       // while waiting for the async task to run. Otherwise we can get stuck in
       // a focus change loop.
-      if (focus_pending_)
+      if (focus_pending_) {
         focus_pending_ = false;
+      }
     }
   } else if (auto* property = event.As<x11::PropertyNotifyEvent>()) {
     const auto& wm_state_atom = x11::GetAtom(kNetWMState);

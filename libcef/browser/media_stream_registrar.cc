@@ -87,10 +87,12 @@ void CefMediaStreamRegistrar::NotifyMediaStreamChange() {
   bool audio = false;
   for (const auto& media_stream : registered_streams_) {
     const auto& info = media_stream.second;
-    if (!video)
+    if (!video) {
       video = info.video;
-    if (!audio)
+    }
+    if (!audio) {
       audio = info.audio;
+    }
   }
 
   if (audio == last_notified_info_.audio &&

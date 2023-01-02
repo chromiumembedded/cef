@@ -47,8 +47,9 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
         std::vector<base::FilePath> vec;
         if (!file_paths.empty()) {
           std::vector<CefString>::const_iterator it = file_paths.begin();
-          for (; it != file_paths.end(); ++it)
+          for (; it != file_paths.end(); ++it) {
             vec.push_back(base::FilePath(*it));
+          }
         }
         std::move(callback_).Run(vec);
       }
@@ -88,8 +89,9 @@ void RunFileDialogDismissed(CefRefPtr<CefRunFileDialogCallback> callback,
                             const std::vector<base::FilePath>& file_paths) {
   std::vector<CefString> paths;
   if (file_paths.size() > 0) {
-    for (size_t i = 0; i < file_paths.size(); ++i)
+    for (size_t i = 0; i < file_paths.size(); ++i) {
       paths.push_back(file_paths[i].value());
+    }
   }
   callback->OnFileDialogDismissed(paths);
 }
@@ -298,8 +300,9 @@ void CefFileDialogManager::RunFileDialog(
     const std::vector<CefString>& accept_filters,
     CefRefPtr<CefRunFileDialogCallback> callback) {
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return;
+  }
 
   blink::mojom::FileChooserParams params;
   switch (mode) {
@@ -318,13 +321,15 @@ void CefFileDialogManager::RunFileDialog(
   }
 
   params.title = title;
-  if (!default_file_path.empty())
+  if (!default_file_path.empty()) {
     params.default_file_name = base::FilePath(default_file_path);
+  }
 
   if (!accept_filters.empty()) {
     std::vector<CefString>::const_iterator it = accept_filters.begin();
-    for (; it != accept_filters.end(); ++it)
+    for (; it != accept_filters.end(); ++it) {
       params.accept_types.push_back(*it);
+    }
   }
 
   RunFileChooser(params, base::BindOnce(RunFileDialogDismissed, callback));
@@ -493,8 +498,9 @@ CefFileDialogManager::MaybeRunDelegate(
 
       std::vector<CefString> accept_filters;
       it = params.accept_types.begin();
-      for (; it != params.accept_types.end(); ++it)
+      for (; it != params.accept_types.end(); ++it) {
         accept_filters.push_back(*it);
+      }
 
       CefRefPtr<CefFileDialogCallbackImpl> callbackImpl(
           new CefFileDialogCallbackImpl(std::move(callback)));
@@ -519,8 +525,9 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
 
   // The listener may already be gone. This can occur if the client holds a
   // RunFileChooserCallback past the call to SelectFileListenerDestroyed().
-  if (active_listeners_.find(listener) == active_listeners_.end())
+  if (active_listeners_.find(listener) == active_listeners_.end()) {
     return;
+  }
 
   active_listeners_.erase(listener);
 
@@ -545,8 +552,9 @@ void CefFileDialogManager::SelectFileDoneByListenerCallback(
   // CefSelectFileDialogListener::Destroy(). Similarly, the below call to
   // Cancel() may trigger another execution from
   // CefSelectFileDialogListener::Destroy().
-  if (!dialog_listener_)
+  if (!dialog_listener_) {
     return;
+  }
 
   DCHECK(dialog_);
   DCHECK(dialog_listener_);

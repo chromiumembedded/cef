@@ -46,8 +46,9 @@ void WriteTempFileAndView(const std::string& data) {
   CEF_REQUIRE_BLOCKING();
 
   base::FilePath tmp_file;
-  if (!base::CreateTemporaryFile(&tmp_file))
+  if (!base::CreateTemporaryFile(&tmp_file)) {
     return;
+  }
 
   // The shell command will look at the file extension to identify the correct
   // program to open.
@@ -82,8 +83,9 @@ bool HasExternalHandler(const std::string& scheme) {
 void ExecuteExternalProtocol(const GURL& url) {
   CEF_REQUIRE_BLOCKING();
 
-  if (!HasExternalHandler(url.scheme()))
+  if (!HasExternalHandler(url.scheme())) {
     return;
+  }
 
   // Quote the input scheme to be sure that the command does not have
   // parameters unexpected by the external program. This url should already
@@ -99,8 +101,9 @@ void ExecuteExternalProtocol(const GURL& url) {
   //
   // It may be possible to increase this. https://crbug.com/727909
   const size_t kMaxUrlLength = 2048;
-  if (escaped_url.length() > kMaxUrlLength)
+  if (escaped_url.length() > kMaxUrlLength) {
     return;
+  }
 
   // Specify %windir%\system32 as the CWD so that any new proc spawned does not
   // inherit this proc's CWD. Without this, uninstalls may be broken by a
@@ -239,8 +242,9 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   // It's possible for CreateWindowEx to fail if the parent window was
   // destroyed between the call to CreateBrowser and the above one.
   DCHECK(window_info_.window);
-  if (!window_info_.window)
+  if (!window_info_.window) {
     return false;
+  }
 
   host_window_created_ = true;
 
@@ -257,8 +261,9 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
       return reinterpret_cast<EnableChildWindowDpiMessagePtr>(GetProcAddress(
           GetModuleHandle(L"user32.dll"), "EnableChildWindowDpiMessage"));
     }();
-    if (enable_child_window_dpi_message_func)
+    if (enable_child_window_dpi_message_func) {
       enable_child_window_dpi_message_func(window_info_.window, TRUE);
+    }
   }
 
   DCHECK(!window_widget_);
@@ -317,8 +322,9 @@ void CefBrowserPlatformDelegateNativeWin::CloseHostWindow() {
 
 CefWindowHandle CefBrowserPlatformDelegateNativeWin::GetHostWindowHandle()
     const {
-  if (windowless_handler_)
+  if (windowless_handler_) {
     return windowless_handler_->GetParentWindowHandle();
+  }
   return window_info_.window;
 }
 
@@ -327,8 +333,9 @@ views::Widget* CefBrowserPlatformDelegateNativeWin::GetWindowWidget() const {
 }
 
 void CefBrowserPlatformDelegateNativeWin::SetFocus(bool setFocus) {
-  if (!setFocus)
+  if (!setFocus) {
     return;
+  }
 
   if (window_widget_) {
     // Give native focus to the DesktopWindowTreeHostWin ("Chrome_WidgetWin_0")
@@ -397,8 +404,9 @@ void CefBrowserPlatformDelegateNativeWin::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
   CefBrowserPlatformDelegateNativeAura::NotifyMoveOrResizeStarted();
 
-  if (!window_widget_)
+  if (!window_widget_) {
     return;
+  }
 
   // Notify DesktopWindowTreeHostWin of move events so that screen rectangle
   // information is communicated to the renderer process and popups are
@@ -444,8 +452,9 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
     MSG msg = {};
 
     msg.hwnd = GetHostWindowHandle();
-    if (!msg.hwnd)
+    if (!msg.hwnd) {
       return false;
+    }
 
     switch (event.GetType()) {
       case blink::WebInputEvent::Type::kRawKeyDown:
@@ -467,8 +476,9 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
     UINT scan_code = ::MapVirtualKeyW(event.windows_key_code, MAPVK_VK_TO_VSC);
     msg.lParam = (scan_code << 16) |  // key scan code
                  1;                   // key repeat count
-    if (event.GetModifiers() & content::NativeWebKeyboardEvent::kAltKey)
+    if (event.GetModifiers() & content::NativeWebKeyboardEvent::kAltKey) {
       msg.lParam |= (1 << 29);
+    }
 
     return !DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   }
@@ -481,8 +491,9 @@ void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
 
 CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
-  if (!event.os_event)
+  if (!event.os_event) {
     return NULL;
+  }
   return ChromeToWindowsType(
       const_cast<CHROME_MSG*>(&event.os_event->native_event()));
 }
@@ -545,8 +556,9 @@ gfx::Vector2d CefBrowserPlatformDelegateNativeWin::GetUiWheelEventOffset(
 // static
 void CefBrowserPlatformDelegateNativeWin::RegisterWindowClass() {
   static bool registered = false;
-  if (registered)
+  if (registered) {
     return;
+  }
 
   // Register the window class
   WNDCLASSEX wcex = {
@@ -651,16 +663,18 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
 
     case WM_MOVING:
     case WM_MOVE:
-      if (browser)
+      if (browser) {
         browser->NotifyMoveOrResizeStarted();
+      }
       return 0;
 
     case WM_SETFOCUS:
       // Selecting "Close window" from the task bar menu may send a focus
       // notification even though the window is currently disabled (e.g. while
       // a modal JS dialog is displayed).
-      if (browser && ::IsWindowEnabled(hwnd))
+      if (browser && ::IsWindowEnabled(hwnd)) {
         browser->SetFocus(true);
+      }
       return 0;
 
     case WM_ERASEBKGND:

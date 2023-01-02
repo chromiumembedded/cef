@@ -72,8 +72,9 @@ bool IsProcessPerMonitorDpiAware() {
       if (func_ptr) {
         PROCESS_DPI_AWARENESS awareness;
         if (SUCCEEDED(func_ptr(nullptr, &awareness)) &&
-            awareness == PROCESS_PER_MONITOR_DPI_AWARE)
+            awareness == PROCESS_PER_MONITOR_DPI_AWARE) {
           per_monitor_dpi_aware = PerMonitorDpiAware::PER_MONITOR_DPI_AWARE;
+        }
       }
     }
   }
@@ -88,8 +89,9 @@ float GetWindowScaleFactor(HWND hwnd) {
     typedef UINT(WINAPI * GetDpiForWindowPtr)(HWND);
     static GetDpiForWindowPtr func_ptr = reinterpret_cast<GetDpiForWindowPtr>(
         GetProcAddress(GetModuleHandle(L"user32.dll"), "GetDpiForWindow"));
-    if (func_ptr)
+    if (func_ptr) {
       return static_cast<float>(func_ptr(hwnd)) / DPI_1X;
+    }
   }
 
   return client::GetDeviceScaleFactor();
@@ -193,14 +195,18 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   with_osr_ = with_osr;
   is_popup_ = true;
 
-  if (popupFeatures.xSet)
+  if (popupFeatures.xSet) {
     initial_bounds_.x = popupFeatures.x;
-  if (popupFeatures.ySet)
+  }
+  if (popupFeatures.ySet) {
     initial_bounds_.y = popupFeatures.y;
-  if (popupFeatures.widthSet)
+  }
+  if (popupFeatures.widthSet) {
     initial_bounds_.width = popupFeatures.width;
-  if (popupFeatures.heightSet)
+  }
+  if (popupFeatures.heightSet) {
     initial_bounds_.height = popupFeatures.height;
+  }
 
   CreateBrowserWindow(std::string());
 
@@ -216,8 +222,9 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
 void RootWindowWin::Show(ShowMode mode) {
   REQUIRE_MAIN_THREAD();
 
-  if (!hwnd_)
+  if (!hwnd_) {
     return;
+  }
 
   int nCmdShow = SW_SHOWNORMAL;
   switch (mode) {
@@ -235,15 +242,17 @@ void RootWindowWin::Show(ShowMode mode) {
   }
 
   ShowWindow(hwnd_, nCmdShow);
-  if (mode != ShowMinimized)
+  if (mode != ShowMinimized) {
     UpdateWindow(hwnd_);
+  }
 }
 
 void RootWindowWin::Hide() {
   REQUIRE_MAIN_THREAD();
 
-  if (hwnd_)
+  if (hwnd_) {
     ShowWindow(hwnd_, SW_HIDE);
+  }
 }
 
 void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
@@ -259,25 +268,28 @@ void RootWindowWin::Close(bool force) {
   REQUIRE_MAIN_THREAD();
 
   if (hwnd_) {
-    if (force)
+    if (force) {
       DestroyWindow(hwnd_);
-    else
+    } else {
       PostMessage(hwnd_, WM_CLOSE, 0, 0);
+    }
   }
 }
 
 void RootWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
+  }
 }
 
 float RootWindowWin::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
+  }
 
   NOTREACHED();
   return 0.0f;
@@ -286,8 +298,9 @@ float RootWindowWin::GetDeviceScaleFactor() const {
 CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_) {
     return browser_window_->GetBrowser();
+  }
   return nullptr;
 }
 
@@ -393,8 +406,9 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
     static EnableChildWindowDpiMessagePtr func_ptr =
         reinterpret_cast<EnableChildWindowDpiMessagePtr>(GetProcAddress(
             GetModuleHandle(L"user32.dll"), "EnableChildWindowDpiMessage"));
-    if (func_ptr)
+    if (func_ptr) {
       func_ptr(hwnd_, TRUE);
+    }
   }
 
   if (!initially_hidden) {
@@ -418,8 +432,9 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
                                       HBRUSH background_brush) {
   // Only register the class one time.
   static bool class_registered = false;
-  if (class_registered)
+  if (class_registered) {
     return;
+  }
   class_registered = true;
 
   WNDCLASSEX wcex;
@@ -516,8 +531,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
   RootWindowWin* self = nullptr;
   if (message != WM_NCCREATE) {
     self = GetUserDataPtr<RootWindowWin*>(hWnd);
-    if (!self)
+    if (!self) {
       return DefWindowProc(hWnd, message, wParam, lParam);
+    }
     DCHECK_EQ(hWnd, self->hwnd_);
   }
 
@@ -532,8 +548,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
   // Callback for the main window
   switch (message) {
     case WM_COMMAND:
-      if (self->OnCommand(LOWORD(wParam)))
+      if (self->OnCommand(LOWORD(wParam))) {
         return 0;
+      }
       break;
 
     case WM_GETOBJECT: {
@@ -543,8 +560,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
 
       // Accessibility readers will send an OBJID_CLIENT message.
       if (static_cast<DWORD>(OBJID_CLIENT) == obj_id) {
-        if (self->GetBrowser() && self->GetBrowser()->GetHost())
+        if (self->GetBrowser() && self->GetBrowser()->GetHost()) {
           self->GetBrowser()->GetHost()->SetAccessibilityState(STATE_ENABLED);
+        }
       }
     } break;
 
@@ -584,8 +602,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       break;
 
     case WM_ERASEBKGND:
-      if (self->OnEraseBkgnd())
+      if (self->OnEraseBkgnd()) {
         break;
+      }
       // Don't erase the background.
       return 0;
 
@@ -604,8 +623,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       break;
 
     case WM_CLOSE:
-      if (self->OnClose())
+      if (self->OnClose()) {
         return 0;  // Cancel the close.
+      }
       break;
 
     case WM_NCHITTEST: {
@@ -659,25 +679,29 @@ void RootWindowWin::OnFocus() {
   // Selecting "Close window" from the task bar menu may send a focus
   // notification even though the window is currently disabled (e.g. while a
   // modal JS dialog is displayed).
-  if (browser_window_ && ::IsWindowEnabled(hwnd_))
+  if (browser_window_ && ::IsWindowEnabled(hwnd_)) {
     browser_window_->SetFocus(true);
+  }
 }
 
 void RootWindowWin::OnActivate(bool active) {
-  if (active)
+  if (active) {
     delegate_->OnRootWindowActivated(this);
+  }
 }
 
 void RootWindowWin::OnSize(bool minimized) {
   if (minimized) {
     // Notify the browser window that it was hidden and do nothing further.
-    if (browser_window_)
+    if (browser_window_) {
       browser_window_->Hide();
+    }
     return;
   }
 
-  if (browser_window_)
+  if (browser_window_) {
     browser_window_->Show();
+  }
 
   RECT rect;
   GetClientRect(hwnd_, &rect);
@@ -718,8 +742,9 @@ void RootWindowWin::OnSize(bool minimized) {
 
     // |browser_hwnd| may be nullptr if the browser has not yet been created.
     HWND browser_hwnd = nullptr;
-    if (browser_window_)
+    if (browser_window_) {
       browser_hwnd = browser_window_->GetWindowHandle();
+    }
 
     // Resize all controls.
     HDWP hdwp = BeginDeferWindowPos(browser_hwnd ? 6 : 5);
@@ -756,8 +781,9 @@ void RootWindowWin::OnMove() {
   // Notify the browser of move events so that popup windows are displayed
   // in the correct location and dismissed when the window moves.
   CefRefPtr<CefBrowser> browser = GetBrowser();
-  if (browser)
+  if (browser) {
     browser->GetHost()->NotifyMoveOrResizeStarted();
+  }
 }
 
 void RootWindowWin::OnDpiChanged(WPARAM wParam, LPARAM lParam) {
@@ -801,20 +827,24 @@ bool RootWindowWin::OnCommand(UINT id) {
       OnFind();
       return true;
     case IDC_NAV_BACK:  // Back button
-      if (CefRefPtr<CefBrowser> browser = GetBrowser())
+      if (CefRefPtr<CefBrowser> browser = GetBrowser()) {
         browser->GoBack();
+      }
       return true;
     case IDC_NAV_FORWARD:  // Forward button
-      if (CefRefPtr<CefBrowser> browser = GetBrowser())
+      if (CefRefPtr<CefBrowser> browser = GetBrowser()) {
         browser->GoForward();
+      }
       return true;
     case IDC_NAV_RELOAD:  // Reload button
-      if (CefRefPtr<CefBrowser> browser = GetBrowser())
+      if (CefRefPtr<CefBrowser> browser = GetBrowser()) {
         browser->Reload();
+      }
       return true;
     case IDC_NAV_STOP:  // Stop button
-      if (CefRefPtr<CefBrowser> browser = GetBrowser())
+      if (CefRefPtr<CefBrowser> browser = GetBrowser()) {
         browser->StopLoad();
+      }
       return true;
   }
 
@@ -874,8 +904,9 @@ void RootWindowWin::OnFindEvent() {
     browser->GetHost()->Find(find_what,
                              (find_state_.Flags & FR_DOWN) ? true : false,
                              match_case, find_next_);
-    if (!find_next_)
+    if (!find_next_) {
       find_next_ = true;
+    }
   }
 }
 
@@ -1060,15 +1091,17 @@ void RootWindowWin::OnBrowserWindowDestroyed() {
 void RootWindowWin::OnSetAddress(const std::string& url) {
   REQUIRE_MAIN_THREAD();
 
-  if (edit_hwnd_)
+  if (edit_hwnd_) {
     SetWindowText(edit_hwnd_, CefString(url).ToWString().c_str());
+  }
 }
 
 void RootWindowWin::OnSetTitle(const std::string& title) {
   REQUIRE_MAIN_THREAD();
 
-  if (hwnd_)
+  if (hwnd_) {
     SetWindowText(hwnd_, CefString(title).ToWString().c_str());
+  }
 }
 
 void RootWindowWin::OnSetFullscreen(bool fullscreen) {
@@ -1078,24 +1111,27 @@ void RootWindowWin::OnSetFullscreen(bool fullscreen) {
   if (browser) {
     std::unique_ptr<window_test::WindowTestRunnerWin> test_runner(
         new window_test::WindowTestRunnerWin());
-    if (fullscreen)
+    if (fullscreen) {
       test_runner->Maximize(browser);
-    else
+    } else {
       test_runner->Restore(browser);
+    }
   }
 }
 
 void RootWindowWin::OnAutoResize(const CefSize& new_size) {
   REQUIRE_MAIN_THREAD();
 
-  if (!hwnd_)
+  if (!hwnd_) {
     return;
+  }
 
   int new_width = new_size.width;
 
   // Make the window wide enough to drag by the top menu bar.
-  if (new_width < 200)
+  if (new_width < 200) {
     new_width = 200;
+  }
 
   const float device_scale_factor = GetWindowScaleFactor(hwnd_);
   RECT rect = {0, 0, LogicalToDevice(new_width, device_scale_factor),
@@ -1249,8 +1285,9 @@ void RootWindowWin::OnSetDraggableRegions(
 
 void RootWindowWin::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
-  if (window_destroyed_ && browser_destroyed_)
+  if (window_destroyed_ && browser_destroyed_) {
     delegate_->OnRootWindowDestroyed(this);
+  }
 }
 
 // static

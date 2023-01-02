@@ -55,8 +55,9 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     // Append Chromium command line parameters if touch events are enabled
-    if (client::MainContext::Get()->TouchEventsEnabled())
+    if (client::MainContext::Get()->TouchEventsEnabled()) {
       command_line->AppendSwitchWithValue("touch-events", "enabled");
+    }
   }
 
  private:

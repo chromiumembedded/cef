@@ -13,22 +13,25 @@
 namespace view_util {
 
 gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
-  if (widget)
+  if (widget) {
     return widget->GetNativeWindow();
+  }
   return gfx::NativeWindow();
 }
 
 gfx::NativeView GetNativeView(views::Widget* widget) {
-  if (widget)
+  if (widget) {
     return widget->GetNativeView();
+  }
   return gfx::NativeView();
 }
 
 CefWindowHandle GetWindowHandle(views::Widget* widget) {
   // |view| is a wrapper type from native_widget_types.h.
   auto view = GetNativeView(widget);
-  if (view)
+  if (view) {
     return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(view.GetNativeNSView());
+  }
   return kNullWindowHandle;
 }
 

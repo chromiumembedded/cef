@@ -75,8 +75,9 @@ void CefExtensionsAPIClient::AddAdditionalValueStoreCaches(
 }
 
 FileSystemDelegate* CefExtensionsAPIClient::GetFileSystemDelegate() {
-  if (!file_system_delegate_)
+  if (!file_system_delegate_) {
     file_system_delegate_ = std::make_unique<cef::CefFileSystemDelegate>();
+  }
   return file_system_delegate_.get();
 }
 

@@ -49,13 +49,15 @@ bool CefWaitableEventImpl::IsSignaled() {
 }
 
 void CefWaitableEventImpl::Wait() {
-  if (!AllowWait())
+  if (!AllowWait()) {
     return;
+  }
   event_.Wait();
 }
 
 bool CefWaitableEventImpl::TimedWait(int64 max_ms) {
-  if (!AllowWait())
+  if (!AllowWait()) {
     return false;
+  }
   return event_.TimedWait(base::Milliseconds(max_ms));
 }

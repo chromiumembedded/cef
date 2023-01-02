@@ -113,8 +113,9 @@ class HandlerProvider : public base::RefCountedThreadSafe<HandlerProvider> {
 
   void Detach() {
     base::AutoLock lock_scope(lock_);
-    if (!handler_)
+    if (!handler_) {
       return;
+    }
 
     // Execute on the expected thread.
     CEF_POST_TASK(CEF_IOT,
@@ -186,8 +187,9 @@ class ReadResponseCallbackWrapper : public CefCallback {
 
   void DoRead() {
     CEF_REQUIRE_IOT();
-    if (!callback_)
+    if (!callback_) {
       return;
+    }
 
     auto handler = handler_provider_->handler();
     if (!handler) {
@@ -489,8 +491,9 @@ class ResourceResponseWrapper : public ResourceResponse {
 
     // A |content_length| value may already be specified if the request included
     // a Range header.
-    if (response_length >= 0 && *content_length == -1)
+    if (response_length >= 0 && *content_length == -1) {
       *content_length = response_length;
+    }
 
     CefResponse::HeaderMap headerMap;
     response->GetHeaderMap(headerMap);

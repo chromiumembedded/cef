@@ -31,8 +31,9 @@ CefDevToolsController::~CefDevToolsController() {
 bool CefDevToolsController::SendDevToolsMessage(
     const base::StringPiece& message) {
   CEF_REQUIRE_UIT();
-  if (!EnsureAgentHost())
+  if (!EnsureAgentHost()) {
     return false;
+  }
 
   agent_host_->DispatchProtocolMessage(
       this, base::as_bytes(base::make_span(message)));
@@ -44,25 +45,29 @@ int CefDevToolsController::ExecuteDevToolsMethod(
     const std::string& method,
     const base::DictionaryValue* params) {
   CEF_REQUIRE_UIT();
-  if (!EnsureAgentHost())
+  if (!EnsureAgentHost()) {
     return 0;
+  }
 
   // Message IDs must always be increasing and unique.
   int message_id = suggested_message_id;
-  if (message_id < next_message_id_)
+  if (message_id < next_message_id_) {
     message_id = next_message_id_++;
-  else
+  } else {
     next_message_id_ = message_id + 1;
+  }
 
   base::DictionaryValue message;
   message.SetIntKey("id", message_id);
   message.SetStringKey("method", method);
-  if (params)
+  if (params) {
     message.SetKey("params", params->Clone());
+  }
 
   std::string protocol_message;
-  if (!base::JSONWriter::Write(message, &protocol_message))
+  if (!base::JSONWriter::Write(message, &protocol_message)) {
     return 0;
+  }
 
   agent_host_->DispatchProtocolMessage(
       this, base::as_bytes(base::make_span(protocol_message)));
@@ -91,8 +96,9 @@ void CefDevToolsController::RemoveObserver(Observer* observer) {
 void CefDevToolsController::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
     base::span<const uint8_t> message) {
-  if (observers_.empty())
+  if (observers_.empty()) {
     return;
+  }
 
   base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
                                 message.size());

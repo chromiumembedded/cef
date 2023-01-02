@@ -43,12 +43,14 @@ void RouteStdioToConsole(bool create_console_if_not_found) {
   if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
     unsigned int result = GetLastError();
     // Was probably already attached.
-    if (result == ERROR_ACCESS_DENIED)
+    if (result == ERROR_ACCESS_DENIED) {
       return;
+    }
     // Don't bother creating a new console for each child process if the
     // parent process is invalid (eg: crashed).
-    if (result == ERROR_GEN_FAILURE)
+    if (result == ERROR_GEN_FAILURE) {
       return;
+    }
     if (create_console_if_not_found) {
       // Make a new console if attaching to parent fails with any other error.
       // It should be ERROR_INVALID_HANDLE at this point, which means the
@@ -156,8 +158,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) const {
   // Value of kJavascriptFlags switch.
   std::string other_javascript_flags =
       command_line_->GetSwitchValue("js-flags");
-  if (!other_javascript_flags.empty())
+  if (!other_javascript_flags.empty()) {
     javascript_flags += " " + other_javascript_flags;
+  }
   CefString(&settings.javascript_flags) = javascript_flags;
 
   // Necessary for V8Test.OnUncaughtException tests.

@@ -23,8 +23,9 @@ CefBrowserPlatformDelegateNativeAura::CefBrowserPlatformDelegateNativeAura(
 void CefBrowserPlatformDelegateNativeAura::SendKeyEvent(
     const CefKeyEvent& event) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   ui::KeyEvent ui_event = TranslateUiKeyEvent(event);
   view->OnKeyEvent(&ui_event);
@@ -36,8 +37,9 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseClickEvent(
     bool mouseUp,
     int clickCount) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   ui::MouseEvent ui_event =
       TranslateUiClickEvent(event, type, mouseUp, clickCount);
@@ -48,8 +50,9 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseMoveEvent(
     const CefMouseEvent& event,
     bool mouseLeave) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   ui::MouseEvent ui_event = TranslateUiMoveEvent(event, mouseLeave);
   view->OnMouseEvent(&ui_event);
@@ -60,8 +63,9 @@ void CefBrowserPlatformDelegateNativeAura::SendMouseWheelEvent(
     int deltaX,
     int deltaY) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   ui::MouseWheelEvent ui_event = TranslateUiWheelEvent(event, deltaX, deltaY);
   view->OnMouseEvent(&ui_event);
@@ -80,11 +84,13 @@ CefBrowserPlatformDelegateNativeAura::CreateMenuRunner() {
 gfx::Point CefBrowserPlatformDelegateNativeAura::GetScreenPoint(
     const gfx::Point& view,
     bool want_dip_coords) const {
-  if (windowless_handler_)
+  if (windowless_handler_) {
     return windowless_handler_->GetParentScreenPoint(view, want_dip_coords);
+  }
 
-  if (!window_widget_)
+  if (!window_widget_) {
     return view;
+  }
 
   gfx::Point screen_pt(view);
   if (!view_util::ConvertPointToScreen(
@@ -220,30 +226,42 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
     uint32 cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
     result |= ui::EF_CAPS_LOCK_ON;
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
     result |= ui::EF_SHIFT_DOWN;
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
     result |= ui::EF_CONTROL_DOWN;
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
     result |= ui::EF_ALT_DOWN;
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= ui::EF_LEFT_MOUSE_BUTTON;
-  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
-  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+  }
+  if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
     result |= ui::EF_COMMAND_DOWN;
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
+  }
+  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
     result |= ui::EF_NUM_LOCK_ON;
-  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_KEY_PAD) {
     result |= ui::EF_IS_EXTENDED_KEY;
-  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_ALTGR_DOWN) {
     result |= ui::EF_ALTGR_DOWN;
-  if (cef_modifiers & EVENTFLAG_IS_REPEAT)
+  }
+  if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
     result |= ui::EF_IS_REPEAT;
+  }
   return result;
 }
 
@@ -251,19 +269,21 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
 int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
     uint32 cef_modifiers) {
   int result = 0;
-  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+  if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= ui::EF_LEFT_MOUSE_BUTTON;
-  else if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+  } else if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result |= ui::EF_MIDDLE_MOUSE_BUTTON;
-  else if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+  } else if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
+  }
   return result;
 }
 
 content::RenderWidgetHostViewAura*
 CefBrowserPlatformDelegateNativeAura::GetHostView() const {
-  if (!web_contents_)
+  if (!web_contents_) {
     return nullptr;
+  }
   return static_cast<content::RenderWidgetHostViewAura*>(
       web_contents_->GetRenderWidgetHostView());
 }

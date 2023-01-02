@@ -20,17 +20,20 @@ CefRefPtr<CefBoxLayoutImpl> CefBoxLayoutImpl::Create(
 void CefBoxLayoutImpl::SetFlexForView(CefRefPtr<CefView> view, int flex) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK_GE(flex, 0);
-  if (flex < 0)
+  if (flex < 0) {
     return;
+  }
 
   DCHECK(view && view->IsValid() && view->IsAttached());
-  if (!view || !view->IsValid() || !view->IsAttached())
+  if (!view || !view->IsValid() || !view->IsAttached()) {
     return;
+  }
 
   views::View* view_ptr = view_util::GetFor(view);
   DCHECK_EQ(view_ptr->parent(), owner_view());
-  if (view_ptr->parent() != owner_view())
+  if (view_ptr->parent() != owner_view()) {
     return;
+  }
 
   layout()->SetFlexForView(view_ptr, flex);
 }
@@ -38,13 +41,15 @@ void CefBoxLayoutImpl::SetFlexForView(CefRefPtr<CefView> view, int flex) {
 void CefBoxLayoutImpl::ClearFlexForView(CefRefPtr<CefView> view) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view && view->IsValid() && view->IsAttached());
-  if (!view || !view->IsValid() || !view->IsAttached())
+  if (!view || !view->IsValid() || !view->IsAttached()) {
     return;
+  }
 
   views::View* view_ptr = view_util::GetFor(view);
   DCHECK_EQ(view_ptr->parent(), owner_view());
-  if (view_ptr->parent() != owner_view())
+  if (view_ptr->parent() != owner_view()) {
     return;
+  }
 
   layout()->ClearFlexForView(view_ptr);
 }
@@ -70,7 +75,8 @@ views::BoxLayout* CefBoxLayoutImpl::CreateLayout() {
       settings_.inside_border_insets.bottom,
       settings_.inside_border_insets.right));
   layout->set_minimum_cross_axis_size(settings_.minimum_cross_axis_size);
-  if (settings_.default_flex > 0)
+  if (settings_.default_flex > 0) {
     layout->SetDefaultFlex(settings_.default_flex);
+  }
   return layout;
 }

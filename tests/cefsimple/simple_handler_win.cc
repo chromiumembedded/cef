@@ -12,6 +12,7 @@
 void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
                                         const CefString& title) {
   CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
-  if (hwnd)
+  if (hwnd) {
     SetWindowText(hwnd, std::wstring(title).c_str());
+  }
 }

@@ -41,16 +41,18 @@ void OsrAXNode::UpdateLocation(CefRefPtr<CefDictionaryValue> value) {
 }
 
 void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
-  if (value->HasKey("role"))
+  if (value->HasKey("role")) {
     role_ = value->GetString("role");
+  }
 
   if (value->HasKey("child_ids")) {
     CefRefPtr<CefListValue> childs = value->GetList("child_ids");
     // Reset child Ids
     child_ids_.clear();
-    for (size_t idx = 0; idx < childs->GetSize(); idx++)
+    for (size_t idx = 0; idx < childs->GetSize(); idx++) {
       child_ids_.push_back(
           OsrAccessibilityHelper::CastToInt(childs->GetValue(idx)));
+    }
   }
   // Update Location
   if (value->HasKey("location")) {
@@ -85,24 +87,29 @@ void OsrAXNode::UpdateValue(CefRefPtr<CefDictionaryValue> value) {
     if (attributes_ && attributes_->HasKey("childTreeId")) {
       child_tree_id_ = attributes_->GetString("childTreeId");
     }
-    if (attributes_ && attributes_->HasKey("name"))
+    if (attributes_ && attributes_->HasKey("name")) {
       name_ = attributes_->GetString("name");
-    if (attributes_ && attributes_->HasKey("value"))
+    }
+    if (attributes_ && attributes_->HasKey("value")) {
       value_ = attributes_->GetString("value");
-    if (attributes_ && attributes_->HasKey("description"))
+    }
+    if (attributes_ && attributes_->HasKey("description")) {
       description_ = attributes_->GetString("description");
+    }
   }
 }
 
 CefWindowHandle OsrAXNode::GetWindowHandle() const {
-  if (accessibility_helper_)
+  if (accessibility_helper_) {
     return accessibility_helper_->GetWindowHandle();
+  }
   return nullptr;
 }
 
 CefRefPtr<CefBrowser> OsrAXNode::GetBrowser() const {
-  if (accessibility_helper_)
+  if (accessibility_helper_) {
     return accessibility_helper_->GetBrowser();
+  }
   return nullptr;
 }
 
@@ -149,8 +156,9 @@ int OsrAXNode::GetChildCount() const {
 
 OsrAXNode* OsrAXNode::ChildAtIndex(int index) const {
   int count = static_cast<int>(child_ids_.size());
-  if (index < count)
+  if (index < count) {
     return accessibility_helper_->GetNode(OsrAXTreeId(), child_ids_[index]);
+  }
   if ((index == count) && (!child_tree_id_.empty())) {
     OsrAXNode* childTreeRootNode =
         accessibility_helper_->GetTreeRootNode(child_tree_id_);

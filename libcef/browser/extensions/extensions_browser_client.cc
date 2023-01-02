@@ -49,13 +49,15 @@ void BindMimeHandlerService(
     mojo::PendingReceiver<extensions::mime_handler::MimeHandlerService>
         receiver) {
   auto* web_contents = content::WebContents::FromRenderFrameHost(frame_host);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   auto* guest_view =
       extensions::MimeHandlerViewGuest::FromWebContents(web_contents);
-  if (!guest_view)
+  if (!guest_view) {
     return;
+  }
   extensions::MimeHandlerServiceImpl::Create(guest_view->GetStreamWeakPtr(),
                                              std::move(receiver));
 }
@@ -65,13 +67,15 @@ void BindBeforeUnloadControl(
     mojo::PendingReceiver<extensions::mime_handler::BeforeUnloadControl>
         receiver) {
   auto* web_contents = content::WebContents::FromRenderFrameHost(frame_host);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   auto* guest_view =
       extensions::MimeHandlerViewGuest::FromWebContents(web_contents);
-  if (!guest_view)
+  if (!guest_view) {
     return;
+  }
   guest_view->FuseBeforeUnloadControl(std::move(receiver));
 }
 
@@ -138,8 +142,9 @@ BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
     BrowserContext* context) {
   auto cef_browser_context = CefBrowserContext::FromBrowserContext(context);
-  if (cef_browser_context)
+  if (cef_browser_context) {
     return cef_browser_context->AsBrowserContext();
+  }
   return nullptr;
 }
 
@@ -393,8 +398,9 @@ CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
 }
 
 KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
-  if (!kiosk_delegate_)
+  if (!kiosk_delegate_) {
     kiosk_delegate_.reset(new CefKioskDelegate());
+  }
   return kiosk_delegate_.get();
 }
 

@@ -95,8 +95,9 @@ URLLoaderFactoryGetter::GetURLLoaderFactory() {
     DCHECK(task_runner_->RunsTasksInCurrentSequence());
   }
 
-  if (lazy_factory_)
+  if (lazy_factory_) {
     return lazy_factory_;
+  }
 
   // Bind on the current thread.
   auto loader_factory =

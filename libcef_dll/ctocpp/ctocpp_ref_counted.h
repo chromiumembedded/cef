@@ -65,16 +65,18 @@ class CefCToCppRefCounted : public BaseName {
   void UnderlyingAddRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
-    if (base->add_ref)
+    if (base->add_ref) {
       base->add_ref(base);
+    }
   }
 
   NO_SANITIZE("cfi-icall")
   bool UnderlyingRelease() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
-    if (!base->release)
+    if (!base->release) {
       return false;
+    }
     return base->release(base) ? true : false;
   }
 
@@ -82,8 +84,9 @@ class CefCToCppRefCounted : public BaseName {
   bool UnderlyingHasOneRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
-    if (!base->has_one_ref)
+    if (!base->has_one_ref) {
       return false;
+    }
     return base->has_one_ref(base) ? true : false;
   }
 
@@ -91,8 +94,9 @@ class CefCToCppRefCounted : public BaseName {
   bool UnderlyingHasAtLeastOneRef() const {
     cef_base_ref_counted_t* base =
         reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
-    if (!base->has_at_least_one_ref)
+    if (!base->has_at_least_one_ref) {
       return false;
+    }
     return base->has_at_least_one_ref(base) ? true : false;
   }
 
@@ -111,8 +115,9 @@ struct CefCToCppRefCounted<ClassName, BaseName, StructName>::WrapperStruct {
 template <class ClassName, class BaseName, class StructName>
 CefRefPtr<BaseName> CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(
     StructName* s) {
-  if (!s)
+  if (!s) {
     return nullptr;
+  }
 
   // Wrap their structure with the CefCToCppRefCounted object.
   WrapperStruct* wrapperStruct = new WrapperStruct;
@@ -131,15 +136,17 @@ CefRefPtr<BaseName> CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(
 template <class ClassName, class BaseName, class StructName>
 StructName* CefCToCppRefCounted<ClassName, BaseName, StructName>::Unwrap(
     CefRefPtr<BaseName> c) {
-  if (!c.get())
+  if (!c.get()) {
     return nullptr;
+  }
 
   WrapperStruct* wrapperStruct = GetWrapperStruct(c.get());
 
   // If the type does not match this object then we need to unwrap as the
   // derived type.
-  if (wrapperStruct->type_ != kWrapperType)
+  if (wrapperStruct->type_ != kWrapperType) {
     return UnwrapDerived(wrapperStruct->type_, c.get());
+  }
 
   // Add a reference to the CefCppToC wrapper object on the other side that
   // will be released once the structure is received.

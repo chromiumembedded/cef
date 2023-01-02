@@ -1055,8 +1055,9 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
 
   void OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) override {
     EXPECT_EQ(start_count_, ++stop_count_);
-    if (stop_count_ == kToggleCount)
+    if (stop_count_ == kToggleCount) {
       AudioTestHandler::OnAudioStreamStopped(browser);
+    }
   }
 
  protected:

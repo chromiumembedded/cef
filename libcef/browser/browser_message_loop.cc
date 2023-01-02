@@ -35,8 +35,9 @@ class MessagePumpExternal : public base::MessagePumpForUI {
 
       base::TimeTicks next_run_time;  // is_null()
       const bool has_more_work = DirectRunWork(delegate, &next_run_time);
-      if (!has_more_work)
+      if (!has_more_work) {
         break;
+      }
 
       if (next_run_time.is_null()) {
         // We have more work that should run immediately.
@@ -44,8 +45,9 @@ class MessagePumpExternal : public base::MessagePumpForUI {
       }
 
       const base::TimeDelta& delta = next_run_time - start;
-      if (delta.InSecondsF() > max_time_slice_)
+      if (delta.InSecondsF() > max_time_slice_) {
         break;
+      }
     }
   }
 
@@ -96,8 +98,9 @@ class MessagePumpExternal : public base::MessagePumpForUI {
 
 CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
-  if (app)
+  if (app) {
     return app->GetBrowserProcessHandler();
+  }
   return nullptr;
 }
 
@@ -106,8 +109,9 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
           content::BrowserThread::UI) ||
       content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     CefRefPtr<CefBrowserProcessHandler> handler = GetBrowserProcessHandler();
-    if (handler)
+    if (handler) {
       return std::make_unique<MessagePumpExternal>(0.01f, handler);
+    }
   }
 
 #if BUILDFLAG(IS_MAC)

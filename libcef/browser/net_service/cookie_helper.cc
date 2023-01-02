@@ -94,8 +94,9 @@ void ContinueWithLoadedCookies(const AllowCookieCallback& allow_cookie_callback,
   for (const auto& status : cookies) {
     bool allow = false;
     allow_cookie_callback.Run(status.cookie, &allow);
-    if (allow)
+    if (allow) {
       allowed_cookies.push_back(status.cookie);
+    }
   }
   std::move(done_callback).Run(cookies.size(), std::move(allowed_cookies));
 }
@@ -213,16 +214,18 @@ void SaveCookiesOnUIThread(
 bool IsCookieableScheme(
     const GURL& url,
     const absl::optional<std::vector<std::string>>& cookieable_schemes) {
-  if (!url.has_scheme())
+  if (!url.has_scheme()) {
     return false;
+  }
 
   if (cookieable_schemes) {
     // The client has explicitly registered the full set of schemes that should
     // be supported.
     const auto url_scheme = url.scheme_piece();
     for (auto scheme : *cookieable_schemes) {
-      if (url_scheme == scheme)
+      if (url_scheme == scheme) {
         return true;
+      }
     }
     return false;
   }
@@ -272,8 +275,9 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
   // Match the logic in
   // URLRequestHttpJob::SaveCookiesAndNotifyHeadersComplete.
   base::Time response_date;
-  if (!headers->GetDateValue(&response_date))
+  if (!headers->GetDateValue(&response_date)) {
     response_date = base::Time();
+  }
 
   const base::StringPiece name(net_service::kHTTPSetCookieHeaderName);
   std::string cookie_string;
@@ -295,8 +299,9 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
 
     bool allow = false;
     allow_cookie_callback.Run(*cookie, &allow);
-    if (allow)
+    if (allow) {
       allowed_cookies.push_back(*cookie);
+    }
   }
 
   if (!allowed_cookies.empty()) {

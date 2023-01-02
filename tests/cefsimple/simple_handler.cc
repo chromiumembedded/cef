@@ -53,8 +53,9 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
         CefBrowserView::GetForBrowser(browser);
     if (browser_view) {
       CefRefPtr<CefWindow> window = browser_view->GetWindow();
-      if (window)
+      if (window) {
         window->SetTitle(title);
+      }
     }
   } else if (!IsChromeRuntimeEnabled()) {
     // Set the title of the window using platform APIs.
@@ -111,12 +112,14 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   // Allow Chrome to show the error page.
-  if (IsChromeRuntimeEnabled())
+  if (IsChromeRuntimeEnabled()) {
     return;
+  }
 
   // Don't display an error for downloaded files.
-  if (errorCode == ERR_ABORTED)
+  if (errorCode == ERR_ABORTED) {
     return;
+  }
 
   // Display a load error message using a data: URI.
   std::stringstream ss;
@@ -136,12 +139,14 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
     return;
   }
 
-  if (browser_list_.empty())
+  if (browser_list_.empty()) {
     return;
+  }
 
   BrowserList::const_iterator it = browser_list_.begin();
-  for (; it != browser_list_.end(); ++it)
+  for (; it != browser_list_.end(); ++it) {
     (*it)->GetHost()->CloseBrowser(force_close);
+  }
 }
 
 // static

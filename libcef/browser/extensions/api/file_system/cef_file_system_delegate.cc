@@ -68,12 +68,15 @@ void CefFileSystemDelegate::ConfirmSensitiveDirectoryAccess(
 // Based on ChromeFileSystemDelegate::GetDescriptionIdForAcceptType.
 int CefFileSystemDelegate::GetDescriptionIdForAcceptType(
     const std::string& accept_type) {
-  if (accept_type == "image/*")
+  if (accept_type == "image/*") {
     return IDS_IMAGE_FILES;
-  if (accept_type == "audio/*")
+  }
+  if (accept_type == "audio/*") {
     return IDS_AUDIO_FILES;
-  if (accept_type == "video/*")
+  }
+  if (accept_type == "video/*") {
     return IDS_VIDEO_FILES;
+  }
   return 0;
 }
 

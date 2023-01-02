@@ -52,10 +52,11 @@ namespace {
 void QuitMessageLoop() {
   CEF_REQUIRE_UI_THREAD();
   client::MainMessageLoop* message_loop = client::MainMessageLoop::Get();
-  if (message_loop)
+  if (message_loop) {
     message_loop->Quit();
-  else
+  } else {
     CefQuitMessageLoop();
+  }
 }
 
 void sleep(int64 ms) {
@@ -74,8 +75,9 @@ void RunTestsOnTestThread() {
   CefTestSuite::GetInstance()->Run();
 
   // Wait for all browsers to exit.
-  while (TestHandler::HasBrowser())
+  while (TestHandler::HasBrowser()) {
     sleep(100);
+  }
 
   // Wait for the test server to stop, and then quit the CEF message loop.
   test_server::Stop(base::BindOnce(QuitMessageLoop));
@@ -131,8 +133,9 @@ int main(int argc, char* argv[]) {
   // Load the CEF framework library at runtime instead of linking directly
   // as required by the macOS sandbox implementation.
   CefScopedLibraryLoader library_loader;
-  if (!library_loader.LoadInMain())
+  if (!library_loader.LoadInMain()) {
     return 1;
+  }
 #endif
 
   // Create the singleton test suite object.
@@ -173,8 +176,9 @@ int main(int argc, char* argv[]) {
 
   // Execute the secondary process, if any.
   exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);
-  if (exit_code >= 0)
+  if (exit_code >= 0) {
     return exit_code;
+  }
 #else
   } else {
     // On OS X this executable is only used for the main process.
@@ -208,10 +212,11 @@ int main(int argc, char* argv[]) {
   // Create the MessageLoop.
   std::unique_ptr<client::MainMessageLoop> message_loop;
   if (!settings.multi_threaded_message_loop) {
-    if (settings.external_message_pump)
+    if (settings.external_message_pump) {
       message_loop = client::MainMessageLoopExternalPump::Create();
-    else
+    } else {
       message_loop.reset(new client::MainMessageLoopStd);
+    }
   }
 
   // Initialize CEF.
@@ -234,8 +239,9 @@ int main(int argc, char* argv[]) {
   } else {
     // Create and start the test thread.
     CefRefPtr<CefThread> thread = CefThread::CreateThread("test_thread");
-    if (!thread)
+    if (!thread) {
       return 1;
+    }
 
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.

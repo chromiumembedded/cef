@@ -29,8 +29,9 @@ CEF_EXPORT int cef_string_list_value(cef_string_list_t list,
   DCHECK(value);
   StringList* impl = reinterpret_cast<StringList*>(list);
   DCHECK_LT(index, impl->size());
-  if (index >= impl->size())
+  if (index >= impl->size()) {
     return false;
+  }
   const CefString& str = (*impl)[index];
   return cef_string_copy(str.c_str(), str.length(), value);
 }

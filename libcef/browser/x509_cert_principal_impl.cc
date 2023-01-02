@@ -8,13 +8,15 @@ namespace {
 
 void TransferVector(const std::vector<std::string>& source,
                     std::vector<CefString>& target) {
-  if (!target.empty())
+  if (!target.empty()) {
     target.clear();
+  }
 
   if (!source.empty()) {
     std::vector<std::string>::const_iterator it = source.begin();
-    for (; it != source.end(); ++it)
+    for (; it != source.end(); ++it) {
       target.push_back(*it);
+    }
   }
 }
 

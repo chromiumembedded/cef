@@ -79,8 +79,9 @@ class OpenInputStreamWrapper
 
   void CancelOnJobThread() {
     DCHECK(job_thread_task_runner_->RunsTasksInCurrentSequence());
-    if (callback_.is_null())
+    if (callback_.is_null()) {
       return;
+    }
 
     callback_.Reset();
 
@@ -91,8 +92,9 @@ class OpenInputStreamWrapper
 
   void CancelOnWorkThread() {
     DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
-    if (is_canceled_)
+    if (is_canceled_) {
       return;
+    }
     is_canceled_ = true;
     OnCallback(nullptr);
   }
@@ -100,8 +102,9 @@ class OpenInputStreamWrapper
   void OpenOnWorkThread(int32_t request_id,
                         const network::ResourceRequest& request) {
     DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
-    if (is_canceled_)
+    if (is_canceled_) {
       return;
+    }
 
     // |delegate_| will remain valid until OnCallback() is executed on
     // |job_thread_task_runner_|.
@@ -312,8 +315,9 @@ void InputStreamReader::ReadOnWorkThread(scoped_refptr<net::IOBuffer> dest,
                      pending_callback_id_));
 
   // Check if the callback will execute asynchronously.
-  if (result && bytes_read == 0)
+  if (result && bytes_read == 0) {
     return;
+  }
 
   RunReadCallback(result || bytes_read <= 0 ? bytes_read : net::ERR_FAILED);
 }
@@ -335,8 +339,9 @@ void InputStreamReader::SkipToRequestedRange() {
                        pending_callback_id_));
 
     // Check if the callback will execute asynchronously.
-    if (result && skipped == 0)
+    if (result && skipped == 0) {
       return;
+    }
 
     if (!result || skipped <= 0) {
       RunSkipCallback(net::ERR_REQUEST_RANGE_NOT_SATISFIABLE);
@@ -383,13 +388,15 @@ void InputStreamReader::ContinueSkipCallbackOnWorkThread(
   DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
 
   // Check for out of order callbacks.
-  if (pending_callback_id_ != callback_id)
+  if (pending_callback_id_ != callback_id) {
     return;
+  }
 
   DCHECK_LE(bytes_skipped, bytes_to_skip_);
 
-  if (bytes_to_skip_ > 0 && bytes_skipped > 0)
+  if (bytes_to_skip_ > 0 && bytes_skipped > 0) {
     bytes_to_skip_ -= bytes_skipped;
+  }
 
   if (bytes_skipped <= 0) {
     RunSkipCallback(net::ERR_REQUEST_RANGE_NOT_SATISFIABLE);
@@ -409,8 +416,9 @@ void InputStreamReader::ContinueReadCallbackOnWorkThread(int callback_id,
   DCHECK(work_thread_task_runner_->RunsTasksInCurrentSequence());
 
   // Check for out of order callbacks.
-  if (pending_callback_id_ != callback_id)
+  if (pending_callback_id_ != callback_id) {
     return;
+  }
 
   RunReadCallback(bytes_read);
 }
@@ -637,13 +645,15 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
       extra_headers, false /* allow_existing_header_override */);
   pending_response->headers = headers;
 
-  if (content_length >= 0)
+  if (content_length >= 0) {
     pending_response->content_length = content_length;
+  }
 
   if (!mime_type.empty()) {
     pending_response->mime_type = mime_type;
-    if (!charset.empty())
+    if (!charset.empty()) {
       pending_response->charset = charset;
+    }
   }
 
   if (header_client_.is_bound()) {
@@ -826,8 +836,9 @@ bool StreamReaderURLLoader::ParseRange(const net::HttpRequestHeaders& headers) {
     if (net::HttpUtil::ParseRangeHeader(range_header, &ranges)) {
       // In case of multi-range request only use the first range.
       // We don't support multirange requests.
-      if (ranges.size() == 1)
+      if (ranges.size() == 1) {
         byte_range_ = ranges[0];
+      }
     } else {
       // This happens if the range header could not be parsed or is invalid.
       return false;

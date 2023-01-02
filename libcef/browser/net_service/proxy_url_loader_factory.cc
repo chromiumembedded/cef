@@ -428,8 +428,9 @@ InterceptedRequest::InterceptedRequest(
 }
 
 InterceptedRequest::~InterceptedRequest() {
-  if (status_.error_code != net::OK)
+  if (status_.error_code != net::OK) {
     SendErrorCallback(status_.error_code, false);
+  }
   if (on_headers_received_callback_) {
     std::move(on_headers_received_callback_)
         .Run(net::ERR_ABORTED, absl::nullopt, GURL());
@@ -443,8 +444,9 @@ void InterceptedRequest::Restart() {
     target_loader_.reset();
   }
 
-  if (header_client_receiver_.is_bound())
+  if (header_client_receiver_.is_bound()) {
     std::ignore = header_client_receiver_.Unbind();
+  }
 
   current_request_uses_header_client_ =
       factory_->url_loader_header_client_receiver_.is_bound();
@@ -500,8 +502,9 @@ void InterceptedRequest::InputStreamFailed(bool restart_needed) {
     return;
   }
 
-  if (!restart_needed)
+  if (!restart_needed) {
     return;
+  }
 
   input_stream_previously_failed_ = true;
   Restart();
@@ -521,8 +524,9 @@ void InterceptedRequest::OnBeforeSendHeaders(
   std::move(callback).Run(net::OK, absl::nullopt);
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_receiver_.is_bound())
+  if (proxied_client_receiver_.is_bound()) {
     proxied_client_receiver_.Resume();
+  }
 }
 
 void InterceptedRequest::OnHeadersReceived(
@@ -685,8 +689,9 @@ void InterceptedRequest::FollowRedirect(
   // If |OnURLLoaderClientError| was called then we're just waiting for the
   // connection error handler of |proxied_loader_receiver_|. Don't restart the
   // job since that'll create another URLLoader.
-  if (!target_client_)
+  if (!target_client_) {
     return;
+  }
 
   // Normally we would call FollowRedirect on the target loader and it would
   // begin loading the redirected request. However, the client might want to
@@ -696,18 +701,21 @@ void InterceptedRequest::FollowRedirect(
 
 void InterceptedRequest::SetPriority(net::RequestPriority priority,
                                      int32_t intra_priority_value) {
-  if (target_loader_)
+  if (target_loader_) {
     target_loader_->SetPriority(priority, intra_priority_value);
+  }
 }
 
 void InterceptedRequest::PauseReadingBodyFromNet() {
-  if (target_loader_)
+  if (target_loader_) {
     target_loader_->PauseReadingBodyFromNet();
+  }
 }
 
 void InterceptedRequest::ResumeReadingBodyFromNet() {
-  if (target_loader_)
+  if (target_loader_) {
     target_loader_->ResumeReadingBodyFromNet();
+  }
 }
 
 // Helper methods.
@@ -828,8 +836,9 @@ void InterceptedRequest::HandleResponseOrRedirectHeaders(
   redirect_url_ = redirect_info.has_value() ? redirect_info->new_url : GURL();
   original_url_ = request_.url;
 
-  if (!redirect_url_.is_empty())
+  if (!redirect_url_.is_empty()) {
     redirect_in_progress_ = true;
+  }
 
   // |current_response_| may be nullptr when called from OnHeadersReceived.
   auto headers =
@@ -841,8 +850,9 @@ void InterceptedRequest::HandleResponseOrRedirectHeaders(
       id_, request_, redirect_url_, headers.get());
 
   // Pause handling of client messages before waiting on an async callback.
-  if (proxied_client_receiver_.is_bound())
+  if (proxied_client_receiver_.is_bound()) {
     proxied_client_receiver_.Pause();
+  }
 
   factory_->request_handler_->OnRequestResponse(
       id_, &request_, headers.get(), redirect_info,
@@ -884,8 +894,9 @@ void InterceptedRequest::ContinueToHandleOverrideHeaders(int error_code) {
 
   DCHECK(on_headers_received_callback_);
   absl::optional<std::string> headers;
-  if (override_headers_)
+  if (override_headers_) {
     headers = override_headers_->raw_headers();
+  }
   header_client_redirect_url_ = redirect_url_;
   std::move(on_headers_received_callback_).Run(net::OK, headers, redirect_url_);
 
@@ -893,8 +904,9 @@ void InterceptedRequest::ContinueToHandleOverrideHeaders(int error_code) {
   redirect_url_ = GURL();
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_receiver_.is_bound())
+  if (proxied_client_receiver_.is_bound()) {
     proxied_client_receiver_.Resume();
+  }
 }
 
 net::RedirectInfo InterceptedRequest::MakeRedirectResponseAndInfo(
@@ -932,16 +944,18 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   request_was_redirected_ = true;
   redirect_in_progress_ = false;
 
-  if (header_client_redirect_url_.is_valid())
+  if (header_client_redirect_url_.is_valid()) {
     header_client_redirect_url_ = GURL();
+  }
 
   const GURL redirect_url = redirect_url_;
   override_headers_ = nullptr;
   redirect_url_ = GURL();
 
   // Resume handling of client messages after continuing from an async callback.
-  if (proxied_client_receiver_.is_bound())
+  if (proxied_client_receiver_.is_bound()) {
     proxied_client_receiver_.Resume();
+  }
 
   const auto original_url = request_.url;
   const auto original_method = request_.method;
@@ -1045,8 +1059,9 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
 
     // Resume handling of client messages after continuing from an async
     // callback.
-    if (proxied_client_receiver_.is_bound())
+    if (proxied_client_receiver_.is_bound()) {
       proxied_client_receiver_.Resume();
+    }
 
     target_client_->OnReceiveResponse(
         std::move(current_response_),
@@ -1075,8 +1090,9 @@ void InterceptedRequest::OnProcessRequestHeaders(
 
   if (!modified_headers->IsEmpty() || !removed_headers->empty()) {
     request_.headers.MergeFrom(*modified_headers);
-    for (const std::string& name : *removed_headers)
+    for (const std::string& name : *removed_headers) {
       request_.headers.RemoveHeader(name);
+    }
   }
 }
 
@@ -1090,15 +1106,17 @@ void InterceptedRequest::OnURLLoaderClientError() {
 
 void InterceptedRequest::OnURLLoaderError(uint32_t custom_reason,
                                           const std::string& description) {
-  if (custom_reason == network::mojom::URLLoader::kClientDisconnectReason)
+  if (custom_reason == network::mojom::URLLoader::kClientDisconnectReason) {
     SendErrorCallback(safe_browsing::kNetErrorCodeForSafeBrowsing, true);
+  }
 
   got_loader_error_ = true;
 
   // If CallOnComplete was already called, then this object is ready to be
   // deleted.
-  if (!target_client_)
+  if (!target_client_) {
     OnDestroy();
+  }
 }
 
 void InterceptedRequest::CallOnComplete(
@@ -1106,8 +1124,9 @@ void InterceptedRequest::CallOnComplete(
     bool wait_for_loader_error) {
   status_ = status;
 
-  if (target_client_)
+  if (target_client_) {
     target_client_->OnComplete(status);
+  }
 
   if (proxied_loader_receiver_.is_bound() &&
       (wait_for_loader_error && !got_loader_error_)) {
@@ -1149,8 +1168,9 @@ void InterceptedRequest::SendErrorCallback(int error_code,
                                            bool safebrowsing_hit) {
   // Ensure we only send one error callback, e.g. to avoid sending two if
   // there's both a networking error and safe browsing blocked the request.
-  if (sent_error_callback_)
+  if (sent_error_callback_) {
     return;
+  }
 
   sent_error_callback_ = true;
   factory_->request_handler_->OnRequestError(id_, request_, error_code,
@@ -1228,8 +1248,9 @@ ProxyURLLoaderFactory::ProxyURLLoaderFactory(
   proxy_receivers_.set_disconnect_handler(base::BindRepeating(
       &ProxyURLLoaderFactory::OnProxyBindingError, base::Unretained(this)));
 
-  if (header_client_receiver)
+  if (header_client_receiver) {
     url_loader_header_client_receiver_.Bind(std::move(header_client_receiver));
+  }
 }
 
 ProxyURLLoaderFactory::~ProxyURLLoaderFactory() {
@@ -1275,8 +1296,9 @@ void ProxyURLLoaderFactory::CreateProxy(
 
   mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
       header_client_receiver;
-  if (header_client)
+  if (header_client) {
     header_client_receiver = header_client->InitWithNewPipeAndPassReceiver();
+  }
 
   content::ResourceContext* resource_context =
       browser_context->GetResourceContext();
@@ -1362,8 +1384,9 @@ void ProxyURLLoaderFactory::OnLoaderCreated(
     mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver) {
   CEF_REQUIRE_IOT();
   auto request_it = requests_.find(request_id);
-  if (request_it != requests_.end())
+  if (request_it != requests_.end()) {
     request_it->second->OnLoaderCreated(std::move(receiver));
+  }
 }
 
 void ProxyURLLoaderFactory::OnLoaderForCorsPreflightCreated(
@@ -1382,8 +1405,9 @@ void ProxyURLLoaderFactory::OnTargetFactoryError() {
 }
 
 void ProxyURLLoaderFactory::OnProxyBindingError() {
-  if (proxy_receivers_.empty())
+  if (proxy_receivers_.empty()) {
     target_factory_.reset();
+  }
 
   MaybeDestroySelf();
 }
@@ -1399,8 +1423,9 @@ void ProxyURLLoaderFactory::RemoveRequest(InterceptedRequest* request) {
 void ProxyURLLoaderFactory::MaybeDestroySelf() {
   // Even if all URLLoaderFactory pipes connected to this object have been
   // closed it has to stay alive until all active requests have completed.
-  if (target_factory_.is_bound() || !requests_.empty())
+  if (target_factory_.is_bound() || !requests_.empty()) {
     return;
+  }
 
   destroyed_ = true;
 

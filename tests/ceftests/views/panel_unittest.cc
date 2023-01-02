@@ -37,10 +37,11 @@ void CreatePanel(CefRefPtr<CefPanelDelegate> delegate) {
   EXPECT_STREQ("Panel", panel->GetTypeString().ToString().c_str());
   EXPECT_TRUE(panel->IsValid());
   EXPECT_FALSE(panel->IsAttached());
-  if (delegate)
+  if (delegate) {
     EXPECT_EQ(delegate.get(), panel->GetDelegate().get());
-  else
+  } else {
     EXPECT_FALSE(panel->GetDelegate().get());
+  }
   EXPECT_EQ(0, panel->GetID());
   EXPECT_FALSE(panel->GetParentView().get());
   EXPECT_EQ(CefRect(0, 0, 0, 0), panel->GetBounds());
@@ -292,10 +293,11 @@ void ChildRemove(CefRefPtr<ParentPanelDelegate> parent_delegate,
   EXPECT_TRUE(child_delegate->IsReset());
 
   // Remove the child view.
-  if (remove_all)
+  if (remove_all) {
     parent_panel->RemoveAllChildViews();
-  else
+  } else {
     parent_panel->RemoveChildView(child_panel);
+  }
 
   // Verify final callback state.
   ChildVerifyFinalCallbackState(parent_delegate, parent_panel, child_delegate,
@@ -850,10 +852,11 @@ void FillLayoutSizeHierarchyWithDelegate(bool size_from_parent) {
   EXPECT_EQ(CefRect(0, 0, 0, 0), panel_child->GetBounds());
 
   // With delegates the size can come from either the parent or child.
-  if (size_from_parent)
+  if (size_from_parent) {
     delegate_parent->preferred_size_ = expected_size;
-  else
+  } else {
     delegate_child->preferred_size_ = expected_size;
+  }
 
   // FillLayout is the default Layout. Both panels should end up with the same
   // size.
@@ -944,8 +947,9 @@ void BoxLayoutSizeHierarchy(bool with_delegate,
                             int child1_flex = 0,
                             int child2_flex = 0) {
   CefRefPtr<SizingPanelDelegate> delegate_parent;
-  if (with_delegate)
+  if (with_delegate) {
     delegate_parent = new SizingPanelDelegate();
+  }
   CefRefPtr<CefPanel> panel_parent = CefPanel::CreatePanel(delegate_parent);
 
   CefRefPtr<SizingPanelDelegate> delegate_child1, delegate_child2;
@@ -963,10 +967,11 @@ void BoxLayoutSizeHierarchy(bool with_delegate,
 
   // Give the parent a size.
   CefSize initial_parent_size(kBLParentSize, kBLParentSize);
-  if (with_delegate)
+  if (with_delegate) {
     delegate_parent->preferred_size_ = initial_parent_size;
-  else
+  } else {
     panel_parent->SetSize(initial_parent_size);
+  }
 
   // Give the children a size smaller than the parent.
   CefSize initial_child_size(kBLChildSize, kBLChildSize);
@@ -987,10 +992,12 @@ void BoxLayoutSizeHierarchy(bool with_delegate,
   if (child1_flex > 0 || child2_flex > 0) {
     // Flex will apply relative stretch in the main axis direction.
     CefRefPtr<CefBoxLayout> layout = panel_parent->GetLayout()->AsBoxLayout();
-    if (child1_flex > 0)
+    if (child1_flex > 0) {
       layout->SetFlexForView(panel_child1, child1_flex);
-    if (child2_flex > 0)
+    }
+    if (child2_flex > 0) {
       layout->SetFlexForView(panel_child2, child2_flex);
+    }
   }
 
   if (with_delegate) {

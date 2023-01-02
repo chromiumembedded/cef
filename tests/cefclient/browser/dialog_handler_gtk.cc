@@ -24,8 +24,9 @@ const char kPromptTextId[] = "cef_prompt_text";
 std::string GetPromptText(GtkDialog* dialog) {
   GtkWidget* widget = static_cast<GtkWidget*>(
       g_object_get_data(G_OBJECT(dialog), kPromptTextId));
-  if (widget)
+  if (widget) {
     return gtk_entry_get_text(GTK_ENTRY(widget));
+  }
   return std::string();
 }
 
@@ -43,8 +44,9 @@ std::string GetDescriptionFromMimeType(const std::string& mime_type) {
 
   for (size_t i = 0;
        i < sizeof(kWildCardMimeTypes) / sizeof(kWildCardMimeTypes[0]); ++i) {
-    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
+    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*") {
       return std::string(kWildCardMimeTypes[i].label);
+    }
   }
 
   return std::string();
@@ -58,8 +60,9 @@ void AddFilters(GtkFileChooser* chooser,
 
   for (size_t j = 0; j < accept_filters.size(); ++j) {
     const std::string& filter = accept_filters[j];
-    if (filter.empty())
+    if (filter.empty()) {
       continue;
+    }
 
     std::vector<std::string> extensions;
     std::string description;
@@ -75,8 +78,9 @@ void AddFilters(GtkFileChooser* chooser,
       for (size_t i = 0; i <= size; ++i) {
         if (i == size || exts[i] == ';') {
           std::string ext(exts, last, i - last);
-          if (!ext.empty() && ext[0] == '.')
+          if (!ext.empty() && ext[0] == '.') {
             extensions.push_back(ext);
+          }
           last = i + 1;
         }
       }
@@ -89,33 +93,38 @@ void AddFilters(GtkFileChooser* chooser,
 
       std::vector<CefString> ext;
       CefGetExtensionsForMimeType(filter, ext);
-      for (size_t x = 0; x < ext.size(); ++x)
+      for (size_t x = 0; x < ext.size(); ++x) {
         extensions.push_back("." + ext[x].ToString());
+      }
     }
 
-    if (extensions.empty())
+    if (extensions.empty()) {
       continue;
+    }
 
     GtkFileFilter* gtk_filter = gtk_file_filter_new();
 
     std::string ext_str;
     for (size_t x = 0; x < extensions.size(); ++x) {
       const std::string& pattern = "*" + extensions[x];
-      if (x != 0)
+      if (x != 0) {
         ext_str += ";";
+      }
       ext_str += pattern;
       gtk_file_filter_add_pattern(gtk_filter, pattern.c_str());
     }
 
-    if (description.empty())
+    if (description.empty()) {
       description = ext_str;
-    else
+    } else {
       description += " (" + ext_str + ")";
+    }
 
     gtk_file_filter_set_name(gtk_filter, description.c_str());
     gtk_file_chooser_add_filter(chooser, gtk_filter);
-    if (!has_filter)
+    if (!has_filter) {
       has_filter = true;
+    }
 
     filters->push_back(gtk_filter);
   }
@@ -137,8 +146,9 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   if (root_window) {
     GtkWidget* window = root_window->GetWindowHandle();
     DCHECK(window);
-    if (!window)
+    if (!window) {
       LOG(ERROR) << "No GtkWindow for browser";
+    }
     return GTK_WINDOW(window);
   }
   return nullptr;
@@ -212,8 +222,9 @@ bool ClientDialogHandlerGtk::OnBeforeUnloadDialog(
 void ClientDialogHandlerGtk::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!gtk_dialog_)
+  if (!gtk_dialog_) {
     return;
+  }
 
   gtk_widget_destroy(gtk_dialog_);
   gtk_dialog_ = nullptr;
@@ -274,8 +285,9 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(
       title_str.c_str(), GTK_WINDOW(window), action, "_Cancel",
       GTK_RESPONSE_CANCEL, accept_button, GTK_RESPONSE_ACCEPT, nullptr);
 
-  if (params.mode == FILE_DIALOG_OPEN_MULTIPLE)
+  if (params.mode == FILE_DIALOG_OPEN_MULTIPLE) {
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+  }
 
   if (!params.default_file_path.empty() && params.mode == FILE_DIALOG_SAVE) {
     const std::string& file_path = params.default_file_path;
@@ -326,10 +338,11 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(
 
   gtk_widget_destroy(dialog);
 
-  if (success)
+  if (success) {
     params.callback->Continue(files);
-  else
+  } else {
     params.callback->Cancel();
+  }
 }
 
 void ClientDialogHandlerGtk::OnJSDialogContinue(const OnJSDialogParams& params,
@@ -380,8 +393,9 @@ void ClientDialogHandlerGtk::OnJSDialogContinue(const OnJSDialogParams& params,
   GtkWidget* ok_button =
       gtk_dialog_add_button(GTK_DIALOG(gtk_dialog_), "_OK", GTK_RESPONSE_OK);
 
-  if (params.dialog_type != JSDIALOGTYPE_PROMPT)
+  if (params.dialog_type != JSDIALOGTYPE_PROMPT) {
     gtk_widget_grab_focus(ok_button);
+  }
 
   if (params.dialog_type == JSDIALOGTYPE_PROMPT) {
     GtkWidget* content_area =

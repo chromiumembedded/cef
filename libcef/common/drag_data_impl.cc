@@ -102,28 +102,32 @@ CefString CefDragDataImpl::GetFileName() {
 
 size_t CefDragDataImpl::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
   base::AutoLock lock_scope(lock_);
-  if (data_.file_contents.empty())
+  if (data_.file_contents.empty()) {
     return 0;
+  }
 
   char* data = const_cast<char*>(data_.file_contents.c_str());
   size_t size = data_.file_contents.size();
 
-  if (!writer.get())
+  if (!writer.get()) {
     return size;
+  }
 
   return writer->Write(data, 1, size);
 }
 
 bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
   base::AutoLock lock_scope(lock_);
-  if (data_.filenames.empty())
+  if (data_.filenames.empty()) {
     return false;
+  }
 
   std::vector<ui::FileInfo>::const_iterator it = data_.filenames.begin();
   for (; it != data_.filenames.end(); ++it) {
     auto name = it->display_name.value();
-    if (name.empty())
+    if (name.empty()) {
       name = it->path.value();
+    }
     names.push_back(name);
   }
 
@@ -190,8 +194,9 @@ void CefDragDataImpl::ClearFilenames() {
 
 void CefDragDataImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
-  if (read_only_ == read_only)
+  if (read_only_ == read_only) {
     return;
+  }
 
   read_only_ = read_only;
 }

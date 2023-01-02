@@ -254,15 +254,17 @@ class MediaObserver : public CefMediaObserver {
  private:
   CefRefPtr<CefMediaSource> GetSource(const std::string& source_urn) {
     CefRefPtr<CefMediaSource> source = media_router_->GetSource(source_urn);
-    if (!source)
+    if (!source) {
       return nullptr;
+    }
     return source;
   }
 
   CefRefPtr<CefMediaSink> GetSink(const std::string& sink_id) {
     SinkInfoMap::const_iterator it = sink_info_map_.find(sink_id);
-    if (it != sink_info_map_.end())
+    if (it != sink_info_map_.end()) {
       return it->second->sink;
+    }
     return nullptr;
   }
 
@@ -278,8 +280,9 @@ class MediaObserver : public CefMediaObserver {
                         const std::string& sink_id,
                         const CefMediaSinkDeviceInfo& device_info) {
     // Discard callbacks that arrive after a new call to OnSinks().
-    if (sink_query_id != pending_sink_query_id_)
+    if (sink_query_id != pending_sink_query_id_) {
       return;
+    }
 
     SinkInfoMap::const_iterator it = sink_info_map_.find(sink_id);
     if (it != sink_info_map_.end()) {
@@ -295,8 +298,9 @@ class MediaObserver : public CefMediaObserver {
 
   CefRefPtr<CefMediaRoute> GetRoute(const std::string& route_id) {
     RouteMap::const_iterator it = route_map_.find(route_id);
-    if (it != route_map_.end())
+    if (it != route_map_.end()) {
       return it->second;
+    }
     return nullptr;
   }
 
@@ -327,10 +331,9 @@ class MediaObserver : public CefMediaObserver {
       sink_dict->SetInt("port", info->device_info.port);
       sink_dict->SetString("model_name",
                            CefString(&info->device_info.model_name));
-      sink_dict->SetString("type",
-                           info->sink->IsCastSink()
-                               ? "cast"
-                               : info->sink->IsDialSink() ? "dial" : "unknown");
+      sink_dict->SetString("type", info->sink->IsCastSink()   ? "cast"
+                                   : info->sink->IsDialSink() ? "dial"
+                                                              : "unknown");
       sinks_list->SetDictionary(idx, sink_dict);
     }
 
@@ -389,8 +392,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (!test_runner::IsTestURL(url, kTestUrlPath))
+    if (!test_runner::IsTestURL(url, kTestUrlPath)) {
       return false;
+    }
 
     // Parse |request| as a JSON dictionary.
     CefRefPtr<CefDictionaryValue> request_dict = ParseJSON(request);
@@ -400,8 +404,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     // Verify the "name" key.
-    if (!VerifyKey(request_dict, kNameKey, VTYPE_STRING, callback))
+    if (!VerifyKey(request_dict, kNameKey, VTYPE_STRING, callback)) {
       return true;
+    }
 
     const std::string& message_name = request_dict->GetString(kNameKey);
     if (message_name == kNameValueSubscribe) {
@@ -432,11 +437,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       // Create a new route.
 
       // Verify the "source_urn" key.
-      if (!VerifyKey(request_dict, kSourceKey, VTYPE_STRING, callback))
+      if (!VerifyKey(request_dict, kSourceKey, VTYPE_STRING, callback)) {
         return true;
+      }
       // Verify the "sink_id" key.
-      if (!VerifyKey(request_dict, kSinkKey, VTYPE_STRING, callback))
+      if (!VerifyKey(request_dict, kSinkKey, VTYPE_STRING, callback)) {
         return true;
+      }
 
       const std::string& source_urn = request_dict->GetString(kSourceKey);
       const std::string& sink_id = request_dict->GetString(kSinkKey);
@@ -451,8 +458,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       // Terminate an existing route.
 
       // Verify the "route" key.
-      if (!VerifyKey(request_dict, kRouteKey, VTYPE_STRING, callback))
+      if (!VerifyKey(request_dict, kRouteKey, VTYPE_STRING, callback)) {
         return true;
+      }
 
       const std::string& route_id = request_dict->GetString(kRouteKey);
       std::string error;
@@ -466,11 +474,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       // Send a route message.
 
       // Verify the "route_id" key.
-      if (!VerifyKey(request_dict, kRouteKey, VTYPE_STRING, callback))
+      if (!VerifyKey(request_dict, kRouteKey, VTYPE_STRING, callback)) {
         return true;
+      }
       // Verify the "message" key.
-      if (!VerifyKey(request_dict, kMessageKey, VTYPE_STRING, callback))
+      if (!VerifyKey(request_dict, kMessageKey, VTYPE_STRING, callback)) {
         return true;
+      }
 
       const std::string& route_id = request_dict->GetString(kRouteKey);
       const std::string& message = request_dict->GetString(kMessageKey);
@@ -503,8 +513,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Convert a JSON string to a dictionary value.
   static CefRefPtr<CefDictionaryValue> ParseJSON(const CefString& string) {
     CefRefPtr<CefValue> value = CefParseJSON(string, JSON_PARSER_RFC);
-    if (value.get() && value->GetType() == VTYPE_DICTIONARY)
+    if (value.get() && value->GetType() == VTYPE_DICTIONARY) {
       return value->GetDictionary();
+    }
     return nullptr;
   }
 

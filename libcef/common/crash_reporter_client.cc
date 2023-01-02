@@ -62,16 +62,18 @@ PathString GetCrashConfigPath() {
 #if BUILDFLAG(IS_WIN)
   // Start with the path to the running executable.
   wchar_t module_path[MAX_PATH];
-  if (GetModuleFileName(nullptr, module_path, MAX_PATH) == 0)
+  if (GetModuleFileName(nullptr, module_path, MAX_PATH) == 0) {
     return PathString();
+  }
 
   PathString config_path = module_path;
 
   // Remove the executable file name.
   PathString::size_type last_backslash =
       config_path.rfind(kPathSep, config_path.size());
-  if (last_backslash != PathString::npos)
+  if (last_backslash != PathString::npos) {
     config_path.erase(last_backslash + 1);
+  }
 
   config_path += L"crash_reporter.cfg";
   return config_path;
@@ -86,8 +88,9 @@ PathString GetCrashConfigPath() {
 
   if (config_path.empty()) {
     // Start with the path to the running executable.
-    if (!base::PathService::Get(base::DIR_EXE, &config_path))
+    if (!base::PathService::Get(base::DIR_EXE, &config_path)) {
       return PathString();
+    }
   }
 
   return config_path.Append(FILE_PATH_LITERAL("crash_reporter.cfg")).value();
@@ -106,11 +109,13 @@ const unsigned maxFilenameLength = 255;
 const char kInvalidFileChars[] = "<>:\"/\\|?*";
 
 bool isInvalidFileCharacter(unsigned char c) {
-  if (c < ' ' || c == 0x7F)
+  if (c < ' ' || c == 0x7F) {
     return true;
+  }
   for (size_t i = 0; i < sizeof(kInvalidFileChars); ++i) {
-    if (c == kInvalidFileChars[i])
+    if (c == kInvalidFileChars[i]) {
       return true;
+    }
   }
   return false;
 }
@@ -124,8 +129,9 @@ bool isAbsolutePath(const std::string& s) {
 }
 
 std::string extractAbsolutePathStart(std::string& s) {
-  if (!isAbsolutePath(s))
+  if (!isAbsolutePath(s)) {
     return std::string();
+  }
 
   std::string start;
   if (s[0] == kPathSep) {
@@ -141,14 +147,16 @@ std::string extractAbsolutePathStart(std::string& s) {
 }
 
 std::string sanitizePathComponentPart(const std::string& s) {
-  if (s.empty())
+  if (s.empty()) {
     return std::string();
+  }
 
   std::string result;
   result.reserve(s.length());
   for (size_t i = 0; i < s.length(); ++i) {
-    if (!isInvalidFileCharacter(s[i]))
+    if (!isInvalidFileCharacter(s[i])) {
       result.push_back(s[i]);
+    }
   }
   return result;
 }
@@ -170,13 +178,15 @@ std::string sanitizePathComponent(const std::string& s) {
   ext = sanitizePathComponentPart(ext);
 
   // Remove a ridiculously-long extension.
-  if (ext.length() >= maxFilenameLength)
+  if (ext.length() >= maxFilenameLength) {
     ext = std::string();
+  }
 
   // Truncate an overly-long filename, reserving one character for a dot.
   std::string::size_type max_name_len = maxFilenameLength - ext.length() - 1;
-  if (name.length() > max_name_len)
+  if (name.length() > max_name_len) {
     name = name.substr(0, max_name_len);
+  }
 
   return ext.empty() ? name : name + "." + ext;
 }
@@ -193,10 +203,12 @@ std::string sanitizePath(const std::string& s) {
                         base::SPLIT_WANT_NONEMPTY);
   for (size_t i = 0; i < parts.size(); ++i) {
     std::string part = parts[i];
-    if (part != "." && part != "..")
+    if (part != "." && part != "..") {
       part = sanitizePathComponent(part);
-    if (!result.empty() && result[result.length() - 1] != kPathSep)
+    }
+    if (!result.empty() && result[result.length() - 1] != kPathSep) {
       result += kPathSep;
+    }
     result += part;
   }
 
@@ -204,25 +216,31 @@ std::string sanitizePath(const std::string& s) {
 }
 
 std::string joinPath(const std::string& s1, const std::string& s2) {
-  if (s1.empty() && s2.empty())
+  if (s1.empty() && s2.empty()) {
     return std::string();
-  if (s1.empty())
+  }
+  if (s1.empty()) {
     return s2;
-  if (s2.empty())
+  }
+  if (s2.empty()) {
     return s1;
+  }
 
   // Don't try to join absolute paths on Windows.
   // Skip this check on POSIX where it's more difficult to differentiate.
-  if (isAbsolutePath(s2))
+  if (isAbsolutePath(s2)) {
     return s2;
+  }
 
   std::string result = s1;
-  if (result[result.size() - 1] != kPathSep)
+  if (result[result.size() - 1] != kPathSep) {
     result += kPathSep;
-  if (s2[0] == kPathSep)
+  }
+  if (s2[0] == kPathSep) {
     result += s2.substr(1);
-  else
+  } else {
     result += s2;
+  }
   return result;
 }
 
@@ -260,8 +278,9 @@ bool ParseBool(const std::string& value) {
 
 int ParseZeroBasedInt(const std::string& value) {
   int int_val;
-  if (base::StringToInt(value, &int_val) && int_val > 0)
+  if (base::StringToInt(value, &int_val) && int_val > 0) {
     return int_val;
+  }
   return 0;
 }
 
@@ -309,18 +328,21 @@ bool GetDefaultUserDataDirectory(std::wstring* result,
   if (user_data_dir.empty()) {
     // LOCALAPPDATA was not set; fallback to the temporary files path.
     DWORD size = ::GetTempPath(0, nullptr);
-    if (!size)
+    if (!size) {
       return false;
+    }
     user_data_dir.resize(size + 1);
     size = ::GetTempPath(size + 1, &user_data_dir[0]);
-    if (!size || size >= user_data_dir.size())
+    if (!size || size >= user_data_dir.size()) {
       return false;
+    }
     user_data_dir.resize(size);
   }
 
   result->swap(user_data_dir);
-  if ((*result)[result->length() - 1] != L'\\')
+  if ((*result)[result->length() - 1] != L'\\') {
     result->push_back(L'\\');
+  }
   result->append(install_sub_directory);
   result->push_back(L'\\');
   result->append(kUserDataDirname);
@@ -334,13 +356,15 @@ bool GetDefaultCrashDumpLocation(std::wstring* crash_dir,
   // In order to be able to start crash handling very early, we do not rely on
   // chrome's PathService entries (for DIR_CRASH_DUMPS) being available on
   // Windows. See https://crbug.com/564398.
-  if (!GetDefaultUserDataDirectory(crash_dir, install_sub_directory))
+  if (!GetDefaultUserDataDirectory(crash_dir, install_sub_directory)) {
     return false;
+  }
 
   // We have to make sure the user data dir exists on first run. See
   // http://crbug.com/591504.
-  if (!install_static::RecursiveDirectoryCreate(*crash_dir))
+  if (!install_static::RecursiveDirectoryCreate(*crash_dir)) {
     return false;
+  }
   crash_dir->append(L"\\Crashpad");
   return true;
 }
@@ -352,20 +376,23 @@ CefCrashReporterClient::~CefCrashReporterClient() {}
 
 // Be aware that logging is not initialized at the time this method is called.
 bool CefCrashReporterClient::ReadCrashConfigFile() {
-  if (has_crash_config_file_)
+  if (has_crash_config_file_) {
     return true;
+  }
 
   PathString config_path = GetCrashConfigPath();
-  if (config_path.empty())
+  if (config_path.empty()) {
     return false;
+  }
 
 #if BUILDFLAG(IS_WIN)
   FILE* fp = _wfopen(config_path.c_str(), L"r");
 #else
   FILE* fp = fopen(config_path.c_str(), "r");
 #endif
-  if (!fp)
+  if (!fp) {
     return false;
+  }
 
   char line[1000];
 
@@ -383,8 +410,9 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
   while (fgets(line, sizeof(line) - 1, fp) != nullptr) {
     std::string str = line;
     base::TrimString(str, base::kWhitespaceASCII, &str);
-    if (str.empty() || str[0] == '#')
+    if (str.empty() || str[0] == '#') {
       continue;
+    }
 
     if (str == "[Config]") {
       current_section = kConfigSection;
@@ -397,19 +425,22 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       continue;
     }
 
-    if (current_section == kNoSection)
+    if (current_section == kNoSection) {
       continue;
+    }
 
     size_t div = str.find('=');
-    if (div == std::string::npos)
+    if (div == std::string::npos) {
       continue;
+    }
 
     std::string name_str = str.substr(0, div);
     base::TrimString(name_str, base::kWhitespaceASCII, &name_str);
     std::string val_str = str.substr(div + 1);
     base::TrimString(val_str, base::kWhitespaceASCII, &val_str);
-    if (name_str.empty())
+    if (name_str.empty()) {
       continue;
+    }
 
     if (current_section == kConfigSection) {
       if (name_str == "ServerURL") {
@@ -429,13 +460,15 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       }
 #if BUILDFLAG(IS_WIN)
       else if (name_str == "ExternalHandler") {
-        if (!val_str.empty())
+        if (!val_str.empty()) {
           external_handler_ = sanitizePath(val_str);
+        }
       } else if (name_str == "AppName") {
         if (!val_str.empty()) {
           val_str = sanitizePathComponent(val_str);
-          if (!val_str.empty())
+          if (!val_str.empty()) {
             app_name_ = val_str;
+          }
         }
       }
 #elif BUILDFLAG(IS_MAC)
@@ -507,8 +540,9 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
                                crashpad::Annotation::kValueMaxSize);
       ids[i].Set(base::StringPiece(map_keys.data() + offset, length));
       offset += length;
-      if (offset >= map_keys.size())
+      if (offset >= map_keys.size()) {
         break;
+      }
     }
   }
 
@@ -537,14 +571,16 @@ bool CefCrashReporterClient::HasCrashConfigFile() const {
 
 // static
 void CefCrashReporterClient::InitializeCrashReportingForProcess() {
-  if (g_crash_reporter_client)
+  if (g_crash_reporter_client) {
     return;
+  }
 
   g_crash_reporter_client = new CefCrashReporterClient();
   ANNOTATE_LEAKING_OBJECT_PTR(g_crash_reporter_client);
 
-  if (!g_crash_reporter_client->ReadCrashConfigFile())
+  if (!g_crash_reporter_client->ReadCrashConfigFile()) {
     return;
+  }
 
   std::wstring process_type = install_static::GetSwitchValueFromCommandLine(
       ::GetCommandLineW(), install_static::kProcessType);
@@ -589,8 +625,9 @@ void CefCrashReporterClient::GetProductNameAndVersion(
 bool CefCrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
-  if (GetAlternativeCrashDumpLocation(crash_dir))
+  if (GetAlternativeCrashDumpLocation(crash_dir)) {
     return true;
+  }
 
   return GetDefaultCrashDumpLocation(crash_dir, base::UTF8ToWide(app_name_));
 }
@@ -652,8 +689,9 @@ std::string CefCrashReporterClient::GetUploadUrl() {
 // for supported arguments.
 void CefCrashReporterClient::GetCrashOptionalArguments(
     std::vector<std::string>* arguments) {
-  if (!rate_limit_)
+  if (!rate_limit_) {
     arguments->push_back(std::string("--no-rate-limit"));
+  }
 
   if (max_uploads_ > 0) {
     arguments->push_back(std::string("--max-uploads=") +
@@ -675,10 +713,12 @@ void CefCrashReporterClient::GetCrashOptionalArguments(
 
 std::wstring CefCrashReporterClient::GetCrashExternalHandler(
     const std::wstring& exe_dir) {
-  if (external_handler_.empty())
+  if (external_handler_.empty()) {
     return CrashReporterClient::GetCrashExternalHandler(exe_dir);
-  if (isAbsolutePath(external_handler_))
+  }
+  if (isAbsolutePath(external_handler_)) {
     return base::UTF8ToWide(external_handler_);
+  }
   return base::UTF8ToWide(
       joinPath(base::WideToUTF8(exe_dir), external_handler_));
 }
@@ -738,12 +778,14 @@ IDKEY_FUNCTION(L, 1024)
 
 bool CefCrashReporterClient::SetCrashKeyValue(const base::StringPiece& key,
                                               const base::StringPiece& value) {
-  if (key.empty() || crash_keys_.empty())
+  if (key.empty() || crash_keys_.empty()) {
     return false;
+  }
 
   KeyMap::const_iterator it = crash_keys_.find(NormalizeCrashKey(key));
-  if (it == crash_keys_.end())
+  if (it == crash_keys_.end()) {
     return false;
+  }
 
   const KeySize size = it->second.first;
   const size_t index = it->second.second;

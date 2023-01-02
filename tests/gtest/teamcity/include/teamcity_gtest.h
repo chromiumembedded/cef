@@ -25,30 +25,31 @@
 namespace jetbrains {
 namespace teamcity {
 
-class TeamcityGoogleTestEventListener: public ::testing::EmptyTestEventListener {
-public:
-    TeamcityGoogleTestEventListener(const std::string& flowid);
-    TeamcityGoogleTestEventListener();
+class TeamcityGoogleTestEventListener
+    : public ::testing::EmptyTestEventListener {
+ public:
+  TeamcityGoogleTestEventListener(const std::string& flowid);
+  TeamcityGoogleTestEventListener();
 
-    // Fired before the test case starts.
-    virtual void OnTestCaseStart(const ::testing::TestCase& test_case);
-    // Fired before the test starts.
-    virtual void OnTestStart(const ::testing::TestInfo& test_info);
-    // Fired after the test ends.
-    virtual void OnTestEnd(const ::testing::TestInfo& test_info);
-    // Fired after the test case ends.
-    virtual void OnTestCaseEnd(const ::testing::TestCase& test_case);
+  // Fired before the test case starts.
+  virtual void OnTestCaseStart(const ::testing::TestCase& test_case);
+  // Fired before the test starts.
+  virtual void OnTestStart(const ::testing::TestInfo& test_info);
+  // Fired after the test ends.
+  virtual void OnTestEnd(const ::testing::TestInfo& test_info);
+  // Fired after the test case ends.
+  virtual void OnTestCaseEnd(const ::testing::TestCase& test_case);
 
-private:
-    TeamcityMessages messages;
-    std::string flowid;
+ private:
+  TeamcityMessages messages;
+  std::string flowid;
 
-    // Prevent copying.
-    TeamcityGoogleTestEventListener(const TeamcityGoogleTestEventListener&);
-    void operator =(const TeamcityGoogleTestEventListener&);
+  // Prevent copying.
+  TeamcityGoogleTestEventListener(const TeamcityGoogleTestEventListener&);
+  void operator=(const TeamcityGoogleTestEventListener&);
 };
 
-}
-}
+}  // namespace teamcity
+}  // namespace jetbrains
 
 #endif /* H_TEAMCITY_GTEST */

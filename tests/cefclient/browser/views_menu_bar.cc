@@ -33,8 +33,9 @@ char16 GetMnemonic(const std::u16string& title) {
   do {
     index = title.find('&', index);
     if (index != std::u16string::npos) {
-      if (index + 1 != title.size() && title[index + 1] != '&')
+      if (index + 1 != title.size() && title[index + 1] != '&') {
         return ToLower(title[index + 1]);
+      }
       index++;
     }
   } while (index != std::u16string::npos);
@@ -67,8 +68,9 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
 
   // Assign the new menu ID.
   const int new_menu_id = id_next_++;
-  if (menu_id)
+  if (menu_id) {
     *menu_id = new_menu_id;
+  }
 
   // Create the new MenuModel.
   CefRefPtr<CefMenuModel> model = CefMenuModel::CreateMenuModel(this);
@@ -91,24 +93,28 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
 
   // Extract the mnemonic that triggers the menu, if any.
   char16 mnemonic = GetMnemonic(label);
-  if (mnemonic != 0)
+  if (mnemonic != 0) {
     mnemonics_.insert(std::make_pair(mnemonic, new_menu_id));
+  }
 
   return model;
 }
 
 CefRefPtr<CefMenuModel> ViewsMenuBar::GetMenuModel(int menu_id) const {
-  if (HasMenuId(menu_id))
+  if (HasMenuId(menu_id)) {
     return models_[menu_id - id_start_];
+  }
   return nullptr;
 }
 
 void ViewsMenuBar::SetMenuFocusable(bool focusable) {
-  if (!panel_)
+  if (!panel_) {
     return;
+  }
 
-  for (int id = id_start_; id < id_next_; ++id)
+  for (int id = id_start_; id < id_next_; ++id) {
     panel_->GetViewForID(id)->SetFocusable(focusable);
+  }
 
   if (focusable) {
     // Give focus to the first MenuButton.
@@ -117,20 +123,24 @@ void ViewsMenuBar::SetMenuFocusable(bool focusable) {
 }
 
 bool ViewsMenuBar::OnKeyEvent(const CefKeyEvent& event) {
-  if (!panel_)
+  if (!panel_) {
     return false;
+  }
 
-  if (event.type != KEYEVENT_RAWKEYDOWN)
+  if (event.type != KEYEVENT_RAWKEYDOWN) {
     return false;
+  }
 
   // Do not check mnemonics if the Alt or Ctrl modifiers are pressed. For
   // example Ctrl+<T> is an accelerator, but <T> only is a mnemonic.
-  if (event.modifiers & (EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN))
+  if (event.modifiers & (EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN)) {
     return false;
+  }
 
   MnemonicMap::const_iterator it = mnemonics_.find(ToLower(event.character));
-  if (it == mnemonics_.end())
+  if (it == mnemonics_.end()) {
     return false;
+  }
 
   // Set status indicating that we navigated using the keyboard.
   last_nav_with_keyboard_ = true;
@@ -189,30 +199,34 @@ void ViewsMenuBar::MouseOutsideMenu(CefRefPtr<CefMenuModel> menu_model,
 
   // Convert the point from screen to window coordinates.
   CefPoint window_point = screen_point;
-  if (!window->ConvertPointFromScreen(window_point))
+  if (!window->ConvertPointFromScreen(window_point)) {
     return;
+  }
 
   CefRect panel_bounds = panel_->GetBounds();
 
   if (last_nav_with_keyboard_) {
     // The user navigated last using the keyboard. Don't change menus using
     // mouse movements until the mouse exits and re-enters the Panel.
-    if (panel_bounds.Contains(window_point))
+    if (panel_bounds.Contains(window_point)) {
       return;
+    }
     last_nav_with_keyboard_ = false;
   }
 
   // Check that the point is inside the Panel.
-  if (!panel_bounds.Contains(window_point))
+  if (!panel_bounds.Contains(window_point)) {
     return;
+  }
 
   const int active_menu_id = GetActiveMenuId();
 
   // Determine which MenuButton is under the specified point.
   for (int id = id_start_; id < id_next_; ++id) {
     // Skip the currently active MenuButton.
-    if (id == active_menu_id)
+    if (id == active_menu_id) {
       continue;
+    }
 
     CefRefPtr<CefView> button = panel_->GetViewForID(id);
     CefRect button_bounds = button->GetBounds();
@@ -241,13 +255,15 @@ void ViewsMenuBar::UnhandledCloseSubmenu(CefRefPtr<CefMenuModel> menu_model,
 
 void ViewsMenuBar::MenuClosed(CefRefPtr<CefMenuModel> menu_model) {
   // Reset |last_nav_with_keyboard_| status whenever the main menu closes.
-  if (!menu_model->IsSubMenu() && last_nav_with_keyboard_)
+  if (!menu_model->IsSubMenu() && last_nav_with_keyboard_) {
     last_nav_with_keyboard_ = false;
+  }
 }
 
 void ViewsMenuBar::EnsureMenuPanel() {
-  if (panel_)
+  if (panel_) {
     return;
+  }
 
   panel_ = CefPanel::CreatePanel(nullptr);
   views_style::ApplyTo(panel_);
@@ -263,8 +279,9 @@ int ViewsMenuBar::GetActiveMenuId() {
 
   for (int id = id_start_; id < id_next_; ++id) {
     CefRefPtr<CefButton> button = panel_->GetViewForID(id)->AsButton();
-    if (button->GetState() == CEF_BUTTON_STATE_PRESSED)
+    if (button->GetState() == CEF_BUTTON_STATE_PRESSED) {
       return id;
+    }
   }
 
   return -1;
@@ -279,8 +296,9 @@ void ViewsMenuBar::TriggerNextMenu(int offset) {
 
   // Compute the modulus to avoid negative values.
   int next_menu_index = (active_menu_index + offset) % menu_count;
-  if (next_menu_index < 0)
+  if (next_menu_index < 0) {
     next_menu_index += menu_count;
+  }
 
   // Cancel the existing menu. MenuClosed may be called.
   panel_->GetWindow()->CancelMenu();
@@ -295,8 +313,9 @@ void ViewsMenuBar::TriggerNextMenu(int offset) {
 void ViewsMenuBar::TriggerMenuButton(CefRefPtr<CefView> button) {
   CefRefPtr<CefMenuButton> menu_button =
       button->AsButton()->AsLabelButton()->AsMenuButton();
-  if (menu_button->IsFocusable())
+  if (menu_button->IsFocusable()) {
     menu_button->RequestFocus();
+  }
   menu_button->TriggerMenu();
 }
 

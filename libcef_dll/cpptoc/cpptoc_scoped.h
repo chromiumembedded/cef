@@ -34,8 +34,9 @@ class CefCppToCScoped : public CefBaseScoped {
   //   struct->del(struct);
   // }
   static StructName* WrapOwn(CefOwnPtr<BaseName> c) {
-    if (!c)
+    if (!c) {
       return nullptr;
+    }
 
     // Wrap our object with the CefCppToC class.
     ClassName* wrapper = new ClassName();
@@ -60,8 +61,9 @@ class CefCppToCScoped : public CefBaseScoped {
   //   // Access |struct| here but you can't delete it.
   // }
   static CefOwnPtr<ClassName> WrapRaw(CefRawPtr<BaseName> c) {
-    if (!c)
+    if (!c) {
       return CefOwnPtr<ClassName>();
+    }
 
     // Wrap our object with the CefCppToC class.
     ClassName* wrapper = new ClassName();
@@ -80,16 +82,18 @@ class CefCppToCScoped : public CefBaseScoped {
   //   // |struct| has been deleted and should no longer be accessed.
   // }
   static CefOwnPtr<BaseName> UnwrapOwn(StructName* s) {
-    if (!s)
+    if (!s) {
       return CefOwnPtr<BaseName>();
+    }
 
     // Cast our structure to the wrapper structure type.
     WrapperStruct* wrapperStruct = GetWrapperStruct(s);
 
     // If the type does not match this object then we need to unwrap as the
     // derived type.
-    if (wrapperStruct->type_ != kWrapperType)
+    if (wrapperStruct->type_ != kWrapperType) {
       return UnwrapDerivedOwn(wrapperStruct->type_, s);
+    }
 
     // We should own the underlying object currently.
     DCHECK(wrapperStruct->wrapper_->owned_);
@@ -114,16 +118,18 @@ class CefCppToCScoped : public CefBaseScoped {
   //   // |struct| is still valid.
   // }
   static CefRawPtr<BaseName> UnwrapRaw(StructName* s) {
-    if (!s)
+    if (!s) {
       return nullptr;
+    }
 
     // Cast our structure to the wrapper structure type.
     WrapperStruct* wrapperStruct = GetWrapperStruct(s);
 
     // If the type does not match this object then we need to unwrap as the
     // derived type.
-    if (wrapperStruct->type_ != kWrapperType)
+    if (wrapperStruct->type_ != kWrapperType) {
       return UnwrapDerivedRaw(wrapperStruct->type_, s);
+    }
 
     // Return the underlying object instance.
     return wrapperStruct->object_;
@@ -164,8 +170,9 @@ class CefCppToCScoped : public CefBaseScoped {
 
   virtual ~CefCppToCScoped() {
     // Only delete the underlying object if we own it.
-    if (owned_ && wrapper_struct_.object_)
+    if (owned_ && wrapper_struct_.object_) {
       delete wrapper_struct_.object_;
+    }
   }
 
  private:
@@ -184,8 +191,9 @@ class CefCppToCScoped : public CefBaseScoped {
 
     cef_base_scoped_t* base = reinterpret_cast<cef_base_scoped_t*>(GetStruct());
     base->size = sizeof(StructName);
-    if (owned)
+    if (owned) {
       base->del = struct_del;
+    }
   }
 
   static WrapperStruct* GetWrapperStruct(StructName* s) {
@@ -205,8 +213,9 @@ class CefCppToCScoped : public CefBaseScoped {
 
   static void CEF_CALLBACK struct_del(cef_base_scoped_t* base) {
     DCHECK(base);
-    if (!base)
+    if (!base) {
       return;
+    }
 
     WrapperStruct* wrapperStruct =
         GetWrapperStruct(reinterpret_cast<StructName*>(base));

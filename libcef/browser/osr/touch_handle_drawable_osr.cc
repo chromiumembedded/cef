@@ -33,8 +33,9 @@ CefTouchHandleDrawableOSR::CefTouchHandleDrawableOSR(
     : rwhv_(rwhv), id_(counter_++) {}
 
 void CefTouchHandleDrawableOSR::SetEnabled(bool enabled) {
-  if (enabled == enabled_)
+  if (enabled == enabled_) {
     return;
+  }
 
   enabled_ = enabled;
 
@@ -49,8 +50,9 @@ void CefTouchHandleDrawableOSR::SetOrientation(
     ui::TouchHandleOrientation orientation,
     bool mirror_vertical,
     bool mirror_horizontal) {
-  if (orientation == orientation_)
+  if (orientation == orientation_) {
     return;
+  }
 
   orientation_ = orientation;
 
@@ -80,8 +82,9 @@ void CefTouchHandleDrawableOSR::SetOrientation(
 }
 
 void CefTouchHandleDrawableOSR::SetOrigin(const gfx::PointF& position) {
-  if (position == origin_position_)
+  if (position == origin_position_) {
     return;
+  }
 
   origin_position_ = position;
 
@@ -94,8 +97,9 @@ void CefTouchHandleDrawableOSR::SetOrigin(const gfx::PointF& position) {
 }
 
 void CefTouchHandleDrawableOSR::SetAlpha(float alpha) {
-  if (alpha == alpha_)
+  if (alpha == alpha_) {
     return;
+  }
 
   alpha_ = alpha;
 

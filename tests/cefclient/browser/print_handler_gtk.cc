@@ -87,8 +87,9 @@ class StickyPrintSettingGtk {
 // Lazily initialize the singleton instance.
 StickyPrintSettingGtk* GetLastUsedSettings() {
   static StickyPrintSettingGtk* settings = nullptr;
-  if (!settings)
+  if (!settings) {
     settings = new StickyPrintSettingGtk();
+  }
   return settings;
 }
 
@@ -114,8 +115,9 @@ class GtkPrinterList {
   // - Printer list out of sync with printer dialog UI.
   // - Querying for non-existant printers like 'Print to PDF'.
   GtkPrinter* GetPrinterWithName(const std::string& name) {
-    if (name.empty())
+    if (name.empty()) {
       return nullptr;
+    }
 
     for (std::vector<GtkPrinter*>::iterator it = printers_.begin();
          it < printers_.end(); ++it) {
@@ -131,8 +133,9 @@ class GtkPrinterList {
   // Callback function used by gtk_enumerate_printers() to get all printer.
   static gboolean SetPrinter(GtkPrinter* printer, gpointer data) {
     GtkPrinterList* printer_list = reinterpret_cast<GtkPrinterList*>(data);
-    if (gtk_printer_is_default(printer))
+    if (gtk_printer_is_default(printer)) {
       printer_list->default_printer_ = printer;
+    }
 
     g_object_ref(printer);
     printer_list->printers_.push_back(printer);
@@ -226,8 +229,9 @@ void InitPrintSettings(GtkPrintSettings* settings,
 
   std::string device_name;
   const gchar* name = gtk_print_settings_get_printer(settings);
-  if (name)
+  if (name) {
     device_name = name;
+  }
   print_settings->SetDeviceName(device_name);
 
   CefSize physical_size_device_units;
@@ -278,8 +282,9 @@ void InitPrintSettings(GtkPrintSettings* settings,
 GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   scoped_refptr<RootWindow> root_window =
       RootWindow::GetForBrowser(browser->GetIdentifier());
-  if (root_window)
+  if (root_window) {
     return GTK_WINDOW(root_window->GetWindowHandle());
+  }
   return nullptr;
 }
 
@@ -386,8 +391,9 @@ struct ClientPrintHandlerGtk::PrintHandler {
         gtk_print_settings_set(gtk_settings_, kCUPSDuplex, cups_duplex_mode);
       }
 
-      if (!page_setup_)
+      if (!page_setup_) {
         page_setup_ = gtk_page_setup_new();
+      }
 
       gtk_print_settings_set_orientation(gtk_settings_,
                                          settings->IsLandscape()
@@ -441,8 +447,9 @@ struct ClientPrintHandlerGtk::PrintHandler {
                   CefRefPtr<CefPrintJobCallback> callback) {
     // If |printer_| is nullptr then somehow the GTK printer list changed out
     // under us. In which case, just bail out.
-    if (!printer_)
+    if (!printer_) {
       return false;
+    }
 
     ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -470,19 +477,22 @@ struct ClientPrintHandlerGtk::PrintHandler {
 
     switch (response_id) {
       case GTK_RESPONSE_OK: {
-        if (gtk_settings_)
+        if (gtk_settings_) {
           g_object_unref(gtk_settings_);
+        }
         gtk_settings_ =
             gtk_print_unix_dialog_get_settings(GTK_PRINT_UNIX_DIALOG(dialog_));
 
-        if (printer_)
+        if (printer_) {
           g_object_unref(printer_);
+        }
         printer_ = gtk_print_unix_dialog_get_selected_printer(
             GTK_PRINT_UNIX_DIALOG(dialog_));
         g_object_ref(printer_);
 
-        if (page_setup_)
+        if (page_setup_) {
           g_object_unref(page_setup_);
+        }
         page_setup_ = gtk_print_unix_dialog_get_page_setup(
             GTK_PRINT_UNIX_DIALOG(dialog_));
         g_object_ref(page_setup_);

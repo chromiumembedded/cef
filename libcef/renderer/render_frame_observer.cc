@@ -38,8 +38,9 @@ CefRenderFrameObserver::~CefRenderFrameObserver() = default;
 
 void CefRenderFrameObserver::DidCommitProvisionalLoad(
     ui::PageTransition transition) {
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   frame_->OnDidCommitProvisionalLoad();
 
@@ -79,21 +80,25 @@ void CefRenderFrameObserver::WillDetach() {
 
 void CefRenderFrameObserver::FocusedElementChanged(
     const blink::WebElement& element) {
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr)
+  if (!browserPtr) {
     return;
+  }
 
   CefRefPtr<CefRenderProcessHandler> handler;
   CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application)
+  if (application) {
     handler = application->GetRenderProcessHandler();
-  if (!handler)
+  }
+  if (!handler) {
     return;
+  }
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
@@ -102,8 +107,9 @@ void CefRenderFrameObserver::FocusedElementChanged(
     return;
   }
 
-  if (element.GetDocument().IsNull())
+  if (element.GetDocument().IsNull()) {
     return;
+  }
 
   CefRefPtr<CefDOMDocumentImpl> documentImpl =
       new CefDOMDocumentImpl(browserPtr.get(), frame);
@@ -121,19 +127,22 @@ void CefRenderFrameObserver::DraggableRegionsChanged() {
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr)
+  if (!browserPtr) {
     return;
+  }
 
   CefRefPtr<CefRenderProcessHandler> handler;
   CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application)
+  if (application) {
     handler = application->GetRenderProcessHandler();
+  }
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
@@ -159,13 +168,15 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
-  if (!browserPtr)
+  if (!browserPtr) {
     return;
+  }
 
   CefRefPtr<CefRenderProcessHandler> handler;
   CefRefPtr<CefApp> application = CefAppManager::Get()->GetApplication();
-  if (application)
+  if (application) {
     handler = application->GetRenderProcessHandler();
+  }
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 

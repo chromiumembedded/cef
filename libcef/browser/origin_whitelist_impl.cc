@@ -52,8 +52,9 @@ class CefOriginWhitelistManager {
 
       // Verify that the origin entry doesn't already exist.
       for (const auto& entry : origin_list_) {
-        if (entry == info)
+        if (entry == info) {
           return false;
+        }
       }
 
       origin_list_.push_back(info->Clone());
@@ -88,8 +89,9 @@ class CefOriginWhitelistManager {
       }
     }
 
-    if (!found)
+    if (!found) {
       return false;
+    }
 
     SendModifyCrossOriginWhitelistEntry(false, info);
     return true;
@@ -123,8 +125,9 @@ class CefOriginWhitelistManager {
 
     if (!origin_list_.empty()) {
       for (const auto& entry : origin_list_) {
-        if (IsMatch(source, target, entry))
+        if (IsMatch(source, target, entry)) {
           return true;
+        }
       }
     }
 

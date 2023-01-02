@@ -396,8 +396,9 @@ class DownloadTestHandler : public TestHandler {
                          CefRefPtr<CefDownloadItemCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
-    if (destroyed_)
+    if (destroyed_) {
       return;
+    }
 
     got_on_download_updated_.yes();
 
@@ -514,10 +515,11 @@ class DownloadTestHandler : public TestHandler {
       EXPECT_TRUE(got_on_download_updated_);
     }
 
-    if (test_mode_ == NAVIGATED)
+    if (test_mode_ == NAVIGATED) {
       EXPECT_TRUE(got_nav_load_);
-    else
+    } else {
       EXPECT_FALSE(got_nav_load_);
+    }
 
     if (!is_downloaded()) {
       // The download never completes.

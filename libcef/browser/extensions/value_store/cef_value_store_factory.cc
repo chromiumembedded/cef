@@ -63,10 +63,11 @@ void CefValueStoreFactory::Reset() {
 
 std::unique_ptr<ValueStore> CefValueStoreFactory::CreateStore() {
   std::unique_ptr<ValueStore> store;
-  if (db_path_.empty())
+  if (db_path_.empty()) {
     store = std::make_unique<CefValueStore>();
-  else
+  } else {
     store = std::make_unique<LeveldbValueStore>(kUMAClientName, db_path_);
+  }
   last_created_store_ = store.get();
   return store;
 }

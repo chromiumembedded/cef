@@ -81,8 +81,9 @@ gfx::Size AlloyWebContentsDialogHelper::GetMaximumDialogSize() {
 
 void AlloyWebContentsDialogHelper::AddObserver(
     web_modal::ModalDialogHostObserver* observer) {
-  if (observer && !observer_list_.HasObserver(observer))
+  if (observer && !observer_list_.HasObserver(observer)) {
     observer_list_.AddObserver(observer);
+  }
 }
 
 void AlloyWebContentsDialogHelper::RemoveObserver(
@@ -91,6 +92,7 @@ void AlloyWebContentsDialogHelper::RemoveObserver(
 }
 
 void AlloyWebContentsDialogHelper::OnBoundsChanged() {
-  for (auto& observer : observer_list_)
+  for (auto& observer : observer_list_) {
     observer.OnPositionRequiresUpdate();
+  }
 }

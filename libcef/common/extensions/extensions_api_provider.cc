@@ -7,7 +7,7 @@
 #include "libcef/common/extensions/chrome_generated_schemas.h"
 
 #include "cef/grit/cef_resources.h"
-//#include "cef/libcef/common/extensions/api/generated_schemas.h"
+// #include "cef/libcef/common/extensions/api/generated_schemas.h"
 #include "cef/libcef/common/extensions/api/cef_api_features.h"
 #include "cef/libcef/common/extensions/api/cef_manifest_features.h"
 #include "cef/libcef/common/extensions/api/cef_permission_features.h"
@@ -52,8 +52,9 @@ bool CefExtensionsAPIProvider::IsAPISchemaGenerated(const std::string& name) {
   //   return true;
 
   // Chrome APIs whitelisted by CEF.
-  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
+  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name)) {
     return true;
+  }
 
   return false;
 }
@@ -67,8 +68,9 @@ base::StringPiece CefExtensionsAPIProvider::GetAPISchema(
   //   return api::cef::CefGeneratedSchemas::Get(name);
 
   // Chrome APIs whitelisted by CEF.
-  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
+  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name)) {
     return api::cef::ChromeGeneratedSchemas::Get(name);
+  }
 
   return base::StringPiece();
 }

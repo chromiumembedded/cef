@@ -155,8 +155,9 @@ void CefRenderManager::ExposeInterfacesToBrowser(mojo::BinderMap* binders) {
 CefRefPtr<CefBrowserImpl> CefRenderManager::GetBrowserForView(
     blink::WebView* view) {
   BrowserMap::const_iterator it = browsers_.find(view);
-  if (it != browsers_.end())
+  if (it != browsers_.end()) {
     return it->second;
+  }
   return nullptr;
 }
 
@@ -239,10 +240,12 @@ void CefRenderManager::WebKitInitialized() {
       const CefSchemeInfo& info = *it;
       const blink::WebString& scheme =
           blink::WebString::FromUTF8(info.scheme_name);
-      if (info.is_display_isolated)
+      if (info.is_display_isolated) {
         blink::WebSecurityPolicy::RegisterURLSchemeAsDisplayIsolated(scheme);
-      if (info.is_fetch_enabled)
+      }
+      if (info.is_fetch_enabled) {
         blink_glue::RegisterURLSchemeAsSupportingFetchAPI(scheme);
+      }
     }
   }
 
@@ -272,8 +275,9 @@ void CefRenderManager::WebKitInitialized() {
   if (application.get()) {
     CefRefPtr<CefRenderProcessHandler> handler =
         application->GetRenderProcessHandler();
-    if (handler.get())
+    if (handler.get()) {
       handler->OnWebKitInitialized();
+    }
   }
 }
 
@@ -282,11 +286,13 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     content::RenderFrame* render_frame,
     bool* browser_created,
     absl::optional<bool>* is_windowless) {
-  if (browser_created)
+  if (browser_created) {
     *browser_created = false;
+  }
 
-  if (!web_view || !render_frame)
+  if (!web_view || !render_frame) {
     return nullptr;
+  }
 
   // Don't create another browser or guest view object if one already exists for
   // the view.
@@ -350,13 +356,15 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
             /*will_delete=*/false, /*read_only=*/true);
       }
       handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
-      if (dictValuePtr)
+      if (dictValuePtr) {
         std::ignore = dictValuePtr->Detach(nullptr);
+      }
     }
   }
 
-  if (browser_created)
+  if (browser_created) {
     *browser_created = true;
+  }
 
   return browser;
 }
@@ -378,8 +386,9 @@ CefGuestView* CefRenderManager::GetGuestViewForView(blink::WebView* view) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   GuestViewMap::const_iterator it = guest_views_.find(view);
-  if (it != guest_views_.end())
+  if (it != guest_views_.end()) {
     return it->second.get();
+  }
   return nullptr;
 }
 

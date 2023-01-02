@@ -53,7 +53,8 @@ CefViewAdapter* CefViewAdapter::GetFor(CefRefPtr<CefView> view) {
 // static
 CefViewAdapter* CefViewAdapter::GetFor(views::View* view) {
   CefRefPtr<CefView> cef_view = view_util::GetFor(view, false);
-  if (cef_view)
+  if (cef_view) {
     return GetFor(cef_view);
+  }
   return nullptr;
 }

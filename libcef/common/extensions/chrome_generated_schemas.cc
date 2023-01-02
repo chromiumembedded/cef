@@ -14,15 +14,17 @@ namespace cef {
 
 // static
 base::StringPiece ChromeGeneratedSchemas::Get(const std::string& name) {
-  if (!ChromeFunctionRegistry::IsSupported(name))
+  if (!ChromeFunctionRegistry::IsSupported(name)) {
     return base::StringPiece();
+  }
   return extensions::api::ChromeGeneratedSchemas::Get(name);
 }
 
 // static
 bool ChromeGeneratedSchemas::IsGenerated(std::string name) {
-  if (!ChromeFunctionRegistry::IsSupported(name))
+  if (!ChromeFunctionRegistry::IsSupported(name)) {
     return false;
+  }
   return extensions::api::ChromeGeneratedSchemas::IsGenerated(name);
 }
 

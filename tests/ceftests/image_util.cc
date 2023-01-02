@@ -16,10 +16,11 @@ void LoadImage(CefRefPtr<CefImage> image,
   std::string image_str;
 
   std::string name_str;
-  if (scale_factor == 1.0f)
+  if (scale_factor == 1.0f) {
     name_str = name + ".1x.png";
-  else if (scale_factor == 2.0f)
+  } else if (scale_factor == 2.0f) {
     name_str = name + ".2x.png";
+  }
 
   EXPECT_TRUE(client::LoadBinaryResource(name_str.c_str(), image_str));
   EXPECT_TRUE(image->AddPNG(scale_factor, image_str.c_str(), image_str.size()));

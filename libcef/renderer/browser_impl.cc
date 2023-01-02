@@ -86,8 +86,9 @@ bool CefBrowserImpl::IsLoading() {
 
   if (GetWebView()) {
     blink::WebFrame* main_frame = GetWebView()->MainFrame();
-    if (main_frame)
+    if (main_frame) {
       return main_frame->ToWebLocalFrame()->IsLoading();
+    }
   }
   return false;
 }
@@ -194,8 +195,9 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
         blink::WebString::FromUTF16(name.ToString16());
     // Search by assigned frame name (Frame::name).
     blink::WebFrame* frame = web_view->MainFrame();
-    if (frame && frame->IsWebLocalFrame())
+    if (frame && frame->IsWebLocalFrame()) {
       frame = frame->ToWebLocalFrame()->FindFrameByName(frame_name);
+    }
     if (!frame) {
       // Search by unique frame name (Frame::uniqueName).
       const std::string& searchname = name;
@@ -209,8 +211,9 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
         }
       }
     }
-    if (frame && frame->IsWebLocalFrame())
+    if (frame && frame->IsWebLocalFrame()) {
       return GetWebFrameImpl(frame->ToWebLocalFrame()).get();
+    }
   }
 
   return nullptr;
@@ -234,15 +237,17 @@ size_t CefBrowserImpl::GetFrameCount() {
 void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (identifiers.size() > 0)
+  if (identifiers.size() > 0) {
     identifiers.clear();
+  }
 
   if (GetWebView()) {
     for (blink::WebFrame* frame = GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
-      if (frame->IsWebLocalFrame())
+      if (frame->IsWebLocalFrame()) {
         identifiers.push_back(
             render_frame_util::GetIdentifier(frame->ToWebLocalFrame()));
+      }
     }
   }
 }
@@ -250,14 +255,16 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
 void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (names.size() > 0)
+  if (names.size() > 0) {
     names.clear();
+  }
 
   if (GetWebView()) {
     for (blink::WebFrame* frame = GetWebView()->MainFrame(); frame;
          frame = frame->TraverseNext()) {
-      if (frame->IsWebLocalFrame())
+      if (frame->IsWebLocalFrame()) {
         names.push_back(render_frame_util::GetName(frame->ToWebLocalFrame()));
+      }
     }
   }
 }
@@ -283,8 +290,9 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
 
   // Frames are re-used between page loads. Only add the frame to the map once.
   FrameMap::const_iterator it = frames_.find(frame_id);
-  if (it != frames_.end())
+  if (it != frames_.end()) {
     return it->second;
+  }
 
   CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame, frame_id));
   frames_.insert(std::make_pair(frame_id, framePtr));
@@ -305,8 +313,9 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
 
   // Check if we already know about the frame.
   FrameMap::const_iterator it = frames_.find(frame_id);
-  if (it != frames_.end())
+  if (it != frames_.end()) {
     return it->second;
+  }
 
   if (GetWebView()) {
     // Check if the frame exists but we don't know about it yet.
@@ -329,8 +338,9 @@ void CefBrowserImpl::AddFrameObject(int64_t frame_id,
 
   if (!frame_objects_.empty()) {
     FrameObjectMap::const_iterator it = frame_objects_.find(frame_id);
-    if (it != frame_objects_.end())
+    if (it != frame_objects_.end()) {
       manager = it->second;
+    }
   }
 
   if (!manager.get()) {
@@ -349,8 +359,9 @@ void CefBrowserImpl::OnDestruct() {
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();
   if (app.get()) {
     CefRefPtr<CefRenderProcessHandler> handler = app->GetRenderProcessHandler();
-    if (handler.get())
+    if (handler.get()) {
       handler->OnBrowserDestroyed(this);
+    }
   }
 
   CefRenderManager::Get()->OnBrowserDestroyed(this);
@@ -368,8 +379,9 @@ void CefBrowserImpl::FrameDetached(int64_t frame_id) {
   if (!frame_objects_.empty()) {
     // Remove any tracked objects associated with the frame.
     FrameObjectMap::iterator it = frame_objects_.find(frame_id);
-    if (it != frame_objects_.end())
+    if (it != frame_objects_.end()) {
       frame_objects_.erase(it);
+    }
   }
 }
 

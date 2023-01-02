@@ -24,8 +24,9 @@ void CefScrollViewImpl::SetContentView(CefRefPtr<CefView> view) {
   DCHECK(view.get());
   DCHECK(view->IsValid());
   DCHECK(!view->IsAttached());
-  if (!view.get() || !view->IsValid() || view->IsAttached())
+  if (!view.get() || !view->IsValid() || view->IsAttached()) {
     return;
+  }
 
   root_view()->SetContents(view_util::PassOwnership(view));
 }

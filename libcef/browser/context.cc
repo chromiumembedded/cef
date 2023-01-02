@@ -47,8 +47,9 @@ class CefShutdownChecker {
 // loading chrome://system.
 void InitInstallDetails() {
   static bool initialized = false;
-  if (initialized)
+  if (initialized) {
     return;
+  }
   initialized = true;
   install_static::InitializeFromPrimaryModule();
 }
@@ -57,8 +58,9 @@ void InitInstallDetails() {
 // DllMain. See https://crbug.com/656800 for details.
 void InitCrashReporter() {
   static bool initialized = false;
-  if (initialized)
+  if (initialized) {
     return;
+  }
   initialized = true;
   SignalInitializeCrashReporting();
 }
@@ -67,8 +69,9 @@ void InitCrashReporter() {
 
 bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
   // Windowed browser colors must be fully opaque.
-  if (!is_windowless && CefColorGetA(cef_in) != SK_AlphaOPAQUE)
+  if (!is_windowless && CefColorGetA(cef_in) != SK_AlphaOPAQUE) {
     return false;
+  }
 
   // Windowless browser colors may be fully transparent.
   if (is_windowless && CefColorGetA(cef_in) == SK_AlphaTRANSPARENT) {
@@ -86,8 +89,9 @@ bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
 base::FilePath NormalizePath(const cef_string_t& path_str,
                              const char* name,
                              bool* has_error = nullptr) {
-  if (has_error)
+  if (has_error) {
     *has_error = false;
+  }
 
   base::FilePath path = base::FilePath(CefString(&path_str));
   if (path.EndsWithSeparator()) {
@@ -99,8 +103,9 @@ base::FilePath NormalizePath(const cef_string_t& path_str,
   if (!path.empty() && !path.IsAbsolute()) {
     LOG(ERROR) << "The " << name << " directory (" << path.value()
                << ") is not an absolute path. Defaulting to empty.";
-    if (has_error)
+    if (has_error) {
       *has_error = true;
+    }
     path = base::FilePath();
   }
 
@@ -125,8 +130,9 @@ base::FilePath NormalizePathAndSet(cef_string_t& path_str, const char* name) {
 // Verify that |cache_path| is valid and create it if necessary.
 bool ValidateCachePath(const base::FilePath& cache_path,
                        const base::FilePath& root_cache_path) {
-  if (cache_path.empty())
+  if (cache_path.empty()) {
     return true;
+  }
 
   if (!root_cache_path.empty() && root_cache_path != cache_path &&
       !root_cache_path.IsParent(cache_path)) {
@@ -289,8 +295,9 @@ bool CefInitialize(const CefMainArgs& args,
 #endif
 
   // Return true if the global context already exists.
-  if (g_context)
+  if (g_context) {
     return true;
+  }
 
   if (settings.size != sizeof(cef_settings_t)) {
     NOTREACHED() << "invalid CefSettings structure size";
@@ -525,10 +532,12 @@ SkColor CefContext::GetBackgroundColor(
 
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   CEF_REQUIRE_UIT();
-  if (shutting_down_)
+  if (shutting_down_) {
     return nullptr;
-  if (!trace_subscriber_.get())
+  }
+  if (!trace_subscriber_.get()) {
     trace_subscriber_.reset(new CefTraceSubscriber());
+  }
   return trace_subscriber_.get();
 }
 
@@ -587,8 +596,9 @@ void CefContext::OnContextInitialized() {
         [](CefRefPtr<CefApp> app) {
           CefRefPtr<CefBrowserProcessHandler> handler =
               app->GetBrowserProcessHandler();
-          if (handler)
+          if (handler) {
             handler->OnContextInitialized();
+          }
         },
         application_));
   }
@@ -599,11 +609,13 @@ void CefContext::ShutdownOnUIThread() {
 
   browser_info_manager_->DestroyAllBrowsers();
 
-  for (auto& observer : observers_)
+  for (auto& observer : observers_) {
     observer.OnContextDestroyed();
+  }
 
-  if (trace_subscriber_.get())
+  if (trace_subscriber_.get()) {
     trace_subscriber_.reset(nullptr);
+  }
 }
 
 void CefContext::FinalizeShutdown() {

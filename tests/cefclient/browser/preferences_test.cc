@@ -54,8 +54,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (!test_runner::IsTestURL(url, kTestUrlPath))
+    if (!test_runner::IsTestURL(url, kTestUrlPath)) {
       return false;
+    }
 
     // Parse |request| as a JSON dictionary.
     CefRefPtr<CefDictionaryValue> request_dict = ParseJSON(request);
@@ -65,16 +66,18 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     // Verify the "name" key.
-    if (!VerifyKey(request_dict, kNameKey, VTYPE_STRING, callback))
+    if (!VerifyKey(request_dict, kNameKey, VTYPE_STRING, callback)) {
       return true;
+    }
 
     const std::string& message_name = request_dict->GetString(kNameKey);
     if (message_name == kNameValueGet) {
       // JavaScript is requesting a JSON representation of the preferences tree.
 
       // Verify the "include_defaults" key.
-      if (!VerifyKey(request_dict, kIncludeDefaultsKey, VTYPE_BOOL, callback))
+      if (!VerifyKey(request_dict, kIncludeDefaultsKey, VTYPE_BOOL, callback)) {
         return true;
+      }
 
       const bool include_defaults = request_dict->GetBool(kIncludeDefaultsKey);
 
@@ -86,8 +89,10 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       // specified JSON representation.
 
       // Verify the "preferences" key.
-      if (!VerifyKey(request_dict, kPreferencesKey, VTYPE_DICTIONARY, callback))
+      if (!VerifyKey(request_dict, kPreferencesKey, VTYPE_DICTIONARY,
+                     callback)) {
         return true;
+      }
 
       CefRefPtr<CefDictionaryValue> preferences =
           request_dict->GetDictionary(kPreferencesKey);
@@ -147,30 +152,34 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       ss << "Successfully changed " << changed_names.size() << " preferences; ";
       for (size_t i = 0; i < changed_names.size(); ++i) {
         ss << changed_names[i];
-        if (i < changed_names.size() - 1)
+        if (i < changed_names.size() - 1) {
           ss << ", ";
+        }
       }
       message = ss.str();
     }
 
     if (!success) {
       DCHECK(!error.empty());
-      if (!message.empty())
+      if (!message.empty()) {
         message += "\n";
+      }
       message += error;
     }
 
     if (changed_names.empty()) {
-      if (!message.empty())
+      if (!message.empty()) {
         message += "\n";
+      }
       message += "No preferences changed.";
     }
 
     // Return the message to the JavaScript caller.
-    if (success)
+    if (success) {
       callback->Success(message);
-    else
+    } else {
       callback->Failure(kPreferenceApplicationError, message);
+    }
   }
 
   // Execute |callback| with the global state dictionary as a JSON string.
@@ -206,8 +215,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Convert a JSON string to a dictionary value.
   static CefRefPtr<CefDictionaryValue> ParseJSON(const CefString& string) {
     CefRefPtr<CefValue> value = CefParseJSON(string, JSON_PARSER_RFC);
-    if (value.get() && value->GetType() == VTYPE_DICTIONARY)
+    if (value.get() && value->GetType() == VTYPE_DICTIONARY) {
       return value->GetDictionary();
+    }
     return nullptr;
   }
 
@@ -288,10 +298,11 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       const std::string& string_val = value->GetString();
       switch (existing_value->GetType()) {
         case VTYPE_BOOL:
-          if (string_val == "true" || string_val == "1")
+          if (string_val == "true" || string_val == "1") {
             value->SetBool(true);
-          else if (string_val == "false" || string_val == "0")
+          } else if (string_val == "false" || string_val == "0") {
             value->SetBool(false);
+          }
           break;
         case VTYPE_INT:
           value->SetInt(atoi(string_val.c_str()));
@@ -306,8 +317,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     // Nothing to do if the value hasn't changed.
-    if (existing_value->IsEqual(value))
+    if (existing_value->IsEqual(value)) {
       return true;
+    }
 
     // Attempt to set the preference.
     CefString error_str;

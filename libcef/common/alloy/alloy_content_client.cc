@@ -87,12 +87,14 @@ void AlloyContentClient::AddPlugins(
 void AlloyContentClient::AddContentDecryptionModules(
     std::vector<content::CdmInfo>* cdms,
     std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
-  if (cdms)
+  if (cdms) {
     RegisterCdmInfo(cdms);
+  }
 
 #if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
-  if (cdm_host_file_paths)
+  if (cdm_host_file_paths) {
     cef::AddCdmHostFilePaths(cdm_host_file_paths);
+  }
 #endif
 }
 
@@ -103,8 +105,9 @@ void AlloyContentClient::AddAdditionalSchemes(Schemes* schemes) {
 std::u16string AlloyContentClient::GetLocalizedString(int message_id) {
   std::u16string value =
       ui::ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
-  if (value.empty())
+  if (value.empty()) {
     LOG(ERROR) << "No localized string available for id " << message_id;
+  }
 
   return value;
 }
@@ -113,8 +116,9 @@ std::u16string AlloyContentClient::GetLocalizedString(
     int message_id,
     const std::u16string& replacement) {
   std::u16string value = l10n_util::GetStringFUTF16(message_id, replacement);
-  if (value.empty())
+  if (value.empty()) {
     LOG(ERROR) << "No localized string available for id " << message_id;
+  }
 
   return value;
 }
@@ -125,8 +129,9 @@ base::StringPiece AlloyContentClient::GetDataResource(
   base::StringPiece value =
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           resource_id, scale_factor);
-  if (value.empty())
+  if (value.empty()) {
     LOG(ERROR) << "No data resource available for id " << resource_id;
+  }
 
   return value;
 }
@@ -136,8 +141,9 @@ base::RefCountedMemory* AlloyContentClient::GetDataResourceBytes(
   base::RefCountedMemory* value =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytes(
           resource_id);
-  if (!value)
+  if (!value) {
     LOG(ERROR) << "No data resource bytes available for id " << resource_id;
+  }
 
   return value;
 }
@@ -145,8 +151,9 @@ base::RefCountedMemory* AlloyContentClient::GetDataResourceBytes(
 gfx::Image& AlloyContentClient::GetNativeImageNamed(int resource_id) {
   gfx::Image& value =
       ui::ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
-  if (value.IsEmpty())
+  if (value.IsEmpty()) {
     LOG(ERROR) << "No native image available for id " << resource_id;
+  }
 
   return value;
 }

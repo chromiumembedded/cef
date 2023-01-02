@@ -56,8 +56,9 @@ void CefVideoConsumerOSR::SetFrameRate(base::TimeDelta frame_rate) {
 }
 
 void CefVideoConsumerOSR::SizeChanged(const gfx::Size& size_in_pixels) {
-  if (size_in_pixels_ == size_in_pixels)
+  if (size_in_pixels_ == size_in_pixels) {
     return;
+  }
   size_in_pixels_ = size_in_pixels;
 
   // Capture resolution will be held constant.

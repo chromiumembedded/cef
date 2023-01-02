@@ -15,8 +15,9 @@ base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
 base::FilePath CefResourceBundleDelegate::GetPathForLocalePack(
     const base::FilePath& pack_path,
     const std::string& locale) {
-  if (!pack_loading_disabled_)
+  if (!pack_loading_disabled_) {
     return pack_path;
+  }
   return base::FilePath();
 }
 
@@ -74,8 +75,9 @@ bool CefResourceBundleDelegate::GetLocalizedString(
         application->GetResourceBundleHandler();
     if (handler.get()) {
       CefString cef_str;
-      if (handler->GetLocalizedString(message_id, cef_str))
+      if (handler->GetLocalizedString(message_id, cef_str)) {
         *value = cef_str;
+      }
     }
   }
 

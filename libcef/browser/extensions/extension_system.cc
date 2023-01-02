@@ -76,8 +76,9 @@ std::unique_ptr<base::DictionaryValue> ParseManifest(
 
 void ExecuteLoadFailure(CefRefPtr<CefExtensionHandler> handler,
                         cef_errorcode_t result) {
-  if (!handler)
+  if (!handler) {
     return;
+  }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(ExecuteLoadFailure, handler, result));
@@ -313,8 +314,9 @@ void CefExtensionSystem::LoadExtension(
 
   ComponentExtensionInfo info(manifest.get(), root_directory, internal);
   const Extension* extension = LoadExtension(info, loader_context, handler);
-  if (!extension)
+  if (!extension) {
     ExecuteLoadFailure(handler, ERR_FAILED);
+  }
 }
 
 // Implementation based on ExtensionService::RemoveComponentExtension.
@@ -353,8 +355,9 @@ CefRefPtr<CefExtension> CefExtensionSystem::GetExtension(
     const std::string& extension_id) const {
   CEF_REQUIRE_UIT();
   ExtensionMap::const_iterator it = extension_map_.find(extension_id);
-  if (it != extension_map_.end())
+  if (it != extension_map_.end()) {
     return it->second;
+  }
   return nullptr;
 }
 
@@ -374,8 +377,9 @@ void CefExtensionSystem::OnRequestContextDeleted(CefRequestContext* context) {
   for (; it != map.end(); ++it) {
     CefRefPtr<CefExtensionImpl> cef_extension =
         static_cast<CefExtensionImpl*>(it->second.get());
-    if (cef_extension->loader_context() == context)
+    if (cef_extension->loader_context() == context) {
       UnloadExtension(it->first);
+    }
   }
 }
 
@@ -434,8 +438,9 @@ CefExtensionSystem::store_factory() {
 }
 
 InfoMap* CefExtensionSystem::info_map() {
-  if (!info_map_.get())
+  if (!info_map_.get()) {
     info_map_ = new InfoMap;
+  }
   return info_map_.get();
 }
 
@@ -686,8 +691,9 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
 void CefExtensionSystem::OnExtensionRegisteredWithRequestContexts(
     scoped_refptr<const extensions::Extension> extension) {
   registry_->AddReady(extension);
-  if (registry_->enabled_extensions().Contains(extension->id()))
+  if (registry_->enabled_extensions().Contains(extension->id())) {
     registry_->TriggerOnReady(extension.get());
+  }
 }
 
 // Implementation based on ExtensionService::NotifyExtensionUnloaded.

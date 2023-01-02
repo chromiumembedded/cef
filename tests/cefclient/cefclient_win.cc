@@ -56,17 +56,19 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   // Create a ClientApp of the correct type.
   CefRefPtr<CefApp> app;
   ClientApp::ProcessType process_type = ClientApp::GetProcessType(command_line);
-  if (process_type == ClientApp::BrowserProcess)
+  if (process_type == ClientApp::BrowserProcess) {
     app = new ClientAppBrowser();
-  else if (process_type == ClientApp::RendererProcess)
+  } else if (process_type == ClientApp::RendererProcess) {
     app = new ClientAppRenderer();
-  else if (process_type == ClientApp::OtherProcess)
+  } else if (process_type == ClientApp::OtherProcess) {
     app = new ClientAppOther();
+  }
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
-  if (exit_code >= 0)
+  if (exit_code >= 0) {
     return exit_code;
+  }
 
   // Create the main context object.
   auto context = std::make_unique<MainContextImpl>(command_line, true);
@@ -82,12 +84,13 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
-  if (settings.multi_threaded_message_loop)
+  if (settings.multi_threaded_message_loop) {
     message_loop.reset(new MainMessageLoopMultithreadedWin);
-  else if (settings.external_message_pump)
+  } else if (settings.external_message_pump) {
     message_loop = MainMessageLoopExternalPump::Create();
-  else
+  } else {
     message_loop.reset(new MainMessageLoopStd);
+  }
 
   // Initialize CEF.
   context->Initialize(main_args, settings, app, sandbox_info);

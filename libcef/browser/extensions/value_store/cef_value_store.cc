@@ -57,8 +57,9 @@ ValueStore::ReadResult CefValueStore::Get(const std::string& key) {
 ValueStore::ReadResult CefValueStore::Get(
     const std::vector<std::string>& keys) {
   read_count_++;
-  if (!status_.ok())
+  if (!status_.ok()) {
     return ReadResult(CreateStatusCopy(status_));
+  }
 
   base::Value::Dict settings;
   for (const auto& key : keys) {
@@ -72,8 +73,9 @@ ValueStore::ReadResult CefValueStore::Get(
 
 ValueStore::ReadResult CefValueStore::Get() {
   read_count_++;
-  if (!status_.ok())
+  if (!status_.ok()) {
     return ReadResult(CreateStatusCopy(status_));
+  }
   return ReadResult(storage_.Clone(), CreateStatusCopy(status_));
 }
 
@@ -88,8 +90,9 @@ ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
 ValueStore::WriteResult CefValueStore::Set(WriteOptions options,
                                            const base::Value::Dict& settings) {
   write_count_++;
-  if (!status_.ok())
+  if (!status_.ok()) {
     return WriteResult(CreateStatusCopy(status_));
+  }
 
   ValueStoreChangeList changes;
   for (const auto [key, value] : settings) {
@@ -113,8 +116,9 @@ ValueStore::WriteResult CefValueStore::Remove(const std::string& key) {
 ValueStore::WriteResult CefValueStore::Remove(
     const std::vector<std::string>& keys) {
   write_count_++;
-  if (!status_.ok())
+  if (!status_.ok()) {
     return WriteResult(CreateStatusCopy(status_));
+  }
 
   ValueStoreChangeList changes;
   for (auto const& key : keys) {

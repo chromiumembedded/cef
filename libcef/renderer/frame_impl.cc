@@ -131,8 +131,9 @@ void CefFrameImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
 void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   auto params = cef::mojom::RequestParams::New();
   static_cast<CefRequestImpl*>(request.get())->Get(params);
@@ -142,8 +143,9 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
 void CefFrameImpl::LoadURL(const CefString& url) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   auto params = cef::mojom::RequestParams::New();
   params->url = GURL(url.ToString());
@@ -160,16 +162,18 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
 bool CefFrameImpl::IsMain() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  if (frame_)
+  if (frame_) {
     return (frame_->Parent() == nullptr);
+  }
   return false;
 }
 
 bool CefFrameImpl::IsFocused() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  if (frame_ && frame_->View())
+  if (frame_ && frame_->View()) {
     return (frame_->View()->FocusedFrame() == frame_);
+  }
   return false;
 }
 
@@ -177,8 +181,9 @@ CefString CefFrameImpl::GetName() {
   CefString name;
   CEF_REQUIRE_RT_RETURN(name);
 
-  if (frame_)
+  if (frame_) {
     name = render_frame_util::GetName(frame_);
+  }
   return name;
 }
 
@@ -193,8 +198,9 @@ CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
 
   if (frame_) {
     blink::WebFrame* parent = frame_->Parent();
-    if (parent && parent->IsWebLocalFrame())
+    if (parent && parent->IsWebLocalFrame()) {
       return browser_->GetWebFrameImpl(parent->ToWebLocalFrame()).get();
+    }
   }
 
   return nullptr;
@@ -232,20 +238,23 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
 void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (!frame_)
+  if (!frame_) {
     return;
+  }
 
   // Create a CefDOMDocumentImpl object that is valid only for the scope of this
   // method.
   CefRefPtr<CefDOMDocumentImpl> documentImpl;
   const blink::WebDocument& document = frame_->GetDocument();
-  if (!document.IsNull())
+  if (!document.IsNull()) {
     documentImpl = new CefDOMDocumentImpl(browser_, frame_);
+  }
 
   visitor->Visit(documentImpl.get());
 
-  if (documentImpl.get())
+  if (documentImpl.get()) {
     documentImpl->Detach();
+  }
 }
 
 CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
@@ -253,13 +262,15 @@ CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
     CefRefPtr<CefURLRequestClient> client) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
-  if (!request || !client || !frame_)
+  if (!request || !client || !frame_) {
     return nullptr;
+  }
 
   CefRefPtr<CefRenderURLRequest> impl =
       new CefRenderURLRequest(this, request, client);
-  if (impl->Start())
+  if (impl->Start()) {
     return impl.get();
+  }
   return nullptr;
 }
 
@@ -268,8 +279,9 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
   CEF_REQUIRE_RT_RETURN_VOID();
   DCHECK_EQ(PID_BROWSER, target_process);
   DCHECK(message && message->IsValid());
-  if (!message || !message->IsValid())
+  if (!message || !message->IsValid()) {
     return;
+  }
 
   if (message->GetArgumentList() != nullptr) {
     // Invalidate the message object immediately by taking the argument list.
@@ -299,8 +311,9 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
 
 std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
   CEF_REQUIRE_RT();
-  if (!frame_)
+  if (!frame_) {
     return nullptr;
+  }
 
   if (!url_loader_factory_) {
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
@@ -308,8 +321,9 @@ std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
       url_loader_factory_ = render_frame->CreateURLLoaderFactory();
     }
   }
-  if (!url_loader_factory_)
+  if (!url_loader_factory_) {
     return nullptr;
+  }
 
   return url_loader_factory_->CreateURLLoader(
       blink::WebURLRequest(),
@@ -324,8 +338,9 @@ CefFrameImpl::CreateResourceLoadInfoNotifierWrapper() {
   CEF_REQUIRE_RT();
   if (frame_) {
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
-    if (render_frame)
+    if (render_frame) {
       return render_frame->CreateResourceLoadInfoNotifierWrapper();
+    }
   }
   return nullptr;
 }
@@ -350,8 +365,9 @@ void CefFrameImpl::OnDidCommitProvisionalLoad() {
 void CefFrameImpl::OnDidFinishLoad() {
   // Ignore notifications from the embedded frame hosting a mime-type plugin.
   // We'll eventually receive a notification from the owner frame.
-  if (blink_glue::HasPluginFrameOwner(frame_))
+  if (blink_glue::HasPluginFrameOwner(frame_)) {
     return;
+  }
 
   if (!blink::RuntimeEnabledFeatures::BackForwardCacheEnabled() && IsMain()) {
     // Refresh draggable regions. Otherwise, we may not receive updated regions
@@ -380,8 +396,9 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   // Match the behavior in ChromeRenderFrameObserver::DraggableRegionsChanged.
   // Only the main frame is allowed to control draggable regions, to avoid other
   // frames manipulate the regions in the browser process.
-  if (frame_->Parent() != nullptr)
+  if (frame_->Parent() != nullptr) {
     return;
+  }
 
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame_->GetDocument().DraggableRegions();
@@ -606,8 +623,9 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
         break;
     }
 
-    if (!frame_)
+    if (!frame_) {
       state_str += ", FRAME_INVALID";
+    }
 
     VLOG(1) << GetDebugString() << " disconnected (reason=" << reason_str
             << ", current_state=" << state_str << ")";

@@ -25,16 +25,18 @@ void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
 
   // Retrieve the X11 window handle for the browser.
   ::Window window = browser->GetHost()->GetWindowHandle();
-  if (window == kNullWindowHandle)
+  if (window == kNullWindowHandle) {
     return;
+  }
 
   // Retrieve the atoms required by the below XChangeProperty call.
   const char* kAtoms[] = {"_NET_WM_NAME", "UTF8_STRING"};
   Atom atoms[2];
   int result =
       XInternAtoms(display, const_cast<char**>(kAtoms), 2, false, atoms);
-  if (!result)
+  if (!result) {
     NOTREACHED();
+  }
 
   // Set the window title.
   XChangeProperty(display, window, atoms[0], atoms[1], 8, PropModeReplace,

@@ -109,8 +109,9 @@ class MainMessageLoopExternalPumpLinux : public MainMessageLoopExternalPump {
 // Return a timeout suitable for the glib loop, -1 to block forever,
 // 0 to return right away, or a timeout in milliseconds from now.
 int GetTimeIntervalMilliseconds(const CefTime& from) {
-  if (from.GetDoubleT() == 0.0)
+  if (from.GetDoubleT() == 0.0) {
     return -1;
+  }
 
   CefTime now;
   now.Now();
@@ -206,8 +207,9 @@ int MainMessageLoopExternalPumpLinux::Run() {
     bool block = !more_work_is_plausible;
 
     more_work_is_plausible = g_main_context_iteration(context_, block);
-    if (should_quit_)
+    if (should_quit_) {
       break;
+    }
   }
 
   // We need to run the message pump until it is idle. However we don't have
@@ -254,10 +256,12 @@ bool MainMessageLoopExternalPumpLinux::HandleCheck() {
     if (num_bytes < sizeof(int64)) {
       NOTREACHED() << "Error reading from the wakeup pipe.";
     }
-    if (num_bytes == sizeof(int64))
+    if (num_bytes == sizeof(int64)) {
       OnScheduleWork(delay_ms[0]);
-    if (num_bytes == sizeof(int64) * 2)
+    }
+    if (num_bytes == sizeof(int64) * 2) {
       OnScheduleWork(delay_ms[1]);
+    }
   }
 
   if (GetTimeIntervalMilliseconds(delayed_work_time_) == 0) {

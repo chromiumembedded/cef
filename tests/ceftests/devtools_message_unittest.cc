@@ -233,8 +233,9 @@ class DevToolsMessageTestHandler : public TestHandler {
   void OnMethodResult(const MethodResult& result) {
     EXPECT_EQ(pending_result_.message_id, result.message_id)
         << "with message=" << pending_message_;
-    if (result.message_id != pending_result_.message_id)
+    if (result.message_id != pending_result_.message_id) {
       return;
+    }
 
     EXPECT_EQ(pending_result_.success, result.success)
         << "with message=" << pending_message_;
@@ -255,8 +256,9 @@ class DevToolsMessageTestHandler : public TestHandler {
   }
 
   void OnEvent(const Event& event) {
-    if (event.method != pending_event_.method)
+    if (event.method != pending_event_.method) {
       return;
+    }
 
     EXPECT_TRUE(event.params.find(pending_event_.params) == 0)
         << "with method=" << event.method

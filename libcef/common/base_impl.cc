@@ -26,8 +26,9 @@ CEF_EXPORT void cef_trace_event_instant(const char* /* category */,
                                         uint64 arg2_val,
                                         int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr && arg2_name == nullptr) {
@@ -60,8 +61,9 @@ CEF_EXPORT void cef_trace_event_begin(const char* /* category */,
                                       uint64 arg2_val,
                                       int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr && arg2_name == nullptr) {
@@ -93,8 +95,9 @@ CEF_EXPORT void cef_trace_event_end(const char* /* category */,
                                     uint64 arg2_val,
                                     int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr && arg2_name == nullptr) {
@@ -126,8 +129,9 @@ CEF_EXPORT void cef_trace_counter(const char* /* category */,
                                   uint64 value2_val,
                                   int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (value1_name == nullptr && value2_name == nullptr) {
@@ -155,8 +159,9 @@ CEF_EXPORT void cef_trace_counter_id(const char* /* category */,
                                      uint64 value2_val,
                                      int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (value1_name == nullptr && value2_name == nullptr) {
@@ -184,8 +189,9 @@ CEF_EXPORT void cef_trace_event_async_begin(const char* /* category */,
                                             uint64 arg2_val,
                                             int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr && arg2_name == nullptr) {
@@ -216,8 +222,9 @@ CEF_EXPORT void cef_trace_event_async_step_into(const char* /* category */,
                                                 uint64 arg1_val,
                                                 int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr) {
@@ -247,8 +254,9 @@ CEF_EXPORT void cef_trace_event_async_step_past(const char* /* category */,
                                                 uint64 arg1_val,
                                                 int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr) {
@@ -279,8 +287,9 @@ CEF_EXPORT void cef_trace_event_async_end(const char* /* category */,
                                           uint64 arg2_val,
                                           int copy) {
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   if (copy) {
     if (arg1_name == nullptr && arg2_name == nullptr) {

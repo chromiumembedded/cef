@@ -134,8 +134,9 @@ class CefUIThread : public base::PlatformThread::Delegate {
     }
 
     // Can't join if the |thread_| is either already gone or is non-joinable.
-    if (thread_.is_null())
+    if (thread_.is_null()) {
       return;
+    }
 
     base::PlatformThread::Join(thread_);
     thread_ = base::PlatformThreadHandle();
@@ -283,8 +284,9 @@ void CefMainRunner::RunMessageLoop() {
 
 void CefMainRunner::QuitMessageLoop() {
   if (!quit_when_idle_callback_.is_null()) {
-    if (main_delegate_->HandleMainMessageLoopQuit())
+    if (main_delegate_->HandleMainMessageLoopQuit()) {
       return;
+    }
     std::move(quit_when_idle_callback_).Run();
   }
 }
@@ -301,15 +303,17 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 #endif
 
   // Wait for the debugger as early in process initialization as possible.
-  if (command_line.HasSwitch(switches::kWaitForDebugger))
+  if (command_line.HasSwitch(switches::kWaitForDebugger)) {
     base::debug::WaitForDebugger(60, true);
+  }
 
   // If no process type is specified then it represents the browser process and
   // we do nothing.
   const std::string& process_type =
       command_line.GetSwitchValueASCII(switches::kProcessType);
-  if (process_type.empty())
+  if (process_type.empty()) {
     return -1;
+  }
 
   auto runtime_type = command_line.HasSwitch(switches::kEnableChromeRuntime)
                           ? RuntimeType::CHROME
@@ -436,8 +440,9 @@ int CefMainRunner::RunMainProcess(
     // loop.
     int exit_code =
         browser_runner_->Initialize(std::move(main_function_params));
-    if (exit_code >= 0)
+    if (exit_code >= 0) {
       return exit_code;
+    }
   } else {
     // Running on the separate UI thread.
     DCHECK(ui_thread_);
@@ -489,8 +494,9 @@ void CefMainRunner::FinishShutdownOnUIThread(
   std::move(shutdown_on_ui_thread).Run();
   main_delegate_->AfterUIThreadShutdown();
 
-  if (uithread_shutdown_event)
+  if (uithread_shutdown_event) {
     uithread_shutdown_event->Signal();
+  }
 }
 
 void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {

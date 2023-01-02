@@ -102,8 +102,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   void AddTestQuery(TestType type) {
     EXPECT_FALSE(finalized_);
     test_query_vector_.push_back(TestQuery(type));
-    if (!IsAuto(type))
+    if (!IsAuto(type)) {
       manual_total_++;
+    }
   }
 
   // Must be called after AddTestQuery and before the manager is used.
@@ -128,10 +129,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     html = "<html><body>" + label_ + "<script>\n";
 
     // No requests should exist.
-    if (assert_total)
+    if (assert_total) {
       html += "window.mrtAssertTotalCount(" LINESTR ",0);\n";
-    if (assert_browser)
+    }
+    if (assert_browser) {
       html += "window.mrtAssertBrowserCount(" LINESTR ",0);\n";
+    }
     html += "window.mrtAssertContextCount(" LINESTR ",0);\n";
 
     if (synchronous_) {
@@ -146,11 +149,13 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
       // Pending requests should match the total created.
       const std::string& total_val = GetIntString(total_ct);
-      if (assert_total)
+      if (assert_total) {
         html += "window.mrtAssertTotalCount(" LINESTR "," + total_val + ");\n";
-      if (assert_browser)
+      }
+      if (assert_browser) {
         html +=
             "window.mrtAssertBrowserCount(" LINESTR "," + total_val + ");\n";
+      }
       html += "window.mrtAssertContextCount(" LINESTR "," + total_val + ");\n";
 
       int cancel_ct = 0;
@@ -167,12 +172,14 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       if (cancel_ct > 0) {
         // Pending requests should match the total not canceled.
         const std::string& cancel_val = GetIntString(total_ct - cancel_ct);
-        if (assert_total)
+        if (assert_total) {
           html +=
               "window.mrtAssertTotalCount(" LINESTR "," + cancel_val + ");\n";
-        if (assert_browser)
+        }
+        if (assert_browser) {
           html +=
               "window.mrtAssertBrowserCount(" LINESTR "," + cancel_val + ");\n";
+        }
         html +=
             "window.mrtAssertContextCount(" LINESTR "," + cancel_val + ");\n";
       }
@@ -217,8 +224,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_TRUE(finalized_);
     EXPECT_UI_THREAD();
 
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     EXPECT_TRUE(browser.get());
     EXPECT_TRUE(frame.get());
@@ -240,17 +248,19 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       EXPECT_STREQ(kMultiQueryError, value.c_str()) << index;
       EXPECT_TRUE(IsAuto(query.type)) << index;
       EXPECT_TRUE(query.got_query) << index;
-      if (query.type == PERSISTENT_AUTOCANCEL)
+      if (query.type == PERSISTENT_AUTOCANCEL) {
         EXPECT_TRUE(query.got_success) << index;
-      else
+      } else {
         EXPECT_FALSE(query.got_success) << index;
+      }
 
       query.got_error.yes();
 
       // There's a race between OnQueryCanceled and OnNotification. Only call
       // OnQueryCompleted a single time.
-      if (query.got_query_canceled)
+      if (query.got_query_canceled) {
         OnQueryCompleted(query.type);
+      }
     } else {
       EXPECT_STREQ(kMultiQuerySuccess, value.c_str()) << index;
       EXPECT_TRUE(WillNotify(query.type)) << index;
@@ -261,12 +271,14 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       query.got_success.yes();
 
       // PERSISTENT_AUTOCANCEL doesn't call OnReceiveCompleted from OnQuery.
-      if (query.type == PERSISTENT_AUTOCANCEL)
+      if (query.type == PERSISTENT_AUTOCANCEL) {
         OnReceiveCompleted(query.type);
+      }
 
       // Call OnQueryCompleted for types that don't get OnQueryCanceled.
-      if (!WillCancel(query.type))
+      if (!WillCancel(query.type)) {
         OnQueryCompleted(query.type);
+      }
     }
   }
 
@@ -279,8 +291,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_TRUE(finalized_);
     EXPECT_UI_THREAD();
 
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     EXPECT_TRUE(browser.get());
     EXPECT_TRUE(frame.get());
@@ -292,10 +305,11 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     TestQuery& query = test_query_vector_[index];
 
-    if (IsPersistent(query.type))
+    if (IsPersistent(query.type)) {
       EXPECT_TRUE(persistent);
-    else
+    } else {
       EXPECT_FALSE(persistent);
+    }
 
     // Verify expected request.
     EXPECT_STREQ(kMultiQueryRequest, value.c_str()) << index;
@@ -318,8 +332,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     } else if (IsPersistent(query.type)) {
       // Send the required number of successful responses.
       const std::string& response = GetIDString(kMultiQueryResponse, index);
-      for (int i = 0; i < kMultiQueryPersistentResponseCount; ++i)
+      for (int i = 0; i < kMultiQueryPersistentResponseCount; ++i) {
         callback->Success(response);
+      }
     }
 
     if (WillFail(query.type)) {
@@ -335,8 +350,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     // PERSISTENT_AUTOCANCEL will call OnReceiveCompleted once the success
     // notification is received.
-    if (query.type != PERSISTENT_AUTOCANCEL)
+    if (query.type != PERSISTENT_AUTOCANCEL) {
       OnReceiveCompleted(query.type);
+    }
 
     return true;
   }
@@ -347,8 +363,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_TRUE(finalized_);
     EXPECT_UI_THREAD();
 
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     EXPECT_TRUE(browser.get());
     EXPECT_TRUE(frame.get());
@@ -390,8 +407,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
         if (will_cancel_by_removing_handler_) {
           // There's a race between OnQueryCanceled and OnNotification. Only
           // call OnQueryCompleted a single time.
-          if (query.got_error)
+          if (query.got_error) {
             OnQueryCompleted(query.type);
+          }
         } else {
           EXPECT_FALSE(query.got_error) << i;
 
@@ -416,20 +434,23 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       const TestQuery& query = test_query_vector_[i];
       EXPECT_TRUE(query.got_query) << i;
 
-      if (WillCancel(query.type))
+      if (WillCancel(query.type)) {
         EXPECT_TRUE(query.got_query_canceled) << i;
-      else
+      } else {
         EXPECT_FALSE(query.got_query_canceled) << i;
+      }
 
-      if (WillNotify(query.type))
+      if (WillNotify(query.type)) {
         EXPECT_TRUE(query.got_success) << i;
-      else
+      } else {
         EXPECT_FALSE(query.got_success) << i;
+      }
 
-      if (IsAuto(query.type) && will_cancel_by_removing_handler_)
+      if (IsAuto(query.type) && will_cancel_by_removing_handler_) {
         EXPECT_TRUE(query.got_error);
-      else
+      } else {
         EXPECT_FALSE(query.got_error);
+      }
 
       EXPECT_FALSE(query.callback.get()) << i;
     }
@@ -489,10 +510,11 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     void Execute() override {
       if (weak_ptr_) {
-        if (notify_all_)
+        if (notify_all_) {
           weak_ptr_->NotifyAllQueriesCompleted();
-        else
+        } else {
           weak_ptr_->NotifyManualQueriesCompleted();
+        }
       }
     }
 
@@ -541,9 +563,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_LE(manual_complete_count_, manual_total_);
 
     const bool is_auto = IsAuto(type);
-    if (is_auto)
+    if (is_auto) {
       auto_complete_count_++;
-    else if (++manual_complete_count_ == manual_total_) {
+    } else if (++manual_complete_count_ == manual_total_) {
       CefPostTask(TID_UI,
                   new NotifyTask(weak_ptr_factory_.GetWeakPtr(), false));
     }
@@ -555,8 +577,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   }
 
   void NotifyManualQueriesCompleted() {
-    if (observer_set_.empty())
+    if (observer_set_.empty()) {
       return;
+    }
 
     // Use a copy of the set in case an Observer is removed while we're
     // iterating.
@@ -569,8 +592,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   }
 
   void NotifyAllQueriesCompleted() {
-    if (observer_set_.empty())
+    if (observer_set_.empty()) {
       return;
+    }
 
     // Use a copy of the set in case an Observer is removed while we're
     // iterating.
@@ -597,8 +621,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     const bool persistent = IsPersistent(query.type);
 
-    if (persistent)
+    if (persistent) {
       html += "var " + repeat_ct_var + " = 0;\n";
+    }
 
     html += "var " + request_id_var +
             " = window.mrtQuery({\n"
@@ -1093,8 +1118,9 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
       std::stringstream ss;
       ss << kMultiQueryRequest << ":" << index_;
       const std::string& handled_request = ss.str();
-      if (request != handled_request)
+      if (request != handled_request) {
         return false;
+      }
 
       // Verify that handlers are called in the correct order.
       if (index_ == 0) {
@@ -1377,8 +1403,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
                 CefRefPtr<CefFrame> frame,
                 const std::string& message) {
     EXPECT_TRUE(finalized_);
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     MultiQueryManager* manager = GetManager(browser, frame);
     manager->OnNotify(browser, frame, message);
@@ -1391,8 +1418,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
                bool persistent,
                CefRefPtr<Callback> callback) override {
     EXPECT_TRUE(finalized_);
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     MultiQueryManager* manager = GetManager(browser, frame);
     return manager->OnQuery(browser, frame, query_id, request, persistent,
@@ -1403,8 +1431,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
                        CefRefPtr<CefFrame> frame,
                        int64 query_id) override {
     EXPECT_TRUE(finalized_);
-    if (!running_)
+    if (!running_) {
       running_ = true;
+    }
 
     MultiQueryManager* manager = GetManager(browser, frame);
     manager->OnQueryCanceled(browser, frame, query_id);
@@ -1454,8 +1483,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
     EXPECT_TRUE(finalized_);
 
     for (size_t i = 0; i < all_managers_.size(); ++i) {
-      if (!all_managers_[i]->IsAllComplete())
+      if (!all_managers_[i]->IsAllComplete()) {
         return false;
+      }
     }
     return true;
   }
@@ -1472,16 +1502,18 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
 
   bool HasAutoQueries() const {
     for (size_t i = 0; i < all_managers_.size(); ++i) {
-      if (all_managers_[i]->HasAutoQueries())
+      if (all_managers_[i]->HasAutoQueries()) {
         return true;
+      }
     }
 
     return false;
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
-    if (pending_managers_.empty())
+    if (pending_managers_.empty()) {
       return;
+    }
 
     const std::string& expected_url = frame->GetURL();
     MultiQueryManager* next_manager = nullptr;
@@ -1506,8 +1538,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
 
     // Remove the currently active manager, if any.
     ManagerMap::iterator it2 = manager_map_.find(id);
-    if (it2 != manager_map_.end())
+    if (it2 != manager_map_.end()) {
       manager_map_.erase(it2);
+    }
 
     // Add the next manager to the active map.
     manager_map_.insert(std::make_pair(id, next_manager));
@@ -1529,8 +1562,9 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
 
   void RemoveAllManagers() {
     EXPECT_TRUE(pending_managers_.empty());
-    if (all_managers_.empty())
+    if (all_managers_.empty()) {
       return;
+    }
 
     for (size_t i = 0; i < all_managers_.size(); ++i) {
       delete all_managers_[i];
@@ -1599,8 +1633,9 @@ class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
                    CefRefPtr<CefFrame> frame,
                    TransitionType transition_type) override {
     AssertMainBrowser(browser);
-    if (!frame->IsMain())
+    if (!frame->IsMain()) {
       manager_map_.OnLoadStart(browser, frame);
+    }
   }
 
   void OnNotify(CefRefPtr<CefBrowser> browser,
@@ -1907,10 +1942,11 @@ class MultiQueryMultiNavigateTestHandler
 
   void OnManualQueriesCompleted(MultiQueryManager* manager) override {
     const std::string& url = manager->label();
-    if (url == url1_)  // 2. Load the 2nd url.
+    if (url == url1_) {  // 2. Load the 2nd url.
       GetBrowser()->GetMainFrame()->LoadURL(url2_);
-    else if (url == url2_)  // 3. Load the 3rd url.
+    } else if (url == url2_) {  // 3. Load the 3rd url.
       GetBrowser()->GetMainFrame()->LoadURL(url3_);
+    }
   }
 
  protected:

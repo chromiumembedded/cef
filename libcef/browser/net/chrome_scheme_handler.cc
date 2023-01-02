@@ -157,8 +157,9 @@ void GetAllowedHosts(std::vector<std::string>* hosts) {
 bool IsUnlistedHost(const std::string& host) {
   for (size_t i = 0; i < sizeof(kUnlistedHosts) / sizeof(kUnlistedHosts[0]);
        ++i) {
-    if (host == kUnlistedHosts[i])
+    if (host == kUnlistedHosts[i]) {
       return true;
+    }
   }
   return false;
 }
@@ -166,8 +167,9 @@ bool IsUnlistedHost(const std::string& host) {
 // Returns true if a host is WebUI and should be allowed to load.
 bool IsAllowedWebUIHost(const std::string& host) {
   // Chrome runtime allows all WebUI hosts.
-  if (cef::IsChromeRuntimeEnabled())
+  if (cef::IsChromeRuntimeEnabled()) {
     return true;
+  }
 
   // Explicitly whitelisted WebUI hosts.
   for (size_t i = 0;
@@ -216,8 +218,10 @@ std::string GetCommandLine() {
   std::string command_line = "";
   using ArgvList = std::vector<std::string>;
   const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();
-  for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end(); iter++)
+  for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end();
+       iter++) {
     command_line += " " + *iter;
+  }
   // TODO(viettrungluu): |command_line| could really have any encoding, whereas
   // below we assumes it's UTF-8.
   return command_line;
@@ -226,8 +230,9 @@ std::string GetCommandLine() {
 
 std::string GetModulePath() {
   base::FilePath path;
-  if (base::PathService::Get(base::FILE_MODULE, &path))
+  if (base::PathService::Get(base::FILE_MODULE, &path)) {
     return CefString(path.value());
+  }
   return std::string();
 }
 
@@ -414,8 +419,9 @@ bool OnWebUIHostsUI(std::string* mime_type, std::string* output) {
   std::sort(list.begin(), list.end());
 
   for (size_t i = 0U; i < list.size(); ++i) {
-    if (IsUnlistedHost(list[i]))
+    if (IsUnlistedHost(list[i])) {
       continue;
+    }
 
     html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" + list[i] +
             "</a></li>\n";
@@ -533,16 +539,18 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
       return false;
     }
 
-    if (IsAllowedWebUIHost(url.host()))
+    if (IsAllowedWebUIHost(url.host())) {
       return true;
+    }
 
     return false;
   }
 
   // Returns true if WebUI is allowed to make network requests.
   static bool IsWebUIAllowedToMakeNetworkRequests(const url::Origin& origin) {
-    if (!AllowWebUIForURL(origin.GetURL()))
+    if (!AllowWebUIForURL(origin.GetURL())) {
       return false;
+    }
 
     if (ChromeWebUIControllerFactory::IsWebUIAllowedToMakeNetworkRequests(
             origin)) {
@@ -556,8 +564,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
       content::WebUI* web_ui,
       const GURL& url) override {
     std::unique_ptr<content::WebUIController> controller;
-    if (!AllowWebUIForURL(url))
+    if (!AllowWebUIForURL(url)) {
       return controller;
+    }
 
     // Set up the chrome://theme/ source. These URLs are referenced from many
     // places (WebUI and chrome://resources which live in //ui). WebUI code
@@ -577,8 +586,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     controller = content::WebUIConfigMap::GetInstance()
                      .controller_factory()
                      ->CreateWebUIControllerForURL(web_ui, url);
-    if (controller)
+    if (controller) {
       return controller;
+    }
 
     return ChromeWebUIControllerFactory::GetInstance()
         ->CreateWebUIControllerForURL(web_ui, url);
@@ -587,8 +597,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   content::WebUI::TypeID GetWebUIType(content::BrowserContext* browser_context,
                                       const GURL& url) override {
     content::WebUI::TypeID type = content::WebUI::kNoWebUI;
-    if (!AllowWebUIForURL(url))
+    if (!AllowWebUIForURL(url)) {
       return type;
+    }
 
     const auto host_id = GetChromeHostId(url.host());
     if (host_id != CHROME_UNKNOWN) {
@@ -598,21 +609,24 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     type = content::WebUIConfigMap::GetInstance()
                .controller_factory()
                ->GetWebUIType(browser_context, url);
-    if (type != content::WebUI::kNoWebUI)
+    if (type != content::WebUI::kNoWebUI) {
       return type;
+    }
 
     type = ChromeWebUIControllerFactory::GetInstance()->GetWebUIType(
         browser_context, url);
-    if (type != content::WebUI::kNoWebUI)
+    if (type != content::WebUI::kNoWebUI) {
       return type;
+    }
 
     return content::WebUI::kNoWebUI;
   }
 
   bool UseWebUIForURL(content::BrowserContext* browser_context,
                       const GURL& url) override {
-    if (!AllowWebUIForURL(url))
+    if (!AllowWebUIForURL(url)) {
       return false;
+    }
 
     const auto host_id = GetChromeHostId(url.host());
     if (host_id != CHROME_UNKNOWN) {
@@ -657,8 +671,9 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   // Handles rewriting Web UI URLs.
   static bool HandleWebUI(GURL* url, content::BrowserContext* browser_context) {
-    if (!GetInstance()->UseWebUIForURL(browser_context, *url))
+    if (!GetInstance()->UseWebUIForURL(browser_context, *url)) {
       return false;
+    }
 
     return true;
   }

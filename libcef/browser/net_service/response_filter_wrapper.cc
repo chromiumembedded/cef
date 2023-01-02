@@ -142,8 +142,9 @@ void ResponseFilterWrapper::Filter(const char* data, size_t size) {
     last_status_ = filter_->Filter(
         const_cast<char*>(data_in_ptr), data_in_size, data_in_read,
         const_cast<char*>(data_out_ptr), data_out_size, data_out_written);
-    if (last_status_ == RESPONSE_FILTER_ERROR)
+    if (last_status_ == RESPONSE_FILTER_ERROR) {
       break;
+    }
 
     // Validate the out values.
     if (data_in_read > data_in_size) {
@@ -268,13 +269,15 @@ void ResponseFilterWrapper::MaybeSuccess() {
     return;
   }
 
-  if (!read_pending_ && !write_pending_)
+  if (!read_pending_ && !write_pending_) {
     Cleanup(true);
+  }
 }
 
 void ResponseFilterWrapper::Cleanup(bool success) {
-  if (!success && error_callback_)
+  if (!success && error_callback_) {
     std::move(error_callback_).Run();
+  }
   delete this;
 }
 
@@ -290,8 +293,9 @@ mojo::ScopedDataPipeConsumerHandle CreateResponseFilterHandler(
   auto filter_wrapper = new ResponseFilterWrapper(
       filter, std::move(source_handle), std::move(error_callback));
   mojo::ScopedDataPipeConsumerHandle output_handle;
-  if (!filter_wrapper->CreateOutputHandle(&output_handle))
+  if (!filter_wrapper->CreateOutputHandle(&output_handle)) {
     delete filter_wrapper;
+  }
   return output_handle;
 }
 

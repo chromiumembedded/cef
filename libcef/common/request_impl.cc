@@ -123,8 +123,9 @@ void GetHeaderMap(const net::HttpRequestHeaders& headers,
                   CefRequest::HeaderMap& map) {
   map.clear();
 
-  if (headers.IsEmpty())
+  if (headers.IsEmpty()) {
     return;
+  }
 
   net::HttpRequestHeaders::Iterator it(headers);
   while (it.GetNext()) {
@@ -287,8 +288,9 @@ CefString CefRequestImpl::GetHeaderByName(const CefString& name) {
   HttpHeaderUtils::MakeASCIILower(&nameLower);
 
   auto it = HttpHeaderUtils::FindHeaderInMap(nameLower, headermap_);
-  if (it != headermap_.end())
+  if (it != headermap_.end()) {
     return it->second;
+  }
 
   return CefString();
 }
@@ -312,8 +314,9 @@ void CefRequestImpl::SetHeaderByName(const CefString& name,
   // There may be multiple values, so remove any first.
   for (auto it = headermap_.begin(); it != headermap_.end();) {
     if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameStr)) {
-      if (!overwrite)
+      if (!overwrite) {
         return;
+      }
       it = headermap_.erase(it);
     } else {
       ++it;
@@ -434,11 +437,13 @@ void CefRequestImpl::Get(network::ResourceRequest* request,
                          bool changed_only) const {
   base::AutoLock lock_scope(lock_);
 
-  if (ShouldSet(kChangedUrl, changed_only))
+  if (ShouldSet(kChangedUrl, changed_only)) {
     request->url = url_;
+  }
 
-  if (ShouldSet(kChangedMethod, changed_only))
+  if (ShouldSet(kChangedMethod, changed_only)) {
     request->method = method_;
+  }
 
   if (ShouldSet(kChangedReferrer, changed_only)) {
     request->referrer = referrer_url_;
@@ -547,8 +552,9 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
                          blink::WebURLRequest& request) {
   request.SetUrl(params->url);
   request.SetRequestorOrigin(blink::WebSecurityOrigin::Create(params->url));
-  if (!params->method.empty())
+  if (!params->method.empty()) {
     request.SetHttpMethod(blink::WebString::FromASCII(params->method));
+  }
 
   if (params->referrer && params->referrer->url.is_valid()) {
     const blink::WebString& referrer =
@@ -593,8 +599,9 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
         blink::GetWebHTTPBodyForRequestBody(*params->upload_data));
   }
 
-  if (!params->site_for_cookies.IsNull())
+  if (!params->site_for_cookies.IsNull()) {
     request.SetSiteForCookies(params->site_for_cookies);
+  }
 
   int flags = params->load_flags;
   if (!(flags & kURCachePolicyMask)) {
@@ -620,8 +627,9 @@ void CefRequestImpl::Get(cef::mojom::RequestParamsPtr& params) const {
   params->referrer = blink::mojom::Referrer::New(
       referrer_url_, NetReferrerPolicyToBlinkReferrerPolicy(referrer_policy_));
 
-  if (!headermap_.empty())
+  if (!headermap_.empty()) {
     params->headers = HttpHeaderUtils::GenerateHeaders(headermap_);
+  }
 
   if (postdata_) {
     CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postdata_.get());
@@ -634,23 +642,27 @@ void CefRequestImpl::Get(cef::mojom::RequestParamsPtr& params) const {
 
 void CefRequestImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
-  if (read_only_ == read_only)
+  if (read_only_ == read_only) {
     return;
+  }
 
   read_only_ = read_only;
 
-  if (postdata_.get())
+  if (postdata_.get()) {
     static_cast<CefPostDataImpl*>(postdata_.get())->SetReadOnly(read_only);
+  }
 }
 
 void CefRequestImpl::SetTrackChanges(bool track_changes,
                                      bool backup_on_change) {
   base::AutoLock lock_scope(lock_);
-  if (track_changes_ == track_changes)
+  if (track_changes_ == track_changes) {
     return;
+  }
 
-  if (!track_changes && backup_on_change_)
+  if (!track_changes && backup_on_change_) {
     backup_.reset();
+  }
 
   track_changes_ = track_changes;
   backup_on_change_ = track_changes ? backup_on_change : false;
@@ -667,28 +679,34 @@ void CefRequestImpl::RevertChanges() {
   DCHECK(!read_only_);
   DCHECK(track_changes_);
   DCHECK(backup_on_change_);
-  if (!backup_)
+  if (!backup_) {
     return;
+  }
 
   // Restore the original values if a backup exists.
-  if (backup_->backups_ & kChangedUrl)
+  if (backup_->backups_ & kChangedUrl) {
     url_ = backup_->url_;
-  if (backup_->backups_ & kChangedMethod)
+  }
+  if (backup_->backups_ & kChangedMethod) {
     method_ = backup_->method_;
+  }
   if (backup_->backups_ & kChangedReferrer) {
     referrer_url_ = backup_->referrer_url_;
     referrer_policy_ = backup_->referrer_policy_;
   }
-  if (backup_->backups_ & kChangedPostData)
+  if (backup_->backups_ & kChangedPostData) {
     postdata_ = backup_->postdata_;
+  }
   if (backup_->backups_ & kChangedHeaderMap) {
     DCHECK(backup_->headermap_);
     headermap_.swap(*backup_->headermap_);
   }
-  if (backup_->backups_ & kChangedFlags)
+  if (backup_->backups_ & kChangedFlags) {
     flags_ = backup_->flags_;
-  if (backup_->backups_ & kChangedSiteForCookies)
+  }
+  if (backup_->backups_ & kChangedSiteForCookies) {
     site_for_cookies_ = backup_->site_for_cookies_;
+  }
 
   backup_.reset();
 }
@@ -767,12 +785,14 @@ cef_referrer_policy_t CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
 
 void CefRequestImpl::Changed(uint8_t changes) {
   lock_.AssertAcquired();
-  if (!track_changes_)
+  if (!track_changes_) {
     return;
+  }
 
   if (backup_on_change_) {
-    if (!backup_)
+    if (!backup_) {
       backup_.reset(new Backup());
+    }
 
     // Set the backup values if not already set.
     if ((changes & kChangedUrl) && !(backup_->backups_ & kChangedUrl)) {
@@ -820,16 +840,19 @@ bool CefRequestImpl::ShouldSet(uint8_t changes, bool changed_only) const {
   lock_.AssertAcquired();
 
   // Always change if changes are not being tracked.
-  if (!track_changes_)
+  if (!track_changes_) {
     return true;
+  }
 
   // Always change if changed-only was not requested.
-  if (!changed_only)
+  if (!changed_only) {
     return true;
+  }
 
   // Change if the |changes| bit flag has been set.
-  if ((changes_ & changes) == changes)
+  if ((changes_ & changes) == changes) {
     return true;
+  }
 
   if ((changes & kChangedPostData) == kChangedPostData) {
     // Change if the post data object was modified directly.
@@ -971,8 +994,9 @@ scoped_refptr<network::ResourceRequestBody> CefPostDataImpl::GetBody() const {
 
 void CefPostDataImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
-  if (read_only_ == read_only)
+  if (read_only_ == read_only) {
     return;
+  }
 
   read_only_ = read_only;
 
@@ -984,8 +1008,9 @@ void CefPostDataImpl::SetReadOnly(bool read_only) {
 
 void CefPostDataImpl::SetTrackChanges(bool track_changes) {
   base::AutoLock lock_scope(lock_);
-  if (track_changes_ == track_changes)
+  if (track_changes_ == track_changes) {
     return;
+  }
 
   track_changes_ = track_changes;
   has_changes_ = false;
@@ -999,13 +1024,15 @@ void CefPostDataImpl::SetTrackChanges(bool track_changes) {
 
 bool CefPostDataImpl::HasChanges() const {
   base::AutoLock lock_scope(lock_);
-  if (has_changes_)
+  if (has_changes_) {
     return true;
+  }
 
   ElementVector::const_iterator it = elements_.begin();
   for (; it != elements_.end(); ++it) {
-    if (static_cast<CefPostDataElementImpl*>(it->get())->HasChanges())
+    if (static_cast<CefPostDataElementImpl*>(it->get())->HasChanges()) {
       return true;
+    }
   }
 
   return false;
@@ -1013,8 +1040,9 @@ bool CefPostDataImpl::HasChanges() const {
 
 void CefPostDataImpl::Changed() {
   lock_.AssertAcquired();
-  if (track_changes_ && !has_changes_)
+  if (track_changes_ && !has_changes_) {
     has_changes_ = true;
+  }
 }
 
 // CefPostDataElement ---------------------------------------------------------
@@ -1076,8 +1104,9 @@ void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes) {
   // Assign the new data
   void* data = malloc(size);
   DCHECK(data != nullptr);
-  if (data == nullptr)
+  if (data == nullptr) {
     return;
+  }
 
   memcpy(data, bytes, size);
 
@@ -1097,8 +1126,9 @@ CefString CefPostDataElementImpl::GetFile() {
   base::AutoLock lock_scope(lock_);
   DCHECK(type_ == PDE_TYPE_FILE);
   CefString filename;
-  if (type_ == PDE_TYPE_FILE)
+  if (type_ == PDE_TYPE_FILE) {
     filename.FromString(data_.filename.str, data_.filename.length, false);
+  }
   return filename;
 }
 
@@ -1106,8 +1136,9 @@ size_t CefPostDataElementImpl::GetBytesCount() {
   base::AutoLock lock_scope(lock_);
   DCHECK(type_ == PDE_TYPE_BYTES);
   size_t size = 0;
-  if (type_ == PDE_TYPE_BYTES)
+  if (type_ == PDE_TYPE_BYTES) {
     size = data_.bytes.size;
+  }
   return size;
 }
 
@@ -1154,16 +1185,18 @@ void CefPostDataElementImpl::Get(network::ResourceRequestBody& body) const {
 
 void CefPostDataElementImpl::SetReadOnly(bool read_only) {
   base::AutoLock lock_scope(lock_);
-  if (read_only_ == read_only)
+  if (read_only_ == read_only) {
     return;
+  }
 
   read_only_ = read_only;
 }
 
 void CefPostDataElementImpl::SetTrackChanges(bool track_changes) {
   base::AutoLock lock_scope(lock_);
-  if (track_changes_ == track_changes)
+  if (track_changes_ == track_changes) {
     return;
+  }
 
   track_changes_ = track_changes;
   has_changes_ = false;
@@ -1176,18 +1209,21 @@ bool CefPostDataElementImpl::HasChanges() const {
 
 void CefPostDataElementImpl::Changed() {
   lock_.AssertAcquired();
-  if (track_changes_ && !has_changes_)
+  if (track_changes_ && !has_changes_) {
     has_changes_ = true;
+  }
 }
 
 void CefPostDataElementImpl::Cleanup() {
-  if (type_ == PDE_TYPE_EMPTY)
+  if (type_ == PDE_TYPE_EMPTY) {
     return;
+  }
 
-  if (type_ == PDE_TYPE_BYTES)
+  if (type_ == PDE_TYPE_BYTES) {
     free(data_.bytes.bytes);
-  else if (type_ == PDE_TYPE_FILE)
+  } else if (type_ == PDE_TYPE_FILE) {
     cef_string_clear(&data_.filename);
+  }
   type_ = PDE_TYPE_EMPTY;
   memset(&data_, 0, sizeof(data_));
 }

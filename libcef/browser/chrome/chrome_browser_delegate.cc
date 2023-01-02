@@ -234,8 +234,9 @@ void ChromeBrowserDelegate::EnterFullscreenModeForTab(
     const blink::mojom::FullscreenOptions& options) {
   auto web_contents =
       content::WebContents::FromRenderFrameHost(requesting_frame);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   if (auto delegate = GetDelegateForWebContents(web_contents)) {
     delegate->EnterFullscreenModeForTab(requesting_frame, options);
@@ -334,8 +335,9 @@ CefBrowserContentsDelegate* ChromeBrowserDelegate::GetDelegateForWebContents(
     content::WebContents* web_contents) {
   auto browser_host =
       ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (browser_host)
+  if (browser_host) {
     return browser_host->contents_delegate();
+  }
   return nullptr;
 }
 

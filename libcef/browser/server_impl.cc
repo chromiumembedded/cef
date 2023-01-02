@@ -88,8 +88,9 @@ CefRefPtr<CefRequest> CreateRequest(const std::string& address,
   CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
   request->Set((is_websocket ? "ws://" : "http://") + address + info.path,
                info.method, post_data, header_map);
-  if (!referer.empty())
+  if (!referer.empty()) {
     request->SetReferrer(referer, REFERRER_POLICY_DEFAULT);
+  }
   request->SetReadOnly(true);
   return request;
 }
@@ -109,8 +110,9 @@ class AcceptWebSocketCallback : public CefCallback {
   AcceptWebSocketCallback& operator=(const AcceptWebSocketCallback&) = delete;
 
   ~AcceptWebSocketCallback() override {
-    if (impl_)
+    if (impl_) {
       impl_->ContinueWebSocketRequest(connection_id_, request_info_, false);
+    }
   }
 
   void Continue() override {
@@ -119,8 +121,9 @@ class AcceptWebSocketCallback : public CefCallback {
                     base::BindOnce(&AcceptWebSocketCallback::Continue, this));
       return;
     }
-    if (!impl_)
+    if (!impl_) {
       return;
+    }
     impl_->ContinueWebSocketRequest(connection_id_, request_info_, true);
     impl_ = nullptr;
   }
@@ -131,8 +134,9 @@ class AcceptWebSocketCallback : public CefCallback {
                     base::BindOnce(&AcceptWebSocketCallback::Cancel, this));
       return;
     }
-    if (!impl_)
+    if (!impl_) {
       return;
+    }
     impl_->ContinueWebSocketRequest(connection_id_, request_info_, false);
     impl_ = nullptr;
   }
@@ -182,8 +186,9 @@ void CefServerImpl::Start(const std::string& address,
 }
 
 CefRefPtr<CefTaskRunner> CefServerImpl::GetTaskRunner() {
-  if (task_runner_)
+  if (task_runner_) {
     return new CefTaskRunnerImpl(task_runner_);
+  }
   return nullptr;
 }
 
@@ -226,12 +231,14 @@ void CefServerImpl::SendHttp404Response(int connection_id) {
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   if (info->is_websocket) {
     LOG(ERROR) << "Invalid attempt to send HTTP response for connection_id "
@@ -251,12 +258,14 @@ void CefServerImpl::SendHttp500Response(int connection_id,
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   if (info->is_websocket) {
     LOG(ERROR) << "Invalid attempt to send HTTP response for connection_id "
@@ -280,12 +289,14 @@ void CefServerImpl::SendHttpResponse(int connection_id,
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   if (info->is_websocket) {
     LOG(ERROR) << "Invalid attempt to send HTTP response for connection_id "
@@ -297,8 +308,9 @@ void CefServerImpl::SendHttpResponse(int connection_id,
       static_cast<net::HttpStatusCode>(response_code));
 
   HeaderMap::const_iterator it = extra_headers.begin();
-  for (; it != extra_headers.end(); ++it)
+  for (; it != extra_headers.end(); ++it) {
     response.AddHeader(it->first, it->second);
+  }
 
   response.AddHeader(net::HttpRequestHeaders::kContentType, content_type);
   if (content_length >= 0) {
@@ -316,8 +328,9 @@ void CefServerImpl::SendHttpResponse(int connection_id,
 void CefServerImpl::SendRawData(int connection_id,
                                 const void* data,
                                 size_t data_size) {
-  if (!data || data_size == 0)
+  if (!data || data_size == 0) {
     return;
+  }
   SendRawDataInternal(connection_id, CreateUniqueString(data, data_size));
 }
 
@@ -336,8 +349,9 @@ void CefServerImpl::CloseConnection(int connection_id) {
 void CefServerImpl::SendWebSocketMessage(int connection_id,
                                          const void* data,
                                          size_t data_size) {
-  if (!data || data_size == 0)
+  if (!data || data_size == 0) {
     return;
+  }
   SendWebSocketMessageInternal(connection_id,
                                CreateUniqueString(data, data_size));
 }
@@ -352,18 +366,21 @@ void CefServerImpl::ContinueWebSocketRequest(
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
   DCHECK(info);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   DCHECK(info->is_websocket);
   DCHECK(info->is_websocket_pending);
-  if (!info->is_websocket || !info->is_websocket_pending)
+  if (!info->is_websocket || !info->is_websocket_pending) {
     return;
+  }
 
   info->is_websocket_pending = false;
 
@@ -387,12 +404,14 @@ void CefServerImpl::SendHttp200ResponseInternal(
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   if (info->is_websocket) {
     LOG(ERROR) << "Invalid attempt to send HTTP response for connection_id "
@@ -413,11 +432,13 @@ void CefServerImpl::SendRawDataInternal(int connection_id,
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
-  if (!GetConnectionInfo(connection_id))
+  if (!GetConnectionInfo(connection_id)) {
     return;
+  }
 
   server_->SendRaw(connection_id, *data, MISSING_TRAFFIC_ANNOTATION);
 }
@@ -432,12 +453,14 @@ void CefServerImpl::SendWebSocketMessageInternal(
     return;
   }
 
-  if (!ValidateServer())
+  if (!ValidateServer()) {
     return;
+  }
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   if (!info->is_websocket || info->is_websocket_pending) {
     LOG(ERROR) << "Invalid attempt to send WebSocket message for connection_id "
@@ -462,8 +485,9 @@ void CefServerImpl::OnHttpRequest(
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
   DCHECK(info);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   DCHECK(!info->is_websocket);
 
@@ -478,8 +502,9 @@ void CefServerImpl::OnWebSocketRequest(
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
   DCHECK(info);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   DCHECK(!info->is_websocket);
   info->is_websocket = true;
@@ -497,8 +522,9 @@ void CefServerImpl::OnWebSocketMessage(int connection_id, std::string data) {
   CEF_REQUIRE_HT();
 
   ConnectionInfo* info = GetConnectionInfo(connection_id);
-  if (!info)
+  if (!info) {
     return;
+  }
 
   DCHECK(info->is_websocket);
   DCHECK(!info->is_websocket_pending);
@@ -546,8 +572,9 @@ void CefServerImpl::StartOnHandlerThread(const std::string& address,
     server_.reset(new net::HttpServer(std::move(socket), this));
 
     net::IPEndPoint ip_address;
-    if (server_->GetLocalAddress(&ip_address) == net::OK)
+    if (server_->GetLocalAddress(&ip_address) == net::OK) {
       address_ = ip_address.ToString();
+    }
   }
 
   handler_->OnServerCreated(this);
@@ -650,8 +677,9 @@ CefServerImpl::ConnectionInfo* CefServerImpl::GetConnectionInfo(
   CEF_REQUIRE_HT();
   ConnectionInfoMap::const_iterator it =
       connection_info_map_.find(connection_id);
-  if (it != connection_info_map_.end())
+  if (it != connection_info_map_.end()) {
     return it->second.get();
+  }
 
   LOG(ERROR) << "Invalid connection_id " << connection_id;
   return nullptr;
@@ -661,8 +689,9 @@ void CefServerImpl::RemoveConnectionInfo(int connection_id) {
   CEF_REQUIRE_HT();
   ConnectionInfoMap::iterator it = connection_info_map_.find(connection_id);
   DCHECK(it != connection_info_map_.end());
-  if (it != connection_info_map_.end())
+  if (it != connection_info_map_.end()) {
     connection_info_map_.erase(it);
+  }
 }
 
 bool CefServerImpl::CurrentlyOnHandlerThread() const {

@@ -22,8 +22,9 @@ bool CefBeginTracing(const CefString& categories,
   }
 
   CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
-  if (!subscriber)
+  if (!subscriber) {
     return false;
+  }
 
   return subscriber->BeginTracing(categories, callback);
 }
@@ -41,8 +42,9 @@ bool CefEndTracing(const CefString& tracing_file,
   }
 
   CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
-  if (!subscriber)
+  if (!subscriber) {
     return false;
+  }
 
   return subscriber->EndTracing(base::FilePath(tracing_file), callback);
 }

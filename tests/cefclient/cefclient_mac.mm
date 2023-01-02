@@ -22,8 +22,9 @@ namespace {
 NSMenuItem* GetMenuBarMenuWithTag(NSInteger tag) {
   NSMenu* main_menu = [[NSApplication sharedApplication] mainMenu];
   NSInteger found_index = [main_menu indexOfItemWithTag:tag];
-  if (found_index >= 0)
+  if (found_index >= 0) {
     return [main_menu itemAtIndex:found_index];
+  }
   return nil;
 }
 
@@ -31,8 +32,9 @@ NSMenuItem* GetMenuBarMenuWithTag(NSInteger tag) {
 NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   for (NSInteger i = 0; i < menu.numberOfItems; ++i) {
     NSMenuItem* item = [menu itemAtIndex:i];
-    if (item.action == action_selector)
+    if (item.action == action_selector) {
       return item;
+    }
   }
   return nil;
 }
@@ -209,12 +211,14 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
     if (tests_menu) {
       NSMenuItem* set_fps_item = GetMenuItemWithAction(
           tests_menu.submenu, @selector(menuTestsSetFPS:));
-      if (set_fps_item)
+      if (set_fps_item) {
         [tests_menu.submenu removeItem:set_fps_item];
+      }
       NSMenuItem* set_scale_factor_item = GetMenuItemWithAction(
           tests_menu.submenu, @selector(menuTestsSetScaleFactor:));
-      if (set_scale_factor_item)
+      if (set_scale_factor_item) {
         [tests_menu.submenu removeItem:set_scale_factor_item];
+      }
     }
   }
 
@@ -239,12 +243,14 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   // Retrieve the active RootWindow.
   auto root_window =
       client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
-  if (!root_window)
+  if (!root_window) {
     return;
+  }
 
   CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     client::test_runner::RunTest(browser, command_id);
+  }
 }
 
 - (IBAction)menuTestsGetText:(id)sender {
@@ -319,8 +325,9 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   // Retrieve the active RootWindow.
   auto root_window =
       client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
-  if (!root_window)
+  if (!root_window) {
     return;
+  }
 
   CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
   if (browser.get()) {
@@ -343,8 +350,9 @@ int RunMain(int argc, char* argv[]) {
   // Load the CEF framework library at runtime instead of linking directly
   // as required by the macOS sandbox implementation.
   CefScopedLibraryLoader library_loader;
-  if (!library_loader.LoadInMain())
+  if (!library_loader.LoadInMain()) {
     return 1;
+  }
 
   int result = -1;
 
@@ -368,8 +376,9 @@ int RunMain(int argc, char* argv[]) {
     CefRefPtr<CefApp> app;
     ClientApp::ProcessType process_type =
         ClientApp::GetProcessType(command_line);
-    if (process_type == ClientApp::BrowserProcess)
+    if (process_type == ClientApp::BrowserProcess) {
       app = new ClientAppBrowser();
+    }
 
     // Create the main context object.
     std::unique_ptr<MainContextImpl> context(
@@ -389,10 +398,11 @@ int RunMain(int argc, char* argv[]) {
 
     // Create the main message loop object.
     std::unique_ptr<MainMessageLoop> message_loop;
-    if (settings.external_message_pump)
+    if (settings.external_message_pump) {
       message_loop = MainMessageLoopExternalPump::Create();
-    else
+    } else {
       message_loop.reset(new MainMessageLoopStd);
+    }
 
     // Initialize CEF.
     context->Initialize(main_args, settings, app, nullptr);

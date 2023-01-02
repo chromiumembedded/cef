@@ -63,8 +63,9 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   }
 
   bool DoClose(CefRefPtr<CefBrowser> browser) override {
-    if (executing_delay_close_)
+    if (executing_delay_close_) {
       return false;
+    }
 
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
 
@@ -139,8 +140,9 @@ class LifeSpanTestHandler : public RoutingTestHandler {
                bool persistent,
                CefRefPtr<Callback> callback) override {
     if (request.ToString() == kUnloadMsg) {
-      if (!executing_delay_close_)
+      if (!executing_delay_close_) {
         got_unload_message_.yes();
+      }
     }
     callback->Success("");
     return true;

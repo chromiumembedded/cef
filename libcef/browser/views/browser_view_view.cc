@@ -25,8 +25,9 @@ void CefBrowserViewView::ViewHierarchyChanged(
       // this View to a CefWindow with FillLayout and then calling
       // CefWindow::Show() without first resizing the CefWindow.
       size = details.parent->GetPreferredSize();
-      if (!size.IsEmpty())
+      if (!size.IsEmpty()) {
         SetSize(size);
+      }
     }
 
     browser_view_delegate_->OnBrowserViewAdded();

@@ -91,8 +91,9 @@ void TestPostDataEqual(CefRefPtr<CefPostData> postData1,
 
   CefPostData::ElementVector::const_iterator it1 = ev1.begin();
   CefPostData::ElementVector::const_iterator it2 = ev2.begin();
-  for (; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2)
+  for (; it1 != ev1.end() && it2 != ev2.end(); ++it1, ++it2) {
     TestPostDataElementEqual((*it1), (*it2));
+  }
 }
 
 void TestRequestEqual(CefRefPtr<CefRequest> request1,
@@ -118,8 +119,9 @@ void TestRequestEqual(CefRefPtr<CefRequest> request1,
   CefRefPtr<CefPostData> postData1 = request1->GetPostData();
   CefRefPtr<CefPostData> postData2 = request2->GetPostData();
   EXPECT_EQ(!!(postData1.get()), !!(postData2.get()));
-  if (postData1.get() && postData2.get())
+  if (postData1.get() && postData2.get()) {
     TestPostDataEqual(postData1, postData2);
+  }
 }
 
 void TestResponseEqual(CefRefPtr<CefResponse> response1,
@@ -270,8 +272,9 @@ void TestStringVectorEqual(const std::vector<CefString>& val1,
                            const std::vector<CefString>& val2) {
   EXPECT_EQ(val1.size(), val2.size());
 
-  for (size_t i = 0; i < val1.size(); ++i)
+  for (size_t i = 0; i < val1.size(); ++i) {
     EXPECT_STREQ(val1[i].ToString().c_str(), val2[i].ToString().c_str());
+  }
 }
 
 bool TestOldResourceAPI() {
@@ -296,8 +299,9 @@ bool IsChromeRuntimeEnabled() {
 
 bool IsBFCacheEnabled() {
   // Supported by the Chrome runtime only, see issue #3237.
-  if (!IsChromeRuntimeEnabled())
+  if (!IsChromeRuntimeEnabled()) {
     return false;
+  }
 
   // Enabled by default starting in M96.
   static int state = -1;
@@ -327,10 +331,12 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
   EXPECT_TRUE(cache_path.empty() || mode == TEST_RC_MODE_CUSTOM ||
               mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER);
 
-  if (mode == TEST_RC_MODE_NONE)
+  if (mode == TEST_RC_MODE_NONE) {
     return nullptr;
-  if (mode == TEST_RC_MODE_GLOBAL)
+  }
+  if (mode == TEST_RC_MODE_GLOBAL) {
     return CefRequestContext::GetGlobalContext();
+  }
 
   CefRefPtr<CefRequestContextHandler> rc_handler;
   if (mode == TEST_RC_MODE_GLOBAL_WITH_HANDLER ||
@@ -347,8 +353,9 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
 
   if (mode == TEST_RC_MODE_CUSTOM || mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
     CefRequestContextSettings settings;
-    if (!cache_path.empty())
+    if (!cache_path.empty()) {
       CefString(&settings.cache_path) = cache_path;
+    }
     return CefRequestContext::CreateContext(settings, rc_handler);
   }
 

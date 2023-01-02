@@ -161,8 +161,9 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   CefBrowserPlatformDelegate::BrowserCreated(browser);
 
   // Only register WebContents delegate/observers if we're the primary delegate.
-  if (!primary_)
+  if (!primary_) {
     return;
+  }
 
   DCHECK(!web_contents_->GetDelegate());
   web_contents_->SetDelegate(static_cast<AlloyBrowserHostImpl*>(browser));
@@ -243,22 +244,26 @@ CefBrowserPlatformDelegateAlloy::GetWebContentsModalDialogHost() const {
 }
 
 void CefBrowserPlatformDelegateAlloy::SendCaptureLostEvent() {
-  if (!web_contents_)
+  if (!web_contents_) {
     return;
+  }
   content::RenderViewHost* host = web_contents_->GetRenderViewHost();
-  if (!host)
+  if (!host) {
     return;
+  }
 
   content::RenderWidgetHostImpl* widget =
       content::RenderWidgetHostImpl::From(host->GetWidget());
-  if (widget)
+  if (widget) {
     widget->LostCapture();
+  }
 }
 
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
 void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
-  if (!web_contents_)
+  if (!web_contents_) {
     return;
+  }
 
   // Dismiss any existing popups.
   web_contents_->ClearFocusedElement();
@@ -268,15 +273,17 @@ void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
 bool CefBrowserPlatformDelegateAlloy::PreHandleGestureEvent(
     content::WebContents* source,
     const blink::WebGestureEvent& event) {
-  if (extension_host_)
+  if (extension_host_) {
     return extension_host_->PreHandleGestureEvent(source, event);
+  }
   return false;
 }
 
 bool CefBrowserPlatformDelegateAlloy::IsNeverComposited(
     content::WebContents* web_contents) {
-  if (extension_host_)
+  if (extension_host_) {
     return extension_host_->IsNeverComposited(web_contents);
+  }
   return false;
 }
 
@@ -284,8 +291,9 @@ void CefBrowserPlatformDelegateAlloy::SetAutoResizeEnabled(
     bool enabled,
     const CefSize& min_size,
     const CefSize& max_size) {
-  if (enabled == auto_resize_enabled_)
+  if (enabled == auto_resize_enabled_) {
     return;
+  }
 
   auto_resize_enabled_ = enabled;
   if (enabled) {
@@ -315,14 +323,16 @@ void CefBrowserPlatformDelegateAlloy::SetAccessibilityState(
   // Do nothing if state is set to default. It'll be disabled by default and
   // controlled by the commmand-line flags "force-renderer-accessibility" and
   // "disable-renderer-accessibility".
-  if (accessibility_state == STATE_DEFAULT)
+  if (accessibility_state == STATE_DEFAULT) {
     return;
+  }
 
   content::WebContentsImpl* web_contents_impl =
       static_cast<content::WebContentsImpl*>(web_contents_);
 
-  if (!web_contents_impl)
+  if (!web_contents_impl) {
     return;
+  }
 
   ui::AXMode accMode;
   // In windowless mode set accessibility to TreeOnly mode. Else native
@@ -337,8 +347,9 @@ bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
   REQUIRE_ALLOY_RUNTIME();
 
   // Print preview is not currently supported with OSR.
-  if (IsWindowless())
+  if (IsWindowless()) {
     return false;
+  }
 
   auto cef_browser_context =
       CefBrowserContext::FromBrowserContext(web_contents_->GetBrowserContext());
@@ -349,8 +360,9 @@ void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,
                                            bool forward,
                                            bool matchCase,
                                            bool findNext) {
-  if (!web_contents_)
+  if (!web_contents_) {
     return;
+  }
 
   find_in_page::FindTabHelper::FromWebContents(web_contents_)
       ->StartFinding(searchText.ToString16(), forward, matchCase, findNext,
@@ -358,8 +370,9 @@ void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,
 }
 
 void CefBrowserPlatformDelegateAlloy::StopFinding(bool clearSelection) {
-  if (!web_contents_)
+  if (!web_contents_) {
     return;
+  }
 
   last_search_result_ = find_in_page::FindNotificationDetails();
   find_in_page::FindTabHelper::FromWebContents(web_contents_)
@@ -373,8 +386,9 @@ bool CefBrowserPlatformDelegateAlloy::HandleFindReply(
     const gfx::Rect& selection_rect,
     int active_match_ordinal,
     bool final_update) {
-  if (!web_contents_)
+  if (!web_contents_) {
     return false;
+  }
 
   auto find_in_page =
       find_in_page::FindTabHelper::FromWebContents(web_contents_);
@@ -407,8 +421,9 @@ void CefBrowserPlatformDelegateAlloy::SetOwnedWebContents(
 }
 
 void CefBrowserPlatformDelegateAlloy::DestroyExtensionHost() {
-  if (!extension_host_)
+  if (!extension_host_) {
     return;
+  }
   if (extension_host_->extension_host_type() ==
       extensions::mojom::ViewType::kExtensionBackgroundPage) {
     DCHECK(is_background_host_);

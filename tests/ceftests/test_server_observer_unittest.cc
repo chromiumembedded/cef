@@ -76,8 +76,9 @@ class TestServerObserver : public test_server::ObserverHelper {
                            const ResponseCallback& response_callback) override {
     CEF_REQUIRE_UI_THREAD();
     const std::string& url = request->GetURL();
-    if (url != url_)
+    if (url != url_) {
       return false;
+    }
 
     EXPECT_TRUE(state_->got_initialized_);
     EXPECT_FALSE(state_->got_request_);

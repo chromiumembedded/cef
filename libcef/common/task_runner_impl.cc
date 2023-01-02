@@ -24,8 +24,9 @@ using content::BrowserThread;
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
   scoped_refptr<base::SingleThreadTaskRunner> task_runner =
       CefTaskRunnerImpl::GetCurrentTaskRunner();
-  if (task_runner.get())
+  if (task_runner.get()) {
     return new CefTaskRunnerImpl(task_runner);
+  }
   return nullptr;
 }
 
@@ -33,8 +34,9 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForCurrentThread() {
 CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
   scoped_refptr<base::SingleThreadTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(threadId);
-  if (task_runner.get())
+  if (task_runner.get()) {
     return new CefTaskRunnerImpl(task_runner);
+  }
 
   LOG(WARNING) << "Invalid thread id " << threadId;
   return nullptr;
@@ -52,13 +54,15 @@ CefTaskRunnerImpl::CefTaskRunnerImpl(
 scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     CefThreadId threadId) {
   auto* manager = CefTaskRunnerManager::Get();
-  if (!manager)
+  if (!manager) {
     return nullptr;
+  }
 
   switch (threadId) {
     case TID_UI:
-      if (BrowserThread::IsThreadInitialized(BrowserThread::UI))
+      if (BrowserThread::IsThreadInitialized(BrowserThread::UI)) {
         return content::GetUIThreadTaskRunner({});
+      }
       break;
     case TID_FILE_BACKGROUND:
       return manager->GetBackgroundTaskRunner();
@@ -69,8 +73,9 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
     case TID_PROCESS_LAUNCHER:
       return content::GetProcessLauncherTaskRunner();
     case TID_IO:
-      if (BrowserThread::IsThreadInitialized(BrowserThread::IO))
+      if (BrowserThread::IsThreadInitialized(BrowserThread::IO)) {
         return content::GetIOThreadTaskRunner({});
+      }
       break;
     case TID_RENDERER:
       return manager->GetRenderTaskRunner();
@@ -85,8 +90,9 @@ scoped_refptr<base::SingleThreadTaskRunner> CefTaskRunnerImpl::GetTaskRunner(
 scoped_refptr<base::SingleThreadTaskRunner>
 CefTaskRunnerImpl::GetCurrentTaskRunner() {
   auto* manager = CefTaskRunnerManager::Get();
-  if (!manager)
+  if (!manager) {
     return nullptr;
+  }
 
   // For named browser process threads return the same TaskRunner as
   // GetTaskRunner(). Otherwise BelongsToThread() will return incorrect results.
@@ -104,8 +110,9 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
 
   // Check for a MessageLoopProxy. This covers all of the named browser and
   // render process threads, plus a few extra.
-  if (auto task_runner = base::ThreadTaskRunnerHandle::Get())
+  if (auto task_runner = base::ThreadTaskRunnerHandle::Get()) {
     return task_runner;
+  }
 
   // Check for a WebWorker thread.
   return manager->GetWebWorkerTaskRunner();

@@ -52,8 +52,9 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
         std::string part;
         std::istringstream f(extension_path);
         while (getline(f, part, ';')) {
-          if (!part.empty())
+          if (!part.empty()) {
             extension_util::LoadExtension(request_context, part, this);
+          }
         }
       }
     }
@@ -190,18 +191,21 @@ bool RootWindowManager::HasRootWindowAsExtension(
   REQUIRE_MAIN_THREAD();
 
   for (auto root_window : root_windows_) {
-    if (!root_window->WithExtension())
+    if (!root_window->WithExtension()) {
       continue;
+    }
 
     CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
-    if (!browser)
+    if (!browser) {
       continue;
+    }
 
     CefRefPtr<CefExtension> browser_extension =
         browser->GetHost()->GetExtension();
     DCHECK(browser_extension);
-    if (browser_extension->GetIdentifier() == extension->GetIdentifier())
+    if (browser_extension->GetIdentifier() == extension->GetIdentifier()) {
       return true;
+    }
   }
 
   return false;
@@ -213,8 +217,9 @@ scoped_refptr<RootWindow> RootWindowManager::GetWindowForBrowser(
 
   for (auto root_window : root_windows_) {
     CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
-    if (browser.get() && browser->GetIdentifier() == browser_id)
+    if (browser.get() && browser->GetIdentifier() == browser_id) {
       return root_window;
+    }
   }
   return nullptr;
 }
@@ -237,8 +242,9 @@ void RootWindowManager::CloseAllWindows(bool force) {
     return;
   }
 
-  if (root_windows_.empty())
+  if (root_windows_.empty()) {
     return;
+  }
 
   // Use a copy of |root_windows_| because the original set may be modified
   // in OnRootWindowDestroyed while iterating.
@@ -258,14 +264,16 @@ void RootWindowManager::AddExtension(CefRefPtr<CefExtension> extension) {
   }
 
   // Don't track extensions that can't be loaded directly.
-  if (extension_util::GetExtensionURL(extension).empty())
+  if (extension_util::GetExtensionURL(extension).empty()) {
     return;
+  }
 
   // Don't add the same extension multiple times.
   ExtensionSet::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
-    if ((*it)->GetIdentifier() == extension->GetIdentifier())
+    if ((*it)->GetIdentifier() == extension->GetIdentifier()) {
       return;
+    }
   }
 
   extensions_.insert(extension);
@@ -297,8 +305,9 @@ void RootWindowManager::NotifyExtensionsChanged() {
   REQUIRE_MAIN_THREAD();
 
   for (auto root_window : root_windows_) {
-    if (!root_window->WithExtension())
+    if (!root_window->WithExtension()) {
       root_window->OnExtensionsChanged(extensions_);
+    }
   }
 }
 
@@ -366,8 +375,9 @@ void RootWindowManager::OnRootWindowDestroyed(RootWindow* root_window) {
 
   RootWindowSet::iterator it = root_windows_.find(root_window);
   DCHECK(it != root_windows_.end());
-  if (it != root_windows_.end())
+  if (it != root_windows_.end()) {
     root_windows_.erase(it);
+  }
 
   if (root_window == active_root_window_) {
     active_root_window_ = nullptr;
@@ -391,8 +401,9 @@ void RootWindowManager::OnRootWindowActivated(RootWindow* root_window) {
     return;
   }
 
-  if (root_window == active_root_window_)
+  if (root_window == active_root_window_) {
     return;
+  }
 
   active_root_window_ = root_window;
 

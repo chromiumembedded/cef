@@ -109,8 +109,9 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     if (state_->manager_) {
       CefRefPtr<CefResourceHandler> handler =
           state_->manager_->GetResourceHandler(browser, frame, request);
-      if (handler.get())
+      if (handler.get()) {
         return handler;
+      }
     }
 
     return CreateContentsResourceHandler(CreateMessage(kDoneMsg, kNotHandled));
@@ -143,18 +144,20 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     if (state_->expected_message_ct_ == 0) {
       // Load each URL sequentially.
       const std::string& next_url = GetNextURL();
-      if (next_url.empty())
+      if (next_url.empty()) {
         DestroyTest();
-      else
+      } else {
         browser->GetMainFrame()->LoadURL(next_url);
+      }
     } else if (state_->messages_.size() == state_->expected_message_ct_) {
       DestroyTest();
     }
   }
 
   std::string GetNextURL() {
-    if (current_url_ >= state_->urls_.size())
+    if (current_url_ >= state_->urls_.size()) {
       return std::string();
+    }
     return state_->urls_[current_url_++];
   }
 
@@ -205,8 +208,9 @@ class TestProvider : public CefResourceManager::Provider {
   ~TestProvider() {
     CEF_REQUIRE_IO_THREAD();
     state_->got_destruct_.yes();
-    if (!state_->destruct_callback_.is_null())
+    if (!state_->destruct_callback_.is_null()) {
       std::move(state_->destruct_callback_).Run();
+    }
   }
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
@@ -260,8 +264,9 @@ class ProviderDestructHelper {
     {
       base::AutoLock lock_scope(lock_);
       CHECK_LT(current_count_, expected_count_);
-      if (++current_count_ == expected_count_)
+      if (++current_count_ == expected_count_) {
         signal = true;
+      }
     }
 
     if (signal) {
@@ -371,17 +376,17 @@ class SimpleTestProvider : public TestProvider {
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) override {
     TestProvider::OnRequest(request);
 
-    if (mode_ == NOT_HANDLED)
+    if (mode_ == NOT_HANDLED) {
       return false;
-    else if (mode_ == CONTINUE)
+    } else if (mode_ == CONTINUE) {
       request->Continue(nullptr);
-    else if (mode_ == STOP)
+    } else if (mode_ == STOP) {
       request->Stop();
-    else if (mode_ == REMOVE)
+    } else if (mode_ == REMOVE) {
       manager_->RemoveProviders(kProviderId);
-    else if (mode_ == REMOVE_ALL)
+    } else if (mode_ == REMOVE_ALL) {
       manager_->RemoveAllProviders();
-    else if (mode_ == DO_NOTHING) {
+    } else if (mode_ == DO_NOTHING) {
       EXPECT_FALSE(do_nothing_callback_.is_null());
       std::move(do_nothing_callback_).Run();
     }
@@ -1108,20 +1113,22 @@ class OneShotRemovalProvider : public TestProvider {
     if (remove_before_continue_) {
       // Removing the provider before continuing should trigger a call to
       // OnRequestCanceled.
-      if (identifier_.empty())
+      if (identifier_.empty()) {
         manager_->RemoveAllProviders();
-      else
+      } else {
         manager_->RemoveProviders(identifier_);
+      }
     }
 
     request->Continue(new CefStreamResourceHandler("text/html", stream));
 
     if (!remove_before_continue_) {
       // The request has already completed so OnRequestCanceled is not called.
-      if (identifier_.empty())
+      if (identifier_.empty()) {
         manager_->RemoveAllProviders();
-      else
+      } else {
         manager_->RemoveProviders(identifier_);
+      }
     }
 
     return true;
@@ -1544,16 +1551,18 @@ std::string TestUrlFilter(const std::string& url) {
 // Add to the URL but keep the query component.
 std::string TestUrlFilterWithQuery(const std::string& url) {
   size_t pos = url.find('?');
-  if (pos == std::string::npos)
+  if (pos == std::string::npos) {
     return url;
+  }
   return url.substr(0, pos) + "Rewrite" + url.substr(pos);
 }
 
 // Add to the URL but keep the fragment component.
 std::string TestUrlFilterWithFragment(const std::string& url) {
   size_t pos = url.find('#');
-  if (pos == std::string::npos)
+  if (pos == std::string::npos) {
     return url;
+  }
   return url.substr(0, pos) + "Rewrite" + url.substr(pos);
 }
 

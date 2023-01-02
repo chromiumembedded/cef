@@ -22,18 +22,21 @@ bool CefTextfieldView::HandleKeyEvent(views::Textfield* sender,
                                       const ui::KeyEvent& key_event) {
   DCHECK_EQ(sender, this);
 
-  if (!cef_delegate())
+  if (!cef_delegate()) {
     return false;
+  }
 
   CefKeyEvent cef_key_event;
-  if (!browser_util::GetCefKeyEvent(key_event, cef_key_event))
+  if (!browser_util::GetCefKeyEvent(key_event, cef_key_event)) {
     return false;
+  }
 
   return cef_delegate()->OnKeyEvent(GetCefTextfield(), cef_key_event);
 }
 
 void CefTextfieldView::OnAfterUserAction(views::Textfield* sender) {
   DCHECK_EQ(sender, this);
-  if (cef_delegate())
+  if (cef_delegate()) {
     cef_delegate()->OnAfterUserAction(GetCefTextfield());
+  }
 }

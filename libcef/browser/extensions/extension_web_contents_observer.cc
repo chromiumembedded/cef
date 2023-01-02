@@ -37,8 +37,9 @@ void CefExtensionWebContentsObserver::RenderFrameCreated(
   ExtensionWebContentsObserver::RenderFrameCreated(render_frame_host);
 
   const Extension* extension = GetExtensionFromFrame(render_frame_host, false);
-  if (!extension)
+  if (!extension) {
     return;
+  }
 
   int process_id = render_frame_host->GetProcess()->GetID();
   auto policy = content::ChildProcessSecurityPolicy::GetInstance();

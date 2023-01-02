@@ -52,11 +52,13 @@ class ViewLoadUnloadTestHandler : public ExtensionTestHandler {
     EXPECT_TRUE(extension_->IsSame(extension));
 
     // The extension should no longer be registered with the context.
-    if (loader_request_context())
+    if (loader_request_context()) {
       VerifyExtensionInContext(extension, loader_request_context(), false,
                                true);
-    if (request_context() && !request_context_same_loader())
+    }
+    if (request_context() && !request_context_same_loader()) {
       VerifyExtensionInContext(extension, request_context(), false, false);
+    }
 
     extension_ = nullptr;
 
@@ -164,8 +166,9 @@ class ViewLoadUnloadTestHandler : public ExtensionTestHandler {
     TestDictionaryEqual(expected_manifest, extension->GetManifest());
 
     VerifyExtensionInContext(extension, loader_request_context(), true, true);
-    if (!request_context_same_loader())
+    if (!request_context_same_loader()) {
       VerifyExtensionInContext(extension, request_context(), true, false);
+    }
   }
 
   void CreateBrowserForExtension() {

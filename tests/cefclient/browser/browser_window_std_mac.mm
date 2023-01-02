@@ -86,8 +86,9 @@ void BrowserWindowStdMac::SetFocus(bool focus) {
 ClientWindowHandle BrowserWindowStdMac::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_)
+  if (browser_) {
     return browser_->GetHost()->GetWindowHandle();
+  }
   return nullptr;
 }
 

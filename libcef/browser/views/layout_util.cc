@@ -19,8 +19,9 @@ class UserData : public base::SupportsUserData::Data {
  public:
   static CefRefPtr<CefLayout> GetFor(const views::View* view) {
     UserData* data = static_cast<UserData*>(view->GetUserData(UserDataKey()));
-    if (data)
+    if (data) {
       return data->layout_;
+    }
     return nullptr;
   }
 

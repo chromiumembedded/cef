@@ -66,8 +66,9 @@ const char* const kSupportedAPIs[] = {
 // static
 bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
   for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
-    if (name == kSupportedAPIs[i])
+    if (name == kSupportedAPIs[i]) {
       return true;
+    }
   }
   return false;
 }

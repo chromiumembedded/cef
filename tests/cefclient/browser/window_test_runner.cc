@@ -12,22 +12,28 @@ void WindowTestRunner::ModifyBounds(const CefRect& display, CefRect& window) {
   window.x += display.x;
   window.y += display.y;
 
-  if (window.x < display.x)
+  if (window.x < display.x) {
     window.x = display.x;
-  if (window.y < display.y)
+  }
+  if (window.y < display.y) {
     window.y = display.y;
-  if (window.width < 100)
+  }
+  if (window.width < 100) {
     window.width = 100;
-  else if (window.width >= display.width)
+  } else if (window.width >= display.width) {
     window.width = display.width;
-  if (window.height < 100)
+  }
+  if (window.height < 100) {
     window.height = 100;
-  else if (window.height >= display.height)
+  } else if (window.height >= display.height) {
     window.height = display.height;
-  if (window.x + window.width >= display.x + display.width)
+  }
+  if (window.x + window.width >= display.x + display.width) {
     window.x = display.x + display.width - window.width;
-  if (window.y + window.height >= display.y + display.height)
+  }
+  if (window.y + window.height >= display.y + display.height) {
     window.y = display.y + display.height - window.height;
+  }
 }
 
 }  // namespace window_test

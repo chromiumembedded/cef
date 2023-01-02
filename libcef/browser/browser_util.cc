@@ -28,24 +28,33 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
   }
 
   cef_event.modifiers = 0;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kShiftKey)
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kShiftKey) {
     cef_event.modifiers |= EVENTFLAG_SHIFT_DOWN;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kControlKey)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kControlKey) {
     cef_event.modifiers |= EVENTFLAG_CONTROL_DOWN;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltKey)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltKey) {
     cef_event.modifiers |= EVENTFLAG_ALT_DOWN;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kMetaKey)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kMetaKey) {
     cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsKeyPad)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsKeyPad) {
     cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsLeft)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsLeft) {
     cef_event.modifiers |= EVENTFLAG_IS_LEFT;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsRight)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsRight) {
     cef_event.modifiers |= EVENTFLAG_IS_RIGHT;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltGrKey)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kAltGrKey) {
     cef_event.modifiers |= EVENTFLAG_ALTGR_DOWN;
-  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsAutoRepeat)
+  }
+  if (event.GetModifiers() & blink::WebKeyboardEvent::kIsAutoRepeat) {
     cef_event.modifiers |= EVENTFLAG_IS_REPEAT;
+  }
 
   cef_event.windows_key_code = event.windows_key_code;
   cef_event.native_key_code = event.native_key_code;

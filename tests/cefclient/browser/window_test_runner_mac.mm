@@ -35,15 +35,17 @@ void WindowTestRunnerMac::SetPos(CefRefPtr<CefBrowser> browser,
   NSWindow* window = GetWindow(browser);
 
   // Make sure the window isn't minimized or maximized.
-  if ([window isMiniaturized])
+  if ([window isMiniaturized]) {
     [window deminiaturize:nil];
-  else if ([window isZoomed])
+  } else if ([window isZoomed]) {
     [window performZoom:nil];
+  }
 
   // Retrieve information for the display that contains the window.
   NSScreen* screen = [window screen];
-  if (screen == nil)
+  if (screen == nil) {
     screen = [NSScreen mainScreen];
+  }
   NSRect frame = [screen frame];
   NSRect visibleFrame = [screen visibleFrame];
 
@@ -82,10 +84,11 @@ void WindowTestRunnerMac::Restore(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
 
   NSWindow* window = GetWindow(browser);
-  if ([window isMiniaturized])
+  if ([window isMiniaturized]) {
     [window deminiaturize:nil];
-  else if ([window isZoomed])
+  } else if ([window isZoomed]) {
     [window performZoom:nil];
+  }
 }
 
 }  // namespace window_test

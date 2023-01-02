@@ -17,8 +17,9 @@
 namespace scheme {
 
 void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
-  if (!cef::IsAlloyRuntimeEnabled())
+  if (!cef::IsAlloyRuntimeEnabled()) {
     return;
+  }
 
   // chrome: and chrome-devtools: schemes are registered in
   // RenderThreadImpl::RegisterSchemes().
@@ -39,16 +40,21 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
   // with Blink only.
   for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
        ++i) {
-    if (internal_schemes[i].is_standard)
+    if (internal_schemes[i].is_standard) {
       schemes->standard_schemes.push_back(internal_schemes[i].scheme_name);
-    if (internal_schemes[i].is_local)
+    }
+    if (internal_schemes[i].is_local) {
       schemes->local_schemes.push_back(internal_schemes[i].scheme_name);
-    if (internal_schemes[i].is_secure)
+    }
+    if (internal_schemes[i].is_secure) {
       schemes->secure_schemes.push_back(internal_schemes[i].scheme_name);
-    if (internal_schemes[i].is_cors_enabled)
+    }
+    if (internal_schemes[i].is_cors_enabled) {
       schemes->cors_enabled_schemes.push_back(internal_schemes[i].scheme_name);
-    if (internal_schemes[i].is_csp_bypassing)
+    }
+    if (internal_schemes[i].is_csp_bypassing) {
       schemes->csp_bypassing_schemes.push_back(internal_schemes[i].scheme_name);
+    }
     CefAppManager::Get()->AddCustomScheme(&internal_schemes[i]);
   }
 }
@@ -72,8 +78,9 @@ bool IsInternalHandledScheme(const std::string& scheme) {
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
-    if (scheme == schemes[i])
+    if (scheme == schemes[i]) {
       return true;
+    }
   }
 
   return false;

@@ -61,8 +61,9 @@ int MainMessageLoopMultithreadedWin::Run() {
   // Run the application message loop.
   while (GetMessage(&msg, nullptr, 0, 0)) {
     // Allow processing of dialog messages.
-    if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
+    if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg)) {
       continue;
+    }
 
     if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
       TranslateMessage(&msg);

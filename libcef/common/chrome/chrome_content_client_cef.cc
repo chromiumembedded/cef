@@ -19,12 +19,14 @@ ChromeContentClientCef::~ChromeContentClientCef() = default;
 void ChromeContentClientCef::AddContentDecryptionModules(
     std::vector<content::CdmInfo>* cdms,
     std::vector<media::CdmHostFilePath>* cdm_host_file_paths) {
-  if (cdms)
+  if (cdms) {
     RegisterCdmInfo(cdms);
+  }
 
 #if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
-  if (cdm_host_file_paths)
+  if (cdm_host_file_paths) {
     cef::AddCdmHostFilePaths(cdm_host_file_paths);
+  }
 #endif
 }
 

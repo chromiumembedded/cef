@@ -58,8 +58,9 @@ void HandleExternalProtocolHelper(
   // May return nullptr if frame has been deleted or a cross-document navigation
   // has committed in the same RenderFrameHost.
   auto initiator_rfh = initiator_document.AsRenderFrameHostIfValid();
-  if (!initiator_rfh)
+  if (!initiator_rfh) {
     return;
+  }
 
   // Match the logic of the original call in
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
@@ -253,8 +254,9 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   // For example, the User Manager profile created via
   // profiles::CreateSystemProfileForUserManager.
   auto profile = Profile::FromBrowserContext(browser_context);
-  if (!CefBrowserContext::FromProfile(profile))
+  if (!CefBrowserContext::FromProfile(profile)) {
     return false;
+  }
 
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,

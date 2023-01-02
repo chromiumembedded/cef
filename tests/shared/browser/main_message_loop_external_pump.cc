@@ -56,8 +56,9 @@ void MainMessageLoopExternalPump::OnScheduleWork(int64 delay_ms) {
     DoWork();
   } else {
     // Never wait longer than the maximum allowed time.
-    if (delay_ms > kMaxTimerDelay)
+    if (delay_ms > kMaxTimerDelay) {
       delay_ms = kMaxTimerDelay;
+    }
 
     // Results in call to OnTimerTimeout() after the specified delay.
     SetTimer(delay_ms);

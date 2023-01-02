@@ -173,23 +173,26 @@ class PromptHandler : public CefMessageRouterBrowserSide::Handler {
                        CefRefPtr<Callback> callback) override {
     // Parse |request| which takes the form "Prompt.[type]:[value]".
     const std::string& request_str = request;
-    if (request_str.find(kPrompt) != 0)
+    if (request_str.find(kPrompt) != 0) {
       return false;
+    }
 
     std::string type = request_str.substr(sizeof(kPrompt) - 1);
     size_t delim = type.find(':');
-    if (delim == std::string::npos)
+    if (delim == std::string::npos) {
       return false;
+    }
 
     const std::string& value = type.substr(delim + 1);
     type = type.substr(0, delim);
 
     // Canceling the prompt dialog returns a value of "null".
     if (value != "null") {
-      if (type == kPromptFPS)
+      if (type == kPromptFPS) {
         SetFPS(browser, atoi(value.c_str()));
-      else if (type == kPromptDSF)
+      } else if (type == kPromptDSF) {
         SetDSF(browser, static_cast<float>(atof(value.c_str())));
+      }
     }
 
     // Nothing is done with the response.
@@ -290,8 +293,9 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
     void RunDialog() {
       static const char kDefaultFileName[] = "trace.txt";
       std::string path = MainContext::Get()->GetDownloadPath(kDefaultFileName);
-      if (path.empty())
+      if (path.empty()) {
         path = kDefaultFileName;
+      }
 
       // Results in a call to OnFileDialogDismissed.
       browser_->GetHost()->RunFileDialog(
@@ -341,8 +345,9 @@ void PrintToPDF(CefRefPtr<CefBrowser> browser) {
     void RunDialog() {
       static const char kDefaultFileName[] = "output.pdf";
       std::string path = MainContext::Get()->GetDownloadPath(kDefaultFileName);
-      if (path.empty())
+      if (path.empty()) {
         path = kDefaultFileName;
+      }
 
       std::vector<CefString> accept_filters;
       accept_filters.push_back(".pdf");
@@ -492,8 +497,9 @@ std::string RequestUrlFilter(const std::string& url) {
 
   // Identify where the query or fragment component, if any, begins.
   size_t suffix_pos = url.find('?');
-  if (suffix_pos == std::string::npos)
+  if (suffix_pos == std::string::npos) {
     suffix_pos = url.find('#');
+  }
 
   std::string url_base, url_suffix;
   if (suffix_pos == std::string::npos) {
@@ -505,15 +511,17 @@ std::string RequestUrlFilter(const std::string& url) {
 
   // Identify the last path component.
   size_t path_pos = url_base.rfind('/');
-  if (path_pos == std::string::npos)
+  if (path_pos == std::string::npos) {
     return url;
+  }
 
   const std::string& path_component = url_base.substr(path_pos);
 
   // Identify if a file extension is currently specified.
   size_t ext_pos = path_component.rfind(".");
-  if (ext_pos != std::string::npos)
+  if (ext_pos != std::string::npos) {
     return url;
+  }
 
   // Rebuild the URL with a file extension.
   return url_base + ".html" + url_suffix;
@@ -522,8 +530,9 @@ std::string RequestUrlFilter(const std::string& url) {
 }  // namespace
 
 void RunTest(CefRefPtr<CefBrowser> browser, int id) {
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   switch (id) {
     case ID_TESTS_GETSOURCE:
@@ -789,8 +798,9 @@ void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
     // Alerts originating from extension hosts should instead be displayed in
     // the active browser.
     browser = MainContext::Get()->GetRootWindowManager()->GetActiveBrowser();
-    if (!browser)
+    if (!browser) {
       return;
+    }
   }
 
   // Escape special characters in the message.
@@ -807,8 +817,9 @@ bool IsTestURL(const std::string& url, const std::string& path) {
   CefParseURL(url, parts);
 
   const std::string& url_host = CefString(&parts.host);
-  if (url_host != kTestHost && url_host != kLocalHost)
+  if (url_host != kTestHost && url_host != kLocalHost) {
     return false;
+  }
 
   const std::string& url_path = CefString(&parts.path);
   return url_path.find(path) == 0;

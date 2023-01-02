@@ -172,10 +172,12 @@ class CefMediaAccessQuery {
         *stream_devices_set->stream_devices[0];
 
     // At most one audio device and one video device can be used in a stream.
-    if (!audio_devices.empty())
+    if (!audio_devices.empty()) {
       devices.audio_device = audio_devices.front();
-    if (!video_devices.empty())
+    }
+    if (!video_devices.empty()) {
       devices.video_device = video_devices.front();
+    }
 
     return stream_devices_set;
   }
@@ -326,8 +328,9 @@ content::MediaResponseCallback RequestMediaAccessPermission(
       auto frame =
           browser->GetFrameForGlobalId(content::GlobalRenderFrameHostId(
               request.render_process_id, request.render_frame_id));
-      if (!frame)
+      if (!frame) {
         frame = browser->GetMainFrame();
+      }
       handled = handler->OnRequestMediaAccessPermission(
           browser, frame, request.security_origin.spec(), requested_permissions,
           callbackImpl.get());

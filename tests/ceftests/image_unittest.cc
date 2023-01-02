@@ -38,10 +38,11 @@ void VerifyScaleExists(CefRefPtr<CefImage> image,
   int expected_pixel_size = kExpectedDIPSize * expected_scale_factor;
 
   // Only returns true for exact matches.
-  if (scale_factor == expected_scale_factor)
+  if (scale_factor == expected_scale_factor) {
     EXPECT_TRUE(image->HasRepresentation(scale_factor));
-  else
+  } else {
     EXPECT_FALSE(image->HasRepresentation(scale_factor));
+  }
 
   // Returns the closest match.
   EXPECT_TRUE(image->GetRepresentationInfo(scale_factor, actual_scale_factor,

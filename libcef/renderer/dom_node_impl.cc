@@ -45,38 +45,44 @@ CefDOMNodeImpl::~CefDOMNodeImpl() {
 }
 
 CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return DOM_NODE_TYPE_UNSUPPORTED;
+  }
 
   return blink_glue::GetNodeType(node_);
 }
 
 bool CefDOMNodeImpl::IsText() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   return node_.IsTextNode();
 }
 
 bool CefDOMNodeImpl::IsElement() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   return node_.IsElementNode();
 }
 
 // Logic copied from RenderViewImpl::IsEditableNode.
 bool CefDOMNodeImpl::IsEditable() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (node_.IsContentEditable())
+  if (node_.IsContentEditable()) {
     return true;
+  }
 
   if (node_.IsElementNode()) {
     const WebElement& element = node_.To<WebElement>();
-    if (blink_glue::IsTextControlElement(element))
+    if (blink_glue::IsTextControlElement(element)) {
       return true;
+    }
 
     // Also return true if it has an ARIA role of 'textbox'.
     for (unsigned i = 0; i < element.AttributeCount(); ++i) {
@@ -95,8 +101,9 @@ bool CefDOMNodeImpl::IsEditable() {
 }
 
 bool CefDOMNodeImpl::IsFormControlElement() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (node_.IsElementNode()) {
     const WebElement& element = node_.To<WebElement>();
@@ -108,8 +115,9 @@ bool CefDOMNodeImpl::IsFormControlElement() {
 
 CefString CefDOMNodeImpl::GetFormControlElementType() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   if (node_.IsElementNode()) {
     const WebElement& element = node_.To<WebElement>();
@@ -128,32 +136,37 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
 }
 
 bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   CefDOMNodeImpl* impl = static_cast<CefDOMNodeImpl*>(that.get());
-  if (!impl || !impl->VerifyContext())
+  if (!impl || !impl->VerifyContext()) {
     return false;
+  }
 
   return node_.Equals(impl->node_);
 }
 
 CefString CefDOMNodeImpl::GetName() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   const WebString& name = blink_glue::GetNodeName(node_);
-  if (!name.IsNull())
+  if (!name.IsNull()) {
     str = name.Utf16();
+  }
 
   return str;
 }
 
 CefString CefDOMNodeImpl::GetValue() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   if (node_.IsElementNode()) {
     const WebElement& element = node_.To<WebElement>();
@@ -182,19 +195,22 @@ CefString CefDOMNodeImpl::GetValue() {
 
   if (str.empty()) {
     const WebString& value = node_.NodeValue();
-    if (!value.IsNull())
+    if (!value.IsNull()) {
       str = value.Utf16();
+    }
   }
 
   return str;
 }
 
 bool CefDOMNodeImpl::SetValue(const CefString& value) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (node_.IsElementNode())
+  if (node_.IsElementNode()) {
     return false;
+  }
 
   return blink_glue::SetNodeValue(node_,
                                   WebString::FromUTF16(value.ToString16()));
@@ -202,69 +218,79 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
 
 CefString CefDOMNodeImpl::GetAsMarkup() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   const WebString& markup = blink_glue::CreateNodeMarkup(node_);
-  if (!markup.IsNull())
+  if (!markup.IsNull()) {
     str = markup.Utf16();
+  }
 
   return str;
 }
 
 CefRefPtr<CefDOMDocument> CefDOMNodeImpl::GetDocument() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_.get();
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetParent() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_->GetOrCreateNode(node_.ParentNode());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetPreviousSibling() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_->GetOrCreateNode(node_.PreviousSibling());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetNextSibling() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_->GetOrCreateNode(node_.NextSibling());
 }
 
 bool CefDOMNodeImpl::HasChildren() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   return !node_.FirstChild().IsNull();
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetFirstChild() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_->GetOrCreateNode(node_.FirstChild());
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   return document_->GetOrCreateNode(node_.LastChild());
 }
 
 CefString CefDOMNodeImpl::GetElementTagName() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -273,15 +299,17 @@ CefString CefDOMNodeImpl::GetElementTagName() {
 
   const WebElement& element = node_.To<blink::WebElement>();
   const WebString& tagname = element.TagName();
-  if (!tagname.IsNull())
+  if (!tagname.IsNull()) {
     str = tagname.Utf16();
+  }
 
   return str;
 }
 
 bool CefDOMNodeImpl::HasElementAttributes() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -293,8 +321,9 @@ bool CefDOMNodeImpl::HasElementAttributes() {
 }
 
 bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -307,8 +336,9 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
 
 CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -318,15 +348,17 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   const WebElement& element = node_.To<blink::WebElement>();
   const WebString& attr =
       element.GetAttribute(WebString::FromUTF16(attrName.ToString16()));
-  if (!attr.IsNull())
+  if (!attr.IsNull()) {
     str = attr.Utf16();
+  }
 
   return str;
 }
 
 void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -335,8 +367,9 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
 
   const WebElement& element = node_.To<blink::WebElement>();
   unsigned int len = element.AttributeCount();
-  if (len == 0)
+  if (len == 0) {
     return;
+  }
 
   for (unsigned int i = 0; i < len; ++i) {
     std::u16string name = element.AttributeLocalName(i).Utf16();
@@ -347,8 +380,9 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
 
 bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
                                          const CefString& value) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -363,8 +397,9 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
 
 CefString CefDOMNodeImpl::GetElementInnerText() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -373,16 +408,18 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
 
   WebElement element = node_.To<blink::WebElement>();
   const WebString& text = element.TextContent();
-  if (!text.IsNull())
+  if (!text.IsNull()) {
     str = text.Utf16();
+  }
 
   return str;
 }
 
 CefRect CefDOMNodeImpl::GetElementBounds() {
   CefRect rect;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return rect;
+  }
 
   if (!node_.IsElementNode()) {
     NOTREACHED();
@@ -406,8 +443,9 @@ bool CefDOMNodeImpl::VerifyContext() {
     NOTREACHED();
     return false;
   }
-  if (!document_->VerifyContext())
+  if (!document_->VerifyContext()) {
     return false;
+  }
   if (node_.IsNull()) {
     NOTREACHED();
     return false;

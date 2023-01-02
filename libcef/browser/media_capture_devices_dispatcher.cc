@@ -18,8 +18,9 @@ namespace {
 const blink::MediaStreamDevice* FindDefaultDeviceWithId(
     const blink::MediaStreamDevices& devices,
     const std::string& device_id) {
-  if (devices.empty())
+  if (devices.empty()) {
     return nullptr;
+  }
 
   blink::MediaStreamDevices::const_iterator iter = devices.begin();
   for (; iter != devices.end(); ++iter) {
@@ -82,15 +83,17 @@ void CefMediaCaptureDevicesDispatcher::GetRequestedDevice(
     const blink::MediaStreamDevices& audio_devices = GetAudioCaptureDevices();
     const blink::MediaStreamDevice* const device =
         FindDefaultDeviceWithId(audio_devices, requested_device_id);
-    if (device)
+    if (device) {
       devices->push_back(*device);
+    }
   }
   if (video) {
     const blink::MediaStreamDevices& video_devices = GetVideoCaptureDevices();
     const blink::MediaStreamDevice* const device =
         FindDefaultDeviceWithId(video_devices, requested_device_id);
-    if (device)
+    if (device) {
       devices->push_back(*device);
+    }
   }
 }
 

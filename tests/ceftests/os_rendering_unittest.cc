@@ -213,8 +213,9 @@ class OSRTestHandler : public RoutingTestHandler,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    if (!started())
+    if (!started()) {
       return;
+    }
 
     switch (test_type_) {
       case OSR_TEST_KEY_EVENTS: {
@@ -286,8 +287,9 @@ class OSRTestHandler : public RoutingTestHandler,
             // The first message expected is touchstart.
             // We expect multitouch, so touches length should be 2.
             // Ignore intermediate touch start events.
-            if (messageStr == "osrtouchstart1")
+            if (messageStr == "osrtouchstart1") {
               break;
+            }
             EXPECT_STREQ(messageStr.c_str(), "osrtouchstart2");
             // Close Touch Start Tests.
             if (test_type_ == OSR_TEST_TOUCH_START) {
@@ -525,8 +527,9 @@ class OSRTestHandler : public RoutingTestHandler,
     // start test only when painting something else then background
     if (IsBackgroundInBuffer(
             reinterpret_cast<const uint32*>(buffer), width * height,
-            test_type_ == OSR_TEST_TRANSPARENCY ? 0x00000000 : 0xFFFFFFFF))
+            test_type_ == OSR_TEST_TRANSPARENCY ? 0x00000000 : 0xFFFFFFFF)) {
       return;
+    }
 
     // Send events after the first full repaint
     switch (test_type_) {
@@ -662,8 +665,9 @@ class OSRTestHandler : public RoutingTestHandler,
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
           // There may be some partial repaints before the full repaint.
-          if (dirtyRects[0] == expected_rect)
+          if (dirtyRects[0] == expected_rect) {
             DestroySucceededTestSoon();
+          }
         }
         break;
       }
@@ -731,8 +735,9 @@ class OSRTestHandler : public RoutingTestHandler,
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
           // There may be some partial repaints before the full repaint.
-          if (dirtyRects[0] == expected_rect)
+          if (dirtyRects[0] == expected_rect) {
             DestroySucceededTestSoon();
+          }
         }
         break;
       }
@@ -1104,10 +1109,11 @@ class OSRTestHandler : public RoutingTestHandler,
           }
 
           // Now release the Touch fingers or cancel them
-          if (test_type_ == OSR_TEST_TOUCH_CANCEL)
+          if (test_type_ == OSR_TEST_TOUCH_CANCEL) {
             touch_event1.type = touch_event2.type = CEF_TET_CANCELLED;
-          else
+          } else {
             touch_event1.type = touch_event2.type = CEF_TET_RELEASED;
+          }
           browser->GetHost()->SendTouchEvent(touch_event1);
           browser->GetHost()->SendTouchEvent(touch_event2);
         }
@@ -1144,8 +1150,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
       // Ignore focus from the original navigation when we're testing focus
       // event delivery.
-      if (test_type_ == OSR_TEST_FOCUS)
+      if (test_type_ == OSR_TEST_FOCUS) {
         return true;
+      }
       return false;
     }
 
@@ -1260,8 +1267,9 @@ class OSRTestHandler : public RoutingTestHandler,
       }
     } else if (test_type_ == OSR_TEST_DRAG_DROP_DROP && started()) {
       // Don't end the drag multiple times.
-      if (got_update_cursor_)
+      if (got_update_cursor_) {
         return;
+      }
       got_update_cursor_.yes();
 
       CefMouseEvent ev;
@@ -1323,8 +1331,9 @@ class OSRTestHandler : public RoutingTestHandler,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefContextMenuParams> params,
                            CefRefPtr<CefMenuModel> model) override {
-    if (!started())
+    if (!started()) {
       return;
+    }
     if (test_type_ == OSR_TEST_CLICK_RIGHT) {
       const CefRect& expected_rect = GetElementBounds("LI04");
       EXPECT_EQ(params->GetXCoord(), MiddleX(expected_rect));
@@ -1341,8 +1350,9 @@ class OSRTestHandler : public RoutingTestHandler,
                       CefRefPtr<CefContextMenuParams> params,
                       CefRefPtr<CefMenuModel> model,
                       CefRefPtr<CefRunContextMenuCallback> callback) override {
-    if (!started())
+    if (!started()) {
       return false;
+    }
 
     EXPECT_UI_THREAD();
 
@@ -1379,8 +1389,9 @@ class OSRTestHandler : public RoutingTestHandler,
                     const CefSize& size,
                     QuickMenuEditStateFlags edit_state_flags,
                     CefRefPtr<CefRunQuickMenuCallback> callback) override {
-    if (!started())
+    if (!started()) {
       return false;
+    }
 
     EXPECT_UI_THREAD();
 
@@ -1480,8 +1491,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
   void OnTouchHandleStateChanged(CefRefPtr<CefBrowser> browser,
                                  const CefTouchHandleState& state) override {
-    if (!started())
+    if (!started()) {
       return;
+    }
 
     EXPECT_UI_THREAD();
 
@@ -1556,10 +1568,11 @@ class OSRTestHandler : public RoutingTestHandler,
 #elif defined(OS_MAC)
     // An actual vies is needed only for the ContextMenu test. The menu runner
     // checks if the view is not nil before showing the context menu.
-    if (test_type_ == OSR_TEST_CONTEXT_MENU)
+    if (test_type_ == OSR_TEST_CONTEXT_MENU) {
       windowInfo.SetAsWindowless(osr_unittests::GetFakeView());
-    else
+    } else {
       windowInfo.SetAsWindowless(kNullWindowHandle);
+    }
 #elif defined(OS_LINUX)
     windowInfo.SetAsWindowless(kNullWindowHandle);
 #else
@@ -1620,8 +1633,9 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   void DestroySucceededTestSoon() {
-    if (succeeded())
+    if (succeeded()) {
       return;
+    }
     if (++event_count_ == event_total_) {
       CefPostTask(TID_UI, base::BindOnce(&OSRTestHandler::DestroyTest, this));
     }
@@ -1725,8 +1739,9 @@ class OSRTestHandler : public RoutingTestHandler,
   // will mark test as started and will return true only the first time
   // it is called
   bool StartTest() {
-    if (started_)
+    if (started_) {
       return false;
+    }
     started_ = true;
     return true;
   }

@@ -39,10 +39,11 @@ CefMotionEventOSR::CefMotionEventOSR() {
 CefMotionEventOSR::~CefMotionEventOSR() {}
 
 int CefMotionEventOSR::GetSourceDeviceId(size_t pointer_index) const {
-  if (IsValidIndex(pointer_index))
+  if (IsValidIndex(pointer_index)) {
     return pointer(pointer_index).source_device_id;
-  else
+  } else {
     return -1;
+  }
 }
 
 // Returns true if the touch was valid.
@@ -63,10 +64,12 @@ bool CefMotionEventOSR::OnTouch(const CefTouchEvent& touch) {
   switch (touch.type) {
     case CEF_TET_PRESSED:
       id = AddId(touch.id);
-      if (id == -1)
+      if (id == -1) {
         return false;
-      if (!AddTouch(touch, id))
+      }
+      if (!AddTouch(touch, id)) {
         return false;
+      }
       break;
 
     case CEF_TET_MOVED: {
@@ -126,15 +129,17 @@ void CefMotionEventOSR::MarkUnchangedTouchPointsAsStationary(
   if (event->GetType() == blink::WebInputEvent::Type::kTouchMove ||
       event->GetType() == blink::WebInputEvent::Type::kTouchCancel) {
     for (size_t i = 0; i < event->touches_length; ++i) {
-      if (event->touches[i].id != id)
+      if (event->touches[i].id != id) {
         event->touches[i].state = blink::WebTouchPoint::State::kStateStationary;
+      }
     }
   }
 }
 
 int CefMotionEventOSR::LookupId(int id) {
-  if (id == -1)
+  if (id == -1) {
     return -1;
+  }
 
   for (int i = 0; i < blink::WebTouchEvent::kTouchesLengthCap; i++) {
     if (id_map_[i] == id) {
@@ -145,8 +150,9 @@ int CefMotionEventOSR::LookupId(int id) {
 }
 
 int CefMotionEventOSR::AddId(int id) {
-  if (id == -1 || LookupId(id) >= 0)
+  if (id == -1 || LookupId(id) >= 0) {
     return -1;
+  }
 
   for (int i = 0; i < blink::WebTouchEvent::kTouchesLengthCap; i++) {
     if (id_map_[i] == -1) {
@@ -167,8 +173,9 @@ void CefMotionEventOSR::RemoveId(int id) {
 }
 
 bool CefMotionEventOSR::AddTouch(const CefTouchEvent& touch, int id) {
-  if (GetPointerCount() == MotionEvent::MAX_TOUCH_POINT_COUNT)
+  if (GetPointerCount() == MotionEvent::MAX_TOUCH_POINT_COUNT) {
     return false;
+  }
 
   PushPointer(GetPointerPropertiesFromTouchEvent(touch, id));
   return true;
@@ -176,8 +183,9 @@ bool CefMotionEventOSR::AddTouch(const CefTouchEvent& touch, int id) {
 
 void CefMotionEventOSR::UpdateTouch(const CefTouchEvent& touch, int id) {
   int index_to_update = FindPointerIndexOfId(id);
-  if (IsValidIndex(index_to_update))
+  if (IsValidIndex(index_to_update)) {
     pointer(index_to_update) = GetPointerPropertiesFromTouchEvent(touch, id);
+  }
 }
 
 void CefMotionEventOSR::UpdateCachedAction(const CefTouchEvent& touch, int id) {

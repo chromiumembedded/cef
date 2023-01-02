@@ -78,8 +78,9 @@ CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetImage(
     CefRefPtr<CefImage> image) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   gfx::ImageSkia image_skia;
-  if (image)
+  if (image) {
     image_skia = static_cast<CefImageImpl*>(image.get())->AsImageSkia();
+  }
   ParentClass::root_view()->SetImage(
       static_cast<views::Button::ButtonState>(button_state), image_skia);
 }
@@ -89,8 +90,9 @@ CEF_LABEL_BUTTON_IMPL_T CefRefPtr<CefImage> CEF_LABEL_BUTTON_IMPL_D::GetImage(
   CEF_REQUIRE_VALID_RETURN(nullptr);
   const gfx::ImageSkia& image_skia = ParentClass::root_view()->GetImage(
       static_cast<views::Button::ButtonState>(button_state));
-  if (image_skia.isNull())
+  if (image_skia.isNull()) {
     return nullptr;
+  }
   return new CefImageImpl(image_skia);
 }
 

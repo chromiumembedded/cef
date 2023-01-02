@@ -72,8 +72,9 @@ MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
 
 MainMessageLoopExternalPumpWin::~MainMessageLoopExternalPumpWin() {
   KillTimer();
-  if (main_thread_target_)
+  if (main_thread_target_) {
     DestroyWindow(main_thread_target_);
+  }
 }
 
 void MainMessageLoopExternalPumpWin::Quit() {

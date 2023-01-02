@@ -81,10 +81,11 @@ class WebUITestHandler : public TestHandler {
 
   void DestroyTest() override {
     EXPECT_TRUE(got_loading_state_done_);
-    if (expected_error_code_ == ERR_NONE)
+    if (expected_error_code_ == ERR_NONE) {
       EXPECT_FALSE(got_load_error_);
-    else
+    } else {
       EXPECT_TRUE(got_load_error_);
+    }
 
     TestHandler::DestroyTest();
   }
@@ -93,8 +94,9 @@ class WebUITestHandler : public TestHandler {
   void NextNavIfDone(const std::string& url) {
     bool done = false;
     if (expected_error_code_ == ERR_NONE) {
-      if (got_loading_state_done_)
+      if (got_loading_state_done_) {
         done = true;
+      }
     } else if (got_load_error_ && got_loading_state_done_) {
       done = true;
     }
@@ -102,8 +104,9 @@ class WebUITestHandler : public TestHandler {
     if (done) {
       // Verify that we navigated to the expected URL.
       std::string expected_url = expected_url_;
-      if (expected_url.empty() && url_index_ < url_list_.size())
+      if (expected_url.empty() && url_index_ < url_list_.size()) {
         expected_url = url_list_[url_index_];
+      }
       EXPECT_STREQ(expected_url.c_str(), url.c_str());
 
       NextNav();

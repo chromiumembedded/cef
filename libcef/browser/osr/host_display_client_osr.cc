@@ -78,8 +78,9 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
   size_t expected_bytes;
   bool size_result = viz::ResourceSizes::MaybeSizeInBytes(
       pixel_size, viz::ResourceFormat::RGBA_8888, &expected_bytes);
-  if (!size_result)
+  if (!size_result) {
     return;
+  }
 
   pixel_size_ = pixel_size;
   shared_memory_ = region.Map();

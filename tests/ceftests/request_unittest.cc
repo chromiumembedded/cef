@@ -72,10 +72,11 @@ TEST(RequestTest, SetGet) {
   postData->GetElements(elements);
   CefPostData::ElementVector::const_iterator it = elements.begin();
   for (size_t i = 0; it != elements.end(); ++it, ++i) {
-    if (i == 0)
+    if (i == 0) {
       TestPostDataElementEqual(element1, (*it).get());
-    else if (i == 1)
+    } else if (i == 1) {
       TestPostDataElementEqual(element2, (*it).get());
+    }
   }
 
   // CefRequest SetURL
@@ -419,8 +420,9 @@ class TypeExpectations {
     for (int i = 0;
          i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
          ++i) {
-      if (navigation_ && g_type_expected[i].navigation != navigation_)
+      if (navigation_ && g_type_expected[i].navigation != navigation_) {
         continue;
+      }
 
       request_count_.insert(std::make_pair(i, 0));
     }
@@ -430,8 +432,9 @@ class TypeExpectations {
   // something we care about.
   bool GotRequest(CefRefPtr<CefRequest> request) {
     const std::string& url = request->GetURL();
-    if (url.find(kTypeTestOrigin) != 0)
+    if (url.find(kTypeTestOrigin) != 0) {
       return false;
+    }
 
     const std::string& file = url.substr(sizeof(kTypeTestOrigin) - 1);
     cef_transition_type_t transition_type = request->GetTransitionType();
@@ -461,8 +464,9 @@ class TypeExpectations {
     for (int i = 0;
          i < static_cast<int>(sizeof(g_type_expected) / sizeof(TypeExpected));
          ++i) {
-      if (navigation_ && g_type_expected[i].navigation != navigation_)
+      if (navigation_ && g_type_expected[i].navigation != navigation_) {
         continue;
+      }
 
       RequestCount::const_iterator it = request_count_.find(i);
       EXPECT_TRUE(it != request_count_.end());
@@ -594,8 +598,9 @@ class TypeTestHandler : public TestHandler {
 
  private:
   void DestroyTest() override {
-    if (destroyed_)
+    if (destroyed_) {
       return;
+    }
     destroyed_ = true;
 
     // Verify test expectations.

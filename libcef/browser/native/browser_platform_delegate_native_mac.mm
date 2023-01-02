@@ -111,9 +111,9 @@ namespace {
 
 NSTimeInterval currentEventTimestamp() {
   NSEvent* currentEvent = [NSApp currentEvent];
-  if (currentEvent)
+  if (currentEvent) {
     return [currentEvent timestamp];
-  else {
+  } else {
     // FIXME(API): In case there is no current event, the timestamp could be
     // obtained by getting the time since the application started. This involves
     // taking some more static functions from Chromium code.
@@ -125,18 +125,24 @@ NSTimeInterval currentEventTimestamp() {
 
 NSUInteger NativeModifiers(int cef_modifiers) {
   NSUInteger native_modifiers = 0;
-  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
+  if (cef_modifiers & EVENTFLAG_SHIFT_DOWN) {
     native_modifiers |= NSEventModifierFlagShift;
-  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_CONTROL_DOWN) {
     native_modifiers |= NSEventModifierFlagControl;
-  if (cef_modifiers & EVENTFLAG_ALT_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_ALT_DOWN) {
     native_modifiers |= NSEventModifierFlagOption;
-  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
+  }
+  if (cef_modifiers & EVENTFLAG_COMMAND_DOWN) {
     native_modifiers |= NSEventModifierFlagCommand;
-  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
+  }
+  if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
     native_modifiers |= NSEventModifierFlagCapsLock;
-  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
+  }
+  if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON) {
     native_modifiers |= NSEventModifierFlagNumericPad;
+  }
 
   return native_modifiers;
 }
@@ -342,16 +348,18 @@ void CefBrowserPlatformDelegateNativeMac::CloseHostWindow() {
 
 CefWindowHandle CefBrowserPlatformDelegateNativeMac::GetHostWindowHandle()
     const {
-  if (windowless_handler_)
+  if (windowless_handler_) {
     return windowless_handler_->GetParentWindowHandle();
+  }
   return window_info_.view;
 }
 
 void CefBrowserPlatformDelegateNativeMac::SendKeyEvent(
     const CefKeyEvent& event) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   content::NativeWebKeyboardEvent web_event = TranslateWebKeyEvent(event);
   view->ForwardKeyboardEvent(web_event, ui::LatencyInfo());
@@ -363,8 +371,9 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseClickEvent(
     bool mouseUp,
     int clickCount) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseEvent web_event =
       TranslateWebClickEvent(event, type, mouseUp, clickCount);
@@ -375,8 +384,9 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseMoveEvent(
     const CefMouseEvent& event,
     bool mouseLeave) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseEvent web_event = TranslateWebMoveEvent(event, mouseLeave);
   view->RouteOrProcessMouseEvent(web_event);
@@ -387,8 +397,9 @@ void CefBrowserPlatformDelegateNativeMac::SendMouseWheelEvent(
     int deltaX,
     int deltaY) {
   auto view = GetHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseWheelEvent web_event =
       TranslateWebWheelEvent(event, deltaX, deltaY);
@@ -418,8 +429,9 @@ gfx::Point CefBrowserPlatformDelegateNativeMac::GetScreenPoint(
     const gfx::Point& view,
     bool want_dip_coords) const {
   // Mac always operates in DIP coordinates so |want_dip_coords| is ignored.
-  if (windowless_handler_)
+  if (windowless_handler_) {
     return windowless_handler_->GetParentScreenPoint(view, want_dip_coords);
+  }
 
   NSView* nsview = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(window_info_.parent_view);
   if (nsview) {
@@ -442,8 +454,9 @@ void CefBrowserPlatformDelegateNativeMac::ViewText(const std::string& text) {
 bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Give the top level menu equivalents a chance to handle the event.
-  if ([event.os_event type] == NSEventTypeKeyDown)
+  if ([event.os_event type] == NSEventTypeKeyDown) {
     return [[NSApp mainMenu] performKeyEquivalent:event.os_event];
+  }
   return false;
 }
 
@@ -517,8 +530,9 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
                               keyCode:key_event.native_key_code];
 
   result = content::NativeWebKeyboardEvent(synthetic_event);
-  if (key_event.type == KEYEVENT_CHAR)
+  if (key_event.type == KEYEVENT_CHAR) {
     result.SetType(blink::WebInputEvent::Type::kChar);
+  }
 
   result.is_system_key = key_event.is_system_key;
 
@@ -567,14 +581,15 @@ blink::WebMouseEvent CefBrowserPlatformDelegateNativeMac::TranslateWebMoveEvent(
 
   if (!mouseLeave) {
     result.SetType(blink::WebInputEvent::Type::kMouseMove);
-    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+    if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kLeft;
-    else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+    } else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kMiddle;
-    else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+    } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
       result.button = blink::WebMouseEvent::Button::kRight;
-    else
+    } else {
       result.button = blink::WebMouseEvent::Button::kNoButton;
+    }
   } else {
     result.SetType(blink::WebInputEvent::Type::kMouseLeave);
     result.button = blink::WebMouseEvent::Button::kNoButton;
@@ -602,14 +617,15 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebWheelEvent(
   result.wheel_ticks_y = deltaY / scrollbarPixelsPerCocoaTick;
   result.delta_units = ui::ScrollGranularity::kScrollByPrecisePixel;
 
-  if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
+  if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kLeft;
-  else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
+  } else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kMiddle;
-  else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
+  } else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON) {
     result.button = blink::WebMouseEvent::Button::kRight;
-  else
+  } else {
     result.button = blink::WebMouseEvent::Button::kNoButton;
+  }
 
   return result;
 }
@@ -637,8 +653,9 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWebMouseEvent(
 
 content::RenderWidgetHostViewMac*
 CefBrowserPlatformDelegateNativeMac::GetHostView() const {
-  if (!web_contents_)
+  if (!web_contents_) {
     return nullptr;
+  }
   return static_cast<content::RenderWidgetHostViewMac*>(
       web_contents_->GetRenderWidgetHostView());
 }

@@ -40,72 +40,105 @@ void ClientToScreen(HWND hwnd, LPRECT lpRect) {
 
 // Helper function to convert to MSAARole
 int AxRoleToMSAARole(const std::string& role_string) {
-  if (role_string == "alert")
+  if (role_string == "alert") {
     return ROLE_SYSTEM_ALERT;
-  if (role_string == "application")
+  }
+  if (role_string == "application") {
     return ROLE_SYSTEM_APPLICATION;
-  if (role_string == "buttonDropDown")
+  }
+  if (role_string == "buttonDropDown") {
     return ROLE_SYSTEM_BUTTONDROPDOWN;
-  if (role_string == "popUpButton")
+  }
+  if (role_string == "popUpButton") {
     return ROLE_SYSTEM_BUTTONMENU;
-  if (role_string == "checkBox")
+  }
+  if (role_string == "checkBox") {
     return ROLE_SYSTEM_CHECKBUTTON;
-  if (role_string == "comboBox")
+  }
+  if (role_string == "comboBox") {
     return ROLE_SYSTEM_COMBOBOX;
-  if (role_string == "dialog")
+  }
+  if (role_string == "dialog") {
     return ROLE_SYSTEM_DIALOG;
-  if (role_string == "genericContainer")
+  }
+  if (role_string == "genericContainer") {
     return ROLE_SYSTEM_GROUPING;
-  if (role_string == "group")
+  }
+  if (role_string == "group") {
     return ROLE_SYSTEM_GROUPING;
-  if (role_string == "image")
+  }
+  if (role_string == "image") {
     return ROLE_SYSTEM_GRAPHIC;
-  if (role_string == "link")
+  }
+  if (role_string == "link") {
     return ROLE_SYSTEM_LINK;
-  if (role_string == "locationBar")
+  }
+  if (role_string == "locationBar") {
     return ROLE_SYSTEM_GROUPING;
-  if (role_string == "menuBar")
+  }
+  if (role_string == "menuBar") {
     return ROLE_SYSTEM_MENUBAR;
-  if (role_string == "menuItem")
+  }
+  if (role_string == "menuItem") {
     return ROLE_SYSTEM_MENUITEM;
-  if (role_string == "menuListPopup")
+  }
+  if (role_string == "menuListPopup") {
     return ROLE_SYSTEM_MENUPOPUP;
-  if (role_string == "tree")
+  }
+  if (role_string == "tree") {
     return ROLE_SYSTEM_OUTLINE;
-  if (role_string == "treeItem")
+  }
+  if (role_string == "treeItem") {
     return ROLE_SYSTEM_OUTLINEITEM;
-  if (role_string == "tab")
+  }
+  if (role_string == "tab") {
     return ROLE_SYSTEM_PAGETAB;
-  if (role_string == "tabList")
+  }
+  if (role_string == "tabList") {
     return ROLE_SYSTEM_PAGETABLIST;
-  if (role_string == "pane")
+  }
+  if (role_string == "pane") {
     return ROLE_SYSTEM_PANE;
-  if (role_string == "progressIndicator")
+  }
+  if (role_string == "progressIndicator") {
     return ROLE_SYSTEM_PROGRESSBAR;
-  if (role_string == "button")
+  }
+  if (role_string == "button") {
     return ROLE_SYSTEM_PUSHBUTTON;
-  if (role_string == "radioButton")
+  }
+  if (role_string == "radioButton") {
     return ROLE_SYSTEM_RADIOBUTTON;
-  if (role_string == "scrollBar")
+  }
+  if (role_string == "scrollBar") {
     return ROLE_SYSTEM_SCROLLBAR;
-  if (role_string == "splitter")
+  }
+  if (role_string == "splitter") {
     return ROLE_SYSTEM_SEPARATOR;
-  if (role_string == "slider")
+  }
+  if (role_string == "slider") {
     return ROLE_SYSTEM_SLIDER;
-  if (role_string == "staticText")
+  }
+  if (role_string == "staticText") {
     return ROLE_SYSTEM_STATICTEXT;
-  if (role_string == "textField")
+  }
+  if (role_string == "textField") {
     return ROLE_SYSTEM_TEXT;
-  if (role_string == "titleBar")
+  }
+  if (role_string == "titleBar") {
     return ROLE_SYSTEM_TITLEBAR;
-  if (role_string == "toolbar")
+  }
+  if (role_string == "toolbar") {
     return ROLE_SYSTEM_TOOLBAR;
-  if (role_string == "webView")
+  }
+  if (role_string == "webView") {
     return ROLE_SYSTEM_GROUPING;
-  if (role_string == "window")
+  }
+  if (role_string == "window") {
     return ROLE_SYSTEM_WINDOW;
-  if (role_string == "client")
+  }
+  if (role_string == "client") {
     return ROLE_SYSTEM_CLIENT;
+  }
   // This is the default role for MSAA.
   return ROLE_SYSTEM_CLIENT;
 }
@@ -235,17 +268,19 @@ struct CefIAccessible : public IAccessible {
 // Handles ref counting and querying for other supported interfaces.
 // We only support, IUnknown, IDispatch and IAccessible.
 STDMETHODIMP CefIAccessible::QueryInterface(REFIID riid, void** ppvObject) {
-  if (riid == IID_IAccessible)
+  if (riid == IID_IAccessible) {
     *ppvObject = static_cast<IAccessible*>(this);
-  else if (riid == IID_IDispatch)
+  } else if (riid == IID_IDispatch) {
     *ppvObject = static_cast<IDispatch*>(this);
-  else if (riid == IID_IUnknown)
+  } else if (riid == IID_IUnknown) {
     *ppvObject = static_cast<IUnknown*>(this);
-  else
+  } else {
     *ppvObject = nullptr;
+  }
 
-  if (*ppvObject)
+  if (*ppvObject) {
     reinterpret_cast<IUnknown*>(*ppvObject)->AddRef();
+  }
 
   return (*ppvObject) ? S_OK : E_NOINTERFACE;
 }
@@ -259,8 +294,9 @@ STDMETHODIMP_(ULONG) CefIAccessible::Release() {
   ULONG ulRefCnt = InterlockedDecrement((LONG volatile*)&ref_count_);
   if (ulRefCnt == 0) {
     // Remove reference from OsrAXNode
-    if (node_)
+    if (node_) {
       node_->Destroy();
+    }
     delete this;
   }
 
@@ -286,8 +322,9 @@ STDMETHODIMP CefIAccessible::get_accParent(IDispatch** ppdispParent) {
         }
       }
 
-      if (parent)
+      if (parent) {
         parent->AddRef();
+      }
       *ppdispParent = parent;
       retCode = (*ppdispParent) ? S_OK : S_FALSE;
     }
@@ -327,15 +364,17 @@ STDMETHODIMP CefIAccessible::get_accChild(VARIANT varChild,
           // Convert to 0 based index and get Child Node.
           OsrAXNode* child = node_->ChildAtIndex(varChild.lVal - 1);
           // Fallback to focused node
-          if (!child)
+          if (!child) {
             child = node_->GetAccessibilityHelper()->GetFocusedNode();
+          }
 
           *ppdispChild = child->GetNativeAccessibleObject(node_);
         }
-        if (*ppdispChild == nullptr)
+        if (*ppdispChild == nullptr) {
           retCode = S_FALSE;
-        else
+        } else {
           (*ppdispChild)->AddRef();
+        }
       }
     }
   }
@@ -436,10 +475,11 @@ STDMETHODIMP CefIAccessible::get_accKeyboardShortcut(
     BSTR* pszKeyboardShortcut) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
-    if (pszKeyboardShortcut && VALID_CHILDID(varChild))
+    if (pszKeyboardShortcut && VALID_CHILDID(varChild)) {
       *pszKeyboardShortcut = ::SysAllocString(L"None");
-    else
+    } else {
       retCode = E_INVALIDARG;
+    }
   }
   return retCode;
 }
@@ -450,8 +490,9 @@ STDMETHODIMP CefIAccessible::get_accFocus(VARIANT* pFocusChild) {
   if (SUCCEEDED(retCode)) {
     OsrAXNode* focusedNode = node_->GetAccessibilityHelper()->GetFocusedNode();
     CefNativeAccessible* nativeObj = nullptr;
-    if (focusedNode)
+    if (focusedNode) {
       nativeObj = focusedNode->GetNativeAccessibleObject(nullptr);
+    }
 
     if (nativeObj) {
       if (nativeObj == this) {
@@ -473,10 +514,11 @@ STDMETHODIMP CefIAccessible::get_accFocus(VARIANT* pFocusChild) {
 STDMETHODIMP CefIAccessible::get_accSelection(VARIANT* pvarChildren) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
-    if (pvarChildren)
+    if (pvarChildren) {
       pvarChildren->vt = VT_EMPTY;
-    else
+    } else {
       retCode = E_INVALIDARG;
+    }
   }
   return retCode;
 }
@@ -486,10 +528,11 @@ STDMETHODIMP CefIAccessible::get_accDefaultAction(VARIANT varChild,
                                                   BSTR* pszDefaultAction) {
   HRESULT retCode = DATACHECK(node_);
   if (SUCCEEDED(retCode)) {
-    if (pszDefaultAction && VALID_CHILDID(varChild))
+    if (pszDefaultAction && VALID_CHILDID(varChild)) {
       *pszDefaultAction = ::SysAllocString(L"Push");
-    else
+    } else {
       retCode = E_INVALIDARG;
+    }
   }
   return retCode;
 }
@@ -661,8 +704,9 @@ void OsrAXNode::NotifyAccessibilityEvent(std::string event_type) const {
 
 void OsrAXNode::Destroy() {
   CefIAccessible* ptr = static_cast<CefIAccessible*>(platform_accessibility_);
-  if (ptr)
+  if (ptr) {
     ptr->MarkDestroyed();
+  }
   platform_accessibility_ = nullptr;
 }
 

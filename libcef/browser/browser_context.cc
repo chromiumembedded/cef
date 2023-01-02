@@ -64,8 +64,9 @@ class ImplManager {
     if (!path.empty()) {
       PathMap::iterator it = map_.find(path);
       DCHECK(it != map_.end());
-      if (it != map_.end())
+      if (it != map_.end()) {
         map_.erase(it);
+      }
     }
   }
 
@@ -89,12 +90,14 @@ class ImplManager {
   CefBrowserContext* GetImplFromBrowserContext(
       const content::BrowserContext* context) {
     CEF_REQUIRE_UIT();
-    if (!context)
+    if (!context) {
       return nullptr;
+    }
 
     for (const auto& bc : all_) {
-      if (bc->AsBrowserContext() == context)
+      if (bc->AsBrowserContext() == context) {
         return bc;
+      }
     }
     return nullptr;
   }
@@ -111,8 +114,9 @@ class ImplManager {
     CEF_REQUIRE_UIT();
     DCHECK(!path.empty());
     PathMap::const_iterator it = map_.find(path);
-    if (it != map_.end())
+    if (it != map_.end()) {
       return it->second;
+    }
     return nullptr;
   }
 
@@ -122,8 +126,9 @@ class ImplManager {
   Vector::iterator GetImplPos(const CefBrowserContext* impl) {
     Vector::iterator it = all_.begin();
     for (; it != all_.end(); ++it) {
-      if (*it == impl)
+      if (*it == impl) {
         return it;
+      }
     }
     return all_.end();
   }
@@ -187,8 +192,9 @@ CefBrowserContext::~CefBrowserContext() {
 void CefBrowserContext::Initialize() {
   cache_path_ = base::FilePath(CefString(&settings_.cache_path));
 
-  if (!cache_path_.empty())
+  if (!cache_path_.empty()) {
     g_manager.Get().SetImplPath(this, cache_path_);
+  }
 
   iothread_state_ = base::MakeRefCounted<CefIOThreadState>();
 
@@ -262,8 +268,9 @@ CefBrowserContext* CefBrowserContext::FromBrowserContext(
 // static
 CefBrowserContext* CefBrowserContext::FromProfile(const Profile* profile) {
   auto* cef_context = FromBrowserContext(profile);
-  if (cef_context)
+  if (cef_context) {
     return cef_context;
+  }
 
   if (cef::IsChromeRuntimeEnabled()) {
     auto* original_profile = profile->GetOriginalProfile();
@@ -311,8 +318,9 @@ void CefBrowserContext::OnRenderFrameDeleted(
   DCHECK(frame_util::IsValidGlobalId(global_id));
 
   auto it1 = render_id_set_.find(global_id);
-  if (it1 != render_id_set_.end())
+  if (it1 != render_id_set_.end()) {
     render_id_set_.erase(it1);
+  }
 
   CefRefPtr<CefRequestContextHandler> handler = request_context->GetHandler();
   if (handler) {
@@ -337,15 +345,17 @@ bool CefBrowserContext::IsAssociatedContext(
 
   if (frame_util::IsValidGlobalId(global_id)) {
     const auto it1 = render_id_set_.find(global_id);
-    if (it1 != render_id_set_.end())
+    if (it1 != render_id_set_.end()) {
       return true;
+    }
   }
 
   if (frame_util::IsValidChildId(global_id.child_id) && !require_frame_match) {
     // Choose an arbitrary handler for the same process.
     for (const auto& render_ids : render_id_set_) {
-      if (render_ids.child_id == global_id.child_id)
+      if (render_ids.child_id == global_id.child_id) {
         return true;
+      }
     }
   }
 
@@ -374,8 +384,9 @@ void CefBrowserContext::LoadExtension(
     CefRefPtr<CefExtensionHandler> handler,
     CefRefPtr<CefRequestContext> loader_context) {
   NOTIMPLEMENTED();
-  if (handler)
+  if (handler) {
     handler->OnExtensionLoadFailed(ERR_ABORTED);
+  }
 }
 
 bool CefBrowserContext::GetExtensions(std::vector<CefString>& extension_ids) {
@@ -415,8 +426,9 @@ CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
 CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()
     const {
   CEF_REQUIRE_UIT();
-  if (cookieable_schemes_)
+  if (cookieable_schemes_) {
     return cookieable_schemes_;
+  }
 
   return GetGlobalCookieableSchemes();
 }

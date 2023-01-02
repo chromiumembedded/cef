@@ -27,8 +27,9 @@ int CefByteReadHandler::Seek(int64 offset, int whence) {
   base::AutoLock lock_scope(lock_);
   switch (whence) {
     case SEEK_CUR:
-      if (offset_ + offset > size_ || offset_ + offset < 0)
+      if (offset_ + offset > size_ || offset_ + offset < 0) {
         break;
+      }
       offset_ += offset;
       rv = 0;
       break;
@@ -38,15 +39,17 @@ int CefByteReadHandler::Seek(int64 offset, int whence) {
 #else
       int64 offset_abs = std::abs(offset);
 #endif
-      if (offset_abs > size_)
+      if (offset_abs > size_) {
         break;
+      }
       offset_ = size_ - offset_abs;
       rv = 0;
       break;
     }
     case SEEK_SET:
-      if (offset > size_ || offset < 0)
+      if (offset > size_ || offset < 0) {
         break;
+      }
       offset_ = offset;
       rv = 0;
       break;

@@ -38,8 +38,9 @@ class SimpleWindowDelegate : public CefWindowDelegate {
   bool CanClose(CefRefPtr<CefWindow> window) override {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-    if (browser)
+    if (browser) {
       return browser->GetHost()->TryCloseBrowser();
+    }
     return true;
   }
 
@@ -101,8 +102,9 @@ void SimpleApp::OnContextInitialized() {
   // Check if a "--url=" value was provided via the command-line. If so, use
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
-  if (url.empty())
+  if (url.empty()) {
     url = "http://www.google.com";
+  }
 
   if (use_views) {
     // Create the BrowserView.

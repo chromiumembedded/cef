@@ -41,8 +41,9 @@ CefBrowserInfo::~CefBrowserInfo() {
 
 CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
-  if (!is_closing_)
+  if (!is_closing_) {
     return browser_;
+  }
   return nullptr;
 }
 
@@ -189,8 +190,9 @@ void CefBrowserInfo::FrameHostStateChanged(
   bool removed_from_bfcache =
       old_state ==
       content::RenderFrameHost::LifecycleState::kInBackForwardCache;
-  if (!added_to_bfcache && !removed_from_bfcache)
+  if (!added_to_bfcache && !removed_from_bfcache) {
     return;
+  }
 
   base::AutoLock lock_scope(lock_);
 
@@ -238,8 +240,9 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
   base::AutoLock lock_scope(lock_);
   // Early exit if called post-destruction.
-  if (!browser_ || is_closing_)
+  if (!browser_ || is_closing_) {
     return nullptr;
+  }
 
   CHECK(main_frame_);
   return main_frame_;
@@ -248,8 +251,9 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetMainFrame() {
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
     const content::GlobalRenderFrameHostId& parent_global_id) {
   CefRefPtr<CefFrameHostImpl> parent = GetFrameForGlobalId(parent_global_id);
-  if (!parent)
+  if (!parent) {
     parent = GetMainFrame();
+  }
   // Intentionally not notifying for temporary frames.
   return new CefFrameHostImpl(this, parent->GetIdentifier());
 }
@@ -258,11 +262,13 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
     const content::RenderFrameHost* host,
     bool* is_guest_view,
     bool prefer_speculative) const {
-  if (is_guest_view)
+  if (is_guest_view) {
     *is_guest_view = false;
+  }
 
-  if (!host)
+  if (!host) {
     return nullptr;
+  }
 
   return GetFrameForGlobalId(
       const_cast<content::RenderFrameHost*>(host)->GetGlobalId(), is_guest_view,
@@ -273,11 +279,13 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
     const content::GlobalRenderFrameHostId& global_id,
     bool* is_guest_view,
     bool prefer_speculative) const {
-  if (is_guest_view)
+  if (is_guest_view) {
     *is_guest_view = false;
+  }
 
-  if (!frame_util::IsValidGlobalId(global_id))
+  if (!frame_util::IsValidGlobalId(global_id)) {
     return nullptr;
+  }
 
   base::AutoLock lock_scope(lock_);
 
@@ -286,8 +294,9 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
     const auto info = it->second;
 
     if (info->is_guest_view_) {
-      if (is_guest_view)
+      if (is_guest_view) {
         *is_guest_view = true;
+      }
       return nullptr;
     }
 
@@ -381,8 +390,9 @@ void CefBrowserInfo::MaybeNotifyDraggableRegionsChanged(
   CEF_REQUIRE_UIT();
   DCHECK(frame->IsMain());
 
-  if (draggable_regions == draggable_regions_)
+  if (draggable_regions == draggable_regions_) {
     return;
+  }
 
   draggable_regions_ = std::move(draggable_regions);
 
@@ -499,8 +509,9 @@ void CefBrowserInfo::RemoveAllFrames(
     }
   }
 
-  if (main_frame_)
+  if (main_frame_) {
     SetMainFrame(old_browser, nullptr);
+  }
 
   // And finally delete the frame info.
   frame_info_set_.clear();

@@ -24,23 +24,29 @@ namespace {
 
 DWORD DragOperationToDropEffect(CefRenderHandler::DragOperation allowed_ops) {
   DWORD effect = DROPEFFECT_NONE;
-  if (allowed_ops & DRAG_OPERATION_COPY)
+  if (allowed_ops & DRAG_OPERATION_COPY) {
     effect |= DROPEFFECT_COPY;
-  if (allowed_ops & DRAG_OPERATION_LINK)
+  }
+  if (allowed_ops & DRAG_OPERATION_LINK) {
     effect |= DROPEFFECT_LINK;
-  if (allowed_ops & DRAG_OPERATION_MOVE)
+  }
+  if (allowed_ops & DRAG_OPERATION_MOVE) {
     effect |= DROPEFFECT_MOVE;
+  }
   return effect;
 }
 
 CefRenderHandler::DragOperationsMask DropEffectToDragOperation(DWORD effect) {
   DWORD operation = DRAG_OPERATION_NONE;
-  if (effect & DROPEFFECT_COPY)
+  if (effect & DROPEFFECT_COPY) {
     operation |= DRAG_OPERATION_COPY;
-  if (effect & DROPEFFECT_LINK)
+  }
+  if (effect & DROPEFFECT_LINK) {
     operation |= DRAG_OPERATION_LINK;
-  if (effect & DROPEFFECT_MOVE)
+  }
+  if (effect & DROPEFFECT_MOVE) {
     operation |= DRAG_OPERATION_MOVE;
+  }
   return static_cast<CefRenderHandler::DragOperationsMask>(operation);
 }
 
@@ -93,8 +99,9 @@ void GetStorageForFileDescriptor(STGMEDIUM* storage,
 // Documentation for the CF_HTML format is available at
 // http://msdn.microsoft.com/en-us/library/aa767917(VS.85).aspx
 std::string HtmlToCFHtml(const std::string& html, const std::string& base_url) {
-  if (html.empty())
+  if (html.empty()) {
     return std::string();
+  }
 
 #define MAX_DIGITS 10
 #define MAKE_NUMBER_FORMAT_1(digits) MAKE_NUMBER_FORMAT_2(digits)
@@ -279,8 +286,9 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
   CefRefPtr<CefDragData> drag_data = CefDragData::Create();
   IEnumFORMATETC* enumFormats = nullptr;
   HRESULT res = data_object->EnumFormatEtc(DATADIR_GET, &enumFormats);
-  if (res != S_OK)
+  if (res != S_OK) {
     return drag_data;
+  }
   enumFormats->Reset();
   const int kCelt = 10;
 
@@ -294,8 +302,9 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
       if (!(format == CF_UNICODETEXT || format == CF_TEXT ||
             format == moz_url_format || format == html_format ||
             format == CF_HDROP) ||
-          rgelt[i].tymed != TYMED_HGLOBAL)
+          rgelt[i].tymed != TYMED_HGLOBAL) {
         continue;
+      }
       STGMEDIUM medium;
       if (data_object->GetData(&rgelt[i], &medium) == S_OK) {
         if (!medium.hGlobal) {
@@ -336,18 +345,21 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
           const unsigned num_files = DragQueryFileW(hdrop, 0xffffffff, 0, 0);
           for (unsigned int x = 0; x < num_files; ++x) {
             wchar_t filename[kMaxFilenameLen];
-            if (!DragQueryFileW(hdrop, x, filename, kMaxFilenameLen))
+            if (!DragQueryFileW(hdrop, x, filename, kMaxFilenameLen)) {
               continue;
+            }
             WCHAR* name = wcsrchr(filename, '\\');
             drag_data->AddFile(filename, (name ? name + 1 : filename));
           }
         }
-        if (medium.hGlobal)
+        if (medium.hGlobal) {
           GlobalUnlock(medium.hGlobal);
-        if (format == CF_HDROP)
+        }
+        if (format == CF_HDROP) {
           DragFinish((HDROP)hGlobal);
-        else
+        } else {
           ReleaseStgMedium(&medium);
+        }
       }
     }
   } while (res == S_OK);
@@ -366,8 +378,9 @@ HRESULT DropTargetWin::DragEnter(IDataObject* data_object,
                                  DWORD key_state,
                                  POINTL cursor_position,
                                  DWORD* effect) {
-  if (!callback_)
+  if (!callback_) {
     return E_UNEXPECTED;
+  }
 
   CefRefPtr<CefDragData> drag_data = current_drag_data_;
   if (!drag_data) {
@@ -394,8 +407,9 @@ CefBrowserHost::DragOperationsMask DropTargetWin::StartDragging(
     current_drag_data_ = drag_data->Clone();
     current_drag_data_->ResetFileContents();
     HRESULT res = DoDragDrop(dataObject, dropSource, effect, &resEffect);
-    if (res != DRAGDROP_S_DROP)
+    if (res != DRAGDROP_S_DROP) {
       resEffect = DROPEFFECT_NONE;
+    }
     current_drag_data_ = nullptr;
   }
   return DropEffectToDragOperation(resEffect);
@@ -404,8 +418,9 @@ CefBrowserHost::DragOperationsMask DropTargetWin::StartDragging(
 HRESULT DropTargetWin::DragOver(DWORD key_state,
                                 POINTL cursor_position,
                                 DWORD* effect) {
-  if (!callback_)
+  if (!callback_) {
     return E_UNEXPECTED;
+  }
   CefMouseEvent ev = ToMouseEvent(cursor_position, key_state, hWnd_);
   CefBrowserHost::DragOperationsMask mask = DropEffectToDragOperation(*effect);
   mask = callback_->OnDragOver(ev, mask);
@@ -414,8 +429,9 @@ HRESULT DropTargetWin::DragOver(DWORD key_state,
 }
 
 HRESULT DropTargetWin::DragLeave() {
-  if (!callback_)
+  if (!callback_) {
     return E_UNEXPECTED;
+  }
   callback_->OnDragLeave();
   return S_OK;
 }
@@ -424,8 +440,9 @@ HRESULT DropTargetWin::Drop(IDataObject* data_object,
                             DWORD key_state,
                             POINTL cursor_position,
                             DWORD* effect) {
-  if (!callback_)
+  if (!callback_) {
     return E_UNEXPECTED;
+  }
   CefMouseEvent ev = ToMouseEvent(cursor_position, key_state, hWnd_);
   CefBrowserHost::DragOperationsMask mask = DropEffectToDragOperation(*effect);
   mask = callback_->OnDrop(ev, mask);
@@ -458,8 +475,9 @@ HRESULT DragEnumFormatEtc::CreateEnumFormatEtc(
     UINT cfmt,
     FORMATETC* afmt,
     IEnumFORMATETC** ppEnumFormatEtc) {
-  if (cfmt == 0 || afmt == 0 || ppEnumFormatEtc == 0)
+  if (cfmt == 0 || afmt == 0 || ppEnumFormatEtc == 0) {
     return E_INVALIDARG;
+  }
 
   *ppEnumFormatEtc = new DragEnumFormatEtc(afmt, cfmt);
 
@@ -479,8 +497,9 @@ HRESULT DragEnumFormatEtc::Next(ULONG celt,
   }
 
   // store result
-  if (pceltFetched != 0)
+  if (pceltFetched != 0) {
     *pceltFetched = copied;
+  }
 
   // did we copy all that was requested?
   return (copied == celt) ? S_OK : S_FALSE;
@@ -522,8 +541,9 @@ DragEnumFormatEtc::DragEnumFormatEtc(FORMATETC* pFormatEtc, int nNumFormats) {
 DragEnumFormatEtc::~DragEnumFormatEtc() {
   // first free any DVTARGETDEVICE structures
   for (ULONG i = 0; i < m_nNumFormats; i++) {
-    if (m_pFormatEtc[i].ptd)
+    if (m_pFormatEtc[i].ptd) {
       CoTaskMemFree(m_pFormatEtc[i].ptd);
+    }
   }
 
   // now free the main array
@@ -594,8 +614,9 @@ HRESULT DataObjectWin::GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium) {
   int idx;
 
   // try to match the specified FORMATETC with one of our supported formats
-  if ((idx = LookupFormatEtc(pFormatEtc)) == -1)
+  if ((idx = LookupFormatEtc(pFormatEtc)) == -1) {
     return DV_E_FORMATETC;
+  }
 
   // found a match - transfer data into supplied storage medium
   pMedium->tymed = m_pFormatEtc[idx].tymed;

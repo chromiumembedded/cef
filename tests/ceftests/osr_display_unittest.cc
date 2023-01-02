@@ -255,8 +255,9 @@ class OsrPopupJSOtherClientTestHandler : public TestHandler,
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    if (isLoading)
+    if (isLoading) {
       return;
+    }
 
     if (browser->IsPopup()) {
       got_load_end_popup_.yes();

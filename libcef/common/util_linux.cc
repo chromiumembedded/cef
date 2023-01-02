@@ -18,8 +18,9 @@ void OverrideChildProcessPath() {
   base::FilePath child_process_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kBrowserSubprocessPath);
-  if (child_process_path.empty())
+  if (child_process_path.empty()) {
     return;
+  }
 
   // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
   base::PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);

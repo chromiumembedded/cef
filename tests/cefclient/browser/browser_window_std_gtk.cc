@@ -38,8 +38,9 @@ void SetXWindowVisible(XDisplay* xdisplay, ::Window xwindow, bool visible) {
   Atom atoms[3];
   int result =
       XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 3, false, atoms);
-  if (!result)
+  if (!result) {
     NOTREACHED();
+  }
 
   if (!visible) {
     // Set the hidden property state value.
@@ -174,8 +175,9 @@ void BrowserWindowStdGtk::SetBounds(int x, int y, size_t width, size_t height) {
 void BrowserWindowStdGtk::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_)
+  if (browser_) {
     browser_->GetHost()->SetFocus(focus);
+  }
 }
 
 ClientWindowHandle BrowserWindowStdGtk::GetWindowHandle() const {

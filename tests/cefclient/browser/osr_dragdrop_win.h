@@ -37,17 +37,19 @@ namespace client {
     AddRef();                                                       \
     return S_OK;                                                    \
   }
-#define IUNKNOWN_IMPLEMENTATION                     \
-  ULONG __stdcall AddRef() { return ++ref_count_; } \
-  ULONG __stdcall Release() {                       \
-    if (--ref_count_ == 0) {                        \
-      delete this;                                  \
-      return 0U;                                    \
-    }                                               \
-    return ref_count_;                              \
-  }                                                 \
-                                                    \
- protected:                                         \
+#define IUNKNOWN_IMPLEMENTATION \
+  ULONG __stdcall AddRef() {    \
+    return ++ref_count_;        \
+  }                             \
+  ULONG __stdcall Release() {   \
+    if (--ref_count_ == 0) {    \
+      delete this;              \
+      return 0U;                \
+    }                           \
+    return ref_count_;          \
+  }                             \
+                                \
+ protected:                     \
   ULONG ref_count_;
 
 class DropTargetWin : public IDropTarget {

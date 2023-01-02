@@ -34,8 +34,9 @@ bool GetCookieDomain(const GURL& url,
                      const net::ParsedCookie& pc,
                      std::string* result) {
   std::string domain_string;
-  if (pc.HasDomain())
+  if (pc.HasDomain()) {
     domain_string = pc.Domain();
+  }
   net::CookieInclusionStatus status;
   return net::cookie_util::GetCookieDomainWithString(url, domain_string, status,
                                                      result);
@@ -116,8 +117,9 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
     int64_t content_length,
     const std::multimap<std::string, std::string>& extra_headers,
     bool allow_existing_header_override) {
-  if (status_code <= 0)
+  if (status_code <= 0) {
     status_code = 200;
+  }
 
   auto headers = WrapRefCounted(new net::HttpResponseHeaders(
       MakeStatusLine(status_code, status_text, false)));
@@ -149,10 +151,11 @@ scoped_refptr<net::HttpResponseHeaders> MakeResponseHeaders(
       const std::string& name_lowercase = base::ToLowerASCII(pair.first);
       if (set_headers_lowercase.find(name_lowercase) !=
           set_headers_lowercase.end()) {
-        if (allow_existing_header_override)
+        if (allow_existing_header_override) {
           headers->RemoveHeader(pair.first);
-        else
+        } else {
           continue;
+        }
       }
     }
 
@@ -169,8 +172,9 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
   bool insecure_scheme_was_upgraded = false;
 
   GURL location = new_location;
-  if (status_code == 0)
+  if (status_code == 0) {
     status_code = net::HTTP_TEMPORARY_REDIRECT;
+  }
 
   // If this a redirect to HTTP of a request that had the
   // 'upgrade-insecure-requests' policy set, upgrade it to HTTPS.
@@ -229,8 +233,9 @@ bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
   cookie.creation = CefBaseTime(cc.CreationDate());
   cookie.last_access = CefBaseTime(cc.LastAccessDate());
   cookie.has_expires = cc.IsPersistent();
-  if (cookie.has_expires)
+  if (cookie.has_expires) {
     cookie.expires = CefBaseTime(cc.ExpiryDate());
+  }
   cookie.same_site = MakeCefCookieSameSite(cc.SameSite());
   cookie.priority = MakeCefCookiePriority(cc.Priority());
 
@@ -242,16 +247,19 @@ bool MakeCefCookie(const GURL& url,
                    CefCookie& cookie) {
   // Parse the cookie.
   net::ParsedCookie pc(cookie_line);
-  if (!pc.IsValid())
+  if (!pc.IsValid()) {
     return false;
+  }
 
   std::string cookie_domain;
-  if (!GetCookieDomain(url, pc, &cookie_domain))
+  if (!GetCookieDomain(url, pc, &cookie_domain)) {
     return false;
+  }
 
   std::string path_string;
-  if (pc.HasPath())
+  if (pc.HasPath()) {
     path_string = pc.Path();
+  }
   std::string cookie_path =
       net::CanonicalCookie::CanonPathWithString(url, path_string);
   base::Time creation_time = base::Time::Now();
@@ -267,8 +275,9 @@ bool MakeCefCookie(const GURL& url,
   cookie.creation = CefBaseTime(creation_time);
   cookie.last_access = CefBaseTime(creation_time);
   cookie.has_expires = !cookie_expires.is_null();
-  if (cookie.has_expires)
+  if (cookie.has_expires) {
     cookie.expires = CefBaseTime(cookie_expires);
+  }
   cookie.same_site = MakeCefCookieSameSite(pc.SameSite());
   cookie.priority = MakeCefCookiePriority(pc.Priority());
 

@@ -37,8 +37,9 @@ namespace {
 template <class T>
 std::shared_ptr<T> to_com_ptr(T* obj) {
   return std::shared_ptr<T>(obj, [](T* p) {
-    if (p)
+    if (p) {
       p->Release();
+    }
   });
 }
 
@@ -695,8 +696,9 @@ std::shared_ptr<ID3DBlob> Device::compile_shader(const std::string& source_code,
   }
 
   return std::shared_ptr<ID3DBlob>(blob, [](ID3DBlob* p) {
-    if (p)
+    if (p) {
       p->Release();
+    }
   });
 }
 

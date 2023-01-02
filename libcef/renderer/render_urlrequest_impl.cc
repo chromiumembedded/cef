@@ -106,8 +106,9 @@ class CefRenderURLRequest::Context
 
   bool Start() {
     GURL url = GURL(request_->GetURL().ToString());
-    if (!url.is_valid())
+    if (!url.is_valid()) {
       return false;
+    }
 
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
@@ -157,8 +158,9 @@ class CefRenderURLRequest::Context
 
   void Cancel() {
     // The request may already be complete.
-    if (!loader_.get() || status_ != UR_IO_PENDING)
+    if (!loader_.get() || status_ != UR_IO_PENDING) {
       return;
+    }
 
     status_ = UR_CANCELED;
     error_code_ = ERR_ABORTED;
@@ -217,8 +219,9 @@ class CefRenderURLRequest::Context
       NotifyUploadProgressIfNecessary();
     }
 
-    if (loader_.get())
+    if (loader_.get()) {
       loader_.reset(nullptr);
+    }
 
     DCHECK(url_request_.get());
     client_->OnRequestComplete(url_request_.get());
@@ -298,8 +301,9 @@ class CefRenderURLRequest::Context
 
   void OnUploadProgress(int64_t current, int64_t total) {
     DCHECK(url_request_.get());
-    if (current == total)
+    if (current == total) {
       got_upload_progress_complete_ = true;
+    }
     client_->OnUploadProgress(url_request_.get(), current, total);
   }
 
@@ -357,8 +361,9 @@ CefWebURLLoaderClient::~CefWebURLLoaderClient() {}
 
 void CefWebURLLoaderClient::DidSendData(uint64_t bytes_sent,
                                         uint64_t total_bytes_to_be_sent) {
-  if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS)
+  if (request_flags_ & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
     context_->OnUploadProgress(bytes_sent, total_bytes_to_be_sent);
+  }
 }
 
 void CefWebURLLoaderClient::DidReceiveResponse(const WebURLResponse& response) {
@@ -368,8 +373,9 @@ void CefWebURLLoaderClient::DidReceiveResponse(const WebURLResponse& response) {
 void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
   context_->OnDownloadProgress(dataLength);
 
-  if (!(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA))
+  if (!(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA)) {
     context_->OnDownloadData(data, dataLength);
+  }
 }
 
 void CefWebURLLoaderClient::DidFinishLoading(
@@ -429,50 +435,58 @@ CefRenderURLRequest::CefRenderURLRequest(
 CefRenderURLRequest::~CefRenderURLRequest() {}
 
 bool CefRenderURLRequest::Start() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
   return context_->Start();
 }
 
 CefRefPtr<CefRequest> CefRenderURLRequest::GetRequest() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->request();
 }
 
 CefRefPtr<CefURLRequestClient> CefRenderURLRequest::GetClient() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->client();
 }
 
 CefURLRequest::Status CefRenderURLRequest::GetRequestStatus() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return UR_UNKNOWN;
+  }
   return context_->status();
 }
 
 CefURLRequest::ErrorCode CefRenderURLRequest::GetRequestError() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return ERR_NONE;
+  }
   return context_->error_code();
 }
 
 CefRefPtr<CefResponse> CefRenderURLRequest::GetResponse() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
   return context_->response();
 }
 
 bool CefRenderURLRequest::ResponseWasCached() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
   return context_->response_was_cached();
 }
 
 void CefRenderURLRequest::Cancel() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
   return context_->Cancel();
 }
 

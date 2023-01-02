@@ -135,8 +135,9 @@ class CallbackResourceHandler : public CefResourceHandler {
     response->SetStatusText(status_text_);
     response->SetMimeType(mime_type_);
 
-    if (!header_map_.empty())
+    if (!header_map_.empty()) {
       response->SetHeaderMap(header_map_);
+    }
 
     response_length = -1;
   }
@@ -672,13 +673,15 @@ class BasicResponseTest : public TestHandler {
         return GetOKResource();
       } else {
         // Restarted request.
-        if (unhandled_)
+        if (unhandled_) {
           return nullptr;
+        }
         return GetOKResource();
       }
     } else if (url == GetURL(RESULT_HTML)) {
-      if (unhandled_)
+      if (unhandled_) {
         return nullptr;
+      }
       return GetOKResource();
     } else if (url == GetURL(REDIRECT_HTML) &&
                mode_ == REDIRECT_RESOURCE_RESPONSE) {
@@ -687,8 +690,9 @@ class BasicResponseTest : public TestHandler {
         return GetOKResource();
       } else {
         // Redirected request.
-        if (unhandled_)
+        if (unhandled_) {
           return nullptr;
+        }
         return GetOKResource();
       }
     } else if (url == GetURL(REDIRECT_HTML) || url == GetURL(REDIRECT2_HTML)) {
@@ -1006,19 +1010,25 @@ class BasicResponseTest : public TestHandler {
 
   const char* GetURL(TestUrl url) const {
     if (custom_scheme_) {
-      if (url == RESULT_HTML)
+      if (url == RESULT_HTML) {
         return "rrhcustom://test.com/result.html";
-      if (url == REDIRECT_HTML)
+      }
+      if (url == REDIRECT_HTML) {
         return "rrhcustom://test.com/redirect.html";
-      if (url == REDIRECT2_HTML)
+      }
+      if (url == REDIRECT2_HTML) {
         return "rrhcustom://test.com/redirect2.html";
+      }
     } else {
-      if (url == RESULT_HTML)
+      if (url == RESULT_HTML) {
         return "http://test.com/result.html";
-      if (url == REDIRECT_HTML)
+      }
+      if (url == REDIRECT_HTML) {
         return "http://test.com/redirect.html";
-      if (url == REDIRECT2_HTML)
+      }
+      if (url == REDIRECT2_HTML) {
         return "http://test.com/redirect2.html";
+      }
     }
 
     NOTREACHED();
@@ -1234,8 +1244,9 @@ class BasicResponseTest : public TestHandler {
         EXPECT_STREQ("", custom_header.c_str()) << callback;
       }
 
-      if (response)
+      if (response) {
         VerifyOKResponse(callback, response);
+      }
     } else if (IsRedirect()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
       if (on_before_browse_ct_ == 1) {
@@ -1572,8 +1583,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     const std::string& url = request->GetURL();
-    if (IgnoreURL(url))
+    if (IgnoreURL(url)) {
       return nullptr;
+    }
 
     const bool is_main_url = IsMainURL(url);
     const bool is_sub_url = IsSubURL(url);
@@ -1591,8 +1603,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
       // return -4 (kInvalidFrameId) for the initial navigation.
       if (frame_id_ == 0) {
         if (subframe_) {
-          if (is_sub_url)
+          if (is_sub_url) {
             frame_id_ = frame->GetIdentifier();
+          }
         } else {
           frame_id_ = frame->GetIdentifier();
         }
@@ -1638,8 +1651,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     const std::string& url = request->GetURL();
-    if (IgnoreURL(url))
+    if (IgnoreURL(url)) {
       return nullptr;
+    }
 
     if (IsMainURL(url)) {
       EXPECT_TRUE(frame->IsMain());
@@ -1744,13 +1758,15 @@ class SubresourceResponseTest : public RoutingTestHandler {
         return GetOKResource();
       } else {
         // Restarted request.
-        if (unhandled_)
+        if (unhandled_) {
           return nullptr;
+        }
         return GetOKResource();
       }
     } else if (url == GetURL(RESULT_JS)) {
-      if (unhandled_)
+      if (unhandled_) {
         return nullptr;
+      }
       return GetOKResource();
     } else if (url == GetURL(REDIRECT_JS) &&
                mode_ == REDIRECT_RESOURCE_RESPONSE) {
@@ -1759,8 +1775,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
         return GetOKResource();
       } else {
         // Redirected request.
-        if (unhandled_)
+        if (unhandled_) {
           return nullptr;
+        }
         return GetOKResource();
       }
     } else if (url == GetURL(REDIRECT_JS) || url == GetURL(REDIRECT2_JS)) {
@@ -2041,23 +2058,26 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_EQ(1, on_resource_redirect_ct_);
 
       // Unhandled requests won't see a call to GetResourceResponseFilter.
-      if (unhandled_)
+      if (unhandled_) {
         EXPECT_EQ(0, get_resource_response_filter_ct_);
-      else
+      } else {
         EXPECT_EQ(1, get_resource_response_filter_ct_);
+      }
 
       // Unhandled requests won't see a call to OnResourceResponse.
       if (mode_ == REDIRECT_RESOURCE_RESPONSE) {
         // In this case we're redirecting from inside OnResourceResponse.
-        if (unhandled_)
+        if (unhandled_) {
           EXPECT_EQ(1, on_resource_response_ct_);
-        else
+        } else {
           EXPECT_EQ(2, on_resource_response_ct_);
+        }
       } else {
-        if (unhandled_)
+        if (unhandled_) {
           EXPECT_EQ(0, on_resource_response_ct_);
-        else
+        } else {
           EXPECT_EQ(1, on_resource_response_ct_);
+        }
       }
     } else if (IsIncomplete()) {
       EXPECT_EQ(1, get_resource_request_handler_ct_);
@@ -2154,19 +2174,25 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
   const char* GetURL(TestUrl url) const {
     if (custom_scheme_) {
-      if (url == RESULT_JS)
+      if (url == RESULT_JS) {
         return "rrhcustom://test.com/result.js";
-      if (url == REDIRECT_JS)
+      }
+      if (url == REDIRECT_JS) {
         return "rrhcustom://test.com/redirect.js";
-      if (url == REDIRECT2_JS)
+      }
+      if (url == REDIRECT2_JS) {
         return "rrhcustom://test.com/redirect2.js";
+      }
     } else {
-      if (url == RESULT_JS)
+      if (url == RESULT_JS) {
         return "http://test.com/result.js";
-      if (url == REDIRECT_JS)
+      }
+      if (url == REDIRECT_JS) {
         return "http://test.com/redirect.js";
-      if (url == REDIRECT2_JS)
+      }
+      if (url == REDIRECT2_JS) {
         return "http://test.com/redirect2.js";
+      }
     }
 
     NOTREACHED();
@@ -2379,10 +2405,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
   void VerifyFrame(Callback callback, CefRefPtr<CefFrame> frame) const {
     EXPECT_TRUE(frame);
 
-    if (subframe_)
+    if (subframe_) {
       EXPECT_FALSE(frame->IsMain()) << callback;
-    else
+    } else {
       EXPECT_TRUE(frame->IsMain()) << callback;
+    }
 
     EXPECT_EQ(frame_id_, frame->GetIdentifier()) << callback;
   }
@@ -2425,8 +2452,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
         EXPECT_STREQ("", custom_header.c_str()) << callback;
       }
 
-      if (response)
+      if (response) {
         VerifyOKResponse(callback, response);
+      }
     } else if (IsRedirect()) {
       EXPECT_STREQ("GET", request->GetMethod().ToString().c_str()) << callback;
       // Subresource loads don't get OnBeforeBrowse calls, so this check is a
@@ -2665,12 +2693,13 @@ class RedirectResponseTest : public TestHandler {
 
   RedirectResponseTest(TestMode mode, bool via_request_context_handler)
       : via_request_context_handler_(via_request_context_handler) {
-    if (mode == URL)
+    if (mode == URL) {
       resource_test_.reset(new UrlResourceTest);
-    else if (mode == HEADER)
+    } else if (mode == HEADER) {
       resource_test_.reset(new HeaderResourceTest);
-    else
+    } else {
       resource_test_.reset(new PostResourceTest);
+    }
   }
 
   void RunTest() override {
@@ -2910,8 +2939,9 @@ class RedirectResponseTest : public TestHandler {
     }
 
     bool CheckUrl(const std::string& url) const override {
-      if (url == redirect_url_)
+      if (url == redirect_url_) {
         return true;
+      }
 
       return ResourceTest::CheckUrl(url);
     }
@@ -3328,10 +3358,11 @@ class BeforeResourceLoadTest : public TestHandler {
     got_load_end_.yes();
 
     const std::string& url = frame->GetURL();
-    if (test_mode_ == CANCEL_NAV)
+    if (test_mode_ == CANCEL_NAV) {
       EXPECT_STREQ(kResourceTestHtml2, url.data());
-    else
+    } else {
       EXPECT_STREQ(kResourceTestHtml, url.data());
+    }
 
     TestHandler::OnLoadEnd(browser, frame, httpStatusCode);
     DestroyTest();
@@ -3351,17 +3382,19 @@ class BeforeResourceLoadTest : public TestHandler {
     EXPECT_STREQ(kResourceTestHtml, url.data());
 
     TestHandler::OnLoadError(browser, frame, errorCode, errorText, failedUrl);
-    if (test_mode_ != CANCEL_NAV)
+    if (test_mode_ != CANCEL_NAV) {
       DestroyTest();
+    }
   }
 
   void DestroyTest() override {
     EXPECT_TRUE(got_before_resource_load_);
 
-    if (test_mode_ == CANCEL_NAV)
+    if (test_mode_ == CANCEL_NAV) {
       EXPECT_TRUE(got_before_resource_load2_);
-    else
+    } else {
       EXPECT_FALSE(got_before_resource_load2_);
+    }
 
     if (test_mode_ == CONTINUE || test_mode_ == CONTINUE_ASYNC) {
       EXPECT_TRUE(got_load_end_);
@@ -3456,15 +3489,17 @@ std::string CreateInput(const std::string& content,
   size_t repeat_ct =
       static_cast<size_t>(std::ceil(static_cast<double>(desired_min_size) /
                                     static_cast<double>(content.size())));
-  if (calculated_repeat_ct)
+  if (calculated_repeat_ct) {
     *calculated_repeat_ct = repeat_ct;
+  }
 
   std::string result;
   result.reserve(header_footer_size + (content.size() * repeat_ct));
 
   result = kInputHeader;
-  while (repeat_ct--)
+  while (repeat_ct--) {
     result += content;
+  }
   result += kInputFooter;
 
   return result;
@@ -3478,8 +3513,9 @@ std::string CreateOutput(const std::string& content, size_t repeat_ct) {
   result.reserve(header_footer_size + (content.size() * repeat_ct));
 
   result = kInputHeader;
-  while (repeat_ct--)
+  while (repeat_ct--) {
     result += content;
+  }
   result += kInputFooter;
 
   return result;
@@ -3502,10 +3538,11 @@ class ResponseFilterTestBase : public CefResponseFilter {
                       void* data_out,
                       size_t data_out_size,
                       size_t& data_out_written) override {
-    if (data_in_size == 0U)
+    if (data_in_size == 0U) {
       EXPECT_FALSE(data_in);
-    else
+    } else {
       EXPECT_TRUE(data_in);
+    }
     EXPECT_EQ(data_in_read, 0U);
     EXPECT_TRUE(data_out);
     EXPECT_GT(data_out_size, 0U);
@@ -3575,11 +3612,11 @@ class ResponseFilterPassThru : public ResponseFilterTestBase {
     ResponseFilterTestBase::VerifyOutput(status, received_content_length,
                                          received_content);
 
-    if (limit_read_)
+    if (limit_read_) {
       // Expected to read 2 full buffers of GetResponseBufferSize() at 1kb
       // increments and one partial buffer.
       EXPECT_EQ(2U * (GetResponseBufferSize() / 1024) + 1U, filter_count_);
-    else {
+    } else {
       // Expected to read 2 full buffers of GetResponseBufferSize() and one
       // partial buffer.
       EXPECT_EQ(3U, filter_count_);
@@ -3695,8 +3732,9 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
     const size_t replace_size = sizeof(kReplaceString) - 1;
 
     // Determine a reasonable amount of space for find/replace overflow.
-    if (replace_size > find_size)
+    if (replace_size > find_size) {
       replace_overflow_size_ = (replace_size - find_size) * repeat_ct_;
+    }
 
     return input;
   }

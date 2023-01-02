@@ -65,8 +65,9 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForGlobalId(
     // Use the non-thread-safe but potentially faster approach.
     content::RenderFrameHost* host =
         content::RenderFrameHost::FromID(global_id);
-    if (host)
+    if (host) {
       return GetOwnerBrowserForHost(host, is_guest_view);
+    }
     return nullptr;
   } else {
     // Use the thread-safe approach.
@@ -89,8 +90,9 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForGlobalId(
 CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderViewHost* host,
     bool* is_guest_view) {
-  if (is_guest_view)
+  if (is_guest_view) {
     *is_guest_view = false;
+  }
 
   CefRefPtr<CefBrowserHostBase> browser =
       CefBrowserHostBase::GetBrowserForHost(host);
@@ -100,8 +102,9 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
         content::WebContents::FromRenderViewHost(host));
     if (owner) {
       browser = CefBrowserHostBase::GetBrowserForContents(owner);
-      if (browser.get() && is_guest_view)
+      if (browser.get() && is_guest_view) {
         *is_guest_view = true;
+      }
     }
   }
   return browser;
@@ -110,8 +113,9 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
 CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
     content::RenderFrameHost* host,
     bool* is_guest_view) {
-  if (is_guest_view)
+  if (is_guest_view) {
     *is_guest_view = false;
+  }
 
   CefRefPtr<CefBrowserHostBase> browser =
       CefBrowserHostBase::GetBrowserForHost(host);
@@ -121,8 +125,9 @@ CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
         content::WebContents::FromRenderFrameHost(host));
     if (owner) {
       browser = CefBrowserHostBase::GetBrowserForContents(owner);
-      if (browser.get() && is_guest_view)
+      if (browser.get() && is_guest_view) {
         *is_guest_view = true;
+      }
     }
   }
   return browser;
@@ -134,8 +139,9 @@ CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabId(
   REQUIRE_ALLOY_RUNTIME();
   CEF_REQUIRE_UIT();
   DCHECK(browser_context);
-  if (tab_id < 0 || !browser_context)
+  if (tab_id < 0 || !browser_context) {
     return nullptr;
+  }
 
   auto cef_browser_context =
       CefBrowserContext::FromBrowserContext(browser_context);
@@ -164,8 +170,9 @@ CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabId(
 const Extension* GetExtensionForUrl(content::BrowserContext* browser_context,
                                     const GURL& url) {
   ExtensionRegistry* registry = ExtensionRegistry::Get(browser_context);
-  if (!registry)
+  if (!registry) {
     return nullptr;
+  }
   std::string extension_id = url.host();
   return registry->enabled_extensions().GetByID(extension_id);
 }

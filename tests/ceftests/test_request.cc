@@ -117,8 +117,9 @@ class CookieVisitor : public CefCookieVisitor {
              bool& deleteCookie) override {
     CEF_REQUIRE_UI_THREAD();
     cookies_.push_back(cookie);
-    if (delete_cookies_)
+    if (delete_cookies_) {
       deleteCookie = true;
+    }
     return true;
   }
 

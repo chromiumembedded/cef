@@ -96,8 +96,9 @@ void MRRenderDelegate::OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                                         CefRefPtr<CefFrame> frame,
                                         CefRefPtr<CefV8Context> context) {
   const std::string& url = frame->GetURL();
-  if (url.find(kTestDomainRoot) != 0)
+  if (url.find(kTestDomainRoot) != 0) {
     return;
+  }
 
   message_router_->OnContextCreated(browser, frame, context);
 
@@ -132,8 +133,9 @@ void MRRenderDelegate::OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                                          CefRefPtr<CefFrame> frame,
                                          CefRefPtr<CefV8Context> context) {
   const std::string& url = frame->GetURL();
-  if (url.find(kTestDomainRoot) != 0)
+  if (url.find(kTestDomainRoot) != 0) {
     return;
+  }
 
   message_router_->OnContextReleased(browser, frame, context);
 }
@@ -145,8 +147,9 @@ bool MRRenderDelegate::OnProcessMessageReceived(
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   const std::string& url = frame->GetURL();
-  if (url.find(kTestDomainRoot) != 0)
+  if (url.find(kTestDomainRoot) != 0) {
     return false;
+  }
 
   return message_router_->OnProcessMessageReceived(browser, frame,
                                                    source_process, message);
@@ -165,8 +168,9 @@ void MRTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     CefMessageRouterConfig config;
 
     SetRouterConfig(config);
-    if (message_size_threshold_)
+    if (message_size_threshold_) {
       config.message_size_threshold = message_size_threshold_;
+    }
 
     message_router_ = CefMessageRouterBrowserSide::Create(config);
     AddHandlers(message_router_);

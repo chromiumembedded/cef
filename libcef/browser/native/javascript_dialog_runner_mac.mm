@@ -38,8 +38,9 @@
 
 - (id)initHelperWithCallback:
     (CefJavaScriptDialogRunner::DialogClosedCallback)callback {
-  if (self = [super init])
+  if (self = [super init]) {
     callback_ = std::move(callback);
+  }
 
   return self;
 }
@@ -62,13 +63,15 @@
 - (void)alertDidEnd:(NSAlert*)alert
          returnCode:(int)returnCode
         contextInfo:(void*)contextInfo {
-  if (returnCode == NSModalResponseStop)
+  if (returnCode == NSModalResponseStop) {
     return;
+  }
 
   bool success = returnCode == NSAlertFirstButtonReturn;
   std::u16string input;
-  if (textField_)
+  if (textField_) {
     input = base::SysNSStringToUTF16([textField_ stringValue]);
+  }
 
   std::move(callback_).Run(success, input);
 }
@@ -130,8 +133,9 @@ void CefJavaScriptDialogRunnerMac::Run(
 
   const std::u16string& display_url =
       url_formatter::FormatUrlForSecurityDisplay(origin_url);
-  if (!display_url.empty())
+  if (!display_url.empty()) {
     label += u" - " + display_url;
+  }
 
   [alert setMessageText:base::SysUTF16ToNSString(label)];
 
@@ -156,8 +160,9 @@ void CefJavaScriptDialogRunnerMac::Run(
                       contextInfo:this];
 #pragma clang diagnostic pop
 
-  if ([alert accessoryView])
+  if ([alert accessoryView]) {
     [[alert window] makeFirstResponder:[alert accessoryView]];
+  }
 }
 
 void CefJavaScriptDialogRunnerMac::Handle(

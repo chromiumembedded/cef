@@ -50,8 +50,9 @@ class UserData : public base::SupportsUserData::Data {
   static CefRefPtr<CefView> GetFor(const views::View* view) {
     DCHECK(view);
     UserData* data = static_cast<UserData*>(view->GetUserData(UserDataKey()));
-    if (data)
+    if (data) {
       return data->view_ref_;
+    }
     return nullptr;
   }
 
@@ -132,18 +133,21 @@ void Register(CefRefPtr<CefView> view) {
 }
 
 CefRefPtr<CefView> GetFor(const views::View* view, bool find_known_parent) {
-  if (!view)
+  if (!view) {
     return nullptr;
+  }
 
-  if (!find_known_parent)
+  if (!find_known_parent) {
     return UserData::GetFor(view);
+  }
 
   CefRefPtr<CefView> cef_view;
   const views::View* current_view = view;
   do {
     cef_view = UserData::GetFor(current_view);
-    if (cef_view)
+    if (cef_view) {
       break;
+    }
     current_view = current_view->parent();
   } while (current_view);
 
@@ -183,8 +187,9 @@ CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget) {
     // was created by something else let's go about this the safer way.
     views::View* content_view = widget->widget_delegate()->GetContentsView();
     CefRefPtr<CefView> cef_view = GetFor(content_view, false);
-    if (cef_view && cef_view->AsPanel())
+    if (cef_view && cef_view->AsPanel()) {
       window = cef_view->AsPanel()->AsWindow();
+    }
 
     // The Window should always exist if we created the views::Widget.
     DCHECK(window);
@@ -249,8 +254,9 @@ gfx::Rect ConvertRectToPixels(const gfx::Rect& rect) {
 bool ConvertPointToScreen(views::View* view,
                           gfx::Point* point,
                           bool output_pixel_coords) {
-  if (!view->GetWidget())
+  if (!view->GetWidget()) {
     return false;
+  }
 
   views::View::ConvertPointToScreen(view, point);
 
@@ -265,8 +271,9 @@ bool ConvertPointToScreen(views::View* view,
 bool ConvertPointFromScreen(views::View* view,
                             gfx::Point* point,
                             bool input_pixel_coords) {
-  if (!view->GetWidget())
+  if (!view->GetWidget()) {
     return false;
+  }
 
   if (input_pixel_coords) {
     const display::Display& display = GetDisplayNearestPoint(*point, true);
@@ -280,8 +287,9 @@ bool ConvertPointFromScreen(views::View* view,
 
 bool ConvertPointToWindow(views::View* view, gfx::Point* point) {
   views::Widget* widget = view->GetWidget();
-  if (!widget)
+  if (!widget) {
     return false;
+  }
 
   views::View::ConvertPointToWidget(view, point);
 
@@ -303,8 +311,9 @@ bool ConvertPointToWindow(views::View* view, gfx::Point* point) {
 
 bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   views::Widget* widget = view->GetWidget();
-  if (!widget)
+  if (!widget) {
     return false;
+  }
 
   if (widget->non_client_view()) {
     views::NonClientFrameView* non_client_frame_view =

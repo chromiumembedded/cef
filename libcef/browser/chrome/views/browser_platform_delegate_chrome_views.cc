@@ -32,8 +32,9 @@ class PopupWindowDelegate : public CefWindowDelegate {
 
   bool CanClose(CefRefPtr<CefWindow> window) override {
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-    if (browser)
+    if (browser) {
       return browser->GetHost()->TryCloseBrowser();
+    }
     return true;
   }
 
@@ -49,8 +50,9 @@ CefBrowserPlatformDelegateChromeViews::CefBrowserPlatformDelegateChromeViews(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     CefRefPtr<CefBrowserViewImpl> browser_view)
     : CefBrowserPlatformDelegateChrome(std::move(native_delegate)) {
-  if (browser_view)
+  if (browser_view) {
     SetBrowserView(browser_view);
+  }
 }
 
 void CefBrowserPlatformDelegateChromeViews::SetBrowserView(
@@ -74,13 +76,15 @@ void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
 }
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
-  if (browser_view_->delegate())
+  if (browser_view_->delegate()) {
     browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_);
+  }
 }
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserDestroyed() {
-  if (browser_view_->delegate())
+  if (browser_view_->delegate()) {
     browser_view_->delegate()->OnBrowserDestroyed(browser_view_, browser_);
+  }
 }
 
 void CefBrowserPlatformDelegateChromeViews::BrowserDestroyed(
@@ -91,8 +95,9 @@ void CefBrowserPlatformDelegateChromeViews::BrowserDestroyed(
 
 void CefBrowserPlatformDelegateChromeViews::CloseHostWindow() {
   views::Widget* widget = GetWindowWidget();
-  if (widget && !widget->IsClosed())
+  if (widget && !widget->IsClosed()) {
     widget->Close();
+  }
 }
 
 CefWindowHandle CefBrowserPlatformDelegateChromeViews::GetHostWindowHandle()
@@ -101,8 +106,9 @@ CefWindowHandle CefBrowserPlatformDelegateChromeViews::GetHostWindowHandle()
 }
 
 views::Widget* CefBrowserPlatformDelegateChromeViews::GetWindowWidget() const {
-  if (browser_view_->root_view())
+  if (browser_view_->root_view()) {
     return browser_view_->root_view()->GetWidget();
+  }
   return nullptr;
 }
 

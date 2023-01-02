@@ -24,14 +24,16 @@ bool AllowFileIO() {
 }  // namespace
 
 bool CefCreateDirectory(const CefString& full_path) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   return base::CreateDirectory(full_path);
 }
 
 bool CefGetTempDirectory(CefString& temp_dir) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   base::FilePath result;
   if (base::GetTempDir(&result)) {
     temp_dir = result.value();
@@ -42,8 +44,9 @@ bool CefGetTempDirectory(CefString& temp_dir) {
 
 bool CefCreateNewTempDirectory(const CefString& prefix,
                                CefString& new_temp_path) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   base::FilePath result;
   if (base::CreateNewTempDirectory(prefix, &result)) {
     new_temp_path = result.value();
@@ -55,8 +58,9 @@ bool CefCreateNewTempDirectory(const CefString& prefix,
 bool CefCreateTempDirectoryInDirectory(const CefString& base_dir,
                                        const CefString& prefix,
                                        CefString& new_dir) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   base::FilePath result;
   if (base::CreateTemporaryDirInDir(base_dir, prefix, &result)) {
     new_dir = result.value();
@@ -66,14 +70,16 @@ bool CefCreateTempDirectoryInDirectory(const CefString& base_dir,
 }
 
 bool CefDirectoryExists(const CefString& path) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   return base::DirectoryExists(path);
 }
 
 bool CefDeleteFile(const CefString& path, bool recursive) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   if (recursive) {
     return base::DeletePathRecursively(path);
   } else {
@@ -84,7 +90,8 @@ bool CefDeleteFile(const CefString& path, bool recursive) {
 bool CefZipDirectory(const CefString& src_dir,
                      const CefString& dest_file,
                      bool include_hidden_files) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
   return zip::Zip(src_dir, dest_file, include_hidden_files);
 }

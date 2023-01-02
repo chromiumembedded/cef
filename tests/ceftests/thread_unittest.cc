@@ -163,14 +163,17 @@ class SimpleThreadTest : public ThreadTest {
   void Task() {
     AssertTestThread();
     got_task_count_++;
-    if (!task_callback_.is_null())
+    if (!task_callback_.is_null()) {
       std::move(task_callback_).Run();
+    }
   }
 
   void Done() {
     AssertOwnerThread();
-    if (++got_done_count_ == expected_task_count_ && !done_callback_.is_null())
+    if (++got_done_count_ == expected_task_count_ &&
+        !done_callback_.is_null()) {
       std::move(done_callback_).Run();
+    }
   }
 
   const size_t expected_task_count_;
@@ -247,8 +250,9 @@ class BrowserThreadTestHandler : public TestHandler {
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
-    if (!isLoading)
+    if (!isLoading) {
       RunThreadTestOnOwnerThread();
+    }
   }
 
  private:
@@ -344,8 +348,9 @@ class RenderThreadTestHandler : public TestHandler {
 
     got_message_.yes();
 
-    if (message->GetArgumentList()->GetBool(0))
+    if (message->GetArgumentList()->GetBool(0)) {
       got_success_.yes();
+    }
 
     // Test is complete.
     DestroyTest();

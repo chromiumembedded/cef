@@ -37,8 +37,9 @@ ImageCache::ImageInfo::ImageInfo(const std::string& id,
     : id_(id), reps_(reps), internal_(internal), force_reload_(force_reload) {
 #ifndef NDEBUG
   DCHECK(!id_.empty());
-  if (id_ != kEmptyId)
+  if (id_ != kEmptyId) {
     DCHECK(!reps_.empty());
+  }
 #endif
 }
 
@@ -129,8 +130,9 @@ void ImageCache::LoadImages(const ImageInfoSet& image_info,
 
     // Load the image.
     images.push_back(nullptr);
-    if (!missing_images)
+    if (!missing_images) {
       missing_images = true;
+    }
   }
 
   if (missing_images) {
@@ -147,8 +149,9 @@ CefRefPtr<CefImage> ImageCache::GetCachedImage(const std::string& image_id) {
   DCHECK(!image_id.empty());
 
   ImageMap::const_iterator it = image_map_.find(image_id);
-  if (it != image_map_.end())
+  if (it != image_map_.end()) {
     return it->second;
+  }
 
   return nullptr;
 }
@@ -156,14 +159,17 @@ CefRefPtr<CefImage> ImageCache::GetCachedImage(const std::string& image_id) {
 // static
 ImageCache::ImageType ImageCache::GetImageType(const std::string& path) {
   std::string ext = file_util::GetFileExtension(path);
-  if (ext.empty())
+  if (ext.empty()) {
     return TYPE_NONE;
+  }
 
   ext = AsciiStrToLower(ext);
-  if (ext == "png")
+  if (ext == "png") {
     return TYPE_PNG;
-  if (ext == "jpg" || ext == "jpeg")
+  }
+  if (ext == "jpg" || ext == "jpeg") {
     return TYPE_JPEG;
+  }
 
   return TYPE_NONE;
 }
@@ -226,12 +232,14 @@ bool ImageCache::LoadImageContents(const std::string& path,
   CEF_REQUIRE_FILE_USER_BLOCKING_THREAD();
 
   *type = GetImageType(path);
-  if (*type == TYPE_NONE)
+  if (*type == TYPE_NONE) {
     return false;
+  }
 
   if (internal) {
-    if (!LoadBinaryResource(path.c_str(), *contents))
+    if (!LoadBinaryResource(path.c_str(), *contents)) {
       return false;
+    }
   } else if (!file_util::ReadFileToString(path, contents)) {
     return false;
   }
@@ -276,8 +284,9 @@ CefRefPtr<CefImage> ImageCache::CreateImage(const std::string& image_id,
   // Shouldn't be creating an image if one already exists.
   DCHECK(!content.image_);
 
-  if (content.contents_.empty())
+  if (content.contents_.empty()) {
     return nullptr;
+  }
 
   CefRefPtr<CefImage> image = CefImage::CreateImage();
 

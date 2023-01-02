@@ -60,8 +60,9 @@ ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
   // Returns false if startup should proceed.
   auto result = ChromeMainDelegate::BasicStartupComplete();
-  if (result.has_value())
+  if (result.has_value()) {
     return result;
+  }
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 
@@ -142,8 +143,9 @@ absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       std::string disable_features_str =
           command_line->GetSwitchValueASCII(switches::kDisableFeatures);
       for (auto feature_str : disable_features) {
-        if (!disable_features_str.empty())
+        if (!disable_features_str.empty()) {
           disable_features_str += ",";
+        }
         disable_features_str += feature_str;
       }
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
@@ -247,8 +249,9 @@ ChromeMainDelegateCef::CreateContentRendererClient() {
 
 CefRefPtr<CefRequestContext> ChromeMainDelegateCef::GetGlobalRequestContext() {
   auto browser_client = content_browser_client();
-  if (browser_client)
+  if (browser_client) {
     return browser_client->request_context();
+  }
   return nullptr;
 }
 
@@ -263,40 +266,45 @@ CefBrowserContext* ChromeMainDelegateCef::CreateNewBrowserContext(
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetBackgroundTaskRunner() {
   auto browser_client = content_browser_client();
-  if (browser_client)
+  if (browser_client) {
     return browser_client->background_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetUserVisibleTaskRunner() {
   auto browser_client = content_browser_client();
-  if (browser_client)
+  if (browser_client) {
     return browser_client->user_visible_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetUserBlockingTaskRunner() {
   auto browser_client = content_browser_client();
-  if (browser_client)
+  if (browser_client) {
     return browser_client->user_blocking_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetRenderTaskRunner() {
   auto renderer_client = content_renderer_client();
-  if (renderer_client)
+  if (renderer_client) {
     return renderer_client->render_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeMainDelegateCef::GetWebWorkerTaskRunner() {
   auto renderer_client = content_renderer_client();
-  if (renderer_client)
+  if (renderer_client) {
     return renderer_client->GetCurrentTaskRunner();
+  }
   return nullptr;
 }
 
@@ -308,7 +316,8 @@ ChromeContentBrowserClientCef* ChromeMainDelegateCef::content_browser_client()
 
 ChromeContentRendererClientCef* ChromeMainDelegateCef::content_renderer_client()
     const {
-  if (!g_chrome_content_renderer_client.IsCreated())
+  if (!g_chrome_content_renderer_client.IsCreated()) {
     return nullptr;
+  }
   return g_chrome_content_renderer_client.Pointer();
 }

@@ -273,8 +273,9 @@ class CefRenderWidgetHostViewOSR
   }
 
   void set_popup_host_view(CefRenderWidgetHostViewOSR* popup_view) {
-    if (popup_view != popup_host_view_)
+    if (popup_view != popup_host_view_) {
       forward_touch_to_popup_ = false;
+    }
     popup_host_view_ = popup_view;
   }
   void set_child_host_view(CefRenderWidgetHostViewOSR* popup_view) {

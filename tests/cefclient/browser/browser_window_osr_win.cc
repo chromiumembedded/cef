@@ -57,46 +57,54 @@ void BrowserWindowOsrWin::ShowPopup(ClientWindowHandle parent_handle,
                                     size_t width,
                                     size_t height) {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_)
+  if (osr_window_) {
     osr_window_->ShowPopup(parent_handle, x, y, width, height);
+  }
 }
 
 void BrowserWindowOsrWin::Show() {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_)
+  if (osr_window_) {
     osr_window_->Show();
+  }
 }
 
 void BrowserWindowOsrWin::Hide() {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_)
+  if (osr_window_) {
     osr_window_->Hide();
+  }
 }
 
 void BrowserWindowOsrWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_)
+  if (osr_window_) {
     osr_window_->SetBounds(x, y, width, height);
+  }
 }
 
 void BrowserWindowOsrWin::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_ && focus)
+  if (osr_window_ && focus) {
     osr_window_->SetFocus();
+  }
 }
 
 void BrowserWindowOsrWin::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
-  if (device_scale_factor == device_scale_factor_)
+  if (device_scale_factor == device_scale_factor_) {
     return;
+  }
 
   // Apply some sanity checks.
-  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f)
+  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f) {
     return;
+  }
 
   device_scale_factor_ = device_scale_factor;
-  if (osr_window_)
+  if (osr_window_) {
     osr_window_->SetDeviceScaleFactor(device_scale_factor);
+  }
 }
 
 float BrowserWindowOsrWin::GetDeviceScaleFactor() const {

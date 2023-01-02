@@ -19,8 +19,9 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
 
   CefRefPtr<CefStreamReader> reader;
   FILE* file = base::OpenFile(base::FilePath(fileName), "rb");
-  if (file)
+  if (file) {
     reader = new CefFileReader(file, true);
+  }
   return reader;
 }
 
@@ -29,8 +30,9 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForData(void* data,
   DCHECK(data != nullptr);
   DCHECK(size > 0);
   CefRefPtr<CefStreamReader> reader;
-  if (data && size > 0)
+  if (data && size > 0) {
     reader = new CefBytesReader(data, size, true);
+  }
   return reader;
 }
 
@@ -38,8 +40,9 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
     CefRefPtr<CefReadHandler> handler) {
   DCHECK(handler.get());
   CefRefPtr<CefStreamReader> reader;
-  if (handler.get())
+  if (handler.get()) {
     reader = new CefHandlerReader(handler);
+  }
   return reader;
 }
 
@@ -52,8 +55,9 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
 
   CefRefPtr<CefStreamWriter> writer;
   FILE* file = base::OpenFile(base::FilePath(fileName), "wb");
-  if (file)
+  if (file) {
     writer = new CefFileWriter(file, true);
+  }
   return writer;
 }
 
@@ -61,8 +65,9 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
     CefRefPtr<CefWriteHandler> handler) {
   DCHECK(handler.get());
   CefRefPtr<CefStreamWriter> writer;
-  if (handler.get())
+  if (handler.get()) {
     writer = new CefHandlerWriter(handler);
+  }
   return writer;
 }
 
@@ -73,8 +78,9 @@ CefFileReader::CefFileReader(FILE* file, bool close)
 
 CefFileReader::~CefFileReader() {
   base::AutoLock lock_scope(lock_);
-  if (close_)
+  if (close_) {
     base::CloseFile(file_);
+  }
 }
 
 size_t CefFileReader::Read(void* ptr, size_t size, size_t n) {
@@ -112,8 +118,9 @@ CefFileWriter::CefFileWriter(FILE* file, bool close)
 
 CefFileWriter::~CefFileWriter() {
   base::AutoLock lock_scope(lock_);
-  if (close_)
+  if (close_) {
     base::CloseFile(file_);
+  }
 }
 
 size_t CefFileWriter::Write(const void* ptr, size_t size, size_t n) {
@@ -161,22 +168,25 @@ int CefBytesReader::Seek(int64 offset, int whence) {
   base::AutoLock lock_scope(lock_);
   switch (whence) {
     case SEEK_CUR:
-      if (offset_ + offset > datasize_ || offset_ + offset < 0)
+      if (offset_ + offset > datasize_ || offset_ + offset < 0) {
         break;
+      }
       offset_ += offset;
       rv = 0;
       break;
     case SEEK_END: {
       int64 offset_abs = std::abs(offset);
-      if (offset_abs > datasize_)
+      if (offset_abs > datasize_) {
         break;
+      }
       offset_ = datasize_ - offset_abs;
       rv = 0;
       break;
     }
     case SEEK_SET:
-      if (offset > datasize_ || offset < 0)
+      if (offset > datasize_ || offset < 0) {
         break;
+      }
       offset_ = offset;
       rv = 0;
       break;
@@ -197,8 +207,9 @@ int CefBytesReader::Eof() {
 
 void CefBytesReader::SetData(void* data, int64 datasize, bool copy) {
   base::AutoLock lock_scope(lock_);
-  if (copy_)
+  if (copy_) {
     free(data_);
+  }
 
   copy_ = copy;
   offset_ = 0;
@@ -207,8 +218,9 @@ void CefBytesReader::SetData(void* data, int64 datasize, bool copy) {
   if (copy) {
     data_ = malloc(datasize);
     DCHECK(data_ != nullptr);
-    if (data_)
+    if (data_) {
       memcpy(data_, data, datasize);
+    }
   } else {
     data_ = data;
   }
@@ -225,8 +237,9 @@ CefBytesWriter::CefBytesWriter(size_t grow)
 
 CefBytesWriter::~CefBytesWriter() {
   base::AutoLock lock_scope(lock_);
-  if (data_)
+  if (data_) {
     free(data_);
+  }
 }
 
 size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n) {
@@ -249,22 +262,25 @@ int CefBytesWriter::Seek(int64 offset, int whence) {
   base::AutoLock lock_scope(lock_);
   switch (whence) {
     case SEEK_CUR:
-      if (offset_ + offset > datasize_ || offset_ + offset < 0)
+      if (offset_ + offset > datasize_ || offset_ + offset < 0) {
         break;
+      }
       offset_ += offset;
       rv = 0;
       break;
     case SEEK_END: {
       int64 offset_abs = std::abs(offset);
-      if (offset_abs > datasize_)
+      if (offset_abs > datasize_) {
         break;
+      }
       offset_ = datasize_ - offset_abs;
       rv = 0;
       break;
     }
     case SEEK_SET:
-      if (offset > datasize_ || offset < 0)
+      if (offset > datasize_ || offset < 0) {
         break;
+      }
       offset_ = offset;
       rv = 0;
       break;

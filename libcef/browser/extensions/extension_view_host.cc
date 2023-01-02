@@ -72,8 +72,9 @@ bool CefExtensionViewHost::PreHandleGestureEvent(
 }
 
 WebContents* CefExtensionViewHost::GetVisibleWebContents() const {
-  if (extension_host_type() == mojom::ViewType::kExtensionPopup)
+  if (extension_host_type() == mojom::ViewType::kExtensionPopup) {
     return host_contents();
+  }
   return nullptr;
 }
 

@@ -99,8 +99,9 @@
 
 - (void)tryToTerminateApplication:(NSApplication*)app {
   SimpleHandler* handler = SimpleHandler::GetInstance();
-  if (handler && !handler->IsClosing())
+  if (handler && !handler->IsClosing()) {
     handler->CloseAllBrowsers(false);
+  }
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
@@ -114,8 +115,9 @@ int main(int argc, char* argv[]) {
   // Load the CEF framework library at runtime instead of linking directly
   // as required by the macOS sandbox implementation.
   CefScopedLibraryLoader library_loader;
-  if (!library_loader.LoadInMain())
+  if (!library_loader.LoadInMain()) {
     return 1;
+  }
 
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(argc, argv);

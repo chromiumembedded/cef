@@ -28,8 +28,9 @@ CefRefPtr<CefListValue> ToCefValue(const std::vector<T>& vecData);
 template <>
 CefRefPtr<CefListValue> ToCefValue<int>(const std::vector<int>& vecData) {
   CefRefPtr<CefListValue> value = CefListValue::Create();
-  for (size_t i = 0; i < vecData.size(); i++)
+  for (size_t i = 0; i < vecData.size(); i++) {
     value->SetInt(i, vecData[i]);
+  }
 
   return value;
 }
@@ -43,8 +44,9 @@ CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
   // Iterate and find which states are set.
   for (unsigned i = static_cast<unsigned>(ax::mojom::Role::kMinValue) + 1;
        i <= static_cast<unsigned>(ax::mojom::Role::kMaxValue); i++) {
-    if (state & (1 << i))
+    if (state & (1 << i)) {
       value->SetString(index++, ToString(static_cast<ax::mojom::State>(i)));
+    }
   }
   return value;
 }
@@ -69,8 +71,9 @@ struct PopulateAxNodeAttributes {
 
   // Int Attributes
   void operator()(const std::pair<ax::mojom::IntAttribute, int32_t> attr) {
-    if (attr.first == ax::mojom::IntAttribute::kNone)
+    if (attr.first == ax::mojom::IntAttribute::kNone) {
       return;
+    }
 
     switch (attr.first) {
       case ax::mojom::IntAttribute::kNone:
@@ -201,8 +204,9 @@ struct PopulateAxNodeAttributes {
         int index = 0;
         // Iterate and find which states are set.
         for (unsigned i = 0; i < std::size(textStyleArr); i++) {
-          if (attr.second & static_cast<int>(textStyleArr[i]))
+          if (attr.second & static_cast<int>(textStyleArr[i])) {
             list->SetString(index++, ToString(textStyleArr[i]));
+          }
         }
         attributes->SetList(ToString(attr.first), list);
       } break;
@@ -225,19 +229,22 @@ struct PopulateAxNodeAttributes {
 
   // Set Bool Attributes.
   void operator()(const std::pair<ax::mojom::BoolAttribute, bool> attr) {
-    if (attr.first != ax::mojom::BoolAttribute::kNone)
+    if (attr.first != ax::mojom::BoolAttribute::kNone) {
       attributes->SetBool(ToString(attr.first), attr.second);
+    }
   }
   // Set String Attributes.
   void operator()(
       const std::pair<ax::mojom::StringAttribute, std::string>& attr) {
-    if (attr.first != ax::mojom::StringAttribute::kNone)
+    if (attr.first != ax::mojom::StringAttribute::kNone) {
       attributes->SetString(ToString(attr.first), attr.second);
+    }
   }
   // Set Float attributes.
   void operator()(const std::pair<ax::mojom::FloatAttribute, float>& attr) {
-    if (attr.first != ax::mojom::FloatAttribute::kNone)
+    if (attr.first != ax::mojom::FloatAttribute::kNone) {
       attributes->SetDouble(ToString(attr.first), attr.second);
+    }
   }
 
   // Set Int list attributes.
@@ -252,8 +259,9 @@ struct PopulateAxNodeAttributes {
         for (size_t i = 0; i < attr.second.size(); ++i) {
           auto type = static_cast<ax::mojom::MarkerType>(attr.second[i]);
 
-          if (type == ax::mojom::MarkerType::kNone)
+          if (type == ax::mojom::MarkerType::kNone) {
             continue;
+          }
 
           static ax::mojom::MarkerType marktypeArr[] = {
               ax::mojom::MarkerType::kSpelling, ax::mojom::MarkerType::kGrammar,
@@ -261,8 +269,9 @@ struct PopulateAxNodeAttributes {
 
           // Iterate and find which markers are set.
           for (unsigned j = 0; j < std::size(marktypeArr); j++) {
-            if (attr.second[i] & static_cast<int>(marktypeArr[j]))
+            if (attr.second[i] & static_cast<int>(marktypeArr[j])) {
               list->SetString(index++, ToString(marktypeArr[j]));
+            }
           }
         }
       } else {
@@ -277,8 +286,9 @@ struct PopulateAxNodeAttributes {
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (node.id != -1)
+  if (node.id != -1) {
     value->SetInt("id", node.id);
+  }
 
   value->SetString("role", ToString(node.role));
   value->SetList("state", ToCefValue(node.state));
@@ -308,13 +318,15 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
        ++action_index) {
     auto action = static_cast<ax::mojom::Action>(action_index);
     if (node.HasAction(action)) {
-      if (!actions_strings)
+      if (!actions_strings) {
         actions_strings = CefListValue::Create();
+      }
       actions_strings->SetString(actions_idx++, ToString(action));
     }
   }
-  if (actions_strings)
+  if (actions_strings) {
     value->SetList("actions", actions_strings);
+  }
 
   CefRefPtr<CefDictionaryValue> attributes = CefDictionaryValue::Create();
   PopulateAxNodeAttributes func(attributes);
@@ -346,29 +358,37 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeData& treeData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (!treeData.tree_id.ToString().empty())
+  if (!treeData.tree_id.ToString().empty()) {
     value->SetString("tree_id", treeData.tree_id.ToString());
+  }
 
-  if (!treeData.parent_tree_id.ToString().empty())
+  if (!treeData.parent_tree_id.ToString().empty()) {
     value->SetString("parent_tree_id", treeData.parent_tree_id.ToString());
+  }
 
-  if (!treeData.focused_tree_id.ToString().empty())
+  if (!treeData.focused_tree_id.ToString().empty()) {
     value->SetString("focused_tree_id", treeData.focused_tree_id.ToString());
+  }
 
-  if (!treeData.doctype.empty())
+  if (!treeData.doctype.empty()) {
     value->SetString("doctype", treeData.doctype);
+  }
 
   value->SetBool("loaded", treeData.loaded);
 
-  if (treeData.loading_progress != 0.0)
+  if (treeData.loading_progress != 0.0) {
     value->SetDouble("loading_progress", treeData.loading_progress);
+  }
 
-  if (!treeData.mimetype.empty())
+  if (!treeData.mimetype.empty()) {
     value->SetString("mimetype", treeData.mimetype);
-  if (!treeData.url.empty())
+  }
+  if (!treeData.url.empty()) {
     value->SetString("url", treeData.url);
-  if (!treeData.title.empty())
+  }
+  if (!treeData.title.empty()) {
     value->SetString("title", treeData.title);
+  }
 
   if (treeData.sel_anchor_object_id != -1) {
     value->SetInt("sel_anchor_object_id", treeData.sel_anchor_object_id);
@@ -383,8 +403,9 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeData& treeData) {
                      ToString(treeData.sel_anchor_affinity));
   }
 
-  if (treeData.focus_id != -1)
+  if (treeData.focus_id != -1) {
     value->SetInt("focus_id", treeData.focus_id);
+  }
 
   return value;
 }
@@ -398,11 +419,13 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeUpdate& update) {
     value->SetDictionary("tree_data", ToCefValue(update.tree_data));
   }
 
-  if (update.node_id_to_clear != 0)
+  if (update.node_id_to_clear != 0) {
     value->SetInt("node_id_to_clear", update.node_id_to_clear);
+  }
 
-  if (update.root_id != 0)
+  if (update.root_id != 0) {
     value->SetInt("root_id", update.root_id);
+  }
 
   value->SetList("nodes", ToCefValue(update.nodes));
 
@@ -413,17 +436,21 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeUpdate& update) {
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXEvent& event) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (event.event_type != ax::mojom::Event::kNone)
+  if (event.event_type != ax::mojom::Event::kNone) {
     value->SetString("event_type", ToString(event.event_type));
+  }
 
-  if (event.id != -1)
+  if (event.id != -1) {
     value->SetInt("id", event.id);
+  }
 
-  if (event.event_from != ax::mojom::EventFrom::kNone)
+  if (event.event_from != ax::mojom::EventFrom::kNone) {
     value->SetString("event_from", ToString(event.event_from));
+  }
 
-  if (event.action_request_id != -1)
+  if (event.action_request_id != -1) {
     value->SetInt("action_request_id", event.action_request_id);
+  }
 
   return value;
 }
@@ -433,8 +460,9 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXEventNotificationDetails& eventData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (!eventData.ax_tree_id.ToString().empty())
+  if (!eventData.ax_tree_id.ToString().empty()) {
     value->SetString("ax_tree_id", eventData.ax_tree_id.ToString());
+  }
 
   if (eventData.updates.size() > 0) {
     CefRefPtr<CefListValue> updates = CefListValue::Create();
@@ -464,15 +492,17 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
 CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXRelativeBounds& location) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (location.offset_container_id != -1)
+  if (location.offset_container_id != -1) {
     value->SetInt("offset_container_id", location.offset_container_id);
+  }
 
   value->SetDictionary("bounds", ToCefValue(location.bounds));
 
   // Transform matrix is private, so we set the string that Clients can parse
   // and use if needed.
-  if (location.transform && !location.transform->IsIdentity())
+  if (location.transform && !location.transform->IsIdentity()) {
     value->SetString("transform", location.transform->ToString());
+  }
 
   return value;
 }
@@ -482,11 +512,13 @@ CefRefPtr<CefDictionaryValue> ToCefValue(
     const content::AXLocationChangeNotificationDetails& locData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
-  if (locData.id != -1)
+  if (locData.id != -1) {
     value->SetInt("id", locData.id);
+  }
 
-  if (!locData.ax_tree_id.ToString().empty())
+  if (!locData.ax_tree_id.ToString().empty()) {
     value->SetString("ax_tree_id", locData.ax_tree_id.ToString());
+  }
 
   value->SetDictionary("new_location", ToCefValue(locData.new_location));
 
@@ -497,8 +529,9 @@ template <typename T>
 CefRefPtr<CefListValue> ToCefValue(const std::vector<T>& vecData) {
   CefRefPtr<CefListValue> value = CefListValue::Create();
 
-  for (size_t i = 0; i < vecData.size(); i++)
+  for (size_t i = 0; i < vecData.size(); i++) {
     value->SetDictionary(i, ToCefValue(vecData[i]));
+  }
 
   return value;
 }

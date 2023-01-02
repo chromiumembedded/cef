@@ -82,8 +82,9 @@ void CefDevToolsFileManager::Save(const std::string& url,
 
   if (const base::Value* path_value = file_map.Find(base::MD5String(url))) {
     absl::optional<base::FilePath> path = base::ValueToFilePath(*path_value);
-    if (path)
+    if (path) {
       initial_path = std::move(*path);
+    }
   }
 
   if (initial_path.empty()) {
@@ -91,8 +92,9 @@ void CefDevToolsFileManager::Save(const std::string& url,
     std::string suggested_file_name =
         gurl.is_valid() ? gurl.ExtractFileName() : url;
 
-    if (suggested_file_name.length() > 64)
+    if (suggested_file_name.length() > 64) {
       suggested_file_name = suggested_file_name.substr(0, 64);
+    }
 
     if (!g_last_save_path.Pointer()->empty()) {
       initial_path = g_last_save_path.Pointer()->DirName().AppendASCII(
@@ -167,8 +169,9 @@ void CefDevToolsFileManager::Append(const std::string& url,
                                     const std::string& content,
                                     AppendCallback callback) {
   auto it = saved_files_.find(url);
-  if (it == saved_files_.end())
+  if (it == saved_files_.end()) {
     return;
+  }
   std::move(callback).Run();
   file_task_runner_->PostTask(
       FROM_HERE, base::BindOnce(&::AppendToFile, it->second, content));

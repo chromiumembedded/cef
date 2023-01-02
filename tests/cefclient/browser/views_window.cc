@@ -63,10 +63,12 @@ void MakeButtonsSameSize(const LabelButtons& buttons) {
   // Determine the largest button size.
   for (size_t i = 0U; i < buttons.size(); ++i) {
     const CefSize& button_size = buttons[i]->GetPreferredSize();
-    if (size.width < button_size.width)
+    if (size.width < button_size.width) {
       size.width = button_size.width;
-    if (size.height < button_size.height)
+    }
+    if (size.height < button_size.height) {
       size.height = button_size.height;
+    }
   }
 
   for (size_t i = 0U; i < buttons.size(); ++i) {
@@ -134,8 +136,9 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
 
 void ViewsWindow::Show() {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->Show();
+  }
   if (browser_view_ && !window_->IsMinimized()) {
     // Give keyboard focus to the BrowserView.
     browser_view_->RequestFocus();
@@ -144,45 +147,52 @@ void ViewsWindow::Show() {
 
 void ViewsWindow::Hide() {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->Hide();
+  }
 }
 
 void ViewsWindow::Minimize() {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->Minimize();
+  }
 }
 
 void ViewsWindow::Maximize() {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->Maximize();
+  }
 }
 
 void ViewsWindow::SetBounds(const CefRect& bounds) {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->SetBounds(bounds);
+  }
 }
 
 void ViewsWindow::SetBrowserSize(const CefSize& size,
                                  bool has_position,
                                  const CefPoint& position) {
   CEF_REQUIRE_UI_THREAD();
-  if (browser_view_)
+  if (browser_view_) {
     browser_view_->SetSize(size);
+  }
   if (window_) {
     window_->SizeToPreferredSize();
-    if (has_position)
+    if (has_position) {
       window_->SetPosition(position);
+    }
   }
 }
 
 void ViewsWindow::Close(bool force) {
   CEF_REQUIRE_UI_THREAD();
-  if (!browser_view_)
+  if (!browser_view_) {
     return;
+  }
 
   CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
   if (browser) {
@@ -194,18 +204,21 @@ void ViewsWindow::Close(bool force) {
 
 void ViewsWindow::SetAddress(const std::string& url) {
   CEF_REQUIRE_UI_THREAD();
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   // |location_bar_| may instead be a Chrome toolbar.
-  if (location_bar_ && location_bar_->AsTextfield())
+  if (location_bar_ && location_bar_->AsTextfield()) {
     location_bar_->AsTextfield()->SetText(url);
+  }
 }
 
 void ViewsWindow::SetTitle(const std::string& title) {
   CEF_REQUIRE_UI_THREAD();
-  if (window_)
+  if (window_) {
     window_->SetTitle(title);
+  }
 }
 
 void ViewsWindow::SetFavicon(CefRefPtr<CefImage> image) {
@@ -214,16 +227,18 @@ void ViewsWindow::SetFavicon(CefRefPtr<CefImage> image) {
   // Window icons should be 16 DIP in size.
   DCHECK_EQ(std::max(image->GetWidth(), image->GetHeight()), 16U);
 
-  if (window_)
+  if (window_) {
     window_->SetWindowIcon(image);
+  }
 }
 
 void ViewsWindow::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_UI_THREAD();
   if (window_) {
     // Hide the top controls while in full-screen mode.
-    if (with_controls_)
+    if (with_controls_) {
       ShowTopControls(!fullscreen);
+    }
 
     window_->SetFullscreen(fullscreen);
   }
@@ -240,8 +255,9 @@ void ViewsWindow::SetLoadingState(bool isLoading,
                                   bool canGoBack,
                                   bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
-  if (!window_ || chrome_toolbar_type_ == CEF_CTT_NORMAL)
+  if (!window_ || chrome_toolbar_type_ == CEF_CTT_NORMAL) {
     return;
+  }
 
   if (with_controls_) {
     EnableView(ID_BACK_BUTTON, canGoBack);
@@ -258,8 +274,9 @@ void ViewsWindow::SetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!window_ || !browser_view_)
+  if (!window_ || !browser_view_) {
     return;
+  }
 
   std::vector<CefDraggableRegion> window_regions;
 
@@ -285,8 +302,9 @@ void ViewsWindow::SetDraggableRegions(
 void ViewsWindow::TakeFocus(bool next) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   if (chrome_toolbar_type_ == CEF_CTT_NORMAL) {
     top_toolbar_->RequestFocus();
@@ -340,16 +358,18 @@ bool ViewsWindow::GetWindowRestorePreferences(
     cef_show_state_t& show_state,
     std::optional<CefRect>& dip_bounds) {
   CEF_REQUIRE_UI_THREAD();
-  if (!window_)
+  if (!window_) {
     return false;
+  }
 
   show_state = CEF_SHOW_STATE_NORMAL;
-  if (window_->IsMinimized())
+  if (window_->IsMinimized()) {
     show_state = CEF_SHOW_STATE_MINIMIZED;
-  else if (window_->IsMaximized())
+  } else if (window_->IsMaximized()) {
     show_state = CEF_SHOW_STATE_MAXIMIZED;
-  else if (window_->IsFullscreen())
+  } else if (window_->IsFullscreen()) {
     show_state = CEF_SHOW_STATE_FULLSCREEN;
+  }
 
   if (show_state == CEF_SHOW_STATE_NORMAL) {
     // Use the current visible bounds.
@@ -375,8 +395,9 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   Delegate* popup_delegate = delegate_->GetDelegateForPopup(client);
 
   // May be nullptr when using the default popup behavior.
-  if (!popup_delegate)
+  if (!popup_delegate) {
     return nullptr;
+  }
 
   // Should not be the same RootWindowViews that owns |this|.
   DCHECK(popup_delegate != delegate_);
@@ -397,8 +418,9 @@ bool ViewsWindow::OnPopupBrowserViewCreated(
           popup_browser_view->GetDelegate().get()));
 
   // May be nullptr when using the default popup behavior.
-  if (!popup_window)
+  if (!popup_window) {
     return false;
+  }
 
   // Should not be the same ViewsWindow as |this|.
   DCHECK(popup_window != this);
@@ -422,12 +444,14 @@ void ViewsWindow::OnButtonPressed(CefRefPtr<CefButton> button) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(with_controls_);
 
-  if (!browser_view_)
+  if (!browser_view_) {
     return;
+  }
 
   CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   switch (button->GetID()) {
     case ID_BACK_BUTTON:
@@ -519,8 +543,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
     if (browser) {
       const CefString& url = textfield->GetText();
-      if (!url.empty())
+      if (!url.empty()) {
         browser->GetMainFrame()->LoadURL(url);
+      }
     }
 
     // We handled the event.
@@ -635,8 +660,9 @@ bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
 
   // Allow the window to close if the browser says it's OK.
   CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-  if (browser)
+  if (browser) {
     return browser->GetHost()->TryCloseBrowser();
+  }
   return true;
 }
 
@@ -696,8 +722,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
                              const CefKeyEvent& event) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return false;
+  }
 
   if (delegate_->WithExtension() && event.type == KEYEVENT_RAWKEYDOWN &&
       event.windows_key_code == VK_ESCAPE) {
@@ -706,8 +733,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return true;
   }
 
-  if (!with_controls_)
+  if (!with_controls_) {
     return false;
+  }
 
   if (event.type == KEYEVENT_RAWKEYDOWN && event.windows_key_code == VK_MENU) {
     // ALT key is pressed.
@@ -725,8 +753,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return true;
   }
 
-  if (menu_has_focus_ && top_menu_bar_)
+  if (menu_has_focus_ && top_menu_bar_) {
     return top_menu_bar_->OnKeyEvent(event);
+  }
 
   return false;
 }
@@ -734,8 +763,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
 CefSize ViewsWindow::GetMinimumSize(CefRefPtr<CefView> view) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (view->GetID() == ID_WINDOW)
+  if (view->GetID() == ID_WINDOW) {
     return minimum_window_size_;
+  }
 
   return CefSize();
 }
@@ -754,8 +784,9 @@ void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
   // When focus leaves the menu buttons make them unfocusable.
   if (menu_has_focus_) {
     if (top_menu_bar_) {
-      if (!top_menu_bar_->HasMenuId(view_id))
+      if (!top_menu_bar_->HasMenuId(view_id)) {
         SetMenuFocusable(false);
+      }
     } else if (view_id != ID_MENU_BUTTON) {
       SetMenuFocusable(false);
     }
@@ -774,8 +805,9 @@ void ViewsWindow::OnBlur(CefRefPtr<CefView> view) {
 
 void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
   const int view_id = view->GetID();
-  if (view_id != ID_BROWSER_VIEW)
+  if (view_id != ID_BROWSER_VIEW) {
     return;
+  }
 
   if (added) {
     if (with_controls_) {
@@ -802,8 +834,9 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
 void ViewsWindow::OnLayoutChanged(CefRefPtr<CefView> view,
                                   const CefRect& new_bounds) {
   const int view_id = view->GetID();
-  if (view_id != ID_BROWSER_VIEW)
+  if (view_id != ID_BROWSER_VIEW) {
     return;
+  }
 
   if (overlay_controls_) {
     overlay_controls_->UpdateControls();
@@ -823,8 +856,9 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
       menu_has_focus_(false),
       last_focused_view_(false) {
   DCHECK(delegate_);
-  if (browser_view)
+  if (browser_view) {
     SetBrowserView(browser_view);
+  }
 
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
@@ -959,8 +993,9 @@ void ViewsWindow::AddControls() {
   // the CefWindow. This is a requirement to use Chrome toolbars.
 
   CefRefPtr<CefPanel> top_menu_panel;
-  if (top_menu_bar_)
+  if (top_menu_bar_) {
     top_menu_panel = top_menu_bar_->GetMenuPanel();
+  }
 
   LabelButtons browse_buttons;
 
@@ -990,8 +1025,9 @@ void ViewsWindow::AddControls() {
         top_panel->SetToBoxLayout(top_panel_layout_settings);
 
     // Add the buttons and URL textfield to |top_panel|.
-    for (size_t i = 0U; i < browse_buttons.size(); ++i)
+    for (size_t i = 0U; i < browse_buttons.size(); ++i) {
       top_panel->AddChildView(browse_buttons[i]);
+    }
     top_panel->AddChildView(location_bar_);
 
     UpdateExtensionControls();
@@ -1009,8 +1045,9 @@ void ViewsWindow::AddControls() {
 
   // Add the top panel and browser view to |window|.
   int top_index = 0;
-  if (top_menu_panel)
+  if (top_menu_panel) {
     window_->AddChildViewAt(top_menu_panel, top_index++);
+  }
   window_->AddChildViewAt(top_toolbar_, top_index);
 
   // Lay out |window| so we can get the default button sizes.
@@ -1031,8 +1068,9 @@ void ViewsWindow::AddControls() {
 
   // Minimum window height is the hight of the top toolbar plus some extra.
   int min_height = top_toolbar_->GetBounds().height + 100;
-  if (top_menu_panel)
+  if (top_menu_panel) {
     min_height += top_menu_panel->GetBounds().height;
+  }
 
   minimum_window_size_ = CefSize(min_width, min_height);
 }
@@ -1047,8 +1085,9 @@ void ViewsWindow::AddAccelerators() {
 }
 
 void ViewsWindow::SetMenuFocusable(bool focusable) {
-  if (!window_ || !with_controls_)
+  if (!window_ || !with_controls_) {
     return;
+  }
 
   if (top_menu_bar_) {
     top_menu_bar_->SetMenuFocusable(focusable);
@@ -1065,19 +1104,22 @@ void ViewsWindow::SetMenuFocusable(bool focusable) {
 }
 
 void ViewsWindow::EnableView(int id, bool enable) {
-  if (!window_)
+  if (!window_) {
     return;
+  }
   // Special handling for |location_bar_| which may be an overlay (e.g. not a
   // child of this view).
   CefRefPtr<CefView> view =
       id == ID_URL_TEXTFIELD ? location_bar_ : window_->GetViewForID(id);
-  if (view)
+  if (view) {
     view->SetEnabled(enable);
+  }
 }
 
 void ViewsWindow::ShowTopControls(bool show) {
-  if (!window_ || !with_controls_)
+  if (!window_ || !with_controls_) {
     return;
+  }
 
   // Change the visibility of the top toolbar.
   if (top_toolbar_->IsVisible() != show) {
@@ -1089,8 +1131,9 @@ void ViewsWindow::ShowTopControls(bool show) {
 void ViewsWindow::UpdateExtensionControls() {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!window_ || !with_controls_)
+  if (!window_ || !with_controls_) {
     return;
+  }
 
   if (!extensions_panel_) {
     extensions_panel_ = CefPanel::CreatePanel(nullptr);
@@ -1125,8 +1168,9 @@ void ViewsWindow::UpdateExtensionControls() {
   }
 
   CefRefPtr<CefView> parent_view = extensions_panel_->GetParentView();
-  if (parent_view)
+  if (parent_view) {
     parent_view->InvalidateLayout();
+  }
 }
 
 void ViewsWindow::OnExtensionIconsLoaded(const ExtensionSet& extensions,
@@ -1146,8 +1190,9 @@ void ViewsWindow::OnExtensionIconsLoaded(const ExtensionSet& extensions,
   ImageCache::ImageSet::const_iterator it2 = images.begin();
   for (; it1 != extensions.end() && it2 != images.end(); ++it1, ++it2) {
     CefRefPtr<CefImage> icon = *it2;
-    if (!icon)
+    if (!icon) {
       icon = delegate_->GetImageCache()->GetCachedImage(kDefaultExtensionIcon);
+    }
     extensions_.push_back(ExtensionInfo(*it1, icon));
   }
 

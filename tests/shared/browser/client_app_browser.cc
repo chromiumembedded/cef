@@ -33,8 +33,9 @@ void ClientAppBrowser::PopulateSettings(CefRefPtr<CefCommandLine> command_line,
   if (!cookieable_schemes.empty()) {
     std::string list_str;
     for (const auto& scheme : cookieable_schemes) {
-      if (!list_str.empty())
+      if (!list_str.empty()) {
         list_str += ",";
+      }
       list_str += scheme;
     }
     CefString(&settings.cookieable_schemes_list) = list_str;
@@ -82,8 +83,9 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
 #endif
 
     DelegateSet::iterator it = delegates_.begin();
-    for (; it != delegates_.end(); ++it)
+    for (; it != delegates_.end(); ++it) {
       (*it)->OnBeforeCommandLineProcessing(this, command_line);
+    }
   }
 }
 
@@ -91,29 +93,33 @@ void ClientAppBrowser::OnRegisterCustomPreferences(
     cef_preferences_type_t type,
     CefRawPtr<CefPreferenceRegistrar> registrar) {
   DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it)
+  for (; it != delegates_.end(); ++it) {
     (*it)->OnRegisterCustomPreferences(this, type, registrar);
+  }
 }
 
 void ClientAppBrowser::OnContextInitialized() {
   DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it)
+  for (; it != delegates_.end(); ++it) {
     (*it)->OnContextInitialized(this);
+  }
 }
 
 void ClientAppBrowser::OnBeforeChildProcessLaunch(
     CefRefPtr<CefCommandLine> command_line) {
   DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it)
+  for (; it != delegates_.end(); ++it) {
     (*it)->OnBeforeChildProcessLaunch(this, command_line);
+  }
 }
 
 void ClientAppBrowser::OnScheduleMessagePumpWork(int64 delay) {
   // Only used when `--external-message-pump` is passed via the command-line.
   MainMessageLoopExternalPump* message_pump =
       MainMessageLoopExternalPump::Get();
-  if (message_pump)
+  if (message_pump) {
     message_pump->OnScheduleMessagePumpWork(delay);
+  }
 }
 
 }  // namespace client

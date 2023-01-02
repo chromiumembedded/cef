@@ -18,8 +18,9 @@ namespace {
 
 void AppendArray(const std::vector<std::string>& source,
                  std::vector<std::string>* target) {
-  if (source.empty())
+  if (source.empty()) {
     return;
+  }
   target->insert(target->end(), source.begin(), source.end());
 }
 }  // namespace
@@ -46,16 +47,21 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
 
   // The |is_display_isolated| value is excluded here because it's registered
   // with Blink only.
-  if (is_standard)
+  if (is_standard) {
     schemes_.standard_schemes.push_back(scheme);
-  if (is_local)
+  }
+  if (is_local) {
     schemes_.local_schemes.push_back(scheme);
-  if (is_secure)
+  }
+  if (is_secure) {
     schemes_.secure_schemes.push_back(scheme);
-  if (is_cors_enabled)
+  }
+  if (is_cors_enabled) {
     schemes_.cors_enabled_schemes.push_back(scheme);
-  if (is_csp_bypassing)
+  }
+  if (is_csp_bypassing) {
     schemes_.csp_bypassing_schemes.push_back(scheme);
+  }
 
   CefSchemeInfo scheme_info = {
       scheme,    is_standard,     is_local,         is_display_isolated,

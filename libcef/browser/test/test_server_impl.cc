@@ -108,8 +108,9 @@ class CefHttpResponse : public HttpResponse {
         new CefTestServerConnectionImpl(delegate));
     const bool handled =
         handler_->OnTestServerRequest(server_, request_, connection.get());
-    if (handled)
+    if (handled) {
       return;
+    }
 
     LOG(WARNING) << "Request not handled. Returning 404: "
                  << request_->GetURL().ToString();
@@ -148,8 +149,9 @@ CefRefPtr<CefRequest> CreateCefRequest(const HttpRequest& request) {
   auto cef_request = CefRequest::Create();
   cef_request->Set(request.GetURL().spec(), request.method_string, post_data,
                    header_map);
-  if (!referer.empty())
+  if (!referer.empty()) {
     cef_request->SetReferrer(referer, REFERRER_POLICY_DEFAULT);
+  }
   return cef_request;
 }
 

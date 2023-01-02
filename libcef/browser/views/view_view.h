@@ -99,11 +99,13 @@ CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {
   gfx::Size result;
   if (cef_delegate()) {
     CefSize cef_size = cef_delegate()->GetPreferredSize(GetCefView());
-    if (!cef_size.IsEmpty())
+    if (!cef_size.IsEmpty()) {
       result = gfx::Size(cef_size.width, cef_size.height);
+    }
   }
-  if (result.IsEmpty())
+  if (result.IsEmpty()) {
     result = ParentClass::CalculatePreferredSize();
+  }
   if (result.IsEmpty()) {
     // Some layouts like BoxLayout expect the preferred size to be non-empty.
     // The user may have set the size explicitly. Therefore return the current
@@ -117,14 +119,16 @@ CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::GetMinimumSize() const {
   gfx::Size result;
   if (cef_delegate()) {
     CefSize cef_size = cef_delegate()->GetMinimumSize(GetCefView());
-    if (!cef_size.IsEmpty())
+    if (!cef_size.IsEmpty()) {
       result = gfx::Size(cef_size.width, cef_size.height);
+    }
   }
   // We don't want to call ParentClass::GetMinimumSize() in all cases because
   // the default views::View implementation will call GetPreferredSize(). That
   // may result in size() being returned which keeps the View from shrinking.
-  if (result.IsEmpty() && HasMinimumSize())
+  if (result.IsEmpty() && HasMinimumSize()) {
     result = ParentClass::GetMinimumSize();
+  }
   return result;
 }
 
@@ -132,20 +136,24 @@ CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::GetMaximumSize() const {
   gfx::Size result;
   if (cef_delegate()) {
     CefSize cef_size = cef_delegate()->GetMaximumSize(GetCefView());
-    if (!cef_size.IsEmpty())
+    if (!cef_size.IsEmpty()) {
       result = gfx::Size(cef_size.width, cef_size.height);
+    }
   }
-  if (result.IsEmpty())
+  if (result.IsEmpty()) {
     result = ParentClass::GetMaximumSize();
+  }
   return result;
 }
 
 CEF_VIEW_VIEW_T int CEF_VIEW_VIEW_D::GetHeightForWidth(int w) const {
   int result = 0;
-  if (cef_delegate())
+  if (cef_delegate()) {
     result = cef_delegate()->GetHeightForWidth(GetCefView(), w);
-  if (result == 0)
+  }
+  if (result == 0) {
     result = ParentClass::GetHeightForWidth(w);
+  }
   if (result == 0) {
     // Some layouts like FillLayout will ignore the preferred size if this view
     // has no children. We want to use the preferred size if not otherwise
@@ -159,8 +167,9 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::Layout() {
   ParentClass::Layout();
 
   // If Layout() did not provide a size then use the preferred size.
-  if (ParentClass::size().IsEmpty())
+  if (ParentClass::size().IsEmpty()) {
     ParentClass::SizeToPreferredSize();
+  }
 
   if (cef_delegate()) {
     const auto new_bounds = ParentClass::bounds();
@@ -179,37 +188,43 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::ViewHierarchyChanged(
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::AddedToWidget() {
   ParentClass::AddedToWidget();
-  if (cef_delegate())
+  if (cef_delegate()) {
     cef_delegate()->OnWindowChanged(GetCefView(), /*added=*/true);
+  }
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::RemovedFromWidget() {
-  if (cef_delegate())
+  if (cef_delegate()) {
     cef_delegate()->OnWindowChanged(GetCefView(), /*added=*/false);
+  }
   ParentClass::RemovedFromWidget();
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnFocus() {
-  if (cef_delegate())
+  if (cef_delegate()) {
     cef_delegate()->OnFocus(GetCefView());
+  }
   ParentClass::OnFocus();
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnBlur() {
-  if (cef_delegate())
+  if (cef_delegate()) {
     cef_delegate()->OnBlur(GetCefView());
+  }
   ParentClass::OnBlur();
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(
     const views::ViewHierarchyChangedDetails& details) {
-  if (!cef_delegate())
+  if (!cef_delegate()) {
     return;
+  }
 
   // Only interested with the parent is |this| object and the notification is
   // about an immediate child (notifications are also sent for grandchildren).
-  if (details.parent != this || details.child->parent() != this)
+  if (details.parent != this || details.child->parent() != this) {
     return;
+  }
 
   // Only notify for children that have a known CEF root view. For example,
   // don't notify when ScrollView adds child scroll bars.
@@ -221,13 +236,15 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyParentViewChanged(
     const views::ViewHierarchyChangedDetails& details) {
-  if (!cef_delegate())
+  if (!cef_delegate()) {
     return;
+  }
 
   // Only interested when the child is |this| object and notification is about
   // the immediate parent (notifications are sent for all parents).
-  if (details.child != this || details.parent != ParentClass::parent())
+  if (details.child != this || details.parent != ParentClass::parent()) {
     return;
+  }
 
   // The immediate parent might be an intermediate view so find the closest
   // known CEF root view. |parent| might be nullptr for overlays.

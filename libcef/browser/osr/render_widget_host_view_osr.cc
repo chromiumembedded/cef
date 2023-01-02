@@ -146,8 +146,9 @@ ui::LatencyInfo CreateLatencyInfo(const blink::WebInputEvent& event) {
 }
 
 gfx::Rect GetViewBounds(AlloyBrowserHostImpl* browser) {
-  if (!browser)
+  if (!browser) {
     return gfx::Rect();
+  }
 
   CefRect rc;
   CefRefPtr<CefRenderHandler> handler =
@@ -249,16 +250,18 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   content::RenderWidgetHostImpl* render_widget_host_impl =
       content::RenderWidgetHostImpl::From(render_widget_host_);
-  if (render_widget_host_impl)
+  if (render_widget_host_impl) {
     render_widget_host_impl->SetCompositorForFlingScheduler(compositor_.get());
+  }
 
   cursor_manager_.reset(new content::CursorManager(this));
 
   // This may result in a call to GetFrameSinkId().
   render_widget_host_->SetView(this);
 
-  if (GetTextInputManager())
+  if (GetTextInputManager()) {
     GetTextInputManager()->AddObserver(this);
+  }
 
   if (render_widget_host_->delegate() &&
       render_widget_host_->delegate()->GetInputEventRouter()) {
@@ -270,8 +273,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     // For child/popup views this will be called from the associated InitAs*()
     // method.
     SetRootLayerSize(false /* force */);
-    if (!render_widget_host_->is_hidden())
+    if (!render_widget_host_->is_hidden()) {
       Show();
+    }
   }
 
   selection_controller_client_ =
@@ -288,8 +292,9 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   DCHECK(!child_host_view_);
   DCHECK(guest_host_views_.empty());
 
-  if (text_input_manager_)
+  if (text_input_manager_) {
     text_input_manager_->RemoveObserver(this);
+  }
 }
 
 void CefRenderWidgetHostViewOSR::ReleaseCompositor() {
@@ -355,8 +360,9 @@ bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() {
 
 void CefRenderWidgetHostViewOSR::ShowWithVisibility(
     content::PageVisibilityState) {
-  if (is_showing_)
+  if (is_showing_) {
     return;
+  }
 
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled() &&
       !browser_impl_ &&
@@ -404,8 +410,9 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
-  if (!is_showing_)
+  if (!is_showing_) {
     return;
+  }
 
   is_showing_ = false;
 
@@ -452,8 +459,9 @@ CefRenderWidgetHostViewOSR::GetTouchSelectionControllerClientManager() {
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() {
-  if (IsPopupWidget())
+  if (IsPopupWidget()) {
     return popup_position_;
+  }
 
   return current_view_bounds_;
 }
@@ -552,14 +560,16 @@ void CefRenderWidgetHostViewOSR::UpdateLocalSurfaceIdFromEmbeddedClient(
 
 const viz::LocalSurfaceId&
 CefRenderWidgetHostViewOSR::GetOrCreateLocalSurfaceId() {
-  if (!parent_local_surface_id_allocator_)
+  if (!parent_local_surface_id_allocator_) {
     AllocateLocalSurfaceId();
+  }
   return GetCurrentLocalSurfaceId();
 }
 
 void CefRenderWidgetHostViewOSR::InvalidateLocalSurfaceId() {
-  if (!parent_local_surface_id_allocator_)
+  if (!parent_local_surface_id_allocator_) {
     return;
+  }
   parent_local_surface_id_allocator_->Invalidate();
 }
 
@@ -615,8 +625,9 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   CefRect widget_pos(client_pos.x(), client_pos.y(), client_pos.width(),
                      client_pos.height());
 
-  if (handler.get())
+  if (handler.get()) {
     handler->OnPopupSize(browser_impl_.get(), widget_pos);
+  }
 
   // The size doesn't change for popups so we need to force the
   // initialization.
@@ -632,8 +643,9 @@ content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
 }
 
 void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
-  if (!is_loading)
+  if (!is_loading) {
     return;
+  }
   // Make sure gesture detection is fresh.
   gesture_provider_.ResetDetection();
   forward_touch_to_popup_ = false;
@@ -650,16 +662,19 @@ void CefRenderWidgetHostViewOSR::Destroy() {
     if (has_parent_) {
       CancelWidget();
     } else {
-      if (popup_host_view_)
+      if (popup_host_view_) {
         popup_host_view_->CancelWidget();
-      if (child_host_view_)
+      }
+      if (child_host_view_) {
         child_host_view_->CancelWidget();
+      }
       if (!guest_host_views_.empty()) {
         // Guest RWHVs will be destroyed when the associated RWHVGuest is
         // destroyed. This parent RWHV may be destroyed first, so disassociate
         // the guest RWHVs here without destroying them.
-        for (auto guest_host_view : guest_host_views_)
+        for (auto guest_host_view : guest_host_views_) {
           guest_host_view->parent_host_view_ = nullptr;
+        }
         guest_host_views_.clear();
       }
       Hide();
@@ -671,8 +686,9 @@ void CefRenderWidgetHostViewOSR::Destroy() {
 
 void CefRenderWidgetHostViewOSR::UpdateTooltipUnderCursor(
     const std::u16string& tooltip_text) {
-  if (!browser_impl_.get())
+  if (!browser_impl_.get()) {
     return;
+  }
 
   CefString tooltip(tooltip_text);
   CefRefPtr<CefDisplayHandler> handler =
@@ -743,15 +759,17 @@ void CefRenderWidgetHostViewOSR::TransformPointToRootSurface(
     gfx::PointF* point) {}
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
-  if (!browser_impl_.get())
+  if (!browser_impl_.get()) {
     return gfx::Rect();
+  }
 
   CefRect rc;
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
   CHECK(handler);
-  if (handler->GetRootScreenRect(browser_impl_.get(), rc))
+  if (handler->GetRootScreenRect(browser_impl_.get(), rc)) {
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
+  }
   return GetViewBounds();
 }
 
@@ -777,8 +795,9 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
     const CefRange& replacement_range,
     const CefRange& selection_range) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeSetComposition");
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   std::vector<ui::ImeTextSpan> web_underlines;
   web_underlines.reserve(underlines.size());
@@ -804,8 +823,9 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     const CefRange& replacement_range,
     int relative_cursor_pos) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCommitText");
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   gfx::Range range(replacement_range.from, replacement_range.to);
   render_widget_host_->ImeCommitText(text, std::vector<ui::ImeTextSpan>(),
@@ -817,8 +837,9 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
 
 void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeFinishComposingText");
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   render_widget_host_->ImeFinishComposingText(keep_selection);
 
@@ -828,8 +849,9 @@ void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::ImeCancelComposition");
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   render_widget_host_->ImeCancelComposition();
 
@@ -842,15 +864,17 @@ void CefRenderWidgetHostViewOSR::SelectionChanged(const std::u16string& text,
                                                   const gfx::Range& range) {
   RenderWidgetHostViewBase::SelectionChanged(text, offset, range);
 
-  if (!browser_impl_.get())
+  if (!browser_impl_.get()) {
     return;
+  }
 
   CefString selected_text;
   if (!range.is_empty() && !text.empty()) {
     size_t pos = range.GetMin() - offset;
     size_t n = range.length();
-    if (pos + n <= text.length())
+    if (pos + n <= text.length()) {
       selected_text = text.substr(pos, n);
+    }
   }
 
   CefRefPtr<CefRenderHandler> handler =
@@ -934,8 +958,9 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
                                   absl::nullopt);
     }
   }
-  if (delegated_frame_host_)
+  if (delegated_frame_host_) {
     delegated_frame_host_->DidNavigate();
+  }
   is_first_navigation_ = false;
 }
 
@@ -1007,8 +1032,9 @@ bool CefRenderWidgetHostViewOSR::InstallTransparency() {
 void CefRenderWidgetHostViewOSR::WasResized() {
   // Only one resize will be in-flight at a time.
   if (hold_resize_) {
-    if (!pending_resize_)
+    if (!pending_resize_) {
       pending_resize_ = true;
+    }
     return;
   }
 
@@ -1053,16 +1079,18 @@ void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnScreenInfoChanged");
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
                               absl::nullopt);
 
-  if (render_widget_host_->delegate())
+  if (render_widget_host_->delegate()) {
     render_widget_host_->delegate()->SendScreenRects();
-  else
+  } else {
     render_widget_host_->SendScreenRects();
+  }
 
   render_widget_host_->NotifyScreenInfoChanged();
 
@@ -1071,16 +1099,18 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   // renderer in the rwhv_aura (current_cursor_.SetScaleFactor)
 
   // Notify the guest hosts if any.
-  for (auto guest_host_view : guest_host_views_)
+  for (auto guest_host_view : guest_host_views_) {
     guest_host_view->OnScreenInfoChanged();
+  }
 }
 
 void CefRenderWidgetHostViewOSR::Invalidate(
     CefBrowserHost::PaintElementType type) {
   TRACE_EVENT1("cef", "CefRenderWidgetHostViewOSR::Invalidate", "type", type);
   if (!IsPopupWidget() && type == PET_POPUP) {
-    if (popup_host_view_)
+    if (popup_host_view_) {
       popup_host_view_->Invalidate(type);
+    }
     return;
   }
   InvalidateInternal(gfx::Rect(SizeInPixels()));
@@ -1089,8 +1119,9 @@ void CefRenderWidgetHostViewOSR::Invalidate(
 void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
   DCHECK(external_begin_frame_enabled_);
 
-  if (begin_frame_pending_)
+  if (begin_frame_pending_) {
     return;
+  }
   begin_frame_pending_ = true;
 
   base::TimeTicks frame_time = base::TimeTicks::Now();
@@ -1104,8 +1135,9 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 
   DCHECK(begin_frame_args.IsValid());
 
-  if (render_widget_host_)
+  if (render_widget_host_) {
     render_widget_host_->ProgressFlingIfNeeded(frame_time);
+  }
 
   if (compositor_) {
     compositor_->IssueExternalBeginFrame(
@@ -1319,8 +1351,9 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
   }
 
   // Update the touch event first.
-  if (!pointer_state_.OnTouch(event))
+  if (!pointer_state_.OnTouch(event)) {
     return;
+  }
 
   if (selection_controller_->WillHandleTouchEvent(pointer_state_)) {
     pointer_state_.CleanupRemovedTouchPoints(event);
@@ -1337,11 +1370,13 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
 
   // Set unchanged touch point to StateStationary for touchmove and
   // touchcancel to make sure only send one ack per WebTouchEvent.
-  if (!result.succeeded)
+  if (!result.succeeded) {
     pointer_state_.MarkUnchangedTouchPointsAsStationary(&touch_event, event);
+  }
 
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   ui::LatencyInfo latency_info = CreateLatencyInfo(touch_event);
   if (ShouldRouteEvents()) {
@@ -1363,8 +1398,9 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
 }
 
 bool CefRenderWidgetHostViewOSR::ShouldRouteEvents() const {
-  if (!render_widget_host_->delegate())
+  if (!render_widget_host_->delegate()) {
     return false;
+  }
 
   // Do not route events that are currently targeted to page popups such as
   // <select> element drop-downs, since these cannot contain cross-process
@@ -1378,8 +1414,9 @@ bool CefRenderWidgetHostViewOSR::ShouldRouteEvents() const {
 }
 
 void CefRenderWidgetHostViewOSR::SetFocus(bool focus) {
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
 
   content::RenderWidgetHostImpl* widget =
       content::RenderWidgetHostImpl::From(render_widget_host_);
@@ -1405,8 +1442,9 @@ void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
     content::RenderWidgetHostViewBase* updated_view,
     bool did_update_state) {
   const auto state = text_input_manager->GetTextInputState();
-  if (state && !state->show_ime_if_needed)
+  if (state && !state->show_ime_if_needed) {
     return;
+  }
 
   CefRenderHandler::TextInputMode mode = CEF_TEXT_INPUT_MODE_NONE;
   if (state && state->type != ui::TEXT_INPUT_TYPE_NONE) {
@@ -1446,8 +1484,9 @@ void CefRenderWidgetHostViewOSR::OnGestureEvent(
       ui::CreateWebGestureEventFromGestureEventData(gesture);
 
   // without this check, forwarding gestures does not work!
-  if (web_event.GetType() == blink::WebInputEvent::Type::kUndefined)
+  if (web_event.GetType() == blink::WebInputEvent::Type::kUndefined) {
     return;
+  }
 
   ui::LatencyInfo latency_info = CreateLatencyInfo(web_event);
   if (ShouldRouteEvents()) {
@@ -1468,8 +1507,9 @@ void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
   }
 
   // Notify the guest hosts if any.
-  for (auto guest_host_view : guest_host_views_)
+  for (auto guest_host_view : guest_host_views_) {
     guest_host_view->UpdateFrameRate();
+  }
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::SizeInPixels() {
@@ -1529,8 +1569,9 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
     DCHECK_GT(cached_scale_factor_, 0);
     gfx::Size expected_size =
         gfx::ScaleToCeiledSize(GetViewBounds().size(), cached_scale_factor_);
-    if (pixel_size == expected_size)
+    if (pixel_size == expected_size) {
       ReleaseResizeHold();
+    }
   }
 }
 
@@ -1539,8 +1580,9 @@ ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
 }
 
 ui::TextInputType CefRenderWidgetHostViewOSR::GetTextInputType() {
-  if (text_input_manager_ && text_input_manager_->GetTextInputState())
+  if (text_input_manager_ && text_input_manager_->GetTextInputState()) {
     return text_input_manager_->GetTextInputState()->type;
+  }
 
   return ui::TEXT_INPUT_TYPE_NONE;
 }
@@ -1556,8 +1598,9 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   CHECK(browser);
 
   // Only set the frame rate one time.
-  if (frame_rate_threshold_us_ != 0)
+  if (frame_rate_threshold_us_ != 0) {
     return;
+  }
 
   int frame_rate =
       osr_util::ClampFrameRate(browser->settings().windowless_frame_rate);
@@ -1590,8 +1633,9 @@ bool CefRenderWidgetHostViewOSR::SetScreenInfo() {
   // Notify the guest hosts if any.
   for (auto guest_host_view : guest_host_views_) {
     content::RenderWidgetHostImpl* rwhi = guest_host_view->render_widget_host();
-    if (!rwhi)
+    if (!rwhi) {
       continue;
+    }
     auto guest_view_osr =
         static_cast<CefRenderWidgetHostViewOSR*>(rwhi->GetView());
     if (guest_view_osr) {
@@ -1607,12 +1651,14 @@ bool CefRenderWidgetHostViewOSR::SetViewBounds() {
   DCHECK(!hold_resize_);
 
   // Popup bounds are set in InitAsPopup.
-  if (IsPopupWidget())
+  if (IsPopupWidget()) {
     return false;
+  }
 
   const gfx::Rect& new_bounds = ::GetViewBounds(browser_impl_.get());
-  if (new_bounds == current_view_bounds_)
+  if (new_bounds == current_view_bounds_) {
     return false;
+  }
 
   current_view_bounds_ = new_bounds;
   return true;
@@ -1621,8 +1667,9 @@ bool CefRenderWidgetHostViewOSR::SetViewBounds() {
 bool CefRenderWidgetHostViewOSR::SetRootLayerSize(bool force) {
   const bool screen_info_changed = SetScreenInfo();
   const bool view_bounds_changed = SetViewBounds();
-  if (!force && !screen_info_changed && !view_bounds_changed)
+  if (!force && !screen_info_changed && !view_bounds_changed) {
     return false;
+  }
 
   GetRootLayer()->SetBounds(gfx::Rect(GetViewBounds().size()));
 
@@ -1667,8 +1714,9 @@ void CefRenderWidgetHostViewOSR::ReleaseResizeHold() {
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {
-  if (render_widget_host_)
+  if (render_widget_host_) {
     render_widget_host_->LostCapture();
+  }
 
   Hide();
 
@@ -1739,8 +1787,9 @@ void CefRenderWidgetHostViewOSR::InvalidateInternal(
 
 void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
     bool start_monitoring) {
-  if (!render_widget_host_)
+  if (!render_widget_host_) {
     return;
+  }
   render_widget_host_->RequestCompositionUpdates(false, start_monitoring);
 }
 
@@ -1771,8 +1820,9 @@ viz::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId() {
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(
     SkColor color) {
-  if (color == background_color_)
+  if (color == background_color_) {
     return;
+  }
   background_color_ = color;
 
   bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;

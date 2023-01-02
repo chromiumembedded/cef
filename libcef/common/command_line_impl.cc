@@ -65,8 +65,9 @@ void CefCommandLineImpl::GetArgv(std::vector<CefString>& argv) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
   const base::CommandLine::StringVector& cmd_argv = const_value().argv();
   base::CommandLine::StringVector::const_iterator it = cmd_argv.begin();
-  for (; it != cmd_argv.end(); ++it)
+  for (; it != cmd_argv.end(); ++it) {
     argv.push_back(*it);
+  }
 }
 
 CefString CefCommandLineImpl::GetCommandLineString() {
@@ -104,8 +105,9 @@ void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
   const base::CommandLine::SwitchMap& map = const_value().GetSwitches();
   base::CommandLine::SwitchMap::const_iterator it = map.begin();
-  for (; it != map.end(); ++it)
+  for (; it != map.end(); ++it) {
     switches.insert(std::make_pair(it->first, it->second));
+  }
 }
 
 void CefCommandLineImpl::AppendSwitch(const CefString& name) {
@@ -132,8 +134,9 @@ void CefCommandLineImpl::GetArguments(ArgumentList& arguments) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
   const base::CommandLine::StringVector& vec = const_value().GetArgs();
   base::CommandLine::StringVector::const_iterator it = vec.begin();
-  for (; it != vec.end(); ++it)
+  for (; it != vec.end(); ++it) {
     arguments.push_back(*it);
+  }
 }
 
 void CefCommandLineImpl::AppendArgument(const CefString& argument) {
@@ -168,8 +171,9 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
   static CefRefPtr<CefCommandLineImpl> commandLinePtr;
   if (!commandLinePtr.get()) {
     base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-    if (command_line)
+    if (command_line) {
       commandLinePtr = new CefCommandLineImpl(command_line, false, true);
+    }
   }
   return commandLinePtr.get();
 }

@@ -155,14 +155,18 @@ bool CefBrowserInfoManager::CanCreateWindow(
       TranslatePopupFeatures(features, cef_features);
 
       // Default to the size from the popup features.
-      if (cef_features.xSet)
+      if (cef_features.xSet) {
         window_info.bounds.x = cef_features.x;
-      if (cef_features.ySet)
+      }
+      if (cef_features.ySet) {
         window_info.bounds.y = cef_features.y;
-      if (cef_features.widthSet)
+      }
+      if (cef_features.widthSet) {
         window_info.bounds.width = cef_features.width;
-      if (cef_features.heightSet)
+      }
+      if (cef_features.heightSet) {
         window_info.bounds.height = cef_features.height;
+      }
 
       allow = !handler->OnBeforePopup(
           browser.get(), opener_frame, pending_popup->target_url.spec(),
@@ -463,19 +467,22 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
     bool* is_guest_view) {
   browser_info_lock_.AssertAcquired();
 
-  if (is_guest_view)
+  if (is_guest_view) {
     *is_guest_view = false;
+  }
 
-  if (!frame_util::IsValidGlobalId(global_id))
+  if (!frame_util::IsValidGlobalId(global_id)) {
     return nullptr;
+  }
 
   for (const auto& browser_info : browser_info_list_) {
     bool is_guest_view_tmp;
     auto frame =
         browser_info->GetFrameForGlobalId(global_id, &is_guest_view_tmp);
     if (frame || is_guest_view_tmp) {
-      if (is_guest_view)
+      if (is_guest_view) {
         *is_guest_view = is_guest_view_tmp;
+      }
       return browser_info;
     }
   }
@@ -534,8 +541,9 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     const content::GlobalRenderFrameHostId& global_id,
     int timeout_id) {
   CEF_REQUIRE_UIT();
-  if (!g_info_manager)
+  if (!g_info_manager) {
     return;
+  }
 
   base::AutoLock lock_scope(g_info_manager->browser_info_lock_);
 
@@ -544,8 +552,9 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
   if (it != g_info_manager->pending_new_browser_info_map_.end()) {
     const auto& pending_info = it->second;
     // Don't accidentally timeout a new request for the same frame.
-    if (pending_info->timeout_id != timeout_id)
+    if (pending_info->timeout_id != timeout_id) {
       return;
+    }
 
 #if DCHECK_IS_ON()
     // This method should never be called for a PDF renderer.

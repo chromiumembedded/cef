@@ -61,8 +61,9 @@ void CefPrefStore::SetValue(const std::string& key,
 void CefPrefStore::SetValueSilently(const std::string& key,
                                     base::Value value,
                                     uint32_t flags) {
-  if (prefs_.SetValue(key, std::move(value)))
+  if (prefs_.SetValue(key, std::move(value))) {
     committed_ = false;
+  }
 }
 
 void CefPrefStore::RemoveValuesByPrefixSilently(const std::string& prefix) {
@@ -93,10 +94,11 @@ PersistentPrefStore::PrefReadError CefPrefStore::ReadPrefs() {
 void CefPrefStore::ReadPrefsAsync(ReadErrorDelegate* error_delegate) {
   DCHECK(!pending_async_read_);
   error_delegate_.reset(error_delegate);
-  if (block_async_read_)
+  if (block_async_read_) {
     pending_async_read_ = true;
-  else
+  } else {
     NotifyInitializationCompleted();
+  }
 }
 
 void CefPrefStore::CommitPendingWrite(
@@ -116,22 +118,26 @@ void CefPrefStore::SetInitializationCompleted() {
 }
 
 void CefPrefStore::NotifyPrefValueChanged(const std::string& key) {
-  for (Observer& observer : observers_)
+  for (Observer& observer : observers_) {
     observer.OnPrefValueChanged(key);
+  }
 }
 
 void CefPrefStore::NotifyInitializationCompleted() {
   DCHECK(!init_complete_);
   init_complete_ = true;
-  if (read_success_ && read_error_ != PREF_READ_ERROR_NONE && error_delegate_)
+  if (read_success_ && read_error_ != PREF_READ_ERROR_NONE && error_delegate_) {
     error_delegate_->OnError(read_error_);
-  for (Observer& observer : observers_)
+  }
+  for (Observer& observer : observers_) {
     observer.OnInitializationCompleted(read_success_);
+  }
 }
 
 void CefPrefStore::ReportValueChanged(const std::string& key, uint32_t flags) {
-  for (Observer& observer : observers_)
+  for (Observer& observer : observers_) {
     observer.OnPrefValueChanged(key);
+  }
 }
 
 void CefPrefStore::SetString(const std::string& key, const std::string& value) {
@@ -148,8 +154,9 @@ void CefPrefStore::SetBoolean(const std::string& key, bool value) {
 
 bool CefPrefStore::GetString(const std::string& key, std::string* value) const {
   const base::Value* stored_value;
-  if (!prefs_.GetValue(key, &stored_value) || !stored_value)
+  if (!prefs_.GetValue(key, &stored_value) || !stored_value) {
     return false;
+  }
 
   if (value && stored_value->is_string()) {
     *value = stored_value->GetString();
@@ -160,8 +167,9 @@ bool CefPrefStore::GetString(const std::string& key, std::string* value) const {
 
 bool CefPrefStore::GetInteger(const std::string& key, int* value) const {
   const base::Value* stored_value;
-  if (!prefs_.GetValue(key, &stored_value) || !stored_value)
+  if (!prefs_.GetValue(key, &stored_value) || !stored_value) {
     return false;
+  }
 
   if (value && stored_value->is_int()) {
     *value = stored_value->GetInt();
@@ -172,8 +180,9 @@ bool CefPrefStore::GetInteger(const std::string& key, int* value) const {
 
 bool CefPrefStore::GetBoolean(const std::string& key, bool* value) const {
   const base::Value* stored_value;
-  if (!prefs_.GetValue(key, &stored_value) || !stored_value)
+  if (!prefs_.GetValue(key, &stored_value) || !stored_value) {
     return false;
+  }
 
   if (value && stored_value->is_bool()) {
     *value = stored_value->GetBool();
@@ -185,8 +194,9 @@ bool CefPrefStore::GetBoolean(const std::string& key, bool* value) const {
 void CefPrefStore::SetBlockAsyncRead(bool block_async_read) {
   DCHECK(!init_complete_);
   block_async_read_ = block_async_read;
-  if (pending_async_read_ && !block_async_read_)
+  if (pending_async_read_ && !block_async_read_) {
     NotifyInitializationCompleted();
+  }
 }
 
 void CefPrefStore::set_read_only(bool read_only) {

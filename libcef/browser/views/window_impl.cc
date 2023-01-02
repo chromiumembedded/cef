@@ -123,33 +123,38 @@ CefRefPtr<CefWindowImpl> CefWindowImpl::Create(
   CefRefPtr<CefWindowImpl> window = new CefWindowImpl(delegate);
   window->Initialize();
   window->CreateWidget(parent_widget);
-  if (delegate)
+  if (delegate) {
     delegate->OnWindowCreated(window.get());
+  }
   return window;
 }
 
 void CefWindowImpl::Show() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_)
+  if (widget_) {
     widget_->Show();
+  }
 }
 
 void CefWindowImpl::Hide() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_)
+  if (widget_) {
     widget_->Hide();
+  }
 }
 
 void CefWindowImpl::CenterWindow(const CefSize& size) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_)
+  if (widget_) {
     widget_->CenterWindow(gfx::Size(size.width, size.height));
+  }
 }
 
 void CefWindowImpl::Close() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && !widget_->IsClosed())
+  if (widget_ && !widget_->IsClosed()) {
     widget_->Close();
+  }
 }
 
 bool CefWindowImpl::IsClosed() {
@@ -159,27 +164,31 @@ bool CefWindowImpl::IsClosed() {
 
 void CefWindowImpl::Activate() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && widget_->CanActivate() && !widget_->IsActive())
+  if (widget_ && widget_->CanActivate() && !widget_->IsActive()) {
     widget_->Activate();
+  }
 }
 
 void CefWindowImpl::Deactivate() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && widget_->CanActivate() && widget_->IsActive())
+  if (widget_ && widget_->CanActivate() && widget_->IsActive()) {
     widget_->Deactivate();
+  }
 }
 
 bool CefWindowImpl::IsActive() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->IsActive();
+  }
   return false;
 }
 
 void CefWindowImpl::BringToTop() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_)
+  if (widget_) {
     widget_->StackAtTop();
+  }
 }
 
 void CefWindowImpl::SetAlwaysOnTop(bool on_top) {
@@ -193,92 +202,106 @@ void CefWindowImpl::SetAlwaysOnTop(bool on_top) {
 
 bool CefWindowImpl::IsAlwaysOnTop() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->GetZOrderLevel() == ui::ZOrderLevel::kFloatingWindow;
+  }
   return false;
 }
 
 void CefWindowImpl::Maximize() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && !widget_->IsMaximized())
+  if (widget_ && !widget_->IsMaximized()) {
     widget_->Maximize();
+  }
 }
 
 void CefWindowImpl::Minimize() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && !widget_->IsMinimized())
+  if (widget_ && !widget_->IsMinimized()) {
     widget_->Minimize();
+  }
 }
 
 void CefWindowImpl::Restore() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && (widget_->IsMaximized() || widget_->IsMinimized()))
+  if (widget_ && (widget_->IsMaximized() || widget_->IsMinimized())) {
     widget_->Restore();
+  }
 }
 
 void CefWindowImpl::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_ && fullscreen != widget_->IsFullscreen())
+  if (widget_ && fullscreen != widget_->IsFullscreen()) {
     widget_->SetFullscreen(fullscreen);
+  }
 }
 
 bool CefWindowImpl::IsMaximized() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->IsMaximized();
+  }
   return false;
 }
 
 bool CefWindowImpl::IsMinimized() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->IsMinimized();
+  }
   return false;
 }
 
 bool CefWindowImpl::IsFullscreen() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->IsFullscreen();
+  }
   return false;
 }
 
 void CefWindowImpl::SetTitle(const CefString& title) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view())
+  if (root_view()) {
     root_view()->SetTitle(title);
+  }
 }
 
 CefString CefWindowImpl::GetTitle() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  if (root_view())
+  if (root_view()) {
     return root_view()->title();
+  }
   return CefString();
 }
 
 void CefWindowImpl::SetWindowIcon(CefRefPtr<CefImage> image) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view())
+  if (root_view()) {
     root_view()->SetWindowIcon(image);
+  }
 }
 
 CefRefPtr<CefImage> CefWindowImpl::GetWindowIcon() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
-  if (root_view())
+  if (root_view()) {
     return root_view()->window_icon();
+  }
   return nullptr;
 }
 
 void CefWindowImpl::SetWindowAppIcon(CefRefPtr<CefImage> image) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view())
+  if (root_view()) {
     root_view()->SetWindowAppIcon(image);
+  }
 }
 
 CefRefPtr<CefImage> CefWindowImpl::GetWindowAppIcon() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
-  if (root_view())
+  if (root_view()) {
     return root_view()->window_app_icon();
+  }
   return nullptr;
 }
 
@@ -286,16 +309,18 @@ CefRefPtr<CefOverlayController> CefWindowImpl::AddOverlayView(
     CefRefPtr<CefView> view,
     cef_docking_mode_t docking_mode) {
   CEF_REQUIRE_VALID_RETURN(nullptr);
-  if (root_view())
+  if (root_view()) {
     return root_view()->AddOverlayView(view, docking_mode);
+  }
   return nullptr;
 }
 
 void CefWindowImpl::GetDebugInfo(base::DictionaryValue* info,
                                  bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
-  if (root_view())
+  if (root_view()) {
     info->SetString("title", root_view()->title());
+  }
 }
 
 void CefWindowImpl::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
@@ -322,8 +347,9 @@ void CefWindowImpl::SetBounds(const CefRect& bounds) {
 CefRect CefWindowImpl::GetBounds() {
   CEF_REQUIRE_VALID_RETURN(CefRect());
   gfx::Rect bounds;
-  if (widget_)
+  if (widget_) {
     bounds = widget_->GetWindowBoundsInScreen();
+  }
   return CefRect(bounds.x(), bounds.y(), bounds.width(), bounds.height());
 }
 
@@ -333,8 +359,9 @@ CefRect CefWindowImpl::GetBoundsInScreen() {
 
 void CefWindowImpl::SetSize(const CefSize& size) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (widget_)
+  if (widget_) {
     widget_->SetSize(gfx::Size(size.width, size.height));
+  }
 }
 
 void CefWindowImpl::SetPosition(const CefPoint& position) {
@@ -349,24 +376,27 @@ void CefWindowImpl::SetPosition(const CefPoint& position) {
 void CefWindowImpl::SizeToPreferredSize() {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (widget_) {
-    if (widget_->non_client_view())
+    if (widget_->non_client_view()) {
       widget_->SetSize(widget_->non_client_view()->GetPreferredSize());
-    else
+    } else {
       widget_->SetSize(root_view()->GetPreferredSize());
+    }
   }
 }
 
 void CefWindowImpl::SetVisible(bool visible) {
-  if (visible)
+  if (visible) {
     Show();
-  else
+  } else {
     Hide();
+  }
 }
 
 bool CefWindowImpl::IsVisible() {
   CEF_REQUIRE_VALID_RETURN(false);
-  if (widget_)
+  if (widget_) {
     return widget_->IsVisible();
+  }
   return false;
 }
 
@@ -377,13 +407,15 @@ bool CefWindowImpl::IsDrawn() {
 void CefWindowImpl::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::SetBackgroundColor(color);
-  if (widget_ && widget_->GetCompositor())
+  if (widget_ && widget_->GetCompositor()) {
     widget_->GetCompositor()->SetBackgroundColor(color);
+  }
 }
 
 bool CefWindowImpl::CanWidgetClose() {
-  if (delegate())
+  if (delegate()) {
     return delegate()->CanClose(this);
+  }
   return true;
 }
 
@@ -392,8 +424,9 @@ void CefWindowImpl::OnWindowClosing() {
   unhandled_key_event_handler_.reset();
 #endif
 
-  if (delegate())
+  if (delegate()) {
     delegate()->OnWindowClosing(this);
+  }
 }
 
 void CefWindowImpl::OnWindowViewDeleted() {
@@ -402,8 +435,9 @@ void CefWindowImpl::OnWindowViewDeleted() {
   destroyed_ = true;
   widget_ = nullptr;
 
-  if (delegate())
+  if (delegate()) {
     delegate()->OnWindowDestroyed(this);
+  }
 
   // Call Detach() here instead of waiting for the root View to be deleted so
   // that any following attempts to call CefWindow methods from the delegate
@@ -414,21 +448,24 @@ void CefWindowImpl::OnWindowViewDeleted() {
 // Will only be called if CanHandleAccelerators() returns true.
 bool CefWindowImpl::AcceleratorPressed(const ui::Accelerator& accelerator) {
   for (const auto& entry : accelerator_map_) {
-    if (entry.second == accelerator)
+    if (entry.second == accelerator) {
       return delegate()->OnAccelerator(this, entry.first);
+    }
   }
   return false;
 }
 
 bool CefWindowImpl::CanHandleAccelerators() const {
-  if (delegate() && widget_)
+  if (delegate() && widget_) {
     return widget_->IsActive();
+  }
   return false;
 }
 
 bool CefWindowImpl::OnKeyEvent(const CefKeyEvent& event) {
-  if (delegate())
+  if (delegate()) {
     return delegate()->OnKeyEvent(this, event);
+  }
   return false;
 }
 
@@ -438,13 +475,15 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
                              cef_menu_anchor_position_t anchor_position) {
   CancelMenu();
 
-  if (!widget_)
+  if (!widget_) {
     return;
+  }
 
   CefMenuModelImpl* menu_model_impl =
       static_cast<CefMenuModelImpl*>(menu_model.get());
-  if (!menu_model_impl || !menu_model_impl->model())
+  if (!menu_model_impl || !menu_model_impl->model()) {
     return;
+  }
 
   menu_model_ = menu_model_impl;
 
@@ -472,8 +511,9 @@ void CefWindowImpl::MenuClosed() {
 
 void CefWindowImpl::CancelMenu() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (menu_runner_)
+  if (menu_runner_) {
     menu_runner_->Cancel();
+  }
   DCHECK(!menu_model_);
   DCHECK(!menu_runner_);
 }
@@ -482,8 +522,9 @@ CefRefPtr<CefDisplay> CefWindowImpl::GetDisplay() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   if (widget_ && root_view()) {
     const display::Display& display = root_view()->GetDisplay();
-    if (display.is_valid())
+    if (display.is_valid()) {
       return new CefDisplayImpl(display);
+    }
   }
   return nullptr;
 }
@@ -513,8 +554,9 @@ CefRect CefWindowImpl::GetClientAreaBoundsInScreen() {
 void CefWindowImpl::SetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (root_view())
+  if (root_view()) {
     root_view()->SetDraggableRegions(regions);
+  }
 }
 
 CefWindowHandle CefWindowImpl::GetWindowHandle() {
@@ -527,8 +569,9 @@ void CefWindowImpl::SendKeyPress(int key_code, uint32 event_flags) {
   InitializeUITesting();
 
   gfx::NativeWindow native_window = view_util::GetNativeWindow(widget_);
-  if (!native_window)
+  if (!native_window) {
     return;
+  }
 
   ui_controls::SendKeyPress(native_window,
                             static_cast<ui::KeyboardCode>(key_code),
@@ -551,22 +594,26 @@ void CefWindowImpl::SendMouseEvents(cef_mouse_button_type_t button,
                                     bool mouse_down,
                                     bool mouse_up) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (!mouse_down && !mouse_up)
+  if (!mouse_down && !mouse_up) {
     return;
+  }
 
   InitializeUITesting();
 
   ui_controls::MouseButton type = ui_controls::LEFT;
-  if (button == MBT_MIDDLE)
+  if (button == MBT_MIDDLE) {
     type = ui_controls::MIDDLE;
-  else if (button == MBT_RIGHT)
+  } else if (button == MBT_RIGHT) {
     type = ui_controls::RIGHT;
+  }
 
   int state = 0;
-  if (mouse_down)
+  if (mouse_down) {
     state |= ui_controls::DOWN;
-  if (mouse_up)
+  }
+  if (mouse_up) {
     state |= ui_controls::UP;
+  }
 
   ui_controls::SendMouseEvents(type, state);
 }
@@ -577,20 +624,25 @@ void CefWindowImpl::SetAccelerator(int command_id,
                                    bool ctrl_pressed,
                                    bool alt_pressed) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (!widget_)
+  if (!widget_) {
     return;
+  }
 
   AcceleratorMap::const_iterator it = accelerator_map_.find(command_id);
-  if (it != accelerator_map_.end())
+  if (it != accelerator_map_.end()) {
     RemoveAccelerator(command_id);
+  }
 
   int modifiers = 0;
-  if (shift_pressed)
+  if (shift_pressed) {
     modifiers |= ui::EF_SHIFT_DOWN;
-  if (ctrl_pressed)
+  }
+  if (ctrl_pressed) {
     modifiers |= ui::EF_CONTROL_DOWN;
-  if (alt_pressed)
+  }
+  if (alt_pressed) {
     modifiers |= ui::EF_ALT_DOWN;
+  }
   ui::Accelerator accelerator(static_cast<ui::KeyboardCode>(key_code),
                               modifiers);
 
@@ -604,12 +656,14 @@ void CefWindowImpl::SetAccelerator(int command_id,
 
 void CefWindowImpl::RemoveAccelerator(int command_id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (!widget_)
+  if (!widget_) {
     return;
+  }
 
   AcceleratorMap::iterator it = accelerator_map_.find(command_id);
-  if (it == accelerator_map_.end())
+  if (it == accelerator_map_.end()) {
     return;
+  }
 
   ui::Accelerator accelerator = it->second;
 
@@ -622,8 +676,9 @@ void CefWindowImpl::RemoveAccelerator(int command_id) {
 
 void CefWindowImpl::RemoveAllAccelerators() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (!widget_)
+  if (!widget_) {
     return;
+  }
 
   accelerator_map_.clear();
 

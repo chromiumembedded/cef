@@ -52,8 +52,9 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   DCHECK(!in_paint_);
 
-  if (viewport_pixel_size_ == viewport_pixel_size)
+  if (viewport_pixel_size_ == viewport_pixel_size) {
     return;
+  }
 
   viewport_pixel_size_ = viewport_pixel_size;
 
@@ -119,11 +120,13 @@ void SoftwareOutputDeviceProxy::EndPaint() {
 
   gfx::Rect intersected_damage_rect = damage_rect_;
   intersected_damage_rect.Intersect(gfx::Rect(viewport_pixel_size_));
-  if (intersected_damage_rect.IsEmpty())
+  if (intersected_damage_rect.IsEmpty()) {
     return;
+  }
 
-  if (!canvas_)
+  if (!canvas_) {
     return;
+  }
 
   layered_window_updater_->Draw(
       damage_rect_, base::BindOnce(&SoftwareOutputDeviceProxy::DrawAck,

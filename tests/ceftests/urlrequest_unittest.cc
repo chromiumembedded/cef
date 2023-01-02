@@ -455,8 +455,9 @@ std::string GetHeaderValue(const CefRequest::HeaderMap& header_map,
   CefRequest::HeaderMap::const_iterator it = header_map.begin();
   for (; it != header_map.end(); ++it) {
     std::string name = client::AsciiStrToLower(it->first);
-    if (name == header_name_lower)
+    if (name == header_name_lower) {
       return it->second;
+    }
   }
   return std::string();
 }
@@ -504,8 +505,9 @@ void VerifyNormalRequest(const RequestRunSettings* settings,
 void GetNormalResponse(const RequestRunSettings* settings,
                        CefRefPtr<CefResponse> response) {
   EXPECT_TRUE(settings->response);
-  if (!settings->response)
+  if (!settings->response) {
     return;
+  }
 
   response->SetStatus(settings->response->GetStatus());
   response->SetStatusText(settings->response->GetStatusText());
@@ -540,8 +542,9 @@ bool IsAuthorized(CefRefPtr<CefRequest> request,
                   const std::string& username,
                   const std::string& password) {
   const std::string& authHeader = request->GetHeaderByName("Authorization");
-  if (authHeader.empty())
+  if (authHeader.empty()) {
     return false;
+  }
 
   if (authHeader.find("Basic ") == 0) {
     const std::string& base64 = authHeader.substr(6);
@@ -586,8 +589,9 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
 
     // HEAD requests are identical to GET requests except no response data is
     // sent.
-    if (request->GetMethod() != "HEAD")
+    if (request->GetMethod() != "HEAD") {
       response_data_ = settings_->response_data;
+    }
 
     // Continue immediately.
     callback->Continue();
@@ -663,8 +667,9 @@ class RequestSchemeHandler : public CefResourceHandler {
 
     // HEAD requests are identical to GET requests except no response data is
     // sent.
-    if (request->GetMethod() != "HEAD")
+    if (request->GetMethod() != "HEAD") {
       response_data_ = settings_->response_data;
+    }
 
     // Continue immediately.
     handle_request = true;
@@ -2311,10 +2316,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     test_request::SendConfig config;
 
-    if (settings_.redirect_request)
+    if (settings_.redirect_request) {
       config.request_ = settings_.redirect_request;
-    else
+    } else {
       config.request_ = settings_.request;
+    }
     EXPECT_TRUE(config.request_.get());
 
     // Not delegating to CefRequestHandler::GetAuthCredentials.
@@ -2343,10 +2349,11 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
     CefRefPtr<CefRequest> expected_request;
     CefRefPtr<CefResponse> expected_response;
 
-    if (settings_.redirect_request)
+    if (settings_.redirect_request) {
       expected_request = settings_.redirect_request;
-    else
+    } else {
       expected_request = settings_.request;
+    }
 
     if (settings_.redirect_response && !settings_.expect_follow_redirect) {
       // A redirect response was sent but the redirect is not expected to be
@@ -2360,8 +2367,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     EXPECT_EQ(settings_.expected_status, client->status_);
     EXPECT_EQ(settings_.expected_error_code, client->error_code_);
-    if (expected_response && client->response_)
+    if (expected_response && client->response_) {
       TestResponseEqual(expected_response, client->response_, true);
+    }
 
     EXPECT_EQ(settings_.expect_response_was_cached,
               client->response_was_cached_);
@@ -2638,8 +2646,9 @@ class RequestRendererTest : public ClientAppRenderer::Delegate {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
 
       const bool use_frame_method = args->GetBool(2);
-      if (use_frame_method)
+      if (use_frame_method) {
         frame_ = frame;
+      }
 
       test_mode_ = static_cast<RequestTestMode>(args->GetInt(0));
       test_runner_ = new RequestTestRunner(
@@ -2925,8 +2934,9 @@ class RequestTestHandler : public TestHandler {
       EXPECT_TRUE(args->SetBool(1, test_server_backend_));
       EXPECT_TRUE(args->SetBool(2, test_frame_method_));
 
-      if (test_frame_method_)
+      if (test_frame_method_) {
         test_frame_ = frame;
+      }
       test_running_ = true;
 
       // Send a message to the renderer process to run the test.
@@ -2948,8 +2958,9 @@ class RequestTestHandler : public TestHandler {
     EXPECT_FALSE(got_message_);
     got_message_.yes();
 
-    if (message->GetArgumentList()->GetBool(0))
+    if (message->GetArgumentList()->GetBool(0)) {
       got_success_.yes();
+    }
 
     const std::string& message_name = message->GetName();
     if (message_name == kRequestTestMsg) {
@@ -3071,8 +3082,9 @@ class RequestTestHandler : public TestHandler {
     // Release references to the context and handler.
     test_runner_->Destroy();
 
-    if (call_test_complete)
+    if (call_test_complete) {
       OnTestComplete();
+    }
   }
 
   void OnTestComplete() {

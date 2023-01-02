@@ -74,12 +74,14 @@ void CefWindowDelegateView::InitContent() {
 
 void CefWindowDelegateView::ViewHierarchyChanged(
     const views::ViewHierarchyChangedDetails& details) {
-  if (details.is_add && details.child == this)
+  if (details.is_add && details.child == this) {
     InitContent();
+  }
 }
 
 void CefWindowDelegateView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
   views::WidgetDelegateView::OnBoundsChanged(previous_bounds);
-  if (!on_bounds_changed_.is_null())
+  if (!on_bounds_changed_.is_null()) {
     on_bounds_changed_.Run();
+  }
 }

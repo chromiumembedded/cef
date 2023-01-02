@@ -51,15 +51,17 @@ CEF_BUTTON_VIEW_T class CefButtonView : public CEF_VIEW_VIEW_D {
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::StateChanged(
     views::Button::ButtonState old_state) {
   ParentClass::StateChanged(old_state);
-  if (ParentClass::cef_delegate())
+  if (ParentClass::cef_delegate()) {
     ParentClass::cef_delegate()->OnButtonStateChanged(GetCefButton());
+  }
 }
 
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
     const ui::Event& event) {
   // Callback may trigger new animation state.
-  if (ParentClass::cef_delegate())
+  if (ParentClass::cef_delegate()) {
     ParentClass::cef_delegate()->OnButtonPressed(GetCefButton());
+  }
   if (views::InkDrop::Get(this)->ink_drop_mode() !=
           views::InkDropHost::InkDropMode::OFF &&
       !ParentClass::IsFocusable() &&

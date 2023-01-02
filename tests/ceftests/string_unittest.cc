@@ -163,8 +163,9 @@ TEST(StringTest, List) {
   cef_string_list_t listPtr = cef_string_list_alloc();
   EXPECT_TRUE(listPtr != nullptr);
   ListType::const_iterator it = list.begin();
-  for (; it != list.end(); ++it)
+  for (; it != list.end(); ++it) {
     cef_string_list_append(listPtr, it->GetStruct());
+  }
 
   CefString str;
   int ret;

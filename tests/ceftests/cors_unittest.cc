@@ -224,8 +224,9 @@ struct TestSetup {
 
   Resource* GetResource(const std::string& url,
                         const std::string& method = std::string()) const {
-    if (resources.empty())
+    if (resources.empty()) {
       return nullptr;
+    }
 
     std::set<std::string> matching_methods;
     if (method.empty()) {
@@ -266,8 +267,9 @@ struct TestSetup {
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       Resource* resource = *it;
-      if (resource->handler == HandlerType::SERVER)
+      if (resource->handler == HandlerType::SERVER) {
         return true;
+      }
     }
     return false;
   }
@@ -277,8 +279,9 @@ struct TestSetup {
     ResourceList::const_iterator it = resources.begin();
     for (; it != resources.end(); ++it) {
       Resource* resource = *it;
-      if (!resource->IsDone())
+      if (!resource->IsDone()) {
         return false;
+      }
     }
     return true;
   }
@@ -410,8 +413,9 @@ class CorsTestHandler : public RoutingTestHandler {
                  int httpStatusCode) override {
     const std::string& url = frame->GetURL();
     Resource* resource = GetResource(url);
-    if (!resource)
+    if (!resource) {
       return;
+    }
 
     const int expected_status = resource->response->GetStatus();
     if (url == main_url_ || expected_status != 200) {
@@ -428,8 +432,9 @@ class CorsTestHandler : public RoutingTestHandler {
                    const CefString& errorText,
                    const CefString& failedUrl) override {
     Resource* resource = GetResource(failedUrl);
-    if (!resource)
+    if (!resource) {
       return;
+    }
 
     const cef_errorcode_t expected_error = resource->response->GetError();
 
@@ -448,16 +453,18 @@ class CorsTestHandler : public RoutingTestHandler {
                bool persistent,
                CefRefPtr<Callback> callback) override {
     Resource* resource = GetResource(frame->GetURL());
-    if (!resource)
+    if (!resource) {
       return false;
+    }
 
     if (request.ToString() == kSuccessMsg ||
         request.ToString() == kFailureMsg) {
       callback->Success("");
-      if (request.ToString() == kSuccessMsg)
+      if (request.ToString() == kSuccessMsg) {
         resource->success_query_ct++;
-      else
+      } else {
         resource->failure_query_ct++;
+      }
       TriggerDestroyTestIfDone();
       return true;
     }
@@ -504,8 +511,9 @@ class CorsTestHandler : public RoutingTestHandler {
 
   void DestroyTestIfDone() {
     CEF_REQUIRE_UI_THREAD();
-    if (shutting_down_)
+    if (shutting_down_) {
       return;
+    }
 
     if (setup_->IsDone()) {
       shutting_down_ = true;
@@ -987,21 +995,24 @@ struct SubResource : CookieResource {
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
-    if (!CookieResource::VerifyRequest(request))
+    if (!CookieResource::VerifyRequest(request)) {
       return false;
+    }
 
     const std::string& request_method = request->GetMethod();
     EXPECT_STREQ(method.c_str(), request_method.c_str()) << GetPathURL();
-    if (request_method != method)
+    if (request_method != method) {
       return false;
+    }
 
     // Verify that the "Origin" header contains the expected value.
     const std::string& origin = request->GetHeaderByName("Origin");
     const std::string& expected_origin =
         is_cross_origin ? main_origin : std::string();
     EXPECT_STREQ(expected_origin.c_str(), origin.c_str()) << GetPathURL();
-    if (expected_origin != origin)
+    if (expected_origin != origin) {
       return false;
+    }
 
     // Verify that the "X-Unsafe-Header" header contains the expected value.
     const std::string& unsafe_header =
@@ -1037,26 +1048,30 @@ struct PreflightResource : Resource {
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
     const std::string& request_method = request->GetMethod();
     EXPECT_STREQ(method.c_str(), request_method.c_str()) << GetPathURL();
-    if (request_method != method)
+    if (request_method != method) {
       return false;
+    }
 
     const std::string& origin = request->GetHeaderByName("Origin");
     EXPECT_STREQ(main_origin.c_str(), origin.c_str()) << GetPathURL();
-    if (main_origin != origin)
+    if (main_origin != origin) {
       return false;
+    }
 
     const std::string& ac_request_method =
         request->GetHeaderByName("Access-Control-Request-Method");
     EXPECT_STREQ(kSubRequestMethod, ac_request_method.c_str()) << GetPathURL();
-    if (ac_request_method != kSubRequestMethod)
+    if (ac_request_method != kSubRequestMethod) {
       return false;
+    }
 
     const std::string& ac_request_headers =
         request->GetHeaderByName("Access-Control-Request-Headers");
     EXPECT_STREQ(kSubUnsafeHeaderName, ac_request_headers.c_str())
         << GetPathURL();
-    if (ac_request_headers != kSubUnsafeHeaderName)
+    if (ac_request_headers != kSubUnsafeHeaderName) {
       return false;
+    }
 
     return true;
   }
@@ -1496,8 +1511,9 @@ struct RedirectGetResource : CookieResource {
   RedirectGetResource() {}
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
-    if (!CookieResource::VerifyRequest(request))
+    if (!CookieResource::VerifyRequest(request)) {
       return false;
+    }
 
     // The "Origin" header should never be present for a redirect.
     const std::string& origin = request->GetHeaderByName("Origin");
@@ -1509,12 +1525,13 @@ struct RedirectGetResource : CookieResource {
 void SetupRedirectResponse(RedirectMode mode,
                            const std::string& redirect_url,
                            CefRefPtr<CefResponse> response) {
-  if (mode == RedirectMode::MODE_302)
+  if (mode == RedirectMode::MODE_302) {
     response->SetStatus(302);
-  else if (mode == RedirectMode::MODE_307)
+  } else if (mode == RedirectMode::MODE_307) {
     response->SetStatus(307);
-  else
+  } else {
     NOTREACHED();
+  }
 
   response->SetHeaderByName("Location", redirect_url,
                             /*override=*/false);
@@ -1655,8 +1672,9 @@ struct PostResource : CookieResource {
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
-    if (!CookieResource::VerifyRequest(request))
+    if (!CookieResource::VerifyRequest(request)) {
       return false;
+    }
 
     // The "Origin" header should be present if the request is POST, and was not
     // redirected cross-origin.
@@ -1672,8 +1690,9 @@ struct PostResource : CookieResource {
 
     const std::string& origin = request->GetHeaderByName("Origin");
     EXPECT_STREQ(expected_origin.c_str(), origin.c_str()) << GetPathURL();
-    if (expected_origin != origin)
+    if (expected_origin != origin) {
       return false;
+    }
 
     const std::string& req_method = request->GetMethod();
     const bool has_post_data = request->GetPostData() != nullptr;

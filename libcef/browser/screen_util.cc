@@ -19,8 +19,9 @@ int clamp_segment_start(int start, int len, int min, int max) {
   const int end = start + len;
   const int excess = end - max;
 
-  if (excess > 0)
+  if (excess > 0) {
     start = start - excess;
+  }
 
   return start;
 }

@@ -79,8 +79,9 @@ int RunMain(int argc, char* argv[]) {
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, nullptr);
-  if (exit_code >= 0)
+  if (exit_code >= 0) {
     return exit_code;
+  }
 
   // Create the main context object.
   auto context = std::make_unique<MainContextImpl>(command_line, true);
@@ -106,12 +107,13 @@ int RunMain(int argc, char* argv[]) {
 
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
-  if (settings.multi_threaded_message_loop)
+  if (settings.multi_threaded_message_loop) {
     message_loop.reset(new MainMessageLoopMultithreadedGtk);
-  else if (settings.external_message_pump)
+  } else if (settings.external_message_pump) {
     message_loop = MainMessageLoopExternalPump::Create();
-  else
+  } else {
     message_loop.reset(new MainMessageLoopStd);
+  }
 
   // Initialize CEF.
   context->Initialize(main_args, settings, app, nullptr);

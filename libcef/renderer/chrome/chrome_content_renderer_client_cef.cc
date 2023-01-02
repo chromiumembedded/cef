@@ -19,8 +19,9 @@ ChromeContentRendererClientCef::~ChromeContentRendererClientCef() = default;
 scoped_refptr<base::SingleThreadTaskRunner>
 ChromeContentRendererClientCef::GetCurrentTaskRunner() {
   // Check if currently on the render thread.
-  if (CEF_CURRENTLY_ON_RT())
+  if (CEF_CURRENTLY_ON_RT()) {
     return render_task_runner_;
+  }
   return nullptr;
 }
 

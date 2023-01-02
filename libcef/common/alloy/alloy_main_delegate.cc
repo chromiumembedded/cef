@@ -128,20 +128,23 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
     if (settings_->framework_dir_path.length > 0) {
       base::FilePath file_path =
           base::FilePath(CefString(&settings_->framework_dir_path));
-      if (!file_path.empty())
+      if (!file_path.empty()) {
         command_line->AppendSwitchPath(switches::kFrameworkDirPath, file_path);
+      }
     }
 
     if (settings_->main_bundle_path.length > 0) {
       base::FilePath file_path =
           base::FilePath(CefString(&settings_->main_bundle_path));
-      if (!file_path.empty())
+      if (!file_path.empty()) {
         command_line->AppendSwitchPath(switches::kMainBundlePath, file_path);
+      }
     }
 #endif
 
-    if (no_sandbox)
+    if (no_sandbox) {
       command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
+    }
 
     if (settings_->user_agent.length > 0) {
       command_line->AppendSwitchASCII(
@@ -162,18 +165,22 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
 
     base::FilePath log_file;
     bool has_log_file_cmdline = false;
-    if (settings_->log_file.length > 0)
+    if (settings_->log_file.length > 0) {
       log_file = base::FilePath(CefString(&settings_->log_file));
+    }
     if (log_file.empty() && command_line->HasSwitch(switches::kLogFile)) {
       log_file = command_line->GetSwitchValuePath(switches::kLogFile);
-      if (!log_file.empty())
+      if (!log_file.empty()) {
         has_log_file_cmdline = true;
+      }
     }
-    if (log_file.empty())
+    if (log_file.empty()) {
       log_file = resource_util::GetDefaultLogFilePath();
+    }
     DCHECK(!log_file.empty());
-    if (!has_log_file_cmdline)
+    if (!has_log_file_cmdline) {
       command_line->AppendSwitchPath(switches::kLogFile, log_file);
+    }
 
     if (settings_->log_severity != LOGSEVERITY_DEFAULT) {
       std::string log_severity;
@@ -199,8 +206,9 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
         default:
           break;
       }
-      if (!log_severity.empty())
+      if (!log_severity.empty()) {
         command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
+      }
     }
 
     if (settings_->javascript_flags.length > 0) {
@@ -224,8 +232,9 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       if (settings_->locales_dir_path.length > 0) {
         base::FilePath file_path =
             base::FilePath(CefString(&settings_->locales_dir_path));
-        if (!file_path.empty())
+        if (!file_path.empty()) {
           command_line->AppendSwitchPath(switches::kLocalesDirPath, file_path);
+        }
       }
     }
 
@@ -272,8 +281,9 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       std::string disable_features_str =
           command_line->GetSwitchValueASCII(switches::kDisableFeatures);
       for (auto feature_str : disable_features) {
-        if (!disable_features_str.empty())
+        if (!disable_features_str.empty()) {
           disable_features_str += ",";
+        }
         disable_features_str += feature_str;
       }
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
@@ -368,8 +378,9 @@ void AlloyMainDelegate::PreSandboxStartup() {
 
   resource_util::OverrideUserDataDir(settings_, command_line);
 
-  if (command_line->HasSwitch(switches::kDisablePackLoading))
+  if (command_line->HasSwitch(switches::kDisablePackLoading)) {
     resource_bundle_delegate_.set_pack_loading_disabled(true);
+  }
 
   // Initialize crash reporting state for this process/module.
   // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
@@ -425,8 +436,9 @@ content::ContentUtilityClient* AlloyMainDelegate::CreateContentUtilityClient() {
 }
 
 CefRefPtr<CefRequestContext> AlloyMainDelegate::GetGlobalRequestContext() {
-  if (!browser_client_)
+  if (!browser_client_) {
     return nullptr;
+  }
   return browser_client_->request_context();
 }
 
@@ -441,36 +453,41 @@ CefBrowserContext* AlloyMainDelegate::CreateNewBrowserContext(
 
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetBackgroundTaskRunner() {
-  if (browser_client_)
+  if (browser_client_) {
     return browser_client_->background_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetUserVisibleTaskRunner() {
-  if (browser_client_)
+  if (browser_client_) {
     return browser_client_->user_visible_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetUserBlockingTaskRunner() {
-  if (browser_client_)
+  if (browser_client_) {
     return browser_client_->user_blocking_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetRenderTaskRunner() {
-  if (renderer_client_)
+  if (renderer_client_) {
     return renderer_client_->render_task_runner();
+  }
   return nullptr;
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
 AlloyMainDelegate::GetWebWorkerTaskRunner() {
-  if (renderer_client_)
+  if (renderer_client_) {
     return renderer_client_->GetCurrentTaskRunner();
+  }
   return nullptr;
 }
 
@@ -485,10 +502,12 @@ void AlloyMainDelegate::InitializeResourceBundle() {
     resources_dir =
         command_line->GetSwitchValuePath(switches::kResourcesDirPath);
   }
-  if (resources_dir.empty())
+  if (resources_dir.empty()) {
     resources_dir = resource_util::GetResourcesDir();
-  if (!resources_dir.empty())
+  }
+  if (!resources_dir.empty()) {
     base::PathService::Override(chrome::DIR_RESOURCES, resources_dir);
+  }
 
   if (!resource_bundle_delegate_.pack_loading_disabled()) {
     if (!resources_dir.empty()) {
@@ -501,11 +520,13 @@ void AlloyMainDelegate::InitializeResourceBundle() {
           resources_dir.Append(FILE_PATH_LITERAL("chrome_200_percent.pak"));
     }
 
-    if (command_line->HasSwitch(switches::kLocalesDirPath))
+    if (command_line->HasSwitch(switches::kLocalesDirPath)) {
       locales_dir = command_line->GetSwitchValuePath(switches::kLocalesDirPath);
+    }
 
-    if (!locales_dir.empty())
+    if (!locales_dir.empty()) {
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
+    }
   }
 
 #if BUILDFLAG(IS_WIN)
@@ -516,8 +537,9 @@ void AlloyMainDelegate::InitializeResourceBundle() {
   // https://crbug.com/1178117.
   auto module_handle =
       ::GetModuleHandle(CefAppManager::Get()->GetResourceDllName());
-  if (!module_handle)
+  if (!module_handle) {
     module_handle = ::GetModuleHandle(NULL);
+  }
 
   ui::SetResourcesDataDLL(module_handle);
 #endif
@@ -529,14 +551,16 @@ void AlloyMainDelegate::InitializeResourceBundle() {
       ui::ResourceBundle::InitSharedInstanceWithLocale(
           locale, &resource_bundle_delegate_,
           ui::ResourceBundle::LOAD_COMMON_RESOURCES);
-  if (!loaded_locale.empty() && g_browser_process)
+  if (!loaded_locale.empty() && g_browser_process) {
     g_browser_process->SetApplicationLocale(loaded_locale);
+  }
 
   ui::ResourceBundle& resource_bundle = ui::ResourceBundle::GetSharedInstance();
 
   if (!resource_bundle_delegate_.pack_loading_disabled()) {
-    if (loaded_locale.empty())
+    if (loaded_locale.empty()) {
       LOG(ERROR) << "Could not load locale pak for " << locale;
+    }
 
     resource_bundle_delegate_.set_allow_pack_file_load(true);
 

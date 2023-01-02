@@ -57,8 +57,9 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 
 // Based on chrome/common/chrome_paths_mac.mm.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!base::PathService::Get(base::DIR_APP_DATA, result))
+  if (!base::PathService::Get(base::DIR_APP_DATA, result)) {
     return false;
+  }
   *result = result->Append(FILE_PATH_LITERAL("CEF"));
   *result = result->Append(FILE_PATH_LITERAL("User Data"));
   return true;
@@ -68,8 +69,9 @@ bool GetDefaultUserDataDirectory(base::FilePath* result) {
 
 // Based on chrome/common/chrome_paths_win.cc.
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  if (!base::PathService::Get(base::DIR_LOCAL_APP_DATA, result))
+  if (!base::PathService::Get(base::DIR_LOCAL_APP_DATA, result)) {
     return false;
+  }
   *result = result->Append(FILE_PATH_LITERAL("CEF"));
   *result = result->Append(FILE_PATH_LITERAL("User Data"));
   return true;
@@ -99,14 +101,17 @@ base::FilePath GetUserDataPath(CefSettings* settings,
   // This may be set for sub-processes.
   base::FilePath result =
       command_line->GetSwitchValuePath(switches::kUserDataDir);
-  if (!result.empty())
+  if (!result.empty()) {
     return result;
+  }
 
-  if (GetDefaultUserDataDirectory(&result))
+  if (GetDefaultUserDataDirectory(&result)) {
     return result;
+  }
 
-  if (base::PathService::Get(base::DIR_TEMP, &result))
+  if (base::PathService::Get(base::DIR_TEMP, &result)) {
     return result;
+  }
 
   NOTREACHED();
   return result;
@@ -138,8 +143,9 @@ bool GetDefaultDownloadDirectory(base::FilePath* result) {
 
 bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
   // Start with the default download directory.
-  if (!GetDefaultDownloadDirectory(result))
+  if (!GetDefaultDownloadDirectory(result)) {
     return false;
+  }
 
   if (DownloadPathIsDangerous(*result)) {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)

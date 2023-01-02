@@ -24,8 +24,9 @@ std::string GenerateHeaders(const HeaderMap& map) {
 
     if (!key.empty()) {
       // Delimit with "\r\n".
-      if (!headers.empty())
+      if (!headers.empty()) {
         headers += "\r\n";
+      }
 
       headers += std::string(key) + ": " + std::string(value);
     }
@@ -50,8 +51,9 @@ void MakeASCIILower(std::string* str) {
 HeaderMap::iterator FindHeaderInMap(const std::string& nameLower,
                                     HeaderMap& map) {
   for (auto it = map.begin(); it != map.end(); ++it) {
-    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower))
+    if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower)) {
       return it;
+    }
   }
 
   return map.end();

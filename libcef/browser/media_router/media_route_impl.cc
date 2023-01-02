@@ -70,8 +70,9 @@ void CefMediaRouteImpl::Terminate() {
   }
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetMediaRouterManager()->TerminateRoute(
       route_.media_route_id());
@@ -79,8 +80,9 @@ void CefMediaRouteImpl::Terminate() {
 
 void CefMediaRouteImpl::SendRouteMessageInternal(std::string message) {
   auto browser_context = GetBrowserContext(browser_context_getter_);
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetMediaRouterManager()->SendRouteMessage(
       route_.media_route_id(), message);

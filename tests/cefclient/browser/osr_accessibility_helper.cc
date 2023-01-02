@@ -38,8 +38,7 @@ void OsrAXTree::UpdateTreeData(CefRefPtr<CefDictionaryValue> value) {
 
 OsrAccessibilityHelper::OsrAccessibilityHelper(CefRefPtr<CefValue> value,
                                                CefRefPtr<CefBrowser> browser)
-    : focused_node_id_(-1),
-      browser_(browser) {
+    : focused_node_id_(-1), browser_(browser) {
   UpdateAccessibilityTree(value);
 }
 

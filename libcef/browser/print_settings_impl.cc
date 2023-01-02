@@ -90,8 +90,9 @@ size_t CefPrintSettingsImpl::GetPageRangesCount() {
 
 void CefPrintSettingsImpl::GetPageRanges(PageRangeList& ranges) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  if (!ranges.empty())
+  if (!ranges.empty()) {
     ranges.clear();
+  }
   const printing::PageRanges& page_ranges = const_value().ranges();
   printing::PageRanges::const_iterator it = page_ranges.begin();
   for (; it != page_ranges.end(); ++it) {

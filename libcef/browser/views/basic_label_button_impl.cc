@@ -21,8 +21,9 @@ CefRefPtr<CefBasicLabelButtonImpl> CefBasicLabelButtonImpl::Create(
   CefRefPtr<CefBasicLabelButtonImpl> label_button =
       new CefBasicLabelButtonImpl(delegate);
   label_button->Initialize();
-  if (!text.empty())
+  if (!text.empty()) {
     label_button->SetText(text);
+  }
   return label_button;
 }
 

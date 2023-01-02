@@ -40,8 +40,9 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
 void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {
 #if BUILDFLAG(IS_WIN)
   int64_t t = time.ToDeltaSinceWindowsEpoch().InMicroseconds();
-  if (!CanConvertToFileTime(t))
+  if (!CanConvertToFileTime(t)) {
     return;
+  }
 #endif
 
   base::Time::Exploded exploded;
@@ -57,8 +58,9 @@ void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {
 }
 
 CEF_EXPORT int cef_time_to_timet(const cef_time_t* cef_time, time_t* time) {
-  if (!cef_time || !time)
+  if (!cef_time || !time) {
     return 0;
+  }
 
   base::Time base_time;
   cef_time_to_basetime(*cef_time, base_time);
@@ -67,8 +69,9 @@ CEF_EXPORT int cef_time_to_timet(const cef_time_t* cef_time, time_t* time) {
 }
 
 CEF_EXPORT int cef_time_from_timet(time_t time, cef_time_t* cef_time) {
-  if (!cef_time)
+  if (!cef_time) {
     return 0;
+  }
 
   base::Time base_time = base::Time::FromTimeT(time);
   cef_time_from_basetime(base_time, *cef_time);
@@ -76,8 +79,9 @@ CEF_EXPORT int cef_time_from_timet(time_t time, cef_time_t* cef_time) {
 }
 
 CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time) {
-  if (!cef_time || !time)
+  if (!cef_time || !time) {
     return 0;
+  }
 
   base::Time base_time;
   cef_time_to_basetime(*cef_time, base_time);
@@ -86,8 +90,9 @@ CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time) {
 }
 
 CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time) {
-  if (!cef_time)
+  if (!cef_time) {
     return 0;
+  }
 
   base::Time base_time = base::Time::FromDoubleT(time);
   cef_time_from_basetime(base_time, *cef_time);
@@ -95,8 +100,9 @@ CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time) {
 }
 
 CEF_EXPORT int cef_time_now(cef_time_t* cef_time) {
-  if (!cef_time)
+  if (!cef_time) {
     return 0;
+  }
 
   base::Time base_time = base::Time::Now();
   cef_time_from_basetime(base_time, *cef_time);
@@ -110,8 +116,9 @@ CEF_EXPORT cef_basetime_t cef_basetime_now() {
 CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
                               const cef_time_t* cef_time2,
                               long long* delta) {
-  if (!cef_time1 || !cef_time2 || !delta)
+  if (!cef_time1 || !cef_time2 || !delta) {
     return 0;
+  }
 
   base::Time base_time1, base_time2;
   cef_time_to_basetime(*cef_time1, base_time1);
@@ -124,8 +131,9 @@ CEF_EXPORT int cef_time_delta(const cef_time_t* cef_time1,
 
 CEF_EXPORT int cef_time_to_basetime(const cef_time_t* from,
                                     cef_basetime_t* to) {
-  if (!from || !to)
+  if (!from || !to) {
     return 0;
+  }
 
   base::Time::Exploded exploded;
   exploded.year = from->year;
@@ -144,8 +152,9 @@ CEF_EXPORT int cef_time_to_basetime(const cef_time_t* from,
 
 CEF_EXPORT int cef_time_from_basetime(const cef_basetime_t from,
                                       cef_time_t* to) {
-  if (!to)
+  if (!to) {
     return 0;
+  }
 
   base::Time time = CefBaseTime(from);
 

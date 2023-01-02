@@ -143,8 +143,9 @@ class ReadTestHandler : public RoutingTestHandler {
 
  private:
   void DestroyTestIfDone() {
-    if (got_on_query_ && got_on_loading_state_change_done_)
+    if (got_on_query_ && got_on_loading_state_change_done_) {
       DestroyTest();
+    }
   }
 
   void DestroyTest() override {

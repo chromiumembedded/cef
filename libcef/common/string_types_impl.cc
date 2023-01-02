@@ -42,8 +42,9 @@ CEF_EXPORT int cef_string_wide_set(const wchar_t* src,
   if (copy) {
     if (src && src_len > 0) {
       output->str = new wchar_t[src_len + 1];
-      if (!output->str)
+      if (!output->str) {
         return 0;
+      }
 
       memcpy(output->str, src, src_len * sizeof(wchar_t));
       output->str[src_len] = 0;
@@ -66,8 +67,9 @@ CEF_EXPORT int cef_string_utf8_set(const char* src,
   if (copy) {
     if (src && src_len > 0) {
       output->str = new char[src_len + 1];
-      if (!output->str)
+      if (!output->str) {
         return 0;
+      }
 
       memcpy(output->str, src, src_len * sizeof(char));
       output->str[src_len] = 0;
@@ -91,8 +93,9 @@ CEF_EXPORT int cef_string_utf16_set(const char16* src,
   if (copy) {
     if (src && src_len > 0) {
       output->str = new char16[src_len + 1];
-      if (!output->str)
+      if (!output->str) {
         return 0;
+      }
 
       memcpy(output->str, src, src_len * sizeof(char16));
       output->str[src_len] = 0;
@@ -109,8 +112,9 @@ CEF_EXPORT int cef_string_utf16_set(const char16* src,
 
 CEF_EXPORT void cef_string_wide_clear(cef_string_wide_t* str) {
   DCHECK(str != nullptr);
-  if (str->dtor && str->str)
+  if (str->dtor && str->str) {
     str->dtor(str->str);
+  }
 
   str->str = nullptr;
   str->length = 0;
@@ -119,8 +123,9 @@ CEF_EXPORT void cef_string_wide_clear(cef_string_wide_t* str) {
 
 CEF_EXPORT void cef_string_utf8_clear(cef_string_utf8_t* str) {
   DCHECK(str != nullptr);
-  if (str->dtor && str->str)
+  if (str->dtor && str->str) {
     str->dtor(str->str);
+  }
 
   str->str = nullptr;
   str->length = 0;
@@ -129,8 +134,9 @@ CEF_EXPORT void cef_string_utf8_clear(cef_string_utf8_t* str) {
 
 CEF_EXPORT void cef_string_utf16_clear(cef_string_utf16_t* str) {
   DCHECK(str != nullptr);
-  if (str->dtor && str->str)
+  if (str->dtor && str->str) {
     str->dtor(str->str);
+  }
 
   str->str = nullptr;
   str->length = 0;
@@ -139,36 +145,41 @@ CEF_EXPORT void cef_string_utf16_clear(cef_string_utf16_t* str) {
 
 CEF_EXPORT int cef_string_wide_cmp(const cef_string_wide_t* str1,
                                    const cef_string_wide_t* str2) {
-  if (str1->length == 0 && str2->length == 0)
+  if (str1->length == 0 && str2->length == 0) {
     return 0;
+  }
   int r = wcsncmp(str1->str, str2->str, std::min(str1->length, str2->length));
   if (r == 0) {
-    if (str1->length > str2->length)
+    if (str1->length > str2->length) {
       return 1;
-    else if (str1->length < str2->length)
+    } else if (str1->length < str2->length) {
       return -1;
+    }
   }
   return r;
 }
 
 CEF_EXPORT int cef_string_utf8_cmp(const cef_string_utf8_t* str1,
                                    const cef_string_utf8_t* str2) {
-  if (str1->length == 0 && str2->length == 0)
+  if (str1->length == 0 && str2->length == 0) {
     return 0;
+  }
   int r = strncmp(str1->str, str2->str, std::min(str1->length, str2->length));
   if (r == 0) {
-    if (str1->length > str2->length)
+    if (str1->length > str2->length) {
       return 1;
-    else if (str1->length < str2->length)
+    } else if (str1->length < str2->length) {
       return -1;
+    }
   }
   return r;
 }
 
 CEF_EXPORT int cef_string_utf16_cmp(const cef_string_utf16_t* str1,
                                     const cef_string_utf16_t* str2) {
-  if (str1->length == 0 && str2->length == 0)
+  if (str1->length == 0 && str2->length == 0) {
     return 0;
+  }
 #if defined(WCHAR_T_IS_UTF32)
   int r = std::char_traits<std::u16string::value_type>::compare(
       reinterpret_cast<std::u16string::value_type*>(str1->str),
@@ -178,10 +189,11 @@ CEF_EXPORT int cef_string_utf16_cmp(const cef_string_utf16_t* str1,
   int r = wcsncmp(str1->str, str2->str, std::min(str1->length, str2->length));
 #endif
   if (r == 0) {
-    if (str1->length > str2->length)
+    if (str1->length > str2->length) {
       return 1;
-    else if (str1->length < str2->length)
+    } else if (str1->length < str2->length) {
       return -1;
+    }
   }
   return r;
 }
@@ -191,8 +203,9 @@ CEF_EXPORT int cef_string_wide_to_utf8(const wchar_t* src,
                                        cef_string_utf8_t* output) {
   std::string str;
   bool ret = base::WideToUTF8(src, src_len, &str);
-  if (!cef_string_utf8_set(str.c_str(), str.length(), output, true))
+  if (!cef_string_utf8_set(str.c_str(), str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 
@@ -201,8 +214,9 @@ CEF_EXPORT int cef_string_utf8_to_wide(const char* src,
                                        cef_string_wide_t* output) {
   std::wstring str;
   bool ret = base::UTF8ToWide(src, src_len, &str);
-  if (!cef_string_wide_set(str.c_str(), str.length(), output, true))
+  if (!cef_string_wide_set(str.c_str(), str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 
@@ -212,8 +226,9 @@ CEF_EXPORT int cef_string_wide_to_utf16(const wchar_t* src,
   std::u16string str;
   bool ret = base::WideToUTF16(src, src_len, &str);
   if (!cef_string_utf16_set(reinterpret_cast<const char16*>(str.c_str()),
-                            str.length(), output, true))
+                            str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 
@@ -223,8 +238,9 @@ CEF_EXPORT int cef_string_utf16_to_wide(const char16* src,
   std::wstring str;
   bool ret = base::UTF16ToWide(
       reinterpret_cast<const std::u16string::value_type*>(src), src_len, &str);
-  if (!cef_string_wide_set(str.c_str(), str.length(), output, true))
+  if (!cef_string_wide_set(str.c_str(), str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 
@@ -234,8 +250,9 @@ CEF_EXPORT int cef_string_utf8_to_utf16(const char* src,
   std::u16string str;
   bool ret = base::UTF8ToUTF16(src, src_len, &str);
   if (!cef_string_utf16_set(reinterpret_cast<const char16*>(str.c_str()),
-                            str.length(), output, true))
+                            str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 
@@ -245,8 +262,9 @@ CEF_EXPORT int cef_string_utf16_to_utf8(const char16* src,
   std::string str;
   bool ret = base::UTF16ToUTF8(
       reinterpret_cast<const std::u16string::value_type*>(src), src_len, &str);
-  if (!cef_string_utf8_set(str.c_str(), str.length(), output, true))
+  if (!cef_string_utf8_set(str.c_str(), str.length(), output, true)) {
     return false;
+  }
   return ret;
 }
 

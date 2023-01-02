@@ -41,8 +41,9 @@ const char kMessageRestoreName[] = "WindowTest.Restore";
 // Create the appropriate platform test runner object.
 std::unique_ptr<WindowTestRunner> CreateWindowTestRunner() {
 #if defined(OS_WIN) || defined(OS_LINUX)
-  if (MainContext::Get()->UseViews())
+  if (MainContext::Get()->UseViews()) {
     return std::make_unique<WindowTestRunnerViews>();
+  }
 #endif
 
 #if defined(OS_WIN)
@@ -70,8 +71,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
                        CefRefPtr<Callback> callback) override {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (!test_runner::IsTestURL(url, kTestUrlPath))
+    if (!test_runner::IsTestURL(url, kTestUrlPath)) {
       return false;
+    }
 
     const std::string& message_name = request;
     if (message_name.find(kMessagePositionName) == 0) {
@@ -83,8 +85,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       int i;
       while (ss >> i) {
         vec.push_back(i);
-        if (ss.peek() == ',')
+        if (ss.peek() == ',') {
           ss.ignore();
+        }
       }
 
       if (vec.size() == 4) {

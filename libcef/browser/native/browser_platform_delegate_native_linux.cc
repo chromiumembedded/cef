@@ -45,10 +45,12 @@ void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
 bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   DCHECK(!window_widget_);
 
-  if (window_info_.bounds.width == 0)
+  if (window_info_.bounds.width == 0) {
     window_info_.bounds.width = 800;
-  if (window_info_.bounds.height == 0)
+  }
+  if (window_info_.bounds.height == 0) {
     window_info_.bounds.height = 600;
+  }
 
   gfx::Rect rect(window_info_.bounds.x, window_info_.bounds.y,
                  window_info_.bounds.width, window_info_.bounds.height);
@@ -114,15 +116,17 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
 void CefBrowserPlatformDelegateNativeLinux::CloseHostWindow() {
 #if BUILDFLAG(OZONE_PLATFORM_X11)
-  if (window_x11_)
+  if (window_x11_) {
     window_x11_->Close();
+  }
 #endif
 }
 
 CefWindowHandle CefBrowserPlatformDelegateNativeLinux::GetHostWindowHandle()
     const {
-  if (windowless_handler_)
+  if (windowless_handler_) {
     return windowless_handler_->GetParentWindowHandle();
+  }
   return window_info_.window;
 }
 
@@ -131,8 +135,9 @@ views::Widget* CefBrowserPlatformDelegateNativeLinux::GetWindowWidget() const {
 }
 
 void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
-  if (!setFocus)
+  if (!setFocus) {
     return;
+  }
 
   if (web_contents_) {
     // Give logical focus to the RenderWidgetHostViewAura in the views
@@ -154,16 +159,19 @@ void CefBrowserPlatformDelegateNativeLinux::NotifyMoveOrResizeStarted() {
   // Call the parent method to dismiss any existing popups.
   CefBrowserPlatformDelegateNativeAura::NotifyMoveOrResizeStarted();
 
-  if (!web_contents_)
+  if (!web_contents_) {
     return;
+  }
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)
-  if (!window_x11_)
+  if (!window_x11_) {
     return;
+  }
 
   views::DesktopWindowTreeHostLinux* tree_host = window_x11_->GetHost();
-  if (!tree_host)
+  if (!tree_host) {
     return;
+  }
 
   // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
   // methods return the correct results.
@@ -191,12 +199,14 @@ void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
   char buff[] = "/tmp/CEFSourceXXXXXX";
   int fd = mkstemp(buff);
 
-  if (fd == -1)
+  if (fd == -1) {
     return;
+  }
 
   FILE* srcOutput = fdopen(fd, "w+");
-  if (!srcOutput)
+  if (!srcOutput) {
     return;
+  }
 
   if (fputs(text.c_str(), srcOutput) < 0) {
     fclose(srcOutput);
@@ -207,8 +217,9 @@ void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
 
   std::string newName(buff);
   newName.append(".txt");
-  if (rename(buff, newName.c_str()) != 0)
+  if (rename(buff, newName.c_str()) != 0) {
     return;
+  }
 
   std::string openCommand("xdg-open ");
   openCommand += newName;

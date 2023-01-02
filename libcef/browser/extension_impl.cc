@@ -37,12 +37,14 @@ CefRefPtr<CefDictionaryValue> CefExtensionImpl::GetManifest() {
 
 bool CefExtensionImpl::IsSame(CefRefPtr<CefExtension> that) {
   CefExtensionImpl* that_impl = static_cast<CefExtensionImpl*>(that.get());
-  if (!that_impl)
+  if (!that_impl) {
     return false;
+  }
 
   // Maybe the same object.
-  if (this == that_impl)
+  if (this == that_impl) {
     return true;
+  }
 
   return id_ == that_impl->id_ && path_ == that_impl->path_ &&
          loader_context_ == that_impl->loader_context_;
@@ -77,11 +79,13 @@ void CefExtensionImpl::Unload() {
   }
 
   // Will be NULL for internal extensions. They can't be unloaded.
-  if (!loader_context_)
+  if (!loader_context_) {
     return;
+  }
 
-  if (unloaded_)
+  if (unloaded_) {
     return;
+  }
 
   // CefExtensionHandler callbacks triggered by UnloadExtension may check this
   // flag, so set it here.
@@ -96,8 +100,9 @@ void CefExtensionImpl::Unload() {
 
 void CefExtensionImpl::OnExtensionLoaded() {
   CEF_REQUIRE_UIT();
-  if (handler_)
+  if (handler_) {
     handler_->OnExtensionLoaded(this);
+  }
 }
 
 void CefExtensionImpl::OnExtensionUnloaded() {
@@ -108,6 +113,7 @@ void CefExtensionImpl::OnExtensionUnloaded() {
   unloaded_ = true;
   loader_context_ = nullptr;
 
-  if (handler_)
+  if (handler_) {
     handler_->OnExtensionUnloaded(this);
+  }
 }

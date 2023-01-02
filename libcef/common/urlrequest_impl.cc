@@ -32,8 +32,9 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     // In the browser process.
     CefRefPtr<CefBrowserURLRequest> impl =
         new CefBrowserURLRequest(nullptr, request, client, request_context);
-    if (impl->Start())
+    if (impl->Start()) {
       return impl.get();
+    }
     return nullptr;
   } else {
     NOTREACHED() << "called in unsupported process";

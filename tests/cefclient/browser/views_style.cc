@@ -22,8 +22,9 @@ int GetShade(int component) {
 
 void MaybeInitialize() {
   static bool initialized = false;
-  if (initialized)
+  if (initialized) {
     return;
+  }
 
   g_background_color = MainContext::Get()->GetBackgroundColor();
   if (g_background_color != 0) {
@@ -50,22 +51,25 @@ bool IsSet() {
 }
 
 void ApplyBackgroundTo(CefRefPtr<CefView> view) {
-  if (!IsSet())
+  if (!IsSet()) {
     return;
+  }
 
   view->SetBackgroundColor(g_background_color);
 }
 
 void ApplyTo(CefRefPtr<CefPanel> panel) {
-  if (!IsSet())
+  if (!IsSet()) {
     return;
+  }
 
   panel->SetBackgroundColor(g_background_color);
 }
 
 void ApplyTo(CefRefPtr<CefLabelButton> label_button) {
-  if (!IsSet())
+  if (!IsSet()) {
     return;
+  }
 
   // All text except disabled gets the same color.
   label_button->SetEnabledTextColors(g_text_color);
@@ -76,16 +80,18 @@ void ApplyTo(CefRefPtr<CefLabelButton> label_button) {
 }
 
 void ApplyTo(CefRefPtr<CefTextfield> textfield) {
-  if (!IsSet())
+  if (!IsSet()) {
     return;
+  }
 
   textfield->SetBackgroundColor(g_background_color);
   textfield->SetTextColor(g_text_color);
 }
 
 void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
-  if (!IsSet())
+  if (!IsSet()) {
     return;
+  }
 
   // All text except non-hovered accelerator gets the same color.
   menu_model->SetColorAt(-1, CEF_MENU_COLOR_TEXT, g_text_color);
@@ -101,8 +107,9 @@ void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
 
   // Recursively color sub-menus.
   for (size_t i = 0; i < menu_model->GetCount(); ++i) {
-    if (menu_model->GetTypeAt(i) == MENUITEMTYPE_SUBMENU)
+    if (menu_model->GetTypeAt(i) == MENUITEMTYPE_SUBMENU) {
       ApplyTo(menu_model->GetSubMenuAt(i));
+    }
   }
 }
 

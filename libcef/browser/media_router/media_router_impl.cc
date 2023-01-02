@@ -38,12 +38,14 @@ class CefRegistrationImpl : public CefRegistration,
     CEF_REQUIRE_UIT();
 
     // May be null if OnMediaRouterDestroyed was called.
-    if (browser_context_getter_.is_null())
+    if (browser_context_getter_.is_null()) {
       return;
+    }
 
     auto browser_context = GetBrowserContext(browser_context_getter_);
-    if (!browser_context)
+    if (!browser_context) {
       return;
+    }
 
     browser_context->GetMediaRouterManager()->RemoveObserver(this);
   }
@@ -55,8 +57,9 @@ class CefRegistrationImpl : public CefRegistration,
     browser_context_getter_ = browser_context_getter;
 
     auto browser_context = GetBrowserContext(browser_context_getter_);
-    if (!browser_context)
+    if (!browser_context) {
       return;
+    }
 
     browser_context->GetMediaRouterManager()->AddObserver(this);
   }
@@ -165,8 +168,9 @@ void CefMediaRouterImpl::Initialize(
 
 CefRefPtr<CefRegistration> CefMediaRouterImpl::AddObserver(
     CefRefPtr<CefMediaObserver> observer) {
-  if (!observer)
+  if (!observer) {
     return nullptr;
+  }
   CefRefPtr<CefRegistrationImpl> registration =
       new CefRegistrationImpl(observer);
   StoreOrTriggerInitCallback(base::BindOnce(
@@ -175,8 +179,9 @@ CefRefPtr<CefRegistration> CefMediaRouterImpl::AddObserver(
 }
 
 CefRefPtr<CefMediaSource> CefMediaRouterImpl::GetSource(const CefString& urn) {
-  if (urn.empty())
+  if (urn.empty()) {
     return nullptr;
+  }
 
   // Check for a valid URL and supported Cast/DIAL schemes.
   GURL presentation_url(urn.ToString());
@@ -222,8 +227,9 @@ void CefMediaRouterImpl::NotifyCurrentSinksInternal() {
   DCHECK(ValidContext());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetMediaRouterManager()->NotifyCurrentSinks();
 }
@@ -268,8 +274,9 @@ void CefMediaRouterImpl::NotifyCurrentRoutesInternal() {
   DCHECK(ValidContext());
 
   auto browser_context = GetBrowserContext(browser_context_getter_);
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetMediaRouterManager()->NotifyCurrentRoutes();
 }
@@ -284,8 +291,9 @@ void CefMediaRouterImpl::CreateRouteCallback(
                  << result.result_code() << ")";
   }
 
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   CefRefPtr<CefMediaRoute> route;
   if (result.result_code() == media_router::mojom::RouteRequestResultCode::OK &&

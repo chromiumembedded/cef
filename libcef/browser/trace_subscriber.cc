@@ -20,8 +20,9 @@ void CreateTemporaryFileOnBackgroundThread(
     base::OnceCallback<void(const base::FilePath&)> callback) {
   CEF_REQUIRE_BLOCKING();
   base::FilePath file_path;
-  if (!base::CreateTemporaryFile(&file_path))
+  if (!base::CreateTemporaryFile(&file_path)) {
     LOG(ERROR) << "Failed to create temporary file.";
+  }
   message_loop_proxy->PostTask(FROM_HERE,
                                base::BindOnce(std::move(callback), file_path));
 }
@@ -61,8 +62,9 @@ CefTraceSubscriber::CefTraceSubscriber()
 
 CefTraceSubscriber::~CefTraceSubscriber() {
   CEF_REQUIRE_UIT();
-  if (collecting_trace_data_)
+  if (collecting_trace_data_) {
     TracingController::GetInstance()->StopTracing(nullptr);
+  }
 }
 
 bool CefTraceSubscriber::BeginTracing(
@@ -70,8 +72,9 @@ bool CefTraceSubscriber::BeginTracing(
     CefRefPtr<CefCompletionCallback> callback) {
   CEF_REQUIRE_UIT();
 
-  if (collecting_trace_data_)
+  if (collecting_trace_data_) {
     return false;
+  }
 
   collecting_trace_data_ = true;
 
@@ -93,8 +96,9 @@ bool CefTraceSubscriber::EndTracing(const base::FilePath& tracing_file,
                                     CefRefPtr<CefEndTracingCallback> callback) {
   CEF_REQUIRE_UIT();
 
-  if (!collecting_trace_data_)
+  if (!collecting_trace_data_) {
     return false;
+  }
 
   if (!callback.get()) {
     // Discard the trace data.
@@ -128,8 +132,9 @@ void CefTraceSubscriber::ContinueEndTracing(
     CefRefPtr<CefEndTracingCallback> callback,
     const base::FilePath& tracing_file) {
   CEF_REQUIRE_UIT();
-  if (!tracing_file.empty())
+  if (!tracing_file.empty()) {
     EndTracing(tracing_file, callback);
+  }
 }
 
 void CefTraceSubscriber::OnTracingFileResult(

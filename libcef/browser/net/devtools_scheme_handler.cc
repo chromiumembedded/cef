@@ -29,8 +29,9 @@ class Delegate : public InternalHandlerDelegate {
                  Action* action) override {
     GURL url = GURL(request->GetURL().ToString());
     std::string path = url.path();
-    if (path.length() > 0)
+    if (path.length() > 0) {
       path = path.substr(1);
+    }
 
     action->bytes =
         content::DevToolsFrontendHost::GetFrontendResourceBytes(path);

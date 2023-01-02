@@ -104,8 +104,9 @@ CefString CefResponseImpl::GetHeaderByName(const CefString& name) {
   HttpHeaderUtils::MakeASCIILower(&nameLower);
 
   auto it = HttpHeaderUtils::FindHeaderInMap(nameLower, header_map_);
-  if (it != header_map_.end())
+  if (it != header_map_.end()) {
     return it->second;
+  }
 
   return CefString();
 }
@@ -122,8 +123,9 @@ void CefResponseImpl::SetHeaderByName(const CefString& name,
   // There may be multiple values, so remove any first.
   for (auto it = header_map_.begin(); it != header_map_.end();) {
     if (base::EqualsCaseInsensitiveASCII(it->first.ToString(), nameLower)) {
-      if (!overwrite)
+      if (!overwrite) {
         return;
+      }
       it = header_map_.erase(it);
     } else {
       ++it;
@@ -159,12 +161,14 @@ scoped_refptr<net::HttpResponseHeaders> CefResponseImpl::GetResponseHeaders() {
   base::AutoLock lock_scope(lock_);
 
   std::string mime_type = mime_type_;
-  if (mime_type.empty())
+  if (mime_type.empty()) {
     mime_type = "text/html";
+  }
 
   std::multimap<std::string, std::string> extra_headers;
-  for (const auto& pair : header_map_)
+  for (const auto& pair : header_map_) {
     extra_headers.insert(std::make_pair(pair.first, pair.second));
+  }
 
   return net_service::MakeResponseHeaders(
       status_code_, status_text_, mime_type, charset_, -1, extra_headers,
@@ -180,8 +184,9 @@ void CefResponseImpl::SetResponseHeaders(
 
   size_t iter = 0;
   std::string name, value;
-  while (headers.EnumerateHeaderLines(&iter, &name, &value))
+  while (headers.EnumerateHeaderLines(&iter, &name, &value)) {
     header_map_.insert(std::make_pair(name, value));
+  }
 
   status_code_ = headers.response_code();
   status_text_ = headers.GetStatusText();

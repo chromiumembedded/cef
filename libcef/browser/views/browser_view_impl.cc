@@ -34,8 +34,9 @@ CefRefPtr<CefBrowserView> CefBrowserView::GetForBrowser(
 
   CefBrowserHostBase* browser_impl =
       static_cast<CefBrowserHostBase*>(browser.get());
-  if (browser_impl && browser_impl->is_views_hosted())
+  if (browser_impl && browser_impl->is_views_hosted()) {
     return browser_impl->GetBrowserView();
+  }
   return nullptr;
 }
 
@@ -84,8 +85,9 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
 
 void CefBrowserViewImpl::WebContentsCreated(
     content::WebContents* web_contents) {
-  if (web_view())
+  if (web_view()) {
     web_view()->SetWebContents(web_contents);
+  }
 }
 
 void CefBrowserViewImpl::BrowserCreated(
@@ -99,21 +101,25 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
   DCHECK_EQ(browser, browser_);
   browser_ = nullptr;
 
-  if (web_view())
+  if (web_view()) {
     web_view()->SetWebContents(nullptr);
+  }
 }
 
 bool CefBrowserViewImpl::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
-  if (!root_view())
+  if (!root_view()) {
     return false;
+  }
 
   views::FocusManager* focus_manager = root_view()->GetFocusManager();
-  if (!focus_manager)
+  if (!focus_manager) {
     return false;
+  }
 
-  if (HandleAccelerator(event, focus_manager))
+  if (HandleAccelerator(event, focus_manager)) {
     return true;
+  }
 
   // Give the CefWindowDelegate a chance to handle the event.
   CefRefPtr<CefWindow> window =
@@ -148,8 +154,9 @@ CefRefPtr<CefView> CefBrowserViewImpl::GetChromeToolbar() {
 
 void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  if (web_view())
+  if (web_view()) {
     web_view()->set_allow_accelerators(prefer_accelerators);
+  }
 }
 
 void CefBrowserViewImpl::RequestFocus() {
@@ -163,8 +170,9 @@ void CefBrowserViewImpl::RequestFocus() {
 void CefBrowserViewImpl::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::SetBackgroundColor(color);
-  if (web_view())
+  if (web_view()) {
     web_view()->SetResizeBackgroundColor(color);
+  }
 }
 
 void CefBrowserViewImpl::Detach() {
@@ -186,8 +194,9 @@ void CefBrowserViewImpl::Detach() {
 void CefBrowserViewImpl::GetDebugInfo(base::DictionaryValue* info,
                                       bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
-  if (browser_)
+  if (browser_) {
     info->SetString("url", browser_->GetMainFrame()->GetURL().ToString());
+  }
 }
 
 void CefBrowserViewImpl::OnBrowserViewAdded() {
@@ -204,8 +213,9 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
 }
 
 void CefBrowserViewImpl::OnBoundsChanged() {
-  if (!on_bounds_changed_.is_null())
+  if (!on_bounds_changed_.is_null()) {
     on_bounds_changed_.Run();
+  }
 }
 
 CefBrowserViewImpl::CefBrowserViewImpl(
@@ -251,8 +261,9 @@ void CefBrowserViewImpl::InitializeRootView() {
 }
 
 views::WebView* CefBrowserViewImpl::web_view() const {
-  if (!root_view())
+  if (!root_view()) {
     return nullptr;
+  }
 
   if (cef::IsChromeRuntimeEnabled()) {
     return static_cast<ChromeBrowserView*>(root_view())->contents_web_view();
@@ -287,8 +298,9 @@ bool CefBrowserViewImpl::HandleAccelerator(
     // set the flag and fix it if no event was handled.
     ignore_next_char_event_ = true;
 
-    if (focus_manager->ProcessAccelerator(accelerator))
+    if (focus_manager->ProcessAccelerator(accelerator)) {
       return true;
+    }
 
     // ProcessAccelerator didn't handle the accelerator, so we know both
     // that |this| is still valid, and that we didn't want to set the flag.

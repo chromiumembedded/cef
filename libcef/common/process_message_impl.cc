@@ -54,8 +54,9 @@ bool CefProcessMessageImpl::IsReadOnly() {
 }
 
 CefRefPtr<CefProcessMessage> CefProcessMessageImpl::Copy() {
-  if (!IsValid())
+  if (!IsValid()) {
     return nullptr;
+  }
   return new CefProcessMessageImpl(name_, arguments_->Copy());
 }
 

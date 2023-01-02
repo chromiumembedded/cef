@@ -18,8 +18,9 @@ void transfer_string_list_contents(cef_string_list_t fromList,
 void transfer_string_list_contents(const StringList& fromList,
                                    cef_string_list_t toList) {
   size_t size = fromList.size();
-  for (size_t i = 0; i < size; ++i)
+  for (size_t i = 0; i < size; ++i) {
     cef_string_list_append(toList, fromList[i].GetStruct());
+  }
 }
 
 void transfer_string_map_contents(cef_string_map_t fromMap, StringMap& toMap) {
@@ -37,8 +38,9 @@ void transfer_string_map_contents(cef_string_map_t fromMap, StringMap& toMap) {
 void transfer_string_map_contents(const StringMap& fromMap,
                                   cef_string_map_t toMap) {
   StringMap::const_iterator it = fromMap.begin();
-  for (; it != fromMap.end(); ++it)
+  for (; it != fromMap.end(); ++it) {
     cef_string_map_append(toMap, it->first.GetStruct(), it->second.GetStruct());
+  }
 }
 
 void transfer_string_multimap_contents(cef_string_multimap_t fromMap,

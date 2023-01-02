@@ -15,8 +15,9 @@ bool CefMenuRunnerViews::RunContextMenu(
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   CefRefPtr<CefWindow> window = browser_view_->GetWindow();
-  if (!window)
+  if (!window) {
     return false;
+  }
 
   CefPoint screen_point(params.x, params.y);
   browser_view_->ConvertPointToScreen(screen_point);
@@ -27,8 +28,9 @@ bool CefMenuRunnerViews::RunContextMenu(
 
 void CefMenuRunnerViews::CancelContextMenu() {
   CefRefPtr<CefWindow> window = browser_view_->GetWindow();
-  if (window)
+  if (window) {
     window->CancelMenu();
+  }
 }
 
 bool CefMenuRunnerViews::FormatLabel(std::u16string& label) {

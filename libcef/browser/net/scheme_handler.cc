@@ -16,8 +16,9 @@
 namespace scheme {
 
 void RegisterInternalHandlers(CefIOThreadState* iothread_state) {
-  if (!cef::IsAlloyRuntimeEnabled())
+  if (!cef::IsAlloyRuntimeEnabled()) {
     return;
+  }
 
   scheme::RegisterChromeDevToolsHandler(iothread_state);
 }

@@ -120,10 +120,12 @@ void CefAudioCapturer::OnCaptureError(
 }
 
 void CefAudioCapturer::StopStream() {
-  if (audio_input_device_)
+  if (audio_input_device_) {
     audio_input_device_->Stop();
-  if (capturing_)
+  }
+  if (capturing_) {
     audio_handler_->OnAudioStreamStopped(browser_);
+  }
 
   audio_input_device_ = nullptr;
   capturing_ = false;

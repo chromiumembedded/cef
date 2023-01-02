@@ -22,12 +22,14 @@ CefRefPtr<CefMenuButtonImpl> CefMenuButtonImpl::Create(
     const CefString& text) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   DCHECK(delegate);
-  if (!delegate)
+  if (!delegate) {
     return nullptr;
+  }
   CefRefPtr<CefMenuButtonImpl> menu_button = new CefMenuButtonImpl(delegate);
   menu_button->Initialize();
-  if (!text.empty())
+  if (!text.empty()) {
     menu_button->SetText(text);
+  }
   return menu_button;
 }
 

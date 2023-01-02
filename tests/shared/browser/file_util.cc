@@ -35,14 +35,17 @@ const char kPathSep = '/';
 bool ReadFileToString(const std::string& path,
                       std::string* contents,
                       size_t max_size) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return false;
+  }
 
-  if (contents)
+  if (contents) {
     contents->clear();
+  }
   FILE* file = fopen(path.c_str(), "rb");
-  if (!file)
+  if (!file) {
     return false;
+  }
 
   const size_t kBufferSize = 1 << 16;
   std::unique_ptr<char[]> buf(new char[kBufferSize]);
@@ -53,8 +56,9 @@ bool ReadFileToString(const std::string& path,
   // Many files supplied in |path| have incorrect size (proc files etc).
   // Hence, the file is read sequentially as opposed to a one-shot read.
   while ((len = fread(buf.get(), 1, kBufferSize, file)) > 0) {
-    if (contents)
+    if (contents) {
       contents->append(buf.get(), std::min(len, max_size - size));
+    }
 
     if ((max_size - size) < len) {
       read_status = false;
@@ -70,19 +74,22 @@ bool ReadFileToString(const std::string& path,
 }
 
 int WriteFile(const std::string& path, const char* data, int size) {
-  if (!AllowFileIO())
+  if (!AllowFileIO()) {
     return -1;
+  }
 
   FILE* file = fopen(path.c_str(), "wb");
-  if (!file)
+  if (!file) {
     return -1;
+  }
 
   int written = 0;
 
   do {
     size_t write = fwrite(data + written, 1, size - written, file);
-    if (write == 0)
+    if (write == 0) {
       break;
+    }
     written += static_cast<int>(write);
   } while (written < size);
 
@@ -92,27 +99,33 @@ int WriteFile(const std::string& path, const char* data, int size) {
 }
 
 std::string JoinPath(const std::string& path1, const std::string& path2) {
-  if (path1.empty() && path2.empty())
+  if (path1.empty() && path2.empty()) {
     return std::string();
-  if (path1.empty())
+  }
+  if (path1.empty()) {
     return path2;
-  if (path2.empty())
+  }
+  if (path2.empty()) {
     return path1;
+  }
 
   std::string result = path1;
-  if (result[result.size() - 1] != kPathSep)
+  if (result[result.size() - 1] != kPathSep) {
     result += kPathSep;
-  if (path2[0] == kPathSep)
+  }
+  if (path2[0] == kPathSep) {
     result += path2.substr(1);
-  else
+  } else {
     result += path2;
+  }
   return result;
 }
 
 std::string GetFileExtension(const std::string& path) {
   size_t sep = path.find_last_of(".");
-  if (sep != std::string::npos)
+  if (sep != std::string::npos) {
     return path.substr(sep + 1);
+  }
   return std::string();
 }
 

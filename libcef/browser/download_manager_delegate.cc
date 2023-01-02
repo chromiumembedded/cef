@@ -35,8 +35,9 @@ namespace {
 CefRefPtr<CefDownloadHandler> GetDownloadHandler(
     CefRefPtr<AlloyBrowserHostImpl> browser) {
   CefRefPtr<CefClient> client = browser->GetClient();
-  if (client.get())
+  if (client.get()) {
     return client->GetDownloadHandler();
+  }
   return nullptr;
 }
 
@@ -58,8 +59,9 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
   void Continue(const CefString& download_path, bool show_dialog) override {
     if (CEF_CURRENTLY_ON_UIT()) {
-      if (download_id_ <= 0)
+      if (download_id_ <= 0) {
         return;
+      }
 
       if (manager_) {
         base::FilePath path = base::FilePath(download_path);
@@ -119,12 +121,14 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
                                  const base::FilePath& suggested_path,
                                  bool show_dialog,
                                  content::DownloadTargetCallback callback) {
-    if (!manager)
+    if (!manager) {
       return;
+    }
 
     DownloadItem* item = manager->GetDownload(download_id);
-    if (!item || item->GetState() != DownloadItem::IN_PROGRESS)
+    if (!item || item->GetState() != DownloadItem::IN_PROGRESS) {
       return;
+    }
 
     bool handled = false;
 
@@ -170,8 +174,9 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     DCHECK_LE(file_paths.size(), (size_t)1);
 
     base::FilePath path;
-    if (file_paths.size() > 0)
+    if (file_paths.size() > 0) {
       path = file_paths.front();
+    }
 
     // The download will be cancelled if |path| is empty.
     std::move(callback).Run(path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
@@ -218,37 +223,43 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
 
  private:
   void DoCancel() {
-    if (download_id_ <= 0)
+    if (download_id_ <= 0) {
       return;
+    }
 
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
-      if (item && item->GetState() == DownloadItem::IN_PROGRESS)
+      if (item && item->GetState() == DownloadItem::IN_PROGRESS) {
         item->Cancel(true);
+      }
     }
 
     download_id_ = 0;
   }
 
   void DoPause() {
-    if (download_id_ <= 0)
+    if (download_id_ <= 0) {
       return;
+    }
 
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
-      if (item && item->GetState() == DownloadItem::IN_PROGRESS)
+      if (item && item->GetState() == DownloadItem::IN_PROGRESS) {
         item->Pause();
+      }
     }
   }
 
   void DoResume() {
-    if (download_id_ <= 0)
+    if (download_id_ <= 0) {
       return;
+    }
 
     if (manager_) {
       DownloadItem* item = manager_->GetDownload(download_id_);
-      if (item && item->CanResume())
+      if (item && item->CanResume()) {
         item->Resume(true);
+      }
     }
   }
 
@@ -268,8 +279,9 @@ CefDownloadManagerDelegate::CefDownloadManagerDelegate(DownloadManager* manager)
   DownloadManager::DownloadVector items;
   manager->GetAllDownloads(&items);
   DownloadManager::DownloadVector::const_iterator it = items.begin();
-  for (; it != items.end(); ++it)
+  for (; it != items.end(); ++it) {
     OnDownloadCreated(manager, *it);
+  }
 }
 
 CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
@@ -278,15 +290,17 @@ CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
     manager_->RemoveObserver(this);
   }
 
-  while (!item_browser_map_.empty())
+  while (!item_browser_map_.empty()) {
     OnDownloadDestroyed(item_browser_map_.begin()->first);
+  }
 }
 
 void CefDownloadManagerDelegate::OnDownloadUpdated(DownloadItem* download) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser(download);
   CefRefPtr<CefDownloadHandler> handler;
-  if (browser.get())
+  if (browser.get()) {
     handler = GetDownloadHandler(browser);
+  }
 
   if (handler.get()) {
     CefRefPtr<CefDownloadItemImpl> download_item(
@@ -324,8 +338,9 @@ void CefDownloadManagerDelegate::OnDownloadDestroyed(DownloadItem* item) {
       }
     }
 
-    if (!has_remaining)
+    if (!has_remaining) {
       browser->RemoveObserver(this);
+    }
   }
 }
 
@@ -374,8 +389,9 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
   // from either method.
   CefRefPtr<AlloyBrowserHostImpl> browser = GetOrAssociateBrowser(item);
   CefRefPtr<CefDownloadHandler> handler;
-  if (browser.get())
+  if (browser.get()) {
     handler = GetDownloadHandler(browser);
+  }
 
   if (handler.get()) {
     base::FilePath suggested_name = net::GenerateFileName(
@@ -423,8 +439,9 @@ void CefDownloadManagerDelegate::OnBrowserDestroyed(
 AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
     download::DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
-  if (it != item_browser_map_.end())
+  if (it != item_browser_map_.end()) {
     return it->second;
+  }
 
   AlloyBrowserHostImpl* browser = nullptr;
   content::WebContents* contents =
@@ -433,8 +450,9 @@ AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
     browser = AlloyBrowserHostImpl::GetBrowserForContents(contents).get();
     DCHECK(browser);
   }
-  if (!browser)
+  if (!browser) {
     return nullptr;
+  }
 
   item->AddObserver(this);
 
@@ -442,8 +460,9 @@ AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
 
   // Register as an observer so that we can cancel associated DownloadItems when
   // the browser is destroyed.
-  if (!browser->HasObserver(this))
+  if (!browser->HasObserver(this)) {
     browser->AddObserver(this);
+  }
 
   return browser;
 }
@@ -451,8 +470,9 @@ AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetOrAssociateBrowser(
 AlloyBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(
     DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
-  if (it != item_browser_map_.end())
+  if (it != item_browser_map_.end()) {
     return it->second;
+  }
 
   // If the download is rejected (e.g. ALT+click on an invalid protocol link)
   // then an "interrupted" download will be started via DownloadManagerImpl::

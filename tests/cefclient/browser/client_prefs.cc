@@ -133,20 +133,24 @@ CefRect ClampBoundsToDisplay(const CefRect& dip_bounds) {
 
   CefRect bounds = dip_bounds;
 
-  if (bounds.width > work_area.width)
+  if (bounds.width > work_area.width) {
     bounds.width = work_area.width;
-  if (bounds.height > work_area.height)
+  }
+  if (bounds.height > work_area.height) {
     bounds.height = work_area.height;
+  }
 
-  if (bounds.x < work_area.x)
+  if (bounds.x < work_area.x) {
     bounds.x = work_area.x;
-  else if (bounds.x + bounds.width >= work_area.x + work_area.width)
+  } else if (bounds.x + bounds.width >= work_area.x + work_area.width) {
     bounds.x = work_area.x + work_area.width - bounds.width;
+  }
 
-  if (bounds.y < work_area.y)
+  if (bounds.y < work_area.y) {
     bounds.y = work_area.y;
-  else if (bounds.y + bounds.height >= work_area.y + work_area.height)
+  } else if (bounds.y + bounds.height >= work_area.y + work_area.height) {
     bounds.y = work_area.y + work_area.height - bounds.height;
+  }
 
   return bounds;
 }

@@ -180,8 +180,9 @@ class PermissionPromptTestHandler : public TestHandler,
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    if (test_setup_->deny_no_gesture)
+    if (test_setup_->deny_no_gesture) {
       return;
+    }
 
     if (test_setup_->deny_with_navigation) {
       if (frame->GetURL().ToString() == kPromptNavUrl) {

@@ -19,8 +19,9 @@ BytesWriteHandler::BytesWriteHandler(size_t grow)
 }
 
 BytesWriteHandler::~BytesWriteHandler() {
-  if (data_)
+  if (data_) {
     free(data_);
+  }
 }
 
 size_t BytesWriteHandler::Write(const void* ptr, size_t size, size_t n) {
@@ -43,22 +44,25 @@ int BytesWriteHandler::Seek(int64 offset, int whence) {
   base::AutoLock lock_scope(lock_);
   switch (whence) {
     case SEEK_CUR:
-      if (offset_ + offset > datasize_ || offset_ + offset < 0)
+      if (offset_ + offset > datasize_ || offset_ + offset < 0) {
         break;
+      }
       offset_ += offset;
       rv = 0;
       break;
     case SEEK_END: {
       int64 offset_abs = std::abs(offset);
-      if (offset_abs > datasize_)
+      if (offset_abs > datasize_) {
         break;
+      }
       offset_ = datasize_ - offset_abs;
       rv = 0;
       break;
     }
     case SEEK_SET:
-      if (offset > datasize_ || offset < 0)
+      if (offset > datasize_ || offset < 0) {
         break;
+      }
       offset_ = offset;
       rv = 0;
       break;

@@ -23,8 +23,9 @@ namespace {
 // Returns the path to the Frameworks directory inside the top-level app bundle.
 base::FilePath GetFrameworksPath() {
   base::FilePath bundle_path = GetMainBundlePath();
-  if (bundle_path.empty())
+  if (bundle_path.empty()) {
     return base::FilePath();
+  }
 
   return bundle_path.Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("Frameworks"));
@@ -79,12 +80,14 @@ base::FilePath GetFrameworkDirectory() {
   base::FilePath frameworks_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kFrameworkDirPath);
-  if (!frameworks_path.empty())
+  if (!frameworks_path.empty()) {
     return frameworks_path;
+  }
 
   frameworks_path = GetFrameworksPath();
-  if (frameworks_path.empty())
+  if (frameworks_path.empty()) {
     return base::FilePath();
+  }
 
   return frameworks_path.Append(GetFrameworkName())
       .AddExtension(FILE_PATH_LITERAL(".framework"));
@@ -92,8 +95,9 @@ base::FilePath GetFrameworkDirectory() {
 
 base::FilePath GetFrameworkResourcesDirectory() {
   base::FilePath frameworks_path = GetFrameworkDirectory();
-  if (frameworks_path.empty())
+  if (frameworks_path.empty()) {
     return base::FilePath();
+  }
 
   return frameworks_path.Append(FILE_PATH_LITERAL("Resources"));
 }
@@ -109,8 +113,9 @@ base::FilePath GetMainBundlePath() {
   base::FilePath main_bundle_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kMainBundlePath);
-  if (!main_bundle_path.empty())
+  if (!main_bundle_path.empty()) {
     return main_bundle_path;
+  }
 
   return base::mac::GetAppBundlePath(GetMainProcessPath());
 }
@@ -122,8 +127,9 @@ std::string GetMainBundleID() {
 
 base::FilePath GetMainResourcesDirectory() {
   base::FilePath bundle_path = GetMainBundlePath();
-  if (bundle_path.empty())
+  if (bundle_path.empty()) {
     return base::FilePath();
+  }
 
   return bundle_path.Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("Resources"));
@@ -131,8 +137,9 @@ base::FilePath GetMainResourcesDirectory() {
 
 base::FilePath GetChildProcessPath() {
   base::FilePath frameworks_path = GetFrameworksPath();
-  if (frameworks_path.empty())
+  if (frameworks_path.empty()) {
     return base::FilePath();
+  }
 
   std::string exe_name = GetMainProcessPath().BaseName().value();
   return frameworks_path.Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))

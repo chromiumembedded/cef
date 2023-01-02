@@ -50,14 +50,18 @@ display::Display::Rotation OrientationAngleToRotation(
   // angle. The former is the physical display rotation while the later is the
   // rotation required by the content to be shown properly on the screen, in
   // other words, relative to the physical display.
-  if (orientation_angle == 0)
+  if (orientation_angle == 0) {
     return display::Display::ROTATE_0;
-  if (orientation_angle == 90)
+  }
+  if (orientation_angle == 90) {
     return display::Display::ROTATE_270;
-  if (orientation_angle == 180)
+  }
+  if (orientation_angle == 180) {
     return display::Display::ROTATE_180;
-  if (orientation_angle == 270)
+  }
+  if (orientation_angle == 270) {
     return display::Display::ROTATE_90;
+  }
   NOTREACHED();
   return display::Display::ROTATE_0;
 }
@@ -69,11 +73,13 @@ display::Display::Rotation OrientationAngleToRotation(
 bool OnCursorChange(CefRefPtr<CefBrowser> browser,
                     const ui::Cursor& ui_cursor) {
   auto client = browser->GetHost()->GetClient();
-  if (!client)
+  if (!client) {
     return false;
+  }
   auto handler = client->GetDisplayHandler();
-  if (!handler)
+  if (!handler) {
     return false;
+  }
 
   const cef_cursor_type_t cursor_type =
       static_cast<cef_cursor_type_t>(ui_cursor.type());

@@ -130,8 +130,9 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::Create(
       static_cast<AlloyBrowserHostImpl*>(create_params.devtools_opener.get()),
       is_devtools_popup, request_context_impl, std::move(platform_delegate),
       cef_extension);
-  if (!browser)
+  if (!browser) {
     return nullptr;
+  }
 
   GURL url = url_util::MakeGURL(create_params.url, /*fixup=*/true);
 
@@ -173,8 +174,9 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
   if (opener) {
     if (!opener->platform_delegate_) {
       // The opener window is being destroyed. Cancel the popup.
-      if (own_web_contents)
+      if (own_web_contents) {
         delete web_contents;
+      }
       return nullptr;
     }
 
@@ -193,8 +195,9 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
       std::move(platform_delegate), extension);
   browser->InitializeBrowser();
 
-  if (!browser->CreateHostWindow())
+  if (!browser->CreateHostWindow()) {
     return nullptr;
+  }
 
   // Notify that the browser has been created. These must be delivered in the
   // expected order.
@@ -316,8 +319,9 @@ CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
   if (is_views_hosted_ && CEF_CURRENTLY_ON_UIT()) {
     // Always return the most up-to-date window handle for a views-hosted
     // browser since it may change if the view is re-parented.
-    if (platform_delegate_)
+    if (platform_delegate_) {
       return platform_delegate_->GetHostWindowHandle();
+    }
   }
   return host_window_handle_;
 }
@@ -333,16 +337,18 @@ double AlloyBrowserHostImpl::GetZoomLevel() {
     return 0;
   }
 
-  if (web_contents())
+  if (web_contents()) {
     return content::HostZoomMap::GetZoomLevel(web_contents());
+  }
 
   return 0;
 }
 
 void AlloyBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents())
+    if (web_contents()) {
       content::HostZoomMap::SetZoomLevel(web_contents(), zoomLevel);
+    }
   } else {
     CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SetZoomLevel,
                                           this, zoomLevel));
@@ -372,8 +378,9 @@ void AlloyBrowserHostImpl::StopFinding(bool clearSelection) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->StopFinding(clearSelection);
+  }
 }
 
 void AlloyBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
@@ -387,8 +394,9 @@ void AlloyBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
     return;
   }
 
-  if (!EnsureDevToolsManager())
+  if (!EnsureDevToolsManager()) {
     return;
+  }
   devtools_manager_->ShowDevTools(windowInfo, client, settings,
                                   inspect_element_at);
 }
@@ -400,8 +408,9 @@ void AlloyBrowserHostImpl::CloseDevTools() {
     return;
   }
 
-  if (!devtools_manager_)
+  if (!devtools_manager_) {
     return;
+  }
   devtools_manager_->CloseDevTools();
 }
 
@@ -411,8 +420,9 @@ bool AlloyBrowserHostImpl::HasDevTools() {
     return false;
   }
 
-  if (!devtools_manager_)
+  if (!devtools_manager_) {
     return false;
+  }
   return devtools_manager_->HasDevTools();
 }
 
@@ -464,8 +474,9 @@ void AlloyBrowserHostImpl::WasResized() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->WasResized();
+  }
 }
 
 void AlloyBrowserHostImpl::WasHidden(bool hidden) {
@@ -480,8 +491,9 @@ void AlloyBrowserHostImpl::WasHidden(bool hidden) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->WasHidden(hidden);
+  }
 }
 
 void AlloyBrowserHostImpl::NotifyScreenInfoChanged() {
@@ -497,8 +509,9 @@ void AlloyBrowserHostImpl::NotifyScreenInfoChanged() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->NotifyScreenInfoChanged();
+  }
 }
 
 void AlloyBrowserHostImpl::Invalidate(PaintElementType type) {
@@ -513,8 +526,9 @@ void AlloyBrowserHostImpl::Invalidate(PaintElementType type) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->Invalidate(type);
+  }
 }
 
 void AlloyBrowserHostImpl::SendExternalBeginFrame() {
@@ -530,8 +544,9 @@ void AlloyBrowserHostImpl::SendExternalBeginFrame() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SendExternalBeginFrame();
+  }
 }
 
 void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
@@ -546,8 +561,9 @@ void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SendTouchEvent(event);
+  }
 }
 
 void AlloyBrowserHostImpl::SendCaptureLostEvent() {
@@ -558,8 +574,9 @@ void AlloyBrowserHostImpl::SendCaptureLostEvent() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SendCaptureLostEvent();
+  }
 }
 
 int AlloyBrowserHostImpl::GetWindowlessFrameRate() {
@@ -582,8 +599,9 @@ void AlloyBrowserHostImpl::SetWindowlessFrameRate(int frame_rate) {
 
   settings_.windowless_frame_rate = frame_rate;
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SetWindowlessFrameRate(frame_rate);
+  }
 }
 
 // AlloyBrowserHostImpl public methods.
@@ -635,10 +653,12 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
   OnBeforeClose();
 
   // Destroy any platform constructs first.
-  if (javascript_dialog_manager_.get())
+  if (javascript_dialog_manager_.get()) {
     javascript_dialog_manager_->Destroy();
-  if (menu_manager_.get())
+  }
+  if (menu_manager_.get()) {
     menu_manager_->Destroy();
+  }
 
   // Notify any observers that may have state associated with this browser.
   OnBrowserDestroyed();
@@ -670,8 +690,9 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
 
 void AlloyBrowserHostImpl::CancelContextMenu() {
   CEF_REQUIRE_UIT();
-  if (menu_manager_)
+  if (menu_manager_) {
     menu_manager_->CancelContextMenu();
+  }
 }
 
 bool AlloyBrowserHostImpl::MaybeAllowNavigation(
@@ -710,11 +731,13 @@ void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     return;
   }
 
-  if (contents_delegate_->OnSetFocus(source))
+  if (contents_delegate_->OnSetFocus(source)) {
     return;
+  }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SetFocus(true);
+  }
 }
 
 void AlloyBrowserHostImpl::EnterFullscreenModeForTab(
@@ -842,8 +865,9 @@ void AlloyBrowserHostImpl::ImeCancelComposition() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->ImeCancelComposition();
+  }
 }
 
 void AlloyBrowserHostImpl::DragTargetDragEnter(
@@ -905,8 +929,9 @@ void AlloyBrowserHostImpl::DragTargetDragLeave() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->DragTargetDragLeave();
+  }
 }
 
 void AlloyBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
@@ -921,8 +946,9 @@ void AlloyBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->DragTargetDrop(event);
+  }
 }
 
 void AlloyBrowserHostImpl::DragSourceSystemDragEnded() {
@@ -938,8 +964,9 @@ void AlloyBrowserHostImpl::DragSourceSystemDragEnded() {
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->DragSourceSystemDragEnded();
+  }
 }
 
 void AlloyBrowserHostImpl::DragSourceEndedAt(
@@ -958,8 +985,9 @@ void AlloyBrowserHostImpl::DragSourceEndedAt(
     return;
   }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->DragSourceEndedAt(x, y, op);
+  }
 }
 
 void AlloyBrowserHostImpl::SetAudioMuted(bool mute) {
@@ -968,8 +996,9 @@ void AlloyBrowserHostImpl::SetAudioMuted(bool mute) {
                                           this, mute));
     return;
   }
-  if (!web_contents())
+  if (!web_contents()) {
     return;
+  }
   web_contents()->SetAudioMuted(mute);
 }
 
@@ -978,8 +1007,9 @@ bool AlloyBrowserHostImpl::IsAudioMuted() {
     NOTREACHED() << "called on invalid thread";
     return false;
   }
-  if (!web_contents())
+  if (!web_contents()) {
     return false;
+  }
   return web_contents()->IsAudioMuted();
 }
 
@@ -1028,8 +1058,9 @@ void AlloyBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
 void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
   CEF_REQUIRE_UIT();
 
-  if (destruction_state_ == DESTRUCTION_STATE_COMPLETED)
+  if (destruction_state_ == DESTRUCTION_STATE_COMPLETED) {
     return;
+  }
 
   bool close_browser = true;
 
@@ -1043,8 +1074,9 @@ void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
   }
 
   if (close_browser) {
-    if (destruction_state_ != DESTRUCTION_STATE_ACCEPTED)
+    if (destruction_state_ != DESTRUCTION_STATE_ACCEPTED) {
       destruction_state_ = DESTRUCTION_STATE_ACCEPTED;
+    }
 
     if (!IsWindowless() && !window_destroyed_) {
       // A window exists so try to close it using the platform method. Will
@@ -1101,8 +1133,9 @@ bool AlloyBrowserHostImpl::TakeFocus(content::WebContents* source,
                                      bool reverse) {
   if (client_.get()) {
     CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-    if (handler.get())
+    if (handler.get()) {
       handler->OnTakeFocus(this, !reverse);
+    }
   }
 
   return false;
@@ -1125,14 +1158,17 @@ bool AlloyBrowserHostImpl::HandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
-  if (event.skip_in_browser)
+  if (event.skip_in_browser) {
     return false;
+  }
 
-  if (contents_delegate_->HandleKeyboardEvent(source, event))
+  if (contents_delegate_->HandleKeyboardEvent(source, event)) {
     return true;
+  }
 
-  if (platform_delegate_)
+  if (platform_delegate_) {
     return platform_delegate_->HandleKeyboardEvent(event);
+  }
   return false;
 }
 
@@ -1146,8 +1182,9 @@ bool AlloyBrowserHostImpl::CanDragEnter(content::WebContents* source,
                                         const content::DropData& data,
                                         blink::DragOperationsMask mask) {
   CefRefPtr<CefDragHandler> handler;
-  if (client_)
+  if (client_) {
     handler = client_->GetDragHandler();
+  }
   if (handler) {
     CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(data));
     drag_data->SetReadOnly(true);
@@ -1200,8 +1237,9 @@ void AlloyBrowserHostImpl::WebContentsCreated(
 
   CefRefPtr<AlloyBrowserHostImpl> opener =
       GetBrowserForContents(source_contents);
-  if (!opener)
+  if (!opener) {
     return;
+  }
 
   // Popups must share the same RequestContext as the parent.
   CefRefPtr<CefRequestContextImpl> request_context = opener->request_context();
@@ -1251,8 +1289,9 @@ void AlloyBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                                const gfx::Size& pref_size) {
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   CEF_REQUIRE_UIT();
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->SizeTo(pref_size.width(), pref_size.height());
+  }
 #endif
 }
 
@@ -1336,13 +1375,15 @@ void AlloyBrowserHostImpl::DidFinishNavigation(
 
 void AlloyBrowserHostImpl::OnAudioStateChanged(bool audible) {
   if (audible) {
-    if (recently_audible_timer_)
+    if (recently_audible_timer_) {
       recently_audible_timer_->Stop();
+    }
 
     StartAudioCapturer();
   } else if (audio_capturer_) {
-    if (!recently_audible_timer_)
+    if (!recently_audible_timer_) {
       recently_audible_timer_ = std::make_unique<base::OneShotTimer>();
+    }
 
     // If you have a media playing that has a short quiet moment, web_contents
     // will immediately switch to non-audible state. We don't want to stop
@@ -1363,8 +1404,9 @@ void AlloyBrowserHostImpl::AccessibilityEventReceived(
     const content::AXEventNotificationDetails& content_event_bundle) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
-    if (!web_contents() || !platform_delegate_)
+    if (!web_contents() || !platform_delegate_) {
       return;
+    }
 
     platform_delegate_->AccessibilityEventReceived(content_event_bundle);
   }
@@ -1374,8 +1416,9 @@ void AlloyBrowserHostImpl::AccessibilityLocationChangesReceived(
     const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
-    if (!web_contents() || !platform_delegate_)
+    if (!web_contents() || !platform_delegate_) {
       return;
+    }
 
     platform_delegate_->AccessibilityLocationChangesReceived(locData);
   }
@@ -1384,25 +1427,29 @@ void AlloyBrowserHostImpl::AccessibilityLocationChangesReceived(
 void AlloyBrowserHostImpl::WebContentsDestroyed() {
   auto wc = web_contents();
   content::WebContentsObserver::Observe(nullptr);
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->WebContentsDestroyed(wc);
+  }
 }
 
 void AlloyBrowserHostImpl::StartAudioCapturer() {
-  if (!client_.get() || audio_capturer_)
+  if (!client_.get() || audio_capturer_) {
     return;
+  }
 
   CefRefPtr<CefAudioHandler> audio_handler = client_->GetAudioHandler();
-  if (!audio_handler.get())
+  if (!audio_handler.get()) {
     return;
+  }
 
   CefAudioParameters params;
   params.channel_layout = CEF_CHANNEL_LAYOUT_STEREO;
   params.sample_rate = media::AudioParameters::kAudioCDSampleRate;
   params.frames_per_buffer = 1024;
 
-  if (!audio_handler->GetAudioParameters(this, params))
+  if (!audio_handler->GetAudioParameters(this, params)) {
     return;
+  }
 
   audio_capturer_.reset(new CefAudioCapturer(params, this, audio_handler));
 }
@@ -1447,18 +1494,21 @@ bool AlloyBrowserHostImpl::CreateHostWindow() {
   // |host_window_handle_| will not change after initial host creation for
   // non-views-hosted browsers.
   bool success = true;
-  if (!IsWindowless())
+  if (!IsWindowless()) {
     success = platform_delegate_->CreateHostWindow();
-  if (success && !is_views_hosted_)
+  }
+  if (success && !is_views_hosted_) {
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
+  }
   return success;
 }
 
 gfx::Point AlloyBrowserHostImpl::GetScreenPoint(const gfx::Point& view,
                                                 bool want_dip_coords) const {
   CEF_REQUIRE_UIT();
-  if (platform_delegate_)
+  if (platform_delegate_) {
     return platform_delegate_->GetScreenPoint(view, want_dip_coords);
+  }
   return gfx::Point();
 }
 
@@ -1477,6 +1527,7 @@ void AlloyBrowserHostImpl::StartDragging(
 
 void AlloyBrowserHostImpl::UpdateDragCursor(
     ui::mojom::DragOperation operation) {
-  if (platform_delegate_)
+  if (platform_delegate_) {
     platform_delegate_->UpdateDragCursor(operation);
+  }
 }

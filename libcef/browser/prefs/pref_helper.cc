@@ -48,8 +48,9 @@ bool HasPreference(PrefService* pref_service, const CefString& name) {
 CefRefPtr<CefValue> GetPreference(PrefService* pref_service,
                                   const CefString& name) {
   const PrefService::Preference* pref = pref_service->FindPreference(name);
-  if (!pref)
+  if (!pref) {
     return nullptr;
+  }
   return new CefValueImpl(new base::Value(pref->GetValue()->Clone()));
 }
 

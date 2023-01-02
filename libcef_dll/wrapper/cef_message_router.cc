@@ -175,8 +175,9 @@ class IdGenerator {
 
   T GetNextId() {
     T id = ++next_id_;
-    if (id == kReservedId)  // In case the integer value wraps.
+    if (id == kReservedId) {  // In case the integer value wraps.
       id = ++next_id_;
+    }
     return id;
   }
 
@@ -308,8 +309,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                       Handler* handler) override {
     CEF_REQUIRE_UI_THREAD();
 
-    if (browser_query_info_map_.empty())
+    if (browser_query_info_map_.empty()) {
       return 0;
+    }
 
     if (handler) {
       // Need to iterate over each QueryInfo object to test the handler.
@@ -321,8 +323,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                         InfoIdType info_id,
                         InfoObjectType info,
                         bool* remove) override {
-          if (info->handler == handler_)
+          if (info->handler == handler_) {
             count_++;
+          }
           return true;
         }
 
@@ -362,8 +365,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   void OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame) override {
-    if (frame->IsMain())
+    if (frame->IsMain()) {
       CancelPendingFor(browser, nullptr, false);
+    }
   }
 
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
@@ -404,8 +408,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         handled = (*it_handler)
                       ->OnQuery(browser, frame, query_id, request, persistent,
                                 callback.get());
-        if (handled)
+        if (handled) {
           break;
+        }
       }
 
       // If the query isn't handled nothing should be keeping a reference to
@@ -505,8 +510,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     Visitor visitor(always_remove);
     QueryInfo* info =
         browser_query_info_map_.Find(browser_id, query_id, &visitor);
-    if (info)
+    if (info) {
       *removed = visitor.removed();
+    }
     return info;
   }
 
@@ -520,8 +526,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     QueryInfo* info = GetQueryInfo(browser_id, query_id, false, &removed);
     if (info) {
       SendQuerySuccess(info, response);
-      if (removed)
+      if (removed) {
         delete info;
+      }
     }
   }
 
@@ -593,8 +600,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   // Cancel a query that has already been sent to a handler.
   void CancelQuery(int64 query_id, QueryInfo* info, bool notify_renderer) {
-    if (notify_renderer)
+    if (notify_renderer) {
       SendQueryFailure(info, kCanceledErrorCode, kCanceledErrorMessage);
+    }
 
     info->handler->OnQueryCanceled(info->browser, info->frame, query_id);
 
@@ -617,8 +625,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       return;
     }
 
-    if (browser_query_info_map_.empty())
+    if (browser_query_info_map_.empty()) {
       return;
+    }
 
     class Visitor : public BrowserQueryInfoMap::Visitor {
      public:
@@ -814,8 +823,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
    private:
     // Don't create the context ID until it's actually needed.
     int GetIDForContext(CefRefPtr<CefV8Context> context) {
-      if (context_id_ == kReservedId)
+      if (context_id_ == kReservedId) {
         context_id_ = router_->CreateIDForContext(context);
+      }
       return context_id_;
     }
 
@@ -843,13 +853,15 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
                       CefRefPtr<CefV8Context> context) override {
     CEF_REQUIRE_RENDERER_THREAD();
 
-    if (browser_request_info_map_.empty())
+    if (browser_request_info_map_.empty()) {
       return 0;
+    }
 
     if (context.get()) {
       const int context_id = GetIDForContext(context, false);
-      if (context_id == kReservedId)
+      if (context_id == kReservedId) {
         return 0;  // Nothing associated with the specified context.
+      }
 
       // Need to iterate over each RequestInfo object to test the context.
       class Visitor : public BrowserRequestInfoMap::Visitor {
@@ -860,8 +872,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
                         InfoIdType info_id,
                         InfoObjectType info,
                         bool* remove) override {
-          if (info_id.first == context_id_)
+          if (info_id.first == context_id_) {
             count_++;
+          }
           return true;
         }
 
@@ -1006,8 +1019,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     Visitor visitor(always_remove);
     RequestInfo* info = browser_request_info_map_.Find(
         browser_id, std::make_pair(context_id, request_id), &visitor);
-    if (info)
+    if (info) {
       *removed = visitor.removed();
+    }
     return info;
   }
 
@@ -1121,8 +1135,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     bool removed;
     RequestInfo* info =
         GetRequestInfo(browser_id, context_id, request_id, false, &removed);
-    if (!info)
+    if (!info) {
       return;
+    }
 
     CefRefPtr<CefV8Context> context = GetContextByID(context_id);
     if (context && info->success_callback) {
@@ -1132,8 +1147,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
                                                          args);
     }
 
-    if (removed)
+    if (removed) {
       delete info;
+    }
   }
 
   // Execute the onFailure JavaScript callback.
@@ -1147,8 +1163,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     bool removed;
     RequestInfo* info =
         GetRequestInfo(browser_id, context_id, request_id, true, &removed);
-    if (!info)
+    if (!info) {
       return;
+    }
 
     CefRefPtr<CefV8Context> context = GetContextByID(context_id);
     if (context && info->failure_callback) {
@@ -1183,8 +1200,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     for (; it != context_map_.end(); ++it) {
       if (it->second->IsSame(context)) {
         int context_id = it->first;
-        if (remove)
+        if (remove) {
           context_map_.erase(it);
+        }
         return context_id;
       }
     }
@@ -1196,8 +1214,9 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     CEF_REQUIRE_RENDERER_THREAD();
 
     ContextMap::const_iterator it = context_map_.find(context_id);
-    if (it != context_map_.end())
+    if (it != context_map_.end()) {
       return it->second;
+    }
     return nullptr;
   }
 
@@ -1234,8 +1253,9 @@ CefMessageRouterConfig::CefMessageRouterConfig()
 CefRefPtr<CefMessageRouterBrowserSide> CefMessageRouterBrowserSide::Create(
     const CefMessageRouterConfig& config) {
   CefMessageRouterConfig validated_config = config;
-  if (!ValidateConfig(validated_config))
+  if (!ValidateConfig(validated_config)) {
     return nullptr;
+  }
   return new CefMessageRouterBrowserSideImpl(validated_config);
 }
 
@@ -1243,7 +1263,8 @@ CefRefPtr<CefMessageRouterBrowserSide> CefMessageRouterBrowserSide::Create(
 CefRefPtr<CefMessageRouterRendererSide> CefMessageRouterRendererSide::Create(
     const CefMessageRouterConfig& config) {
   CefMessageRouterConfig validated_config = config;
-  if (!ValidateConfig(validated_config))
+  if (!ValidateConfig(validated_config)) {
     return nullptr;
+  }
   return new CefMessageRouterRendererSideImpl(validated_config);
 }

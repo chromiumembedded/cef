@@ -30,8 +30,9 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
     CEF_REQUIRE_UIT();
 
     // May be null if OnDevToolsControllerDestroyed was called.
-    if (!controller_)
+    if (!controller_) {
       return;
+    }
 
     controller_->RemoveObserver(this);
   }
@@ -132,8 +133,9 @@ void CefDevToolsManager::ShowDevTools(const CefWindowInfo& windowInfo,
 
 void CefDevToolsManager::CloseDevTools() {
   CEF_REQUIRE_UIT();
-  if (!devtools_frontend_)
+  if (!devtools_frontend_) {
     return;
+  }
   devtools_frontend_->Close();
 }
 
@@ -145,11 +147,13 @@ bool CefDevToolsManager::HasDevTools() {
 bool CefDevToolsManager::SendDevToolsMessage(const void* message,
                                              size_t message_size) {
   CEF_REQUIRE_UIT();
-  if (!message || message_size == 0)
+  if (!message || message_size == 0) {
     return false;
+  }
 
-  if (!EnsureController())
+  if (!EnsureController()) {
     return false;
+  }
 
   return devtools_controller_->SendDevToolsMessage(
       base::StringPiece(static_cast<const char*>(message), message_size));
@@ -160,11 +164,13 @@ int CefDevToolsManager::ExecuteDevToolsMethod(
     const CefString& method,
     CefRefPtr<CefDictionaryValue> params) {
   CEF_REQUIRE_UIT();
-  if (method.empty())
+  if (method.empty()) {
     return 0;
+  }
 
-  if (!EnsureController())
+  if (!EnsureController()) {
     return 0;
+  }
 
   if (params && params->IsValid()) {
     CefDictionaryValueImpl* impl =
@@ -189,8 +195,9 @@ void CefDevToolsManager::InitializeRegistrationOnUIThread(
     CefRefPtr<CefRegistration> registration) {
   CEF_REQUIRE_UIT();
 
-  if (!EnsureController())
+  if (!EnsureController()) {
     return;
+  }
 
   static_cast<CefDevToolsRegistrationImpl*>(registration.get())
       ->Initialize(inspected_browser_, devtools_controller_->GetWeakPtr());

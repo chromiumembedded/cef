@@ -69,10 +69,12 @@ void PrintToPDF(content::WebContents* web_contents,
   // Defaults to no header/footer.
   absl::optional<std::string> header_template, footer_template;
   if (display_header_footer) {
-    if (settings.header_template.length > 0)
+    if (settings.header_template.length > 0) {
       header_template = CefString(&settings.header_template);
-    if (settings.footer_template.length > 0)
+    }
+    if (settings.footer_template.length > 0) {
       footer_template = CefString(&settings.footer_template);
+    }
   }
 
   // Defaults to 1.0.
@@ -96,14 +98,18 @@ void PrintToPDF(content::WebContents* web_contents,
     margin_left = 0;
     margin_right = 0;
   } else if (settings.margin_type == PDF_PRINT_MARGIN_CUSTOM) {
-    if (settings.margin_top >= 0)
+    if (settings.margin_top >= 0) {
       margin_top = settings.margin_top;
-    if (settings.margin_bottom >= 0)
+    }
+    if (settings.margin_bottom >= 0) {
       margin_bottom = settings.margin_bottom;
-    if (settings.margin_left >= 0)
+    }
+    if (settings.margin_left >= 0) {
       margin_left = settings.margin_left;
-    if (settings.margin_right >= 0)
+    }
+    if (settings.margin_right >= 0) {
       margin_right = settings.margin_right;
+    }
   }
 
   absl::variant<printing::mojom::PrintPagesParamsPtr, std::string>

@@ -36,16 +36,18 @@ class CefValueController
     explicit AutoLock(CefValueController* impl)
         : impl_(impl), verified_(impl && impl->VerifyThread()) {
       DCHECK(impl);
-      if (verified_)
+      if (verified_) {
         impl_->lock();
+      }
     }
 
     AutoLock(const AutoLock&) = delete;
     AutoLock& operator=(const AutoLock&) = delete;
 
     ~AutoLock() {
-      if (verified_)
+      if (verified_) {
         impl_->unlock();
+      }
     }
 
     inline bool verified() { return verified_; }
@@ -270,8 +272,9 @@ class CefValueBase : public CefType, public CefValueController::Object {
       controller_->AddReference(value_, this);
 
       // Add a dependency on the parent value.
-      if (parent_value)
+      if (parent_value) {
         controller_->AddDependency(parent_value, value_);
+      }
     }
   }
 
@@ -279,8 +282,9 @@ class CefValueBase : public CefType, public CefValueController::Object {
   CefValueBase& operator=(const CefValueBase&) = delete;
 
   ~CefValueBase() override {
-    if (controller_.get() && value_)
+    if (controller_.get() && value_) {
       Delete();
+    }
   }
 
   // True if the underlying value is referenced instead of owned.
@@ -397,8 +401,9 @@ class CefValueBase : public CefType, public CefValueController::Object {
   // Used to indicate that this object owns the controller.
   inline void SetOwnsController() {
     CefValueController::AutoLock lock_scope(controller_.get());
-    if (lock_scope.verified())
+    if (lock_scope.verified()) {
       controller_->SetOwner(value_, this);
+    }
   }
 
   // Encapsulates value locking and verification logic.

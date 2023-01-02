@@ -22,13 +22,15 @@ bool FileExists(const char* path) {
 bool ReadFileToString(const char* path, std::string& data) {
   // Implementation adapted from base/file_util.cc
   FILE* file = fopen(path, "rb");
-  if (!file)
+  if (!file) {
     return false;
+  }
 
   char buf[1 << 16];
   size_t len;
-  while ((len = fread(buf, 1, sizeof(buf), file)) > 0)
+  while ((len = fread(buf, 1, sizeof(buf), file)) > 0) {
     data.append(buf, len);
+  }
   fclose(file);
 
   return true;
@@ -38,8 +40,9 @@ bool ReadFileToString(const char* path, std::string& data) {
 
 bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
   std::string path;
-  if (!GetResourceDir(path))
+  if (!GetResourceDir(path)) {
     return false;
+  }
 
   path.append("/");
   path.append(resource_name);
@@ -49,14 +52,16 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
 
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
   std::string path;
-  if (!GetResourceDir(path))
+  if (!GetResourceDir(path)) {
     return nullptr;
+  }
 
   path.append("/");
   path.append(resource_name);
 
-  if (!FileExists(path.c_str()))
+  if (!FileExists(path.c_str())) {
     return nullptr;
+  }
 
   return CefStreamReader::CreateForFile(path);
 }

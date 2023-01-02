@@ -5,7 +5,7 @@
 #include "libcef/browser/extensions/extensions_browser_api_provider.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 
-//#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
+// #include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "extensions/browser/api/generated_api_registration.h"
 
 namespace extensions {

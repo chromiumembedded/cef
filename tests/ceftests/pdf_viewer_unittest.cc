@@ -92,14 +92,16 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
                  int httpStatusCode) override {
     bool is_pdf1 = false;
     const std::string& url = frame->GetURL();
-    if (url == "about:blank")
+    if (url == "about:blank") {
       return;
+    }
 
     if (url == kPdfHtmlUrl) {
-      if (!got_on_load_end_html_)
+      if (!got_on_load_end_html_) {
         got_on_load_end_html_.yes();
-      else
+      } else {
         NOTREACHED();
+      }
     } else if (url == kPdfDirectUrl) {
       if (!got_on_load_end_pdf1_) {
         got_on_load_end_pdf1_.yes();

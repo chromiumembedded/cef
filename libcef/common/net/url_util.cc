@@ -18,8 +18,9 @@ GURL MakeGURL(const CefString& url, bool fixup) {
     new_url.insert(0, fixed_scheme);
     gurl = GURL(new_url);
   }
-  if (fixup)
+  if (fixup) {
     FixupGURL(gurl);
+  }
   return gurl;
 }
 

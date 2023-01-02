@@ -89,8 +89,9 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 }
 
 - (NSRange)selectedRange {
-  if (selectedRange_.location == NSNotFound || selectedRange_.length == 0)
+  if (selectedRange_.location == NSNotFound || selectedRange_.length == 0) {
     return NSMakeRange(NSNotFound, 0);
+  }
   return selectedRange_;
 }
 
@@ -177,10 +178,11 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 
   // If we are handling a key down event then ImeFinishComposingText() will be
   // called from the keyEvent: method.
-  if (!handlingKeyDown_)
+  if (!handlingKeyDown_) {
     browser_->GetHost()->ImeFinishComposingText(false);
-  else
+  } else {
     unmarkTextCalled_ = YES;
+  }
 }
 
 - (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
@@ -198,20 +200,23 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   NSUInteger location = theRange.location;
 
   // If location is not specified fall back to the composition range start.
-  if (location == NSNotFound)
+  if (location == NSNotFound) {
     location = markedRange_.location;
+  }
 
   // Offset location by the composition range start if required.
-  if (location >= markedRange_.location)
+  if (location >= markedRange_.location) {
     location -= markedRange_.location;
+  }
 
   if (location < composition_bounds_.size()) {
     const CefRect& rc = composition_bounds_[location];
     rect = NSMakeRect(rc.x, rc.y, rc.width, rc.height);
   }
 
-  if (actualRange)
+  if (actualRange) {
     *actualRange = NSMakeRange(location, theRange.length);
+  }
 
   return rect;
 }
@@ -236,10 +241,11 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   // Convert into screen coordinates for return.
   rect = [self screenRectFromViewRect:rect];
 
-  if (rect.origin.y >= rect.size.height)
+  if (rect.origin.y >= rect.size.height) {
     rect.origin.y -= rect.size.height;
-  else
+  } else {
     rect.origin.y = 0;
+  }
 
   return rect;
 }
@@ -284,8 +290,9 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
     // Don't send a CHAR event for non-char keys like arrows, function keys and
     // clear.
     if (keyEvent.modifiers & (EVENTFLAG_IS_KEY_PAD)) {
-      if (keyEvent.native_key_code == 71)
+      if (keyEvent.native_key_code == 71) {
         return;
+      }
     }
 
     keyEvent.type = KEYEVENT_CHAR;
@@ -313,10 +320,11 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     // There was no marked text or inserted text. Complete or cancel the
     // composition.
-    if (unmarkTextCalled_)
+    if (unmarkTextCalled_) {
       browser_->GetHost()->ImeFinishComposingText(false);
-    else
+    } else {
       browser_->GetHost()->ImeCancelComposition();
+    }
   }
 
   setMarkedTextReplacementRange_ = CefRange(UINT32_MAX, UINT32_MAX);
@@ -330,8 +338,9 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 }
 
 - (void)cancelComposition {
-  if (!hasMarkedText_)
+  if (!hasMarkedText_) {
     return;
+  }
 
 // Cancel the ongoing composition. [NSInputManager markedTextAbandoned:]
 // doesn't call any NSTextInput functions, such as setMarkedText or

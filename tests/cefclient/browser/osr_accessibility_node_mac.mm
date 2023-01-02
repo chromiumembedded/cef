@@ -15,220 +15,327 @@
 namespace {
 
 NSString* AxRoleToNSAxRole(const std::string& role_string) {
-  if (role_string == "abbr")
+  if (role_string == "abbr") {
     return NSAccessibilityGroupRole;
-  if (role_string == "alertDialog")
+  }
+  if (role_string == "alertDialog") {
     return NSAccessibilityGroupRole;
-  if (role_string == "alert")
+  }
+  if (role_string == "alert") {
     return NSAccessibilityGroupRole;
-  if (role_string == "annotation")
+  }
+  if (role_string == "annotation") {
     return NSAccessibilityUnknownRole;
-  if (role_string == "application")
+  }
+  if (role_string == "application") {
     return NSAccessibilityGroupRole;
-  if (role_string == "article")
+  }
+  if (role_string == "article") {
     return NSAccessibilityGroupRole;
-  if (role_string == "audio")
+  }
+  if (role_string == "audio") {
     return NSAccessibilityGroupRole;
-  if (role_string == "banner")
+  }
+  if (role_string == "banner") {
     return NSAccessibilityGroupRole;
-  if (role_string == "blockquote")
+  }
+  if (role_string == "blockquote") {
     return NSAccessibilityGroupRole;
-  if (role_string == "busyIndicator")
+  }
+  if (role_string == "busyIndicator") {
     return NSAccessibilityBusyIndicatorRole;
-  if (role_string == "button")
+  }
+  if (role_string == "button") {
     return NSAccessibilityButtonRole;
-  if (role_string == "buttonDropDown")
+  }
+  if (role_string == "buttonDropDown") {
     return NSAccessibilityButtonRole;
-  if (role_string == "canvas")
+  }
+  if (role_string == "canvas") {
     return NSAccessibilityImageRole;
-  if (role_string == "caption")
+  }
+  if (role_string == "caption") {
     return NSAccessibilityGroupRole;
-  if (role_string == "checkBox")
+  }
+  if (role_string == "checkBox") {
     return NSAccessibilityCheckBoxRole;
-  if (role_string == "colorWell")
+  }
+  if (role_string == "colorWell") {
     return NSAccessibilityColorWellRole;
-  if (role_string == "column")
+  }
+  if (role_string == "column") {
     return NSAccessibilityColumnRole;
-  if (role_string == "comboBox")
+  }
+  if (role_string == "comboBox") {
     return NSAccessibilityComboBoxRole;
-  if (role_string == "complementary")
+  }
+  if (role_string == "complementary") {
     return NSAccessibilityGroupRole;
-  if (role_string == "contentInfo")
+  }
+  if (role_string == "contentInfo") {
     return NSAccessibilityGroupRole;
-  if (role_string == "definition")
+  }
+  if (role_string == "definition") {
     return NSAccessibilityGroupRole;
-  if (role_string == "descriptionListDetail")
+  }
+  if (role_string == "descriptionListDetail") {
     return NSAccessibilityGroupRole;
-  if (role_string == "descriptionList")
+  }
+  if (role_string == "descriptionList") {
     return NSAccessibilityListRole;
-  if (role_string == "descriptionListTerm")
+  }
+  if (role_string == "descriptionListTerm") {
     return NSAccessibilityGroupRole;
-  if (role_string == "details")
+  }
+  if (role_string == "details") {
     return NSAccessibilityGroupRole;
-  if (role_string == "dialog")
+  }
+  if (role_string == "dialog") {
     return NSAccessibilityGroupRole;
-  if (role_string == "directory")
+  }
+  if (role_string == "directory") {
     return NSAccessibilityListRole;
-  if (role_string == "disclosureTriangle")
+  }
+  if (role_string == "disclosureTriangle") {
     return NSAccessibilityDisclosureTriangleRole;
-  if (role_string == "div")
+  }
+  if (role_string == "div") {
     return NSAccessibilityGroupRole;
-  if (role_string == "document")
+  }
+  if (role_string == "document") {
     return NSAccessibilityGroupRole;
-  if (role_string == "embeddedObject")
+  }
+  if (role_string == "embeddedObject") {
     return NSAccessibilityGroupRole;
-  if (role_string == "figcaption")
+  }
+  if (role_string == "figcaption") {
     return NSAccessibilityGroupRole;
-  if (role_string == "figure")
+  }
+  if (role_string == "figure") {
     return NSAccessibilityGroupRole;
-  if (role_string == "footer")
+  }
+  if (role_string == "footer") {
     return NSAccessibilityGroupRole;
-  if (role_string == "form")
+  }
+  if (role_string == "form") {
     return NSAccessibilityGroupRole;
-  if (role_string == "genericContainer")
+  }
+  if (role_string == "genericContainer") {
     return NSAccessibilityGroupRole;
-  if (role_string == "grid")
+  }
+  if (role_string == "grid") {
     return NSAccessibilityGroupRole;
-  if (role_string == "group")
+  }
+  if (role_string == "group") {
     return NSAccessibilityGroupRole;
-  if (role_string == "iframe")
+  }
+  if (role_string == "iframe") {
     return NSAccessibilityGroupRole;
-  if (role_string == "iframePresentational")
+  }
+  if (role_string == "iframePresentational") {
     return NSAccessibilityGroupRole;
-  if (role_string == "ignored")
+  }
+  if (role_string == "ignored") {
     return NSAccessibilityUnknownRole;
-  if (role_string == "imageMapLink")
+  }
+  if (role_string == "imageMapLink") {
     return NSAccessibilityLinkRole;
-  if (role_string == "imageMap")
+  }
+  if (role_string == "imageMap") {
     return NSAccessibilityGroupRole;
-  if (role_string == "image")
+  }
+  if (role_string == "image") {
     return NSAccessibilityImageRole;
-  if (role_string == "labelText")
+  }
+  if (role_string == "labelText") {
     return NSAccessibilityGroupRole;
-  if (role_string == "legend")
+  }
+  if (role_string == "legend") {
     return NSAccessibilityGroupRole;
-  if (role_string == "link")
+  }
+  if (role_string == "link") {
     return NSAccessibilityLinkRole;
-  if (role_string == "listBoxOption")
+  }
+  if (role_string == "listBoxOption") {
     return NSAccessibilityStaticTextRole;
-  if (role_string == "listBox")
+  }
+  if (role_string == "listBox") {
     return NSAccessibilityListRole;
-  if (role_string == "listItem")
+  }
+  if (role_string == "listItem") {
     return NSAccessibilityGroupRole;
-  if (role_string == "list")
+  }
+  if (role_string == "list") {
     return NSAccessibilityListRole;
-  if (role_string == "log")
+  }
+  if (role_string == "log") {
     return NSAccessibilityGroupRole;
-  if (role_string == "main")
+  }
+  if (role_string == "main") {
     return NSAccessibilityGroupRole;
-  if (role_string == "mark")
+  }
+  if (role_string == "mark") {
     return NSAccessibilityGroupRole;
-  if (role_string == "marquee")
+  }
+  if (role_string == "marquee") {
     return NSAccessibilityGroupRole;
-  if (role_string == "math")
+  }
+  if (role_string == "math") {
     return NSAccessibilityGroupRole;
-  if (role_string == "menu")
+  }
+  if (role_string == "menu") {
     return NSAccessibilityMenuRole;
-  if (role_string == "menuBar")
+  }
+  if (role_string == "menuBar") {
     return NSAccessibilityMenuBarRole;
-  if (role_string == "menuButton")
+  }
+  if (role_string == "menuButton") {
     return NSAccessibilityButtonRole;
-  if (role_string == "menuItem")
+  }
+  if (role_string == "menuItem") {
     return NSAccessibilityMenuItemRole;
-  if (role_string == "menuItemCheckBox")
+  }
+  if (role_string == "menuItemCheckBox") {
     return NSAccessibilityMenuItemRole;
-  if (role_string == "menuItemRadio")
+  }
+  if (role_string == "menuItemRadio") {
     return NSAccessibilityMenuItemRole;
-  if (role_string == "menuListOption")
+  }
+  if (role_string == "menuListOption") {
     return NSAccessibilityMenuItemRole;
-  if (role_string == "menuListPopup")
+  }
+  if (role_string == "menuListPopup") {
     return NSAccessibilityUnknownRole;
-  if (role_string == "meter")
+  }
+  if (role_string == "meter") {
     return NSAccessibilityProgressIndicatorRole;
-  if (role_string == "navigation")
+  }
+  if (role_string == "navigation") {
     return NSAccessibilityGroupRole;
-  if (role_string == "note")
+  }
+  if (role_string == "note") {
     return NSAccessibilityGroupRole;
-  if (role_string == "outline")
+  }
+  if (role_string == "outline") {
     return NSAccessibilityOutlineRole;
-  if (role_string == "paragraph")
+  }
+  if (role_string == "paragraph") {
     return NSAccessibilityGroupRole;
-  if (role_string == "popUpButton")
+  }
+  if (role_string == "popUpButton") {
     return NSAccessibilityPopUpButtonRole;
-  if (role_string == "pre")
+  }
+  if (role_string == "pre") {
     return NSAccessibilityGroupRole;
-  if (role_string == "presentational")
+  }
+  if (role_string == "presentational") {
     return NSAccessibilityGroupRole;
-  if (role_string == "progressIndicator")
+  }
+  if (role_string == "progressIndicator") {
     return NSAccessibilityProgressIndicatorRole;
-  if (role_string == "radioButton")
+  }
+  if (role_string == "radioButton") {
     return NSAccessibilityRadioButtonRole;
-  if (role_string == "radioGroup")
+  }
+  if (role_string == "radioGroup") {
     return NSAccessibilityRadioGroupRole;
-  if (role_string == "region")
+  }
+  if (role_string == "region") {
     return NSAccessibilityGroupRole;
-  if (role_string == "row")
+  }
+  if (role_string == "row") {
     return NSAccessibilityRowRole;
-  if (role_string == "ruler")
+  }
+  if (role_string == "ruler") {
     return NSAccessibilityRulerRole;
-  if (role_string == "scrollBar")
+  }
+  if (role_string == "scrollBar") {
     return NSAccessibilityScrollBarRole;
-  if (role_string == "search")
+  }
+  if (role_string == "search") {
     return NSAccessibilityGroupRole;
-  if (role_string == "searchBox")
+  }
+  if (role_string == "searchBox") {
     return NSAccessibilityTextFieldRole;
-  if (role_string == "slider")
+  }
+  if (role_string == "slider") {
     return NSAccessibilitySliderRole;
-  if (role_string == "sliderThumb")
+  }
+  if (role_string == "sliderThumb") {
     return NSAccessibilityValueIndicatorRole;
-  if (role_string == "spinButton")
+  }
+  if (role_string == "spinButton") {
     return NSAccessibilityIncrementorRole;
-  if (role_string == "splitter")
+  }
+  if (role_string == "splitter") {
     return NSAccessibilitySplitterRole;
-  if (role_string == "staticText")
+  }
+  if (role_string == "staticText") {
     return NSAccessibilityStaticTextRole;
-  if (role_string == "status")
+  }
+  if (role_string == "status") {
     return NSAccessibilityGroupRole;
-  if (role_string == "svgRoot")
+  }
+  if (role_string == "svgRoot") {
     return NSAccessibilityGroupRole;
-  if (role_string == "switch")
+  }
+  if (role_string == "switch") {
     return NSAccessibilityCheckBoxRole;
-  if (role_string == "tabGroup")
+  }
+  if (role_string == "tabGroup") {
     return NSAccessibilityTabGroupRole;
-  if (role_string == "tabList")
+  }
+  if (role_string == "tabList") {
     return NSAccessibilityTabGroupRole;
-  if (role_string == "tabPanel")
+  }
+  if (role_string == "tabPanel") {
     return NSAccessibilityGroupRole;
-  if (role_string == "tab")
+  }
+  if (role_string == "tab") {
     return NSAccessibilityRadioButtonRole;
-  if (role_string == "tableHeaderContainer")
+  }
+  if (role_string == "tableHeaderContainer") {
     return NSAccessibilityGroupRole;
-  if (role_string == "table")
+  }
+  if (role_string == "table") {
     return NSAccessibilityTableRole;
-  if (role_string == "textField")
+  }
+  if (role_string == "textField") {
     return NSAccessibilityTextFieldRole;
-  if (role_string == "time")
+  }
+  if (role_string == "time") {
     return NSAccessibilityGroupRole;
-  if (role_string == "timer")
+  }
+  if (role_string == "timer") {
     return NSAccessibilityGroupRole;
-  if (role_string == "toggleButton")
+  }
+  if (role_string == "toggleButton") {
     return NSAccessibilityCheckBoxRole;
-  if (role_string == "toolbar")
+  }
+  if (role_string == "toolbar") {
     return NSAccessibilityToolbarRole;
-  if (role_string == "treeGrid")
+  }
+  if (role_string == "treeGrid") {
     return NSAccessibilityTableRole;
-  if (role_string == "treeItem")
+  }
+  if (role_string == "treeItem") {
     return NSAccessibilityRowRole;
-  if (role_string == "tree")
+  }
+  if (role_string == "tree") {
     return NSAccessibilityOutlineRole;
-  if (role_string == "unknown")
+  }
+  if (role_string == "unknown") {
     return NSAccessibilityUnknownRole;
-  if (role_string == "tooltip")
+  }
+  if (role_string == "tooltip") {
     return NSAccessibilityGroupRole;
-  if (role_string == "video")
+  }
+  if (role_string == "video") {
     return NSAccessibilityGroupRole;
-  if (role_string == "window")
+  }
+  if (role_string == "window") {
     return NSAccessibilityWindowRole;
+  }
   return [NSString stringWithUTF8String:role_string.c_str()];
 }
 
@@ -387,8 +494,9 @@ inline int MiddleY(const CefRect& rect) {
 
 - (id)accessibilityAttributeValue:(NSString*)attribute {
   NSObject* typed_parent = CAST_CEF_NATIVE_ACCESSIBLE_TO_NSOBJECT(parent_);
-  if (!node_)
+  if (!node_) {
     return nil;
+  }
   if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
     return [self axRole];
   } else if ([attribute

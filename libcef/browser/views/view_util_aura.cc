@@ -13,8 +13,9 @@ namespace view_util {
 gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
   if (widget) {
     aura::Window* window = widget->GetNativeWindow();
-    if (window)
+    if (window) {
       return window->GetRootWindow();
+    }
   }
   return nullptr;
 }

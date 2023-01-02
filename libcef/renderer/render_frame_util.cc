@@ -36,8 +36,9 @@ std::string GetName(blink::WebLocalFrame* frame) {
   content::RenderFrameImpl* render_frame =
       content::RenderFrameImpl::FromWebFrame(frame);
   DCHECK(render_frame);
-  if (render_frame)
+  if (render_frame) {
     return render_frame->unique_name();
+  }
   return std::string();
 }
 

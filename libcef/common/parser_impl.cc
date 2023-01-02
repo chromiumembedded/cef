@@ -17,12 +17,14 @@ bool CefResolveURL(const CefString& base_url,
                    const CefString& relative_url,
                    CefString& resolved_url) {
   GURL base_gurl(base_url.ToString());
-  if (!base_gurl.is_valid())
+  if (!base_gurl.is_valid()) {
     return false;
+  }
 
   GURL combined_gurl = base_gurl.Resolve(relative_url.ToString());
-  if (!combined_gurl.is_valid())
+  if (!combined_gurl.is_valid()) {
     return false;
+  }
 
   resolved_url = combined_gurl.spec();
   return true;
@@ -30,8 +32,9 @@ bool CefResolveURL(const CefString& base_url,
 
 bool CefParseURL(const CefString& url, CefURLParts& parts) {
   GURL gurl(url.ToString());
-  if (!gurl.is_valid())
+  if (!gurl.is_valid()) {
     return false;
+  }
 
   CefString(&parts.spec).FromString(gurl.spec());
   CefString(&parts.scheme).FromString(gurl.scheme());
@@ -69,19 +72,24 @@ bool CefCreateURL(const CefURLParts& parts, CefString& url) {
     ss << scheme << "://";
     if (!username.empty()) {
       ss << username;
-      if (!password.empty())
+      if (!password.empty()) {
         ss << ":" << password;
+      }
       ss << "@";
     }
     ss << host;
-    if (!port.empty())
+    if (!port.empty()) {
       ss << ":" << port;
-    if (!path.empty())
+    }
+    if (!path.empty()) {
       ss << path;
-    if (!query.empty())
+    }
+    if (!query.empty()) {
       ss << "?" << query;
-    if (!fragment.empty())
+    }
+    if (!fragment.empty()) {
       ss << "#" << fragment;
+    }
     gurl = GURL(ss.str());
   }
 
@@ -114,13 +122,15 @@ void CefGetExtensionsForMimeType(const CefString& mime_type,
   VectorType ext;
   net::GetExtensionsForMimeType(mime_type, &ext);
   VectorType::const_iterator it = ext.begin();
-  for (; it != ext.end(); ++it)
+  for (; it != ext.end(); ++it) {
     extensions.push_back(*it);
+  }
 }
 
 CefString CefBase64Encode(const void* data, size_t data_size) {
-  if (data_size == 0)
+  if (data_size == 0) {
     return CefString();
+  }
 
   base::StringPiece input(static_cast<const char*>(data), data_size);
   std::string output;
@@ -129,13 +139,15 @@ CefString CefBase64Encode(const void* data, size_t data_size) {
 }
 
 CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
-  if (data.size() == 0)
+  if (data.size() == 0) {
     return nullptr;
+  }
 
   const std::string& input = data;
   std::string output;
-  if (base::Base64Decode(input, &output))
+  if (base::Base64Decode(input, &output)) {
     return CefBinaryValue::Create(output.data(), output.size());
+  }
   return nullptr;
 }
 
@@ -148,9 +160,10 @@ CefString CefURIDecode(const CefString& text,
                        cef_uri_unescape_rule_t unescape_rule) {
   const base::UnescapeRule::Type type =
       static_cast<base::UnescapeRule::Type>(unescape_rule);
-  if (convert_to_utf8)
+  if (convert_to_utf8) {
     return base::UnescapeAndDecodeUTF8URLComponentWithAdjustments(
         text.ToString(), type, nullptr);
-  else
+  } else {
     return base::UnescapeURLComponent(text.ToString(), type);
+  }
 }

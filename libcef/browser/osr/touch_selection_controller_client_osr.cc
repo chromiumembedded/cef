@@ -108,8 +108,9 @@ CefTouchSelectionControllerClientOSR::CefTouchSelectionControllerClientOSR(
 }
 
 CefTouchSelectionControllerClientOSR::~CefTouchSelectionControllerClientOSR() {
-  for (auto& observer : observers_)
+  for (auto& observer : observers_) {
     observer.OnManagerWillDestroy(this);
+  }
 }
 
 void CefTouchSelectionControllerClientOSR::CloseQuickMenuAndHideHandles() {
@@ -158,8 +159,9 @@ bool CefTouchSelectionControllerClientOSR::HandleContextMenu(
   const bool from_touch = params.source_type == ui::MENU_SOURCE_LONG_PRESS ||
                           params.source_type == ui::MENU_SOURCE_LONG_TAP ||
                           params.source_type == ui::MENU_SOURCE_TOUCH;
-  if (from_touch && !params.selection_text.empty())
+  if (from_touch && !params.selection_text.empty()) {
     return true;
+  }
 
   rwhv_->selection_controller()->HideAndDisallowShowingAutomatically();
   return false;
@@ -234,8 +236,9 @@ bool CefTouchSelectionControllerClientOSR::IsQuickMenuAvailable() const {
 }
 
 void CefTouchSelectionControllerClientOSR::CloseQuickMenu() {
-  if (!quick_menu_running_)
+  if (!quick_menu_running_) {
     return;
+  }
 
   quick_menu_running_ = false;
 
@@ -256,8 +259,9 @@ void CefTouchSelectionControllerClientOSR::ShowQuickMenu() {
     auto client_bounds = gfx::RectF(rwhv_->GetViewBounds());
     origin.SetToMax(client_bounds.origin());
     bottom_right.SetToMin(client_bounds.bottom_right());
-    if (origin.x() > bottom_right.x() || origin.y() > bottom_right.y())
+    if (origin.x() > bottom_right.x() || origin.y() > bottom_right.y()) {
       return;
+    }
 
     gfx::Vector2dF diagonal = bottom_right - origin;
     gfx::SizeF size(diagonal.x(), diagonal.y());

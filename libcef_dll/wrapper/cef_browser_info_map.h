@@ -70,24 +70,28 @@ class CefBrowserInfoMap {
   // used to evaluate or remove the object at the same time. If the object is
   // removed using the Visitor the caller is responsible for destroying it.
   ObjectType Find(int browser_id, IdType info_id, Visitor* vistor) {
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return ObjectType();
+    }
 
     typename BrowserInfoMap::iterator it_browser =
         browser_info_map_.find(browser_id);
-    if (it_browser == browser_info_map_.end())
+    if (it_browser == browser_info_map_.end()) {
       return ObjectType();
+    }
 
     InfoMap* info_map = it_browser->second;
     typename InfoMap::iterator it_info = info_map->find(info_id);
-    if (it_info == info_map->end())
+    if (it_info == info_map->end()) {
       return ObjectType();
+    }
 
     ObjectType info = it_info->second;
 
     bool remove = false;
-    if (vistor)
+    if (vistor) {
       vistor->OnNextInfo(browser_id, it_info->first, info, &remove);
+    }
     if (remove) {
       info_map->erase(it_info);
 
@@ -106,8 +110,9 @@ class CefBrowserInfoMap {
   void FindAll(Visitor* visitor) {
     DCHECK(visitor);
 
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return;
+    }
 
     bool remove, keepgoing = true;
 
@@ -121,13 +126,15 @@ class CefBrowserInfoMap {
         keepgoing = visitor->OnNextInfo(it_browser->first, it_info->first,
                                         it_info->second, &remove);
 
-        if (remove)
+        if (remove) {
           info_map->erase(it_info++);
-        else
+        } else {
           ++it_info;
+        }
 
-        if (!keepgoing)
+        if (!keepgoing) {
           break;
+        }
       }
 
       if (info_map->empty()) {
@@ -138,8 +145,9 @@ class CefBrowserInfoMap {
         ++it_browser;
       }
 
-      if (!keepgoing)
+      if (!keepgoing) {
         break;
+      }
     }
   }
 
@@ -148,13 +156,15 @@ class CefBrowserInfoMap {
   void FindAll(int browser_id, Visitor* visitor) {
     DCHECK(visitor);
 
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return;
+    }
 
     typename BrowserInfoMap::iterator it_browser =
         browser_info_map_.find(browser_id);
-    if (it_browser == browser_info_map_.end())
+    if (it_browser == browser_info_map_.end()) {
       return;
+    }
 
     InfoMap* info_map = it_browser->second;
     bool remove, keepgoing;
@@ -165,13 +175,15 @@ class CefBrowserInfoMap {
       keepgoing = visitor->OnNextInfo(browser_id, it_info->first,
                                       it_info->second, &remove);
 
-      if (remove)
+      if (remove) {
         info_map->erase(it_info++);
-      else
+      } else {
         ++it_info;
+      }
 
-      if (!keepgoing)
+      if (!keepgoing) {
         break;
+      }
     }
 
     if (info_map->empty()) {
@@ -186,43 +198,49 @@ class CefBrowserInfoMap {
 
   // Returns the number of objects in the map.
   size_t size() const {
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return 0;
+    }
 
     size_t size = 0;
     typename BrowserInfoMap::const_iterator it_browser =
         browser_info_map_.begin();
-    for (; it_browser != browser_info_map_.end(); ++it_browser)
+    for (; it_browser != browser_info_map_.end(); ++it_browser) {
       size += it_browser->second->size();
+    }
     return size;
   }
 
   // Returns the number of objects in the map that are associated with the
   // specified browser.
   size_t size(int browser_id) const {
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return 0;
+    }
 
     typename BrowserInfoMap::const_iterator it_browser =
         browser_info_map_.find(browser_id);
-    if (it_browser != browser_info_map_.end())
+    if (it_browser != browser_info_map_.end()) {
       return it_browser->second->size();
+    }
 
     return 0;
   }
 
   // Remove all objects from the map. The objects will be destructed.
   void clear() {
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return;
+    }
 
     typename BrowserInfoMap::const_iterator it_browser =
         browser_info_map_.begin();
     for (; it_browser != browser_info_map_.end(); ++it_browser) {
       InfoMap* info_map = it_browser->second;
       typename InfoMap::const_iterator it_info = info_map->begin();
-      for (; it_info != info_map->end(); ++it_info)
+      for (; it_info != info_map->end(); ++it_info) {
         Traits::Destruct(it_info->second);
+      }
       delete info_map;
     }
     browser_info_map_.clear();
@@ -231,18 +249,21 @@ class CefBrowserInfoMap {
   // Remove all objects from the map that are associated with the specified
   // browser. The objects will be destructed.
   void clear(int browser_id) {
-    if (browser_info_map_.empty())
+    if (browser_info_map_.empty()) {
       return;
+    }
 
     typename BrowserInfoMap::iterator it_browser =
         browser_info_map_.find(browser_id);
-    if (it_browser == browser_info_map_.end())
+    if (it_browser == browser_info_map_.end()) {
       return;
+    }
 
     InfoMap* info_map = it_browser->second;
     typename InfoMap::const_iterator it_info = info_map->begin();
-    for (; it_info != info_map->end(); ++it_info)
+    for (; it_info != info_map->end(); ++it_info) {
       Traits::Destruct(it_info->second);
+    }
 
     browser_info_map_.erase(it_browser);
     delete info_map;

@@ -16,15 +16,17 @@ bool GetResourceDir(std::string& dir) {
 
   // Retrieve the executable path.
   ssize_t len = readlink("/proc/self/exe", buff, sizeof(buff) - 1);
-  if (len == -1)
+  if (len == -1) {
     return false;
+  }
 
   buff[len] = 0;
 
   // Remove the executable name from the path.
   char* pos = strrchr(buff, '/');
-  if (!pos)
+  if (!pos) {
     return false;
+  }
 
   // Add "cefclient_files" to the path.
   strcpy(pos + 1, "cefclient_files");

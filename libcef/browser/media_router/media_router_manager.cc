@@ -283,14 +283,16 @@ void CefMediaRouterManager::CreateRouteState(
 CefMediaRouterManager::RouteState* CefMediaRouterManager::GetRouteState(
     const media_router::MediaRoute::Id& route_id) {
   const auto it = route_state_map_.find(route_id);
-  if (it != route_state_map_.end())
+  if (it != route_state_map_.end()) {
     return it->second.get();
+  }
   return nullptr;
 }
 
 void CefMediaRouterManager::RemoveRouteState(
     const media_router::MediaRoute::Id& route_id) {
   auto it = route_state_map_.find(route_id);
-  if (it != route_state_map_.end())
+  if (it != route_state_map_.end()) {
     route_state_map_.erase(it);
+  }
 }

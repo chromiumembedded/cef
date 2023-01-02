@@ -38,8 +38,9 @@ class PopupWindowDelegate : public CefWindowDelegate {
 
   bool CanClose(CefRefPtr<CefWindow> window) override {
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-    if (browser)
+    if (browser) {
       return browser->GetHost()->TryCloseBrowser();
+    }
     return true;
   }
 
@@ -55,8 +56,9 @@ CefBrowserPlatformDelegateViews::CefBrowserPlatformDelegateViews(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     CefRefPtr<CefBrowserViewImpl> browser_view)
     : native_delegate_(std::move(native_delegate)) {
-  if (browser_view)
+  if (browser_view) {
     SetBrowserView(browser_view);
+  }
   native_delegate_->set_windowless_handler(this);
 }
 
@@ -92,15 +94,17 @@ void CefBrowserPlatformDelegateViews::BrowserCreated(
 void CefBrowserPlatformDelegateViews::NotifyBrowserCreated() {
   DCHECK(browser_view_);
   DCHECK(browser_);
-  if (browser_view_->delegate())
+  if (browser_view_->delegate()) {
     browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_);
+  }
 }
 
 void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
   DCHECK(browser_view_);
   DCHECK(browser_);
-  if (browser_view_->delegate())
+  if (browser_view_->delegate()) {
     browser_view_->delegate()->OnBrowserDestroyed(browser_view_, browser_);
+  }
 }
 
 void CefBrowserPlatformDelegateViews::BrowserDestroyed(
@@ -119,8 +123,9 @@ bool CefBrowserPlatformDelegateViews::CreateHostWindow() {
 
 void CefBrowserPlatformDelegateViews::CloseHostWindow() {
   views::Widget* widget = GetWindowWidget();
-  if (widget && !widget->IsClosed())
+  if (widget && !widget->IsClosed()) {
     widget->Close();
+  }
 }
 
 CefWindowHandle CefBrowserPlatformDelegateViews::GetHostWindowHandle() const {
@@ -128,8 +133,9 @@ CefWindowHandle CefBrowserPlatformDelegateViews::GetHostWindowHandle() const {
 }
 
 views::Widget* CefBrowserPlatformDelegateViews::GetWindowWidget() const {
-  if (browser_view_->root_view())
+  if (browser_view_->root_view()) {
     return browser_view_->root_view()->GetWidget();
+  }
   return nullptr;
 }
 
@@ -224,8 +230,9 @@ void CefBrowserPlatformDelegateViews::SetFocus(bool setFocus) {
   if (setFocus && browser_view_->root_view()) {
     if (auto widget = GetWindowWidget()) {
       // Don't activate a minimized Widget, or it will be shown.
-      if (widget->IsMinimized())
+      if (widget->IsMinimized()) {
         return;
+      }
     }
     browser_view_->root_view()->RequestFocus();
   }
@@ -234,8 +241,9 @@ void CefBrowserPlatformDelegateViews::SetFocus(bool setFocus) {
 gfx::Point CefBrowserPlatformDelegateViews::GetScreenPoint(
     const gfx::Point& view_pt,
     bool want_dip_coords) const {
-  if (!browser_view_->root_view())
+  if (!browser_view_->root_view()) {
     return view_pt;
+  }
 
   gfx::Point screen_point = view_pt;
   view_util::ConvertPointToScreen(browser_view_->root_view(), &screen_point,

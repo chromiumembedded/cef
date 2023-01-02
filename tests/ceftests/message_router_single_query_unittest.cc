@@ -182,12 +182,14 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
 
   void DestroyTestIfDone() {
     bool destroy_test = false;
-    if (test_type_ == CANCEL)
+    if (test_type_ == CANCEL) {
       destroy_test = got_notify_ && got_on_query_canceled_;
-    else
+    } else {
       destroy_test = got_notify_;
-    if (destroy_test)
+    }
+    if (destroy_test) {
       DestroyTest();
+    }
   }
 
   void DestroyTest() override {
@@ -195,10 +197,11 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
     EXPECT_TRUE(got_on_query_);
     EXPECT_FALSE(callback_.get());
 
-    if (test_type_ == CANCEL)
+    if (test_type_ == CANCEL) {
       EXPECT_TRUE(got_on_query_canceled_);
-    else
+    } else {
       EXPECT_FALSE(got_on_query_canceled_);
+    }
 
     TestHandler::DestroyTest();
   }
@@ -435,14 +438,16 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   void DestroyTestIfDone() {
     bool destroy_test = false;
     if (test_type_ == SUCCESS) {
-      if (got_on_query_ && got_on_query_canceled_ && got_notify_)
+      if (got_on_query_ && got_on_query_canceled_ && got_notify_) {
         destroy_test = true;
+      }
     } else if (got_on_query_ && got_notify_) {
       destroy_test = true;
     }
 
-    if (destroy_test)
+    if (destroy_test) {
       DestroyTest();
+    }
   }
 
   void DestroyTest() override {
@@ -450,10 +455,11 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
     EXPECT_TRUE(got_on_query_);
     EXPECT_FALSE(callback_.get());
 
-    if (test_type_ == SUCCESS)
+    if (test_type_ == SUCCESS) {
       EXPECT_TRUE(got_on_query_canceled_);
-    else
+    } else {
       EXPECT_FALSE(got_on_query_canceled_);
+    }
 
     TestHandler::DestroyTest();
   }

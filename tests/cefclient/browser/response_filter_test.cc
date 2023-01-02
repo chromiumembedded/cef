@@ -43,8 +43,9 @@ class FindReplaceResponseFilter : public CefResponseFilter {
     // Determine a reasonable amount of space for find/replace overflow. For
     // example, the amount of space required if the search string is
     // found/replaced 10 times (plus space for the count).
-    if (replace_size > find_size)
+    if (replace_size > find_size) {
       replace_overflow_size_ = (replace_size - find_size + 3) * 10;
+    }
 
     return true;
   }
@@ -195,8 +196,9 @@ class PassThruResponseFilter : public CefResponseFilter {
 
     // Write out the contents unchanged.
     data_out_written = std::min(data_in_read, data_out_size);
-    if (data_out_written > 0)
+    if (data_out_written > 0) {
       memcpy(data_out, data_in, data_out_written);
+    }
 
     return RESPONSE_FILTER_DONE;
   }
@@ -228,11 +230,13 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
   // Use the find/replace filter on the test URL.
   const std::string& url = request->GetURL();
 
-  if (test_runner::IsTestURL(url, kTestUrlPath))
+  if (test_runner::IsTestURL(url, kTestUrlPath)) {
     return new FindReplaceResponseFilter();
+  }
 
-  if (MatchesFilterURL(url))
+  if (MatchesFilterURL(url)) {
     return new PassThruResponseFilter();
+  }
 
   return nullptr;
 }

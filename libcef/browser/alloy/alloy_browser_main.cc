@@ -122,13 +122,15 @@ class LinuxUiGetterImpl : public ui::LinuxUiGetter {
 ui::LinuxUi* GetLinuxUI() {
   // We can't use GtkUi in combination with multi-threaded-message-loop because
   // Chromium's GTK implementation doesn't use GDK threads.
-  if (!!CefContext::Get()->settings().multi_threaded_message_loop)
+  if (!!CefContext::Get()->settings().multi_threaded_message_loop) {
     return nullptr;
+  }
 
   // If the ozone backend hasn't provided a LinuxUiDelegate, don't try to create
   // a LinuxUi instance as this may result in a crash in toolkit initialization.
-  if (!ui::LinuxUiDelegate::GetInstance())
+  if (!ui::LinuxUiDelegate::GetInstance()) {
     return nullptr;
+  }
 
   return ui::GetDefaultLinuxUi();
 }
@@ -176,10 +178,11 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #endif  // BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(IS_MAC)
-  if (base::FeatureList::IsEnabled(features::kViewsJSAppModalDialog))
+  if (base::FeatureList::IsEnabled(features::kViewsJSAppModalDialog)) {
     InstallChromeJavaScriptAppModalDialogViewFactory();
-  else
+  } else {
     InstallChromeJavaScriptAppModalDialogViewCocoaFactory();
+  }
 #else
   InstallChromeJavaScriptAppModalDialogViewFactory();
 #endif

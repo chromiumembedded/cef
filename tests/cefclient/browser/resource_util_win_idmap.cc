@@ -49,8 +49,9 @@ int GetResourceId(const char* resource_name) {
                       {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML}};
 
   for (size_t i = 0; i < sizeof(resource_map) / sizeof(_resource_map); ++i) {
-    if (!strcmp(resource_map[i].name, resource_name))
+    if (!strcmp(resource_map[i].name, resource_name)) {
       return resource_map[i].id;
+    }
   }
 
   return 0;

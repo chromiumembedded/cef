@@ -51,8 +51,10 @@ class TCPServerSocketFactory : public content::DevToolsSocketFactory {
   std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
     std::unique_ptr<net::ServerSocket> socket(
         new net::TCPServerSocket(nullptr, net::NetLogSource()));
-    if (socket->ListenWithAddressAndPort(address_, port_, kBackLog) != net::OK)
+    if (socket->ListenWithAddressAndPort(address_, port_, kBackLog) !=
+        net::OK) {
       return std::unique_ptr<net::ServerSocket>();
+    }
     return socket;
   }
 
@@ -85,8 +87,9 @@ std::unique_ptr<content::DevToolsSocketFactory> CreateSocketFactory() {
       DLOG(WARNING) << "Invalid http debugger port number " << temp_port;
     }
   }
-  if (port == 0)
+  if (port == 0) {
     return nullptr;
+  }
   return std::unique_ptr<content::DevToolsSocketFactory>(
       new TCPServerSocketFactory("127.0.0.1", port));
 }
@@ -100,8 +103,9 @@ void CefDevToolsManagerDelegate::StartHttpHandler(
     content::BrowserContext* browser_context) {
   std::unique_ptr<content::DevToolsSocketFactory> socket_factory =
       CreateSocketFactory();
-  if (!socket_factory)
+  if (!socket_factory) {
     return;
+  }
   content::DevToolsAgentHost::StartRemoteDebuggingServer(
       std::move(socket_factory), browser_context->GetPath(), base::FilePath());
 

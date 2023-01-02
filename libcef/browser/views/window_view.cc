@@ -85,13 +85,15 @@ class NativeFrameViewEx : public views::NativeFrameView {
   }
 
   int NonClientHitTest(const gfx::Point& point) override {
-    if (widget_->IsFullscreen())
+    if (widget_->IsFullscreen()) {
       return HTCLIENT;
+    }
 
     // Test for mouse clicks that fall within the draggable region.
     SkRegion* draggable_region = view_->draggable_region();
-    if (draggable_region && draggable_region->contains(point.x(), point.y()))
+    if (draggable_region && draggable_region->contains(point.x(), point.y())) {
       return HTCAPTION;
+    }
 
     return views::NativeFrameView::NonClientHitTest(point);
   }
@@ -130,12 +132,14 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   }
 
   int NonClientHitTest(const gfx::Point& point) override {
-    if (widget_->IsFullscreen())
+    if (widget_->IsFullscreen()) {
       return HTCLIENT;
+    }
 
     // Sanity check.
-    if (!bounds().Contains(point))
+    if (!bounds().Contains(point)) {
       return HTNOWHERE;
+    }
 
     // Check the frame first, as we allow a small area overlapping the contents
     // to be used for resize handles.
@@ -149,17 +153,20 @@ class CaptionlessFrameView : public views::NonClientFrameView {
         point,
         gfx::Insets::VH(resize_border_thickness, resize_border_thickness),
         kResizeAreaCornerSize, kResizeAreaCornerSize, can_ever_resize);
-    if (frame_component != HTNOWHERE)
+    if (frame_component != HTNOWHERE) {
       return frame_component;
+    }
 
     // Test for mouse clicks that fall within the draggable region.
     SkRegion* draggable_region = view_->draggable_region();
-    if (draggable_region && draggable_region->contains(point.x(), point.y()))
+    if (draggable_region && draggable_region->contains(point.x(), point.y())) {
       return HTCAPTION;
+    }
 
     int client_component = widget_->client_view()->NonClientHitTest(point);
-    if (client_component != HTNOWHERE)
+    if (client_component != HTNOWHERE) {
       return client_component;
+    }
 
     // Caption is a safe default.
     return HTCAPTION;
@@ -407,14 +414,16 @@ void CefWindowView::DeleteDelegate() {
 }
 
 bool CefWindowView::CanMinimize() const {
-  if (!cef_delegate())
+  if (!cef_delegate()) {
     return true;
+  }
   return cef_delegate()->CanMinimize(GetCefWindow());
 }
 
 bool CefWindowView::CanMaximize() const {
-  if (!cef_delegate())
+  if (!cef_delegate()) {
     return true;
+  }
   return cef_delegate()->CanMaximize(GetCefWindow());
 }
 
@@ -423,8 +432,9 @@ std::u16string CefWindowView::GetWindowTitle() const {
 }
 
 ui::ImageModel CefWindowView::GetWindowIcon() {
-  if (!window_icon_)
+  if (!window_icon_) {
     return ParentClass::GetWindowIcon();
+  }
   auto image_skia =
       static_cast<CefImageImpl*>(window_icon_.get())
           ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
@@ -432,8 +442,9 @@ ui::ImageModel CefWindowView::GetWindowIcon() {
 }
 
 ui::ImageModel CefWindowView::GetWindowAppIcon() {
-  if (!window_app_icon_)
+  if (!window_app_icon_) {
     return ParentClass::GetWindowAppIcon();
+  }
   auto image_skia =
       static_cast<CefImageImpl*>(window_app_icon_.get())
           ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
@@ -479,8 +490,9 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
     views::NonClientFrameView* ncfv = GetNonClientFrameView();
     if (ncfv) {
       int result = ncfv->NonClientHitTest(location);
-      if (IsWindowBorderHit(result))
+      if (IsWindowBorderHit(result)) {
         return false;
+      }
     }
   }
 
@@ -555,8 +567,9 @@ display::Display CefWindowView::GetDisplay() const {
 void CefWindowView::SetTitle(const std::u16string& title) {
   title_ = title;
   views::Widget* widget = GetWidget();
-  if (widget)
+  if (widget) {
     widget->UpdateWindowTitle();
+  }
 }
 
 void CefWindowView::SetWindowIcon(CefRefPtr<CefImage> window_icon) {
@@ -567,15 +580,17 @@ void CefWindowView::SetWindowIcon(CefRefPtr<CefImage> window_icon) {
 
   window_icon_ = window_icon;
   views::Widget* widget = GetWidget();
-  if (widget)
+  if (widget) {
     widget->UpdateWindowIcon();
+  }
 }
 
 void CefWindowView::SetWindowAppIcon(CefRefPtr<CefImage> window_app_icon) {
   window_app_icon_ = window_app_icon;
   views::Widget* widget = GetWidget();
-  if (widget)
+  if (widget) {
     widget->UpdateWindowIcon();
+  }
 }
 
 CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
@@ -583,8 +598,9 @@ CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
     cef_docking_mode_t docking_mode) {
   DCHECK(view.get());
   DCHECK(view->IsValid());
-  if (!view.get() || !view->IsValid())
+  if (!view.get() || !view->IsValid()) {
     return nullptr;
+  }
 
   views::Widget* widget = GetWidget();
   if (widget) {
@@ -604,8 +620,9 @@ CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
 }
 
 void CefWindowView::MoveOverlaysIfNecessary() {
-  if (overlay_hosts_.empty())
+  if (overlay_hosts_.empty()) {
     return;
+  }
   for (auto& overlay_host : overlay_hosts_) {
     overlay_host->MoveIfNecessary();
   }
@@ -614,8 +631,9 @@ void CefWindowView::MoveOverlaysIfNecessary() {
 void CefWindowView::SetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
   if (regions.empty()) {
-    if (draggable_region_)
+    if (draggable_region_) {
       draggable_region_.reset(nullptr);
+    }
     return;
   }
 
@@ -631,9 +649,11 @@ void CefWindowView::SetDraggableRegions(
 
 views::NonClientFrameView* CefWindowView::GetNonClientFrameView() const {
   const views::Widget* widget = GetWidget();
-  if (!widget)
+  if (!widget) {
     return nullptr;
-  if (!widget->non_client_view())
+  }
+  if (!widget->non_client_view()) {
     return nullptr;
+  }
   return widget->non_client_view()->frame_view();
 }

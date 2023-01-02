@@ -130,8 +130,9 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
     return nullptr;
   }
 
-  if (!other.get())
+  if (!other.get()) {
     return nullptr;
+  }
 
   CefRequestContextImpl::Config config;
   config.other = static_cast<CefRequestContextImpl*>(other.get());
@@ -217,8 +218,9 @@ void CefRequestContextImpl::ExecuteWhenBrowserContextInitialized(
 void CefRequestContextImpl::GetBrowserContext(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     BrowserContextCallback callback) {
-  if (!task_runner.get())
+  if (!task_runner.get()) {
     task_runner = CefTaskRunnerImpl::GetCurrentTaskRunner();
+  }
 
   ExecuteWhenBrowserContextInitialized(base::BindOnce(
       [](CefRefPtr<CefRequestContextImpl> context,
@@ -246,12 +248,14 @@ void CefRequestContextImpl::GetBrowserContext(
 bool CefRequestContextImpl::IsSame(CefRefPtr<CefRequestContext> other) {
   CefRequestContextImpl* other_impl =
       static_cast<CefRequestContextImpl*>(other.get());
-  if (!other_impl)
+  if (!other_impl) {
     return false;
+  }
 
   // Compare whether both are the global context.
-  if (config_.is_global && other_impl->config_.is_global)
+  if (config_.is_global && other_impl->config_.is_global) {
     return true;
+  }
 
   // Compare CefBrowserContext pointers if one has been associated.
   if (browser_context() && other_impl->browser_context()) {
@@ -267,11 +271,13 @@ bool CefRequestContextImpl::IsSame(CefRefPtr<CefRequestContext> other) {
 bool CefRequestContextImpl::IsSharingWith(CefRefPtr<CefRequestContext> other) {
   CefRequestContextImpl* other_impl =
       static_cast<CefRequestContextImpl*>(other.get());
-  if (!other_impl)
+  if (!other_impl) {
     return false;
+  }
 
-  if (IsSame(other))
+  if (IsSame(other)) {
     return true;
+  }
 
   CefRefPtr<CefRequestContext> pending_other = config_.other;
   if (pending_other.get()) {
@@ -344,16 +350,18 @@ bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
       content::GetUIThreadTaskRunner({}),
       base::BindOnce([](CefBrowserContext::Getter browser_context_getter) {
         auto browser_context = browser_context_getter.Run();
-        if (browser_context)
+        if (browser_context) {
           browser_context->ClearSchemeHandlerFactories();
+        }
       }));
 
   return true;
 }
 
 bool CefRequestContextImpl::HasPreference(const CefString& name) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return false;
+  }
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return pref_helper::HasPreference(pref_service, name);
@@ -361,8 +369,9 @@ bool CefRequestContextImpl::HasPreference(const CefString& name) {
 
 CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
     const CefString& name) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return nullptr;
+  }
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return pref_helper::GetPreference(pref_service, name);
@@ -370,16 +379,18 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
 
 CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
     bool include_defaults) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return nullptr;
+  }
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return pref_helper::GetAllPreferences(pref_service, include_defaults);
 }
 
 bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return false;
+  }
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return pref_helper::CanSetPreference(pref_service, name);
@@ -388,8 +399,9 @@ bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
 bool CefRequestContextImpl::SetPreference(const CefString& name,
                                           CefRefPtr<CefValue> value,
                                           CefString& error) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return false;
+  }
 
   PrefService* pref_service = browser_context()->AsProfile()->GetPrefs();
   return pref_helper::SetPreference(pref_service, name, value, error);
@@ -462,16 +474,18 @@ bool CefRequestContextImpl::GetExtensions(
     std::vector<CefString>& extension_ids) {
   extension_ids.clear();
 
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return false;
+  }
 
   return browser_context()->GetExtensions(extension_ids);
 }
 
 CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
     const CefString& extension_id) {
-  if (!VerifyBrowserContext())
+  if (!VerifyBrowserContext()) {
     return nullptr;
+  }
 
   return browser_context()->GetExtension(extension_id);
 }
@@ -592,8 +606,9 @@ void CefRequestContextImpl::BrowserContextInitialized() {
 
 void CefRequestContextImpl::EnsureBrowserContext() {
   CEF_REQUIRE_UIT();
-  if (!browser_context())
+  if (!browser_context()) {
     Initialize();
+  }
   DCHECK(browser_context());
 }
 
@@ -601,13 +616,15 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
     CefBrowserContext::Getter browser_context_getter) {
   auto browser_context = browser_context_getter.Run();
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   content::SSLHostStateDelegate* ssl_delegate =
       browser_context->AsBrowserContext()->GetSSLHostStateDelegate();
-  if (ssl_delegate)
+  if (ssl_delegate) {
     ssl_delegate->Clear(base::NullCallback());
+  }
 
   if (callback) {
     CEF_POST_TASK(CEF_UIT,
@@ -619,8 +636,9 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
     CefRefPtr<CefCompletionCallback> callback,
     CefBrowserContext::Getter browser_context_getter) {
   auto browser_context = browser_context_getter.Run();
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetNetworkContext()->ClearHttpAuthCache(
       /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
@@ -631,8 +649,9 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
     CefRefPtr<CefCompletionCallback> callback,
     CefBrowserContext::Getter browser_context_getter) {
   auto browser_context = browser_context_getter.Run();
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   browser_context->GetNetworkContext()->CloseAllConnections(
       base::BindOnce(&CefCompletionCallback::OnComplete, callback));
@@ -643,8 +662,9 @@ void CefRequestContextImpl::ResolveHostInternal(
     CefRefPtr<CefResolveCallback> callback,
     CefBrowserContext::Getter browser_context_getter) {
   auto browser_context = browser_context_getter.Run();
-  if (!browser_context)
+  if (!browser_context) {
     return;
+  }
 
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);

@@ -75,8 +75,9 @@ class JSDialogTestHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    if (!frame->IsMain())
+    if (!frame->IsMain()) {
       return;
+    }
 
     std::string url = frame->GetURL();
     if (url.find(kEndUrl) == 0) {

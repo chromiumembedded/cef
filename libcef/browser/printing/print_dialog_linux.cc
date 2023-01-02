@@ -35,8 +35,9 @@ namespace {
 CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
     printing::PrintingContextLinux* context) {
   // The print preview dialog won't have a valid child ID.
-  if (!frame_util::IsValidChildId(context->render_process_id()))
+  if (!frame_util::IsValidChildId(context->render_process_id())) {
     return nullptr;
+  }
 
   return extensions::GetOwnerBrowserForGlobalId(
       frame_util::MakeGlobalId(context->render_process_id(),
@@ -264,8 +265,9 @@ void CefPrintDialogLinux::PrintDocument(
                     base::File::FLAG_CREATE_ALWAYS | base::File::FLAG_WRITE);
     success = metafile.SaveTo(&file);
     file.Close();
-    if (!success)
+    if (!success) {
       base::DeleteFile(path_to_pdf_);
+    }
   }
 
   if (!success) {

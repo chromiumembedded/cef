@@ -80,22 +80,25 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkWriter::Listener {
   void NewTable(base::ReadOnlySharedMemoryRegion* table_region) override {
     CEF_REQUIRE_UIT();
     ListenerMap::iterator it = listener_map_.begin();
-    for (; it != listener_map_.end(); ++it)
+    for (; it != listener_map_.end(); ++it) {
       it->second->NewTable(table_region);
+    }
   }
 
   void Add(visitedlink::VisitedLinkCommon::Fingerprint fingerprint) override {
     CEF_REQUIRE_UIT();
     ListenerMap::iterator it = listener_map_.begin();
-    for (; it != listener_map_.end(); ++it)
+    for (; it != listener_map_.end(); ++it) {
       it->second->Add(fingerprint);
+    }
   }
 
   void Reset(bool invalidate_hashes) override {
     CEF_REQUIRE_UIT();
     ListenerMap::iterator it = listener_map_.begin();
-    for (; it != listener_map_.end(); ++it)
+    for (; it != listener_map_.end(); ++it) {
       it->second->Reset(invalidate_hashes);
+    }
   }
 
  private:
@@ -161,8 +164,9 @@ void AlloyBrowserContext::Initialize() {
 
   // Initialize visited links management.
   base::FilePath visited_link_path;
-  if (!cache_path_.empty())
+  if (!cache_path_.empty()) {
     visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
+  }
   visitedlink_listener_ = new CefVisitedLinkListener;
   visitedlink_master_.reset(new visitedlink::VisitedLinkWriter(
       visitedlink_listener_, this, !visited_link_path.empty(), false,
@@ -181,8 +185,9 @@ void AlloyBrowserContext::Initialize() {
   user_prefs::UserPrefs::Set(this, pref_service);
   key_->SetPrefs(pref_service);
 
-  if (extensions_enabled)
+  if (extensions_enabled) {
     extension_system_->Init();
+  }
 
   ChromePluginServiceFilter::GetInstance()->RegisterProfile(this);
 
@@ -227,8 +232,9 @@ void AlloyBrowserContext::Shutdown() {
 
   // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
-  if (download_manager_delegate_)
+  if (download_manager_delegate_) {
     download_manager_delegate_.reset(nullptr);
+  }
 }
 
 void AlloyBrowserContext::RemoveCefRequestContext(
@@ -249,8 +255,9 @@ void AlloyBrowserContext::LoadExtension(
     CefRefPtr<CefExtensionHandler> handler,
     CefRefPtr<CefRequestContext> loader_context) {
   if (!extensions::ExtensionsEnabled()) {
-    if (handler)
+    if (handler) {
       handler->OnExtensionLoadFailed(ERR_ABORTED);
+    }
     return;
   }
 
@@ -267,23 +274,26 @@ void AlloyBrowserContext::LoadExtension(
 }
 
 bool AlloyBrowserContext::GetExtensions(std::vector<CefString>& extension_ids) {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return false;
+  }
 
   extensions::CefExtensionSystem::ExtensionMap extension_map =
       extension_system()->GetExtensions();
   extensions::CefExtensionSystem::ExtensionMap::const_iterator it =
       extension_map.begin();
-  for (; it != extension_map.end(); ++it)
+  for (; it != extension_map.end(); ++it) {
     extension_ids.push_back(it->second->GetIdentifier());
+  }
 
   return true;
 }
 
 CefRefPtr<CefExtension> AlloyBrowserContext::GetExtension(
     const CefString& extension_id) {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return nullptr;
+  }
 
   return extension_system()->GetExtension(extension_id);
 }
@@ -295,8 +305,9 @@ bool AlloyBrowserContext::UnloadExtension(const CefString& extension_id) {
 
 bool AlloyBrowserContext::IsPrintPreviewSupported() const {
   CEF_REQUIRE_UIT();
-  if (!extensions::PrintPreviewEnabled())
+  if (!extensions::PrintPreviewEnabled()) {
     return false;
+  }
 
   return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
 }
@@ -334,8 +345,9 @@ base::FilePath AlloyBrowserContext::GetPath() const {
 std::unique_ptr<content::ZoomLevelDelegate>
 AlloyBrowserContext::CreateZoomLevelDelegate(
     const base::FilePath& partition_path) {
-  if (cache_path_.empty())
+  if (cache_path_.empty()) {
     return std::unique_ptr<content::ZoomLevelDelegate>();
+  }
 
   return base::WrapUnique(new ChromeZoomLevelPrefs(
       GetPrefs(), cache_path_, partition_path,
@@ -352,8 +364,9 @@ AlloyBrowserContext::GetDownloadManagerDelegate() {
 }
 
 content::BrowserPluginGuestManager* AlloyBrowserContext::GetGuestManager() {
-  if (!extensions::ExtensionsEnabled())
+  if (!extensions::ExtensionsEnabled()) {
     return nullptr;
+  }
   return guest_view::GuestViewManager::FromBrowserContext(this);
 }
 
@@ -376,8 +389,9 @@ AlloyBrowserContext::GetStorageNotificationService() {
 }
 
 content::SSLHostStateDelegate* AlloyBrowserContext::GetSSLHostStateDelegate() {
-  if (!ssl_host_state_delegate_)
+  if (!ssl_host_state_delegate_) {
     ssl_host_state_delegate_.reset(new CefSSLHostStateDelegate());
+  }
   return ssl_host_state_delegate_.get();
 }
 

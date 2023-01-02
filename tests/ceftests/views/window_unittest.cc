@@ -409,16 +409,18 @@ void TriggerAccelerator(CefRefPtr<CefWindow> window) {
 }
 
 bool OnKeyEvent(CefRefPtr<CefWindow> window, const CefKeyEvent& event) {
-  if (event.type != KEYEVENT_RAWKEYDOWN)
+  if (event.type != KEYEVENT_RAWKEYDOWN) {
     return false;
+  }
 
   if (event.windows_key_code == VK_MENU) {
     // First we get the ALT key press in all cases.
     EXPECT_FALSE(got_key_event_char);
-    if (got_key_event_alt_count == 0)
+    if (got_key_event_alt_count == 0) {
       EXPECT_FALSE(got_accelerator);
-    else
+    } else {
       EXPECT_TRUE(got_accelerator);
+    }
 
     EXPECT_EQ(EVENTFLAG_ALT_DOWN, static_cast<int>(event.modifiers));
     got_key_event_alt_count++;

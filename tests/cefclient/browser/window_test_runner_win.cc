@@ -21,10 +21,11 @@ void Toggle(HWND root_hwnd, UINT nCmdShow) {
   WINDOWPLACEMENT placement;
   ::GetWindowPlacement(root_hwnd, &placement);
 
-  if (placement.showCmd == nCmdShow)
+  if (placement.showCmd == nCmdShow) {
     ::ShowWindow(root_hwnd, SW_RESTORE);
-  else
+  } else {
     ::ShowWindow(root_hwnd, nCmdShow);
+  }
 }
 
 void SetPosImpl(CefRefPtr<CefBrowser> browser,
@@ -33,8 +34,9 @@ void SetPosImpl(CefRefPtr<CefBrowser> browser,
                 int width,
                 int height) {
   HWND root_hwnd = GetRootHwnd(browser);
-  if (!root_hwnd)
+  if (!root_hwnd) {
     return;
+  }
 
   // Retrieve current window placement information.
   WINDOWPLACEMENT placement;
@@ -73,22 +75,25 @@ void SetPosImpl(CefRefPtr<CefBrowser> browser,
 
 void MinimizeImpl(CefRefPtr<CefBrowser> browser) {
   HWND root_hwnd = GetRootHwnd(browser);
-  if (!root_hwnd)
+  if (!root_hwnd) {
     return;
+  }
   Toggle(root_hwnd, SW_MINIMIZE);
 }
 
 void MaximizeImpl(CefRefPtr<CefBrowser> browser) {
   HWND root_hwnd = GetRootHwnd(browser);
-  if (!root_hwnd)
+  if (!root_hwnd) {
     return;
+  }
   Toggle(root_hwnd, SW_MAXIMIZE);
 }
 
 void RestoreImpl(CefRefPtr<CefBrowser> browser) {
   HWND root_hwnd = GetRootHwnd(browser);
-  if (!root_hwnd)
+  if (!root_hwnd) {
     return;
+  }
   ::ShowWindow(root_hwnd, SW_RESTORE);
 }
 

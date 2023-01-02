@@ -112,8 +112,9 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(CefRefPtr<CefView> view) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   DCHECK(view.get());
   DCHECK(view->IsValid());
-  if (!view.get() || !view->IsValid())
+  if (!view.get() || !view->IsValid()) {
     return;
+  }
 
   auto* view_ptr = view->IsAttached()
                        ? view_util::GetFor(view)
@@ -150,14 +151,16 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::ReorderChildView(
   DCHECK(view.get());
   DCHECK(view->IsValid());
   DCHECK(view->IsAttached());
-  if (!view.get() || !view->IsValid() || !view->IsAttached())
+  if (!view.get() || !view->IsValid() || !view->IsAttached()) {
     return;
+  }
 
   views::View* view_ptr = view_util::GetFor(view);
   DCHECK(view_ptr);
   DCHECK_EQ(view_ptr->parent(), ParentClass::content_view());
-  if (!view_ptr || view_ptr->parent() != ParentClass::content_view())
+  if (!view_ptr || view_ptr->parent() != ParentClass::content_view()) {
     return;
+  }
 
   ParentClass::content_view()->ReorderChildView(view_ptr, index);
 }
@@ -168,14 +171,16 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::RemoveChildView(
   DCHECK(view.get());
   DCHECK(view->IsValid());
   DCHECK(view->IsAttached());
-  if (!view.get() || !view->IsValid() || !view->IsAttached())
+  if (!view.get() || !view->IsValid() || !view->IsAttached()) {
     return;
+  }
 
   views::View* view_ptr = view_util::GetFor(view);
   DCHECK(view_ptr);
   DCHECK_EQ(view_ptr->parent(), ParentClass::content_view());
-  if (!view_ptr || view_ptr->parent() != ParentClass::content_view())
+  if (!view_ptr || view_ptr->parent() != ParentClass::content_view()) {
     return;
+  }
 
   ParentClass::content_view()->RemoveChildView(view_ptr);
   view_util::ResumeOwnership(view);
@@ -202,8 +207,9 @@ CEF_PANEL_IMPL_T CefRefPtr<CefView> CEF_PANEL_IMPL_D::GetChildViewAt(
   DCHECK_LT(static_cast<unsigned int>(index),
             ParentClass::content_view()->children().size());
   if (index < 0 || (static_cast<unsigned int>(index) >=
-                    ParentClass::content_view()->children().size()))
+                    ParentClass::content_view()->children().size())) {
     return nullptr;
+  }
 
   CefRefPtr<CefView> view =
       view_util::GetFor(ParentClass::content_view()->children()[index], false);

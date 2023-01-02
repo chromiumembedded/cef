@@ -88,10 +88,11 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   // Size will come from GetGetInitialBounds() or GetPreferredSize() on
   // initial Window creation.
   EXPECT_TRUE(got_get_initial_bounds_);
-  if (config_->window_origin.IsEmpty())
+  if (config_->window_origin.IsEmpty()) {
     EXPECT_TRUE(got_get_preferred_size_);
-  else
+  } else {
     EXPECT_FALSE(got_get_preferred_size_);
+  }
 
   CefRect client_bounds = window->GetBounds();
   if (!config_->window_origin.IsEmpty()) {
@@ -116,8 +117,9 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   }
 
   // Run the callback.
-  if (!config_->on_window_created.is_null())
+  if (!config_->on_window_created.is_null()) {
     std::move(config_->on_window_created).Run(window);
+  }
 
   if (config_->close_window) {
     // Close the window asynchronously.
@@ -143,8 +145,9 @@ void TestWindowDelegate::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->IsDrawn());
 
   // Run the callback.
-  if (!config_->on_window_destroyed.is_null())
+  if (!config_->on_window_destroyed.is_null()) {
     std::move(config_->on_window_destroyed).Run(window);
+  }
 
   window_ = nullptr;
 
@@ -174,15 +177,17 @@ CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {
 
 bool TestWindowDelegate::OnAccelerator(CefRefPtr<CefWindow> window,
                                        int command_id) {
-  if (!config_->on_accelerator.is_null())
+  if (!config_->on_accelerator.is_null()) {
     return config_->on_accelerator.Run(window_, command_id);
+  }
   return false;
 }
 
 bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
                                     const CefKeyEvent& event) {
-  if (!config_->on_key_event.is_null())
+  if (!config_->on_key_event.is_null()) {
     return config_->on_key_event.Run(window_, event);
+  }
   return false;
 }
 
@@ -201,8 +206,9 @@ TestWindowDelegate::~TestWindowDelegate() {
 }
 
 void TestWindowDelegate::OnCloseWindow() {
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   EXPECT_TRUE(window_->IsValid());
   EXPECT_FALSE(window_->IsClosed());

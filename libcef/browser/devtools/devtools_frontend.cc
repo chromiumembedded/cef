@@ -98,8 +98,9 @@ base::DictionaryValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
   std::string value;
   // TODO(caseq): this probably needs to handle duplicate header names
   // correctly by folding them.
-  while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value))
+  while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value)) {
     headers->SetString(name, value);
+  }
 
   response.Set("headers", std::move(headers));
   return response;
@@ -135,8 +136,9 @@ void LogProtocolMessage(const base::FilePath& log_file,
                         std::string to_log) {
   // Track if logging has failed, in which case we don't keep trying.
   static bool log_error = false;
-  if (log_error)
+  if (log_error) {
     return;
+  }
 
   if (storage::NativeFileUtil::EnsureFileExists(log_file, nullptr) !=
       base::File::FILE_OK) {
@@ -289,10 +291,12 @@ void CefDevToolsFrontend::Focus() {
 }
 
 void CefDevToolsFrontend::InspectElementAt(int x, int y) {
-  if (inspect_element_at_.x != x || inspect_element_at_.y != y)
+  if (inspect_element_at_.x != x || inspect_element_at_.y != y) {
     inspect_element_at_.Set(x, y);
-  if (agent_host_)
+  }
+  if (agent_host_) {
     agent_host_->InspectElement(inspected_contents_->GetFocusedFrame(), x, y);
+  }
 }
 
 void CefDevToolsFrontend::Close() {
@@ -334,8 +338,9 @@ void CefDevToolsFrontend::ReadyToCommitNavigation(
   std::string origin =
       navigation_handle->GetURL().DeprecatedGetOriginAsURL().spec();
   auto it = extensions_api_.find(origin);
-  if (it == extensions_api_.end())
+  if (it == extensions_api_.end()) {
     return;
+  }
   std::string script = base::StringPrintf("%s(\"%s\")", it->second.c_str(),
                                           base::GenerateGUID().c_str());
   content::DevToolsFrontendHost::SetupExtensionsAPI(frame, script);
@@ -348,8 +353,9 @@ void CefDevToolsFrontend::PrimaryMainDocumentElementAvailable() {
   scoped_refptr<content::DevToolsAgentHost> agent_host =
       content::DevToolsAgentHost::GetOrCreateFor(inspected_contents_);
   if (agent_host != agent_host_) {
-    if (agent_host_)
+    if (agent_host_) {
       agent_host_->DetachClient(this);
+    }
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
     if (!inspect_element_at_.IsEmpty()) {
@@ -371,8 +377,9 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     base::Value::Dict message) {
   const std::string* method = message.FindString("method");
-  if (!method)
+  if (!method) {
     return;
+  }
 
   int request_id = message.FindInt("id").value_or(0);
   base::Value::List* params_value = message.FindList("params");
@@ -384,11 +391,13 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   }
 
   if (*method == "dispatchProtocolMessage") {
-    if (params.size() < 1)
+    if (params.size() < 1) {
       return;
+    }
     const std::string* protocol_message = params[0].GetIfString();
-    if (!agent_host_ || !protocol_message)
+    if (!agent_host_ || !protocol_message) {
       return;
+    }
     if (ProtocolLoggingEnabled()) {
       LogProtocolMessage(ProtocolMessageType::METHOD, *protocol_message);
     }
@@ -398,8 +407,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.setUseSoftMenu(true);", base::NullCallback());
   } else if (*method == "loadNetworkResource") {
-    if (params.size() < 3)
+    if (params.size() < 3) {
       return;
+    }
 
     // TODO(pfeldman): handle some of the embedder messages in content.
     const std::string* url = params[0].GetIfString();
@@ -486,62 +496,73 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
         base::Value(GetPrefs()->GetDict(prefs::kDevToolsPreferences).Clone()));
     return;
   } else if (*method == "setPreference") {
-    if (params.size() < 2)
+    if (params.size() < 2) {
       return;
+    }
     const std::string* name = params[0].GetIfString();
 
     // We're just setting params[1] as a value anyways, so just make sure it's
     // the type we want, but don't worry about getting it.
-    if (!name || !params[1].is_string())
+    if (!name || !params[1].is_string()) {
       return;
+    }
 
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
     update.Get()->SetKey(*name, std::move(params[1]));
   } else if (*method == "removePreference") {
     const std::string* name = params[0].GetIfString();
-    if (!name)
+    if (!name) {
       return;
+    }
     DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
     update.Get()->RemoveKey(*name);
   } else if (*method == "requestFileSystems") {
     web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.fileSystemsLoaded([]);", base::NullCallback());
   } else if (*method == "reattach") {
-    if (!agent_host_)
+    if (!agent_host_) {
       return;
+    }
     agent_host_->DetachClient(this);
     agent_host_->AttachClient(this);
   } else if (*method == "registerExtensionsAPI") {
-    if (params.size() < 2)
+    if (params.size() < 2) {
       return;
+    }
     const std::string* origin = params[0].GetIfString();
     const std::string* script = params[1].GetIfString();
-    if (!origin || !script)
+    if (!origin || !script) {
       return;
+    }
     extensions_api_[*origin + "/"] = *script;
   } else if (*method == "save") {
-    if (params.size() < 3)
+    if (params.size() < 3) {
       return;
+    }
     const std::string* url = params[0].GetIfString();
     const std::string* content = params[1].GetIfString();
     absl::optional<bool> save_as = params[2].GetIfBool();
-    if (!url || !content || !save_as.has_value())
+    if (!url || !content || !save_as.has_value()) {
       return;
+    }
     file_manager_.SaveToFile(*url, *content, *save_as);
   } else if (*method == "append") {
-    if (params.size() < 2)
+    if (params.size() < 2) {
       return;
+    }
     const std::string* url = params[0].GetIfString();
     const std::string* content = params[1].GetIfString();
-    if (!url || !content)
+    if (!url || !content) {
       return;
+    }
     file_manager_.AppendToFile(*url, *content);
   } else {
     return;
   }
 
-  if (request_id)
+  if (request_id) {
     SendMessageAck(request_id, base::Value());
+  }
 }
 
 void CefDevToolsFrontend::DispatchProtocolMessage(

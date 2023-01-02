@@ -45,8 +45,9 @@ class TestWindowDelegate : public CefWindowDelegate {
   bool CanClose(CefRefPtr<CefWindow> window) override {
     // Allow the window to close if the browser says it's OK.
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
-    if (browser)
+    if (browser) {
       return browser->GetHost()->TryCloseBrowser();
+    }
     return true;
   }
 
@@ -128,14 +129,16 @@ void TestHandler::Collection::ExecuteTests() {
   TestHandlerList::const_iterator it;
 
   it = handler_list_.begin();
-  for (; it != handler_list_.end(); ++it)
+  for (; it != handler_list_.end(); ++it) {
     (*it)->SetupTest();
+  }
 
   completion_state_->WaitForTests();
 
   it = handler_list_.begin();
-  for (; it != handler_list_.end(); ++it)
+  for (; it != handler_list_.end(); ++it) {
     (*it)->RunTest();
+  }
 
   completion_state_->WaitForTests();
 }
@@ -187,17 +190,20 @@ TestHandler::TestHandler(CompletionState* completion_state)
 
 TestHandler::~TestHandler() {
   DCHECK(!ui_thread_helper_.get());
-  if (destroy_test_expected_)
+  if (destroy_test_expected_) {
     EXPECT_TRUE(destroy_test_called_);
-  else
+  } else {
     EXPECT_FALSE(destroy_test_called_);
+  }
   EXPECT_TRUE(browser_map_.empty());
 
-  if (completion_state_owned_)
+  if (completion_state_owned_) {
     delete completion_state_;
+  }
 
-  if (destroy_event_)
+  if (destroy_event_) {
     destroy_event_->Signal();
+  }
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -296,8 +302,9 @@ void TestHandler::ExecuteTest() {
   EXPECT_EQ(completion_state_->total(), 1);
 
   // Reset any state from the previous run.
-  if (destroy_test_called_)
+  if (destroy_test_called_) {
     destroy_test_called_ = false;
+  }
 
   // Run the test.
   RunTest();
@@ -318,8 +325,9 @@ void TestHandler::DestroyTest() {
   }
 
   EXPECT_TRUE(destroy_test_expected_);
-  if (destroy_test_called_)
+  if (destroy_test_called_) {
     return;
+  }
   destroy_test_called_ = true;
 
   if (!browser_map_.empty()) {
@@ -329,12 +337,14 @@ void TestHandler::DestroyTest() {
 
     // Tell all browsers to close.
     BrowserMap::const_iterator it = browser_map.begin();
-    for (; it != browser_map.end(); ++it)
+    for (; it != browser_map.end(); ++it) {
       CloseBrowser(it->second, false);
+    }
   }
 
-  if (ui_thread_helper_.get())
+  if (ui_thread_helper_.get()) {
     ui_thread_helper_.reset(nullptr);
+  }
 }
 
 void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
@@ -404,8 +414,9 @@ void TestHandler::AddResourceEx(const std::string& url,
   // Ignore the query component, if any.
   std::string urlStr = url;
   size_t idx = urlStr.find('?');
-  if (idx > 0)
+  if (idx > 0) {
     urlStr = urlStr.substr(0, idx);
+  }
 
   resource_map_.insert(std::make_pair(urlStr, content));
 }
@@ -458,8 +469,9 @@ TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
   EXPECT_UI_THREAD();
   CHECK(!destroy_test_called_);
 
-  if (!ui_thread_helper_.get())
+  if (!ui_thread_helper_.get()) {
     ui_thread_helper_.reset(new UIThreadHelper());
+  }
   return ui_thread_helper_.get();
 }
 

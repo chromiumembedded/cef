@@ -17,8 +17,9 @@ ParameterMap FilterParameters(const ParameterMap& parameters) {
   for (size_t i = 0; true; ++i) {
     const std::string& key = "K-" + std::string(1, 'A' + i);
     ParameterMap::iterator it = in_map.find(key);
-    if (it == in_map.end())
+    if (it == in_map.end()) {
       break;
+    }
     key_map += it->second;
     in_map.erase(it);
   }

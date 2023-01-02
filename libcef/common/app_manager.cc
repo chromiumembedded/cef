@@ -50,20 +50,23 @@ void CefAppManager::AddCustomScheme(CefSchemeInfo* scheme_info) {
     // resource_dispatcher_host_impl.cc ShouldServiceRequest.
     content::ChildProcessSecurityPolicy* policy =
         content::ChildProcessSecurityPolicy::GetInstance();
-    if (!policy->IsWebSafeScheme(scheme_info->scheme_name))
+    if (!policy->IsWebSafeScheme(scheme_info->scheme_name)) {
       policy->RegisterWebSafeScheme(scheme_info->scheme_name);
+    }
   }
 }
 
 bool CefAppManager::HasCustomScheme(const std::string& scheme_name) {
   DCHECK(scheme_info_list_locked_);
-  if (scheme_info_list_.empty())
+  if (scheme_info_list_.empty()) {
     return false;
+  }
 
   SchemeInfoList::const_iterator it = scheme_info_list_.begin();
   for (; it != scheme_info_list_.end(); ++it) {
-    if (it->scheme_name == scheme_name)
+    if (it->scheme_name == scheme_name) {
       return true;
+    }
   }
 
   return false;

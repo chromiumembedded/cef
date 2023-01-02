@@ -130,8 +130,9 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
   }
 
   void ListenerDestroyed() override {
-    if (browser_)
+    if (browser_) {
       browser_->SelectFileListenerDestroyed(listener_);
+    }
     listener_ = nullptr;
   }
 

@@ -28,8 +28,9 @@ void RootWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
   DCHECK(delegate_);
   DCHECK(!WithExtension());
 
-  if (extensions.empty())
+  if (extensions.empty()) {
     return;
+  }
 
   ExtensionSet::const_iterator it = extensions.begin();
   for (; it != extensions.end(); ++it) {

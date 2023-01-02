@@ -40,8 +40,9 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
 
   bool IsCommandIdSupported(int command_id) override {
     // Always claim support for the reserved user ID range.
-    if (command_id >= MENU_ID_USER_FIRST && command_id <= MENU_ID_USER_LAST)
+    if (command_id >= MENU_ID_USER_FIRST && command_id <= MENU_ID_USER_LAST) {
       return true;
+    }
 
     // Also claim support in specific cases where an ItemInfo exists.
     return GetItemInfo(command_id) != nullptr;
@@ -104,25 +105,29 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
 
   void SetChecked(int command_id, bool checked) override {
     // No-op if already at the default state.
-    if (!checked && !GetItemInfo(command_id))
+    if (!checked && !GetItemInfo(command_id)) {
       return;
+    }
 
     auto* info = GetOrCreateItemInfo(command_id);
     info->checked = checked;
-    if (!checked)
+    if (!checked) {
       MaybeDeleteItemInfo(command_id, info);
+    }
   }
 
   void SetAccelerator(int command_id,
                       absl::optional<ui::Accelerator> accel) override {
     // No-op if already at the default state.
-    if (!accel && !GetItemInfo(command_id))
+    if (!accel && !GetItemInfo(command_id)) {
       return;
+    }
 
     auto* info = GetOrCreateItemInfo(command_id);
     info->accel = accel;
-    if (!accel)
+    if (!accel) {
       MaybeDeleteItemInfo(command_id, info);
+    }
   }
 
  private:
@@ -142,8 +147,9 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   }
 
   ItemInfo* GetOrCreateItemInfo(int command_id) {
-    if (auto info = GetItemInfo(command_id))
+    if (auto info = GetItemInfo(command_id)) {
       return info;
+    }
 
     auto result = iteminfomap_.insert(std::make_pair(command_id, ItemInfo()));
     return &result.first->second;

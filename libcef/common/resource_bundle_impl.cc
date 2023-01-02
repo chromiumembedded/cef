@@ -10,8 +10,9 @@
 CefResourceBundleImpl::CefResourceBundleImpl() {}
 
 CefString CefResourceBundleImpl::GetLocalizedString(int string_id) {
-  if (!ui::ResourceBundle::HasSharedInstance())
+  if (!ui::ResourceBundle::HasSharedInstance()) {
     return CefString();
+  }
 
   return ui::ResourceBundle::GetSharedInstance().GetLocalizedString(string_id);
 }
@@ -24,14 +25,16 @@ CefRefPtr<CefBinaryValue> CefResourceBundleImpl::GetDataResource(
 CefRefPtr<CefBinaryValue> CefResourceBundleImpl::GetDataResourceForScale(
     int resource_id,
     ScaleFactor scale_factor) {
-  if (!ui::ResourceBundle::HasSharedInstance())
+  if (!ui::ResourceBundle::HasSharedInstance()) {
     return nullptr;
+  }
 
   base::RefCountedMemory* result =
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceBytesForScale(
           resource_id, static_cast<ui::ResourceScaleFactor>(scale_factor));
-  if (!result)
+  if (!result) {
     return nullptr;
+  }
 
   return CefBinaryValue::Create(result->data(), result->size());
 }

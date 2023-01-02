@@ -38,8 +38,9 @@ TEST(PrintTest, SettingsSetGet) {
   CefPrintSettings::PageRangeList page_ranges2;
   settings->GetPageRanges(page_ranges2);
   EXPECT_EQ(page_ranges.size(), page_ranges2.size());
-  for (size_t i = 0; i < page_ranges.size(); ++i)
+  for (size_t i = 0; i < page_ranges.size(); ++i) {
     EXPECT_EQ(page_ranges[i], page_ranges2[i]);
+  }
 
   bool selection_only = true;
   settings->SetSelectionOnly(selection_only);

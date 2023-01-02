@@ -40,8 +40,9 @@ void UseDefaultX11VisualForGtk(GtkWidget* widget) {
   GList* visuals = gdk_screen_list_visuals(screen);
 
   GdkX11Screen* x11_screen = GDK_X11_SCREEN(screen);
-  if (x11_screen == nullptr)
+  if (x11_screen == nullptr) {
     return;
+  }
 
   Visual* default_xvisual = DefaultVisual(GDK_SCREEN_XDISPLAY(x11_screen),
                                           GDK_SCREEN_XNUMBER(x11_screen));
@@ -67,8 +68,9 @@ bool IsWindowMaximized(GtkWindow* window) {
 
 void MinimizeWindow(GtkWindow* window) {
   // Unmaximize the window before minimizing so restore behaves correctly.
-  if (IsWindowMaximized(window))
+  if (IsWindowMaximized(window)) {
     gtk_window_unmaximize(window);
+  }
 
   gtk_window_iconify(window);
 }
@@ -144,14 +146,18 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
   with_osr_ = with_osr;
   is_popup_ = true;
 
-  if (popupFeatures.xSet)
+  if (popupFeatures.xSet) {
     start_rect_.x = popupFeatures.x;
-  if (popupFeatures.ySet)
+  }
+  if (popupFeatures.ySet) {
     start_rect_.y = popupFeatures.y;
-  if (popupFeatures.widthSet)
+  }
+  if (popupFeatures.widthSet) {
     start_rect_.width = popupFeatures.width;
-  if (popupFeatures.heightSet)
+  }
+  if (popupFeatures.heightSet) {
     start_rect_.height = popupFeatures.height;
+  }
 
   CreateBrowserWindow(std::string());
 
@@ -167,8 +173,9 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
 void RootWindowGtk::Show(ShowMode mode) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -176,10 +183,11 @@ void RootWindowGtk::Show(ShowMode mode) {
   UseDefaultX11VisualForGtk(GTK_WIDGET(window_));
   gtk_widget_show_all(window_);
 
-  if (mode == ShowMinimized)
+  if (mode == ShowMinimized) {
     MinimizeWindow(GTK_WINDOW(window_));
-  else if (mode == ShowMaximized)
+  } else if (mode == ShowMaximized) {
     MaximizeWindow(GTK_WINDOW(window_));
+  }
 
   // Flush the display to make sure the underlying X11 window gets created
   // immediately.
@@ -193,15 +201,17 @@ void RootWindowGtk::Hide() {
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
-  if (window_)
+  if (window_) {
     gtk_widget_hide(window_);
+  }
 }
 
 void RootWindowGtk::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -209,10 +219,11 @@ void RootWindowGtk::SetBounds(int x, int y, size_t width, size_t height) {
   GdkWindow* gdk_window = gtk_widget_get_window(window_);
 
   // Make sure the window isn't minimized or maximized.
-  if (IsWindowMaximized(window))
+  if (IsWindowMaximized(window)) {
     gtk_window_unmaximize(window);
-  else
+  } else {
     gtk_window_present(window);
+  }
 
   gdk_window_move_resize(gdk_window, x, y, width, height);
 }
@@ -233,15 +244,17 @@ void RootWindowGtk::Close(bool force) {
 void RootWindowGtk::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
+  }
 }
 
 float RootWindowGtk::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
+  }
 
   NOTREACHED();
   return 0.0f;
@@ -250,8 +263,9 @@ float RootWindowGtk::GetDeviceScaleFactor() const {
 CefRefPtr<CefBrowser> RootWindowGtk::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_) {
     return browser_window_->GetBrowser();
+  }
   return nullptr;
 }
 
@@ -443,8 +457,9 @@ void RootWindowGtk::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
 
   // For popup browsers create the root window once the browser has been
   // created.
-  if (is_popup_)
+  if (is_popup_) {
     CreateRootWindow(CefBrowserSettings(), false);
+  }
 
   delegate_->OnBrowserCreated(this, browser);
 }
@@ -503,18 +518,20 @@ void RootWindowGtk::OnSetFullscreen(bool fullscreen) {
   if (browser) {
     std::unique_ptr<window_test::WindowTestRunnerGtk> test_runner(
         new window_test::WindowTestRunnerGtk());
-    if (fullscreen)
+    if (fullscreen) {
       test_runner->Maximize(browser);
-    else
+    } else {
       test_runner->Restore(browser);
+    }
   }
 }
 
 void RootWindowGtk::OnAutoResize(const CefSize& new_size) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
@@ -522,10 +539,11 @@ void RootWindowGtk::OnAutoResize(const CefSize& new_size) {
   GdkWindow* gdk_window = gtk_widget_get_window(window_);
 
   // Make sure the window isn't minimized or maximized.
-  if (IsWindowMaximized(window))
+  if (IsWindowMaximized(window)) {
     gtk_window_unmaximize(window);
-  else
+  } else {
     gtk_window_present(window);
+  }
 
   gdk_window_resize(gdk_window, new_size.width, new_size.height);
 }
@@ -575,8 +593,9 @@ void RootWindowGtk::NotifySetFocus() {
     return;
   }
 
-  if (!browser_window_.get())
+  if (!browser_window_.get()) {
     return;
+  }
 
   browser_window_->SetFocus(true);
   delegate_->OnRootWindowActivated(this);
@@ -589,13 +608,15 @@ void RootWindowGtk::NotifyVisibilityChange(bool show) {
     return;
   }
 
-  if (!browser_window_.get())
+  if (!browser_window_.get()) {
     return;
+  }
 
-  if (show)
+  if (show) {
     browser_window_->Show();
-  else
+  } else {
     browser_window_->Hide();
+  }
 }
 
 void RootWindowGtk::NotifyMenuBarHeight(int height) {
@@ -652,8 +673,9 @@ void RootWindowGtk::NotifyButtonClicked(int id) {
   }
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   switch (id) {
     case IDC_NAV_BACK:
@@ -680,8 +702,9 @@ void RootWindowGtk::NotifyMenuItem(int id) {
   }
 
   // Run the test.
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnTest(this, id);
+  }
 }
 
 void RootWindowGtk::NotifyForceClose() {
@@ -717,14 +740,17 @@ void RootWindowGtk::NotifyDestroyedIfDone(bool window_destroyed,
     return;
   }
 
-  if (window_destroyed)
+  if (window_destroyed) {
     window_destroyed_ = true;
-  if (browser_destroyed)
+  }
+  if (browser_destroyed) {
     browser_destroyed_ = true;
+  }
 
   // Notify once both the window and the browser have been destroyed.
-  if (window_destroyed_ && browser_destroyed_)
+  if (window_destroyed_ && browser_destroyed_) {
     delegate_->OnRootWindowDestroyed(this);
+  }
 }
 
 // static
@@ -781,8 +807,9 @@ gboolean RootWindowGtk::WindowDelete(GtkWidget* widget,
   REQUIRE_MAIN_THREAD();
 
   // Called to query whether the root window should be closed.
-  if (self->force_close_)
+  if (self->force_close_) {
     return FALSE;  // Allow the close.
+  }
 
   if (!self->is_closing_) {
     // Notify the browser window that we would like to close it. This
@@ -886,8 +913,9 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
   Atom atoms[2];
   int result =
       XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 2, false, atoms);
-  if (!result)
+  if (!result) {
     NOTREACHED();
+  }
 
   XEvent e;
   e.type = ClientMessage;

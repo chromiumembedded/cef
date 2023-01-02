@@ -41,8 +41,9 @@ bool CefMenuRunnerViewsAura::RunContextMenu(
 }
 
 void CefMenuRunnerViewsAura::CancelContextMenu() {
-  if (menu_)
+  if (menu_) {
     menu_->Cancel();
+  }
 }
 
 bool CefMenuRunnerViewsAura::FormatLabel(std::u16string& label) {

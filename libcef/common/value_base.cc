@@ -62,8 +62,9 @@ void CefValueController::Remove(void* value, bool notify_object) {
     // Remove all references.
     if (reference_map_.size() > 0) {
       ReferenceMap::iterator it = reference_map_.begin();
-      for (; it != reference_map_.end(); ++it)
+      for (; it != reference_map_.end(); ++it) {
         it->second->OnControlRemoved();
+      }
       reference_map_.clear();
     }
 
@@ -73,8 +74,9 @@ void CefValueController::Remove(void* value, bool notify_object) {
     ReferenceMap::iterator it = reference_map_.find(value);
     if (it != reference_map_.end()) {
       // Remove the reference.
-      if (notify_object)
+      if (notify_object) {
         it->second->OnControlRemoved();
+      }
       reference_map_.erase(it);
     }
   }
@@ -90,8 +92,9 @@ CefValueController::Object* CefValueController::Get(void* value) {
     return owner_object_;
   } else {
     ReferenceMap::iterator it = reference_map_.find(value);
-    if (it != reference_map_.end())
+    if (it != reference_map_.end()) {
       return it->second;
+    }
     return nullptr;
   }
 }
@@ -120,12 +123,14 @@ void CefValueController::RemoveDependencies(void* value) {
   // Controller should already be locked.
   DCHECK(locked());
 
-  if (dependency_map_.empty())
+  if (dependency_map_.empty()) {
     return;
+  }
 
   DependencyMap::iterator it_dependency = dependency_map_.find(value);
-  if (it_dependency == dependency_map_.end())
+  if (it_dependency == dependency_map_.end()) {
     return;
+  }
 
   // Start with the set of dependencies for the current value.
   DependencySet remove_set = it_dependency->second;
@@ -189,8 +194,9 @@ void CefValueController::TakeFrom(CefValueController* other) {
         // Evaluate each child.
         DependencySet::iterator it_other_set = it_other->second.begin();
         for (; it_other_set != it_other->second.end(); ++it_other_set) {
-          if (it_me->second.find(*it_other_set) == it_me->second.end())
+          if (it_me->second.find(*it_other_set) == it_me->second.end()) {
             it_me->second.insert(*it_other_set);
+          }
         }
       }
     }
@@ -203,8 +209,9 @@ void CefValueController::Swap(void* old_value, void* new_value) {
   // Controller should already be locked.
   DCHECK(locked());
 
-  if (owner_value_ == old_value)
+  if (owner_value_ == old_value) {
     owner_value_ = new_value;
+  }
 
   if (!reference_map_.empty()) {
     ReferenceMap::iterator it = reference_map_.find(old_value);

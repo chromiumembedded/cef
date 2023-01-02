@@ -58,8 +58,9 @@ CefScopedSandboxContext::~CefScopedSandboxContext() {
 }
 
 bool CefScopedSandboxContext::Initialize(int argc, char** argv) {
-  if (sandbox_context_)
+  if (sandbox_context_) {
     return false;
+  }
   sandbox_context_ = cef_sandbox_initialize(argc, argv);
   return !!sandbox_context_;
 }

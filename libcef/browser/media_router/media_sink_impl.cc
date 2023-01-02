@@ -35,8 +35,9 @@ void GetSinkInternalAndContinue(
 
   for (auto service : services) {
     sink_internal = service->GetSinkById(sink_id);
-    if (sink_internal)
+    if (sink_internal) {
       break;
+    }
   }
 
   if (sink_internal) {
@@ -131,10 +132,12 @@ bool CefMediaSinkImpl::IsDialSink() {
 
 bool CefMediaSinkImpl::IsCompatibleWith(CefRefPtr<CefMediaSource> source) {
   if (source) {
-    if (IsCastSink())
+    if (IsCastSink()) {
       return source->IsCastSource();
-    if (IsDialSink())
+    }
+    if (IsDialSink()) {
       return source->IsDialSource();
+    }
   }
   return false;
 }

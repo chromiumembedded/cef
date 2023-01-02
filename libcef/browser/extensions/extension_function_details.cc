@@ -148,8 +148,9 @@ Profile* CefExtensionFunctionDetails::GetProfile() const {
 CefRefPtr<AlloyBrowserHostImpl> CefExtensionFunctionDetails::GetSenderBrowser()
     const {
   content::WebContents* web_contents = function_->GetSenderWebContents();
-  if (web_contents)
+  if (web_contents) {
     return AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
+  }
   return nullptr;
 }
 
@@ -293,20 +294,23 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
     bool user_gesture,
     std::string* error_message) const {
   CefRefPtr<AlloyBrowserHostImpl> sender_browser = GetSenderBrowser();
-  if (!sender_browser)
+  if (!sender_browser) {
     return nullptr;
+  }
 
   // windowId defaults to "current" window.
   int window_id = extension_misc::kCurrentWindowId;
-  if (params.window_id.has_value())
+  if (params.window_id.has_value()) {
     window_id = *params.window_id;
+  }
 
   // CEF doesn't have the concept of windows containing tab strips so we'll
   // select an "active browser" for BrowserContext sharing instead.
   CefRefPtr<AlloyBrowserHostImpl> active_browser =
       GetBrowserForTabIdFirstTime(window_id, error_message);
-  if (!active_browser)
+  if (!active_browser) {
     return nullptr;
+  }
 
   // If an opener browser was specified then we expect it to exist.
   int opener_browser_id = -1;
@@ -330,13 +334,15 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   // Default to foreground for the new tab. The presence of 'active' property
   // will override this default.
   bool active = true;
-  if (params.active.has_value())
+  if (params.active.has_value()) {
     active = *params.active;
+  }
 
   // CEF doesn't use the index value but we let the client see/modify it.
   int index = 0;
-  if (params.index.has_value())
+  if (params.index.has_value()) {
     index = *params.index;
+  }
 
   auto cef_browser_context = CefBrowserContext::FromBrowserContext(
       active_browser->GetBrowserContext());
@@ -345,15 +351,17 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   CefRefPtr<CefExtension> cef_extension =
       cef_browser_context->GetExtension(function()->extension()->id());
   DCHECK(cef_extension);
-  if (!cef_extension)
+  if (!cef_extension) {
     return nullptr;
+  }
 
   // Always use the same request context that the extension was registered with.
   // GetLoaderContext() will return NULL for internal extensions.
   CefRefPtr<CefRequestContext> request_context =
       cef_extension->GetLoaderContext();
-  if (!request_context)
+  if (!request_context) {
     return nullptr;
+  }
 
   CefBrowserCreateParams create_params;
   create_params.url = url.spec();
@@ -387,8 +395,9 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   // Browser creation may fail under certain rare circumstances.
   CefRefPtr<AlloyBrowserHostImpl> new_browser =
       AlloyBrowserHostImpl::Create(create_params);
-  if (!new_browser)
+  if (!new_browser) {
     return nullptr;
+  }
 
   // Return data about the newly created tab.
   auto extension = function()->extension();
@@ -436,8 +445,9 @@ api::tabs::Tab CefExtensionFunctionDetails::CreateTabObject(
     tab_object.fav_icon_url = entry->GetFavicon().url.spec();
   }
 
-  if (opener_browser_id >= 0)
+  if (opener_browser_id >= 0) {
     tab_object.opener_tab_id = opener_browser_id;
+  }
 
   return tab_object;
 }

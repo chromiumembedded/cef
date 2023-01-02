@@ -57,8 +57,9 @@ void CefBrowserPlatformDelegateOsr::WebContentsCreated(
 
 void CefBrowserPlatformDelegateOsr::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  if (view_osr_)
+  if (view_osr_) {
     view_osr_->RenderViewCreated();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
@@ -105,14 +106,16 @@ SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {
 
 void CefBrowserPlatformDelegateOsr::WasResized() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->WasResized();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   content::NativeWebKeyboardEvent web_event =
       native_delegate_->TranslateWebKeyEvent(event);
@@ -125,8 +128,9 @@ void CefBrowserPlatformDelegateOsr::SendMouseClickEvent(
     bool mouseUp,
     int clickCount) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseEvent web_event = native_delegate_->TranslateWebClickEvent(
       event, type, mouseUp, clickCount);
@@ -137,8 +141,9 @@ void CefBrowserPlatformDelegateOsr::SendMouseMoveEvent(
     const CefMouseEvent& event,
     bool mouseLeave) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseEvent web_event =
       native_delegate_->TranslateWebMoveEvent(event, mouseLeave);
@@ -150,8 +155,9 @@ void CefBrowserPlatformDelegateOsr::SendMouseWheelEvent(
     int deltaX,
     int deltaY) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (!view)
+  if (!view) {
     return;
+  }
 
   blink::WebMouseWheelEvent web_event =
       native_delegate_->TranslateWebWheelEvent(event, deltaX, deltaY);
@@ -160,14 +166,16 @@ void CefBrowserPlatformDelegateOsr::SendMouseWheelEvent(
 
 void CefBrowserPlatformDelegateOsr::SendTouchEvent(const CefTouchEvent& event) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->SendTouchEvent(event);
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::SetFocus(bool setFocus) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->SetFocus(setFocus);
+  }
 }
 
 gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(
@@ -228,42 +236,48 @@ void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
   if (web_contents) {
-    if (hidden)
+    if (hidden) {
       web_contents->WasHidden();
-    else
+    } else {
       web_contents->WasShown();
+    }
   }
 }
 
 bool CefBrowserPlatformDelegateOsr::IsHidden() const {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     return view->is_hidden();
+  }
   return true;
 }
 
 void CefBrowserPlatformDelegateOsr::NotifyScreenInfoChanged() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->OnScreenInfoChanged();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::Invalidate(cef_paint_element_type_t type) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->Invalidate(type);
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::SendExternalBeginFrame() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->SendExternalBeginFrame();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::SetWindowlessFrameRate(int frame_rate) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->UpdateFrameRate();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::ImeSetComposition(
@@ -283,21 +297,24 @@ void CefBrowserPlatformDelegateOsr::ImeCommitText(
     const CefRange& replacement_range,
     int relative_cursor_pos) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->ImeCommitText(text, replacement_range, relative_cursor_pos);
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::ImeFinishComposingText(
     bool keep_selection) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->ImeFinishComposingText(keep_selection);
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::ImeCancelComposition() {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
+  if (view) {
     view->ImeCancelComposition();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
@@ -306,11 +323,13 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
     cef_drag_operations_mask_t allowed_ops) {
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
-  if (current_rvh_for_drag_)
+  if (current_rvh_for_drag_) {
     DragTargetDragLeave();
+  }
 
   const gfx::Point client_pt(event.x, event.y);
   gfx::PointF transformed_pt;
@@ -351,13 +370,15 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
 void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     const CefMouseEvent& event,
     cef_drag_operations_mask_t allowed_ops) {
-  if (!drag_data_)
+  if (!drag_data_) {
     return;
+  }
 
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   const gfx::Point client_pt(event.x, event.y);
   const gfx::Point& screen_pt =
@@ -393,8 +414,9 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     DragTargetDragEnter(drag_data_, event, drag_allowed_ops_);
   }
 
-  if (!drag_data_)
+  if (!drag_data_) {
     return;
+  }
 
   blink::DragOperationsMask ops =
       static_cast<blink::DragOperationsMask>(allowed_ops);
@@ -419,13 +441,15 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragLeave() {
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
-  if (!drag_data_)
+  if (!drag_data_) {
     return;
+  }
 
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   gfx::Point client_pt(event.x, event.y);
   const gfx::Point& screen_pt =
@@ -461,8 +485,9 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     DragTargetDragEnter(drag_data_, event, drag_allowed_ops_);
   }
 
-  if (!drag_data_)
+  if (!drag_data_) {
     return;
+  }
 
   {
     CefDragDataImpl* data_impl =
@@ -505,8 +530,9 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
         event_info.location.x(), event_info.location.y());
   }
 
-  if (!handled)
+  if (!handled) {
     DragSourceSystemDragEnded();
+  }
 }
 
 void CefBrowserPlatformDelegateOsr::UpdateDragCursor(
@@ -523,13 +549,15 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
     int x,
     int y,
     cef_drag_operations_mask_t op) {
-  if (!drag_start_rwh_)
+  if (!drag_start_rwh_) {
     return;
+  }
 
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   content::RenderWidgetHostImpl* source_rwh = drag_start_rwh_.get();
   const gfx::Point client_loc(gfx::Point(x, y));
@@ -565,13 +593,15 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
 }
 
 void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
-  if (!drag_start_rwh_)
+  if (!drag_start_rwh_) {
     return;
+  }
 
   content::WebContentsImpl* web_contents =
       static_cast<content::WebContentsImpl*>(web_contents_);
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
   web_contents->SystemDragEnded(drag_start_rwh_.get());
 

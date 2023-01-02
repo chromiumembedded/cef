@@ -154,8 +154,9 @@ class TestSchemeHandler : public TestHandler {
     if (IsExitURL(newUrl)) {
       test_results_->got_exit_request.yes();
       // XHR tests use an exit URL to destroy the test.
-      if (newUrl.find("SUCCESS") != std::string::npos)
+      if (newUrl.find("SUCCESS") != std::string::npos) {
         test_results_->got_sub_success.yes();
+      }
       DestroyTestIfDone();
       return RV_CANCEL;
     }
@@ -184,12 +185,13 @@ class TestSchemeHandler : public TestHandler {
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
     const std::string& url = frame->GetURL();
-    if (url == test_results_->url)
+    if (url == test_results_->url) {
       test_results_->got_output.yes();
-    else if (url == test_results_->sub_url)
+    } else if (url == test_results_->sub_url) {
       test_results_->got_sub_output.yes();
-    else if (IsExitURL(url))
+    } else if (IsExitURL(url)) {
       return;
+    }
 
     if (url == test_results_->url || test_results_->status_code != 200) {
       // Test that the status code is correct.
@@ -205,12 +207,13 @@ class TestSchemeHandler : public TestHandler {
                    const CefString& errorText,
                    const CefString& failedUrl) override {
     const std::string& url = failedUrl;
-    if (url == test_results_->url)
+    if (url == test_results_->url) {
       test_results_->got_error.yes();
-    else if (url == test_results_->sub_url)
+    } else if (url == test_results_->sub_url) {
       test_results_->got_sub_error.yes();
-    else if (IsExitURL(url))
+    } else if (IsExitURL(url)) {
       return;
+    }
 
     // Tests sometimes also fail with ERR_ABORTED or ERR_UNKNOWN_URL_SCHEME.
     if (!(test_results_->expected_error_code == 0 &&
@@ -271,15 +274,17 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     if (is_sub_) {
       test_results_->got_sub_request.yes();
 
-      if (!test_results_->sub_html.empty())
+      if (!test_results_->sub_html.empty()) {
         handled = true;
+      }
     } else {
       EXPECT_EQ(url, test_results_->url);
 
       test_results_->got_request.yes();
 
-      if (!test_results_->html.empty())
+      if (!test_results_->html.empty()) {
         handled = true;
+      }
     }
 
     std::string accept_language;
@@ -287,8 +292,9 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     CefRequest::HeaderMap::iterator headerIter;
     request->GetHeaderMap(headerMap);
     headerIter = headerMap.find("Accept-Language");
-    if (headerIter != headerMap.end())
+    if (headerIter != headerMap.end()) {
       accept_language = headerIter->second;
+    }
     EXPECT_TRUE(!accept_language.empty());
 
     if (!test_results_->accept_language.empty()) {
@@ -321,8 +327,9 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     }
 
     // Response was canceled.
-    if (g_current_handler)
+    if (g_current_handler) {
       g_current_handler->DestroyTest();
+    }
     return false;
   }
 
@@ -448,15 +455,17 @@ class ClientSchemeHandler : public CefResourceHandler {
     if (is_sub_) {
       test_results_->got_sub_request.yes();
 
-      if (!test_results_->sub_html.empty())
+      if (!test_results_->sub_html.empty()) {
         handled = true;
+      }
     } else {
       EXPECT_EQ(url, test_results_->url);
 
       test_results_->got_request.yes();
 
-      if (!test_results_->html.empty())
+      if (!test_results_->html.empty()) {
         handled = true;
+      }
     }
 
     std::string accept_language;
@@ -464,8 +473,9 @@ class ClientSchemeHandler : public CefResourceHandler {
     CefRequest::HeaderMap::iterator headerIter;
     request->GetHeaderMap(headerMap);
     headerIter = headerMap.find("Accept-Language");
-    if (headerIter != headerMap.end())
+    if (headerIter != headerMap.end()) {
       accept_language = headerIter->second;
+    }
     EXPECT_TRUE(!accept_language.empty());
 
     if (!test_results_->accept_language.empty()) {
@@ -499,8 +509,9 @@ class ClientSchemeHandler : public CefResourceHandler {
     }
 
     // Response was canceled.
-    if (g_current_handler)
+    if (g_current_handler) {
       g_current_handler->DestroyTest();
+    }
     return false;
   }
 
@@ -689,10 +700,11 @@ void SetUpXHR(const XHRTestSettings& settings) {
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
   std::string request_url;
-  if (!settings.sub_redirect_url.empty())
+  if (!settings.sub_redirect_url.empty()) {
     request_url = settings.sub_redirect_url;
-  else
+  } else {
     request_url = settings.sub_url;
+  }
 
   g_TestResults.url = settings.url;
   std::stringstream ss;
@@ -760,10 +772,11 @@ void SetUpFetch(const FetchTestSettings& settings) {
   g_TestResults.sub_redirect_url = settings.sub_redirect_url;
 
   std::string request_url;
-  if (!settings.sub_redirect_url.empty())
+  if (!settings.sub_redirect_url.empty()) {
     request_url = settings.sub_redirect_url;
-  else
+  } else {
     request_url = settings.sub_url;
+  }
 
   g_TestResults.url = settings.url;
   std::stringstream ss;
@@ -808,8 +821,9 @@ void SetUpXSS(const std::string& url,
 
   std::stringstream ss;
   std::string domain_line;
-  if (!domain.empty())
+  if (!domain.empty()) {
     domain_line = "document.domain = '" + domain + "';";
+  }
 
   g_TestResults.sub_url = sub_url;
   ss << "<html><head>"

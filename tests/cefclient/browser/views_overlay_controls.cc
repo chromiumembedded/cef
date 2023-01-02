@@ -147,10 +147,11 @@ void ViewsOverlayControls::OnButtonPressed(CefRefPtr<CefButton> button) {
       window_->Minimize();
       break;
     case ViewsOverlayControls::Command::kMaximize:
-      if (window_->IsMaximized())
+      if (window_->IsMaximized()) {
         window_->Restore();
-      else
+      } else {
         window_->Maximize();
+      }
       break;
     case ViewsOverlayControls::Command::kClose:
       window_->Close();
@@ -163,8 +164,9 @@ void ViewsOverlayControls::OnButtonPressed(CefRefPtr<CefButton> button) {
   button->SetInkDropEnabled(false);
   button->SetInkDropEnabled(true);
 
-  if (command == Command::kMaximize)
+  if (command == Command::kMaximize) {
     MaybeUpdateMaximizeButton();
+  }
 }
 
 CefRefPtr<CefLabelButton> ViewsOverlayControls::CreateButton(Command command) {
@@ -178,8 +180,9 @@ CefRefPtr<CefLabelButton> ViewsOverlayControls::CreateButton(Command command) {
 }
 
 void ViewsOverlayControls::MaybeUpdateMaximizeButton() {
-  if (window_->IsMaximized() == window_maximized_)
+  if (window_->IsMaximized() == window_maximized_) {
     return;
+  }
   window_maximized_ = !window_maximized_;
 
   auto max_button = panel_->GetChildViewAt(1);

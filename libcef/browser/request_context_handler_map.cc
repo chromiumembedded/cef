@@ -23,8 +23,9 @@ void CefRequestContextHandlerMap::RemoveHandler(
   DCHECK(frame_util::IsValidGlobalId(global_id));
 
   auto it1 = render_id_handler_map_.find(global_id);
-  if (it1 != render_id_handler_map_.end())
+  if (it1 != render_id_handler_map_.end()) {
     render_id_handler_map_.erase(it1);
+  }
 }
 
 CefRefPtr<CefRequestContextHandler> CefRequestContextHandlerMap::GetHandler(
@@ -32,15 +33,17 @@ CefRefPtr<CefRequestContextHandler> CefRequestContextHandlerMap::GetHandler(
     bool require_frame_match) const {
   if (frame_util::IsValidGlobalId(global_id)) {
     const auto it1 = render_id_handler_map_.find(global_id);
-    if (it1 != render_id_handler_map_.end())
+    if (it1 != render_id_handler_map_.end()) {
       return it1->second;
+    }
   }
 
   if (frame_util::IsValidChildId(global_id.child_id) && !require_frame_match) {
     // Choose an arbitrary handler for the same process.
     for (auto& kv : render_id_handler_map_) {
-      if (kv.first.child_id == global_id.child_id)
+      if (kv.first.child_id == global_id.child_id) {
         return kv.second;
+      }
     }
   }
 

@@ -238,8 +238,9 @@ bool CefJavaScriptDialogManager::HandleJavaScriptDialog(
     return true;
   }
 
-  if (!CanUseChromeDialogs())
+  if (!CanUseChromeDialogs()) {
     return true;
+  }
 
   auto manager = GetTabModalDialogManager(web_contents);
   return manager->HandleJavaScriptDialog(web_contents, accept, prompt_override);
@@ -262,11 +263,13 @@ void CefJavaScriptDialogManager::CancelDialogs(
   }
 
   // Null when called from DialogClosed() or Destroy().
-  if (!web_contents)
+  if (!web_contents) {
     return;
+  }
 
-  if (!CanUseChromeDialogs())
+  if (!CanUseChromeDialogs()) {
     return;
+  }
 
   auto manager = GetTabModalDialogManager(web_contents);
   manager->CancelDialogs(web_contents, reset_state);

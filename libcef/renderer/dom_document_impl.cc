@@ -38,16 +38,20 @@ CefDOMDocumentImpl::~CefDOMDocumentImpl() {
 }
 
 CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return DOM_DOCUMENT_TYPE_UNKNOWN;
+  }
 
   const WebDocument& document = frame_->GetDocument();
-  if (document.IsHTMLDocument())
+  if (document.IsHTMLDocument()) {
     return DOM_DOCUMENT_TYPE_HTML;
-  if (document.IsXHTMLDocument())
+  }
+  if (document.IsXHTMLDocument()) {
     return DOM_DOCUMENT_TYPE_XHTML;
-  if (document.IsPluginDocument())
+  }
+  if (document.IsPluginDocument()) {
     return DOM_DOCUMENT_TYPE_PLUGIN;
+  }
   return DOM_DOCUMENT_TYPE_UNKNOWN;
 }
 
@@ -68,13 +72,15 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetHead() {
 
 CefString CefDOMDocumentImpl::GetTitle() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   const WebDocument& document = frame_->GetDocument();
   const WebString& title = document.Title();
-  if (!title.IsNull())
+  if (!title.IsNull()) {
     str = title.Utf16();
+  }
 
   return str;
 }
@@ -91,74 +97,88 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
 }
 
 bool CefDOMDocumentImpl::HasSelection() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   return frame_->HasSelection();
 }
 
 int CefDOMDocumentImpl::GetSelectionStartOffset() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return 0;
+  }
 
-  if (!frame_->HasSelection())
+  if (!frame_->HasSelection()) {
     return 0;
+  }
 
   const WebRange& range = frame_->SelectionRange();
-  if (range.IsNull())
+  if (range.IsNull()) {
     return 0;
+  }
 
   return range.StartOffset();
 }
 
 int CefDOMDocumentImpl::GetSelectionEndOffset() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return 0;
+  }
 
-  if (!frame_->HasSelection())
+  if (!frame_->HasSelection()) {
     return 0;
+  }
 
   const WebRange& range = frame_->SelectionRange();
-  if (range.IsNull())
+  if (range.IsNull()) {
     return 0;
+  }
 
   return range.EndOffset();
 }
 
 CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
-  if (!frame_->HasSelection())
+  if (!frame_->HasSelection()) {
     return str;
+  }
 
   const WebString& markup = frame_->SelectionAsMarkup();
-  if (!markup.IsNull())
+  if (!markup.IsNull()) {
     str = markup.Utf16();
+  }
 
   return str;
 }
 
 CefString CefDOMDocumentImpl::GetSelectionAsText() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
-  if (!frame_->HasSelection())
+  if (!frame_->HasSelection()) {
     return str;
+  }
 
   const WebString& text = frame_->SelectionAsText();
-  if (!text.IsNull())
+  if (!text.IsNull()) {
     str = text.Utf16();
+  }
 
   return str;
 }
 
 CefString CefDOMDocumentImpl::GetBaseURL() {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   const WebDocument& document = frame_->GetDocument();
   const WebURL& url = document.BaseURL();
@@ -172,8 +192,9 @@ CefString CefDOMDocumentImpl::GetBaseURL() {
 
 CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
   CefString str;
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return str;
+  }
 
   const WebDocument& document = frame_->GetDocument();
   const WebURL& url =
@@ -188,18 +209,21 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
     const blink::WebNode& node) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   // Nodes may potentially be null.
-  if (node.IsNull())
+  if (node.IsNull()) {
     return nullptr;
+  }
 
   if (!node_map_.empty()) {
     // Locate the existing node, if any.
     NodeMap::const_iterator it = node_map_.find(node);
-    if (it != node_map_.end())
+    if (it != node_map_.end()) {
       return it->second;
+    }
   }
 
   // Create the new node object.
@@ -209,19 +233,22 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
 }
 
 void CefDOMDocumentImpl::RemoveNode(const blink::WebNode& node) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   if (!node_map_.empty()) {
     NodeMap::iterator it = node_map_.find(node);
-    if (it != node_map_.end())
+    if (it != node_map_.end()) {
       node_map_.erase(it);
+    }
   }
 }
 
 void CefDOMDocumentImpl::Detach() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   // If you hit this assert it means that you are keeping references to node
   // objects beyond the valid scope.
@@ -233,8 +260,9 @@ void CefDOMDocumentImpl::Detach() {
 
   if (!node_map_.empty()) {
     NodeMap::const_iterator it = node_map_.begin();
-    for (; it != node_map_.end(); ++it)
+    for (; it != node_map_.end(); ++it) {
       static_cast<CefDOMNodeImpl*>(it->second)->Detach();
+    }
     node_map_.clear();
   }
 

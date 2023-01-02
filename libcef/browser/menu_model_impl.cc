@@ -86,12 +86,15 @@ class CefSimpleMenuModel : public ui::MenuModel {
     if (impl_->GetAcceleratorAt(index, key_code, shift_pressed, ctrl_pressed,
                                 alt_pressed)) {
       int modifiers = 0;
-      if (shift_pressed)
+      if (shift_pressed) {
         modifiers |= ui::EF_SHIFT_DOWN;
-      if (ctrl_pressed)
+      }
+      if (ctrl_pressed) {
         modifiers |= ui::EF_CONTROL_DOWN;
-      if (alt_pressed)
+      }
+      if (alt_pressed) {
         modifiers |= ui::EF_ALT_DOWN;
+      }
 
       *accelerator =
           ui::Accelerator(static_cast<ui::KeyboardCode>(key_code), modifiers);
@@ -132,8 +135,9 @@ class CefSimpleMenuModel : public ui::MenuModel {
 
   MenuModel* GetSubmenuModelAt(size_t index) const override {
     CefRefPtr<CefMenuModel> submenu = impl_->GetSubMenuAt(index);
-    if (submenu.get())
+    if (submenu.get()) {
       return static_cast<CefMenuModelImpl*>(submenu.get())->model();
+    }
     return nullptr;
   }
 
@@ -193,8 +197,9 @@ CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
     CefRefPtr<CefMenuModelDelegate> delegate) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
   DCHECK(delegate);
-  if (!delegate)
+  if (!delegate) {
     return nullptr;
+  }
 
   CefRefPtr<CefMenuModelImpl> menu_model =
       new CefMenuModelImpl(nullptr, delegate, false);
@@ -250,29 +255,33 @@ CefMenuModelImpl::CefMenuModelImpl(
 CefMenuModelImpl::~CefMenuModelImpl() {}
 
 bool CefMenuModelImpl::IsSubMenu() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
   return is_submenu_;
 }
 
 bool CefMenuModelImpl::Clear() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   items_.clear();
   return true;
 }
 
 size_t CefMenuModelImpl::GetCount() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return 0;
+  }
 
   return items_.size();
 }
 
 bool CefMenuModelImpl::AddSeparator() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   AppendItem(
       Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), kInvalidGroupId));
@@ -280,16 +289,18 @@ bool CefMenuModelImpl::AddSeparator() {
 }
 
 bool CefMenuModelImpl::AddItem(int command_id, const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   AppendItem(Item(MENUITEMTYPE_COMMAND, command_id, label, kInvalidGroupId));
   return true;
 }
 
 bool CefMenuModelImpl::AddCheckItem(int command_id, const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   AppendItem(Item(MENUITEMTYPE_CHECK, command_id, label, kInvalidGroupId));
   return true;
@@ -298,8 +309,9 @@ bool CefMenuModelImpl::AddCheckItem(int command_id, const CefString& label) {
 bool CefMenuModelImpl::AddRadioItem(int command_id,
                                     const CefString& label,
                                     int group_id) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   AppendItem(Item(MENUITEMTYPE_RADIO, command_id, label, group_id));
   return true;
@@ -307,8 +319,9 @@ bool CefMenuModelImpl::AddRadioItem(int command_id,
 
 CefRefPtr<CefMenuModel> CefMenuModelImpl::AddSubMenu(int command_id,
                                                      const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, kInvalidGroupId);
   item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_, true);
@@ -317,8 +330,9 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::AddSubMenu(int command_id,
 }
 
 bool CefMenuModelImpl::InsertSeparatorAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   InsertItemAt(
       Item(MENUITEMTYPE_SEPARATOR, kSeparatorId, CefString(), kInvalidGroupId),
@@ -329,8 +343,9 @@ bool CefMenuModelImpl::InsertSeparatorAt(size_t index) {
 bool CefMenuModelImpl::InsertItemAt(size_t index,
                                     int command_id,
                                     const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   InsertItemAt(Item(MENUITEMTYPE_COMMAND, command_id, label, kInvalidGroupId),
                index);
@@ -340,8 +355,9 @@ bool CefMenuModelImpl::InsertItemAt(size_t index,
 bool CefMenuModelImpl::InsertCheckItemAt(size_t index,
                                          int command_id,
                                          const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   InsertItemAt(Item(MENUITEMTYPE_CHECK, command_id, label, kInvalidGroupId),
                index);
@@ -352,8 +368,9 @@ bool CefMenuModelImpl::InsertRadioItemAt(size_t index,
                                          int command_id,
                                          const CefString& label,
                                          int group_id) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   InsertItemAt(Item(MENUITEMTYPE_RADIO, command_id, label, group_id), index);
   return true;
@@ -363,8 +380,9 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::InsertSubMenuAt(
     size_t index,
     int command_id,
     const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, kInvalidGroupId);
   item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_, true);
@@ -377,8 +395,9 @@ bool CefMenuModelImpl::Remove(int command_id) {
 }
 
 bool CefMenuModelImpl::RemoveAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_.erase(items_.begin() + index);
@@ -388,8 +407,9 @@ bool CefMenuModelImpl::RemoveAt(size_t index) {
 }
 
 int CefMenuModelImpl::GetIndexOf(int command_id) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return kInvalidIndex;
+  }
 
   for (ItemVector::iterator i = items_.begin(); i != items_.end(); ++i) {
     if ((*i).command_id_ == command_id) {
@@ -400,17 +420,20 @@ int CefMenuModelImpl::GetIndexOf(int command_id) {
 }
 
 int CefMenuModelImpl::GetCommandIdAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return kInvalidCommandId;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].command_id_;
+  }
   return kInvalidCommandId;
 }
 
 bool CefMenuModelImpl::SetCommandIdAt(size_t index, int command_id) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].command_id_ = command_id;
@@ -424,11 +447,13 @@ CefString CefMenuModelImpl::GetLabel(int command_id) {
 }
 
 CefString CefMenuModelImpl::GetLabelAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return CefString();
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].label_;
+  }
   return CefString();
 }
 
@@ -437,8 +462,9 @@ bool CefMenuModelImpl::SetLabel(int command_id, const CefString& label) {
 }
 
 bool CefMenuModelImpl::SetLabelAt(size_t index, const CefString& label) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].label_ = label;
@@ -452,11 +478,13 @@ CefMenuModelImpl::MenuItemType CefMenuModelImpl::GetType(int command_id) {
 }
 
 CefMenuModelImpl::MenuItemType CefMenuModelImpl::GetTypeAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return MENUITEMTYPE_NONE;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].type_;
+  }
   return MENUITEMTYPE_NONE;
 }
 
@@ -465,11 +493,13 @@ int CefMenuModelImpl::GetGroupId(int command_id) {
 }
 
 int CefMenuModelImpl::GetGroupIdAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return kInvalidGroupId;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].group_id_;
+  }
   return kInvalidGroupId;
 }
 
@@ -478,8 +508,9 @@ bool CefMenuModelImpl::SetGroupId(int command_id, int group_id) {
 }
 
 bool CefMenuModelImpl::SetGroupIdAt(size_t index, int group_id) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].group_id_ = group_id;
@@ -493,11 +524,13 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::GetSubMenu(int command_id) {
 }
 
 CefRefPtr<CefMenuModel> CefMenuModelImpl::GetSubMenuAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return nullptr;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].submenu_.get();
+  }
   return nullptr;
 }
 
@@ -506,11 +539,13 @@ bool CefMenuModelImpl::IsVisible(int command_id) {
 }
 
 bool CefMenuModelImpl::IsVisibleAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].visible_;
+  }
   return false;
 }
 
@@ -519,8 +554,9 @@ bool CefMenuModelImpl::SetVisible(int command_id, bool visible) {
 }
 
 bool CefMenuModelImpl::SetVisibleAt(size_t index, bool visible) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].visible_ = visible;
@@ -534,11 +570,13 @@ bool CefMenuModelImpl::IsEnabled(int command_id) {
 }
 
 bool CefMenuModelImpl::IsEnabledAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].enabled_;
+  }
   return false;
 }
 
@@ -547,8 +585,9 @@ bool CefMenuModelImpl::SetEnabled(int command_id, bool enabled) {
 }
 
 bool CefMenuModelImpl::SetEnabledAt(size_t index, bool enabled) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].enabled_ = enabled;
@@ -562,11 +601,13 @@ bool CefMenuModelImpl::IsChecked(int command_id) {
 }
 
 bool CefMenuModelImpl::IsCheckedAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].checked_;
+  }
   return false;
 }
 
@@ -575,8 +616,9 @@ bool CefMenuModelImpl::SetChecked(int command_id, bool checked) {
 }
 
 bool CefMenuModelImpl::SetCheckedAt(size_t index, bool checked) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     items_[index].checked_ = checked;
@@ -590,11 +632,13 @@ bool CefMenuModelImpl::HasAccelerator(int command_id) {
 }
 
 bool CefMenuModelImpl::HasAcceleratorAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (index < items_.size())
+  if (index < items_.size()) {
     return items_[index].has_accelerator_;
+  }
   return false;
 }
 
@@ -612,8 +656,9 @@ bool CefMenuModelImpl::SetAcceleratorAt(size_t index,
                                         bool shift_pressed,
                                         bool ctrl_pressed,
                                         bool alt_pressed) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     Item& item = items_[index];
@@ -632,8 +677,9 @@ bool CefMenuModelImpl::RemoveAccelerator(int command_id) {
 }
 
 bool CefMenuModelImpl::RemoveAcceleratorAt(size_t index) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     Item& item = items_[index];
@@ -663,8 +709,9 @@ bool CefMenuModelImpl::GetAcceleratorAt(size_t index,
                                         bool& shift_pressed,
                                         bool& ctrl_pressed,
                                         bool& alt_pressed) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index < items_.size()) {
     const Item& item = items_[index];
@@ -688,11 +735,13 @@ bool CefMenuModelImpl::SetColor(int command_id,
 bool CefMenuModelImpl::SetColorAt(int index,
                                   cef_menu_color_type_t color_type,
                                   cef_color_t color) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT)
+  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT) {
     return false;
+  }
 
   if (index == kDefaultIndex) {
     default_colors_[color_type] = color;
@@ -717,11 +766,13 @@ bool CefMenuModelImpl::GetColor(int command_id,
 bool CefMenuModelImpl::GetColorAt(int index,
                                   cef_menu_color_type_t color_type,
                                   cef_color_t& color) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT)
+  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT) {
     return false;
+  }
 
   if (index == kDefaultIndex) {
     color = default_colors_[color_type];
@@ -742,8 +793,9 @@ bool CefMenuModelImpl::SetFontList(int command_id, const CefString& font_list) {
 }
 
 bool CefMenuModelImpl::SetFontListAt(int index, const CefString& font_list) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
   if (index == kDefaultIndex) {
     if (font_list.empty()) {
@@ -770,19 +822,23 @@ bool CefMenuModelImpl::SetFontListAt(int index, const CefString& font_list) {
 
 void CefMenuModelImpl::ActivatedAt(size_t index,
                                    cef_event_flags_t event_flags) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   const int command_id = GetCommandIdAt(index);
-  if (delegate_)
+  if (delegate_) {
     delegate_->ExecuteCommand(this, command_id, event_flags);
-  if (menu_model_delegate_)
+  }
+  if (menu_model_delegate_) {
     menu_model_delegate_->ExecuteCommand(this, command_id, event_flags);
+  }
 }
 
 void CefMenuModelImpl::MouseOutsideMenu(const gfx::Point& screen_point) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
@@ -792,8 +848,9 @@ void CefMenuModelImpl::MouseOutsideMenu(const gfx::Point& screen_point) {
 }
 
 void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
@@ -803,8 +860,9 @@ void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
 }
 
 void CefMenuModelImpl::UnhandledCloseSubmenu(bool is_rtl) {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
   // Allow the callstack to unwind before notifying the delegate since it may
   // result in the menu being destroyed.
@@ -865,21 +923,26 @@ bool CefMenuModelImpl::GetBackgroundColor(size_t index,
 }
 
 void CefMenuModelImpl::MenuWillShow() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->MenuWillShow(this);
-  if (menu_model_delegate_)
+  }
+  if (menu_model_delegate_) {
     menu_model_delegate_->MenuWillShow(this);
+  }
 }
 
 void CefMenuModelImpl::MenuWillClose() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return;
+  }
 
-  if (!auto_notify_menu_closed_)
+  if (!auto_notify_menu_closed_) {
     return;
+  }
 
   // Due to how menus work on the different platforms, ActivatedAt will be
   // called after this.  It's more convenient for the delegate to be called
@@ -890,12 +953,14 @@ void CefMenuModelImpl::MenuWillClose() {
 
 std::u16string CefMenuModelImpl::GetFormattedLabelAt(size_t index) {
   std::u16string label = GetLabelAt(index).ToString16();
-  if (delegate_)
+  if (delegate_) {
     delegate_->FormatLabel(this, label);
+  }
   if (menu_model_delegate_) {
     CefString new_label = label;
-    if (menu_model_delegate_->FormatLabel(this, new_label))
+    if (menu_model_delegate_->FormatLabel(this, new_label)) {
       label = new_label;
+    }
   }
   return label;
 }
@@ -903,26 +968,31 @@ std::u16string CefMenuModelImpl::GetFormattedLabelAt(size_t index) {
 const gfx::FontList* CefMenuModelImpl::GetLabelFontListAt(size_t index) const {
   if (index < items_.size()) {
     const Item& item = items_[index];
-    if (item.has_font_list_)
+    if (item.has_font_list_) {
       return &item.font_list_;
+    }
   }
 
-  if (has_default_font_list_)
+  if (has_default_font_list_) {
     return &default_font_list_;
+  }
   return nullptr;
 }
 
 bool CefMenuModelImpl::VerifyRefCount() {
-  if (!VerifyContext())
+  if (!VerifyContext()) {
     return false;
+  }
 
-  if (!HasOneRef())
+  if (!HasOneRef()) {
     return false;
+  }
 
   for (ItemVector::iterator i = items_.begin(); i != items_.end(); ++i) {
     if ((*i).submenu_.get()) {
-      if (!(*i).submenu_->VerifyRefCount())
+      if (!(*i).submenu_->VerifyRefCount()) {
         return false;
+      }
     }
   }
 
@@ -949,15 +1019,17 @@ void CefMenuModelImpl::AddMenuItem(
     case blink::mojom::CustomContextMenuItemType::kSubMenu: {
       CefRefPtr<CefMenuModelImpl> sub_menu = static_cast<CefMenuModelImpl*>(
           AddSubMenu(command_id, menu_item.label).get());
-      for (size_t i = 0; i < menu_item.submenu.size(); ++i)
+      for (size_t i = 0; i < menu_item.submenu.size(); ++i) {
         sub_menu->AddMenuItem(*menu_item.submenu[i]);
+      }
       break;
     }
   }
 
   if (!menu_item.enabled &&
-      menu_item.type != blink::mojom::CustomContextMenuItemType::kSeparator)
+      menu_item.type != blink::mojom::CustomContextMenuItemType::kSeparator) {
     SetEnabled(command_id, false);
+  }
 
   if (menu_item.checked &&
       (menu_item.type ==
@@ -979,8 +1051,9 @@ void CefMenuModelImpl::AppendItem(const Item& item) {
 
 void CefMenuModelImpl::InsertItemAt(const Item& item, size_t index) {
   // Sanitize the index.
-  if (index > items_.size())
+  if (index > items_.size()) {
     index = items_.size();
+  }
 
   ValidateItem(item);
   items_.insert(items_.begin() + index, item);
@@ -997,8 +1070,9 @@ void CefMenuModelImpl::ValidateItem(const Item& item) {
 }
 
 void CefMenuModelImpl::OnMouseOutsideMenu(const gfx::Point& screen_point) {
-  if (delegate_)
+  if (delegate_) {
     delegate_->MouseOutsideMenu(this, screen_point);
+  }
   if (menu_model_delegate_) {
     menu_model_delegate_->MouseOutsideMenu(
         this, CefPoint(screen_point.x(), screen_point.y()));
@@ -1006,24 +1080,30 @@ void CefMenuModelImpl::OnMouseOutsideMenu(const gfx::Point& screen_point) {
 }
 
 void CefMenuModelImpl::OnUnhandledOpenSubmenu(bool is_rtl) {
-  if (delegate_)
+  if (delegate_) {
     delegate_->UnhandledOpenSubmenu(this, is_rtl);
-  if (menu_model_delegate_)
+  }
+  if (menu_model_delegate_) {
     menu_model_delegate_->UnhandledOpenSubmenu(this, is_rtl);
+  }
 }
 
 void CefMenuModelImpl::OnUnhandledCloseSubmenu(bool is_rtl) {
-  if (delegate_)
+  if (delegate_) {
     delegate_->UnhandledCloseSubmenu(this, is_rtl);
-  if (menu_model_delegate_)
+  }
+  if (menu_model_delegate_) {
     menu_model_delegate_->UnhandledCloseSubmenu(this, is_rtl);
+  }
 }
 
 void CefMenuModelImpl::OnMenuClosed() {
-  if (delegate_)
+  if (delegate_) {
     delegate_->MenuClosed(this);
-  if (menu_model_delegate_)
+  }
+  if (menu_model_delegate_) {
     menu_model_delegate_->MenuClosed(this);
+  }
 }
 
 bool CefMenuModelImpl::VerifyContext() {

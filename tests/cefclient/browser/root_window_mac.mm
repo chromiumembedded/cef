@@ -74,8 +74,9 @@ std::optional<CefRect> GetWindowBoundsInScreen(NSWindow* window) {
   }
 
   auto screen = [window screen];
-  if (screen == nil)
+  if (screen == nil) {
     screen = [NSScreen mainScreen];
+  }
 
   const auto bounds = [window frame];
   const auto screen_bounds = [screen frame];
@@ -315,14 +316,18 @@ void RootWindowMacImpl::InitAsPopup(RootWindow::Delegate* delegate,
   with_osr_ = with_osr;
   is_popup_ = true;
 
-  if (popupFeatures.xSet)
+  if (popupFeatures.xSet) {
     initial_bounds_.x = popupFeatures.x;
-  if (popupFeatures.ySet)
+  }
+  if (popupFeatures.ySet) {
     initial_bounds_.y = popupFeatures.y;
-  if (popupFeatures.widthSet)
+  }
+  if (popupFeatures.widthSet) {
     initial_bounds_.width = popupFeatures.width;
-  if (popupFeatures.heightSet)
+  }
+  if (popupFeatures.heightSet) {
     initial_bounds_.height = popupFeatures.height;
+  }
 
   CreateBrowserWindow(std::string());
 
@@ -338,8 +343,9 @@ void RootWindowMacImpl::InitAsPopup(RootWindow::Delegate* delegate,
 void RootWindowMacImpl::Show(RootWindow::ShowMode mode) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   const bool is_visible = [window_ isVisible];
   const bool is_minimized = [window_ isMiniaturized];
@@ -353,31 +359,36 @@ void RootWindowMacImpl::Show(RootWindow::ShowMode mode) {
   }
 
   // Undo the previous state since it's not the desired state.
-  if (is_minimized)
+  if (is_minimized) {
     [window_ deminiaturize:nil];
-  else if (is_maximized)
+  } else if (is_maximized) {
     [window_ performZoom:nil];
+  }
 
   // Window visibility may change after (for example) deminiaturizing the
   // window.
-  if (![window_ isVisible])
+  if (![window_ isVisible]) {
     [window_ makeKeyAndOrderFront:nil];
+  }
 
-  if (mode == RootWindow::ShowMinimized)
+  if (mode == RootWindow::ShowMinimized) {
     [window_ performMiniaturize:nil];
-  else if (mode == RootWindow::ShowMaximized)
+  } else if (mode == RootWindow::ShowMaximized) {
     [window_ performZoom:nil];
+  }
 }
 
 void RootWindowMacImpl::Hide() {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   // Undo miniaturization, if any, so the window will actually be hidden.
-  if ([window_ isMiniaturized])
+  if ([window_ isMiniaturized]) {
     [window_ deminiaturize:nil];
+  }
 
   // Hide the window.
   [window_ orderOut:nil];
@@ -386,8 +397,9 @@ void RootWindowMacImpl::Hide() {
 void RootWindowMacImpl::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   const CefRect dip_bounds(x, y, static_cast<int>(width),
                            static_cast<int>(height));
@@ -413,15 +425,17 @@ void RootWindowMacImpl::Close(bool force) {
 void RootWindowMacImpl::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     browser_window_->SetDeviceScaleFactor(device_scale_factor);
+  }
 }
 
 float RootWindowMacImpl::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_ && with_osr_)
+  if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
+  }
 
   NOTREACHED();
   return 0.0f;
@@ -430,8 +444,9 @@ float RootWindowMacImpl::GetDeviceScaleFactor() const {
 CefRefPtr<CefBrowser> RootWindowMacImpl::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_window_)
+  if (browser_window_) {
     return browser_window_->GetBrowser();
+  }
   return nullptr;
 }
 
@@ -478,10 +493,12 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
   CefRect dip_bounds = initial_bounds_;
 
   // TODO(port): Also, maybe there's a better way to choose the default size.
-  if (dip_bounds.width <= 0)
+  if (dip_bounds.width <= 0) {
     dip_bounds.width = 800;
-  if (dip_bounds.height <= 0)
+  }
+  if (dip_bounds.height <= 0) {
     dip_bounds.height = 600;
+  }
 
   // For popups, the requested bounds are for the content area and the requested
   // origin is for the window.
@@ -636,8 +653,9 @@ void RootWindowMacImpl::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
 
   // For popup browsers create the root window once the browser has been
   // created.
-  if (is_popup_)
+  if (is_popup_) {
     CreateRootWindow(CefBrowserSettings(), false);
+  }
 
   root_window_.delegate_->OnBrowserCreated(&root_window_, browser);
 }
@@ -691,18 +709,20 @@ void RootWindowMacImpl::OnSetFullscreen(bool fullscreen) {
   if (browser) {
     std::unique_ptr<window_test::WindowTestRunnerMac> test_runner(
         new window_test::WindowTestRunnerMac());
-    if (fullscreen)
+    if (fullscreen) {
       test_runner->Maximize(browser);
-    else
+    } else {
       test_runner->Restore(browser);
+    }
   }
 }
 
 void RootWindowMacImpl::OnAutoResize(const CefSize& new_size) {
   REQUIRE_MAIN_THREAD();
 
-  if (!window_)
+  if (!window_) {
     return;
+  }
 
   // Desired content rectangle.
   NSRect content_rect;
@@ -750,8 +770,9 @@ void RootWindowMacImpl::OnSetLoadingState(bool isLoading,
 
 void RootWindowMacImpl::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
-  if (window_destroyed_ && browser_destroyed_)
+  if (window_destroyed_ && browser_destroyed_) {
     root_window_.delegate_->OnRootWindowDestroyed(&root_window_);
+  }
 }
 
 RootWindowMac::RootWindowMac() {
@@ -908,40 +929,46 @@ void RootWindowMac::OnNativeWindowClosed() {
 
 - (IBAction)goBack:(id)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     browser->GoBack();
+  }
 }
 
 - (IBAction)goForward:(id)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     browser->GoForward();
+  }
 }
 
 - (IBAction)reload:(id)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     browser->Reload();
+  }
 }
 
 - (IBAction)stopLoading:(id)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
-  if (browser.get())
+  if (browser.get()) {
     browser->StopLoad();
+  }
 }
 
 - (IBAction)takeURLStringValueFrom:(NSTextField*)sender {
   CefRefPtr<CefBrowser> browser = root_window_->GetBrowser();
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   NSString* url = [sender stringValue];
 
   // if it doesn't already have a prefix, add http. If we can't parse it,
   // just don't bother rather than making things worse.
   NSURL* tempUrl = [NSURL URLWithString:url];
-  if (tempUrl && ![tempUrl scheme])
+  if (tempUrl && ![tempUrl scheme]) {
     url = [@"http://" stringByAppendingString:url];
+  }
 
   std::string urlStr = [url UTF8String];
   browser->GetMainFrame()->LoadURL(urlStr);
@@ -950,30 +977,34 @@ void RootWindowMac::OnNativeWindowClosed() {
 // Called when we are activated (when we gain focus).
 - (void)windowDidBecomeKey:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
-  if (browser_window)
+  if (browser_window) {
     browser_window->SetFocus(true);
+  }
   root_window_->delegate()->OnRootWindowActivated(root_window_);
 }
 
 // Called when we are deactivated (when we lose focus).
 - (void)windowDidResignKey:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
-  if (browser_window)
+  if (browser_window) {
     browser_window->SetFocus(false);
+  }
 }
 
 // Called when we have been minimized.
 - (void)windowDidMiniaturize:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
-  if (browser_window)
+  if (browser_window) {
     browser_window->Hide();
+  }
 }
 
 // Called when we have been unminimized.
 - (void)windowDidDeminiaturize:(NSNotification*)notification {
   client::BrowserWindow* browser_window = root_window_->browser_window();
-  if (browser_window)
+  if (browser_window) {
     browser_window->Show();
+  }
 }
 
 // Called when we have been resized.
@@ -999,8 +1030,9 @@ void RootWindowMac::OnNativeWindowClosed() {
   // If the window is miniaturized then nothing has really changed.
   if (![window_ isMiniaturized]) {
     client::BrowserWindow* browser_window = root_window_->browser_window();
-    if (browser_window)
+    if (browser_window) {
       browser_window->Hide();
+    }
   }
 }
 
@@ -1009,8 +1041,9 @@ void RootWindowMac::OnNativeWindowClosed() {
   // If the window is miniaturized then nothing has really changed.
   if (![window_ isMiniaturized]) {
     client::BrowserWindow* browser_window = root_window_->browser_window();
-    if (browser_window)
+    if (browser_window) {
       browser_window->Show();
+    }
   }
 }
 

@@ -58,17 +58,19 @@ enum client_menu_ids {
 const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
 std::string GetTimeString(const CefTime& value) {
-  if (value.GetTimeT() == 0)
+  if (value.GetTimeT() == 0) {
     return "Unspecified";
+  }
 
   static const char* kMonths[] = {
       "January", "February", "March",     "April",   "May",      "June",
       "July",    "August",   "September", "October", "November", "December"};
   std::string month;
-  if (value.month >= 1 && value.month <= 12)
+  if (value.month >= 1 && value.month <= 12) {
     month = kMonths[value.month - 1];
-  else
+  } else {
     month = "Invalid";
+  }
 
   std::stringstream ss;
   ss << month << " " << value.day_of_month << ", " << value.year << " "
@@ -88,8 +90,9 @@ std::string GetTimeString(const CefBaseTime& value) {
 }
 
 std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
-  if (!value.get())
+  if (!value.get()) {
     return "&nbsp;";
+  }
 
   // Retrieve the value.
   const size_t size = value->GetSize();
@@ -132,8 +135,9 @@ std::string GetCertStatusString(cef_cert_status_t status) {
   FLAG(CERT_STATUS_SHA1_SIGNATURE_PRESENT);
   FLAG(CERT_STATUS_CT_COMPLIANCE_FAILED);
 
-  if (result.empty())
+  if (result.empty()) {
     return "&nbsp;";
+  }
   return result;
 }
 
@@ -156,8 +160,9 @@ std::string GetContentStatusString(cef_ssl_content_status_t status) {
   FLAG(SSL_CONTENT_DISPLAYED_INSECURE_CONTENT);
   FLAG(SSL_CONTENT_RAN_INSECURE_CONTENT);
 
-  if (result.empty())
+  if (result.empty()) {
     return "&nbsp;";
+  }
   return result;
 }
 
@@ -175,8 +180,9 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
      << "</a><br/>Error: " << test_runner::GetErrorString(error_code) << " ("
      << error_code << ")";
 
-  if (!other_info.empty())
+  if (!other_info.empty()) {
     ss << "<br/>" << other_info;
+  }
 
   ss << "</body></html>";
   frame->LoadURL(test_runner::GetDataURI(ss.str(), "text/html"));
@@ -305,8 +311,9 @@ class ClientDownloadImageCallback : public CefDownloadImageCallback {
   void OnDownloadImageFinished(const CefString& image_url,
                                int http_status_code,
                                CefRefPtr<CefImage> image) override {
-    if (image)
+    if (image) {
       client_handler_->NotifyFavicon(image);
+    }
   }
 
  private:
@@ -467,8 +474,9 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
 
   if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
     // Add a separator if the menu already has items.
-    if (model->GetCount() > 0)
+    if (model->GetCount() > 0) {
       model->AddSeparator();
+    }
 
     if (!use_chrome_runtime) {
       // TODO(chrome-runtime): Add support for this.
@@ -489,27 +497,31 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       model->AddSeparator();
       model->AddCheckItem(CLIENT_ID_CURSOR_CHANGE_DISABLED,
                           "Cursor change disabled");
-      if (mouse_cursor_change_disabled_)
+      if (mouse_cursor_change_disabled_) {
         model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
+      }
 
       model->AddSeparator();
       model->AddCheckItem(CLIENT_ID_MEDIA_HANDLING_DISABLED,
                           "Media handling disabled");
-      if (media_handling_disabled_)
+      if (media_handling_disabled_) {
         model->SetChecked(CLIENT_ID_MEDIA_HANDLING_DISABLED, true);
+      }
     }
 
     model->AddSeparator();
     model->AddCheckItem(CLIENT_ID_OFFLINE, "Offline mode");
-    if (offline_)
+    if (offline_) {
       model->SetChecked(CLIENT_ID_OFFLINE, true);
+    }
 
     // Test context menu features.
     BuildTestMenu(model);
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnBeforeContextMenu(model);
+  }
 }
 
 bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
@@ -553,8 +565,9 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   // Only update the address for the main (top-level) frame.
-  if (frame->IsMain())
+  if (frame->IsMain()) {
     NotifyAddress(url);
+  }
 }
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -783,13 +796,15 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     // Register handlers with the router.
     test_runner::CreateMessageHandlers(message_handler_set_);
     MessageHandlerSet::const_iterator it = message_handler_set_.begin();
-    for (; it != message_handler_set_.end(); ++it)
+    for (; it != message_handler_set_.end(); ++it) {
       message_router_->AddHandler(*(it), false);
+    }
   }
 
   // Set offline mode if requested via the command-line flag.
-  if (offline_)
+  if (offline_) {
     SetOfflineState(browser, true);
+  }
 
   if (browser->GetHost()->GetExtension()) {
     // Browsers hosting extension apps should auto-resize.
@@ -855,15 +870,17 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   // Don't display an error for downloaded files.
-  if (errorCode == ERR_ABORTED)
+  if (errorCode == ERR_ABORTED) {
     return;
+  }
 
   // Don't display an error for external protocols that we allow the OS to
   // handle. See OnProtocolExecution().
   if (errorCode == ERR_UNKNOWN_URL_SCHEME) {
     std::string urlStr = frame->GetURL();
-    if (urlStr.find("spotify:") == 0)
+    if (urlStr.find("spotify:") == 0) {
       return;
+    }
   }
 
   // Load the error page.
@@ -1021,24 +1038,27 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   message_router_->OnRenderProcessTerminated(browser);
 
   // Don't reload if there's no start URL, or if the crash URL was specified.
-  if (startup_url_.empty() || startup_url_ == "chrome://crash")
+  if (startup_url_.empty() || startup_url_ == "chrome://crash") {
     return;
+  }
 
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
   std::string url = frame->GetURL();
 
   // Don't reload if the termination occurred before any URL had successfully
   // loaded.
-  if (url.empty())
+  if (url.empty()) {
     return;
+  }
 
   // Convert URLs to lowercase for easier comparison.
   url = AsciiStrToLower(url);
   const std::string& start_url = AsciiStrToLower(startup_url_);
 
   // Don't reload the URL that just resulted in termination.
-  if (url.find(start_url) == 0)
+  if (url.find(start_url) == 0) {
     return;
+  }
 
   frame->LoadURL(startup_url_);
 }
@@ -1049,8 +1069,9 @@ void ClientHandler::OnDocumentAvailableInMainFrame(
 
   // Restore offline mode after main frame navigation. Otherwise, offline state
   // (e.g. `navigator.onLine`) might be wrong in the renderer process.
-  if (offline_)
+  if (offline_) {
     SetOfflineState(browser, true);
+  }
 }
 
 cef_return_value_t ClientHandler::OnBeforeResourceLoad(
@@ -1093,8 +1114,9 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   std::string urlStr = request->GetURL();
 
   // Allow OS execution of Spotify URIs.
-  if (urlStr.find("spotify:") == 0)
+  if (urlStr.find("spotify:") == 0) {
     allow_os_execution = true;
+  }
 }
 
 int ClientHandler::GetBrowserCount() const {
@@ -1152,12 +1174,14 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   std::stringstream ss;
   CefRefPtr<CefNavigationEntry> nav =
       browser->GetHost()->GetVisibleNavigationEntry();
-  if (!nav)
+  if (!nav) {
     return;
+  }
 
   CefRefPtr<CefSSLStatus> ssl = nav->GetSSLStatus();
-  if (!ssl)
+  if (!ssl) {
     return;
+  }
 
   ss << "<html><head><title>SSL Information</title></head>"
         "<body bgcolor=\"white\">"
@@ -1168,8 +1192,9 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   if (CefParseURL(nav->GetURL(), urlparts)) {
     CefString port(&urlparts.port);
     ss << "<tr><td>Server</td><td>" << CefString(&urlparts.host).ToString();
-    if (!port.empty())
+    if (!port.empty()) {
       ss << ":" << port.ToString();
+    }
     ss << "</td></tr>";
   }
 
@@ -1181,8 +1206,9 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   ss << "</table>";
 
   CefRefPtr<CefX509Certificate> cert = ssl->GetX509Certificate();
-  if (cert.get())
+  if (cert.get()) {
     ss << GetCertificateInformation(cert, ssl->GetCertStatus());
+  }
 
   ss << "</body></html>";
 
@@ -1230,8 +1256,9 @@ void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnBrowserCreated(browser);
+  }
 }
 
 void ClientHandler::NotifyBrowserClosing(CefRefPtr<CefBrowser> browser) {
@@ -1242,8 +1269,9 @@ void ClientHandler::NotifyBrowserClosing(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnBrowserClosing(browser);
+  }
 }
 
 void ClientHandler::NotifyBrowserClosed(CefRefPtr<CefBrowser> browser) {
@@ -1254,8 +1282,9 @@ void ClientHandler::NotifyBrowserClosed(CefRefPtr<CefBrowser> browser) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnBrowserClosed(browser);
+  }
 }
 
 void ClientHandler::NotifyAddress(const CefString& url) {
@@ -1265,8 +1294,9 @@ void ClientHandler::NotifyAddress(const CefString& url) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetAddress(url);
+  }
 }
 
 void ClientHandler::NotifyTitle(const CefString& title) {
@@ -1276,8 +1306,9 @@ void ClientHandler::NotifyTitle(const CefString& title) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetTitle(title);
+  }
 }
 
 void ClientHandler::NotifyFavicon(CefRefPtr<CefImage> image) {
@@ -1288,8 +1319,9 @@ void ClientHandler::NotifyFavicon(CefRefPtr<CefImage> image) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetFavicon(image);
+  }
 }
 
 void ClientHandler::NotifyFullscreen(bool fullscreen) {
@@ -1300,8 +1332,9 @@ void ClientHandler::NotifyFullscreen(bool fullscreen) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetFullscreen(fullscreen);
+  }
 }
 
 void ClientHandler::NotifyAutoResize(const CefSize& new_size) {
@@ -1312,8 +1345,9 @@ void ClientHandler::NotifyAutoResize(const CefSize& new_size) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnAutoResize(new_size);
+  }
 }
 
 void ClientHandler::NotifyLoadingState(bool isLoading,
@@ -1326,8 +1360,9 @@ void ClientHandler::NotifyLoadingState(bool isLoading,
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetLoadingState(isLoading, canGoBack, canGoForward);
+  }
 }
 
 void ClientHandler::NotifyDraggableRegions(
@@ -1339,8 +1374,9 @@ void ClientHandler::NotifyDraggableRegions(
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnSetDraggableRegions(regions);
+  }
 }
 
 void ClientHandler::NotifyTakeFocus(bool next) {
@@ -1351,13 +1387,15 @@ void ClientHandler::NotifyTakeFocus(bool next) {
     return;
   }
 
-  if (delegate_)
+  if (delegate_) {
     delegate_->OnTakeFocus(next);
+  }
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
-  if (model->GetCount() > 0)
+  if (model->GetCount() > 0) {
     model->AddSeparator();
+  }
 
   // Build the sub menu.
   CefRefPtr<CefMenuModel> submenu =
@@ -1368,8 +1406,9 @@ void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
   submenu->AddRadioItem(CLIENT_ID_TESTMENU_RADIOITEM3, "Radio Item 3", 0);
 
   // Check the check item.
-  if (test_menu_state_.check_item)
+  if (test_menu_state_.check_item) {
     submenu->SetChecked(CLIENT_ID_TESTMENU_CHECKITEM, true);
+  }
 
   // Check the selected radio item.
   submenu->SetChecked(
@@ -1454,8 +1493,9 @@ bool ClientHandler::IsAllowedCommandId(int command_id) {
       IDC_CONTENT_CONTEXT_REDO,
   };
   for (size_t i = 0; i < std::size(kAllowedCommandIds); ++i) {
-    if (command_id == kAllowedCommandIds[i])
+    if (command_id == kAllowedCommandIds[i]) {
       return true;
+    }
   }
   return false;
 }

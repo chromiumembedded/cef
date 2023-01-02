@@ -177,14 +177,16 @@ CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
 
   {
     base::AutoLock lock_scope(state_lock_);
-    if (is_main_frame_ || parent_frame_id_ == kInvalidFrameId)
+    if (is_main_frame_ || parent_frame_id_ == kInvalidFrameId) {
       return nullptr;
+    }
     parent_frame_id = parent_frame_id_;
   }
 
   auto browser = GetBrowserHostBase();
-  if (browser)
+  if (browser) {
     return browser->GetFrame(parent_frame_id);
+  }
 
   return nullptr;
 }
@@ -210,8 +212,9 @@ void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
-  if (!request || !client)
+  if (!request || !client) {
     return nullptr;
+  }
 
   if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
     NOTREACHED() << "called on invalid thread";
@@ -219,15 +222,17 @@ CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
   }
 
   auto browser = GetBrowserHostBase();
-  if (!browser)
+  if (!browser) {
     return nullptr;
+  }
 
   auto request_context = browser->request_context();
 
   CefRefPtr<CefBrowserURLRequest> impl =
       new CefBrowserURLRequest(this, request, client, request_context);
-  if (impl->Start())
+  if (impl->Start()) {
     return impl.get();
+  }
   return nullptr;
 }
 
@@ -236,8 +241,9 @@ void CefFrameHostImpl::SendProcessMessage(
     CefRefPtr<CefProcessMessage> message) {
   DCHECK_EQ(PID_RENDERER, target_process);
   DCHECK(message && message->IsValid());
-  if (!message || !message->IsValid())
+  if (!message || !message->IsValid()) {
     return;
+  }
 
   if (message->GetArgumentList() != nullptr) {
     // Invalidate the message object immediately by taking the argument list.
@@ -275,8 +281,9 @@ void CefFrameHostImpl::RefreshAttributes() {
   CEF_REQUIRE_UIT();
 
   base::AutoLock lock_scope(state_lock_);
-  if (!render_frame_host_)
+  if (!render_frame_host_) {
     return;
+  }
   url_ = render_frame_host_->GetLastCommittedURL().spec();
 
   // Use the assigned name if it is non-empty. This represents the name property
@@ -298,8 +305,9 @@ void CefFrameHostImpl::RefreshAttributes() {
 }
 
 void CefFrameHostImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
-  if (!url_util::FixupGURL(params->url))
+  if (!url_util::FixupGURL(params->url)) {
     return;
+  }
 
   SendToRenderFrame(__FUNCTION__,
                     base::BindOnce(
@@ -310,8 +318,9 @@ void CefFrameHostImpl::LoadRequest(cef::mojom::RequestParamsPtr params) {
                         std::move(params)));
 
   auto browser = GetBrowserHostBase();
-  if (browser)
+  if (browser) {
     browser->OnSetFocus(FOCUS_SOURCE_NAVIGATION);
+  }
 }
 
 void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
@@ -320,8 +329,9 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
                                          const std::string& extra_headers) {
   // Only known frame ids or kMainFrameId are supported.
   const auto frame_id = GetFrameId();
-  if (frame_id < CefFrameHostImpl::kMainFrameId)
+  if (frame_id < CefFrameHostImpl::kMainFrameId) {
     return;
+  }
 
   // Any necessary fixup will occur in LoadRequest.
   GURL gurl = url_util::MakeGURL(url, /*fixup=*/false);
@@ -378,8 +388,9 @@ void CefFrameHostImpl::SendCommandWithResponse(
 void CefFrameHostImpl::SendJavaScript(const std::u16string& jsCode,
                                       const std::string& scriptUrl,
                                       int startLine) {
-  if (jsCode.empty())
+  if (jsCode.empty()) {
     return;
+  }
   if (startLine <= 0) {
     // A value of 0 is v8::Message::kNoLineNumberInfo in V8. There is code in
     // V8 that will assert on that value (e.g. V8StackTraceImpl::Frame::Frame
@@ -399,8 +410,9 @@ void CefFrameHostImpl::SendJavaScript(const std::u16string& jsCode,
 
 void CefFrameHostImpl::MaybeSendDidStopLoading() {
   auto rfh = GetRenderFrameHost();
-  if (!rfh)
+  if (!rfh) {
     return;
+  }
 
   // We only want to notify for the highest-level LocalFrame in this frame's
   // renderer process subtree. If this frame has a parent in the same process
@@ -541,8 +553,9 @@ scoped_refptr<CefBrowserInfo> CefFrameHostImpl::GetBrowserInfo() const {
 }
 
 CefRefPtr<CefBrowserHostBase> CefFrameHostImpl::GetBrowserHostBase() const {
-  if (auto browser_info = GetBrowserInfo())
+  if (auto browser_info = GetBrowserInfo()) {
     return browser_info->browser();
+  }
   return nullptr;
 }
 
@@ -650,8 +663,9 @@ void CefFrameHostImpl::FrameAttached(
 void CefFrameHostImpl::UpdateDraggableRegions(
     absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
   auto browser = GetBrowserHostBase();
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   std::vector<CefDraggableRegion> draggable_regions;
   if (regions) {
@@ -679,6 +693,7 @@ std::string CefFrameHostImpl::GetDebugString() const {
 void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
                                                  const CefString& javascript) {
   CefFrameHostImpl* impl = static_cast<CefFrameHostImpl*>(frame.get());
-  if (impl)
+  if (impl) {
     impl->ExecuteJavaScriptWithUserGestureForTests(javascript);
+  }
 }

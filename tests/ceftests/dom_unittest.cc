@@ -211,10 +211,11 @@ class TestDOMVisitor : public CefDOMVisitor {
   }
 
   void Visit(CefRefPtr<CefDOMDocument> document) override {
-    if (test_type_ == DOM_TEST_STRUCTURE)
+    if (test_type_ == DOM_TEST_STRUCTURE) {
       TestStructure(document);
-    else if (test_type_ == DOM_TEST_MODIFY)
+    } else if (test_type_ == DOM_TEST_MODIFY) {
       TestModify(document);
+    }
 
     DestroyTest();
   }
@@ -330,8 +331,9 @@ class TestDOMHandler : public TestHandler {
 
     got_message_.yes();
 
-    if (message->GetArgumentList()->GetBool(0))
+    if (message->GetArgumentList()->GetBool(0)) {
       got_success_.yes();
+    }
 
     // Test is complete.
     DestroyTest();

@@ -36,16 +36,19 @@ std::string GetMimeType(const std::string& filename) {
 
   std::string mime_type;
   const base::FilePath& file_path = FilePathFromASCII(filename);
-  if (net::GetMimeTypeFromFile(file_path, &mime_type))
+  if (net::GetMimeTypeFromFile(file_path, &mime_type)) {
     return mime_type;
+  }
 
   // Check for newer extensions used by internal resources but not yet
   // recognized by the mime type detector.
   const std::string& extension = CefString(file_path.FinalExtension());
-  if (extension == ".md")
+  if (extension == ".md") {
     return "text/markdown";
-  if (extension == ".woff2")
+  }
+  if (extension == ".woff2") {
     return "application/font-woff2";
+  }
 
   NOTREACHED() << "No known mime type for file: " << filename.c_str();
   return "text/plain";
@@ -161,11 +164,13 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
 
     InternalHandlerDelegate::Action action;
     if (delegate_->OnRequest(browser, request, &action)) {
-      if (!action.redirect_url.is_empty() && action.redirect_url.is_valid())
+      if (!action.redirect_url.is_empty() && action.redirect_url.is_valid()) {
         return new RedirectHandler(action.redirect_url);
+      }
 
-      if (action.mime_type.empty())
+      if (action.mime_type.empty()) {
         action.mime_type = GetMimeType(url.path());
+      }
 
       if (!action.bytes && action.resource_id >= 0) {
         std::string str =

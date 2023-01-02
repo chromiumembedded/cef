@@ -10,7 +10,8 @@
 scoped_refptr<base::RefCountedMemory> NetResourceProvider(int key) {
   // Chrome performs substitution of localized strings for directory listings.
   scoped_refptr<base::RefCountedMemory> value = ChromeNetResourceProvider(key);
-  if (!value)
+  if (!value) {
     LOG(ERROR) << "No data resource available for id " << key;
+  }
   return value;
 }

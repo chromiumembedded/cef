@@ -100,8 +100,9 @@ void CefExtensionsRendererClient::RenderFrameCreated(
 bool CefExtensionsRendererClient::OverrideCreatePlugin(
     content::RenderFrame* render_frame,
     const blink::WebPluginParams& params) {
-  if (params.mime_type.Utf8() != content::kBrowserPluginMimeType)
+  if (params.mime_type.Utf8() != content::kBrowserPluginMimeType) {
     return true;
+  }
 
   bool guest_view_api_available = false;
   extension_dispatcher_->script_context_set_iterator()->ForEach(

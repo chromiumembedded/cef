@@ -68,8 +68,9 @@ WeakReferenceOwner::~WeakReferenceOwner() {
 
 WeakReference WeakReferenceOwner::GetRef() const {
   // If we hold the last reference to the Flag then detach the ThreadChecker.
-  if (!HasRefs())
+  if (!HasRefs()) {
     flag_->DetachFromThread();
+  }
 
   return WeakReference(flag_);
 }

@@ -61,8 +61,9 @@ const Profile::OTRProfileID& ChromeProfileAlloy::GetOTRProfileID() const {
 }
 
 variations::VariationsClient* ChromeProfileAlloy::GetVariationsClient() {
-  if (!variations_client_)
+  if (!variations_client_) {
     variations_client_ = std::make_unique<CefVariationsClient>(this);
+  }
   return variations_client_.get();
 }
 

@@ -90,8 +90,9 @@ base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
 void InitCrashReporter(const base::CommandLine& command_line,
                        const std::string& process_type) {
   CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
-  if (!crash_client->HasCrashConfigFile())
+  if (!crash_client->HasCrashConfigFile()) {
     return;
+  }
 
   crash_reporter::SetCrashReporterClient(crash_client);
 
@@ -139,8 +140,9 @@ void InitCrashReporter(const base::CommandLine& command_line,
 
 // Used to exclude command-line flags from crash reporting.
 bool IsBoringCEFSwitch(const std::string& flag) {
-  if (crash_keys::IsBoringChromeSwitch(flag))
+  if (crash_keys::IsBoringChromeSwitch(flag)) {
     return true;
+  }
 
   static const char* const kIgnoreSwitches[] = {
       // CEF internals.
@@ -154,14 +156,16 @@ bool IsBoringCEFSwitch(const std::string& flag) {
       "service-request-channel-token",
   };
 
-  if (!base::StartsWith(flag, "--", base::CompareCase::SENSITIVE))
+  if (!base::StartsWith(flag, "--", base::CompareCase::SENSITIVE)) {
     return false;
+  }
 
   size_t end = flag.find("=");
   size_t len = (end == std::string::npos) ? flag.length() - 2 : end - 2;
   for (size_t i = 0; i < std::size(kIgnoreSwitches); ++i) {
-    if (flag.compare(2, len, kIgnoreSwitches[i]) == 0)
+    if (flag.compare(2, len, kIgnoreSwitches[i]) == 0) {
       return true;
+    }
   }
   return false;
 }
@@ -174,8 +178,9 @@ bool Enabled() {
 
 bool SetCrashKeyValue(const base::StringPiece& key,
                       const base::StringPiece& value) {
-  if (!g_crash_reporting_enabled)
+  if (!g_crash_reporting_enabled) {
     return false;
+  }
 
 #if BUILDFLAG(IS_WIN)
   return SetCrashKeyValueTrampoline(key, value);

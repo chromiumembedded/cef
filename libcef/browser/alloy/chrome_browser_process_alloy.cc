@@ -114,8 +114,9 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
     // Release any references to |local_state_|.
     auto profile = browser_context->AsProfile();
     PrefWatcher* pref_watcher = PrefWatcher::Get(profile);
-    if (pref_watcher)
+    if (pref_watcher) {
       pref_watcher->Shutdown();
+    }
 
     // Unregister observers for |background_printing_manager_|.
     if (background_printing_manager_) {
@@ -345,8 +346,9 @@ void ChromeBrowserProcessAlloy::StartAutoupdateTimer() {}
 
 component_updater::ComponentUpdateService*
 ChromeBrowserProcessAlloy::component_updater() {
-  if (component_updater_)
+  if (component_updater_) {
     return component_updater_.get();
+  }
 
   if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
     return nullptr;

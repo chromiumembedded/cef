@@ -25,8 +25,9 @@ namespace {
 std::string GetUrlWithoutQueryOrFragment(const std::string& url) {
   // Find the first instance of '?' or '#'.
   const size_t pos = std::min(url.find('?'), url.find('#'));
-  if (pos != std::string::npos)
+  if (pos != std::string::npos) {
     return url.substr(0, pos);
+  }
 
   return url;
 }
@@ -38,8 +39,9 @@ std::string GetMimeType(const std::string& url) {
   size_t sep = url_without_query.find_last_of(".");
   if (sep != std::string::npos) {
     mime_type = CefGetMimeType(url_without_query.substr(sep + 1));
-    if (!mime_type.empty())
+    if (!mime_type.empty()) {
       return mime_type;
+    }
   }
   return "text/html";
 }
@@ -77,8 +79,9 @@ class ContentProvider : public CefResourceManager::Provider {
         content_.length());
 
     // Determine the mime type a single time if it isn't already set.
-    if (mime_type_.empty())
+    if (mime_type_.empty()) {
       mime_type_ = request->mime_type_resolver().Run(url);
+    }
 
     request->Continue(new CefStreamResourceHandler(mime_type_, stream));
     return true;
@@ -100,10 +103,12 @@ class DirectoryProvider : public CefResourceManager::Provider {
     DCHECK(!directory_path_.empty());
 
     // Normalize the path values.
-    if (url_path_[url_path_.size() - 1] != '/')
+    if (url_path_[url_path_.size() - 1] != '/') {
       url_path_ += '/';
-    if (directory_path_[directory_path_.size() - 1] != PATH_SEP)
+    }
+    if (directory_path_[directory_path_.size() - 1] != PATH_SEP) {
       directory_path_ += PATH_SEP;
+    }
   }
 
   DirectoryProvider(const DirectoryProvider&) = delete;
@@ -183,8 +188,9 @@ class ArchiveProvider : public CefResourceManager::Provider {
     DCHECK(!archive_path_.empty());
 
     // Normalize the path values.
-    if (url_path_[url_path_.size() - 1] != '/')
+    if (url_path_[url_path_.size() - 1] != '/') {
       url_path_ += '/';
+    }
   }
 
   ArchiveProvider(const ArchiveProvider&) = delete;
@@ -255,8 +261,9 @@ class ArchiveProvider : public CefResourceManager::Provider {
     if (!pending_requests_.empty()) {
       // Continue all pending requests.
       PendingRequests::const_iterator it = pending_requests_.begin();
-      for (; it != pending_requests_.end(); ++it)
+      for (; it != pending_requests_.end(); ++it) {
         ContinueRequest(*it);
+      }
       pending_requests_.clear();
     }
   }
@@ -275,8 +282,9 @@ class ArchiveProvider : public CefResourceManager::Provider {
       }
     }
 
-    if (!handler.get())
+    if (!handler.get()) {
       return false;
+    }
 
     request->Continue(handler);
     return true;
@@ -325,8 +333,9 @@ struct CefResourceManager::ProviderEntry {
 
 CefResourceManager::RequestState::~RequestState() {
   // Always execute the callback.
-  if (callback_.get())
+  if (callback_.get()) {
     callback_->Continue();
+  }
 }
 
 // CefResourceManager::Request implementation.
@@ -339,8 +348,9 @@ void CefResourceManager::Request::Continue(
     return;
   }
 
-  if (!state_.get())
+  if (!state_.get()) {
     return;
+  }
 
   // Disassociate |state_| immediately so that Provider::OnRequestCanceled is
   // not called unexpectedly if Provider::OnRequest calls this method and then
@@ -357,8 +367,9 @@ void CefResourceManager::Request::Stop() {
     return;
   }
 
-  if (!state_.get())
+  if (!state_.get()) {
     return;
+  }
 
   // Disassociate |state_| immediately so that Provider::OnRequestCanceled is
   // not called unexpectedly if Provider::OnRequest calls this method and then
@@ -389,8 +400,9 @@ std::unique_ptr<CefResourceManager::RequestState>
 CefResourceManager::Request::SendRequest() {
   CEF_REQUIRE_IO_THREAD();
   Provider* provider = (*state_->current_entry_pos_)->provider_.get();
-  if (!provider->OnRequest(this))
+  if (!provider->OnRequest(this)) {
     return std::move(state_);
+  }
   return std::unique_ptr<RequestState>();
 }
 
@@ -406,8 +418,9 @@ void CefResourceManager::Request::ContinueOnIOThread(
   CEF_REQUIRE_IO_THREAD();
   // The manager may already have been deleted.
   base::WeakPtr<CefResourceManager> manager = state->manager_;
-  if (manager)
+  if (manager) {
     manager->ContinueRequest(std::move(state), handler);
+  }
 }
 
 // static
@@ -416,8 +429,9 @@ void CefResourceManager::Request::StopOnIOThread(
   CEF_REQUIRE_IO_THREAD();
   // The manager may already have been deleted.
   base::WeakPtr<CefResourceManager> manager = state->manager_;
-  if (manager)
+  if (manager) {
     manager->StopRequest(std::move(state));
+  }
 }
 
 // CefResourceManager implementation.
@@ -434,8 +448,9 @@ CefResourceManager::~CefResourceManager() {
   // call back into this manager due to the use of WeakPtr.
   if (!providers_.empty()) {
     ProviderEntryList::iterator it = providers_.begin();
-    for (; it != providers_.end(); ++it)
+    for (; it != providers_.end(); ++it) {
       delete *it;
+    }
     providers_.clear();
   }
 }
@@ -469,8 +484,9 @@ void CefResourceManager::AddProvider(Provider* provider,
                                      int order,
                                      const std::string& identifier) {
   DCHECK(provider);
-  if (!provider)
+  if (!provider) {
     return;
+  }
 
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO, base::BindOnce(&CefResourceManager::AddProvider, this,
@@ -489,8 +505,9 @@ void CefResourceManager::AddProvider(Provider* provider,
   // Insert before the first entry with a higher |order| value.
   ProviderEntryList::iterator it = providers_.begin();
   for (; it != providers_.end(); ++it) {
-    if ((*it)->order_ > order)
+    if ((*it)->order_ > order) {
       break;
+    }
   }
 
   providers_.insert(it, new_entry.release());
@@ -503,15 +520,17 @@ void CefResourceManager::RemoveProviders(const std::string& identifier) {
     return;
   }
 
-  if (providers_.empty())
+  if (providers_.empty()) {
     return;
+  }
 
   ProviderEntryList::iterator it = providers_.begin();
   while (it != providers_.end()) {
-    if ((*it)->identifier_ == identifier)
+    if ((*it)->identifier_ == identifier) {
       DeleteProvider(it, false);
-    else
+    } else {
       ++it;
+    }
   }
 }
 
@@ -522,12 +541,14 @@ void CefResourceManager::RemoveAllProviders() {
     return;
   }
 
-  if (providers_.empty())
+  if (providers_.empty()) {
     return;
+  }
 
   ProviderEntryList::iterator it = providers_.begin();
-  while (it != providers_.end())
+  while (it != providers_.end()) {
     DeleteProvider(it, true);
+  }
 }
 
 void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
@@ -537,10 +558,11 @@ void CefResourceManager::SetMimeTypeResolver(const MimeTypeResolver& resolver) {
     return;
   }
 
-  if (!resolver.is_null())
+  if (!resolver.is_null()) {
     mime_type_resolver_ = resolver;
-  else
+  } else {
     mime_type_resolver_ = base::BindRepeating(GetMimeType);
+  }
 }
 
 void CefResourceManager::SetUrlFilter(const UrlFilter& filter) {
@@ -550,10 +572,11 @@ void CefResourceManager::SetUrlFilter(const UrlFilter& filter) {
     return;
   }
 
-  if (!filter.is_null())
+  if (!filter.is_null()) {
     url_filter_ = filter;
-  else
+  } else {
     url_filter_ = base::BindRepeating(GetFilteredUrl);
+  }
 }
 
 cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
@@ -605,8 +628,9 @@ CefRefPtr<CefResourceHandler> CefResourceManager::GetResourceHandler(
     CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_IO_THREAD();
 
-  if (pending_handlers_.empty())
+  if (pending_handlers_.empty()) {
     return nullptr;
+  }
 
   CefRefPtr<CefResourceHandler> handler;
 
@@ -635,8 +659,9 @@ bool CefResourceManager::SendRequest(std::unique_ptr<RequestState> state) {
     if (state.get()) {
       // The provider will not handle the request. Move to the next provider if
       // any.
-      if (!IncrementProvider(state.get()))
+      if (!IncrementProvider(state.get())) {
         StopRequest(std::move(state));
+      }
     } else {
       potentially_handled = true;
     }
@@ -657,10 +682,11 @@ void CefResourceManager::ContinueRequest(
     StopRequest(std::move(state));
   } else {
     // Move to the next provider if any.
-    if (IncrementProvider(state.get()))
+    if (IncrementProvider(state.get())) {
       SendRequest(std::move(state));
-    else
+    } else {
       StopRequest(std::move(state));
+    }
   }
 }
 
@@ -727,8 +753,9 @@ void CefResourceManager::DeleteProvider(ProviderEntryList::iterator& iterator,
 
   ProviderEntry* current_entry = *(iterator);
 
-  if (current_entry->deletion_pending_)
+  if (current_entry->deletion_pending_) {
     return;
+  }
 
   if (!current_entry->pending_requests_.empty()) {
     // Don't delete the provider entry until all pending requests have cleared.
@@ -739,10 +766,11 @@ void CefResourceManager::DeleteProvider(ProviderEntryList::iterator& iterator,
     for (; it != current_entry->pending_requests_.end(); ++it) {
       const scoped_refptr<Request>& request = *it;
       if (request->HasState()) {
-        if (stop)
+        if (stop) {
           request->Stop();
-        else
+        } else {
           request->Continue(nullptr);
+        }
         current_entry->provider_->OnRequestCanceled(request);
       }
     }
