@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=680adcc74e385af7d83fa8b28b36b2215bc20f2b$
+// $hash=ceba5d41469bb3acdd579f21d83d18ec38be4b99$
 //
 
 #include "libcef_dll/cpptoc/value_cpptoc.h"
@@ -42,8 +42,9 @@ int CEF_CALLBACK value_is_valid(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->IsValid();
@@ -58,8 +59,9 @@ int CEF_CALLBACK value_is_owned(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->IsOwned();
@@ -74,8 +76,9 @@ int CEF_CALLBACK value_is_read_only(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->IsReadOnly();
@@ -91,12 +94,14 @@ int CEF_CALLBACK value_is_same(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -113,12 +118,14 @@ int CEF_CALLBACK value_is_equal(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -134,8 +141,9 @@ struct _cef_value_t* CEF_CALLBACK value_copy(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefValue> _retval = CefValueCppToC::Get(self)->Copy();
@@ -150,8 +158,9 @@ cef_value_type_t CEF_CALLBACK value_get_type(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return VTYPE_INVALID;
+  }
 
   // Execute
   cef_value_type_t _retval = CefValueCppToC::Get(self)->GetType();
@@ -166,8 +175,9 @@ int CEF_CALLBACK value_get_bool(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->GetBool();
@@ -182,8 +192,9 @@ int CEF_CALLBACK value_get_int(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefValueCppToC::Get(self)->GetInt();
@@ -198,8 +209,9 @@ double CEF_CALLBACK value_get_double(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   double _retval = CefValueCppToC::Get(self)->GetDouble();
@@ -214,8 +226,9 @@ cef_string_userfree_t CEF_CALLBACK value_get_string(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefValueCppToC::Get(self)->GetString();
@@ -231,8 +244,9 @@ value_get_binary(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefValueCppToC::Get(self)->GetBinary();
@@ -248,8 +262,9 @@ value_get_dictionary(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDictionaryValue> _retval =
@@ -266,8 +281,9 @@ value_get_list(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefListValue> _retval = CefValueCppToC::Get(self)->GetList();
@@ -282,8 +298,9 @@ int CEF_CALLBACK value_set_null(struct _cef_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->SetNull();
@@ -298,8 +315,9 @@ int CEF_CALLBACK value_set_bool(struct _cef_value_t* self, int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->SetBool(value ? true : false);
@@ -314,8 +332,9 @@ int CEF_CALLBACK value_set_int(struct _cef_value_t* self, int value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->SetInt(value);
@@ -330,8 +349,9 @@ int CEF_CALLBACK value_set_double(struct _cef_value_t* self, double value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->SetDouble(value);
@@ -347,8 +367,9 @@ int CEF_CALLBACK value_set_string(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: value
 
   // Execute
@@ -365,12 +386,14 @@ int CEF_CALLBACK value_set_binary(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: value; type: refptr_same
   DCHECK(value);
-  if (!value)
+  if (!value) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -387,12 +410,14 @@ int CEF_CALLBACK value_set_dictionary(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: value; type: refptr_same
   DCHECK(value);
-  if (!value)
+  if (!value) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefValueCppToC::Get(self)->SetDictionary(
@@ -409,12 +434,14 @@ int CEF_CALLBACK value_set_list(struct _cef_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: value; type: refptr_same
   DCHECK(value);
-  if (!value)
+  if (!value) {
     return 0;
+  }
 
   // Execute
   bool _retval =

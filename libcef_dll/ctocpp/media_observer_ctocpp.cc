@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53afe2dd1a5d413790a04a6d622bf0175302da00$
+// $hash=b3e6ce9639724749d0077dbc8f6702afba83f561$
 //
 
 #include "libcef_dll/ctocpp/media_observer_ctocpp.h"
@@ -25,8 +25,9 @@ void CefMediaObserverCToCpp::OnSinks(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_sinks))
+  if (CEF_MEMBER_MISSING(_struct, on_sinks)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -47,8 +48,9 @@ void CefMediaObserverCToCpp::OnSinks(
   _struct->on_sinks(_struct, sinksCount, sinksList);
 
   // Restore param:sinks; type: refptr_vec_diff_byref_const
-  if (sinksList)
+  if (sinksList) {
     delete[] sinksList;
+  }
 }
 
 NO_SANITIZE("cfi-icall")
@@ -57,8 +59,9 @@ void CefMediaObserverCToCpp::OnRoutes(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_routes))
+  if (CEF_MEMBER_MISSING(_struct, on_routes)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -79,8 +82,9 @@ void CefMediaObserverCToCpp::OnRoutes(
   _struct->on_routes(_struct, routesCount, routesList);
 
   // Restore param:routes; type: refptr_vec_diff_byref_const
-  if (routesList)
+  if (routesList) {
     delete[] routesList;
+  }
 }
 
 NO_SANITIZE("cfi-icall")
@@ -89,15 +93,17 @@ void CefMediaObserverCToCpp::OnRouteStateChanged(CefRefPtr<CefMediaRoute> route,
   shutdown_checker::AssertNotShutdown();
 
   cef_media_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_route_state_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_route_state_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: route; type: refptr_diff
   DCHECK(route.get());
-  if (!route.get())
+  if (!route.get()) {
     return;
+  }
 
   // Execute
   _struct->on_route_state_changed(_struct, CefMediaRouteCppToC::Wrap(route),
@@ -112,19 +118,22 @@ void CefMediaObserverCToCpp::OnRouteMessageReceived(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_route_message_received))
+  if (CEF_MEMBER_MISSING(_struct, on_route_message_received)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: route; type: refptr_diff
   DCHECK(route.get());
-  if (!route.get())
+  if (!route.get()) {
     return;
+  }
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return;
+  }
 
   // Execute
   _struct->on_route_message_received(_struct, CefMediaRouteCppToC::Wrap(route),

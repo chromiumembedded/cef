@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e2f6dee4f74c0eb0979d7a557b007fb8e495bcbb$
+// $hash=c543b9784333ad4f48c459585d03b65241884d45$
 //
 
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
@@ -27,8 +27,9 @@ context_menu_params_get_xcoord(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefContextMenuParamsCppToC::Get(self)->GetXCoord();
@@ -44,8 +45,9 @@ context_menu_params_get_ycoord(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefContextMenuParamsCppToC::Get(self)->GetYCoord();
@@ -61,8 +63,9 @@ context_menu_params_get_type_flags(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CM_TYPEFLAG_NONE;
+  }
 
   // Execute
   cef_context_menu_type_flags_t _retval =
@@ -79,8 +82,9 @@ context_menu_params_get_link_url(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetLinkUrl();
@@ -96,8 +100,9 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_unfiltered_link_url(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -114,8 +119,9 @@ context_menu_params_get_source_url(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetSourceUrl();
@@ -131,8 +137,9 @@ int CEF_CALLBACK context_menu_params_has_image_contents(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuParamsCppToC::Get(self)->HasImageContents();
@@ -148,8 +155,9 @@ context_menu_params_get_title_text(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetTitleText();
@@ -165,8 +173,9 @@ context_menu_params_get_page_url(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetPageUrl();
@@ -182,8 +191,9 @@ context_menu_params_get_frame_url(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetFrameUrl();
@@ -199,8 +209,9 @@ context_menu_params_get_frame_charset(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetFrameCharset();
@@ -216,8 +227,9 @@ context_menu_params_get_media_type(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CM_MEDIATYPE_NONE;
+  }
 
   // Execute
   cef_context_menu_media_type_t _retval =
@@ -235,8 +247,9 @@ context_menu_params_get_media_state_flags(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CM_MEDIAFLAG_NONE;
+  }
 
   // Execute
   cef_context_menu_media_state_flags_t _retval =
@@ -253,8 +266,9 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_selection_text(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetSelectionText();
@@ -270,8 +284,9 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_misspelled_word(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -289,12 +304,14 @@ int CEF_CALLBACK context_menu_params_get_dictionary_suggestions(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: suggestions; type: string_vec_byref
   DCHECK(suggestions);
-  if (!suggestions)
+  if (!suggestions) {
     return 0;
+  }
 
   // Translate param: suggestions; type: string_vec_byref
   std::vector<CefString> suggestionsList;
@@ -320,8 +337,9 @@ context_menu_params_is_editable(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuParamsCppToC::Get(self)->IsEditable();
@@ -337,8 +355,9 @@ int CEF_CALLBACK context_menu_params_is_spell_check_enabled(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuParamsCppToC::Get(self)->IsSpellCheckEnabled();
@@ -355,8 +374,9 @@ context_menu_params_get_edit_state_flags(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CM_EDITFLAG_NONE;
+  }
 
   // Execute
   cef_context_menu_edit_state_flags_t _retval =
@@ -373,8 +393,9 @@ context_menu_params_is_custom_menu(struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefContextMenuParamsCppToC::Get(self)->IsCustomMenu();

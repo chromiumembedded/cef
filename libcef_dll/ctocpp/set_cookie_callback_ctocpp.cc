@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5767c600167159c0ad3f5d10461f1bf107c668cc$
+// $hash=b6872491fd6b64121984c0b979ef252d09003194$
 //
 
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
@@ -22,8 +22,9 @@ void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
   shutdown_checker::AssertNotShutdown();
 
   cef_set_cookie_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_complete))
+  if (CEF_MEMBER_MISSING(_struct, on_complete)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

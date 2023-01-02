@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a0976edc09e822700d8f402b2dae7af4c434d86f$
+// $hash=808efb0b2702ab12ea55c67846d9159a45cc0bd7$
 //
 
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
@@ -28,12 +28,14 @@ size_t CEF_CALLBACK read_handler_read(struct _cef_read_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefReadHandlerCppToC::Get(self)->Read(ptr, size, n);
@@ -50,8 +52,9 @@ int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefReadHandlerCppToC::Get(self)->Seek(offset, whence);
@@ -66,8 +69,9 @@ int64 CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefReadHandlerCppToC::Get(self)->Tell();
@@ -82,8 +86,9 @@ int CEF_CALLBACK read_handler_eof(struct _cef_read_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefReadHandlerCppToC::Get(self)->Eof();
@@ -98,8 +103,9 @@ int CEF_CALLBACK read_handler_may_block(struct _cef_read_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefReadHandlerCppToC::Get(self)->MayBlock();

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9986455b9b29bd88504e9b4c2b73bfebc87cfc61$
+// $hash=db849902d1f4a2d4e41103d76fe5985a078a413a$
 //
 
 #include "libcef_dll/ctocpp/app_ctocpp.h"
@@ -26,15 +26,17 @@ void CefAppCToCpp::OnBeforeCommandLineProcessing(
     const CefString& process_type,
     CefRefPtr<CefCommandLine> command_line) {
   cef_app_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_command_line_processing))
+  if (CEF_MEMBER_MISSING(_struct, on_before_command_line_processing)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: command_line; type: refptr_diff
   DCHECK(command_line.get());
-  if (!command_line.get())
+  if (!command_line.get()) {
     return;
+  }
   // Unverified params: process_type
 
   // Execute
@@ -47,15 +49,17 @@ NO_SANITIZE("cfi-icall")
 void CefAppCToCpp::OnRegisterCustomSchemes(
     CefRawPtr<CefSchemeRegistrar> registrar) {
   cef_app_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_register_custom_schemes))
+  if (CEF_MEMBER_MISSING(_struct, on_register_custom_schemes)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: registrar; type: rawptr_diff
   DCHECK(registrar);
-  if (!registrar)
+  if (!registrar) {
     return;
+  }
 
   // Translate param: registrar; type: rawptr_diff
   CefOwnPtr<CefSchemeRegistrarCppToC> registrarPtr(
@@ -68,8 +72,9 @@ void CefAppCToCpp::OnRegisterCustomSchemes(
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
   cef_app_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_resource_bundle_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_resource_bundle_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -84,8 +89,9 @@ CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
   cef_app_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_browser_process_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_browser_process_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -100,8 +106,9 @@ CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
   cef_app_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_render_process_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_render_process_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

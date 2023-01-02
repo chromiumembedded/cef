@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=96bad8e6efd216ede4ec354159598f3119f44ce0$
+// $hash=afd356d9f7ef20662f649b44d1349783b02b2da1$
 //
 
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
@@ -32,12 +32,14 @@ load_handler_on_loading_state_change(struct _cef_load_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefLoadHandlerCppToC::Get(self)->OnLoadingStateChange(
@@ -55,16 +57,19 @@ load_handler_on_load_start(struct _cef_load_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefLoadHandlerCppToC::Get(self)->OnLoadStart(CefBrowserCToCpp::Wrap(browser),
@@ -81,16 +86,19 @@ void CEF_CALLBACK load_handler_on_load_end(struct _cef_load_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefLoadHandlerCppToC::Get(self)->OnLoadEnd(CefBrowserCToCpp::Wrap(browser),
@@ -109,20 +117,24 @@ void CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: failedUrl; type: string_byref_const
   DCHECK(failedUrl);
-  if (!failedUrl)
+  if (!failedUrl) {
     return;
+  }
   // Unverified params: errorText
 
   // Execute

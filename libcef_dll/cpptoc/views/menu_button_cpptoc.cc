@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=be533dcd2dd95060259a8baaece87bf2c6df0c27$
+// $hash=8a0e747873df46bb39ec65538eb0d6b4f1b04327$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -38,8 +38,9 @@ CEF_EXPORT cef_menu_button_t* cef_menu_button_create(
 
   // Verify param: delegate; type: refptr_diff
   DCHECK(delegate);
-  if (!delegate)
+  if (!delegate) {
     return NULL;
+  }
   // Unverified params: text
 
   // Execute
@@ -64,16 +65,19 @@ menu_button_show_menu(struct _cef_menu_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: menu_model; type: refptr_same
   DCHECK(menu_model);
-  if (!menu_model)
+  if (!menu_model) {
     return;
+  }
   // Verify param: screen_point; type: simple_byref_const
   DCHECK(screen_point);
-  if (!screen_point)
+  if (!screen_point) {
     return;
+  }
 
   // Translate param: screen_point; type: simple_byref_const
   CefPoint screen_pointVal = screen_point ? *screen_point : CefPoint();
@@ -89,8 +93,9 @@ void CEF_CALLBACK menu_button_trigger_menu(struct _cef_menu_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(self)->TriggerMenu();
@@ -103,8 +108,9 @@ menu_button_as_menu_button(struct _cef_label_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuButton> _retval =
@@ -122,12 +128,14 @@ void CEF_CALLBACK menu_button_set_text(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: text; type: string_byref_const
   DCHECK(text);
-  if (!text)
+  if (!text) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -141,8 +149,9 @@ menu_button_get_text(struct _cef_label_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -161,8 +170,9 @@ void CEF_CALLBACK menu_button_set_image(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: image
 
   // Execute
@@ -178,8 +188,9 @@ menu_button_get_image(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefImage> _retval =
@@ -198,8 +209,9 @@ void CEF_CALLBACK menu_button_set_text_color(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -214,8 +226,9 @@ menu_button_set_enabled_text_colors(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -229,12 +242,14 @@ void CEF_CALLBACK menu_button_set_font_list(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: font_list; type: string_byref_const
   DCHECK(font_list);
-  if (!font_list)
+  if (!font_list) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -249,8 +264,9 @@ menu_button_set_horizontal_alignment(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -264,12 +280,14 @@ void CEF_CALLBACK menu_button_set_minimum_size(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: size; type: simple_byref_const
   DCHECK(size);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   // Translate param: size; type: simple_byref_const
   CefSize sizeVal = size ? *size : CefSize();
@@ -286,12 +304,14 @@ void CEF_CALLBACK menu_button_set_maximum_size(struct _cef_label_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: size; type: simple_byref_const
   DCHECK(size);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   // Translate param: size; type: simple_byref_const
   CefSize sizeVal = size ? *size : CefSize();
@@ -308,8 +328,9 @@ menu_button_as_label_button(struct _cef_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefLabelButton> _retval =
@@ -327,8 +348,9 @@ void CEF_CALLBACK menu_button_set_state(struct _cef_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -342,8 +364,9 @@ menu_button_get_state(struct _cef_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CEF_BUTTON_STATE_NORMAL;
+  }
 
   // Execute
   cef_button_state_t _retval =
@@ -361,8 +384,9 @@ void CEF_CALLBACK menu_button_set_ink_drop_enabled(struct _cef_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -377,12 +401,14 @@ menu_button_set_tooltip_text(struct _cef_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: tooltip_text; type: string_byref_const
   DCHECK(tooltip_text);
-  if (!tooltip_text)
+  if (!tooltip_text) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -396,12 +422,14 @@ void CEF_CALLBACK menu_button_set_accessible_name(struct _cef_button_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -415,8 +443,9 @@ menu_button_as_browser_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowserView> _retval =
@@ -433,8 +462,9 @@ cef_button_t* CEF_CALLBACK menu_button_as_button(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefButton> _retval =
@@ -451,8 +481,9 @@ cef_panel_t* CEF_CALLBACK menu_button_as_panel(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefPanel> _retval =
@@ -470,8 +501,9 @@ menu_button_as_scroll_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefScrollView> _retval =
@@ -489,8 +521,9 @@ menu_button_as_textfield(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTextfield> _retval =
@@ -508,8 +541,9 @@ menu_button_get_type_string(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -527,8 +561,9 @@ menu_button_to_string(struct _cef_view_t* self, int include_children) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -545,8 +580,9 @@ int CEF_CALLBACK menu_button_is_valid(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -563,8 +599,9 @@ int CEF_CALLBACK menu_button_is_attached(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -582,12 +619,14 @@ int CEF_CALLBACK menu_button_is_same(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -605,8 +644,9 @@ menu_button_get_delegate(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefViewDelegate> _retval =
@@ -624,8 +664,9 @@ menu_button_get_window(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefWindow> _retval =
@@ -642,8 +683,9 @@ int CEF_CALLBACK menu_button_get_id(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -660,8 +702,9 @@ void CEF_CALLBACK menu_button_set_id(struct _cef_view_t* self, int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -674,8 +717,9 @@ int CEF_CALLBACK menu_button_get_group_id(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -693,8 +737,9 @@ void CEF_CALLBACK menu_button_set_group_id(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -708,8 +753,9 @@ menu_button_get_parent_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefView> _retval =
@@ -727,8 +773,9 @@ menu_button_get_view_for_id(struct _cef_view_t* self, int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefView> _retval =
@@ -746,12 +793,14 @@ void CEF_CALLBACK menu_button_set_bounds(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: bounds; type: simple_byref_const
   DCHECK(bounds);
-  if (!bounds)
+  if (!bounds) {
     return;
+  }
 
   // Translate param: bounds; type: simple_byref_const
   CefRect boundsVal = bounds ? *bounds : CefRect();
@@ -767,8 +816,9 @@ cef_rect_t CEF_CALLBACK menu_button_get_bounds(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval =
@@ -786,8 +836,9 @@ menu_button_get_bounds_in_screen(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval =
@@ -805,12 +856,14 @@ void CEF_CALLBACK menu_button_set_size(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: size; type: simple_byref_const
   DCHECK(size);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   // Translate param: size; type: simple_byref_const
   CefSize sizeVal = size ? *size : CefSize();
@@ -826,8 +879,9 @@ cef_size_t CEF_CALLBACK menu_button_get_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -845,12 +899,14 @@ void CEF_CALLBACK menu_button_set_position(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: position; type: simple_byref_const
   DCHECK(position);
-  if (!position)
+  if (!position) {
     return;
+  }
 
   // Translate param: position; type: simple_byref_const
   CefPoint positionVal = position ? *position : CefPoint();
@@ -866,8 +922,9 @@ cef_point_t CEF_CALLBACK menu_button_get_position(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefPoint();
+  }
 
   // Execute
   cef_point_t _retval =
@@ -885,12 +942,14 @@ void CEF_CALLBACK menu_button_set_insets(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: insets; type: simple_byref_const
   DCHECK(insets);
-  if (!insets)
+  if (!insets) {
     return;
+  }
 
   // Translate param: insets; type: simple_byref_const
   CefInsets insetsVal = insets ? *insets : CefInsets();
@@ -906,8 +965,9 @@ cef_insets_t CEF_CALLBACK menu_button_get_insets(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefInsets();
+  }
 
   // Execute
   cef_insets_t _retval =
@@ -925,8 +985,9 @@ menu_button_get_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -943,8 +1004,9 @@ void CEF_CALLBACK menu_button_size_to_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -957,8 +1019,9 @@ cef_size_t CEF_CALLBACK menu_button_get_minimum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -975,8 +1038,9 @@ cef_size_t CEF_CALLBACK menu_button_get_maximum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -994,8 +1058,9 @@ int CEF_CALLBACK menu_button_get_height_for_width(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -1012,8 +1077,9 @@ void CEF_CALLBACK menu_button_invalidate_layout(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1027,8 +1093,9 @@ void CEF_CALLBACK menu_button_set_visible(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1041,8 +1108,9 @@ int CEF_CALLBACK menu_button_is_visible(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1059,8 +1127,9 @@ int CEF_CALLBACK menu_button_is_drawn(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1078,8 +1147,9 @@ void CEF_CALLBACK menu_button_set_enabled(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1092,8 +1162,9 @@ int CEF_CALLBACK menu_button_is_enabled(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1111,8 +1182,9 @@ void CEF_CALLBACK menu_button_set_focusable(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1125,8 +1197,9 @@ int CEF_CALLBACK menu_button_is_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1144,8 +1217,9 @@ menu_button_is_accessibility_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1162,8 +1236,9 @@ void CEF_CALLBACK menu_button_request_focus(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1177,8 +1252,9 @@ void CEF_CALLBACK menu_button_set_background_color(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
@@ -1192,8 +1268,9 @@ menu_button_get_background_color(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   cef_color_t _retval =
@@ -1211,12 +1288,14 @@ int CEF_CALLBACK menu_button_convert_point_to_screen(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1227,8 +1306,9 @@ int CEF_CALLBACK menu_button_convert_point_to_screen(struct _cef_view_t* self,
           ->ConvertPointToScreen(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1241,12 +1321,14 @@ int CEF_CALLBACK menu_button_convert_point_from_screen(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1257,8 +1339,9 @@ int CEF_CALLBACK menu_button_convert_point_from_screen(struct _cef_view_t* self,
           ->ConvertPointFromScreen(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1271,12 +1354,14 @@ int CEF_CALLBACK menu_button_convert_point_to_window(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1287,8 +1372,9 @@ int CEF_CALLBACK menu_button_convert_point_to_window(struct _cef_view_t* self,
           ->ConvertPointToWindow(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1301,12 +1387,14 @@ int CEF_CALLBACK menu_button_convert_point_from_window(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1317,8 +1405,9 @@ int CEF_CALLBACK menu_button_convert_point_from_window(struct _cef_view_t* self,
           ->ConvertPointFromWindow(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1332,16 +1421,19 @@ int CEF_CALLBACK menu_button_convert_point_to_view(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1352,8 +1444,9 @@ int CEF_CALLBACK menu_button_convert_point_to_view(struct _cef_view_t* self,
           ->ConvertPointToView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1367,16 +1460,19 @@ int CEF_CALLBACK menu_button_convert_point_from_view(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -1387,8 +1483,9 @@ int CEF_CALLBACK menu_button_convert_point_from_view(struct _cef_view_t* self,
           ->ConvertPointFromView(CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;

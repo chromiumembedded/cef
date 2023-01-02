@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fcbdc299c4f34868f817a9b77777a9b88f3cf07b$
+// $hash=3835ba1790959a5287e49afe05089daa4e536a5d$
 //
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
@@ -26,8 +26,9 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_file(
 
   // Verify param: fileName; type: string_byref_const
   DCHECK(fileName);
-  if (!fileName)
+  if (!fileName) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefStreamReader> _retval =
@@ -45,8 +46,9 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_data(void* data,
 
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefStreamReader> _retval =
@@ -64,8 +66,9 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
 
   // Verify param: handler; type: refptr_diff
   DCHECK(handler);
-  if (!handler)
+  if (!handler) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefStreamReader> _retval =
@@ -88,12 +91,14 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefStreamReaderCppToC::Get(self)->Read(ptr, size, n);
@@ -110,8 +115,9 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefStreamReaderCppToC::Get(self)->Seek(offset, whence);
@@ -126,8 +132,9 @@ int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefStreamReaderCppToC::Get(self)->Tell();
@@ -142,8 +149,9 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefStreamReaderCppToC::Get(self)->Eof();
@@ -158,8 +166,9 @@ int CEF_CALLBACK stream_reader_may_block(struct _cef_stream_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefStreamReaderCppToC::Get(self)->MayBlock();

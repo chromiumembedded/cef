@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd651a7fef9dbbce9765c8200660c4057808e6cc$
+// $hash=c636c92ceb26daa758f12cb54a39277e69d721e6$
 //
 
 #include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
@@ -27,29 +27,35 @@ int CEF_CALLBACK v8interceptor_get_byname(struct _cef_v8interceptor_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object);
-  if (!object)
+  if (!object) {
     return 0;
+  }
   // Verify param: retval; type: refptr_diff_byref
   DCHECK(retval);
-  if (!retval)
+  if (!retval) {
     return 0;
+  }
   // Verify param: exception; type: string_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
 
   // Translate param: retval; type: refptr_diff_byref
   CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
+  if (retval && *retval) {
     retvalPtr = CefV8ValueCToCpp::Wrap(*retval);
+  }
   CefV8Value* retvalOrig = retvalPtr.get();
   // Translate param: exception; type: string_byref
   CefString exceptionStr(exception);
@@ -81,29 +87,35 @@ int CEF_CALLBACK v8interceptor_get_byindex(struct _cef_v8interceptor_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
-  if (index < 0)
+  if (index < 0) {
     return 0;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object);
-  if (!object)
+  if (!object) {
     return 0;
+  }
   // Verify param: retval; type: refptr_diff_byref
   DCHECK(retval);
-  if (!retval)
+  if (!retval) {
     return 0;
+  }
   // Verify param: exception; type: string_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
 
   // Translate param: retval; type: refptr_diff_byref
   CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
+  if (retval && *retval) {
     retvalPtr = CefV8ValueCToCpp::Wrap(*retval);
+  }
   CefV8Value* retvalOrig = retvalPtr.get();
   // Translate param: exception; type: string_byref
   CefString exceptionStr(exception);
@@ -135,24 +147,29 @@ int CEF_CALLBACK v8interceptor_set_byname(struct _cef_v8interceptor_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object);
-  if (!object)
+  if (!object) {
     return 0;
+  }
   // Verify param: value; type: refptr_diff
   DCHECK(value);
-  if (!value)
+  if (!value) {
     return 0;
+  }
   // Verify param: exception; type: string_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
 
   // Translate param: exception; type: string_byref
   CefString exceptionStr(exception);
@@ -174,24 +191,29 @@ int CEF_CALLBACK v8interceptor_set_byindex(struct _cef_v8interceptor_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
-  if (index < 0)
+  if (index < 0) {
     return 0;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object);
-  if (!object)
+  if (!object) {
     return 0;
+  }
   // Verify param: value; type: refptr_diff
   DCHECK(value);
-  if (!value)
+  if (!value) {
     return 0;
+  }
   // Verify param: exception; type: string_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
 
   // Translate param: exception; type: string_byref
   CefString exceptionStr(exception);

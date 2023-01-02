@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=610f96da1baaa48d1aa7fcff8a4c4fb33d2965ab$
+// $hash=0a0ea961456500b4545d5947422606918de83d6e$
 //
 
 #include "libcef_dll/ctocpp/dev_tools_message_observer_ctocpp.h"
@@ -26,19 +26,22 @@ bool CefDevToolsMessageObserverCToCpp::OnDevToolsMessage(
   shutdown_checker::AssertNotShutdown();
 
   cef_dev_tools_message_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_message))
+  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_message)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_dev_tools_message(
@@ -58,15 +61,17 @@ void CefDevToolsMessageObserverCToCpp::OnDevToolsMethodResult(
   shutdown_checker::AssertNotShutdown();
 
   cef_dev_tools_message_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_method_result))
+  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_method_result)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Unverified params: result
 
   // Execute
@@ -83,19 +88,22 @@ void CefDevToolsMessageObserverCToCpp::OnDevToolsEvent(
   shutdown_checker::AssertNotShutdown();
 
   cef_dev_tools_message_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_event))
+  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_event)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: method; type: string_byref_const
   DCHECK(!method.empty());
-  if (method.empty())
+  if (method.empty()) {
     return;
+  }
   // Unverified params: params
 
   // Execute
@@ -109,15 +117,17 @@ void CefDevToolsMessageObserverCToCpp::OnDevToolsAgentAttached(
   shutdown_checker::AssertNotShutdown();
 
   cef_dev_tools_message_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_agent_attached))
+  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_agent_attached)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_dev_tools_agent_attached(_struct,
@@ -130,15 +140,17 @@ void CefDevToolsMessageObserverCToCpp::OnDevToolsAgentDetached(
   shutdown_checker::AssertNotShutdown();
 
   cef_dev_tools_message_observer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_agent_detached))
+  if (CEF_MEMBER_MISSING(_struct, on_dev_tools_agent_detached)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_dev_tools_agent_detached(_struct,

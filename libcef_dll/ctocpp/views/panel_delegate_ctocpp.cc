@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ed477592fb540c789eef4309e7af5f40319bc4b9$
+// $hash=405f351887cd4d64177534dd1a362f1027126b0d$
 //
 
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
@@ -25,15 +25,17 @@ CefSize CefPanelDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, get_preferred_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -49,15 +51,17 @@ CefSize CefPanelDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_minimum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -73,15 +77,17 @@ CefSize CefPanelDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_maximum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -98,15 +104,17 @@ int CefPanelDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
+  if (CEF_MEMBER_MISSING(_struct, get_height_for_width)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -124,19 +132,22 @@ void CefPanelDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: parent; type: refptr_diff
   DCHECK(parent.get());
-  if (!parent.get())
+  if (!parent.get()) {
     return;
+  }
 
   // Execute
   _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -151,19 +162,22 @@ void CefPanelDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: child; type: refptr_diff
   DCHECK(child.get());
-  if (!child.get())
+  if (!child.get()) {
     return;
+  }
 
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -177,15 +191,17 @@ void CefPanelDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
@@ -198,15 +214,17 @@ void CefPanelDelegateCToCpp::OnLayoutChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_layout_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_layout_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_layout_changed(_struct, CefViewCppToC::Wrap(view), &new_bounds);
@@ -218,15 +236,17 @@ void CefPanelDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
@@ -238,15 +258,17 @@ void CefPanelDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_blur))
+  if (CEF_MEMBER_MISSING(_struct, on_blur)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_blur(_struct, CefViewCppToC::Wrap(view));

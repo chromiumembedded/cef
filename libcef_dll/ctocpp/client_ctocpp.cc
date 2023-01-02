@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=71c2e9dd248276daa80be557773fe86bdc2bcb99$
+// $hash=b9ac525a8ecae9a1219679e5d08b9a05c03e769a$
 //
 
 #include "libcef_dll/ctocpp/client_ctocpp.h"
@@ -40,8 +40,9 @@
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefAudioHandler> CefClientCToCpp::GetAudioHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_audio_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_audio_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -55,8 +56,9 @@ CefRefPtr<CefAudioHandler> CefClientCToCpp::GetAudioHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefCommandHandler> CefClientCToCpp::GetCommandHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_command_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_command_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -70,8 +72,9 @@ CefRefPtr<CefCommandHandler> CefClientCToCpp::GetCommandHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_context_menu_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_context_menu_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -86,8 +89,9 @@ CefRefPtr<CefContextMenuHandler> CefClientCToCpp::GetContextMenuHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDialogHandler> CefClientCToCpp::GetDialogHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_dialog_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_dialog_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -101,8 +105,9 @@ CefRefPtr<CefDialogHandler> CefClientCToCpp::GetDialogHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_display_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_display_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -116,8 +121,9 @@ CefRefPtr<CefDisplayHandler> CefClientCToCpp::GetDisplayHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDownloadHandler> CefClientCToCpp::GetDownloadHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_download_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_download_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -131,8 +137,9 @@ CefRefPtr<CefDownloadHandler> CefClientCToCpp::GetDownloadHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_drag_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_drag_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -146,8 +153,9 @@ CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_find_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_find_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -161,8 +169,9 @@ CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_focus_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_focus_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -176,8 +185,9 @@ CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefFrameHandler> CefClientCToCpp::GetFrameHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_frame_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_frame_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -191,8 +201,9 @@ CefRefPtr<CefFrameHandler> CefClientCToCpp::GetFrameHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_permission_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_permission_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -206,8 +217,9 @@ CefRefPtr<CefPermissionHandler> CefClientCToCpp::GetPermissionHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_jsdialog_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_jsdialog_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -221,8 +233,9 @@ CefRefPtr<CefJSDialogHandler> CefClientCToCpp::GetJSDialogHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_keyboard_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_keyboard_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -236,8 +249,9 @@ CefRefPtr<CefKeyboardHandler> CefClientCToCpp::GetKeyboardHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_life_span_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_life_span_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -251,8 +265,9 @@ CefRefPtr<CefLifeSpanHandler> CefClientCToCpp::GetLifeSpanHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_load_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_load_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -266,8 +281,9 @@ CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_print_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_print_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -281,8 +297,9 @@ CefRefPtr<CefPrintHandler> CefClientCToCpp::GetPrintHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_render_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_render_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -296,8 +313,9 @@ CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler() {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_request_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_request_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -315,23 +333,27 @@ bool CefClientCToCpp::OnProcessMessageReceived(
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   cef_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_process_message_received))
+  if (CEF_MEMBER_MISSING(_struct, on_process_message_received)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: message; type: refptr_diff
   DCHECK(message.get());
-  if (!message.get())
+  if (!message.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_process_message_received(

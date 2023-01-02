@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7c1bd7fe9f9c91bc488299a2278f83a0850befe7$
+// $hash=fe298b392c12586863032c597c4b2f9c3b264b1d$
 //
 
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
@@ -54,12 +54,14 @@ int CEF_CALLBACK task_runner_is_same(struct _cef_task_runner_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -76,8 +78,9 @@ task_runner_belongs_to_current_thread(struct _cef_task_runner_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTaskRunnerCppToC::Get(self)->BelongsToCurrentThread();
@@ -93,8 +96,9 @@ int CEF_CALLBACK task_runner_belongs_to_thread(struct _cef_task_runner_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTaskRunnerCppToC::Get(self)->BelongsToThread(threadId);
@@ -110,12 +114,14 @@ int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: task; type: refptr_diff
   DCHECK(task);
-  if (!task)
+  if (!task) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -133,12 +139,14 @@ int CEF_CALLBACK task_runner_post_delayed_task(struct _cef_task_runner_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: task; type: refptr_diff
   DCHECK(task);
-  if (!task)
+  if (!task) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTaskRunnerCppToC::Get(self)->PostDelayedTask(

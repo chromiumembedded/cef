@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=057910c31bf56f3bb5def469638942802300c7d8$
+// $hash=48281bb0de6e38b45f5dbc60bf7609b476241d76$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
@@ -26,15 +26,17 @@ bool CefNavigationEntryVisitorCToCpp::Visit(CefRefPtr<CefNavigationEntry> entry,
   shutdown_checker::AssertNotShutdown();
 
   cef_navigation_entry_visitor_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, visit))
+  if (CEF_MEMBER_MISSING(_struct, visit)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: entry; type: refptr_diff
   DCHECK(entry.get());
-  if (!entry.get())
+  if (!entry.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->visit(_struct, CefNavigationEntryCppToC::Wrap(entry),

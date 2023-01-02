@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4cad301694f35ea716d7c4376252140fcb0d78f$
+// $hash=bb85a1fcd9a95568fc9887f490e817ccb67a2971$
 //
 
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
@@ -27,8 +27,9 @@ domdocument_get_type(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return DOM_DOCUMENT_TYPE_UNKNOWN;
+  }
 
   // Execute
   cef_dom_document_type_t _retval = CefDOMDocumentCppToC::Get(self)->GetType();
@@ -44,8 +45,9 @@ domdocument_get_document(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDOMNode> _retval =
@@ -62,8 +64,9 @@ domdocument_get_body(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDOMNode> _retval = CefDOMDocumentCppToC::Get(self)->GetBody();
@@ -79,8 +82,9 @@ domdocument_get_head(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDOMNode> _retval = CefDOMDocumentCppToC::Get(self)->GetHead();
@@ -96,8 +100,9 @@ domdocument_get_title(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDOMDocumentCppToC::Get(self)->GetTitle();
@@ -114,12 +119,14 @@ domdocument_get_element_by_id(struct _cef_domdocument_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: id; type: string_byref_const
   DCHECK(id);
-  if (!id)
+  if (!id) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDOMNode> _retval =
@@ -136,8 +143,9 @@ domdocument_get_focused_node(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDOMNode> _retval =
@@ -153,8 +161,9 @@ int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDOMDocumentCppToC::Get(self)->HasSelection();
@@ -170,8 +179,9 @@ domdocument_get_selection_start_offset(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefDOMDocumentCppToC::Get(self)->GetSelectionStartOffset();
@@ -187,8 +197,9 @@ domdocument_get_selection_end_offset(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefDOMDocumentCppToC::Get(self)->GetSelectionEndOffset();
@@ -204,8 +215,9 @@ domdocument_get_selection_as_markup(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDOMDocumentCppToC::Get(self)->GetSelectionAsMarkup();
@@ -221,8 +233,9 @@ domdocument_get_selection_as_text(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDOMDocumentCppToC::Get(self)->GetSelectionAsText();
@@ -238,8 +251,9 @@ domdocument_get_base_url(struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDOMDocumentCppToC::Get(self)->GetBaseURL();
@@ -256,12 +270,14 @@ domdocument_get_complete_url(struct _cef_domdocument_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: partialURL; type: string_byref_const
   DCHECK(partialURL);
-  if (!partialURL)
+  if (!partialURL) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =

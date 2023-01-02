@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bcf73c22701825bb552e78ece2e62c1e6b8da282$
+// $hash=4870e3ecf7cc7455aeeb82cbc545f01a248b3306$
 //
 
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
@@ -23,8 +23,9 @@ v8exception_get_message(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefV8ExceptionCppToC::Get(self)->GetMessage();
@@ -38,8 +39,9 @@ v8exception_get_source_line(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefV8ExceptionCppToC::Get(self)->GetSourceLine();
@@ -53,8 +55,9 @@ v8exception_get_script_resource_name(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefV8ExceptionCppToC::Get(self)->GetScriptResourceName();
@@ -67,8 +70,9 @@ int CEF_CALLBACK v8exception_get_line_number(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8ExceptionCppToC::Get(self)->GetLineNumber();
@@ -82,8 +86,9 @@ v8exception_get_start_position(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8ExceptionCppToC::Get(self)->GetStartPosition();
@@ -96,8 +101,9 @@ int CEF_CALLBACK v8exception_get_end_position(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8ExceptionCppToC::Get(self)->GetEndPosition();
@@ -110,8 +116,9 @@ int CEF_CALLBACK v8exception_get_start_column(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8ExceptionCppToC::Get(self)->GetStartColumn();
@@ -124,8 +131,9 @@ int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8ExceptionCppToC::Get(self)->GetEndColumn();

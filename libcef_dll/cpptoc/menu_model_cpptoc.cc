@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=35aefc41633fb28f0514698177709a0416d3226c$
+// $hash=7b74378527d1d6e92b30248f25704ef262106e6d$
 //
 
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
@@ -26,8 +26,9 @@ CEF_EXPORT cef_menu_model_t* cef_menu_model_create(
 
   // Verify param: delegate; type: refptr_diff
   DCHECK(delegate);
-  if (!delegate)
+  if (!delegate) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuModel> _retval =
@@ -47,8 +48,9 @@ int CEF_CALLBACK menu_model_is_sub_menu(struct _cef_menu_model_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsSubMenu();
@@ -63,8 +65,9 @@ int CEF_CALLBACK menu_model_clear(struct _cef_menu_model_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->Clear();
@@ -79,8 +82,9 @@ size_t CEF_CALLBACK menu_model_get_count(struct _cef_menu_model_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefMenuModelCppToC::Get(self)->GetCount();
@@ -95,8 +99,9 @@ int CEF_CALLBACK menu_model_add_separator(struct _cef_menu_model_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->AddSeparator();
@@ -113,12 +118,14 @@ int CEF_CALLBACK menu_model_add_item(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -136,12 +143,14 @@ int CEF_CALLBACK menu_model_add_check_item(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -160,12 +169,14 @@ int CEF_CALLBACK menu_model_add_radio_item(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->AddRadioItem(
@@ -184,12 +195,14 @@ menu_model_add_sub_menu(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuModel> _retval =
@@ -206,8 +219,9 @@ int CEF_CALLBACK menu_model_insert_separator_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->InsertSeparatorAt(index);
@@ -225,12 +239,14 @@ int CEF_CALLBACK menu_model_insert_item_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->InsertItemAt(index, command_id,
@@ -249,12 +265,14 @@ int CEF_CALLBACK menu_model_insert_check_item_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->InsertCheckItemAt(
@@ -274,12 +292,14 @@ int CEF_CALLBACK menu_model_insert_radio_item_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->InsertRadioItemAt(
@@ -299,12 +319,14 @@ menu_model_insert_sub_menu_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuModel> _retval =
@@ -322,8 +344,9 @@ int CEF_CALLBACK menu_model_remove(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->Remove(command_id);
@@ -339,8 +362,9 @@ int CEF_CALLBACK menu_model_remove_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->RemoveAt(index);
@@ -356,8 +380,9 @@ int CEF_CALLBACK menu_model_get_index_of(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefMenuModelCppToC::Get(self)->GetIndexOf(command_id);
@@ -373,8 +398,9 @@ int CEF_CALLBACK menu_model_get_command_id_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefMenuModelCppToC::Get(self)->GetCommandIdAt(index);
@@ -391,8 +417,9 @@ int CEF_CALLBACK menu_model_set_command_id_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -409,8 +436,9 @@ menu_model_get_label(struct _cef_menu_model_t* self, int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMenuModelCppToC::Get(self)->GetLabel(command_id);
@@ -426,8 +454,9 @@ menu_model_get_label_at(struct _cef_menu_model_t* self, size_t index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMenuModelCppToC::Get(self)->GetLabelAt(index);
@@ -444,12 +473,14 @@ int CEF_CALLBACK menu_model_set_label(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -467,12 +498,14 @@ int CEF_CALLBACK menu_model_set_label_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: label; type: string_byref_const
   DCHECK(label);
-  if (!label)
+  if (!label) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -489,8 +522,9 @@ menu_model_get_type(struct _cef_menu_model_t* self, int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return MENUITEMTYPE_NONE;
+  }
 
   // Execute
   cef_menu_item_type_t _retval =
@@ -507,8 +541,9 @@ menu_model_get_type_at(struct _cef_menu_model_t* self, size_t index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return MENUITEMTYPE_NONE;
+  }
 
   // Execute
   cef_menu_item_type_t _retval =
@@ -525,8 +560,9 @@ int CEF_CALLBACK menu_model_get_group_id(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefMenuModelCppToC::Get(self)->GetGroupId(command_id);
@@ -542,8 +578,9 @@ int CEF_CALLBACK menu_model_get_group_id_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefMenuModelCppToC::Get(self)->GetGroupIdAt(index);
@@ -560,8 +597,9 @@ int CEF_CALLBACK menu_model_set_group_id(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -579,8 +617,9 @@ int CEF_CALLBACK menu_model_set_group_id_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetGroupIdAt(index, group_id);
@@ -596,8 +635,9 @@ menu_model_get_sub_menu(struct _cef_menu_model_t* self, int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuModel> _retval =
@@ -614,8 +654,9 @@ menu_model_get_sub_menu_at(struct _cef_menu_model_t* self, size_t index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMenuModel> _retval =
@@ -632,8 +673,9 @@ int CEF_CALLBACK menu_model_is_visible(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsVisible(command_id);
@@ -649,8 +691,9 @@ int CEF_CALLBACK menu_model_is_visible_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsVisibleAt(index);
@@ -667,8 +710,9 @@ int CEF_CALLBACK menu_model_set_visible(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetVisible(
@@ -686,8 +730,9 @@ int CEF_CALLBACK menu_model_set_visible_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetVisibleAt(
@@ -704,8 +749,9 @@ int CEF_CALLBACK menu_model_is_enabled(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsEnabled(command_id);
@@ -721,8 +767,9 @@ int CEF_CALLBACK menu_model_is_enabled_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsEnabledAt(index);
@@ -739,8 +786,9 @@ int CEF_CALLBACK menu_model_set_enabled(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetEnabled(
@@ -758,8 +806,9 @@ int CEF_CALLBACK menu_model_set_enabled_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetEnabledAt(
@@ -776,8 +825,9 @@ int CEF_CALLBACK menu_model_is_checked(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsChecked(command_id);
@@ -793,8 +843,9 @@ int CEF_CALLBACK menu_model_is_checked_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->IsCheckedAt(index);
@@ -811,8 +862,9 @@ int CEF_CALLBACK menu_model_set_checked(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetChecked(
@@ -830,8 +882,9 @@ int CEF_CALLBACK menu_model_set_checked_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetCheckedAt(
@@ -848,8 +901,9 @@ int CEF_CALLBACK menu_model_has_accelerator(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->HasAccelerator(command_id);
@@ -865,8 +919,9 @@ int CEF_CALLBACK menu_model_has_accelerator_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->HasAcceleratorAt(index);
@@ -886,8 +941,9 @@ int CEF_CALLBACK menu_model_set_accelerator(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetAccelerator(
@@ -909,8 +965,9 @@ int CEF_CALLBACK menu_model_set_accelerator_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->SetAcceleratorAt(
@@ -928,8 +985,9 @@ int CEF_CALLBACK menu_model_remove_accelerator(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->RemoveAccelerator(command_id);
@@ -945,8 +1003,9 @@ menu_model_remove_accelerator_at(struct _cef_menu_model_t* self, size_t index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMenuModelCppToC::Get(self)->RemoveAcceleratorAt(index);
@@ -966,24 +1025,29 @@ int CEF_CALLBACK menu_model_get_accelerator(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: key_code; type: simple_byref
   DCHECK(key_code);
-  if (!key_code)
+  if (!key_code) {
     return 0;
+  }
   // Verify param: shift_pressed; type: bool_byref
   DCHECK(shift_pressed);
-  if (!shift_pressed)
+  if (!shift_pressed) {
     return 0;
+  }
   // Verify param: ctrl_pressed; type: bool_byref
   DCHECK(ctrl_pressed);
-  if (!ctrl_pressed)
+  if (!ctrl_pressed) {
     return 0;
+  }
   // Verify param: alt_pressed; type: bool_byref
   DCHECK(alt_pressed);
-  if (!alt_pressed)
+  if (!alt_pressed) {
     return 0;
+  }
 
   // Translate param: key_code; type: simple_byref
   int key_codeVal = key_code ? *key_code : 0;
@@ -1000,17 +1064,21 @@ int CEF_CALLBACK menu_model_get_accelerator(struct _cef_menu_model_t* self,
       alt_pressedBool);
 
   // Restore param: key_code; type: simple_byref
-  if (key_code)
+  if (key_code) {
     *key_code = key_codeVal;
+  }
   // Restore param: shift_pressed; type: bool_byref
-  if (shift_pressed)
+  if (shift_pressed) {
     *shift_pressed = shift_pressedBool ? true : false;
+  }
   // Restore param: ctrl_pressed; type: bool_byref
-  if (ctrl_pressed)
+  if (ctrl_pressed) {
     *ctrl_pressed = ctrl_pressedBool ? true : false;
+  }
   // Restore param: alt_pressed; type: bool_byref
-  if (alt_pressed)
+  if (alt_pressed) {
     *alt_pressed = alt_pressedBool ? true : false;
+  }
 
   // Return type: bool
   return _retval;
@@ -1027,24 +1095,29 @@ int CEF_CALLBACK menu_model_get_accelerator_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: key_code; type: simple_byref
   DCHECK(key_code);
-  if (!key_code)
+  if (!key_code) {
     return 0;
+  }
   // Verify param: shift_pressed; type: bool_byref
   DCHECK(shift_pressed);
-  if (!shift_pressed)
+  if (!shift_pressed) {
     return 0;
+  }
   // Verify param: ctrl_pressed; type: bool_byref
   DCHECK(ctrl_pressed);
-  if (!ctrl_pressed)
+  if (!ctrl_pressed) {
     return 0;
+  }
   // Verify param: alt_pressed; type: bool_byref
   DCHECK(alt_pressed);
-  if (!alt_pressed)
+  if (!alt_pressed) {
     return 0;
+  }
 
   // Translate param: key_code; type: simple_byref
   int key_codeVal = key_code ? *key_code : 0;
@@ -1060,17 +1133,21 @@ int CEF_CALLBACK menu_model_get_accelerator_at(struct _cef_menu_model_t* self,
       index, key_codeVal, shift_pressedBool, ctrl_pressedBool, alt_pressedBool);
 
   // Restore param: key_code; type: simple_byref
-  if (key_code)
+  if (key_code) {
     *key_code = key_codeVal;
+  }
   // Restore param: shift_pressed; type: bool_byref
-  if (shift_pressed)
+  if (shift_pressed) {
     *shift_pressed = shift_pressedBool ? true : false;
+  }
   // Restore param: ctrl_pressed; type: bool_byref
-  if (ctrl_pressed)
+  if (ctrl_pressed) {
     *ctrl_pressed = ctrl_pressedBool ? true : false;
+  }
   // Restore param: alt_pressed; type: bool_byref
-  if (alt_pressed)
+  if (alt_pressed) {
     *alt_pressed = alt_pressedBool ? true : false;
+  }
 
   // Return type: bool
   return _retval;
@@ -1085,8 +1162,9 @@ int CEF_CALLBACK menu_model_set_color(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1105,8 +1183,9 @@ int CEF_CALLBACK menu_model_set_color_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -1125,12 +1204,14 @@ int CEF_CALLBACK menu_model_get_color(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: color; type: simple_byref
   DCHECK(color);
-  if (!color)
+  if (!color) {
     return 0;
+  }
 
   // Translate param: color; type: simple_byref
   cef_color_t colorVal = color ? *color : 0;
@@ -1140,8 +1221,9 @@ int CEF_CALLBACK menu_model_get_color(struct _cef_menu_model_t* self,
       CefMenuModelCppToC::Get(self)->GetColor(command_id, color_type, colorVal);
 
   // Restore param: color; type: simple_byref
-  if (color)
+  if (color) {
     *color = colorVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1156,12 +1238,14 @@ int CEF_CALLBACK menu_model_get_color_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: color; type: simple_byref
   DCHECK(color);
-  if (!color)
+  if (!color) {
     return 0;
+  }
 
   // Translate param: color; type: simple_byref
   cef_color_t colorVal = color ? *color : 0;
@@ -1171,8 +1255,9 @@ int CEF_CALLBACK menu_model_get_color_at(struct _cef_menu_model_t* self,
       CefMenuModelCppToC::Get(self)->GetColorAt(index, color_type, colorVal);
 
   // Restore param: color; type: simple_byref
-  if (color)
+  if (color) {
     *color = colorVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -1186,8 +1271,9 @@ int CEF_CALLBACK menu_model_set_font_list(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: font_list
 
   // Execute
@@ -1206,8 +1292,9 @@ int CEF_CALLBACK menu_model_set_font_list_at(struct _cef_menu_model_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: font_list
 
   // Execute

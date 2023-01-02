@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c028de29ae5b48ed41d4e8b8ae3df9a0ee765e14$
+// $hash=c8d002bda0c13dc943bc13dc03162e4caea2598d$
 //
 
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -25,12 +25,14 @@ scheme_registrar_add_custom_scheme(struct _cef_scheme_registrar_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
-  if (!scheme_name)
+  if (!scheme_name) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefSchemeRegistrarCppToC::Get(self)->AddCustomScheme(

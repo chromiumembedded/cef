@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9975067d09206080d5237a7d1e8dd70155deb554$
+// $hash=ae28647ac7b24fd9581981aab2e1b27b9efca355$
 //
 
 #include "libcef_dll/cpptoc/thread_cpptoc.h"
@@ -50,8 +50,9 @@ thread_get_task_runner(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTaskRunner> _retval =
@@ -68,8 +69,9 @@ thread_get_platform_thread_id(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return kInvalidPlatformThreadId;
+  }
 
   // Execute
   cef_platform_thread_id_t _retval =
@@ -85,8 +87,9 @@ void CEF_CALLBACK thread_stop(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefThreadCppToC::Get(self)->Stop();
@@ -98,8 +101,9 @@ int CEF_CALLBACK thread_is_running(struct _cef_thread_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefThreadCppToC::Get(self)->IsRunning();

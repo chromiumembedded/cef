@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b8c6bf91bf16cb696121e7d304c21fbcdc927ffd$
+// $hash=5b181bf741072399ceb3c21ad010ce2bed04aab3$
 //
 
 #include "libcef_dll/cpptoc/shared_memory_region_cpptoc.h"
@@ -26,8 +26,9 @@ shared_memory_region_is_valid(struct _cef_shared_memory_region_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefSharedMemoryRegionCppToC::Get(self)->IsValid();
@@ -43,8 +44,9 @@ shared_memory_region_size(struct _cef_shared_memory_region_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefSharedMemoryRegionCppToC::Get(self)->Size();
@@ -57,13 +59,12 @@ const void* CEF_CALLBACK
 shared_memory_region_memory(struct _cef_shared_memory_region_t* self) {
   shutdown_checker::AssertNotShutdown();
 
-  shutdown_checker::AssertNotShutdown();
-
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
-    return 0;
+  if (!self) {
+    return NULL;
+  }
 
   // Execute
   const void* _retval = CefSharedMemoryRegionCppToC::Get(self)->Memory();

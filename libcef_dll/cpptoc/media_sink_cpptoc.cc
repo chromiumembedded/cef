@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=59c15e457142b252222f01e36ea626bed5ed2b7a$
+// $hash=e574ca5c4349122acd1409b0622bd0aa72dce8b6$
 //
 
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"
@@ -28,8 +28,9 @@ media_sink_get_id(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMediaSinkCppToC::Get(self)->GetId();
@@ -45,8 +46,9 @@ media_sink_get_name(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMediaSinkCppToC::Get(self)->GetName();
@@ -62,8 +64,9 @@ media_sink_get_description(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMediaSinkCppToC::Get(self)->GetDescription();
@@ -79,8 +82,9 @@ media_sink_get_icon_type(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CEF_MSIT_GENERIC;
+  }
 
   // Execute
   cef_media_sink_icon_type_t _retval =
@@ -98,12 +102,14 @@ void CEF_CALLBACK media_sink_get_device_info(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   // Execute
   CefMediaSinkCppToC::Get(self)->GetDeviceInfo(
@@ -116,8 +122,9 @@ int CEF_CALLBACK media_sink_is_cast_sink(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMediaSinkCppToC::Get(self)->IsCastSink();
@@ -132,8 +139,9 @@ int CEF_CALLBACK media_sink_is_dial_sink(struct _cef_media_sink_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMediaSinkCppToC::Get(self)->IsDialSink();
@@ -150,12 +158,14 @@ media_sink_is_compatible_with(struct _cef_media_sink_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: source; type: refptr_same
   DCHECK(source);
-  if (!source)
+  if (!source) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMediaSinkCppToC::Get(self)->IsCompatibleWith(

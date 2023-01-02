@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5fb43e3f68ef5f431fe6d6f84d399dc0cd292d7d$
+// $hash=41198a9138698a683a4d2d7e3fd8a6116cdd3923$
 //
 
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
@@ -60,8 +60,9 @@ v8context_get_task_runner(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTaskRunner> _retval =
@@ -75,8 +76,9 @@ int CEF_CALLBACK v8context_is_valid(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8ContextCppToC::Get(self)->IsValid();
@@ -90,8 +92,9 @@ v8context_get_browser(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowser> _retval = CefV8ContextCppToC::Get(self)->GetBrowser();
@@ -104,8 +107,9 @@ cef_frame_t* CEF_CALLBACK v8context_get_frame(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval = CefV8ContextCppToC::Get(self)->GetFrame();
@@ -119,8 +123,9 @@ v8context_get_global(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8ContextCppToC::Get(self)->GetGlobal();
@@ -133,8 +138,9 @@ int CEF_CALLBACK v8context_enter(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8ContextCppToC::Get(self)->Enter();
@@ -147,8 +153,9 @@ int CEF_CALLBACK v8context_exit(struct _cef_v8context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8ContextCppToC::Get(self)->Exit();
@@ -162,12 +169,14 @@ int CEF_CALLBACK v8context_is_same(struct _cef_v8context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -186,31 +195,37 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: code; type: string_byref_const
   DCHECK(code);
-  if (!code)
+  if (!code) {
     return 0;
+  }
   // Verify param: retval; type: refptr_same_byref
   DCHECK(retval);
-  if (!retval)
+  if (!retval) {
     return 0;
+  }
   // Verify param: exception; type: refptr_same_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
   // Unverified params: script_url
 
   // Translate param: retval; type: refptr_same_byref
   CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
+  if (retval && *retval) {
     retvalPtr = CefV8ValueCppToC::Unwrap(*retval);
+  }
   CefV8Value* retvalOrig = retvalPtr.get();
   // Translate param: exception; type: refptr_same_byref
   CefRefPtr<CefV8Exception> exceptionPtr;
-  if (exception && *exception)
+  if (exception && *exception) {
     exceptionPtr = CefV8ExceptionCppToC::Unwrap(*exception);
+  }
   CefV8Exception* exceptionOrig = exceptionPtr.get();
 
   // Execute

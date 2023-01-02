@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bfd836add2381882b8c0408181621ebf24cddce1$
+// $hash=081d829156aaa2d8fbf4dd77c359c6be60f2daf8$
 //
 
 #include "libcef_dll/ctocpp/media_access_callback_ctocpp.h"
@@ -22,8 +22,9 @@ void CefMediaAccessCallbackCToCpp::Continue(uint32 allowed_permissions) {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_access_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -35,8 +36,9 @@ NO_SANITIZE("cfi-icall") void CefMediaAccessCallbackCToCpp::Cancel() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_access_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cancel))
+  if (CEF_MEMBER_MISSING(_struct, cancel)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

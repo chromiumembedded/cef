@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=91327244b4a4c037841a54ea2a06ebe42efe5477$
+// $hash=e8d8216333b81676768e82762ec1da35a19e62f8$
 //
 
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
@@ -28,8 +28,9 @@ layout_as_box_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBoxLayout> _retval = CefLayoutCppToC::Get(self)->AsBoxLayout();
@@ -45,8 +46,9 @@ layout_as_fill_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFillLayout> _retval = CefLayoutCppToC::Get(self)->AsFillLayout();
@@ -61,8 +63,9 @@ int CEF_CALLBACK layout_is_valid(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefLayoutCppToC::Get(self)->IsValid();

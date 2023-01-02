@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=208b9651cb7a357f7665e6d449c6ba974dfae9e3$
+// $hash=a7d0c28420e88fe055cc18eda55d9cae1f3ee33f$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
@@ -28,12 +28,14 @@ size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefWriteHandlerCppToC::Get(self)->Write(ptr, size, n);
@@ -50,8 +52,9 @@ int CEF_CALLBACK write_handler_seek(struct _cef_write_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefWriteHandlerCppToC::Get(self)->Seek(offset, whence);
@@ -66,8 +69,9 @@ int64 CEF_CALLBACK write_handler_tell(struct _cef_write_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefWriteHandlerCppToC::Get(self)->Tell();
@@ -82,8 +86,9 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefWriteHandlerCppToC::Get(self)->Flush();
@@ -98,8 +103,9 @@ int CEF_CALLBACK write_handler_may_block(struct _cef_write_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefWriteHandlerCppToC::Get(self)->MayBlock();

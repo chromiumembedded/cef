@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e9ee6df7e0e77e54dea7e2c1e4b24cdc88b79344$
+// $hash=b10ecc805dee1dd8d653276cc2633a5e439b2fa8$
 //
 
 #include "libcef_dll/cpptoc/image_cpptoc.h"
@@ -40,8 +40,9 @@ int CEF_CALLBACK image_is_empty(struct _cef_image_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->IsEmpty();
@@ -57,12 +58,14 @@ int CEF_CALLBACK image_is_same(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -85,12 +88,14 @@ int CEF_CALLBACK image_add_bitmap(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: pixel_data; type: simple_byaddr
   DCHECK(pixel_data);
-  if (!pixel_data)
+  if (!pixel_data) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->AddBitmap(
@@ -110,12 +115,14 @@ int CEF_CALLBACK image_add_png(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: png_data; type: simple_byaddr
   DCHECK(png_data);
-  if (!png_data)
+  if (!png_data) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -134,12 +141,14 @@ int CEF_CALLBACK image_add_jpeg(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: jpeg_data; type: simple_byaddr
   DCHECK(jpeg_data);
-  if (!jpeg_data)
+  if (!jpeg_data) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->AddJPEG(scale_factor, jpeg_data,
@@ -155,8 +164,9 @@ size_t CEF_CALLBACK image_get_width(struct _cef_image_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefImageCppToC::Get(self)->GetWidth();
@@ -171,8 +181,9 @@ size_t CEF_CALLBACK image_get_height(struct _cef_image_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefImageCppToC::Get(self)->GetHeight();
@@ -188,8 +199,9 @@ int CEF_CALLBACK image_has_representation(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->HasRepresentation(scale_factor);
@@ -205,8 +217,9 @@ int CEF_CALLBACK image_remove_representation(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefImageCppToC::Get(self)->RemoveRepresentation(scale_factor);
@@ -225,20 +238,24 @@ int CEF_CALLBACK image_get_representation_info(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: actual_scale_factor; type: simple_byref
   DCHECK(actual_scale_factor);
-  if (!actual_scale_factor)
+  if (!actual_scale_factor) {
     return 0;
+  }
   // Verify param: pixel_width; type: simple_byref
   DCHECK(pixel_width);
-  if (!pixel_width)
+  if (!pixel_width) {
     return 0;
+  }
   // Verify param: pixel_height; type: simple_byref
   DCHECK(pixel_height);
-  if (!pixel_height)
+  if (!pixel_height) {
     return 0;
+  }
 
   // Translate param: actual_scale_factor; type: simple_byref
   float actual_scale_factorVal = actual_scale_factor ? *actual_scale_factor : 0;
@@ -252,14 +269,17 @@ int CEF_CALLBACK image_get_representation_info(struct _cef_image_t* self,
       scale_factor, actual_scale_factorVal, pixel_widthVal, pixel_heightVal);
 
   // Restore param: actual_scale_factor; type: simple_byref
-  if (actual_scale_factor)
+  if (actual_scale_factor) {
     *actual_scale_factor = actual_scale_factorVal;
+  }
   // Restore param: pixel_width; type: simple_byref
-  if (pixel_width)
+  if (pixel_width) {
     *pixel_width = pixel_widthVal;
+  }
   // Restore param: pixel_height; type: simple_byref
-  if (pixel_height)
+  if (pixel_height) {
     *pixel_height = pixel_heightVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -277,16 +297,19 @@ image_get_as_bitmap(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: pixel_width; type: simple_byref
   DCHECK(pixel_width);
-  if (!pixel_width)
+  if (!pixel_width) {
     return NULL;
+  }
   // Verify param: pixel_height; type: simple_byref
   DCHECK(pixel_height);
-  if (!pixel_height)
+  if (!pixel_height) {
     return NULL;
+  }
 
   // Translate param: pixel_width; type: simple_byref
   int pixel_widthVal = pixel_width ? *pixel_width : 0;
@@ -298,11 +321,13 @@ image_get_as_bitmap(struct _cef_image_t* self,
       scale_factor, color_type, alpha_type, pixel_widthVal, pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
-  if (pixel_width)
+  if (pixel_width) {
     *pixel_width = pixel_widthVal;
+  }
   // Restore param: pixel_height; type: simple_byref
-  if (pixel_height)
+  if (pixel_height) {
     *pixel_height = pixel_heightVal;
+  }
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
@@ -319,16 +344,19 @@ image_get_as_png(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: pixel_width; type: simple_byref
   DCHECK(pixel_width);
-  if (!pixel_width)
+  if (!pixel_width) {
     return NULL;
+  }
   // Verify param: pixel_height; type: simple_byref
   DCHECK(pixel_height);
-  if (!pixel_height)
+  if (!pixel_height) {
     return NULL;
+  }
 
   // Translate param: pixel_width; type: simple_byref
   int pixel_widthVal = pixel_width ? *pixel_width : 0;
@@ -341,11 +369,13 @@ image_get_as_png(struct _cef_image_t* self,
       pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
-  if (pixel_width)
+  if (pixel_width) {
     *pixel_width = pixel_widthVal;
+  }
   // Restore param: pixel_height; type: simple_byref
-  if (pixel_height)
+  if (pixel_height) {
     *pixel_height = pixel_heightVal;
+  }
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);
@@ -362,16 +392,19 @@ image_get_as_jpeg(struct _cef_image_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: pixel_width; type: simple_byref
   DCHECK(pixel_width);
-  if (!pixel_width)
+  if (!pixel_width) {
     return NULL;
+  }
   // Verify param: pixel_height; type: simple_byref
   DCHECK(pixel_height);
-  if (!pixel_height)
+  if (!pixel_height) {
     return NULL;
+  }
 
   // Translate param: pixel_width; type: simple_byref
   int pixel_widthVal = pixel_width ? *pixel_width : 0;
@@ -383,11 +416,13 @@ image_get_as_jpeg(struct _cef_image_t* self,
       scale_factor, quality, pixel_widthVal, pixel_heightVal);
 
   // Restore param: pixel_width; type: simple_byref
-  if (pixel_width)
+  if (pixel_width) {
     *pixel_width = pixel_widthVal;
+  }
   // Restore param: pixel_height; type: simple_byref
-  if (pixel_height)
+  if (pixel_height) {
     *pixel_height = pixel_heightVal;
+  }
 
   // Return type: refptr_same
   return CefBinaryValueCppToC::Wrap(_retval);

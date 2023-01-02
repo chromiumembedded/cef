@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3f24789c79862889b5a0454c743bf70f71a98faf$
+// $hash=632d5681b71f4729ae9b56380eab24dfc49eda3a$
 //
 
 #include "libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h"
@@ -28,8 +28,9 @@ void CEF_CALLBACK get_extension_resource_callback_cont(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: stream
 
   // Execute
@@ -44,8 +45,9 @@ void CEF_CALLBACK get_extension_resource_callback_cancel(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefGetExtensionResourceCallbackCppToC::Get(self)->Cancel();

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a14c40cc86f5fd61d548d981c99c59a559619eda$
+// $hash=74bf4d64d8bff289328a21b486d9848e39307f19$
 //
 
 #include "libcef_dll/ctocpp/server_handler_ctocpp.h"
@@ -25,15 +25,17 @@ void CefServerHandlerCToCpp::OnServerCreated(CefRefPtr<CefServer> server) {
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_server_created))
+  if (CEF_MEMBER_MISSING(_struct, on_server_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
 
   // Execute
   _struct->on_server_created(_struct, CefServerCppToC::Wrap(server));
@@ -44,15 +46,17 @@ void CefServerHandlerCToCpp::OnServerDestroyed(CefRefPtr<CefServer> server) {
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_server_destroyed))
+  if (CEF_MEMBER_MISSING(_struct, on_server_destroyed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
 
   // Execute
   _struct->on_server_destroyed(_struct, CefServerCppToC::Wrap(server));
@@ -64,15 +68,17 @@ void CefServerHandlerCToCpp::OnClientConnected(CefRefPtr<CefServer> server,
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_client_connected))
+  if (CEF_MEMBER_MISSING(_struct, on_client_connected)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
 
   // Execute
   _struct->on_client_connected(_struct, CefServerCppToC::Wrap(server),
@@ -85,15 +91,17 @@ void CefServerHandlerCToCpp::OnClientDisconnected(CefRefPtr<CefServer> server,
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_client_disconnected))
+  if (CEF_MEMBER_MISSING(_struct, on_client_disconnected)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
 
   // Execute
   _struct->on_client_disconnected(_struct, CefServerCppToC::Wrap(server),
@@ -108,23 +116,27 @@ void CefServerHandlerCToCpp::OnHttpRequest(CefRefPtr<CefServer> server,
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_http_request))
+  if (CEF_MEMBER_MISSING(_struct, on_http_request)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
   // Verify param: client_address; type: string_byref_const
   DCHECK(!client_address.empty());
-  if (client_address.empty())
+  if (client_address.empty()) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
 
   // Execute
   _struct->on_http_request(_struct, CefServerCppToC::Wrap(server),
@@ -142,27 +154,32 @@ void CefServerHandlerCToCpp::OnWebSocketRequest(
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_web_socket_request))
+  if (CEF_MEMBER_MISSING(_struct, on_web_socket_request)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
   // Verify param: client_address; type: string_byref_const
   DCHECK(!client_address.empty());
-  if (client_address.empty())
+  if (client_address.empty()) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return;
+  }
 
   // Execute
   _struct->on_web_socket_request(_struct, CefServerCppToC::Wrap(server),
@@ -177,15 +194,17 @@ void CefServerHandlerCToCpp::OnWebSocketConnected(CefRefPtr<CefServer> server,
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_web_socket_connected))
+  if (CEF_MEMBER_MISSING(_struct, on_web_socket_connected)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
 
   // Execute
   _struct->on_web_socket_connected(_struct, CefServerCppToC::Wrap(server),
@@ -200,19 +219,22 @@ void CefServerHandlerCToCpp::OnWebSocketMessage(CefRefPtr<CefServer> server,
   shutdown_checker::AssertNotShutdown();
 
   cef_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_web_socket_message))
+  if (CEF_MEMBER_MISSING(_struct, on_web_socket_message)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   _struct->on_web_socket_message(_struct, CefServerCppToC::Wrap(server),

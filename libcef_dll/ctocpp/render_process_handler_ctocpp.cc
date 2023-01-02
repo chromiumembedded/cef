@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a75829d0f47e772086a586f213cfdfe54ff5554c$
+// $hash=a6f27ab9f9842ab192ea253a5e66aea4e37466f8$
 //
 
 #include "libcef_dll/ctocpp/render_process_handler_ctocpp.h"
@@ -28,8 +28,9 @@
 NO_SANITIZE("cfi-icall")
 void CefRenderProcessHandlerCToCpp::OnWebKitInitialized() {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_web_kit_initialized))
+  if (CEF_MEMBER_MISSING(_struct, on_web_kit_initialized)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -42,15 +43,17 @@ void CefRenderProcessHandlerCToCpp::OnBrowserCreated(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDictionaryValue> extra_info) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_browser_created))
+  if (CEF_MEMBER_MISSING(_struct, on_browser_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Unverified params: extra_info
 
   // Execute
@@ -62,15 +65,17 @@ NO_SANITIZE("cfi-icall")
 void CefRenderProcessHandlerCToCpp::OnBrowserDestroyed(
     CefRefPtr<CefBrowser> browser) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_browser_destroyed))
+  if (CEF_MEMBER_MISSING(_struct, on_browser_destroyed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_browser_destroyed(_struct, CefBrowserCppToC::Wrap(browser));
@@ -79,8 +84,9 @@ void CefRenderProcessHandlerCToCpp::OnBrowserDestroyed(
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefLoadHandler> CefRenderProcessHandlerCToCpp::GetLoadHandler() {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_load_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_load_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -97,23 +103,27 @@ void CefRenderProcessHandlerCToCpp::OnContextCreated(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefV8Context> context) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_context_created))
+  if (CEF_MEMBER_MISSING(_struct, on_context_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context.get());
-  if (!context.get())
+  if (!context.get()) {
     return;
+  }
 
   // Execute
   _struct->on_context_created(_struct, CefBrowserCppToC::Wrap(browser),
@@ -127,23 +137,27 @@ void CefRenderProcessHandlerCToCpp::OnContextReleased(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefV8Context> context) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_context_released))
+  if (CEF_MEMBER_MISSING(_struct, on_context_released)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context.get());
-  if (!context.get())
+  if (!context.get()) {
     return;
+  }
 
   // Execute
   _struct->on_context_released(_struct, CefBrowserCppToC::Wrap(browser),
@@ -159,31 +173,37 @@ void CefRenderProcessHandlerCToCpp::OnUncaughtException(
     CefRefPtr<CefV8Exception> exception,
     CefRefPtr<CefV8StackTrace> stackTrace) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_uncaught_exception))
+  if (CEF_MEMBER_MISSING(_struct, on_uncaught_exception)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context.get());
-  if (!context.get())
+  if (!context.get()) {
     return;
+  }
   // Verify param: exception; type: refptr_diff
   DCHECK(exception.get());
-  if (!exception.get())
+  if (!exception.get()) {
     return;
+  }
   // Verify param: stackTrace; type: refptr_diff
   DCHECK(stackTrace.get());
-  if (!stackTrace.get())
+  if (!stackTrace.get()) {
     return;
+  }
 
   // Execute
   _struct->on_uncaught_exception(
@@ -198,15 +218,17 @@ void CefRenderProcessHandlerCToCpp::OnFocusedNodeChanged(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefDOMNode> node) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_focused_node_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_focused_node_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Unverified params: frame, node
 
   // Execute
@@ -222,23 +244,27 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
   cef_render_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_process_message_received))
+  if (CEF_MEMBER_MISSING(_struct, on_process_message_received)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: message; type: refptr_diff
   DCHECK(message.get());
-  if (!message.get())
+  if (!message.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_process_message_received(

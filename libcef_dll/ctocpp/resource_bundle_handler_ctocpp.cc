@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=12556834893a7ae50b8f8bef2b71915fa1a141ca$
+// $hash=4d903123dd75fca6eec9810c797a4b58b06a9b03$
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
@@ -23,8 +23,9 @@ bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
   shutdown_checker::AssertNotShutdown();
 
   cef_resource_bundle_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_localized_string))
+  if (CEF_MEMBER_MISSING(_struct, get_localized_string)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -43,8 +44,9 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
   shutdown_checker::AssertNotShutdown();
 
   cef_resource_bundle_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_data_resource))
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -65,8 +67,9 @@ bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(
   shutdown_checker::AssertNotShutdown();
 
   cef_resource_bundle_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale))
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

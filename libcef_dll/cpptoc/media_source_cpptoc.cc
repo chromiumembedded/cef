@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=91e3e2f2fb4914cbe8df7a30938f728a3f147fed$
+// $hash=0722c0684e9a958fd4a841994f5ab0db1bc903ff$
 //
 
 #include "libcef_dll/cpptoc/media_source_cpptoc.h"
@@ -26,8 +26,9 @@ media_source_get_id(struct _cef_media_source_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMediaSourceCppToC::Get(self)->GetId();
@@ -42,8 +43,9 @@ int CEF_CALLBACK media_source_is_cast_source(struct _cef_media_source_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMediaSourceCppToC::Get(self)->IsCastSource();
@@ -58,8 +60,9 @@ int CEF_CALLBACK media_source_is_dial_source(struct _cef_media_source_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefMediaSourceCppToC::Get(self)->IsDialSource();

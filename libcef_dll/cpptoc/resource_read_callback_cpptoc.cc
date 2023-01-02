@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9d07f53404d3b90d1e386e37b0ed4535afb57b39$
+// $hash=38393598812c88b7e4a94371a374be0af454713f$
 //
 
 #include "libcef_dll/cpptoc/resource_read_callback_cpptoc.h"
@@ -27,8 +27,9 @@ resource_read_callback_cont(struct _cef_resource_read_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefResourceReadCallbackCppToC::Get(self)->Continue(bytes_read);

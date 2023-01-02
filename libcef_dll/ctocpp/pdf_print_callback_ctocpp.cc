@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=970ecf239bb133f5c62c372762e00ba913e492a2$
+// $hash=f3a80bf42c989064d862e16f34e4ac045b922c0d$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
@@ -23,15 +23,17 @@ void CefPdfPrintCallbackCToCpp::OnPdfPrintFinished(const CefString& path,
   shutdown_checker::AssertNotShutdown();
 
   cef_pdf_print_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_pdf_print_finished))
+  if (CEF_MEMBER_MISSING(_struct, on_pdf_print_finished)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: path; type: string_byref_const
   DCHECK(!path.empty());
-  if (path.empty())
+  if (path.empty()) {
     return;
+  }
 
   // Execute
   _struct->on_pdf_print_finished(_struct, path.GetStruct(), ok);

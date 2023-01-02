@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=765b5a3f3e0ac077f2ff72541ae26ca342c4ca78$
+// $hash=7610357e3d387904c31686a66cfbe344dd80962f$
 //
 
 #include "libcef_dll/ctocpp/delete_cookies_callback_ctocpp.h"
@@ -22,8 +22,9 @@ void CefDeleteCookiesCallbackCToCpp::OnComplete(int num_deleted) {
   shutdown_checker::AssertNotShutdown();
 
   cef_delete_cookies_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_complete))
+  if (CEF_MEMBER_MISSING(_struct, on_complete)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

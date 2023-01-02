@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e7844e97f29fe0bcda8380932ceaa7581539d0e3$
+// $hash=29415424384da3b4a596ce3419826ee54ab73669$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"
@@ -25,15 +25,17 @@ void CefButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {
   shutdown_checker::AssertNotShutdown();
 
   cef_button_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_button_pressed))
+  if (CEF_MEMBER_MISSING(_struct, on_button_pressed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: button; type: refptr_diff
   DCHECK(button.get());
-  if (!button.get())
+  if (!button.get()) {
     return;
+  }
 
   // Execute
   _struct->on_button_pressed(_struct, CefButtonCppToC::Wrap(button));
@@ -45,15 +47,17 @@ void CefButtonDelegateCToCpp::OnButtonStateChanged(
   shutdown_checker::AssertNotShutdown();
 
   cef_button_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_button_state_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_button_state_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: button; type: refptr_diff
   DCHECK(button.get());
-  if (!button.get())
+  if (!button.get()) {
     return;
+  }
 
   // Execute
   _struct->on_button_state_changed(_struct, CefButtonCppToC::Wrap(button));
@@ -65,15 +69,17 @@ CefSize CefButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, get_preferred_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -89,15 +95,17 @@ CefSize CefButtonDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_minimum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -113,15 +121,17 @@ CefSize CefButtonDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_maximum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -138,15 +148,17 @@ int CefButtonDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
+  if (CEF_MEMBER_MISSING(_struct, get_height_for_width)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -164,19 +176,22 @@ void CefButtonDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: parent; type: refptr_diff
   DCHECK(parent.get());
-  if (!parent.get())
+  if (!parent.get()) {
     return;
+  }
 
   // Execute
   _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -191,19 +206,22 @@ void CefButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: child; type: refptr_diff
   DCHECK(child.get());
-  if (!child.get())
+  if (!child.get()) {
     return;
+  }
 
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -217,15 +235,17 @@ void CefButtonDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
@@ -238,15 +258,17 @@ void CefButtonDelegateCToCpp::OnLayoutChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_layout_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_layout_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_layout_changed(_struct, CefViewCppToC::Wrap(view), &new_bounds);
@@ -258,15 +280,17 @@ void CefButtonDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
@@ -278,15 +302,17 @@ void CefButtonDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_blur))
+  if (CEF_MEMBER_MISSING(_struct, on_blur)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_blur(_struct, CefViewCppToC::Wrap(view));

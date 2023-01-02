@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2e7db3a335f170dad7a1793f5695593b8c75d853$
+// $hash=77226fbe14eaa99f4adbf6573d6ee2a8687b936d$
 //
 
 #include "libcef_dll/cpptoc/media_observer_cpptoc.h"
@@ -30,12 +30,14 @@ media_observer_on_sinks(struct _cef_media_observer_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: sinks; type: refptr_vec_diff_byref_const
   DCHECK(sinksCount == 0 || sinks);
-  if (sinksCount > 0 && !sinks)
+  if (sinksCount > 0 && !sinks) {
     return;
+  }
 
   // Translate param: sinks; type: refptr_vec_diff_byref_const
   std::vector<CefRefPtr<CefMediaSink>> sinksList;
@@ -59,12 +61,14 @@ media_observer_on_routes(struct _cef_media_observer_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: routes; type: refptr_vec_diff_byref_const
   DCHECK(routesCount == 0 || routes);
-  if (routesCount > 0 && !routes)
+  if (routesCount > 0 && !routes) {
     return;
+  }
 
   // Translate param: routes; type: refptr_vec_diff_byref_const
   std::vector<CefRefPtr<CefMediaRoute>> routesList;
@@ -88,12 +92,14 @@ void CEF_CALLBACK media_observer_on_route_state_changed(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: route; type: refptr_diff
   DCHECK(route);
-  if (!route)
+  if (!route) {
     return;
+  }
 
   // Execute
   CefMediaObserverCppToC::Get(self)->OnRouteStateChanged(
@@ -110,16 +116,19 @@ media_observer_on_route_message_received(struct _cef_media_observer_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: route; type: refptr_diff
   DCHECK(route);
-  if (!route)
+  if (!route) {
     return;
+  }
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return;
+  }
 
   // Execute
   CefMediaObserverCppToC::Get(self)->OnRouteMessageReceived(

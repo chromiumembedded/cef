@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=99f02c8911b913161cfd3834e19bbdc0ba542409$
+// $hash=d199f58fbd9efb01b375935d0660f8e2f74e630f$
 //
 
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
@@ -27,8 +27,9 @@ set_cookie_callback_on_complete(struct _cef_set_cookie_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefSetCookieCallbackCppToC::Get(self)->OnComplete(success ? true : false);

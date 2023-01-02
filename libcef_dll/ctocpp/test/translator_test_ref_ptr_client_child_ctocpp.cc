@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6aacf410858db1defe08179c985f4466fca2751f$
+// $hash=5f0147c0fd3225a764d914be4cfbe05f3145f59a$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
@@ -22,8 +22,9 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
   shutdown_checker::AssertNotShutdown();
 
   cef_translator_test_ref_ptr_client_child_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_other_value))
+  if (CEF_MEMBER_MISSING(_struct, get_other_value)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -40,8 +41,9 @@ int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
 
   cef_translator_test_ref_ptr_client_t* _struct =
       reinterpret_cast<cef_translator_test_ref_ptr_client_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_value))
+  if (CEF_MEMBER_MISSING(_struct, get_value)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fa5ba1bf14400032e49a447b7fe9dbe9cf1ba397$
+// $hash=cdb4ca04fa51dad19a502395e551f155d7f7670e$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
@@ -19,8 +19,9 @@
 NO_SANITIZE("cfi-icall")
 int CefTranslatorTestScopedClientChildCToCpp::GetOtherValue() {
   cef_translator_test_scoped_client_child_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_other_value))
+  if (CEF_MEMBER_MISSING(_struct, get_other_value)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -35,8 +36,9 @@ NO_SANITIZE("cfi-icall")
 int CefTranslatorTestScopedClientChildCToCpp::GetValue() {
   cef_translator_test_scoped_client_t* _struct =
       reinterpret_cast<cef_translator_test_scoped_client_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_value))
+  if (CEF_MEMBER_MISSING(_struct, get_value)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

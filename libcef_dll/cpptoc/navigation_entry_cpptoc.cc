@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a824ce871b25f19f2af043bd049d2554bd06232b$
+// $hash=3a9dcb524638c4d9230b4513041aa9353db54e7f$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
@@ -27,8 +27,9 @@ navigation_entry_is_valid(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefNavigationEntryCppToC::Get(self)->IsValid();
@@ -44,8 +45,9 @@ navigation_entry_get_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefNavigationEntryCppToC::Get(self)->GetURL();
@@ -61,8 +63,9 @@ navigation_entry_get_display_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefNavigationEntryCppToC::Get(self)->GetDisplayURL();
@@ -78,8 +81,9 @@ navigation_entry_get_original_url(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefNavigationEntryCppToC::Get(self)->GetOriginalURL();
@@ -95,8 +99,9 @@ navigation_entry_get_title(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefNavigationEntryCppToC::Get(self)->GetTitle();
@@ -112,8 +117,9 @@ navigation_entry_get_transition_type(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return TT_EXPLICIT;
+  }
 
   // Execute
   cef_transition_type_t _retval =
@@ -130,8 +136,9 @@ navigation_entry_has_post_data(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefNavigationEntryCppToC::Get(self)->HasPostData();
@@ -147,8 +154,9 @@ navigation_entry_get_completion_time(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval =
@@ -165,8 +173,9 @@ navigation_entry_get_http_status_code(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefNavigationEntryCppToC::Get(self)->GetHttpStatusCode();
@@ -182,8 +191,9 @@ navigation_entry_get_sslstatus(struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefSSLStatus> _retval =

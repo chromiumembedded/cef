@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=365e5e2b4e3ced4e615fa504a0cb68c66854fc37$
+// $hash=3bed822df5b626633e7f1fd8dcc328d8eb0446fb$
 //
 
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
@@ -24,19 +24,22 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
                                  CefRefPtr<CefV8Value>& retval,
                                  CefString& exception) {
   cef_v8handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, execute))
+  if (CEF_MEMBER_MISSING(_struct, execute)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return false;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object.get());
-  if (!object.get())
+  if (!object.get()) {
     return false;
+  }
 
   // Translate param: arguments; type: refptr_vec_diff_byref_const
   const size_t argumentsCount = arguments.size();
@@ -52,8 +55,9 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
   }
   // Translate param: retval; type: refptr_diff_byref
   cef_v8value_t* retvalStruct = NULL;
-  if (retval.get())
+  if (retval.get()) {
     retvalStruct = CefV8ValueCppToC::Wrap(retval);
+  }
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
@@ -62,8 +66,9 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
       argumentsList, &retvalStruct, exception.GetWritableStruct());
 
   // Restore param:arguments; type: refptr_vec_diff_byref_const
-  if (argumentsList)
+  if (argumentsList) {
     delete[] argumentsList;
+  }
   // Restore param:retval; type: refptr_diff_byref
   if (retvalStruct) {
     if (retvalStruct != retvalOrig) {

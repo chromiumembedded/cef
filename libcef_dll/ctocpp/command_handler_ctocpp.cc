@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=431d97965f00a504f09790fd524ee23f69f16a82$
+// $hash=af3697f4c41762086c8edff7f63a794e8bf95b25$
 //
 
 #include "libcef_dll/ctocpp/command_handler_ctocpp.h"
@@ -26,15 +26,17 @@ bool CefCommandHandlerCToCpp::OnChromeCommand(
   shutdown_checker::AssertNotShutdown();
 
   cef_command_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_chrome_command))
+  if (CEF_MEMBER_MISSING(_struct, on_chrome_command)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_chrome_command(

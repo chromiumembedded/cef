@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1ae8622378ad8661289554e6c542e970850aaed$
+// $hash=f3dd306439e0d02bf7f68c7e93a1c746b2d25cb8$
 //
 
 #include "libcef_dll/ctocpp/cookie_access_filter_ctocpp.h"
@@ -26,15 +26,17 @@ bool CefCookieAccessFilterCToCpp::CanSendCookie(CefRefPtr<CefBrowser> browser,
                                                 CefRefPtr<CefRequest> request,
                                                 const CefCookie& cookie) {
   cef_cookie_access_filter_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_send_cookie))
+  if (CEF_MEMBER_MISSING(_struct, can_send_cookie)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return false;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -53,19 +55,22 @@ bool CefCookieAccessFilterCToCpp::CanSaveCookie(CefRefPtr<CefBrowser> browser,
                                                 CefRefPtr<CefResponse> response,
                                                 const CefCookie& cookie) {
   cef_cookie_access_filter_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_save_cookie))
+  if (CEF_MEMBER_MISSING(_struct, can_save_cookie)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return false;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response.get());
-  if (!response.get())
+  if (!response.get()) {
     return false;
+  }
   // Unverified params: browser, frame
 
   // Execute

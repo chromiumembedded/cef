@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3df118413888e04f3e10121c80e68014de545462$
+// $hash=d46a5856b98d5c55d4eb2eb6caf9d793b2519f02$
 //
 
 #include "libcef_dll/ctocpp/media_route_ctocpp.h"
@@ -23,8 +23,9 @@ NO_SANITIZE("cfi-icall") CefString CefMediaRouteCToCpp::GetId() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_id))
+  if (CEF_MEMBER_MISSING(_struct, get_id)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -42,8 +43,9 @@ CefRefPtr<CefMediaSource> CefMediaRouteCToCpp::GetSource() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_source))
+  if (CEF_MEMBER_MISSING(_struct, get_source)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -59,8 +61,9 @@ CefRefPtr<CefMediaSink> CefMediaRouteCToCpp::GetSink() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_sink))
+  if (CEF_MEMBER_MISSING(_struct, get_sink)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -77,15 +80,17 @@ void CefMediaRouteCToCpp::SendRouteMessage(const void* message,
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_route_message))
+  if (CEF_MEMBER_MISSING(_struct, send_route_message)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return;
+  }
 
   // Execute
   _struct->send_route_message(_struct, message, message_size);
@@ -95,8 +100,9 @@ NO_SANITIZE("cfi-icall") void CefMediaRouteCToCpp::Terminate() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, terminate))
+  if (CEF_MEMBER_MISSING(_struct, terminate)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

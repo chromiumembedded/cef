@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=01b8f661ca054d4a48ee00f1163011688b32e9f1$
+// $hash=5cfe318d106b21ec761956734b0868ccb083620a$
 //
 
 #include "libcef_dll/cpptoc/callback_cpptoc.h"
@@ -25,8 +25,9 @@ void CEF_CALLBACK callback_cont(struct _cef_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefCallbackCppToC::Get(self)->Continue();
@@ -38,8 +39,9 @@ void CEF_CALLBACK callback_cancel(struct _cef_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefCallbackCppToC::Get(self)->Cancel();

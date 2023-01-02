@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f137c0d7ae5fef1a6478f9416f6fe3d12a66d975$
+// $hash=ab9f07a4be312d0b6bc59f9ab94fdbaa34f5dc82$
 //
 
 #include "libcef_dll/cpptoc/permission_handler_cpptoc.h"
@@ -35,24 +35,29 @@ int CEF_CALLBACK permission_handler_on_request_media_access_permission(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return 0;
+  }
   // Verify param: requesting_origin; type: string_byref_const
   DCHECK(requesting_origin);
-  if (!requesting_origin)
+  if (!requesting_origin) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -77,20 +82,24 @@ int CEF_CALLBACK permission_handler_on_show_permission_prompt(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: requesting_origin; type: string_byref_const
   DCHECK(requesting_origin);
-  if (!requesting_origin)
+  if (!requesting_origin) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPermissionHandlerCppToC::Get(self)->OnShowPermissionPrompt(
@@ -111,12 +120,14 @@ void CEF_CALLBACK permission_handler_on_dismiss_permission_prompt(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefPermissionHandlerCppToC::Get(self)->OnDismissPermissionPrompt(

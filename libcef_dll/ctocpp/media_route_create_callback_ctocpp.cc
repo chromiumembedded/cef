@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7766e19198313fadc94a2f99f5869a33b0c3069c$
+// $hash=f422501ac723c377df6b2ff14c8f0452de3ea055$
 //
 
 #include "libcef_dll/ctocpp/media_route_create_callback_ctocpp.h"
@@ -26,8 +26,9 @@ void CefMediaRouteCreateCallbackCToCpp::OnMediaRouteCreateFinished(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_route_create_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_media_route_create_finished))
+  if (CEF_MEMBER_MISSING(_struct, on_media_route_create_finished)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

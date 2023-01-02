@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d2f3054a54f514ce650101e293bf085eeba48ee7$
+// $hash=c876a721fa14497054e1d3fd3bd95a09298cd774$
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
@@ -39,8 +39,9 @@ CEF_EXPORT cef_display_t* cef_display_get_nearest_point(
 
   // Verify param: point; type: simple_byref_const
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return NULL;
+  }
 
   // Translate param: point; type: simple_byref_const
   CefPoint pointVal = point ? *point : CefPoint();
@@ -62,8 +63,9 @@ CEF_EXPORT cef_display_t* cef_display_get_matching_bounds(
 
   // Verify param: bounds; type: simple_byref_const
   DCHECK(bounds);
-  if (!bounds)
+  if (!bounds) {
     return NULL;
+  }
 
   // Translate param: bounds; type: simple_byref_const
   CefRect boundsVal = bounds ? *bounds : CefRect();
@@ -96,8 +98,9 @@ CEF_EXPORT void cef_display_get_alls(size_t* displaysCount,
 
   // Verify param: displays; type: refptr_vec_same_byref
   DCHECK(displaysCount && (*displaysCount == 0 || displays));
-  if (!displaysCount || (*displaysCount > 0 && !displays))
+  if (!displaysCount || (*displaysCount > 0 && !displays)) {
     return;
+  }
 
   // Translate param: displays; type: refptr_vec_same_byref
   std::vector<CefRefPtr<CefDisplay>> displaysList;
@@ -129,8 +132,9 @@ cef_display_convert_screen_point_to_pixels(const cef_point_t* point) {
 
   // Verify param: point; type: simple_byref_const
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return CefPoint();
+  }
 
   // Translate param: point; type: simple_byref_const
   CefPoint pointVal = point ? *point : CefPoint();
@@ -150,8 +154,9 @@ cef_display_convert_screen_point_from_pixels(const cef_point_t* point) {
 
   // Verify param: point; type: simple_byref_const
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return CefPoint();
+  }
 
   // Translate param: point; type: simple_byref_const
   CefPoint pointVal = point ? *point : CefPoint();
@@ -171,8 +176,9 @@ cef_display_convert_screen_rect_to_pixels(const cef_rect_t* rect) {
 
   // Verify param: rect; type: simple_byref_const
   DCHECK(rect);
-  if (!rect)
+  if (!rect) {
     return CefRect();
+  }
 
   // Translate param: rect; type: simple_byref_const
   CefRect rectVal = rect ? *rect : CefRect();
@@ -192,8 +198,9 @@ cef_display_convert_screen_rect_from_pixels(const cef_rect_t* rect) {
 
   // Verify param: rect; type: simple_byref_const
   DCHECK(rect);
-  if (!rect)
+  if (!rect) {
     return CefRect();
+  }
 
   // Translate param: rect; type: simple_byref_const
   CefRect rectVal = rect ? *rect : CefRect();
@@ -215,8 +222,9 @@ int64 CEF_CALLBACK display_get_id(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefDisplayCppToC::Get(self)->GetID();
@@ -232,8 +240,9 @@ display_get_device_scale_factor(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   float _retval = CefDisplayCppToC::Get(self)->GetDeviceScaleFactor();
@@ -249,12 +258,14 @@ void CEF_CALLBACK display_convert_point_to_pixels(struct _cef_display_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -263,8 +274,9 @@ void CEF_CALLBACK display_convert_point_to_pixels(struct _cef_display_t* self,
   CefDisplayCppToC::Get(self)->ConvertPointToPixels(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 }
 
 void CEF_CALLBACK display_convert_point_from_pixels(struct _cef_display_t* self,
@@ -274,12 +286,14 @@ void CEF_CALLBACK display_convert_point_from_pixels(struct _cef_display_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -288,8 +302,9 @@ void CEF_CALLBACK display_convert_point_from_pixels(struct _cef_display_t* self,
   CefDisplayCppToC::Get(self)->ConvertPointFromPixels(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 }
 
 cef_rect_t CEF_CALLBACK display_get_bounds(struct _cef_display_t* self) {
@@ -298,8 +313,9 @@ cef_rect_t CEF_CALLBACK display_get_bounds(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval = CefDisplayCppToC::Get(self)->GetBounds();
@@ -314,8 +330,9 @@ cef_rect_t CEF_CALLBACK display_get_work_area(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval = CefDisplayCppToC::Get(self)->GetWorkArea();
@@ -330,8 +347,9 @@ int CEF_CALLBACK display_get_rotation(struct _cef_display_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefDisplayCppToC::Get(self)->GetRotation();

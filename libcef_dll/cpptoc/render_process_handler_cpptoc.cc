@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=08f14fa621595f247e87853c39c3375fce2c9326$
+// $hash=5737d6b536a99ac844904acaa8977c25476ed524$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -32,8 +32,9 @@ void CEF_CALLBACK render_process_handler_on_web_kit_initialized(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnWebKitInitialized();
@@ -46,12 +47,14 @@ void CEF_CALLBACK render_process_handler_on_browser_created(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: extra_info
 
   // Execute
@@ -66,12 +69,14 @@ void CEF_CALLBACK render_process_handler_on_browser_destroyed(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnBrowserDestroyed(
@@ -83,8 +88,9 @@ cef_load_handler_t* CEF_CALLBACK render_process_handler_get_load_handler(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefLoadHandler> _retval =
@@ -102,20 +108,24 @@ void CEF_CALLBACK render_process_handler_on_context_created(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context);
-  if (!context)
+  if (!context) {
     return;
+  }
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnContextCreated(
@@ -131,20 +141,24 @@ void CEF_CALLBACK render_process_handler_on_context_released(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context);
-  if (!context)
+  if (!context) {
     return;
+  }
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnContextReleased(
@@ -162,28 +176,34 @@ void CEF_CALLBACK render_process_handler_on_uncaught_exception(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: context; type: refptr_diff
   DCHECK(context);
-  if (!context)
+  if (!context) {
     return;
+  }
   // Verify param: exception; type: refptr_diff
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return;
+  }
   // Verify param: stackTrace; type: refptr_diff
   DCHECK(stackTrace);
-  if (!stackTrace)
+  if (!stackTrace) {
     return;
+  }
 
   // Execute
   CefRenderProcessHandlerCppToC::Get(self)->OnUncaughtException(
@@ -200,12 +220,14 @@ void CEF_CALLBACK render_process_handler_on_focused_node_changed(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: frame, node
 
   // Execute
@@ -223,20 +245,24 @@ int CEF_CALLBACK render_process_handler_on_process_message_received(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return 0;
+  }
   // Verify param: message; type: refptr_diff
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return 0;
+  }
 
   // Execute
   bool _retval =

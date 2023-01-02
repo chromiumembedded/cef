@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e32b4745b887e33f589cb04e8b46a7317686e4c2$
+// $hash=8db930f01e1f9ea8f170d55c5a9a6b0961f2a40e$
 //
 
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -27,8 +27,9 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
 
   // Verify param: fileName; type: string_byref_const
   DCHECK(!fileName.empty());
-  if (fileName.empty())
+  if (fileName.empty()) {
     return nullptr;
+  }
 
   // Execute
   cef_stream_writer_t* _retval =
@@ -47,8 +48,9 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForHandler(
 
   // Verify param: handler; type: refptr_diff
   DCHECK(handler.get());
-  if (!handler.get())
+  if (!handler.get()) {
     return nullptr;
+  }
 
   // Execute
   cef_stream_writer_t* _retval = cef_stream_writer_create_for_handler(
@@ -65,15 +67,17 @@ size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n) {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, write))
+  if (CEF_MEMBER_MISSING(_struct, write)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = _struct->write(_struct, ptr, size, n);
@@ -87,8 +91,9 @@ int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, seek))
+  if (CEF_MEMBER_MISSING(_struct, seek)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -103,8 +108,9 @@ NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, tell))
+  if (CEF_MEMBER_MISSING(_struct, tell)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -119,8 +125,9 @@ NO_SANITIZE("cfi-icall") int CefStreamWriterCToCpp::Flush() {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, flush))
+  if (CEF_MEMBER_MISSING(_struct, flush)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -135,8 +142,9 @@ NO_SANITIZE("cfi-icall") bool CefStreamWriterCToCpp::MayBlock() {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, may_block))
+  if (CEF_MEMBER_MISSING(_struct, may_block)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

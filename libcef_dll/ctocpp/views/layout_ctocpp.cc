@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6607a4c252dafd39ba695b5d4ecfb14286d70672$
+// $hash=312e5c15b26db94513fe213fbcfba6d1c43e39b7$
 //
 
 #include "libcef_dll/ctocpp/views/layout_ctocpp.h"
@@ -24,8 +24,9 @@ CefRefPtr<CefBoxLayout> CefLayoutCToCpp::AsBoxLayout() {
   shutdown_checker::AssertNotShutdown();
 
   cef_layout_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, as_box_layout))
+  if (CEF_MEMBER_MISSING(_struct, as_box_layout)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -41,8 +42,9 @@ CefRefPtr<CefFillLayout> CefLayoutCToCpp::AsFillLayout() {
   shutdown_checker::AssertNotShutdown();
 
   cef_layout_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, as_fill_layout))
+  if (CEF_MEMBER_MISSING(_struct, as_fill_layout)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -57,8 +59,9 @@ NO_SANITIZE("cfi-icall") bool CefLayoutCToCpp::IsValid() {
   shutdown_checker::AssertNotShutdown();
 
   cef_layout_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

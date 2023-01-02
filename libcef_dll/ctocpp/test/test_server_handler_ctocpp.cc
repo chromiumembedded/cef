@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a57c9fca8e9dcf286cde0a82717b046e7e0a1ade$
+// $hash=150f0433fb541e23edad54baa1af9f870f4c7a84$
 //
 
 #include "libcef_dll/ctocpp/test/test_server_handler_ctocpp.h"
@@ -28,23 +28,27 @@ bool CefTestServerHandlerCToCpp::OnTestServerRequest(
   shutdown_checker::AssertNotShutdown();
 
   cef_test_server_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_test_server_request))
+  if (CEF_MEMBER_MISSING(_struct, on_test_server_request)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: server; type: refptr_diff
   DCHECK(server.get());
-  if (!server.get())
+  if (!server.get()) {
     return false;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return false;
+  }
   // Verify param: connection; type: refptr_diff
   DCHECK(connection.get());
-  if (!connection.get())
+  if (!connection.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_test_server_request(

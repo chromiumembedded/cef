@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=486d1b31ccfd53e10dec622d3ae024c23b50e2c2$
+// $hash=9fed784c5de6718569cc5c0828a1856831148146$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
@@ -28,12 +28,14 @@ int CEF_CALLBACK resource_bundle_handler_get_localized_string(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: string; type: string_byref
   DCHECK(string);
-  if (!string)
+  if (!string) {
     return 0;
+  }
 
   // Translate param: string; type: string_byref
   CefString stringStr(string);
@@ -56,16 +58,19 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: data; type: simple_byref
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return 0;
+  }
   // Verify param: data_size; type: simple_byref
   DCHECK(data_size);
-  if (!data_size)
+  if (!data_size) {
     return 0;
+  }
 
   // Translate param: data; type: simple_byref
   void* dataVal = data ? *data : NULL;
@@ -77,11 +82,13 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource(
       resource_id, dataVal, data_sizeVal);
 
   // Restore param: data; type: simple_byref
-  if (data)
+  if (data) {
     *data = dataVal;
+  }
   // Restore param: data_size; type: simple_byref
-  if (data_size)
+  if (data_size) {
     *data_size = data_sizeVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -98,16 +105,19 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource_for_scale(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: data; type: simple_byref
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return 0;
+  }
   // Verify param: data_size; type: simple_byref
   DCHECK(data_size);
-  if (!data_size)
+  if (!data_size) {
     return 0;
+  }
 
   // Translate param: data; type: simple_byref
   void* dataVal = data ? *data : NULL;
@@ -120,11 +130,13 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource_for_scale(
           resource_id, scale_factor, dataVal, data_sizeVal);
 
   // Restore param: data; type: simple_byref
-  if (data)
+  if (data) {
     *data = dataVal;
+  }
   // Restore param: data_size; type: simple_byref
-  if (data_size)
+  if (data_size) {
     *data_size = data_sizeVal;
+  }
 
   // Return type: bool
   return _retval;

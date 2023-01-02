@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2e085c019a8e5c4701db0ee23fbd06b275e6342b$
+// $hash=ed44d7498b80c75957e24cc2baa879d9bda691f3$
 //
 
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
@@ -29,12 +29,14 @@ void CEF_CALLBACK request_context_handler_on_request_context_initialized(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request_context; type: refptr_diff
   DCHECK(request_context);
-  if (!request_context)
+  if (!request_context) {
     return;
+  }
 
   // Execute
   CefRequestContextHandlerCppToC::Get(self)->OnRequestContextInitialized(
@@ -54,16 +56,19 @@ request_context_handler_get_resource_request_handler(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Verify param: disable_default_handling; type: bool_byref
   DCHECK(disable_default_handling);
-  if (!disable_default_handling)
+  if (!disable_default_handling) {
     return NULL;
+  }
   // Unverified params: browser, frame, request_initiator
 
   // Translate param: disable_default_handling; type: bool_byref
@@ -79,8 +84,9 @@ request_context_handler_get_resource_request_handler(
           disable_default_handlingBool);
 
   // Restore param: disable_default_handling; type: bool_byref
-  if (disable_default_handling)
+  if (disable_default_handling) {
     *disable_default_handling = disable_default_handlingBool ? true : false;
+  }
 
   // Return type: refptr_same
   return CefResourceRequestHandlerCppToC::Wrap(_retval);

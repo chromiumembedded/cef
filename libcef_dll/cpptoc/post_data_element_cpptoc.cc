@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6148547c3504062984362b43db9e95ee68ef1358$
+// $hash=163df09395448195c38cd73e0cdff8e0018eed7a$
 //
 
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
@@ -35,8 +35,9 @@ post_data_element_is_read_only(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostDataElementCppToC::Get(self)->IsReadOnly();
@@ -50,8 +51,9 @@ post_data_element_set_to_empty(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefPostDataElementCppToC::Get(self)->SetToEmpty();
@@ -63,12 +65,14 @@ post_data_element_set_to_file(struct _cef_post_data_element_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: fileName; type: string_byref_const
   DCHECK(fileName);
-  if (!fileName)
+  if (!fileName) {
     return;
+  }
 
   // Execute
   CefPostDataElementCppToC::Get(self)->SetToFile(CefString(fileName));
@@ -81,12 +85,14 @@ post_data_element_set_to_bytes(struct _cef_post_data_element_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: bytes; type: simple_byaddr
   DCHECK(bytes);
-  if (!bytes)
+  if (!bytes) {
     return;
+  }
 
   // Execute
   CefPostDataElementCppToC::Get(self)->SetToBytes(size, bytes);
@@ -97,8 +103,9 @@ post_data_element_get_type(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return PDE_TYPE_EMPTY;
+  }
 
   // Execute
   cef_postdataelement_type_t _retval =
@@ -113,8 +120,9 @@ post_data_element_get_file(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefPostDataElementCppToC::Get(self)->GetFile();
@@ -128,8 +136,9 @@ post_data_element_get_bytes_count(struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefPostDataElementCppToC::Get(self)->GetBytesCount();
@@ -145,12 +154,14 @@ post_data_element_get_bytes(struct _cef_post_data_element_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: bytes; type: simple_byaddr
   DCHECK(bytes);
-  if (!bytes)
+  if (!bytes) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefPostDataElementCppToC::Get(self)->GetBytes(size, bytes);

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e94a999784332a91c40a4608644bf7dc36e0729$
+// $hash=3a371669a10c2618d3b9f6386bb8e6d2f704398f$
 //
 
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
@@ -27,19 +27,22 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
     const CefString& scheme_name,
     CefRefPtr<CefRequest> request) {
   cef_scheme_handler_factory_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, create))
+  if (CEF_MEMBER_MISSING(_struct, create)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
+  if (scheme_name.empty()) {
     return nullptr;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return nullptr;
+  }
   // Unverified params: browser, frame
 
   // Execute

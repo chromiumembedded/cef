@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6958fb584fde290169bdcf0fa3f1c94a2c9d77ea$
+// $hash=03f2344ea74ba170a5756bb8636f56c32df787a1$
 //
 
 #include "libcef_dll/cpptoc/preference_manager_cpptoc.h"
@@ -40,12 +40,14 @@ preference_manager_has_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -61,12 +63,14 @@ preference_manager_get_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefValue> _retval =
@@ -82,8 +86,9 @@ preference_manager_get_all_preferences(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDictionaryValue> _retval =
@@ -100,12 +105,14 @@ preference_manager_can_set_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -123,16 +130,19 @@ preference_manager_set_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
   // Verify param: error; type: string_byref
   DCHECK(error);
-  if (!error)
+  if (!error) {
     return 0;
+  }
   // Unverified params: value
 
   // Translate param: error; type: string_byref

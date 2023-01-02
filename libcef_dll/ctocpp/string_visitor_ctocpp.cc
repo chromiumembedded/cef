@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=97c52e0e29be9e4452825fb57d4014221c537baa$
+// $hash=bcde08bca60cd45a802fdeb684da6b0c41c7a540$
 //
 
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
@@ -22,8 +22,9 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
   shutdown_checker::AssertNotShutdown();
 
   cef_string_visitor_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, visit))
+  if (CEF_MEMBER_MISSING(_struct, visit)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

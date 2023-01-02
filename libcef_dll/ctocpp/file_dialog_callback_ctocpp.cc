@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fb143d4df823ed6a7dfca295ce4ca2b5756df9c$
+// $hash=49a9c2dc0a50b5afa3de2fa4e78606597227f175$
 //
 
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
@@ -24,8 +24,9 @@ void CefFileDialogCallbackCToCpp::Continue(
   shutdown_checker::AssertNotShutdown();
 
   cef_file_dialog_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -34,23 +35,26 @@ void CefFileDialogCallbackCToCpp::Continue(
   // Translate param: file_paths; type: string_vec_byref_const
   cef_string_list_t file_pathsList = cef_string_list_alloc();
   DCHECK(file_pathsList);
-  if (file_pathsList)
+  if (file_pathsList) {
     transfer_string_list_contents(file_paths, file_pathsList);
+  }
 
   // Execute
   _struct->cont(_struct, file_pathsList);
 
   // Restore param:file_paths; type: string_vec_byref_const
-  if (file_pathsList)
+  if (file_pathsList) {
     cef_string_list_free(file_pathsList);
+  }
 }
 
 NO_SANITIZE("cfi-icall") void CefFileDialogCallbackCToCpp::Cancel() {
   shutdown_checker::AssertNotShutdown();
 
   cef_file_dialog_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cancel))
+  if (CEF_MEMBER_MISSING(_struct, cancel)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

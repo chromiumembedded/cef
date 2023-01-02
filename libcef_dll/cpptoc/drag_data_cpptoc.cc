@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=284032a14fc598b45b138f1dd949d9004abc6930$
+// $hash=978e101f569a95222ce4e962d681ff2b4df46955$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -43,8 +43,9 @@ drag_data_clone(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDragData> _retval = CefDragDataCppToC::Get(self)->Clone();
@@ -59,8 +60,9 @@ int CEF_CALLBACK drag_data_is_read_only(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragDataCppToC::Get(self)->IsReadOnly();
@@ -75,8 +77,9 @@ int CEF_CALLBACK drag_data_is_link(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragDataCppToC::Get(self)->IsLink();
@@ -91,8 +94,9 @@ int CEF_CALLBACK drag_data_is_fragment(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragDataCppToC::Get(self)->IsFragment();
@@ -107,8 +111,9 @@ int CEF_CALLBACK drag_data_is_file(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragDataCppToC::Get(self)->IsFile();
@@ -124,8 +129,9 @@ drag_data_get_link_url(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetLinkURL();
@@ -141,8 +147,9 @@ drag_data_get_link_title(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetLinkTitle();
@@ -158,8 +165,9 @@ drag_data_get_link_metadata(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetLinkMetadata();
@@ -175,8 +183,9 @@ drag_data_get_fragment_text(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetFragmentText();
@@ -192,8 +201,9 @@ drag_data_get_fragment_html(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetFragmentHtml();
@@ -209,8 +219,9 @@ drag_data_get_fragment_base_url(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetFragmentBaseURL();
@@ -226,8 +237,9 @@ drag_data_get_file_name(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDragDataCppToC::Get(self)->GetFileName();
@@ -244,8 +256,9 @@ drag_data_get_file_contents(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: writer
 
   // Execute
@@ -263,12 +276,14 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: names; type: string_vec_byref
   DCHECK(names);
-  if (!names)
+  if (!names) {
     return 0;
+  }
 
   // Translate param: names; type: string_vec_byref
   std::vector<CefString> namesList;
@@ -292,8 +307,9 @@ void CEF_CALLBACK drag_data_set_link_url(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: url
 
   // Execute
@@ -307,8 +323,9 @@ void CEF_CALLBACK drag_data_set_link_title(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: title
 
   // Execute
@@ -322,8 +339,9 @@ void CEF_CALLBACK drag_data_set_link_metadata(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: data
 
   // Execute
@@ -337,8 +355,9 @@ void CEF_CALLBACK drag_data_set_fragment_text(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: text
 
   // Execute
@@ -352,8 +371,9 @@ void CEF_CALLBACK drag_data_set_fragment_html(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: html
 
   // Execute
@@ -368,8 +388,9 @@ drag_data_set_fragment_base_url(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: base_url
 
   // Execute
@@ -382,8 +403,9 @@ void CEF_CALLBACK drag_data_reset_file_contents(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefDragDataCppToC::Get(self)->ResetFileContents();
@@ -397,12 +419,14 @@ void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: path; type: string_byref_const
   DCHECK(path);
-  if (!path)
+  if (!path) {
     return;
+  }
   // Unverified params: display_name
 
   // Execute
@@ -416,8 +440,9 @@ void CEF_CALLBACK drag_data_clear_filenames(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefDragDataCppToC::Get(self)->ClearFilenames();
@@ -430,8 +455,9 @@ drag_data_get_image(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefImage> _retval = CefDragDataCppToC::Get(self)->GetImage();
@@ -447,8 +473,9 @@ drag_data_get_image_hotspot(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefPoint();
+  }
 
   // Execute
   cef_point_t _retval = CefDragDataCppToC::Get(self)->GetImageHotspot();
@@ -463,8 +490,9 @@ int CEF_CALLBACK drag_data_has_image(struct _cef_drag_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragDataCppToC::Get(self)->HasImage();

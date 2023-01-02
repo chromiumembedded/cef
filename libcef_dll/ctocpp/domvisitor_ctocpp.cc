@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c3351e11fd6ae488bd77aeba4b4c8485f24119ad$
+// $hash=faf6f8643d2c54f410b3c140ffc9b6bad2a57b4a$
 //
 
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
@@ -23,15 +23,17 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
   shutdown_checker::AssertNotShutdown();
 
   cef_domvisitor_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, visit))
+  if (CEF_MEMBER_MISSING(_struct, visit)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: document; type: refptr_diff
   DCHECK(document.get());
-  if (!document.get())
+  if (!document.get()) {
     return;
+  }
 
   // Execute
   _struct->visit(_struct, CefDOMDocumentCppToC::Wrap(document));

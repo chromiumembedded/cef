@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1799aec02f9d2491056fbf3042b4ba89498adaf4$
+// $hash=b1619ca8f166708708f74e0734efde3516546f9a$
 //
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
@@ -23,8 +23,9 @@ CefString CefX509CertPrincipalCToCpp::GetDisplayName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_display_name))
+  if (CEF_MEMBER_MISSING(_struct, get_display_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -41,8 +42,9 @@ NO_SANITIZE("cfi-icall") CefString CefX509CertPrincipalCToCpp::GetCommonName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_common_name))
+  if (CEF_MEMBER_MISSING(_struct, get_common_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -60,8 +62,9 @@ CefString CefX509CertPrincipalCToCpp::GetLocalityName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_locality_name))
+  if (CEF_MEMBER_MISSING(_struct, get_locality_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -79,8 +82,9 @@ CefString CefX509CertPrincipalCToCpp::GetStateOrProvinceName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_state_or_province_name))
+  if (CEF_MEMBER_MISSING(_struct, get_state_or_province_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -98,8 +102,9 @@ CefString CefX509CertPrincipalCToCpp::GetCountryName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_country_name))
+  if (CEF_MEMBER_MISSING(_struct, get_country_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -118,16 +123,18 @@ void CefX509CertPrincipalCToCpp::GetStreetAddresses(
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_street_addresses))
+  if (CEF_MEMBER_MISSING(_struct, get_street_addresses)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: addresses; type: string_vec_byref
   cef_string_list_t addressesList = cef_string_list_alloc();
   DCHECK(addressesList);
-  if (addressesList)
+  if (addressesList) {
     transfer_string_list_contents(addresses, addressesList);
+  }
 
   // Execute
   _struct->get_street_addresses(_struct, addressesList);
@@ -146,16 +153,18 @@ void CefX509CertPrincipalCToCpp::GetOrganizationNames(
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_organization_names))
+  if (CEF_MEMBER_MISSING(_struct, get_organization_names)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: names; type: string_vec_byref
   cef_string_list_t namesList = cef_string_list_alloc();
   DCHECK(namesList);
-  if (namesList)
+  if (namesList) {
     transfer_string_list_contents(names, namesList);
+  }
 
   // Execute
   _struct->get_organization_names(_struct, namesList);
@@ -174,16 +183,18 @@ void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_organization_unit_names))
+  if (CEF_MEMBER_MISSING(_struct, get_organization_unit_names)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: names; type: string_vec_byref
   cef_string_list_t namesList = cef_string_list_alloc();
   DCHECK(namesList);
-  if (namesList)
+  if (namesList) {
     transfer_string_list_contents(names, namesList);
+  }
 
   // Execute
   _struct->get_organization_unit_names(_struct, namesList);
@@ -202,16 +213,18 @@ void CefX509CertPrincipalCToCpp::GetDomainComponents(
   shutdown_checker::AssertNotShutdown();
 
   cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_domain_components))
+  if (CEF_MEMBER_MISSING(_struct, get_domain_components)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: components; type: string_vec_byref
   cef_string_list_t componentsList = cef_string_list_alloc();
   DCHECK(componentsList);
-  if (componentsList)
+  if (componentsList) {
     transfer_string_list_contents(components, componentsList);
+  }
 
   // Execute
   _struct->get_domain_components(_struct, componentsList);

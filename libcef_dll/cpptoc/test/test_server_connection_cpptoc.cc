@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4015c7179f87d58159252275559c0a11ee9958c7$
+// $hash=461cf3d1954bafc2f291894ddf2b366b083bb773$
 //
 
 #include "libcef_dll/cpptoc/test/test_server_connection_cpptoc.h"
@@ -30,16 +30,19 @@ void CEF_CALLBACK test_server_connection_send_http200response(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: content_type; type: string_byref_const
   DCHECK(content_type);
-  if (!content_type)
+  if (!content_type) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefTestServerConnectionCppToC::Get(self)->SendHttp200Response(
@@ -53,8 +56,9 @@ void CEF_CALLBACK test_server_connection_send_http404response(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTestServerConnectionCppToC::Get(self)->SendHttp404Response();
@@ -68,12 +72,14 @@ void CEF_CALLBACK test_server_connection_send_http500response(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: error_message; type: string_byref_const
   DCHECK(error_message);
-  if (!error_message)
+  if (!error_message) {
     return;
+  }
 
   // Execute
   CefTestServerConnectionCppToC::Get(self)->SendHttp500Response(
@@ -92,16 +98,19 @@ void CEF_CALLBACK test_server_connection_send_http_response(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: content_type; type: string_byref_const
   DCHECK(content_type);
-  if (!content_type)
+  if (!content_type) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
   // Unverified params: extra_headers
 
   // Translate param: extra_headers; type: string_map_multi_byref_const

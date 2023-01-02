@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1abedb0e8e7a0101d9ff3f4918f992f3c010d5a6$
+// $hash=a646b20f2a1836fded44c08db264012b6fa2bfb7$
 //
 
 #include "libcef_dll/cpptoc/file_dialog_callback_cpptoc.h"
@@ -28,8 +28,9 @@ file_dialog_callback_cont(struct _cef_file_dialog_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
@@ -47,8 +48,9 @@ file_dialog_callback_cancel(struct _cef_file_dialog_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFileDialogCallbackCppToC::Get(self)->Cancel();

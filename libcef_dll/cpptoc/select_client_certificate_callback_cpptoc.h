@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e397708024c85cf066c0b7b76f1fae74b3a3e4d6$
+// $hash=a8aaabd6df08000d4add9785980560b8427b9d68$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_SELECT_CLIENT_CERTIFICATE_CALLBACK_CPPTOC_H_

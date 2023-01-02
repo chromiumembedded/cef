@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=07d3613588fb17a2d07d817a4b1390db3b6cffe7$
+// $hash=18f601c8e152c39928595e1f02c9274f0dc6ce8a$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -24,15 +24,17 @@ void CefWindowDelegateCToCpp::OnWindowCreated(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_created))
+  if (CEF_MEMBER_MISSING(_struct, on_window_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_created(_struct, CefWindowCppToC::Wrap(window));
@@ -43,15 +45,17 @@ void CefWindowDelegateCToCpp::OnWindowClosing(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_closing))
+  if (CEF_MEMBER_MISSING(_struct, on_window_closing)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_closing(_struct, CefWindowCppToC::Wrap(window));
@@ -62,15 +66,17 @@ void CefWindowDelegateCToCpp::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_destroyed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_destroyed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_destroyed(_struct, CefWindowCppToC::Wrap(window));
@@ -83,15 +89,17 @@ void CefWindowDelegateCToCpp::OnWindowActivationChanged(
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_activation_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_activation_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_activation_changed(_struct, CefWindowCppToC::Wrap(window),
@@ -104,15 +112,17 @@ void CefWindowDelegateCToCpp::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_bounds_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_bounds_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_bounds_changed(_struct, CefWindowCppToC::Wrap(window),
@@ -127,23 +137,27 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_parent_window))
+  if (CEF_MEMBER_MISSING(_struct, get_parent_window)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return nullptr;
+  }
   // Verify param: is_menu; type: bool_byaddr
   DCHECK(is_menu);
-  if (!is_menu)
+  if (!is_menu) {
     return nullptr;
+  }
   // Verify param: can_activate_menu; type: bool_byaddr
   DCHECK(can_activate_menu);
-  if (!can_activate_menu)
+  if (!can_activate_menu) {
     return nullptr;
+  }
 
   // Translate param: is_menu; type: bool_byaddr
   int is_menuInt = is_menu ? *is_menu : 0;
@@ -156,11 +170,13 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
                                  &is_menuInt, &can_activate_menuInt);
 
   // Restore param:is_menu; type: bool_byaddr
-  if (is_menu)
+  if (is_menu) {
     *is_menu = is_menuInt ? true : false;
+  }
   // Restore param:can_activate_menu; type: bool_byaddr
-  if (can_activate_menu)
+  if (can_activate_menu) {
     *can_activate_menu = can_activate_menuInt ? true : false;
+  }
 
   // Return type: refptr_diff
   return CefWindowCppToC::Unwrap(_retval);
@@ -171,15 +187,17 @@ CefRect CefWindowDelegateCToCpp::GetInitialBounds(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_initial_bounds))
+  if (CEF_MEMBER_MISSING(_struct, get_initial_bounds)) {
     return CefRect();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval =
@@ -195,15 +213,17 @@ cef_show_state_t CefWindowDelegateCToCpp::GetInitialShowState(
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_initial_show_state))
+  if (CEF_MEMBER_MISSING(_struct, get_initial_show_state)) {
     return CEF_SHOW_STATE_NORMAL;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return CEF_SHOW_STATE_NORMAL;
+  }
 
   // Execute
   cef_show_state_t _retval =
@@ -218,15 +238,17 @@ bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_frameless))
+  if (CEF_MEMBER_MISSING(_struct, is_frameless)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->is_frameless(_struct, CefWindowCppToC::Wrap(window));
@@ -240,15 +262,17 @@ bool CefWindowDelegateCToCpp::CanResize(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_resize))
+  if (CEF_MEMBER_MISSING(_struct, can_resize)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->can_resize(_struct, CefWindowCppToC::Wrap(window));
@@ -262,15 +286,17 @@ bool CefWindowDelegateCToCpp::CanMaximize(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_maximize))
+  if (CEF_MEMBER_MISSING(_struct, can_maximize)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->can_maximize(_struct, CefWindowCppToC::Wrap(window));
@@ -284,15 +310,17 @@ bool CefWindowDelegateCToCpp::CanMinimize(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_minimize))
+  if (CEF_MEMBER_MISSING(_struct, can_minimize)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->can_minimize(_struct, CefWindowCppToC::Wrap(window));
@@ -306,15 +334,17 @@ bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_close))
+  if (CEF_MEMBER_MISSING(_struct, can_close)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->can_close(_struct, CefWindowCppToC::Wrap(window));
@@ -329,15 +359,17 @@ bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_accelerator))
+  if (CEF_MEMBER_MISSING(_struct, on_accelerator)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_accelerator(_struct, CefWindowCppToC::Wrap(window),
@@ -353,15 +385,17 @@ bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
   shutdown_checker::AssertNotShutdown();
 
   cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_key_event))
+  if (CEF_MEMBER_MISSING(_struct, on_key_event)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: window; type: refptr_diff
   DCHECK(window.get());
-  if (!window.get())
+  if (!window.get()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -377,15 +411,17 @@ CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, get_preferred_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -401,15 +437,17 @@ CefSize CefWindowDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_minimum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -425,15 +463,17 @@ CefSize CefWindowDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_maximum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -450,15 +490,17 @@ int CefWindowDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
+  if (CEF_MEMBER_MISSING(_struct, get_height_for_width)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -476,19 +518,22 @@ void CefWindowDelegateCToCpp::OnParentViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: parent; type: refptr_diff
   DCHECK(parent.get());
-  if (!parent.get())
+  if (!parent.get()) {
     return;
+  }
 
   // Execute
   _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -503,19 +548,22 @@ void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: child; type: refptr_diff
   DCHECK(child.get());
-  if (!child.get())
+  if (!child.get()) {
     return;
+  }
 
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -529,15 +577,17 @@ void CefWindowDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
@@ -550,15 +600,17 @@ void CefWindowDelegateCToCpp::OnLayoutChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_layout_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_layout_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_layout_changed(_struct, CefViewCppToC::Wrap(view), &new_bounds);
@@ -570,15 +622,17 @@ void CefWindowDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
@@ -590,15 +644,17 @@ void CefWindowDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_blur))
+  if (CEF_MEMBER_MISSING(_struct, on_blur)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_blur(_struct, CefViewCppToC::Wrap(view));

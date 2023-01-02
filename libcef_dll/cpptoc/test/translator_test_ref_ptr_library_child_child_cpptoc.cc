@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=693175fcf035e056074e56a8a5e39e3f5d1c218d$
+// $hash=178ed72ca63c4bceca77fbec9581f6d36e6dbaa3$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_ref_ptr_library_child_child_cpptoc.h"
@@ -46,8 +46,9 @@ translator_test_ref_ptr_library_child_child_get_other_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestRefPtrLibraryChildChildCppToC::Get(self)
@@ -66,8 +67,9 @@ translator_test_ref_ptr_library_child_child_set_other_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestRefPtrLibraryChildChildCppToC::Get(self)->SetOtherOtherValue(
@@ -81,8 +83,9 @@ int CEF_CALLBACK translator_test_ref_ptr_library_child_child_get_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -103,8 +106,9 @@ void CEF_CALLBACK translator_test_ref_ptr_library_child_child_set_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestRefPtrLibraryChildChildCppToC::Get(
@@ -120,8 +124,9 @@ int CEF_CALLBACK translator_test_ref_ptr_library_child_child_get_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -142,8 +147,9 @@ void CEF_CALLBACK translator_test_ref_ptr_library_child_child_set_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestRefPtrLibraryChildChildCppToC::Get(

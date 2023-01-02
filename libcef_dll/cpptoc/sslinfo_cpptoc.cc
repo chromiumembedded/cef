@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78b529fc88b9701f7cf8d40097576704b0ef35fc$
+// $hash=b4016d9e37c0be7b025cd7f0f3f880745eeb2da2$
 //
 
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
@@ -27,8 +27,9 @@ sslinfo_get_cert_status(struct _cef_sslinfo_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CERT_STATUS_NONE;
+  }
 
   // Execute
   cef_cert_status_t _retval = CefSSLInfoCppToC::Get(self)->GetCertStatus();
@@ -44,8 +45,9 @@ sslinfo_get_x509certificate(struct _cef_sslinfo_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefX509Certificate> _retval =

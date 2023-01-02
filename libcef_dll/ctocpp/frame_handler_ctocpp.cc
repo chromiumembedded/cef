@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2c1533712df282ba8ab092a2b42e69296c4d4771$
+// $hash=499afac754e20ab09693803a14a047a576ed1eb2$
 //
 
 #include "libcef_dll/ctocpp/frame_handler_ctocpp.h"
@@ -25,19 +25,22 @@ void CefFrameHandlerCToCpp::OnFrameCreated(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_frame_created))
+  if (CEF_MEMBER_MISSING(_struct, on_frame_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_frame_created(_struct, CefBrowserCppToC::Wrap(browser),
@@ -51,19 +54,22 @@ void CefFrameHandlerCToCpp::OnFrameAttached(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_frame_attached))
+  if (CEF_MEMBER_MISSING(_struct, on_frame_attached)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_frame_attached(_struct, CefBrowserCppToC::Wrap(browser),
@@ -76,19 +82,22 @@ void CefFrameHandlerCToCpp::OnFrameDetached(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_frame_detached))
+  if (CEF_MEMBER_MISSING(_struct, on_frame_detached)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_frame_detached(_struct, CefBrowserCppToC::Wrap(browser),
@@ -102,15 +111,17 @@ void CefFrameHandlerCToCpp::OnMainFrameChanged(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_main_frame_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_main_frame_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Unverified params: old_frame, new_frame
 
   // Execute

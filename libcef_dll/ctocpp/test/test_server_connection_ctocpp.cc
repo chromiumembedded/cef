@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b5fb7ede3a40321b3e077fa1aa1cd09ad2478d0$
+// $hash=8192d1e40fa6b42502907094351c3deeefb4db08$
 //
 
 #include "libcef_dll/ctocpp/test/test_server_connection_ctocpp.h"
@@ -26,19 +26,22 @@ void CefTestServerConnectionCToCpp::SendHttp200Response(
   shutdown_checker::AssertNotShutdown();
 
   cef_test_server_connection_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_http200response))
+  if (CEF_MEMBER_MISSING(_struct, send_http200response)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: content_type; type: string_byref_const
   DCHECK(!content_type.empty());
-  if (content_type.empty())
+  if (content_type.empty()) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   _struct->send_http200response(_struct, content_type.GetStruct(), data,
@@ -50,8 +53,9 @@ void CefTestServerConnectionCToCpp::SendHttp404Response() {
   shutdown_checker::AssertNotShutdown();
 
   cef_test_server_connection_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_http404response))
+  if (CEF_MEMBER_MISSING(_struct, send_http404response)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -65,15 +69,17 @@ void CefTestServerConnectionCToCpp::SendHttp500Response(
   shutdown_checker::AssertNotShutdown();
 
   cef_test_server_connection_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_http500response))
+  if (CEF_MEMBER_MISSING(_struct, send_http500response)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: error_message; type: string_byref_const
   DCHECK(!error_message.empty());
-  if (error_message.empty())
+  if (error_message.empty()) {
     return;
+  }
 
   // Execute
   _struct->send_http500response(_struct, error_message.GetStruct());
@@ -89,34 +95,39 @@ void CefTestServerConnectionCToCpp::SendHttpResponse(
   shutdown_checker::AssertNotShutdown();
 
   cef_test_server_connection_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, send_http_response))
+  if (CEF_MEMBER_MISSING(_struct, send_http_response)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: content_type; type: string_byref_const
   DCHECK(!content_type.empty());
-  if (content_type.empty())
+  if (content_type.empty()) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
   // Unverified params: extra_headers
 
   // Translate param: extra_headers; type: string_map_multi_byref_const
   cef_string_multimap_t extra_headersMultimap = cef_string_multimap_alloc();
   DCHECK(extra_headersMultimap);
-  if (extra_headersMultimap)
+  if (extra_headersMultimap) {
     transfer_string_multimap_contents(extra_headers, extra_headersMultimap);
+  }
 
   // Execute
   _struct->send_http_response(_struct, response_code, content_type.GetStruct(),
                               data, data_size, extra_headersMultimap);
 
   // Restore param:extra_headers; type: string_map_multi_byref_const
-  if (extra_headersMultimap)
+  if (extra_headersMultimap) {
     cef_string_multimap_free(extra_headersMultimap);
+  }
 }
 
 // CONSTRUCTOR - Do not edit by hand.

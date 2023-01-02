@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1f70badd10a66ed36402c4227f30d45e6696981d$
+// $hash=5e5e23e9c36b269a49017fcb412e925b2124c409$
 //
 
 #include "libcef_dll/cpptoc/media_route_create_callback_cpptoc.h"
@@ -30,8 +30,9 @@ void CEF_CALLBACK media_route_create_callback_on_media_route_create_finished(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: error, route
 
   // Execute

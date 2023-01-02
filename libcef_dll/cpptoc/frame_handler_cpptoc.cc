@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=276f4b15ecef989b38c2a6dd9cac5be7df5cb844$
+// $hash=42bab23e4d8596214bbc40591bc50c784eecbf4d$
 //
 
 #include "libcef_dll/cpptoc/frame_handler_cpptoc.h"
@@ -30,16 +30,19 @@ frame_handler_on_frame_created(struct _cef_frame_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefFrameHandlerCppToC::Get(self)->OnFrameCreated(
@@ -56,16 +59,19 @@ frame_handler_on_frame_attached(struct _cef_frame_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefFrameHandlerCppToC::Get(self)->OnFrameAttached(
@@ -82,16 +88,19 @@ frame_handler_on_frame_detached(struct _cef_frame_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
 
   // Execute
   CefFrameHandlerCppToC::Get(self)->OnFrameDetached(
@@ -108,12 +117,14 @@ frame_handler_on_main_frame_changed(struct _cef_frame_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: old_frame, new_frame
 
   // Execute

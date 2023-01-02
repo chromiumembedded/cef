@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=01d0b01e291c90ceba7c416ff9dd56c10eb46f3b$
+// $hash=84b4fdb81093f8f1c3923718803bb2b8162b537f$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
@@ -23,8 +23,9 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetId() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_id))
+  if (CEF_MEMBER_MISSING(_struct, get_id)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -41,8 +42,9 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_name))
+  if (CEF_MEMBER_MISSING(_struct, get_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -59,8 +61,9 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetDescription() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_description))
+  if (CEF_MEMBER_MISSING(_struct, get_description)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -78,8 +81,9 @@ CefMediaSink::IconType CefMediaSinkCToCpp::GetIconType() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_icon_type))
+  if (CEF_MEMBER_MISSING(_struct, get_icon_type)) {
     return CEF_MSIT_GENERIC;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -96,15 +100,17 @@ void CefMediaSinkCToCpp::GetDeviceInfo(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_device_info))
+  if (CEF_MEMBER_MISSING(_struct, get_device_info)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return;
+  }
 
   // Execute
   _struct->get_device_info(
@@ -115,8 +121,9 @@ NO_SANITIZE("cfi-icall") bool CefMediaSinkCToCpp::IsCastSink() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_cast_sink))
+  if (CEF_MEMBER_MISSING(_struct, is_cast_sink)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -131,8 +138,9 @@ NO_SANITIZE("cfi-icall") bool CefMediaSinkCToCpp::IsDialSink() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_dial_sink))
+  if (CEF_MEMBER_MISSING(_struct, is_dial_sink)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -148,15 +156,17 @@ bool CefMediaSinkCToCpp::IsCompatibleWith(CefRefPtr<CefMediaSource> source) {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_compatible_with))
+  if (CEF_MEMBER_MISSING(_struct, is_compatible_with)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: source; type: refptr_same
   DCHECK(source.get());
-  if (!source.get())
+  if (!source.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->is_compatible_with(

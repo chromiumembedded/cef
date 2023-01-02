@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d76ba7de3a561c71b88250340676e56dc7a9f84a$
+// $hash=3d4a026e0e0c0f45b3bfbc6efaeeda3073b94196$
 //
 
 #include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
@@ -28,8 +28,9 @@ run_context_menu_callback_cont(struct _cef_run_context_menu_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefRunContextMenuCallbackCppToC::Get(self)->Continue(command_id, event_flags);
@@ -42,8 +43,9 @@ void CEF_CALLBACK run_context_menu_callback_cancel(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefRunContextMenuCallbackCppToC::Get(self)->Cancel();

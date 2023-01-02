@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2c4dc1026a21a2712fc84c1393d4c69c0335f484$
+// $hash=117fcfcb178f8a8a08272186c250c4042fcd74c0$
 //
 
 #include "libcef_dll/cpptoc/media_route_cpptoc.h"
@@ -28,8 +28,9 @@ media_route_get_id(struct _cef_media_route_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefMediaRouteCppToC::Get(self)->GetId();
@@ -45,8 +46,9 @@ media_route_get_source(struct _cef_media_route_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMediaSource> _retval =
@@ -63,8 +65,9 @@ media_route_get_sink(struct _cef_media_route_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMediaSink> _retval = CefMediaRouteCppToC::Get(self)->GetSink();
@@ -82,12 +85,14 @@ media_route_send_route_message(struct _cef_media_route_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return;
+  }
 
   // Execute
   CefMediaRouteCppToC::Get(self)->SendRouteMessage(message, message_size);
@@ -99,8 +104,9 @@ void CEF_CALLBACK media_route_terminate(struct _cef_media_route_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMediaRouteCppToC::Get(self)->Terminate();

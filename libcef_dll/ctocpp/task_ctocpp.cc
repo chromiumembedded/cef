@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b99582b454aa33c5e9b2fa3f891ed0754621c377$
+// $hash=33c1231863fe21b1c37ddba6900c4e75cbe25421$
 //
 
 #include "libcef_dll/ctocpp/task_ctocpp.h"
@@ -18,8 +18,9 @@
 
 NO_SANITIZE("cfi-icall") void CefTaskCToCpp::Execute() {
   cef_task_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, execute))
+  if (CEF_MEMBER_MISSING(_struct, execute)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=08b0ac0ef8621f8ce81753616044a5e04dc4a191$
+// $hash=06fc26b84bc5dda324774ba87944b41e3669bfb7$
 //
 
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
@@ -27,8 +27,9 @@ x509cert_principal_get_display_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefX509CertPrincipalCppToC::Get(self)->GetDisplayName();
@@ -44,8 +45,9 @@ x509cert_principal_get_common_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefX509CertPrincipalCppToC::Get(self)->GetCommonName();
@@ -61,8 +63,9 @@ x509cert_principal_get_locality_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefX509CertPrincipalCppToC::Get(self)->GetLocalityName();
@@ -79,8 +82,9 @@ x509cert_principal_get_state_or_province_name(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -97,8 +101,9 @@ x509cert_principal_get_country_name(struct _cef_x509cert_principal_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefX509CertPrincipalCppToC::Get(self)->GetCountryName();
@@ -115,12 +120,14 @@ x509cert_principal_get_street_addresses(struct _cef_x509cert_principal_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: addresses; type: string_vec_byref
   DCHECK(addresses);
-  if (!addresses)
+  if (!addresses) {
     return;
+  }
 
   // Translate param: addresses; type: string_vec_byref
   std::vector<CefString> addressesList;
@@ -142,12 +149,14 @@ void CEF_CALLBACK x509cert_principal_get_organization_names(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: names; type: string_vec_byref
   DCHECK(names);
-  if (!names)
+  if (!names) {
     return;
+  }
 
   // Translate param: names; type: string_vec_byref
   std::vector<CefString> namesList;
@@ -169,12 +178,14 @@ void CEF_CALLBACK x509cert_principal_get_organization_unit_names(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: names; type: string_vec_byref
   DCHECK(names);
-  if (!names)
+  if (!names) {
     return;
+  }
 
   // Translate param: names; type: string_vec_byref
   std::vector<CefString> namesList;
@@ -196,12 +207,14 @@ x509cert_principal_get_domain_components(struct _cef_x509cert_principal_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: components; type: string_vec_byref
   DCHECK(components);
-  if (!components)
+  if (!components) {
     return;
+  }
 
   // Translate param: components; type: string_vec_byref
   std::vector<CefString> componentsList;

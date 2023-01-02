@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=04697e01edeb16ce60053867fa2b11d03dec3427$
+// $hash=a8e1be23deec15c2443d4adfefa81ed924a15985$
 //
 
 #include "libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.h"
@@ -19,15 +19,17 @@
 NO_SANITIZE("cfi-icall")
 void CefV8ArrayBufferReleaseCallbackCToCpp::ReleaseBuffer(void* buffer) {
   cef_v8array_buffer_release_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, release_buffer))
+  if (CEF_MEMBER_MISSING(_struct, release_buffer)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: buffer; type: simple_byaddr
   DCHECK(buffer);
-  if (!buffer)
+  if (!buffer) {
     return;
+  }
 
   // Execute
   _struct->release_buffer(_struct, buffer);

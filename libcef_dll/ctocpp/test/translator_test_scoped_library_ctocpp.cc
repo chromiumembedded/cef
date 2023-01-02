@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a3fd73f0bc089be47e4ebaf9db033d51bebe1498$
+// $hash=a7e1fb6e675934a1628d956cc7017cf67a405df6$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_ctocpp.h"
@@ -35,8 +35,9 @@ CefTranslatorTestScopedLibrary::Create(int value) {
 
 NO_SANITIZE("cfi-icall") int CefTranslatorTestScopedLibraryCToCpp::GetValue() {
   cef_translator_test_scoped_library_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_value))
+  if (CEF_MEMBER_MISSING(_struct, get_value)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -50,8 +51,9 @@ NO_SANITIZE("cfi-icall") int CefTranslatorTestScopedLibraryCToCpp::GetValue() {
 NO_SANITIZE("cfi-icall")
 void CefTranslatorTestScopedLibraryCToCpp::SetValue(int value) {
   cef_translator_test_scoped_library_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_value))
+  if (CEF_MEMBER_MISSING(_struct, set_value)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0f0475ffcd9ea6ca7f91616c52c21b3e51b075f3$
+// $hash=a4ba36a9532aa6e1a10f7e43e9ba26ab3e8faea0$
 //
 
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
@@ -28,8 +28,9 @@ before_download_callback_cont(struct _cef_before_download_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: download_path
 
   // Execute

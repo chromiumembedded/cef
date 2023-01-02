@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dab6c53c94db70fbeb54b440584a5147c52fe082$
+// $hash=720f0530ee0dff9014bc77e1475ba41de29fb890$
 //
 
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
@@ -23,8 +23,9 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
   shutdown_checker::AssertNotShutdown();
 
   cef_before_download_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7cd3cda97645c531a682b0dfefe33c4c94802dc9$
+// $hash=d180fbc2710aeb96dc4db266168281c29cc43642$
 //
 
 #include "libcef_dll/cpptoc/test/test_server_handler_cpptoc.h"
@@ -32,20 +32,24 @@ int CEF_CALLBACK test_server_handler_on_test_server_request(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return 0;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return 0;
+  }
   // Verify param: connection; type: refptr_diff
   DCHECK(connection);
-  if (!connection)
+  if (!connection) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTestServerHandlerCppToC::Get(self)->OnTestServerRequest(

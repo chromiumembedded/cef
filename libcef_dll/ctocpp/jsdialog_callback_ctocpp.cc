@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8fa9cd400d5a9ecce87183cdbbee8673845b2228$
+// $hash=eff3cd2d25f42a1155319d6eee8ea770e16c7ba7$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
@@ -23,8 +23,9 @@ void CefJSDialogCallbackCToCpp::Continue(bool success,
   shutdown_checker::AssertNotShutdown();
 
   cef_jsdialog_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

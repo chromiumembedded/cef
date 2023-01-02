@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=db92b5330f0b984051a202144f77b389501a260e$
+// $hash=c3a6ea0e93d96381917a52439f8ee86822bcfce2$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
@@ -29,12 +29,14 @@ urlrequest_client_on_request_complete(struct _cef_urlrequest_client_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
 
   // Execute
   CefURLRequestClientCppToC::Get(self)->OnRequestComplete(
@@ -51,12 +53,14 @@ urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
 
   // Execute
   CefURLRequestClientCppToC::Get(self)->OnUploadProgress(
@@ -73,12 +77,14 @@ urlrequest_client_on_download_progress(struct _cef_urlrequest_client_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
 
   // Execute
   CefURLRequestClientCppToC::Get(self)->OnDownloadProgress(
@@ -95,16 +101,19 @@ urlrequest_client_on_download_data(struct _cef_urlrequest_client_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefURLRequestClientCppToC::Get(self)->OnDownloadData(
@@ -124,20 +133,24 @@ urlrequest_client_get_auth_credentials(struct _cef_urlrequest_client_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: host; type: string_byref_const
   DCHECK(host);
-  if (!host)
+  if (!host) {
     return 0;
+  }
   // Verify param: scheme; type: string_byref_const
   DCHECK(scheme);
-  if (!scheme)
+  if (!scheme) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
   // Unverified params: realm
 
   // Execute

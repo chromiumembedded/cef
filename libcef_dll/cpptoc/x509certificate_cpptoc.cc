@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3fbe9313681f3ac9545e5042c76fa2e41db52d3d$
+// $hash=73f73c1f9dd6f55f2cdc78e66867aada8ad31a28$
 //
 
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
@@ -29,8 +29,9 @@ x509certificate_get_subject(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefX509CertPrincipal> _retval =
@@ -47,8 +48,9 @@ x509certificate_get_issuer(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefX509CertPrincipal> _retval =
@@ -65,8 +67,9 @@ x509certificate_get_serial_number(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval =
@@ -83,8 +86,9 @@ x509certificate_get_valid_start(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval = CefX509CertificateCppToC::Get(self)->GetValidStart();
@@ -100,8 +104,9 @@ x509certificate_get_valid_expiry(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval =
@@ -118,8 +123,9 @@ x509certificate_get_derencoded(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval =
@@ -136,8 +142,9 @@ x509certificate_get_pemencoded(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval =
@@ -154,8 +161,9 @@ x509certificate_get_issuer_chain_size(struct _cef_x509certificate_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefX509CertificateCppToC::Get(self)->GetIssuerChainSize();
@@ -173,12 +181,14 @@ x509certificate_get_derencoded_issuer_chain(struct _cef_x509certificate_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: chain; type: refptr_vec_same_byref
   DCHECK(chainCount && (*chainCount == 0 || chain));
-  if (!chainCount || (*chainCount > 0 && !chain))
+  if (!chainCount || (*chainCount > 0 && !chain)) {
     return;
+  }
 
   // Translate param: chain; type: refptr_vec_same_byref
   std::vector<CefRefPtr<CefBinaryValue>> chainList;
@@ -211,12 +221,14 @@ x509certificate_get_pemencoded_issuer_chain(struct _cef_x509certificate_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: chain; type: refptr_vec_same_byref
   DCHECK(chainCount && (*chainCount == 0 || chain));
-  if (!chainCount || (*chainCount > 0 && !chain))
+  if (!chainCount || (*chainCount > 0 && !chain)) {
     return;
+  }
 
   // Translate param: chain; type: refptr_vec_same_byref
   std::vector<CefRefPtr<CefBinaryValue>> chainList;

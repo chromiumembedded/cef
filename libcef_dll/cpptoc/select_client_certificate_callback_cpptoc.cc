@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5017f5bece20966b0972418228301ef32e05f740$
+// $hash=c865766a570b4a0d355791d595f74f24fb7741b2$
 //
 
 #include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
@@ -28,8 +28,9 @@ void CEF_CALLBACK select_client_certificate_callback_select(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: cert
 
   // Execute

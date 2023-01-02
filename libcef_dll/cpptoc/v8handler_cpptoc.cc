@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7a072d883f46856cf79bf868560689797b31e362$
+// $hash=27cf2c55d79ea035daa2c3b595d6a6bbe4e36b86$
 //
 
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -29,28 +29,34 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object);
-  if (!object)
+  if (!object) {
     return 0;
+  }
   // Verify param: arguments; type: refptr_vec_diff_byref_const
   DCHECK(argumentsCount == 0 || arguments);
-  if (argumentsCount > 0 && !arguments)
+  if (argumentsCount > 0 && !arguments) {
     return 0;
+  }
   // Verify param: retval; type: refptr_diff_byref
   DCHECK(retval);
-  if (!retval)
+  if (!retval) {
     return 0;
+  }
   // Verify param: exception; type: string_byref
   DCHECK(exception);
-  if (!exception)
+  if (!exception) {
     return 0;
+  }
 
   // Translate param: arguments; type: refptr_vec_diff_byref_const
   std::vector<CefRefPtr<CefV8Value>> argumentsList;
@@ -62,8 +68,9 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
   }
   // Translate param: retval; type: refptr_diff_byref
   CefRefPtr<CefV8Value> retvalPtr;
-  if (retval && *retval)
+  if (retval && *retval) {
     retvalPtr = CefV8ValueCToCpp::Wrap(*retval);
+  }
   CefV8Value* retvalOrig = retvalPtr.get();
   // Translate param: exception; type: string_byref
   CefString exceptionStr(exception);

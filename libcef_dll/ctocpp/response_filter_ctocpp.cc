@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ddb4710d1e5bc73df68f132d56661b0d22520ad9$
+// $hash=024aa882f5db1793297f5634152de31edf552559$
 //
 
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
@@ -21,8 +21,9 @@ NO_SANITIZE("cfi-icall") bool CefResponseFilterCToCpp::InitFilter() {
   shutdown_checker::AssertNotShutdown();
 
   cef_response_filter_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, init_filter))
+  if (CEF_MEMBER_MISSING(_struct, init_filter)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -44,15 +45,17 @@ CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(
   shutdown_checker::AssertNotShutdown();
 
   cef_response_filter_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, filter))
+  if (CEF_MEMBER_MISSING(_struct, filter)) {
     return RESPONSE_FILTER_ERROR;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: data_out; type: simple_byaddr
   DCHECK(data_out);
-  if (!data_out)
+  if (!data_out) {
     return RESPONSE_FILTER_ERROR;
+  }
   // Unverified params: data_in
 
   // Execute

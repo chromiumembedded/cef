@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e2297d672c66d4530e85d4c4761d1adeabe7134c$
+// $hash=37ab08ce3f3226d0d38ac05bb91dbf060e43a598$
 //
 
 #include "libcef_dll/cpptoc/permission_prompt_callback_cpptoc.h"
@@ -27,8 +27,9 @@ permission_prompt_callback_cont(struct _cef_permission_prompt_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefPermissionPromptCallbackCppToC::Get(self)->Continue(result);

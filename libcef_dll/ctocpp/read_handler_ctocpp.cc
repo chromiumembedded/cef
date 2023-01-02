@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0332caff5ce6230d2cb2d7663fc0bbfac8e45069$
+// $hash=ce1b7280f3a73296607a5f4440bffad40c73d5ad$
 //
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
@@ -22,15 +22,17 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, read))
+  if (CEF_MEMBER_MISSING(_struct, read)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = _struct->read(_struct, ptr, size, n);
@@ -44,8 +46,9 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, seek))
+  if (CEF_MEMBER_MISSING(_struct, seek)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -60,8 +63,9 @@ NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, tell))
+  if (CEF_MEMBER_MISSING(_struct, tell)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -76,8 +80,9 @@ NO_SANITIZE("cfi-icall") int CefReadHandlerCToCpp::Eof() {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, eof))
+  if (CEF_MEMBER_MISSING(_struct, eof)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -92,8 +97,9 @@ NO_SANITIZE("cfi-icall") bool CefReadHandlerCToCpp::MayBlock() {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, may_block))
+  if (CEF_MEMBER_MISSING(_struct, may_block)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

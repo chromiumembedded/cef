@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd0a4c1bd80a53778d6e40e4ebcd9d4484f91269$
+// $hash=488fdead59657c8bdb17e6d3d6a970f6b65e970e$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -21,8 +21,9 @@ NO_SANITIZE("cfi-icall") bool CefSharedMemoryRegionCToCpp::IsValid() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_memory_region_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -37,8 +38,9 @@ NO_SANITIZE("cfi-icall") size_t CefSharedMemoryRegionCToCpp::Size() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_memory_region_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, size))
+  if (CEF_MEMBER_MISSING(_struct, size)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -53,8 +55,11 @@ NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_memory_region_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, memory))
-    return nullptr;
+  if (CEF_MEMBER_MISSING(_struct, memory)) {
+    return NULL;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   const void* _retval = _struct->memory(_struct);

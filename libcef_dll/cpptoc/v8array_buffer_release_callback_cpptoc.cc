@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0a7885c5553c99c1ff7539c8aba3a340aa6f3d08$
+// $hash=cba0c0be85a7b8de588f939e43c267dbfe5eaca7$
 //
 
 #include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"
@@ -24,12 +24,14 @@ void CEF_CALLBACK v8array_buffer_release_callback_release_buffer(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: buffer; type: simple_byaddr
   DCHECK(buffer);
-  if (!buffer)
+  if (!buffer) {
     return;
+  }
 
   // Execute
   CefV8ArrayBufferReleaseCallbackCppToC::Get(self)->ReleaseBuffer(buffer);

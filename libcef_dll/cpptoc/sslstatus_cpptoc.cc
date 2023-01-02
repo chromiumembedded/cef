@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8596e5de45842c1e1de8e6377c2b7d932218c370$
+// $hash=645171054314f522ab1a56423d3ebab3346c6905$
 //
 
 #include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
@@ -26,8 +26,9 @@ int CEF_CALLBACK sslstatus_is_secure_connection(struct _cef_sslstatus_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefSSLStatusCppToC::Get(self)->IsSecureConnection();
@@ -43,8 +44,9 @@ sslstatus_get_cert_status(struct _cef_sslstatus_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CERT_STATUS_NONE;
+  }
 
   // Execute
   cef_cert_status_t _retval = CefSSLStatusCppToC::Get(self)->GetCertStatus();
@@ -60,8 +62,9 @@ sslstatus_get_sslversion(struct _cef_sslstatus_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return SSL_CONNECTION_VERSION_UNKNOWN;
+  }
 
   // Execute
   cef_ssl_version_t _retval = CefSSLStatusCppToC::Get(self)->GetSSLVersion();
@@ -77,8 +80,9 @@ sslstatus_get_content_status(struct _cef_sslstatus_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return SSL_CONTENT_NORMAL_CONTENT;
+  }
 
   // Execute
   cef_ssl_content_status_t _retval =
@@ -95,8 +99,9 @@ sslstatus_get_x509certificate(struct _cef_sslstatus_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefX509Certificate> _retval =

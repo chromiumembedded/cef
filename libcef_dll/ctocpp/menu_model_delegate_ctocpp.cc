@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=09421982fe76735de86b67b1f7d8828a1cc36f6e$
+// $hash=c979acd0dbde40884fedcfba613491006226accb$
 //
 
 #include "libcef_dll/ctocpp/menu_model_delegate_ctocpp.h"
@@ -26,15 +26,17 @@ void CefMenuModelDelegateCToCpp::ExecuteCommand(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, execute_command))
+  if (CEF_MEMBER_MISSING(_struct, execute_command)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->execute_command(_struct, CefMenuModelCppToC::Wrap(menu_model),
@@ -48,15 +50,17 @@ void CefMenuModelDelegateCToCpp::MouseOutsideMenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, mouse_outside_menu))
+  if (CEF_MEMBER_MISSING(_struct, mouse_outside_menu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->mouse_outside_menu(_struct, CefMenuModelCppToC::Wrap(menu_model),
@@ -70,15 +74,17 @@ void CefMenuModelDelegateCToCpp::UnhandledOpenSubmenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, unhandled_open_submenu))
+  if (CEF_MEMBER_MISSING(_struct, unhandled_open_submenu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->unhandled_open_submenu(_struct, CefMenuModelCppToC::Wrap(menu_model),
@@ -92,15 +98,17 @@ void CefMenuModelDelegateCToCpp::UnhandledCloseSubmenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, unhandled_close_submenu))
+  if (CEF_MEMBER_MISSING(_struct, unhandled_close_submenu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->unhandled_close_submenu(
@@ -113,15 +121,17 @@ void CefMenuModelDelegateCToCpp::MenuWillShow(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, menu_will_show))
+  if (CEF_MEMBER_MISSING(_struct, menu_will_show)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->menu_will_show(_struct, CefMenuModelCppToC::Wrap(menu_model));
@@ -133,15 +143,17 @@ void CefMenuModelDelegateCToCpp::MenuClosed(
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, menu_closed))
+  if (CEF_MEMBER_MISSING(_struct, menu_closed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return;
+  }
 
   // Execute
   _struct->menu_closed(_struct, CefMenuModelCppToC::Wrap(menu_model));
@@ -153,15 +165,17 @@ bool CefMenuModelDelegateCToCpp::FormatLabel(CefRefPtr<CefMenuModel> menu_model,
   shutdown_checker::AssertNotShutdown();
 
   cef_menu_model_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, format_label))
+  if (CEF_MEMBER_MISSING(_struct, format_label)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: menu_model; type: refptr_diff
   DCHECK(menu_model.get());
-  if (!menu_model.get())
+  if (!menu_model.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->format_label(

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a62aa669321b0f86ea3508ce31ea5b1a0bc3f9b5$
+// $hash=6c8e563997f192706a1cddfc1d785bffebdd8174$
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_ctocpp.h"
@@ -33,8 +33,9 @@ CefRefPtr<CefResourceBundle> CefResourceBundle::GetGlobal() {
 NO_SANITIZE("cfi-icall")
 CefString CefResourceBundleCToCpp::GetLocalizedString(int string_id) {
   cef_resource_bundle_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_localized_string))
+  if (CEF_MEMBER_MISSING(_struct, get_localized_string)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -52,8 +53,9 @@ NO_SANITIZE("cfi-icall")
 CefRefPtr<CefBinaryValue> CefResourceBundleCToCpp::GetDataResource(
     int resource_id) {
   cef_resource_bundle_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_data_resource))
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -70,8 +72,9 @@ CefRefPtr<CefBinaryValue> CefResourceBundleCToCpp::GetDataResourceForScale(
     int resource_id,
     ScaleFactor scale_factor) {
   cef_resource_bundle_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale))
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

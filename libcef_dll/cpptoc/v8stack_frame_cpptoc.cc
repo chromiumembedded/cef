@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bcf0ccd2d4220eaa8f31b1f4f9b64440f81f563e$
+// $hash=9140f32115725c3fc0d7a0be0450c6dc5a47d315$
 //
 
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
@@ -22,8 +22,9 @@ int CEF_CALLBACK v8stack_frame_is_valid(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8StackFrameCppToC::Get(self)->IsValid();
@@ -37,8 +38,9 @@ v8stack_frame_get_script_name(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefV8StackFrameCppToC::Get(self)->GetScriptName();
@@ -52,8 +54,9 @@ v8stack_frame_get_script_name_or_source_url(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -68,8 +71,9 @@ v8stack_frame_get_function_name(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefV8StackFrameCppToC::Get(self)->GetFunctionName();
@@ -83,8 +87,9 @@ v8stack_frame_get_line_number(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8StackFrameCppToC::Get(self)->GetLineNumber();
@@ -97,8 +102,9 @@ int CEF_CALLBACK v8stack_frame_get_column(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8StackFrameCppToC::Get(self)->GetColumn();
@@ -111,8 +117,9 @@ int CEF_CALLBACK v8stack_frame_is_eval(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8StackFrameCppToC::Get(self)->IsEval();
@@ -126,8 +133,9 @@ v8stack_frame_is_constructor(struct _cef_v8stack_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8StackFrameCppToC::Get(self)->IsConstructor();

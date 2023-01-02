@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=442b86286b5b3126fd0a0f0849ca661ef7487fb3$
+// $hash=9aeefcb3a387576c2a7ef206b9bcf57ac9c7f060$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_cpptoc.h"
@@ -39,8 +39,9 @@ int CEF_CALLBACK translator_test_scoped_library_get_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestScopedLibraryCppToC::Get(self)->GetValue();
@@ -55,8 +56,9 @@ void CEF_CALLBACK translator_test_scoped_library_set_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestScopedLibraryCppToC::Get(self)->SetValue(value);

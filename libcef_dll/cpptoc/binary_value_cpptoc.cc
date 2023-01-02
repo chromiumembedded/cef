@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd59a248f99060800fc3bab5c381784eb3309a57$
+// $hash=ae640fec7d7fd1ba5c4b373b0a4f5036f90ab744$
 //
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -25,8 +25,9 @@ CEF_EXPORT cef_binary_value_t* cef_binary_value_create(const void* data,
 
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefBinaryValue::Create(data, data_size);
@@ -45,8 +46,9 @@ int CEF_CALLBACK binary_value_is_valid(struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBinaryValueCppToC::Get(self)->IsValid();
@@ -61,8 +63,9 @@ int CEF_CALLBACK binary_value_is_owned(struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBinaryValueCppToC::Get(self)->IsOwned();
@@ -78,12 +81,14 @@ int CEF_CALLBACK binary_value_is_same(struct _cef_binary_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBinaryValueCppToC::Get(self)->IsSame(
@@ -100,12 +105,14 @@ int CEF_CALLBACK binary_value_is_equal(struct _cef_binary_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBinaryValueCppToC::Get(self)->IsEqual(
@@ -122,8 +129,9 @@ binary_value_copy(struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefBinaryValueCppToC::Get(self)->Copy();
@@ -138,8 +146,9 @@ size_t CEF_CALLBACK binary_value_get_size(struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefBinaryValueCppToC::Get(self)->GetSize();
@@ -157,12 +166,14 @@ size_t CEF_CALLBACK binary_value_get_data(struct _cef_binary_value_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: buffer; type: simple_byaddr
   DCHECK(buffer);
-  if (!buffer)
+  if (!buffer) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefBinaryValueCppToC::Get(self)->GetData(buffer, buffer_size,

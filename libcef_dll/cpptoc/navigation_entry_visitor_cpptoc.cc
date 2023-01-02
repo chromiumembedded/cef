@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc5e1a5dece19a5168915d1a6816ac4a52c1078f$
+// $hash=addccca2d817966a80bf0f33aa17b4cc2bab968c$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
@@ -31,12 +31,14 @@ navigation_entry_visitor_visit(struct _cef_navigation_entry_visitor_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: entry; type: refptr_diff
   DCHECK(entry);
-  if (!entry)
+  if (!entry) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefNavigationEntryVisitorCppToC::Get(self)->Visit(

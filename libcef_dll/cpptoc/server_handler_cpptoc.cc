@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ef239c7779477feb8808f2198e7d2063ab74156$
+// $hash=c97b6223ac1745adbc83abf78ccd3b7d401ccd20$
 //
 
 #include "libcef_dll/cpptoc/server_handler_cpptoc.h"
@@ -30,12 +30,14 @@ server_handler_on_server_created(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnServerCreated(
@@ -50,12 +52,14 @@ server_handler_on_server_destroyed(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnServerDestroyed(
@@ -71,12 +75,14 @@ server_handler_on_client_connected(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnClientConnected(
@@ -92,12 +98,14 @@ server_handler_on_client_disconnected(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnClientDisconnected(
@@ -115,20 +123,24 @@ server_handler_on_http_request(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
   // Verify param: client_address; type: string_byref_const
   DCHECK(client_address);
-  if (!client_address)
+  if (!client_address) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnHttpRequest(
@@ -148,24 +160,29 @@ server_handler_on_web_socket_request(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
   // Verify param: client_address; type: string_byref_const
   DCHECK(client_address);
-  if (!client_address)
+  if (!client_address) {
     return;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnWebSocketRequest(
@@ -182,12 +199,14 @@ server_handler_on_web_socket_connected(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnWebSocketConnected(
@@ -205,16 +224,19 @@ server_handler_on_web_socket_message(struct _cef_server_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: server; type: refptr_diff
   DCHECK(server);
-  if (!server)
+  if (!server) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefServerHandlerCppToC::Get(self)->OnWebSocketMessage(

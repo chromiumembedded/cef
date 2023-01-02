@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e4711889504d06c942d937a1e61fa48cee26b912$
+// $hash=e710aaf020af29d178d2668e24577c371ebf6d45$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -45,8 +45,9 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
 
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
-  if (!settings)
+  if (!settings) {
     return NULL;
+  }
   if (!template_util::has_valid_size(settings)) {
     NOTREACHED() << "invalid settings->[base.]size";
     return NULL;
@@ -55,8 +56,9 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
 
   // Translate param: settings; type: struct_byref_const
   CefRequestContextSettings settingsObj;
-  if (settings)
+  if (settings) {
     settingsObj.Set(*settings, false);
+  }
 
   // Execute
   CefRefPtr<CefRequestContext> _retval = CefRequestContext::CreateContext(
@@ -73,8 +75,9 @@ CEF_EXPORT cef_request_context_t* cef_create_context_shared(
 
   // Verify param: other; type: refptr_same
   DCHECK(other);
-  if (!other)
+  if (!other) {
     return NULL;
+  }
   // Unverified params: handler
 
   // Execute
@@ -95,12 +98,14 @@ int CEF_CALLBACK request_context_is_same(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: other; type: refptr_same
   DCHECK(other);
-  if (!other)
+  if (!other) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(self)->IsSame(
@@ -116,12 +121,14 @@ request_context_is_sharing_with(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: other; type: refptr_same
   DCHECK(other);
-  if (!other)
+  if (!other) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(self)->IsSharingWith(
@@ -136,8 +143,9 @@ request_context_is_global(struct _cef_request_context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(self)->IsGlobal();
@@ -151,8 +159,9 @@ request_context_get_handler(struct _cef_request_context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefRequestContextHandler> _retval =
@@ -167,8 +176,9 @@ request_context_get_cache_path(struct _cef_request_context_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefRequestContextCppToC::Get(self)->GetCachePath();
@@ -183,8 +193,9 @@ request_context_get_cookie_manager(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Unverified params: callback
 
   // Execute
@@ -204,12 +215,14 @@ int CEF_CALLBACK request_context_register_scheme_handler_factory(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
-  if (!scheme_name)
+  if (!scheme_name) {
     return 0;
+  }
   // Unverified params: domain_name, factory
 
   // Execute
@@ -227,8 +240,9 @@ int CEF_CALLBACK request_context_clear_scheme_handler_factories(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -244,8 +258,9 @@ void CEF_CALLBACK request_context_clear_certificate_exceptions(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: callback
 
   // Execute
@@ -259,8 +274,9 @@ void CEF_CALLBACK request_context_clear_http_auth_credentials(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: callback
 
   // Execute
@@ -274,8 +290,9 @@ request_context_close_all_connections(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: callback
 
   // Execute
@@ -290,16 +307,19 @@ request_context_resolve_host(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: origin; type: string_byref_const
   DCHECK(origin);
-  if (!origin)
+  if (!origin) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   // Execute
   CefRequestContextCppToC::Get(self)->ResolveHost(
@@ -314,12 +334,14 @@ request_context_load_extension(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: root_directory; type: string_byref_const
   DCHECK(root_directory);
-  if (!root_directory)
+  if (!root_directory) {
     return;
+  }
   // Unverified params: manifest, handler
 
   // Execute
@@ -334,12 +356,14 @@ request_context_did_load_extension(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension_id; type: string_byref_const
   DCHECK(extension_id);
-  if (!extension_id)
+  if (!extension_id) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(self)->DidLoadExtension(
@@ -355,12 +379,14 @@ request_context_has_extension(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension_id; type: string_byref_const
   DCHECK(extension_id);
-  if (!extension_id)
+  if (!extension_id) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -376,12 +402,14 @@ request_context_get_extensions(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: extension_ids; type: string_vec_byref
   DCHECK(extension_ids);
-  if (!extension_ids)
+  if (!extension_ids) {
     return 0;
+  }
 
   // Translate param: extension_ids; type: string_vec_byref
   std::vector<CefString> extension_idsList;
@@ -405,12 +433,14 @@ request_context_get_extension(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: extension_id; type: string_byref_const
   DCHECK(extension_id);
-  if (!extension_id)
+  if (!extension_id) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefExtension> _retval =
@@ -426,8 +456,9 @@ request_context_get_media_router(struct _cef_request_context_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Unverified params: callback
 
   // Execute
@@ -445,12 +476,14 @@ request_context_has_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(
@@ -467,12 +500,14 @@ request_context_get_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefValue> _retval =
@@ -490,8 +525,9 @@ request_context_get_all_preferences(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDictionaryValue> _retval =
@@ -509,12 +545,14 @@ request_context_can_set_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(
@@ -533,16 +571,19 @@ request_context_set_preference(struct _cef_preference_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return 0;
+  }
   // Verify param: error; type: string_byref
   DCHECK(error);
-  if (!error)
+  if (!error) {
     return 0;
+  }
   // Unverified params: value
 
   // Translate param: error; type: string_byref

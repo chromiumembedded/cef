@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3b4968443aafd1ee42fcc9a5e7b466b38fb98d28$
+// $hash=2a57133cdf0ebd14c4feb067f867f558b1403ae8$
 //
 
 #include "libcef_dll/cpptoc/resource_skip_callback_cpptoc.h"
@@ -27,8 +27,9 @@ resource_skip_callback_cont(struct _cef_resource_skip_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefResourceSkipCallbackCppToC::Get(self)->Continue(bytes_skipped);

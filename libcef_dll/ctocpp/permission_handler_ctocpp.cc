@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d7ce736678ba0f43fa3f556d22b8afa2409221fb$
+// $hash=2ff01ee1ca831e910dcd7b1767a0e9d251aa9747$
 //
 
 #include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
@@ -31,27 +31,32 @@ bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
   shutdown_checker::AssertNotShutdown();
 
   cef_permission_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_request_media_access_permission))
+  if (CEF_MEMBER_MISSING(_struct, on_request_media_access_permission)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: requesting_origin; type: string_byref_const
   DCHECK(!requesting_origin.empty());
-  if (requesting_origin.empty())
+  if (requesting_origin.empty()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_request_media_access_permission(
@@ -73,23 +78,27 @@ bool CefPermissionHandlerCToCpp::OnShowPermissionPrompt(
   shutdown_checker::AssertNotShutdown();
 
   cef_permission_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_show_permission_prompt))
+  if (CEF_MEMBER_MISSING(_struct, on_show_permission_prompt)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: requesting_origin; type: string_byref_const
   DCHECK(!requesting_origin.empty());
-  if (requesting_origin.empty())
+  if (requesting_origin.empty()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_show_permission_prompt(
@@ -109,15 +118,17 @@ void CefPermissionHandlerCToCpp::OnDismissPermissionPrompt(
   shutdown_checker::AssertNotShutdown();
 
   cef_permission_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dismiss_permission_prompt))
+  if (CEF_MEMBER_MISSING(_struct, on_dismiss_permission_prompt)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_dismiss_permission_prompt(

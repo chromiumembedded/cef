@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bb3a8a9a02dc3d2e4bdf0e926f61adc05e3af351$
+// $hash=c6c8482357711189540cbb82ae40bf9bd78b404b$
 //
 
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -28,23 +28,27 @@ bool CefDownloadHandlerCToCpp::CanDownload(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_download_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, can_download))
+  if (CEF_MEMBER_MISSING(_struct, can_download)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(!url.empty());
-  if (url.empty())
+  if (url.empty()) {
     return false;
+  }
   // Verify param: request_method; type: string_byref_const
   DCHECK(!request_method.empty());
-  if (request_method.empty())
+  if (request_method.empty()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -64,27 +68,32 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(
   shutdown_checker::AssertNotShutdown();
 
   cef_download_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_download))
+  if (CEF_MEMBER_MISSING(_struct, on_before_download)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: download_item; type: refptr_diff
   DCHECK(download_item.get());
-  if (!download_item.get())
+  if (!download_item.get()) {
     return;
+  }
   // Verify param: suggested_name; type: string_byref_const
   DCHECK(!suggested_name.empty());
-  if (suggested_name.empty())
+  if (suggested_name.empty()) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return;
+  }
 
   // Execute
   _struct->on_before_download(_struct, CefBrowserCppToC::Wrap(browser),
@@ -101,23 +110,27 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(
   shutdown_checker::AssertNotShutdown();
 
   cef_download_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_download_updated))
+  if (CEF_MEMBER_MISSING(_struct, on_download_updated)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: download_item; type: refptr_diff
   DCHECK(download_item.get());
-  if (!download_item.get())
+  if (!download_item.get()) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return;
+  }
 
   // Execute
   _struct->on_download_updated(_struct, CefBrowserCppToC::Wrap(browser),

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0192ac51914013c4452ffbb99c3a2589137f7c78$
+// $hash=2b8d7a22d62b14176b5e7a9be38c7948544c71b6$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_cpptoc.h"
@@ -50,8 +50,9 @@ translator_test_get_void(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestCppToC::Get(self)->GetVoid();
@@ -63,8 +64,9 @@ int CEF_CALLBACK translator_test_get_bool(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->GetBool();
@@ -79,8 +81,9 @@ int CEF_CALLBACK translator_test_get_int(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->GetInt();
@@ -96,8 +99,9 @@ translator_test_get_double(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   double _retval = CefTranslatorTestCppToC::Get(self)->GetDouble();
@@ -113,8 +117,9 @@ translator_test_get_long(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   long _retval = CefTranslatorTestCppToC::Get(self)->GetLong();
@@ -130,8 +135,9 @@ translator_test_get_sizet(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefTranslatorTestCppToC::Get(self)->GetSizet();
@@ -146,8 +152,9 @@ int CEF_CALLBACK translator_test_set_void(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetVoid();
@@ -163,8 +170,9 @@ int CEF_CALLBACK translator_test_set_bool(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -181,8 +189,9 @@ int CEF_CALLBACK translator_test_set_int(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetInt(val);
@@ -198,8 +207,9 @@ int CEF_CALLBACK translator_test_set_double(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetDouble(val);
@@ -215,8 +225,9 @@ int CEF_CALLBACK translator_test_set_long(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetLong(val);
@@ -232,8 +243,9 @@ int CEF_CALLBACK translator_test_set_sizet(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetSizet(val);
@@ -251,12 +263,14 @@ translator_test_set_int_list(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: simple_vec_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: simple_vec_byref_const
   std::vector<int> valList;
@@ -283,12 +297,14 @@ translator_test_get_int_list_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: simple_vec_byref
   DCHECK(valCount && (*valCount == 0 || val));
-  if (!valCount || (*valCount > 0 && !val))
+  if (!valCount || (*valCount > 0 && !val)) {
     return 0;
+  }
 
   // Translate param: val; type: simple_vec_byref
   std::vector<int> valList;
@@ -322,8 +338,9 @@ translator_test_get_int_list_size(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefTranslatorTestCppToC::Get(self)->GetIntListSize();
@@ -339,8 +356,9 @@ translator_test_get_string(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefTranslatorTestCppToC::Get(self)->GetString();
@@ -356,12 +374,14 @@ int CEF_CALLBACK translator_test_set_string(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_byref_const
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefTranslatorTestCppToC::Get(self)->SetString(CefString(val));
@@ -378,12 +398,14 @@ translator_test_get_string_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: val; type: string_byref
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return;
+  }
 
   // Translate param: val; type: string_byref
   CefString valStr(val);
@@ -400,12 +422,14 @@ translator_test_set_string_list(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_vec_byref_const
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_vec_byref_const
   std::vector<CefString> valList;
@@ -426,12 +450,14 @@ translator_test_get_string_list_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_vec_byref
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_vec_byref
   std::vector<CefString> valList;
@@ -457,12 +483,14 @@ translator_test_set_string_map(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_map_single_byref_const
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_map_single_byref_const
   std::map<CefString, CefString> valMap;
@@ -483,12 +511,14 @@ translator_test_get_string_map_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_map_single_byref
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_map_single_byref
   std::map<CefString, CefString> valMap;
@@ -513,12 +543,14 @@ translator_test_set_string_multimap(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_map_multi_byref_const
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_map_multi_byref_const
   std::multimap<CefString, CefString> valMultimap;
@@ -540,12 +572,14 @@ translator_test_get_string_multimap_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: string_map_multi_byref
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: string_map_multi_byref
   std::multimap<CefString, CefString> valMultimap;
@@ -570,8 +604,9 @@ translator_test_get_point(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefPoint();
+  }
 
   // Execute
   cef_point_t _retval = CefTranslatorTestCppToC::Get(self)->GetPoint();
@@ -587,12 +622,14 @@ int CEF_CALLBACK translator_test_set_point(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: simple_byref_const
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: simple_byref_const
   CefPoint valVal = val ? *val : CefPoint();
@@ -612,12 +649,14 @@ translator_test_get_point_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: val; type: simple_byref
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return;
+  }
 
   // Translate param: val; type: simple_byref
   CefPoint valVal = val ? *val : CefPoint();
@@ -626,8 +665,9 @@ translator_test_get_point_by_ref(struct _cef_translator_test_t* self,
   CefTranslatorTestCppToC::Get(self)->GetPointByRef(valVal);
 
   // Restore param: val; type: simple_byref
-  if (val)
+  if (val) {
     *val = valVal;
+  }
 }
 
 int CEF_CALLBACK
@@ -639,12 +679,14 @@ translator_test_set_point_list(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: simple_vec_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: simple_vec_byref_const
   std::vector<CefPoint> valList;
@@ -671,12 +713,14 @@ translator_test_get_point_list_by_ref(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: simple_vec_byref
   DCHECK(valCount && (*valCount == 0 || val));
-  if (!valCount || (*valCount > 0 && !val))
+  if (!valCount || (*valCount > 0 && !val)) {
     return 0;
+  }
 
   // Translate param: val; type: simple_vec_byref
   std::vector<CefPoint> valList;
@@ -710,8 +754,9 @@ translator_test_get_point_list_size(struct _cef_translator_test_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefTranslatorTestCppToC::Get(self)->GetPointListSize();
@@ -728,8 +773,9 @@ translator_test_get_ref_ptr_library(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrLibrary> _retval =
@@ -747,12 +793,14 @@ int CEF_CALLBACK translator_test_set_ref_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetRefPtrLibrary(
@@ -771,12 +819,14 @@ translator_test_set_ref_ptr_library_and_return(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: refptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrLibrary> _retval =
@@ -795,12 +845,14 @@ int CEF_CALLBACK translator_test_set_child_ref_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetChildRefPtrLibrary(
@@ -819,12 +871,14 @@ translator_test_set_child_ref_ptr_library_and_return_parent(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: refptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrLibrary> _retval =
@@ -846,12 +900,14 @@ int CEF_CALLBACK translator_test_set_ref_ptr_library_list(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_vec_same_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: refptr_vec_same_byref_const
   std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary>> valList;
@@ -882,12 +938,14 @@ int CEF_CALLBACK translator_test_get_ref_ptr_library_list_by_ref(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_vec_same_byref
   DCHECK(valCount && (*valCount == 0 || val));
-  if (!valCount || (*valCount > 0 && !val))
+  if (!valCount || (*valCount > 0 && !val)) {
     return 0;
+  }
 
   // Translate param: val; type: refptr_vec_same_byref
   std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary>> valList;
@@ -922,8 +980,9 @@ size_t CEF_CALLBACK translator_test_get_ref_ptr_library_list_size(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval =
@@ -941,12 +1000,14 @@ int CEF_CALLBACK translator_test_set_ref_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetRefPtrClient(
@@ -965,12 +1026,14 @@ translator_test_set_ref_ptr_client_and_return(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: refptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrClient> _retval =
@@ -989,12 +1052,14 @@ int CEF_CALLBACK translator_test_set_child_ref_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetChildRefPtrClient(
@@ -1013,12 +1078,14 @@ translator_test_set_child_ref_ptr_client_and_return_parent(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: refptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTranslatorTestRefPtrClient> _retval =
@@ -1040,12 +1107,14 @@ int CEF_CALLBACK translator_test_set_ref_ptr_client_list(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_vec_diff_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: refptr_vec_diff_byref_const
   std::vector<CefRefPtr<CefTranslatorTestRefPtrClient>> valList;
@@ -1076,20 +1145,24 @@ int CEF_CALLBACK translator_test_get_ref_ptr_client_list_by_ref(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: refptr_vec_diff_byref
   DCHECK(valCount && (*valCount == 0 || val));
-  if (!valCount || (*valCount > 0 && !val))
+  if (!valCount || (*valCount > 0 && !val)) {
     return 0;
+  }
   // Verify param: val1; type: refptr_diff
   DCHECK(val1);
-  if (!val1)
+  if (!val1) {
     return 0;
+  }
   // Verify param: val2; type: refptr_diff
   DCHECK(val2);
-  if (!val2)
+  if (!val2) {
     return 0;
+  }
 
   // Translate param: val; type: refptr_vec_diff_byref
   std::vector<CefRefPtr<CefTranslatorTestRefPtrClient>> valList;
@@ -1125,8 +1198,9 @@ size_t CEF_CALLBACK translator_test_get_ref_ptr_client_list_size(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval =
@@ -1144,8 +1218,9 @@ translator_test_get_own_ptr_library(struct _cef_translator_test_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefOwnPtr<CefTranslatorTestScopedLibrary> _retval =
@@ -1163,12 +1238,14 @@ int CEF_CALLBACK translator_test_set_own_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: ownptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetOwnPtrLibrary(
@@ -1187,12 +1264,14 @@ translator_test_set_own_ptr_library_and_return(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: ownptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefOwnPtr<CefTranslatorTestScopedLibrary> _retval =
@@ -1211,12 +1290,14 @@ int CEF_CALLBACK translator_test_set_child_own_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: ownptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetChildOwnPtrLibrary(
@@ -1235,12 +1316,14 @@ translator_test_set_child_own_ptr_library_and_return_parent(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: ownptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Execute
   CefOwnPtr<CefTranslatorTestScopedLibrary> _retval =
@@ -1259,12 +1342,14 @@ int CEF_CALLBACK translator_test_set_own_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: ownptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: ownptr_diff
   CefOwnPtr<CefTranslatorTestScopedClient> valPtr(
@@ -1287,12 +1372,14 @@ translator_test_set_own_ptr_client_and_return(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: ownptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Translate param: val; type: ownptr_diff
   CefOwnPtr<CefTranslatorTestScopedClient> valPtr(
@@ -1315,12 +1402,14 @@ int CEF_CALLBACK translator_test_set_child_own_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: ownptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: ownptr_diff
   CefOwnPtr<CefTranslatorTestScopedClientChild> valPtr(
@@ -1343,12 +1432,14 @@ translator_test_set_child_own_ptr_client_and_return_parent(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: val; type: ownptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return NULL;
+  }
 
   // Translate param: val; type: ownptr_diff
   CefOwnPtr<CefTranslatorTestScopedClientChild> valPtr(
@@ -1371,12 +1462,14 @@ int CEF_CALLBACK translator_test_set_raw_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetRawPtrLibrary(
@@ -1394,12 +1487,14 @@ int CEF_CALLBACK translator_test_set_child_raw_ptr_library(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_same
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Execute
   int _retval = CefTranslatorTestCppToC::Get(self)->SetChildRawPtrLibrary(
@@ -1420,12 +1515,14 @@ int CEF_CALLBACK translator_test_set_raw_ptr_library_list(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_vec_same_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: rawptr_vec_same_byref_const
   std::vector<CefRawPtr<CefTranslatorTestScopedLibrary>> valList;
@@ -1453,12 +1550,14 @@ int CEF_CALLBACK translator_test_set_raw_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: rawptr_diff
   CefOwnPtr<CefTranslatorTestScopedClient> valPtr(
@@ -1480,12 +1579,14 @@ int CEF_CALLBACK translator_test_set_child_raw_ptr_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_diff
   DCHECK(val);
-  if (!val)
+  if (!val) {
     return 0;
+  }
 
   // Translate param: val; type: rawptr_diff
   CefOwnPtr<CefTranslatorTestScopedClientChild> valPtr(
@@ -1510,12 +1611,14 @@ int CEF_CALLBACK translator_test_set_raw_ptr_client_list(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: val; type: rawptr_vec_diff_byref_const
   DCHECK(valCount == 0 || val);
-  if (valCount > 0 && !val)
+  if (valCount > 0 && !val) {
     return 0;
+  }
 
   // Translate param: val; type: rawptr_vec_diff_byref_const
   std::vector<CefRawPtr<CefTranslatorTestScopedClient>> valList;

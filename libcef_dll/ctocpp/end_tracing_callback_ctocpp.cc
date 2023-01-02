@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7f660f5500f6e299ef56d598c71ade363f5581b9$
+// $hash=d62144c01e5efa6355c635ada089496a0fef4ec5$
 //
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
@@ -23,15 +23,17 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
   shutdown_checker::AssertNotShutdown();
 
   cef_end_tracing_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_end_tracing_complete))
+  if (CEF_MEMBER_MISSING(_struct, on_end_tracing_complete)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: tracing_file; type: string_byref_const
   DCHECK(!tracing_file.empty());
-  if (tracing_file.empty())
+  if (tracing_file.empty()) {
     return;
+  }
 
   // Execute
   _struct->on_end_tracing_complete(_struct, tracing_file.GetStruct());

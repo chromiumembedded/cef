@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7f280440c705606151f40b5c50d62483e75ab0ba$
+// $hash=67b8663a4c699cbffeba193c1b581bce765d6d50$
 //
 
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
@@ -32,27 +32,32 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_context_menu))
+  if (CEF_MEMBER_MISSING(_struct, on_before_context_menu)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params.get());
-  if (!params.get())
+  if (!params.get()) {
     return;
+  }
   // Verify param: model; type: refptr_diff
   DCHECK(model.get());
-  if (!model.get())
+  if (!model.get()) {
     return;
+  }
 
   // Execute
   _struct->on_before_context_menu(_struct, CefBrowserCppToC::Wrap(browser),
@@ -71,31 +76,37 @@ bool CefContextMenuHandlerCToCpp::RunContextMenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, run_context_menu))
+  if (CEF_MEMBER_MISSING(_struct, run_context_menu)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params.get());
-  if (!params.get())
+  if (!params.get()) {
     return false;
+  }
   // Verify param: model; type: refptr_diff
   DCHECK(model.get());
-  if (!model.get())
+  if (!model.get()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->run_context_menu(
@@ -117,23 +128,27 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_context_menu_command))
+  if (CEF_MEMBER_MISSING(_struct, on_context_menu_command)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: params; type: refptr_diff
   DCHECK(params.get());
-  if (!params.get())
+  if (!params.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_context_menu_command(
@@ -151,19 +166,22 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_context_menu_dismissed))
+  if (CEF_MEMBER_MISSING(_struct, on_context_menu_dismissed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_context_menu_dismissed(_struct, CefBrowserCppToC::Wrap(browser),
@@ -181,23 +199,27 @@ bool CefContextMenuHandlerCToCpp::RunQuickMenu(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, run_quick_menu))
+  if (CEF_MEMBER_MISSING(_struct, run_quick_menu)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->run_quick_menu(
@@ -218,19 +240,22 @@ bool CefContextMenuHandlerCToCpp::OnQuickMenuCommand(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_command))
+  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_command)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_quick_menu_command(
@@ -248,19 +273,22 @@ void CefContextMenuHandlerCToCpp::OnQuickMenuDismissed(
   shutdown_checker::AssertNotShutdown();
 
   cef_context_menu_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_dismissed))
+  if (CEF_MEMBER_MISSING(_struct, on_quick_menu_dismissed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_quick_menu_dismissed(_struct, CefBrowserCppToC::Wrap(browser),

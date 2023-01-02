@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=72d9dc0e438de96161f262353c153c11b76f8ad0$
+// $hash=5a00cba2b704ea26cf404ca0aab08be98ce08154$
 //
 
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
@@ -33,20 +33,24 @@ int CEF_CALLBACK resource_handler_open(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return 0;
+  }
   // Verify param: handle_request; type: bool_byref
   DCHECK(handle_request);
-  if (!handle_request)
+  if (!handle_request) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Translate param: handle_request; type: bool_byref
   bool handle_requestBool = (handle_request && *handle_request) ? true : false;
@@ -57,8 +61,9 @@ int CEF_CALLBACK resource_handler_open(struct _cef_resource_handler_t* self,
       CefCallbackCToCpp::Wrap(callback));
 
   // Restore param: handle_request; type: bool_byref
-  if (handle_request)
+  if (handle_request) {
     *handle_request = handle_requestBool ? true : false;
+  }
 
   // Return type: bool
   return _retval;
@@ -73,16 +78,19 @@ resource_handler_process_request(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefResourceHandlerCppToC::Get(self)->ProcessRequest(
@@ -102,20 +110,24 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response);
-  if (!response)
+  if (!response) {
     return;
+  }
   // Verify param: response_length; type: simple_byref
   DCHECK(response_length);
-  if (!response_length)
+  if (!response_length) {
     return;
+  }
   // Verify param: redirectUrl; type: string_byref
   DCHECK(redirectUrl);
-  if (!redirectUrl)
+  if (!redirectUrl) {
     return;
+  }
 
   // Translate param: response_length; type: simple_byref
   int64 response_lengthVal = response_length ? *response_length : 0;
@@ -127,8 +139,9 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
       CefResponseCToCpp::Wrap(response), response_lengthVal, redirectUrlStr);
 
   // Restore param: response_length; type: simple_byref
-  if (response_length)
+  if (response_length) {
     *response_length = response_lengthVal;
+  }
 }
 
 int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
@@ -140,16 +153,19 @@ int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: bytes_skipped; type: simple_byref
   DCHECK(bytes_skipped);
-  if (!bytes_skipped)
+  if (!bytes_skipped) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Translate param: bytes_skipped; type: simple_byref
   int64 bytes_skippedVal = bytes_skipped ? *bytes_skipped : 0;
@@ -160,8 +176,9 @@ int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
       CefResourceSkipCallbackCToCpp::Wrap(callback));
 
   // Restore param: bytes_skipped; type: simple_byref
-  if (bytes_skipped)
+  if (bytes_skipped) {
     *bytes_skipped = bytes_skippedVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -177,20 +194,24 @@ int CEF_CALLBACK resource_handler_read(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: data_out; type: simple_byaddr
   DCHECK(data_out);
-  if (!data_out)
+  if (!data_out) {
     return 0;
+  }
   // Verify param: bytes_read; type: simple_byref
   DCHECK(bytes_read);
-  if (!bytes_read)
+  if (!bytes_read) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Translate param: bytes_read; type: simple_byref
   int bytes_readVal = bytes_read ? *bytes_read : 0;
@@ -201,8 +222,9 @@ int CEF_CALLBACK resource_handler_read(struct _cef_resource_handler_t* self,
       CefResourceReadCallbackCToCpp::Wrap(callback));
 
   // Restore param: bytes_read; type: simple_byref
-  if (bytes_read)
+  if (bytes_read) {
     *bytes_read = bytes_readVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -219,20 +241,24 @@ resource_handler_read_response(struct _cef_resource_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: data_out; type: simple_byaddr
   DCHECK(data_out);
-  if (!data_out)
+  if (!data_out) {
     return 0;
+  }
   // Verify param: bytes_read; type: simple_byref
   DCHECK(bytes_read);
-  if (!bytes_read)
+  if (!bytes_read) {
     return 0;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return 0;
+  }
 
   // Translate param: bytes_read; type: simple_byref
   int bytes_readVal = bytes_read ? *bytes_read : 0;
@@ -243,8 +269,9 @@ resource_handler_read_response(struct _cef_resource_handler_t* self,
       CefCallbackCToCpp::Wrap(callback));
 
   // Restore param: bytes_read; type: simple_byref
-  if (bytes_read)
+  if (bytes_read) {
     *bytes_read = bytes_readVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -257,8 +284,9 @@ resource_handler_cancel(struct _cef_resource_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefResourceHandlerCppToC::Get(self)->Cancel();

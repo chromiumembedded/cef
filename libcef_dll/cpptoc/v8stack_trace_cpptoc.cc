@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=69faf917e01945c29e5f20a00abbcc69aac7c0a7$
+// $hash=f2e03b1ebb215b895e8b74cf49816fbe6eeccf26$
 //
 
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
@@ -40,8 +40,9 @@ int CEF_CALLBACK v8stack_trace_is_valid(struct _cef_v8stack_trace_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefV8StackTraceCppToC::Get(self)->IsValid();
@@ -57,8 +58,9 @@ v8stack_trace_get_frame_count(struct _cef_v8stack_trace_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefV8StackTraceCppToC::Get(self)->GetFrameCount();
@@ -74,8 +76,9 @@ v8stack_trace_get_frame(struct _cef_v8stack_trace_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefV8StackFrame> _retval =

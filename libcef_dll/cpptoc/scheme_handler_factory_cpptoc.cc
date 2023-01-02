@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=abd81866575f873556b4ae40313ea65c89219756$
+// $hash=bf6605b9c5545c7b739ee45b368b8b8d657c7961$
 //
 
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
@@ -31,16 +31,19 @@ scheme_handler_factory_create(struct _cef_scheme_handler_factory_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
-  if (!scheme_name)
+  if (!scheme_name) {
     return NULL;
+  }
   // Verify param: request; type: refptr_diff
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Unverified params: browser, frame
 
   // Execute

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=54962c13fcad1a38aaad37a7dae6744090ebee97$
+// $hash=956da62e09f176547af7d7ff7696bf7374ac1f2f$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
@@ -25,15 +25,17 @@ void CefURLRequestClientCToCpp::OnRequestComplete(
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_request_complete))
+  if (CEF_MEMBER_MISSING(_struct, on_request_complete)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
 
   // Execute
   _struct->on_request_complete(_struct, CefURLRequestCppToC::Wrap(request));
@@ -47,15 +49,17 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_upload_progress))
+  if (CEF_MEMBER_MISSING(_struct, on_upload_progress)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
 
   // Execute
   _struct->on_upload_progress(_struct, CefURLRequestCppToC::Wrap(request),
@@ -70,15 +74,17 @@ void CefURLRequestClientCToCpp::OnDownloadProgress(
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_download_progress))
+  if (CEF_MEMBER_MISSING(_struct, on_download_progress)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
 
   // Execute
   _struct->on_download_progress(_struct, CefURLRequestCppToC::Wrap(request),
@@ -92,19 +98,22 @@ void CefURLRequestClientCToCpp::OnDownloadData(CefRefPtr<CefURLRequest> request,
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_download_data))
+  if (CEF_MEMBER_MISSING(_struct, on_download_data)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   _struct->on_download_data(_struct, CefURLRequestCppToC::Wrap(request), data,
@@ -122,23 +131,27 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
+  if (CEF_MEMBER_MISSING(_struct, get_auth_credentials)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: host; type: string_byref_const
   DCHECK(!host.empty());
-  if (host.empty())
+  if (host.empty()) {
     return false;
+  }
   // Verify param: scheme; type: string_byref_const
   DCHECK(!scheme.empty());
-  if (scheme.empty())
+  if (scheme.empty()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
   // Unverified params: realm
 
   // Execute

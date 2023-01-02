@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53bd2b4cabde53903719d240c7c9f6000cbf1a37$
+// $hash=e898cf0b420fd86d6dd345fdae18f297da93a09b$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
@@ -32,20 +32,24 @@ display_handler_on_address_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return;
+  }
 
   // Execute
   CefDisplayHandlerCppToC::Get(self)->OnAddressChange(
@@ -62,12 +66,14 @@ display_handler_on_title_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: title
 
   // Execute
@@ -84,12 +90,14 @@ display_handler_on_favicon_urlchange(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: icon_urls
 
   // Translate param: icon_urls; type: string_vec_byref_const
@@ -110,12 +118,14 @@ display_handler_on_fullscreen_mode_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefDisplayHandlerCppToC::Get(self)->OnFullscreenModeChange(
@@ -130,12 +140,14 @@ int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Unverified params: text
 
   // Translate param: text; type: string_byref
@@ -158,12 +170,14 @@ display_handler_on_status_message(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: value
 
   // Execute
@@ -183,12 +197,14 @@ display_handler_on_console_message(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Unverified params: message, source
 
   // Execute
@@ -209,16 +225,19 @@ display_handler_on_auto_resize(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: new_size; type: simple_byref_const
   DCHECK(new_size);
-  if (!new_size)
+  if (!new_size) {
     return 0;
+  }
 
   // Translate param: new_size; type: simple_byref_const
   CefSize new_sizeVal = new_size ? *new_size : CefSize();
@@ -240,12 +259,14 @@ display_handler_on_loading_progress_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefDisplayHandlerCppToC::Get(self)->OnLoadingProgressChange(
@@ -263,16 +284,19 @@ display_handler_on_cursor_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: custom_cursor_info; type: simple_byref_const
   DCHECK(custom_cursor_info);
-  if (!custom_cursor_info)
+  if (!custom_cursor_info) {
     return 0;
+  }
 
   // Translate param: custom_cursor_info; type: simple_byref_const
   CefCursorInfo custom_cursor_infoVal =
@@ -296,12 +320,14 @@ display_handler_on_media_access_change(struct _cef_display_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefDisplayHandlerCppToC::Get(self)->OnMediaAccessChange(

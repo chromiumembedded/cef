@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=074dadfb1f84663a3efd6e8532257236b3c0634f$
+// $hash=60cc6a84bbd0c6822e9722687de05d265a3d8a1b$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -29,8 +29,9 @@ int CEF_CALLBACK browser_is_valid(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->IsValid();
@@ -46,8 +47,9 @@ browser_get_host(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowserHost> _retval = CefBrowserCppToC::Get(self)->GetHost();
@@ -62,8 +64,9 @@ int CEF_CALLBACK browser_can_go_back(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->CanGoBack();
@@ -78,8 +81,9 @@ void CEF_CALLBACK browser_go_back(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserCppToC::Get(self)->GoBack();
@@ -91,8 +95,9 @@ int CEF_CALLBACK browser_can_go_forward(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->CanGoForward();
@@ -107,8 +112,9 @@ void CEF_CALLBACK browser_go_forward(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserCppToC::Get(self)->GoForward();
@@ -120,8 +126,9 @@ int CEF_CALLBACK browser_is_loading(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->IsLoading();
@@ -136,8 +143,9 @@ void CEF_CALLBACK browser_reload(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserCppToC::Get(self)->Reload();
@@ -149,8 +157,9 @@ void CEF_CALLBACK browser_reload_ignore_cache(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserCppToC::Get(self)->ReloadIgnoreCache();
@@ -162,8 +171,9 @@ void CEF_CALLBACK browser_stop_load(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserCppToC::Get(self)->StopLoad();
@@ -175,8 +185,9 @@ int CEF_CALLBACK browser_get_identifier(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefBrowserCppToC::Get(self)->GetIdentifier();
@@ -192,12 +203,14 @@ int CEF_CALLBACK browser_is_same(struct _cef_browser_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -213,8 +226,9 @@ int CEF_CALLBACK browser_is_popup(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->IsPopup();
@@ -229,8 +243,9 @@ int CEF_CALLBACK browser_has_document(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefBrowserCppToC::Get(self)->HasDocument();
@@ -246,8 +261,9 @@ browser_get_main_frame(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval = CefBrowserCppToC::Get(self)->GetMainFrame();
@@ -263,8 +279,9 @@ browser_get_focused_frame(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval = CefBrowserCppToC::Get(self)->GetFocusedFrame();
@@ -280,8 +297,9 @@ browser_get_frame_byident(struct _cef_browser_t* self, int64 identifier) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval =
@@ -298,8 +316,9 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Unverified params: name
 
   // Execute
@@ -316,8 +335,9 @@ size_t CEF_CALLBACK browser_get_frame_count(struct _cef_browser_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefBrowserCppToC::Get(self)->GetFrameCount();
@@ -334,12 +354,14 @@ void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: identifiers; type: simple_vec_byref
   DCHECK(identifiersCount && (*identifiersCount == 0 || identifiers));
-  if (!identifiersCount || (*identifiersCount > 0 && !identifiers))
+  if (!identifiersCount || (*identifiersCount > 0 && !identifiers)) {
     return;
+  }
 
   // Translate param: identifiers; type: simple_vec_byref
   std::vector<int64> identifiersList;
@@ -370,12 +392,14 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: names; type: string_vec_byref
   DCHECK(names);
-  if (!names)
+  if (!names) {
     return;
+  }
 
   // Translate param: names; type: string_vec_byref
   std::vector<CefString> namesList;

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9664002969db52fb75ab4f02ecd72aa7c4473115$
+// $hash=20d3c82d71ea1ba068d4b86487b9f24ae0bdaa29$
 //
 
 #include "libcef_dll/ctocpp/media_sink_device_info_callback_ctocpp.h"
@@ -23,8 +23,9 @@ void CefMediaSinkDeviceInfoCallbackCToCpp::OnMediaSinkDeviceInfo(
   shutdown_checker::AssertNotShutdown();
 
   cef_media_sink_device_info_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_media_sink_device_info))
+  if (CEF_MEMBER_MISSING(_struct, on_media_sink_device_info)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

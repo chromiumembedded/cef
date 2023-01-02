@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a7787d39e5f102f937542ace81de0277affab1a4$
+// $hash=7b605cbe624fc1d82b3b74000a03a7941fba7eba$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
@@ -25,15 +25,17 @@ bool CefTextfieldDelegateCToCpp::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
   shutdown_checker::AssertNotShutdown();
 
   cef_textfield_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_key_event))
+  if (CEF_MEMBER_MISSING(_struct, on_key_event)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: textfield; type: refptr_diff
   DCHECK(textfield.get());
-  if (!textfield.get())
+  if (!textfield.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_key_event(
@@ -49,15 +51,17 @@ void CefTextfieldDelegateCToCpp::OnAfterUserAction(
   shutdown_checker::AssertNotShutdown();
 
   cef_textfield_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_after_user_action))
+  if (CEF_MEMBER_MISSING(_struct, on_after_user_action)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: textfield; type: refptr_diff
   DCHECK(textfield.get());
-  if (!textfield.get())
+  if (!textfield.get()) {
     return;
+  }
 
   // Execute
   _struct->on_after_user_action(_struct, CefTextfieldCppToC::Wrap(textfield));
@@ -69,15 +73,17 @@ CefSize CefTextfieldDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_preferred_size))
+  if (CEF_MEMBER_MISSING(_struct, get_preferred_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -93,15 +99,17 @@ CefSize CefTextfieldDelegateCToCpp::GetMinimumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_minimum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_minimum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -117,15 +125,17 @@ CefSize CefTextfieldDelegateCToCpp::GetMaximumSize(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_maximum_size))
+  if (CEF_MEMBER_MISSING(_struct, get_maximum_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval =
@@ -142,15 +152,17 @@ int CefTextfieldDelegateCToCpp::GetHeightForWidth(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, get_height_for_width))
+  if (CEF_MEMBER_MISSING(_struct, get_height_for_width)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -169,19 +181,22 @@ void CefTextfieldDelegateCToCpp::OnParentViewChanged(
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_parent_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: parent; type: refptr_diff
   DCHECK(parent.get());
-  if (!parent.get())
+  if (!parent.get()) {
     return;
+  }
 
   // Execute
   _struct->on_parent_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -196,19 +211,22 @@ void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_child_view_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
   // Verify param: child; type: refptr_diff
   DCHECK(child.get());
-  if (!child.get())
+  if (!child.get()) {
     return;
+  }
 
   // Execute
   _struct->on_child_view_changed(_struct, CefViewCppToC::Wrap(view), added,
@@ -222,15 +240,17 @@ void CefTextfieldDelegateCToCpp::OnWindowChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_window_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_window_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_window_changed(_struct, CefViewCppToC::Wrap(view), added);
@@ -243,15 +263,17 @@ void CefTextfieldDelegateCToCpp::OnLayoutChanged(CefRefPtr<CefView> view,
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_layout_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_layout_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_layout_changed(_struct, CefViewCppToC::Wrap(view), &new_bounds);
@@ -263,15 +285,17 @@ void CefTextfieldDelegateCToCpp::OnFocus(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_focus(_struct, CefViewCppToC::Wrap(view));
@@ -283,15 +307,17 @@ void CefTextfieldDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 
   cef_view_delegate_t* _struct =
       reinterpret_cast<cef_view_delegate_t*>(GetStruct());
-  if (CEF_MEMBER_MISSING(_struct, on_blur))
+  if (CEF_MEMBER_MISSING(_struct, on_blur)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: view; type: refptr_diff
   DCHECK(view.get());
-  if (!view.get())
+  if (!view.get()) {
     return;
+  }
 
   // Execute
   _struct->on_blur(_struct, CefViewCppToC::Wrap(view));

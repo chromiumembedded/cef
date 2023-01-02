@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ef330e0d61e143966544b8a80f04b72dc32ec4e3$
+// $hash=46485b99f5f5805d9420da3af282d1279f80481c$
 //
 
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
@@ -21,8 +21,9 @@ NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Continue() {
   shutdown_checker::AssertNotShutdown();
 
   cef_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -34,8 +35,9 @@ NO_SANITIZE("cfi-icall") void CefCallbackCToCpp::Cancel() {
   shutdown_checker::AssertNotShutdown();
 
   cef_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cancel))
+  if (CEF_MEMBER_MISSING(_struct, cancel)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

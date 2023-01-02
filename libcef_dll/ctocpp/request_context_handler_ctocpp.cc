@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a57c9c762ed21459113a931ad31387aa1ab2c441$
+// $hash=9125fa607d69db95c303e9c73448e854c44d15cc$
 //
 
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
@@ -25,15 +25,17 @@ NO_SANITIZE("cfi-icall")
 void CefRequestContextHandlerCToCpp::OnRequestContextInitialized(
     CefRefPtr<CefRequestContext> request_context) {
   cef_request_context_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_request_context_initialized))
+  if (CEF_MEMBER_MISSING(_struct, on_request_context_initialized)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request_context; type: refptr_diff
   DCHECK(request_context.get());
-  if (!request_context.get())
+  if (!request_context.get()) {
     return;
+  }
 
   // Execute
   _struct->on_request_context_initialized(
@@ -51,15 +53,17 @@ CefRequestContextHandlerCToCpp::GetResourceRequestHandler(
     const CefString& request_initiator,
     bool& disable_default_handling) {
   cef_request_context_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_resource_request_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return nullptr;
+  }
   // Unverified params: browser, frame, request_initiator
 
   // Translate param: disable_default_handling; type: bool_byref

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d171aff72ef24ed2b85182e98b2b8d609ae25ddd$
+// $hash=ce835458848e642bc1f9a8231a7d6996f4db85ee$
 //
 
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
@@ -168,8 +168,9 @@ NO_SANITIZE("cfi-icall") int64 CefDisplayCToCpp::GetID() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_id))
+  if (CEF_MEMBER_MISSING(_struct, get_id)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -184,8 +185,9 @@ NO_SANITIZE("cfi-icall") float CefDisplayCToCpp::GetDeviceScaleFactor() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_device_scale_factor))
+  if (CEF_MEMBER_MISSING(_struct, get_device_scale_factor)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -201,8 +203,9 @@ void CefDisplayCToCpp::ConvertPointToPixels(CefPoint& point) {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, convert_point_to_pixels))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_to_pixels)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -215,8 +218,9 @@ void CefDisplayCToCpp::ConvertPointFromPixels(CefPoint& point) {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, convert_point_from_pixels))
+  if (CEF_MEMBER_MISSING(_struct, convert_point_from_pixels)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -228,8 +232,9 @@ NO_SANITIZE("cfi-icall") CefRect CefDisplayCToCpp::GetBounds() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_bounds))
+  if (CEF_MEMBER_MISSING(_struct, get_bounds)) {
     return CefRect();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -244,8 +249,9 @@ NO_SANITIZE("cfi-icall") CefRect CefDisplayCToCpp::GetWorkArea() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_work_area))
+  if (CEF_MEMBER_MISSING(_struct, get_work_area)) {
     return CefRect();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -260,8 +266,9 @@ NO_SANITIZE("cfi-icall") int CefDisplayCToCpp::GetRotation() {
   shutdown_checker::AssertNotShutdown();
 
   cef_display_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_rotation))
+  if (CEF_MEMBER_MISSING(_struct, get_rotation)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

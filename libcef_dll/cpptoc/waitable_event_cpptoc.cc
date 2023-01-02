@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ea0c4c4d8c202a47a9b5b63a57525dc726c1e40e$
+// $hash=3a713f33f726dab21c7e477861c9160b080f9005$
 //
 
 #include "libcef_dll/cpptoc/waitable_event_cpptoc.h"
@@ -42,8 +42,9 @@ void CEF_CALLBACK waitable_event_reset(struct _cef_waitable_event_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefWaitableEventCppToC::Get(self)->Reset();
@@ -55,8 +56,9 @@ void CEF_CALLBACK waitable_event_signal(struct _cef_waitable_event_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefWaitableEventCppToC::Get(self)->Signal();
@@ -69,8 +71,9 @@ waitable_event_is_signaled(struct _cef_waitable_event_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefWaitableEventCppToC::Get(self)->IsSignaled();
@@ -85,8 +88,9 @@ void CEF_CALLBACK waitable_event_wait(struct _cef_waitable_event_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefWaitableEventCppToC::Get(self)->Wait();
@@ -99,8 +103,9 @@ int CEF_CALLBACK waitable_event_timed_wait(struct _cef_waitable_event_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefWaitableEventCppToC::Get(self)->TimedWait(max_ms);

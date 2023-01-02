@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ae76b861609dc9f1b0d033dcebf514d8ef68a57$
+// $hash=1be4d8919dc1f776e8c5b897757ed215df15fb06$
 //
 
 #include "libcef_dll/cpptoc/extension_cpptoc.h"
@@ -29,8 +29,9 @@ extension_get_identifier(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefExtensionCppToC::Get(self)->GetIdentifier();
@@ -46,8 +47,9 @@ extension_get_path(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefExtensionCppToC::Get(self)->GetPath();
@@ -63,8 +65,9 @@ extension_get_manifest(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefDictionaryValue> _retval =
@@ -81,12 +84,14 @@ int CEF_CALLBACK extension_is_same(struct _cef_extension_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -103,8 +108,9 @@ extension_get_handler(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefExtensionHandler> _retval =
@@ -121,8 +127,9 @@ extension_get_loader_context(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefRequestContext> _retval =
@@ -138,8 +145,9 @@ int CEF_CALLBACK extension_is_loaded(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefExtensionCppToC::Get(self)->IsLoaded();
@@ -154,8 +162,9 @@ void CEF_CALLBACK extension_unload(struct _cef_extension_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefExtensionCppToC::Get(self)->Unload();

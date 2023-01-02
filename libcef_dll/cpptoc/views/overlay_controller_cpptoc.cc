@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6cf61c4e2900a7776278d4a0542f2b3e32d4420b$
+// $hash=8ebed0f097f98544037eeebfb9b2dbf21d579f03$
 //
 
 #include "libcef_dll/cpptoc/views/overlay_controller_cpptoc.h"
@@ -28,8 +28,9 @@ overlay_controller_is_valid(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefOverlayControllerCppToC::Get(self)->IsValid();
@@ -46,12 +47,14 @@ overlay_controller_is_same(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefOverlayControllerCppToC::Get(self)->IsSame(
@@ -68,8 +71,9 @@ overlay_controller_get_contents_view(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefView> _retval =
@@ -86,8 +90,9 @@ overlay_controller_get_window(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefWindow> _retval =
@@ -104,8 +109,9 @@ overlay_controller_get_docking_mode(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CEF_DOCKING_MODE_TOP_LEFT;
+  }
 
   // Execute
   cef_docking_mode_t _retval =
@@ -122,8 +128,9 @@ overlay_controller_destroy(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefOverlayControllerCppToC::Get(self)->Destroy();
@@ -137,12 +144,14 @@ overlay_controller_set_bounds(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: bounds; type: simple_byref_const
   DCHECK(bounds);
-  if (!bounds)
+  if (!bounds) {
     return;
+  }
 
   // Translate param: bounds; type: simple_byref_const
   CefRect boundsVal = bounds ? *bounds : CefRect();
@@ -158,8 +167,9 @@ overlay_controller_get_bounds(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval = CefOverlayControllerCppToC::Get(self)->GetBounds();
@@ -175,8 +185,9 @@ cef_rect_t CEF_CALLBACK overlay_controller_get_bounds_in_screen(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval =
@@ -194,12 +205,14 @@ overlay_controller_set_size(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: size; type: simple_byref_const
   DCHECK(size);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   // Translate param: size; type: simple_byref_const
   CefSize sizeVal = size ? *size : CefSize();
@@ -215,8 +228,9 @@ overlay_controller_get_size(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = CefOverlayControllerCppToC::Get(self)->GetSize();
@@ -233,12 +247,14 @@ overlay_controller_set_position(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: position; type: simple_byref_const
   DCHECK(position);
-  if (!position)
+  if (!position) {
     return;
+  }
 
   // Translate param: position; type: simple_byref_const
   CefPoint positionVal = position ? *position : CefPoint();
@@ -254,8 +270,9 @@ overlay_controller_get_position(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefPoint();
+  }
 
   // Execute
   cef_point_t _retval = CefOverlayControllerCppToC::Get(self)->GetPosition();
@@ -272,12 +289,14 @@ overlay_controller_set_insets(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: insets; type: simple_byref_const
   DCHECK(insets);
-  if (!insets)
+  if (!insets) {
     return;
+  }
 
   // Translate param: insets; type: simple_byref_const
   CefInsets insetsVal = insets ? *insets : CefInsets();
@@ -293,8 +312,9 @@ overlay_controller_get_insets(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefInsets();
+  }
 
   // Execute
   cef_insets_t _retval = CefOverlayControllerCppToC::Get(self)->GetInsets();
@@ -310,8 +330,9 @@ void CEF_CALLBACK overlay_controller_size_to_preferred_size(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefOverlayControllerCppToC::Get(self)->SizeToPreferredSize();
@@ -325,8 +346,9 @@ overlay_controller_set_visible(struct _cef_overlay_controller_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefOverlayControllerCppToC::Get(self)->SetVisible(visible ? true : false);
@@ -339,8 +361,9 @@ overlay_controller_is_visible(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefOverlayControllerCppToC::Get(self)->IsVisible();
@@ -356,8 +379,9 @@ overlay_controller_is_drawn(struct _cef_overlay_controller_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefOverlayControllerCppToC::Get(self)->IsDrawn();

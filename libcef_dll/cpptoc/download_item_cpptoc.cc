@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6ced91f96527ec3d231208e0bcadbbd557f41d65$
+// $hash=cb94a7a2bc730d84808942098434a9fa482e348d$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -25,8 +25,9 @@ int CEF_CALLBACK download_item_is_valid(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDownloadItemCppToC::Get(self)->IsValid();
@@ -42,8 +43,9 @@ download_item_is_in_progress(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDownloadItemCppToC::Get(self)->IsInProgress();
@@ -58,8 +60,9 @@ int CEF_CALLBACK download_item_is_complete(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDownloadItemCppToC::Get(self)->IsComplete();
@@ -74,8 +77,9 @@ int CEF_CALLBACK download_item_is_canceled(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDownloadItemCppToC::Get(self)->IsCanceled();
@@ -91,8 +95,9 @@ download_item_get_current_speed(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefDownloadItemCppToC::Get(self)->GetCurrentSpeed();
@@ -108,8 +113,9 @@ download_item_get_percent_complete(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefDownloadItemCppToC::Get(self)->GetPercentComplete();
@@ -125,8 +131,9 @@ download_item_get_total_bytes(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefDownloadItemCppToC::Get(self)->GetTotalBytes();
@@ -142,8 +149,9 @@ download_item_get_received_bytes(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefDownloadItemCppToC::Get(self)->GetReceivedBytes();
@@ -159,8 +167,9 @@ download_item_get_start_time(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval = CefDownloadItemCppToC::Get(self)->GetStartTime();
@@ -176,8 +185,9 @@ download_item_get_end_time(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval = CefDownloadItemCppToC::Get(self)->GetEndTime();
@@ -193,8 +203,9 @@ download_item_get_full_path(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetFullPath();
@@ -209,8 +220,9 @@ uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   uint32 _retval = CefDownloadItemCppToC::Get(self)->GetId();
@@ -226,8 +238,9 @@ download_item_get_url(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetURL();
@@ -243,8 +256,9 @@ download_item_get_original_url(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetOriginalUrl();
@@ -260,8 +274,9 @@ download_item_get_suggested_file_name(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetSuggestedFileName();
@@ -277,8 +292,9 @@ download_item_get_content_disposition(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetContentDisposition();
@@ -294,8 +310,9 @@ download_item_get_mime_type(struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefDownloadItemCppToC::Get(self)->GetMimeType();

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=374e065650a2c8fb36590542723d8e171f5de9ad$
+// $hash=55296997cc48bab5c04548fa063f0692bfad12c5$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -38,34 +38,40 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   shutdown_checker::AssertNotShutdown();
 
   cef_life_span_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_popup))
+  if (CEF_MEMBER_MISSING(_struct, on_before_popup)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return false;
+  }
   // Verify param: no_javascript_access; type: bool_byaddr
   DCHECK(no_javascript_access);
-  if (!no_javascript_access)
+  if (!no_javascript_access) {
     return false;
+  }
   // Unverified params: target_url, target_frame_name
 
   // Translate param: client; type: refptr_same_byref
   cef_client_t* clientStruct = NULL;
-  if (client.get())
+  if (client.get()) {
     clientStruct = CefClientCToCpp::Unwrap(client);
+  }
   cef_client_t* clientOrig = clientStruct;
   // Translate param: extra_info; type: refptr_diff_byref
   cef_dictionary_value_t* extra_infoStruct = NULL;
-  if (extra_info.get())
+  if (extra_info.get()) {
     extra_infoStruct = CefDictionaryValueCppToC::Wrap(extra_info);
+  }
   cef_dictionary_value_t* extra_infoOrig = extra_infoStruct;
   // Translate param: no_javascript_access; type: bool_byaddr
   int no_javascript_accessInt =
@@ -95,8 +101,9 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     extra_info = nullptr;
   }
   // Restore param:no_javascript_access; type: bool_byaddr
-  if (no_javascript_access)
+  if (no_javascript_access) {
     *no_javascript_access = no_javascript_accessInt ? true : false;
+  }
 
   // Return type: bool
   return _retval ? true : false;
@@ -107,15 +114,17 @@ void CefLifeSpanHandlerCToCpp::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_life_span_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_after_created))
+  if (CEF_MEMBER_MISSING(_struct, on_after_created)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_after_created(_struct, CefBrowserCppToC::Wrap(browser));
@@ -126,15 +135,17 @@ bool CefLifeSpanHandlerCToCpp::DoClose(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_life_span_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, do_close))
+  if (CEF_MEMBER_MISSING(_struct, do_close)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->do_close(_struct, CefBrowserCppToC::Wrap(browser));
@@ -148,15 +159,17 @@ void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_life_span_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_close))
+  if (CEF_MEMBER_MISSING(_struct, on_before_close)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_before_close(_struct, CefBrowserCppToC::Wrap(browser));

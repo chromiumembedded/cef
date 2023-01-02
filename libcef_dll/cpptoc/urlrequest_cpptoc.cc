@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6193670d2d0577eaf226bd1825cde7b3f70c0f68$
+// $hash=c9e932ea4980ef0d6ced8f891265bdd49ff4b806$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
@@ -31,12 +31,14 @@ CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(
 
   // Verify param: request; type: refptr_same
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Verify param: client; type: refptr_diff
   DCHECK(client);
-  if (!client)
+  if (!client) {
     return NULL;
+  }
   // Unverified params: request_context
 
   // Execute
@@ -60,8 +62,9 @@ urlrequest_get_request(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefRequest> _retval = CefURLRequestCppToC::Get(self)->GetRequest();
@@ -77,8 +80,9 @@ urlrequest_get_client(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefURLRequestClient> _retval =
@@ -95,8 +99,9 @@ urlrequest_get_request_status(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return UR_UNKNOWN;
+  }
 
   // Execute
   cef_urlrequest_status_t _retval =
@@ -113,8 +118,9 @@ urlrequest_get_request_error(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return ERR_NONE;
+  }
 
   // Execute
   cef_errorcode_t _retval = CefURLRequestCppToC::Get(self)->GetRequestError();
@@ -130,8 +136,9 @@ urlrequest_get_response(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefResponse> _retval =
@@ -148,8 +155,9 @@ urlrequest_response_was_cached(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefURLRequestCppToC::Get(self)->ResponseWasCached();
@@ -164,8 +172,9 @@ void CEF_CALLBACK urlrequest_cancel(struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefURLRequestCppToC::Get(self)->Cancel();

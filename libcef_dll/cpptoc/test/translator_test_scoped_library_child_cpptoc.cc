@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c7dafd30c4f75e38e507feabdc40dc234d21a06b$
+// $hash=3fb60285776c7480d0909430c04b3fe5a0c257be$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
@@ -38,8 +38,9 @@ int CEF_CALLBACK translator_test_scoped_library_child_get_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -55,8 +56,9 @@ void CEF_CALLBACK translator_test_scoped_library_child_set_other_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestScopedLibraryChildCppToC::Get(self)->SetOtherValue(value);
@@ -67,8 +69,9 @@ int CEF_CALLBACK translator_test_scoped_library_child_get_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval =
@@ -86,8 +89,9 @@ void CEF_CALLBACK translator_test_scoped_library_child_set_value(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefTranslatorTestScopedLibraryChildCppToC::Get(

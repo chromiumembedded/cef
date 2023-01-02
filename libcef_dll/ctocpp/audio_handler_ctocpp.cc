@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e2df55073d0fb809dcd4cf0f6bb7ed36dcd4f73c$
+// $hash=88d580fa35d32ce62d7a20a4febc193ffdaa45ee$
 //
 
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
@@ -24,15 +24,17 @@ bool CefAudioHandlerCToCpp::GetAudioParameters(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_audio_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_audio_parameters))
+  if (CEF_MEMBER_MISSING(_struct, get_audio_parameters)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->get_audio_parameters(
@@ -50,15 +52,17 @@ void CefAudioHandlerCToCpp::OnAudioStreamStarted(
   shutdown_checker::AssertNotShutdown();
 
   cef_audio_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_started))
+  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_started)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_audio_stream_started(_struct, CefBrowserCppToC::Wrap(browser),
@@ -73,19 +77,22 @@ void CefAudioHandlerCToCpp::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_audio_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_packet))
+  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_packet)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   _struct->on_audio_stream_packet(_struct, CefBrowserCppToC::Wrap(browser),
@@ -98,15 +105,17 @@ void CefAudioHandlerCToCpp::OnAudioStreamStopped(
   shutdown_checker::AssertNotShutdown();
 
   cef_audio_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_stopped))
+  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_stopped)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_audio_stream_stopped(_struct, CefBrowserCppToC::Wrap(browser));
@@ -118,19 +127,22 @@ void CefAudioHandlerCToCpp::OnAudioStreamError(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_audio_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_error))
+  if (CEF_MEMBER_MISSING(_struct, on_audio_stream_error)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: message; type: string_byref_const
   DCHECK(!message.empty());
-  if (message.empty())
+  if (message.empty()) {
     return;
+  }
 
   // Execute
   _struct->on_audio_stream_error(_struct, CefBrowserCppToC::Wrap(browser),

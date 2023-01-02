@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9fc59c7d9a9acbf92fde0cfceda151c4936c136b$
+// $hash=4c42535d9b888851a5d46b587e67df2aeb7199ca$
 //
 
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
@@ -28,12 +28,14 @@ CefRefPtr<CefXmlReader> CefXmlReader::Create(CefRefPtr<CefStreamReader> stream,
 
   // Verify param: stream; type: refptr_same
   DCHECK(stream.get());
-  if (!stream.get())
+  if (!stream.get()) {
     return nullptr;
+  }
   // Verify param: URI; type: string_byref_const
   DCHECK(!URI.empty());
-  if (URI.empty())
+  if (URI.empty()) {
     return nullptr;
+  }
 
   // Execute
   cef_xml_reader_t* _retval = cef_xml_reader_create(
@@ -49,8 +51,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::MoveToNextNode() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_next_node))
+  if (CEF_MEMBER_MISSING(_struct, move_to_next_node)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -65,8 +68,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::Close() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, close))
+  if (CEF_MEMBER_MISSING(_struct, close)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -81,8 +85,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::HasError() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, has_error))
+  if (CEF_MEMBER_MISSING(_struct, has_error)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -97,8 +102,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetError() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_error))
+  if (CEF_MEMBER_MISSING(_struct, get_error)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -115,8 +121,9 @@ NO_SANITIZE("cfi-icall") CefXmlReader::NodeType CefXmlReaderCToCpp::GetType() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_type))
+  if (CEF_MEMBER_MISSING(_struct, get_type)) {
     return XML_NODE_UNSUPPORTED;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -131,8 +138,9 @@ NO_SANITIZE("cfi-icall") int CefXmlReaderCToCpp::GetDepth() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_depth))
+  if (CEF_MEMBER_MISSING(_struct, get_depth)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -147,8 +155,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetLocalName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_local_name))
+  if (CEF_MEMBER_MISSING(_struct, get_local_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -165,8 +174,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetPrefix() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_prefix))
+  if (CEF_MEMBER_MISSING(_struct, get_prefix)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -183,8 +193,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetQualifiedName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_qualified_name))
+  if (CEF_MEMBER_MISSING(_struct, get_qualified_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -201,8 +212,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetNamespaceURI() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_namespace_uri))
+  if (CEF_MEMBER_MISSING(_struct, get_namespace_uri)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -219,8 +231,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetBaseURI() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_base_uri))
+  if (CEF_MEMBER_MISSING(_struct, get_base_uri)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -237,8 +250,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetXmlLang() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_xml_lang))
+  if (CEF_MEMBER_MISSING(_struct, get_xml_lang)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -255,8 +269,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::IsEmptyElement() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_empty_element))
+  if (CEF_MEMBER_MISSING(_struct, is_empty_element)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -271,8 +286,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::HasValue() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, has_value))
+  if (CEF_MEMBER_MISSING(_struct, has_value)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -287,8 +303,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetValue() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_value))
+  if (CEF_MEMBER_MISSING(_struct, get_value)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -305,8 +322,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::HasAttributes() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, has_attributes))
+  if (CEF_MEMBER_MISSING(_struct, has_attributes)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -321,8 +339,9 @@ NO_SANITIZE("cfi-icall") size_t CefXmlReaderCToCpp::GetAttributeCount() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_attribute_count))
+  if (CEF_MEMBER_MISSING(_struct, get_attribute_count)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -337,15 +356,17 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetAttribute(int index) {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_attribute_byindex))
+  if (CEF_MEMBER_MISSING(_struct, get_attribute_byindex)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
-  if (index < 0)
+  if (index < 0) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval =
@@ -362,15 +383,17 @@ CefString CefXmlReaderCToCpp::GetAttribute(const CefString& qualifiedName) {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_attribute_byqname))
+  if (CEF_MEMBER_MISSING(_struct, get_attribute_byqname)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: qualifiedName; type: string_byref_const
   DCHECK(!qualifiedName.empty());
-  if (qualifiedName.empty())
+  if (qualifiedName.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval =
@@ -388,19 +411,22 @@ CefString CefXmlReaderCToCpp::GetAttribute(const CefString& localName,
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_attribute_bylname))
+  if (CEF_MEMBER_MISSING(_struct, get_attribute_bylname)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: localName; type: string_byref_const
   DCHECK(!localName.empty());
-  if (localName.empty())
+  if (localName.empty()) {
     return CefString();
+  }
   // Verify param: namespaceURI; type: string_byref_const
   DCHECK(!namespaceURI.empty());
-  if (namespaceURI.empty())
+  if (namespaceURI.empty()) {
     return CefString();
+  }
 
   // Execute
   cef_string_userfree_t _retval = _struct->get_attribute_bylname(
@@ -416,8 +442,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetInnerXml() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_inner_xml))
+  if (CEF_MEMBER_MISSING(_struct, get_inner_xml)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -434,8 +461,9 @@ NO_SANITIZE("cfi-icall") CefString CefXmlReaderCToCpp::GetOuterXml() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_outer_xml))
+  if (CEF_MEMBER_MISSING(_struct, get_outer_xml)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -452,8 +480,9 @@ NO_SANITIZE("cfi-icall") int CefXmlReaderCToCpp::GetLineNumber() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_line_number))
+  if (CEF_MEMBER_MISSING(_struct, get_line_number)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -468,15 +497,17 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::MoveToAttribute(int index) {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_byindex))
+  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_byindex)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: index; type: simple_byval
   DCHECK_GE(index, 0);
-  if (index < 0)
+  if (index < 0) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->move_to_attribute_byindex(_struct, index);
@@ -490,15 +521,17 @@ bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& qualifiedName) {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_byqname))
+  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_byqname)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: qualifiedName; type: string_byref_const
   DCHECK(!qualifiedName.empty());
-  if (qualifiedName.empty())
+  if (qualifiedName.empty()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -514,19 +547,22 @@ bool CefXmlReaderCToCpp::MoveToAttribute(const CefString& localName,
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_bylname))
+  if (CEF_MEMBER_MISSING(_struct, move_to_attribute_bylname)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: localName; type: string_byref_const
   DCHECK(!localName.empty());
-  if (localName.empty())
+  if (localName.empty()) {
     return false;
+  }
   // Verify param: namespaceURI; type: string_byref_const
   DCHECK(!namespaceURI.empty());
-  if (namespaceURI.empty())
+  if (namespaceURI.empty()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->move_to_attribute_bylname(
@@ -540,8 +576,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::MoveToFirstAttribute() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_first_attribute))
+  if (CEF_MEMBER_MISSING(_struct, move_to_first_attribute)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -556,8 +593,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::MoveToNextAttribute() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_next_attribute))
+  if (CEF_MEMBER_MISSING(_struct, move_to_next_attribute)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -572,8 +610,9 @@ NO_SANITIZE("cfi-icall") bool CefXmlReaderCToCpp::MoveToCarryingElement() {
   shutdown_checker::AssertNotShutdown();
 
   cef_xml_reader_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, move_to_carrying_element))
+  if (CEF_MEMBER_MISSING(_struct, move_to_carrying_element)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

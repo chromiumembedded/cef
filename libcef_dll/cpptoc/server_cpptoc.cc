@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d0cfc5e4c052a2d1fe43d1c0ae264642db03c04c$
+// $hash=64f33249acb07a3a3b27763d339e3bd41af6bc5d$
 //
 
 #include "libcef_dll/cpptoc/server_cpptoc.h"
@@ -30,12 +30,14 @@ CEF_EXPORT void cef_server_create(const cef_string_t* address,
 
   // Verify param: address; type: string_byref_const
   DCHECK(address);
-  if (!address)
+  if (!address) {
     return;
+  }
   // Verify param: handler; type: refptr_diff
   DCHECK(handler);
-  if (!handler)
+  if (!handler) {
     return;
+  }
 
   // Execute
   CefServer::CreateServer(CefString(address), port, backlog,
@@ -53,8 +55,9 @@ server_get_task_runner(struct _cef_server_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTaskRunner> _retval =
@@ -70,8 +73,9 @@ void CEF_CALLBACK server_shutdown(struct _cef_server_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->Shutdown();
@@ -83,8 +87,9 @@ int CEF_CALLBACK server_is_running(struct _cef_server_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefServerCppToC::Get(self)->IsRunning();
@@ -100,8 +105,9 @@ server_get_address(struct _cef_server_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefServerCppToC::Get(self)->GetAddress();
@@ -116,8 +122,9 @@ int CEF_CALLBACK server_has_connection(struct _cef_server_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefServerCppToC::Get(self)->HasConnection();
@@ -133,8 +140,9 @@ int CEF_CALLBACK server_is_valid_connection(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefServerCppToC::Get(self)->IsValidConnection(connection_id);
@@ -153,16 +161,19 @@ void CEF_CALLBACK server_send_http200response(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: content_type; type: string_byref_const
   DCHECK(content_type);
-  if (!content_type)
+  if (!content_type) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->SendHttp200Response(
@@ -176,8 +187,9 @@ void CEF_CALLBACK server_send_http404response(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->SendHttp404Response(connection_id);
@@ -192,12 +204,14 @@ server_send_http500response(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: error_message; type: string_byref_const
   DCHECK(error_message);
-  if (!error_message)
+  if (!error_message) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->SendHttp500Response(connection_id,
@@ -216,12 +230,14 @@ server_send_http_response(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: content_type; type: string_byref_const
   DCHECK(content_type);
-  if (!content_type)
+  if (!content_type) {
     return;
+  }
   // Unverified params: extra_headers
 
   // Translate param: extra_headers; type: string_map_multi_byref_const
@@ -243,12 +259,14 @@ void CEF_CALLBACK server_send_raw_data(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->SendRawData(connection_id, data, data_size);
@@ -261,8 +279,9 @@ void CEF_CALLBACK server_close_connection(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->CloseConnection(connection_id);
@@ -277,12 +296,14 @@ void CEF_CALLBACK server_send_web_socket_message(struct _cef_server_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return;
+  }
 
   // Execute
   CefServerCppToC::Get(self)->SendWebSocketMessage(connection_id, data,

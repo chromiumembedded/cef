@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=427fe84b74eec6346d7da729cba2fdf52d1c0fd7$
+// $hash=23cebc9bbfaeb250f98ce8357a5a473ce964db3b$
 //
 
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
@@ -23,8 +23,9 @@ void CefRunContextMenuCallbackCToCpp::Continue(int command_id,
   shutdown_checker::AssertNotShutdown();
 
   cef_run_context_menu_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -36,8 +37,9 @@ NO_SANITIZE("cfi-icall") void CefRunContextMenuCallbackCToCpp::Cancel() {
   shutdown_checker::AssertNotShutdown();
 
   cef_run_context_menu_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cancel))
+  if (CEF_MEMBER_MISSING(_struct, cancel)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

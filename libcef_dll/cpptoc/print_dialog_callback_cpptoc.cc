@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5332b8cb609fa0f5b98e607878678808d21da3a4$
+// $hash=2440f3cedc982eed4d2f2c9f698a15b378d23a11$
 //
 
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
@@ -28,12 +28,14 @@ print_dialog_callback_cont(struct _cef_print_dialog_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: settings; type: refptr_same
   DCHECK(settings);
-  if (!settings)
+  if (!settings) {
     return;
+  }
 
   // Execute
   CefPrintDialogCallbackCppToC::Get(self)->Continue(
@@ -47,8 +49,9 @@ print_dialog_callback_cancel(struct _cef_print_dialog_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefPrintDialogCallbackCppToC::Get(self)->Cancel();

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c71d6fd8b0ee493102fdae90612f15b01e4a9f6b$
+// $hash=93f0764aabe8525c1a3473c9e345b926403fa78b$
 //
 
 #include "libcef_dll/ctocpp/resolve_callback_ctocpp.h"
@@ -25,8 +25,9 @@ void CefResolveCallbackCToCpp::OnResolveCompleted(
   shutdown_checker::AssertNotShutdown();
 
   cef_resolve_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_resolve_completed))
+  if (CEF_MEMBER_MISSING(_struct, on_resolve_completed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -35,15 +36,17 @@ void CefResolveCallbackCToCpp::OnResolveCompleted(
   // Translate param: resolved_ips; type: string_vec_byref_const
   cef_string_list_t resolved_ipsList = cef_string_list_alloc();
   DCHECK(resolved_ipsList);
-  if (resolved_ipsList)
+  if (resolved_ipsList) {
     transfer_string_list_contents(resolved_ips, resolved_ipsList);
+  }
 
   // Execute
   _struct->on_resolve_completed(_struct, result, resolved_ipsList);
 
   // Restore param:resolved_ips; type: string_vec_byref_const
-  if (resolved_ipsList)
+  if (resolved_ipsList) {
     cef_string_list_free(resolved_ipsList);
+  }
 }
 
 // CONSTRUCTOR - Do not edit by hand.

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d5ba873aeb2b734e753d47420bbe10e290e8658d$
+// $hash=a581ca5b863ea4d1c6c94f9eef37b676ab370e77$
 //
 
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
@@ -26,19 +26,22 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_keyboard_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_pre_key_event))
+  if (CEF_MEMBER_MISSING(_struct, on_pre_key_event)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: is_keyboard_shortcut; type: bool_byaddr
   DCHECK(is_keyboard_shortcut);
-  if (!is_keyboard_shortcut)
+  if (!is_keyboard_shortcut) {
     return false;
+  }
 
   // Translate param: is_keyboard_shortcut; type: bool_byaddr
   int is_keyboard_shortcutInt =
@@ -50,8 +53,9 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                 &event, os_event, &is_keyboard_shortcutInt);
 
   // Restore param:is_keyboard_shortcut; type: bool_byaddr
-  if (is_keyboard_shortcut)
+  if (is_keyboard_shortcut) {
     *is_keyboard_shortcut = is_keyboard_shortcutInt ? true : false;
+  }
 
   // Return type: bool
   return _retval ? true : false;
@@ -64,15 +68,17 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_keyboard_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_key_event))
+  if (CEF_MEMBER_MISSING(_struct, on_key_event)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_key_event(_struct, CefBrowserCppToC::Wrap(browser),

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=22af1e946668e89411cc87596b88c8a47880a78a$
+// $hash=7436e1945600e337c6cbc3f25cc2d0d871515a0f$
 //
 
 #include "libcef_dll/ctocpp/find_handler_ctocpp.h"
@@ -28,15 +28,17 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_find_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_find_result))
+  if (CEF_MEMBER_MISSING(_struct, on_find_result)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_find_result(_struct, CefBrowserCppToC::Wrap(browser), identifier,

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=76e8ba6d6c7860c2a1b630dd632f5c647391f564$
+// $hash=9735af448f1beaad6ba7b71805aecc8b8f55d830$
 //
 
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
@@ -31,15 +31,17 @@ CefResourceRequestHandlerCToCpp::GetCookieAccessFilter(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_cookie_access_filter))
+  if (CEF_MEMBER_MISSING(_struct, get_cookie_access_filter)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return nullptr;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -59,19 +61,22 @@ CefResourceRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefCallback> callback) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
+  if (CEF_MEMBER_MISSING(_struct, on_before_resource_load)) {
     return RV_CONTINUE;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return RV_CONTINUE;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return RV_CONTINUE;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -90,15 +95,17 @@ CefResourceRequestHandlerCToCpp::GetResourceHandler(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
+  if (CEF_MEMBER_MISSING(_struct, get_resource_handler)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return nullptr;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -118,19 +125,22 @@ void CefResourceRequestHandlerCToCpp::OnResourceRedirect(
     CefRefPtr<CefResponse> response,
     CefString& new_url) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
+  if (CEF_MEMBER_MISSING(_struct, on_resource_redirect)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response.get());
-  if (!response.get())
+  if (!response.get()) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -147,19 +157,22 @@ bool CefResourceRequestHandlerCToCpp::OnResourceResponse(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_resource_response))
+  if (CEF_MEMBER_MISSING(_struct, on_resource_response)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return false;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response.get());
-  if (!response.get())
+  if (!response.get()) {
     return false;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -179,19 +192,22 @@ CefResourceRequestHandlerCToCpp::GetResourceResponseFilter(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
+  if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return nullptr;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response.get());
-  if (!response.get())
+  if (!response.get()) {
     return nullptr;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -212,19 +228,22 @@ void CefResourceRequestHandlerCToCpp::OnResourceLoadComplete(
     URLRequestStatus status,
     int64 received_content_length) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete))
+  if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
   // Verify param: response; type: refptr_diff
   DCHECK(response.get());
-  if (!response.get())
+  if (!response.get()) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Execute
@@ -241,15 +260,17 @@ void CefResourceRequestHandlerCToCpp::OnProtocolExecution(
     CefRefPtr<CefRequest> request,
     bool& allow_os_execution) {
   cef_resource_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_protocol_execution))
+  if (CEF_MEMBER_MISSING(_struct, on_protocol_execution)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
-  if (!request.get())
+  if (!request.get()) {
     return;
+  }
   // Unverified params: browser, frame
 
   // Translate param: allow_os_execution; type: bool_byref

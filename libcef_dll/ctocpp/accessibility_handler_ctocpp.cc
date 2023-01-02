@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ced6517a7c7149502b418c5fb06386ff30777630$
+// $hash=236b528eccad839c6afca3c752c83868fe823fa8$
 //
 
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
@@ -24,15 +24,17 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityTreeChange(
   shutdown_checker::AssertNotShutdown();
 
   cef_accessibility_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_accessibility_tree_change))
+  if (CEF_MEMBER_MISSING(_struct, on_accessibility_tree_change)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: value; type: refptr_diff
   DCHECK(value.get());
-  if (!value.get())
+  if (!value.get()) {
     return;
+  }
 
   // Execute
   _struct->on_accessibility_tree_change(_struct, CefValueCppToC::Wrap(value));
@@ -44,15 +46,17 @@ void CefAccessibilityHandlerCToCpp::OnAccessibilityLocationChange(
   shutdown_checker::AssertNotShutdown();
 
   cef_accessibility_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_accessibility_location_change))
+  if (CEF_MEMBER_MISSING(_struct, on_accessibility_location_change)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: value; type: refptr_diff
   DCHECK(value.get());
-  if (!value.get())
+  if (!value.get()) {
     return;
+  }
 
   // Execute
   _struct->on_accessibility_location_change(_struct,

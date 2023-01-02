@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=207fe292d5fec167e20971c9948d0b183e6b3b20$
+// $hash=1f351fed26d9a331d9924c893d8b3d52064a1ecf$
 //
 
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
@@ -47,8 +47,9 @@ CefRefPtr<CefTaskRunner> CefThreadCToCpp::GetTaskRunner() {
   shutdown_checker::AssertNotShutdown();
 
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_task_runner))
+  if (CEF_MEMBER_MISSING(_struct, get_task_runner)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -64,8 +65,9 @@ cef_platform_thread_id_t CefThreadCToCpp::GetPlatformThreadId() {
   shutdown_checker::AssertNotShutdown();
 
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id))
+  if (CEF_MEMBER_MISSING(_struct, get_platform_thread_id)) {
     return kInvalidPlatformThreadId;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -80,8 +82,9 @@ NO_SANITIZE("cfi-icall") void CefThreadCToCpp::Stop() {
   shutdown_checker::AssertNotShutdown();
 
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, stop))
+  if (CEF_MEMBER_MISSING(_struct, stop)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -93,8 +96,9 @@ NO_SANITIZE("cfi-icall") bool CefThreadCToCpp::IsRunning() {
   shutdown_checker::AssertNotShutdown();
 
   cef_thread_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_running))
+  if (CEF_MEMBER_MISSING(_struct, is_running)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3f01b74591540c44243e693043cb3b8a9f4e05d2$
+// $hash=8ed89e1ba19cde7c43e1c9e8d30354cfc356a1aa$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -45,12 +45,14 @@ cookie_manager_visit_all_cookies(struct _cef_cookie_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor);
-  if (!visitor)
+  if (!visitor) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefCookieManagerCppToC::Get(self)->VisitAllCookies(
@@ -68,16 +70,19 @@ cookie_manager_visit_url_cookies(struct _cef_cookie_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor);
-  if (!visitor)
+  if (!visitor) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefCookieManagerCppToC::Get(self)->VisitUrlCookies(
@@ -96,16 +101,19 @@ cookie_manager_set_cookie(struct _cef_cookie_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
   // Verify param: cookie; type: struct_byref_const
   DCHECK(cookie);
-  if (!cookie)
+  if (!cookie) {
     return 0;
+  }
   if (!template_util::has_valid_size(cookie)) {
     NOTREACHED() << "invalid cookie->[base.]size";
     return 0;
@@ -114,8 +122,9 @@ cookie_manager_set_cookie(struct _cef_cookie_manager_t* self,
 
   // Translate param: cookie; type: struct_byref_const
   CefCookie cookieObj;
-  if (cookie)
+  if (cookie) {
     cookieObj.Set(*cookie, false);
+  }
 
   // Execute
   bool _retval = CefCookieManagerCppToC::Get(self)->SetCookie(
@@ -133,8 +142,9 @@ cookie_manager_delete_cookies(struct _cef_cookie_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: url, cookie_name, callback
 
   // Execute
@@ -152,8 +162,9 @@ cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: callback
 
   // Execute

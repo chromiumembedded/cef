@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f81708853d5cb6ee2fb397f401787068b722b060$
+// $hash=6b8fc1fd1fff48712c77d9402a0a1d747e14b5a1$
 //
 
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
@@ -26,15 +26,17 @@ void CefPrintHandlerCToCpp::OnPrintStart(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_print_start))
+  if (CEF_MEMBER_MISSING(_struct, on_print_start)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_print_start(_struct, CefBrowserCppToC::Wrap(browser));
@@ -48,19 +50,22 @@ void CefPrintHandlerCToCpp::OnPrintSettings(
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_print_settings))
+  if (CEF_MEMBER_MISSING(_struct, on_print_settings)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: settings; type: refptr_diff
   DCHECK(settings.get());
-  if (!settings.get())
+  if (!settings.get()) {
     return;
+  }
 
   // Execute
   _struct->on_print_settings(_struct, CefBrowserCppToC::Wrap(browser),
@@ -76,19 +81,22 @@ bool CefPrintHandlerCToCpp::OnPrintDialog(
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_print_dialog))
+  if (CEF_MEMBER_MISSING(_struct, on_print_dialog)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_print_dialog(
@@ -108,27 +116,32 @@ bool CefPrintHandlerCToCpp::OnPrintJob(
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_print_job))
+  if (CEF_MEMBER_MISSING(_struct, on_print_job)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: document_name; type: string_byref_const
   DCHECK(!document_name.empty());
-  if (document_name.empty())
+  if (document_name.empty()) {
     return false;
+  }
   // Verify param: pdf_file_path; type: string_byref_const
   DCHECK(!pdf_file_path.empty());
-  if (pdf_file_path.empty())
+  if (pdf_file_path.empty()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_print_job(
@@ -144,15 +157,17 @@ void CefPrintHandlerCToCpp::OnPrintReset(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_print_reset))
+  if (CEF_MEMBER_MISSING(_struct, on_print_reset)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_print_reset(_struct, CefBrowserCppToC::Wrap(browser));
@@ -164,15 +179,17 @@ CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_print_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_pdf_paper_size))
+  if (CEF_MEMBER_MISSING(_struct, get_pdf_paper_size)) {
     return CefSize();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = _struct->get_pdf_paper_size(

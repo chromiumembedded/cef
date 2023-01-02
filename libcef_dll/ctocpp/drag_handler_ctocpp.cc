@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=83bbaf05bb87f369d819d4202110581c3bbe60a1$
+// $hash=5675b51fb9ff6ac85f60c3696b9f4155421d5ef3$
 //
 
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
@@ -27,19 +27,22 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_drag_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_drag_enter))
+  if (CEF_MEMBER_MISSING(_struct, on_drag_enter)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: dragData; type: refptr_diff
   DCHECK(dragData.get());
-  if (!dragData.get())
+  if (!dragData.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->on_drag_enter(_struct, CefBrowserCppToC::Wrap(browser),
@@ -57,19 +60,22 @@ void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
   shutdown_checker::AssertNotShutdown();
 
   cef_drag_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_draggable_regions_changed))
+  if (CEF_MEMBER_MISSING(_struct, on_draggable_regions_changed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Translate param: regions; type: simple_vec_byref_const
   const size_t regionsCount = regions.size();
@@ -90,8 +96,9 @@ void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
       regionsCount, regionsList);
 
   // Restore param:regions; type: simple_vec_byref_const
-  if (regionsList)
+  if (regionsList) {
     delete[] regionsList;
+  }
 }
 
 // CONSTRUCTOR - Do not edit by hand.

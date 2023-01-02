@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7497a44116b3cfc86eb309dc940c91c7cca78353$
+// $hash=0a14f97c38bffa0ead433d74df13b04028c44a21$
 //
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
@@ -27,8 +27,9 @@ void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: username, password
 
   // Execute
@@ -42,8 +43,9 @@ void CEF_CALLBACK auth_callback_cancel(struct _cef_auth_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefAuthCallbackCppToC::Get(self)->Cancel();

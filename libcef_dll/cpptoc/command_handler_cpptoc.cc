@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=929bc6804bc4beb1601ee44f3300a42ecc917c74$
+// $hash=bf815bb565ccf2570c6f6b881009fe7df20805f0$
 //
 
 #include "libcef_dll/cpptoc/command_handler_cpptoc.h"
@@ -30,12 +30,14 @@ command_handler_on_chrome_command(struct _cef_command_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefCommandHandlerCppToC::Get(self)->OnChromeCommand(

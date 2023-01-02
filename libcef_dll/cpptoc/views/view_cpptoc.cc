@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=48694fa56762351ccd3369dca9e679efbda61160$
+// $hash=13c90ba22a371d972974229f18f87f407e552102$
 //
 
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
@@ -35,8 +35,9 @@ view_as_browser_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowserView> _retval = CefViewCppToC::Get(self)->AsBrowserView();
@@ -51,8 +52,9 @@ cef_button_t* CEF_CALLBACK view_as_button(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefButton> _retval = CefViewCppToC::Get(self)->AsButton();
@@ -67,8 +69,9 @@ cef_panel_t* CEF_CALLBACK view_as_panel(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefPanel> _retval = CefViewCppToC::Get(self)->AsPanel();
@@ -83,8 +86,9 @@ cef_scroll_view_t* CEF_CALLBACK view_as_scroll_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefScrollView> _retval = CefViewCppToC::Get(self)->AsScrollView();
@@ -99,8 +103,9 @@ cef_textfield_t* CEF_CALLBACK view_as_textfield(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefTextfield> _retval = CefViewCppToC::Get(self)->AsTextfield();
@@ -116,8 +121,9 @@ view_get_type_string(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefViewCppToC::Get(self)->GetTypeString();
@@ -133,8 +139,9 @@ cef_string_userfree_t CEF_CALLBACK view_to_string(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -150,8 +157,9 @@ int CEF_CALLBACK view_is_valid(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsValid();
@@ -166,8 +174,9 @@ int CEF_CALLBACK view_is_attached(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsAttached();
@@ -183,12 +192,14 @@ int CEF_CALLBACK view_is_same(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: that; type: refptr_same
   DCHECK(that);
-  if (!that)
+  if (!that) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsSame(CefViewCppToC::Unwrap(that));
@@ -204,8 +215,9 @@ view_get_delegate(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefViewDelegate> _retval = CefViewCppToC::Get(self)->GetDelegate();
@@ -220,8 +232,9 @@ struct _cef_window_t* CEF_CALLBACK view_get_window(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefWindow> _retval = CefViewCppToC::Get(self)->GetWindow();
@@ -236,8 +249,9 @@ int CEF_CALLBACK view_get_id(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefViewCppToC::Get(self)->GetID();
@@ -252,8 +266,9 @@ void CEF_CALLBACK view_set_id(struct _cef_view_t* self, int id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetID(id);
@@ -265,8 +280,9 @@ int CEF_CALLBACK view_get_group_id(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefViewCppToC::Get(self)->GetGroupID();
@@ -281,8 +297,9 @@ void CEF_CALLBACK view_set_group_id(struct _cef_view_t* self, int group_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetGroupID(group_id);
@@ -295,8 +312,9 @@ view_get_parent_view(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefView> _retval = CefViewCppToC::Get(self)->GetParentView();
@@ -312,8 +330,9 @@ struct _cef_view_t* CEF_CALLBACK view_get_view_for_id(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefView> _retval = CefViewCppToC::Get(self)->GetViewForID(id);
@@ -329,12 +348,14 @@ void CEF_CALLBACK view_set_bounds(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: bounds; type: simple_byref_const
   DCHECK(bounds);
-  if (!bounds)
+  if (!bounds) {
     return;
+  }
 
   // Translate param: bounds; type: simple_byref_const
   CefRect boundsVal = bounds ? *bounds : CefRect();
@@ -349,8 +370,9 @@ cef_rect_t CEF_CALLBACK view_get_bounds(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval = CefViewCppToC::Get(self)->GetBounds();
@@ -365,8 +387,9 @@ cef_rect_t CEF_CALLBACK view_get_bounds_in_screen(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefRect();
+  }
 
   // Execute
   cef_rect_t _retval = CefViewCppToC::Get(self)->GetBoundsInScreen();
@@ -382,12 +405,14 @@ void CEF_CALLBACK view_set_size(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: size; type: simple_byref_const
   DCHECK(size);
-  if (!size)
+  if (!size) {
     return;
+  }
 
   // Translate param: size; type: simple_byref_const
   CefSize sizeVal = size ? *size : CefSize();
@@ -402,8 +427,9 @@ cef_size_t CEF_CALLBACK view_get_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = CefViewCppToC::Get(self)->GetSize();
@@ -419,12 +445,14 @@ void CEF_CALLBACK view_set_position(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: position; type: simple_byref_const
   DCHECK(position);
-  if (!position)
+  if (!position) {
     return;
+  }
 
   // Translate param: position; type: simple_byref_const
   CefPoint positionVal = position ? *position : CefPoint();
@@ -439,8 +467,9 @@ cef_point_t CEF_CALLBACK view_get_position(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefPoint();
+  }
 
   // Execute
   cef_point_t _retval = CefViewCppToC::Get(self)->GetPosition();
@@ -456,12 +485,14 @@ void CEF_CALLBACK view_set_insets(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: insets; type: simple_byref_const
   DCHECK(insets);
-  if (!insets)
+  if (!insets) {
     return;
+  }
 
   // Translate param: insets; type: simple_byref_const
   CefInsets insetsVal = insets ? *insets : CefInsets();
@@ -476,8 +507,9 @@ cef_insets_t CEF_CALLBACK view_get_insets(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefInsets();
+  }
 
   // Execute
   cef_insets_t _retval = CefViewCppToC::Get(self)->GetInsets();
@@ -492,8 +524,9 @@ cef_size_t CEF_CALLBACK view_get_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = CefViewCppToC::Get(self)->GetPreferredSize();
@@ -508,8 +541,9 @@ void CEF_CALLBACK view_size_to_preferred_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SizeToPreferredSize();
@@ -521,8 +555,9 @@ cef_size_t CEF_CALLBACK view_get_minimum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = CefViewCppToC::Get(self)->GetMinimumSize();
@@ -537,8 +572,9 @@ cef_size_t CEF_CALLBACK view_get_maximum_size(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefSize();
+  }
 
   // Execute
   cef_size_t _retval = CefViewCppToC::Get(self)->GetMaximumSize();
@@ -554,8 +590,9 @@ int CEF_CALLBACK view_get_height_for_width(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefViewCppToC::Get(self)->GetHeightForWidth(width);
@@ -570,8 +607,9 @@ void CEF_CALLBACK view_invalidate_layout(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->InvalidateLayout();
@@ -583,8 +621,9 @@ void CEF_CALLBACK view_set_visible(struct _cef_view_t* self, int visible) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetVisible(visible ? true : false);
@@ -596,8 +635,9 @@ int CEF_CALLBACK view_is_visible(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsVisible();
@@ -612,8 +652,9 @@ int CEF_CALLBACK view_is_drawn(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsDrawn();
@@ -628,8 +669,9 @@ void CEF_CALLBACK view_set_enabled(struct _cef_view_t* self, int enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetEnabled(enabled ? true : false);
@@ -641,8 +683,9 @@ int CEF_CALLBACK view_is_enabled(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsEnabled();
@@ -657,8 +700,9 @@ void CEF_CALLBACK view_set_focusable(struct _cef_view_t* self, int focusable) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetFocusable(focusable ? true : false);
@@ -670,8 +714,9 @@ int CEF_CALLBACK view_is_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsFocusable();
@@ -686,8 +731,9 @@ int CEF_CALLBACK view_is_accessibility_focusable(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefViewCppToC::Get(self)->IsAccessibilityFocusable();
@@ -702,8 +748,9 @@ void CEF_CALLBACK view_request_focus(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->RequestFocus();
@@ -716,8 +763,9 @@ void CEF_CALLBACK view_set_background_color(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefViewCppToC::Get(self)->SetBackgroundColor(color);
@@ -729,8 +777,9 @@ cef_color_t CEF_CALLBACK view_get_background_color(struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   cef_color_t _retval = CefViewCppToC::Get(self)->GetBackgroundColor();
@@ -746,12 +795,14 @@ int CEF_CALLBACK view_convert_point_to_screen(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -760,8 +811,9 @@ int CEF_CALLBACK view_convert_point_to_screen(struct _cef_view_t* self,
   bool _retval = CefViewCppToC::Get(self)->ConvertPointToScreen(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -774,12 +826,14 @@ int CEF_CALLBACK view_convert_point_from_screen(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -788,8 +842,9 @@ int CEF_CALLBACK view_convert_point_from_screen(struct _cef_view_t* self,
   bool _retval = CefViewCppToC::Get(self)->ConvertPointFromScreen(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -802,12 +857,14 @@ int CEF_CALLBACK view_convert_point_to_window(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -816,8 +873,9 @@ int CEF_CALLBACK view_convert_point_to_window(struct _cef_view_t* self,
   bool _retval = CefViewCppToC::Get(self)->ConvertPointToWindow(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -830,12 +888,14 @@ int CEF_CALLBACK view_convert_point_from_window(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -844,8 +904,9 @@ int CEF_CALLBACK view_convert_point_from_window(struct _cef_view_t* self,
   bool _retval = CefViewCppToC::Get(self)->ConvertPointFromWindow(pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -859,16 +920,19 @@ int CEF_CALLBACK view_convert_point_to_view(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -878,8 +942,9 @@ int CEF_CALLBACK view_convert_point_to_view(struct _cef_view_t* self,
       CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;
@@ -893,16 +958,19 @@ int CEF_CALLBACK view_convert_point_from_view(struct _cef_view_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return 0;
+  }
   // Verify param: point; type: simple_byref
   DCHECK(point);
-  if (!point)
+  if (!point) {
     return 0;
+  }
 
   // Translate param: point; type: simple_byref
   CefPoint pointVal = point ? *point : CefPoint();
@@ -912,8 +980,9 @@ int CEF_CALLBACK view_convert_point_from_view(struct _cef_view_t* self,
       CefViewCppToC::Unwrap(view), pointVal);
 
   // Restore param: point; type: simple_byref
-  if (point)
+  if (point) {
     *point = pointVal;
+  }
 
   // Return type: bool
   return _retval;

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=984f4b764ebd914b5f5e585479866bd7a36c0429$
+// $hash=a5446c4b823971a827d933afb128f94dddacd970$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
@@ -28,12 +28,14 @@ void CEF_CALLBACK browser_process_handler_on_register_custom_preferences(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: registrar; type: rawptr_diff
   DCHECK(registrar);
-  if (!registrar)
+  if (!registrar) {
     return;
+  }
 
   // Translate param: registrar; type: rawptr_diff
   CefOwnPtr<CefPreferenceRegistrar> registrarPtr(
@@ -49,8 +51,9 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserProcessHandlerCppToC::Get(self)->OnContextInitialized();
@@ -62,12 +65,14 @@ void CEF_CALLBACK browser_process_handler_on_before_child_process_launch(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: command_line; type: refptr_diff
   DCHECK(command_line);
-  if (!command_line)
+  if (!command_line) {
     return;
+  }
 
   // Execute
   CefBrowserProcessHandlerCppToC::Get(self)->OnBeforeChildProcessLaunch(
@@ -80,8 +85,9 @@ void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefBrowserProcessHandlerCppToC::Get(self)->OnScheduleMessagePumpWork(
@@ -93,8 +99,9 @@ struct _cef_client_t* CEF_CALLBACK browser_process_handler_get_default_client(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefClient> _retval =

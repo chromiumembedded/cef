@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a66dc7024a4d368e8368b1be42deff60f4966dc$
+// $hash=40725194bb474305e418e57cf1a7bfc4a3b6af1d$
 //
 
 #include "libcef_dll/cpptoc/jsdialog_callback_cpptoc.h"
@@ -27,8 +27,9 @@ void CEF_CALLBACK jsdialog_callback_cont(struct _cef_jsdialog_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: user_input
 
   // Execute

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd44b20a616ead48395d44804c8e8df40f7bc384$
+// $hash=00edde10c338f3a382c715675f086de7753f2267$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -33,8 +33,9 @@ int CEF_CALLBACK frame_is_valid(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefFrameCppToC::Get(self)->IsValid();
@@ -49,8 +50,9 @@ void CEF_CALLBACK frame_undo(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Undo();
@@ -62,8 +64,9 @@ void CEF_CALLBACK frame_redo(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Redo();
@@ -75,8 +78,9 @@ void CEF_CALLBACK frame_cut(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Cut();
@@ -88,8 +92,9 @@ void CEF_CALLBACK frame_copy(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Copy();
@@ -101,8 +106,9 @@ void CEF_CALLBACK frame_paste(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Paste();
@@ -114,8 +120,9 @@ void CEF_CALLBACK frame_del(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->Delete();
@@ -127,8 +134,9 @@ void CEF_CALLBACK frame_select_all(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->SelectAll();
@@ -140,8 +148,9 @@ void CEF_CALLBACK frame_view_source(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->ViewSource();
@@ -154,12 +163,14 @@ void CEF_CALLBACK frame_get_source(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor);
-  if (!visitor)
+  if (!visitor) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->GetSource(CefStringVisitorCToCpp::Wrap(visitor));
@@ -172,12 +183,14 @@ void CEF_CALLBACK frame_get_text(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor);
-  if (!visitor)
+  if (!visitor) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->GetText(CefStringVisitorCToCpp::Wrap(visitor));
@@ -190,12 +203,14 @@ void CEF_CALLBACK frame_load_request(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: request; type: refptr_same
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->LoadRequest(CefRequestCppToC::Unwrap(request));
@@ -208,12 +223,14 @@ void CEF_CALLBACK frame_load_url(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->LoadURL(CefString(url));
@@ -228,12 +245,14 @@ void CEF_CALLBACK frame_execute_java_script(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: code; type: string_byref_const
   DCHECK(code);
-  if (!code)
+  if (!code) {
     return;
+  }
   // Unverified params: script_url
 
   // Execute
@@ -247,8 +266,9 @@ int CEF_CALLBACK frame_is_main(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefFrameCppToC::Get(self)->IsMain();
@@ -263,8 +283,9 @@ int CEF_CALLBACK frame_is_focused(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefFrameCppToC::Get(self)->IsFocused();
@@ -279,8 +300,9 @@ cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefFrameCppToC::Get(self)->GetName();
@@ -295,8 +317,9 @@ int64 CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefFrameCppToC::Get(self)->GetIdentifier();
@@ -311,8 +334,9 @@ struct _cef_frame_t* CEF_CALLBACK frame_get_parent(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval = CefFrameCppToC::Get(self)->GetParent();
@@ -327,8 +351,9 @@ cef_string_userfree_t CEF_CALLBACK frame_get_url(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefFrameCppToC::Get(self)->GetURL();
@@ -343,8 +368,9 @@ cef_browser_t* CEF_CALLBACK frame_get_browser(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBrowser> _retval = CefFrameCppToC::Get(self)->GetBrowser();
@@ -360,8 +386,9 @@ frame_get_v8context(struct _cef_frame_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefV8Context> _retval = CefFrameCppToC::Get(self)->GetV8Context();
@@ -377,12 +404,14 @@ void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: visitor; type: refptr_diff
   DCHECK(visitor);
-  if (!visitor)
+  if (!visitor) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->VisitDOM(CefDOMVisitorCToCpp::Wrap(visitor));
@@ -397,16 +426,19 @@ frame_create_urlrequest(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: request; type: refptr_same
   DCHECK(request);
-  if (!request)
+  if (!request) {
     return NULL;
+  }
   // Verify param: client; type: refptr_diff
   DCHECK(client);
-  if (!client)
+  if (!client) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefURLRequest> _retval =
@@ -427,12 +459,14 @@ frame_send_process_message(struct _cef_frame_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: message; type: refptr_same
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return;
+  }
 
   // Execute
   CefFrameCppToC::Get(self)->SendProcessMessage(

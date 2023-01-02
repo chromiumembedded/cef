@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fe5dc43b11c24ea7a1e9a1c31846cd433a425a48$
+// $hash=84b98dacc31cb8f0ba37eb08757fda14267a2407$
 //
 
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
@@ -24,15 +24,17 @@ void CefFocusHandlerCToCpp::OnTakeFocus(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_focus_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_take_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_take_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_take_focus(_struct, CefBrowserCppToC::Wrap(browser), next);
@@ -44,15 +46,17 @@ bool CefFocusHandlerCToCpp::OnSetFocus(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_focus_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_set_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_set_focus)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
 
   // Execute
   int _retval =
@@ -67,15 +71,17 @@ void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_focus_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_got_focus))
+  if (CEF_MEMBER_MISSING(_struct, on_got_focus)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_got_focus(_struct, CefBrowserCppToC::Wrap(browser));

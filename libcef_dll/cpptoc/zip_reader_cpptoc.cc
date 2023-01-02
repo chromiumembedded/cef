@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d282910b834f9f5076a1310196f326828e41540d$
+// $hash=c794f92b885a3c50f229606dc1691502a7ab889b$
 //
 
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
@@ -26,8 +26,9 @@ CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
 
   // Verify param: stream; type: refptr_same
   DCHECK(stream);
-  if (!stream)
+  if (!stream) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefZipReader> _retval =
@@ -47,8 +48,9 @@ int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->MoveToFirstFile();
@@ -63,8 +65,9 @@ int CEF_CALLBACK zip_reader_move_to_next_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->MoveToNextFile();
@@ -81,12 +84,14 @@ int CEF_CALLBACK zip_reader_move_to_file(struct _cef_zip_reader_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: fileName; type: string_byref_const
   DCHECK(fileName);
-  if (!fileName)
+  if (!fileName) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->MoveToFile(
@@ -102,8 +107,9 @@ int CEF_CALLBACK zip_reader_close(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->Close();
@@ -119,8 +125,9 @@ zip_reader_get_file_name(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefZipReaderCppToC::Get(self)->GetFileName();
@@ -135,8 +142,9 @@ int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefZipReaderCppToC::Get(self)->GetFileSize();
@@ -152,8 +160,9 @@ zip_reader_get_file_last_modified(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return CefBaseTime();
+  }
 
   // Execute
   cef_basetime_t _retval = CefZipReaderCppToC::Get(self)->GetFileLastModified();
@@ -169,8 +178,9 @@ int CEF_CALLBACK zip_reader_open_file(struct _cef_zip_reader_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Unverified params: password
 
   // Execute
@@ -186,8 +196,9 @@ int CEF_CALLBACK zip_reader_close_file(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->CloseFile();
@@ -204,12 +215,14 @@ int CEF_CALLBACK zip_reader_read_file(struct _cef_zip_reader_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: buffer; type: simple_byaddr
   DCHECK(buffer);
-  if (!buffer)
+  if (!buffer) {
     return 0;
+  }
 
   // Execute
   int _retval = CefZipReaderCppToC::Get(self)->ReadFile(buffer, bufferSize);
@@ -224,8 +237,9 @@ int64 CEF_CALLBACK zip_reader_tell(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int64 _retval = CefZipReaderCppToC::Get(self)->Tell();
@@ -240,8 +254,9 @@ int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipReaderCppToC::Get(self)->Eof();

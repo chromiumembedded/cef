@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c6ad132e54265eb08e748bb22d2c90784ed098b0$
+// $hash=08bc3d3dc2179824d250c38c1d1165c642110e87$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -24,15 +24,17 @@ void CefBrowserProcessHandlerCToCpp::OnRegisterCustomPreferences(
     cef_preferences_type_t type,
     CefRawPtr<CefPreferenceRegistrar> registrar) {
   cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_register_custom_preferences))
+  if (CEF_MEMBER_MISSING(_struct, on_register_custom_preferences)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: registrar; type: rawptr_diff
   DCHECK(registrar);
-  if (!registrar)
+  if (!registrar) {
     return;
+  }
 
   // Translate param: registrar; type: rawptr_diff
   CefOwnPtr<CefPreferenceRegistrarCppToC> registrarPtr(
@@ -46,8 +48,9 @@ void CefBrowserProcessHandlerCToCpp::OnRegisterCustomPreferences(
 NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {
   cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_context_initialized))
+  if (CEF_MEMBER_MISSING(_struct, on_context_initialized)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -59,15 +62,17 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
     CefRefPtr<CefCommandLine> command_line) {
   cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_child_process_launch))
+  if (CEF_MEMBER_MISSING(_struct, on_before_child_process_launch)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: command_line; type: refptr_diff
   DCHECK(command_line.get());
-  if (!command_line.get())
+  if (!command_line.get()) {
     return;
+  }
 
   // Execute
   _struct->on_before_child_process_launch(
@@ -77,8 +82,9 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
 NO_SANITIZE("cfi-icall")
 void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
   cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_schedule_message_pump_work))
+  if (CEF_MEMBER_MISSING(_struct, on_schedule_message_pump_work)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -89,8 +95,9 @@ void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
 NO_SANITIZE("cfi-icall")
 CefRefPtr<CefClient> CefBrowserProcessHandlerCToCpp::GetDefaultClient() {
   cef_browser_process_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_default_client))
+  if (CEF_MEMBER_MISSING(_struct, get_default_client)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

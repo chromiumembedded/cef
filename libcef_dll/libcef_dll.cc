@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6bc0085b04e78068511eb7198a3f9bda103adc85$
+// $hash=f0c6529941194dc0bbbb1ac75268b6653653dbbb$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -63,8 +63,9 @@ CEF_EXPORT int cef_execute_process(const cef_main_args_t* args,
 
   // Verify param: args; type: simple_byref_const
   DCHECK(args);
-  if (!args)
+  if (!args) {
     return 0;
+  }
   // Unverified params: application, windows_sandbox_info
 
   // Translate param: args; type: simple_byref_const
@@ -86,12 +87,14 @@ CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
 
   // Verify param: args; type: simple_byref_const
   DCHECK(args);
-  if (!args)
+  if (!args) {
     return 0;
+  }
   // Verify param: settings; type: struct_byref_const
   DCHECK(settings);
-  if (!settings)
+  if (!settings) {
     return 0;
+  }
   if (!template_util::has_valid_size(settings)) {
     NOTREACHED() << "invalid settings->[base.]size";
     return 0;
@@ -102,8 +105,9 @@ CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
   CefMainArgs argsVal = args ? *args : CefMainArgs();
   // Translate param: settings; type: struct_byref_const
   CefSettings settingsObj;
-  if (settings)
+  if (settings) {
     settingsObj.Set(*settings, false);
+  }
 
   // Execute
   bool _retval =
@@ -162,8 +166,9 @@ CEF_EXPORT void cef_set_crash_key_value(const cef_string_t* key,
 
   // Verify param: key; type: string_byref_const
   DCHECK(key);
-  if (!key)
+  if (!key) {
     return;
+  }
   // Unverified params: value
 
   // Execute
@@ -175,8 +180,9 @@ CEF_EXPORT int cef_create_directory(const cef_string_t* full_path) {
 
   // Verify param: full_path; type: string_byref_const
   DCHECK(full_path);
-  if (!full_path)
+  if (!full_path) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefCreateDirectory(CefString(full_path));
@@ -190,8 +196,9 @@ CEF_EXPORT int cef_get_temp_directory(cef_string_t* temp_dir) {
 
   // Verify param: temp_dir; type: string_byref
   DCHECK(temp_dir);
-  if (!temp_dir)
+  if (!temp_dir) {
     return 0;
+  }
 
   // Translate param: temp_dir; type: string_byref
   CefString temp_dirStr(temp_dir);
@@ -209,8 +216,9 @@ CEF_EXPORT int cef_create_new_temp_directory(const cef_string_t* prefix,
 
   // Verify param: new_temp_path; type: string_byref
   DCHECK(new_temp_path);
-  if (!new_temp_path)
+  if (!new_temp_path) {
     return 0;
+  }
   // Unverified params: prefix
 
   // Translate param: new_temp_path; type: string_byref
@@ -231,12 +239,14 @@ CEF_EXPORT int cef_create_temp_directory_in_directory(
 
   // Verify param: base_dir; type: string_byref_const
   DCHECK(base_dir);
-  if (!base_dir)
+  if (!base_dir) {
     return 0;
+  }
   // Verify param: new_dir; type: string_byref
   DCHECK(new_dir);
-  if (!new_dir)
+  if (!new_dir) {
     return 0;
+  }
   // Unverified params: prefix
 
   // Translate param: new_dir; type: string_byref
@@ -255,8 +265,9 @@ CEF_EXPORT int cef_directory_exists(const cef_string_t* path) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(path);
-  if (!path)
+  if (!path) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDirectoryExists(CefString(path));
@@ -270,8 +281,9 @@ CEF_EXPORT int cef_delete_file(const cef_string_t* path, int recursive) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(path);
-  if (!path)
+  if (!path) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDeleteFile(CefString(path), recursive ? true : false);
@@ -287,12 +299,14 @@ CEF_EXPORT int cef_zip_directory(const cef_string_t* src_dir,
 
   // Verify param: src_dir; type: string_byref_const
   DCHECK(src_dir);
-  if (!src_dir)
+  if (!src_dir) {
     return 0;
+  }
   // Verify param: dest_file; type: string_byref_const
   DCHECK(dest_file);
-  if (!dest_file)
+  if (!dest_file) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefZipDirectory(CefString(src_dir), CefString(dest_file),
@@ -307,8 +321,9 @@ CEF_EXPORT void cef_load_crlsets_file(const cef_string_t* path) {
 
   // Verify param: path; type: string_byref_const
   DCHECK(path);
-  if (!path)
+  if (!path) {
     return;
+  }
 
   // Execute
   CefLoadCRLSetsFile(CefString(path));
@@ -333,12 +348,14 @@ CEF_EXPORT int cef_add_cross_origin_whitelist_entry(
 
   // Verify param: source_origin; type: string_byref_const
   DCHECK(source_origin);
-  if (!source_origin)
+  if (!source_origin) {
     return 0;
+  }
   // Verify param: target_protocol; type: string_byref_const
   DCHECK(target_protocol);
-  if (!target_protocol)
+  if (!target_protocol) {
     return 0;
+  }
   // Unverified params: target_domain
 
   // Execute
@@ -359,12 +376,14 @@ CEF_EXPORT int cef_remove_cross_origin_whitelist_entry(
 
   // Verify param: source_origin; type: string_byref_const
   DCHECK(source_origin);
-  if (!source_origin)
+  if (!source_origin) {
     return 0;
+  }
   // Verify param: target_protocol; type: string_byref_const
   DCHECK(target_protocol);
-  if (!target_protocol)
+  if (!target_protocol) {
     return 0;
+  }
   // Unverified params: target_domain
 
   // Execute
@@ -393,16 +412,19 @@ CEF_EXPORT int cef_resolve_url(const cef_string_t* base_url,
 
   // Verify param: base_url; type: string_byref_const
   DCHECK(base_url);
-  if (!base_url)
+  if (!base_url) {
     return 0;
+  }
   // Verify param: relative_url; type: string_byref_const
   DCHECK(relative_url);
-  if (!relative_url)
+  if (!relative_url) {
     return 0;
+  }
   // Verify param: resolved_url; type: string_byref
   DCHECK(resolved_url);
-  if (!resolved_url)
+  if (!resolved_url) {
     return 0;
+  }
 
   // Translate param: resolved_url; type: string_byref
   CefString resolved_urlStr(resolved_url);
@@ -421,12 +443,14 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
 
   // Verify param: url; type: string_byref_const
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
   // Verify param: parts; type: struct_byref
   DCHECK(parts);
-  if (!parts)
+  if (!parts) {
     return 0;
+  }
   if (!template_util::has_valid_size(parts)) {
     NOTREACHED() << "invalid parts->[base.]size";
     return 0;
@@ -434,15 +458,17 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
 
   // Translate param: parts; type: struct_byref
   CefURLParts partsObj;
-  if (parts)
+  if (parts) {
     partsObj.AttachTo(*parts);
+  }
 
   // Execute
   bool _retval = CefParseURL(CefString(url), partsObj);
 
   // Restore param: parts; type: struct_byref
-  if (parts)
+  if (parts) {
     partsObj.DetachTo(*parts);
+  }
 
   // Return type: bool
   return _retval;
@@ -454,21 +480,24 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
 
   // Verify param: parts; type: struct_byref_const
   DCHECK(parts);
-  if (!parts)
+  if (!parts) {
     return 0;
+  }
   if (!template_util::has_valid_size(parts)) {
     NOTREACHED() << "invalid parts->[base.]size";
     return 0;
   }
   // Verify param: url; type: string_byref
   DCHECK(url);
-  if (!url)
+  if (!url) {
     return 0;
+  }
 
   // Translate param: parts; type: struct_byref_const
   CefURLParts partsObj;
-  if (parts)
+  if (parts) {
     partsObj.Set(*parts, false);
+  }
   // Translate param: url; type: string_byref
   CefString urlStr(url);
 
@@ -485,8 +514,9 @@ cef_format_url_for_security_display(const cef_string_t* origin_url) {
 
   // Verify param: origin_url; type: string_byref_const
   DCHECK(origin_url);
-  if (!origin_url)
+  if (!origin_url) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefFormatUrlForSecurityDisplay(CefString(origin_url));
@@ -501,8 +531,9 @@ cef_get_mime_type(const cef_string_t* extension) {
 
   // Verify param: extension; type: string_byref_const
   DCHECK(extension);
-  if (!extension)
+  if (!extension) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefGetMimeType(CefString(extension));
@@ -517,12 +548,14 @@ CEF_EXPORT void cef_get_extensions_for_mime_type(const cef_string_t* mime_type,
 
   // Verify param: mime_type; type: string_byref_const
   DCHECK(mime_type);
-  if (!mime_type)
+  if (!mime_type) {
     return;
+  }
   // Verify param: extensions; type: string_vec_byref
   DCHECK(extensions);
-  if (!extensions)
+  if (!extensions) {
     return;
+  }
 
   // Translate param: extensions; type: string_vec_byref
   std::vector<CefString> extensionsList;
@@ -542,8 +575,9 @@ CEF_EXPORT cef_string_userfree_t cef_base64encode(const void* data,
 
   // Verify param: data; type: simple_byaddr
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefBase64Encode(data, data_size);
@@ -558,8 +592,9 @@ CEF_EXPORT struct _cef_binary_value_t* cef_base64decode(
 
   // Verify param: data; type: string_byref_const
   DCHECK(data);
-  if (!data)
+  if (!data) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval = CefBase64Decode(CefString(data));
@@ -574,8 +609,9 @@ CEF_EXPORT cef_string_userfree_t cef_uriencode(const cef_string_t* text,
 
   // Verify param: text; type: string_byref_const
   DCHECK(text);
-  if (!text)
+  if (!text) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefURIEncode(CefString(text), use_plus ? true : false);
@@ -592,8 +628,9 @@ cef_uridecode(const cef_string_t* text,
 
   // Verify param: text; type: string_byref_const
   DCHECK(text);
-  if (!text)
+  if (!text) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefURIDecode(
@@ -610,8 +647,9 @@ CEF_EXPORT struct _cef_value_t* cef_parse_json(
 
   // Verify param: json_string; type: string_byref_const
   DCHECK(json_string);
-  if (!json_string)
+  if (!json_string) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefValue> _retval = CefParseJSON(CefString(json_string), options);
@@ -628,8 +666,9 @@ CEF_EXPORT struct _cef_value_t* cef_parse_json_buffer(
 
   // Verify param: json; type: simple_byaddr
   DCHECK(json);
-  if (!json)
+  if (!json) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefValue> _retval = CefParseJSON(json, json_size, options);
@@ -646,12 +685,14 @@ CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
 
   // Verify param: json_string; type: string_byref_const
   DCHECK(json_string);
-  if (!json_string)
+  if (!json_string) {
     return NULL;
+  }
   // Verify param: error_msg_out; type: string_byref
   DCHECK(error_msg_out);
-  if (!error_msg_out)
+  if (!error_msg_out) {
     return NULL;
+  }
 
   // Translate param: error_msg_out; type: string_byref
   CefString error_msg_outStr(error_msg_out);
@@ -670,8 +711,9 @@ cef_write_json(struct _cef_value_t* node, cef_json_writer_options_t options) {
 
   // Verify param: node; type: refptr_same
   DCHECK(node);
-  if (!node)
+  if (!node) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefWriteJSON(CefValueCppToC::Unwrap(node), options);
@@ -685,8 +727,9 @@ CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path) {
 
   // Verify param: path; type: string_byref
   DCHECK(path);
-  if (!path)
+  if (!path) {
     return 0;
+  }
 
   // Translate param: path; type: string_byref
   CefString pathStr(path);
@@ -703,8 +746,9 @@ CEF_EXPORT int cef_launch_process(struct _cef_command_line_t* command_line) {
 
   // Verify param: command_line; type: refptr_same
   DCHECK(command_line);
-  if (!command_line)
+  if (!command_line) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefLaunchProcess(CefCommandLineCppToC::Unwrap(command_line));
@@ -721,8 +765,9 @@ CEF_EXPORT int cef_register_scheme_handler_factory(
 
   // Verify param: scheme_name; type: string_byref_const
   DCHECK(scheme_name);
-  if (!scheme_name)
+  if (!scheme_name) {
     return 0;
+  }
   // Unverified params: domain_name, factory
 
   // Execute
@@ -770,8 +815,9 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
 
   // Verify param: task; type: refptr_diff
   DCHECK(task);
-  if (!task)
+  if (!task) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostTask(threadId, CefTaskCToCpp::Wrap(task));
@@ -787,8 +833,9 @@ CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
 
   // Verify param: task; type: refptr_diff
   DCHECK(task);
-  if (!task)
+  if (!task) {
     return 0;
+  }
 
   // Execute
   bool _retval =
@@ -843,12 +890,14 @@ CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
 
   // Verify param: extension_name; type: string_byref_const
   DCHECK(extension_name);
-  if (!extension_name)
+  if (!extension_name) {
     return 0;
+  }
   // Verify param: javascript_code; type: string_byref_const
   DCHECK(javascript_code);
-  if (!javascript_code)
+  if (!javascript_code) {
     return 0;
+  }
   // Unverified params: handler
 
   // Execute
@@ -867,8 +916,9 @@ CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(
 
   // Verify param: frame; type: refptr_same
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Unverified params: javascript
 
   // Execute
@@ -881,8 +931,9 @@ CEF_EXPORT void cef_set_data_directory_for_tests(const cef_string_t* dir) {
 
   // Verify param: dir; type: string_byref_const
   DCHECK(dir);
-  if (!dir)
+  if (!dir) {
     return;
+  }
 
   // Execute
   CefSetDataDirectoryForTests(CefString(dir));

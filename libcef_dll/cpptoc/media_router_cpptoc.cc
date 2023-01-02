@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55a817af6b8dc3408785410b47e5d01313ebc9dd$
+// $hash=d5e33d2f86d782fb59cd8d5a88596a65825e8de5$
 //
 
 #include "libcef_dll/cpptoc/media_router_cpptoc.h"
@@ -51,12 +51,14 @@ media_router_add_observer(struct _cef_media_router_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: observer; type: refptr_diff
   DCHECK(observer);
-  if (!observer)
+  if (!observer) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefRegistration> _retval =
@@ -75,12 +77,14 @@ media_router_get_source(struct _cef_media_router_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: urn; type: string_byref_const
   DCHECK(urn);
-  if (!urn)
+  if (!urn) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefMediaSource> _retval =
@@ -97,8 +101,9 @@ media_router_notify_current_sinks(struct _cef_media_router_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMediaRouterCppToC::Get(self)->NotifyCurrentSinks();
@@ -114,20 +119,24 @@ media_router_create_route(struct _cef_media_router_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: source; type: refptr_same
   DCHECK(source);
-  if (!source)
+  if (!source) {
     return;
+  }
   // Verify param: sink; type: refptr_same
   DCHECK(sink);
-  if (!sink)
+  if (!sink) {
     return;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
-  if (!callback)
+  if (!callback) {
     return;
+  }
 
   // Execute
   CefMediaRouterCppToC::Get(self)->CreateRoute(
@@ -142,8 +151,9 @@ media_router_notify_current_routes(struct _cef_media_router_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefMediaRouterCppToC::Get(self)->NotifyCurrentRoutes();

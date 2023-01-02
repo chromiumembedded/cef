@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53febc1355422739c9de942f67f52fb4de462571$
+// $hash=6c1d14cb706ab18d56a265e2eaa5567a526919e9$
 //
 
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
@@ -31,16 +31,19 @@ int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: dragData; type: refptr_diff
   DCHECK(dragData);
-  if (!dragData)
+  if (!dragData) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDragHandlerCppToC::Get(self)->OnDragEnter(
@@ -61,20 +64,24 @@ void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame);
-  if (!frame)
+  if (!frame) {
     return;
+  }
   // Verify param: regions; type: simple_vec_byref_const
   DCHECK(regionsCount == 0 || regions);
-  if (regionsCount > 0 && !regions)
+  if (regionsCount > 0 && !regions) {
     return;
+  }
 
   // Translate param: regions; type: simple_vec_byref_const
   std::vector<CefDraggableRegion> regionsList;

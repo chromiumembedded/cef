@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2815712e9960e6850bb646ba0009fe42e8a2624$
+// $hash=20c409219d3b1a4db83f506807a3f4401e2dffb4$
 //
 
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
@@ -23,24 +23,28 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
                               CefRefPtr<CefV8Value>& retval,
                               CefString& exception) {
   cef_v8accessor_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get))
+  if (CEF_MEMBER_MISSING(_struct, get)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return false;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object.get());
-  if (!object.get())
+  if (!object.get()) {
     return false;
+  }
 
   // Translate param: retval; type: refptr_diff_byref
   cef_v8value_t* retvalStruct = NULL;
-  if (retval.get())
+  if (retval.get()) {
     retvalStruct = CefV8ValueCppToC::Wrap(retval);
+  }
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
@@ -67,23 +71,27 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
                               const CefRefPtr<CefV8Value> value,
                               CefString& exception) {
   cef_v8accessor_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set))
+  if (CEF_MEMBER_MISSING(_struct, set)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return false;
+  }
   // Verify param: object; type: refptr_diff
   DCHECK(object.get());
-  if (!object.get())
+  if (!object.get()) {
     return false;
+  }
   // Verify param: value; type: refptr_diff
   DCHECK(value.get());
-  if (!value.get())
+  if (!value.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->set(

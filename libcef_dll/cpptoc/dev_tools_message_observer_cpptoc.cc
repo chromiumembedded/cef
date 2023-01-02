@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a8a10af1258edd37dbb8d079a10943070c1e9c4c$
+// $hash=78a2561a28bab409e06b44eaff38cac7e156bdf4$
 //
 
 #include "libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.h"
@@ -30,16 +30,19 @@ int CEF_CALLBACK dev_tools_message_observer_on_dev_tools_message(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return 0;
+  }
   // Verify param: message; type: simple_byaddr
   DCHECK(message);
-  if (!message)
+  if (!message) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefDevToolsMessageObserverCppToC::Get(self)->OnDevToolsMessage(
@@ -61,12 +64,14 @@ void CEF_CALLBACK dev_tools_message_observer_on_dev_tools_method_result(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Unverified params: result
 
   // Execute
@@ -86,16 +91,19 @@ void CEF_CALLBACK dev_tools_message_observer_on_dev_tools_event(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
   // Verify param: method; type: string_byref_const
   DCHECK(method);
-  if (!method)
+  if (!method) {
     return;
+  }
   // Unverified params: params
 
   // Execute
@@ -111,12 +119,14 @@ void CEF_CALLBACK dev_tools_message_observer_on_dev_tools_agent_attached(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefDevToolsMessageObserverCppToC::Get(self)->OnDevToolsAgentAttached(
@@ -131,12 +141,14 @@ void CEF_CALLBACK dev_tools_message_observer_on_dev_tools_agent_detached(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
-  if (!browser)
+  if (!browser) {
     return;
+  }
 
   // Execute
   CefDevToolsMessageObserverCppToC::Get(self)->OnDevToolsAgentDetached(

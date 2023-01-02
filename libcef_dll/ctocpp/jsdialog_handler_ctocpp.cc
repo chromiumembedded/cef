@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cf3f4ea060216018445b03ed1626f0698c01839b$
+// $hash=022f9cc79a1aade870e9f1f7a77f8604c6a9c36b$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -31,19 +31,22 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(
   shutdown_checker::AssertNotShutdown();
 
   cef_jsdialog_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_jsdialog))
+  if (CEF_MEMBER_MISSING(_struct, on_jsdialog)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
   // Unverified params: origin_url, message_text, default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
@@ -71,19 +74,22 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
   shutdown_checker::AssertNotShutdown();
 
   cef_jsdialog_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_unload_dialog))
+  if (CEF_MEMBER_MISSING(_struct, on_before_unload_dialog)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return false;
+  }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
-  if (!callback.get())
+  if (!callback.get()) {
     return false;
+  }
   // Unverified params: message_text
 
   // Execute
@@ -101,15 +107,17 @@ void CefJSDialogHandlerCToCpp::OnResetDialogState(
   shutdown_checker::AssertNotShutdown();
 
   cef_jsdialog_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_reset_dialog_state))
+  if (CEF_MEMBER_MISSING(_struct, on_reset_dialog_state)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_reset_dialog_state(_struct, CefBrowserCppToC::Wrap(browser));
@@ -120,15 +128,17 @@ void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
   shutdown_checker::AssertNotShutdown();
 
   cef_jsdialog_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_dialog_closed))
+  if (CEF_MEMBER_MISSING(_struct, on_dialog_closed)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_dialog_closed(_struct, CefBrowserCppToC::Wrap(browser));

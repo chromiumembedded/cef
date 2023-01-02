@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=70eeeda85eb67d546066854051f2f921fadcca18$
+// $hash=479c82d8c72edba5bc48bdd8e32677ebe0bc720e$
 //
 
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -37,8 +37,9 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::IsValid() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -53,8 +54,9 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::IsReadOnly() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_read_only))
+  if (CEF_MEMBER_MISSING(_struct, is_read_only)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -70,8 +72,9 @@ void CefPrintSettingsCToCpp::SetOrientation(bool landscape) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_orientation))
+  if (CEF_MEMBER_MISSING(_struct, set_orientation)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -83,8 +86,9 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::IsLandscape() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_landscape))
+  if (CEF_MEMBER_MISSING(_struct, is_landscape)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -103,8 +107,9 @@ void CefPrintSettingsCToCpp::SetPrinterPrintableArea(
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_printer_printable_area))
+  if (CEF_MEMBER_MISSING(_struct, set_printer_printable_area)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -119,8 +124,9 @@ void CefPrintSettingsCToCpp::SetDeviceName(const CefString& name) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_device_name))
+  if (CEF_MEMBER_MISSING(_struct, set_device_name)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -134,8 +140,9 @@ NO_SANITIZE("cfi-icall") CefString CefPrintSettingsCToCpp::GetDeviceName() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_device_name))
+  if (CEF_MEMBER_MISSING(_struct, get_device_name)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -152,8 +159,9 @@ NO_SANITIZE("cfi-icall") void CefPrintSettingsCToCpp::SetDPI(int dpi) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_dpi))
+  if (CEF_MEMBER_MISSING(_struct, set_dpi)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -165,8 +173,9 @@ NO_SANITIZE("cfi-icall") int CefPrintSettingsCToCpp::GetDPI() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_dpi))
+  if (CEF_MEMBER_MISSING(_struct, get_dpi)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -182,8 +191,9 @@ void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_page_ranges))
+  if (CEF_MEMBER_MISSING(_struct, set_page_ranges)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -204,16 +214,18 @@ void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
   _struct->set_page_ranges(_struct, rangesCount, rangesList);
 
   // Restore param:ranges; type: simple_vec_byref_const
-  if (rangesList)
+  if (rangesList) {
     delete[] rangesList;
+  }
 }
 
 NO_SANITIZE("cfi-icall") size_t CefPrintSettingsCToCpp::GetPageRangesCount() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_page_ranges_count))
+  if (CEF_MEMBER_MISSING(_struct, get_page_ranges_count)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -229,8 +241,9 @@ void CefPrintSettingsCToCpp::GetPageRanges(PageRangeList& ranges) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_page_ranges))
+  if (CEF_MEMBER_MISSING(_struct, get_page_ranges)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -269,8 +282,9 @@ void CefPrintSettingsCToCpp::SetSelectionOnly(bool selection_only) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_selection_only))
+  if (CEF_MEMBER_MISSING(_struct, set_selection_only)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -282,8 +296,9 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::IsSelectionOnly() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_selection_only))
+  if (CEF_MEMBER_MISSING(_struct, is_selection_only)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -298,8 +313,9 @@ NO_SANITIZE("cfi-icall") void CefPrintSettingsCToCpp::SetCollate(bool collate) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_collate))
+  if (CEF_MEMBER_MISSING(_struct, set_collate)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -311,8 +327,9 @@ NO_SANITIZE("cfi-icall") bool CefPrintSettingsCToCpp::WillCollate() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, will_collate))
+  if (CEF_MEMBER_MISSING(_struct, will_collate)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -328,8 +345,9 @@ void CefPrintSettingsCToCpp::SetColorModel(ColorModel model) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_color_model))
+  if (CEF_MEMBER_MISSING(_struct, set_color_model)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -342,8 +360,9 @@ CefPrintSettings::ColorModel CefPrintSettingsCToCpp::GetColorModel() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_color_model))
+  if (CEF_MEMBER_MISSING(_struct, get_color_model)) {
     return COLOR_MODEL_UNKNOWN;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -358,8 +377,9 @@ NO_SANITIZE("cfi-icall") void CefPrintSettingsCToCpp::SetCopies(int copies) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_copies))
+  if (CEF_MEMBER_MISSING(_struct, set_copies)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -371,8 +391,9 @@ NO_SANITIZE("cfi-icall") int CefPrintSettingsCToCpp::GetCopies() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_copies))
+  if (CEF_MEMBER_MISSING(_struct, get_copies)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -388,8 +409,9 @@ void CefPrintSettingsCToCpp::SetDuplexMode(DuplexMode mode) {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_duplex_mode))
+  if (CEF_MEMBER_MISSING(_struct, set_duplex_mode)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -402,8 +424,9 @@ CefPrintSettings::DuplexMode CefPrintSettingsCToCpp::GetDuplexMode() {
   shutdown_checker::AssertNotShutdown();
 
   cef_print_settings_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_duplex_mode))
+  if (CEF_MEMBER_MISSING(_struct, get_duplex_mode)) {
     return DUPLEX_MODE_UNKNOWN;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

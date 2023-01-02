@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c2a2edb07cc7aa06a63a71b626898213712a840a$
+// $hash=952c6b775c3954a28e87a4c15625dcfa14829ec4$
 //
 
 #include "libcef_dll/ctocpp/preference_registrar_ctocpp.h"
@@ -22,19 +22,22 @@ bool CefPreferenceRegistrarCToCpp::AddPreference(
     const CefString& name,
     CefRefPtr<CefValue> default_value) {
   cef_preference_registrar_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, add_preference))
+  if (CEF_MEMBER_MISSING(_struct, add_preference)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return false;
+  }
   // Verify param: default_value; type: refptr_same
   DCHECK(default_value.get());
-  if (!default_value.get())
+  if (!default_value.get()) {
     return false;
+  }
 
   // Execute
   int _retval = _struct->add_preference(_struct, name.GetStruct(),

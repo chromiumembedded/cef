@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5d331596c0425f145a19d8de6a866841d9ed8a87$
+// $hash=80473999475a2327eca8289bd30d970c699abb21$
 //
 
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
@@ -27,8 +27,9 @@ CEF_EXPORT cef_process_message_t* cef_process_message_create(
 
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefProcessMessage> _retval =
@@ -48,8 +49,9 @@ int CEF_CALLBACK process_message_is_valid(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefProcessMessageCppToC::Get(self)->IsValid();
@@ -65,8 +67,9 @@ process_message_is_read_only(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefProcessMessageCppToC::Get(self)->IsReadOnly();
@@ -82,8 +85,9 @@ process_message_copy(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefProcessMessage> _retval =
@@ -100,8 +104,9 @@ process_message_get_name(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefProcessMessageCppToC::Get(self)->GetName();
@@ -117,8 +122,9 @@ process_message_get_argument_list(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefListValue> _retval =
@@ -135,8 +141,9 @@ process_message_get_shared_memory_region(struct _cef_process_message_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefSharedMemoryRegion> _retval =

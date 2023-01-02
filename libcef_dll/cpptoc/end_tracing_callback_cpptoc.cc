@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67836a9b2dfec98cab93231cb7e07ca2b9696123$
+// $hash=ebc35ae1d69fc69861f74ff1531d1c849220fed8$
 //
 
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
@@ -27,12 +27,14 @@ void CEF_CALLBACK end_tracing_callback_on_end_tracing_complete(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: tracing_file; type: string_byref_const
   DCHECK(tracing_file);
-  if (!tracing_file)
+  if (!tracing_file) {
     return;
+  }
 
   // Execute
   CefEndTracingCallbackCppToC::Get(self)->OnEndTracingComplete(

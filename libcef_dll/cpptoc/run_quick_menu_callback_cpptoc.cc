@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=51e850e2768a6ec8ec7d764830d27138334d82ac$
+// $hash=eb693cdf087ac87c4fe8da576a41faa120f97cd1$
 //
 
 #include "libcef_dll/cpptoc/run_quick_menu_callback_cpptoc.h"
@@ -28,8 +28,9 @@ run_quick_menu_callback_cont(struct _cef_run_quick_menu_callback_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefRunQuickMenuCallbackCppToC::Get(self)->Continue(command_id, event_flags);
@@ -42,8 +43,9 @@ run_quick_menu_callback_cancel(struct _cef_run_quick_menu_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefRunQuickMenuCallbackCppToC::Get(self)->Cancel();

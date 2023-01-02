@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=95678987551b26755e5dc718c3cad2e975b574c7$
+// $hash=fd39feb52a9ace3fda3d5bfda54c4a240173f2ff$
 //
 
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
@@ -29,12 +29,14 @@ void CEF_CALLBACK box_layout_set_flex_for_view(struct _cef_box_layout_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
 
   // Execute
   CefBoxLayoutCppToC::Get(self)->SetFlexForView(CefViewCppToC::Unwrap(view),
@@ -48,12 +50,14 @@ void CEF_CALLBACK box_layout_clear_flex_for_view(struct _cef_box_layout_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: view; type: refptr_same
   DCHECK(view);
-  if (!view)
+  if (!view) {
     return;
+  }
 
   // Execute
   CefBoxLayoutCppToC::Get(self)->ClearFlexForView(CefViewCppToC::Unwrap(view));
@@ -66,8 +70,9 @@ box_layout_as_box_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBoxLayout> _retval =
@@ -85,8 +90,9 @@ box_layout_as_fill_layout(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFillLayout> _retval =
@@ -103,8 +109,9 @@ int CEF_CALLBACK box_layout_is_valid(struct _cef_layout_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval =

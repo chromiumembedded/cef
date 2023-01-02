@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa6efd61a1ebf39506a9cb655dd1c07168dc3d33$
+// $hash=4ef592680d7650fb636a997f127d3c8e54d6c450$
 //
 
 #include "libcef_dll/ctocpp/media_source_ctocpp.h"
@@ -21,8 +21,9 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSourceCToCpp::GetId() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_source_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_id))
+  if (CEF_MEMBER_MISSING(_struct, get_id)) {
     return CefString();
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -39,8 +40,9 @@ NO_SANITIZE("cfi-icall") bool CefMediaSourceCToCpp::IsCastSource() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_source_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_cast_source))
+  if (CEF_MEMBER_MISSING(_struct, is_cast_source)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -55,8 +57,9 @@ NO_SANITIZE("cfi-icall") bool CefMediaSourceCToCpp::IsDialSource() {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_source_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_dial_source))
+  if (CEF_MEMBER_MISSING(_struct, is_dial_source)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=728e5a2aa03b7884d5001f784dcf6bc6fb79254a$
+// $hash=4bbe58d52a3098f3bc77f202fe28f914c15b26e1$
 //
 
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
@@ -22,15 +22,17 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
   shutdown_checker::AssertNotShutdown();
 
   cef_write_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, write))
+  if (CEF_MEMBER_MISSING(_struct, write)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: ptr; type: simple_byaddr
   DCHECK(ptr);
-  if (!ptr)
+  if (!ptr) {
     return 0;
+  }
 
   // Execute
   size_t _retval = _struct->write(_struct, ptr, size, n);
@@ -44,8 +46,9 @@ int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_write_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, seek))
+  if (CEF_MEMBER_MISSING(_struct, seek)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -60,8 +63,9 @@ NO_SANITIZE("cfi-icall") int64 CefWriteHandlerCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_write_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, tell))
+  if (CEF_MEMBER_MISSING(_struct, tell)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -76,8 +80,9 @@ NO_SANITIZE("cfi-icall") int CefWriteHandlerCToCpp::Flush() {
   shutdown_checker::AssertNotShutdown();
 
   cef_write_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, flush))
+  if (CEF_MEMBER_MISSING(_struct, flush)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -92,8 +97,9 @@ NO_SANITIZE("cfi-icall") bool CefWriteHandlerCToCpp::MayBlock() {
   shutdown_checker::AssertNotShutdown();
 
   cef_write_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, may_block))
+  if (CEF_MEMBER_MISSING(_struct, may_block)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aa091bc741fcefee760906fce4c8f86937dd74ca$
+// $hash=c3d95d65039cab3684964b164afe772d8a614f82$
 //
 
 #include <dlfcn.h>
@@ -543,8 +543,9 @@ int libcef_init_pointers(const char* path) {
 }  // namespace
 
 int cef_load_library(const char* path) {
-  if (g_libcef_handle)
+  if (g_libcef_handle) {
     return 0;
+  }
 
   g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
   if (!g_libcef_handle) {

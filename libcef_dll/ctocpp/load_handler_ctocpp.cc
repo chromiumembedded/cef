@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a9f8a50b70bb46729c6d808f825d174ccc0f15e$
+// $hash=383c19c3c8f95deb40ca6eac2860b34f52b0a421$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
@@ -27,15 +27,17 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_load_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_loading_state_change))
+  if (CEF_MEMBER_MISSING(_struct, on_loading_state_change)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
 
   // Execute
   _struct->on_loading_state_change(_struct, CefBrowserCppToC::Wrap(browser),
@@ -49,19 +51,22 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_load_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_load_start))
+  if (CEF_MEMBER_MISSING(_struct, on_load_start)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_load_start(_struct, CefBrowserCppToC::Wrap(browser),
@@ -75,19 +80,22 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_load_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_load_end))
+  if (CEF_MEMBER_MISSING(_struct, on_load_end)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
 
   // Execute
   _struct->on_load_end(_struct, CefBrowserCppToC::Wrap(browser),
@@ -103,23 +111,27 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
   shutdown_checker::AssertNotShutdown();
 
   cef_load_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_load_error))
+  if (CEF_MEMBER_MISSING(_struct, on_load_error)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
-  if (!browser.get())
+  if (!browser.get()) {
     return;
+  }
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
-  if (!frame.get())
+  if (!frame.get()) {
     return;
+  }
   // Verify param: failedUrl; type: string_byref_const
   DCHECK(!failedUrl.empty());
-  if (failedUrl.empty())
+  if (failedUrl.empty()) {
     return;
+  }
   // Unverified params: errorText
 
   // Execute

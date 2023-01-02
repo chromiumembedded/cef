@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=935efc8f333c6df95b783e1e80bb84aa26d55b9b$
+// $hash=5e90cf25cb72e84e91a1f8dde1ad722592424dcb$
 //
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
@@ -36,8 +36,9 @@ int CEF_CALLBACK post_data_is_read_only(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostDataCppToC::Get(self)->IsReadOnly();
@@ -51,8 +52,9 @@ post_data_has_excluded_elements(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostDataCppToC::Get(self)->HasExcludedElements();
@@ -65,8 +67,9 @@ size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefPostDataCppToC::Get(self)->GetElementCount();
@@ -82,12 +85,14 @@ post_data_get_elements(struct _cef_post_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: elements; type: refptr_vec_same_byref
   DCHECK(elementsCount && (*elementsCount == 0 || elements));
-  if (!elementsCount || (*elementsCount > 0 && !elements))
+  if (!elementsCount || (*elementsCount > 0 && !elements)) {
     return;
+  }
 
   // Translate param: elements; type: refptr_vec_same_byref
   std::vector<CefRefPtr<CefPostDataElement>> elementsList;
@@ -117,12 +122,14 @@ post_data_remove_element(struct _cef_post_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: element; type: refptr_same
   DCHECK(element);
-  if (!element)
+  if (!element) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostDataCppToC::Get(self)->RemoveElement(
@@ -138,12 +145,14 @@ post_data_add_element(struct _cef_post_data_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
   // Verify param: element; type: refptr_same
   DCHECK(element);
-  if (!element)
+  if (!element) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefPostDataCppToC::Get(self)->AddElement(
@@ -157,8 +166,9 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefPostDataCppToC::Get(self)->RemoveElements();

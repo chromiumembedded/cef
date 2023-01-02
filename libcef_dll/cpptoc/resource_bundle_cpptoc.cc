@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5081aa41e87ea1a44df19f1df060a478b3b902d8$
+// $hash=8ef82c13bcb073b2cd97ef38d79d47478d1eddec$
 //
 
 #include "libcef_dll/cpptoc/resource_bundle_cpptoc.h"
@@ -37,8 +37,9 @@ resource_bundle_get_localized_string(struct _cef_resource_bundle_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -54,8 +55,9 @@ resource_bundle_get_data_resource(struct _cef_resource_bundle_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval =
@@ -72,8 +74,9 @@ resource_bundle_get_data_resource_for_scale(struct _cef_resource_bundle_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefBinaryValue> _retval =

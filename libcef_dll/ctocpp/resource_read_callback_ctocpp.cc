@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c251aa59688ffe5c12d2ec3c8a4a896d016e86a0$
+// $hash=27162e0430742e5c8ccf73dc8fca20572132a530$
 //
 
 #include "libcef_dll/ctocpp/resource_read_callback_ctocpp.h"
@@ -22,8 +22,9 @@ void CefResourceReadCallbackCToCpp::Continue(int bytes_read) {
   shutdown_checker::AssertNotShutdown();
 
   cef_resource_read_callback_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, cont))
+  if (CEF_MEMBER_MISSING(_struct, cont)) {
     return;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

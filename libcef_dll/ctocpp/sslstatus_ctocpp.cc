@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=18492d14d83b0dfd272ddd9dd95a2fc292bf8904$
+// $hash=367c7e71f4d0e57f08b1c2fc63d54dcb475ee59e$
 //
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
@@ -22,8 +22,9 @@ NO_SANITIZE("cfi-icall") bool CefSSLStatusCToCpp::IsSecureConnection() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslstatus_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_secure_connection))
+  if (CEF_MEMBER_MISSING(_struct, is_secure_connection)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -38,8 +39,9 @@ NO_SANITIZE("cfi-icall") cef_cert_status_t CefSSLStatusCToCpp::GetCertStatus() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslstatus_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_cert_status))
+  if (CEF_MEMBER_MISSING(_struct, get_cert_status)) {
     return CERT_STATUS_NONE;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -54,8 +56,9 @@ NO_SANITIZE("cfi-icall") cef_ssl_version_t CefSSLStatusCToCpp::GetSSLVersion() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslstatus_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_sslversion))
+  if (CEF_MEMBER_MISSING(_struct, get_sslversion)) {
     return SSL_CONNECTION_VERSION_UNKNOWN;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -71,8 +74,9 @@ cef_ssl_content_status_t CefSSLStatusCToCpp::GetContentStatus() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslstatus_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_content_status))
+  if (CEF_MEMBER_MISSING(_struct, get_content_status)) {
     return SSL_CONTENT_NORMAL_CONTENT;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -88,8 +92,9 @@ CefRefPtr<CefX509Certificate> CefSSLStatusCToCpp::GetX509Certificate() {
   shutdown_checker::AssertNotShutdown();
 
   cef_sslstatus_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_x509certificate))
+  if (CEF_MEMBER_MISSING(_struct, get_x509certificate)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3c3551c52baf66ab3cd4ee485313ef41a29313b$
+// $hash=724a8df36edf93cbfa842226a4507891ec8df8e6$
 //
 
 #include "libcef_dll/cpptoc/shared_process_message_builder_cpptoc.h"
@@ -27,8 +27,9 @@ cef_shared_process_message_builder_create(const cef_string_t* name,
 
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefSharedProcessMessageBuilder> _retval =
@@ -49,8 +50,9 @@ int CEF_CALLBACK shared_process_message_builder_is_valid(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefSharedProcessMessageBuilderCppToC::Get(self)->IsValid();
@@ -66,8 +68,9 @@ size_t CEF_CALLBACK shared_process_message_builder_size(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   size_t _retval = CefSharedProcessMessageBuilderCppToC::Get(self)->Size();
@@ -81,8 +84,9 @@ void* CEF_CALLBACK shared_process_message_builder_memory(
   shutdown_checker::AssertNotShutdown();
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   void* _retval = CefSharedProcessMessageBuilderCppToC::Get(self)->Memory();
@@ -98,8 +102,9 @@ cef_process_message_t* CEF_CALLBACK shared_process_message_builder_build(
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefRefPtr<CefProcessMessage> _retval =

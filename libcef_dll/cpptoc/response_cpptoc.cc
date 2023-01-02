@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1dc0f59d37e6979ba3f431463671f0feefc45c31$
+// $hash=91a122bd04945c350a947a565acf15419e055404$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -35,8 +35,9 @@ int CEF_CALLBACK response_is_read_only(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   bool _retval = CefResponseCppToC::Get(self)->IsReadOnly();
@@ -49,8 +50,9 @@ cef_errorcode_t CEF_CALLBACK response_get_error(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return ERR_NONE;
+  }
 
   // Execute
   cef_errorcode_t _retval = CefResponseCppToC::Get(self)->GetError();
@@ -64,8 +66,9 @@ void CEF_CALLBACK response_set_error(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefResponseCppToC::Get(self)->SetError(error);
@@ -75,8 +78,9 @@ int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return 0;
+  }
 
   // Execute
   int _retval = CefResponseCppToC::Get(self)->GetStatus();
@@ -90,8 +94,9 @@ void CEF_CALLBACK response_set_status(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
 
   // Execute
   CefResponseCppToC::Get(self)->SetStatus(status);
@@ -102,8 +107,9 @@ response_get_status_text(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefResponseCppToC::Get(self)->GetStatusText();
@@ -117,8 +123,9 @@ void CEF_CALLBACK response_set_status_text(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: statusText
 
   // Execute
@@ -130,8 +137,9 @@ response_get_mime_type(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefResponseCppToC::Get(self)->GetMimeType();
@@ -145,8 +153,9 @@ void CEF_CALLBACK response_set_mime_type(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: mimeType
 
   // Execute
@@ -158,8 +167,9 @@ response_get_charset(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefResponseCppToC::Get(self)->GetCharset();
@@ -173,8 +183,9 @@ void CEF_CALLBACK response_set_charset(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: charset
 
   // Execute
@@ -187,12 +198,14 @@ response_get_header_by_name(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return NULL;
+  }
 
   // Execute
   CefString _retval =
@@ -209,12 +222,14 @@ void CEF_CALLBACK response_set_header_by_name(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: name; type: string_byref_const
   DCHECK(name);
-  if (!name)
+  if (!name) {
     return;
+  }
   // Unverified params: value
 
   // Execute
@@ -227,12 +242,14 @@ void CEF_CALLBACK response_get_header_map(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: headerMap; type: string_map_multi_byref
   DCHECK(headerMap);
-  if (!headerMap)
+  if (!headerMap) {
     return;
+  }
 
   // Translate param: headerMap; type: string_map_multi_byref
   std::multimap<CefString, CefString> headerMapMultimap;
@@ -251,12 +268,14 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Verify param: headerMap; type: string_map_multi_byref_const
   DCHECK(headerMap);
-  if (!headerMap)
+  if (!headerMap) {
     return;
+  }
 
   // Translate param: headerMap; type: string_map_multi_byref_const
   std::multimap<CefString, CefString> headerMapMultimap;
@@ -271,8 +290,9 @@ response_get_url(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return NULL;
+  }
 
   // Execute
   CefString _retval = CefResponseCppToC::Get(self)->GetURL();
@@ -286,8 +306,9 @@ void CEF_CALLBACK response_set_url(struct _cef_response_t* self,
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
-  if (!self)
+  if (!self) {
     return;
+  }
   // Unverified params: url
 
   // Execute

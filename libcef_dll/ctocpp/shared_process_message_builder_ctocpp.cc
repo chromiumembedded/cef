@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a20e093efb07503fe9e64c97c14091e3921544cd$
+// $hash=78817cc08a00cfafed41724327295d5437d922e9$
 //
 
 #include "libcef_dll/ctocpp/shared_process_message_builder_ctocpp.h"
@@ -28,8 +28,9 @@ CefSharedProcessMessageBuilder::Create(const CefString& name,
 
   // Verify param: name; type: string_byref_const
   DCHECK(!name.empty());
-  if (name.empty())
+  if (name.empty()) {
     return nullptr;
+  }
 
   // Execute
   cef_shared_process_message_builder_t* _retval =
@@ -45,8 +46,9 @@ NO_SANITIZE("cfi-icall") bool CefSharedProcessMessageBuilderCToCpp::IsValid() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_process_message_builder_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_valid))
+  if (CEF_MEMBER_MISSING(_struct, is_valid)) {
     return false;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -61,8 +63,9 @@ NO_SANITIZE("cfi-icall") size_t CefSharedProcessMessageBuilderCToCpp::Size() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_process_message_builder_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, size))
+  if (CEF_MEMBER_MISSING(_struct, size)) {
     return 0;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -77,8 +80,9 @@ NO_SANITIZE("cfi-icall") void* CefSharedProcessMessageBuilderCToCpp::Memory() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_process_message_builder_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, memory))
-    return nullptr;
+  if (CEF_MEMBER_MISSING(_struct, memory)) {
+    return NULL;
+  }
 
   // Execute
   void* _retval = _struct->memory(_struct);
@@ -92,8 +96,9 @@ CefRefPtr<CefProcessMessage> CefSharedProcessMessageBuilderCToCpp::Build() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_process_message_builder_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, build))
+  if (CEF_MEMBER_MISSING(_struct, build)) {
     return nullptr;
+  }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
