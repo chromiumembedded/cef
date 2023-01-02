@@ -85,8 +85,9 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
   # parameter verification
   if isinstance(func, obj_function_virtual):
     result += '\n  DCHECK(self);'\
-              '\n  if (!self)'\
-              '\n    return'+retval_default+';'
+              '\n  if (!self) {'\
+              '\n    return'+retval_default+';'\
+              '\n  }'
 
   for arg in args:
     arg_type = arg.get_arg_type()
@@ -115,8 +116,9 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
        arg_type == 'string_map_multi_byref' or arg_type == 'string_map_multi_byref_const':
       result += comment+\
                 '\n  DCHECK('+arg_name+');'\
-                '\n  if (!'+arg_name+')'\
-                '\n    return'+retval_default+';'
+                '\n  if (!'+arg_name+') {'\
+                '\n    return'+retval_default+';'\
+                '\n  }'
       if arg_type == 'struct_byref_const' or arg_type == 'struct_byref':
         result +=\
                 '\n  if (!template_util::has_valid_size('+arg_name+')) {'\
@@ -129,24 +131,27 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
         arg_type == 'rawptr_vec_same_byref' or arg_type == 'rawptr_vec_diff_byref':
       result += comment+\
                 '\n  DCHECK('+arg_name+'Count && (*'+arg_name+'Count == 0 || '+arg_name+'));'\
-                '\n  if (!'+arg_name+'Count || (*'+arg_name+'Count > 0 && !'+arg_name+'))'\
-                '\n    return'+retval_default+';'
+                '\n  if (!'+arg_name+'Count || (*'+arg_name+'Count > 0 && !'+arg_name+')) {'\
+                '\n    return'+retval_default+';'\
+                '\n  }'
     elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
         arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const' or \
         arg_type == 'ownptr_vec_same_byref_const' or arg_type == 'ownptr_vec_diff_byref_const' or \
         arg_type == 'rawptr_vec_same_byref_const' or arg_type == 'rawptr_vec_diff_byref_const':
       result += comment+\
                 '\n  DCHECK('+arg_name+'Count == 0 || '+arg_name+');'\
-                '\n  if ('+arg_name+'Count > 0 && !'+arg_name+')'\
-                '\n    return'+retval_default+';'
+                '\n  if ('+arg_name+'Count > 0 && !'+arg_name+') {'\
+                '\n    return'+retval_default+';'\
+                '\n  }'
 
     # check index params
     index_params = arg.parent.get_attrib_list('index_param')
     if not index_params is None and arg_name in index_params:
       result += comment+\
                 '\n  DCHECK_GE('+arg_name+', 0);'\
-                '\n  if ('+arg_name+' < 0)'\
-                '\n    return'+retval_default+';'
+                '\n  if ('+arg_name+' < 0) {'\
+                '\n    return'+retval_default+';'\
+                '\n  }'
 
   if len(optional) > 0:
     # Wrap the comment at 80 characters.
@@ -193,15 +198,17 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       struct_type = arg.get_type().get_type()
       result += comment+\
                 '\n  '+struct_type+' '+arg_name+'Obj;'\
-                '\n  if ('+arg_name+')'\
-                '\n    '+arg_name+'Obj.Set(*'+arg_name+', false);'
+                '\n  if ('+arg_name+') {'\
+                '\n    '+arg_name+'Obj.Set(*'+arg_name+', false);'\
+                '\n  }'
       params.append(arg_name + 'Obj')
     elif arg_type == 'struct_byref':
       struct_type = arg.get_type().get_type()
       result += comment+\
                 '\n  '+struct_type+' '+arg_name+'Obj;'\
-                '\n  if ('+arg_name+')'\
-                '\n    '+arg_name+'Obj.AttachTo(*'+arg_name+');'
+                '\n  if ('+arg_name+') {'\
+                '\n    '+arg_name+'Obj.AttachTo(*'+arg_name+');'\
+                '\n  }'
       params.append(arg_name + 'Obj')
     elif arg_type == 'string_byref_const':
       params.append('CefString(' + arg_name + ')')
@@ -237,8 +244,9 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
         assign = ptr_class + 'CToCpp::Wrap(*' + arg_name + ')'
       result += comment+\
                 '\n  CefRefPtr<'+ptr_class+'> '+arg_name+'Ptr;'\
-                '\n  if ('+arg_name+' && *'+arg_name+')'\
+                '\n  if ('+arg_name+' && *'+arg_name+') {'\
                 '\n    '+arg_name+'Ptr = '+assign+';'\
+                '\n  }'\
                 '\n  '+ptr_class+'* '+arg_name+'Orig = '+arg_name+'Ptr.get();'
       params.append(arg_name + 'Ptr')
     elif arg_type == 'string_vec_byref' or arg_type == 'string_vec_byref_const':
@@ -358,16 +366,19 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
 
     if arg_type == 'simple_byref':
       result += comment+\
-                '\n  if ('+arg_name+')'\
-                '\n    *'+arg_name+' = '+arg_name+'Val;'
+                '\n  if ('+arg_name+') {'\
+                '\n    *'+arg_name+' = '+arg_name+'Val;'\
+                '\n  }'
     elif arg_type == 'bool_byref' or arg_type == 'bool_byaddr':
       result += comment+\
-                '\n  if ('+arg_name+')'\
-                '\n    *'+arg_name+' = '+arg_name+'Bool?true:false;'
+                '\n  if ('+arg_name+') {'\
+                '\n    *'+arg_name+' = '+arg_name+'Bool?true:false;'\
+                '\n  }'
     elif arg_type == 'struct_byref':
       result += comment+\
-                '\n  if ('+arg_name+')'\
-                '\n    '+arg_name+'Obj.DetachTo(*'+arg_name+');'
+                '\n  if ('+arg_name+') {'\
+                '\n    '+arg_name+'Obj.DetachTo(*'+arg_name+');'\
+                '\n  }'
     elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
       ptr_class = arg.get_type().get_ptr_type()
       if arg_type == 'refptr_same_byref':
