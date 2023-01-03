@@ -205,8 +205,16 @@ struct TestSetup {
   typedef std::vector<Resource*> ResourceList;
   ResourceList resources;
 
+  struct ConsoleMessage {
+    std::string message;
+
+    // Number of times the message was received. All registered messages are
+    // expected at least one time.
+    size_t count = 0;
+  };
+
   // Used for testing received console messages.
-  std::vector<std::string> console_messages;
+  std::vector<ConsoleMessage> console_messages;
 
   // If true cookies will be cleared after every test run.
   bool clear_cookies = false;
@@ -219,7 +227,7 @@ struct TestSetup {
 
   void AddConsoleMessage(const std::string& message) {
     DCHECK(!message.empty());
-    console_messages.push_back(message);
+    console_messages.push_back({message, 0U});
   }
 
   Resource* GetResource(const std::string& url,
@@ -379,9 +387,10 @@ class CorsTestHandler : public RoutingTestHandler {
     }
 
     setup_->AssertDone();
-    EXPECT_TRUE(setup_->console_messages.empty())
-        << "Did not receive expected console message: "
-        << setup_->console_messages.front();
+    for (const auto& cm : setup_->console_messages) {
+      EXPECT_GT(cm.count, 0U)
+          << "Did not receive expected console message: " << cm.message;
+    }
 
     RoutingTestHandler::DestroyTest();
   }
@@ -478,13 +487,11 @@ class CorsTestHandler : public RoutingTestHandler {
                         int line) override {
     bool expected = false;
     if (!setup_->console_messages.empty()) {
-      std::vector<std::string>::iterator it = setup_->console_messages.begin();
-      for (; it != setup_->console_messages.end(); ++it) {
-        const std::string& possible = *it;
-        const std::string& actual = message.ToString();
-        if (actual.find(possible) == 0U) {
+      const std::string& actual = message.ToString();
+      for (auto& cm : setup_->console_messages) {
+        if (actual.find(cm.message) == 0U) {
           expected = true;
-          setup_->console_messages.erase(it);
+          cm.count++;
           break;
         }
       }
