@@ -397,7 +397,7 @@ class ClientHandler : public CefClient,
   bool offline_;
 
   // True if Favicon images should be downloaded.
-  bool download_favicon_images_;
+  bool download_favicon_images_ = false;
 
 #if defined(OS_LINUX)
   // Custom dialog handlers for GTK.
@@ -435,17 +435,16 @@ class ClientHandler : public CefClient,
   } test_menu_state_;
 
   // The current number of browsers using this handler.
-  int browser_count_;
+  int browser_count_ = 0;
 
   // Console logging state.
   const std::string console_log_file_;
-  bool first_console_message_;
 
   // True if an editable field currently has focus.
-  bool focus_on_editable_field_;
+  bool focus_on_editable_field_ = false;
 
   // True for the initial navigation after browser creation.
-  bool initial_navigation_;
+  bool initial_navigation_ = true;
 
   // Set of Handlers registered with the message router.
   MessageHandlerSet message_handler_set_;
