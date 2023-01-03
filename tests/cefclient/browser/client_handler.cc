@@ -330,13 +330,8 @@ ClientHandler::ClientHandler(Delegate* delegate,
     : is_osr_(is_osr),
       with_controls_(with_controls),
       startup_url_(startup_url),
-      download_favicon_images_(false),
       delegate_(delegate),
-      browser_count_(0),
-      console_log_file_(MainContext::Get()->GetConsoleLogPath()),
-      first_console_message_(true),
-      focus_on_editable_field_(false),
-      initial_navigation_(true) {
+      console_log_file_(MainContext::Get()->GetConsoleLogPath()) {
   DCHECK(!console_log_file_.empty());
 
   resource_manager_ = new CefResourceManager();
@@ -628,12 +623,6 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
        << NEWLINE << "-----------------------" << NEWLINE;
     fputs(ss.str().c_str(), file);
     fclose(file);
-
-    if (first_console_message_) {
-      test_runner::Alert(
-          browser, "Console messages written to \"" + console_log_file_ + "\"");
-      first_console_message_ = false;
-    }
   }
 
   return false;

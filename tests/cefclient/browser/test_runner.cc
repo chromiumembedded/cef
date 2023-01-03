@@ -142,7 +142,7 @@ void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
 
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
-      "window.open('http://www.google.com');", "about:blank", 0);
+      "window.open('https://www.google.com');", "about:blank", 0);
 }
 
 void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
