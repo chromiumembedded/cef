@@ -44,7 +44,7 @@
 namespace base {
 namespace mac {
 
-namespace internal {
+namespace cef_internal {
 
 template <typename B>
 struct ScopedBlockTraits {
@@ -53,12 +53,12 @@ struct ScopedBlockTraits {
   static void Release(B block) { Block_release(block); }
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 
 // ScopedBlock<> is patterned after ScopedCFTypeRef<>, but uses Block_copy() and
 // Block_release() instead of CFRetain() and CFRelease().
 template <typename B>
-using ScopedBlock = ScopedTypeRef<B, internal::ScopedBlockTraits<B>>;
+using ScopedBlock = ScopedTypeRef<B, cef_internal::ScopedBlockTraits<B>>;
 
 }  // namespace mac
 }  // namespace base

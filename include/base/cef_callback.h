@@ -83,18 +83,18 @@
 namespace base {
 
 template <typename R, typename... Args>
-class OnceCallback<R(Args...)> : public internal::CallbackBase {
+class OnceCallback<R(Args...)> : public cef_internal::CallbackBase {
  public:
   using ResultType = R;
   using RunType = R(Args...);
-  using PolymorphicInvoke = R (*)(internal::BindStateBase*,
-                                  internal::PassingType<Args>...);
+  using PolymorphicInvoke = R (*)(cef_internal::BindStateBase*,
+                                  cef_internal::PassingType<Args>...);
 
   constexpr OnceCallback() = default;
   OnceCallback(std::nullptr_t) = delete;
 
-  explicit OnceCallback(internal::BindStateBase* bind_state)
-      : internal::CallbackBase(bind_state) {}
+  explicit OnceCallback(cef_internal::BindStateBase* bind_state)
+      : cef_internal::CallbackBase(bind_state) {}
 
   OnceCallback(const OnceCallback&) = delete;
   OnceCallback& operator=(const OnceCallback&) = delete;
@@ -103,10 +103,10 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
   OnceCallback& operator=(OnceCallback&&) noexcept = default;
 
   OnceCallback(RepeatingCallback<RunType> other)
-      : internal::CallbackBase(std::move(other)) {}
+      : cef_internal::CallbackBase(std::move(other)) {}
 
   OnceCallback& operator=(RepeatingCallback<RunType> other) {
-    static_cast<internal::CallbackBase&>(*this) = std::move(other);
+    static_cast<cef_internal::CallbackBase&>(*this) = std::move(other);
     return *this;
   }
 
@@ -142,7 +142,7 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
   OnceCallback<ThenR(Args...)> Then(OnceCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindOnce(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             OnceCallback, OnceCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));
   }
@@ -155,7 +155,7 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
       RepeatingCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindOnce(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             OnceCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));
@@ -163,18 +163,18 @@ class OnceCallback<R(Args...)> : public internal::CallbackBase {
 };
 
 template <typename R, typename... Args>
-class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
+class RepeatingCallback<R(Args...)> : public cef_internal::CallbackBaseCopyable {
  public:
   using ResultType = R;
   using RunType = R(Args...);
-  using PolymorphicInvoke = R (*)(internal::BindStateBase*,
-                                  internal::PassingType<Args>...);
+  using PolymorphicInvoke = R (*)(cef_internal::BindStateBase*,
+                                  cef_internal::PassingType<Args>...);
 
   constexpr RepeatingCallback() = default;
   RepeatingCallback(std::nullptr_t) = delete;
 
-  explicit RepeatingCallback(internal::BindStateBase* bind_state)
-      : internal::CallbackBaseCopyable(bind_state) {}
+  explicit RepeatingCallback(cef_internal::BindStateBase* bind_state)
+      : cef_internal::CallbackBaseCopyable(bind_state) {}
 
   // Copyable and movable.
   RepeatingCallback(const RepeatingCallback&) = default;
@@ -224,7 +224,7 @@ class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
       RepeatingCallback<ThenR(ThenArgs...)> then) const& {
     CHECK(then);
     return BindRepeating(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             RepeatingCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         *this, std::move(then));
@@ -235,7 +235,7 @@ class RepeatingCallback<R(Args...)> : public internal::CallbackBaseCopyable {
       RepeatingCallback<ThenR(ThenArgs...)> then) && {
     CHECK(then);
     return BindRepeating(
-        internal::ThenHelper<
+        cef_internal::ThenHelper<
             RepeatingCallback,
             RepeatingCallback<ThenR(ThenArgs...)>>::CreateTrampoline(),
         std::move(*this), std::move(then));

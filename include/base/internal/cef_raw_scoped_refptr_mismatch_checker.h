@@ -47,7 +47,7 @@ namespace base {
 
 // This is a base internal implementation file used by task.h and callback.h.
 // Not for public consumption, so we wrap it in namespace internal.
-namespace internal {
+namespace cef_internal {
 
 template <typename T, typename = void>
 struct IsRefCountedType : std::false_type {};
@@ -68,7 +68,7 @@ struct NeedsScopedRefptrButGetsRawPtr
                 "NeedsScopedRefptrButGetsRawPtr requires non-reference type.");
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 
 }  // namespace base
 

@@ -7,7 +7,7 @@
 #include "include/base/cef_logging.h"
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 namespace {
 
@@ -97,5 +97,5 @@ CallbackBaseCopyable& CallbackBaseCopyable::operator=(
 CallbackBaseCopyable& CallbackBaseCopyable::operator=(
     CallbackBaseCopyable&& c) noexcept = default;
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base

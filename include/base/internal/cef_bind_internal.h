@@ -97,7 +97,7 @@ struct BindUnwrapTraits;
 template <typename Functor, typename BoundArgsTuple, typename SFINAE = void>
 struct CallbackCancellationTraits;
 
-namespace internal {
+namespace cef_internal {
 
 template <typename Functor, typename SFINAE = void>
 struct FunctorTraits;
@@ -1259,7 +1259,7 @@ decltype(auto) BindImpl(Functor&& functor, Args&&... args) {
       std::forward<Functor>(functor), std::forward<Args>(args)...));
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 
 // An injection point to control |this| pointer behavior on a method invocation.
 // If IsWeakReceiver<> is true_type for |T| and |T| is used for a receiver of a
@@ -1303,30 +1303,30 @@ struct BindUnwrapTraits {
 };
 
 template <typename T>
-struct BindUnwrapTraits<internal::UnretainedWrapper<T>> {
-  static T* Unwrap(const internal::UnretainedWrapper<T>& o) { return o.get(); }
+struct BindUnwrapTraits<cef_internal::UnretainedWrapper<T>> {
+  static T* Unwrap(const cef_internal::UnretainedWrapper<T>& o) { return o.get(); }
 };
 
 template <typename T>
-struct BindUnwrapTraits<internal::RetainedRefWrapper<T>> {
-  static T* Unwrap(const internal::RetainedRefWrapper<T>& o) { return o.get(); }
+struct BindUnwrapTraits<cef_internal::RetainedRefWrapper<T>> {
+  static T* Unwrap(const cef_internal::RetainedRefWrapper<T>& o) { return o.get(); }
 };
 
 template <typename T, typename Deleter>
-struct BindUnwrapTraits<internal::OwnedWrapper<T, Deleter>> {
-  static T* Unwrap(const internal::OwnedWrapper<T, Deleter>& o) {
+struct BindUnwrapTraits<cef_internal::OwnedWrapper<T, Deleter>> {
+  static T* Unwrap(const cef_internal::OwnedWrapper<T, Deleter>& o) {
     return o.get();
   }
 };
 
 template <typename T>
-struct BindUnwrapTraits<internal::OwnedRefWrapper<T>> {
-  static T& Unwrap(const internal::OwnedRefWrapper<T>& o) { return o.get(); }
+struct BindUnwrapTraits<cef_internal::OwnedRefWrapper<T>> {
+  static T& Unwrap(const cef_internal::OwnedRefWrapper<T>& o) { return o.get(); }
 };
 
 template <typename T>
-struct BindUnwrapTraits<internal::PassedWrapper<T>> {
-  static T Unwrap(const internal::PassedWrapper<T>& o) { return o.Take(); }
+struct BindUnwrapTraits<cef_internal::PassedWrapper<T>> {
+  static T Unwrap(const cef_internal::PassedWrapper<T>& o) { return o.Take(); }
 };
 
 #if defined(OS_WIN)
@@ -1351,7 +1351,7 @@ struct CallbackCancellationTraits<
     Functor,
     std::tuple<BoundArgs...>,
     std::enable_if_t<
-        internal::IsWeakMethod<internal::FunctorTraits<Functor>::is_method,
+        cef_internal::IsWeakMethod<cef_internal::FunctorTraits<Functor>::is_method,
                                BoundArgs...>::value>> {
   static constexpr bool is_cancellable = true;
 

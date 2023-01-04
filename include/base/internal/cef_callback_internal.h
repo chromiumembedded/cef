@@ -43,7 +43,7 @@ namespace base {
 
 struct FakeBindState;
 
-namespace internal {
+namespace cef_internal {
 
 class BindStateBase;
 class FinallyExecutorCommon;
@@ -269,7 +269,7 @@ struct ThenHelper<OriginalCallback<OriginalR(OriginalArgs...)>,
   }
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_INTERNAL_H_
