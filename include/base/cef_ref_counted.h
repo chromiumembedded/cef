@@ -105,13 +105,16 @@ class RefCountedBase {
 
 #if DCHECK_IS_ON()
     DCHECK(!in_dtor_);
-    if (ref_count_ == 0)
+    if (ref_count_ == 0) {
       in_dtor_ = true;
+    }
 
-    if (ref_count_ >= 1)
+    if (ref_count_ >= 1) {
       DCHECK(CalledOnValidThread());
-    if (ref_count_ == 1)
+    }
+    if (ref_count_ == 1) {
       thread_checker_.DetachFromThread();
+    }
 #endif
 
     return ref_count_ == 0;

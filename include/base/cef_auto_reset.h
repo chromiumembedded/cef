@@ -73,8 +73,9 @@ class AutoReset {
   }
 
   ~AutoReset() {
-    if (scoped_variable_)
+    if (scoped_variable_) {
       *scoped_variable_ = std::move(original_value_);
+    }
   }
 
  private:

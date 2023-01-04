@@ -97,21 +97,20 @@ namespace base {
 /// Bind as OnceCallback.
 ///
 template <typename Functor, typename... Args>
-inline OnceCallback<cef_internal::MakeUnboundRunType<Functor, Args...>> BindOnce(
-    Functor&& functor,
-    Args&&... args) {
+inline OnceCallback<cef_internal::MakeUnboundRunType<Functor, Args...>>
+BindOnce(Functor&& functor, Args&&... args) {
   static_assert(!cef_internal::IsOnceCallback<std::decay_t<Functor>>() ||
                     (std::is_rvalue_reference<Functor&&>() &&
                      !std::is_const<std::remove_reference_t<Functor>>()),
                 "BindOnce requires non-const rvalue for OnceCallback binding."
                 " I.e.: base::BindOnce(std::move(callback)).");
   static_assert(
-      conjunction<
-          cef_internal::AssertBindArgIsNotBasePassed<std::decay_t<Args>>...>::value,
+      conjunction<cef_internal::AssertBindArgIsNotBasePassed<
+          std::decay_t<Args>>...>::value,
       "Use std::move() instead of base::Passed() with base::BindOnce()");
 
   return cef_internal::BindImpl<OnceCallback>(std::forward<Functor>(functor),
-                                          std::forward<Args>(args)...);
+                                              std::forward<Args>(args)...);
 }
 
 ///
@@ -124,8 +123,8 @@ BindRepeating(Functor&& functor, Args&&... args) {
       !cef_internal::IsOnceCallback<std::decay_t<Functor>>(),
       "BindRepeating cannot bind OnceCallback. Use BindOnce with std::move().");
 
-  return cef_internal::BindImpl<RepeatingCallback>(std::forward<Functor>(functor),
-                                               std::forward<Args>(args)...);
+  return cef_internal::BindImpl<RepeatingCallback>(
+      std::forward<Functor>(functor), std::forward<Args>(args)...);
 }
 
 ///

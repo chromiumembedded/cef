@@ -97,21 +97,24 @@ class ScopedTypeRef {
       element_type object = Traits::InvalidValue(),
       base::scoped_policy::OwnershipPolicy policy = base::scoped_policy::ASSUME)
       : object_(object) {
-    if (object_ && policy == base::scoped_policy::RETAIN)
+    if (object_ && policy == base::scoped_policy::RETAIN) {
       object_ = Traits::Retain(object_);
+    }
   }
 
   ScopedTypeRef(const ScopedTypeRef<T, Traits>& that) : object_(that.object_) {
-    if (object_)
+    if (object_) {
       object_ = Traits::Retain(object_);
+    }
   }
 
   // This allows passing an object to a function that takes its superclass.
   template <typename R, typename RTraits>
   explicit ScopedTypeRef(const ScopedTypeRef<R, RTraits>& that_as_subclass)
       : object_(that_as_subclass.get()) {
-    if (object_)
+    if (object_) {
       object_ = Traits::Retain(object_);
+    }
   }
 
   ScopedTypeRef(ScopedTypeRef<T, Traits>&& that) : object_(that.object_) {
@@ -119,8 +122,9 @@ class ScopedTypeRef {
   }
 
   ~ScopedTypeRef() {
-    if (object_)
+    if (object_) {
       Traits::Release(object_);
+    }
   }
 
   ScopedTypeRef& operator=(const ScopedTypeRef<T, Traits>& that) {
@@ -143,10 +147,12 @@ class ScopedTypeRef {
   void reset(element_type object = Traits::InvalidValue(),
              base::scoped_policy::OwnershipPolicy policy =
                  base::scoped_policy::ASSUME) {
-    if (object && policy == base::scoped_policy::RETAIN)
+    if (object && policy == base::scoped_policy::RETAIN) {
       object = Traits::Retain(object);
-    if (object_)
+    }
+    if (object_) {
       Traits::Release(object_);
+    }
     object_ = object;
   }
 

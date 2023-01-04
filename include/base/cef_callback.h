@@ -163,7 +163,8 @@ class OnceCallback<R(Args...)> : public cef_internal::CallbackBase {
 };
 
 template <typename R, typename... Args>
-class RepeatingCallback<R(Args...)> : public cef_internal::CallbackBaseCopyable {
+class RepeatingCallback<R(Args...)>
+    : public cef_internal::CallbackBaseCopyable {
  public:
   using ResultType = R;
   using RunType = R(Args...);

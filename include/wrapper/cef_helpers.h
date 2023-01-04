@@ -103,22 +103,26 @@ struct CefDeleteOnFileUserBlockingThread
 struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> {};
 
 // Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
-#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor)              \
- public:                                                             \
-  void AddRef() const override { ref_count_.AddRef(); }              \
-  bool Release() const override {                                    \
-    if (ref_count_.Release()) {                                      \
-      Destructor::Destruct(this);                                    \
-      return true;                                                   \
-    }                                                                \
-    return false;                                                    \
-  }                                                                  \
-  bool HasOneRef() const override { return ref_count_.HasOneRef(); } \
-  bool HasAtLeastOneRef() const override {                           \
-    return ref_count_.HasAtLeastOneRef();                            \
-  }                                                                  \
-                                                                     \
- private:                                                            \
+#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor) \
+ public:                                                \
+  void AddRef() const override {                        \
+    ref_count_.AddRef();                                \
+  }                                                     \
+  bool Release() const override {                       \
+    if (ref_count_.Release()) {                         \
+      Destructor::Destruct(this);                       \
+      return true;                                      \
+    }                                                   \
+    return false;                                       \
+  }                                                     \
+  bool HasOneRef() const override {                     \
+    return ref_count_.HasOneRef();                      \
+  }                                                     \
+  bool HasAtLeastOneRef() const override {              \
+    return ref_count_.HasAtLeastOneRef();               \
+  }                                                     \
+                                                        \
+ private:                                               \
   CefRefCount ref_count_
 
 #define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName) \

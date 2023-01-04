@@ -74,8 +74,9 @@ struct CefStringTraitsWide {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_wide_to_utf8(s->str, s->length, &cstr);
     std::string str;
-    if (cstr.length > 0)
+    if (cstr.length > 0) {
       str = std::string(cstr.str, cstr.length);
+    }
     cef_string_utf8_clear(&cstr);
     return str;
   }
@@ -183,8 +184,9 @@ struct CefStringTraitsUTF8 {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_utf8_to_wide(s->str, s->length, &cstr);
     std::wstring str;
-    if (cstr.length > 0)
+    if (cstr.length > 0) {
       str = std::wstring(cstr.str, cstr.length);
+    }
     cef_string_wide_clear(&cstr);
     return str;
   }
@@ -255,8 +257,9 @@ struct CefStringTraitsUTF16 {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_utf16_to_utf8(s->str, s->length, &cstr);
     std::string str;
-    if (cstr.length > 0)
+    if (cstr.length > 0) {
       str = std::string(cstr.str, cstr.length);
+    }
     cef_string_utf8_clear(&cstr);
     return str;
   }
@@ -274,8 +277,9 @@ struct CefStringTraitsUTF16 {
     memset(&cstr, 0, sizeof(cstr));
     cef_string_utf16_to_wide(s->str, s->length, &cstr);
     std::wstring str;
-    if (cstr.length > 0)
+    if (cstr.length > 0) {
       str = std::wstring(cstr.str, cstr.length);
+    }
     cef_string_wide_clear(&cstr);
     return str;
   }
@@ -374,8 +378,9 @@ class CefStringBase {
   }
   CefStringBase(const char* src, size_t length = 0)
       : string_(NULL), owner_(false) {
-    if (src)
+    if (src) {
       FromString(src, length);
+    }
   }
 
   ///
@@ -388,8 +393,9 @@ class CefStringBase {
   }
   CefStringBase(const wchar_t* src, size_t length = 0)
       : string_(NULL), owner_(false) {
-    if (src)
+    if (src) {
       FromWString(src, length);
+    }
   }
 
   ///
@@ -402,8 +408,9 @@ class CefStringBase {
   }
   CefStringBase(const std::u16string::value_type* src, size_t length = 0)
       : string_(NULL), owner_(false) {
-    if (src)
+    if (src) {
       FromString16(src, length);
+    }
   }
 #if defined(WCHAR_T_IS_UTF32)
   CefStringBase(const char16* src, size_t length = 0)
@@ -423,8 +430,9 @@ class CefStringBase {
   ///
   CefStringBase(const char_type* src, size_t src_len, bool copy)
       : string_(NULL), owner_(false) {
-    if (src && src_len > 0)
+    if (src && src_len > 0) {
       FromString(src, src_len, copy);
+    }
   }
 
   ///
@@ -433,8 +441,9 @@ class CefStringBase {
   /// this class and will not be freed by this class.
   ///
   CefStringBase(const struct_type* src) : string_(NULL), owner_(false) {
-    if (!src)
+    if (!src) {
       return;
+    }
     // Reference the existing structure without taking ownership.
     Attach(const_cast<struct_type*>(src), false);
   }
@@ -468,12 +477,15 @@ class CefStringBase {
   /// Compare this string to the specified string.
   ///
   int compare(const CefStringBase& str) const {
-    if (empty() && str.empty())
+    if (empty() && str.empty()) {
       return 0;
-    if (empty())
+    }
+    if (empty()) {
       return -1;
-    if (str.empty())
+    }
+    if (str.empty()) {
       return 1;
+    }
     return traits::compare(string_, str.GetStruct());
   }
 
@@ -481,8 +493,9 @@ class CefStringBase {
   /// Clear the string data.
   ///
   void clear() {
-    if (string_)
+    if (string_) {
       traits::clear(string_);
+    }
   }
 
   ///
@@ -524,8 +537,9 @@ class CefStringBase {
   /// will be freed if this class owns the structure.
   ///
   void ClearAndFree() {
-    if (!string_)
+    if (!string_) {
       return;
+    }
     if (owner_) {
       clear();
       delete string_;
@@ -555,8 +569,9 @@ class CefStringBase {
     // Free the previous structure and data, if any.
     ClearAndFree();
 
-    if (!str)
+    if (!str) {
       return;
+    }
 
     AllocIfNeeded();
     owner_ = true;
@@ -583,8 +598,9 @@ class CefStringBase {
   /// this string class currently contains no data.
   ///
   userfree_struct_type DetachToUserFree() {
-    if (empty())
+    if (empty()) {
       return NULL;
+    }
 
     userfree_struct_type str = traits::userfree_alloc();
     if (owner_) {
@@ -637,8 +653,9 @@ class CefStringBase {
   /// necessary based on the underlying string type.
   ///
   std::string ToString() const {
-    if (empty())
+    if (empty()) {
       return std::string();
+    }
     return traits::to_string(string_);
   }
 
@@ -678,8 +695,9 @@ class CefStringBase {
   /// necessary based on the underlying string type.
   ///
   std::wstring ToWString() const {
-    if (empty())
+    if (empty()) {
       return std::wstring();
+    }
     return traits::to_wstring(string_);
   }
 
@@ -719,8 +737,9 @@ class CefStringBase {
   /// necessary based on the underlying string type.
   ///
   std::u16string ToString16() const {
-    if (empty())
+    if (empty()) {
       return std::u16string();
+    }
     return traits::to_string16(string_);
   }
 

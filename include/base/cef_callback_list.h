@@ -242,8 +242,9 @@ class CallbackListBase {
   // the reentrant Notify() call.
   template <typename... RunArgs>
   void Notify(RunArgs&&... args) {
-    if (empty())
+    if (empty()) {
       return;  // Nothing to do.
+    }
 
     {
       AutoReset<bool> iterating(&iterating_, true);
@@ -257,18 +258,20 @@ class CallbackListBase {
         });
       };
       for (auto it = next_valid(callbacks_.begin()); it != callbacks_.end();
-           it = next_valid(it))
+           it = next_valid(it)) {
         // NOTE: Intentionally does not call std::forward<RunArgs>(args)...,
         // since that would allow move-only arguments.
         static_cast<CallbackListImpl*>(this)->RunCallback(it++, args...);
+      }
     }
 
     // Re-entrant invocations shouldn't prune anything from the list. This can
     // invalidate iterators from underneath higher call frames. It's safe to
     // simply do nothing, since the outermost frame will continue through here
     // and prune all null callbacks below.
-    if (iterating_)
+    if (iterating_) {
       return;
+    }
 
     // Any null callbacks remaining in the list were canceled due to
     // Subscription destruction during iteration, and can safely be erased now.
@@ -282,8 +285,9 @@ class CallbackListBase {
     // that were executed above have all been removed regardless of whether
     // they're counted in |erased_callbacks_|.
     if (removal_callback_ &&
-        (erased_callbacks || IsOnceCallback<CallbackType>::value))
+        (erased_callbacks || IsOnceCallback<CallbackType>::value)) {
       removal_callback_.Run();  // May delete |this|!
+    }
   }
 
  protected:
@@ -295,8 +299,9 @@ class CallbackListBase {
  private:
   // Cancels the callback pointed to by |it|, which is guaranteed to be valid.
   void CancelCallback(const typename Callbacks::iterator& it) {
-    if (static_cast<CallbackListImpl*>(this)->CancelNullCallback(it))
+    if (static_cast<CallbackListImpl*>(this)->CancelNullCallback(it)) {
       return;
+    }
 
     if (iterating_) {
       // Calling erase() here is unsafe, since the loop in Notify() may be
@@ -306,8 +311,9 @@ class CallbackListBase {
       it->Reset();
     } else {
       callbacks_.erase(it);
-      if (removal_callback_)
+      if (removal_callback_) {
         removal_callback_.Run();  // May delete |this|!
+      }
     }
   }
 
