@@ -1145,7 +1145,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
    private:
     MultiQueryMultiHandlerTestHandler* test_handler_;
     const int index_;
-    int query_id_;
+    int64 query_id_;
   };
 
   MultiQueryMultiHandlerTestHandler(bool synchronous,

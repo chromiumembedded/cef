@@ -47,7 +47,7 @@ class V8Handler : public CefV8Handler {
             // Execute the test.
             int64 delta = kPerfTests[i].test(kPerfTests[i].iterations);
 
-            retval = CefV8Value::CreateInt(delta);
+            retval = CefV8Value::CreateInt(static_cast<int32>(delta));
             found = true;
             break;
           }
