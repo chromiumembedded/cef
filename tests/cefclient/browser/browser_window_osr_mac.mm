@@ -194,7 +194,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   }
 
   browser->GetHost()->SendMouseClickEvent(mouseEvent, type, isUp,
-                                          [event clickCount]);
+                                          static_cast<int>([event clickCount]));
 }
 
 - (void)mouseDown:(NSEvent*)event {
@@ -362,7 +362,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     CefTouchEvent touch_event;
 
     // NSTouch.identity is unique during the life of the touch
-    touch_event.id = touch.identity.hash;
+    touch_event.id = static_cast<int>(touch.identity.hash);
     touch_event.type = [self getTouchPhase:phase];
 
     NSPoint scaled_pos = [touch normalizedPosition];
@@ -479,10 +479,10 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CGEventRef cgEvent = [event CGEvent];
   DCHECK(cgEvent);
 
-  int deltaX =
-      CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis2);
-  int deltaY =
-      CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis1);
+  int deltaX = static_cast<int>(
+      CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis2));
+  int deltaY = static_cast<int>(
+      CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis1));
 
   CefMouseEvent mouseEvent;
   [self getMouseEvent:mouseEvent forEvent:event];
@@ -654,7 +654,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   mouseEvent.x = client::DeviceToLogical(point.x, device_scale_factor);
   mouseEvent.y = client::DeviceToLogical(point.y, device_scale_factor);
 
-  mouseEvent.modifiers = [NSEvent modifierFlags];
+  mouseEvent.modifiers = static_cast<uint32>([NSEvent modifierFlags]);
 }
 
 - (int)getModifiersForEvent:(NSEvent*)event {
