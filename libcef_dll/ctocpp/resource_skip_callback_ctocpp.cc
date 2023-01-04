@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=df7b14a723e4f2b9dd7946fddfbe8dc9652ccb75$
+// $hash=9b1ffc7f2bb483a6657867c8369e56b821b44684$
 //
 
 #include "libcef_dll/ctocpp/resource_skip_callback_ctocpp.h"

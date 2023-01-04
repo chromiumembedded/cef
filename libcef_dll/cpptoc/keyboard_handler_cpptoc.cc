@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=37d878ee8dbf3a48362059e64a0cafa8138bacfc$
+// $hash=56ee3469e52f521b142de927ab9d8067d25078f2$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"

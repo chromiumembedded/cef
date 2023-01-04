@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3c3551c52baf66ab3cd4ee485313ef41a29313b$
+// $hash=623264bc989f85dc005893a5caa0b1528ff76f2c$
 //
 
 #include "libcef_dll/cpptoc/shared_process_message_builder_cpptoc.h"
@@ -82,7 +82,7 @@ void* CEF_CALLBACK shared_process_message_builder_memory(
 
   DCHECK(self);
   if (!self)
-    return 0;
+    return NULL;
 
   // Execute
   void* _retval = CefSharedProcessMessageBuilderCppToC::Get(self)->Memory();

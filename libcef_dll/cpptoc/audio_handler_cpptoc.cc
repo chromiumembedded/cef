@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=519a82bbea84ea39cadc72c55291e15cb2a74072$
+// $hash=56d4812b8f81cbda67550a8b03e8b7af911e5e28$
 //
 
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"

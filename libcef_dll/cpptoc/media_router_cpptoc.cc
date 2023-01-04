@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55a817af6b8dc3408785410b47e5d01313ebc9dd$
+// $hash=e56c5aa5b1d75a1b06526bb60826f759f9b5649e$
 //
 
 #include "libcef_dll/cpptoc/media_router_cpptoc.h"

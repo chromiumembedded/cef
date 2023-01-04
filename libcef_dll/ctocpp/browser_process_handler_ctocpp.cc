@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c6ad132e54265eb08e748bb22d2c90784ed098b0$
+// $hash=f1ba847d8e7353ed2fb945add976245e570f4430$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6d554e767e9e5eea0d9caefba61e35fbe4fff231$
+// $hash=baed9b712645a466ab9c52ae814f31eb10c0ef3b$
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"

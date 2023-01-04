@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c0d516016a14eeed0c73bde99e2495ae691c2326$
+// $hash=7d0f87f5e909c52e5424e018ff46f806960f7df2$
 //
 
 #include "libcef_dll/ctocpp/run_quick_menu_callback_ctocpp.h"
