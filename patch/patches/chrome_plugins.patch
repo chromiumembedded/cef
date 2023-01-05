@@ -1,129 +1,46 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 7ceb1d7b854d9..5efcb8c09058c 100644
+index 7ceb1d7b854d9..721026a5a4be1 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -16,6 +16,7 @@
- #include "base/strings/utf_string_conversions.h"
- #include "build/branding_buildflags.h"
- #include "build/build_config.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/browser_process.h"
- #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
- #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
-@@ -50,6 +51,10 @@
- #include "url/gurl.h"
- #include "url/origin.h"
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/common/extensions/extensions_util.h"
-+#endif
-+
- #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "components/guest_view/browser/guest_view_base.h"
- #include "extensions/browser/extension_registry.h"
-@@ -135,6 +140,9 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -135,6 +135,10 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
++  // May be nullptr if using CEF Alloy with extensions disabled.
 +  if (!extension_registry)
 +    return false;
 +
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
-@@ -163,14 +171,18 @@ bool IsPluginLoadingAccessibleResourceInWebView(
- 
- PluginInfoHostImpl::Context::Context(int render_process_id, Profile* profile)
-     : render_process_id_(render_process_id),
--#if BUILDFLAG(ENABLE_EXTENSIONS)
--      extension_registry_(extensions::ExtensionRegistry::Get(profile)),
--#endif
-       host_content_settings_map_(
-           HostContentSettingsMapFactory::GetForProfile(profile)),
-       plugin_prefs_(PluginPrefs::GetForProfile(profile)) {
-   allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
-                                profile->GetPrefs());
-+
-+#if BUILDFLAG(ENABLE_EXTENSIONS)
-+#if BUILDFLAG(ENABLE_CEF)
-+  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled())
-+#endif
-+    extension_registry_ = extensions::ExtensionRegistry::Get(profile);
-+#endif
- }
- 
- PluginInfoHostImpl::Context::~Context() {}
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 8b3f569882aeb..ae0c4aa9a0514 100644
+index 8b3f569882aeb..afc8007a6228b 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
-@@ -5,6 +5,7 @@
- #include "chrome/browser/plugins/plugin_utils.h"
- 
- #include "base/values.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/profiles/profile.h"
- #include "components/content_settings/core/browser/host_content_settings_map.h"
- #include "components/content_settings/core/common/content_settings_types.h"
-@@ -14,6 +15,10 @@
- #include "url/gurl.h"
- #include "url/origin.h"
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/common/extensions/extensions_util.h"
-+#endif
-+
- #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
- #include "chrome/common/pref_names.h"
-@@ -69,6 +74,12 @@ base::flat_map<std::string, std::string>
- PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -70,6 +70,13 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
      content::BrowserContext* browser_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
-+
-+#if BUILDFLAG(ENABLE_CEF)
-+  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled())
-+    return mime_type_to_extension_id_map;
-+#endif
-+
  #if BUILDFLAG(ENABLE_EXTENSIONS)
++  // May be nullptr if using CEF Alloy with extensions disabled.
++  extensions::ExtensionRegistry* registry =
++      extensions::ExtensionRegistry::Get(browser_context);
++  if (!registry) {
++    return mime_type_to_extension_id_map;
++  }
++
    Profile* profile = Profile::FromBrowserContext(browser_context);
    if (extensions::ChromeContentBrowserClientExtensionsPart::
-diff --git chrome/common/google_url_loader_throttle.cc chrome/common/google_url_loader_throttle.cc
-index a29a2739af3c8..0feb1a87cef64 100644
---- chrome/common/google_url_loader_throttle.cc
-+++ chrome/common/google_url_loader_throttle.cc
-@@ -7,6 +7,7 @@
- #include "base/feature_list.h"
- #include "base/metrics/histogram_functions.h"
- #include "build/build_config.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/common/chrome_features.h"
- #include "chrome/common/net/safe_search_util.h"
- #include "components/google/core/common/google_util.h"
-@@ -19,6 +20,10 @@
- #include "ui/base/device_form_factor.h"
- #endif
- 
-+#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/common/extensions/extensions_util.h"
-+#endif
-+
- #if BUILDFLAG(ENABLE_EXTENSIONS)
- #include "extensions/common/extension_urls.h"
- #endif
-@@ -158,6 +163,11 @@ void GoogleURLLoaderThrottle::WillProcessResponse(
-     const GURL& response_url,
-     network::mojom::URLResponseHead* response_head,
-     bool* defer) {
-+#if BUILDFLAG(ENABLE_CEF)
-+  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled())
-+    return;
-+#endif
-+
-   // Built-in additional protection for the chrome web store origin by ensuring
-   // that the X-Frame-Options protection mechanism is set to either DENY or
-   // SAMEORIGIN.
+           AreExtensionsDisabledForProfile(profile)) {
+@@ -80,9 +87,6 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+       MimeTypesHandler::GetMIMETypeAllowlist();
+   // Go through the allowed extensions and try to use them to intercept
+   // the URL request.
+-  extensions::ExtensionRegistry* registry =
+-      extensions::ExtensionRegistry::Get(browser_context);
+-  DCHECK(registry);
+   for (const std::string& extension_id : allowlist) {
+     const extensions::Extension* extension =
+         registry->enabled_extensions().GetByID(extension_id);
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
 index 3d08b706ec4a0..7f4a0398e51f9 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
