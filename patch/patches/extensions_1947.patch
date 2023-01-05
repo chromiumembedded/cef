@@ -160,6 +160,37 @@ index fd08f312145a5..1440a3e8246f9 100644
  
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
+diff --git extensions/browser/extension_registry.cc extensions/browser/extension_registry.cc
+index 10d751cceab73..128af05925e07 100644
+--- extensions/browser/extension_registry.cc
++++ extensions/browser/extension_registry.cc
+@@ -6,9 +6,14 @@
+ 
+ #include "base/observer_list.h"
+ #include "base/strings/string_util.h"
++#include "cef/libcef/features/runtime.h"
+ #include "extensions/browser/extension_registry_factory.h"
+ #include "extensions/browser/extension_registry_observer.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/extensions/extensions_util.h"
++#endif
++
+ namespace extensions {
+ 
+ ExtensionRegistry::ExtensionRegistry(content::BrowserContext* browser_context)
+@@ -17,6 +22,11 @@ ExtensionRegistry::~ExtensionRegistry() {}
+ 
+ // static
+ ExtensionRegistry* ExtensionRegistry::Get(content::BrowserContext* context) {
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled()) {
++    return nullptr;
++  }
++#endif
+   return ExtensionRegistryFactory::GetForBrowserContext(context);
+ }
+ 
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
 index 028d6b1fec3a0..0829a24eb2879 100644
 --- extensions/browser/extensions_browser_client.h
