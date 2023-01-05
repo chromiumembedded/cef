@@ -54,7 +54,7 @@
 #   recommended.
 #
 # - Windows requirements:
-#   Visual Studio 2019 or newer building on Windows 7 or newer. Windows 10
+#   Visual Studio 2019 or newer building on Windows 10 or newer. Windows 10
 #   64-bit is recommended. Newer versions will likely also work but may not have
 #   been tested.
 #

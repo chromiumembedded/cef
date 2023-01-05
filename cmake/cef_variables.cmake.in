@@ -443,7 +443,12 @@ if(OS_WINDOWS)
   list(APPEND CEF_COMPILER_DEFINES
     WIN32 _WIN32 _WINDOWS             # Windows platform
     UNICODE _UNICODE                  # Unicode build
-    WINVER=0x0601 _WIN32_WINNT=0x601  # Targeting Windows 7
+    # Targeting Windows 10. We can't say `=_WIN32_WINNT_WIN10` here because
+    # some files do `#if WINVER < 0x0600` without including windows.h before,
+    # and then _WIN32_WINNT_WIN10 isn't yet known to be 0x0A00.
+    WINVER=0x0A00
+    _WIN32_WINNT=0x0A00
+    NTDDI_VERSION=NTDDI_WIN10_FE
     NOMINMAX                          # Use the standard's templated min/max
     WIN32_LEAN_AND_MEAN               # Exclude less common API declarations
     _HAS_EXCEPTIONS=0                 # Disable exceptions
