@@ -162,6 +162,7 @@ class CefFrameImpl
                       int32_t startLine) override;
   void LoadRequest(cef::mojom::RequestParamsPtr params) override;
   void DidStopLoading() override;
+  void MoveOrResizeStarted() override;
 
   // blink_glue::CefExecutionContextLifecycleStateObserver methods:
   void ContextLifecycleStateChanged(
