@@ -79,6 +79,10 @@ interface RenderFrame {
 
   // Loading has stopped.
   DidStopLoading();
+
+  // Move or resize of the renderer's containing window has started. Used on
+  // Windows and Linux with the Alloy runtime.
+  MoveOrResizeStarted();
 };
 
 // Interface for communicating with a frame in the browser process.
