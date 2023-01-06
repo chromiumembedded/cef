@@ -258,7 +258,7 @@ index a7d8b09e1d76e..e973baff291c0 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index ceee9102cf021..00e82621849ea 100644
+index ceee9102cf021..60939d07e402d 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -183,16 +183,28 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
@@ -281,7 +281,7 @@ index ceee9102cf021..00e82621849ea 100644
 -  gfx::Rect pixel_bounds =
 -      display::win::ScreenWin::DIPToScreenRect(nullptr, params.bounds);
 +  gfx::Rect pixel_bounds;
-+  if (has_external_parent_) {
++  if (has_external_parent_ && params.type != Widget::InitParams::TYPE_MENU) {
 +    // Scale relative to the screen that contains the parent window.
 +    // Child windows always have origin (0,0).
 +    pixel_bounds.set_size(display::win::ScreenWin::DIPToScreenSize(
