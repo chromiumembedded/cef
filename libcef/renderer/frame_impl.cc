@@ -832,6 +832,14 @@ void CefFrameImpl::DidStopLoading() {
   }
 }
 
+void CefFrameImpl::MoveOrResizeStarted() {
+  if (frame_) {
+    auto web_view = frame_->View();
+    if (web_view)
+      web_view->CancelPagePopup();
+  }
+}
+
 void CefFrameImpl::ContextLifecycleStateChanged(
     blink::mojom::blink::FrameLifecycleState state) {
   if (state == blink::mojom::FrameLifecycleState::kFrozen && IsMain() &&
