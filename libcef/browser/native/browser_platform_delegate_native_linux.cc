@@ -16,14 +16,14 @@
 #include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
-#include "ui/events/keycodes/keyboard_code_conversion_x.h"
-#include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
 #include "ui/events/keycodes/keysym_to_unicode.h"
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/widget.h"
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "libcef/browser/native/window_x11.h"
+#include "ui/events/keycodes/keyboard_code_conversion_x.h"
+#include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 #endif
 
@@ -251,9 +251,15 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
       static_cast<ui::KeyboardCode>(key_event.windows_key_code);
   ui::DomCode dom_code =
       ui::KeycodeConverter::NativeKeycodeToDomCode(key_event.native_key_code);
+
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   int keysym = ui::XKeysymForWindowsKeyCode(
       key_code, !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
   char16_t character = ui::GetUnicodeCharacterFromXKeySym(keysym);
+#else
+  char16_t character = key_event.character;
+#endif
+
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
   if (key_event.type == KEYEVENT_CHAR) {
@@ -273,7 +279,12 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
       NOTREACHED();
   }
 
+#if BUILDFLAG(OZONE_PLATFORM_X11)
   ui::DomKey dom_key = ui::XKeySymToDomKey(keysym, character);
+#else
+  ui::DomKey dom_key = ui::DomKey::NONE;
+#endif
+
   return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
 }
 
