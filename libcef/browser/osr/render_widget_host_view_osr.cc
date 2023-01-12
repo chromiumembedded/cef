@@ -1079,6 +1079,7 @@ void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnScreenInfoChanged");
+  InvalidateLocalSurfaceId();
   if (!render_widget_host_) {
     return;
   }
