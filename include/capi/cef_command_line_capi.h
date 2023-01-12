@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1d0a15624fec8ca8bd1a5cdf7195b9b553dde44f$
+// $hash=ac8fd3a7da20cff1fe2f20a75b045bf27c0312f2$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_LINE_CAPI_H_
@@ -159,14 +159,14 @@ typedef struct _cef_command_line_t {
                                    cef_string_map_t switches);
 
   ///
-  /// Add a switch to the end of the command line. If the switch has no value
-  /// pass an NULL value string.
+  /// Add a switch to the end of the command line.
   ///
   void(CEF_CALLBACK* append_switch)(struct _cef_command_line_t* self,
                                     const cef_string_t* name);
 
   ///
-  /// Add a switch with the specified value to the end of the command line.
+  /// Add a switch with the specified value to the end of the command line. If
+  /// the switch has no value pass an NULL value string.
   ///
   void(CEF_CALLBACK* append_switch_with_value)(struct _cef_command_line_t* self,
                                                const cef_string_t* name,
