@@ -1232,6 +1232,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)viewDidChangeBackingProperties {
+  [super viewDidChangeBackingProperties];
   const CGFloat device_scale_factor = [self getDeviceScaleFactor];
 
   if (device_scale_factor == device_scale_factor_) {
