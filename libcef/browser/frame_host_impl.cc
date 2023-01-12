@@ -47,6 +47,32 @@ void ViewTextCallback(CefRefPtr<CefFrameHostImpl> frame,
   }
 }
 
+using CefFrameHostImplCommand = void (CefFrameHostImpl::*)();
+using WebContentsCommand = void (content::WebContents::*)();
+
+void ExecWebContentsCommand(CefFrameHostImpl* fh,
+                            CefFrameHostImplCommand fh_func,
+                            WebContentsCommand wc_func,
+                            const std::string& command) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(fh_func, fh));
+    return;
+  }
+  auto rfh = fh->GetRenderFrameHost();
+  if (rfh) {
+    auto web_contents = content::WebContents::FromRenderFrameHost(rfh);
+    if (web_contents) {
+      std::invoke(wc_func, web_contents);
+      return;
+    }
+  }
+  fh->SendCommand(command);
+}
+
+#define EXEC_WEBCONTENTS_COMMAND(name)                  \
+  ExecWebContentsCommand(this, &CefFrameHostImpl::name, \
+                         &content::WebContents::name, #name);
+
 }  // namespace
 
 CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
@@ -93,31 +119,31 @@ bool CefFrameHostImpl::IsValid() {
 }
 
 void CefFrameHostImpl::Undo() {
-  SendCommand("Undo");
+  EXEC_WEBCONTENTS_COMMAND(Undo);
 }
 
 void CefFrameHostImpl::Redo() {
-  SendCommand("Redo");
+  EXEC_WEBCONTENTS_COMMAND(Redo);
 }
 
 void CefFrameHostImpl::Cut() {
-  SendCommand("Cut");
+  EXEC_WEBCONTENTS_COMMAND(Cut);
 }
 
 void CefFrameHostImpl::Copy() {
-  SendCommand("Copy");
+  EXEC_WEBCONTENTS_COMMAND(Copy);
 }
 
 void CefFrameHostImpl::Paste() {
-  SendCommand("Paste");
+  EXEC_WEBCONTENTS_COMMAND(Paste);
 }
 
 void CefFrameHostImpl::Delete() {
-  SendCommand("Delete");
+  EXEC_WEBCONTENTS_COMMAND(Delete);
 }
 
 void CefFrameHostImpl::SelectAll() {
-  SendCommand("SelectAll");
+  EXEC_WEBCONTENTS_COMMAND(SelectAll);
 }
 
 void CefFrameHostImpl::ViewSource() {
