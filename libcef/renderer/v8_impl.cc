@@ -295,7 +295,8 @@ class V8TrackObject : public CefTrackNode {
   static V8TrackObject* Unwrap(v8::Local<v8::Context> context,
                                v8::Local<v8::Object> object) {
     v8::Local<v8::Value> value;
-    if (GetPrivate(context, object, kCefTrackObject, &value)) {
+    if (GetPrivate(context, object, kCefTrackObject, &value) &&
+        value->IsExternal()) {
       return static_cast<V8TrackObject*>(v8::External::Cast(*value)->Value());
     }
 
@@ -351,7 +352,8 @@ class V8TrackArrayBuffer : public CefTrackNode {
   static V8TrackArrayBuffer* Unwrap(v8::Local<v8::Context> context,
                                     v8::Local<v8::Object> object) {
     v8::Local<v8::Value> value;
-    if (GetPrivate(context, object, kCefTrackObject, &value)) {
+    if (GetPrivate(context, object, kCefTrackObject, &value) &&
+        value->IsExternal()) {
       return static_cast<V8TrackArrayBuffer*>(
           v8::External::Cast(*value)->Value());
     }
