@@ -13,7 +13,7 @@ index 2ffda8141468b..1800b34155201 100644
    return false;
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 932388c328889..68103c2a8ffcf 100644
+index 932388c328889..f5b0894158537 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/compiler/compiler.gni")
@@ -43,6 +43,24 @@ index 932388c328889..68103c2a8ffcf 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
+@@ -2506,6 +2512,8 @@ static_library("ui") {
+       "views/apps/app_dialog/app_block_dialog_view.h",
+       "views/apps/app_dialog/app_pause_dialog_view.cc",
+       "views/apps/app_dialog/app_pause_dialog_view.h",
++      "views/apps/app_dialog/app_uninstall_dialog_view.cc",
++      "views/apps/app_dialog/app_uninstall_dialog_view.h",
+       "views/apps/app_info_dialog/arc_app_info_links_panel.cc",
+       "views/apps/app_info_dialog/arc_app_info_links_panel.h",
+       "views/apps/chrome_app_window_client_views_chromeos.cc",
+@@ -4242,8 +4250,6 @@ static_library("ui") {
+       "views/accessibility/theme_tracking_non_accessible_image_view.h",
+       "views/apps/app_dialog/app_dialog_view.cc",
+       "views/apps/app_dialog/app_dialog_view.h",
+-      "views/apps/app_dialog/app_uninstall_dialog_view.cc",
+-      "views/apps/app_dialog/app_uninstall_dialog_view.h",
+       "views/apps/app_info_dialog/app_info_dialog_container.cc",
+       "views/apps/app_info_dialog/app_info_dialog_container.h",
+       "views/apps/app_info_dialog/app_info_dialog_views.cc",
 @@ -5727,6 +5733,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [

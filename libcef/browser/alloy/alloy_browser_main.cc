@@ -173,7 +173,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 
   auto printing_delegate = new CefPrintingContextLinuxDelegate();
   auto default_delegate =
-      printing::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
+      ui::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
   printing_delegate->SetDefaultDelegate(default_delegate);
 #endif  // BUILDFLAG(IS_LINUX)
 

@@ -192,7 +192,7 @@ gfx::Size CefPrintingContextLinuxDelegate::GetPdfPaperSize(
 }
 
 void CefPrintingContextLinuxDelegate::SetDefaultDelegate(
-    printing::PrintingContextLinuxDelegate* delegate) {
+    ui::PrintingContextLinuxDelegate* delegate) {
   DCHECK(!default_delegate_);
   default_delegate_ = delegate;
 }

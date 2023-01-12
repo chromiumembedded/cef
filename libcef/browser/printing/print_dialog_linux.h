@@ -14,7 +14,7 @@
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "content/public/browser/browser_thread.h"
 #include "printing/print_dialog_linux_interface.h"
-#include "printing/printing_context_linux.h"
+#include "ui/linux/linux_ui.h"
 
 namespace printing {
 class MetafilePlayer;
@@ -24,7 +24,7 @@ class PrintSettings;
 using printing::PrintingContextLinux;
 
 class CefPrintingContextLinuxDelegate
-    : public printing::PrintingContextLinuxDelegate {
+    : public ui::PrintingContextLinuxDelegate {
  public:
   CefPrintingContextLinuxDelegate();
 
@@ -37,10 +37,10 @@ class CefPrintingContextLinuxDelegate
       printing::PrintingContextLinux* context) override;
   gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context) override;
 
-  void SetDefaultDelegate(printing::PrintingContextLinuxDelegate* delegate);
+  void SetDefaultDelegate(ui::PrintingContextLinuxDelegate* delegate);
 
  private:
-  printing::PrintingContextLinuxDelegate* default_delegate_ = nullptr;
+  ui::PrintingContextLinuxDelegate* default_delegate_ = nullptr;
 };
 
 // Needs to be freed on the UI thread to clean up its member variables.

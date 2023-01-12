@@ -1,23 +1,57 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index 5520e15c232c8..70742cba8056c 100644
+index 83211e80d8270..753c07be0ec49 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
-@@ -25,6 +25,12 @@
+@@ -69,11 +69,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+   ResetSettings();
  
- namespace printing {
+ #if BUILDFLAG(IS_LINUX)
+-  if (!ui::LinuxUi::instance())
++  if (!ui::PrintingContextLinuxDelegate::instance())
+     return mojom::ResultCode::kSuccess;
  
-+namespace {
-+
+   if (!print_dialog_)
+-    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
++    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
+   print_dialog_->UseDefaultSettings();
+ #endif
+ 
+@@ -82,8 +82,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+ 
+ gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
+ #if BUILDFLAG(IS_LINUX)
+-  if (ui::LinuxUi::instance())
+-    return ui::LinuxUi::instance()->GetPdfPaperSize(this);
++  if (ui::PrintingContextLinuxDelegate::instance())
++    return ui::PrintingContextLinuxDelegate::instance()->GetPdfPaperSize(this);
+ #endif
+ 
+   return gfx::Size();
+@@ -95,11 +95,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
+   DCHECK(!in_print_job_);
+ 
+ #if BUILDFLAG(IS_LINUX)
+-  if (!ui::LinuxUi::instance())
++  if (!ui::PrintingContextLinuxDelegate::instance())
+     return mojom::ResultCode::kSuccess;
+ 
+   if (!print_dialog_)
+-    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
++    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
+ 
+   // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
+   // remain non-null after this line.
+diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
+index 29db798e8b171..f8b9546b90321 100644
+--- ui/linux/linux_ui.cc
++++ ui/linux/linux_ui.cc
+@@ -18,11 +18,29 @@ namespace ui {
+ namespace {
+ 
+ LinuxUi* g_linux_ui = nullptr;
 +static PrintingContextLinuxDelegate* g_delegate = nullptr;
-+
-+}  // namespace
-+
- // static
- std::unique_ptr<PrintingContext> PrintingContext::CreateImpl(
-     Delegate* delegate,
-@@ -47,6 +53,14 @@ PrintingContextLinux::~PrintingContextLinux() {
-     print_dialog_.ExtractAsDangling()->ReleaseDialog();
- }
+ 
+ }  // namespace
  
 +// static
 +PrintingContextLinuxDelegate* PrintingContextLinuxDelegate::SetInstance(
@@ -27,112 +61,22 @@ index 5520e15c232c8..70742cba8056c 100644
 +  return old_delegate;
 +}
 +
- void PrintingContextLinux::AskUserForSettings(int max_pages,
-                                               bool has_selection,
-                                               bool is_scripted,
-@@ -68,23 +82,19 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
- 
-   ResetSettings();
- 
--#if BUILDFLAG(IS_LINUX)
--  if (!ui::LinuxUi::instance())
-+  if (!g_delegate)
-     return mojom::ResultCode::kSuccess;
- 
-   if (!print_dialog_)
--    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
-+    print_dialog_ = g_delegate->CreatePrintDialog(this);
-   print_dialog_->UseDefaultSettings();
--#endif
- 
-   return mojom::ResultCode::kSuccess;
- }
- 
- gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
--#if BUILDFLAG(IS_LINUX)
--  if (ui::LinuxUi::instance())
--    return ui::LinuxUi::instance()->GetPdfPaperSize(this);
--#endif
-+  if (g_delegate)
-+    return g_delegate->GetPdfPaperSize(this);
- 
-   return gfx::Size();
- }
-@@ -94,18 +104,16 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
-   DCHECK(!printer_settings.show_system_dialog);
-   DCHECK(!in_print_job_);
- 
--#if BUILDFLAG(IS_LINUX)
--  if (!ui::LinuxUi::instance())
-+  if (!g_delegate)
-     return mojom::ResultCode::kSuccess;
- 
-   if (!print_dialog_)
--    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
-+    print_dialog_ = g_delegate->CreatePrintDialog(this);
- 
-   // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
-   // remain non-null after this line.
-   print_dialog_->UpdateSettings(std::move(settings_));
-   DCHECK(settings_);
--#endif
- 
-   return mojom::ResultCode::kSuccess;
- }
-diff --git printing/printing_context_linux.h printing/printing_context_linux.h
-index 6fb35248ec459..3be9c29c7ebf9 100644
---- printing/printing_context_linux.h
-+++ printing/printing_context_linux.h
-@@ -16,6 +16,20 @@ namespace printing {
- 
- class MetafilePlayer;
- class PrintDialogLinuxInterface;
-+class PrintingContextLinux;
++// static
++PrintingContextLinuxDelegate* PrintingContextLinuxDelegate::instance() {
++  return g_delegate;
++}
 +
-+class COMPONENT_EXPORT(PRINTING) PrintingContextLinuxDelegate {
-+ public:
-+  virtual ~PrintingContextLinuxDelegate() = default;
-+
-+  virtual PrintDialogLinuxInterface* CreatePrintDialog(
-+      PrintingContextLinux* context) = 0;
-+
-+  virtual gfx::Size GetPdfPaperSize(PrintingContextLinux* context) = 0;
-+
-+  static PrintingContextLinuxDelegate* SetInstance(
-+      PrintingContextLinuxDelegate* delegate);
-+};
- 
- // PrintingContext with optional native UI for print dialog and pdf_paper_size.
- class COMPONENT_EXPORT(PRINTING) PrintingContextLinux : public PrintingContext {
-diff --git tools/v8_context_snapshot/BUILD.gn tools/v8_context_snapshot/BUILD.gn
-index eed0eed705d7f..482037423bc01 100644
---- tools/v8_context_snapshot/BUILD.gn
-+++ tools/v8_context_snapshot/BUILD.gn
-@@ -105,6 +105,7 @@ if (use_v8_context_snapshot) {
-       deps = [
-         "//gin:gin",
-         "//mojo/core/embedder",
-+        "//printing",
-         "//services/service_manager/public/cpp",
-         "//third_party/blink/public:blink",
-         "//v8",
-diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index 29db798e8b171..a541ef1bef264 100644
---- ui/linux/linux_ui.cc
-+++ ui/linux/linux_ui.cc
-@@ -23,6 +23,10 @@ LinuxUi* g_linux_ui = nullptr;
- 
  // static
  LinuxUi* LinuxUi::SetInstance(LinuxUi* instance) {
 +#if BUILDFLAG(IS_LINUX) && BUILDFLAG(ENABLE_PRINTING)
-+  printing::PrintingContextLinuxDelegate::SetInstance(instance);
++  PrintingContextLinuxDelegate::SetInstance(instance);
 +#endif
 +
    return std::exchange(g_linux_ui, instance);
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index b5fd57741d2f4..9ebbd444ec3ac 100644
+index b5fd57741d2f4..eaab5f1bd2b0b 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -18,6 +18,10 @@
@@ -146,20 +90,36 @@ index b5fd57741d2f4..9ebbd444ec3ac 100644
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -62,7 +66,11 @@ class WindowFrameProvider;
+@@ -60,9 +64,27 @@ class TextEditCommandAuraLinux;
+ class WindowButtonOrderObserver;
+ class WindowFrameProvider;
  
++class COMPONENT_EXPORT(LINUX_UI) PrintingContextLinuxDelegate {
++ public:
++  virtual ~PrintingContextLinuxDelegate() = default;
++
++  virtual printing::PrintDialogLinuxInterface* CreatePrintDialog(
++      printing::PrintingContextLinux* context) = 0;
++
++  virtual gfx::Size GetPdfPaperSize(printing::PrintingContextLinux* context) = 0;
++
++  static PrintingContextLinuxDelegate* SetInstance(
++      PrintingContextLinuxDelegate* delegate);
++  static PrintingContextLinuxDelegate* instance();
++};
++
  // Adapter class with targets to render like different toolkits. Set by any
  // project that wants to do linux desktop native rendering.
 -class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
 +class COMPONENT_EXPORT(LINUX_UI) LinuxUi
 +#if BUILDFLAG(ENABLE_PRINTING)
-+    : public printing::PrintingContextLinuxDelegate
++    : public PrintingContextLinuxDelegate
 +#endif
 + {
   public:
    // Describes the window management actions that could be taken in response to
    // a middle click in the non client area.
-@@ -129,14 +137,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+@@ -129,14 +151,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  
