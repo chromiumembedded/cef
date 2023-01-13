@@ -5,6 +5,8 @@
 #include "tests/ceftests/test_util.h"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdlib>
 
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
@@ -278,23 +280,19 @@ void TestStringVectorEqual(const std::vector<CefString>& val1,
 }
 
 bool TestOldResourceAPI() {
-  static int state = -1;
-  if (state == -1) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    state = command_line->HasSwitch("test-old-resource-api") ? 1 : 0;
-  }
-  return state ? true : false;
+  static bool state = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        "test-old-resource-api");
+  }();
+  return state;
 }
 
 bool IsChromeRuntimeEnabled() {
-  static int state = -1;
-  if (state == -1) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    state = command_line->HasSwitch("enable-chrome-runtime") ? 1 : 0;
-  }
-  return state ? true : false;
+  static bool state = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        "enable-chrome-runtime");
+  }();
+  return state;
 }
 
 bool IsBFCacheEnabled() {
@@ -303,15 +301,13 @@ bool IsBFCacheEnabled() {
     return false;
   }
 
-  // Enabled by default starting in M96.
-  static int state = -1;
-  if (state == -1) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const std::string& value = command_line->GetSwitchValue("disable-features");
-    state = value.find("BackForwardCache") == std::string::npos ? 1 : 0;
-  }
-  return state ? true : false;
+  static bool state = []() {
+    const std::string& value =
+        CefCommandLine::GetGlobalCommandLine()->GetSwitchValue(
+            "disable-features");
+    return value.find("BackForwardCache") == std::string::npos;
+  }();
+  return state;
 }
 
 bool IsSameSiteBFCacheEnabled() {
@@ -323,6 +319,31 @@ bool IsSameSiteBFCacheEnabled() {
 bool IgnoreURL(const std::string& url) {
   return IsChromeRuntimeEnabled() &&
          url.find("/favicon.ico") != std::string::npos;
+}
+
+std::optional<int> GetConfiguredTestTimeout(int timeout_ms) {
+  static std::optional<double> multiplier = []() -> std::optional<double> {
+    auto command_line = CefCommandLine::GetGlobalCommandLine();
+    if (command_line->HasSwitch("disable-test-timeout")) {
+      return std::nullopt;
+    }
+    const std::string& sval =
+        command_line->GetSwitchValue("test-timeout-multiplier");
+    if (!sval.empty()) {
+      if (double dval = std::atof(sval.c_str())) {
+        return dval;
+      }
+    }
+    return IsChromeRuntimeEnabled() ? 2.0 : 1.0;
+  }();
+
+  if (!multiplier) {
+    // Test timeout is disabled.
+    return std::nullopt;
+  }
+
+  return static_cast<int>(
+      std::round(static_cast<double>(timeout_ms) * (*multiplier)));
 }
 
 CefRefPtr<CefRequestContext> CreateTestRequestContext(

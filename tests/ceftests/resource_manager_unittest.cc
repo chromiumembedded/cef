@@ -84,7 +84,7 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
     // Create the browser.
     CreateBrowser(GetNextURL());
 
-    SetTestTimeout(IsChromeRuntimeEnabled() ? 10000 : 5000);
+    SetTestTimeout(5000);
   }
 
   cef_return_value_t OnBeforeResourceLoad(

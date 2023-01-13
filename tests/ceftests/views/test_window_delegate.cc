@@ -8,6 +8,7 @@
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/ceftests/thread_helper.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -125,14 +126,16 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Close the window asynchronously.
     CefPostTask(TID_UI,
                 base::BindOnce(&TestWindowDelegate::OnCloseWindow, this));
-  } else if (!CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-                 "disable-test-timeout")) {
-    // Timeout the test after a reasonable delay. Use a WeakPtr so that the
-    // delayed task doesn't keep this object alive.
-    CefPostDelayedTask(TID_UI,
-                       base::BindOnce(&TestWindowDelegate::OnTimeoutWindow,
-                                      weak_ptr_factory_.GetWeakPtr()),
-                       kTestTimeout);
+  } else {
+    const auto timeout = GetConfiguredTestTimeout(kTestTimeout);
+    if (timeout) {
+      // Timeout the test after a reasonable delay. Use a WeakPtr so that the
+      // delayed task doesn't keep this object alive.
+      CefPostDelayedTask(TID_UI,
+                         base::BindOnce(&TestWindowDelegate::OnTimeoutWindow,
+                                        weak_ptr_factory_.GetWeakPtr()),
+                         *timeout);
+    }
   }
 }
 

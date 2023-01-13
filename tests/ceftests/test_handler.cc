@@ -13,6 +13,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_request.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace {
@@ -442,8 +443,8 @@ void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
     return;
   }
 
-  if (treat_as_error && CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-                            "disable-test-timeout")) {
+  const auto timeout = GetConfiguredTestTimeout(timeout_ms);
+  if (treat_as_error && !timeout) {
     return;
   }
 
@@ -451,8 +452,8 @@ void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
   // can be destroyed before the timeout expires.
   GetUIThreadHelper()->PostDelayedTask(
       base::BindOnce(&TestHandler::OnTestTimeout, base::Unretained(this),
-                     timeout_ms, treat_as_error),
-      timeout_ms);
+                     *timeout, treat_as_error),
+      *timeout);
 }
 
 void TestHandler::TestComplete() {
