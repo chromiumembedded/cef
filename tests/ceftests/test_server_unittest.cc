@@ -373,8 +373,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
 
   void SetTestTimeout(int timeout_ms) {
     EXPECT_UI_THREAD();
-    if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-            "disable-test-timeout")) {
+    const auto timeout = GetConfiguredTestTimeout(timeout_ms);
+    if (!timeout) {
       return;
     }
 
@@ -382,8 +382,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
     // test runner can be destroyed before the timeout expires.
     GetUIThreadHelper()->PostDelayedTask(
         base::BindOnce(&HttpTestRunner::OnTestTimeout, base::Unretained(this),
-                       timeout_ms),
-        timeout_ms);
+                       *timeout),
+        *timeout);
   }
 
   void OnTestTimeout(int timeout_ms) {

@@ -6,6 +6,8 @@
 #define CEF_TESTS_CEFTESTS_TEST_UTIL_H_
 #pragma once
 
+#include <optional>
+
 #include "include/cef_process_message.h"
 #include "include/cef_request.h"
 #include "include/cef_request_context.h"
@@ -95,6 +97,10 @@ bool IsSameSiteBFCacheEnabled();
 
 // Returns true if requests for |url| should be ignored by tests.
 bool IgnoreURL(const std::string& url);
+
+// Returns |timeout_ms| as scaled by the current configuration, or std::nullopt
+// if timeouts are disabled.
+std::optional<int> GetConfiguredTestTimeout(int timeout_ms);
 
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.

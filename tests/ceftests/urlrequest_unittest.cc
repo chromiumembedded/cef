@@ -2760,7 +2760,7 @@ class RequestTestHandler : public TestHandler {
 
   void RunTest() override {
     // Time out the test after a reasonable period of time.
-    SetTestTimeout(IsChromeRuntimeEnabled() ? 10000 : 5000);
+    SetTestTimeout(5000);
 
     // Start pre-setup actions.
     PreSetupStart();

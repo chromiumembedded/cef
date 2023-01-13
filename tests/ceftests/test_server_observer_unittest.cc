@@ -11,6 +11,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "tests/ceftests/test_request.h"
 #include "tests/ceftests/test_server_observer.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/ceftests/track_callback.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
@@ -165,11 +166,11 @@ void SignalIfDone(CefRefPtr<CefWaitableEvent> event,
 }
 
 void Wait(CefRefPtr<CefWaitableEvent> event) {
-  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          "disable-test-timeout")) {
+  const auto timeout = GetConfiguredTestTimeout(/*timeout_ms=*/2000);
+  if (!timeout) {
     event->Wait();
   } else {
-    event->TimedWait(2000);
+    event->TimedWait(*timeout);
   }
 }
 
