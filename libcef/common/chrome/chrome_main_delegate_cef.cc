@@ -19,7 +19,9 @@
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
 #include "base/threading/threading_features.h"
+#include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/pref_names.h"
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
@@ -200,6 +202,27 @@ absl::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
   // TODO(macos): Do we need l10n_util::OverrideLocaleWithCocoaLocale()?
   runner_->PreBrowserMain();
   return absl::nullopt;
+}
+
+absl::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
+    InvokedIn invoked_in) {
+  const auto result = ChromeMainDelegate::PostEarlyInitialization(invoked_in);
+  if (!result) {
+    const auto* invoked_in_browser =
+        absl::get_if<InvokedInBrowserProcess>(&invoked_in);
+    if (invoked_in_browser) {
+      // At this point local_state has been created but ownership has not yet
+      // been passed to BrowserProcessImpl (g_browser_process is nullptr).
+      auto* local_state = chrome_content_browser_client_->startup_data()
+                              ->chrome_feature_list_creator()
+                              ->local_state();
+
+      // Don't show the profile picker on startup (see issue #3440).
+      local_state->SetBoolean(prefs::kBrowserShowProfilePickerOnStartup, false);
+    }
+  }
+
+  return result;
 }
 
 absl::variant<int, content::MainFunctionParams>
