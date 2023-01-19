@@ -597,7 +597,7 @@ def check_pattern_matches(output_file=None):
 # Cannot be loaded as a module.
 if __name__ != "__main__":
   sys.stderr.write('This file cannot be loaded as a module!')
-  sys.exit()
+  sys.exit(1)
 
 # Parse command-line options.
 disc = """
@@ -935,7 +935,7 @@ parser.add_option(
 if options.downloaddir is None:
   print("The --download-dir option is required.")
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 # Opt into component-specific flags for later use.
 if options.noupdate:
@@ -954,7 +954,7 @@ if (options.nochromiumupdate and options.forceupdate) or \
    (options.chromiumcheckout and options.chromiumchannel):
   print("Invalid combination of options.")
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
@@ -962,24 +962,24 @@ if (options.noreleasebuild and \
    (options.minimaldistribonly + options.clientdistribonly + options.sandboxdistribonly > 1):
   print('Invalid combination of options.')
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 if options.x64build + options.armbuild + options.arm64build > 1:
   print('Invalid combination of options.')
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 if (options.buildtests or options.runtests) and len(options.testtarget) == 0:
   print("A test target must be specified via --test-target.")
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 # Operating system.
 if options.dryrun and options.dryrunplatform is not None:
   platform = options.dryrunplatform
   if not platform in ['windows', 'mac', 'linux']:
     print('Invalid dry-run-platform value: %s' % (platform))
-    sys.exit()
+    sys.exit(1)
 elif sys.platform == 'win32':
   platform = 'windows'
 elif sys.platform == 'darwin':
@@ -988,7 +988,7 @@ elif sys.platform.startswith('linux'):
   platform = 'linux'
 else:
   print('Unknown operating system platform')
-  sys.exit()
+  sys.exit(1)
 
 if options.clientdistrib or options.clientdistribonly:
   if platform == 'linux' or (platform == 'windows' and options.arm64build):
@@ -999,7 +999,7 @@ if options.clientdistrib or options.clientdistribonly:
     print('A client distribution cannot be generated if --build-target ' +
           'excludes %s.' % client_app)
     parser.print_help(sys.stderr)
-    sys.exit()
+    sys.exit(1)
 
 # CEF branch.
 cef_branch = options.branch
@@ -1009,13 +1009,13 @@ if not branch_is_master:
   # Verify that the branch value is numeric.
   if not cef_branch.isdigit():
     print('Invalid branch value: %s' % cef_branch)
-    sys.exit()
+    sys.exit(1)
 
   # Verify the minimum supported branch number.
   if int(cef_branch) < 3071:
     print('The requested branch (%s) is too old to build using this tool. ' +
           'The minimum supported branch is 3071.' % cef_branch)
-    sys.exit()
+    sys.exit(1)
 
 # True if the requested branch is 3538 or newer.
 branch_is_3538_or_newer = (branch_is_master or int(cef_branch) >= 3538)
@@ -1032,19 +1032,19 @@ if not branch_is_3945_or_newer and \
   (not is_python2 or bool(int(os.environ.get('GCLIENT_PY3', '0')))):
   print('Python 3 is not supported with branch 3904 and older ' +
         '(set GCLIENT_PY3=0 and run with Python 2 executable).')
-  sys.exit()
+  sys.exit(1)
 
 if options.armbuild:
   if platform != 'linux':
     print('The ARM build option is only supported on Linux.')
-    sys.exit()
+    sys.exit(1)
 
 deps_file = 'DEPS'
 
 if platform == 'mac' and not (options.x64build or options.arm64build):
   print('32-bit MacOS builds are not supported. ' +
         'Add --x64-build or --arm64-build flag to generate a 64-bit build.')
-  sys.exit()
+  sys.exit(1)
 
 # Platforms that build a cef_sandbox library.
 sandbox_lib_platforms = ['windows']
@@ -1054,7 +1054,7 @@ if branch_is_3538_or_newer:
 if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
                                               options.sandboxdistribonly):
   print('The sandbox distribution is not supported on this platform.')
-  sys.exit()
+  sys.exit(1)
 
 # Options that force the sources to change.
 force_change = options.forceclean or options.forceupdate
@@ -1066,7 +1066,7 @@ if options.resave and (options.forcepatchupdate or discard_local_changes):
   print('--resave cannot be combined with options that modify or discard ' +
         'patches.')
   parser.print_help(sys.stderr)
-  sys.exit()
+  sys.exit(1)
 
 if platform == 'windows':
   # Avoid errors when the "vs_toolchain.py update" Chromium hook runs.
