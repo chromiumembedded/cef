@@ -30,6 +30,7 @@
 #include "base/values.h"
 #include "cef/grit/cef_resources.h"
 #include "chrome/browser/browser_about_handler.h"
+#include "chrome/browser/devtools/devtools_ui_bindings.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/chrome_untrusted_web_ui_configs.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
@@ -534,6 +535,11 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   // Returns true if WebUI is allowed to handle the specified |url|.
   static bool AllowWebUIForURL(const GURL& url) {
+    if (cef::IsChromeRuntimeEnabled() &&
+        url.SchemeIs(content::kChromeDevToolsScheme)) {
+      return DevToolsUIBindings::IsValidFrontendURL(url);
+    }
+
     if (!url.SchemeIs(content::kChromeUIScheme) &&
         !url.SchemeIs(content::kChromeUIUntrustedScheme)) {
       return false;
