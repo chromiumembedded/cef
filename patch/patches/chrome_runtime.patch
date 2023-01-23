@@ -102,7 +102,7 @@ index 49993fbc333f8..c39e8743e281e 100644
    // content::ContentMainDelegate:
    absl::optional<int> BasicStartupComplete() override;
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 2893df3488d8f..46cd8d9643b69 100644
+index 2893df3488d8f..8828270f624cb 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -51,6 +51,7 @@
@@ -113,6 +113,24 @@ index 2893df3488d8f..46cd8d9643b69 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
+@@ -1390,7 +1391,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   CHECK(aura::Env::GetInstance());
+ #endif  // defined(USE_AURA)
+ 
+-#if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#if BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+   if (!ChromeProcessSingleton::IsEarlySingletonFeatureEnabled()) {
+     // When another process is running, use that process instead of starting a
+     // new one. NotifyOtherProcess will currently give the other process up to
+@@ -1429,7 +1430,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+         return chrome::RESULT_CODE_PROFILE_IN_USE;
+     }
+   }
+-#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+ 
+ #if BUILDFLAG(IS_WIN)
+   // We must call DoUpgradeTasks now that we own the browser singleton to
 @@ -1575,12 +1576,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
          browser_process_->local_state());
    }
@@ -128,37 +146,32 @@ index 2893df3488d8f..46cd8d9643b69 100644
  
  #if BUILDFLAG(IS_ANDROID)
    page_info::SetPageInfoClient(new ChromePageInfoClient());
-@@ -1732,14 +1735,17 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1729,6 +1732,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   }
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+ 
++  // Bypass StartupBrowserCreator and RunLoop creation with CEF.
++  // CEF with the Chrome runtime will create and manage its own RunLoop.
++#if !BUILDFLAG(ENABLE_CEF)
++
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
-+  // Bypass StartupBrowserCreator with CEF where |GetMainRunLoopInstance()| is
-+  // nullptr.
-   const bool started =
-+      !GetMainRunLoopInstance() ||
- #if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-       !process_command_line ||
- #endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-       browser_creator_->Start(*base::CommandLine::ForCurrentProcess(),
-                               base::FilePath(), profile_info,
-                               last_opened_profiles);
--  if (started) {
-+  if (started && GetMainRunLoopInstance()) {
- // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
- // of lacros-chrome is complete.
- #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
-@@ -1767,8 +1773,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1767,11 +1774,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
  
      // Create the RunLoop for MainMessageLoopRun() to use and transfer
      // ownership of the browser's lifetime to the BrowserProcess.
 +    // CEF with the Chrome runtime will create and manage its own RunLoop.
      DCHECK(!GetMainRunLoopInstance());
--    GetMainRunLoopInstance() = std::make_unique<base::RunLoop>();
-+    if (!cef::IsChromeRuntimeEnabled())
-+      GetMainRunLoopInstance() = std::make_unique<base::RunLoop>();
+     GetMainRunLoopInstance() = std::make_unique<base::RunLoop>();
      browser_process_->SetQuitClosure(
          GetMainRunLoopInstance()->QuitWhenIdleClosure());
    }
++#endif  // !BUILDFLAG(ENABLE_CEF)
++
+   browser_creator_.reset();
+ #endif  // !BUILDFLAG(IS_ANDROID)
+ 
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
 index 77aaa6d46daea..e428711ec4ab3 100644
 --- chrome/browser/chrome_browser_main_mac.mm

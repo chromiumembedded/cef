@@ -1,24 +1,37 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 40148eeaef7d1..353c6d2b37a7a 100644
+index 40148eeaef7d1..bd4e5d62efc97 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -15,6 +15,7 @@
  #include "base/version.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
-+#include "cef/libcef/common/cef_switches.h"
++#include "cef/libcef/features/features.h"
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -382,6 +383,12 @@ std::string GetMajorVersionForUserAgentString(
+@@ -28,6 +29,10 @@
+ #include "third_party/blink/public/common/features.h"
+ #include "third_party/blink/public/common/user_agent/user_agent_metadata.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/cef_switches.h"
++#endif
++
+ #if BUILDFLAG(IS_WIN)
+ #include <windows.h>
+ 
+@@ -382,6 +387,14 @@ std::string GetMajorVersionForUserAgentString(
  std::string GetProductAndVersion(
      ForceMajorVersionToMinorPosition force_major_to_minor,
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {
++#if BUILDFLAG(ENABLE_CEF)
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 +  if (command_line->HasSwitch(switches::kUserAgentProductAndVersion)) {
 +    return command_line->GetSwitchValueASCII(
 +        switches::kUserAgentProductAndVersion);
 +  }
++#endif
 +
    if (ShouldForceMajorVersionToMinorPosition(force_major_to_minor)) {
      // Force major version to 99 and major version to minor version position.
