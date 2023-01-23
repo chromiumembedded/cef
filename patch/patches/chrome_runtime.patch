@@ -102,7 +102,7 @@ index 49993fbc333f8..c39e8743e281e 100644
    // content::ContentMainDelegate:
    absl::optional<int> BasicStartupComplete() override;
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index 2893df3488d8f..8828270f624cb 100644
+index 2893df3488d8f..f754fc076932f 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -51,6 +51,7 @@
@@ -131,6 +131,24 @@ index 2893df3488d8f..8828270f624cb 100644
  
  #if BUILDFLAG(IS_WIN)
    // We must call DoUpgradeTasks now that we own the browser singleton to
+@@ -1475,7 +1476,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   }
+ #endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS_ASH)
+ 
+-#if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#if BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+   // Handle special early return paths (which couldn't be processed even earlier
+   // as they require the process singleton to be held) first.
+ 
+@@ -1522,7 +1523,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+     return content::RESULT_CODE_NORMAL_EXIT;
+ #endif  // BUILDFLAG(IS_WIN)
+   }
+-#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+ 
+ #if BUILDFLAG(IS_WIN)
+   // Check if there is any machine level Chrome installed on the current
 @@ -1575,12 +1576,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
          browser_process_->local_state());
    }
