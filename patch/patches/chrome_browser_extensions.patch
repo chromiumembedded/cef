@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 19a81f51a14c1..d23f6db838d41 100644
+index 19a81f51a14c1..41dbb40ff4586 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -13,6 +13,7 @@
@@ -21,13 +21,15 @@ index 19a81f51a14c1..d23f6db838d41 100644
  #if BUILDFLAG(ENABLE_PDF)
  #include "chrome/browser/ui/pdf/chrome_pdf_web_contents_helper_client.h"
  #include "components/pdf/browser/pdf_web_contents_helper.h"
-@@ -305,6 +310,9 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate(
+@@ -305,6 +310,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate(
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
++#if BUILDFLAG(ENABLE_CEF)
 +  if (cef::IsChromeRuntimeEnabled()) {
 +    return std::make_unique<ChromeMimeHandlerViewGuestDelegateCef>(guest);
 +  }
++#endif
    return std::make_unique<ChromeMimeHandlerViewGuestDelegate>();
  }
  

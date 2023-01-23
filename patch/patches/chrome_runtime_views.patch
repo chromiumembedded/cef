@@ -379,7 +379,7 @@ index 79911e5461e2e..d70b8a3b84f84 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index c923ca16d06a5..eb75ad1111ae3 100644
+index c923ca16d06a5..949db1a44b9a5 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -45,6 +45,10 @@
@@ -393,15 +393,17 @@ index c923ca16d06a5..eb75ad1111ae3 100644
  using views::View;
  using web_modal::WebContentsModalDialogHost;
  using web_modal::ModalDialogHostObserver;
-@@ -474,6 +478,11 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
+@@ -474,6 +478,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
  
  int BrowserViewLayout::LayoutToolbar(int top) {
    TRACE_EVENT0("ui", "BrowserViewLayout::LayoutToolbar");
++#if BUILDFLAG(ENABLE_CEF)
 +  if (cef::IsCefView(toolbar_)) {
 +    // CEF may take ownership of the toolbar. Early exit to avoid the DCHECK
 +    // in LayoutManager::SetViewVisibility().
 +    return top;
 +  }
++#endif
    int browser_view_width = vertical_layout_rect_.width();
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;

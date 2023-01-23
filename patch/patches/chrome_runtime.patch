@@ -102,7 +102,7 @@ index de1b45f921123..077894e4a42c9 100644
    // content::ContentMainDelegate:
    absl::optional<int> BasicStartupComplete() override;
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index a9f1fa7ac0c5a..c4c42fab178ba 100644
+index a9f1fa7ac0c5a..2e7bf32d504d9 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -52,6 +52,7 @@
@@ -113,6 +113,24 @@ index a9f1fa7ac0c5a..c4c42fab178ba 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
+@@ -1451,7 +1452,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   }
+ #endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS_ASH)
+ 
+-#if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#if BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+   // Handle special early return paths (which couldn't be processed even earlier
+   // as they require the process singleton to be held) first.
+ 
+@@ -1498,7 +1499,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+     return content::RESULT_CODE_NORMAL_EXIT;
+ #endif  // BUILDFLAG(IS_WIN)
+   }
+-#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
++#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON) && !BUILDFLAG(ENABLE_CEF)
+ 
+ #if BUILDFLAG(IS_WIN)
+   // Check if there is any machine level Chrome installed on the current
 @@ -1551,12 +1552,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
          browser_process_->local_state());
    }
@@ -128,37 +146,26 @@ index a9f1fa7ac0c5a..c4c42fab178ba 100644
  
  #if BUILDFLAG(IS_ANDROID)
    page_info::SetPageInfoClient(new ChromePageInfoClient());
-@@ -1708,14 +1711,17 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1705,6 +1708,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+   }
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+ 
++  // Bypass StartupBrowserCreator and RunLoop creation with CEF.
++  // CEF with the Chrome runtime will create and manage its own RunLoop.
++#if !BUILDFLAG(ENABLE_CEF)
++
    // This step is costly and is already measured in
    // Startup.StartupBrowserCreator_Start.
    // See the comment above for an explanation of |process_command_line|.
-+  // Bypass StartupBrowserCreator with CEF where |GetMainRunLoopInstance()| is
-+  // nullptr.
-   const bool started =
-+      !GetMainRunLoopInstance() ||
- #if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-       !process_command_line ||
- #endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-       browser_creator_->Start(*base::CommandLine::ForCurrentProcess(),
-                               base::FilePath(), profile_info,
-                               last_opened_profiles);
--  if (started) {
-+  if (started && GetMainRunLoopInstance()) {
- // TODO(crbug.com/1052397): Revisit the macro expression once build flag switch
- // of lacros-chrome is complete.
- #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS))
-@@ -1743,8 +1749,10 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
- 
-     // Create the RunLoop for MainMessageLoopRun() to use and transfer
-     // ownership of the browser's lifetime to the BrowserProcess.
-+    // CEF with the Chrome runtime will create and manage its own RunLoop.
-     DCHECK(!GetMainRunLoopInstance());
--    GetMainRunLoopInstance() = std::make_unique<base::RunLoop>();
-+    if (!cef::IsChromeRuntimeEnabled())
-+      GetMainRunLoopInstance() = std::make_unique<base::RunLoop>();
+@@ -1748,6 +1755,8 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
      browser_process_->SetQuitClosure(
          GetMainRunLoopInstance()->QuitWhenIdleClosure());
    }
++#endif  // !BUILDFLAG(ENABLE_CEF)
++
+   browser_creator_.reset();
+ #endif  // !BUILDFLAG(IS_ANDROID)
+ 
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
 index d12abb3451882..b14d4406c2a76 100644
 --- chrome/browser/chrome_browser_main_mac.mm
