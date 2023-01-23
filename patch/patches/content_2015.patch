@@ -178,3 +178,37 @@ index 3ae765eea4b8f..c0fe200f0d373 100644
    // Tells this platform that the renderer is locked to a site (i.e., a scheme
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
+diff --git headless/lib/browser/headless_content_browser_client.cc headless/lib/browser/headless_content_browser_client.cc
+index 5cae59116d39d..2c6fb3e830fcd 100644
+--- headless/lib/browser/headless_content_browser_client.cc
++++ headless/lib/browser/headless_content_browser_client.cc
+@@ -312,7 +312,7 @@ bool HeadlessContentBrowserClient::ShouldEnableStrictSiteIsolation() {
+   return browser_->options()->site_per_process;
+ }
+ 
+-void HeadlessContentBrowserClient::ConfigureNetworkContextParams(
++bool HeadlessContentBrowserClient::ConfigureNetworkContextParams(
+     content::BrowserContext* context,
+     bool in_memory,
+     const base::FilePath& relative_partition_path,
+@@ -322,6 +322,7 @@ void HeadlessContentBrowserClient::ConfigureNetworkContextParams(
+   HeadlessBrowserContextImpl::From(context)->ConfigureNetworkContextParams(
+       in_memory, relative_partition_path, network_context_params,
+       cert_verifier_creation_params);
++  return true;
+ }
+ 
+ std::string HeadlessContentBrowserClient::GetProduct() {
+diff --git headless/lib/browser/headless_content_browser_client.h headless/lib/browser/headless_content_browser_client.h
+index 441423c66de35..97a98a41dd7e3 100644
+--- headless/lib/browser/headless_content_browser_client.h
++++ headless/lib/browser/headless_content_browser_client.h
+@@ -71,7 +71,7 @@ class HeadlessContentBrowserClient : public content::ContentBrowserClient {
+       std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
+   bool ShouldEnableStrictSiteIsolation() override;
+ 
+-  void ConfigureNetworkContextParams(
++  bool ConfigureNetworkContextParams(
+       content::BrowserContext* context,
+       bool in_memory,
+       const base::FilePath& relative_partition_path,
