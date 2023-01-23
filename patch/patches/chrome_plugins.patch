@@ -1,8 +1,8 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 7ceb1d7b854d9..721026a5a4be1 100644
+index 7b12e246839a4..b29450cc2285a 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -135,6 +135,10 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -142,6 +142,10 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
@@ -42,7 +42,7 @@ index 8b3f569882aeb..afc8007a6228b 100644
      const extensions::Extension* extension =
          registry->enabled_extensions().GetByID(extension_id);
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 3d08b706ec4a0..7f4a0398e51f9 100644
+index a800280bc057b..af108b1ec8c25 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -978,6 +978,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
