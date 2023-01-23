@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 2c5b4b4a85536..f235c4d72e39e 100644
+index 2c5b4b4a85536..54debda4a6413 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -15,6 +15,7 @@
@@ -10,17 +10,17 @@ index 2c5b4b4a85536..f235c4d72e39e 100644
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -31,6 +32,10 @@
- #if BUILDFLAG(IS_WIN)
- #include <windows.h>
+@@ -35,6 +36,10 @@
+ #include "base/win/windows_version.h"
+ #endif  // BUILDFLAG(IS_WIN)
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/common/cef_switches.h"
 +#endif
 +
- #include "base/win/registry.h"
- #include "base/win/windows_version.h"
- #endif  // BUILDFLAG(IS_WIN)
+ namespace embedder_support {
+ 
+ namespace {
 @@ -370,6 +375,14 @@ std::string GetMajorVersionForUserAgentString(
  std::string GetProductAndVersion(
      ForceMajorVersionToMinorPosition force_major_to_minor,
