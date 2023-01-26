@@ -153,7 +153,7 @@ index f6df78d4d3878..5e4984760ba56 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 9da2056ddd3cf..c097bb2e8aba3 100644
+index 120f304fc27db..7e665fc95a516 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
 @@ -283,14 +283,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
