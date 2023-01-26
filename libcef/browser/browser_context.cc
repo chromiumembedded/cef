@@ -155,6 +155,11 @@ CefBrowserContext* GetSelf(base::WeakPtr<CefBrowserContext> self) {
 CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
     const CefString& schemes_list,
     bool include_defaults) {
+  if (schemes_list.empty() && include_defaults) {
+    // No explicit registration of schemes.
+    return absl::nullopt;
+  }
+
   std::vector<std::string> all_schemes;
   if (!schemes_list.empty()) {
     all_schemes =
@@ -172,6 +177,12 @@ CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
   }
 
   return absl::make_optional(all_schemes);
+}
+
+template <typename T>
+CefBrowserContext::CookieableSchemes MakeSupportedSchemes(const T& settings) {
+  return MakeSupportedSchemes(CefString(&settings.cookieable_schemes_list),
+                              !settings.cookieable_schemes_exclude_defaults);
 }
 
 }  // namespace
@@ -197,13 +208,7 @@ void CefBrowserContext::Initialize() {
   }
 
   iothread_state_ = base::MakeRefCounted<CefIOThreadState>();
-
-  if (settings_.cookieable_schemes_list.length > 0 ||
-      settings_.cookieable_schemes_exclude_defaults) {
-    cookieable_schemes_ =
-        MakeSupportedSchemes(CefString(&settings_.cookieable_schemes_list),
-                             !settings_.cookieable_schemes_exclude_defaults);
-  }
+  cookieable_schemes_ = MakeSupportedSchemes(settings_);
 }
 
 void CefBrowserContext::Shutdown() {
@@ -426,11 +431,7 @@ CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
 CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()
     const {
   CEF_REQUIRE_UIT();
-  if (cookieable_schemes_) {
-    return cookieable_schemes_;
-  }
-
-  return GetGlobalCookieableSchemes();
+  return cookieable_schemes_;
 }
 
 // static
@@ -439,15 +440,6 @@ CefBrowserContext::GetGlobalCookieableSchemes() {
   CEF_REQUIRE_UIT();
 
   static base::NoDestructor<CookieableSchemes> schemes(
-      []() -> CookieableSchemes {
-        const auto& settings = CefContext::Get()->settings();
-        if (settings.cookieable_schemes_list.length > 0 ||
-            settings.cookieable_schemes_exclude_defaults) {
-          return MakeSupportedSchemes(
-              CefString(&settings.cookieable_schemes_list),
-              !settings.cookieable_schemes_exclude_defaults);
-        }
-        return absl::nullopt;
-      }());
+      []() { return MakeSupportedSchemes(CefContext::Get()->settings()); }());
   return *schemes;
 }
