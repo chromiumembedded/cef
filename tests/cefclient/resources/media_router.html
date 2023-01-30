@@ -240,7 +240,6 @@ Expected format for |sinks| is:
       name: string,
       type: string ('cast' or 'dial'),
       id: string,
-      desc: string,
       icon: int
     }, ...
   ]
@@ -506,14 +505,12 @@ function initDemoMode() {
       name: 'Sink 1',
       type: 'cast',
       id: 'sink1',
-      desc: 'My cast device',
       icon: CEF_MSIT_CAST
     },
     {
       name: 'Sink 2',
       type: 'dial',
       id: 'sink2',
-      desc: 'My dial device',
       icon: CEF_MSIT_GENERIC
     }
   ];

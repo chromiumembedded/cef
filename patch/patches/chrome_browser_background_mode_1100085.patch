@@ -1,5 +1,5 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index a640eeb910307..c32d7827e9240 100644
+index fa9472796576e..3e6a71e1e9697 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
 @@ -199,9 +199,9 @@ class BrowserProcess {
@@ -14,10 +14,10 @@ index a640eeb910307..c32d7827e9240 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index b924f221dcb3c..9e156b83787ca 100644
+index c559c9dee4da0..facb6dc88e2e1 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -1030,18 +1030,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -1037,18 +1037,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -38,7 +38,7 @@ index b924f221dcb3c..9e156b83787ca 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index ecae3d0e0ca71..83e7bbdbbe4ce 100644
+index c7fab534552b2..075f2e9cfdb66 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -174,8 +174,8 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -52,7 +52,7 @@ index ecae3d0e0ca71..83e7bbdbbe4ce 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index 9210206d6fe6c..df950ed67ba38 100644
+index ac79a59ef056b..cac2b4d97271c 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
 @@ -158,12 +158,14 @@ void BrowserCloseManager::CloseBrowsers() {

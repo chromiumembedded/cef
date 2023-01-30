@@ -7,7 +7,7 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/extensions/extension_host_delegate.h"
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 
 namespace extensions {
 

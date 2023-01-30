@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=84b4fdb81093f8f1c3923718803bb2b8162b537f$
+// $hash=6a7b7f88d045e2827c989a39368741a8d6064da4$
 //
 
 #include "libcef_dll/ctocpp/media_sink_ctocpp.h"
@@ -50,25 +50,6 @@ NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetName() {
 
   // Execute
   cef_string_userfree_t _retval = _struct->get_name(_struct);
-
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
-}
-
-NO_SANITIZE("cfi-icall") CefString CefMediaSinkCToCpp::GetDescription() {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_media_sink_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_description)) {
-    return CefString();
-  }
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_string_userfree_t _retval = _struct->get_description(_struct);
 
   // Return type: string
   CefString _retvalStr;

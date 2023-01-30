@@ -158,7 +158,7 @@ class CefRenderWidgetHostViewOSR
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& bounds,
                    const gfx::Rect& anchor_rect) override;
-  void UpdateCursor(const content::WebCursor& cursor) override;
+  void UpdateCursor(const ui::Cursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone() override;
   void Destroy() override;

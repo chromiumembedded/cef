@@ -28,7 +28,7 @@ class VIZ_SERVICE_EXPORT SoftwareOutputDeviceProxy
 
   // SoftwareOutputDevice implementation.
   void OnSwapBuffers(SwapBuffersCallback swap_ack_callback,
-                     gl::FrameData data) override;
+                     gfx::FrameData data) override;
 
   // SoftwareOutputDeviceBase implementation.
   void Resize(const gfx::Size& viewport_pixel_size,

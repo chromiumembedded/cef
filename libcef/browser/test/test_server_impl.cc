@@ -8,8 +8,8 @@
 
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "base/task/single_thread_task_runner.h"
 #include "base/threading/thread_checker.h"
-#include "base/threading/thread_task_runner_handle.h"
 #include "net/http/http_request_headers.h"
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "net/test/embedded_test_server/http_response.h"
@@ -22,7 +22,8 @@ class CefTestServerConnectionImpl : public CefTestServerConnection {
  public:
   explicit CefTestServerConnectionImpl(
       base::WeakPtr<HttpResponseDelegate> delegate)
-      : delegate_(delegate), task_runner_(base::ThreadTaskRunnerHandle::Get()) {
+      : delegate_(delegate),
+        task_runner_(base::SingleThreadTaskRunner::GetCurrentDefault()) {
     DCHECK(delegate_);
     DCHECK(task_runner_);
   }

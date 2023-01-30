@@ -1,8 +1,8 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 6d905b62e6258..a650c048cfcf3 100644
+index 0c63e0d59b6b0..bdbac6fceb1df 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -47,9 +47,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
@@ -18,7 +18,7 @@ index 6d905b62e6258..a650c048cfcf3 100644
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -57,7 +62,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -58,7 +63,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index fb793e98d5939..bf51d9aa376ea 100644
+index 77fc13c924dd1..3046733922148 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -220,6 +220,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index fb793e98d5939..bf51d9aa376ea 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index d8f25c1435d4b..ee1eda5180e93 100644
+index ec7cc3404b5d6..01898ac0cef5b 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -134,7 +134,7 @@ index d8f25c1435d4b..ee1eda5180e93 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index de5825e251f3b..841a626586f2b 100644
+index d4d4c1444e7a1..d62a3939a31fa 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -192,8 +192,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
@@ -150,10 +150,10 @@ index de5825e251f3b..841a626586f2b 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 3b44531f2618f..097957f0eb7b1 100644
+index d4c0be621ecd9..8b6052c4bd807 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -399,8 +399,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -397,8 +397,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -191,10 +191,10 @@ index d63ec55ae38d6..ff86831efd68b 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 52f44a31de4a8..10fe3d9daa207 100644
+index 83c153d99c1e2..7396a87b56a94 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -98,12 +98,14 @@ interface DisplayPrivate {
+@@ -102,12 +102,14 @@ interface DisplayPrivate {
  };
  
  interface DisplayClient {
@@ -222,10 +222,10 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 50cea82c6b477..0329d39416742 100644
+index 2d296b025ec17..a45c73aaa09b8 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -32,7 +32,9 @@
+@@ -33,7 +33,9 @@
  #include "components/viz/common/frame_sinks/begin_frame_args.h"
  #include "components/viz/common/surfaces/frame_sink_id.h"
  #include "components/viz/common/surfaces/subtree_capture_id.h"
@@ -235,7 +235,7 @@ index 50cea82c6b477..0329d39416742 100644
  #include "mojo/public/cpp/bindings/associated_remote.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
-@@ -143,6 +145,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -145,6 +147,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -250,7 +250,7 @@ index 50cea82c6b477..0329d39416742 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -186,6 +196,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -188,6 +198,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -260,7 +260,7 @@ index 50cea82c6b477..0329d39416742 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -503,6 +516,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -513,6 +526,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

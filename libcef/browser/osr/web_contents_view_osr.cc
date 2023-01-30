@@ -149,6 +149,9 @@ void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
 
 void CefWebContentsViewOSR::OnCapturerCountChanged() {}
 
+void CefWebContentsViewOSR::UpdateWindowControlsOverlay(
+    const gfx::Rect& bounding_rect) {}
+
 #if BUILDFLAG(IS_MAC)
 bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
   return false;

@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 1ea066908cd96..d14269518c593 100644
+index 00c293219a70c..e68d0d3abd95e 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -195,11 +195,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -173,11 +173,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -16,7 +16,7 @@ index 1ea066908cd96..d14269518c593 100644
    base::FeatureList::FailOnFeatureAccessWithoutFeatureList();
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
-@@ -208,9 +205,6 @@ RunContentProcess(ContentMainParams params,
+@@ -186,9 +183,6 @@ RunContentProcess(ContentMainParams params,
  #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -26,7 +26,7 @@ index 1ea066908cd96..d14269518c593 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -296,12 +290,6 @@ RunContentProcess(ContentMainParams params,
+@@ -274,12 +268,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -39,7 +39,7 @@ index 1ea066908cd96..d14269518c593 100644
      InitializeMac();
  #endif
  
-@@ -341,8 +329,18 @@ RunContentProcess(ContentMainParams params,
+@@ -321,8 +309,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index 1ea066908cd96..d14269518c593 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -354,14 +352,41 @@ RunContentProcess(ContentMainParams params,
+@@ -334,14 +332,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
@@ -105,10 +105,10 @@ index 1ea066908cd96..d14269518c593 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6b51120e7d889..57c37e79e68e9 100644
+index 5029cbe44e4bd..fc6616da947eb 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -44,6 +44,7 @@
+@@ -46,6 +46,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -116,7 +116,7 @@ index 6b51120e7d889..57c37e79e68e9 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1269,6 +1270,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1290,6 +1291,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -130,7 +130,7 @@ index 6b51120e7d889..57c37e79e68e9 100644
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index 7dc520f2fffc7..3900cce3ad42f 100644
+index ea9b5233820cd..aba62b3384134 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
 @@ -27,7 +27,7 @@ class DiscardableSharedMemoryManager;
@@ -165,7 +165,7 @@ index 04a08015aaff6..694f5c43a29e1 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 91646692bac96..316d3161a9e31 100644
+index 16e8c657ad61f..62d58b8dcccf5 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -93,6 +93,13 @@ struct CONTENT_EXPORT ContentMainParams {

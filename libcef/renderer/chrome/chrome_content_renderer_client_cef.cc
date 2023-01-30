@@ -28,7 +28,7 @@ ChromeContentRendererClientCef::GetCurrentTaskRunner() {
 void ChromeContentRendererClientCef::RenderThreadStarted() {
   ChromeContentRendererClient::RenderThreadStarted();
 
-  render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
+  render_task_runner_ = base::SingleThreadTaskRunner::GetCurrentDefault();
 }
 
 void ChromeContentRendererClientCef::RenderThreadConnected() {

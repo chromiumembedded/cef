@@ -29,9 +29,9 @@
 #include "libcef/common/values_impl.h"
 #include "libcef/features/runtime_checks.h"
 
-#include "base/bind.h"
-#include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "base/functional/bind.h"
+#include "base/functional/callback_helpers.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "content/browser/gpu/compositor_util.h"
@@ -1253,11 +1253,6 @@ void AlloyBrowserHostImpl::WebContentsCreated(
                      std::move(platform_delegate), /*cef_extension=*/nullptr);
 }
 
-void AlloyBrowserHostImpl::DidNavigatePrimaryMainFramePostCommit(
-    content::WebContents* web_contents) {
-  contents_delegate_->DidNavigatePrimaryMainFramePostCommit(web_contents);
-}
-
 content::JavaScriptDialogManager*
 AlloyBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
   if (!javascript_dialog_manager_) {
@@ -1353,9 +1348,9 @@ bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
   return false;
 }
 
-bool AlloyBrowserHostImpl::IsPrerender2Supported(
+content::PreloadingEligibility AlloyBrowserHostImpl::IsPrerender2Supported(
     content::WebContents& web_contents) {
-  return true;
+  return content::PreloadingEligibility::kEligible;
 }
 
 // content::WebContentsObserver methods.

@@ -41,10 +41,10 @@ index afefe3cd83dee..6668463247644 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 3a78d977e8a50..9313eacec6776 100644
+index a689c6e60b5d5..5a1204c01f04a 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3193,6 +3193,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3144,6 +3144,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
@@ -57,7 +57,7 @@ index 3a78d977e8a50..9313eacec6776 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index fdf7f8ff369bb..7bbeec760c801 100644
+index 3910d3a1642ab..8738df72afced 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
 @@ -791,6 +791,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl

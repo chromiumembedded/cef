@@ -12,7 +12,7 @@ index d62e9fa67d534..e7bdaeb7b5e19 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index aa0bbc8ae1a0f..d862340edfb0b 100644
+index 3b41c7d676b35..e76c13cd8d122 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -101,15 +101,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -112,10 +112,10 @@ index 51ed6bcf6b540..9ae4737e0737e 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 54cd17c85983d..c8c276169eaec 100644
+index fca1500246f01..e0c719b90f5da 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -60,10 +60,12 @@ DialogDelegate::DialogDelegate() {
+@@ -54,10 +54,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -130,7 +130,7 @@ index 54cd17c85983d..c8c276169eaec 100644
    widget->Init(std::move(params));
    return widget;
  }
-@@ -72,22 +74,24 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -66,17 +68,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -152,15 +152,9 @@ index 54cd17c85983d..c8c276169eaec 100644
 -  return parent != nullptr;
 +  return parent != nullptr || parent_widget != gfx::kNullAcceleratedWidget;
  #else
- #if BUILDFLAG(IS_WIN)
-   // The new style doesn't support unparented dialogs on Windows Classic themes.
-   if (!ui::win::IsAeroGlassEnabled())
--    return parent != nullptr;
-+    return parent != nullptr || parent_widget != gfx::kNullAcceleratedWidget;
- #endif
    return true;
  #endif
-@@ -98,14 +102,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -87,14 +91,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -178,7 +172,7 @@ index 54cd17c85983d..c8c276169eaec 100644
  
    if (!dialog || dialog->use_custom_frame()) {
      params.opacity = Widget::InitParams::WindowOpacity::kTranslucent;
-@@ -118,6 +123,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -107,6 +112,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
@@ -187,7 +181,7 @@ index 54cd17c85983d..c8c276169eaec 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index b0923fe17e355..2b0545061e0e9 100644
+index 0b660d38eeb03..4f402ee8ddbd4 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -94,13 +94,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

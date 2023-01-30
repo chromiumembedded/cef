@@ -10,7 +10,7 @@
 #include "libcef/common/net/scheme_info.h"
 #include "libcef/common/net/scheme_registration.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 

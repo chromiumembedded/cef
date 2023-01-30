@@ -1,20 +1,16 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 09189817cb9d4..9c07452ef0411 100644
+index 100baefb933be..4e1501387aa6c 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -383,8 +383,10 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
-   // CommandUpdaterDelegate and CommandUpdater declare this function so we
+@@ -390,6 +390,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
--  if (!SupportsCommand(id) || !IsCommandEnabled(id))
-+  if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
+   if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
 +    LOG(WARNING) << "Invalid/disabled command " << id;
      return false;
-+  }
+   }
  
-   // No commands are enabled if there is not yet any selected tab.
-   // TODO(pkasting): It seems like we should not need this, because either
-@@ -399,6 +401,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -406,6 +407,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -28,7 +24,7 @@ index 09189817cb9d4..9c07452ef0411 100644
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1024,11 +1033,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1040,11 +1048,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -45,10 +41,10 @@ index 09189817cb9d4..9c07452ef0411 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 59f895b5c3e65..db22d75cf8b63 100644
+index 1b8cd7a3ff295..b837a9379bd04 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
-@@ -66,15 +66,23 @@ bool IsUsingLinuxSystemTheme(Profile* profile) {
+@@ -67,15 +67,23 @@ bool IsUsingLinuxSystemTheme(Profile* profile) {
  ////////////////////////////////////////////////////////////////////////////////
  // BrowserFrame, public:
  
@@ -74,7 +70,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
  }
  
  BrowserFrame::~BrowserFrame() {}
-@@ -146,6 +154,12 @@ gfx::Rect BrowserFrame::GetBoundsForTabStripRegion(
+@@ -147,6 +155,12 @@ gfx::Rect BrowserFrame::GetBoundsForTabStripRegion(
  }
  
  int BrowserFrame::GetTopInset() const {
@@ -87,7 +83,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
    return browser_frame_view_->GetTopInset(false);
  }
  
-@@ -162,6 +176,8 @@ BrowserNonClientFrameView* BrowserFrame::GetFrameView() const {
+@@ -163,6 +177,8 @@ BrowserNonClientFrameView* BrowserFrame::GetFrameView() const {
  }
  
  bool BrowserFrame::UseCustomFrame() const {
@@ -96,7 +92,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
    return native_browser_frame_->UseCustomFrame();
  }
  
-@@ -175,20 +191,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
+@@ -176,20 +192,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
  
  void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
                                        ui::WindowShowState* show_state) const {
@@ -127,7 +123,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
    browser_frame_view_->OnBrowserViewInitViewsComplete();
  }
  
-@@ -250,7 +276,7 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
+@@ -251,7 +277,7 @@ const ui::ThemeProvider* BrowserFrame::GetThemeProvider() const {
  ui::ColorProviderManager::ThemeInitializerSupplier*
  BrowserFrame::GetCustomTheme() const {
    // Do not return any custom theme if the browser has to use the dark theme.
@@ -136,7 +132,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
      return nullptr;
  
    Browser* browser = browser_view_->browser();
-@@ -267,6 +293,8 @@ BrowserFrame::GetCustomTheme() const {
+@@ -268,6 +294,8 @@ BrowserFrame::GetCustomTheme() const {
  }
  
  void BrowserFrame::OnNativeWidgetWorkspaceChanged() {
@@ -145,7 +141,7 @@ index 59f895b5c3e65..db22d75cf8b63 100644
    chrome::SaveWindowWorkspace(browser_view_->browser(), GetWorkspace());
    chrome::SaveWindowVisibleOnAllWorkspaces(browser_view_->browser(),
                                             IsVisibleOnAllWorkspaces());
-@@ -354,6 +382,8 @@ void BrowserFrame::SetTabDragKind(TabDragKind tab_drag_kind) {
+@@ -355,6 +383,8 @@ void BrowserFrame::SetTabDragKind(TabDragKind tab_drag_kind) {
  
  ui::ColorProviderManager::Key BrowserFrame::GetColorProviderKey() const {
    auto key = Widget::GetColorProviderKey();
@@ -154,14 +150,13 @@ index 59f895b5c3e65..db22d75cf8b63 100644
    key.frame_type = UseCustomFrame()
                         ? ui::ColorProviderManager::FrameType::kChromium
                         : ui::ColorProviderManager::FrameType::kNative;
-@@ -440,6 +470,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
+@@ -441,5 +471,7 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserFrame::ShouldUseDarkTheme() const {
 +  if (!browser_view_)
 +    return false;
-   return browser_view_->browser()->profile()->IsIncognitoProfile() ||
-          browser_view_->GetIsPictureInPictureType();
+   return browser_view_->browser()->profile()->IsIncognitoProfile();
  }
 diff --git chrome/browser/ui/views/frame/browser_frame.h chrome/browser/ui/views/frame/browser_frame.h
 index 28085aa32d7d8..312911b8a4564 100644
@@ -178,10 +173,10 @@ index 28085aa32d7d8..312911b8a4564 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 457e24dccb793..4ccb4705c2d7f 100644
+index bc22da820add3..04798b83011e2 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -311,11 +311,10 @@ using content::NativeWebKeyboardEvent;
+@@ -307,11 +307,10 @@ using content::NativeWebKeyboardEvent;
  using content::WebContents;
  using web_modal::WebContentsModalDialogHost;
  
@@ -196,7 +191,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // UMA histograms that record animation smoothness for tab loading animation.
-@@ -836,11 +835,22 @@ class BrowserView::SidePanelVisibilityController : public views::ViewObserver {
+@@ -826,11 +825,22 @@ class BrowserView::SidePanelVisibilityController : public views::ViewObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -220,7 +215,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    SetShowIcon(
        ::ShouldShowWindowIcon(browser_.get(), AppUsesWindowControlsOverlay()));
  
-@@ -884,7 +894,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -874,7 +884,6 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    }
  
    browser_->tab_strip_model()->AddObserver(this);
@@ -228,7 +223,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  
    // Top container holds tab strip region and toolbar and lives at the front of
    // the view hierarchy.
-@@ -930,8 +939,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -920,8 +929,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        devtools_web_view_, contents_web_view_));
  
@@ -246,7 +241,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1923,6 +1939,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1839,6 +1855,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -255,7 +250,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2795,7 +2813,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
+@@ -2734,7 +2752,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -265,7 +260,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton())
      return download_button->bubble_controller();
    return nullptr;
-@@ -3287,7 +3306,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3226,7 +3245,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -275,7 +270,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3864,8 +3884,10 @@ void BrowserView::Layout() {
+@@ -3765,8 +3785,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -288,7 +283,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3931,6 +3953,11 @@ void BrowserView::AddedToWidget() {
+@@ -3832,6 +3854,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -300,7 +295,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    toolbar_->Init();
  
    // TODO(pbos): Manage this either inside SidePanel or the corresponding button
-@@ -3990,13 +4017,9 @@ void BrowserView::AddedToWidget() {
+@@ -3887,13 +3914,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -316,7 +311,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4405,7 +4428,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4302,7 +4325,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -326,7 +321,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4747,6 +4771,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4650,6 +4674,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -335,7 +330,7 @@ index 457e24dccb793..4ccb4705c2d7f 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4769,6 +4795,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4672,6 +4698,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -345,10 +340,10 @@ index 457e24dccb793..4ccb4705c2d7f 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 97f6f59322215..a71571e0d6ce9 100644
+index 673e626f60cd4..1444e9db81cfc 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
-@@ -131,11 +131,16 @@ class BrowserView : public BrowserWindow,
+@@ -124,11 +124,16 @@ class BrowserView : public BrowserWindow,
                      public webapps::AppBannerManager::Observer {
   public:
    METADATA_HEADER(BrowserView);
@@ -362,10 +357,10 @@ index 97f6f59322215..a71571e0d6ce9 100644
 +  // Key used to bind BrowserView to the Widget with which it is associated.
 +  static const char kBrowserViewKey[];
 +
-   void set_frame(BrowserFrame* frame) { frame_ = frame; }
-   BrowserFrame* frame() const { return frame_; }
- 
-@@ -803,6 +808,12 @@ class BrowserView : public BrowserWindow,
+   void set_frame(BrowserFrame* frame) {
+     frame_ = frame;
+     paint_as_active_subscription_ =
+@@ -777,6 +782,12 @@ class BrowserView : public BrowserWindow,
    void SetLoadingAnimationStateChangeClosureForTesting(
        base::OnceClosure closure);
  
@@ -379,7 +374,7 @@ index 97f6f59322215..a71571e0d6ce9 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index e1b23142611cb..1c9fb04a163db 100644
+index 991e095456a35..2373048a30123 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -46,6 +46,10 @@
@@ -393,7 +388,7 @@ index e1b23142611cb..1c9fb04a163db 100644
  using views::View;
  using web_modal::ModalDialogHostObserver;
  using web_modal::WebContentsModalDialogHost;
-@@ -472,6 +476,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
+@@ -466,6 +470,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
  
  int BrowserViewLayout::LayoutToolbar(int top) {
    TRACE_EVENT0("ui", "BrowserViewLayout::LayoutToolbar");
@@ -424,7 +419,7 @@ index 5e059b9878fc2..c1f6fbcd40ec4 100644
  
  ContentsWebView::~ContentsWebView() {
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 9b29b45b011e7..9fa367bac197c 100644
+index 4f04525fafb8e..eea2013607200 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 @@ -564,33 +564,47 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
@@ -476,10 +471,10 @@ index 9b29b45b011e7..9fa367bac197c 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index dbe0846164b88..14c9d0f010c0b 100644
+index 46ce747cfdec8..99a718aaffe01 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -171,12 +171,13 @@ auto& GetViewCommandMap() {
+@@ -164,12 +164,13 @@ auto& GetViewCommandMap() {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -494,8 +489,8 @@ index dbe0846164b88..14c9d0f010c0b 100644
 +      display_mode_(display_mode ? *display_mode : GetDisplayMode(browser)) {
    SetID(VIEW_ID_TOOLBAR);
  
-   UpgradeDetector::GetInstance()->AddObserver(this);
-@@ -211,7 +212,7 @@ void ToolbarView::Init() {
+   if (display_mode_ == DisplayMode::NORMAL) {
+@@ -200,7 +201,7 @@ void ToolbarView::Init() {
  #endif
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -505,10 +500,10 @@ index dbe0846164b88..14c9d0f010c0b 100644
    size_animation_.Reset(1);
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index 9031df4c31d52..97a60956defb2 100644
+index 8c2ea74023637..a24cab7c58f93 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
-@@ -94,7 +94,8 @@ class ToolbarView : public views::AccessiblePaneView,
+@@ -92,7 +92,8 @@ class ToolbarView : public views::AccessiblePaneView,
                  // needs to be displayed.
    };
  

@@ -8,14 +8,14 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net_service/net_service_util.h"
 
-#include "base/bind.h"
-#include "base/callback.h"
+#include "base/functional/bind.h"
+#include "base/functional/callback.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
+#include "base/task/single_thread_task_runner.h"
 #include "base/task/thread_pool.h"
 #include "base/threading/thread.h"
-#include "base/threading/thread_task_runner_handle.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/io_buffer.h"
 #include "net/http/http_status_code.h"
@@ -45,7 +45,7 @@ class OpenInputStreamWrapper
       OnInputStreamOpenedCallback callback) {
     scoped_refptr<OpenInputStreamWrapper> wrapper = new OpenInputStreamWrapper(
         std::move(delegate), work_thread_task_runner,
-        base::ThreadTaskRunnerHandle::Get(), std::move(callback));
+        base::SingleThreadTaskRunner::GetCurrentDefault(), std::move(callback));
     wrapper->Start(request_id, request);
 
     return wrapper->GetCancelCallback();
@@ -242,7 +242,8 @@ InputStreamReader::InputStreamReader(
     scoped_refptr<base::SequencedTaskRunner> work_thread_task_runner)
     : stream_(std::move(stream)),
       work_thread_task_runner_(work_thread_task_runner),
-      job_thread_task_runner_(base::ThreadTaskRunnerHandle::Get()) {
+      job_thread_task_runner_(
+          base::SingleThreadTaskRunner::GetCurrentDefault()) {
   CEF_REQUIRE_IOT();
   DCHECK(stream_);
   DCHECK(work_thread_task_runner_);
@@ -485,7 +486,7 @@ StreamReaderURLLoader::StreamReaderURLLoader(
       response_delegate_(std::move(response_delegate)),
       writable_handle_watcher_(FROM_HERE,
                                mojo::SimpleWatcher::ArmingPolicy::MANUAL,
-                               base::SequencedTaskRunnerHandle::Get()),
+                               base::SequencedTaskRunner::GetCurrentDefault()),
       weak_factory_(this) {
   DCHECK(response_delegate_);
   // If there is a client error, clean up the request.
@@ -696,8 +697,8 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
   const auto has_redirect_url = redirect_url && !redirect_url->is_empty();
   if (has_redirect_url || pending_headers->IsRedirect(&location)) {
     pending_response->encoded_data_length = header_length_;
-    pending_response->content_length = pending_response->encoded_body_length =
-        0;
+    pending_response->content_length = 0;
+    pending_response->encoded_body_length = 0;
     const GURL new_location =
         has_redirect_url ? *redirect_url : request_.url.Resolve(location);
     client_->OnReceiveRedirect(
@@ -794,7 +795,7 @@ void StreamReaderURLLoader::OnReaderReadCompleted(int bytes_read) {
   client_->OnTransferSizeUpdated(bytes_read);
   total_bytes_read_ += bytes_read;
 
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::BindOnce(&StreamReaderURLLoader::ReadMore,
                                 weak_factory_.GetWeakPtr()));
 }

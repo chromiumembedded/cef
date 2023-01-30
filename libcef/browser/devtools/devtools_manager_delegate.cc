@@ -9,9 +9,9 @@
 #include <vector>
 
 #include "base/atomicops.h"
-#include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/functional/bind.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
@@ -128,7 +128,7 @@ CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() {}
 CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {}
 
 scoped_refptr<content::DevToolsAgentHost>
-CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
+CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url, bool for_tab) {
   // This is reached when the user selects "Open link in new tab" from the
   // DevTools interface.
   // TODO(cef): Consider exposing new API to support this.

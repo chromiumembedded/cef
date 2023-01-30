@@ -180,7 +180,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
-  render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
+  render_task_runner_ = base::SingleThreadTaskRunner::GetCurrentDefault();
   observer_ = std::make_unique<AlloyRenderThreadObserver>();
   web_cache_impl_ = std::make_unique<web_cache::WebCacheImpl>();
   visited_link_slave_ = std::make_unique<visitedlink::VisitedLinkReader>();
@@ -238,7 +238,7 @@ void AlloyContentRendererClient::RenderThreadStarted() {
 
 void AlloyContentRendererClient::ExposeInterfacesToBrowser(
     mojo::BinderMap* binders) {
-  auto task_runner = base::SequencedTaskRunnerHandle::Get();
+  auto task_runner = base::SequencedTaskRunner::GetCurrentDefault();
 
   binders->Add<web_cache::mojom::WebCache>(
       base::BindRepeating(&web_cache::WebCacheImpl::BindReceiver,

@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_AUDIO_LOOPBACK_STREAM_CREATOR_H_
 #define CEF_LIBCEF_BROWSER_AUDIO_LOOPBACK_STREAM_CREATOR_H_
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "content/browser/media/forwarding_audio_stream_factory.h"
 #include "content/common/content_export.h"
 #include "media/mojo/mojom/audio_data_pipe.mojom.h"

@@ -50,14 +50,14 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void DidFinishLoading(
       base::TimeTicks finish_time,
       int64_t total_encoded_data_length,
-      int64_t total_encoded_body_length,
+      uint64_t total_encoded_body_length,
       int64_t total_decoded_body_length,
       bool should_report_corb_blocking,
       absl::optional<bool> pervasive_payload_requested) override;
   void DidFail(const WebURLError&,
                base::TimeTicks finish_time,
                int64_t total_encoded_data_length,
-               int64_t total_encoded_body_length,
+               uint64_t total_encoded_body_length,
                int64_t total_decoded_body_length) override;
   void DidStartLoadingResponseBody(
       mojo::ScopedDataPipeConsumerHandle response_body) override;
@@ -381,7 +381,7 @@ void CefWebURLLoaderClient::DidReceiveData(const char* data, int dataLength) {
 void CefWebURLLoaderClient::DidFinishLoading(
     base::TimeTicks finish_time,
     int64_t total_encoded_data_length,
-    int64_t total_encoded_body_length,
+    uint64_t total_encoded_body_length,
     int64_t total_decoded_body_length,
     bool should_report_corb_blocking,
     absl::optional<bool> pervasive_payload_requested) {
@@ -391,7 +391,7 @@ void CefWebURLLoaderClient::DidFinishLoading(
 void CefWebURLLoaderClient::DidFail(const WebURLError& error,
                                     base::TimeTicks finish_time,
                                     int64_t total_encoded_data_length,
-                                    int64_t total_encoded_body_length,
+                                    uint64_t total_encoded_body_length,
                                     int64_t total_decoded_body_length) {
   context_->OnError(error);
 }

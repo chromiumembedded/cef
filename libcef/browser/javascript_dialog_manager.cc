@@ -10,8 +10,8 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/bind.h"
-#include "base/callback_helpers.h"
+#include "base/functional/bind.h"
+#include "base/functional/callback_helpers.h"
 #include "base/logging.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"
 

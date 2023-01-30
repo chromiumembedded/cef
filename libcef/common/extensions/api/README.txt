@@ -22,7 +22,7 @@ To add a new extension API implemented only in CEF ***:
    files if necessary [2].
 7. Call `<class>::GetInstance();` or `<class>Factory::GetFactoryInstance();` [3]
    from EnsureBrowserContextKeyedServiceFactoriesBuilt in
-   libcef/browser/extensions/browser_context_keyed_service_factories.cc.
+   libcef/browser/browser_context_keyed_service_factories.cc.
 8. Call `DependsOn(<class>Factory::GetInstance());` from
    CefExtensionSystemFactory::CefExtensionSystemFactory in
    libcef/browser/extensions/extension_system_factory.cc if necessary [3].

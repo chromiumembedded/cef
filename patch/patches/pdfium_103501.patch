@@ -1,0 +1,12 @@
+diff --git BUILD.gn BUILD.gn
+index a8532128d..f5a098afa 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -338,6 +338,7 @@ group("pdfium_public_headers") {
+ }
+ 
+ component("pdfium") {
++  output_name = "pdfium"
+   libs = []
+   configs += [ ":pdfium_strict_config" ]
+   public_configs = [ ":pdfium_public_config" ]

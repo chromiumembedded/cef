@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 18c138c21a853..554e22458da45 100644
+index 4dbf8a2811c9e..917b6a2e7b56f 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1755,6 +1755,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
+@@ -1800,6 +1800,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessDataForMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -18,12 +18,12 @@ index 18c138c21a853..554e22458da45 100644
 +            }
            }
  
-           // TODO(wjmaclean): We should update the ProcessLock comparison API
+           // Make an exception to allow most visited tiles to commit in
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 8dcc8499e45be..2116054a66828 100644
+index 76c8470dfd3e5..9ab6ce0759c9a 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -6780,10 +6780,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -6936,10 +6936,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -47,7 +47,7 @@ index 8dcc8499e45be..2116054a66828 100644
    }
  
    return origin_and_debug_info;
-@@ -6813,6 +6825,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+@@ -6969,6 +6981,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
        GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
            SandboxFlagsToCommit());
  

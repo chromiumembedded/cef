@@ -9,7 +9,7 @@
 
 #include "libcef/browser/javascript_dialog_runner.h"
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "base/mac/scoped_nsobject.h"
 #include "base/memory/weak_ptr.h"
 

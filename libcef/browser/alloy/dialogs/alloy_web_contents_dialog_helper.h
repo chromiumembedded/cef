@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_DIALOGS_ALLOY_WEB_CONTENTS_DIALOG_HELPER_H_
 #pragma once
 
-#include "base/callback_forward.h"
+#include "base/functional/callback_forward.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "components/web_modal/modal_dialog_host.h"

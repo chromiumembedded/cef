@@ -4,7 +4,7 @@
 
 #include "libcef/browser/ssl_host_state_delegate.h"
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "net/base/hash_value.h"
 
 using content::SSLHostStateDelegate;

@@ -1,16 +1,16 @@
 diff --git chrome/utility/chrome_content_utility_client.cc chrome/utility/chrome_content_utility_client.cc
-index f779813dd5333..547ba5ebfc161 100644
+index 6413d01cb4b41..b38eb084d8508 100644
 --- chrome/utility/chrome_content_utility_client.cc
 +++ chrome/utility/chrome_content_utility_client.cc
-@@ -12,6 +12,7 @@
- #include "base/files/file_path.h"
+@@ -13,6 +13,7 @@
  #include "base/path_service.h"
+ #include "base/task/single_thread_task_runner.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/common/chrome_paths.h"
  #include "chrome/common/profiler/thread_profiler.h"
  #include "chrome/common/profiler/thread_profiler_configuration.h"
-@@ -56,7 +57,8 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
+@@ -57,7 +58,8 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
        command_line->GetSwitchValueASCII(switches::kProcessType);
    // An in-process utility thread may run in other processes, only set up
    // collector in a utility process.

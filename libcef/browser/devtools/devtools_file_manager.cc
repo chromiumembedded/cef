@@ -6,17 +6,17 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
-#include "base/bind.h"
-#include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/functional/bind.h"
+#include "base/functional/callback.h"
 #include "base/json/json_writer.h"
 #include "base/json/values_util.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool.h"
-#include "base/threading/sequenced_task_runner_handle.h"
 #include "base/values.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"
@@ -142,9 +142,8 @@ void CefDevToolsFileManager::SaveAsFileSelected(const std::string& url,
   *g_last_save_path.Pointer() = path;
   saved_files_[url] = path;
 
-  DictionaryPrefUpdate update(prefs_, prefs::kDevToolsEditedFiles);
-  base::Value* files_map = update.Get();
-  files_map->SetKey(base::MD5String(url), base::FilePathToValue(path));
+  ScopedDictPrefUpdate update(prefs_, prefs::kDevToolsEditedFiles);
+  update->Set(base::MD5String(url), base::FilePathToValue(path));
   std::string file_system_path = path.AsUTF8Unsafe();
   std::move(callback).Run(file_system_path);
   file_task_runner_->PostTask(FROM_HERE,

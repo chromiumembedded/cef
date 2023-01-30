@@ -9,7 +9,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/memory/scoped_refptr.h"
-#include "base/threading/sequenced_task_runner_handle.h"
+#include "base/task/sequenced_task_runner.h"
 #include "content/public/browser/global_request_id.h"
 #include "content/public/browser/web_contents.h"
 
@@ -21,7 +21,7 @@ class AuthCallbackImpl : public CefAuthCallback {
  public:
   explicit AuthCallbackImpl(base::WeakPtr<LoginDelegate> delegate)
       : delegate_(delegate),
-        task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+        task_runner_(base::SequencedTaskRunner::GetCurrentDefault()) {}
 
   AuthCallbackImpl(const AuthCallbackImpl&) = delete;
   AuthCallbackImpl& operator=(const AuthCallbackImpl&) = delete;

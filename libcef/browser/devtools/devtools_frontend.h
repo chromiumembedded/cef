@@ -83,7 +83,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void PrimaryMainDocumentElementAvailable() override;
   void WebContentsDestroyed() override;
 
-  void SendMessageAck(int request_id, base::Value arg);
+  void SendMessageAck(int request_id, base::Value::Dict arg);
 
   bool ProtocolLoggingEnabled() const;
   void LogProtocolMessage(ProtocolMessageType type,

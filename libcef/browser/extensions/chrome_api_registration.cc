@@ -12,6 +12,7 @@
 #include "libcef/browser/extensions/api/tabs/tabs_api.h"
 
 #include "chrome/browser/extensions/api/content_settings/content_settings_api.h"
+#include "chrome/browser/extensions/api/pdf_viewer_private/pdf_viewer_private_api.h"
 #include "chrome/browser/extensions/api/resources_private/resources_private_api.h"
 #include "extensions/browser/api/alarms/alarms_api.h"
 #include "extensions/browser/api/storage/storage_api.h"
@@ -28,8 +29,6 @@ namespace cefimpl = extensions::cef;
 // Maintain the same order as https://developer.chrome.com/extensions/api_index
 // so chrome://extensions-support looks nice.
 const char* const kSupportedAPIs[] = {
-    "resourcesPrivate",
-    EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
     "alarms",
     EXTENSION_FUNCTION_NAME(AlarmsCreateFunction),
     EXTENSION_FUNCTION_NAME(AlarmsGetFunction),
@@ -42,6 +41,10 @@ const char* const kSupportedAPIs[] = {
     EXTENSION_FUNCTION_NAME(ContentSettingsContentSettingSetFunction),
     EXTENSION_FUNCTION_NAME(
         ContentSettingsContentSettingGetResourceIdentifiersFunction),
+    "pdfViewerPrivate",
+    EXTENSION_FUNCTION_NAME(PdfViewerPrivateIsAllowedLocalFileAccessFunction),
+    "resourcesPrivate",
+    EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
     "storage",
     EXTENSION_FUNCTION_NAME(StorageStorageAreaGetFunction),
     EXTENSION_FUNCTION_NAME(StorageStorageAreaSetFunction),
@@ -76,7 +79,6 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
 // Only add APIs to this list that have been tested in CEF.
 // static
 void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
-  registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<AlarmsCreateFunction>();
   registry->RegisterFunction<AlarmsGetFunction>();
   registry->RegisterFunction<AlarmsGetAllFunction>();
@@ -87,6 +89,9 @@ void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<ContentSettingsContentSettingSetFunction>();
   registry->RegisterFunction<
       ContentSettingsContentSettingGetResourceIdentifiersFunction>();
+  registry
+      ->RegisterFunction<PdfViewerPrivateIsAllowedLocalFileAccessFunction>();
+  registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<StorageStorageAreaGetFunction>();
   registry->RegisterFunction<StorageStorageAreaSetFunction>();
   registry->RegisterFunction<StorageStorageAreaRemoveFunction>();

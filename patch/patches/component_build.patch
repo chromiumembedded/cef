@@ -33,7 +33,7 @@ index d69f9d4641613..e88aaf8617c52 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index c48c5c949621f..7b9194ba91514 100644
+index 95ce91508908e..94042da4b46bf 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -9,6 +9,7 @@
@@ -68,7 +68,7 @@ index 97c7dc7c25000..63c42610bfd9c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index bb3dc58a360cf..823b0c6582eb1 100644
+index 2cf3784f871e2..df32d4ea7e027 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -32,6 +32,7 @@ component("controller") {

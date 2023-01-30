@@ -222,7 +222,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
   void OnComplete(bool success) override {
     auto response = BuildObjectForResponse(response_headers_.get(), success,
                                            loader_->NetError());
-    bindings_->SendMessageAck(request_id_, base::Value(std::move(response)));
+    bindings_->SendMessageAck(request_id_, std::move(response));
 
     bindings_->loaders_.erase(bindings_->loaders_.find(this));
   }
@@ -424,7 +424,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       base::Value::Dict response;
       response.Set("statusCode", 404);
       response.Set("urlValid", false);
-      SendMessageAck(request_id, base::Value(std::move(response)));
+      SendMessageAck(request_id, std::move(response));
       return;
     }
 
@@ -475,7 +475,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     } else if (content::HasWebUIScheme(gurl)) {
       base::Value::Dict response;
       response.Set("statusCode", 403);
-      SendMessageAck(request_id, base::Value(std::move(response)));
+      SendMessageAck(request_id, std::move(response));
       return;
     } else {
       auto* partition =
@@ -491,9 +491,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     loaders_.insert(std::move(resource_loader));
     return;
   } else if (*method == "getPreferences") {
-    SendMessageAck(
-        request_id,
-        base::Value(GetPrefs()->GetDict(prefs::kDevToolsPreferences).Clone()));
+    SendMessageAck(request_id,
+                   GetPrefs()->GetDict(prefs::kDevToolsPreferences).Clone());
     return;
   } else if (*method == "setPreference") {
     if (params.size() < 2) {
@@ -507,15 +506,15 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
       return;
     }
 
-    DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-    update.Get()->SetKey(*name, std::move(params[1]));
+    ScopedDictPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
+    update->Set(*name, std::move(params[1]));
   } else if (*method == "removePreference") {
     const std::string* name = params[0].GetIfString();
     if (!name) {
       return;
     }
-    DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
-    update.Get()->RemoveKey(*name);
+    ScopedDictPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
+    update->Remove(*name);
   } else if (*method == "requestFileSystems") {
     web_contents()->GetPrimaryMainFrame()->ExecuteJavaScriptForTests(
         u"DevToolsAPI.fileSystemsLoaded([]);", base::NullCallback());
@@ -561,7 +560,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   }
 
   if (request_id) {
-    SendMessageAck(request_id, base::Value());
+    SendMessageAck(request_id, base::Value::Dict());
   }
 }
 
@@ -628,9 +627,10 @@ void CefDevToolsFrontend::CallClientFunction(
       std::move(arguments), std::move(cb));
 }
 
-void CefDevToolsFrontend::SendMessageAck(int request_id, base::Value arg) {
+void CefDevToolsFrontend::SendMessageAck(int request_id,
+                                         base::Value::Dict arg) {
   CallClientFunction("DevToolsAPI", "embedderMessageAck",
-                     base::Value(request_id), std::move(arg));
+                     base::Value(request_id), base::Value(std::move(arg)));
 }
 
 bool CefDevToolsFrontend::ProtocolLoggingEnabled() const {

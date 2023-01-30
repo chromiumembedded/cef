@@ -240,12 +240,6 @@ class CefMediaSink : public virtual CefBaseRefCounted {
   virtual CefString GetName() = 0;
 
   ///
-  /// Returns the description of this sink.
-  ///
-  /*--cef()--*/
-  virtual CefString GetDescription() = 0;
-
-  ///
   /// Returns the icon type for this sink.
   ///
   /*--cef(default_retval=CEF_MSIT_GENERIC)--*/

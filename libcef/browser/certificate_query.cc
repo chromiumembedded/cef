@@ -9,8 +9,8 @@
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/callback.h"
-#include "base/callback_helpers.h"
+#include "base/functional/callback.h"
+#include "base/functional/callback_helpers.h"
 #include "base/logging.h"
 #include "content/public/browser/web_contents.h"
 #include "net/ssl/ssl_info.h"

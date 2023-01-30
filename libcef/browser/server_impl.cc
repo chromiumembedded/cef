@@ -8,8 +8,8 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
 
-#include "base/bind.h"
 #include "base/format_macros.h"
+#include "base/functional/bind.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/task/thread_pool.h"

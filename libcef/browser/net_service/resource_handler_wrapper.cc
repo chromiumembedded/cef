@@ -20,7 +20,8 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
  public:
   explicit SkipCallbackWrapper(InputStream::SkipCallback callback)
       : callback_(std::move(callback)),
-        work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+        work_thread_task_runner_(
+            base::SequencedTaskRunner::GetCurrentDefault()) {}
 
   SkipCallbackWrapper(const SkipCallbackWrapper&) = delete;
   SkipCallbackWrapper& operator=(const SkipCallbackWrapper&) = delete;
@@ -59,7 +60,8 @@ class ReadCallbackWrapper : public CefResourceReadCallback {
  public:
   explicit ReadCallbackWrapper(InputStream::ReadCallback callback)
       : callback_(std::move(callback)),
-        work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+        work_thread_task_runner_(
+            base::SequencedTaskRunner::GetCurrentDefault()) {}
 
   ReadCallbackWrapper(const ReadCallbackWrapper&) = delete;
   ReadCallbackWrapper& operator=(const ReadCallbackWrapper&) = delete;
@@ -314,7 +316,8 @@ class OpenCallbackWrapper : public CefCallback {
                       std::unique_ptr<InputStreamWrapper> stream)
       : callback_(std::move(callback)),
         stream_(std::move(stream)),
-        work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+        work_thread_task_runner_(
+            base::SequencedTaskRunner::GetCurrentDefault()) {}
 
   OpenCallbackWrapper(const OpenCallbackWrapper&) = delete;
   OpenCallbackWrapper& operator=(const OpenCallbackWrapper&) = delete;

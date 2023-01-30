@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_REQUEST_HANDLER_WRAPPER_H_
 
-#include "base/callback_forward.h"
+#include "base/functional/callback_forward.h"
 #include "content/public/browser/web_contents.h"
 
 namespace content {

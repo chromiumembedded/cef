@@ -121,6 +121,7 @@
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
 #include "extensions/browser/info_map.h"
 #include "extensions/browser/process_map.h"
+#include "extensions/browser/renderer_startup_helper.h"
 #include "extensions/browser/url_loader_factory_manager.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/switches.h"
@@ -976,6 +977,9 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
         base::BindRepeating(
             &extensions::ExtensionsGuestView::CreateForExtensions,
             host->GetID()));
+    associated_registry->AddInterface<extensions::mojom::RendererHost>(
+        base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
+                            host->GetID()));
   }
 
   CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
@@ -1356,6 +1360,7 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
              Profile::FromBrowserContext(browser_context))
       ->IsFullCookieAccessAllowed(
           url, site_for_cookies, top_frame_origin,
+          net::CookieSettingOverrides(),
           content_settings::CookieSettings::QueryReason::kSiteStorage);
 }
 

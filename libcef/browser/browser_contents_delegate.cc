@@ -218,12 +218,6 @@ bool CefBrowserContentsDelegate::DidAddMessageToConsole(
   return false;
 }
 
-void CefBrowserContentsDelegate::DidNavigatePrimaryMainFramePostCommit(
-    content::WebContents* web_contents) {
-  has_document_ = false;
-  OnStateChanged(State::kDocument);
-}
-
 void CefBrowserContentsDelegate::EnterFullscreenModeForTab(
     content::RenderFrameHost* requesting_frame,
     const blink::mojom::FullscreenOptions& options) {
@@ -456,6 +450,13 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
   // error code. For example, when creating a browser without loading a URL.
   if (!navigation_handle->HasCommitted() && error_code == net::OK) {
     return;
+  }
+
+  if (navigation_handle->IsInPrimaryMainFrame() &&
+      navigation_handle->HasCommitted()) {
+    // A primary main frame navigation has occured.
+    has_document_ = false;
+    OnStateChanged(State::kDocument);
   }
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();

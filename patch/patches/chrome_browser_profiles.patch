@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 0d09e3048615b..38542a1571346 100644
+index 45357cf77c472..c5a4104a3414f 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -655,7 +655,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -656,7 +656,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,7 +14,7 @@ index 0d09e3048615b..38542a1571346 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index cb16500436e78..5fb96689f961e 100644
+index d035eb9f2bea7..0ff6726604022 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -52,7 +52,7 @@ index cb16500436e78..5fb96689f961e 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index d90969cd9478c..9cf454be330ce 100644
+index 1e6a22d95a53f..6ec4182bfc5e7 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -99,6 +99,10 @@ class Profile : public content::BrowserContext {
@@ -75,20 +75,19 @@ index d90969cd9478c..9cf454be330ce 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -505,8 +511,6 @@ class Profile : public content::BrowserContext {
+@@ -505,7 +511,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
 -  void NotifyOffTheRecordProfileCreated(Profile* off_the_record);
--
-   // Returns whether the user has signed in this profile to an account.
-   virtual bool IsSignedIn() = 0;
+   void NotifyProfileInitializationComplete();
  
+   // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index a2a12efa89104..9865a2349490a 100644
+index 1340e751c0381..a0875155ddad2 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1012,7 +1012,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1013,7 +1013,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -100,10 +99,10 @@ index a2a12efa89104..9865a2349490a 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index fb98d310ee001..4180de71d02de 100644
+index 4f6dd066df3de..4d04f0ad554df 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -380,7 +380,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -381,7 +381,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -135,12 +134,12 @@ index 54502d1b44a82..8134c87824687 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 69f3761f103ef..78e4ae61b39ae 100644
+index 43082afabf4bb..fa87aae9cbc93 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -8,6 +8,7 @@
  
- #include "base/bind.h"
+ #include "base/functional/bind.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/content_settings/content_settings_manager_delegate.h"

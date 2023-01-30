@@ -235,8 +235,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                           const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
-  void DidNavigatePrimaryMainFramePostCommit(
-      content::WebContents* web_contents) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* source) override;
   void RunFileChooser(content::RenderFrameHost* render_frame_host,
@@ -272,7 +270,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       content::WebContents* web_contents) override;
   void ExitPictureInPicture() override;
   bool IsBackForwardCacheSupported() override;
-  bool IsPrerender2Supported(content::WebContents& web_contents) override;
+  content::PreloadingEligibility IsPrerender2Supported(
+      content::WebContents& web_contents) override;
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;

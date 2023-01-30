@@ -47,9 +47,10 @@ namespace {
 // The following plugin-related methods are from
 // chrome/common/chrome_content_client.cc
 
-const char kPDFPluginExtension[] = "pdf";
-const char kPDFPluginDescription[] = "Portable Document Format";
-const uint32_t kPDFPluginPermissions =
+constexpr char kPDFPluginName[] = "Chromium PDF Plugin";
+constexpr char kPDFPluginExtension[] = "pdf";
+constexpr char kPDFPluginDescription[] = "Portable Document Format";
+constexpr uint32_t kPDFPluginPermissions =
     ppapi::PERMISSION_PDF | ppapi::PERMISSION_DEV;
 
 // Appends the known built-in plugins to the given vector. Some built-in
@@ -62,9 +63,9 @@ void ComputeBuiltInPlugins(std::vector<content::ContentPluginInfo>* plugins) {
     content::ContentPluginInfo pdf_info;
     pdf_info.is_internal = true;
     pdf_info.is_out_of_process = true;
-    pdf_info.name = ChromeContentClient::kPDFInternalPluginName;
+    pdf_info.name = kPDFPluginName;
     pdf_info.description = kPDFPluginDescription;
-    pdf_info.path = base::FilePath(ChromeContentClient::kPDFPluginPath);
+    pdf_info.path = base::FilePath(ChromeContentClient::kPDFInternalPluginPath);
     content::WebPluginMimeType pdf_mime_type(pdf::kInternalPluginMimeType,
                                              kPDFPluginExtension,
                                              kPDFPluginDescription);

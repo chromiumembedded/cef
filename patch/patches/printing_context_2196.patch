@@ -1,17 +1,17 @@
-diff --git chrome/browser/printing/print_job_worker.cc chrome/browser/printing/print_job_worker.cc
-index ba331906397e7..71acb854028c5 100644
---- chrome/browser/printing/print_job_worker.cc
-+++ chrome/browser/printing/print_job_worker.cc
-@@ -132,6 +132,7 @@ PrintJobWorker::PrintJobWorker(content::GlobalRenderFrameHostId rfh_id)
-                                   ShouldPrintingContextSkipSystemCalls())),
-       thread_("Printing_Worker") {
+diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
+index d01d616c3b1ea..580fa043bdc79 100644
+--- chrome/browser/printing/printer_query.cc
++++ chrome/browser/printing/printer_query.cc
+@@ -115,6 +115,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
+       rfh_id_(rfh_id),
+       cookie_(PrintSettings::NewCookie()) {
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 +  printing_context_->set_render_ids(rfh_id.child_id, rfh_id.frame_routing_id);
  }
  
- PrintJobWorker::~PrintJobWorker() {
+ PrinterQuery::~PrinterQuery() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 42095172d1406..8bf48be927d2f 100644
+index 7582c73418e74..f5b477c18c65a 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -173,6 +173,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {

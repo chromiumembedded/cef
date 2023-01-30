@@ -18,11 +18,11 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "base/threading/sequenced_task_runner_handle.h"
+#include "base/task/sequenced_task_runner.h"
+#include "content/public/browser/child_process_host.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/common/child_process_host.h"
 #include "content/public/common/url_constants.h"
 
 namespace {
@@ -265,7 +265,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   DCHECK(frame_util::IsValidGlobalId(global_id));
   DCHECK(callback);
 
-  auto callback_runner = base::SequencedTaskRunnerHandle::Get();
+  auto callback_runner = base::SequencedTaskRunner::GetCurrentDefault();
 
   base::AutoLock lock_scope(browser_info_lock_);
 

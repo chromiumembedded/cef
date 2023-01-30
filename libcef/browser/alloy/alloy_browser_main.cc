@@ -22,8 +22,8 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
 
-#include "base/bind.h"
 #include "base/feature_list.h"
+#include "base/functional/bind.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/thread_pool.h"
 #include "chrome/browser/browser_process.h"

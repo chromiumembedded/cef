@@ -7,7 +7,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net_service/net_service_util.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/common/url_constants.h"

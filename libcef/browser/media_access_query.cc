@@ -10,8 +10,8 @@
 #include "libcef/browser/media_stream_registrar.h"
 #include "libcef/common/cef_switches.h"
 
-#include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "base/functional/callback_helpers.h"
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 
 namespace media_access_query {

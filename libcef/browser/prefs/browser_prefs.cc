@@ -43,6 +43,7 @@
 #include "components/component_updater/component_updater_service.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/domain_reliability/domain_reliability_prefs.h"
 #include "components/flags_ui/pref_service_flags_storage.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
@@ -230,6 +231,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
   if (!profile) {
     component_updater::RegisterComponentUpdateServicePrefs(registry.get());
+    domain_reliability::RegisterPrefs(registry.get());
     SystemNetworkContextManager::RegisterPrefs(registry.get());
 #if BUILDFLAG(IS_WIN)
     OSCrypt::RegisterLocalPrefs(registry.get());

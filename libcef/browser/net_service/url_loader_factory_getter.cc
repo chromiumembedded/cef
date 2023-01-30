@@ -8,7 +8,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 
-#include "base/threading/thread_task_runner_handle.h"
+#include "base/task/single_thread_task_runner.h"
 #include "content/browser/devtools/devtools_instrumentation.h"
 #include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
@@ -90,7 +90,7 @@ scoped_refptr<network::SharedURLLoaderFactory>
 URLLoaderFactoryGetter::GetURLLoaderFactory() {
   // On first call we associate with the current thread.
   if (!task_runner_) {
-    task_runner_ = base::ThreadTaskRunnerHandle::Get();
+    task_runner_ = base::SingleThreadTaskRunner::GetCurrentDefault();
   } else {
     DCHECK(task_runner_->RunsTasksInCurrentSequence());
   }

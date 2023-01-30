@@ -11,7 +11,7 @@
 #include "libcef/common/main_runner_delegate.h"
 #include "libcef/common/main_runner_handler.h"
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "content/public/browser/browser_main_runner.h"
 
 namespace base {

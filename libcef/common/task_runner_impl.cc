@@ -6,11 +6,11 @@
 
 #include "libcef/common/task_runner_manager.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
+#include "base/task/single_thread_task_runner.h"
 #include "base/task/thread_pool.h"
-#include "base/threading/thread_task_runner_handle.h"
 #include "base/time/time.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
@@ -110,7 +110,7 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
 
   // Check for a MessageLoopProxy. This covers all of the named browser and
   // render process threads, plus a few extra.
-  if (auto task_runner = base::ThreadTaskRunnerHandle::Get()) {
+  if (auto task_runner = base::SingleThreadTaskRunner::GetCurrentDefault()) {
     return task_runner;
   }
 

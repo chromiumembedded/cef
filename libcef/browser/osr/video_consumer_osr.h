@@ -1,7 +1,7 @@
 #ifndef LIBCEF_BROWSER_OSR_VIDEO_CONSUMER_OSR_H_
 #define LIBCEF_BROWSER_OSR_VIDEO_CONSUMER_OSR_H_
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "components/viz/host/client_frame_sink_video_capturer.h"
 #include "media/capture/mojom/video_capture_types.mojom.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"

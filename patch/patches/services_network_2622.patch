@@ -1,5 +1,27 @@
+diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
+index 53383355d6646..d7a713017e16d 100644
+--- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
++++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
+@@ -23,6 +23,7 @@
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/time/time.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/enterprise/connectors/analysis/analysis_settings.h"
+ #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog.h"
+@@ -232,6 +233,9 @@ bool ContentAnalysisDelegate::IsEnabled(
+     GURL url,
+     Data* data,
+     enterprise_connectors::AnalysisConnector connector) {
++  if (cef::IsAlloyRuntimeEnabled())
++    return false;
++
+   auto* service =
+       enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
+           profile);
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 8221b46c59df3..736e703efa276 100644
+index 99fb0211efd6b..5f4a4c2d7c977 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -10,7 +32,7 @@ index 8221b46c59df3..736e703efa276 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/chrome_content_browser_client.h"
-@@ -263,8 +264,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -283,8 +284,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
@@ -23,7 +45,7 @@ index 8221b46c59df3..736e703efa276 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -304,7 +307,9 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -324,7 +327,9 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -34,7 +56,7 @@ index 8221b46c59df3..736e703efa276 100644
  #endif
  }
  
-@@ -796,7 +801,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -828,7 +833,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -55,7 +77,7 @@ index 8221b46c59df3..736e703efa276 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -809,7 +826,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -841,7 +858,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -65,7 +87,7 @@ index 8221b46c59df3..736e703efa276 100644
      network_context_params->file_paths =
          ::network::mojom::NetworkContextFilePaths::New();
  
-@@ -1009,6 +1028,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1039,6 +1058,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->require_network_isolation_key = true;
  
    network_context_params->block_trust_tokens =
@@ -74,7 +96,7 @@ index 8221b46c59df3..736e703efa276 100644
             ->IsTrustTokensAllowed();
  
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
-index ff1d5b905b050..911e4b13f91e1 100644
+index 0f92e4682eee9..ea6e6ed6f1e05 100644
 --- chrome/browser/signin/identity_manager_factory.cc
 +++ chrome/browser/signin/identity_manager_factory.cc
 @@ -11,6 +11,7 @@
@@ -94,10 +116,10 @@ index ff1d5b905b050..911e4b13f91e1 100644
        GetInstance()->GetServiceForBrowserContext(profile, true));
  }
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 13911f2bd786d..832308e34a303 100644
+index 44f52e0c14355..6b380a5bfe3c8 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -570,6 +570,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -554,6 +554,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -124,7 +146,7 @@ index 13911f2bd786d..832308e34a303 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 77692a8ef78a3..7bf855b47b8fc 100644
+index 8a896a86b58b0..08077ffeebc3e 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -208,6 +208,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -137,7 +159,7 @@ index 77692a8ef78a3..7bf855b47b8fc 100644
        const net::SchemefulSite& site,
        const absl::optional<CookiePartitionKey>& partition_key) const override;
 diff --git net/cookies/cookie_store.h net/cookies/cookie_store.h
-index f6df78d4d3878..5e4984760ba56 100644
+index 61fd008fc067e..73909be088278 100644
 --- net/cookies/cookie_store.h
 +++ net/cookies/cookie_store.h
 @@ -163,6 +163,11 @@ class NET_EXPORT CookieStore {
@@ -153,7 +175,7 @@ index f6df78d4d3878..5e4984760ba56 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 9da2056ddd3cf..c097bb2e8aba3 100644
+index 5b4fe64a4374a..780c9726a03d3 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
 @@ -283,14 +283,9 @@ void CookieManager::FlushCookieStore(FlushCookieStoreCallback callback) {
@@ -175,10 +197,10 @@ index 9da2056ddd3cf..c097bb2e8aba3 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 8ad7cb314d8c0..cb54766a36acb 100644
+index 47bba434b56d8..92060d40e0a84 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2243,16 +2243,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2252,16 +2252,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -207,10 +229,10 @@ index 8ad7cb314d8c0..cb54766a36acb 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 1e7e922c738ce..3b13d9ead08d6 100644
+index b2254b765c313..9d7da9a963f40 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -345,6 +345,9 @@ struct NetworkContextParams {
+@@ -347,6 +347,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -104,10 +104,6 @@ CefString CefMediaSinkImpl::GetName() {
   return sink_.name();
 }
 
-CefString CefMediaSinkImpl::GetDescription() {
-  return sink_.description().value_or("");
-}
-
 CefMediaSink::IconType CefMediaSinkImpl::GetIconType() {
   // Verify that our enum matches Chromium's values.
   static_assert(static_cast<int>(CEF_MSIT_TOTAL_COUNT) ==

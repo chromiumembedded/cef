@@ -7,6 +7,8 @@
 
 #include "include/cef_browser.h"
 
+#include <memory>
+
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-forward.h"
 
@@ -16,9 +18,17 @@
 
 namespace cursor_util {
 
-#if defined(USE_AURA)
-cef_cursor_handle_t ToCursorHandle(scoped_refptr<ui::PlatformCursor> cursor);
-#endif  // defined(USE_AURA)
+// Scoped ownership of a native cursor handle.
+class ScopedCursorHandle {
+ public:
+  virtual ~ScopedCursorHandle() = default;
+
+  static std::unique_ptr<ScopedCursorHandle> Create(
+      CefRefPtr<CefBrowser> browser,
+      const ui::Cursor& ui_cursor);
+
+  virtual cef_cursor_handle_t GetCursorHandle() = 0;
+};
 
 // Returns true if the client handled the cursor change.
 bool OnCursorChange(CefRefPtr<CefBrowser> browser, const ui::Cursor& ui_cursor);

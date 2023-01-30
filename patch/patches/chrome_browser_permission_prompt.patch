@@ -44,18 +44,18 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index d28d9f115dc18..6bc4b61617bf5 100644
+index faa6ee8eb3dbc..4cf7c6959c7e6 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
-@@ -13,6 +13,7 @@
- #include "base/strings/string_util.h"
+@@ -14,6 +14,7 @@
+ #include "base/time/time.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -219,6 +220,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
+@@ -174,6 +175,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
  double ChromePermissionsClient::GetSiteEngagementScore(
      content::BrowserContext* browser_context,
      const GURL& origin) {
@@ -65,7 +65,7 @@ index d28d9f115dc18..6bc4b61617bf5 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -303,8 +307,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -320,8 +324,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
@@ -77,7 +77,7 @@ index d28d9f115dc18..6bc4b61617bf5 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index 3649a61d07b7d..22fe4f512e93b 100644
+index 5e3e2bd6f1e69..4594213db914f 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -88,7 +88,7 @@ index 3649a61d07b7d..22fe4f512e93b 100644
  #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
  #include "chrome/browser/background_sync/periodic_background_sync_permission_context.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -59,8 +60,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+@@ -60,8 +61,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
        std::make_unique<GeolocationPermissionContextDelegate>(profile);
  #endif  // BUILDFLAG(IS_ANDROID)
  #if BUILDFLAG(IS_MAC)
@@ -100,7 +100,7 @@ index 3649a61d07b7d..22fe4f512e93b 100644
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
-index 2a52f59d04ba6..c759dac784553 100644
+index 9836207f50e5b..09d8f5549820c 100644
 --- chrome/browser/storage/durable_storage_permission_context.cc
 +++ chrome/browser/storage/durable_storage_permission_context.cc
 @@ -8,6 +8,7 @@
@@ -111,7 +111,7 @@ index 2a52f59d04ba6..c759dac784553 100644
  #include "chrome/browser/bookmarks/bookmark_model_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -52,7 +53,9 @@ void DurableStoragePermissionContext::DecidePermission(
+@@ -55,7 +56,9 @@ void DurableStoragePermissionContext::DecidePermission(
  
    // Durable is only allowed to be granted to the top-level origin. Embedding
    // origin is the last committed navigation origin to the web contents.

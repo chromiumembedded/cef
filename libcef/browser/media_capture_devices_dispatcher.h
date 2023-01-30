@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 #define CEF_LIBCEF_BROWSER_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 
-#include "base/callback.h"
+#include "base/functional/callback.h"
 #include "base/memory/singleton.h"
 #include "base/observer_list.h"
 #include "content/public/browser/media_observer.h"

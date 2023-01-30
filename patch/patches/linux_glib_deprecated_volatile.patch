@@ -1,10 +1,10 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 9f1549e173f41..b8af55c0fb763 100644
+index 3bec9f0f7d46f..59c527bdd29cd 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -278,6 +278,10 @@ component("platform") {
-       if (use_glib) {
-         configs += [ "//build/config/linux:glib" ]
+@@ -285,6 +285,10 @@ component("platform") {
+       if (use_gio) {
+         configs += [ "//build/linux:gio_config" ]
        }
 +
 +      if (is_clang) {

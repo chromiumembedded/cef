@@ -34,7 +34,7 @@
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "base/lazy_instance.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/threading/thread_local.h"

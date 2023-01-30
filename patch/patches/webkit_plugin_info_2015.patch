@@ -1,10 +1,10 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index a2a4996e3cbe3..debfe4b698283 100644
+index b2de9ae25b7ac..06b34b5a120cf 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -798,6 +798,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-     return attribution_reporting::mojom::OsSupport::kDisabled;
-   }
+@@ -799,6 +799,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+       uint64_t private_memory_footprint_bytes) {}
+ #endif
  
 +  // DevTools ------------------------------------------------------------
 +
@@ -15,18 +15,18 @@ index a2a4996e3cbe3..debfe4b698283 100644
    static void InitializeMainThreadCommon(
        Platform* platform,
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 0718aa7fbe1b1..7e393fa3ebbb6 100644
+index 01c2f360adbb0..92ea44b41820e 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
-@@ -8,6 +8,7 @@
- #include <utility>
- #include <vector>
+@@ -10,6 +10,7 @@
  
+ #include "base/task/sequenced_task_runner.h"
+ #include "base/task/single_thread_task_runner.h"
 +#include "third_party/blink/public/platform/platform.h"
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -151,6 +152,7 @@ DevToolsSession::DevToolsSession(
+@@ -165,6 +166,7 @@ DevToolsSession::DevToolsSession(
      for (wtf_size_t i = 0; i < agents_.size(); i++)
        agents_[i]->Restore();
    }
@@ -34,11 +34,11 @@ index 0718aa7fbe1b1..7e393fa3ebbb6 100644
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -196,6 +198,7 @@ void DevToolsSession::Detach() {
+@@ -210,6 +212,7 @@ void DevToolsSession::Detach() {
    agents_.clear();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();
 +  Platform::Current()->DevToolsAgentDetached();
  }
  
- void DevToolsSession::DispatchProtocolCommand(
+ void DevToolsSession::DetachFromV8() {

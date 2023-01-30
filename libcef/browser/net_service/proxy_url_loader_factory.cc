@@ -760,8 +760,8 @@ void InterceptedRequest::InterceptResponseReceived(
     current_response_->headers = headers;
 
     current_response_->encoded_data_length = headers->raw_headers().length();
-    current_response_->content_length = current_response_->encoded_body_length =
-        0;
+    current_response_->content_length = 0;
+    current_response_->encoded_body_length = 0;
 
     std::string origin;
     if (request_.headers.GetHeader(net::HttpRequestHeaders::kOrigin, &origin) &&
@@ -917,8 +917,8 @@ net::RedirectInfo InterceptedRequest::MakeRedirectResponseAndInfo(
       net::HttpRequestHeaders::kContentType);
 
   // Clear the Content-Length values.
-  current_response_->content_length = current_response_->encoded_body_length =
-      0;
+  current_response_->content_length = 0;
+  current_response_->encoded_body_length = 0;
   current_response_->headers->RemoveHeader(
       net::HttpRequestHeaders::kContentLength);
 

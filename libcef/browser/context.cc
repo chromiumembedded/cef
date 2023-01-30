@@ -10,8 +10,8 @@
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
 
-#include "base/bind.h"
 #include "base/files/file_util.h"
+#include "base/functional/bind.h"
 #include "base/run_loop.h"
 #include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"

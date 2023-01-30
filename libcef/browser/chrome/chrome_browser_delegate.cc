@@ -222,13 +222,6 @@ bool ChromeBrowserDelegate::DidAddMessageToConsole(
   return false;
 }
 
-void ChromeBrowserDelegate::DidNavigatePrimaryMainFramePostCommit(
-    content::WebContents* web_contents) {
-  if (auto delegate = GetDelegateForWebContents(web_contents)) {
-    delegate->DidNavigatePrimaryMainFramePostCommit(web_contents);
-  }
-}
-
 void ChromeBrowserDelegate::EnterFullscreenModeForTab(
     content::RenderFrameHost* requesting_frame,
     const blink::mojom::FullscreenOptions& options) {

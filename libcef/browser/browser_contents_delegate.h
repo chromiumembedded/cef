@@ -95,8 +95,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
                               const std::u16string& message,
                               int32_t line_no,
                               const std::u16string& source_id) override;
-  void DidNavigatePrimaryMainFramePostCommit(
-      content::WebContents* web_contents) override;
   void EnterFullscreenModeForTab(
       content::RenderFrameHost* requesting_frame,
       const blink::mojom::FullscreenOptions& options) override;

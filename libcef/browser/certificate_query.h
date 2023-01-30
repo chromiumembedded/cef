@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CERTIFICATE_QUERY_H_
 #pragma once
 
-#include "base/callback_forward.h"
+#include "base/functional/callback_forward.h"
 #include "content/public/browser/certificate_request_result_type.h"
 
 namespace content {

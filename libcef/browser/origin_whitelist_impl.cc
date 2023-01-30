@@ -12,7 +12,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "base/lazy_instance.h"
 #include "base/synchronization/lock.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"

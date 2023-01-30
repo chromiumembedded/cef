@@ -9,8 +9,8 @@
 #include <string>
 
 #include "base/logging.h"
+#include "content/public/browser/child_process_host.h"
 #include "content/public/browser/global_routing_id.h"
-#include "content/public/common/child_process_host.h"
 
 namespace content {
 class NavigationHandle;

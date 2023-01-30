@@ -15,8 +15,8 @@
 #include "libcef/browser/osr/video_consumer_osr.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "base/functional/callback_helpers.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cc/base/switches.h"
@@ -240,8 +240,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   // Matching the attributes from RecyclableCompositorMac.
   compositor_.reset(new ui::Compositor(
       context_factory->AllocateFrameSinkId(), context_factory,
-      base::ThreadTaskRunnerHandle::Get(), false /* enable_pixel_canvas */,
-      use_external_begin_frame));
+      base::SingleThreadTaskRunner::GetCurrentDefault(),
+      false /* enable_pixel_canvas */, use_external_begin_frame));
   compositor_->SetAcceleratedWidget(gfx::kNullAcceleratedWidget);
 
   compositor_->SetDelegate(this);
@@ -635,8 +635,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   Show();
 }
 
-void CefRenderWidgetHostViewOSR::UpdateCursor(
-    const content::WebCursor& cursor) {}
+void CefRenderWidgetHostViewOSR::UpdateCursor(const ui::Cursor& cursor) {}
 
 content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
   return cursor_manager_.get();

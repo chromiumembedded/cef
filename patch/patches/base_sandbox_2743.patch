@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 904eaff4687de..3e5912b7910df 100644
+index 1f0e5cc5f0fae..6f2003a67c9ce 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -38,6 +38,7 @@ import("//build/config/ui.gni")
+@@ -39,6 +39,7 @@ import("//build/config/ui.gni")
  import("//build/nocompile.gni")
  import("//build/timestamp.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 904eaff4687de..3e5912b7910df 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1966,7 +1967,11 @@ component("base") {
+@@ -1960,7 +1961,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 904eaff4687de..3e5912b7910df 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -2107,6 +2112,12 @@ component("base") {
+@@ -2104,6 +2109,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,10 +37,10 @@ index 904eaff4687de..3e5912b7910df 100644
        "cfgmgr32.lib",
        "powrprof.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 8c5b7e7d71a56..195d8ae273e31 100644
+index fd6e8a1696c94..df996398c1e78 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
-@@ -14,6 +14,7 @@
+@@ -13,6 +13,7 @@
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
  #include "base/sampling_heap_profiler/poisson_allocation_sampler.h"
@@ -48,7 +48,7 @@ index 8c5b7e7d71a56..195d8ae273e31 100644
  
  #if DCHECK_IS_ON()
  #include <atomic>
-@@ -276,7 +277,7 @@ struct Dispatcher::Impl {
+@@ -259,7 +260,7 @@ struct Dispatcher::Impl {
    }
  
    void Reset() {
@@ -87,18 +87,6 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #include "base/hash/sha1_nacl.h"
  #else
  #include "base/hash/sha1_boringssl.h"
-diff --git base/memory/raw_ptr.h base/memory/raw_ptr.h
-index 4191f0e47f51e..0167438657063 100644
---- base/memory/raw_ptr.h
-+++ base/memory/raw_ptr.h
-@@ -21,6 +21,7 @@
- #include "base/allocator/partition_allocator/partition_alloc_config.h"
- #include "build/build_config.h"
- #include "build/buildflag.h"
-+#include "cef/libcef/features/features.h"
- 
- #if defined(PA_ENABLE_MTE_CHECKED_PTR_SUPPORT_WITH_64_BITS_POINTERS)
- #include "base/allocator/partition_allocator/partition_tag.h"
 diff --git base/rand_util.h base/rand_util.h
 index 04024537ee698..59864cb084559 100644
 --- base/rand_util.h
@@ -173,7 +161,7 @@ index 2d9a1633b564f..d304c204c43ff 100644
    char* output_ptr = static_cast<char*>(output);
    while (output_length > 0) {
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index ebb51d95575d3..fd9dc67dcf470 100644
+index aa7423f88d278..1b2c7d3e3c4a0 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -10,8 +10,9 @@
@@ -187,7 +175,7 @@ index ebb51d95575d3..fd9dc67dcf470 100644
  #include "third_party/boringssl/src/include/openssl/mem.h"
  #endif
  
-@@ -44,7 +45,7 @@ UnguessableToken UnguessableToken::Deserialize(uint64_t high, uint64_t low) {
+@@ -46,7 +47,7 @@ absl::optional<UnguessableToken> UnguessableToken::Deserialize(uint64_t high,
  }
  
  bool UnguessableToken::operator==(const UnguessableToken& other) const {

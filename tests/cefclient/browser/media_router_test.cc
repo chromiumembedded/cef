@@ -324,7 +324,6 @@ class MediaObserver : public CefMediaObserver {
       CefRefPtr<CefDictionaryValue> sink_dict = CefDictionaryValue::Create();
       sink_dict->SetString("id", it->first);
       sink_dict->SetString("name", info->sink->GetName());
-      sink_dict->SetString("desc", info->sink->GetDescription());
       sink_dict->SetInt("icon", info->sink->GetIconType());
       sink_dict->SetString("ip_address",
                            CefString(&info->device_info.ip_address));

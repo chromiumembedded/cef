@@ -125,7 +125,7 @@ index 4d29671429220..e0f287f785668 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 07be432f365b9..d3800886a5b5c 100644
+index 9ba85048d1fcf..f3a5b8bc9bda0 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -59,6 +59,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -192,7 +192,7 @@ index 10d751cceab73..128af05925e07 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 028d6b1fec3a0..0829a24eb2879 100644
+index bb7a1c1860f7f..25f9d0c47e5ab 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -31,6 +31,7 @@
@@ -227,7 +227,7 @@ index 028d6b1fec3a0..0829a24eb2879 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index aeee5f5a516c4..ca2079ba1b447 100644
+index 0a9fa13f82250..2d0ed7c2396c4 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -380,9 +380,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

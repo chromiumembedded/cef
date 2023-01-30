@@ -61,6 +61,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                              content::RenderViewHost* new_host) override;
   void SetOverscrollControllerEnabled(bool enabled) override;
   void OnCapturerCountChanged() override;
+  void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override;
 
 #if BUILDFLAG(IS_MAC)
   bool CloseTabAfterEventTrackingIfNeeded() override;

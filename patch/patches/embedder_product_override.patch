@@ -1,8 +1,8 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 40148eeaef7d1..9e2fae7232653 100644
+index e7fe1c565aac5..45980ceed2c50 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -15,6 +15,7 @@
+@@ -17,6 +17,7 @@
  #include "base/version.h"
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
@@ -10,7 +10,7 @@ index 40148eeaef7d1..9e2fae7232653 100644
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -35,6 +36,10 @@
+@@ -37,6 +38,10 @@
  #include "base/win/windows_version.h"
  #endif  // BUILDFLAG(IS_WIN)
  
@@ -21,7 +21,7 @@ index 40148eeaef7d1..9e2fae7232653 100644
  namespace embedder_support {
  
  namespace {
-@@ -382,6 +387,14 @@ std::string GetMajorVersionForUserAgentString(
+@@ -339,6 +344,14 @@ std::string GetMajorVersionForUserAgentString(
  std::string GetProductAndVersion(
      ForceMajorVersionToMinorPosition force_major_to_minor,
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {

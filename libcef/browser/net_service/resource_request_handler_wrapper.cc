@@ -48,7 +48,8 @@ class RequestCallbackWrapper : public CefCallback {
   using Callback = base::OnceCallback<void(bool /* allow */)>;
   explicit RequestCallbackWrapper(Callback callback)
       : callback_(std::move(callback)),
-        work_thread_task_runner_(base::SequencedTaskRunnerHandle::Get()) {}
+        work_thread_task_runner_(
+            base::SequencedTaskRunner::GetCurrentDefault()) {}
 
   RequestCallbackWrapper(const RequestCallbackWrapper&) = delete;
   RequestCallbackWrapper& operator=(const RequestCallbackWrapper&) = delete;

@@ -11,7 +11,7 @@
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 #include "libcef/browser/osr/touch_handle_drawable_osr.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/context_menu_params.h"

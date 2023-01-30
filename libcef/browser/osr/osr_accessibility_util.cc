@@ -85,6 +85,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kScrollYMin:
       case ax::mojom::IntAttribute::kScrollYMax:
       case ax::mojom::IntAttribute::kHasPopup:
+      case ax::mojom::IntAttribute::kIsPopup:
       case ax::mojom::IntAttribute::kHierarchicalLevel:
       case ax::mojom::IntAttribute::kTextSelStart:
       case ax::mojom::IntAttribute::kTextSelEnd:

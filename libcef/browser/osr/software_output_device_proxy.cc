@@ -32,7 +32,7 @@ SoftwareOutputDeviceProxy::SoftwareOutputDeviceProxy(
 
 void SoftwareOutputDeviceProxy::OnSwapBuffers(
     SwapBuffersCallback swap_ack_callback,
-    gl::FrameData data) {
+    gfx::FrameData data) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
   DCHECK(swap_ack_callback_.is_null());
 

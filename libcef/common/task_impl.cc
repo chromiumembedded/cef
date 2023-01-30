@@ -5,7 +5,7 @@
 #include "include/cef_task.h"
 #include "libcef/common/task_runner_impl.h"
 
-#include "base/bind.h"
+#include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/time/time.h"
