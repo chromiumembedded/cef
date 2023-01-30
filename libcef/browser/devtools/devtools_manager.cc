@@ -176,8 +176,8 @@ int CefDevToolsManager::ExecuteDevToolsMethod(
     CefDictionaryValueImpl* impl =
         static_cast<CefDictionaryValueImpl*>(params.get());
     CefValueController::AutoLock lock_scope(impl->controller());
-    return devtools_controller_->ExecuteDevToolsMethod(message_id, method,
-                                                       impl->GetValueUnsafe());
+    return devtools_controller_->ExecuteDevToolsMethod(
+        message_id, method, impl->GetValueUnsafe()->GetIfDict());
   } else {
     return devtools_controller_->ExecuteDevToolsMethod(message_id, method,
                                                        nullptr);

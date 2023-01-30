@@ -8,9 +8,7 @@
 
 #include "include/views/cef_view.h"
 
-namespace base {
-class DictionaryValue;
-}
+#include "base/values.h"
 
 namespace views {
 class View;
@@ -48,8 +46,7 @@ class CefViewAdapter {
   virtual std::string GetDebugType() = 0;
 
   // Override this method to provide debug info specific to the View type.
-  virtual void GetDebugInfo(base::DictionaryValue* info,
-                            bool include_children) = 0;
+  virtual void GetDebugInfo(base::Value::Dict* info, bool include_children) = 0;
 
  protected:
   virtual ~CefViewAdapter() {}

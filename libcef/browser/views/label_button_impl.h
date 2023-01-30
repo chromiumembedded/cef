@@ -48,10 +48,9 @@ CEF_LABEL_BUTTON_IMPL_T class CefLabelButtonImpl : public CEF_BUTTON_IMPL_D {
   CefRefPtr<CefLabelButton> AsLabelButton() override { return this; }
 
   // CefViewAdapter methods:
-  void GetDebugInfo(base::DictionaryValue* info,
-                    bool include_children) override {
+  void GetDebugInfo(base::Value::Dict* info, bool include_children) override {
     ParentClass::GetDebugInfo(info, include_children);
-    info->SetString("text", ParentClass::root_view()->GetText());
+    info->Set("text", ParentClass::root_view()->GetText());
   }
 
  protected:

@@ -77,10 +77,10 @@ static std::string GetFrontendURL() {
                             scheme::kChromeDevToolsHost);
 }
 
-base::DictionaryValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
-                                             bool success,
-                                             int net_error) {
-  base::DictionaryValue response;
+base::Value::Dict BuildObjectForResponse(const net::HttpResponseHeaders* rh,
+                                         bool success,
+                                         int net_error) {
+  base::Value::Dict response;
   int responseCode = 200;
   if (rh) {
     responseCode = rh->response_code();
@@ -88,18 +88,18 @@ base::DictionaryValue BuildObjectForResponse(const net::HttpResponseHeaders* rh,
     // In case of no headers, assume file:// URL and failed to load
     responseCode = 404;
   }
-  response.SetInteger("statusCode", responseCode);
-  response.SetInteger("netError", net_error);
-  response.SetString("netErrorName", net::ErrorToString(net_error));
+  response.Set("statusCode", responseCode);
+  response.Set("netError", net_error);
+  response.Set("netErrorName", net::ErrorToString(net_error));
 
-  auto headers = std::make_unique<base::DictionaryValue>();
+  base::Value::Dict headers;
   size_t iterator = 0;
   std::string name;
   std::string value;
   // TODO(caseq): this probably needs to handle duplicate header names
   // correctly by folding them.
   while (rh && rh->EnumerateHeaderLines(&iterator, &name, &value)) {
-    headers->SetString(name, value);
+    headers.Set(name, value);
   }
 
   response.Set("headers", std::move(headers));
@@ -222,7 +222,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
   void OnComplete(bool success) override {
     auto response = BuildObjectForResponse(response_headers_.get(), success,
                                            loader_->NetError());
-    bindings_->SendMessageAck(request_id_, std::move(response));
+    bindings_->SendMessageAck(request_id_, base::Value(std::move(response)));
 
     bindings_->loaders_.erase(bindings_->loaders_.find(this));
   }
@@ -473,9 +473,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
           std::make_unique<network::WrapperPendingSharedURLLoaderFactory>(
               std::move(pending_remote)));
     } else if (content::HasWebUIScheme(gurl)) {
-      base::DictionaryValue response;
-      response.SetInteger("statusCode", 403);
-      SendMessageAck(request_id, std::move(response));
+      base::Value::Dict response;
+      response.Set("statusCode", 403);
+      SendMessageAck(request_id, base::Value(std::move(response)));
       return;
     } else {
       auto* partition =

@@ -15,11 +15,9 @@ CefExtensionImpl::CefExtensionImpl(const extensions::Extension* extension,
                                    CefRefPtr<CefExtensionHandler> handler)
     : id_(extension->id()),
       path_(extension->path().value()),
-      manifest_(new CefDictionaryValueImpl(
-          static_cast<base::DictionaryValue*>(
-              new base::Value(extension->manifest()->value()->Clone())),
-          true,
-          true)),
+      manifest_(
+          new CefDictionaryValueImpl(extension->manifest()->value()->Clone(),
+                                     /*read_only=*/true)),
       loader_context_(loader_context),
       handler_(handler) {}
 

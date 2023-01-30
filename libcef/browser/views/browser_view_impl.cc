@@ -191,11 +191,11 @@ void CefBrowserViewImpl::Detach() {
   }
 }
 
-void CefBrowserViewImpl::GetDebugInfo(base::DictionaryValue* info,
+void CefBrowserViewImpl::GetDebugInfo(base::Value::Dict* info,
                                       bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
   if (browser_) {
-    info->SetString("url", browser_->GetMainFrame()->GetURL().ToString());
+    info->Set("url", browser_->GetMainFrame()->GetURL().ToString());
   }
 }
 

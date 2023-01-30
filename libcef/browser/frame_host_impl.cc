@@ -275,11 +275,10 @@ void CefFrameHostImpl::SendProcessMessage(
     // Invalidate the message object immediately by taking the argument list.
     auto argument_list =
         static_cast<CefProcessMessageImpl*>(message.get())->TakeArgumentList();
-
     SendToRenderFrame(
         __FUNCTION__,
         base::BindOnce(
-            [](const CefString& name, base::ListValue argument_list,
+            [](const CefString& name, base::Value::List argument_list,
                const RenderFrameType& render_frame) {
               render_frame->SendMessage(name, std::move(argument_list));
             },
@@ -631,13 +630,12 @@ void CefFrameHostImpl::OnRenderFrameDisconnect() {
 }
 
 void CefFrameHostImpl::SendMessage(const std::string& name,
-                                   base::Value arguments) {
+                                   base::Value::List arguments) {
   if (auto browser = GetBrowserHostBase()) {
     if (auto client = browser->GetClient()) {
-      auto& list_value = base::Value::AsListValue(arguments);
-      CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
-          name, std::move(const_cast<base::ListValue&>(list_value)),
-          /*read_only=*/true));
+      CefRefPtr<CefProcessMessageImpl> message(
+          new CefProcessMessageImpl(name, std::move(arguments),
+                                    /*read_only=*/true));
       browser->GetClient()->OnProcessMessageReceived(
           browser.get(), this, PID_RENDERER, message.get());
     }

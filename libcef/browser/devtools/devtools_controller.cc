@@ -43,7 +43,7 @@ bool CefDevToolsController::SendDevToolsMessage(
 int CefDevToolsController::ExecuteDevToolsMethod(
     int suggested_message_id,
     const std::string& method,
-    const base::DictionaryValue* params) {
+    const base::Value::Dict* params) {
   CEF_REQUIRE_UIT();
   if (!EnsureAgentHost()) {
     return 0;
@@ -57,11 +57,11 @@ int CefDevToolsController::ExecuteDevToolsMethod(
     next_message_id_ = message_id + 1;
   }
 
-  base::DictionaryValue message;
-  message.SetIntKey("id", message_id);
-  message.SetStringKey("method", method);
+  base::Value::Dict message;
+  message.Set("id", message_id);
+  message.Set("method", method);
   if (params) {
-    message.SetKey("params", params->Clone());
+    message.Set("params", params->Clone());
   }
 
   std::string protocol_message;

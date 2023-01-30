@@ -51,7 +51,7 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   bool SendDevToolsMessage(const base::StringPiece& message);
   int ExecuteDevToolsMethod(int message_id,
                             const std::string& method,
-                            const base::DictionaryValue* params);
+                            const base::Value::Dict* params);
 
   // |observer| must outlive this object or be removed.
   void AddObserver(Observer* observer);

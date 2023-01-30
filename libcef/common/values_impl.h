@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_COMMON_VALUES_IMPL_H_
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "include/cef_values.h"
@@ -28,7 +29,7 @@ class CefValueImpl : public CefValue {
 
   // Take ownership of |value|. Do not pass in a value owned by something else
   // (use GetOrCreateRefOrCopy instead).
-  explicit CefValueImpl(base::Value* value);
+  explicit CefValueImpl(base::Value value);
 
   // Keep a reference to |value|.
   explicit CefValueImpl(CefRefPtr<CefBinaryValue> value);
@@ -42,19 +43,23 @@ class CefValueImpl : public CefValue {
 
   // Take ownership of |value|. Do not pass in a value owned by something else
   // (use GetOrCreateRefOrCopy or Set*() instead).
-  void SetValue(base::Value* value);
+  void SetValue(base::Value value);
+
+  // Return a copy of the value.
+  [[nodiscard]] base::Value CopyValue();
 
   // Copy a simple value or transfer ownership of a complex value. If ownership
   // of the value is tranferred then this object's internal reference to the
   // value will be updated and remain valid. base::Value now uses move semantics
   // so we need to perform the copy and swap in two steps.
-  base::Value* CopyOrDetachValue(CefValueController* new_controller);
+  [[nodiscard]] std::unique_ptr<base::Value> CopyOrDetachValue(
+      CefValueController* new_controller);
   void SwapValue(base::Value* new_value,
                  void* new_parent_value,
                  CefValueController* new_controller);
 
   // Returns a reference to the underlying data. Access must be protected by
-  // calling AcquireLock/ReleaseLock.
+  // calling AcquireLock/ReleaseLock (e.g. use ScopedLockedValue).
   base::Value* GetValueUnsafe() const;
 
   // CefValue methods.
@@ -101,7 +106,7 @@ class CefValueImpl : public CefValue {
   };
 
  private:
-  void SetValueInternal(base::Value* value);
+  void SetValueInternal(absl::optional<base::Value> value);
 
   // Returns the controller for the current value, if any.
   CefValueController* GetValueController() const;
@@ -133,6 +138,10 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
       void* parent_value,
       CefValueController* controller);
 
+  // Take ownership of |value|. Do not pass in a value owned by something else
+  // (use GetOrCreateRef or constructor variant with |will_delete| argument).
+  explicit CefBinaryValueImpl(base::Value value);
+
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
   // existing value you must explicitly call Detach(nullptr) when |value| is no
@@ -148,11 +157,11 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
   CefBinaryValueImpl& operator=(const CefBinaryValueImpl&) = delete;
 
   // Return a copy of the value.
-  [[nodiscard]] base::Value* CopyValue();
+  [[nodiscard]] base::Value CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  [[nodiscard]] base::Value* CopyOrDetachValue(
+  [[nodiscard]] std::unique_ptr<base::Value> CopyOrDetachValue(
       CefValueController* new_controller);
 
   bool IsSameValue(const base::Value* that);
@@ -160,7 +169,7 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
 
   // Returns the underlying value. Access must be protected by calling
   // lock/unlock on the controller.
-  base::Value* GetValueUnsafe();
+  base::Value* GetValueUnsafe() const;
 
   // CefBinaryValue methods.
   bool IsValid() override;
@@ -182,14 +191,19 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
 
 // CefDictionaryValue implementation
 class CefDictionaryValueImpl
-    : public CefValueBase<CefDictionaryValue, base::DictionaryValue> {
+    : public CefValueBase<CefDictionaryValue, base::Value> {
  public:
   // Get or create a reference value.
   static CefRefPtr<CefDictionaryValue> GetOrCreateRef(
-      base::DictionaryValue* value,
+      base::Value* value,
       void* parent_value,
       bool read_only,
       CefValueController* controller);
+
+  // Take ownership of |value|. Do not pass in a value owned by something else
+  // (use GetOrCreateRef or constructor variant with |will_delete| argument).
+  CefDictionaryValueImpl(base::Value value, bool read_only);
+  CefDictionaryValueImpl(base::Value::Dict value, bool read_only);
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
@@ -197,27 +211,25 @@ class CefDictionaryValueImpl
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
   // Detach(nullptr).
-  CefDictionaryValueImpl(base::DictionaryValue* value,
-                         bool will_delete,
-                         bool read_only);
+  CefDictionaryValueImpl(base::Value* value, bool will_delete, bool read_only);
 
   CefDictionaryValueImpl(const CefDictionaryValueImpl&) = delete;
   CefDictionaryValueImpl& operator=(const CefDictionaryValueImpl&) = delete;
 
   // Return a copy of the value.
-  [[nodiscard]] base::DictionaryValue* CopyValue();
+  [[nodiscard]] base::Value CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  [[nodiscard]] base::DictionaryValue* CopyOrDetachValue(
+  [[nodiscard]] std::unique_ptr<base::Value> CopyOrDetachValue(
       CefValueController* new_controller);
 
-  bool IsSameValue(const base::DictionaryValue* that);
-  bool IsEqualValue(const base::DictionaryValue* that);
+  bool IsSameValue(const base::Value* that);
+  bool IsEqualValue(const base::Value* that);
 
   // Returns the underlying value. Access must be protected by calling
   // lock/unlock on the controller.
-  base::DictionaryValue* GetValueUnsafe();
+  base::Value* GetValueUnsafe() const;
 
   // CefDictionaryValue methods.
   bool IsValid() override;
@@ -254,24 +266,30 @@ class CefDictionaryValueImpl
 
  private:
   // See the CefValueBase constructor for usage.
-  CefDictionaryValueImpl(base::DictionaryValue* value,
+  CefDictionaryValueImpl(base::Value* value,
                          void* parent_value,
                          ValueMode value_mode,
                          bool read_only,
                          CefValueController* controller);
 
   bool RemoveInternal(const CefString& key);
-  base::Value* SetInternal(const CefString& key, base::Value* value);
+  base::Value* SetInternal(const CefString& key,
+                           std::unique_ptr<base::Value> value);
 };
 
 // CefListValue implementation
-class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
+class CefListValueImpl : public CefValueBase<CefListValue, base::Value> {
  public:
   // Get or create a reference value.
-  static CefRefPtr<CefListValue> GetOrCreateRef(base::ListValue* value,
+  static CefRefPtr<CefListValue> GetOrCreateRef(base::Value* value,
                                                 void* parent_value,
                                                 bool read_only,
                                                 CefValueController* controller);
+
+  // Take ownership of |value|. Do not pass in a value owned by something else
+  // (use GetOrCreateRef or constructor variant with |will_delete| argument).
+  CefListValueImpl(base::Value value, bool read_only);
+  CefListValueImpl(base::Value::List value, bool read_only);
 
   // Reference an existing value (set |will_delete| to false) or take ownership
   // of an existing value (set |will_delete| to true). When referencing an
@@ -279,25 +297,25 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
   // Detach(nullptr).
-  CefListValueImpl(base::ListValue* value, bool will_delete, bool read_only);
+  CefListValueImpl(base::Value* value, bool will_delete, bool read_only);
 
   CefListValueImpl(const CefListValueImpl&) = delete;
   CefListValueImpl& operator=(const CefListValueImpl&) = delete;
 
   // Return a copy of the value.
-  [[nodiscard]] base::ListValue* CopyValue();
+  [[nodiscard]] base::Value CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  [[nodiscard]] base::ListValue* CopyOrDetachValue(
+  [[nodiscard]] std::unique_ptr<base::Value> CopyOrDetachValue(
       CefValueController* new_controller);
 
-  bool IsSameValue(const base::ListValue* that);
-  bool IsEqualValue(const base::ListValue* that);
+  bool IsSameValue(const base::Value* that);
+  bool IsEqualValue(const base::Value* that);
 
   // Returns the underlying value. Access must be protected by calling
   // lock/unlock on the controller.
-  base::ListValue* GetValueUnsafe();
+  base::Value* GetValueUnsafe() const;
 
   // CefListValue methods.
   bool IsValid() override;
@@ -332,14 +350,14 @@ class CefListValueImpl : public CefValueBase<CefListValue, base::ListValue> {
 
  private:
   // See the CefValueBase constructor for usage.
-  CefListValueImpl(base::ListValue* value,
+  CefListValueImpl(base::Value* value,
                    void* parent_value,
                    ValueMode value_mode,
                    bool read_only,
                    CefValueController* controller);
 
   bool RemoveInternal(size_t index);
-  base::Value* SetInternal(size_t index, base::Value* value);
+  base::Value* SetInternal(size_t index, std::unique_ptr<base::Value> value);
 };
 
 #endif  // CEF_LIBCEF_COMMON_VALUES_IMPL_H_

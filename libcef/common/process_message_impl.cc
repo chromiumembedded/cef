@@ -9,7 +9,6 @@
 #include "libcef/common/values_impl.h"
 
 #include "base/logging.h"
-#include "base/memory/ptr_util.h"
 
 // static
 CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
@@ -24,25 +23,22 @@ CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
 }
 
 CefProcessMessageImpl::CefProcessMessageImpl(const CefString& name,
-                                             base::ListValue arguments,
+                                             base::Value::List arguments,
                                              bool read_only)
     : name_(name) {
   DCHECK(!name_.empty());
 
-  auto new_obj = std::make_unique<base::ListValue>();
-  *new_obj = std::move(arguments);
-  arguments_ =
-      new CefListValueImpl(new_obj.release(), /*will_delete=*/true, read_only);
+  arguments_ = new CefListValueImpl(std::move(arguments), read_only);
 }
 
 CefProcessMessageImpl::~CefProcessMessageImpl() = default;
 
-base::ListValue CefProcessMessageImpl::TakeArgumentList() {
+base::Value::List CefProcessMessageImpl::TakeArgumentList() {
   DCHECK(IsValid());
   CefListValueImpl* value_impl =
       static_cast<CefListValueImpl*>(arguments_.get());
-  auto value = base::WrapUnique(value_impl->CopyOrDetachValue(nullptr));
-  return std::move(*value);
+  auto value = value_impl->CopyOrDetachValue(nullptr);
+  return std::move(value->GetList());
 }
 
 bool CefProcessMessageImpl::IsValid() {

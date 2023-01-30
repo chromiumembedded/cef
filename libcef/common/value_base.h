@@ -297,10 +297,10 @@ class CefValueBase : public CefType, public CefValueController::Object {
   inline bool read_only() const { return read_only_; }
 
   // True if the underlying value has been detached.
-  inline bool detached() { return !controller_.get(); }
+  inline bool detached() const { return !controller_.get(); }
 
   // Returns the controller.
-  inline CefValueController* controller() { return controller_.get(); }
+  inline CefValueController* controller() const { return controller_.get(); }
 
   // Deletes the underlying value.
   void Delete() {
@@ -346,7 +346,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
   }
 
   // Verify that the value is attached.
-  inline bool VerifyAttached() {
+  inline bool VerifyAttached() const {
     if (detached()) {
       // This object should not be accessed after being detached.
       NOTREACHED() << "object accessed after being detached.";
@@ -371,21 +371,27 @@ class CefValueBase : public CefType, public CefValueController::Object {
   virtual void DeleteValue(ValueType* value) { delete value; }
 
   // Returns a mutable reference to the value.
-  inline ValueType* mutable_value() {
+  inline ValueType* mutable_value() const {
     DCHECK(value_);
     DCHECK(!read_only_);
     DCHECK(controller()->locked());
     return value_;
   }
+
   // Returns a const reference to the value.
-  inline const ValueType& const_value() {
+  inline const ValueType& const_value() const {
     DCHECK(value_);
     DCHECK(controller()->locked());
     return *value_;
   }
 
+  // Returns an mutable reference to the value without checking read-only state.
+  inline ValueType* mutable_value_unchecked() const {
+    return const_cast<ValueType*>(&const_value());
+  }
+
   // Verify that the value can be accessed.
-  inline bool VerifyAccess(bool modify) {
+  inline bool VerifyAccess(bool modify) const {
     // The controller must already be locked.
     DCHECK(controller()->locked());
 

@@ -56,7 +56,7 @@ interface RenderFrame {
   FrameDetached();
 
   // Send a message to the render process.
-  SendMessage(string name, mojo_base.mojom.Value arguments);
+  SendMessage(string name, mojo_base.mojom.ListValue arguments);
 
   // Send a shared memory region to the render process.
   SendSharedMemoryRegion(string name, mojo_base.mojom.ReadOnlySharedMemoryRegion region);
@@ -88,7 +88,7 @@ interface RenderFrame {
 // Interface for communicating with a frame in the browser process.
 interface BrowserFrame {
   // Send a message to the browser process.
-  SendMessage(string name, mojo_base.mojom.Value arguments);
+  SendMessage(string name, mojo_base.mojom.ListValue arguments);
 
   // Send a shared memory region to the browser process.
   SendSharedMemoryRegion(string name, mojo_base.mojom.ReadOnlySharedMemoryRegion region);
@@ -117,7 +117,7 @@ struct NewBrowserInfo {
   bool is_popup;
   bool is_windowless;
   bool is_guest_view;
-  mojo_base.mojom.Value? extra_info;
+  mojo_base.mojom.DictionaryValue? extra_info;
 };
 
 // Interface for communicating with browser management in the browser process.

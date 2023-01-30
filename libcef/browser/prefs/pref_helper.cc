@@ -51,21 +51,18 @@ CefRefPtr<CefValue> GetPreference(PrefService* pref_service,
   if (!pref) {
     return nullptr;
   }
-  return new CefValueImpl(new base::Value(pref->GetValue()->Clone()));
+  return new CefValueImpl(pref->GetValue()->Clone());
 }
 
 CefRefPtr<CefDictionaryValue> GetAllPreferences(PrefService* pref_service,
                                                 bool include_defaults) {
+  // Returns a DeepCopy of the value.
   base::Value values = pref_service->GetPreferenceValues(
       include_defaults ? PrefService::INCLUDE_DEFAULTS
                        : PrefService::EXCLUDE_DEFAULTS);
 
-  // CefDictionaryValueImpl takes ownership of |values|.
-  return new CefDictionaryValueImpl(
-      base::DictionaryValue::From(
-          base::Value::ToUniquePtrValue(std::move(values)))
-          .release(),
-      true, false);
+  // CefDictionaryValueImpl takes ownership of |values| contents.
+  return new CefDictionaryValueImpl(std::move(values), /*read_only=*/false);
 }
 
 bool CanSetPreference(PrefService* pref_service, const CefString& name) {

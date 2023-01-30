@@ -8,9 +8,7 @@
 
 #include "include/cef_process_message.h"
 
-namespace base {
-class ListValue;
-}
+#include "base/values.h"
 
 // CefProcessMessage implementation.
 class CefProcessMessageImpl : public CefProcessMessage {
@@ -22,7 +20,7 @@ class CefProcessMessageImpl : public CefProcessMessage {
   // Constructor for creating a new CefListValue that takes ownership of
   // |arguments|.
   CefProcessMessageImpl(const CefString& name,
-                        base::ListValue arguments,
+                        base::Value::List arguments,
                         bool read_only);
 
   CefProcessMessageImpl(const CefProcessMessageImpl&) = delete;
@@ -34,7 +32,7 @@ class CefProcessMessageImpl : public CefProcessMessage {
   // a copy if the argument list is already owned by something else.
   // TODO: Pass by reference instead of ownership if/when Mojo adds support
   // for that.
-  [[nodiscard]] base::ListValue TakeArgumentList();
+  [[nodiscard]] base::Value::List TakeArgumentList();
 
   // CefProcessMessage methods.
   bool IsValid() override;

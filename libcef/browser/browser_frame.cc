@@ -34,7 +34,7 @@ void CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(
 }
 
 void CefBrowserFrame::SendMessage(const std::string& name,
-                                  base::Value arguments) {
+                                  base::Value::List arguments) {
   // Always send to the newly created RFH, which may be speculative when
   // navigating cross-origin.
   if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {

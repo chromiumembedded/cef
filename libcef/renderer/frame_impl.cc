@@ -290,7 +290,7 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
     SendToBrowserFrame(
         __FUNCTION__,
         base::BindOnce(
-            [](const CefString& name, base::ListValue argument_list,
+            [](const CefString& name, base::Value::List argument_list,
                const BrowserFrameType& render_frame) {
               render_frame->SendMessage(name, std::move(argument_list));
             },
@@ -732,13 +732,13 @@ void CefFrameImpl::FrameDetached() {
   OnDisconnect(DisconnectReason::BROWSER_FRAME_DETACHED);
 }
 
-void CefFrameImpl::SendMessage(const std::string& name, base::Value arguments) {
+void CefFrameImpl::SendMessage(const std::string& name,
+                               base::Value::List arguments) {
   if (auto app = CefAppManager::Get()->GetApplication()) {
     if (auto handler = app->GetRenderProcessHandler()) {
-      auto& list_value = base::Value::AsListValue(arguments);
-      CefRefPtr<CefProcessMessageImpl> message(new CefProcessMessageImpl(
-          name, std::move(const_cast<base::ListValue&>(list_value)),
-          /*read_only=*/true));
+      CefRefPtr<CefProcessMessageImpl> message(
+          new CefProcessMessageImpl(name, std::move(arguments),
+                                    /*read_only=*/true));
       handler->OnProcessMessageReceived(browser_, this, PID_BROWSER,
                                         message.get());
     }
@@ -835,8 +835,9 @@ void CefFrameImpl::DidStopLoading() {
 void CefFrameImpl::MoveOrResizeStarted() {
   if (frame_) {
     auto web_view = frame_->View();
-    if (web_view)
+    if (web_view) {
       web_view->CancelPagePopup();
+    }
   }
 }
 

@@ -51,9 +51,7 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
       base::StringPiece(static_cast<const char*>(json), json_size),
       GetJSONReaderOptions(options));
   if (parse_result) {
-    return new CefValueImpl(
-        base::Value::ToUniquePtrValue(std::move(parse_result.value()))
-            .release());
+    return new CefValueImpl(std::move(parse_result.value()));
   }
   return nullptr;
 }
@@ -68,8 +66,7 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
   auto result = base::JSONReader::ReadAndReturnValueWithError(
       json, GetJSONReaderOptions(options));
   if (result.has_value()) {
-    return new CefValueImpl(
-        base::Value::ToUniquePtrValue(std::move(*result)).release());
+    return new CefValueImpl(std::move(*result));
   }
 
   error_msg_out = result.error().message;

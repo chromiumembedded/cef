@@ -514,8 +514,8 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     if (extra_info) {
       auto extra_info_impl =
           static_cast<CefDictionaryValueImpl*>(extra_info.get());
-      auto extra_info_value = base::WrapUnique(extra_info_impl->CopyValue());
-      params->extra_info = std::move(*extra_info_value);
+      auto extra_info_value = extra_info_impl->CopyValue();
+      params->extra_info = std::move(extra_info_value.GetDict());
     }
   } else {
     // The new browser info response has timed out.

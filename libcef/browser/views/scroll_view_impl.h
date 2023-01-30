@@ -37,8 +37,7 @@ class CefScrollViewImpl
 
   // CefViewAdapter methods:
   std::string GetDebugType() override { return "ScrollView"; }
-  void GetDebugInfo(base::DictionaryValue* info,
-                    bool include_children) override;
+  void GetDebugInfo(base::Value::Dict* info, bool include_children) override;
 
  private:
   // Create a new implementation object.

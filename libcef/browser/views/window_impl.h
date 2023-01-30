@@ -113,8 +113,7 @@ class CefWindowImpl
 
   // CefViewAdapter methods:
   std::string GetDebugType() override { return "Window"; }
-  void GetDebugInfo(base::DictionaryValue* info,
-                    bool include_children) override;
+  void GetDebugInfo(base::Value::Dict* info, bool include_children) override;
 
   // ui::AcceleratorTarget methods:
   bool AcceleratorPressed(const ui::Accelerator& accelerator) override;

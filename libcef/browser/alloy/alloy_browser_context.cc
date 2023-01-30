@@ -264,8 +264,8 @@ void AlloyBrowserContext::LoadExtension(
   if (manifest && manifest->GetSize() > 0) {
     CefDictionaryValueImpl* value_impl =
         static_cast<CefDictionaryValueImpl*>(manifest.get());
-    std::unique_ptr<base::DictionaryValue> value_copy(value_impl->CopyValue());
-    extension_system()->LoadExtension(std::move(*value_copy).TakeDict(),
+    auto value = value_impl->CopyValue();
+    extension_system()->LoadExtension(std::move(value.GetDict()),
                                       root_directory, false /* builtin */,
                                       loader_context, handler);
   } else {

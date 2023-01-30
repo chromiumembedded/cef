@@ -343,19 +343,17 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
     }
     root_view_ref_ = nullptr;
   }
-  void GetDebugInfo(base::DictionaryValue* info,
-                    bool include_children) override {
-    info->SetString("type", GetDebugType());
-    info->SetInteger("id", root_view()->GetID());
+  void GetDebugInfo(base::Value::Dict* info, bool include_children) override {
+    info->Set("type", GetDebugType());
+    info->Set("id", root_view()->GetID());
 
     // Use GetBounds() because some subclasses (like CefWindowImpl) override it.
     const CefRect& bounds = GetBounds();
-    std::unique_ptr<base::DictionaryValue> bounds_value(
-        new base::DictionaryValue());
-    bounds_value->SetInteger("x", bounds.x);
-    bounds_value->SetInteger("y", bounds.y);
-    bounds_value->SetInteger("width", bounds.width);
-    bounds_value->SetInteger("height", bounds.height);
+    base::Value::Dict bounds_value;
+    bounds_value.Set("x", bounds.x);
+    bounds_value.Set("y", bounds.y);
+    bounds_value.Set("width", bounds.width);
+    bounds_value.Set("height", bounds.height);
     info->Set("bounds", std::move(bounds_value));
   }
 
@@ -454,15 +452,15 @@ CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::GetTypeString() {
 
 CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::ToString(bool include_children) {
   CEF_REQUIRE_UIT_RETURN(CefString());
-  std::unique_ptr<base::DictionaryValue> info(new base::DictionaryValue());
+  base::Value::Dict info;
   if (IsValid()) {
-    GetDebugInfo(info.get(), include_children);
+    GetDebugInfo(&info, include_children);
   } else {
-    info->SetString("type", GetDebugType());
+    info.Set("type", GetDebugType());
   }
 
   std::string json_string;
-  base::JSONWriter::WriteWithOptions(*info, 0, &json_string);
+  base::JSONWriter::WriteWithOptions(info, 0, &json_string);
   return json_string;
 }
 

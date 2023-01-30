@@ -350,15 +350,11 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     if (handler.get()) {
       CefRefPtr<CefDictionaryValueImpl> dictValuePtr;
       if (params->extra_info) {
-        auto& dict_value = base::Value::AsDictionaryValue(*params->extra_info);
-        dictValuePtr = new CefDictionaryValueImpl(
-            const_cast<base::DictionaryValue*>(&dict_value),
-            /*will_delete=*/false, /*read_only=*/true);
+        dictValuePtr =
+            new CefDictionaryValueImpl(std::move(*params->extra_info),
+                                       /*read_only=*/true);
       }
       handler->OnBrowserCreated(browser.get(), dictValuePtr.get());
-      if (dictValuePtr) {
-        std::ignore = dictValuePtr->Detach(nullptr);
-      }
     }
   }
 

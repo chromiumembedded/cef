@@ -67,15 +67,12 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
   void RegisterComplexPref(const std::string& name,
                            CefRefPtr<CefValue> default_value) {
     CefValueImpl* impl = static_cast<CefValueImpl*>(default_value.get());
+    auto impl_value = impl->CopyValue();
 
-    CefValueImpl::ScopedLockedValue scoped_locked_value(impl);
-    base::Value* impl_value = impl->GetValueUnsafe();
-
-    // Will make a deep copy of |impl_value|.
-    if (impl_value->type() == base::Value::Type::DICT) {
-      registry_->RegisterDictionaryPref(name, impl_value->Clone());
-    } else if (impl_value->type() == base::Value::Type::LIST) {
-      registry_->RegisterListPref(name, impl_value->Clone());
+    if (impl_value.type() == base::Value::Type::DICT) {
+      registry_->RegisterDictionaryPref(name, std::move(impl_value));
+    } else if (impl_value.type() == base::Value::Type::LIST) {
+      registry_->RegisterListPref(name, std::move(impl_value));
     } else {
       NOTREACHED();
     }

@@ -315,11 +315,11 @@ CefRefPtr<CefOverlayController> CefWindowImpl::AddOverlayView(
   return nullptr;
 }
 
-void CefWindowImpl::GetDebugInfo(base::DictionaryValue* info,
+void CefWindowImpl::GetDebugInfo(base::Value::Dict* info,
                                  bool include_children) {
   ParentClass::GetDebugInfo(info, include_children);
   if (root_view()) {
-    info->SetString("title", root_view()->title());
+    info->Set("title", root_view()->title());
   }
 }
 
