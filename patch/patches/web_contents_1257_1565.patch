@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index c4db6519acbff..03d173d9bf8fa 100644
+index d0ba51ec00bb6..584e076ddf5ad 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3182,6 +3182,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3173,6 +3173,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index c4db6519acbff..03d173d9bf8fa 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3192,6 +3198,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3183,6 +3189,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index c4db6519acbff..03d173d9bf8fa 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3372,6 +3379,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -3363,6 +3370,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_.insert(render_widget_host);
@@ -33,8 +33,8 @@ index c4db6519acbff..03d173d9bf8fa 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -4106,6 +4116,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
-         params.pip_options->lock_aspect_ratio;
+@@ -4094,6 +4104,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+     create_params.picture_in_picture_options = *(params.pip_options);
    }
  
 +  if (delegate_) {
@@ -49,7 +49,7 @@ index c4db6519acbff..03d173d9bf8fa 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -7996,6 +8015,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -7984,6 +8003,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
      // frames).
      SetFocusedFrameTree(&node->frame_tree());
    }
@@ -60,10 +60,10 @@ index c4db6519acbff..03d173d9bf8fa 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 7778d03105273..b9b6f060201d9 100644
+index 5644b0efa9a3e..da63511c87213 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -94,10 +94,12 @@ class BrowserContext;
+@@ -95,10 +95,12 @@ class BrowserContext;
  class BrowserPluginGuestDelegate;
  class RenderFrameHost;
  class RenderViewHost;
@@ -76,7 +76,7 @@ index 7778d03105273..b9b6f060201d9 100644
  class WebUI;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -240,6 +242,10 @@ class WebContents : public PageNavigator,
+@@ -241,6 +243,10 @@ class WebContents : public PageNavigator,
      network::mojom::WebSandboxFlags starting_sandbox_flags =
          network::mojom::WebSandboxFlags::kNone;
  

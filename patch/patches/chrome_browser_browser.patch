@@ -324,7 +324,7 @@ index 08ac5f0afd874..480986df48aa6 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 08879ac2f134a..cdd6615f72db4 100644
+index 10105dd979aa4..9277cd507ae8e 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -347,7 +347,7 @@ index 08879ac2f134a..cdd6615f72db4 100644
  #error This file should only be included on desktop.
  #endif
 @@ -315,6 +320,11 @@ class Browser : public TabStripModelObserver,
-     float initial_aspect_ratio = 1.0f;
+     double initial_aspect_ratio = 1.0;
      bool lock_aspect_ratio = false;
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -426,10 +426,10 @@ index 08879ac2f134a..cdd6615f72db4 100644
  
    // The opener browser of the document picture-in-picture browser. Null if the
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index f6df2d49dc719..01e5e7a42fa96 100644
+index dda3f5ba7f9a3..67b0eaaddfd3b 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
-@@ -565,6 +565,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+@@ -534,6 +534,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
    std::unique_ptr<WebContents> target_contents =
        WebContents::Create(create_params);
  
