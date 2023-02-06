@@ -284,7 +284,8 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
       (top_level_window_ex_styles & WS_EX_TOPMOST) == WS_EX_TOPMOST;
 
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
-      GetBackgroundColor(), always_on_top, GetBoundsChangedCallback());
+      GetBackgroundColor(), always_on_top, GetBoundsChangedCallback(),
+      GetWidgetDeleteCallback());
   delegate_view->Init(window_info_.window, web_contents_,
                       gfx::Rect(0, 0, dip_rect.width(), dip_rect.height()));
 

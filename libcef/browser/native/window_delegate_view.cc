@@ -15,11 +15,12 @@
 CefWindowDelegateView::CefWindowDelegateView(
     SkColor background_color,
     bool always_on_top,
-    base::RepeatingClosure on_bounds_changed)
+    base::RepeatingClosure on_bounds_changed,
+    base::OnceClosure on_delete)
     : background_color_(background_color),
-      web_view_(nullptr),
       always_on_top_(always_on_top),
-      on_bounds_changed_(on_bounds_changed) {}
+      on_bounds_changed_(std::move(on_bounds_changed)),
+      on_delete_(std::move(on_delete)) {}
 
 void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
                                  content::WebContents* web_contents,
@@ -64,12 +65,22 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   DCHECK(widget->is_top_level());
   // |widget| must be activatable for focus handling to work correctly.
   DCHECK(widget->widget_delegate()->CanActivate());
+
+  // WidgetDelegate::DeleteDelegate() will execute the registered callback.
+  RegisterDeleteDelegateCallback(base::BindOnce(
+      &CefWindowDelegateView::DeleteDelegate, base::Unretained(this)));
 }
 
 void CefWindowDelegateView::InitContent() {
   SetBackground(views::CreateSolidBackground(background_color_));
   SetLayoutManager(std::make_unique<views::FillLayout>());
   AddChildView(web_view_);
+}
+
+void CefWindowDelegateView::DeleteDelegate() {
+  if (!on_delete_.is_null()) {
+    std::move(on_delete_).Run();
+  }
 }
 
 void CefWindowDelegateView::ViewHierarchyChanged(

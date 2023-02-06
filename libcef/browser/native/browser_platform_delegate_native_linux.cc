@@ -79,7 +79,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
 
   CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
-      GetBoundsChangedCallback());
+      GetBoundsChangedCallback(), GetWidgetDeleteCallback());
   delegate_view->Init(static_cast<gfx::AcceleratedWidget>(window_info_.window),
                       web_contents_, gfx::Rect(gfx::Point(), rect.size()));
 
