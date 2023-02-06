@@ -148,8 +148,7 @@ class PdfViewerTestHandler : public TestHandler, public CefContextMenuHandler {
     }
 
     // Send right-click mouse down and mouse up to tigger context menu.
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, false, 1);
-    browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_RIGHT, true, 1);
+    SendMouseClickEvent(browser, mouse_event, MBT_RIGHT);
   }
 
   bool RunContextMenu(CefRefPtr<CefBrowser> browser,

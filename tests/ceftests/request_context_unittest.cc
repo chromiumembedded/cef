@@ -324,18 +324,7 @@ class PopupTestHandler : public TestHandler {
       mouse_event.x = 20;
       mouse_event.y = 20;
       mouse_event.modifiers = 0;
-
-      // Add some delay to avoid having events dropped or rate limited.
-      CefPostDelayedTask(
-          TID_UI,
-          base::BindOnce(&CefBrowserHost::SendMouseClickEvent,
-                         browser->GetHost(), mouse_event, MBT_LEFT, false, 1),
-          50);
-      CefPostDelayedTask(
-          TID_UI,
-          base::BindOnce(&CefBrowserHost::SendMouseClickEvent,
-                         browser->GetHost(), mouse_event, MBT_LEFT, true, 1),
-          100);
+      SendMouseClickEvent(browser, mouse_event);
     } else {
       ADD_FAILURE();  // Not reached.
     }

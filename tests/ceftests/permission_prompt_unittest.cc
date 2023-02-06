@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_callback.h"
 #include "include/cef_parser.h"
 #include "include/cef_permission_handler.h"
 #include "include/cef_request_context_handler.h"
@@ -13,6 +13,7 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 
@@ -264,18 +265,7 @@ class PermissionPromptTestHandler : public TestHandler,
     CefMouseEvent mouse_event;
     mouse_event.x = 20;
     mouse_event.y = 20;
-
-    // Add some delay to avoid having events dropped or rate limited.
-    CefPostDelayedTask(
-        TID_UI,
-        base::BindOnce(&CefBrowserHost::SendMouseClickEvent, browser->GetHost(),
-                       mouse_event, MBT_LEFT, false, 1),
-        50);
-    CefPostDelayedTask(
-        TID_UI,
-        base::BindOnce(&CefBrowserHost::SendMouseClickEvent, browser->GetHost(),
-                       mouse_event, MBT_LEFT, true, 1),
-        100);
+    SendMouseClickEvent(browser, mouse_event);
   }
 
   CefRefPtr<CefDictionaryValue> ParseURLData(const std::string& url) {
