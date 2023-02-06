@@ -102,6 +102,12 @@ bool IgnoreURL(const std::string& url);
 // if timeouts are disabled.
 std::optional<int> GetConfiguredTestTimeout(int timeout_ms);
 
+// Send a mouse click event with the necessary delay to avoid having events
+// dropped or rate limited.
+void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
+                         const CefMouseEvent& mouse_event,
+                         cef_mouse_button_type_t mouse_button_type = MBT_LEFT);
+
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.
 // Use the RC_TEST_GROUP_BASE macro to test all valid combinations.

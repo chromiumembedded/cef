@@ -8,9 +8,11 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "include/base/cef_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/common/string_util.h"
 
@@ -344,6 +346,20 @@ std::optional<int> GetConfiguredTestTimeout(int timeout_ms) {
 
   return static_cast<int>(
       std::round(static_cast<double>(timeout_ms) * (*multiplier)));
+}
+
+void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
+                         const CefMouseEvent& mouse_event,
+                         cef_mouse_button_type_t mouse_button_type) {
+  auto host = browser->GetHost();
+  CefPostDelayedTask(TID_UI,
+                     base::BindOnce(&CefBrowserHost::SendMouseClickEvent, host,
+                                    mouse_event, mouse_button_type, false, 1),
+                     50);
+  CefPostDelayedTask(TID_UI,
+                     base::BindOnce(&CefBrowserHost::SendMouseClickEvent, host,
+                                    mouse_event, mouse_button_type, true, 1),
+                     100);
 }
 
 CefRefPtr<CefRequestContext> CreateTestRequestContext(

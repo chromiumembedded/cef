@@ -1883,10 +1883,7 @@ class LoadNavTestHandler : public TestHandler {
 
         cef_mouse_button_type_t button_type =
             (mode_ == MIDDLE_CLICK ? MBT_MIDDLE : MBT_LEFT);
-        browser->GetHost()->SendMouseClickEvent(mouse_event, button_type, false,
-                                                1);
-        browser->GetHost()->SendMouseClickEvent(mouse_event, button_type, true,
-                                                1);
+        SendMouseClickEvent(browser, mouse_event, button_type);
       }
 
       if (cancel_in_open_url_) {
