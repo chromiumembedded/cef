@@ -7,6 +7,7 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
+#include "base/memory/weak_ptr.h"
 #include "ui/events/event.h"
 
 namespace content {
@@ -71,6 +72,8 @@ class CefBrowserPlatformDelegateNativeAura
   virtual gfx::Vector2d GetUiWheelEventOffset(int deltaX, int deltaY) const;
 
  protected:
+  base::OnceClosure GetWidgetDeleteCallback();
+
   static base::TimeTicks GetEventTimeStamp();
   static int TranslateUiEventModifiers(uint32 cef_modifiers);
   static int TranslateUiChangedButtonFlags(uint32 cef_modifiers);
@@ -80,7 +83,14 @@ class CefBrowserPlatformDelegateNativeAura
   views::Widget* window_widget_ = nullptr;
 
  private:
+  // Will only be called if the Widget is deleted before
+  // CefBrowserHostBase::DestroyBrowser() is called.
+  void WidgetDeleted();
+
   content::RenderWidgetHostViewAura* GetHostView() const;
+
+  base::WeakPtrFactory<CefBrowserPlatformDelegateNativeAura> weak_ptr_factory_{
+      this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_AURA_H_

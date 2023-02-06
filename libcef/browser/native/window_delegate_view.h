@@ -22,7 +22,8 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
  public:
   CefWindowDelegateView(SkColor background_color,
                         bool always_on_top,
-                        base::RepeatingClosure on_bounds_changed);
+                        base::RepeatingClosure on_bounds_changed,
+                        base::OnceClosure on_delete);
 
   CefWindowDelegateView(const CefWindowDelegateView&) = delete;
   CefWindowDelegateView& operator=(const CefWindowDelegateView&) = delete;
@@ -36,6 +37,8 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   // Initialize the Widget's content.
   void InitContent();
 
+  void DeleteDelegate();
+
   // WidgetDelegateView methods:
   bool CanMaximize() const override { return true; }
   View* GetContentsView() override { return this; }
@@ -46,10 +49,12 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
 
  private:
-  SkColor background_color_;
-  views::WebView* web_view_;
-  bool always_on_top_;
+  const SkColor background_color_;
+  const bool always_on_top_;
   base::RepeatingClosure on_bounds_changed_;
+  base::OnceClosure on_delete_;
+
+  views::WebView* web_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_WINDOW_DELEGATE_VIEW_H_

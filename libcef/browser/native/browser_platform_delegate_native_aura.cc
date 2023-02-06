@@ -216,6 +216,12 @@ gfx::Vector2d CefBrowserPlatformDelegateNativeAura::GetUiWheelEventOffset(
   return gfx::Vector2d(deltaX, deltaY);
 }
 
+base::OnceClosure
+CefBrowserPlatformDelegateNativeAura::GetWidgetDeleteCallback() {
+  return base::BindOnce(&CefBrowserPlatformDelegateNativeAura::WidgetDeleted,
+                        weak_ptr_factory_.GetWeakPtr());
+}
+
 // static
 base::TimeTicks CefBrowserPlatformDelegateNativeAura::GetEventTimeStamp() {
   return base::TimeTicks::Now();
@@ -277,6 +283,11 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
     result |= ui::EF_RIGHT_MOUSE_BUTTON;
   }
   return result;
+}
+
+void CefBrowserPlatformDelegateNativeAura::WidgetDeleted() {
+  DCHECK(window_widget_);
+  window_widget_ = nullptr;
 }
 
 content::RenderWidgetHostViewAura*
