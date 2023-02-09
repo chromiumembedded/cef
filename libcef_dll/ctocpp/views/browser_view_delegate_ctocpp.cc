@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4f26a1968e558512fa9894106f0bc9f6b9d8a10f$
+// $hash=7301ce9c063a7ff4ab88b6382f6441ba314b20c0$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -101,11 +101,7 @@ CefBrowserViewDelegateCToCpp::GetDelegateForPopupBrowserView(
   if (!browser_view.get()) {
     return nullptr;
   }
-  // Verify param: client; type: refptr_same
-  DCHECK(client.get());
-  if (!client.get()) {
-    return nullptr;
-  }
+  // Unverified params: client
 
   // Execute
   cef_browser_view_delegate_t* _retval =

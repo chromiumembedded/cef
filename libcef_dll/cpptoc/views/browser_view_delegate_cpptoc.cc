@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=499cb70269cbe05c9bba4b0672a26116f7436f76$
+// $hash=8b92c198857b0ca5c3ddc9b2c8a82febe7ed8cde$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -111,11 +111,7 @@ browser_view_delegate_get_delegate_for_popup_browser_view(
     NOTREACHED() << "invalid settings->[base.]size";
     return NULL;
   }
-  // Verify param: client; type: refptr_same
-  DCHECK(client);
-  if (!client) {
-    return NULL;
-  }
+  // Unverified params: client
 
   // Translate param: settings; type: struct_byref_const
   CefBrowserSettings settingsObj;
