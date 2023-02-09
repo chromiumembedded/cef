@@ -48,6 +48,8 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   ~ChromeBrowserDelegate() override;
 
   // cef::BrowserDelegate methods:
+  std::unique_ptr<content::WebContents> AddWebContents(
+      std::unique_ptr<content::WebContents> new_contents) override;
   void OnWebContentsCreated(content::WebContents* new_contents) override;
   void SetAsDelegate(content::WebContents* web_contents,
                      bool set_delegate) override;
@@ -66,13 +68,6 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
                           const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
-  void AddNewContents(content::WebContents* source_contents,
-                      std::unique_ptr<content::WebContents> new_contents,
-                      const GURL& target_url,
-                      WindowOpenDisposition disposition,
-                      const blink::mojom::WindowFeatures& window_features,
-                      bool user_gesture,
-                      bool* was_blocked) override;
   content::WebContents* OpenURLFromTab(
       content::WebContents* source,
       const content::OpenURLParams& params) override;

@@ -1227,7 +1227,7 @@ void AlloyBrowserHostImpl::WebContentsCreated(
       target_url,
       frame_util::MakeGlobalId(opener_render_process_id,
                                opener_render_frame_id),
-      settings, client, platform_delegate, extra_info);
+      settings, client, platform_delegate, extra_info, new_contents);
 
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(

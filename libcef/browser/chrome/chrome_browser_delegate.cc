@@ -34,6 +34,25 @@ ChromeBrowserDelegate::ChromeBrowserDelegate(
 
 ChromeBrowserDelegate::~ChromeBrowserDelegate() = default;
 
+std::unique_ptr<content::WebContents> ChromeBrowserDelegate::AddWebContents(
+    std::unique_ptr<content::WebContents> new_contents) {
+  if (CefBrowserInfoManager::GetInstance()->AddWebContents(
+          new_contents.get())) {
+    // The browser host should have been created in WebContentsCreated().
+    auto new_browser =
+        ChromeBrowserHostImpl::GetBrowserForContents(new_contents.get());
+    if (new_browser) {
+      // Create a new Browser and give it ownership of the new WebContents.
+      new_browser->AddNewContents(std::move(new_contents));
+    } else {
+      LOG(ERROR) << "No host found for chrome popup browser";
+    }
+  }
+
+  // Proceed with default chrome::AddWebContents behavior.
+  return new_contents;
+}
+
 void ChromeBrowserDelegate::OnWebContentsCreated(
     content::WebContents* new_contents) {
   // Necessary to receive LoadingStateChanged calls during initial navigation.
@@ -132,7 +151,7 @@ void ChromeBrowserDelegate::WebContentsCreated(
       target_url,
       frame_util::MakeGlobalId(opener_render_process_id,
                                opener_render_frame_id),
-      settings, client, platform_delegate, extra_info);
+      settings, client, platform_delegate, extra_info, new_contents);
 
   auto opener = ChromeBrowserHostImpl::GetBrowserForContents(source_contents);
   if (!opener) {
@@ -153,27 +172,6 @@ void ChromeBrowserDelegate::WebContentsCreated(
   // However, we need to install observers/delegates here.
   CreateBrowser(new_contents, settings, client, std::move(platform_delegate),
                 browser_info, opener, request_context_impl);
-}
-
-void ChromeBrowserDelegate::AddNewContents(
-    content::WebContents* source_contents,
-    std::unique_ptr<content::WebContents> new_contents,
-    const GURL& target_url,
-    WindowOpenDisposition disposition,
-    const blink::mojom::WindowFeatures& window_features,
-    bool user_gesture,
-    bool* was_blocked) {
-  auto new_browser =
-      ChromeBrowserHostImpl::GetBrowserForContents(new_contents.get());
-  if (new_browser) {
-    // Create a new Browser and give it ownership of the WebContents.
-    new_browser->AddNewContents(std::move(new_contents));
-    return;
-  }
-
-  // Fall back to default behavior from Browser::AddNewContents.
-  chrome::AddWebContents(browser_, source_contents, std::move(new_contents),
-                         target_url, disposition, window_features);
 }
 
 content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(

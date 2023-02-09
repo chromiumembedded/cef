@@ -767,6 +767,12 @@ bool ClientHandler::OnBeforePopup(
     bool* no_javascript_access) {
   CEF_REQUIRE_UI_THREAD();
 
+  if (target_disposition == WOD_NEW_PICTURE_IN_PICTURE) {
+    // Use default handling for document picture-in-picture popups.
+    client = nullptr;
+    return false;
+  }
+
   // Return true to cancel the popup window.
   return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client,
                             settings);

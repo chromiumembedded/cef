@@ -125,6 +125,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
   CefRefPtr<CefClient> client = browser->GetClient();
   bool allow = true;
+  bool handled = false;
 
   CefWindowInfo window_info;
 
@@ -133,7 +134,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
 #endif
 
   auto pending_popup = std::make_unique<CefBrowserInfoManager::PendingPopup>();
-  pending_popup->step = CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
+  pending_popup->step = PendingPopup::CAN_CREATE_WINDOW;
   pending_popup->opener_global_id = opener->GetGlobalId();
   pending_popup->target_url = target_url;
   pending_popup->target_frame_name = frame_name;
@@ -141,6 +142,11 @@ bool CefBrowserInfoManager::CanCreateWindow(
   // Start with the current browser's settings.
   pending_popup->client = client;
   pending_popup->settings = browser->settings();
+
+  // With the Chrome runtime, we want to use default popup Browser creation
+  // for document picture-in-picture.
+  pending_popup->use_default_browser_creation =
+      disposition == WindowOpenDisposition::NEW_PICTURE_IN_PICTURE;
 
   if (client.get()) {
     CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
@@ -172,6 +178,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
           cef_features, window_info, pending_popup->client,
           pending_popup->settings, pending_popup->extra_info,
           no_javascript_access);
+      handled = true;
     }
   }
 
@@ -179,14 +186,21 @@ bool CefBrowserInfoManager::CanCreateWindow(
     CefBrowserCreateParams create_params;
     create_params.MaybeSetWindowInfo(window_info);
 
+    if (!handled) {
+      // Use default Browser creation if OnBeforePopup was unhandled.
+      // TODO(chrome): Expose a mechanism for the client to choose default
+      // creation.
+      pending_popup->use_default_browser_creation = true;
+    }
+
     // In most cases, Views-hosted browsers should create Views-hosted popups
-    // and native browsers should use default popup handling. The one exception
-    // is with the Chrome runtime where a Views-hosted browser may have an
-    // external parent. In that case we want to use default popup handling even
-    // though the parent is (technically) Views-hosted.
+    // and native browsers should use default popup handling. With the Chrome
+    // runtime, we should additionally use default handling (a) when using an
+    // external parent and (b) when using default Browser creation.
     create_params.popup_with_views_hosted_opener =
         browser->HasView() &&
-        !browser->platform_delegate()->HasExternalParent();
+        !browser->platform_delegate()->HasExternalParent() &&
+        !pending_popup->use_default_browser_creation;
 
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
@@ -217,9 +231,8 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
   CEF_REQUIRE_UIT();
   REQUIRE_ALLOY_RUNTIME();
 
-  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
-      PopPendingPopup(CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW,
-                      opener_global_id, target_url);
+  auto pending_popup = PopPendingPopup(PendingPopup::CAN_CREATE_WINDOW,
+                                       opener_global_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
 
@@ -228,8 +241,7 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
                                                                delegate_view);
   }
 
-  pending_popup->step =
-      CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW;
+  pending_popup->step = PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW;
   PushPendingPopup(std::move(pending_popup));
 }
 
@@ -239,16 +251,16 @@ void CefBrowserInfoManager::WebContentsCreated(
     CefBrowserSettings& settings,
     CefRefPtr<CefClient>& client,
     std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
-    CefRefPtr<CefDictionaryValue>& extra_info) {
+    CefRefPtr<CefDictionaryValue>& extra_info,
+    content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
 
   // GET_CUSTOM_WEB_CONTENTS_VIEW is only used with the alloy runtime.
-  const auto previous_step =
-      cef::IsAlloyRuntimeEnabled()
-          ? CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW
-          : CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
+  const auto previous_step = cef::IsAlloyRuntimeEnabled()
+                                 ? PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW
+                                 : PendingPopup::CAN_CREATE_WINDOW;
 
-  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
+  auto pending_popup =
       PopPendingPopup(previous_step, opener_global_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
@@ -257,6 +269,30 @@ void CefBrowserInfoManager::WebContentsCreated(
   client = pending_popup->client;
   platform_delegate = std::move(pending_popup->platform_delegate);
   extra_info = pending_popup->extra_info;
+
+  // AddWebContents (the next step) is only used with the Chrome runtime.
+  if (cef::IsChromeRuntimeEnabled()) {
+    pending_popup->step = PendingPopup::WEB_CONTENTS_CREATED;
+    pending_popup->new_contents = new_contents;
+    PushPendingPopup(std::move(pending_popup));
+  }
+}
+
+bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
+  CEF_REQUIRE_UIT();
+  DCHECK(cef::IsChromeRuntimeEnabled());
+
+  // Pending popup information may be missing in cases where
+  // chrome::AddWebContents is called directly from the Chrome UI (profile
+  // settings, etc).
+  auto pending_popup =
+      PopPendingPopup(PendingPopup::WEB_CONTENTS_CREATED, new_contents);
+  if (pending_popup) {
+    return !pending_popup->use_default_browser_creation;
+  }
+
+  // Proceed with default handling.
+  return false;
 }
 
 void CefBrowserInfoManager::OnGetNewBrowserInfo(
@@ -297,7 +333,9 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
       std::make_pair(global_id, std::move(pending)));
 
   // Register a timeout for the pending response so that the renderer process
-  // doesn't hang forever.
+  // doesn't hang forever. With the Chrome runtime, timeouts may occur in cases
+  // where chrome::AddWebContents or WebContents::Create are called directly
+  // from the Chrome UI (profile settings, etc).
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisableNewBrowserInfoTimeout)) {
     CEF_POST_DELAYED_TASK(
@@ -438,17 +476,39 @@ void CefBrowserInfoManager::PushPendingPopup(
 
 std::unique_ptr<CefBrowserInfoManager::PendingPopup>
 CefBrowserInfoManager::PopPendingPopup(
-    PendingPopup::Step step,
+    PendingPopup::Step previous_step,
     const content::GlobalRenderFrameHostId& opener_global_id,
     const GURL& target_url) {
   CEF_REQUIRE_UIT();
   DCHECK(frame_util::IsValidGlobalId(opener_global_id));
+  DCHECK_LE(previous_step, PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW);
 
   PendingPopupList::iterator it = pending_popup_list_.begin();
   for (; it != pending_popup_list_.end(); ++it) {
     PendingPopup* popup = it->get();
-    if (popup->step == step && popup->opener_global_id == opener_global_id &&
+    if (popup->step == previous_step &&
+        popup->opener_global_id == opener_global_id &&
         popup->target_url == target_url) {
+      // Transfer ownership of the pointer.
+      it->release();
+      pending_popup_list_.erase(it);
+      return base::WrapUnique(popup);
+    }
+  }
+
+  return nullptr;
+}
+
+std::unique_ptr<CefBrowserInfoManager::PendingPopup>
+CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step previous_step,
+                                       content::WebContents* new_contents) {
+  CEF_REQUIRE_UIT();
+  DCHECK_GE(previous_step, PendingPopup::WEB_CONTENTS_CREATED);
+
+  PendingPopupList::iterator it = pending_popup_list_.begin();
+  for (; it != pending_popup_list_.end(); ++it) {
+    PendingPopup* popup = it->get();
+    if (popup->step == previous_step && popup->new_contents == new_contents) {
       // Transfer ownership of the pointer.
       it->release();
       pending_popup_list_.erase(it);

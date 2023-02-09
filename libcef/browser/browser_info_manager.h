@@ -97,7 +97,12 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       CefBrowserSettings& settings,
       CefRefPtr<CefClient>& client,
       std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate,
-      CefRefPtr<CefDictionaryValue>& extra_info);
+      CefRefPtr<CefDictionaryValue>& extra_info,
+      content::WebContents* new_contents);
+
+  // Called from ChromeBrowserDelegate::AddWebContents. See comments on
+  // PendingPopup for more information. Returns true for custom handling.
+  bool AddWebContents(content::WebContents* source_contents);
 
   // Called from CefBrowserManager::GetNewBrowserInfo for delivering
   // browser info to the renderer process. If the browser info already exists
@@ -154,6 +159,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   //   Creates the OSR views for windowless popups.
   // - WebContentsCreated (UIT):
   //   Creates the CefBrowserHost representation for the popup.
+  // - AddWebContents (UIT) (chrome runtime only):
+  //   Creates the Browser or tab representation for the popup.
   // - CefBrowserManager::GetNewBrowserInfo (IOT)
   //   Passes information about the popup to the renderer process.
   struct PendingPopup {
@@ -163,6 +170,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     enum Step {
       CAN_CREATE_WINDOW,
       GET_CUSTOM_WEB_CONTENTS_VIEW,
+      WEB_CONTENTS_CREATED,
     } step;
 
     // Initial state from ViewHostMsg_CreateWindow.
@@ -179,14 +187,28 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
     // Platform delegate specific to the new popup.
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
+
+    // True if default Browser or tab creation should proceed from
+    // AddWebContents (chrome runtime only).
+    bool use_default_browser_creation = false;
+
+    // The newly created WebContents (set in WebContentsCreated).
+    content::WebContents* new_contents = nullptr;
   };
 
   // Manage pending popups. Only called on the UI thread.
   void PushPendingPopup(std::unique_ptr<PendingPopup> popup);
+
+  // Used after CanCreateWindow is called.
   std::unique_ptr<PendingPopup> PopPendingPopup(
-      PendingPopup::Step step,
+      PendingPopup::Step previous_step,
       const content::GlobalRenderFrameHostId& opener_global_id,
       const GURL& target_url);
+
+  // Used after WebContentsCreated is called.
+  std::unique_ptr<PendingPopup> PopPendingPopup(
+      PendingPopup::Step previous_step,
+      content::WebContents* new_contents);
 
   // Retrieves the BrowserInfo matching the specified ID.
   scoped_refptr<CefBrowserInfo> GetBrowserInfoInternal(

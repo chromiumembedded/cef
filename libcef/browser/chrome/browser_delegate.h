@@ -36,7 +36,16 @@ class BrowserDelegate : public content::WebContentsDelegate {
 
   ~BrowserDelegate() override {}
 
-  // Called immediately after |new_contents| is created.
+  // Optionally override chrome::AddWebContents behavior. This is most often
+  // called via Browser::AddNewContents for new popup browsers and provides an
+  // opportunity for CEF to create a new Browser instead of proceeding with
+  // default Browser or tab creation.
+  virtual std::unique_ptr<content::WebContents> AddWebContents(
+      std::unique_ptr<content::WebContents> new_contents) = 0;
+
+  // Called immediately after |new_contents| is created via chrome::Navigate.
+  // This is most often called for navigations targeting a new tab without a
+  // pre-existing WebContents.
   virtual void OnWebContentsCreated(content::WebContents* new_contents) = 0;
 
   // Add or remove ownership of the WebContents.

@@ -81,7 +81,7 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   /// popup will be a DevTools browser. Return the delegate that will be used
   /// for the new popup BrowserView.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=client)--*/
   virtual CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
       CefRefPtr<CefBrowserView> browser_view,
       const CefBrowserSettings& settings,
