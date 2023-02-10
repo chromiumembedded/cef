@@ -44,7 +44,7 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index faa6ee8eb3dbc..4cf7c6959c7e6 100644
+index d0d4fd4f7925b..0755927b00e2c 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -65,7 +65,7 @@ index faa6ee8eb3dbc..4cf7c6959c7e6 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -320,8 +324,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -321,8 +325,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
