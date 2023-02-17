@@ -772,10 +772,12 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
   string_pages.insert(kTestGetSourcePage);
   string_pages.insert(kTestGetTextPage);
 
-  // Add provider for string resources.
-  resource_manager->AddProvider(
-      new StringResourceProvider(string_pages, string_resource_map), 0,
-      std::string());
+  if (string_resource_map) {
+    // Add provider for string resources.
+    resource_manager->AddProvider(
+        new StringResourceProvider(string_pages, string_resource_map), 0,
+        std::string());
+  }
 
 // Add provider for bundled resource files.
 #if defined(OS_WIN)

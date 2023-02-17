@@ -5,10 +5,12 @@
 #include "tests/cefclient/browser/client_browser.h"
 #include "tests/cefclient/browser/main_context.h"
 
+#include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_crash_util.h"
 #include "include/cef_file_util.h"
 #include "tests/cefclient/browser/client_prefs.h"
+#include "tests/cefclient/browser/default_client_handler.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -58,6 +60,14 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
     if (client::MainContext::Get()->TouchEventsEnabled()) {
       command_line->AppendSwitchWithValue("touch-events", "enabled");
     }
+  }
+
+  CefRefPtr<CefClient> GetDefaultClient(
+      CefRefPtr<ClientAppBrowser> app) override {
+    // Default client handler for unmanaged browser windows. Used with the
+    // Chrome runtime only.
+    LOG(INFO) << "Creating a chrome browser with the default client";
+    return new DefaultClientHandler();
   }
 
  private:
