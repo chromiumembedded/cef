@@ -92,24 +92,21 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
 void ClientAppBrowser::OnRegisterCustomPreferences(
     cef_preferences_type_t type,
     CefRawPtr<CefPreferenceRegistrar> registrar) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnRegisterCustomPreferences(this, type, registrar);
+  for (auto& delegate : delegates_) {
+    delegate->OnRegisterCustomPreferences(this, type, registrar);
   }
 }
 
 void ClientAppBrowser::OnContextInitialized() {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnContextInitialized(this);
+  for (auto& delegate : delegates_) {
+    delegate->OnContextInitialized(this);
   }
 }
 
 void ClientAppBrowser::OnBeforeChildProcessLaunch(
     CefRefPtr<CefCommandLine> command_line) {
-  DelegateSet::iterator it = delegates_.begin();
-  for (; it != delegates_.end(); ++it) {
-    (*it)->OnBeforeChildProcessLaunch(this, command_line);
+  for (auto& delegate : delegates_) {
+    delegate->OnBeforeChildProcessLaunch(this, command_line);
   }
 }
 
@@ -120,6 +117,15 @@ void ClientAppBrowser::OnScheduleMessagePumpWork(int64 delay) {
   if (message_pump) {
     message_pump->OnScheduleMessagePumpWork(delay);
   }
+}
+
+CefRefPtr<CefClient> ClientAppBrowser::GetDefaultClient() {
+  for (auto& delegate : delegates_) {
+    if (auto client = delegate->GetDefaultClient(this)) {
+      return client;
+    }
+  }
+  return nullptr;
 }
 
 }  // namespace client

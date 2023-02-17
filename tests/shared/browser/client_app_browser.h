@@ -34,6 +34,11 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
     virtual void OnBeforeChildProcessLaunch(
         CefRefPtr<ClientAppBrowser> app,
         CefRefPtr<CefCommandLine> command_line) {}
+
+    virtual CefRefPtr<CefClient> GetDefaultClient(
+        CefRefPtr<ClientAppBrowser> app) {
+      return nullptr;
+    }
   };
 
   typedef std::set<CefRefPtr<Delegate>> DelegateSet;
@@ -71,6 +76,7 @@ class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) override;
   void OnScheduleMessagePumpWork(int64 delay) override;
+  CefRefPtr<CefClient> GetDefaultClient() override;
 
   // Set of supported Delegates.
   DelegateSet delegates_;
