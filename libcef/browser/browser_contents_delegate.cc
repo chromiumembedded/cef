@@ -313,8 +313,11 @@ void CefBrowserContentsDelegate::RenderFrameCreated(
       web_contents()->SetPageBaseBackgroundColor(SkColor());
       web_contents()->SetPageBaseBackgroundColor(base_background_color);
     }
-    render_view_host->GetWidget()->GetView()->SetBackgroundColor(
-        base_background_color);
+    if (render_view_host->GetWidget() &&
+        render_view_host->GetWidget()->GetView()) {
+      render_view_host->GetWidget()->GetView()->SetBackgroundColor(
+          base_background_color);
+    }
 
     platform_delegate()->RenderViewCreated(render_view_host);
   }
