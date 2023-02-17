@@ -241,21 +241,65 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     bool* bypass_redirect_checks,
     bool* disable_secure_dns,
     network::mojom::URLLoaderFactoryOverridePtr* factory_override) {
-  bool use_proxy = ChromeContentBrowserClient::WillCreateURLLoaderFactory(
-      browser_context, frame, render_process_id, type, request_initiator,
-      navigation_id, ukm_source_id, factory_receiver, header_client,
-      bypass_redirect_checks, disable_secure_dns, factory_override);
-  if (use_proxy) {
-    // The chrome layer will handle the request.
-    return use_proxy;
-  }
-
   // Don't intercept requests for Profiles that were not created by CEF.
   // For example, the User Manager profile created via
   // profiles::CreateSystemProfileForUserManager.
   auto profile = Profile::FromBrowserContext(browser_context);
   if (!CefBrowserContext::FromProfile(profile)) {
-    return false;
+    return ChromeContentBrowserClient::WillCreateURLLoaderFactory(
+        browser_context, frame, render_process_id, type, request_initiator,
+        navigation_id, ukm_source_id, factory_receiver, header_client,
+        bypass_redirect_checks, disable_secure_dns, factory_override);
+  }
+
+  // Based on content/browser/devtools/devtools_instrumentation.cc
+  // WillCreateURLLoaderFactoryInternal.
+  network::mojom::URLLoaderFactoryOverridePtr cef_override(
+      network::mojom::URLLoaderFactoryOverride::New());
+  // If caller passed some existing overrides, use those.
+  // Otherwise, use our local var, then if handlers actually
+  // decide to intercept, move it to |factory_override|.
+  network::mojom::URLLoaderFactoryOverridePtr* handler_override =
+      factory_override && *factory_override ? factory_override : &cef_override;
+  network::mojom::URLLoaderFactoryOverride* intercepting_factory =
+      handler_override->get();
+
+  // If we're the first interceptor to install an override, make a
+  // remote/receiver pair, then handle this similarly to appending
+  // a proxy to existing override.
+  if (!intercepting_factory->overriding_factory) {
+    DCHECK(!intercepting_factory->overridden_factory_receiver);
+    intercepting_factory->overridden_factory_receiver =
+        intercepting_factory->overriding_factory
+            .InitWithNewPipeAndPassReceiver();
+  }
+
+  // TODO(chrome): Is it necessary to proxy |header_client| callbacks?
+  bool use_proxy = ChromeContentBrowserClient::WillCreateURLLoaderFactory(
+      browser_context, frame, render_process_id, type, request_initiator,
+      navigation_id, ukm_source_id,
+      &(intercepting_factory->overridden_factory_receiver),
+      /*header_client=*/nullptr, bypass_redirect_checks, disable_secure_dns,
+      handler_override);
+
+  if (use_proxy) {
+    DCHECK(intercepting_factory->overriding_factory);
+    DCHECK(intercepting_factory->overridden_factory_receiver);
+    if (!factory_override) {
+      // Not a subresource navigation, so just override the target receiver.
+      mojo::FusePipes(std::move(*factory_receiver),
+                      std::move(cef_override->overriding_factory));
+      *factory_receiver = std::move(cef_override->overridden_factory_receiver);
+    } else if (!*factory_override) {
+      // No other overrides, so just returns ours as is.
+      *factory_override = network::mojom::URLLoaderFactoryOverride::New(
+          std::move(cef_override->overriding_factory),
+          std::move(cef_override->overridden_factory_receiver), false);
+    }
+    // ... else things are already taken care of, as handler_override was
+    // pointing to factory override and we've done all magic in-place.
+    DCHECK(!cef_override->overriding_factory);
+    DCHECK(!cef_override->overridden_factory_receiver);
   }
 
   auto request_handler = net_service::CreateInterceptedRequestHandler(
@@ -266,6 +310,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   net_service::ProxyURLLoaderFactory::CreateProxy(
       browser_context, factory_receiver, header_client,
       std::move(request_handler));
+
   return true;
 }
 
