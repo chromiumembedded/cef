@@ -11,6 +11,7 @@
 #include "libcef/browser/permission_prompt.h"
 
 #include "base/task/thread_pool.h"
+#include "chrome/browser/profiles/profile.h"
 
 ChromeBrowserMainExtraPartsCef::ChromeBrowserMainExtraPartsCef() = default;
 
@@ -24,6 +25,9 @@ void ChromeBrowserMainExtraPartsCef::PostProfileInit(Profile* profile,
 
   CefRequestContextSettings settings;
   CefContext::Get()->PopulateGlobalRequestContextSettings(&settings);
+
+  // Use the existing path for the initial profile.
+  CefString(&settings.cache_path) = profile->GetPath().value();
 
   // Create the global RequestContext.
   global_request_context_ =
