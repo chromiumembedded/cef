@@ -41,6 +41,7 @@
 #include "net/base/net_module.h"
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/native_theme/native_theme.h"
 
 #if BUILDFLAG(IS_LINUX)
 #include "ui/ozone/buildflags.h"
@@ -307,6 +308,9 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   scheme::RegisterWebUIControllerFactory();
   file_dialog_runner::RegisterFactory();
   permission_prompt::RegisterCreateCallback();
+
+  // Initialize theme configuration (high contrast, dark mode, etc).
+  ui::NativeTheme::GetInstanceForNativeUi();
 
 #if BUILDFLAG(ENABLE_MEDIA_FOUNDATION_WIDEVINE_CDM) || \
     BUILDFLAG(ENABLE_WIDEVINE_CDM_COMPONENT)
