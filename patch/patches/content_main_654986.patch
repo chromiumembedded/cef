@@ -1,8 +1,8 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 00c293219a70c..e68d0d3abd95e 100644
+index f646abaa56f8b..59d4a1f0817e6 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -173,11 +173,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -172,11 +172,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -16,7 +16,7 @@ index 00c293219a70c..e68d0d3abd95e 100644
    base::FeatureList::FailOnFeatureAccessWithoutFeatureList();
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
-@@ -186,9 +183,6 @@ RunContentProcess(ContentMainParams params,
+@@ -185,9 +182,6 @@ RunContentProcess(ContentMainParams params,
  #endif
    int exit_code = -1;
    base::debug::GlobalActivityTracker* tracker = nullptr;
@@ -26,7 +26,7 @@ index 00c293219a70c..e68d0d3abd95e 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -274,12 +268,6 @@ RunContentProcess(ContentMainParams params,
+@@ -273,12 +267,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -39,7 +39,7 @@ index 00c293219a70c..e68d0d3abd95e 100644
      InitializeMac();
  #endif
  
-@@ -321,8 +309,18 @@ RunContentProcess(ContentMainParams params,
+@@ -318,8 +306,18 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index 00c293219a70c..e68d0d3abd95e 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -334,14 +332,41 @@ RunContentProcess(ContentMainParams params,
+@@ -331,14 +329,41 @@ RunContentProcess(ContentMainParams params,
      }
    }
  
