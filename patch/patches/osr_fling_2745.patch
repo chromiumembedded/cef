@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 84e5d2a493556..160478790e261 100644
+index 431df5d50debe..0fcc9ea8fbb1a 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -68,6 +68,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -9,9 +9,9 @@ index 84e5d2a493556..160478790e261 100644
 +  if (compositor_) {
 +    return compositor_;
 +  }
- #if defined(USE_AURA)
-   if (host_->GetView() && host_->GetView()->GetNativeView() &&
-       host_->GetView()->GetNativeView()->GetHost() &&
+   if (!host_->GetView()) {
+     return nullptr;
+   }
 diff --git content/browser/renderer_host/input/fling_scheduler_base.h content/browser/renderer_host/input/fling_scheduler_base.h
 index afefe3cd83dee..6668463247644 100644
 --- content/browser/renderer_host/input/fling_scheduler_base.h
@@ -41,7 +41,7 @@ index afefe3cd83dee..6668463247644 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index a689c6e60b5d5..5a1204c01f04a 100644
+index 5c162ee2f6edd..c6f31297e33fe 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
 @@ -3144,6 +3144,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
@@ -57,7 +57,7 @@ index a689c6e60b5d5..5a1204c01f04a 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 3910d3a1642ab..8738df72afced 100644
+index 5b2482ee77ef3..54fa2ea322206 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
 @@ -791,6 +791,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl

@@ -251,16 +251,14 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   // Add a reference that will later be released in DestroyBrowser().
   browser_->AddRef();
 
-  if (!called_enable_non_client_dpi_scaling_ && has_frame_ &&
-      base::win::IsProcessPerMonitorDpiAware()) {
+  if (!called_enable_non_client_dpi_scaling_ && has_frame_) {
     // This call gets Windows to scale the non-client area when WM_DPICHANGED
     // is fired on Windows versions < 10.0.14393.0.
     // Derived signature; not available in headers.
-    static auto enable_child_window_dpi_message_func = []() {
-      using EnableChildWindowDpiMessagePtr = LRESULT(WINAPI*)(HWND, BOOL);
-      return reinterpret_cast<EnableChildWindowDpiMessagePtr>(GetProcAddress(
-          GetModuleHandle(L"user32.dll"), "EnableChildWindowDpiMessage"));
-    }();
+    using EnableChildWindowDpiMessagePtr = LRESULT(WINAPI*)(HWND, BOOL);
+    static const auto enable_child_window_dpi_message_func =
+        reinterpret_cast<EnableChildWindowDpiMessagePtr>(
+            base::win::GetUser32FunctionPointer("EnableChildWindowDpiMessage"));
     if (enable_child_window_dpi_message_func) {
       enable_child_window_dpi_message_func(window_info_.window, TRUE);
     }
@@ -622,15 +620,15 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
       gfx::SetWindowUserData(hwnd, platform_delegate);
       platform_delegate->window_info_.window = hwnd;
 
-      if (platform_delegate->has_frame_ &&
-          base::win::IsProcessPerMonitorDpiAware()) {
+      if (platform_delegate->has_frame_) {
         // This call gets Windows to scale the non-client area when
         // WM_DPICHANGED is fired on Windows versions >= 10.0.14393.0.
-        static auto enable_non_client_dpi_scaling_func = []() {
-          return reinterpret_cast<decltype(::EnableNonClientDpiScaling)*>(
-              GetProcAddress(GetModuleHandle(L"user32.dll"),
-                             "EnableNonClientDpiScaling"));
-        }();
+        using EnableNonClientDpiScalingPtr =
+            decltype(::EnableNonClientDpiScaling)*;
+        static const auto enable_non_client_dpi_scaling_func =
+            reinterpret_cast<EnableNonClientDpiScalingPtr>(
+                base::win::GetUser32FunctionPointer(
+                    "EnableNonClientDpiScaling"));
         platform_delegate->called_enable_non_client_dpi_scaling_ =
             !!(enable_non_client_dpi_scaling_func &&
                enable_non_client_dpi_scaling_func(hwnd));

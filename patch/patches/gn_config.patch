@@ -12,7 +12,7 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 7cfadb4724141..e59835c875ec6 100644
+index 057b4081c95e5..9817b4c62a89e 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -18,6 +18,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 7cfadb4724141..e59835c875ec6 100644
  import("//chrome/browser/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -274,6 +275,10 @@ group("gn_all") {
+@@ -279,6 +280,10 @@ group("gn_all") {
  
    deps += root_extra_deps
  
@@ -35,7 +35,7 @@ index 7cfadb4724141..e59835c875ec6 100644
      deps += [ "//printing:printing_unittests" ]
    }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index d9024468296e7..11bfae65b7b02 100644
+index 2314ab505bfa2..9b79bce8fff54 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
@@ -50,8 +50,8 @@ index d9024468296e7..11bfae65b7b02 100644
  
    # Full path to the Windows SDK, not including a backslash at the end.
    # This value is the default location, override if you have a different
-@@ -28,12 +27,11 @@ if (visual_studio_path == "") {
-   visual_studio_path = toolchain_data.vs_path
+@@ -29,12 +28,11 @@ if (visual_studio_path == "") {
+   windows_sdk_version = toolchain_data.sdk_version
    windows_sdk_path = toolchain_data.sdk_path
    visual_studio_version = toolchain_data.vs_version
 -  wdk_path = toolchain_data.wdk_dir
@@ -80,7 +80,7 @@ index 60f573a736ba5..90dd6d0b37314 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index a16658689a69e..36515332da633 100644
+index b3f457a9ce656..1af43bc3bb657 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -91,7 +91,7 @@ index a16658689a69e..36515332da633 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//extensions/buildflags/buildflags.gni")
-@@ -73,6 +74,10 @@ template("chrome_repack_percent") {
+@@ -79,6 +80,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }

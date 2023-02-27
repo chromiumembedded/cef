@@ -538,9 +538,11 @@ if(OS_WINDOWS)
       psapi.lib
       SetupAPI.lib
       Shell32.lib
+      Shcore.lib
       Userenv.lib
       version.lib
       wbemuuid.lib
+      WindowsApp.lib
       winmm.lib
       )
 

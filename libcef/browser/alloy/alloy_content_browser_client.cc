@@ -52,7 +52,6 @@
 #include "base/stl_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_resources.h"
-#include "chrome/browser/accessibility/live_caption_unavailability_notifier.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
@@ -82,6 +81,7 @@
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/services/printing/printing_service.h"
+#include "chrome/services/speech/buildflags/buildflags.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/embedder_support/switches.h"
 #include "components/embedder_support/user_agent_utils.h"
@@ -157,9 +157,12 @@
 #endif
 
 #if BUILDFLAG(IS_WIN)
+#if BUILDFLAG(ENABLE_SPEECH_SERVICE)
+#include "media/mojo/mojom/renderer_extensions.mojom.h"
+#endif
 #include "net/ssl/client_cert_store_win.h"
 #include "sandbox/win/src/sandbox_policy.h"
-#endif
+#endif  // BUILDFLAG(IS_WIN)
 
 #if BUILDFLAG(USE_NSS_CERTS)
 #include "net/ssl/client_cert_store_nss.h"
@@ -284,10 +287,12 @@ void BindBadgeServiceForServiceWorker(
     const content::ServiceWorkerVersionBaseInfo& info,
     mojo::PendingReceiver<blink::mojom::BadgeService> receiver) {}
 
+#if BUILDFLAG(IS_WIN) && BUILDFLAG(ENABLE_SPEECH_SERVICE)
 void BindMediaFoundationRendererNotifierHandler(
     content::RenderFrameHost* frame_host,
     mojo::PendingReceiver<media::mojom::MediaFoundationRendererNotifier>
         receiver) {}
+#endif
 
 void BindNetworkHintsHandler(
     content::RenderFrameHost* frame_host,
@@ -1250,8 +1255,10 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
                                                            map);
 
   map->Add<blink::mojom::BadgeService>(base::BindRepeating(&BindBadgeService));
+#if BUILDFLAG(IS_WIN) && BUILDFLAG(ENABLE_SPEECH_SERVICE)
   map->Add<media::mojom::MediaFoundationRendererNotifier>(
       base::BindRepeating(&BindMediaFoundationRendererNotifierHandler));
+#endif
   map->Add<network_hints::mojom::NetworkHintsHandler>(
       base::BindRepeating(&BindNetworkHintsHandler));
 
@@ -1358,10 +1365,8 @@ bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
   return CookieSettingsFactory::GetForProfile(
              Profile::FromBrowserContext(browser_context))
-      ->IsFullCookieAccessAllowed(
-          url, site_for_cookies, top_frame_origin,
-          net::CookieSettingOverrides(),
-          content_settings::CookieSettings::QueryReason::kSiteStorage);
+      ->IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin,
+                                  net::CookieSettingOverrides());
 }
 
 void AlloyContentBrowserClient::OnWebContentsCreated(

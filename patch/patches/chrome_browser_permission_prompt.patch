@@ -44,7 +44,7 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index faa6ee8eb3dbc..4cf7c6959c7e6 100644
+index d0d4fd4f7925b..0755927b00e2c 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -65,7 +65,7 @@ index faa6ee8eb3dbc..4cf7c6959c7e6 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -320,8 +324,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -321,8 +325,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
@@ -100,7 +100,7 @@ index 5e3e2bd6f1e69..4594213db914f 100644
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
-index 9836207f50e5b..09d8f5549820c 100644
+index c96408b160973..8bda825517235 100644
 --- chrome/browser/storage/durable_storage_permission_context.cc
 +++ chrome/browser/storage/durable_storage_permission_context.cc
 @@ -8,6 +8,7 @@
@@ -111,7 +111,7 @@ index 9836207f50e5b..09d8f5549820c 100644
  #include "chrome/browser/bookmarks/bookmark_model_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -55,7 +56,9 @@ void DurableStoragePermissionContext::DecidePermission(
+@@ -56,7 +57,9 @@ void DurableStoragePermissionContext::DecidePermission(
  
    // Durable is only allowed to be granted to the top-level origin. Embedding
    // origin is the last committed navigation origin to the web contents.

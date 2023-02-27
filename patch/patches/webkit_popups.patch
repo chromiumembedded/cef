@@ -11,10 +11,10 @@ index c8655d9270b81..d11450d22123a 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 9ce7b0b20d0e9..52b7713d3d250 100644
+index 823d6d2ab3772..80310bb1ab1e3 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -249,8 +249,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -250,8 +250,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 9ce7b0b20d0e9..52b7713d3d250 100644
  }
  
  namespace {
-@@ -563,6 +568,7 @@ WebViewImpl::WebViewImpl(
+@@ -564,6 +569,7 @@ WebViewImpl::WebViewImpl(
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(PageZoomFactorToZoomLevel(kMinimumPageZoomFactor)),
        maximum_zoom_level_(PageZoomFactorToZoomLevel(kMaximumPageZoomFactor)),
@@ -39,7 +39,7 @@ index 9ce7b0b20d0e9..52b7713d3d250 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index ac623b8bd6c06..3e0bd1dd8ce3b 100644
+index dcd53ce7503b0..a30c89bf46884 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -134,7 +134,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -52,7 +52,7 @@ index ac623b8bd6c06..3e0bd1dd8ce3b 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -840,6 +841,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -846,6 +847,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  

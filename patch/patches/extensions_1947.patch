@@ -60,7 +60,7 @@ index cead7cfa14bae..24142c2e4896f 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 4d29671429220..e0f287f785668 100644
+index 91928c8b7811e..a9c5913f4f5d0 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -62,11 +62,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -161,7 +161,7 @@ index 9ba85048d1fcf..f3a5b8bc9bda0 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extension_registry.cc extensions/browser/extension_registry.cc
-index 10d751cceab73..128af05925e07 100644
+index f142a40362c75..ed283ef8f1251 100644
 --- extensions/browser/extension_registry.cc
 +++ extensions/browser/extension_registry.cc
 @@ -6,9 +6,14 @@
@@ -179,7 +179,7 @@ index 10d751cceab73..128af05925e07 100644
  namespace extensions {
  
  ExtensionRegistry::ExtensionRegistry(content::BrowserContext* browser_context)
-@@ -17,6 +22,11 @@ ExtensionRegistry::~ExtensionRegistry() {}
+@@ -17,6 +22,11 @@ ExtensionRegistry::~ExtensionRegistry() = default;
  
  // static
  ExtensionRegistry* ExtensionRegistry::Get(content::BrowserContext* context) {
@@ -192,10 +192,10 @@ index 10d751cceab73..128af05925e07 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index bb7a1c1860f7f..25f9d0c47e5ab 100644
+index 2b0287529078a..e4144e0755e4b 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -31,6 +31,7 @@
+@@ -30,6 +30,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -203,7 +203,7 @@ index bb7a1c1860f7f..25f9d0c47e5ab 100644
  class PrefService;
  
  namespace base {
-@@ -73,6 +74,7 @@ class ComponentExtensionResourceManager;
+@@ -74,6 +75,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -211,7 +211,7 @@ index bb7a1c1860f7f..25f9d0c47e5ab 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -248,6 +250,14 @@ class ExtensionsBrowserClient {
+@@ -249,6 +251,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -227,10 +227,10 @@ index bb7a1c1860f7f..25f9d0c47e5ab 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 0a9fa13f82250..2d0ed7c2396c4 100644
+index 115f31f9ce46d..914b2564d5a21 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
-@@ -380,9 +380,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
+@@ -379,9 +379,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
      return true;  // TODO(kalman): return false here? It might break things...
  
    DVLOG(1) << "CreateBackgroundHost " << extension->id();

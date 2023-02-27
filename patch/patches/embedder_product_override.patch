@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index e7fe1c565aac5..45980ceed2c50 100644
+index f213668d18044..32a2d4bcfb1b8 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -17,6 +17,7 @@
@@ -21,7 +21,7 @@ index e7fe1c565aac5..45980ceed2c50 100644
  namespace embedder_support {
  
  namespace {
-@@ -339,6 +344,14 @@ std::string GetMajorVersionForUserAgentString(
+@@ -351,6 +356,14 @@ std::string GetMajorVersionForUserAgentString(
  std::string GetProductAndVersion(
      ForceMajorVersionToMinorPosition force_major_to_minor,
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {

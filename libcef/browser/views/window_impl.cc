@@ -23,9 +23,6 @@
 #include "ui/aura/test/ui_controls_factory_aura.h"
 #include "ui/aura/window.h"
 #include "ui/base/test/ui_controls_aura.h"
-#if BUILDFLAG(IS_OZONE)
-#include "ui/views/test/ui_controls_factory_desktop_aura_ozone.h"
-#endif
 #endif  // defined(USE_AURA)
 
 #if BUILDFLAG(IS_WIN)
@@ -45,8 +42,7 @@ void InitializeUITesting() {
     ui_controls::InstallUIControlsAura(
         aura::test::CreateUIControlsAura(nullptr));
 #elif BUILDFLAG(IS_OZONE)
-    ui_controls::InstallUIControlsAura(
-        views::test::CreateUIControlsDesktopAuraOzone());
+    ui_controls::EnableUIControls();
 #endif
 #endif  // defined(USE_AURA)
 

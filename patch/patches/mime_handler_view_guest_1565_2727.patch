@@ -12,7 +12,7 @@ index ddf25382e49fc..fe64fa31a7a85 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index ec5521a6e2005..a9f3f55ffd176 100644
+index 44d0b99677a74..843c49ccaecc3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -228,6 +228,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -35,7 +35,7 @@ index ec5521a6e2005..a9f3f55ffd176 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    GetController().LoadURL(stream_->handler_url(), content::Referrer(),
                            ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
-@@ -493,6 +499,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+@@ -497,6 +503,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
    }
  }
  
@@ -51,10 +51,10 @@ index ec5521a6e2005..a9f3f55ffd176 100644
      mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
    if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 810289b11cba7..714b7c64c9ba2 100644
+index 2ade4d0b28ba4..8ba6293863a93 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -193,6 +193,7 @@ class MimeHandlerViewGuest
+@@ -196,6 +196,7 @@ class MimeHandlerViewGuest
    void ReadyToCommitNavigation(
        content::NavigationHandle* navigation_handle) final;
    void DidFinishNavigation(content::NavigationHandle* navigation_handle) final;
@@ -62,7 +62,7 @@ index 810289b11cba7..714b7c64c9ba2 100644
  
    std::unique_ptr<MimeHandlerViewGuestDelegate> delegate_;
    std::unique_ptr<StreamContainer> stream_;
-@@ -201,6 +202,7 @@ class MimeHandlerViewGuest
+@@ -204,6 +205,7 @@ class MimeHandlerViewGuest
        content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
    int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
  

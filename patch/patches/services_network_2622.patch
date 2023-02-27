@@ -21,7 +21,7 @@ index 53383355d6646..d7a713017e16d 100644
        enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
            profile);
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 99fb0211efd6b..5f4a4c2d7c977 100644
+index dd097856a0245..8f07b4b4bdfb2 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -32,7 +32,7 @@ index 99fb0211efd6b..5f4a4c2d7c977 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/chrome_content_browser_client.h"
-@@ -283,8 +284,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -298,8 +299,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
@@ -45,7 +45,7 @@ index 99fb0211efd6b..5f4a4c2d7c977 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -324,7 +327,9 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -339,7 +342,9 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -56,7 +56,7 @@ index 99fb0211efd6b..5f4a4c2d7c977 100644
  #endif
  }
  
-@@ -828,7 +833,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -832,7 +837,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -77,7 +77,7 @@ index 99fb0211efd6b..5f4a4c2d7c977 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -841,7 +858,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -845,7 +862,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -86,14 +86,6 @@ index 99fb0211efd6b..5f4a4c2d7c977 100644
 +  if (!in_memory) {
      network_context_params->file_paths =
          ::network::mojom::NetworkContextFilePaths::New();
- 
-@@ -1039,6 +1058,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-   network_context_params->require_network_isolation_key = true;
- 
-   network_context_params->block_trust_tokens =
-+      cef::IsAlloyRuntimeEnabled() ||
-       !PrivacySandboxSettingsFactory::GetForProfile(profile_)
-            ->IsTrustTokensAllowed();
  
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
 index 0f92e4682eee9..ea6e6ed6f1e05 100644
@@ -197,10 +189,10 @@ index 5b4fe64a4374a..780c9726a03d3 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 47bba434b56d8..92060d40e0a84 100644
+index 569b32218cb3c..cf041cc909878 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2252,16 +2252,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2257,16 +2257,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -229,10 +221,10 @@ index 47bba434b56d8..92060d40e0a84 100644
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
  
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index b2254b765c313..9d7da9a963f40 100644
+index 9433e0e6bbd2c..8f15dca8748a2 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -347,6 +347,9 @@ struct NetworkContextParams {
+@@ -349,6 +349,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

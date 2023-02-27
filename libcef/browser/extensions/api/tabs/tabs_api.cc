@@ -195,8 +195,12 @@ bool TabsUpdateFunction::UpdateURL(const std::string& url_string,
                                    int tab_id,
                                    std::string* error) {
   GURL url;
-  if (!ExtensionTabUtil::PrepareURLForNavigation(url_string, extension(), &url,
-                                                 error)) {
+  auto url_expected =
+      ExtensionTabUtil::PrepareURLForNavigation(url_string, extension());
+  if (url_expected.has_value()) {
+    url = *url_expected;
+  } else {
+    *error = std::move(url_expected.error());
     return false;
   }
 

@@ -112,7 +112,7 @@ index 51ed6bcf6b540..9ae4737e0737e 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index fca1500246f01..e0c719b90f5da 100644
+index dfd41ce139940..b695144ceaf48 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -54,10 +54,12 @@ DialogDelegate::DialogDelegate() {

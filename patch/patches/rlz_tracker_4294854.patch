@@ -1,0 +1,36 @@
+diff --git components/rlz/rlz_tracker.cc components/rlz/rlz_tracker.cc
+index b59d3ba6f1aa4..74e488cd4f3c6 100644
+--- components/rlz/rlz_tracker.cc
++++ components/rlz/rlz_tracker.cc
+@@ -219,7 +219,8 @@ class RLZTracker::WrapperURLLoaderFactory
+ 
+ // static
+ RLZTracker* RLZTracker::GetInstance() {
+-  return tracker_ ? tracker_ : base::Singleton<RLZTracker>::get();
++  static base::NoDestructor<RLZTracker> instance;
++  return tracker_ ? tracker_ : instance.get();
+ }
+ 
+ RLZTracker::RLZTracker()
+diff --git components/rlz/rlz_tracker.h components/rlz/rlz_tracker.h
+index 5e30a66838620..bd2166db1f53f 100644
+--- components/rlz/rlz_tracker.h
++++ components/rlz/rlz_tracker.h
+@@ -10,7 +10,7 @@
+ #include <string>
+ 
+ #include "base/memory/ref_counted.h"
+-#include "base/memory/singleton.h"
++#include "base/no_destructor.h"
+ #include "base/sequence_checker.h"
+ #include "base/thread_annotations.h"
+ #include "base/time/time.h"
+@@ -128,7 +128,7 @@ class RLZTracker {
+   void PingNowImpl();
+ 
+  private:
+-  friend struct base::DefaultSingletonTraits<RLZTracker>;
++  friend class base::NoDestructor<RLZTracker>;
+   friend class base::RefCountedThreadSafe<RLZTracker>;
+ 
+   // Implementation called from SetRlzDelegate() static method.

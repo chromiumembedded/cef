@@ -12,6 +12,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/strings/utf_string_conversions.h"
 #include "chrome/browser/file_select_helper.h"
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/render_frame_host.h"

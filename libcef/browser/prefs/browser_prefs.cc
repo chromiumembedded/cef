@@ -26,7 +26,6 @@
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
-#include "chrome/browser/plugins/plugin_info_host_impl.h"
 #include "chrome/browser/prefetch/prefetch_prefs.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
@@ -74,9 +73,10 @@
 #endif
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
+#include "chrome/browser/profiles/profile_key.h"
 #include "chrome/browser/supervised_user/supervised_user_pref_store.h"
-#include "chrome/browser/supervised_user/supervised_user_settings_service.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
+#include "components/supervised_user/core/browser/supervised_user_settings_service.h"
 #endif
 
 namespace browser_prefs {
@@ -176,7 +176,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
   if (profile) {
     // Used to store supervised user preferences.
-    SupervisedUserSettingsService* supervised_user_settings =
+    auto* supervised_user_settings =
         SupervisedUserSettingsServiceFactory::GetForKey(
             profile->GetProfileKey());
 
@@ -223,7 +223,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   certificate_transparency::prefs::RegisterPrefs(registry.get());
   flags_ui::PrefServiceFlagsStorage::RegisterPrefs(registry.get());
   media_router::RegisterLocalStatePrefs(registry.get());
-  PluginInfoHostImpl::RegisterUserPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   ProfileNetworkContextService::RegisterLocalStatePrefs(registry.get());
   SSLConfigServiceManager::RegisterPrefs(registry.get());
@@ -309,6 +308,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Based on ChromeContentBrowserClient::RegisterProfilePrefs.
     registry->RegisterBooleanPref(
         prefs::kAccessControlAllowMethodsInCORSPreflightSpecConformant, true);
+
+    // Based on browser_prefs::RegisterProfilePrefs.
+    registry->RegisterBooleanPref(prefs::kAccessibilityPdfOcrAlwaysActive,
+                                  false);
 
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.

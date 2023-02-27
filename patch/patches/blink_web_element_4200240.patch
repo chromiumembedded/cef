@@ -1,0 +1,43 @@
+diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
+index a23dd0a402704..91e4d3615fb6a 100644
+--- third_party/blink/public/web/web_element.h
++++ third_party/blink/public/web/web_element.h
+@@ -81,6 +81,9 @@ class BLINK_EXPORT WebElement : public WebNode {
+   void SetAttribute(const WebString& name, const WebString& value);
+   WebString TextContent() const;
+   WebString InnerHTML() const;
++  WebString AttributeLocalName(unsigned index) const;
++  WebString AttributeValue(unsigned index) const;
++  unsigned AttributeCount() const;
+ 
+   // Returns all <label> elements associated to this element.
+   WebVector<WebLabelElement> Labels() const;
+diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
+index 31c5027c972a7..ae418a4c1d004 100644
+--- third_party/blink/renderer/core/exported/web_element.cc
++++ third_party/blink/renderer/core/exported/web_element.cc
+@@ -106,6 +106,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+                                   IGNORE_EXCEPTION_FOR_TESTING);
+ }
+ 
++unsigned WebElement::AttributeCount() const {
++  if (!ConstUnwrap<Element>()->hasAttributes())
++    return 0;
++  return ConstUnwrap<Element>()->Attributes().size();
++}
++
++WebString WebElement::AttributeLocalName(unsigned index) const {
++  if (index >= AttributeCount())
++    return WebString();
++  return ConstUnwrap<Element>()->Attributes().at(index).LocalName();
++}
++
++WebString WebElement::AttributeValue(unsigned index) const {
++  if (index >= AttributeCount())
++    return WebString();
++  return ConstUnwrap<Element>()->Attributes().at(index).Value();
++}
++
+ WebString WebElement::TextContent() const {
+   return ConstUnwrap<Element>()->textContent();
+ }

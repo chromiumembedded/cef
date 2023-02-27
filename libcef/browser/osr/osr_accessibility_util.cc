@@ -111,8 +111,10 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kDropeffect:
       case ax::mojom::IntAttribute::kMemberOfId:
       case ax::mojom::IntAttribute::kNextFocusId:
+      case ax::mojom::IntAttribute::kNextWindowFocusId:
       case ax::mojom::IntAttribute::kNextOnLineId:
       case ax::mojom::IntAttribute::kPreviousFocusId:
+      case ax::mojom::IntAttribute::kPreviousWindowFocusId:
       case ax::mojom::IntAttribute::kPreviousOnLineId:
       case ax::mojom::IntAttribute::kSetSize:
       case ax::mojom::IntAttribute::kPosInSet:

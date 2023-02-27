@@ -30,6 +30,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/navigation_throttle.h"

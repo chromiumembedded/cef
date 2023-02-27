@@ -17,6 +17,10 @@
 
 #include "content/public/app/content_main_delegate.h"
 
+#if BUILDFLAG(IS_WIN)
+#include "components/spellcheck/common/spellcheck_features.h"
+#endif
+
 namespace base {
 class CommandLine;
 }
@@ -90,6 +94,12 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
   AlloyContentClient content_client_;
 
   CefResourceBundleDelegate resource_bundle_delegate_;
+
+#if BUILDFLAG(IS_WIN)
+  // TODO: Add support for windows spellcheck service (see issue #3055).
+  spellcheck::ScopedDisableBrowserSpellCheckerForTesting
+      disable_browser_spellchecker_;
+#endif
 };
 
 #endif  // CEF_LIBCEF_COMMON_ALLOY_ALLOY_MAIN_DELEGATE_H_

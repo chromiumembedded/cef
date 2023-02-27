@@ -908,15 +908,17 @@ void CefRenderWidgetHostViewOSR::NotifyHostAndDelegateOnWasShown(
   NOTREACHED();
 }
 
-void CefRenderWidgetHostViewOSR::RequestPresentationTimeFromHostOrDelegate(
-    blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request) {
+void CefRenderWidgetHostViewOSR::
+    RequestSuccessfulPresentationTimeFromHostOrDelegate(
+        blink::mojom::RecordContentToVisibleTimeRequestPtr
+            visible_time_request) {
   // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
   // method should not be called.
   NOTREACHED();
 }
 
 void CefRenderWidgetHostViewOSR::
-    CancelPresentationTimeRequestForHostAndDelegate() {
+    CancelSuccessfulPresentationTimeRequestForHostAndDelegate() {
   // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
   // method should not be called.
   NOTREACHED();

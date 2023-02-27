@@ -123,7 +123,7 @@ class SupportsWeakPtr;
 template <typename T>
 class WeakPtr;
 
-namespace internal {
+namespace cef_internal {
 // These classes are part of the WeakPtr implementation.
 // DO NOT USE THESE CLASSES DIRECTLY YOURSELF.
 
@@ -197,7 +197,7 @@ class WeakPtrBase {
   WeakPtrBase& operator=(WeakPtrBase&& other) noexcept = default;
 
   void reset() {
-    ref_ = internal::WeakReference();
+    ref_ = cef_internal::WeakReference();
     ptr_ = 0;
   }
 
@@ -225,7 +225,7 @@ class SupportsWeakPtrBase {
   template <typename Derived>
   static WeakPtr<Derived> StaticAsWeakPtr(Derived* t) {
     static_assert(
-        std::is_base_of<internal::SupportsWeakPtrBase, Derived>::value,
+        std::is_base_of<cef_internal::SupportsWeakPtrBase, Derived>::value,
         "AsWeakPtr argument must inherit from SupportsWeakPtr");
     return AsWeakPtrImpl<Derived>(t);
   }
@@ -242,7 +242,7 @@ class SupportsWeakPtrBase {
   }
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 
 template <typename T>
 class WeakPtrFactory;
@@ -264,7 +264,7 @@ class WeakPtrFactory;
 /// </pre>
 ///
 template <typename T>
-class WeakPtr : public internal::WeakPtrBase {
+class WeakPtr : public cef_internal::WeakPtrBase {
  public:
   WeakPtr() = default;
   WeakPtr(std::nullptr_t) {}
@@ -325,13 +325,13 @@ class WeakPtr : public internal::WeakPtrBase {
   bool WasInvalidated() const { return ptr_ && !ref_.IsValid(); }
 
  private:
-  friend class internal::SupportsWeakPtrBase;
+  friend class cef_internal::SupportsWeakPtrBase;
   template <typename U>
   friend class WeakPtr;
   friend class SupportsWeakPtr<T>;
   friend class WeakPtrFactory<T>;
 
-  WeakPtr(const internal::WeakReference& ref, T* ptr)
+  WeakPtr(const cef_internal::WeakReference& ref, T* ptr)
       : WeakPtrBase(ref, reinterpret_cast<uintptr_t>(ptr)) {}
 };
 
@@ -355,15 +355,15 @@ bool operator==(std::nullptr_t, const WeakPtr<T>& weak_ptr) {
   return weak_ptr == nullptr;
 }
 
-namespace internal {
+namespace cef_internal {
 class WeakPtrFactoryBase {
  protected:
   WeakPtrFactoryBase(uintptr_t ptr);
   ~WeakPtrFactoryBase();
-  internal::WeakReferenceOwner weak_reference_owner_;
+  cef_internal::WeakReferenceOwner weak_reference_owner_;
   uintptr_t ptr_;
 };
-}  // namespace internal
+}  // namespace cef_internal
 
 ///
 /// A class may be composed of a WeakPtrFactory and thereby control how it
@@ -374,7 +374,7 @@ class WeakPtrFactoryBase {
 /// bool.
 ///
 template <class T>
-class WeakPtrFactory : public internal::WeakPtrFactoryBase {
+class WeakPtrFactory : public cef_internal::WeakPtrFactoryBase {
  public:
   WeakPtrFactory() = delete;
 
@@ -416,7 +416,7 @@ class WeakPtrFactory : public internal::WeakPtrFactoryBase {
 /// destroyed, its use can lead to subtle use-after-destroy issues.
 ///
 template <class T>
-class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
+class SupportsWeakPtr : public cef_internal::SupportsWeakPtrBase {
  public:
   SupportsWeakPtr() = default;
 
@@ -431,7 +431,7 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
   ~SupportsWeakPtr() = default;
 
  private:
-  internal::WeakReferenceOwner weak_reference_owner_;
+  cef_internal::WeakReferenceOwner weak_reference_owner_;
 };
 
 ///
@@ -459,7 +459,7 @@ class SupportsWeakPtr : public internal::SupportsWeakPtrBase {
 ///
 template <typename Derived>
 WeakPtr<Derived> AsWeakPtr(Derived* t) {
-  return internal::SupportsWeakPtrBase::StaticAsWeakPtr<Derived>(t);
+  return cef_internal::SupportsWeakPtrBase::StaticAsWeakPtr<Derived>(t);
 }
 
 }  // namespace base

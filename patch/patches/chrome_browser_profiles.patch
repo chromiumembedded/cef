@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 45357cf77c472..c5a4104a3414f 100644
+index 43431d7a42fe5..a440d7732f7dd 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -656,7 +656,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -659,7 +659,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -84,10 +84,10 @@ index 1e6a22d95a53f..6ec4182bfc5e7 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 1340e751c0381..a0875155ddad2 100644
+index 6836199037155..5e0ad06d62fe9 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1013,7 +1013,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1018,7 +1018,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -99,10 +99,10 @@ index 1340e751c0381..a0875155ddad2 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 4f6dd066df3de..4d04f0ad554df 100644
+index 145d5d837ae86..6eeb39eddc79b 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -381,7 +381,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -385,7 +385,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  

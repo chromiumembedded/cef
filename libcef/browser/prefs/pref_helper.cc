@@ -29,7 +29,7 @@ const char* GetTypeString(base::Value::Type type) {
       return "STRING";
     case base::Value::Type::BINARY:
       return "BINARY";
-    case base::Value::Type::DICTIONARY:
+    case base::Value::Type::DICT:
       return "DICTIONARY";
     case base::Value::Type::LIST:
       return "LIST";
@@ -57,7 +57,7 @@ CefRefPtr<CefValue> GetPreference(PrefService* pref_service,
 CefRefPtr<CefDictionaryValue> GetAllPreferences(PrefService* pref_service,
                                                 bool include_defaults) {
   // Returns a DeepCopy of the value.
-  base::Value values = pref_service->GetPreferenceValues(
+  auto values = pref_service->GetPreferenceValues(
       include_defaults ? PrefService::INCLUDE_DEFAULTS
                        : PrefService::EXCLUDE_DEFAULTS);
 

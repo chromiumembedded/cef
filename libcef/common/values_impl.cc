@@ -418,7 +418,7 @@ void CefValueImpl::SetValueInternal(absl::optional<base::Value> value) {
       case base::Value::Type::BINARY:
         binary_value_ = new CefBinaryValueImpl(std::move(*value));
         break;
-      case base::Value::Type::DICTIONARY:
+      case base::Value::Type::DICT:
         dictionary_value_ =
             new CefDictionaryValueImpl(std::move(*value), /*read_only=*/false);
         break;
@@ -828,7 +828,7 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
         return VTYPE_STRING;
       case base::Value::Type::BINARY:
         return VTYPE_BINARY;
-      case base::Value::Type::DICTIONARY:
+      case base::Value::Type::DICT:
         return VTYPE_DICTIONARY;
       case base::Value::Type::LIST:
         return VTYPE_LIST;
@@ -1275,7 +1275,7 @@ CefValueType CefListValueImpl::GetType(size_t index) {
         return VTYPE_STRING;
       case base::Value::Type::BINARY:
         return VTYPE_BINARY;
-      case base::Value::Type::DICTIONARY:
+      case base::Value::Type::DICT:
         return VTYPE_DICTIONARY;
       case base::Value::Type::LIST:
         return VTYPE_LIST;

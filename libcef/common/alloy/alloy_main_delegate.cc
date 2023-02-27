@@ -33,7 +33,6 @@
 #include "components/component_updater/component_updater_paths.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/embedder_support/switches.h"
-#include "components/spellcheck/common/spellcheck_features.h"
 #include "components/viz/common/features.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
@@ -259,12 +258,6 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       // TODO: Add support for occlusion detection in combination with native
       // parent windows (see issue #2805).
       disable_features.push_back(features::kCalculateNativeWinOcclusion.name);
-    }
-
-    if (spellcheck::kWinUseBrowserSpellChecker.default_state ==
-        base::FEATURE_ENABLED_BY_DEFAULT) {
-      // TODO: Add support for windows spellcheck service (see issue #3055).
-      disable_features.push_back(spellcheck::kWinUseBrowserSpellChecker.name);
     }
 #endif  // BUILDFLAG(IS_WIN)
 

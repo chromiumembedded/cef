@@ -44,10 +44,10 @@ index caa20ec03434a..2a3ca921445c1 100644
        avatar_toolbar_button, GetBrowser().profile(), type);
    DCHECK_EQ(nullptr, bubble_tracker_.view());
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index 723920ef96f9a..cb3cbbd18a957 100644
+index f5f266328283d..672609d94d1b7 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
-@@ -37,7 +37,9 @@
+@@ -36,7 +36,9 @@
  IncognitoMenuView::IncognitoMenuView(views::Button* anchor_button,
                                       Browser* browser)
      : ProfileMenuViewBase(anchor_button, browser) {

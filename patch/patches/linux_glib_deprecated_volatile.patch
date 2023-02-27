@@ -1,5 +1,5 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 3bec9f0f7d46f..59c527bdd29cd 100644
+index ebc2470893838..dd3b924499c9c 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
 @@ -285,6 +285,10 @@ component("platform") {
@@ -14,10 +14,10 @@ index 3bec9f0f7d46f..59c527bdd29cd 100644
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 4fc6b6d617832..77f17ecf4caf0 100644
+index 76ab8c9765bec..8bc3cdd0fec96 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
-@@ -176,4 +176,8 @@ component("gtk") {
+@@ -174,4 +174,8 @@ component("gtk") {
  
    # TODO: This should be removed.
    deps += [ "//ui/ozone" ]

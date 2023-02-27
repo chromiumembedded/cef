@@ -13,7 +13,7 @@ index 3bfd99c004c55..e95bb2a6d78c2 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index fe0f45376b729..2120ae8ef7665 100644
+index 21e72bb8a6994..f4d9994c2fc57 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -130,7 +130,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
@@ -58,7 +58,7 @@ index 81013d6eb993a..89abfbe7fec6c 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 27861ffd3321e..6983995e38815 100644
+index 3ee340ca7e21f..f341d1e25a0ab 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -568,7 +568,7 @@ bool DatabaseTracker::LazyInit() {
