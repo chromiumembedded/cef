@@ -79,11 +79,6 @@ void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
                                         delegates);
   CreateThreadRendererTests(delegates);
 
-  // Bring in the URLRequest tests.
-  extern void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet &
-                                            delegates);
-  CreateURLRequestRendererTests(delegates);
-
   // Bring in the V8 tests.
   extern void CreateV8RendererTests(ClientAppRenderer::DelegateSet & delegates);
   CreateV8RendererTests(delegates);

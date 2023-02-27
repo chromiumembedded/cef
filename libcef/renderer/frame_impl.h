@@ -27,8 +27,6 @@ class ListValue;
 namespace blink {
 class ResourceLoadInfoNotifierWrapper;
 class WebLocalFrame;
-class WebURLLoader;
-class WebURLLoaderFactory;
 }  // namespace blink
 
 class GURL;
@@ -83,11 +81,6 @@ class CefFrameImpl
       CefRefPtr<CefURLRequestClient> client) override;
   void SendProcessMessage(CefProcessId target_process,
                           CefRefPtr<CefProcessMessage> message) override;
-
-  // Used by CefRenderURLRequest.
-  std::unique_ptr<blink::WebURLLoader> CreateURLLoader();
-  std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
-  CreateResourceLoadInfoNotifierWrapper();
 
   // Forwarded from CefRenderFrameObserver.
   void OnAttached();
@@ -196,8 +189,6 @@ class CefFrameImpl
 
   std::queue<std::pair<std::string, BrowserFrameAction>>
       queued_browser_actions_;
-
-  std::unique_ptr<blink::WebURLLoaderFactory> url_loader_factory_;
 
   mojo::Receiver<cef::mojom::RenderFrame> receiver_{this};
 

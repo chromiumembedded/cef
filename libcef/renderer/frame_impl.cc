@@ -17,6 +17,7 @@
 #endif
 #endif
 
+#include "include/cef_urlrequest.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/frame_util.h"
 #include "libcef/common/net/http_header_utils.h"
@@ -28,7 +29,6 @@
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
 #include "libcef/renderer/render_frame_util.h"
-#include "libcef/renderer/render_urlrequest_impl.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 
@@ -37,11 +37,9 @@
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
 #include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink.h"
-#include "third_party/blink/public/platform/web_back_forward_cache_loader_helper.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
-#include "third_party/blink/public/platform/web_url_loader.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_document.h"
 #include "third_party/blink/public/web/web_document_loader.h"
@@ -260,17 +258,7 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
-  CEF_REQUIRE_RT_RETURN(nullptr);
-
-  if (!request || !client || !frame_) {
-    return nullptr;
-  }
-
-  CefRefPtr<CefRenderURLRequest> impl =
-      new CefRenderURLRequest(this, request, client);
-  if (impl->Start()) {
-    return impl.get();
-  }
+  NOTREACHED() << "CreateURLRequest cannot be called from the render process";
   return nullptr;
 }
 
@@ -307,42 +295,6 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
             },
             message->GetName(), std::move(region)));
   }
-}
-
-std::unique_ptr<blink::WebURLLoader> CefFrameImpl::CreateURLLoader() {
-  CEF_REQUIRE_RT();
-  if (!frame_) {
-    return nullptr;
-  }
-
-  if (!url_loader_factory_) {
-    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
-    if (render_frame) {
-      url_loader_factory_ = render_frame->CreateURLLoaderFactory();
-    }
-  }
-  if (!url_loader_factory_) {
-    return nullptr;
-  }
-
-  return url_loader_factory_->CreateURLLoader(
-      blink::WebURLRequest(),
-      blink_glue::CreateResourceLoadingTaskRunnerHandle(frame_),
-      blink_glue::CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(frame_),
-      /*keep_alive_handle=*/mojo::NullRemote(),
-      blink::WebBackForwardCacheLoaderHelper());
-}
-
-std::unique_ptr<blink::ResourceLoadInfoNotifierWrapper>
-CefFrameImpl::CreateResourceLoadInfoNotifierWrapper() {
-  CEF_REQUIRE_RT();
-  if (frame_) {
-    auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
-    if (render_frame) {
-      return render_frame->CreateResourceLoadInfoNotifierWrapper();
-    }
-  }
-  return nullptr;
 }
 
 void CefFrameImpl::OnAttached() {
@@ -461,7 +413,6 @@ void CefFrameImpl::OnDetached() {
   OnDisconnect(DisconnectReason::DETACHED);
 
   browser_ = nullptr;
-  url_loader_factory_.reset();
 
   // In case we never attached.
   while (!queued_browser_actions_.empty()) {

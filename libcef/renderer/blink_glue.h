@@ -25,10 +25,6 @@ class WebString;
 class WebURLRequest;
 class WebURLResponse;
 class WebView;
-
-namespace scheduler {
-class WebResourceLoadingTaskRunnerHandle;
-}
 }  // namespace blink
 
 namespace blink_glue {
@@ -127,15 +123,6 @@ BLINK_EXPORT bool HasPluginFrameOwner(blink::WebLocalFrame* frame);
 
 BLINK_EXPORT void StartNavigation(blink::WebLocalFrame* frame,
                                   const blink::WebURLRequest& request);
-
-// Used by CefFrameImpl::CreateURLLoader.
-BLINK_EXPORT
-std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
-CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame);
-BLINK_EXPORT
-std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
-CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
-    blink::WebLocalFrame* frame);
 
 }  // namespace blink_glue
 

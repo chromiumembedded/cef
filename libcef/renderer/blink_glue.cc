@@ -6,7 +6,6 @@
 #include "libcef/renderer/blink_glue.h"
 
 #include "third_party/blink/public/mojom/v8_cache_options.mojom-blink.h"
-#include "third_party/blink/public/platform/scheduler/web_resource_loading_task_runner_handle.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -37,8 +36,6 @@
 #include "third_party/blink/renderer/platform/bindings/v8_binding.h"
 #include "third_party/blink/renderer/platform/loader/fetch/resource_response.h"
 #include "third_party/blink/renderer/platform/loader/fetch/script_fetch_options.h"
-#include "third_party/blink/renderer/platform/scheduler/public/frame_scheduler.h"
-#include "third_party/blink/renderer/platform/scheduler/public/page_scheduler.h"
 #include "third_party/blink/renderer/platform/weborigin/scheme_registry.h"
 #undef LOG
 
@@ -316,23 +313,6 @@ void StartNavigation(blink::WebLocalFrame* frame,
   blink::To<blink::LocalFrame>(core_frame)
       ->Loader()
       .StartNavigation(frame_load_request, blink::WebFrameLoadType::kStandard);
-}
-
-std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
-CreateResourceLoadingTaskRunnerHandle(blink::WebLocalFrame* frame) {
-  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
-  return blink::To<blink::LocalFrame>(core_frame)
-      ->GetFrameScheduler()
-      ->CreateResourceLoadingTaskRunnerHandle();
-}
-
-std::unique_ptr<blink::scheduler::WebResourceLoadingTaskRunnerHandle>
-CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle(
-    blink::WebLocalFrame* frame) {
-  blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*frame);
-  return blink::To<blink::LocalFrame>(core_frame)
-      ->GetFrameScheduler()
-      ->CreateResourceLoadingMaybeUnfreezableTaskRunnerHandle();
 }
 
 }  // namespace blink_glue

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b9b1308311999efcfd2aa678472f934ca783492c$
+// $hash=5bed8359f09a821f4b5ec8ebfad0aa5720bf39f9$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -216,23 +216,15 @@ typedef struct _cef_frame_t {
 
   ///
   /// Create a new URL request that will be treated as originating from this
-  /// frame and the associated browser. This request may be intercepted by the
-  /// client via cef_resource_request_handler_t or cef_scheme_handler_factory_t.
-  /// Use cef_urlrequest_t::Create instead if you do not want the request to
-  /// have this association, in which case it may be handled differently (see
-  /// documentation on that function). Requests may originate from both the
-  /// browser process and the render process.
-  ///
-  /// For requests originating from the browser process:
+  /// frame and the associated browser. Use cef_urlrequest_t::Create instead if
+  /// you do not want the request to have this association, in which case it may
+  /// be handled differently (see documentation on that function). A request
+  /// created with this function may only originate from the browser process,
+  /// and will behave as follows:
+  ///   - It may be intercepted by the client via CefResourceRequestHandler or
+  ///     CefSchemeHandlerFactory.
   ///   - POST data may only contain a single element of type PDE_TYPE_FILE or
   ///     PDE_TYPE_BYTES.
-  ///
-  /// For requests originating from the render process:
-  ///   - POST data may only contain a single element of type PDE_TYPE_BYTES.
-  ///   - If the response contains Content-Disposition or Mime-Type header
-  ///     values that would not normally be rendered then the response may
-  ///     receive special handling inside the browser (for example, via the
-  ///     file download code path instead of the URL request code path).
   ///
   /// The |request| object will be marked as read-only after calling this
   /// function.
