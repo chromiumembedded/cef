@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af80a36cdcb47a18eb1ac8bc3315dfd322f4e96e$
+// $hash=18f715de465689a4e8484bbced8ad92d9434438a$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -265,6 +265,62 @@ window_delegate_is_frameless(struct _cef_window_delegate_t* self,
   // Execute
   bool _retval = CefWindowDelegateCppToC::Get(self)->IsFrameless(
       CefWindowCToCpp::Wrap(window));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK window_delegate_with_standard_window_buttons(
+    struct _cef_window_delegate_t* self,
+    cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->WithStandardWindowButtons(
+      CefWindowCToCpp::Wrap(window));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+window_delegate_get_titlebar_height(struct _cef_window_delegate_t* self,
+                                    cef_window_t* window,
+                                    float* titlebar_height) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return 0;
+  }
+  // Verify param: titlebar_height; type: simple_byaddr
+  DCHECK(titlebar_height);
+  if (!titlebar_height) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->GetTitlebarHeight(
+      CefWindowCToCpp::Wrap(window), titlebar_height);
 
   // Return type: bool
   return _retval;
@@ -705,6 +761,9 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
   GetStruct()->get_initial_show_state = window_delegate_get_initial_show_state;
   GetStruct()->is_frameless = window_delegate_is_frameless;
+  GetStruct()->with_standard_window_buttons =
+      window_delegate_with_standard_window_buttons;
+  GetStruct()->get_titlebar_height = window_delegate_get_titlebar_height;
   GetStruct()->can_resize = window_delegate_can_resize;
   GetStruct()->can_maximize = window_delegate_can_maximize;
   GetStruct()->can_minimize = window_delegate_can_minimize;

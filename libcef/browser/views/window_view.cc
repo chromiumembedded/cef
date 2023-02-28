@@ -312,6 +312,15 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
       DCHECK(!params.bounds.IsEmpty());
     } else {
       is_frameless_ = cef_delegate()->IsFrameless(cef_window);
+
+      const bool with_standard_buttons =
+          cef_delegate()->WithStandardWindowButtons(cef_window);
+
+      const auto title_bar_height = GetTitlebarHeight(cef_window);
+
+      params.native_widget = view_util::CreateNativeWidget(
+          widget, is_frameless_, with_standard_buttons, title_bar_height);
+
       can_resize = cef_delegate()->CanResize(cef_window);
 
       const auto show_state = cef_delegate()->GetInitialShowState(cef_window);
@@ -656,4 +665,15 @@ views::NonClientFrameView* CefWindowView::GetNonClientFrameView() const {
     return nullptr;
   }
   return widget->non_client_view()->frame_view();
+}
+
+absl::optional<float> CefWindowView::GetTitlebarHeight(
+    const CefRefPtr<CefWindow>& window) const {
+  float title_bar_height = 0;
+  const bool has_title_bar_height =
+      cef_delegate()->GetTitlebarHeight(window, &title_bar_height);
+  if (has_title_bar_height) {
+    return title_bar_height;
+  }
+  return absl::nullopt;
 }

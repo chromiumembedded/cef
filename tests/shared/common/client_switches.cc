@@ -52,6 +52,7 @@ const char kHideChromeStatusBubble[] = "hide-chrome-status-bubble";
 const char kUseDefaultPopup[] = "use-default-popup";
 const char kUseClientDialogs[] = "use-client-dialogs";
 const char kUseTestHttpServer[] = "use-test-http-server";
+const char kShowWindowButtons[] = "show-window-buttons";
 
 }  // namespace switches
 }  // namespace client

@@ -6,6 +6,8 @@
 
 #include "ui/aura/window.h"
 #include "ui/aura/window_tree_host.h"
+#include "ui/views/widget/native_widget.h"
+#include "ui/views/widget/native_widget_delegate.h"
 #include "ui/views/widget/widget.h"
 
 namespace view_util {
@@ -38,6 +40,14 @@ CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
     return window->GetHost()->GetAcceleratedWidget();
   }
   return kNullWindowHandle;
+}
+
+views::NativeWidget* CreateNativeWidget(
+    views::internal::NativeWidgetDelegate* delegate,
+    bool is_frameless,
+    bool with_window_buttons,
+    absl::optional<float> title_bar_height) {
+  return nullptr;
 }
 
 }  // namespace view_util

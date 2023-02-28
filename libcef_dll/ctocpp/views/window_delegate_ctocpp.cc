@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=18f601c8e152c39928595e1f02c9274f0dc6ce8a$
+// $hash=40aea12873a3c8803c9d2d6c06a0270197ead58e$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -252,6 +252,63 @@ bool CefWindowDelegateCToCpp::IsFrameless(CefRefPtr<CefWindow> window) {
 
   // Execute
   int _retval = _struct->is_frameless(_struct, CefWindowCppToC::Wrap(window));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefWindowDelegateCToCpp::WithStandardWindowButtons(
+    CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, with_standard_window_buttons)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->with_standard_window_buttons(
+      _struct, CefWindowCppToC::Wrap(window));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefWindowDelegateCToCpp::GetTitlebarHeight(CefRefPtr<CefWindow> window,
+                                                float* titlebar_height) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_titlebar_height)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return false;
+  }
+  // Verify param: titlebar_height; type: simple_byaddr
+  DCHECK(titlebar_height);
+  if (!titlebar_height) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->get_titlebar_height(
+      _struct, CefWindowCppToC::Wrap(window), titlebar_height);
 
   // Return type: bool
   return _retval ? true : false;
