@@ -174,6 +174,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
   cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
+  bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) override;
+  bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
+                         float* titlebar_height) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
@@ -238,6 +241,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool frameless_;
   bool with_controls_;
   bool with_overlay_controls_;
+  bool with_standard_buttons_;
   ChromeToolbarType chrome_toolbar_type_;
   CefRefPtr<CefWindow> window_;
 

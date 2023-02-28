@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=019abf16be4e151d31181a6bdcb1ad8dfef03d00$
+// $hash=9f0389a439e6787282880d53375369829adb6a3d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -136,6 +136,25 @@ typedef struct _cef_window_delegate_t {
   ///
   int(CEF_CALLBACK* is_frameless)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window);
+
+  ///
+  /// Return true (1) if |window| should be created with standard window buttons
+  /// like close, minimize and zoom.
+  ///
+  int(CEF_CALLBACK* with_standard_window_buttons)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
+
+  ///
+  /// Return whether the titlebar height should be overridden, and sets the
+  /// height of the titlebar in |titlebar_height|. On macOS, it can also be used
+  /// to adjust the vertical position of the traffic light buttons in frameless
+  /// windows. The buttons will be positioned halfway down the titlebar at a
+  /// height of |titlebar_height| / 2.
+  ///
+  int(CEF_CALLBACK* get_titlebar_height)(struct _cef_window_delegate_t* self,
+                                         struct _cef_window_t* window,
+                                         float* titlebar_height);
 
   ///
   /// Return true (1) if |window| can be resized.

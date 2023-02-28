@@ -34,6 +34,11 @@ const char kDefaultExtensionIcon[] = "window_icon";
 constexpr int kDefaultWidth = 800;
 constexpr int kDefaultHeight = 600;
 
+#if defined(OS_MAC)
+constexpr int kTitleBarHeight = 35;
+constexpr int kWindowButtonsWidth = 80;
+#endif
+
 // Control IDs for Views in the top-level Window.
 enum ControlIds {
   ID_WINDOW = 1,
@@ -104,6 +109,22 @@ void AddFileMenuItems(CefRefPtr<CefMenuModel> file_menu) {
   // Show the accelerator shortcut text in the menu.
   file_menu->SetAcceleratorAt(file_menu->GetCount() - 1, 'X', false, false,
                               true);
+}
+
+CefBrowserViewDelegate::ChromeToolbarType CalculateChromeToolbarType(
+    const std::string& toolbar_type,
+    bool hide_toolbar,
+    bool with_overlay_controls) {
+  if (!MainContext::Get()->UseChromeRuntime() || toolbar_type == "none" ||
+      hide_toolbar) {
+    return CEF_CTT_NONE;
+  }
+
+  if (toolbar_type == "location") {
+    return CEF_CTT_LOCATION;
+  }
+
+  return with_overlay_controls ? CEF_CTT_LOCATION : CEF_CTT_NORMAL;
 }
 
 }  // namespace
@@ -278,17 +299,13 @@ void ViewsWindow::SetDraggableRegions(
     return;
   }
 
-  std::vector<CefDraggableRegion> window_regions;
-
   // Convert the regions from BrowserView to Window coordinates.
-  std::vector<CefDraggableRegion>::const_iterator it = regions.begin();
-  for (; it != regions.end(); ++it) {
-    CefDraggableRegion region = *it;
+  std::vector<CefDraggableRegion> window_regions = regions;
+  for (auto& region : window_regions) {
     CefPoint origin = CefPoint(region.bounds.x, region.bounds.y);
     browser_view_->ConvertPointToWindow(origin);
     region.bounds.x = origin.x;
     region.bounds.y = origin.y;
-    window_regions.push_back(region);
   }
 
   if (overlay_controls_) {
@@ -653,6 +670,14 @@ void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
     // Track the last visible bounds for window restore purposes.
     last_visible_bounds_ = new_bounds;
   }
+
+#if defined(OS_MAC)
+  if (frameless_ && with_standard_buttons_ && top_toolbar_) {
+    auto insets = top_toolbar_->GetInsets();
+    insets.left = window->IsFullscreen() ? 0 : kWindowButtonsWidth;
+    top_toolbar_->SetInsets(insets);
+  }
+#endif
 }
 
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
@@ -699,6 +724,24 @@ cef_show_state_t ViewsWindow::GetInitialShowState(CefRefPtr<CefWindow> window) {
 bool ViewsWindow::IsFrameless(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   return frameless_;
+}
+
+bool ViewsWindow::WithStandardWindowButtons(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  return with_standard_buttons_;
+}
+
+bool ViewsWindow::GetTitlebarHeight(CefRefPtr<CefWindow> window,
+                                    float* titlebar_height) {
+  CEF_REQUIRE_UI_THREAD();
+#if defined(OS_MAC)
+  if (frameless_ && with_standard_buttons_) {
+    *titlebar_height = kTitleBarHeight;
+    return true;
+  }
+#endif
+
+  return false;
 }
 
 bool ViewsWindow::CanResize(CefRefPtr<CefWindow> window) {
@@ -815,7 +858,9 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
     }
 
     if (with_overlay_controls_) {
-      overlay_controls_ = new ViewsOverlayControls();
+      // Add window buttons if we don't have standard ones
+      const bool with_window_buttons = !with_standard_buttons_;
+      overlay_controls_ = new ViewsOverlayControls(with_window_buttons);
       overlay_controls_->Initialize(window_, CreateMenuButton(),
                                     CreateLocationBar(),
                                     chrome_toolbar_type_ != CEF_CTT_NONE);
@@ -865,6 +910,10 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
 
   const bool hide_frame = command_line->HasSwitch(switches::kHideFrame);
   const bool hide_overlays = command_line->HasSwitch(switches::kHideOverlays);
+  const bool hide_toolbar =
+      hide_frame && hide_overlays && !delegate_->WithControls();
+  const bool show_window_buttons =
+      command_line->HasSwitch(switches::kShowWindowButtons);
 
   // Without a window frame.
   frameless_ = hide_frame || delegate_->WithExtension();
@@ -873,20 +922,13 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
   with_overlay_controls_ =
       hide_frame && !hide_overlays && !delegate_->WithControls();
 
-  if (MainContext::Get()->UseChromeRuntime()) {
-    const std::string& toolbar_type =
-        command_line->GetSwitchValue(switches::kShowChromeToolbar);
-    if (toolbar_type == "none") {
-      chrome_toolbar_type_ = CEF_CTT_NONE;
-    } else if (toolbar_type == "location") {
-      chrome_toolbar_type_ = CEF_CTT_LOCATION;
-    } else {
-      chrome_toolbar_type_ =
-          with_overlay_controls_ ? CEF_CTT_LOCATION : CEF_CTT_NORMAL;
-    }
-  } else {
-    chrome_toolbar_type_ = CEF_CTT_NONE;
-  }
+  // If window has frame or flag passed explicitly
+  with_standard_buttons_ = !frameless_ || show_window_buttons;
+
+  const std::string& toolbar_type =
+      command_line->GetSwitchValue(switches::kShowChromeToolbar);
+  chrome_toolbar_type_ = CalculateChromeToolbarType(toolbar_type, hide_toolbar,
+                                                    with_overlay_controls_);
 
 #if !defined(OS_MAC)
   // On Mac we don't show a top menu on the window. The options are available in
@@ -1025,9 +1067,8 @@ void ViewsWindow::AddControls() {
         top_panel->SetToBoxLayout(top_panel_layout_settings);
 
     // Add the buttons and URL textfield to |top_panel|.
-    for (size_t i = 0U; i < browse_buttons.size(); ++i) {
-      top_panel->AddChildView(browse_buttons[i]);
-    }
+    for (auto& browse_button : browse_buttons)
+      top_panel->AddChildView(browse_button);
     top_panel->AddChildView(location_bar_);
 
     UpdateExtensionControls();
@@ -1042,6 +1083,14 @@ void ViewsWindow::AddControls() {
 
     top_toolbar_ = top_panel;
   }
+
+#if defined(OS_MAC)
+  if (frameless_ && with_standard_buttons_) {
+    auto insets = top_toolbar_->GetInsets();
+    insets.left = kWindowButtonsWidth;
+    top_toolbar_->SetInsets(insets);
+  }
+#endif
 
   // Add the top panel and browser view to |window|.
   int top_index = 0;
@@ -1061,8 +1110,10 @@ void ViewsWindow::AddControls() {
     // Lay out |window| again with the new button sizes.
     window_->Layout();
 
+    const int buttons_number = static_cast<int>(browse_buttons.size());
+
     // Minimum window width is the size of all buttons plus some extra.
-    min_width = browse_buttons[0]->GetBounds().width * 4 +
+    min_width = browse_buttons[0]->GetBounds().width * buttons_number +
                 menu_button_->GetBounds().width + 100;
   }
 

@@ -129,6 +129,29 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual bool IsFrameless(CefRefPtr<CefWindow> window) { return false; }
 
   ///
+  /// Return true if |window| should be created with standard window buttons
+  /// like close, minimize and zoom.
+  ///
+  /*--cef()--*/
+  virtual bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) {
+    return false;
+  }
+
+  ///
+  /// Return whether the titlebar height should be overridden,
+  /// and sets the height of the titlebar in |titlebar_height|.
+  /// On macOS, it can also be used to adjust the vertical position
+  /// of the traffic light buttons in frameless windows.
+  /// The buttons will be positioned halfway down the titlebar
+  /// at a height of |titlebar_height| / 2.
+  ///
+  /*--cef()--*/
+  virtual bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
+                                 float* titlebar_height) {
+    return false;
+  }
+
+  ///
   /// Return true if |window| can be resized.
   ///
   /*--cef()--*/

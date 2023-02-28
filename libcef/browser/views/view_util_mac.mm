@@ -7,6 +7,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "include/internal/cef_types_mac.h"
+#include "libcef/browser/views/native_widget_mac.h"
 
 #include "ui/views/widget/widget.h"
 
@@ -44,4 +45,12 @@ CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
   return kNullWindowHandle;
 }
 
+views::NativeWidget* CreateNativeWidget(
+    views::internal::NativeWidgetDelegate* delegate,
+    bool is_frameless,
+    bool with_window_buttons,
+    absl::optional<float> title_bar_height) {
+  return new CefNativeWidgetMac(delegate, is_frameless, with_window_buttons,
+                                title_bar_height);
+}
 }  // namespace view_util
