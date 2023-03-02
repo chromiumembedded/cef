@@ -183,6 +183,7 @@ def GetChromiumDefaultArgs():
     defaults['visual_studio_version'] = ''
     defaults['visual_studio_runtime_dirs'] = ''
     defaults['windows_sdk_path'] = ''
+    defaults['windows_sdk_version'] = ''
 
   return defaults
 
@@ -347,6 +348,7 @@ def ValidateArgs(args):
     visual_studio_version = GetArgValue(args, 'visual_studio_version')
     visual_studio_runtime_dirs = GetArgValue(args, 'visual_studio_runtime_dirs')
     windows_sdk_path = GetArgValue(args, 'windows_sdk_path')
+    windows_sdk_version = GetArgValue(args, 'windows_sdk_version')
 
   # Target CPU architecture.
   # - Windows supports "x86", "x64" and "arm64".
@@ -400,6 +402,8 @@ def ValidateArgs(args):
     #   windows_sdk_path="<path to WinSDK>"
     #     The directory that contains the Win SDK. For example, a subset of
     #     "C:\Program Files (x86)\Windows Kits\10".
+    #   windows_sdk_version="<WinSDK version>"
+    #     The WinSDK version. For example, "10.0.22621.0".
     #
     # Required environment variables:
     #   DEPOT_TOOLS_WIN_TOOLCHAIN=0
@@ -418,6 +422,7 @@ def ValidateArgs(args):
       assert visual_studio_version != '', 'visual_studio_path requires visual_studio_version'
       assert visual_studio_runtime_dirs != '', 'visual_studio_path requires visual_studio_runtime_dirs'
       assert windows_sdk_path != '', 'visual_studio_path requires windows_sdk_path'
+      assert windows_sdk_version != '', 'visual_studio_path requires windows_sdk_version'
 
       assert os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '') == '0', \
         "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"

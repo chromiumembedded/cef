@@ -93,6 +93,7 @@ if platform == 'windows':
   #
   #   set VS_CRT_ROOT=<VS CRT root directory>
   #   set SDK_ROOT=<Platform SDK root directory>
+  #   set SDK_VERSION=<Platform SDK version>
   #
   # o Used by various scripts as described above. These values are optional when
   #   vcvarsall.bat [1] exists.
@@ -119,6 +120,7 @@ if platform == 'windows':
         'GYP_MSVS_VERSION',
         'VS_CRT_ROOT',
         'SDK_ROOT',
+        'SDK_VERSION',
     ]
     for var in required_vars:
       if not var in os.environ.keys():
@@ -129,6 +131,7 @@ if platform == 'windows':
     gn_args['visual_studio_version'] = os.environ['GYP_MSVS_VERSION']
     gn_args['visual_studio_runtime_dirs'] = os.environ['VS_CRT_ROOT']
     gn_args['windows_sdk_path'] = os.environ['SDK_ROOT']
+    gn_args['windows_sdk_version'] = os.environ['SDK_VERSION']
 
 configs = GetAllPlatformConfigs(gn_args)
 for dir, config in configs.items():

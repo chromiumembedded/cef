@@ -35,10 +35,18 @@ index 057b4081c95e5..9817b4c62a89e 100644
      deps += [ "//printing:printing_unittests" ]
    }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 2314ab505bfa2..9b79bce8fff54 100644
+index 2314ab505bfa2..f10698a79102e 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
-@@ -12,9 +12,8 @@ declare_args() {
+@@ -5,21 +5,23 @@
+ declare_args() {
+   # Path to Visual Studio. If empty, the default is used which is to use the
+   # automatic toolchain in depot_tools. If set, you must also set the
+-  # visual_studio_version and wdk_path.
++  # visual_studio_version, wdk_path and windows_sdk_version.
+   visual_studio_path = ""
+ 
+   # Version of Visual Studio pointed to by the visual_studio_path.
    # Currently always "2015".
    visual_studio_version = ""
  
@@ -50,7 +58,15 @@ index 2314ab505bfa2..9b79bce8fff54 100644
  
    # Full path to the Windows SDK, not including a backslash at the end.
    # This value is the default location, override if you have a different
-@@ -29,12 +28,11 @@ if (visual_studio_path == "") {
+   # installation location.
+   windows_sdk_path = "C:\Program Files (x86)\Windows Kits\10"
++
++  # Version of the Windows SDK pointed to by the windows_sdk_path.
++  windows_sdk_version = ""
+ }
+ 
+ if (visual_studio_path == "") {
+@@ -29,12 +31,13 @@ if (visual_studio_path == "") {
    windows_sdk_version = toolchain_data.sdk_version
    windows_sdk_path = toolchain_data.sdk_path
    visual_studio_version = toolchain_data.vs_version
@@ -62,6 +78,8 @@ index 2314ab505bfa2..9b79bce8fff54 100644
 -  assert(wdk_path != "",
 -         "You must set the wdk_path if you set the visual studio path")
 -  visual_studio_runtime_dirs = []
++  assert(windows_sdk_version != "",
++         "You must set the windows_sdk_version if you set the path")
 +  assert(visual_studio_runtime_dirs != "",
 +         "You must set the visual_studio_runtime_dirs if you set the visual " +
 +         "studio path")
