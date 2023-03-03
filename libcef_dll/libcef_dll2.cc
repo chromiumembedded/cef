@@ -67,10 +67,6 @@ CEF_EXPORT int cef_run_main_with_preferred_stack_size(mainPtr main,
 }
 #endif  // defined(ARCH_CPU_32_BITS)
 
-CEF_EXPORT void cef_enable_highdpi_support() {
-  CefEnableHighDPISupport();
-}
-
 CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop) {
   CefSetOSModalLoop(osModalLoop ? true : false);
 }

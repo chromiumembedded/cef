@@ -23,7 +23,6 @@
 #if BUILDFLAG(IS_WIN)
 #include "base/debug/alias.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/win/win_util.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
 #include "include/internal/cef_win.h"
@@ -400,10 +399,6 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]) {
   return RunMainWithPreferredStackSize(fiber_state);
 }
 #endif  // defined(ARCH_CPU_32_BITS)
-
-void CefEnableHighDPISupport() {
-  base::win::EnableHighDPISupport();
-}
 
 void CefSetOSModalLoop(bool osModalLoop) {
   // Verify that the context is in a valid state.

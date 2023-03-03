@@ -35,9 +35,6 @@ namespace client {
 namespace {
 
 int RunMain(HINSTANCE hInstance, int nCmdShow) {
-  // Enable High-DPI support on Windows 7 or newer.
-  CefEnableHighDPISupport();
-
   CefMainArgs main_args(hInstance);
 
   void* sandbox_info = nullptr;

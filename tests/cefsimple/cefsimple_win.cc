@@ -46,9 +46,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   }
 #endif
 
-  // Enable High-DPI support on Windows 7 or newer.
-  CefEnableHighDPISupport();
-
   void* sandbox_info = nullptr;
 
 #if defined(CEF_USE_SANDBOX)

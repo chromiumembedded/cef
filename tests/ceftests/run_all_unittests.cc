@@ -142,11 +142,6 @@ int main(int argc, char* argv[]) {
   CefTestSuite test_suite(argc, argv);
 
 #if defined(OS_WIN)
-  if (test_suite.command_line()->HasSwitch("enable-high-dpi-support")) {
-    // Enable High-DPI support on Windows 7 and newer.
-    CefEnableHighDPISupport();
-  }
-
   CefMainArgs main_args(::GetModuleHandle(nullptr));
 #else
   CefMainArgs main_args(argc, argv);

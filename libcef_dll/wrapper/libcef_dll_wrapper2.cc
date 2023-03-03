@@ -44,17 +44,6 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]) {
 }
 #endif  // defined(ARCH_CPU_32_BITS)
 
-NO_SANITIZE("cfi-icall") void CefEnableHighDPISupport() {
-  const char* api_hash = cef_api_hash(0);
-  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
-    // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
-    return;
-  }
-
-  cef_enable_highdpi_support();
-}
-
 NO_SANITIZE("cfi-icall") void CefSetOSModalLoop(bool osModalLoop) {
   cef_set_osmodal_loop(osModalLoop);
 }

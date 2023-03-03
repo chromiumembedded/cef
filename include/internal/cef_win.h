@@ -169,13 +169,6 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]);
 #endif  // defined(ARCH_CPU_32_BITS)
 
 ///
-/// Call during process startup to enable High-DPI support on Windows 7 or
-/// newer. Older versions of Windows should be left DPI-unaware because they do
-/// not support DirectWrite and GDI fonts are kerned very badly.
-///
-void CefEnableHighDPISupport();
-
-///
 /// Set to true before calling Windows APIs like TrackPopupMenu that enter a
 /// modal message loop. Set to false after exiting the modal message loop.
 ///
