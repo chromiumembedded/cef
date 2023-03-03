@@ -26,7 +26,7 @@ index d2f5798ce6535..64d6d388c9a27 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index a420dad636df4..3bf547aeacf1b 100755
+index a420dad636df4..f1ef2e914cd5e 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -112,9 +112,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -57,12 +57,3 @@ index a420dad636df4..3bf547aeacf1b 100755
    supported_versions = list(MSVS_VERSIONS.keys())
  
    # VS installed in depot_tools for Googlers
-@@ -421,7 +432,7 @@ def _CopyDebugger(target_dir, target_cpu):
- 
-   # List of debug files that should be copied, the first element of the tuple is
-   # the name of the file and the second indicates if it's optional.
--  debug_files = [('dbghelp.dll', False), ('dbgcore.dll', True)]
-+  debug_files = []
-   for debug_file, is_optional in debug_files:
-     full_path = os.path.join(win_sdk_dir, 'Debuggers', target_cpu, debug_file)
-     if not os.path.exists(full_path):
