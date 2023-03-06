@@ -20,6 +20,7 @@
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
+#include "chrome/browser/ui/views/frame/contents_web_view.h"
 #include "chrome/common/pref_names.h"
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
@@ -434,6 +435,9 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
     // require access to the Browser.
     chrome_browser_view->InitBrowser(base::WrapUnique(browser),
                                      params.browser_view);
+
+    // Don't set theme colors in ContentsWebView::UpdateBackgroundColor.
+    chrome_browser_view->contents_web_view()->SetBackgroundVisible(false);
 
     // Don't show the browser by default.
     show_browser = false;
