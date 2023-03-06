@@ -3251,13 +3251,58 @@ typedef enum {
 } cef_text_field_commands_t;
 
 ///
-/// Supported Chrome toolbar types.
+/// Chrome toolbar types.
 ///
 typedef enum {
   CEF_CTT_NONE = 1,
   CEF_CTT_NORMAL,
   CEF_CTT_LOCATION,
 } cef_chrome_toolbar_type_t;
+
+///
+/// Chrome page action icon types. Should be kept in sync with Chromium's
+/// PageActionIconType type.
+///
+typedef enum {
+  CEF_CPAIT_BOOKMARK_STAR = 0,
+  CEF_CPAIT_CLICK_TO_CALL,
+  CEF_CPAIT_COOKIE_CONTROLS,
+  CEF_CPAIT_FILE_SYSTEM_ACCESS,
+  CEF_CPAIT_FIND,
+  CEF_CPAIT_HIGH_EFFICIENCY,
+  CEF_CPAIT_INTENT_PICKER,
+  CEF_CPAIT_LOCAL_CARD_MIGRATION,
+  CEF_CPAIT_MANAGE_PASSWORDS,
+  CEF_CPAIT_PAYMENTS_OFFER_NOTIFICATION,
+  CEF_CPAIT_PRICE_TRACKING,
+  CEF_CPAIT_PWA_INSTALL,
+  CEF_CPAIT_QR_CODE_GENERATOR,
+  CEF_CPAIT_READER_MODE,
+  CEF_CPAIT_SAVE_AUTOFILL_ADDRESS,
+  CEF_CPAIT_SAVE_CARD,
+  CEF_CPAIT_SEND_TAB_TO_SELF,
+  CEF_CPAIT_SHARING_HUB,
+  CEF_CPAIT_SIDE_SEARCH,
+  CEF_CPAIT_SMS_REMOTE_FETCHER,
+  CEF_CPAIT_TRANSLATE,
+  CEF_CPAIT_VIRTUAL_CARD_ENROLL,
+  CEF_CPAIT_VIRTUAL_CARD_MANUAL_FALLBACK,
+  CEF_CPAIT_ZOOM,
+  CEF_CPAIT_SAVE_IBAN,
+  CEF_CPAIT_MAX_VALUE = CEF_CPAIT_SAVE_IBAN,
+} cef_chrome_page_action_icon_type_t;
+
+///
+/// Chrome toolbar button types. Should be kept in sync with CEF's internal
+/// ToolbarButtonType type.
+///
+typedef enum {
+  CEF_CTBT_CAST = 0,
+  CEF_CTBT_DOWNLOAD,
+  CEF_CTBT_SEND_TAB_TO_SELF,
+  CEF_CTBT_SIDE_PANEL,
+  CEF_CTBT_MAX_VALUE = CEF_CTBT_SIDE_PANEL,
+} cef_chrome_toolbar_button_type_t;
 
 ///
 /// Docking modes supported by CefWindow::AddOverlay.

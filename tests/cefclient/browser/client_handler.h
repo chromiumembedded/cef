@@ -139,6 +139,12 @@ class ClientHandler : public CefClient,
   bool OnChromeCommand(CefRefPtr<CefBrowser> browser,
                        int command_id,
                        cef_window_open_disposition_t disposition) override;
+  bool IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
+                                  int command_id) override;
+  bool IsChromePageActionIconVisible(
+      cef_chrome_page_action_icon_type_t icon_type) override;
+  bool IsChromeToolbarButtonVisible(
+      cef_chrome_toolbar_button_type_t button_type) override;
 
   // CefContextMenuHandler methods
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
@@ -371,10 +377,6 @@ class ClientHandler : public CefClient,
 
   void SetOfflineState(CefRefPtr<CefBrowser> browser, bool offline);
 
-  // Filter menu and keyboard shortcut commands.
-  void FilterMenuModel(CefRefPtr<CefMenuModel> model);
-  bool IsAllowedCommandId(int command_id);
-
   // THREAD SAFE MEMBERS
   // The following members may be accessed from any thread.
 
@@ -395,6 +397,9 @@ class ClientHandler : public CefClient,
 
   // True if the browser is currently offline.
   bool offline_;
+
+  // True if the Chrome toolbar and menu contents/commands should be filtered.
+  bool filter_chrome_commands_;
 
   // True if Favicon images should be downloaded.
   bool download_favicon_images_ = false;

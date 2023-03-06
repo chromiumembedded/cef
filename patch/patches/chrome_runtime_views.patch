@@ -40,6 +40,182 @@ index f91c359d9792a..9fe7a7faf33bc 100644
  }
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
+diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
+index 655ce2353f106..e9dd7ed68b9c5 100644
+--- chrome/browser/ui/toolbar/app_menu_model.cc
++++ chrome/browser/ui/toolbar/app_menu_model.cc
+@@ -151,6 +151,57 @@ absl::optional<std::u16string> GetInstallPWAAppMenuItemName(Browser* browser) {
+                                     ui::EscapeMenuLabelAmpersands(app_name));
+ }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++using IsVisibleCallback = base::RepeatingCallback<bool(int)>;
++
++void FilterMenuModel(ui::SimpleMenuModel* model,
++                     const IsVisibleCallback& is_visible) {
++  absl::optional<size_t> last_separator;
++  size_t visible_ct = 0;
++  for (size_t i = 0; i < model->GetItemCount(); ++i) {
++    const auto type = model->GetTypeAt(i);
++    if (type == ui::MenuModel::TYPE_SEPARATOR) {
++      if (last_separator) {
++        // Remove multiple separators in a row. Prefer to remove a NORMAL
++        // separator if possible (as compared to zoom/edit controls which use
++        // UPPER/LOWER separators).
++        if (model->GetSeparatorTypeAt(*last_separator) ==
++            ui::NORMAL_SEPARATOR) {
++          model->RemoveItemAt(*last_separator);
++          i--;
++          last_separator = i;
++        } else {
++          model->RemoveItemAt(i);
++          i--;
++        }
++      } else if (visible_ct == 0) {
++        // Remove leading separator.
++        model->RemoveItemAt(i);
++        i--;
++      } else {
++        last_separator = i;
++      }
++      visible_ct = 0;
++    } else if (is_visible.Run(model->GetCommandIdAt(i))) {
++      last_separator = absl::nullopt;
++      visible_ct++;
++
++      if (type == ui::MenuModel::TYPE_SUBMENU) {
++        // Filter sub-menu.
++        auto sub_model =
++            static_cast<ui::SimpleMenuModel*>(model->GetSubmenuModelAt(i));
++        FilterMenuModel(sub_model, is_visible);
++      }
++    }
++  }
++
++  if (last_separator) {
++    // Remove trailing separator.
++    model->RemoveItemAt(*last_separator);
++  }
++}
++#endif  // BUILDFLAG(ENABLE_CEF)
++
+ }  // namespace
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -756,7 +807,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+   return false;
+ }
+ 
+-bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
++bool AppMenuModel::IsCommandIdEnabledInternal(int command_id) const {
+   GlobalError* error =
+       GlobalErrorServiceFactory::GetForProfile(browser_->profile())
+           ->GetGlobalErrorByMenuItemCommandID(command_id);
+@@ -771,7 +822,7 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+   }
+ }
+ 
+-bool AppMenuModel::IsCommandIdVisible(int command_id) const {
++bool AppMenuModel::IsCommandIdVisibleInternal(int command_id) const {
+   switch (command_id) {
+     case IDC_PIN_TO_START_SCREEN:
+       return false;
+@@ -794,6 +845,34 @@ bool AppMenuModel::IsCommandIdVisible(int command_id) const {
+   }
+ }
+ 
++bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
++  if (!IsCommandIdEnabledInternal(command_id)) {
++    return false;
++  }
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (browser_->cef_delegate()) {
++    return browser_->cef_delegate()->IsAppMenuItemEnabled(command_id);
++  }
++#endif
++
++  return true;
++}
++
++bool AppMenuModel::IsCommandIdVisible(int command_id) const {
++  if (!IsCommandIdVisibleInternal(command_id)) {
++    return false;
++  }
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (browser_->cef_delegate()) {
++    return browser_->cef_delegate()->IsAppMenuItemVisible(command_id);
++  }
++#endif
++
++  return true;
++}
++
+ bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
+   if ((command_id == IDC_RECENT_TABS_MENU) ||
+       (command_id == AppMenuModel::kMinRecentTabsCommandId)) {
+@@ -899,9 +978,13 @@ void AppMenuModel::Build() {
+                            bookmark_sub_menu_model_.get());
+   }
+ 
+-  AddSeparator(ui::LOWER_SEPARATOR);
+-  CreateZoomMenu();
+-  AddSeparator(ui::UPPER_SEPARATOR);
++  if (IsCommandIdVisible(IDC_ZOOM_MENU)) {
++    AddSeparator(ui::LOWER_SEPARATOR);
++    CreateZoomMenu();
++    AddSeparator(ui::UPPER_SEPARATOR);
++  } else {
++    AddSeparator(ui::NORMAL_SEPARATOR);
++  }
+ 
+   AddItemWithStringId(IDC_PRINT, IDS_PRINT);
+ 
+@@ -965,9 +1048,14 @@ void AppMenuModel::Build() {
+                          sub_menus_.back().get());
+   SetElementIdentifierAt(GetIndexOfCommandId(IDC_MORE_TOOLS_MENU).value(),
+                          kMoreToolsMenuItem);
+-  AddSeparator(ui::LOWER_SEPARATOR);
+-  CreateCutCopyPasteMenu();
+-  AddSeparator(ui::UPPER_SEPARATOR);
++
++  if (IsCommandIdVisible(IDC_EDIT_MENU)) {
++    AddSeparator(ui::LOWER_SEPARATOR);
++    CreateCutCopyPasteMenu();
++    AddSeparator(ui::UPPER_SEPARATOR);
++  } else {
++    AddSeparator(ui::NORMAL_SEPARATOR);
++  }
+ 
+   AddItemWithStringId(IDC_OPTIONS, IDS_SETTINGS);
+ // The help submenu is only displayed on official Chrome builds. As the
+@@ -1004,6 +1092,11 @@ void AppMenuModel::Build() {
+   }
+ #endif  // !BUILDFLAG(IS_CHROMEOS_ASH)
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  FilterMenuModel(this, base::BindRepeating(&AppMenuModel::IsCommandIdVisible,
++                                            base::Unretained(this)));
++#endif
++
+   uma_action_recorded_ = false;
+ }
+ 
+diff --git chrome/browser/ui/toolbar/app_menu_model.h chrome/browser/ui/toolbar/app_menu_model.h
+index fa3ceed419c16..522671662cbdf 100644
+--- chrome/browser/ui/toolbar/app_menu_model.h
++++ chrome/browser/ui/toolbar/app_menu_model.h
+@@ -208,6 +208,9 @@ class AppMenuModel : public ui::SimpleMenuModel,
+   // Appends a zoom menu (without separators).
+   void CreateZoomMenu();
+ 
++  bool IsCommandIdEnabledInternal(int command_id) const;
++  bool IsCommandIdVisibleInternal(int command_id) const;
++
+  private:
+   friend class ::MockAppMenuModel;
+ 
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
 index 090ad157308b7..d0534ffb8091c 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
@@ -418,6 +594,23 @@ index 5e059b9878fc2..c1f6fbcd40ec4 100644
  }
  
  ContentsWebView::~ContentsWebView() {
+diff --git chrome/browser/ui/views/page_action/page_action_icon_controller.cc chrome/browser/ui/views/page_action/page_action_icon_controller.cc
+index c26f017f45682..f9f875292c7d6 100644
+--- chrome/browser/ui/views/page_action/page_action_icon_controller.cc
++++ chrome/browser/ui/views/page_action/page_action_icon_controller.cc
+@@ -91,6 +91,12 @@ void PageActionIconController::Init(const PageActionIconParams& params,
+   };
+ 
+   for (PageActionIconType type : params.types_enabled) {
++#if BUILDFLAG(ENABLE_CEF)
++    if (params.browser && params.browser->cef_delegate() &&
++        !params.browser->cef_delegate()->IsPageActionIconVisible(type)) {
++      continue;
++    }
++#endif
+     switch (type) {
+       case PageActionIconType::kPaymentsOfferNotification:
+         add_page_action_icon(
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 index f4a5c3ad8cc9c..4f9c1a111e7ce 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
@@ -471,7 +664,7 @@ index f4a5c3ad8cc9c..4f9c1a111e7ce 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 65ba764446ced..dbe856f34caca 100644
+index 65ba764446ced..140ff05e1b276 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -164,12 +164,13 @@ auto& GetViewCommandMap() {
@@ -498,6 +691,65 @@ index 65ba764446ced..dbe856f34caca 100644
 +      display_mode_ != DisplayMode::NORMAL && !browser_->toolbar_overridden());
    // Make sure the toolbar shows by default.
    size_animation_.Reset(1);
+ 
+@@ -224,6 +225,19 @@ void ToolbarView::Init() {
+         browser, command, ui::DispositionFromEventFlags(event.flags()));
+   };
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  using ToolbarButtonType = cef::BrowserDelegate::ToolbarButtonType;
++  auto button_visible = [this](ToolbarButtonType type) {
++    if (this->browser_->cef_delegate()) {
++      return this->browser_->cef_delegate()->IsToolbarButtonVisible(type);
++    }
++    return true;
++  };
++  #define BUTTON_VISIBLE(type) button_visible(ToolbarButtonType::type)
++#else
++  #define BUTTON_VISIBLE(type) true
++#endif
++
+   std::unique_ptr<ToolbarButton> back = std::make_unique<BackForwardButton>(
+       BackForwardButton::Direction::kBack,
+       base::BindRepeating(callback, browser_, IDC_BACK), browser_);
+@@ -248,8 +262,10 @@ void ToolbarView::Init() {
+         std::make_unique<ExtensionsToolbarContainer>(browser_);
+   }
+   std::unique_ptr<media_router::CastToolbarButton> cast;
+-  if (media_router::MediaRouterEnabled(browser_->profile()))
++  if (media_router::MediaRouterEnabled(browser_->profile()) &&
++      BUTTON_VISIBLE(kCast)) {
+     cast = media_router::CastToolbarButton::Create(browser_);
++  }
+ 
+   std::unique_ptr<MediaToolbarButtonView> media_button;
+   if (base::FeatureList::IsEnabled(media::kGlobalMediaControls)) {
+@@ -258,21 +274,23 @@ void ToolbarView::Init() {
+   }
+ 
+   std::unique_ptr<DownloadToolbarButtonView> download_button;
+-  if (download::IsDownloadBubbleEnabled(browser_->profile())) {
++  if (download::IsDownloadBubbleEnabled(browser_->profile()) &&
++      BUTTON_VISIBLE(kDownload)) {
+     download_button =
+         std::make_unique<DownloadToolbarButtonView>(browser_view_);
+   }
+ 
+   std::unique_ptr<send_tab_to_self::SendTabToSelfToolbarIconView>
+       send_tab_to_self_button;
+-  if (!browser_->profile()->IsOffTheRecord()) {
++  if (!browser_->profile()->IsOffTheRecord() &&
++      BUTTON_VISIBLE(kSendTabToSelf)) {
+     send_tab_to_self_button =
+         std::make_unique<send_tab_to_self::SendTabToSelfToolbarIconView>(
+             browser_view_);
+   }
+ 
+   std::unique_ptr<SidePanelToolbarButton> side_panel_button;
+-  if (browser_view_->unified_side_panel()) {
++  if (browser_view_->unified_side_panel() && BUTTON_VISIBLE(kSidePanel)) {
+     side_panel_button = std::make_unique<SidePanelToolbarButton>(browser_);
+   }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
 index 05dfd39061580..29c677a735672 100644

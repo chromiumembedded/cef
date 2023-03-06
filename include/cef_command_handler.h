@@ -63,6 +63,52 @@ class CefCommandHandler : public virtual CefBaseRefCounted {
                                cef_window_open_disposition_t disposition) {
     return false;
   }
+
+  ///
+  /// Called to check if a Chrome app menu item should be visible. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. Only called for
+  /// menu items that would be visible by default. Only used with the Chrome
+  /// runtime.
+  ///
+  /*--cef()--*/
+  virtual bool IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
+                                          int command_id) {
+    return true;
+  }
+
+  ///
+  /// Called to check if a Chrome app menu item should be enabled. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. Only called for
+  /// menu items that would be enabled by default. Only used with the Chrome
+  /// runtime.
+  ///
+  /*--cef()--*/
+  virtual bool IsChromeAppMenuItemEnabled(CefRefPtr<CefBrowser> browser,
+                                          int command_id) {
+    return true;
+  }
+
+  ///
+  /// Called during browser creation to check if a Chrome page action icon
+  /// should be visible. Only called for icons that would be visible by default.
+  /// Only used with the Chrome runtime.
+  ///
+  /*--cef(optional_param=browser)--*/
+  virtual bool IsChromePageActionIconVisible(
+      cef_chrome_page_action_icon_type_t icon_type) {
+    return true;
+  }
+
+  ///
+  /// Called during browser creation to check if a Chrome toolbar button
+  /// should be visible. Only called for buttons that would be visible by
+  /// default. Only used with the Chrome runtime.
+  ///
+  /*--cef(optional_param=browser)--*/
+  virtual bool IsChromeToolbarButtonVisible(
+      cef_chrome_toolbar_button_type_t button_type) {
+    return true;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_COMMAND_HANDLER_H_

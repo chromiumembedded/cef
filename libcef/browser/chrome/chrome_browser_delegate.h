@@ -56,6 +56,10 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool ShowStatusBubble(bool show_by_default) override;
   bool HandleCommand(int command_id,
                      WindowOpenDisposition disposition) override;
+  bool IsAppMenuItemVisible(int command_id) override;
+  bool IsAppMenuItemEnabled(int command_id) override;
+  bool IsPageActionIconVisible(PageActionIconType icon_type) override;
+  bool IsToolbarButtonVisible(ToolbarButtonType button_type) override;
   [[nodiscard]] content::MediaResponseCallback RequestMediaAccessPermissionEx(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,

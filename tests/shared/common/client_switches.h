@@ -23,6 +23,7 @@ extern const char kSharedTextureEnabled[];
 extern const char kExternalBeginFrameEnabled[];
 extern const char kMouseCursorChangeDisabled[];
 extern const char kOffline[];
+extern const char kFilterChromeCommands[];
 extern const char kRequestContextPerBrowser[];
 extern const char kRequestContextSharedCache[];
 extern const char kBackgroundColor[];
