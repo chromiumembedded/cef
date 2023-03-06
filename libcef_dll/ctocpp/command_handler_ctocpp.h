@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1def18706fb8efd9d28a718b505905d366a0d057$
+// $hash=ad0096887a1662a2cc3804248365e56fc20d6eaa$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_COMMAND_HANDLER_CTOCPP_H_
@@ -38,6 +38,14 @@ class CefCommandHandlerCToCpp
   bool OnChromeCommand(CefRefPtr<CefBrowser> browser,
                        int command_id,
                        cef_window_open_disposition_t disposition) override;
+  bool IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
+                                  int command_id) override;
+  bool IsChromeAppMenuItemEnabled(CefRefPtr<CefBrowser> browser,
+                                  int command_id) override;
+  bool IsChromePageActionIconVisible(
+      cef_chrome_page_action_icon_type_t icon_type) override;
+  bool IsChromeToolbarButtonVisible(
+      cef_chrome_toolbar_button_type_t button_type) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COMMAND_HANDLER_CTOCPP_H_

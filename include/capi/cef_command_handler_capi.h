@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=46817ef557307a55a9b7138134c4f5c32562f2d7$
+// $hash=0cbb756a64d2aca1075480b5188b36cae533864d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_HANDLER_CAPI_H_
@@ -71,6 +71,46 @@ typedef struct _cef_command_handler_t {
       struct _cef_browser_t* browser,
       int command_id,
       cef_window_open_disposition_t disposition);
+
+  ///
+  /// Called to check if a Chrome app menu item should be visible. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. Only called for
+  /// menu items that would be visible by default. Only used with the Chrome
+  /// runtime.
+  ///
+  int(CEF_CALLBACK* is_chrome_app_menu_item_visible)(
+      struct _cef_command_handler_t* self,
+      struct _cef_browser_t* browser,
+      int command_id);
+
+  ///
+  /// Called to check if a Chrome app menu item should be enabled. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. Only called for
+  /// menu items that would be enabled by default. Only used with the Chrome
+  /// runtime.
+  ///
+  int(CEF_CALLBACK* is_chrome_app_menu_item_enabled)(
+      struct _cef_command_handler_t* self,
+      struct _cef_browser_t* browser,
+      int command_id);
+
+  ///
+  /// Called during browser creation to check if a Chrome page action icon
+  /// should be visible. Only called for icons that would be visible by default.
+  /// Only used with the Chrome runtime.
+  ///
+  int(CEF_CALLBACK* is_chrome_page_action_icon_visible)(
+      struct _cef_command_handler_t* self,
+      cef_chrome_page_action_icon_type_t icon_type);
+
+  ///
+  /// Called during browser creation to check if a Chrome toolbar button should
+  /// be visible. Only called for buttons that would be visible by default. Only
+  /// used with the Chrome runtime.
+  ///
+  int(CEF_CALLBACK* is_chrome_toolbar_button_visible)(
+      struct _cef_command_handler_t* self,
+      cef_chrome_toolbar_button_type_t button_type);
 } cef_command_handler_t;
 
 #ifdef __cplusplus

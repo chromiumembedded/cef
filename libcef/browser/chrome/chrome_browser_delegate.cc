@@ -122,6 +122,60 @@ bool ChromeBrowserDelegate::HandleCommand(int command_id,
   return false;
 }
 
+bool ChromeBrowserDelegate::IsAppMenuItemVisible(int command_id) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    if (auto client = browser->GetClient()) {
+      if (auto handler = client->GetCommandHandler()) {
+        return handler->IsChromeAppMenuItemVisible(browser.get(), command_id);
+      }
+    }
+  }
+  return true;
+}
+
+bool ChromeBrowserDelegate::IsAppMenuItemEnabled(int command_id) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    if (auto client = browser->GetClient()) {
+      if (auto handler = client->GetCommandHandler()) {
+        return handler->IsChromeAppMenuItemEnabled(browser.get(), command_id);
+      }
+    }
+  }
+  return true;
+}
+
+bool ChromeBrowserDelegate::IsPageActionIconVisible(
+    PageActionIconType icon_type) {
+  // Verify that our enum matches Chromium's values.
+  static_assert(static_cast<int>(CEF_CPAIT_MAX_VALUE) ==
+                    static_cast<int>(PageActionIconType::kMaxValue),
+                "enum mismatch");
+
+  if (auto client = create_params_.client) {
+    if (auto handler = client->GetCommandHandler()) {
+      return handler->IsChromePageActionIconVisible(
+          static_cast<cef_chrome_page_action_icon_type_t>(icon_type));
+    }
+  }
+  return true;
+}
+
+bool ChromeBrowserDelegate::IsToolbarButtonVisible(
+    ToolbarButtonType button_type) {
+  // Verify that our enum matches BrowserDelegate's values.
+  static_assert(static_cast<int>(CEF_CTBT_MAX_VALUE) ==
+                    static_cast<int>(ToolbarButtonType::kMaxValue),
+                "enum mismatch");
+
+  if (auto client = create_params_.client) {
+    if (auto handler = client->GetCommandHandler()) {
+      return handler->IsChromeToolbarButtonVisible(
+          static_cast<cef_chrome_toolbar_button_type_t>(button_type));
+    }
+  }
+  return true;
+}
+
 content::MediaResponseCallback
 ChromeBrowserDelegate::RequestMediaAccessPermissionEx(
     content::WebContents* web_contents,

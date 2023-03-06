@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af3697f4c41762086c8edff7f63a794e8bf95b25$
+// $hash=f374fda38406905546bc5601c01764a9b437a7d0$
 //
 
 #include "libcef_dll/ctocpp/command_handler_ctocpp.h"
@@ -41,6 +41,98 @@ bool CefCommandHandlerCToCpp::OnChromeCommand(
   // Execute
   int _retval = _struct->on_chrome_command(
       _struct, CefBrowserCppToC::Wrap(browser), command_id, disposition);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefCommandHandlerCToCpp::IsChromeAppMenuItemVisible(
+    CefRefPtr<CefBrowser> browser,
+    int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_command_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_chrome_app_menu_item_visible)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->is_chrome_app_menu_item_visible(
+      _struct, CefBrowserCppToC::Wrap(browser), command_id);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefCommandHandlerCToCpp::IsChromeAppMenuItemEnabled(
+    CefRefPtr<CefBrowser> browser,
+    int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_command_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_chrome_app_menu_item_enabled)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->is_chrome_app_menu_item_enabled(
+      _struct, CefBrowserCppToC::Wrap(browser), command_id);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefCommandHandlerCToCpp::IsChromePageActionIconVisible(
+    cef_chrome_page_action_icon_type_t icon_type) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_command_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_chrome_page_action_icon_visible)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_chrome_page_action_icon_visible(_struct, icon_type);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefCommandHandlerCToCpp::IsChromeToolbarButtonVisible(
+    cef_chrome_toolbar_button_type_t button_type) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_command_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_chrome_toolbar_button_visible)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_chrome_toolbar_button_visible(_struct, button_type);
 
   // Return type: bool
   return _retval ? true : false;

@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "base/memory/scoped_refptr.h"
+#include "chrome/browser/ui/page_action/page_action_icon_type.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "ui/base/window_open_disposition.h"
 
@@ -63,6 +64,32 @@ class BrowserDelegate : public content::WebContentsDelegate {
   virtual bool HandleCommand(int command_id,
                              WindowOpenDisposition disposition) {
     return false;
+  }
+
+  // Return true if the app menu item should be visible. ID values come from
+  // chrome/app/chrome_command_ids.h.
+  virtual bool IsAppMenuItemVisible(int command_id) { return true; }
+
+  // Return true if the app menu item should be enabled. ID values come from
+  // chrome/app/chrome_command_ids.h.
+  virtual bool IsAppMenuItemEnabled(int command_id) { return true; }
+
+  // Return true if the page action icon should be visible.
+  virtual bool IsPageActionIconVisible(PageActionIconType icon_type) {
+    return true;
+  }
+
+  enum class ToolbarButtonType {
+    kCast = 0,
+    kDownload,
+    kSendTabToSelf,
+    kSidePanel,
+    kMaxValue = kSidePanel,
+  };
+
+  // Return true if the toolbar button should be visible.
+  virtual bool IsToolbarButtonVisible(ToolbarButtonType button_type) {
+    return true;
   }
 
   // Same as RequestMediaAccessPermission but returning |callback| if the
