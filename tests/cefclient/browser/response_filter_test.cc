@@ -191,11 +191,12 @@ class PassThruResponseFilter : public CefResponseFilter {
     DCHECK_GT(data_out_size, 0U);
     DCHECK_EQ(data_out_written, 0U);
 
-    // All data will be read.
-    data_in_read = data_in_size;
-
     // Write out the contents unchanged.
-    data_out_written = std::min(data_in_read, data_out_size);
+    data_out_written = std::min(data_in_size, data_out_size);
+
+    // All data will be read.
+    data_in_read = data_out_written;
+
     if (data_out_written > 0) {
       memcpy(data_out, data_in, data_out_written);
     }
