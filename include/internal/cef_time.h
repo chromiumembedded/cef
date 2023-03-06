@@ -122,7 +122,7 @@ CEF_EXPORT int cef_time_now(cef_time_t* cef_time);
 ///
 /// Retrieve the current system time.
 ///
-CEF_EXPORT cef_basetime_t cef_basetime_now();
+CEF_EXPORT cef_basetime_t cef_basetime_now(void);
 
 ///
 /// Retrieve the delta in milliseconds between two time values. Returns true (1)
