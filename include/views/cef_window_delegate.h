@@ -134,7 +134,7 @@ class CefWindowDelegate : public CefPanelDelegate {
   ///
   /*--cef()--*/
   virtual bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) {
-    return false;
+    return !IsFrameless(window);
   }
 
   ///
