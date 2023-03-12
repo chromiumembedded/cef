@@ -24,7 +24,7 @@ A clear and concise description of what you expected to happen and what happened
 If applicable, add screenshots to help explain your problem.
 
 **Versions (please complete the following information):**
- - OS: [e.g. Windows]
+ - OS: [e.g. Windows 10, MacOS 13.2, Ubuntu 22.10]
  - CEF Version: [e.g. 111.2.2]
 
 **Additional context**
