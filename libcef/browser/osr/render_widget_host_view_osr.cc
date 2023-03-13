@@ -1543,7 +1543,7 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                                          const void* pixels) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnPaint");
 
-  // Workaround for https://bitbucket.org/chromiumembedded/cef/issues/2817
+  // Workaround for https://github.com/chromiumembedded/cef/issues/2817
   if (!is_showing_) {
     return;
   }

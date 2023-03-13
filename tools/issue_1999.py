@@ -4,7 +4,7 @@
 #
 # Resort order of object files in libcef.ninja file.
 #
-# See: https://bitbucket.org/chromiumembedded/cef/issues/1999
+# See: https://github.com/chromiumembedded/cef/issues/1999
 #
 # Usage:
 #   import issue_1999

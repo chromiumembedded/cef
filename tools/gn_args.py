@@ -226,7 +226,7 @@ def GetRecommendedDefaultArgs():
 
       # Disable V8 sandboxed pointers to avoid crashing when using
       # CefV8Value::CreateArrayBuffer with memory allocated outside of the V8
-      # sandbox. See https://bitbucket.org/chromiumembedded/cef/issues/3332.
+      # sandbox. See https://github.com/chromiumembedded/cef/issues/3332.
       'v8_enable_sandbox': False,
   }
 
@@ -238,7 +238,7 @@ def GetRecommendedDefaultArgs():
   if platform != 'windows':
     # Only allow non-component Debug builds on non-Windows platforms. These
     # builds will fail on Windows due to linker issues (running out of memory,
-    # etc). See https://bitbucket.org/chromiumembedded/cef/issues/2679.
+    # etc). See https://github.com/chromiumembedded/cef/issues/2679.
     result['forbid_non_component_debug_builds'] = False
 
   if platform == 'linux':
