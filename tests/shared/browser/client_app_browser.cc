@@ -53,7 +53,7 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       // Use software rendering and compositing (disable GPU) for increased FPS
       // and decreased CPU usage. This will also disable WebGL so remove these
       // switches if you need that capability.
-      // See https://bitbucket.org/chromiumembedded/cef/issues/1257 for details.
+      // See https://github.com/chromiumembedded/cef/issues/1257 for details.
       if (!command_line->HasSwitch(switches::kEnableGPU)) {
         command_line->AppendSwitch("disable-gpu");
         command_line->AppendSwitch("disable-gpu-compositing");
