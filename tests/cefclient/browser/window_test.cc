@@ -15,9 +15,7 @@
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/cefclient/browser/window_test_runner.h"
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 #include "tests/cefclient/browser/window_test_runner_views.h"
-#endif
 
 #if defined(OS_WIN)
 #include "tests/cefclient/browser/window_test_runner_win.h"
@@ -40,11 +38,9 @@ const char kMessageRestoreName[] = "WindowTest.Restore";
 
 // Create the appropriate platform test runner object.
 std::unique_ptr<WindowTestRunner> CreateWindowTestRunner() {
-#if defined(OS_WIN) || defined(OS_LINUX)
   if (MainContext::Get()->UseViews()) {
     return std::make_unique<WindowTestRunnerViews>();
   }
-#endif
 
 #if defined(OS_WIN)
   return std::make_unique<WindowTestRunnerWin>();
@@ -55,6 +51,22 @@ std::unique_ptr<WindowTestRunner> CreateWindowTestRunner() {
 #else
 #error "No implementation available for your platform."
 #endif
+}
+
+// Parse the comma-delimited list of integer values.
+std::vector<int> ParsePosition(const std::string& message_name) {
+  std::vector<int> vec;
+  const std::string& vals = message_name.substr(sizeof(kMessagePositionName));
+  std::stringstream ss(vals);
+  int i;
+  while (ss >> i) {
+    vec.push_back(i);
+    if (ss.peek() == ',') {
+      ss.ignore();
+    }
+  }
+
+  return vec;
 }
 
 // Handle messages in the browser process.
@@ -77,19 +89,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     const std::string& message_name = request;
     if (message_name.find(kMessagePositionName) == 0) {
-      // Parse the comma-delimited list of integer values.
-      std::vector<int> vec;
-      const std::string& vals =
-          message_name.substr(sizeof(kMessagePositionName));
-      std::stringstream ss(vals);
-      int i;
-      while (ss >> i) {
-        vec.push_back(i);
-        if (ss.peek() == ',') {
-          ss.ignore();
-        }
-      }
-
+      const auto vec = ParsePosition(message_name);
       if (vec.size() == 4) {
         // Execute SetPos() on the main thread.
         runner_->SetPos(browser, vec[0], vec[1], vec[2], vec[3]);
