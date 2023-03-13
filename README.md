@@ -9,6 +9,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * Branches and Building - https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 * Announcements - https://groups.google.com/forum/#!forum/cef-announce
 * Support Forum - http://www.magpcss.org/ceforum/
+* Issue Tracker - https://github.com/chromiumembedded/cef/issues
 * C++ API Docs - [Stable release docs](https://cef-builds.spotifycdn.com/docs/stable.html) / [Beta release docs](https://cef-builds.spotifycdn.com/docs/beta.html)
 * Downloads - https://cef-builds.spotifycdn.com/index.html
 * Donations - http://www.magpcss.org/ceforum/donate.php
@@ -57,7 +58,7 @@ If you're the maintainer of a project not listed above and would like your proje
 
 CEF is still very much a work in progress. Some ways that you can help out:
 
-\- Vote for issues in the [CEF issue tracker](https://bitbucket.org/chromiumembedded/cef/issues?status=new&status=open) that are important to you. This helps with development prioritization.
+\- Vote for issues in the [CEF issue tracker](https://github.com/chromiumembedded/cef/issues) that are important to you. This helps with development prioritization.
 
 \- Report any bugs that you find or feature requests that are important to you. Make sure to first search for existing issues before creating new ones. Please use the [CEF Forum](http://magpcss.org/ceforum) and not the issue tracker for usage questions. Each CEF issue should:
 
@@ -68,7 +69,7 @@ CEF is still very much a work in progress. Some ways that you can help out:
 
 \- Write unit tests for new or existing functionality.
 
-\- Pull requests and patches are welcome. View open issues in the [CEF issue tracker](https://bitbucket.org/chromiumembedded/cef/issues?status=new&status=open) or search for TODO(cef) in the source code for ideas.
+\- Pull requests and patches are welcome. View open issues in the [CEF issue tracker](https://github.com/chromiumembedded/cef/issues) or search for TODO(cef) in the source code for ideas.
 
 If you would like to contribute source code changes to CEF please follow the below guidelines:
 

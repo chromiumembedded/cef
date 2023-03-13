@@ -314,7 +314,7 @@ bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
       "<html>\n<head><title>Extensions Support</title></head>\n"
       "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
       "APIs</h3>\nFollow <a "
-      "href=\"https://bitbucket.org/chromiumembedded/cef/issues/1947\" "
+      "href=\"https://github.com/chromiumembedded/cef/issues/1947\" "
       "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
 
   bool has_top_level_name = false;

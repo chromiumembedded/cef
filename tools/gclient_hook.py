@@ -110,7 +110,7 @@ if platform == 'windows':
   #     installed (e.g. not discoverable via the Windows registry) then
   #     "%GYP_MSVS_OVERRIDE_PATH%\Common7\Tools\vsdevcmd\core\winsdk.bat" must be
   #     patched to support discovery via SDK_ROOT as described in
-  #     https://bitbucket.org/chromiumembedded/cef/issues/2773#comment-59687474.
+  #     https://github.com/chromiumembedded/cef/issues/2773#issuecomment-1465019898.
   #
   if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
     required_vars = [
