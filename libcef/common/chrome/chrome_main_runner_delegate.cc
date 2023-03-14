@@ -40,8 +40,6 @@ void ChromeMainRunnerDelegate::BeforeMainThreadInitialize(
 #else
   base::CommandLine::Init(args.argc, args.argv);
 #endif
-
-  sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
 }
 
 void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
@@ -70,14 +68,16 @@ bool ChromeMainRunnerDelegate::HandleMainMessageLoopQuit() {
   return true;
 }
 
+void ChromeMainRunnerDelegate::BeforeUIThreadInitialize() {
+  sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
+}
+
 void ChromeMainRunnerDelegate::AfterUIThreadShutdown() {
   static_cast<ChromeContentBrowserClient*>(
       CefAppManager::Get()->GetContentClient()->browser())
       ->CleanupOnUIThread();
   main_delegate_->CleanupOnUIThread();
-}
 
-void ChromeMainRunnerDelegate::AfterMainThreadShutdown() {
   sampling_profiler_.reset();
 }
 
