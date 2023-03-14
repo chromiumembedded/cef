@@ -394,6 +394,7 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
 
     if (!CreateUIThread(base::BindOnce(
             [](CefMainRunner* runner, base::WaitableEvent* event) {
+              runner->main_delegate_->BeforeUIThreadInitialize();
               content::ContentMainRun(runner->main_runner_.get());
               event->Signal();
             },
@@ -408,6 +409,7 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
     uithread_startup_event.Wait();
   } else {
     *initialized = true;
+    main_delegate_->BeforeUIThreadInitialize();
     content::ContentMainRun(main_runner_.get());
   }
 
