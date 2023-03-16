@@ -130,6 +130,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   bool GetWindowRestorePreferences(cef_show_state_t& show_state,
                                    std::optional<CefRect>& dip_bounds);
+  void SetTitlebarHeight(const std::optional<float>& height);
 
   // CefBrowserViewDelegate methods:
   CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
@@ -236,6 +237,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
                               const ImageCache::ImageSet& images);
   void OnExtensionWindowClosed();
 
+  void NudgeWindow();
+
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
@@ -257,6 +260,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefSize minimum_window_size_;
 
   CefRefPtr<ViewsOverlayControls> overlay_controls_;
+
+  std::optional<float> default_titlebar_height_;
+  std::optional<float> override_titlebar_height_;
 
   // Structure representing an extension.
   struct ExtensionInfo {

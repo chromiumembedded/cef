@@ -399,6 +399,16 @@ bool ViewsWindow::GetWindowRestorePreferences(
   return true;
 }
 
+void ViewsWindow::SetTitlebarHeight(const std::optional<float>& height) {
+  CEF_REQUIRE_UI_THREAD();
+  if (height.has_value()) {
+    override_titlebar_height_ = height;
+  } else {
+    override_titlebar_height_ = default_titlebar_height_;
+  }
+  NudgeWindow();
+}
+
 CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
     CefRefPtr<CefBrowserView> browser_view,
     const CefBrowserSettings& settings,
@@ -735,8 +745,8 @@ bool ViewsWindow::GetTitlebarHeight(CefRefPtr<CefWindow> window,
                                     float* titlebar_height) {
   CEF_REQUIRE_UI_THREAD();
 #if defined(OS_MAC)
-  if (frameless_ && with_standard_buttons_) {
-    *titlebar_height = kTitleBarHeight;
+  if (override_titlebar_height_.has_value()) {
+    *titlebar_height = override_titlebar_height_.value();
     return true;
   }
 #endif
@@ -924,6 +934,13 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
 
   // If window has frame or flag passed explicitly
   with_standard_buttons_ = !frameless_ || show_window_buttons;
+
+#if defined(OS_MAC)
+  if (frameless_ && with_standard_buttons_) {
+    default_titlebar_height_ = kTitleBarHeight;
+    override_titlebar_height_ = kTitleBarHeight;
+  }
+#endif
 
   const std::string& toolbar_type =
       command_line->GetSwitchValue(switches::kShowChromeToolbar);
@@ -1261,5 +1278,11 @@ void ViewsWindow::OnExtensionWindowClosed() {
   // Restore the button state.
   extension_button_pressed_lock_ = nullptr;
 }
+
+#if !defined(OS_MAC)
+void ViewsWindow::NudgeWindow() {
+  NOTIMPLEMENTED();
+}
+#endif
 
 }  // namespace client

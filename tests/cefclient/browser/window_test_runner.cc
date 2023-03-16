@@ -36,5 +36,10 @@ void WindowTestRunner::ModifyBounds(const CefRect& display, CefRect& window) {
   }
 }
 
+void WindowTestRunner::SetTitleBarHeight(CefRefPtr<CefBrowser> browser,
+                                         const std::optional<float>& height) {
+  NOTIMPLEMENTED();
+}
+
 }  // namespace window_test
 }  // namespace client

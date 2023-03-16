@@ -393,6 +393,7 @@
       'tests/cefclient/browser/temp_window_mac.mm',
       'tests/cefclient/browser/text_input_client_osr_mac.h',
       'tests/cefclient/browser/text_input_client_osr_mac.mm',
+      'tests/cefclient/browser/views_window_mac.mm',
       'tests/cefclient/browser/window_test_runner_mac.h',
       'tests/cefclient/browser/window_test_runner_mac.mm',
       'tests/cefclient/cefclient_mac.mm',

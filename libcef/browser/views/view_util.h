@@ -9,7 +9,6 @@
 #include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/views/view.h"
 
@@ -28,6 +27,8 @@ namespace internal {
 class NativeWidgetDelegate;
 }
 }  // namespace views
+
+class CefWindowDelegate;
 
 #define CEF_REQUIRE_VALID_RETURN(ret) \
   if (!ParentClass::IsValid())        \
@@ -148,9 +149,8 @@ CefWindowHandle GetWindowHandle(gfx::NativeWindow window);
 
 views::NativeWidget* CreateNativeWidget(
     views::internal::NativeWidgetDelegate* delegate,
-    bool is_frameless,
-    bool with_window_buttons,
-    absl::optional<float> title_bar_height);
+    CefRefPtr<CefWindow> window,
+    CefWindowDelegate* window_delegate);
 
 }  // namespace view_util
 
