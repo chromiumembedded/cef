@@ -35,6 +35,7 @@ const char kMessagePositionName[] = "WindowTest.Position";
 const char kMessageMinimizeName[] = "WindowTest.Minimize";
 const char kMessageMaximizeName[] = "WindowTest.Maximize";
 const char kMessageRestoreName[] = "WindowTest.Restore";
+const char kMessageTitlebarHeightName[] = "WindowTest.TitlebarHeight";
 
 // Create the appropriate platform test runner object.
 std::unique_ptr<WindowTestRunner> CreateWindowTestRunner() {
@@ -69,6 +70,15 @@ std::vector<int> ParsePosition(const std::string& message_name) {
   return vec;
 }
 
+std::optional<float> ParseHeight(const std::string& message) {
+  if (message.size() > sizeof(kMessageTitlebarHeightName)) {
+    const std::string& val = message.substr(sizeof(kMessageTitlebarHeightName));
+    return std::stof(val);
+  } else {
+    return std::nullopt;
+  }
+}
+
 // Handle messages in the browser process.
 class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
@@ -91,18 +101,17 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     if (message_name.find(kMessagePositionName) == 0) {
       const auto vec = ParsePosition(message_name);
       if (vec.size() == 4) {
-        // Execute SetPos() on the main thread.
         runner_->SetPos(browser, vec[0], vec[1], vec[2], vec[3]);
       }
     } else if (message_name == kMessageMinimizeName) {
-      // Execute Minimize() on the main thread.
       runner_->Minimize(browser);
     } else if (message_name == kMessageMaximizeName) {
-      // Execute Maximize() on the main thread.
       runner_->Maximize(browser);
     } else if (message_name == kMessageRestoreName) {
-      // Execute Restore() on the main thread.
       runner_->Restore(browser);
+    } else if (message_name.find(kMessageTitlebarHeightName) == 0) {
+      const auto height = ParseHeight(message_name);
+      runner_->SetTitleBarHeight(browser, height);
     } else {
       NOTREACHED();
     }

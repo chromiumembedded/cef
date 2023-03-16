@@ -4,17 +4,17 @@
 
 #include "libcef/browser/views/native_widget_mac.h"
 
+#include "include/views/cef_window.h"
+#include "include/views/cef_window_delegate.h"
 #include "libcef/browser/views/ns_window.h"
 
 CefNativeWidgetMac::CefNativeWidgetMac(
     views::internal::NativeWidgetDelegate* delegate,
-    bool is_frameless,
-    bool with_window_buttons,
-    absl::optional<float> title_bar_height)
+    CefRefPtr<CefWindow> window,
+    CefWindowDelegate* window_delegate)
     : views::NativeWidgetMac(delegate),
-      is_frameless_(is_frameless),
-      with_window_buttons_(with_window_buttons),
-      title_bar_height_(title_bar_height) {}
+      window_(window),
+      window_delegate_(window_delegate) {}
 
 NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
     const remote_cocoa::mojom::CreateWindowParams* params) {
@@ -22,15 +22,18 @@ NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
       NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable |
       NSWindowStyleMaskClosable | NSWindowStyleMaskResizable |
       NSWindowStyleMaskTexturedBackground;
-  auto window = [[CefNSWindow alloc] initWithStyle:style_mask
-                                       isFrameless:is_frameless_];
 
-  if (is_frameless_) {
+  bool is_frameless = window_delegate_->IsFrameless(window_);
+
+  auto window = [[CefNSWindow alloc] initWithStyle:style_mask
+                                       isFrameless:is_frameless];
+
+  if (is_frameless) {
     [window setTitlebarAppearsTransparent:YES];
     [window setTitleVisibility:NSWindowTitleHidden];
   }
 
-  if (!with_window_buttons_) {
+  if (!window_delegate_->WithStandardWindowButtons(window_)) {
     [[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
     [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
     [[window standardWindowButton:NSWindowZoomButton] setHidden:YES];
@@ -42,9 +45,8 @@ NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
 void CefNativeWidgetMac::GetWindowFrameTitlebarHeight(
     bool* override_titlebar_height,
     float* titlebar_height) {
-  if (title_bar_height_) {
+  if (window_delegate_->GetTitlebarHeight(window_, titlebar_height)) {
     *override_titlebar_height = true;
-    *titlebar_height = title_bar_height_.value();
   } else {
     views::NativeWidgetMac::GetWindowFrameTitlebarHeight(
         override_titlebar_height, titlebar_height);

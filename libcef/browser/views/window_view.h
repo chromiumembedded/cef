@@ -14,7 +14,6 @@
 #include "libcef/browser/views/overlay_view_host.h"
 #include "libcef/browser/views/panel_view.h"
 
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"
@@ -119,9 +118,6 @@ class CefWindowView
   void DeleteDelegate();
 
   void MoveOverlaysIfNecessary();
-
-  absl::optional<float> GetTitlebarHeight(
-      const CefRefPtr<CefWindow>& window) const;
 
   // Not owned by this object.
   Delegate* window_delegate_;

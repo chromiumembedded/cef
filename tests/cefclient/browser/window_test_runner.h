@@ -8,6 +8,8 @@
 
 #include "include/cef_browser.h"
 
+#include <optional>
+
 namespace client {
 namespace window_test {
 
@@ -15,6 +17,8 @@ namespace window_test {
 // the browser process UI thread unless otherwise indicated.
 class WindowTestRunner {
  public:
+  virtual ~WindowTestRunner() = default;
+
   virtual void SetPos(CefRefPtr<CefBrowser> browser,
                       int x,
                       int y,
@@ -28,7 +32,8 @@ class WindowTestRunner {
   // corner of the display.
   static void ModifyBounds(const CefRect& display, CefRect& window);
 
-  virtual ~WindowTestRunner() {}
+  virtual void SetTitleBarHeight(CefRefPtr<CefBrowser> browser,
+                                 const std::optional<float>& height);
 };
 
 }  // namespace window_test
