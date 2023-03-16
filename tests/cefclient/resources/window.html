@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
 <head>
 <title>Window Test</title>
 <script>
@@ -47,6 +48,14 @@ function position() {
   else
     send_message('Position', x + ',' + y + ',' + width + ',' + height);
 }
+
+function setTitlebarHeight() {
+  const height = parseFloat(document.getElementById('title_bar_height').value);
+  if (isNaN(height))
+    send_message('TitlebarHeight');
+  else
+    send_message('TitlebarHeight', height);
+}
 </script>
 </head>
 <body bgcolor="white" onload="setup()">
@@ -60,6 +69,8 @@ X: <input type="text" size="4" id="x" value="200">
 Y: <input type="text" size="4" id="y" value="100">
 Width: <input type="text" size="4" id="width" value="800">
 Height: <input type="text" size="4" id="height" value="600">
+<br/><input type="button" onclick="setTitlebarHeight();" value="Set Titlebar Height">
+<input type="number" min="0" max="100" id="title_bar_height" value="50"> (works on macOS with Views)
 </form>
 </body>
 </html>

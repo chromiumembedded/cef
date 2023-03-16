@@ -28,6 +28,12 @@ RootWindowViews::~RootWindowViews() {
   REQUIRE_MAIN_THREAD();
 }
 
+void RootWindowViews::SetTitlebarHeight(const std::optional<float>& height) {
+  if (window_) {
+    window_->SetTitlebarHeight(height);
+  }
+}
+
 void RootWindowViews::Init(RootWindow::Delegate* delegate,
                            std::unique_ptr<RootWindowConfig> config,
                            const CefBrowserSettings& settings) {

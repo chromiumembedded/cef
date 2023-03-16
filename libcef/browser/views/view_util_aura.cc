@@ -44,9 +44,8 @@ CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
 
 views::NativeWidget* CreateNativeWidget(
     views::internal::NativeWidgetDelegate* delegate,
-    bool is_frameless,
-    bool with_window_buttons,
-    absl::optional<float> title_bar_height) {
+    CefRefPtr<CefWindow> window,
+    CefWindowDelegate* window_delegate) {
   return nullptr;
 }
 

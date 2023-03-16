@@ -6,15 +6,18 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_NATIVE_WIDGET_MAC_H_
 #pragma once
 
-#include "third_party/abseil-cpp/absl/types/optional.h"
+#include "include/internal/cef_ptr.h"
+
 #include "ui/views/widget/native_widget_mac.h"
+
+class CefWindow;
+class CefWindowDelegate;
 
 class CefNativeWidgetMac : public views::NativeWidgetMac {
  public:
   CefNativeWidgetMac(views::internal::NativeWidgetDelegate* delegate,
-                     bool is_frameless,
-                     bool with_window_buttons,
-                     absl::optional<float> title_bar_height);
+                     CefRefPtr<CefWindow> window,
+                     CefWindowDelegate* window_delegate);
   ~CefNativeWidgetMac() override = default;
 
   CefNativeWidgetMac(const CefNativeWidgetMac&) = delete;
@@ -29,9 +32,8 @@ class CefNativeWidgetMac : public views::NativeWidgetMac {
                                     float* titlebar_height) override;
 
  private:
-  const bool is_frameless_;
-  const bool with_window_buttons_;
-  const absl::optional<float> title_bar_height_;
+  const CefRefPtr<CefWindow> window_;
+  CefWindowDelegate* const window_delegate_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_NATIVE_WIDGET_MAC_H_

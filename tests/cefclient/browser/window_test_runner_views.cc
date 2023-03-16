@@ -9,12 +9,15 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 
+#include "tests/cefclient/browser/root_window_views.h"
+#include "tests/cefclient/browser/views_window.h"
+
 namespace client {
 namespace window_test {
 
 namespace {
 
-CefRefPtr<CefWindow> GetWindow(CefRefPtr<CefBrowser> browser) {
+CefRefPtr<CefWindow> GetWindow(const CefRefPtr<CefBrowser>& browser) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(browser->GetHost()->HasView());
 
@@ -25,6 +28,16 @@ CefRefPtr<CefWindow> GetWindow(CefRefPtr<CefBrowser> browser) {
   CefRefPtr<CefWindow> window = browser_view->GetWindow();
   DCHECK(window.get());
   return window;
+}
+
+void SetTitlebarHeight(const CefRefPtr<CefBrowser>& browser,
+                       const std::optional<float>& height) {
+  CEF_REQUIRE_UI_THREAD();
+  auto root_window = RootWindow::GetForBrowser(browser->GetIdentifier());
+  DCHECK(root_window.get());
+
+  auto root_window_views = static_cast<RootWindowViews*>(root_window.get());
+  root_window_views->SetTitlebarHeight(height);
 }
 
 }  // namespace
@@ -54,6 +67,12 @@ void WindowTestRunnerViews::Maximize(CefRefPtr<CefBrowser> browser) {
 
 void WindowTestRunnerViews::Restore(CefRefPtr<CefBrowser> browser) {
   GetWindow(browser)->Restore();
+}
+
+void WindowTestRunnerViews::SetTitleBarHeight(
+    CefRefPtr<CefBrowser> browser,
+    const std::optional<float>& height) {
+  SetTitlebarHeight(browser, height);
 }
 
 }  // namespace window_test

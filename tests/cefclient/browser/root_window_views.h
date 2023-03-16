@@ -26,6 +26,8 @@ class RootWindowViews : public RootWindow,
   RootWindowViews();
   ~RootWindowViews();
 
+  void SetTitlebarHeight(const std::optional<float>& height);
+
   // RootWindow methods:
   void Init(RootWindow::Delegate* delegate,
             std::unique_ptr<RootWindowConfig> config,
