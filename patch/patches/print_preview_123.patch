@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 6fe1ebe84e584..2500dac50ffe3 100644
+index 4b7fcf619a55d..139fd5b4a2bd0 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -21,7 +21,7 @@ index 6fe1ebe84e584..2500dac50ffe3 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -355,6 +360,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -358,6 +363,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {

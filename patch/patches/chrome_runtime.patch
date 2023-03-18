@@ -337,7 +337,7 @@ index 7ecb90a89f1d7..c80ce831382db 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index ff57c231cc784..59ac71c36caa0 100644
+index 3b9ce2a93d09d..049fd4e069aab 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -11,6 +11,7 @@
@@ -359,7 +359,7 @@ index ff57c231cc784..59ac71c36caa0 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1305,6 +1310,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1306,6 +1311,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -371,7 +371,7 @@ index ff57c231cc784..59ac71c36caa0 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -1704,6 +1714,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1705,6 +1715,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

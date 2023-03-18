@@ -70,7 +70,7 @@ index 94f900fb2e05e..2d5719c3bc936 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index f800d1439fd03..0eda6648fa029 100644
+index 8e86697ca27ec..7d2dd1dd23c24 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -263,6 +263,25 @@
@@ -177,7 +177,7 @@ index f800d1439fd03..0eda6648fa029 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -1723,6 +1781,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -1725,6 +1783,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool should_show_loading_ui) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, should_show_loading_ui);
@@ -186,7 +186,7 @@ index f800d1439fd03..0eda6648fa029 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -1750,6 +1810,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -1752,6 +1812,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -195,7 +195,7 @@ index f800d1439fd03..0eda6648fa029 100644
    if (!GetStatusBubble())
      return;
  
-@@ -1757,6 +1819,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -1759,6 +1821,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
      GetStatusBubble()->SetURL(url);
  }
  
@@ -213,7 +213,7 @@ index f800d1439fd03..0eda6648fa029 100644
  void Browser::ContentsMouseEvent(WebContents* source,
                                   bool motion,
                                   bool exited) {
-@@ -1781,6 +1854,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
+@@ -1783,6 +1856,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
    return false;
  }
  
@@ -233,7 +233,7 @@ index f800d1439fd03..0eda6648fa029 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -1873,6 +1959,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -1875,6 +1961,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
  
    // Make the tab show up in the task manager.
    task_manager::WebContentsTags::CreateForTabContents(new_contents);
@@ -244,7 +244,7 @@ index f800d1439fd03..0eda6648fa029 100644
  }
  
  void Browser::PortalWebContentsCreated(WebContents* portal_web_contents) {
-@@ -1984,11 +2074,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -1986,11 +2076,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -260,7 +260,7 @@ index f800d1439fd03..0eda6648fa029 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2188,6 +2282,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2192,6 +2286,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -276,7 +276,7 @@ index f800d1439fd03..0eda6648fa029 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -2728,13 +2831,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2732,13 +2835,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -298,7 +298,7 @@ index f800d1439fd03..0eda6648fa029 100644
    return window_ ? window_->GetStatusBubble() : nullptr;
  }
  
-@@ -2868,6 +2978,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2872,6 +2982,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -308,7 +308,7 @@ index f800d1439fd03..0eda6648fa029 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 486cff37b13ac..21a3a39f49247 100644
+index b8c8af5f2bace..6a0bbc591ab78 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -319,7 +319,7 @@ index 486cff37b13ac..21a3a39f49247 100644
  #include "chrome/browser/tab_contents/web_contents_collection.h"
  #include "chrome/browser/themes/theme_service_observer.h"
  #include "chrome/browser/ui/bookmarks/bookmark_bar.h"
-@@ -48,6 +49,10 @@
+@@ -49,6 +50,10 @@
  #include "ui/gfx/geometry/rect.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
@@ -330,7 +330,7 @@ index 486cff37b13ac..21a3a39f49247 100644
  #if BUILDFLAG(IS_ANDROID)
  #error This file should only be included on desktop.
  #endif
-@@ -323,6 +328,11 @@ class Browser : public TabStripModelObserver,
+@@ -324,6 +329,11 @@ class Browser : public TabStripModelObserver,
      double initial_aspect_ratio = 1.0;
      bool lock_aspect_ratio = false;
  
@@ -342,7 +342,7 @@ index 486cff37b13ac..21a3a39f49247 100644
     private:
      friend class Browser;
      friend class WindowSizerChromeOSTest;
-@@ -398,6 +408,13 @@ class Browser : public TabStripModelObserver,
+@@ -399,6 +409,13 @@ class Browser : public TabStripModelObserver,
      force_skip_warning_user_on_close_ = force_skip_warning_user_on_close;
    }
  
@@ -356,7 +356,7 @@ index 486cff37b13ac..21a3a39f49247 100644
    // Accessors ////////////////////////////////////////////////////////////////
  
    const CreateParams& create_params() const { return create_params_; }
-@@ -471,6 +488,12 @@ class Browser : public TabStripModelObserver,
+@@ -472,6 +489,12 @@ class Browser : public TabStripModelObserver,
  
    base::WeakPtr<Browser> AsWeakPtr();
  
@@ -369,7 +369,7 @@ index 486cff37b13ac..21a3a39f49247 100644
    // Get the FindBarController for this browser, creating it if it does not
    // yet exist.
    FindBarController* GetFindBarController();
-@@ -847,11 +870,19 @@ class Browser : public TabStripModelObserver,
+@@ -848,11 +871,19 @@ class Browser : public TabStripModelObserver,
    void SetContentsBounds(content::WebContents* source,
                           const gfx::Rect& bounds) override;
    void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -389,7 +389,7 @@ index 486cff37b13ac..21a3a39f49247 100644
    void BeforeUnloadFired(content::WebContents* source,
                           bool proceed,
                           bool* proceed_to_fire_unload) override;
-@@ -1255,6 +1286,8 @@ class Browser : public TabStripModelObserver,
+@@ -1256,6 +1287,8 @@ class Browser : public TabStripModelObserver,
    const std::string initial_workspace_;
    bool initial_visible_on_all_workspaces_state_;
  
@@ -398,7 +398,7 @@ index 486cff37b13ac..21a3a39f49247 100644
    CreationSource creation_source_ = CreationSource::kUnknown;
  
    UnloadController unload_controller_;
-@@ -1319,6 +1352,10 @@ class Browser : public TabStripModelObserver,
+@@ -1320,6 +1353,10 @@ class Browser : public TabStripModelObserver,
        extension_browser_window_helper_;
  #endif
  

@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index b91b69e736d35..4bdfa6774c43c 100644
+index d04103392bf00..fe8a89a40274f 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index b91b69e736d35..4bdfa6774c43c 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1980,6 +1981,7 @@ static_library("browser") {
+@@ -1984,6 +1985,7 @@ static_library("browser") {
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index b91b69e736d35..4bdfa6774c43c 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2548,6 +2550,10 @@ static_library("browser") {
+@@ -2552,6 +2554,10 @@ static_library("browser") {
      ]
    }
  
@@ -29,7 +29,7 @@ index b91b69e736d35..4bdfa6774c43c 100644
    if (is_android) {
      sources += [
        "after_startup_task_utils_android.cc",
-@@ -6094,8 +6100,6 @@ static_library("browser") {
+@@ -6100,8 +6106,6 @@ static_library("browser") {
      sources += [
        "enterprise/chrome_browser_main_extra_parts_enterprise.cc",
        "enterprise/chrome_browser_main_extra_parts_enterprise.h",
