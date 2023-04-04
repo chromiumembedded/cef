@@ -15,6 +15,7 @@
 #include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
+#include "components/metrics/persistent_system_profile.h"
 
 ChromeMainRunnerDelegate::ChromeMainRunnerDelegate(
     CefMainRunnerHandler* runner,
@@ -40,6 +41,16 @@ void ChromeMainRunnerDelegate::BeforeMainThreadInitialize(
 #else
   base::CommandLine::Init(args.argc, args.argv);
 #endif
+}
+
+void ChromeMainRunnerDelegate::BeforeMainThreadRun(
+    bool multi_threaded_message_loop) {
+  if (multi_threaded_message_loop) {
+    // Detach from the main thread so that these objects can be attached and
+    // modified from the UI thread going forward.
+    metrics::GlobalPersistentSystemProfile::GetInstance()
+        ->DetachFromCurrentThread();
+  }
 }
 
 void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(

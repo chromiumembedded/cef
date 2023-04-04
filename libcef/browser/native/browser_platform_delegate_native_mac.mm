@@ -23,7 +23,6 @@
 #include "third_party/blink/public/common/input/web_input_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
-#import "ui/base/cocoa/cocoa_base_utils.h"
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/display/screen.h"
 #include "ui/events/base_event_utils.h"
@@ -439,8 +438,7 @@ gfx::Point CefBrowserPlatformDelegateNativeMac::GetScreenPoint(
     NSPoint view_pt = {static_cast<CGFloat>(view.x()),
                        bounds.size.height - static_cast<CGFloat>(view.y())};
     NSPoint window_pt = [nsview convertPoint:view_pt toView:nil];
-    NSPoint screen_pt =
-        ui::ConvertPointFromWindowToScreen([nsview window], window_pt);
+    NSPoint screen_pt = [[nsview window] convertPointToScreen:window_pt];
     return gfx::Point(screen_pt.x, screen_pt.y);
   }
   return gfx::Point();

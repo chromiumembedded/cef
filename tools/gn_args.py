@@ -265,7 +265,6 @@ def GetRecommendedDefaultArgs():
 
     # These require use_partition_alloc_as_malloc=true, so disable them.
     result['enable_backup_ref_ptr_support'] = False
-    result['enable_mte_checked_ptr_support'] = False
 
   return result
 
@@ -506,7 +505,6 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
 
       # These require use_partition_alloc_as_malloc=true, so disable them.
       'enable_backup_ref_ptr_support': False,
-      'enable_mte_checked_ptr_support': False,
 
       # Avoid /LTCG linker warnings and generate smaller lib files.
       'is_official_build': False,

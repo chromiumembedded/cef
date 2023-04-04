@@ -21,7 +21,7 @@ class CefMainRunnerDelegate {
   virtual content::ContentMainDelegate* GetContentMainDelegate() = 0;
 
   virtual void BeforeMainThreadInitialize(const CefMainArgs& args) {}
-  virtual void BeforeMainThreadRun() {}
+  virtual void BeforeMainThreadRun(bool multi_threaded_message_loop) {}
   virtual void BeforeMainMessageLoopRun(base::RunLoop* run_loop) {}
   virtual bool HandleMainMessageLoopQuit() { return false; }
   virtual void BeforeUIThreadInitialize() {}

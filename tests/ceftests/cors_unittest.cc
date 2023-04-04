@@ -830,7 +830,7 @@ void SetupIframeRequest(CookieTestSetup* setup,
         IsStandardType(main_handler)) {
       setup->AddConsoleMessage(
           "An iframe which has both allow-scripts and allow-same-origin for "
-          "its sandbox attribute can remove its sandboxing.");
+          "its sandbox attribute can escape its sandboxing.");
     }
   } else {
     // Expect JavaScript execution to fail.

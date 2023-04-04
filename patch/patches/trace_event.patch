@@ -1,8 +1,8 @@
 diff --git base/trace_event/builtin_categories.h base/trace_event/builtin_categories.h
-index ee17e77330c49..3a4bbed8d4db4 100644
+index 7146ce14ee1a2..acaedc4761331 100644
 --- base/trace_event/builtin_categories.h
 +++ base/trace_event/builtin_categories.h
-@@ -64,6 +64,8 @@
+@@ -63,6 +63,8 @@
    X("cc")                                                                \
    X("cc.debug")                                                          \
    X("cdp.perf")                                                          \

@@ -26,10 +26,10 @@ index d2f5798ce6535..64d6d388c9a27 100644
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index a420dad636df4..f1ef2e914cd5e 100755
+index a9cd6f03d9214..7ae775d6aca6d 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -112,9 +112,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -114,9 +114,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -46,7 +46,7 @@ index a420dad636df4..f1ef2e914cd5e 100755
      # When using an installed toolchain these files aren't needed in the output
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
-@@ -163,6 +170,10 @@ def _RegistryGetValue(key, value):
+@@ -165,6 +172,10 @@ def _RegistryGetValue(key, value):
  def GetVisualStudioVersion():
    """Return best available version of Visual Studio.
    """

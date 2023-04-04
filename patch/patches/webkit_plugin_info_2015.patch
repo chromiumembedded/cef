@@ -1,9 +1,9 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index e2fb979da659c..b0686d990445e 100644
+index 17e2a2876789c..b708401ec2c0f 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -791,6 +791,11 @@ class BLINK_PLATFORM_EXPORT Platform {
-       uint64_t private_memory_footprint_bytes) {}
+@@ -793,6 +793,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+   }
  #endif
  
 +  // DevTools ------------------------------------------------------------

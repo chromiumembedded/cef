@@ -1,5 +1,5 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index a3cc7fabebb07..d1e88823f7931 100644
+index 3062f57603321..d8532c9c2eabb 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -173,11 +173,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -39,7 +39,7 @@ index a3cc7fabebb07..d1e88823f7931 100644
      InitializeMac();
  #endif
  
-@@ -321,16 +309,49 @@ RunContentProcess(ContentMainParams params,
+@@ -323,16 +311,49 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -59,7 +59,7 @@ index a3cc7fabebb07..d1e88823f7931 100644
 +}
 +
 +void ContentMainShutdown(ContentMainRunner* content_main_runner) {
- #if !BUILDFLAG(IS_ANDROID)
+ #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
    content_main_runner->Shutdown();
  #endif
 +}
@@ -94,7 +94,7 @@ index a3cc7fabebb07..d1e88823f7931 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 8bfbf0e73fb8d..f80f322b65535 100644
+index 0846656e45ba8..1f34295fb0544 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -46,6 +46,7 @@
@@ -105,7 +105,7 @@ index 8bfbf0e73fb8d..f80f322b65535 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1306,6 +1307,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1300,6 +1301,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 6fe1ebe84e584..2500dac50ffe3 100644
+index 4b7fcf619a55d..139fd5b4a2bd0 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -24,6 +24,7 @@
@@ -21,7 +21,7 @@ index 6fe1ebe84e584..2500dac50ffe3 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -355,6 +360,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -358,6 +363,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -45,26 +45,6 @@ index f2dca42faf347..458703a565501 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/printing/print_view_manager.h"
  #include "chrome/browser/task_manager/web_contents_tags.h"
-diff --git chrome/browser/printing/print_view_manager_base.cc chrome/browser/printing/print_view_manager_base.cc
-index a2adc3c992aba..8cd9aa18e2383 100644
---- chrome/browser/printing/print_view_manager_base.cc
-+++ chrome/browser/printing/print_view_manager_base.cc
-@@ -625,13 +625,14 @@ void PrintViewManagerBase::UpdatePrintSettings(
-       job_settings.Set(kSettingRasterizePdfDpi, value);
-   }
- 
-+  content::RenderFrameHost* render_frame_host = GetCurrentTargetFrame();
-   auto callback_wrapper =
-       base::BindOnce(&PrintViewManagerBase::UpdatePrintSettingsReply,
-                      weak_ptr_factory_.GetWeakPtr(), std::move(callback));
-   std::unique_ptr<PrinterQuery> printer_query = queue_->PopPrinterQuery(cookie);
-   if (!printer_query) {
-     printer_query =
--        queue_->CreatePrinterQuery(content::GlobalRenderFrameHostId());
-+        queue_->CreatePrinterQuery(render_frame_host->GetGlobalId());
-   }
-   auto* printer_query_ptr = printer_query.get();
-   printer_query_ptr->SetSettings(
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
 index 5d1658999d5bb..d1b7b7288c946 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
@@ -104,7 +84,7 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index e51bf24fcc74f..ed48fb4d6968d 100644
+index fb8f4728eb559..a1a505a31e7af 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -22,6 +22,7 @@
@@ -129,7 +109,7 @@ index e51bf24fcc74f..ed48fb4d6968d 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -328,7 +336,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -326,7 +334,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

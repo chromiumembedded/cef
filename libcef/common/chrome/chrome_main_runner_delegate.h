@@ -33,6 +33,7 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   // CefMainRunnerDelegate overrides.
   content::ContentMainDelegate* GetContentMainDelegate() override;
   void BeforeMainThreadInitialize(const CefMainArgs& args) override;
+  void BeforeMainThreadRun(bool multi_threaded_message_loop) override;
   void BeforeMainMessageLoopRun(base::RunLoop* run_loop) override;
   bool HandleMainMessageLoopQuit() override;
   void BeforeUIThreadInitialize() override;

@@ -59,7 +59,7 @@ index f5f266328283d..672609d94d1b7 100644
  
    base::RecordAction(base::UserMetricsAction("IncognitoMenu_Show"));
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 41546d7dce559..dce0122a85933 100644
+index a315cdc513f1d..036236798652c 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 @@ -45,7 +45,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {

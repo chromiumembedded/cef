@@ -32,7 +32,8 @@ void AlloyMainRunnerDelegate::BeforeMainThreadInitialize(
   g_browser_process = new ChromeBrowserProcessAlloy();
 }
 
-void AlloyMainRunnerDelegate::BeforeMainThreadRun() {
+void AlloyMainRunnerDelegate::BeforeMainThreadRun(
+    bool multi_threaded_message_loop) {
   static_cast<ChromeBrowserProcessAlloy*>(g_browser_process)->Initialize();
 }
 

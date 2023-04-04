@@ -1,0 +1,23 @@
+diff --git gpu/BUILD.gn gpu/BUILD.gn
+index 671a9e7643de0..498d60c1d35f6 100644
+--- gpu/BUILD.gn
++++ gpu/BUILD.gn
+@@ -675,7 +675,6 @@ test("gpu_unittests") {
+     ":test_support",
+     "//base",
+     "//base/test:test_support",
+-    "//base/test:test_trace_processor",
+     "//base/third_party/dynamic_annotations",
+     "//build:chromeos_buildflags",
+     "//cc:test_support",
+@@ -715,6 +714,10 @@ test("gpu_unittests") {
+     "//url",
+   ]
+ 
++  if (enable_base_tracing) {
++    deps += [ "//base/test:test_trace_processor" ]
++  }
++
+   if (is_android) {
+     deps += [
+       "//ui/android:ui_java",

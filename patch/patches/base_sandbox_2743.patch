@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 422702cb196c5..7118ae9c9f467 100644
+index 80f6eaf01c022..b1a35ad087a5b 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -39,6 +39,7 @@ import("//build/config/ui.gni")
+@@ -40,6 +40,7 @@ import("//build/config/ui.gni")
  import("//build/nocompile.gni")
  import("//build/timestamp.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 422702cb196c5..7118ae9c9f467 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1509,7 +1510,11 @@ component("base") {
+@@ -1535,7 +1536,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 422702cb196c5..7118ae9c9f467 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1909,6 +1914,12 @@ component("base") {
+@@ -1935,6 +1940,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index 422702cb196c5..7118ae9c9f467 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 09ce0dc0c5016..8b847a24918f5 100644
+index 0f044388cefee..49fc4cd20be64 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -13,6 +13,7 @@
@@ -185,17 +185,18 @@ index aa7423f88d278..1b2c7d3e3c4a0 100644
    return token_ == other.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 50a120166f08a..dc7da1949b6b1 100644
+index 0f1a2ec79aa4b..7f92778a4a776 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
-@@ -16,14 +16,19 @@
+@@ -15,6 +15,7 @@
  #include <utility>
  
  #include "base/check.h"
 +#include "base/notreached.h"
  #include "base/no_destructor.h"
  #include "base/rand_util.h"
- #include "base/strings/string_util_win.h"
+ #include "base/ranges/algorithm.h"
+@@ -22,8 +23,12 @@
  #include "base/win/scoped_handle.h"
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"

@@ -161,7 +161,7 @@ index 9ba85048d1fcf..f3a5b8bc9bda0 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extension_registry.cc extensions/browser/extension_registry.cc
-index f142a40362c75..ed283ef8f1251 100644
+index c3197eb4790fa..1e7ae767b0582 100644
 --- extensions/browser/extension_registry.cc
 +++ extensions/browser/extension_registry.cc
 @@ -6,9 +6,14 @@
@@ -250,7 +250,7 @@ index 115f31f9ce46d..914b2564d5a21 100644
        base::BindOnce(&ProcessManager::HandleCloseExtensionHost,
                       weak_ptr_factory_.GetWeakPtr()));
 diff --git extensions/common/extensions_client.cc extensions/common/extensions_client.cc
-index 53ad0736cfbdf..c252591fa646d 100644
+index a8108350ddde2..7ae49e78b4327 100644
 --- extensions/common/extensions_client.cc
 +++ extensions/common/extensions_client.cc
 @@ -23,7 +23,7 @@ ExtensionsClient* g_client = nullptr;

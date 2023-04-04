@@ -12,7 +12,7 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 057b4081c95e5..9817b4c62a89e 100644
+index 6b729528b79bd..3b04670a846d6 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -18,6 +18,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 057b4081c95e5..9817b4c62a89e 100644
  import("//chrome/browser/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -279,6 +280,10 @@ group("gn_all") {
+@@ -278,6 +279,10 @@ group("gn_all") {
  
    deps += root_extra_deps
  
@@ -35,19 +35,18 @@ index 057b4081c95e5..9817b4c62a89e 100644
      deps += [ "//printing:printing_unittests" ]
    }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 2314ab505bfa2..f10698a79102e 100644
+index 1da479dd5eebc..ff9c7e467997c 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
-@@ -5,21 +5,23 @@
+@@ -5,15 +5,14 @@
  declare_args() {
    # Path to Visual Studio. If empty, the default is used which is to use the
    # automatic toolchain in depot_tools. If set, you must also set the
--  # visual_studio_version and wdk_path.
-+  # visual_studio_version, wdk_path and windows_sdk_version.
+-  # visual_studio_version, wdk_path and windows_sdk_version.
++  # visual_studio_version, visual_studio_runtime_dirs and windows_sdk_version.
    visual_studio_path = ""
  
    # Version of Visual Studio pointed to by the visual_studio_path.
-   # Currently always "2015".
    visual_studio_version = ""
  
 -  # Directory of the Windows driver kit. If visual_studio_path is empty, this
@@ -58,15 +57,7 @@ index 2314ab505bfa2..f10698a79102e 100644
  
    # Full path to the Windows SDK, not including a backslash at the end.
    # This value is the default location, override if you have a different
-   # installation location.
-   windows_sdk_path = "C:\Program Files (x86)\Windows Kits\10"
-+
-+  # Version of the Windows SDK pointed to by the windows_sdk_path.
-+  windows_sdk_version = ""
- }
- 
- if (visual_studio_path == "") {
-@@ -29,12 +31,13 @@ if (visual_studio_path == "") {
+@@ -31,14 +30,13 @@ if (visual_studio_path == "") {
    windows_sdk_version = toolchain_data.sdk_version
    windows_sdk_path = toolchain_data.sdk_path
    visual_studio_version = toolchain_data.vs_version
@@ -75,14 +66,14 @@ index 2314ab505bfa2..f10698a79102e 100644
  } else {
    assert(visual_studio_version != "",
           "You must set the visual_studio_version if you set the path")
--  assert(wdk_path != "",
--         "You must set the wdk_path if you set the visual studio path")
--  visual_studio_runtime_dirs = []
-+  assert(windows_sdk_version != "",
-+         "You must set the windows_sdk_version if you set the path")
 +  assert(visual_studio_runtime_dirs != "",
 +         "You must set the visual_studio_runtime_dirs if you set the visual " +
 +         "studio path")
+   assert(windows_sdk_version != "",
+          "You must set the windows_sdk_version if you set the path")
+-  assert(wdk_path != "",
+-         "You must set the wdk_path if you set the visual studio path")
+-  visual_studio_runtime_dirs = []
  }
 diff --git chrome/app/framework.order chrome/app/framework.order
 index 60f573a736ba5..90dd6d0b37314 100644
@@ -98,7 +89,7 @@ index 60f573a736ba5..90dd6d0b37314 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index b3f457a9ce656..1af43bc3bb657 100644
+index 84da6451a03ba..ff641f5bdc4c6 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")

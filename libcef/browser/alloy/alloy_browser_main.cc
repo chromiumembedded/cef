@@ -74,7 +74,7 @@
 #endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
-#include "components/os_crypt/os_crypt.h"
+#include "components/os_crypt/sync/os_crypt.h"
 #endif
 
 #if BUILDFLAG(IS_LINUX)
@@ -83,7 +83,7 @@
 #include "chrome/browser/ui/views/theme_profile_key.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/grit/chromium_strings.h"
-#include "components/os_crypt/key_storage_config_linux.h"
+#include "components/os_crypt/sync/key_storage_config_linux.h"
 #include "libcef/browser/printing/print_dialog_linux.h"
 #include "ui/base/cursor/cursor_factory.h"
 #include "ui/base/ime/input_method.h"

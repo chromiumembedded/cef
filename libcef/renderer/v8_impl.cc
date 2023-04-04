@@ -34,10 +34,11 @@
 #include "libcef/renderer/render_frame_util.h"
 #include "libcef/renderer/thread_util.h"
 
+#include "base/auto_reset.h"
 #include "base/functional/bind.h"
 #include "base/lazy_instance.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/threading/thread_local.h"
+#include "third_party/abseil-cpp/absl/base/attributes.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_frame.h"
 #include "third_party/blink/public/web/web_local_frame.h"
@@ -83,20 +84,34 @@ bool GetPrivate(v8::Local<v8::Context> context,
       .ToLocal(result);
 }
 
+// Chromium uses the default Isolate for the main render process thread and a
+// new Isolate for each WebWorker thread. Continue this pattern by tracking
+// Isolate information on a per-thread basis. This implementation will need to
+// be re-worked (perhaps using a map keyed on v8::Isolate::GetCurrent()) if
+// in the future Chromium begins using the same Isolate across multiple threads.
+class CefV8IsolateManager;
+ABSL_CONST_INIT thread_local CefV8IsolateManager* g_isolate_manager = nullptr;
+
 // Manages memory and state information associated with a single Isolate.
 class CefV8IsolateManager {
  public:
   CefV8IsolateManager()
-      : isolate_(v8::Isolate::GetCurrent()),
+      : resetter_(&g_isolate_manager, this),
+        isolate_(v8::Isolate::GetCurrent()),
         task_runner_(CEF_RENDER_TASK_RUNNER()),
         message_listener_registered_(false),
         worker_id_(0) {
     DCHECK(isolate_);
     DCHECK(task_runner_.get());
   }
-  ~CefV8IsolateManager() {
+  ~CefV8IsolateManager() = default;
+
+  static CefV8IsolateManager* Get() { return g_isolate_manager; }
+
+  void Destroy() {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
     DCHECK(context_map_.empty());
+    delete this;
   }
 
   scoped_refptr<CefV8ContextState> GetContextState(
@@ -175,6 +190,8 @@ class CefV8IsolateManager {
   const GURL& worker_url() const { return worker_url_; }
 
  private:
+  const base::AutoReset<CefV8IsolateManager*> resetter_;
+
   v8::Isolate* isolate_;
   scoped_refptr<base::SingleThreadTaskRunner> task_runner_;
 
@@ -192,43 +209,6 @@ class CefV8IsolateManager {
   int worker_id_;
   GURL worker_url_;
 };
-
-// Chromium uses the default Isolate for the main render process thread and a
-// new Isolate for each WebWorker thread. Continue this pattern by tracking
-// Isolate information on a per-thread basis. This implementation will need to
-// be re-worked (perhaps using a map keyed on v8::Isolate::GetCurrent()) if
-// in the future Chromium begins using the same Isolate across multiple threads.
-class CefV8StateManager {
- public:
-  CefV8StateManager() {}
-
-  void CreateIsolateManager() {
-    DCHECK(!current_tls_.Get());
-    current_tls_.Set(new CefV8IsolateManager());
-  }
-
-  void DestroyIsolateManager() {
-    DCHECK(current_tls_.Get());
-    delete current_tls_.Get();
-    current_tls_.Set(nullptr);
-  }
-
-  CefV8IsolateManager* GetIsolateManager() {
-    CefV8IsolateManager* manager = current_tls_.Get();
-    DCHECK(manager);
-    return manager;
-  }
-
- private:
-  base::ThreadLocalPointer<CefV8IsolateManager> current_tls_;
-};
-
-base::LazyInstance<CefV8StateManager>::Leaky g_v8_state =
-    LAZY_INSTANCE_INITIALIZER;
-
-CefV8IsolateManager* GetIsolateManager() {
-  return g_v8_state.Pointer()->GetIsolateManager();
-}
 
 class V8TrackObject : public CefTrackNode {
  public:
@@ -810,7 +790,7 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
     return;
   }
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
   v8::Local<v8::StackTrace> v8Stack = message->GetStackTrace();
   CefRefPtr<CefV8StackTrace> stackTrace =
@@ -831,23 +811,24 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
 // Global functions.
 
 void CefV8IsolateCreated() {
-  g_v8_state.Pointer()->CreateIsolateManager();
+  new CefV8IsolateManager();
 }
 
 void CefV8IsolateDestroyed() {
-  g_v8_state.Pointer()->DestroyIsolateManager();
+  auto* isolate_manager = CefV8IsolateManager::Get();
+  isolate_manager->Destroy();
 }
 
 void CefV8ReleaseContext(v8::Local<v8::Context> context) {
-  GetIsolateManager()->ReleaseContext(context);
+  CefV8IsolateManager::Get()->ReleaseContext(context);
 }
 
 void CefV8SetUncaughtExceptionStackSize(int stack_size) {
-  GetIsolateManager()->SetUncaughtExceptionStackSize(stack_size);
+  CefV8IsolateManager::Get()->SetUncaughtExceptionStackSize(stack_size);
 }
 
 void CefV8SetWorkerAttributes(int worker_id, const GURL& worker_url) {
-  GetIsolateManager()->SetWorkerAttributes(worker_id, worker_url);
+  CefV8IsolateManager::Get()->SetWorkerAttributes(worker_id, worker_url);
 }
 
 bool CefRegisterExtension(const CefString& extension_name,
@@ -856,7 +837,7 @@ bool CefRegisterExtension(const CefString& extension_name,
   // Verify that this method was called on the correct thread.
   CEF_REQUIRE_RT_RETURN(false);
 
-  CefV8IsolateManager* isolate_manager = GetIsolateManager();
+  auto* isolate_manager = CefV8IsolateManager::Get();
 
   V8TrackString* name = new V8TrackString(extension_name);
   isolate_manager->AddGlobalTrackObject(name);
@@ -879,7 +860,7 @@ bool CefRegisterExtension(const CefString& extension_name,
 
 // Helper macros
 
-#define CEF_V8_HAS_ISOLATE() (!!GetIsolateManager())
+#define CEF_V8_HAS_ISOLATE() (!!CefV8IsolateManager::Get())
 #define CEF_V8_REQUIRE_ISOLATE_RETURN(var)     \
   if (!CEF_V8_HAS_ISOLATE()) {                 \
     NOTREACHED() << "V8 isolate is not valid"; \
@@ -929,7 +910,7 @@ CefV8HandleBase::CefV8HandleBase(v8::Isolate* isolate,
     : isolate_(isolate) {
   DCHECK(isolate_);
 
-  CefV8IsolateManager* manager = GetIsolateManager();
+  CefV8IsolateManager* manager = CefV8IsolateManager::Get();
   DCHECK(manager);
   DCHECK_EQ(isolate_, manager->isolate());
 
@@ -943,7 +924,7 @@ CefV8HandleBase::CefV8HandleBase(v8::Isolate* isolate,
 CefRefPtr<CefV8Context> CefV8Context::GetCurrentContext() {
   CefRefPtr<CefV8Context> context;
   CEF_V8_REQUIRE_ISOLATE_RETURN(context);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   if (isolate->InContext()) {
     v8::HandleScope handle_scope(isolate);
     context = new CefV8ContextImpl(isolate, isolate->GetCurrentContext());
@@ -955,7 +936,7 @@ CefRefPtr<CefV8Context> CefV8Context::GetCurrentContext() {
 CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext() {
   CefRefPtr<CefV8Context> context;
   CEF_V8_REQUIRE_ISOLATE_RETURN(context);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   if (isolate->InContext()) {
     v8::HandleScope handle_scope(isolate);
     context =
@@ -967,7 +948,7 @@ CefRefPtr<CefV8Context> CefV8Context::GetEnteredContext() {
 // static
 bool CefV8Context::InContext() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(false);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   return isolate->InContext();
 }
 
@@ -1179,7 +1160,7 @@ CefV8ValueImpl::Handle::~Handle() {
           context_state_->DeleteTrackObject(tracker_);
         }
       } else {
-        GetIsolateManager()->DeleteGlobalTrackObject(tracker_);
+        CefV8IsolateManager::Get()->DeleteGlobalTrackObject(tracker_);
       }
     } else {
       delete tracker_;
@@ -1235,7 +1216,7 @@ void CefV8ValueImpl::Handle::SetWeakIfNecessary() {
         // |tracker_| will be deleted when:
         // A. The process shuts down, or
         // B. SecondWeakCallback is called for the weak handle.
-        GetIsolateManager()->AddGlobalTrackObject(tracker_);
+        CefV8IsolateManager::Get()->AddGlobalTrackObject(tracker_);
       }
     }
 
@@ -1268,7 +1249,7 @@ void CefV8ValueImpl::Handle::SecondWeakCallback(
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateUndefined() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitUndefined();
   return impl.get();
@@ -1277,7 +1258,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateUndefined() {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateNull() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitNull();
   return impl.get();
@@ -1286,7 +1267,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateNull() {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitBool(value);
   return impl.get();
@@ -1295,7 +1276,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value) {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitInt(value);
   return impl.get();
@@ -1304,7 +1285,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32 value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitUInt(value);
   return impl.get();
@@ -1313,7 +1294,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32 value) {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitDouble(value);
   return impl.get();
@@ -1322,7 +1303,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDouble(double value) {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateDate(CefBaseTime value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitDate(value);
   return impl.get();
@@ -1331,7 +1312,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateDate(CefBaseTime value) {
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   CefString str(value);
   impl->InitString(str);
@@ -1344,7 +1325,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
     CefRefPtr<CefV8Interceptor> interceptor) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
@@ -1395,7 +1376,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 CefRefPtr<CefV8Value> CefV8Value::CreateArray(int length) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
@@ -1426,7 +1407,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
     CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
@@ -1476,7 +1457,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
     return nullptr;
   }
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
@@ -1520,7 +1501,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreatePromise() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
@@ -2626,7 +2607,7 @@ bool CefV8ValueImpl::HasCaught(v8::Local<v8::Context> context,
 CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
-  v8::Isolate* isolate = GetIsolateManager()->isolate();
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(
       isolate, frame_limit, v8::StackTrace::kDetailed);

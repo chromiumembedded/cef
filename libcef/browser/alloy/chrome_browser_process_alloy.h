@@ -51,6 +51,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   // BrowserProcess implementation.
   void EndSession() override;
   void FlushLocalStateAndReply(base::OnceClosure reply) override;
+  device::GeolocationManager* geolocation_manager() override;
   metrics_services_manager::MetricsServicesManager* GetMetricsServicesManager()
       override;
   metrics::MetricsService* metrics_service() override;
@@ -65,6 +66,8 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   extensions::EventRouterForwarder* extension_event_router_forwarder() override;
   NotificationUIManager* notification_ui_manager() override;
   NotificationPlatformBridge* notification_platform_bridge() override;
+  void SetGeolocationManager(
+      std::unique_ptr<device::GeolocationManager> geolocation_manager) override;
   policy::ChromeBrowserPolicyConnector* browser_policy_connector() override;
   policy::PolicyService* policy_service() override;
   IconManager* icon_manager() override;
@@ -107,8 +110,6 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   BuildState* GetBuildState() override;
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
   HidPolicyAllowedDevices* hid_policy_allowed_devices() override;
-  breadcrumbs::BreadcrumbPersistentStorageManager*
-  GetBreadcrumbPersistentStorageManager() override;
   HidSystemTrayIcon* hid_system_tray_icon() override;
 
  private:

@@ -31,7 +31,7 @@ class AlloyMainRunnerDelegate : public CefMainRunnerDelegate {
   // CefMainRunnerDelegate overrides.
   content::ContentMainDelegate* GetContentMainDelegate() override;
   void BeforeMainThreadInitialize(const CefMainArgs& args) override;
-  void BeforeMainThreadRun() override;
+  void BeforeMainThreadRun(bool multi_threaded_message_loop) override;
   void AfterUIThreadInitialize() override;
   void AfterUIThreadShutdown() override;
   void BeforeMainThreadShutdown() override;

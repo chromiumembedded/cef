@@ -35,7 +35,6 @@
 #include "chrome/browser/ui/webui/print_preview/policy_settings.h"
 #include "chrome/common/buildflags.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/net/safe_search_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
 #include "components/certificate_transparency/pref_names.h"
@@ -48,6 +47,7 @@
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/permissions/permission_actions_history.h"
+#include "components/policy/core/common/policy_pref_names.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -57,6 +57,7 @@
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+#include "components/safe_search_api/safe_search_util.h"
 #include "components/spellcheck/browser/pref_names.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
@@ -69,7 +70,7 @@
 #include "ui/base/ui_base_switches.h"
 
 #if BUILDFLAG(IS_WIN)
-#include "components/os_crypt/os_crypt.h"
+#include "components/os_crypt/sync/os_crypt.h"
 #endif
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
@@ -281,9 +282,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Print preferences.
     // Based on ProfileImpl::RegisterProfilePrefs.
-    registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
-    registry->RegisterIntegerPref(prefs::kForceYouTubeRestrict,
-                                  safe_search_util::YOUTUBE_RESTRICT_OFF);
+    registry->RegisterBooleanPref(policy::policy_prefs::kForceGoogleSafeSearch,
+                                  false);
+    registry->RegisterIntegerPref(policy::policy_prefs::kForceYouTubeRestrict,
+                                  safe_search_api::YOUTUBE_RESTRICT_OFF);
     registry->RegisterStringPref(prefs::kAllowedDomainsForApps, std::string());
     registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
     registry->RegisterBooleanPref(prefs::kPrintPreviewDisabled,

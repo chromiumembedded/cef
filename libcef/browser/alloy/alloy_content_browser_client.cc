@@ -89,6 +89,7 @@
 #include "components/pdf/browser/pdf_url_loader_request_interceptor.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/pdf/common/internal_plugin_helpers.h"
+#include "components/policy/core/common/policy_pref_names.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
 #include "content/browser/plugin_service_impl.h"
@@ -923,8 +924,10 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
   Profile* profile = Profile::FromBrowserContext(browser_context);
 
   chrome::mojom::DynamicParams dynamic_params = {
-      profile->GetPrefs()->GetBoolean(prefs::kForceGoogleSafeSearch),
-      profile->GetPrefs()->GetInteger(prefs::kForceYouTubeRestrict),
+      profile->GetPrefs()->GetBoolean(
+          policy::policy_prefs::kForceGoogleSafeSearch),
+      profile->GetPrefs()->GetInteger(
+          policy::policy_prefs::kForceYouTubeRestrict),
       profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps)};
   result.push_back(
       std::make_unique<GoogleURLLoaderThrottle>(std::move(dynamic_params)));

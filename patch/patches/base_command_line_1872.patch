@@ -1,11 +1,11 @@
 diff --git base/command_line.cc base/command_line.cc
-index ae845dcf3972a..a6fc08d159b74 100644
+index 0ff6e0c111e63..543659c662892 100644
 --- base/command_line.cc
 +++ base/command_line.cc
-@@ -339,11 +339,10 @@ void CommandLine::AppendSwitchPath(StringPiece switch_string,
- 
- void CommandLine::AppendSwitchNative(StringPiece switch_string,
-                                      CommandLine::StringPieceType value) {
+@@ -346,11 +346,10 @@ void CommandLine::AppendSwitchNative(StringPiece switch_string,
+ #if BUILDFLAG(ENABLE_COMMANDLINE_SEQUENCE_CHECKS)
+   sequence_checker_.Check();
+ #endif
 -#if BUILDFLAG(IS_WIN)
    const std::string switch_key = ToLowerASCII(switch_string);
 +#if BUILDFLAG(IS_WIN)

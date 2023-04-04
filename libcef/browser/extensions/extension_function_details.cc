@@ -325,7 +325,7 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   GURL url;
   if (params.url.has_value()) {
     auto url_expected = ExtensionTabUtil::PrepareURLForNavigation(
-        *params.url, function()->extension());
+        *params.url, function()->extension(), function()->browser_context());
     if (url_expected.has_value()) {
       url = *url_expected;
     } else {

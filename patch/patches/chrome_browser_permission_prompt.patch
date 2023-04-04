@@ -44,7 +44,7 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index d0d4fd4f7925b..0755927b00e2c 100644
+index 1a2fe8936295a..033ecd276cf45 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -77,7 +77,7 @@ index d0d4fd4f7925b..0755927b00e2c 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index 5e3e2bd6f1e69..4594213db914f 100644
+index a6d47eebe0ba6..111a2e52df96f 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -88,15 +88,15 @@ index 5e3e2bd6f1e69..4594213db914f 100644
  #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
  #include "chrome/browser/background_sync/periodic_background_sync_permission_context.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -60,8 +61,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+@@ -59,8 +60,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
        std::make_unique<GeolocationPermissionContextDelegate>(profile);
  #endif  // BUILDFLAG(IS_ANDROID)
- #if BUILDFLAG(IS_MAC)
+ #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
-   delegates.geolocation_manager =
-       g_browser_process->platform_part()->geolocation_manager();
+   delegates.geolocation_manager = g_browser_process->geolocation_manager();
+   DCHECK(delegates.geolocation_manager);
 +  }
- #endif  // BUILDFLAG(IS_MAC)
+ #endif
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
@@ -174,7 +174,7 @@ index 82a50b7e22dfe..c4ba55ec6bd54 100644
    if (!browser) {
      DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
 diff --git components/embedder_support/permission_context_utils.cc components/embedder_support/permission_context_utils.cc
-index c3b99f8e21b1c..8abca05c7c482 100644
+index ff8391841fc28..08562a3a03aef 100644
 --- components/embedder_support/permission_context_utils.cc
 +++ components/embedder_support/permission_context_utils.cc
 @@ -5,6 +5,7 @@
@@ -185,18 +185,19 @@ index c3b99f8e21b1c..8abca05c7c482 100644
  #include "components/background_sync/background_sync_permission_context.h"
  #include "components/permissions/contexts/accessibility_permission_context.h"
  #include "components/permissions/contexts/camera_pan_tilt_zoom_permission_context.h"
-@@ -78,11 +79,18 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+@@ -75,12 +76,19 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
            browser_context,
            std::move(delegates.geolocation_permission_context_delegate));
- #elif BUILDFLAG(IS_MAC)
+ #elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
 +  if (cef::IsAlloyRuntimeEnabled()) {
 +    permission_contexts[ContentSettingsType::GEOLOCATION] =
 +        std::make_unique<permissions::GeolocationPermissionContext>(
 +            browser_context,
 +            std::move(delegates.geolocation_permission_context_delegate));
 +  } else {
+   DCHECK(delegates.geolocation_manager);
    permission_contexts[ContentSettingsType::GEOLOCATION] =
-       std::make_unique<permissions::GeolocationPermissionContextMac>(
+       std::make_unique<permissions::GeolocationPermissionContextSystem>(
            browser_context,
            std::move(delegates.geolocation_permission_context_delegate),
            delegates.geolocation_manager);

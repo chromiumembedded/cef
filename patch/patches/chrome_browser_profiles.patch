@@ -84,10 +84,10 @@ index 1e6a22d95a53f..6ec4182bfc5e7 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 6836199037155..5e0ad06d62fe9 100644
+index 3ee6b902b6bc2..6416146fba8af 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1018,7 +1018,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1015,7 +1015,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -99,10 +99,10 @@ index 6836199037155..5e0ad06d62fe9 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 145d5d837ae86..6eeb39eddc79b 100644
+index eab4bc302ef7d..9ed7d61345263 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -385,7 +385,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -392,7 +392,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
                            base::Unretained(this)));
  #endif
  
@@ -112,7 +112,7 @@ index 145d5d837ae86..6eeb39eddc79b 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 54502d1b44a82..8134c87824687 100644
+index c3626f110e6fb..c7d70d32d8f37 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -130,7 +130,7 @@ class ProfileManager : public Profile::Delegate {
@@ -134,7 +134,7 @@ index 54502d1b44a82..8134c87824687 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 43082afabf4bb..fa87aae9cbc93 100644
+index b3cf2ad8d367b..431b44e39de40 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -8,6 +8,7 @@
@@ -145,7 +145,7 @@ index 43082afabf4bb..fa87aae9cbc93 100644
  #include "chrome/browser/content_settings/content_settings_manager_delegate.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -35,8 +36,10 @@ RendererUpdater::RendererUpdater(Profile* profile)
+@@ -36,8 +37,10 @@ RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile),
        is_off_the_record_(profile_->IsOffTheRecord()),
        original_profile_(profile->GetOriginalProfile()) {

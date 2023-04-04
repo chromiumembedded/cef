@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_view_host_impl.cc content/browser/renderer_host/render_view_host_impl.cc
-index 39bd6ef7be6ec..a6ce95a1c8557 100644
+index 172f0b47e2c77..a651cf056c52c 100644
 --- content/browser/renderer_host/render_view_host_impl.cc
 +++ content/browser/renderer_host/render_view_host_impl.cc
 @@ -686,6 +686,8 @@ bool RenderViewHostImpl::IsRenderViewLive() const {

@@ -385,9 +385,13 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
 
 bool CefMainRunner::ContentMainRun(bool* initialized,
                                    base::OnceClosure context_initialized) {
-  main_delegate_->BeforeMainThreadRun();
+  main_delegate_->BeforeMainThreadRun(multi_threaded_message_loop_);
 
   if (multi_threaded_message_loop_) {
+    // Detach the CommandLine from the main thread so that it can be
+    // attached and modified from the UI thread going forward.
+    base::CommandLine::ForCurrentProcess()->DetachFromCurrentSequence();
+
     base::WaitableEvent uithread_startup_event(
         base::WaitableEvent::ResetPolicy::AUTOMATIC,
         base::WaitableEvent::InitialState::NOT_SIGNALED);
