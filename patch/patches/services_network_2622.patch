@@ -178,7 +178,7 @@ index ba7f48e90026c..a509cc4565e9f 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 7301ba6c8992e..c34a2919fa9d0 100644
+index 2800a880bbc12..405badac21ea6 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
 @@ -2297,16 +2297,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
@@ -206,9 +206,9 @@ index 7301ba6c8992e..c34a2919fa9d0 100644
  
 +  builder.SetCookieStore(std::move(cookie_store));
 +
-   if (base::FeatureList::IsEnabled(features::kPrivateStateTokens)) {
+   if (base::FeatureList::IsEnabled(features::kPrivateStateTokens) ||
+       base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
- 
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
 index f32ad0616a72f..c6cc5fcacf34b 100644
 --- services/network/public/mojom/network_context.mojom
