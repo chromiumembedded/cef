@@ -1,5 +1,5 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index 5520e15c232c8..2648037fcf37e 100644
+index 63af3dd95eada..dc89a9c5c5e47 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
 @@ -69,11 +69,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
@@ -13,10 +13,10 @@ index 5520e15c232c8..2648037fcf37e 100644
    if (!print_dialog_)
 -    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
 +    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
-   print_dialog_->UseDefaultSettings();
- #endif
  
-@@ -82,8 +82,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+   if (print_dialog_) {
+     print_dialog_->UseDefaultSettings();
+@@ -85,8 +85,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
  
  gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
  #if BUILDFLAG(IS_LINUX)
@@ -27,7 +27,7 @@ index 5520e15c232c8..2648037fcf37e 100644
  #endif
  
    return gfx::Size();
-@@ -95,11 +95,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
+@@ -98,11 +98,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
    DCHECK(!in_print_job_);
  
  #if BUILDFLAG(IS_LINUX)
@@ -39,8 +39,8 @@ index 5520e15c232c8..2648037fcf37e 100644
 -    print_dialog_ = ui::LinuxUi::instance()->CreatePrintDialog(this);
 +    print_dialog_ = ui::PrintingContextLinuxDelegate::instance()->CreatePrintDialog(this);
  
-   // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
-   // remain non-null after this line.
+   if (print_dialog_) {
+     // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
 index 29db798e8b171..f8b9546b90321 100644
 --- ui/linux/linux_ui.cc
@@ -76,7 +76,7 @@ index 29db798e8b171..f8b9546b90321 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index b5fd57741d2f4..eaab5f1bd2b0b 100644
+index 82d40cb5fa1b9..0a08bec8a6e61 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -18,6 +18,10 @@
