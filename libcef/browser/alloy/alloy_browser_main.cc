@@ -29,6 +29,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/ui/color/chrome_color_mixers.h"
 #include "chrome/browser/ui/javascript_dialogs/chrome_javascript_app_modal_dialog_view_factory.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_switches.h"
@@ -187,6 +188,11 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #else
   InstallChromeJavaScriptAppModalDialogViewFactory();
 #endif
+
+  // On GTK that builds the native theme that, in turn, adds the GTK core color
+  // mixer; core mixers should all be added before we add chrome mixers.
+  ui::ColorProviderManager::Get().AppendColorProviderInitializer(
+      base::BindRepeating(AddChromeColorMixers));
 }
 
 void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
