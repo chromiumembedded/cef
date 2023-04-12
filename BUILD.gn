@@ -385,12 +385,13 @@ source_set("libcef_static_unittested") {
   sources = [
     "libcef/browser/devtools/devtools_util.cc",
     "libcef/browser/devtools/devtools_util.h",
-    "libcef/browser/screen_util.h",
-    "libcef/browser/screen_util.cc",
+    "libcef/browser/geometry_util.h",
+    "libcef/browser/geometry_util.cc",
   ]
 
   deps = [
     "//base",
+    "//ui/gfx/geometry",
   ]
 
   configs += [
@@ -406,7 +407,7 @@ test("libcef_static_unittests") {
 
   sources = [
     "libcef/browser/devtools/devtools_util_unittest.cc",
-    "libcef/browser/screen_util_unittest.cc",
+    "libcef/browser/geometry_util_unittest.cc",
   ]
 
   deps = [

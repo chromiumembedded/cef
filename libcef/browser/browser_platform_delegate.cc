@@ -241,6 +241,9 @@ std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegate::CreateMenuRunner() {
   return nullptr;
 }
 
+void CefBrowserPlatformDelegate::UpdateFindBarBoundingBox(
+    gfx::Rect* bounds) const {}
+
 bool CefBrowserPlatformDelegate::IsWindowless() const {
   return false;
 }

@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
 
 #include "include/views/cef_window.h"
+#include "libcef/browser/views/window_impl.h"
 
 #include "chrome/browser/ui/browser.h"
 #include "ui/views/widget/widget.h"
@@ -170,6 +171,23 @@ void CefBrowserPlatformDelegateChromeViews::PopupBrowserCreated(
   }
 }
 
+void CefBrowserPlatformDelegateChromeViews::UpdateFindBarBoundingBox(
+    gfx::Rect* bounds) const {
+  if (auto* window_impl = GetWindowImpl()) {
+    if (window_impl->root_view()) {
+      window_impl->root_view()->UpdateFindBarBoundingBox(bounds);
+    }
+  }
+}
+
 bool CefBrowserPlatformDelegateChromeViews::IsViewsHosted() const {
   return true;
+}
+
+CefWindowImpl* CefBrowserPlatformDelegateChromeViews::GetWindowImpl() const {
+  if (auto* widget = GetWindowWidget()) {
+    CefRefPtr<CefWindow> window = view_util::GetWindowFor(widget);
+    return static_cast<CefWindowImpl*>(window.get());
+  }
+  return nullptr;
 }

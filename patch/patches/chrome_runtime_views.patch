@@ -216,6 +216,23 @@ index 26545b0cee2c1..118cf0df456d6 100644
   private:
    friend class ::MockAppMenuModel;
  
+diff --git chrome/browser/ui/views/find_bar_host.cc chrome/browser/ui/views/find_bar_host.cc
+index 8ac822b917399..7a7e6fd15bdd9 100644
+--- chrome/browser/ui/views/find_bar_host.cc
++++ chrome/browser/ui/views/find_bar_host.cc
+@@ -412,6 +412,12 @@ void FindBarHost::GetWidgetBounds(gfx::Rect* bounds) {
+   // The BrowserView does Layout for the components that we care about
+   // positioning relative to, so we ask it to tell us where we should go.
+   *bounds = browser_view()->GetFindBarBoundingBox();
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (browser_view()->browser() && browser_view()->browser()->cef_delegate()) {
++    browser_view()->browser()->cef_delegate()->UpdateFindBarBoundingBox(bounds);
++  }
++#endif
+ }
+ 
+ void FindBarHost::RegisterAccelerators() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
 index 8da09b8c01c3f..d4f2a855bb8e8 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc

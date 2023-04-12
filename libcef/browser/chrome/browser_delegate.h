@@ -92,6 +92,9 @@ class BrowserDelegate : public content::WebContentsDelegate {
     return true;
   }
 
+  // Optionally modify the bounding box for the Find bar.
+  virtual void UpdateFindBarBoundingBox(gfx::Rect* bounds) {}
+
   // Same as RequestMediaAccessPermission but returning |callback| if the
   // request is unhandled.
   [[nodiscard]] virtual content::MediaResponseCallback

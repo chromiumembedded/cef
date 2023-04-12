@@ -10,8 +10,8 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/geometry_util.h"
 #include "libcef/browser/native/window_delegate_view.h"
-#include "libcef/browser/screen_util.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/base_paths_win.h"

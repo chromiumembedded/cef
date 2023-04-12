@@ -17,6 +17,9 @@ namespace {
 
 constexpr char kNativeHostViewKey[] = "CefNativeHostViewKey";
 
+// For Venura 13.3.1.
+constexpr float kDefaultTitleBarHeight = 30;
+
 }  // namespace
 
 gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
@@ -65,6 +68,15 @@ void SetHostView(views::Widget* widget, views::View* host_view) {
 views::View* GetHostView(views::Widget* widget) {
   return static_cast<views::View*>(
       widget->GetNativeWindowProperty(kNativeHostViewKey));
+}
+
+float GetNSWindowTitleBarHeight(views::Widget* widget) {
+  if (auto window = GetNativeWindow(widget)) {
+    NSWindow* nswindow = window.GetNativeNSWindow();
+    return nswindow.frame.size.height -
+           [nswindow contentRectForFrameRect:nswindow.frame].size.height;
+  }
+  return kDefaultTitleBarHeight;
 }
 
 }  // namespace view_util

@@ -176,6 +176,12 @@ bool ChromeBrowserDelegate::IsToolbarButtonVisible(
   return true;
 }
 
+void ChromeBrowserDelegate::UpdateFindBarBoundingBox(gfx::Rect* bounds) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    browser->platform_delegate()->UpdateFindBarBoundingBox(bounds);
+  }
+}
+
 content::MediaResponseCallback
 ChromeBrowserDelegate::RequestMediaAccessPermissionEx(
     content::WebContents* web_contents,

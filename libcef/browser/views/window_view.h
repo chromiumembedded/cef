@@ -113,11 +113,16 @@ class CefWindowView
   // Returns the NonClientFrameView for this Window. May be nullptr.
   views::NonClientFrameView* GetNonClientFrameView() const;
 
+  // Optionally modify the bounding box for the Chrome Find bar.
+  void UpdateFindBarBoundingBox(gfx::Rect* bounds) const;
+
  private:
   // Called when removed from the Widget and before |this| is deleted.
   void DeleteDelegate();
 
   void MoveOverlaysIfNecessary();
+
+  absl::optional<float> GetTitlebarHeight() const;
 
   // Not owned by this object.
   Delegate* window_delegate_;
@@ -130,6 +135,7 @@ class CefWindowView
   CefRefPtr<CefImage> window_app_icon_;
 
   std::unique_ptr<SkRegion> draggable_region_;
+  std::vector<gfx::Rect> draggable_rects_;
 
   // Hosts for overlay widgets.
   std::vector<std::unique_ptr<CefOverlayViewHost>> overlay_hosts_;

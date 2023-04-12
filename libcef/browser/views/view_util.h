@@ -161,6 +161,10 @@ views::NativeWidget* CreateNativeWidget(
 void SetHostView(views::Widget* widget, views::View* host_view);
 views::View* GetHostView(views::Widget* widget);
 
+#if BUILDFLAG(IS_MAC)
+float GetNSWindowTitleBarHeight(views::Widget* widget);
+#endif
+
 }  // namespace view_util
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_VIEW_UTIL_H_

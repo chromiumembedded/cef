@@ -60,6 +60,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool IsAppMenuItemEnabled(int command_id) override;
   bool IsPageActionIconVisible(PageActionIconType icon_type) override;
   bool IsToolbarButtonVisible(ToolbarButtonType button_type) override;
+  void UpdateFindBarBoundingBox(gfx::Rect* bounds) override;
   [[nodiscard]] content::MediaResponseCallback RequestMediaAccessPermissionEx(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,

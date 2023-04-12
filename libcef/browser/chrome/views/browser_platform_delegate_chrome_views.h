@@ -8,6 +8,8 @@
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "libcef/browser/views/browser_view_impl.h"
 
+class CefWindowImpl;
+
 // Implementation of Chrome-based browser functionality.
 class CefBrowserPlatformDelegateChromeViews
     : public CefBrowserPlatformDelegateChrome {
@@ -35,12 +37,15 @@ class CefBrowserPlatformDelegateChromeViews
       bool is_devtools) override;
   void PopupBrowserCreated(CefBrowserHostBase* new_browser,
                            bool is_devtools) override;
+  void UpdateFindBarBoundingBox(gfx::Rect* bounds) const override;
   bool IsViewsHosted() const override;
 
   CefRefPtr<CefBrowserViewImpl> browser_view() const { return browser_view_; }
 
  private:
   void SetBrowserView(CefRefPtr<CefBrowserViewImpl> browser_view);
+
+  CefWindowImpl* GetWindowImpl() const;
 
   CefRefPtr<CefBrowserViewImpl> browser_view_;
 };
