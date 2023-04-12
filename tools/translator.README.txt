@@ -30,7 +30,7 @@ output file.
    // WARNING - CHANGED RETURN VALUE
    //   WAS: void
    //   NOW: int
-   #pragma message("Warning: "__FILE__": MyFunction prototype has changed")
+   #pragma message("Warning: " __FILE__ ": MyFunction prototype has changed")
 
 Auto-generated implementations will be added in the new output file for any
 methods/functions that exist in the CEF header file but did not exist in the
@@ -43,7 +43,7 @@ implementation manually.
    {
      // BEGIN DELETE BEFORE MODIFYING
      // AUTO-GENERATED CONTENT
-     #pragma message("Warning: "__FILE__": frame_new_func is not implemented")
+     #pragma message("Warning: " __FILE__ ": frame_new_func is not implemented")
      // END DELETE BEFORE MODIFYING
    }
 

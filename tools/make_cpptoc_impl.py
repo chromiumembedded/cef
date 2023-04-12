@@ -71,7 +71,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
     result += '\n  // BEGIN DELETE BEFORE MODIFYING'
     result += '\n  // AUTO-GENERATED CONTENT'
     result += '\n  // COULD NOT IMPLEMENT DUE TO: ' + ', '.join(invalid)
-    result += '\n  #pragma message("Warning: "__FILE__": ' + name + ' is not implemented")'
+    result += '\n  #pragma message("Warning: " __FILE__ ": ' + name + ' is not implemented")'
     result += '\n  // END DELETE BEFORE MODIFYING'
     result += '\n}\n\n'
     return result

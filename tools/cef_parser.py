@@ -234,7 +234,7 @@ def format_translation_changes(old, new):
               '\n  //   NOW: '+new['retval']
 
   if changed:
-    result += '\n  #pragma message("Warning: "__FILE__": '+new['name']+ \
+    result += '\n  #pragma message("Warning: " __FILE__ ": '+new['name']+ \
               ' prototype has changed")\n'
 
   return result
