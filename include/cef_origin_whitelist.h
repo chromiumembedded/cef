@@ -63,7 +63,7 @@
 /// the same-origin policy. Scripts hosted underneath the fully qualified
 /// |source_origin| URL (like http://www.example.com) will be allowed access to
 /// all resources hosted on the specified |target_protocol| and |target_domain|.
-/// If |target_domain| is non-empty and |allow_target_subdomains| if false only
+/// If |target_domain| is non-empty and |allow_target_subdomains| is false only
 /// exact domain matches will be allowed. If |target_domain| contains a top-
 /// level domain component (like "example.com") and |allow_target_subdomains| is
 /// true sub-domain matches will be allowed. If |target_domain| is empty and

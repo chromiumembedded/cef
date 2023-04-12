@@ -70,7 +70,7 @@ extern "C" {
 /// qualified |source_origin| URL (like http://www.example.com) will be allowed
 /// access to all resources hosted on the specified |target_protocol| and
 /// |target_domain|. If |target_domain| is non-NULL and
-/// |allow_target_subdomains| if false (0) only exact domain matches will be
+/// |allow_target_subdomains| is false (0) only exact domain matches will be
 /// allowed. If |target_domain| contains a top- level domain component (like
 /// "example.com") and |allow_target_subdomains| is true (1) sub-domain matches
 /// will be allowed. If |target_domain| is NULL and |allow_target_subdomains| if
