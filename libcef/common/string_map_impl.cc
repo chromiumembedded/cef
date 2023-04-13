@@ -3,13 +3,44 @@
 // can be found in the LICENSE file.
 
 #include <map>
+#include <vector>
 
 #include "include/internal/cef_string_map.h"
 
 #include "base/logging.h"
 
 namespace {
-using StringMap = std::map<CefString, CefString>;
+
+class StringMap {
+  using Map = std::map<CefString, CefString>;
+  using value_type = Map::value_type;
+
+ public:
+  using const_iterator = Map::const_iterator;
+
+  size_t size() const { return map_ref_.size(); }
+  size_t count(const CefString& key) const { return map_.count(key); }
+  const_iterator find(const CefString& value) const { return map_.find(value); }
+  const_iterator cend() const { return map_.cend(); }
+  const value_type& operator[](size_t pos) const { return *map_ref_[pos]; }
+
+  void insert(value_type&& value) {
+    // does not invalidate iterators
+    const auto [it, inserted] = map_.insert(std::move(value));
+    if (inserted) {
+      map_ref_.push_back(std::move(it));
+    }
+  }
+  void clear() {
+    map_ref_.clear();
+    map_.clear();
+  }
+
+ private:
+  Map map_;
+  std::vector<Map::const_iterator> map_ref_;
+};
+
 }  // namespace
 
 CEF_EXPORT cef_string_map_t cef_string_map_alloc() {
@@ -29,7 +60,7 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
   DCHECK(value);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
   StringMap::const_iterator it = impl->find(CefString(key));
-  if (it == impl->end()) {
+  if (it == impl->cend()) {
     return 0;
   }
 
@@ -48,13 +79,8 @@ CEF_EXPORT int cef_string_map_key(cef_string_map_t map,
     return 0;
   }
 
-  StringMap::const_iterator it = impl->begin();
-  for (size_t ct = 0; it != impl->end(); ++it, ct++) {
-    if (ct == index) {
-      return cef_string_set(it->first.c_str(), it->first.length(), key, true);
-    }
-  }
-  return 0;
+  const auto& [k, _] = (*impl)[index];
+  return cef_string_set(k.c_str(), k.length(), key, true);
 }
 
 CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
@@ -68,14 +94,8 @@ CEF_EXPORT int cef_string_map_value(cef_string_map_t map,
     return 0;
   }
 
-  StringMap::const_iterator it = impl->begin();
-  for (size_t ct = 0; it != impl->end(); ++it, ct++) {
-    if (ct == index) {
-      return cef_string_set(it->second.c_str(), it->second.length(), value,
-                            true);
-    }
-  }
-  return 0;
+  const auto& [_, v] = (*impl)[index];
+  return cef_string_set(v.c_str(), v.length(), value, true);
 }
 
 CEF_EXPORT int cef_string_map_append(cef_string_map_t map,
