@@ -13,7 +13,7 @@ using StringList = std::vector<CefString>;
 }  // namespace
 
 CEF_EXPORT cef_string_list_t cef_string_list_alloc() {
-  return new StringList;
+  return reinterpret_cast<cef_string_list_t>(new StringList);
 }
 
 CEF_EXPORT size_t cef_string_list_size(cef_string_list_t list) {
@@ -58,5 +58,5 @@ CEF_EXPORT void cef_string_list_free(cef_string_list_t list) {
 CEF_EXPORT cef_string_list_t cef_string_list_copy(cef_string_list_t list) {
   DCHECK(list);
   StringList* impl = reinterpret_cast<StringList*>(list);
-  return new StringList(*impl);
+  return reinterpret_cast<cef_string_list_t>(new StringList(*impl));
 }

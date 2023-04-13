@@ -42,7 +42,7 @@ extern "C" {
 /// CEF string multimaps are a set of key/value string pairs.
 /// More than one value can be assigned to a single key.
 ///
-typedef void* cef_string_multimap_t;
+typedef struct _cef_string_multimap_t* cef_string_multimap_t;
 
 ///
 /// Allocate a new string multimap.

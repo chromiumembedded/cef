@@ -13,7 +13,7 @@ using StringMultimap = std::multimap<CefString, CefString>;
 }  // namespace
 
 CEF_EXPORT cef_string_multimap_t cef_string_multimap_alloc() {
-  return new StringMultimap;
+  return reinterpret_cast<cef_string_multimap_t>(new StringMultimap);
 }
 
 CEF_EXPORT size_t cef_string_multimap_size(cef_string_multimap_t map) {

@@ -13,7 +13,7 @@ using StringMap = std::map<CefString, CefString>;
 }  // namespace
 
 CEF_EXPORT cef_string_map_t cef_string_map_alloc() {
-  return new StringMap;
+  return reinterpret_cast<cef_string_map_t>(new StringMap);
 }
 
 CEF_EXPORT size_t cef_string_map_size(cef_string_map_t map) {
