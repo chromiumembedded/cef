@@ -29,9 +29,9 @@ class CefOverlayViewHost : public views::WidgetDelegate,
   CefOverlayViewHost& operator=(const CefOverlayViewHost&) = delete;
 
   // Initializes the CefOverlayViewHost. This creates the Widget that |view|
-  // paints into. |host_view| is the view whose position in the |window_view_|
-  // view hierarchy determines the z-order of the widget relative to views with
-  // layers and views with associated NativeViews.
+  // paints into. On Aura platforms, |host_view| is the view whose position in
+  // the |window_view_| view hierarchy determines the z-order of the widget
+  // relative to views with layers and views with associated NativeViews.
   void Init(views::View* host_view, CefRefPtr<CefView> view);
 
   void Destroy();

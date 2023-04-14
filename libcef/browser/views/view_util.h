@@ -22,6 +22,7 @@ class Point;
 
 namespace views {
 class NativeWidget;
+class View;
 class Widget;
 namespace internal {
 class NativeWidgetDelegate;
@@ -151,6 +152,14 @@ views::NativeWidget* CreateNativeWidget(
     views::internal::NativeWidgetDelegate* delegate,
     CefRefPtr<CefWindow> window,
     CefWindowDelegate* window_delegate);
+
+// Called from CefOverlayViewHost::Init to associate |host_view| with |widget|.
+// This is necessary for GetWindowFor() to correctly return the CefWindow
+// associated with the host Widget. On Aura platforms, |host_view| is the view
+// whose position in the view hierarchy determines the z-order of the widget
+// relative to views with layers and views with associated NativeViews.
+void SetHostView(views::Widget* widget, views::View* host_view);
+views::View* GetHostView(views::Widget* widget);
 
 }  // namespace view_util
 

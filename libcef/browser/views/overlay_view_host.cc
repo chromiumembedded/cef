@@ -14,11 +14,6 @@
 #include "ui/compositor/compositor.h"
 #include "ui/compositor/layer.h"
 
-#if defined(USE_AURA)
-#include "ui/aura/window.h"
-#include "ui/views/view_constants_aura.h"
-#endif
-
 namespace {
 
 class CefOverlayControllerImpl : public CefOverlayController {
@@ -172,8 +167,7 @@ CefOverlayViewHost::CefOverlayViewHost(CefWindowView* window_view,
                                        cef_docking_mode_t docking_mode)
     : window_view_(window_view), docking_mode_(docking_mode) {}
 
-void CefOverlayViewHost::Init(views::View* widget_view,
-                              CefRefPtr<CefView> view) {
+void CefOverlayViewHost::Init(views::View* host_view, CefRefPtr<CefView> view) {
   DCHECK(view);
 
   // Match the logic in CEF_PANEL_IMPL_D::AddChildView().
@@ -202,10 +196,7 @@ void CefOverlayViewHost::Init(views::View* widget_view,
     widget_->GetCompositor()->SetBackgroundColor(SK_ColorTRANSPARENT);
   }
 
-#if defined(USE_AURA)
-  // See matching logic in view_util::GetWindowFor.
-  widget_->GetNativeView()->SetProperty(views::kHostViewKey, widget_view);
-#endif
+  view_util::SetHostView(widget_.get(), host_view);
 
   if (cef::IsChromeRuntimeEnabled()) {
     // Some attributes associated with a Chrome toolbar are located via the

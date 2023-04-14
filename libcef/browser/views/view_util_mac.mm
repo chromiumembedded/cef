@@ -13,6 +13,12 @@
 
 namespace view_util {
 
+namespace {
+
+constexpr char kNativeHostViewKey[] = "CefNativeHostViewKey";
+
+}  // namespace
+
 gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
   if (widget) {
     return widget->GetNativeWindow();
@@ -51,4 +57,14 @@ views::NativeWidget* CreateNativeWidget(
     CefWindowDelegate* window_delegate) {
   return new CefNativeWidgetMac(delegate, window, window_delegate);
 }
+
+void SetHostView(views::Widget* widget, views::View* host_view) {
+  widget->SetNativeWindowProperty(kNativeHostViewKey, host_view);
+}
+
+views::View* GetHostView(views::Widget* widget) {
+  return static_cast<views::View*>(
+      widget->GetNativeWindowProperty(kNativeHostViewKey));
+}
+
 }  // namespace view_util
