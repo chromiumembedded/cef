@@ -8,6 +8,12 @@
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 
+#if BUILDFLAG(IS_MAC)
+#include "libcef/browser/views/native_widget_mac.h"
+#include "libcef/browser/views/view_util.h"
+#include "ui/views/widget/native_widget_private.h"
+#endif
+
 void ChromeBrowserFrame::Init(BrowserView* browser_view,
                               std::unique_ptr<Browser> browser) {
   DCHECK(browser_view);
@@ -21,6 +27,19 @@ void ChromeBrowserFrame::Init(BrowserView* browser_view,
 
   // Initialize BrowserView state.
   browser_view->InitBrowser(std::move(browser));
+
+#if BUILDFLAG(IS_MAC)
+  // Initialize native window state.
+  if (auto native_window = view_util::GetNativeWindow(this)) {
+    if (auto* native_widget_private = views::internal::NativeWidgetPrivate::
+            GetNativeWidgetForNativeWindow(native_window)) {
+      auto* native_widget_mac =
+          static_cast<CefNativeWidgetMac*>(native_widget_private);
+      native_widget_mac->SetBrowserView(browser_view);
+      native_widget_mac->OnWindowInitialized();
+    }
+  }
+#endif  // BUILDFLAG(IS_MAC)
 }
 
 views::internal::RootView* ChromeBrowserFrame::CreateRootView() {

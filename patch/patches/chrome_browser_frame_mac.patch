@@ -1,0 +1,97 @@
+diff --git chrome/browser/ui/views/frame/browser_frame_mac.h chrome/browser/ui/views/frame/browser_frame_mac.h
+index ab1d8fd9bfa84..77f65b44e591a 100644
+--- chrome/browser/ui/views/frame/browser_frame_mac.h
++++ chrome/browser/ui/views/frame/browser_frame_mac.h
+@@ -12,6 +12,7 @@
+ #include "chrome/browser/command_observer.h"
+ #include "ui/views/widget/native_widget_mac.h"
+ 
++class Browser;
+ class BrowserFrame;
+ class BrowserView;
+ @class BrowserWindowTouchBarController;
+@@ -55,6 +56,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
+   bool ShouldUseInitialVisibleOnAllWorkspaces() const override;
+   void AnnounceTextInInProcessWindow(const std::u16string& text) override;
+ 
++  static void ValidateUserInterfaceItem(
++      Browser* browser,
++      int32_t command,
++      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result);
++  static bool WillExecuteCommand(
++      Browser* browser,
++      int32_t command,
++      WindowOpenDisposition window_open_disposition,
++      bool is_before_first_responder);
++  static bool ExecuteCommand(
++      Browser* browser,
++      int32_t command,
++      WindowOpenDisposition window_open_disposition,
++      bool is_before_first_responder);
++
+  protected:
+   ~BrowserFrameMac() override;
+ 
+diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
+index 95c64d44044a3..18b017166320f 100644
+--- chrome/browser/ui/views/frame/browser_frame_mac.mm
++++ chrome/browser/ui/views/frame/browser_frame_mac.mm
+@@ -176,7 +176,14 @@ - (NSTouchBar*)makeTouchBar {
+ void BrowserFrameMac::ValidateUserInterfaceItem(
+     int32_t tag,
+     remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
+-  Browser* browser = browser_view_->browser();
++  return ValidateUserInterfaceItem(browser_view_->browser(), tag, result);
++}
++
++// static
++void BrowserFrameMac::ValidateUserInterfaceItem(
++    Browser* browser,
++    int32_t tag,
++    remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
+   if (!chrome::SupportsCommand(browser, tag)) {
+     result->enable = false;
+     return;
+@@ -304,8 +311,16 @@ - (NSTouchBar*)makeTouchBar {
+     int32_t command,
+     WindowOpenDisposition window_open_disposition,
+     bool is_before_first_responder) {
+-  Browser* browser = browser_view_->browser();
++  return WillExecuteCommand(browser_view_->browser(), command,
++                            window_open_disposition, is_before_first_responder);
++}
+ 
++// static
++bool BrowserFrameMac::WillExecuteCommand(
++    Browser* browser,
++    int32_t command,
++    WindowOpenDisposition window_open_disposition,
++    bool is_before_first_responder) {
+   if (is_before_first_responder) {
+     // The specification for this private extensions API is incredibly vague.
+     // For now, we avoid triggering chrome commands prior to giving the
+@@ -336,11 +351,20 @@ - (NSTouchBar*)makeTouchBar {
+     int32_t command,
+     WindowOpenDisposition window_open_disposition,
+     bool is_before_first_responder) {
+-  if (!WillExecuteCommand(command, window_open_disposition,
+-                          is_before_first_responder))
+-    return false;
++  return ExecuteCommand(browser_view_->browser(), command,
++                        window_open_disposition, is_before_first_responder);
++}
+ 
+-  Browser* browser = browser_view_->browser();
++// static
++bool BrowserFrameMac::ExecuteCommand(
++    Browser* browser,
++    int32_t command,
++    WindowOpenDisposition window_open_disposition,
++    bool is_before_first_responder) {
++  if (!WillExecuteCommand(browser, command, window_open_disposition,
++                          is_before_first_responder)) {
++    return false;
++  }
+ 
+   chrome::ExecuteCommandWithDisposition(browser, command,
+                                         window_open_disposition);
