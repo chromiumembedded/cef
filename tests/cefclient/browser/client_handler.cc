@@ -333,6 +333,8 @@ bool IsAllowedAppMenuCommandId(int command_id) {
 
       IDC_PRINT,
       IDC_FIND,
+      IDC_FIND_NEXT,
+      IDC_FIND_PREVIOUS,
 
       // "More tools" sub-menu and contents.
       IDC_MORE_TOOLS_MENU,

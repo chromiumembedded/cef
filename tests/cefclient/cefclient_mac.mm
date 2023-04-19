@@ -6,6 +6,7 @@
 #import <Cocoa/Cocoa.h>
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
+#include "include/cef_command_ids.h"
 #import "include/wrapper/cef_library_loader.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/resource.h"
@@ -240,15 +241,7 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 }
 
 - (void)testsItemSelected:(int)command_id {
-  // Retrieve the active RootWindow.
-  auto root_window =
-      client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
-  if (!root_window) {
-    return;
-  }
-
-  CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
-  if (browser.get()) {
+  if (auto browser = [self getActiveBrowser]) {
     client::test_runner::RunTest(browser, command_id);
   }
 }
@@ -321,16 +314,28 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   [self testsItemSelected:ID_TESTS_OTHER_TESTS];
 }
 
-- (void)enableAccessibility:(bool)bEnable {
-  // Retrieve the active RootWindow.
+- (CefRefPtr<CefBrowser>)getActiveBrowser {
   auto root_window =
       client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
-  if (!root_window) {
-    return;
+  if (root_window) {
+    return root_window->GetBrowser();
   }
 
-  CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
-  if (browser.get()) {
+  return nullptr;
+}
+
+- (NSWindow*)getActiveBrowserNSWindow {
+  if (auto browser = [self getActiveBrowser]) {
+    if (auto view = CAST_CEF_WINDOW_HANDLE_TO_NSVIEW(
+            browser->GetHost()->GetWindowHandle())) {
+      return [view window];
+    }
+  }
+  return nil;
+}
+
+- (void)enableAccessibility:(bool)bEnable {
+  if (auto browser = [self getActiveBrowser]) {
     browser->GetHost()->SetAccessibilityState(bEnable ? STATE_ENABLED
                                                       : STATE_DISABLED);
   }
@@ -339,6 +344,157 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 - (NSApplicationTerminateReply)applicationShouldTerminate:
     (NSApplication*)sender {
   return NSTerminateNow;
+}
+
+// Returns true if there is a modal window (either window- or application-
+// modal) blocking the active browser. Note that tab modal dialogs (HTTP auth
+// sheets) will not count as blocking the browser. But things like open/save
+// dialogs that are window modal will block the browser.
+- (BOOL)keyWindowIsModal {
+  if ([NSApp modalWindow]) {
+    return YES;
+  }
+
+  if (auto window = [self getActiveBrowserNSWindow]) {
+    return [[window attachedSheet] isKindOfClass:[NSWindow class]];
+  }
+
+  return NO;
+}
+
+// AppKit will call -[NSUserInterfaceValidations validateUserInterfaceItem:] to
+// validate UI items. Any item whose target is FirstResponder, or nil, will
+// traverse the responder chain looking for a responder that implements the
+// item's selector. The top menu (configured in MainMenu.xib) can contain menu
+// items with selectors that are implemented by Chromium's
+// RenderWidgetHostViewCocoa or NativeWidgetMacNSWindow classes. These classes
+// live in the Cocoa view hierarchy and will be triggered only if the browser
+// window is focused. When the browser window is not focused these selectors
+// will be forwarded (by Chromium's CommandDispatcher class) to `[NSApp
+// delegate]` (this class). The particular selectors of interest here are
+// |-commandDispatch:| and |-commandDispatchUsingKeyModifiers:| which will have
+// a tag value from include/cef_command_ids.h. For example, 37000 is IDC_FIND
+// and can be triggered via the "Find..." menu item or the Cmd+g keyboard
+// shortcut:
+//
+//   <menuItem title="Find..." tag="37000" keyEquivalent="g" id="209">
+//        <connections>
+//            <action selector="commandDispatch:" target="-1" id="241"/>
+//        </connections>
+//   </menuItem>
+//
+// If |-validateUserInterfaceItem:| returns YES then the menu item will be
+// enabled and execution will trigger the associated selector.
+//
+// This implementation is based on Chromium's AppController class.
+- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
+  SEL action = [item action];
+  BOOL enable = NO;
+  // Whether opening a new browser window is allowed.
+  BOOL canOpenNewBrowser = YES;
+
+  // Commands from the menu bar are only handled by commandDispatch: if there is
+  // no key window.
+  if (action == @selector(commandDispatch:) ||
+      action == @selector(commandDispatchUsingKeyModifiers:)) {
+    switch ([item tag]) {
+      // Browser-level items that open in new tabs or perform an action in a
+      // current tab should not open if there's a window- or app-modal dialog.
+      case IDC_OPEN_FILE:
+      case IDC_NEW_TAB:
+      case IDC_FOCUS_LOCATION:
+      case IDC_FOCUS_SEARCH:
+      case IDC_SHOW_HISTORY:
+      case IDC_SHOW_BOOKMARK_MANAGER:
+      case IDC_CLEAR_BROWSING_DATA:
+      case IDC_SHOW_DOWNLOADS:
+      case IDC_IMPORT_SETTINGS:
+      case IDC_MANAGE_EXTENSIONS:
+      case IDC_HELP_PAGE_VIA_MENU:
+      case IDC_OPTIONS:
+        enable = canOpenNewBrowser && ![self keyWindowIsModal];
+        break;
+      // Browser-level items that open in new windows: allow the user to open
+      // a new window even if there's a window-modal dialog.
+      case IDC_NEW_WINDOW:
+        enable = canOpenNewBrowser;
+        break;
+      case IDC_TASK_MANAGER:
+        enable = YES;
+        break;
+      case IDC_NEW_INCOGNITO_WINDOW:
+        enable = canOpenNewBrowser;
+        break;
+      default:
+        enable = ![self keyWindowIsModal];
+        break;
+    }
+  } else if ([self respondsToSelector:action]) {
+    // All other selectors that this class implements.
+    enable = YES;
+  }
+
+  return enable;
+}
+
+// This will get called in the case where the frontmost window is not a browser
+// window, and the user has command-clicked a button in a background browser
+// window whose action is |-commandDispatch:|
+- (void)commandDispatch:(id)sender {
+  // Handle the case where we're dispatching a command from a sender that's in a
+  // browser window. This means that the command came from a background window
+  // and is getting here because the foreground window is not a browser window.
+  DCHECK(sender);
+  if ([sender respondsToSelector:@selector(window)]) {
+    id delegate = [[sender window] windowController];
+    if ([delegate respondsToSelector:@selector(commandDispatch:)]) {
+      [delegate commandDispatch:sender];
+      return;
+    }
+  }
+
+  // Handle specific commands where we want to make the last active browser
+  // frontmost and then re-execute the command.
+  switch ([sender tag]) {
+    case IDC_FIND:
+    case IDC_FIND_NEXT:
+    case IDC_FIND_PREVIOUS:
+      if (id window = [self getActiveBrowserNSWindow]) {
+        [window makeKeyAndOrderFront:nil];
+        if ([window respondsToSelector:@selector(commandDispatch:)]) {
+          [window commandDispatch:sender];
+          return;
+        }
+      }
+      break;
+    default:
+      break;
+  }
+
+  LOG(INFO) << "Unhandled commandDispatch: for tag " << [sender tag];
+}
+
+// Same as |-commandDispatch:|, but executes commands using a disposition
+// determined by the key flags. This will get called in the case where the
+// frontmost window is not a browser window, and the user has command-clicked
+// a button in a background browser window whose action is
+// |-commandDispatchUsingKeyModifiers:|
+- (void)commandDispatchUsingKeyModifiers:(id)sender {
+  // Handle the case where we're dispatching a command from a sender that's in a
+  // browser window. This means that the command came from a background window
+  // and is getting here because the foreground window is not a browser window.
+  DCHECK(sender);
+  if ([sender respondsToSelector:@selector(window)]) {
+    id delegate = [[sender window] windowController];
+    if ([delegate
+            respondsToSelector:@selector(commandDispatchUsingKeyModifiers:)]) {
+      [delegate commandDispatchUsingKeyModifiers:sender];
+      return;
+    }
+  }
+
+  LOG(INFO) << "Unhandled commandDispatchUsingKeyModifiers: for tag "
+            << [sender tag];
 }
 
 @end

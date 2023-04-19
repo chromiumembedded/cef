@@ -173,16 +173,27 @@
                             <menuItem title="Find" id="218">
                                 <menu key="submenu" title="Find" id="220">
                                     <items>
-                                        <menuItem title="Find…" tag="1" keyEquivalent="f" id="209">
+                                        <menuItem title="Find…" tag="37000" keyEquivalent="f" id="209">
                                             <connections>
-                                                <action selector="performFindPanelAction:" target="-1" id="241"/>
+                                                <action selector="commandDispatch:" target="-1" id="241"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Find Next" tag="2" keyEquivalent="g" id="208"/>
-                                        <menuItem title="Find Previous" tag="3" keyEquivalent="G" id="213">
-                                            <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
+                                        <menuItem title="Find Next" tag="37001" keyEquivalent="g" id="208">
+                                            <connections>
+                                                <action selector="commandDispatch:" target="-1" id="242"/>
+                                            </connections>
                                         </menuItem>
-                                        <menuItem title="Use Selection for Find" tag="7" keyEquivalent="e" id="221"/>
+                                        <menuItem title="Find Previous" tag="37002" keyEquivalent="G" id="213">
+                                            <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="commandDispatch:" target="-1" id="243"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Use Selection for Find" keyEquivalent="e" id="221">
+                                            <connections>
+                                                <action selector="copyToFindPboard:" target="-1" id="244"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Jump to Selection" keyEquivalent="j" id="210">
                                             <connections>
                                                 <action selector="centerSelectionInVisibleArea:" target="-1" id="245"/>
