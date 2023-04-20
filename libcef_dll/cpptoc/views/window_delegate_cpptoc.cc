@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=18f715de465689a4e8484bbced8ad92d9434438a$
+// $hash=c7e5e137df27a4986c13e6f4e2b98eac19a48193$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -484,6 +484,29 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
   return _retval;
 }
 
+void CEF_CALLBACK window_delegate_on_window_fullscreen_transition(
+    struct _cef_window_delegate_t* self,
+    cef_window_t* window,
+    int is_completed) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return;
+  }
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnWindowFullscreenTransition(
+      CefWindowCToCpp::Wrap(window), is_completed ? true : false);
+}
+
 cef_size_t CEF_CALLBACK
 window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
@@ -770,6 +793,8 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->can_close = window_delegate_can_close;
   GetStruct()->on_accelerator = window_delegate_on_accelerator;
   GetStruct()->on_key_event = window_delegate_on_key_event;
+  GetStruct()->on_window_fullscreen_transition =
+      window_delegate_on_window_fullscreen_transition;
   GetStruct()->base.base.get_preferred_size =
       window_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_delegate_get_minimum_size;

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9f0389a439e6787282880d53375369829adb6a3d$
+// $hash=7201d268e16fc89f255b6ccd00d043f34fe77584$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -139,7 +139,7 @@ typedef struct _cef_window_delegate_t {
 
   ///
   /// Return true (1) if |window| should be created with standard window buttons
-  /// like close, minimize and zoom.
+  /// like close, minimize and zoom. This function is only supported on macOS.
   ///
   int(CEF_CALLBACK* with_standard_window_buttons)(
       struct _cef_window_delegate_t* self,
@@ -198,6 +198,17 @@ typedef struct _cef_window_delegate_t {
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,
                                   const cef_key_event_t* event);
+
+  ///
+  /// Called when the |window| is transitioning to or from fullscreen mode. The
+  /// transition occurs in two stages, with |is_competed| set to false (0) when
+  /// the transition starts and true (1) when the transition completes. This
+  /// function is only supported on macOS.
+  ///
+  void(CEF_CALLBACK* on_window_fullscreen_transition)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int is_completed);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus
