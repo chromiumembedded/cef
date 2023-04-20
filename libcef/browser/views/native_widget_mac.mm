@@ -52,3 +52,13 @@ void CefNativeWidgetMac::GetWindowFrameTitlebarHeight(
         override_titlebar_height, titlebar_height);
   }
 }
+
+void CefNativeWidgetMac::OnWindowFullscreenTransitionStart() {
+  views::NativeWidgetMac::OnWindowFullscreenTransitionStart();
+  window_delegate_->OnWindowFullscreenTransition(window_, false);
+}
+
+void CefNativeWidgetMac::OnWindowFullscreenTransitionComplete() {
+  views::NativeWidgetMac::OnWindowFullscreenTransitionComplete();
+  window_delegate_->OnWindowFullscreenTransition(window_, true);
+}

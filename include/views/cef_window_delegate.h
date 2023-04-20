@@ -130,7 +130,7 @@ class CefWindowDelegate : public CefPanelDelegate {
 
   ///
   /// Return true if |window| should be created with standard window buttons
-  /// like close, minimize and zoom.
+  /// like close, minimize and zoom. This method is only supported on macOS.
   ///
   /*--cef()--*/
   virtual bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) {
@@ -196,6 +196,16 @@ class CefWindowDelegate : public CefPanelDelegate {
                           const CefKeyEvent& event) {
     return false;
   }
+
+  ///
+  /// Called when the |window| is transitioning to or from fullscreen mode. The
+  /// transition occurs in two stages, with |is_competed| set to false when the
+  /// transition starts and true when the transition completes.
+  /// This method is only supported on macOS.
+  ///
+  /*--cef()--*/
+  virtual void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                            bool is_completed) {}
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

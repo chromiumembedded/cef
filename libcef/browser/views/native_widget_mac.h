@@ -30,6 +30,8 @@ class CefNativeWidgetMac : public views::NativeWidgetMac {
 
   void GetWindowFrameTitlebarHeight(bool* override_titlebar_height,
                                     float* titlebar_height) override;
+  void OnWindowFullscreenTransitionStart() override;
+  void OnWindowFullscreenTransitionComplete() override;
 
  private:
   const CefRefPtr<CefWindow> window_;
