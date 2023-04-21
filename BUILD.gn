@@ -1771,7 +1771,20 @@ if (is_mac) {
       }
     }
 
-    foreach(helper_params, content_mac_helpers) {
+    # From //chrome/BUILD.gn:
+    # Helper app to display alert notifications. This is necessary as an app can
+    # only display either banner or alert style notifications and the main app
+    # will display banners.
+    alert_helper_params = [
+      "alerts",
+      ".alerts",
+      " (Alerts)",
+    ]
+
+    # Merge all helper apps needed by //content and //chrome.
+    chrome_mac_helpers = content_mac_helpers + [ alert_helper_params ]
+
+    foreach(helper_params, chrome_mac_helpers) {
       _helper_target = helper_params[0]
       _helper_bundle_id = helper_params[1]
       _helper_suffix = helper_params[2]
@@ -1802,7 +1815,7 @@ if (is_mac) {
         ":cef_framework",
       ]
 
-      foreach(helper_params, content_mac_helpers) {
+      foreach(helper_params, chrome_mac_helpers) {
         sources += [
           "$root_out_dir/${app_helper_name}${helper_params[2]}.app",
         ]

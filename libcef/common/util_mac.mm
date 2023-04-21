@@ -52,14 +52,27 @@ void OverrideBaseBundleID() {
   base::mac::SetBaseBundleID(bundle_id.c_str());
 }
 
+base::FilePath GetNormalChildProcessPath() {
+  base::FilePath frameworks_path = GetFrameworksPath();
+  if (frameworks_path.empty()) {
+    return base::FilePath();
+  }
+
+  std::string exe_name = GetMainProcessPath().BaseName().value();
+  return frameworks_path.Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
+      .Append(FILE_PATH_LITERAL("Contents"))
+      .Append(FILE_PATH_LITERAL("MacOS"))
+      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
+}
+
 void OverrideChildProcessPath() {
   base::FilePath child_process_path =
       base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kBrowserSubprocessPath);
 
   if (child_process_path.empty()) {
-    child_process_path = util_mac::GetChildProcessPath();
-    DCHECK(!child_process_path.empty());
+    child_process_path = GetNormalChildProcessPath();
+    CHECK(!child_process_path.empty());
   }
 
   // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
@@ -135,17 +148,29 @@ base::FilePath GetMainResourcesDirectory() {
       .Append(FILE_PATH_LITERAL("Resources"));
 }
 
-base::FilePath GetChildProcessPath() {
-  base::FilePath frameworks_path = GetFrameworksPath();
-  if (frameworks_path.empty()) {
-    return base::FilePath();
+base::FilePath GetChildProcessPath(const std::string& suffix) {
+  // Match the logic in ChildProcessHost::GetChildPath().
+  base::FilePath child_path;
+  base::PathService::Get(content::CHILD_PROCESS_EXE, &child_path);
+  CHECK(!child_path.empty());
+
+  if (suffix.empty()) {
+    // Return the normal child helper path.
+    return child_path;
   }
 
-  std::string exe_name = GetMainProcessPath().BaseName().value();
-  return frameworks_path.Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
-      .Append(FILE_PATH_LITERAL("Contents"))
-      .Append(FILE_PATH_LITERAL("MacOS"))
-      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
+  std::string child_base_name = child_path.BaseName().value() + suffix;
+
+  // This is a specialized helper, with the |child_path| at
+  // "myapp.app/Contents/Frameworks/myapp Helper.app/Contents/MacOS/
+  // myapp Helper" Go back up to the "Frameworks" directory to select
+  // a different variant.
+  child_path = child_path.DirName().DirName().DirName().DirName();
+
+  return child_path.Append(child_base_name + ".app")
+      .Append("Contents")
+      .Append("MacOS")
+      .Append(child_base_name);
 }
 
 void PreSandboxStartup() {

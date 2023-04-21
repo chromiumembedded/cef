@@ -124,6 +124,14 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       content::RenderFrameHost* render_frame_host,
       mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;
 
+#if BUILDFLAG(IS_MAC)
+  // TODO: Delete after merging
+  // https://chromium-review.googlesource.com/c/chromium/src/+/4456752
+  base::FilePath GetChildProcessPath(
+      int child_flags,
+      const base::FilePath& helpers_path) override;
+#endif  // BUILDFLAG(IS_MAC)
+
   CefRefPtr<CefRequestContextImpl> request_context() const;
 
   scoped_refptr<base::SingleThreadTaskRunner> background_task_runner() const;

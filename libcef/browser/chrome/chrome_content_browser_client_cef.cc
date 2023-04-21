@@ -43,6 +43,12 @@
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 
+#if BUILDFLAG(IS_MAC)
+#include "chrome/browser/child_process_host_flags.h"
+#include "chrome/common/chrome_constants.h"
+#include "libcef/common/util_mac.h"
+#endif
+
 namespace {
 
 void HandleExternalProtocolHelper(
@@ -481,6 +487,20 @@ void ChromeContentBrowserClientCef::RegisterBrowserInterfaceBindersForFrame(
   CefBrowserFrame::RegisterBrowserInterfaceBindersForFrame(render_frame_host,
                                                            map);
 }
+
+#if BUILDFLAG(IS_MAC)
+base::FilePath ChromeContentBrowserClientCef::GetChildProcessPath(
+    int child_flags,
+    const base::FilePath& helpers_path) {
+  // Ignoring |helpers_path| here because it doesn't provide sufficient
+  // information to determine the required path for CEF.
+  if (child_flags == chrome::kChildProcessHelperAlerts) {
+    return util_mac::GetChildProcessPath(chrome::kMacHelperSuffixAlerts);
+  }
+  NOTREACHED() << "Unsupported child process flags!";
+  return {};
+}
+#endif  // BUILDFLAG(IS_MAC)
 
 CefRefPtr<CefRequestContextImpl>
 ChromeContentBrowserClientCef::request_context() const {

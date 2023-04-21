@@ -46,10 +46,13 @@ std::string GetMainBundleID();
 // running in an app bundle.
 base::FilePath GetMainResourcesDirectory();
 
-// Returns the path to the child process executable (e.g. "myapp.app/
-// Contents/Frameworks/myapp Helper.app/Contents/MacOS/myapp Helper"). May
-// return an empty value if not running in an app bundle.
-base::FilePath GetChildProcessPath();
+// Returns the path to the child process executable with optional suffix (e.g.
+// "myapp.app/Contents/Frameworks/myapp Helper<suffix>.app/Contents/MacOS/
+// myapp Helper<suffix>"). May return an empty value if not running in an app
+//  bundle.
+// TODO: Delete after merging
+// https://chromium-review.googlesource.com/c/chromium/src/+/4456752
+base::FilePath GetChildProcessPath(const std::string& suffix);
 
 // Called from MainDelegate::PreSandboxStartup for the main process.
 void PreSandboxStartup();
