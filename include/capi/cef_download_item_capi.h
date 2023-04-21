@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=332b9cb62b9c85573dc705aba4c9db3b34177e20$
+// $hash=d9e9f4b914ae2d3b1ed83ae0d9e2e46e9e736af5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_ITEM_CAPI_H_
@@ -72,9 +72,20 @@ typedef struct _cef_download_item_t {
   int(CEF_CALLBACK* is_complete)(struct _cef_download_item_t* self);
 
   ///
-  /// Returns true (1) if the download has been canceled or interrupted.
+  /// Returns true (1) if the download has been canceled.
   ///
   int(CEF_CALLBACK* is_canceled)(struct _cef_download_item_t* self);
+
+  ///
+  /// Returns true (1) if the download has been interrupted.
+  ///
+  int(CEF_CALLBACK* is_interrupted)(struct _cef_download_item_t* self);
+
+  ///
+  /// Returns the most recent interrupt reason.
+  ///
+  cef_download_interrupt_reason_t(CEF_CALLBACK* get_interrupt_reason)(
+      struct _cef_download_item_t* self);
 
   ///
   /// Returns a simple speed estimate in bytes/s.

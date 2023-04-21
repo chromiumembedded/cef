@@ -39,6 +39,17 @@ bool CefDownloadItemImpl::IsCanceled() {
   return const_value().GetState() == download::DownloadItem::CANCELLED;
 }
 
+bool CefDownloadItemImpl::IsInterrupted() {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+  return const_value().GetState() == download::DownloadItem::INTERRUPTED;
+}
+
+cef_download_interrupt_reason_t CefDownloadItemImpl::GetInterruptReason() {
+  CEF_VALUE_VERIFY_RETURN(false, CEF_DOWNLOAD_INTERRUPT_REASON_NONE);
+  return static_cast<cef_download_interrupt_reason_t>(
+      const_value().GetLastReason());
+}
+
 int64 CefDownloadItemImpl::GetCurrentSpeed() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().CurrentSpeed();

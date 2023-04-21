@@ -3488,6 +3488,123 @@ typedef enum {
   CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
 } cef_preferences_type_t;
 
+///
+/// Download interrupt reasons. Should be kept in sync with
+/// Chromium's download::DownloadInterruptReason type.
+///
+typedef enum {
+  CEF_DOWNLOAD_INTERRUPT_REASON_NONE = 0,
+
+  /// Generic file operation failure.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_FAILED = 1,
+
+  /// The file cannot be accessed due to security restrictions.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_ACCESS_DENIED = 2,
+
+  /// There is not enough room on the drive.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_NO_SPACE = 3,
+
+  /// The directory or file name is too long.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_NAME_TOO_LONG = 5,
+
+  /// The file is too large for the file system to handle.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TOO_LARGE = 6,
+
+  /// The file contains a virus.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_VIRUS_INFECTED = 7,
+
+  /// The file was in use. Too many files are opened at once. We have run out of
+  /// memory.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TRANSIENT_ERROR = 10,
+
+  /// The file was blocked due to local policy.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_BLOCKED = 11,
+
+  /// An attempt to check the safety of the download failed due to unexpected
+  /// reasons. See http://crbug.com/153212.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_SECURITY_CHECK_FAILED = 12,
+
+  /// An attempt was made to seek past the end of a file in opening
+  /// a file (as part of resuming a previously interrupted download).
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_TOO_SHORT = 13,
+
+  /// The partial file didn't match the expected hash.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_HASH_MISMATCH = 14,
+
+  /// The source and the target of the download were the same.
+  CEF_DOWNLOAD_INTERRUPT_REASON_FILE_SAME_AS_SOURCE = 15,
+
+  // Network errors.
+
+  /// Generic network failure.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_FAILED = 20,
+
+  /// The network operation timed out.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_TIMEOUT = 21,
+
+  /// The network connection has been lost.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_DISCONNECTED = 22,
+
+  /// The server has gone down.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_SERVER_DOWN = 23,
+
+  /// The network request was invalid. This may be due to the original URL or a
+  /// redirected URL:
+  /// - Having an unsupported scheme.
+  /// - Being an invalid URL.
+  /// - Being disallowed by policy.
+  CEF_DOWNLOAD_INTERRUPT_REASON_NETWORK_INVALID_REQUEST = 24,
+
+  // Server responses.
+
+  /// The server indicates that the operation has failed (generic).
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_FAILED = 30,
+
+  /// The server does not support range requests.
+  /// Internal use only:  must restart from the beginning.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_NO_RANGE = 31,
+
+  /// The server does not have the requested data.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_BAD_CONTENT = 33,
+
+  /// Server didn't authorize access to resource.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_UNAUTHORIZED = 34,
+
+  /// Server certificate problem.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CERT_PROBLEM = 35,
+
+  /// Server access forbidden.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_FORBIDDEN = 36,
+
+  /// Unexpected server response. This might indicate that the responding server
+  /// may not be the intended server.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_UNREACHABLE = 37,
+
+  /// The server sent fewer bytes than the content-length header. It may
+  /// indicate that the connection was closed prematurely, or the Content-Length
+  /// header was invalid. The download is only interrupted if strong validators
+  /// are present. Otherwise, it is treated as finished.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CONTENT_LENGTH_MISMATCH = 38,
+
+  /// An unexpected cross-origin redirect happened.
+  CEF_DOWNLOAD_INTERRUPT_REASON_SERVER_CROSS_ORIGIN_REDIRECT = 39,
+
+  // User input.
+
+  /// The user canceled the download.
+  CEF_DOWNLOAD_INTERRUPT_REASON_USER_CANCELED = 40,
+
+  /// The user shut down the browser.
+  /// Internal use only:  resume pending downloads if possible.
+  CEF_DOWNLOAD_INTERRUPT_REASON_USER_SHUTDOWN = 41,
+
+  // Crash.
+
+  /// The browser crashed.
+  /// Internal use only:  resume pending downloads if possible.
+  CEF_DOWNLOAD_INTERRUPT_REASON_CRASH = 50,
+} cef_download_interrupt_reason_t;
+
 #ifdef __cplusplus
 }
 #endif

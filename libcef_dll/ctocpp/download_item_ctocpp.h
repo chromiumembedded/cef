@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d0295aa7dbc39993e62486a20a1ef8123d0648b2$
+// $hash=8db814c52f72368cb7dd612ed3d2efaccddb865c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CTOCPP_H_
@@ -38,6 +38,8 @@ class CefDownloadItemCToCpp : public CefCToCppRefCounted<CefDownloadItemCToCpp,
   bool IsInProgress() override;
   bool IsComplete() override;
   bool IsCanceled() override;
+  bool IsInterrupted() override;
+  cef_download_interrupt_reason_t GetInterruptReason() override;
   int64 GetCurrentSpeed() override;
   int GetPercentComplete() override;
   int64 GetTotalBytes() override;

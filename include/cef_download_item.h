@@ -66,10 +66,22 @@ class CefDownloadItem : public virtual CefBaseRefCounted {
   virtual bool IsComplete() = 0;
 
   ///
-  /// Returns true if the download has been canceled or interrupted.
+  /// Returns true if the download has been canceled.
   ///
   /*--cef()--*/
   virtual bool IsCanceled() = 0;
+
+  ///
+  /// Returns true if the download has been interrupted.
+  ///
+  /*--cef()--*/
+  virtual bool IsInterrupted() = 0;
+
+  ///
+  /// Returns the most recent interrupt reason.
+  ///
+  /*--cef(default_retval=CEF_DOWNLOAD_INTERRUPT_REASON_NONE)--*/
+  virtual cef_download_interrupt_reason_t GetInterruptReason() = 0;
 
   ///
   /// Returns a simple speed estimate in bytes/s.

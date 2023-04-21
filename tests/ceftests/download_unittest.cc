@@ -370,6 +370,9 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_TRUE(download_item->IsInProgress());
     EXPECT_FALSE(download_item->IsComplete());
     EXPECT_FALSE(download_item->IsCanceled());
+    EXPECT_FALSE(download_item->IsInterrupted());
+    EXPECT_EQ(CEF_DOWNLOAD_INTERRUPT_REASON_NONE,
+              download_item->GetInterruptReason());
     EXPECT_EQ(static_cast<int64>(sizeof(kTestContent) - 1),
               download_item->GetTotalBytes());
     EXPECT_EQ(0UL, download_item->GetFullPath().length());
@@ -415,6 +418,9 @@ class DownloadTestHandler : public TestHandler {
 
     EXPECT_TRUE(download_item->IsValid());
     EXPECT_FALSE(download_item->IsCanceled());
+    EXPECT_FALSE(download_item->IsInterrupted());
+    EXPECT_EQ(CEF_DOWNLOAD_INTERRUPT_REASON_NONE,
+              download_item->GetInterruptReason());
     EXPECT_STREQ(kTestDownloadUrl, download_item->GetURL().ToString().c_str());
     EXPECT_STREQ(kTestContentDisposition,
                  download_item->GetContentDisposition().ToString().c_str());

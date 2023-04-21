@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb94a7a2bc730d84808942098434a9fa482e348d$
+// $hash=45f5c5ca3629966c785faf3785144c18f7fe14f0$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -85,6 +85,43 @@ int CEF_CALLBACK download_item_is_canceled(struct _cef_download_item_t* self) {
   bool _retval = CefDownloadItemCppToC::Get(self)->IsCanceled();
 
   // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+download_item_is_interrupted(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefDownloadItemCppToC::Get(self)->IsInterrupted();
+
+  // Return type: bool
+  return _retval;
+}
+
+cef_download_interrupt_reason_t CEF_CALLBACK
+download_item_get_interrupt_reason(struct _cef_download_item_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_DOWNLOAD_INTERRUPT_REASON_NONE;
+  }
+
+  // Execute
+  cef_download_interrupt_reason_t _retval =
+      CefDownloadItemCppToC::Get(self)->GetInterruptReason();
+
+  // Return type: simple
   return _retval;
 }
 
@@ -330,6 +367,8 @@ CefDownloadItemCppToC::CefDownloadItemCppToC() {
   GetStruct()->is_in_progress = download_item_is_in_progress;
   GetStruct()->is_complete = download_item_is_complete;
   GetStruct()->is_canceled = download_item_is_canceled;
+  GetStruct()->is_interrupted = download_item_is_interrupted;
+  GetStruct()->get_interrupt_reason = download_item_get_interrupt_reason;
   GetStruct()->get_current_speed = download_item_get_current_speed;
   GetStruct()->get_percent_complete = download_item_get_percent_complete;
   GetStruct()->get_total_bytes = download_item_get_total_bytes;

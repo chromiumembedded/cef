@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ce3ee0a560c692db5902828ffd856ac1a3f4b19$
+// $hash=fc5e810c3fe740f341ed8f5387fff35f101d6461$
 //
 
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
@@ -83,6 +83,42 @@ NO_SANITIZE("cfi-icall") bool CefDownloadItemCToCpp::IsCanceled() {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefDownloadItemCToCpp::IsInterrupted() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_interrupted)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_interrupted(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_download_interrupt_reason_t CefDownloadItemCToCpp::GetInterruptReason() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_interrupt_reason)) {
+    return CEF_DOWNLOAD_INTERRUPT_REASON_NONE;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_download_interrupt_reason_t _retval =
+      _struct->get_interrupt_reason(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") int64 CefDownloadItemCToCpp::GetCurrentSpeed() {
