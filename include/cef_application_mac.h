@@ -45,9 +45,6 @@
 // Use the existing CrAppProtocol definition.
 #import "base/message_loop/message_pump_mac.h"
 
-// Use the existing UnderlayableSurface definition.
-#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
-
 // Use the existing empty protocol definitions.
 #import "base/mac/cocoa_protocols.h"
 
@@ -68,13 +65,6 @@
 // Copy of definition from base/mac/scoped_sending_event.h.
 @protocol CrAppControlProtocol <CrAppProtocol>
 - (void)setHandlingSendEvent:(BOOL)handlingSendEvent;
-@end
-
-// Copy of definition from ui/base/cocoa/underlay_opengl_hosting_window.h.
-// Common base class for windows that host a OpenGL surface that renders under
-// the window. Contains methods relating to hole punching so that the OpenGL
-// surface is visible through the window.
-@interface UnderlayOpenGLHostingWindow : NSWindow
 @end
 
 #endif  // USING_CHROMIUM_INCLUDES

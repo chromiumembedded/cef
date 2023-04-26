@@ -515,7 +515,6 @@ void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
     delegated_frame_host_->TakeFallbackContentFrom(
         view_cef->delegated_frame_host_.get());
   }
-  host()->GetContentRenderingTimeoutFrom(view_cef->host());
 }
 
 void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {}

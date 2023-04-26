@@ -1,5 +1,5 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index c9a644a755c12..bf4ea541fb359 100644
+index a23a2830b374c..c6822853a6c3d 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
 @@ -30,6 +30,7 @@
@@ -42,7 +42,7 @@ index c9a644a755c12..bf4ea541fb359 100644
    theme_syncable_service_ =
        std::make_unique<ThemeSyncableService>(profile_, this);
 diff --git chrome/browser/themes/theme_service_factory.cc chrome/browser/themes/theme_service_factory.cc
-index e3a7101326eee..c6592c0d5a1ba 100644
+index 622dcc82663c5..7fbe022c1f78b 100644
 --- chrome/browser/themes/theme_service_factory.cc
 +++ chrome/browser/themes/theme_service_factory.cc
 @@ -7,6 +7,7 @@

@@ -1,5 +1,5 @@
 diff --git chrome/common/media/component_widevine_cdm_hint_file_linux.cc chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-index ba25a6223d60e..508bb0e59f512 100644
+index d529ecfb270c4..2e922ef345f04 100644
 --- chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 +++ chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 @@ -16,6 +16,7 @@
@@ -10,7 +10,7 @@ index ba25a6223d60e..508bb0e59f512 100644
  
  namespace {
  
-@@ -37,14 +38,33 @@ base::FilePath GetPath(const base::Value& dict) {
+@@ -35,14 +36,33 @@ base::FilePath GetPath(const base::Value::Dict& dict) {
    return path;
  }
  
@@ -44,9 +44,9 @@ index ba25a6223d60e..508bb0e59f512 100644
 -                               &hint_file_path));
 +  CHECK(GetHintFilePath(&hint_file_path));
  
-   base::Value dict(base::Value::Type::DICT);
-   dict.SetStringPath(kPath, cdm_base_path.value());
-@@ -62,8 +82,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path) {
+   base::Value::Dict dict;
+   dict.Set(kPath, cdm_base_path.value());
+@@ -60,8 +80,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path) {
  
  base::FilePath GetLatestComponentUpdatedWidevineCdmDirectory() {
    base::FilePath hint_file_path;

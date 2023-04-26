@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 50eeaa9acca98..eb4c7aa70de9c 100644
+index 6e4b373945d6a..6fcb29d67451d 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -17,8 +17,11 @@
@@ -43,7 +43,7 @@ index 50eeaa9acca98..eb4c7aa70de9c 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 2beb8043a684a..52654691534d6 100644
+index 17d8659f9c6fd..a6348c2ce453d 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -665,6 +665,14 @@ void RenderText::SetWhitespaceElision(absl::optional<bool> whitespace_elision) {
@@ -106,10 +106,10 @@ index 3c78525361ebf..c922dfe5019a3 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index 4512e4e37cb76..ca39d737e9723 100644
+index 109522be316f2..25fb550337fb6 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
-@@ -186,6 +186,8 @@ class VIEWS_EXPORT InkDropHost {
+@@ -189,6 +189,8 @@ class VIEWS_EXPORT InkDropHost {
    View* host_view() { return host_view_; }
    const View* host_view() const { return host_view_; }
  
@@ -119,10 +119,10 @@ index 4512e4e37cb76..ca39d737e9723 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index ca061545ed8f2..711207914f1fa 100644
+index 3168220180af9..3ed7bec8438a2 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -552,6 +552,12 @@ void LabelButton::OnThemeChanged() {
+@@ -553,6 +553,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -150,10 +150,10 @@ index e641dc163c5fc..785ccd20e4dd4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 37c22391d5c94..d96f63ed47ec2 100644
+index 6f46fb17b0916..cd0cfe163acb8 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -51,12 +51,29 @@ enum LabelPropertyKey {
+@@ -50,12 +50,29 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -183,7 +183,7 @@ index 37c22391d5c94..d96f63ed47ec2 100644
  }  // namespace
  
  namespace views {
-@@ -458,6 +475,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -464,6 +481,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -199,7 +199,7 @@ index 37c22391d5c94..d96f63ed47ec2 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -763,6 +789,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -761,6 +787,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -217,7 +217,7 @@ index 37c22391d5c94..d96f63ed47ec2 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 03c33a87c8ee2..3cd41c96ab504 100644
+index cdaa9899be3e0..40aa6ffcc639a 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -240,6 +240,10 @@ class VIEWS_EXPORT Label : public View,
@@ -231,7 +231,7 @@ index 03c33a87c8ee2..3cd41c96ab504 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -500,6 +504,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -499,6 +503,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -240,10 +240,10 @@ index 03c33a87c8ee2..3cd41c96ab504 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 9752106bd171b..3a9b02408373d 100644
+index 10044c8def94f..a799a4841e113 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -471,7 +471,8 @@ void MenuController::Run(Widget* parent,
+@@ -470,7 +470,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index 9752106bd171b..3a9b02408373d 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -518,6 +519,7 @@ void MenuController::Run(Widget* parent,
+@@ -517,6 +518,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index 9752106bd171b..3a9b02408373d 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2196,6 +2198,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2195,6 +2197,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index 9752106bd171b..3a9b02408373d 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2900,8 +2903,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2898,8 +2901,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index 9752106bd171b..3a9b02408373d 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2921,8 +2929,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2919,8 +2927,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -383,7 +383,7 @@ index d246468d9510b..baf6a250bca8d 100644
  
  #if BUILDFLAG(IS_WIN)
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index 67cdb883886f8..4ca7d632ad7f9 100644
+index dac3249c247e5..0573e84ac24a4 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
 @@ -55,6 +55,8 @@ class MenuHost : public Widget, public WidgetObserver {
@@ -396,10 +396,10 @@ index 67cdb883886f8..4ca7d632ad7f9 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 946028ff36e25..7d63a6ba799d5 100644
+index 3caeab8d93084..aa7c5541f5e71 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1109,6 +1109,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1112,6 +1112,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -415,7 +415,7 @@ index 946028ff36e25..7d63a6ba799d5 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1175,6 +1184,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1178,6 +1187,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -430,7 +430,7 @@ index 946028ff36e25..7d63a6ba799d5 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index e826d42492872..2ade4b2f44df5 100644
+index ec8856bfaebfa..53100322e12a0 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -441,7 +441,7 @@ index e826d42492872..2ade4b2f44df5 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -221,6 +222,76 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -222,6 +223,76 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -676,10 +676,10 @@ index cf696fbcf0714..5c48fd7410b88 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 629877961fe6b..d41bfca45103e 100644
+index c4f9cea175824..6ab8c295abf8b 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -260,6 +260,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -257,6 +257,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -692,7 +692,7 @@ index 629877961fe6b..d41bfca45103e 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 983f9390aa1f6..d6db1ea93e0ef 100644
+index ef7fc4c8d6fc0..88b1b40355a97 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -703,7 +703,7 @@ index 983f9390aa1f6..d6db1ea93e0ef 100644
  #include "ui/aura/client/screen_position_client.h"
  #include "ui/aura/env.h"
  #include "ui/aura/test/aura_test_utils.h"
-@@ -172,9 +173,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
+@@ -178,9 +179,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
        aura::test::QueryLatestMousePositionRequestInHost(host);
    host->ConvertPixelsToDIP(&root_current_location);
  
@@ -716,7 +716,7 @@ index 983f9390aa1f6..d6db1ea93e0ef 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index d43db49340391..24b68b0d68eed 100644
+index a37618c6d37ed..6615e4e59db0b 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@

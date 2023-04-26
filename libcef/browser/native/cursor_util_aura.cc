@@ -10,7 +10,9 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "ui/base/cursor/cursor_factory.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
+#include "ui/display/display.h"
 #include "ui/display/display_util.h"
+#include "ui/display/screen.h"
 #include "ui/wm/core/cursor_loader.h"
 
 #if BUILDFLAG(IS_LINUX)
@@ -29,28 +31,6 @@
 namespace cursor_util {
 
 namespace {
-
-display::ScreenInfo GetScreenInfo(CefRefPtr<CefBrowser> browser) {
-  display::ScreenInfo screen_info;
-
-  bool screen_info_set = false;
-  if (auto web_contents =
-          static_cast<CefBrowserHostBase*>(browser.get())->GetWebContents()) {
-    if (auto view = web_contents->GetRenderWidgetHostView()) {
-      const auto screen_infos = view->GetScreenInfos();
-      if (!screen_infos.screen_infos.empty()) {
-        screen_info = screen_infos.current();
-        screen_info_set = true;
-      }
-    }
-  }
-
-  if (!screen_info_set) {
-    display::DisplayUtil::GetDefaultScreenInfo(&screen_info);
-  }
-
-  return screen_info;
-}
 
 display::Display::Rotation OrientationAngleToRotation(
     uint16_t orientation_angle) {
@@ -74,6 +54,31 @@ display::Display::Rotation OrientationAngleToRotation(
   return display::Display::ROTATE_0;
 }
 
+// It would be better if CursorLoader took a ScreenInfo argument.
+// See https://crbug.com/1149906#c33.
+display::Display GetDisplay(CefRefPtr<CefBrowser> browser) {
+  if (auto web_contents =
+          static_cast<CefBrowserHostBase*>(browser.get())->GetWebContents()) {
+    if (auto view = web_contents->GetRenderWidgetHostView()) {
+      // Windowless browsers always return nullptr from GetNativeView().
+      if (auto native_view = view->GetNativeView()) {
+        return display::Screen::GetScreen()->GetDisplayNearestView(native_view);
+      }
+
+      // Make a minimal-effort fake Display object to satisfy the actual usage
+      // by CursorLoader::SetDisplay.
+      display::Display fake_display;
+      auto screen_info = view->GetScreenInfo();
+      fake_display.set_device_scale_factor(screen_info.device_scale_factor);
+      fake_display.set_rotation(
+          OrientationAngleToRotation(screen_info.orientation_angle));
+      return fake_display;
+    }
+  }
+
+  return display::Display::GetDefaultDisplay();
+}
+
 scoped_refptr<ui::PlatformCursor> ToPlatformCursor(
     CefRefPtr<CefBrowser> browser,
     const ui::Cursor& ui_cursor) {
@@ -87,10 +92,7 @@ scoped_refptr<ui::PlatformCursor> ToPlatformCursor(
         ui::mojom::CursorType::kCustom, ui_cursor.custom_bitmap(),
         ui_cursor.custom_hotspot());
   } else {
-    const auto& screen_info = GetScreenInfo(browser);
-    cursor_loader.SetDisplayData(
-        OrientationAngleToRotation(screen_info.orientation_angle),
-        screen_info.device_scale_factor);
+    cursor_loader.SetDisplay(GetDisplay(browser));
 
     // Attempts to load the cursor via the platform or from pak resources.
     cursor_loader.SetPlatformCursor(&loaded_cursor);

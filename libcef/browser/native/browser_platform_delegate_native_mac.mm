@@ -23,7 +23,6 @@
 #include "third_party/blink/public/common/input/web_input_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
-#import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/display/screen.h"
 #include "ui/events/base_event_utils.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
@@ -280,11 +279,10 @@ bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
                          kDefaultStyleMask, frame_rect, content_rect);
 
     // Create a new window.
-    new_window = [[UnderlayOpenGLHostingWindow alloc]
-        initWithContentRect:content_rect
-                  styleMask:kDefaultStyleMask
-                    backing:NSBackingStoreBuffered
-                      defer:NO];
+    new_window = [[NSWindow alloc] initWithContentRect:content_rect
+                                             styleMask:kDefaultStyleMask
+                                               backing:NSBackingStoreBuffered
+                                                 defer:NO];
 
     // Create the delegate for control and browser window events.
     [[CefWindowDelegate alloc] initWithWindow:new_window andBrowser:browser_];

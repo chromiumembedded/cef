@@ -515,16 +515,11 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
   GetNSBoundsInDisplay(dip_bounds, /*input_content_bounds=*/is_popup_,
                        style_mask, frame_rect, content_rect);
 
-  // The CEF framework library is loaded at runtime so we need to use this
-  // mechanism for retrieving the class.
-  Class window_class = NSClassFromString(@"UnderlayOpenGLHostingWindow");
-  CHECK(window_class);
-
   // Create the main window.
-  window_ = [[window_class alloc] initWithContentRect:content_rect
-                                            styleMask:style_mask
-                                              backing:NSBackingStoreBuffered
-                                                defer:NO];
+  window_ = [[NSWindow alloc] initWithContentRect:content_rect
+                                        styleMask:style_mask
+                                          backing:NSBackingStoreBuffered
+                                            defer:NO];
   [window_ setTitle:@"cefclient"];
   // No dark mode, please
   window_.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];

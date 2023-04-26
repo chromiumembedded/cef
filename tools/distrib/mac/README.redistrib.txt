@@ -23,6 +23,7 @@ cefclient.app/
           chrome_100_percent.pak <= non-localized resources and strings
           chrome_200_percent.pak <=^
           resources.pak          <=^
+          gpu_shader_cache.bin <= ANGLE-Metal shader cache
           icudtl.dat <= unicode support
           snapshot_blob.bin, v8_context_snapshot.[x86_64|arm64].bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
@@ -94,6 +95,7 @@ run but any related functionality may become broken or disabled.
 * ANGLE support.
   * Chromium Embedded Framework.framework/Libraries/libEGL.dylib
   * Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib
+  * Chromium Embedded Framework.framework/Resources/gpu_shader_cache.bin
   Support for rendering of HTML5 content like 2D canvas, 3D CSS and WebGL.
   Without these files the aforementioned capabilities may fail.
 

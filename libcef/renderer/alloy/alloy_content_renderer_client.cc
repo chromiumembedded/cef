@@ -112,8 +112,8 @@ AlloyContentRendererClient::AlloyContentRendererClient()
   if (extensions::ExtensionsEnabled()) {
     extensions_client_.reset(new extensions::CefExtensionsClient);
     extensions::ExtensionsClient::Set(extensions_client_.get());
-    extensions_renderer_client_.reset(
-        new extensions::CefExtensionsRendererClient);
+    extensions_renderer_client_ =
+        std::make_unique<extensions::CefExtensionsRendererClient>(this);
     extensions::ExtensionsRendererClient::Set(
         extensions_renderer_client_.get());
   }
@@ -474,7 +474,8 @@ void AlloyContentRendererClient::DevToolsAgentDetached() {
 std::unique_ptr<blink::URLLoaderThrottleProvider>
 AlloyContentRendererClient::CreateURLLoaderThrottleProvider(
     blink::URLLoaderThrottleProviderType provider_type) {
-  return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type);
+  return std::make_unique<CefURLLoaderThrottleProviderImpl>(provider_type,
+                                                            this);
 }
 
 void AlloyContentRendererClient::AppendContentSecurityPolicy(

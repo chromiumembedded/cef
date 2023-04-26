@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 80f6eaf01c022..b1a35ad087a5b 100644
+index 425cb0ab0af16..57cda56dcfc19 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 80f6eaf01c022..b1a35ad087a5b 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1535,7 +1536,11 @@ component("base") {
+@@ -1528,7 +1529,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 80f6eaf01c022..b1a35ad087a5b 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1935,6 +1940,12 @@ component("base") {
+@@ -1928,6 +1933,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,18 +37,18 @@ index 80f6eaf01c022..b1a35ad087a5b 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 0f044388cefee..49fc4cd20be64 100644
+index 2d4f17ea2a301..ff2ccafd53056 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
-@@ -13,6 +13,7 @@
+@@ -12,6 +12,7 @@
+ #include "base/check.h"
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
- #include "base/sampling_heap_profiler/poisson_allocation_sampler.h"
 +#include "cef/libcef/features/features.h"
  
  #if DCHECK_IS_ON()
  #include <atomic>
-@@ -259,7 +260,7 @@ struct Dispatcher::Impl {
+@@ -31,7 +32,7 @@ struct Dispatcher::Impl {
    }
  
    void Reset() {
@@ -88,7 +88,7 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index 04024537ee698..59864cb084559 100644
+index 38be94387237d..889550e16a6ce 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -15,8 +15,9 @@
@@ -102,7 +102,7 @@ index 04024537ee698..59864cb084559 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -93,7 +94,7 @@ class RandomBitGenerator {
+@@ -97,7 +98,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  

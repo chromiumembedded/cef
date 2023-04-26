@@ -12,10 +12,10 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 6b729528b79bd..3b04670a846d6 100644
+index 27ef75902d11e..5c9ab8a865ff4 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -18,6 +18,7 @@ import("//build/config/sanitizers/sanitizers.gni")
+@@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
  import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,17 +23,17 @@ index 6b729528b79bd..3b04670a846d6 100644
  import("//chrome/browser/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -278,6 +279,10 @@ group("gn_all") {
+@@ -282,6 +283,10 @@ group("gn_all") {
  
-   deps += root_extra_deps
+     deps += root_extra_deps
  
-+  if (enable_cef) {
-+    deps += [ "//cef" ]
-+  }
++    if (enable_cef) {
++      deps += [ "//cef" ]
++    }
 +
-   if (enable_printing) {
-     deps += [ "//printing:printing_unittests" ]
-   }
+     if (enable_printing) {
+       deps += [ "//printing:printing_unittests" ]
+     }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
 index 1da479dd5eebc..ff9c7e467997c 100644
 --- build/config/win/visual_studio_version.gni
@@ -89,7 +89,7 @@ index 60f573a736ba5..90dd6d0b37314 100644
 +_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
 +
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 84da6451a03ba..ff641f5bdc4c6 100644
+index 2254e8a56cda6..20ca93ea9fe32 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -100,7 +100,7 @@ index 84da6451a03ba..ff641f5bdc4c6 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//extensions/buildflags/buildflags.gni")
-@@ -79,6 +80,10 @@ template("chrome_repack_percent") {
+@@ -80,6 +81,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }

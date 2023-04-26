@@ -384,7 +384,7 @@ bool CefWindowX11::TopLevelAlwaysOnTop() const {
 
 void CefWindowX11::ProcessXEvent(const x11::Event& event) {
   if (auto* configure = event.As<x11::ConfigureNotifyEvent>()) {
-    DCHECK_EQ(xwindow_, configure->event);
+    DCHECK_EQ(xwindow_, configure->window);
     // It's possible that the X window may be resized by some other means
     // than from within Aura (e.g. the X window manager can change the
     // size). Make sure the root window size is maintained properly.

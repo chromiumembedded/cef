@@ -11,13 +11,16 @@
 #include "base/threading/thread_checker.h"
 #include "third_party/blink/public/platform/url_loader_throttle_provider.h"
 
+class AlloyContentRendererClient;
+
 // Instances must be constructed on the render thread, and then used and
 // destructed on a single thread, which can be different from the render thread.
 class CefURLLoaderThrottleProviderImpl
     : public blink::URLLoaderThrottleProvider {
  public:
-  explicit CefURLLoaderThrottleProviderImpl(
-      blink::URLLoaderThrottleProviderType type);
+  CefURLLoaderThrottleProviderImpl(
+      blink::URLLoaderThrottleProviderType type,
+      AlloyContentRendererClient* alloy_content_renderer_client);
 
   CefURLLoaderThrottleProviderImpl& operator=(
       const CefURLLoaderThrottleProviderImpl&) = delete;
@@ -38,6 +41,7 @@ class CefURLLoaderThrottleProviderImpl
       const CefURLLoaderThrottleProviderImpl& other);
 
   blink::URLLoaderThrottleProviderType type_;
+  AlloyContentRendererClient* const alloy_content_renderer_client_;
 
   THREAD_CHECKER(thread_checker_);
 };

@@ -33,10 +33,10 @@ index ab1d8fd9bfa84..77f65b44e591a 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 95c64d44044a3..18b017166320f 100644
+index 2290270c3e159..a4a0f4b3c5a33 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
-@@ -176,7 +176,14 @@ - (NSTouchBar*)makeTouchBar {
+@@ -181,7 +181,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
  void BrowserFrameMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -52,7 +52,7 @@ index 95c64d44044a3..18b017166320f 100644
    if (!chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -304,8 +311,16 @@ - (NSTouchBar*)makeTouchBar {
+@@ -309,8 +316,16 @@ bool BrowserFrameMac::WillExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -70,7 +70,7 @@ index 95c64d44044a3..18b017166320f 100644
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -336,11 +351,20 @@ - (NSTouchBar*)makeTouchBar {
+@@ -341,11 +356,20 @@ bool BrowserFrameMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {

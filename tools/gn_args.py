@@ -228,6 +228,11 @@ def GetRecommendedDefaultArgs():
       # CefV8Value::CreateArrayBuffer with memory allocated outside of the V8
       # sandbox. See https://github.com/chromiumembedded/cef/issues/3332.
       'v8_enable_sandbox': False,
+
+      # Disable use of //third_party/perfetto for TRACE_EVENT macros. This is
+      # currently default-enabled on Linux and is causing DCHECK failures.
+      # See https://github.com/chromiumembedded/cef/issues/3497.
+      'use_perfetto_client_library': False,
   }
 
   if platform == 'windows' or platform == 'mac':

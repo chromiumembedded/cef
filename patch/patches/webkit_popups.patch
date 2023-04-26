@@ -11,7 +11,7 @@ index 2c3930e849719..12c81c7c0e7e6 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index bb5b2ecb90889..6a1a7c47e8c86 100644
+index 4f99cf1e984cb..7ed63f2db8267 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -250,8 +250,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -62,10 +62,10 @@ index 421ca0b15eea5..4802d65c6dc4f 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 89a9e47e85841..fe8754953c060 100644
+index 8cb8e7c17836f..6f98ab3b61ebd 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -916,7 +916,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+@@ -917,7 +917,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();

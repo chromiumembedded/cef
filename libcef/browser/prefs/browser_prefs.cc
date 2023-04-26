@@ -47,6 +47,7 @@
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/permissions/permission_actions_history.h"
+#include "components/permissions/permission_hats_trigger_helper.h"
 #include "components/policy/core/common/policy_pref_names.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/json_pref_store.h"
@@ -75,8 +76,8 @@
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
 #include "chrome/browser/profiles/profile_key.h"
-#include "chrome/browser/supervised_user/supervised_user_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
+#include "components/supervised_user/core/browser/supervised_user_pref_store.h"
 #include "components/supervised_user/core/browser/supervised_user_settings_service.h"
 #endif
 
@@ -270,6 +271,8 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
     PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
     permissions::PermissionActionsHistory::RegisterProfilePrefs(registry.get());
+    permissions::PermissionHatsTriggerHelper::RegisterProfilePrefs(
+        registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());

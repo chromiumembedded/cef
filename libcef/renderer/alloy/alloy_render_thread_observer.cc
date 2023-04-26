@@ -8,20 +8,10 @@
 #include "libcef/common/net/net_resource_provider.h"
 
 #include "base/no_destructor.h"
+#include "chrome/common/renderer_configuration.mojom.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/public/cpp/connector.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
-
-namespace {
-
-chrome::mojom::DynamicParams* GetDynamicConfigParams() {
-  static base::NoDestructor<chrome::mojom::DynamicParams> dynamic_params;
-  return dynamic_params.get();
-}
-
-}  // namespace
-
-bool AlloyRenderThreadObserver::is_incognito_process_ = false;
 
 AlloyRenderThreadObserver::AlloyRenderThreadObserver() {
   net::NetModule::SetResourceProvider(NetResourceProvider);
@@ -29,10 +19,15 @@ AlloyRenderThreadObserver::AlloyRenderThreadObserver() {
 
 AlloyRenderThreadObserver::~AlloyRenderThreadObserver() {}
 
-// static
-const chrome::mojom::DynamicParams&
-AlloyRenderThreadObserver::GetDynamicParams() {
-  return *GetDynamicConfigParams();
+chrome::mojom::DynamicParamsPtr AlloyRenderThreadObserver::GetDynamicParams()
+    const {
+  {
+    base::AutoLock lock(dynamic_params_lock_);
+    if (dynamic_params_) {
+      return dynamic_params_.Clone();
+    }
+  }
+  return chrome::mojom::DynamicParams::New();
 }
 
 void AlloyRenderThreadObserver::RegisterMojoInterfaces(
@@ -51,15 +46,19 @@ void AlloyRenderThreadObserver::UnregisterMojoInterfaces(
 
 void AlloyRenderThreadObserver::SetInitialConfiguration(
     bool is_incognito_process,
-    mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener,
+    mojo::PendingReceiver<chrome::mojom::ChromeOSListener>
+        chromeos_listener_receiver,
     mojo::PendingRemote<content_settings::mojom::ContentSettingsManager>
-        content_settings_manager) {
+        content_settings_manager,
+    mojo::PendingRemote<chrome::mojom::BoundSessionRequestThrottledListener>
+        bound_session_request_throttled_listener) {
   is_incognito_process_ = is_incognito_process;
 }
 
 void AlloyRenderThreadObserver::SetConfiguration(
     chrome::mojom::DynamicParamsPtr params) {
-  *GetDynamicConfigParams() = std::move(*params);
+  base::AutoLock lock(dynamic_params_lock_);
+  dynamic_params_ = std::move(params);
 }
 
 void AlloyRenderThreadObserver::OnRendererConfigurationAssociatedRequest(

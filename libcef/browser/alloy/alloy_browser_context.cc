@@ -450,6 +450,12 @@ AlloyBrowserContext::GetUserCloudPolicyManager() {
   return nullptr;
 }
 
+policy::ProfileCloudPolicyManager*
+AlloyBrowserContext::GetProfileCloudPolicyManager() {
+  NOTREACHED();
+  return nullptr;
+}
+
 policy::ProfilePolicyConnector*
 AlloyBrowserContext::GetProfilePolicyConnector() {
   NOTREACHED();

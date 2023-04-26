@@ -12,6 +12,7 @@
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "ui/base/page_transition_types.h"
 
+class AlloyContentRendererClient;
 class GURL;
 
 namespace blink {
@@ -43,7 +44,8 @@ class ResourceRequestPolicy;
 
 class CefExtensionsRendererClient : public ExtensionsRendererClient {
  public:
-  CefExtensionsRendererClient();
+  explicit CefExtensionsRendererClient(
+      AlloyContentRendererClient* alloy_content_renderer_client);
 
   CefExtensionsRendererClient(const CefExtensionsRendererClient&) = delete;
   CefExtensionsRendererClient& operator=(const CefExtensionsRendererClient&) =
@@ -79,6 +81,8 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);
 
  private:
+  AlloyContentRendererClient* const alloy_content_renderer_client_;
+
   std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;
   std::unique_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
 };

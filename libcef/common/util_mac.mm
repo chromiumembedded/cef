@@ -148,31 +148,6 @@ base::FilePath GetMainResourcesDirectory() {
       .Append(FILE_PATH_LITERAL("Resources"));
 }
 
-base::FilePath GetChildProcessPath(const std::string& suffix) {
-  // Match the logic in ChildProcessHost::GetChildPath().
-  base::FilePath child_path;
-  base::PathService::Get(content::CHILD_PROCESS_EXE, &child_path);
-  CHECK(!child_path.empty());
-
-  if (suffix.empty()) {
-    // Return the normal child helper path.
-    return child_path;
-  }
-
-  std::string child_base_name = child_path.BaseName().value() + suffix;
-
-  // This is a specialized helper, with the |child_path| at
-  // "myapp.app/Contents/Frameworks/myapp Helper.app/Contents/MacOS/
-  // myapp Helper" Go back up to the "Frameworks" directory to select
-  // a different variant.
-  child_path = child_path.DirName().DirName().DirName().DirName();
-
-  return child_path.Append(child_base_name + ".app")
-      .Append("Contents")
-      .Append("MacOS")
-      .Append(child_base_name);
-}
-
 void PreSandboxStartup() {
   OverrideChildProcessPath();
 }

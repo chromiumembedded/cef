@@ -4,6 +4,7 @@
 
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 
+#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 
@@ -39,12 +40,15 @@ void IsGuestViewApiAvailableToScriptContext(
 
 }  // namespace
 
-CefExtensionsRendererClient::CefExtensionsRendererClient() {}
+CefExtensionsRendererClient::CefExtensionsRendererClient(
+    AlloyContentRendererClient* alloy_content_renderer_client)
+    : alloy_content_renderer_client_(alloy_content_renderer_client) {}
 
 CefExtensionsRendererClient::~CefExtensionsRendererClient() {}
 
 bool CefExtensionsRendererClient::IsIncognitoProcess() const {
-  return AlloyRenderThreadObserver::is_incognito_process();
+  return alloy_content_renderer_client_->GetAlloyObserver()
+      ->IsIncognitoProcess();
 }
 
 int CefExtensionsRendererClient::GetLowestIsolatedWorldId() const {

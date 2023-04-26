@@ -10,13 +10,13 @@
 #include "base/files/file_util.h"
 #include "base/logging.h"
 #include "content/public/browser/network_service_instance.h"
-#include "services/network/network_service.h"
+#include "services/cert_verifier/public/mojom/cert_verifier_service_factory.mojom.h"
 
 namespace {
 
 void UpdateCRLSet(const std::string& crl_set_bytes) {
   CEF_REQUIRE_UIT();
-  content::GetNetworkService()->UpdateCRLSet(
+  content::GetCertVerifierServiceFactory()->UpdateCRLSet(
       base::as_bytes(base::make_span(crl_set_bytes)), base::DoNothing());
 }
 

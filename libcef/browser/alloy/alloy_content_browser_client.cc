@@ -120,7 +120,6 @@
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
-#include "extensions/browser/info_map.h"
 #include "extensions/browser/process_map.h"
 #include "extensions/browser/renderer_startup_helper.h"
 #include "extensions/browser/url_loader_factory_manager.h"
@@ -923,14 +922,21 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
 
   Profile* profile = Profile::FromBrowserContext(browser_context);
 
-  chrome::mojom::DynamicParams dynamic_params = {
-      profile->GetPrefs()->GetBoolean(
-          policy::policy_prefs::kForceGoogleSafeSearch),
-      profile->GetPrefs()->GetInteger(
-          policy::policy_prefs::kForceYouTubeRestrict),
-      profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps)};
-  result.push_back(
-      std::make_unique<GoogleURLLoaderThrottle>(std::move(dynamic_params)));
+  chrome::mojom::DynamicParamsPtr dynamic_params =
+      chrome::mojom::DynamicParams::New(
+#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
+          /*bound_session_params=*/nullptr,
+#endif
+          profile->GetPrefs()->GetBoolean(
+              policy::policy_prefs::kForceGoogleSafeSearch),
+          profile->GetPrefs()->GetInteger(
+              policy::policy_prefs::kForceYouTubeRestrict),
+          profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps));
+  result.push_back(std::make_unique<GoogleURLLoaderThrottle>(
+#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
+      /*bound_session_request_throttled_listener=*/nullptr,
+#endif
+      std::move(dynamic_params)));
 
   return result;
 }

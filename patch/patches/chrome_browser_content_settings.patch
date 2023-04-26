@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 9a405503f15bd..7edad568f1bb4 100644
+index 5e4d0b203491b..dc5c8fb36d592 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -9,6 +9,7 @@
@@ -7,8 +7,8 @@ index 9a405503f15bd..7edad568f1bb4 100644
  #include "build/build_config.h"
  #include "build/buildflag.h"
 +#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/content_settings/one_time_geolocation_permission_provider.h"
- #include "chrome/browser/permissions/last_tab_standing_tracker_factory.h"
+ #include "chrome/browser/content_settings/one_time_permission_provider.h"
+ #include "chrome/browser/permissions/one_time_permissions_tracker_factory.h"
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
 @@ -23,6 +24,10 @@
  #include "extensions/buildflags/buildflags.h"
@@ -21,8 +21,8 @@ index 9a405503f15bd..7edad568f1bb4 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/trace_event/trace_event.h"
  #include "extensions/browser/api/content_settings/content_settings_custom_extension_provider.h"
-@@ -62,7 +67,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
-   DependsOn(TemplateURLServiceFactory::GetInstance());
+@@ -63,7 +68,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
+   DependsOn(OneTimePermissionsTrackerFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
@@ -35,8 +35,8 @@ index 9a405503f15bd..7edad568f1bb4 100644
  #endif
    // Used by way of ShouldRestoreOldSessionCookies().
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
-@@ -136,6 +147,9 @@ scoped_refptr<RefcountedKeyedService>
-   }
+@@ -127,6 +138,9 @@ scoped_refptr<RefcountedKeyedService>
+       std::move(allowlist_provider));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
@@ -45,7 +45,7 @@ index 9a405503f15bd..7edad568f1bb4 100644
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
    settings_map->RegisterProvider(
-@@ -148,6 +162,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -139,6 +153,9 @@ scoped_refptr<RefcountedKeyedService>
            // the case where profile->IsOffTheRecord() is true? And what is the
            // interaction with profile->IsGuestSession()?
            false));

@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "base/synchronization/lock.h"
+#include "base/thread_annotations.h"
 #include "chrome/common/renderer_configuration.mojom.h"
 #include "components/content_settings/core/common/content_settings.h"
 #include "content/public/renderer/render_thread_observer.h"
@@ -25,11 +27,11 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
 
   ~AlloyRenderThreadObserver() override;
 
-  static bool is_incognito_process() { return is_incognito_process_; }
+  bool IsIncognitoProcess() const { return is_incognito_process_; }
 
-  // Return the dynamic parameters - those that may change while the
+  // Return a copy of the dynamic parameters - those that may change while the
   // render process is running.
-  static const chrome::mojom::DynamicParams& GetDynamicParams();
+  chrome::mojom::DynamicParamsPtr GetDynamicParams() const;
 
  private:
   // content::RenderThreadObserver:
@@ -41,19 +43,26 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
   // chrome::mojom::RendererConfiguration:
   void SetInitialConfiguration(
       bool is_incognito_process,
-      mojo::PendingReceiver<chrome::mojom::ChromeOSListener> chromeos_listener,
+      mojo::PendingReceiver<chrome::mojom::ChromeOSListener>
+          chromeos_listener_receiver,
       mojo::PendingRemote<content_settings::mojom::ContentSettingsManager>
-          content_settings_manager) override;
+          content_settings_manager,
+      mojo::PendingRemote<chrome::mojom::BoundSessionRequestThrottledListener>
+          bound_session_request_throttled_listener) override;
   void SetConfiguration(chrome::mojom::DynamicParamsPtr params) override;
 
   void OnRendererConfigurationAssociatedRequest(
       mojo::PendingAssociatedReceiver<chrome::mojom::RendererConfiguration>
           receiver);
 
-  static bool is_incognito_process_;
+  bool is_incognito_process_ = false;
 
   mojo::AssociatedReceiverSet<chrome::mojom::RendererConfiguration>
       renderer_configuration_receivers_;
+
+  chrome::mojom::DynamicParamsPtr dynamic_params_
+      GUARDED_BY(dynamic_params_lock_);
+  mutable base::Lock dynamic_params_lock_;
 };
 
 #endif  // CEF_LIBCEF_RENDERER_ALLOY_ALLOY_RENDER_THREAD_OBSERVER_H_

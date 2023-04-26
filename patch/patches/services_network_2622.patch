@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index 6162047ffe892..0efb184682a00 100644
+index ac27e4f66e56f..18a36a58faf01 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -21,7 +21,7 @@ index 6162047ffe892..0efb184682a00 100644
        enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
            profile);
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index db593e5f07ea8..5e72cd57ee0fa 100644
+index 81851bafbadd5..e0fdb35702b22 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -32,7 +32,7 @@ index db593e5f07ea8..5e72cd57ee0fa 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -300,8 +301,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -299,8 +300,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
@@ -45,7 +45,7 @@ index db593e5f07ea8..5e72cd57ee0fa 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -810,7 +813,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -804,7 +807,19 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
  
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
@@ -66,7 +66,7 @@ index db593e5f07ea8..5e72cd57ee0fa 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -823,7 +838,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -817,7 +832,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          base_cache_path.Append(chrome::kCacheDirname);
      network_context_params->http_cache_max_size =
          local_state->GetInteger(prefs::kDiskCacheSize);
@@ -178,10 +178,10 @@ index ba7f48e90026c..a509cc4565e9f 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 7301ba6c8992e..c34a2919fa9d0 100644
+index 02709c1f1bf51..bf9cbcfa3ff48 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2297,16 +2297,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2318,16 +2318,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -206,14 +206,14 @@ index 7301ba6c8992e..c34a2919fa9d0 100644
  
 +  builder.SetCookieStore(std::move(cookie_store));
 +
-   if (base::FeatureList::IsEnabled(features::kPrivateStateTokens)) {
+   if (base::FeatureList::IsEnabled(features::kPrivateStateTokens) ||
+       base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
- 
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index f32ad0616a72f..c6cc5fcacf34b 100644
+index 62150fda9f17a..14d7b8988e2c9 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -346,6 +346,9 @@ struct NetworkContextParams {
+@@ -357,6 +357,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

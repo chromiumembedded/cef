@@ -90,8 +90,9 @@ ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
   }
 
   // Return data about the newly created tab.
-  return RespondNow(has_callback() ? OneArgument(base::Value(result->ToValue()))
-                                   : NoArguments());
+  return RespondNow(has_callback()
+                        ? WithArguments(base::Value(result->ToValue()))
+                        : NoArguments());
 }
 
 BaseAPIFunction::BaseAPIFunction() : cef_details_(this) {}

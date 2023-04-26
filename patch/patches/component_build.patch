@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 8ac089ad10e93..7205803b7156c 100644
+index 108bab494ea98..97ec37795ce8b 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -102,7 +102,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -100,7 +100,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -68,7 +68,7 @@ index 97c7dc7c25000..63c42610bfd9c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 64214a7885df2..0cbc7cfc6fe43 100644
+index 53cc163cde365..bf2aa2df19ded 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -35,6 +35,7 @@ component("controller") {

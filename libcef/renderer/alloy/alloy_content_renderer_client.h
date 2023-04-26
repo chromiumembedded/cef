@@ -120,6 +120,10 @@ class AlloyContentRendererClient
   // MessageLoopCurrent::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
 
+  AlloyRenderThreadObserver* GetAlloyObserver() const {
+    return observer_.get();
+  }
+
  private:
   void OnBrowserCreated(blink::WebView* web_view,
                         absl::optional<bool> is_windowless);
