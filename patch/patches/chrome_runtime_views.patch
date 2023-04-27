@@ -359,7 +359,7 @@ index d9fb9af4db3eb..4a809ee9962fd 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 536ccd7846166..45dda00b1735e 100644
+index 2325af914bd63..9498778a7256e 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -308,11 +308,10 @@ using content::NativeWebKeyboardEvent;
@@ -427,7 +427,7 @@ index 536ccd7846166..45dda00b1735e 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1788,6 +1804,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1802,6 +1818,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -436,7 +436,7 @@ index 536ccd7846166..45dda00b1735e 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2680,7 +2698,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
+@@ -2694,7 +2712,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -446,7 +446,7 @@ index 536ccd7846166..45dda00b1735e 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton())
      return download_button->bubble_controller();
    return nullptr;
-@@ -3180,7 +3199,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3194,7 +3213,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -456,7 +456,7 @@ index 536ccd7846166..45dda00b1735e 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3733,8 +3753,10 @@ void BrowserView::Layout() {
+@@ -3747,8 +3767,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -469,7 +469,7 @@ index 536ccd7846166..45dda00b1735e 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3800,6 +3822,11 @@ void BrowserView::AddedToWidget() {
+@@ -3814,6 +3836,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -481,7 +481,7 @@ index 536ccd7846166..45dda00b1735e 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -3846,13 +3873,9 @@ void BrowserView::AddedToWidget() {
+@@ -3860,13 +3887,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -497,7 +497,7 @@ index 536ccd7846166..45dda00b1735e 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4258,7 +4281,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4272,7 +4295,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -507,7 +507,7 @@ index 536ccd7846166..45dda00b1735e 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4614,6 +4638,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4628,6 +4652,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -516,7 +516,7 @@ index 536ccd7846166..45dda00b1735e 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4636,6 +4662,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4650,6 +4676,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
