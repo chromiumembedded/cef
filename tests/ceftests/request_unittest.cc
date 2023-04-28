@@ -21,7 +21,7 @@ TEST(RequestTest, SetGet) {
   EXPECT_TRUE(request.get() != nullptr);
   EXPECT_EQ(0U, request->GetIdentifier());
 
-  CefString url = "http://tests.com/run.html";
+  CefString url = "https://tests.com/run.html";
   CefString method = "POST";
   CefRequest::HeaderMap setHeaders, getHeaders;
   setHeaders.insert(std::make_pair("HeaderA", "ValueA"));
@@ -88,10 +88,10 @@ TEST(RequestTest, SetGet) {
   EXPECT_EQ(method, request->GetMethod());
 
   // CefRequest SetReferrer
-  CefString referrer = "http://tests.com/referrer.html";
+  CefString referrer = "https://tests.com/referrer.html";
   CefRequest::ReferrerPolicy policy = REFERRER_POLICY_ORIGIN;
   request->SetReferrer(referrer, policy);
-  EXPECT_STREQ("http://tests.com/",
+  EXPECT_STREQ("https://tests.com/",
                request->GetReferrerURL().ToString().c_str());
   EXPECT_EQ(policy, request->GetReferrerPolicy());
 
@@ -188,7 +188,7 @@ TEST(RequestTest, SetGetHeaderByName) {
 
 namespace {
 
-const char kTestUrl[] = "http://tests.com/run.html";
+const char kTestUrl[] = "https://tests.com/run.html";
 
 void CreateRequest(CefRefPtr<CefRequest>& request) {
   request = CefRequest::Create();
@@ -197,7 +197,7 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
   request->SetURL(kTestUrl);
   request->SetMethod("POST");
 
-  request->SetReferrer("http://tests.com/main.html", REFERRER_POLICY_DEFAULT);
+  request->SetReferrer("https://tests.com/main.html", REFERRER_POLICY_DEFAULT);
 
   CefRequest::HeaderMap headers;
   headers.insert(std::make_pair("HeaderA", "ValueA"));
@@ -380,7 +380,7 @@ TEST(RequestTest, SendRecv) {
 
 namespace {
 
-const char kTypeTestOrigin[] = "http://tests-requesttt.com/";
+const char kTypeTestOrigin[] = "https://tests-requesttt.com/";
 const cef_transition_type_t kTransitionExplicitLoad =
     static_cast<cef_transition_type_t>(TT_EXPLICIT | TT_DIRECT_LOAD_FLAG);
 

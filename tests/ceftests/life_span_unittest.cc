@@ -10,7 +10,7 @@
 
 namespace {
 
-const char kLifeSpanUrl[] = "http://tests-life-span/test.html";
+const char kLifeSpanUrl[] = "https://tests-life-span/test.html";
 const char kUnloadDialogText[] = "Are you sure?";
 const char kUnloadMsg[] = "LifeSpanTestHandler.Unload";
 
@@ -100,7 +100,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
 
     // The message is no longer configurable via JavaScript.
-    // See http://crbug.com/587940.
+    // See https://crbug.com/587940.
     EXPECT_STREQ("Is it OK to leave/reload this page?",
                  message_text.ToString().c_str());
 

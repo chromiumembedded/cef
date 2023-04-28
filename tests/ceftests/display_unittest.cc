@@ -19,8 +19,8 @@ namespace {
 // 4. History forward to kTitleUrl2 (title should be kTitleStr2)
 // 5. Set title via JavaScript (title should be kTitleStr3)
 
-const char kTitleUrl1[] = "http://tests-title/nav1.html";
-const char kTitleUrl2[] = "http://tests-title/nav2.html";
+const char kTitleUrl1[] = "https://tests-title/nav1.html";
+const char kTitleUrl2[] = "https://tests-title/nav2.html";
 const char kTitleStr1[] = "Title 1";
 const char kTitleStr2[] = "Title 2";
 const char kTitleStr3[] = "Title 3";
@@ -151,7 +151,7 @@ TEST(DisplayTest, Title) {
 
 namespace {
 
-const char kAutoResizeUrl[] = "http://tests-display/auto-resize.html";
+const char kAutoResizeUrl[] = "https://tests-display/auto-resize.html";
 
 class AutoResizeTestHandler : public RoutingTestHandler {
  public:
@@ -260,7 +260,7 @@ class ConsoleTestHandler : public TestHandler {
         : level(message_level),
           message("'Test Message'"),
           expected_message("Test Message"),
-          source("http://tests-console-message/level.html"),
+          source("https://tests-console-message/level.html"),
           line(42) {}
 
     cef_log_severity_t level;
@@ -464,7 +464,7 @@ TEST(DisplayTest, OnConsoleMessageAssert) {
 
 namespace {
 
-const char kLoadinProgressUrl[] = "http://tests-display/loading-progress.html";
+const char kLoadinProgressUrl[] = "https://tests-display/loading-progress.html";
 
 // Browser side.
 class LoadingProgressTestHandler : public TestHandler {

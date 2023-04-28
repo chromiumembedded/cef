@@ -131,7 +131,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "   data = {};"
         " }"
         " document.location = "
-        "`http://tests/"
+        "`https://tests/"
         "exit?result=${val}&data=${encodeURIComponent(JSON.stringify(data))}`;"
         "}"
         "function runTest() {";

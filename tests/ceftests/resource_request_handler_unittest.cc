@@ -184,7 +184,7 @@ class CallbackResourceHandler : public CefResourceHandler {
   }
 
   bool DoRead(void* data_out, int bytes_to_read, int& bytes_read) {
-    DCHECK_GT(bytes_to_read, 0);
+    EXPECT_GT(bytes_to_read, 0);
 
     // Read until the buffer is full or until Read() returns 0 to indicate no
     // more data.
@@ -1021,13 +1021,13 @@ class BasicResponseTest : public TestHandler {
       }
     } else {
       if (url == RESULT_HTML) {
-        return "http://test.com/result.html";
+        return "https://test.com/result.html";
       }
       if (url == REDIRECT_HTML) {
-        return "http://test.com/redirect.html";
+        return "https://test.com/redirect.html";
       }
       if (url == REDIRECT2_HTML) {
-        return "http://test.com/redirect2.html";
+        return "https://test.com/redirect2.html";
       }
     }
 
@@ -2143,7 +2143,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     if (custom_scheme_) {
       return "rrhcustom://test.com/main.html";
     } else {
-      return "http://test.com/main.html";
+      return "https://test.com/main.html";
     }
   }
 
@@ -2151,7 +2151,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     if (custom_scheme_) {
       return "rrhcustom://test.com/subframe.html";
     } else {
-      return "http://test.com/subframe.html";
+      return "https://test.com/subframe.html";
     }
   }
 
@@ -2159,7 +2159,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     if (custom_scheme_) {
       return "rrhcustom://test.com";
     } else {
-      return "http://test.com";
+      return "https://test.com";
     }
   }
 
@@ -2185,13 +2185,13 @@ class SubresourceResponseTest : public RoutingTestHandler {
       }
     } else {
       if (url == RESULT_JS) {
-        return "http://test.com/result.js";
+        return "https://test.com/result.js";
       }
       if (url == REDIRECT_JS) {
-        return "http://test.com/redirect.js";
+        return "https://test.com/redirect.js";
       }
       if (url == REDIRECT2_JS) {
-        return "http://test.com/redirect2.js";
+        return "https://test.com/redirect2.js";
       }
     }
 
@@ -2230,7 +2230,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   }
 
   std::string GetSubResponseBody() const {
-    DCHECK(subframe_);
+    EXPECT_TRUE(subframe_);
 
     std::stringstream html;
     html << "<html><head>";
@@ -2681,7 +2681,7 @@ SUBRESOURCE_TEST_HANDLED_MODES(CustomHandledSubFrame, true, true)
 
 namespace {
 
-const char kResourceTestHtml[] = "http://test.com/resource.html";
+const char kResourceTestHtml[] = "https://test.com/resource.html";
 
 class RedirectResponseTest : public TestHandler {
  public:
@@ -2934,8 +2934,8 @@ class RedirectResponseTest : public TestHandler {
     // With NetworkService we don't get an additional (unnecessary) redirect
     // callback.
     UrlResourceTest()
-        : ResourceTest("http://test.com/start_url.js", 2U, 2U, 1U) {
-      redirect_url_ = "http://test.com/redirect_url.js";
+        : ResourceTest("https://test.com/start_url.js", 2U, 2U, 1U) {
+      redirect_url_ = "https://test.com/redirect_url.js";
     }
 
     bool CheckUrl(const std::string& url) const override {
@@ -2982,7 +2982,7 @@ class RedirectResponseTest : public TestHandler {
     // With NetworkService we restart the request, so we get another call to
     // OnBeforeResourceLoad.
     HeaderResourceTest()
-        : ResourceTest("http://test.com/start_header.js", 2U, 2U) {
+        : ResourceTest("https://test.com/start_header.js", 2U, 2U) {
       expected_headers_.insert(std::make_pair("Test-Key1", "Value1"));
       expected_headers_.insert(std::make_pair("Test-Key2", "Value2"));
     }
@@ -3013,7 +3013,8 @@ class RedirectResponseTest : public TestHandler {
    public:
     // With NetworkService we restart the request, so we get another call to
     // OnBeforeResourceLoad.
-    PostResourceTest() : ResourceTest("http://test.com/start_post.js", 2U, 2U) {
+    PostResourceTest()
+        : ResourceTest("https://test.com/start_post.js", 2U, 2U) {
       CefRefPtr<CefPostDataElement> elem = CefPostDataElement::Create();
       const std::string data("Test Post Data");
       elem->SetToBytes(data.size(), data.c_str());
@@ -3280,7 +3281,7 @@ TEST(ResourceRequestHandlerTest, RedirectPostViaContext) {
 
 namespace {
 
-const char kResourceTestHtml2[] = "http://test.com/resource2.html";
+const char kResourceTestHtml2[] = "https://test.com/resource2.html";
 
 class BeforeResourceLoadTest : public TestHandler {
  public:
@@ -3464,7 +3465,7 @@ namespace {
 // - Needing more input and not getting it.
 // - Filter error.
 
-const char kResponseFilterTestUrl[] = "http://tests.com/response_filter.html";
+const char kResponseFilterTestUrl[] = "https://test.com/response_filter.html";
 
 size_t GetResponseBufferSize() {
   // Match the default |capacity_num_bytes| value from
@@ -3872,7 +3873,7 @@ class ResponseFilterTestHandler : public TestHandler {
       CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
 
-    DCHECK(!got_resource_response_filter_);
+    EXPECT_FALSE(got_resource_response_filter_);
     got_resource_response_filter_.yes();
     return response_filter_;
   }
@@ -3890,7 +3891,7 @@ class ResponseFilterTestHandler : public TestHandler {
       return;
     }
 
-    DCHECK(!got_resource_load_complete_);
+    EXPECT_FALSE(got_resource_load_complete_);
     got_resource_load_complete_.yes();
 
     status_ = status;
@@ -3900,7 +3901,7 @@ class ResponseFilterTestHandler : public TestHandler {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    DCHECK(!got_load_end_);
+    EXPECT_FALSE(got_load_end_);
     got_load_end_.yes();
 
     response_filter_->VerifyStatusCode(httpStatusCode);

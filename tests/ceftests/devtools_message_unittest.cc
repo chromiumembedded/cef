@@ -17,8 +17,8 @@
 
 namespace {
 
-const char kTestUrl1[] = "http://tests/DevToolsMessage1";
-const char kTestUrl2[] = "http://tests/DevToolsMessage2";
+const char kTestUrl1[] = "https://tests/DevToolsMessage1";
+const char kTestUrl2[] = "https://tests/DevToolsMessage2";
 
 class DevToolsMessageTestHandler : public TestHandler {
  public:

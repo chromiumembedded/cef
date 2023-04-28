@@ -6,9 +6,9 @@
 
 namespace {
 
-const char kTestDomain1[] = "http://tests-mr1.com/";
-const char kTestDomain2[] = "http://tests-mr2.com/";
-const char kTestDomain3[] = "http://tests-mr3.com/";
+const char kTestDomain1[] = "https://tests-mr1.com/";
+const char kTestDomain2[] = "https://tests-mr2.com/";
+const char kTestDomain3[] = "https://tests-mr3.com/";
 
 const char kMultiQueryRequestId[] = "request_id";
 const char kMultiQueryRepeatCt[] = "repeat_ct";

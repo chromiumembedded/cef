@@ -16,7 +16,7 @@ using client::ClientAppRenderer;
 namespace {
 
 // Unique values for the SendRecv test.
-const char kSendRecvUrl[] = "http://tests/ProcessMessageTest.SendRecv";
+const char kSendRecvUrl[] = "https://tests/ProcessMessageTest.SendRecv";
 const char kSendRecvMsg[] = "ProcessMessageTest.SendRecv";
 
 // Creates a test message.

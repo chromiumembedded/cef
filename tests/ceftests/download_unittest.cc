@@ -18,9 +18,9 @@
 namespace {
 
 const char kTestDomain[] = "test-download.com";
-const char kTestStartUrl[] = "http://test-download.com/test.html";
-const char kTestDownloadUrl[] = "http://test-download.com/download.txt";
-const char kTestNavUrl[] = "http://test-download-nav.com/nav.html";
+const char kTestStartUrl[] = "https://test-download.com/test.html";
+const char kTestDownloadUrl[] = "https://test-download.com/download.txt";
+const char kTestNavUrl[] = "https://test-download-nav.com/nav.html";
 const char kTestFileName[] = "download_test.txt";
 const char kTestContentDisposition[] =
     "attachment; filename=\"download_test.txt\"";
@@ -215,10 +215,10 @@ class DownloadTestHandler : public TestHandler {
     CefRefPtr<CefRequestContext> request_context =
         CreateTestRequestContext(rc_mode_, rc_cache_path_);
     if (request_context) {
-      request_context->RegisterSchemeHandlerFactory("http", kTestDomain,
+      request_context->RegisterSchemeHandlerFactory("https", kTestDomain,
                                                     scheme_factory);
     } else {
-      CefRegisterSchemeHandlerFactory("http", kTestDomain, scheme_factory);
+      CefRegisterSchemeHandlerFactory("https", kTestDomain, scheme_factory);
     }
 
     if (!is_clicked() || is_clicked_and_downloaded()) {
@@ -486,11 +486,11 @@ class DownloadTestHandler : public TestHandler {
     }
 
     if (request_context_) {
-      request_context_->RegisterSchemeHandlerFactory("http", kTestDomain,
+      request_context_->RegisterSchemeHandlerFactory("https", kTestDomain,
                                                      nullptr);
       request_context_ = nullptr;
     } else {
-      CefRegisterSchemeHandlerFactory("http", kTestDomain, nullptr);
+      CefRegisterSchemeHandlerFactory("https", kTestDomain, nullptr);
     }
 
     if (is_clicked()) {

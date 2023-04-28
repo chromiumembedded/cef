@@ -10,8 +10,8 @@
 
 namespace {
 
-const char* kStartUrl = "http://tests/JSDialogTestHandler.Start";
-const char* kEndUrl = "http://tests/JSDialogTestHandler.End?r=";
+const char* kStartUrl = "https://tests/JSDialogTestHandler.Start";
+const char* kEndUrl = "https://tests/JSDialogTestHandler.End?r=";
 
 class JSDialogTestHandler : public TestHandler {
  public:
@@ -152,7 +152,7 @@ class JSDialogTestHandler : public TestHandler {
 
     if (type_ == TYPE_ONBEFOREUNLOAD) {
       // The message is no longer configurable via JavaScript.
-      // See http://crbug.com/587940.
+      // See https://crbug.com/587940.
       EXPECT_STREQ("Is it OK to leave/reload this page?",
                    message_text.ToString().c_str());
       EXPECT_FALSE(is_reload);

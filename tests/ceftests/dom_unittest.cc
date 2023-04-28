@@ -11,7 +11,7 @@ using client::ClientAppRenderer;
 
 namespace {
 
-const char* kTestUrl = "http://tests/DOMTest.Test";
+const char* kTestUrl = "https://tests/DOMTest.Test";
 const char* kTestMessage = "DOMTest.Message";
 
 enum DOMTestType {
@@ -149,7 +149,7 @@ class TestDOMVisitor : public CefDOMVisitor {
   void TestStructure(CefRefPtr<CefDOMDocument> document) {
     EXPECT_EQ(document->GetTitle(), "The Title");
     EXPECT_EQ(document->GetBaseURL(), kTestUrl);
-    EXPECT_EQ(document->GetCompleteURL("foo.html"), "http://tests/foo.html");
+    EXPECT_EQ(document->GetCompleteURL("foo.html"), "https://tests/foo.html");
 
     // Navigate the complete document structure.
     CefRefPtr<CefDOMNode> docNode = document->GetDocument();

@@ -23,9 +23,9 @@ using client::ClientAppRenderer;
 
 namespace {
 
-const char kHNav1[] = "http://tests-hnav.com/nav1.html";
-const char kHNav2[] = "http://tests-hnav.com/nav2.html";
-const char kHNav3[] = "http://tests-hnav.com/nav3.html";
+const char kHNav1[] = "https://tests-hnav.com/nav1.html";
+const char kHNav2[] = "https://tests-hnav.com/nav2.html";
+const char kHNav3[] = "https://tests-hnav.com/nav3.html";
 const char kHistoryNavMsg[] = "NavigationTest.HistoryNav";
 const char kHistoryNavTestCmdKey[] = "nav-history-test";
 
@@ -644,8 +644,8 @@ TEST(NavigationTest, History) {
 
 namespace {
 
-const char kDynIfrNav1[] = "http://tests-dynframe/nav1.html";
-const char kDynIfrNav2[] = "http://tests-dynframe/nav2.html";
+const char kDynIfrNav1[] = "https://tests-dynframe/nav1.html";
+const char kDynIfrNav2[] = "https://tests-dynframe/nav2.html";
 
 // Browser side.
 class HistoryDynamicIFramesNavTestHandler : public TestHandler {
@@ -779,10 +779,10 @@ TEST(NavigationTest, HistoryDynamicIFrames) {
 
 namespace {
 
-const char kRNav1[] = "http://tests/nav1.html";
-const char kRNav2[] = "http://tests/nav2.html";
-const char kRNav3[] = "http://tests/nav3.html";
-const char kRNav4[] = "http://tests/nav4.html";
+const char kRNav1[] = "https://tests/nav1.html";
+const char kRNav2[] = "https://tests/nav2.html";
+const char kRNav3[] = "https://tests/nav3.html";
+const char kRNav4[] = "https://tests/nav4.html";
 
 bool g_got_nav1_request = false;
 bool g_got_nav3_request = false;
@@ -1080,7 +1080,7 @@ class RedirectDestroyTestHandler : public TestHandler {
 
 // Verify frame names and identifiers.
 TEST(NavigationTest, Redirect) {
-  CefRegisterSchemeHandlerFactory("http", "tests",
+  CefRegisterSchemeHandlerFactory("https", "tests",
                                   new RedirectSchemeHandlerFactory());
   WaitForIOThread();
 
@@ -1113,7 +1113,7 @@ TEST(NavigationTest, Redirect) {
 // Verify that destroying the WebContents while the redirect is in-progress does
 // not result in a crash.
 TEST(NavigationTest, RedirectDestroy) {
-  CefRegisterSchemeHandlerFactory("http", "tests",
+  CefRegisterSchemeHandlerFactory("https", "tests",
                                   new RedirectSchemeHandlerFactory());
   WaitForIOThread();
 
@@ -1135,8 +1135,8 @@ TEST(NavigationTest, RedirectDestroy) {
 
 namespace {
 
-const char KONav1[] = "http://tests-onav.com/nav1.html";
-const char KONav2[] = "http://tests-onav.com/nav2.html";
+const char KONav1[] = "https://tests-onav.com/nav1.html";
+const char KONav2[] = "https://tests-onav.com/nav2.html";
 const char kOrderNavMsg[] = "NavigationTest.OrderNav";
 const char kOrderNavClosedMsg[] = "NavigationTest.OrderNavClosed";
 const char kOrderNavTestCmdKey[] = "nav-order-test";
@@ -1701,9 +1701,9 @@ TEST(NavigationTest, Order) {
 
 namespace {
 
-const char kLoadNav1[] = "http://tests-conav1.com/nav1.html";
-const char kLoadNavSameOrigin2[] = "http://tests-conav1.com/nav2.html";
-const char kLoadNavCrossOrigin2[] = "http://tests-conav2.com/nav2.html";
+const char kLoadNav1[] = "https://tests-conav1.com/nav1.html";
+const char kLoadNavSameOrigin2[] = "https://tests-conav1.com/nav2.html";
+const char kLoadNavCrossOrigin2[] = "https://tests-conav2.com/nav2.html";
 const char kLoadNavMsg[] = "NavigationTest.LoadNav";
 const char kLoadNavTestCmdKey[] = "nav-load-test";
 
@@ -2244,8 +2244,8 @@ TEST(NavigationTest, LoadCrossOriginCtrlLeftClickCancel) {
 
 namespace {
 
-const char kSimultPopupMainUrl[] = "http://www.tests-sp.com/main.html";
-const char kSimultPopupPopupUrl[] = "http://www.tests-sp.com/popup";
+const char kSimultPopupMainUrl[] = "https://www.tests-sp.com/main.html";
+const char kSimultPopupPopupUrl[] = "https://www.tests-sp.com/popup";
 const size_t kSimultPopupCount = 5U;
 
 // Test multiple popups simultaniously.
@@ -2404,8 +2404,8 @@ TEST(NavigationTest, PopupSimultaneousSameUrl) {
 
 namespace {
 
-const char kPopupJSOpenMainUrl[] = "http://www.tests-pjso.com/main.html";
-const char kPopupJSOpenPopupUrl[] = "http://www.tests-pjso.com/popup.html";
+const char kPopupJSOpenMainUrl[] = "https://www.tests-pjso.com/main.html";
+const char kPopupJSOpenPopupUrl[] = "https://www.tests-pjso.com/popup.html";
 
 // Test a popup where the URL is a JavaScript URI that opens another popup.
 class PopupJSWindowOpenTestHandler : public TestHandler {
@@ -2551,7 +2551,7 @@ TEST(NavigationTest, PopupJSWindowOpen) {
 
 namespace {
 
-const char kPopupJSEmptyMainUrl[] = "http://www.tests-pjse.com/main.html";
+const char kPopupJSEmptyMainUrl[] = "https://www.tests-pjse.com/main.html";
 
 // Test creation of a popup where the URL is empty.
 class PopupJSWindowEmptyTestHandler : public TestHandler {
@@ -2656,7 +2656,7 @@ TEST(NavigationTest, PopupJSWindowEmpty) {
 
 namespace {
 
-const char kBrowseNavPageUrl[] = "http://tests-browsenav/nav.html";
+const char kBrowseNavPageUrl[] = "https://tests-browsenav/nav.html";
 
 // Browser side.
 class BrowseNavTestHandler : public TestHandler {
@@ -2822,7 +2822,7 @@ TEST(NavigationTest, BrowseDeny) {
 
 namespace {
 
-const char kSameNavPageUrl[] = "http://tests-samenav/nav.html";
+const char kSameNavPageUrl[] = "https://tests-samenav/nav.html";
 
 // Browser side.
 class SameNavTestHandler : public TestHandler {
@@ -2982,7 +2982,7 @@ TEST(NavigationTest, SamePage) {
 
 namespace {
 
-const char kCancelPageUrl[] = "http://tests-cancelnav/nav.html";
+const char kCancelPageUrl[] = "https://tests-cancelnav/nav.html";
 
 // A scheme handler that never starts sending data.
 class UnstartedSchemeHandler : public CefResourceHandler {
@@ -3495,9 +3495,9 @@ TEST(NavigationTest, CancelAfterCommit) {
 
 namespace {
 
-const char kExtraInfoUrl[] = "http://tests-extrainfonav.com/extra.html";
+const char kExtraInfoUrl[] = "https://tests-extrainfonav.com/extra.html";
 const char kExtraInfoPopupUrl[] =
-    "http://tests-extrainfonav.com/extra_popup.html";
+    "https://tests-extrainfonav.com/extra_popup.html";
 const char kExtraInfoNavMsg[] = "NavigationTest.ExtraInfoNav";
 const char kExtraInfoTestCmdKey[] = "nav-extra-info-test";
 

@@ -711,7 +711,7 @@ void SetUpXHR(const XHRTestSettings& settings) {
   ss << "<html><head>"
         "<script language=\"JavaScript\">"
         "function onResult(val) {"
-        "  document.location = \"http://tests/exit?result=\"+val;"
+        "  document.location = \"https://tests/exit?result=\"+val;"
         "}"
         "function execXMLHttpRequest() {";
   if (settings.synchronous) {
@@ -753,7 +753,7 @@ void SetUpXHR(const XHRTestSettings& settings) {
         "</body></html>";
   g_TestResults.html = ss.str();
 
-  g_TestResults.exit_url = "http://tests/exit";
+  g_TestResults.exit_url = "https://tests/exit";
 }
 
 struct FetchTestSettings {
@@ -783,7 +783,7 @@ void SetUpFetch(const FetchTestSettings& settings) {
   ss << "<html><head>"
         "<script language=\"JavaScript\">"
         "function onResult(val) {"
-        "  document.location = \"http://tests/exit?result=\"+val;"
+        "  document.location = \"https://tests/exit?result=\"+val;"
         "}"
         "function execFetchHttpRequest() {";
   ss << "fetch('" << request_url.c_str()
@@ -808,7 +808,7 @@ void SetUpFetch(const FetchTestSettings& settings) {
         "</body></html>";
   g_TestResults.html = ss.str();
 
-  g_TestResults.exit_url = "http://tests/exit";
+  g_TestResults.exit_url = "https://tests/exit";
 }  // namespace
 
 void SetUpXSS(const std::string& url,
@@ -837,7 +837,7 @@ void SetUpXSS(const std::string& url,
         "  try {"
         "    result = parent.getResult();"
         "  } catch(e) { console.log(e.stack); }"
-        "  document.location = \"http://tests/exit?result=\"+result;"
+        "  document.location = \"https://tests/exit?result=\"+result;"
         "}"
         "</script>"
         "</head><body onload=\"execXSSRequest();\">"
@@ -865,7 +865,7 @@ void SetUpXSS(const std::string& url,
         "</body></html>";
   g_TestResults.html = ss.str();
 
-  g_TestResults.exit_url = "http://tests/exit";
+  g_TestResults.exit_url = "https://tests/exit";
 }
 
 }  // namespace
@@ -1512,11 +1512,11 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
 // standard scheme cannot generate XSS requests to the HTTP protocol by default.
 TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
   RegisterTestScheme("customstd", "test1");
-  RegisterTestScheme("http", "test2");
-  SetUpXSS("customstd://test1/run.html", "http://test2/iframe.html");
+  RegisterTestScheme("https", "test2");
+  SetUpXSS("customstd://test1/run.html", "https://test2/iframe.html");
 
   g_TestResults.console_messages.push_back(
-      "Error: Blocked a frame with origin \"http://test2\" from accessing a "
+      "Error: Blocked a frame with origin \"https://test2\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -1562,9 +1562,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
 // Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
 // cannot generate XSS requests to the custom standard scheme by default.
 TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
-  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("https", "test1");
   RegisterTestScheme("customstd", "test2");
-  SetUpXSS("http://test1/run.html", "customstd://test2/iframe.html");
+  SetUpXSS("https://test1/run.html", "customstd://test2/iframe.html");
 
   g_TestResults.console_messages.push_back(
       "Error: Blocked a frame with origin \"customstd://test2\" from accessing "
@@ -1587,9 +1587,9 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
 // Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
 // cannot generate XSS requests to the custom non-standard scheme by default.
 TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
-  RegisterTestScheme("http", "test1");
+  RegisterTestScheme("https", "test1");
   RegisterTestScheme("customnonstd", std::string());
-  SetUpXSS("http://test1/run.html", "customnonstd:some%20value");
+  SetUpXSS("https://test1/run.html", "customnonstd:some%20value");
 
   g_TestResults.console_messages.push_back(
       "Error: Blocked a frame with origin \"null\" from accessing a "
@@ -1612,17 +1612,17 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
 // default.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   XHRTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/xhr.html";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/xhr.html";
   SetUpXHR(settings);
 
   g_TestResults.console_messages.push_back(
-      "Access to XMLHttpRequest at 'http://test2/xhr.html' from origin "
-      "'http://test1' has been blocked by CORS policy: No "
+      "Access to XMLHttpRequest at 'https://test2/xhr.html' from origin "
+      "'https://test1' has been blocked by CORS policy: No "
       "'Access-Control-Allow-Origin' header is present on the requested "
       "resource.");
 
@@ -1643,18 +1643,18 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
 // default.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   XHRTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/xhr.html";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/xhr.html";
   settings.synchronous = false;
   SetUpXHR(settings);
 
   g_TestResults.console_messages.push_back(
-      "Access to XMLHttpRequest at 'http://test2/xhr.html' from origin "
-      "'http://test1' has been blocked by CORS policy: No "
+      "Access to XMLHttpRequest at 'https://test2/xhr.html' from origin "
+      "'https://test1' has been blocked by CORS policy: No "
       "'Access-Control-Allow-Origin' header is present on the requested "
       "resource.");
 
@@ -1675,16 +1675,17 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
 // Test that an HTTP scheme cannot generate cross-domain Fetch requests by
 // default.
 TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   FetchTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/fetch.html";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/fetch.html";
   SetUpFetch(settings);
 
   g_TestResults.console_messages.push_back(
-      "Access to fetch at 'http://test2/fetch.html' from origin 'http://test1' "
+      "Access to fetch at 'https://test2/fetch.html' from origin "
+      "'https://test1' "
       "has been blocked by CORS policy: No 'Access-Control-Allow-Origin' "
       "header is present on the requested resource. If an opaque response "
       "serves your needs, set the request's mode to 'no-cors' to fetch the "
@@ -1707,12 +1708,12 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
 // Test that an HTTP scheme cannot generate cross-domain XSS requests by
 // default.
 TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
-  SetUpXSS("http://test1/run.html", "http://test2/xss.html");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
+  SetUpXSS("https://test1/run.html", "https://test2/xss.html");
 
   g_TestResults.console_messages.push_back(
-      "Error: Blocked a frame with origin \"http://test2\" from accessing a "
+      "Error: Blocked a frame with origin \"https://test2\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -2099,13 +2100,13 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist3) {
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   XHRTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/xhr.html";
-  settings.sub_allow_origin = "http://test1";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/xhr.html";
+  settings.sub_allow_origin = "https://test1";
   SetUpXHR(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -2125,13 +2126,13 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
 TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   XHRTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/xhr.html";
-  settings.sub_allow_origin = "http://test1";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/xhr.html";
+  settings.sub_allow_origin = "https://test1";
   settings.synchronous = false;
   SetUpXHR(settings);
 
@@ -2152,13 +2153,13 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
 // the Access-Control-Allow-Origin header.
 TEST(SchemeHandlerTest, HttpFetchDifferentOriginWithHeader) {
-  RegisterTestScheme("http", "test1");
-  RegisterTestScheme("http", "test2");
+  RegisterTestScheme("https", "test1");
+  RegisterTestScheme("https", "test2");
 
   FetchTestSettings settings;
-  settings.url = "http://test1/run.html";
-  settings.sub_url = "http://test2/fetch.html";
-  settings.sub_allow_origin = "http://test1";
+  settings.url = "https://test1/run.html";
+  settings.sub_url = "https://test2/fetch.html";
+  settings.sub_allow_origin = "https://test1";
   SetUpFetch(settings);
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
@@ -2200,9 +2201,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
 // Test that an HTTP scheme can generate cross-domain XSS requests when using
 // document.domain.
 TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
-  RegisterTestScheme("http", "a.test.com");
-  RegisterTestScheme("http", "b.test.com");
-  SetUpXSS("http://a.test.com/run.html", "http://b.test.com/iframe.html",
+  RegisterTestScheme("https", "a.test.com");
+  RegisterTestScheme("https", "b.test.com");
+  SetUpXSS("https://a.test.com/run.html", "https://b.test.com/iframe.html",
            "test.com");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);

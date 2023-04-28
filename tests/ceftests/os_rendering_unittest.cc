@@ -29,7 +29,7 @@ HINSTANCE hInst = ::GetModuleHandle(nullptr);
 
 namespace {
 
-const char kTestUrl[] = "http://tests/osrtest";
+const char kTestUrl[] = "https://tests/osrtest";
 
 // Must be both large enough for the drag/drop region to be visible and small
 // enough for a little vertical offset with scrollbar.

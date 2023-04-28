@@ -93,10 +93,10 @@ const char kFrameNavMsg[] = "FrameTest.Navigation";
 const char kFrameNavTestCmdKey[] = "frame-nav-test";
 
 // Origins used in tests.
-const char kFrameNavOrigin0[] = "http://tests-framenav0.com/";
-const char kFrameNavOrigin1[] = "http://tests-framenav1.com/";
-const char kFrameNavOrigin2[] = "http://tests-framenav2.com/";
-const char kFrameNavOrigin3[] = "http://tests-framenav3.com/";
+const char kFrameNavOrigin0[] = "https://tests-framenav0.com/";
+const char kFrameNavOrigin1[] = "https://tests-framenav1.com/";
+const char kFrameNavOrigin2[] = "https://tests-framenav2.com/";
+const char kFrameNavOrigin3[] = "https://tests-framenav3.com/";
 
 // Maximum number of navigations. Should be kept synchronized with the number
 // of kFrameNavOrigin* values. Don't modify this value without checking the

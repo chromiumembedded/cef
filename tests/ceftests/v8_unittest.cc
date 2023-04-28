@@ -27,21 +27,21 @@ using client::ClientAppRenderer;
 namespace {
 
 // Unique values for V8 tests.
-const char kV8TestUrl[] = "http://tests/V8Test.Test";
-const char kV8BindingTestUrl[] = "http://tests/V8Test.BindingTest";
-const char kV8ContextParentTestUrl[] = "http://tests/V8Test.ContextParentTest";
-const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
-const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
+const char kV8TestUrl[] = "https://tests/V8Test.Test";
+const char kV8BindingTestUrl[] = "https://tests/V8Test.BindingTest";
+const char kV8ContextParentTestUrl[] = "https://tests/V8Test.ContextParentTest";
+const char kV8ContextChildTestUrl[] = "https://tests/V8Test.ContextChildTest";
+const char kV8NavTestUrl[] = "https://tests/V8Test.NavTest";
 const char kV8ContextEvalCspBypassUnsafeEval[] =
-    "http://tests/V8Test.ContextEvalCspBypassUnsafeEval";
+    "https://tests/V8Test.ContextEvalCspBypassUnsafeEval";
 const char kV8ContextEvalCspBypassSandbox[] =
-    "http://tests/V8Test.ContextEvalCspBypassSandbox";
+    "https://tests/V8Test.ContextEvalCspBypassSandbox";
 const char kV8OnUncaughtExceptionTestUrl[] =
-    "http://tests/V8Test.OnUncaughtException";
+    "https://tests/V8Test.OnUncaughtException";
 const char kV8HandlerCallOnReleasedContextUrl[] =
-    "http://tests/V8Test.HandlerCallOnReleasedContext/main.html";
+    "https://tests/V8Test.HandlerCallOnReleasedContext/main.html";
 const char kV8HandlerCallOnReleasedContextChildUrl[] =
-    "http://tests/V8Test.HandlerCallOnReleasedContext/child.html";
+    "https://tests/V8Test.HandlerCallOnReleasedContext/child.html";
 const char kV8TestMsg[] = "V8Test.Test";
 const char kV8TestCmdKey[] = "v8-test";
 const char kV8RunTestMsg[] = "V8Test.RunTest";
@@ -2957,8 +2957,8 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
                        << stackTrace->GetFrame(i)->GetLineNumber() << "\n";
       }
       const char* stackFormattedShouldBe =
-          "at test2() in http://tests/V8Test.OnUncaughtException on line 3\n"
-          "at test() in http://tests/V8Test.OnUncaughtException on line 2\n";
+          "at test2() in https://tests/V8Test.OnUncaughtException on line 3\n"
+          "at test() in https://tests/V8Test.OnUncaughtException on line 2\n";
       EXPECT_STREQ(stackFormattedShouldBe, stackFormatted.str().c_str());
       DestroyTest();
     }
@@ -3247,7 +3247,7 @@ class V8TestHandler : public TestHandler {
 
     const std::string& url = frame->GetURL();
     if (url != kV8NavTestUrl && url != kV8ContextParentTestUrl &&
-        url.find("http://tests/") != std::string::npos) {
+        url.find("https://tests/") != std::string::npos) {
       // Run the test.
       CefRefPtr<CefProcessMessage> return_msg =
           CefProcessMessage::Create(kV8RunTestMsg);

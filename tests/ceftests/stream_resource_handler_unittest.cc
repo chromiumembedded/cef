@@ -15,7 +15,7 @@
 
 namespace {
 
-const char kTestUrl[] = "http://tests-srh/test.html";
+const char kTestUrl[] = "https://tests-srh/test.html";
 const size_t kReadBlockSize = 1024U;  // 1k.
 
 // The usual network buffer size is about 32k. Choose a value that's larger.

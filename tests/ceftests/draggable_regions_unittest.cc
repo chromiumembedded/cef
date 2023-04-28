@@ -223,16 +223,16 @@ class DraggableRegionsTestHandler : public TestHandler,
     // When |same_origin_| is true every other URL gets a different origin.
     switch (step) {
       case kStepWithRegions:
-        return same_origin_ ? "http://test.com/regions"
-                            : "http://test2.com/regions";
+        return same_origin_ ? "https://test.com/regions"
+                            : "https://test2.com/regions";
       case kStepWithChangingRegions:
       case kStepWithChangingRegions2:
       case kStepWithChangingRegions3:
-        return "http://test.com/changing-regions";
+        return "https://test.com/changing-regions";
       case kStepWithoutRegions:
       case kStepWithoutRegions2:
-        return same_origin_ ? "http://test.com/no-regions"
-                            : "http://test2.com/no-regions";
+        return same_origin_ ? "https://test.com/no-regions"
+                            : "https://test2.com/no-regions";
     }
 
     NOTREACHED();

@@ -506,7 +506,7 @@ struct FrameStatus {
   int delivered_query_ct_ = 0;
 };
 
-const char kOrderMainUrl[] = "http://tests-frame-handler/main-order.html";
+const char kOrderMainUrl[] = "https://tests-frame-handler/main-order.html";
 
 class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
  public:
@@ -797,7 +797,7 @@ TEST(FrameHandlerTest, OrderMain) {
 
 namespace {
 
-const char kOrderMainUrlPrefix[] = "http://tests-frame-handler";
+const char kOrderMainUrlPrefix[] = "https://tests-frame-handler";
 
 class NavigateOrderMainTestHandler : public OrderMainTestHandler {
  public:
@@ -1468,7 +1468,7 @@ TEST(FrameHandlerTest, OrderSubCrossOriginChildrenNavCrossOrigin) {
 namespace {
 
 const char kOrderMainCrossUrl[] =
-    "http://tests-frame-handler-cross/main-order.html";
+    "https://tests-frame-handler-cross/main-order.html";
 
 // Will be assigned as popup handler via
 // ParentOrderMainTestHandler::OnBeforePopup.

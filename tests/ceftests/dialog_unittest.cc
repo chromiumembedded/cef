@@ -10,7 +10,7 @@
 
 namespace {
 
-const char* kTestUrl = "http://tests/DialogTestHandler";
+const char* kTestUrl = "https://tests/DialogTestHandler";
 
 class DialogTestHandler : public TestHandler {
  public:

@@ -1741,7 +1741,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     // The referrer URL must be HTTP or HTTPS. This is enforced by
     // GURL::GetAsReferrer() called from URLRequest::SetReferrer().
-    settings_.request->SetReferrer("http://tests.com/referrer.html",
+    settings_.request->SetReferrer("https://tests.com/referrer.html",
                                    REFERRER_POLICY_DEFAULT);
 
     settings_.response = CefResponse::Create();

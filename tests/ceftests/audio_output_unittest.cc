@@ -11,7 +11,7 @@
 using client::ClientAppBrowser;
 
 // Taken from:
-// http://www.iandevlin.com/blog/2012/09/html5/html5-media-and-data-uri/
+// https://www.iandevlin.com/blog/2012/09/html5/html5-media-and-data-uri/
 #define AUDIO_DATA                                                             \
   "data:audio/"                                                                \
   "ogg;base64,T2dnUwACAAAAAAAAAAA+"                                            \
@@ -801,10 +801,10 @@ const int kSampleRate = 44100;
 const int kFramesPerBuffer = 882;  // 10ms
 const CefAudioHandler::ChannelLayout kChannelLayout = CEF_CHANNEL_LAYOUT_STEREO;
 
-const char kAudioOutputTestUrl[] = "http://tests/audiooutputtest";
-const char kAudioCloseBrowserTestUrl[] = "http://tests/audioclosebrowsertest";
+const char kAudioOutputTestUrl[] = "https://tests/audiooutputtest";
+const char kAudioCloseBrowserTestUrl[] = "https://tests/audioclosebrowsertest";
 const char kAudioTogglePlaybackTestUrl[] =
-    "http://tests/audiotoggleplaybacktest";
+    "https://tests/audiotoggleplaybacktest";
 
 const char kTestHtml[] =
     "<!DOCTYPE html><html><head><meta "

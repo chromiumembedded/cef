@@ -9,7 +9,7 @@ extern const char kJSQueryCancelFunc[] = "mrtQueryCancel";
 
 namespace {
 
-const char kTestDomainRoot[] = "http://tests-mr";
+const char kTestDomainRoot[] = "https://tests-mr";
 const char kDoneMessageName[] = "mrtNotifyMsg";
 const char kJSNotifyFunc[] = "mrtNotify";
 const char kJSAssertTotalCountFunc[] = "mrtAssertTotalCount";
@@ -239,7 +239,7 @@ void MRTestHandler::AssertMainBrowser(CefRefPtr<CefBrowser> browser) {
 }
 
 SingleLoadTestHandler::SingleLoadTestHandler()
-    : main_url_("http://tests-mr.com/main.html") {}
+    : main_url_("https://tests-mr.com/main.html") {}
 
 void SingleLoadTestHandler::RunMRTest() {
   AddOtherResources();

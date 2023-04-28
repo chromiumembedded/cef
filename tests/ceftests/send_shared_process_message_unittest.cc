@@ -23,7 +23,7 @@ struct TestData {
   std::array<size_t, 50> buffer{};
 };
 
-const char kSharedMessageUrl[] = "http://tests/SendSharedProcessMessageTest";
+const char kSharedMessageUrl[] = "https://tests/SendSharedProcessMessageTest";
 const char kSharedMessageName[] = "SendSharedProcessMessageTest";
 
 CefRefPtr<CefProcessMessage> CreateTestMessage(const TestData& data) {

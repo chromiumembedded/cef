@@ -15,8 +15,8 @@
 
 namespace {
 
-const char kPdfHtmlUrl[] = "http://tests/pdf.html";
-const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
+const char kPdfHtmlUrl[] = "https://tests/pdf.html";
+const char kPdfDirectUrl[] = "https://tests/pdf.pdf";
 
 // Delay waiting for iframe tests to load the PDF file.
 #if defined(OS_LINUX)

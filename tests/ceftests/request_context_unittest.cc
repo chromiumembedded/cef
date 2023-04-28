@@ -206,11 +206,11 @@ class PopupTestHandler : public TestHandler {
   };
 
   PopupTestHandler(bool same_origin, Mode mode) : mode_(mode) {
-    url_ = "http://tests-simple-rch1.com/nav1.html";
+    url_ = "https://tests-simple-rch1.com/nav1.html";
     if (same_origin) {
-      popup_url_ = "http://tests-simple-rch1.com/pop1.html";
+      popup_url_ = "https://tests-simple-rch1.com/pop1.html";
     } else {
-      popup_url_ = "http://tests-simple-rch2.com/pop1.html";
+      popup_url_ = "https://tests-simple-rch2.com/pop1.html";
     }
   }
 
@@ -446,9 +446,9 @@ TEST(RequestContextTest, PopupBasicNoReferrerLinkDifferentOrigin) {
 
 namespace {
 
-const char kPopupNavPageUrl[] = "http://tests-popup.com/page.html";
-const char kPopupNavPopupUrl[] = "http://tests-popup.com/popup.html";
-const char kPopupNavPopupUrl2[] = "http://tests-popup2.com/popup.html";
+const char kPopupNavPageUrl[] = "https://tests-popup.com/page.html";
+const char kPopupNavPopupUrl[] = "https://tests-popup.com/popup.html";
+const char kPopupNavPopupUrl2[] = "https://tests-popup2.com/popup.html";
 const char kPopupNavPopupName[] = "my_popup";
 
 // Browser side.
@@ -757,7 +757,7 @@ POPUP_TEST_GROUP(DestroyParentAfterCreationForce,
 
 namespace {
 
-const char kResolveOrigin[] = "http://www.google.com";
+const char kResolveOrigin[] = "https://www.google.com";
 
 class MethodTestHandler : public TestHandler {
  public:
@@ -808,7 +808,7 @@ class MethodTestHandler : public TestHandler {
       : global_context_(global_context), method_(method) {}
 
   void RunTest() override {
-    const char kUrl[] = "http://tests/method.html";
+    const char kUrl[] = "https://tests/method.html";
 
     AddResource(kUrl, "<html><body>Method</body></html>", "text/html");
 

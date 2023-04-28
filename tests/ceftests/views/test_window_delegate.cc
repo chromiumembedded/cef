@@ -112,7 +112,7 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   } else {
     // Client area bounds calculation might have off-by-one errors on Windows
     // due to non-client frame size being calculated internally in pixels and
-    // then converted to DIPs. See http://crbug.com/602692.
+    // then converted to DIPs. See https://crbug.com/602692.
     EXPECT_NEAR(client_bounds.width, window_size_.width, 2);
     EXPECT_NEAR(client_bounds.height, window_size_.height, 2);
   }

@@ -25,7 +25,7 @@
 
 namespace {
 
-const char* kTestUrl = "http://www.test.com/path/to/cookietest/foo.html";
+const char* kTestUrl = "https://www.test.com/path/to/cookietest/foo.html";
 const char* kTestDomain = "www.test.com";
 const char* kTestPath = "/path/to/cookietest";
 
@@ -319,7 +319,7 @@ void TestInvalidCookie(CefRefPtr<CefCookieManager> manager,
   CookieVector cookies;
 
   CefCookie cookie;
-  const char* kUrl = "http://www.xyz.com";
+  const char* kUrl = "https://www.xyz.com";
   CefString(&cookie.name).FromASCII("invalid1");
   CefString(&cookie.value).FromASCII("invalid1");
   CefString(&cookie.domain).FromASCII(".zyx.com");  // domain mismatch
@@ -441,7 +441,7 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager,
 
   // Create cookies with 2 separate hosts.
   CefCookie cookie1;
-  const char* kUrl1 = "http://www.foo.com";
+  const char* kUrl1 = "https://www.foo.com";
   CefString(&cookie1.name).FromASCII("my_cookie1");
   CefString(&cookie1.value).FromASCII("My Value 1");
 
@@ -450,7 +450,7 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager,
   cookies.clear();
 
   CefCookie cookie2;
-  const char* kUrl2 = "http://www.bar.com";
+  const char* kUrl2 = "https://www.bar.com";
   CefString(&cookie2.name).FromASCII("my_cookie2");
   CefString(&cookie2.value).FromASCII("My Value 2");
 
@@ -574,8 +574,8 @@ TEST(CookieTest, BasicAllCookies) {
 
 namespace {
 
-const char* kCookieJSUrl1 = "http://tests/cookie1.html";
-const char* kCookieJSUrl2 = "http://tests/cookie2.html";
+const char* kCookieJSUrl1 = "https://tests/cookie1.html";
+const char* kCookieJSUrl2 = "https://tests/cookie2.html";
 
 class CookieTestJSHandler : public TestHandler {
  public:
@@ -1023,7 +1023,7 @@ class CookieTestSchemeHandler : public TestHandler {
 // Verify use of the global cookie manager with HTTP.
 TEST(CookieTest, GetCookieManagerHttpGlobal) {
   CefRefPtr<CookieTestSchemeHandler> handler =
-      new CookieTestSchemeHandler("http", true);
+      new CookieTestSchemeHandler("https", true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
@@ -1031,7 +1031,7 @@ TEST(CookieTest, GetCookieManagerHttpGlobal) {
 // Verify use of an in-memory cookie manager with HTTP.
 TEST(CookieTest, GetCookieManagerHttpInMemory) {
   CefRefPtr<CookieTestSchemeHandler> handler =
-      new CookieTestSchemeHandler("http", false);
+      new CookieTestSchemeHandler("https", false);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
@@ -1039,7 +1039,7 @@ TEST(CookieTest, GetCookieManagerHttpInMemory) {
 // Verify use of an in-memory cookie manager with HTTP to block all cookies.
 TEST(CookieTest, GetCookieManagerHttpInMemoryBlocked) {
   CefRefPtr<CookieTestSchemeHandler> handler =
-      new CookieTestSchemeHandler("http", false, true);
+      new CookieTestSchemeHandler("https", false, true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

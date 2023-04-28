@@ -32,8 +32,8 @@ enum NetNotifyTestType {
   NNTT_DELAYED_BROWSER,
 };
 
-const char kNetNotifyOrigin1[] = "http://tests-netnotify1/";
-const char kNetNotifyOrigin2[] = "http://tests-netnotify2/";
+const char kNetNotifyOrigin1[] = "https://tests-netnotify1/";
+const char kNetNotifyOrigin2[] = "https://tests-netnotify2/";
 const char kNetNotifyMsg[] = "RequestHandlerTest.NetNotify";
 const char kNetNotifyTestCmdKey[] = "rh-net-notify-test";
 

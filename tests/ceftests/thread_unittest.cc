@@ -188,7 +188,7 @@ class SimpleThreadTest : public ThreadTest {
 
 // Test creation/execution of threads in the browser process.
 
-const char kBrowserThreadTestHtml[] = "http://test.com/browserthread.html";
+const char kBrowserThreadTestHtml[] = "https://test.com/browserthread.html";
 
 // Browser side.
 class BrowserThreadTestHandler : public TestHandler {
@@ -303,7 +303,7 @@ namespace {
 
 // Test creation/execution of threads in the render process.
 
-const char kRenderThreadTestHtml[] = "http://test.com/renderthread.html";
+const char kRenderThreadTestHtml[] = "https://test.com/renderthread.html";
 const char kRenderThreadTestMsg[] = "ThreadTest.RenderThreadTest";
 
 // Browser side.

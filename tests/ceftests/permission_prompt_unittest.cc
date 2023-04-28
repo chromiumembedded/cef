@@ -113,7 +113,7 @@ class PermissionPromptTestHandler : public TestHandler,
         "   data = {};"
         " }"
         " document.location = "
-        "`http://tests/"
+        "`https://tests/"
         "exit?result=${val}&data=${encodeURIComponent(JSON.stringify(data))}`;"
         "}"
         "function makeRequest() {";
