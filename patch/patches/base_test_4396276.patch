@@ -1,0 +1,103 @@
+diff --git base/test/BUILD.gn base/test/BUILD.gn
+index cc75b7235f438..f5bbc354f7918 100644
+--- base/test/BUILD.gn
++++ base/test/BUILD.gn
+@@ -175,7 +175,6 @@ static_library("test_support") {
+     if (!is_chromeos) {
+       # TODO(rasikan): Add to ios and chromeos when unblocked by the chromiumos
+       # change to add the shared lib to the chrome-binary-tests directory.
+-      public_deps += [ ":test_trace_processor" ]
+       if (is_ios) {
+         deps += [
+           ":test_trace_processor+bundle",
+@@ -490,7 +489,7 @@ if (enable_base_tracing) {
+   # processor depends on dev_sqlite. The two share the same symbols but have
+   # different implementations, so we need to hide dev_sqlite in this shared
+   # library even in non-component builds to prevent duplicate symbols.
+-  _target_type = "shared_library"
++  _target_type = "component"
+   if (is_ios) {
+     _target_type = "ios_framework_bundle"
+   }
+@@ -516,32 +515,5 @@ if (enable_base_tracing) {
+       output_name = "TestTraceProcessor"
+       bundle_deps_filter = [ "//third_party/icu:icudata" ]
+     }
+-
+-    # Set rpath on dependent tests so that they can find the shared library
+-    # in a non-component build.
+-    if (!is_component_build) {
+-      all_dependent_configs = []
+-      if (is_linux || is_chromeos) {
+-        all_dependent_configs +=
+-            [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+-      }
+-      if (is_mac) {
+-        # We need the lib to be in $root_out_dir/Libraries so the library is where
+-        # the linker expects it, since we set the install_name flag. We need to
+-        # set this flag so that the library can be found when it is bundled in the
+-        # Content Shell Framework (see test_trace_processor_bundle_data).
+-        output_dir = "$root_out_dir/Libraries"
+-        ldflags = [ "-Wl,-install_name,@loader_path/Libraries/libtest_trace_processor.dylib" ]
+-      }
+-    }
+-  }
+-
+-  if (!is_component_build && is_mac) {
+-    bundle_data("test_trace_processor_bundle_data") {
+-      testonly = true
+-      sources = [ "$root_out_dir/Libraries/libtest_trace_processor.dylib" ]
+-      outputs = [ "{{bundle_contents_dir}}/Libraries/{{source_file_part}}" ]
+-      public_deps = [ ":test_trace_processor" ]
+-    }
+   }
+ }
+diff --git base/test/test_trace_processor_export.h base/test/test_trace_processor_export.h
+index f5191b804bc07..aadb7d66ba4c3 100644
+--- base/test/test_trace_processor_export.h
++++ base/test/test_trace_processor_export.h
+@@ -5,6 +5,7 @@
+ #ifndef BASE_TEST_TEST_TRACE_PROCESSOR_EXPORT_H_
+ #define BASE_TEST_TEST_TRACE_PROCESSOR_EXPORT_H_
+ 
++#if defined(COMPONENT_BUILD)
+ #if defined(WIN32)
+ 
+ #if defined(TEST_TRACE_PROCESSOR_IMPL)
+@@ -23,4 +24,8 @@
+ 
+ #endif  // defined(WIN32)
+ 
++#else  // defined(COMPONENT_BUILD)
++#define TEST_TRACE_PROCESSOR_EXPORT
++#endif
++
+ #endif  // BASE_TEST_TEST_TRACE_PROCESSOR_EXPORT_H_
+diff --git content/shell/BUILD.gn content/shell/BUILD.gn
+index e0921c6326700..1d3fbfaa532a1 100644
+--- content/shell/BUILD.gn
++++ content/shell/BUILD.gn
+@@ -809,7 +809,6 @@ if (is_mac) {
+       # Specify a sensible install_name for static builds. The library is
+       # dlopen()ed so this is not used to resolve the module.
+       ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]
+-      deps += [ "//base/test:test_trace_processor_bundle_data" ]
+     } else {
+       # Both the main :content_shell and :content_shell_helper_app executables
+       # need to link the framework. Because they are at different directory
+diff --git gpu/BUILD.gn gpu/BUILD.gn
+index 7bbd7cb6be9c2..df9e0f2a93ad9 100644
+--- gpu/BUILD.gn
++++ gpu/BUILD.gn
+@@ -730,10 +730,7 @@ test("gpu_unittests") {
+     "//url",
+   ]
+ 
+-  # Cronet disables tracing (crbug.com/1400235).
+-  # TODO(rasikan): Remove when unblocked by chromiumos change to add shared lib
+-  # to add the shared lib to the chrome-binary-tests directory.
+-  if (enable_base_tracing && !is_cronet_build && is_chromeos) {
++  if (enable_base_tracing) {
+     deps += [ "//base/test:test_trace_processor" ]
+   }
+ 

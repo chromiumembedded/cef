@@ -443,12 +443,6 @@ source_set("libcef_test_support") {
     # Support for UI input events.
     "//ui/views:test_support",
   ]
-
-  if (is_mac && enable_base_tracing && !is_component_build) {
-    # Add libtest_trace_processor.dylib as a runtime dependency.
-    # See https://crrev.com/8b18bd125d
-    deps += [ "//base/test:test_trace_processor_bundle_data" ]
-  }
 }
 
 
