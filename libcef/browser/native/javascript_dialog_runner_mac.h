@@ -10,7 +10,6 @@
 #include "libcef/browser/javascript_dialog_runner.h"
 
 #include "base/functional/callback.h"
-#include "base/mac/scoped_nsobject.h"
 #include "base/memory/weak_ptr.h"
 
 #if __OBJC__
@@ -40,7 +39,7 @@ class CefJavaScriptDialogRunnerMac : public CefJavaScriptDialogRunner {
  private:
   DialogClosedCallback callback_;
 
-  base::scoped_nsobject<CefJavaScriptDialogHelper> helper_;
+  CefJavaScriptDialogHelper* __strong helper_;
 
   // Must be the last member.
   base::WeakPtrFactory<CefJavaScriptDialogRunnerMac> weak_ptr_factory_;

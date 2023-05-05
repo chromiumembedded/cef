@@ -1156,6 +1156,8 @@ source_set("libcef_static") {
       "//chrome/app/chrome_main_mac.h",
       "//chrome/app/chrome_main_mac.mm",
     ]
+
+    configs += [ "//build/config/compiler:enable_arc" ]
   }
 
   if (ozone_platform_x11) {
@@ -1602,6 +1604,7 @@ if (is_mac) {
 
     configs += [
       ":libcef_autogen_config",
+      "//build/config/compiler:enable_arc",
     ]
 
     # We don't link the framework so just use the path from the main executable.

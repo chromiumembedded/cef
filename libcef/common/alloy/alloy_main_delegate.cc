@@ -49,6 +49,7 @@
 #include "ui/base/ui_base_switches.h"
 
 #if BUILDFLAG(IS_MAC)
+#include "components/crash/core/common/objc_zombie.h"
 #include "libcef/common/util_mac.h"
 #elif BUILDFLAG(IS_POSIX)
 #include "libcef/common/util_linux.h"
@@ -94,7 +95,8 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   crash_reporting::BasicStartupComplete(command_line);
 #endif
 
-  if (process_type.empty()) {
+  const bool is_browser = process_type.empty();
+  if (is_browser) {
     // In the browser process. Populate the global command-line object.
     if (settings_->command_line_args_disabled) {
       // Remove any existing command-line arguments.
@@ -292,6 +294,12 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
                                                 commandLinePtr.get());
     std::ignore = commandLinePtr->Detach(nullptr);
   }
+
+#if BUILDFLAG(IS_MAC)
+  // Turns all deallocated Objective-C objects into zombies. Give the browser
+  // process a longer treadmill, since crashes there have more impact.
+  ObjcEvilDoers::ZombieEnable(true, is_browser ? 10000 : 1000);
+#endif
 
   // Initialize logging.
   logging::LoggingSettings log_settings;

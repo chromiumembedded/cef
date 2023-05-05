@@ -12,12 +12,16 @@
 #include "base/strings/utf_string_conversions.h"
 #include "components/url_formatter/elide_url.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "This file requires ARC support."
+#endif
+
 // Helper object that receives the notification that the dialog/sheet is
 // going away. Is responsible for cleaning itself up.
 @interface CefJavaScriptDialogHelper : NSObject <NSAlertDelegate> {
  @private
-  base::scoped_nsobject<NSAlert> alert_;
-  NSTextField* textField_;  // WEAK; owned by alert_
+  NSAlert* __strong alert_;
+  NSTextField* __weak textField_;
 
   // Copies of the fields in CefJavaScriptDialog because they're private.
   CefJavaScriptDialogRunner::DialogClosedCallback callback_;
@@ -46,18 +50,20 @@
 }
 
 - (NSAlert*)alert {
-  alert_.reset([[NSAlert alloc] init]);
+  alert_ = [[NSAlert alloc] init];
   return alert_;
 }
 
 - (NSTextField*)textField {
-  textField_ = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 22)];
-  [[textField_ cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-  [alert_ setAccessoryView:textField_];
-  [[alert_ window] setInitialFirstResponder:textField_];
-  [textField_ release];
+  NSTextField* textField =
+      [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 22)];
+  textField.cell.lineBreakMode = NSLineBreakByTruncatingTail;
 
-  return textField_;
+  alert_.accessoryView = textField;
+  alert_.window.initialFirstResponder = textField;
+
+  textField_ = textField;
+  return textField;
 }
 
 - (void)alertDidEnd:(NSAlert*)alert
@@ -70,15 +76,15 @@
   bool success = returnCode == NSAlertFirstButtonReturn;
   std::u16string input;
   if (textField_) {
-    input = base::SysNSStringToUTF16([textField_ stringValue]);
+    input = base::SysNSStringToUTF16(textField_.stringValue);
   }
 
   std::move(callback_).Run(success, input);
 }
 
 - (void)cancel {
-  [NSApp endSheet:[alert_ window]];
-  alert_.reset();
+  [NSApp endSheet:alert_.window];
+  alert_ = nil;
 }
 
 @end
@@ -97,26 +103,26 @@ void CefJavaScriptDialogRunnerMac::Run(
     const std::u16string& message_text,
     const std::u16string& default_prompt_text,
     DialogClosedCallback callback) {
-  DCHECK(!helper_.get());
+  DCHECK(!helper_);
   callback_ = std::move(callback);
 
   bool text_field = message_type == content::JAVASCRIPT_DIALOG_TYPE_PROMPT;
   bool one_button = message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT;
 
-  helper_.reset([[CefJavaScriptDialogHelper alloc]
+  helper_ = [[CefJavaScriptDialogHelper alloc]
       initHelperWithCallback:base::BindOnce(
                                  &CefJavaScriptDialogRunnerMac::DialogClosed,
-                                 weak_ptr_factory_.GetWeakPtr())]);
+                                 weak_ptr_factory_.GetWeakPtr())];
 
   // Show the modal dialog.
   NSAlert* alert = [helper_ alert];
   NSTextField* field = nil;
   if (text_field) {
     field = [helper_ textField];
-    [field setStringValue:base::SysUTF16ToNSString(default_prompt_text)];
+    field.stringValue = base::SysUTF16ToNSString(default_prompt_text);
   }
-  [alert setDelegate:helper_];
-  [alert setInformativeText:base::SysUTF16ToNSString(message_text)];
+  alert.delegate = helper_;
+  alert.informativeText = base::SysUTF16ToNSString(message_text);
 
   std::u16string label;
   switch (message_type) {
@@ -137,12 +143,12 @@ void CefJavaScriptDialogRunnerMac::Run(
     label += u" - " + display_url;
   }
 
-  [alert setMessageText:base::SysUTF16ToNSString(label)];
+  alert.messageText = base::SysUTF16ToNSString(label);
 
   [alert addButtonWithTitle:@"OK"];
   if (!one_button) {
     NSButton* other = [alert addButtonWithTitle:@"Cancel"];
-    [other setKeyEquivalent:@"\e"];
+    other.keyEquivalent = @"\e";
   }
 
   // Calling beginSheetModalForWindow:nil is wrong API usage. For now work
@@ -168,21 +174,21 @@ void CefJavaScriptDialogRunnerMac::Run(
 void CefJavaScriptDialogRunnerMac::Handle(
     bool accept,
     const std::u16string* prompt_override) {
-  if (helper_.get()) {
+  if (helper_) {
     DialogClosed(accept, prompt_override ? *prompt_override : std::u16string());
   }
 }
 
 void CefJavaScriptDialogRunnerMac::Cancel() {
-  if (helper_.get()) {
+  if (helper_) {
     [helper_ cancel];
-    helper_.reset(nil);
+    helper_ = nil;
   }
 }
 
 void CefJavaScriptDialogRunnerMac::DialogClosed(
     bool success,
     const std::u16string& user_input) {
-  helper_.reset(nil);
+  helper_ = nil;
   std::move(callback_).Run(success, user_input);
 }

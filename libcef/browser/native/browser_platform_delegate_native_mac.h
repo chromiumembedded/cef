@@ -7,6 +7,12 @@
 
 #include "libcef/browser/native/browser_platform_delegate_native.h"
 
+#if defined(__OBJC__)
+@class CefWindowDelegate;
+#else
+class CefWindowDelegate;
+#endif
+
 namespace content {
 class RenderWidgetHostViewMac;
 }
@@ -67,7 +73,9 @@ class CefBrowserPlatformDelegateNativeMac
   content::RenderWidgetHostViewMac* GetHostView() const;
 
   // True if the host window has been created.
-  bool host_window_created_;
+  bool host_window_created_ = false;
+
+  CefWindowDelegate* __strong window_delegate_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_MAC_H_

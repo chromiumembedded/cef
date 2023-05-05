@@ -17,6 +17,10 @@
 #import "components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h"
 #import "ui/views/cocoa/native_widget_mac_ns_window_host.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "This file requires ARC support."
+#endif
+
 namespace {
 
 AppShimHost* GetHostForBrowser(Browser* browser) {
@@ -133,9 +137,8 @@ void CefNativeWidgetMac::OnWindowInitialized() {
 
   // From BrowserFrameMac::OnWindowInitialized.
   if (auto* bridge = GetInProcessNSWindowBridge()) {
-    bridge->SetCommandDispatcher(
-        [[[ChromeCommandDispatcherDelegate alloc] init] autorelease],
-        [[[BrowserWindowCommandHandler alloc] init] autorelease]);
+    bridge->SetCommandDispatcher([[ChromeCommandDispatcherDelegate alloc] init],
+                                 [[BrowserWindowCommandHandler alloc] init]);
   } else {
     if (auto* host = GetHostForBrowser(browser_view_->browser())) {
       host->GetAppShim()->CreateCommandDispatcherForWidget(

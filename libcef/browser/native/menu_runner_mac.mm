@@ -11,6 +11,10 @@
 #import "ui/base/cocoa/menu_controller.h"
 #include "ui/gfx/geometry/point.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "This file requires ARC support."
+#endif
+
 CefMenuRunnerMac::CefMenuRunnerMac() {}
 
 CefMenuRunnerMac::~CefMenuRunnerMac() {}
@@ -20,17 +24,12 @@ bool CefMenuRunnerMac::RunContextMenu(
     CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu controller based on the model.
-  menu_controller_.reset([[MenuControllerCocoa alloc]
-               initWithModel:model->model()
-                    delegate:nil
-      useWithPopUpButtonCell:NO]);
+  MenuControllerCocoa* menu_controller =
+      [[MenuControllerCocoa alloc] initWithModel:model->model()
+                                        delegate:nil
+                          useWithPopUpButtonCell:NO];
 
-  // Keep the menu controller alive (by adding an additional retain) until after
-  // the menu has been dismissed. Otherwise it will crash if the browser is
-  // destroyed (and consequently the menu controller is destroyed) while the
-  // menu is still pending.
-  base::scoped_nsobject<MenuControllerCocoa> menu_controller_ref(
-      menu_controller_);
+  menu_controller_ = menu_controller;
 
   // Make sure events can be pumped while the menu is up.
   base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop allow;
@@ -86,7 +85,7 @@ bool CefMenuRunnerMac::RunContextMenu(
 }
 
 void CefMenuRunnerMac::CancelContextMenu() {
-  if (menu_controller_.get()) {
-    [menu_controller_ cancel];
+  if (menu_controller_) {
+    menu_controller_ = nil;
   }
 }
