@@ -122,7 +122,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       if arg_type == 'struct_byref_const' or arg_type == 'struct_byref':
         result +=\
                 '\n  if (!template_util::has_valid_size('+arg_name+')) {'\
-                '\n    NOTREACHED() << "invalid '+arg_name+'->[base.]size";'\
+                '\n    DCHECK(false) << "invalid '+arg_name+'->[base.]size";'\
                 '\n    return'+retval_default+';'\
                 '\n  }'
     elif arg_type == 'simple_vec_byref' or arg_type == 'bool_vec_byref' or \
@@ -654,18 +654,18 @@ def make_cpptoc_class_impl(header, clsname, impl):
   if base_scoped:
     const += 'template<> CefOwnPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, '+capiname+'* s) {\n' + \
              unwrapderived[0] + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return CefOwnPtr<'+clsname+'>();\n'+ \
              '}\n\n' + \
              'template<> CefRawPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, '+capiname+'* s) {\n' + \
              unwrapderived[1] + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return nullptr;\n'+ \
              '}\n\n'
   else:
     const += 'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
              unwrapderived + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return nullptr;\n'+ \
              '}\n\n'
 

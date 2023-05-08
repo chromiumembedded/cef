@@ -299,7 +299,7 @@ bool CefInitialize(const CefMainArgs& args,
   }
 
   if (settings.size != sizeof(cef_settings_t)) {
-    NOTREACHED() << "invalid CefSettings structure size";
+    DCHECK(false) << "invalid CefSettings structure size";
     return false;
   }
 
@@ -314,13 +314,13 @@ bool CefInitialize(const CefMainArgs& args,
 void CefShutdown() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if (!g_context->OnInitThread()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return;
   }
 
@@ -335,13 +335,13 @@ void CefShutdown() {
 void CefDoMessageLoopWork() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if (!g_context->OnInitThread()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return;
   }
 
@@ -352,13 +352,13 @@ void CefDoMessageLoopWork() {
 void CefRunMessageLoop() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if (!g_context->OnInitThread()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return;
   }
 
@@ -368,13 +368,13 @@ void CefRunMessageLoop() {
 void CefQuitMessageLoop() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 
   // Must always be called on the same thread as Initialize.
   if (!g_context->OnInitThread()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return;
   }
 
@@ -403,7 +403,7 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]) {
 void CefSetOSModalLoop(bool osModalLoop) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 

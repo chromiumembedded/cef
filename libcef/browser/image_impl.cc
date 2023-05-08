@@ -26,7 +26,7 @@ SkColorType GetSkColorType(cef_color_type_t color_type) {
       break;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return kUnknown_SkColorType;
 }
 
@@ -42,7 +42,7 @@ SkAlphaType GetSkAlphaType(cef_alpha_type_t alpha_type) {
       break;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return kUnknown_SkAlphaType;
 }
 

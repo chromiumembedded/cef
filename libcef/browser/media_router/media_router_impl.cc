@@ -130,7 +130,7 @@ class CefRegistrationImpl : public CefRegistration,
       case blink::mojom::PresentationConnectionState::TERMINATED:
         return CEF_MRCS_TERMINATED;
     }
-    NOTREACHED();
+    DCHECK(false);
     return CEF_MRCS_UNKNOWN;
   }
 

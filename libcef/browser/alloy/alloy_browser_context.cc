@@ -440,30 +440,30 @@ ProfileKey* AlloyBrowserContext::GetProfileKey() const {
 
 policy::SchemaRegistryService*
 AlloyBrowserContext::GetPolicySchemaRegistryService() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 policy::UserCloudPolicyManager*
 AlloyBrowserContext::GetUserCloudPolicyManager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 policy::ProfilePolicyConnector*
 AlloyBrowserContext::GetProfilePolicyConnector() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 const policy::ProfilePolicyConnector*
 AlloyBrowserContext::GetProfilePolicyConnector() const {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 bool AlloyBrowserContext::IsNewProfile() const {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 

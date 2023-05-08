@@ -296,7 +296,7 @@ void AlloyBrowserHostImpl::CloseBrowser(bool force_close) {
 
 bool AlloyBrowserHostImpl::TryCloseBrowser() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 
@@ -333,7 +333,7 @@ CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
 double AlloyBrowserHostImpl::GetZoomLevel() {
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return 0;
   }
 
@@ -416,7 +416,7 @@ void AlloyBrowserHostImpl::CloseDevTools() {
 
 bool AlloyBrowserHostImpl::HasDevTools() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 
@@ -481,7 +481,7 @@ void AlloyBrowserHostImpl::WasResized() {
 
 void AlloyBrowserHostImpl::WasHidden(bool hidden) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -498,7 +498,7 @@ void AlloyBrowserHostImpl::WasHidden(bool hidden) {
 
 void AlloyBrowserHostImpl::NotifyScreenInfoChanged() {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -516,7 +516,7 @@ void AlloyBrowserHostImpl::NotifyScreenInfoChanged() {
 
 void AlloyBrowserHostImpl::Invalidate(PaintElementType type) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -533,7 +533,7 @@ void AlloyBrowserHostImpl::Invalidate(PaintElementType type) {
 
 void AlloyBrowserHostImpl::SendExternalBeginFrame() {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -551,7 +551,7 @@ void AlloyBrowserHostImpl::SendExternalBeginFrame() {
 
 void AlloyBrowserHostImpl::SendTouchEvent(const CefTouchEvent& event) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -582,7 +582,7 @@ void AlloyBrowserHostImpl::SendCaptureLostEvent() {
 int AlloyBrowserHostImpl::GetWindowlessFrameRate() {
   // Verify that this method is being called on the UI thread.
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return 0;
   }
 
@@ -795,7 +795,7 @@ void AlloyBrowserHostImpl::ImeSetComposition(
     const CefRange& replacement_range,
     const CefRange& selection_range) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -817,7 +817,7 @@ void AlloyBrowserHostImpl::ImeCommitText(const CefString& text,
                                          const CefRange& replacement_range,
                                          int relative_cursor_pos) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -836,7 +836,7 @@ void AlloyBrowserHostImpl::ImeCommitText(const CefString& text,
 
 void AlloyBrowserHostImpl::ImeFinishComposingText(bool keep_selection) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -854,7 +854,7 @@ void AlloyBrowserHostImpl::ImeFinishComposingText(bool keep_selection) {
 
 void AlloyBrowserHostImpl::ImeCancelComposition() {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -875,7 +875,7 @@ void AlloyBrowserHostImpl::DragTargetDragEnter(
     const CefMouseEvent& event,
     CefBrowserHost::DragOperationsMask allowed_ops) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -887,7 +887,7 @@ void AlloyBrowserHostImpl::DragTargetDragEnter(
   }
 
   if (!drag_data.get()) {
-    NOTREACHED();
+    DCHECK(false);
     return;
   }
 
@@ -900,7 +900,7 @@ void AlloyBrowserHostImpl::DragTargetDragOver(
     const CefMouseEvent& event,
     CefBrowserHost::DragOperationsMask allowed_ops) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -918,7 +918,7 @@ void AlloyBrowserHostImpl::DragTargetDragOver(
 
 void AlloyBrowserHostImpl::DragTargetDragLeave() {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -936,7 +936,7 @@ void AlloyBrowserHostImpl::DragTargetDragLeave() {
 
 void AlloyBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -953,7 +953,7 @@ void AlloyBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
 
 void AlloyBrowserHostImpl::DragSourceSystemDragEnded() {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -974,7 +974,7 @@ void AlloyBrowserHostImpl::DragSourceEndedAt(
     int y,
     CefBrowserHost::DragOperationsMask op) {
   if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+    DCHECK(false) << "Window rendering is not disabled";
     return;
   }
 
@@ -1004,7 +1004,7 @@ void AlloyBrowserHostImpl::SetAudioMuted(bool mute) {
 
 bool AlloyBrowserHostImpl::IsAudioMuted() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
   if (!web_contents()) {

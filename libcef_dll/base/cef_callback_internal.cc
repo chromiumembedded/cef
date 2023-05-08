@@ -20,7 +20,7 @@ bool QueryCancellationTraitsForNonCancellables(
     case BindStateBase::MAYBE_VALID:
       return true;
   }
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 

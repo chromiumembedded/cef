@@ -315,16 +315,16 @@ bool CefTouchSelectionControllerClientOSR::SupportsAnimation() const {
 
 bool CefTouchSelectionControllerClientOSR::InternalClient::SupportsAnimation()
     const {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 void CefTouchSelectionControllerClientOSR::SetNeedsAnimate() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefTouchSelectionControllerClientOSR::InternalClient::SetNeedsAnimate() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefTouchSelectionControllerClientOSR::MoveCaret(
@@ -405,7 +405,7 @@ void CefTouchSelectionControllerClientOSR::OnSelectionEvent(
 
 void CefTouchSelectionControllerClientOSR::InternalClient::OnSelectionEvent(
     ui::SelectionEventType event) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefTouchSelectionControllerClientOSR::OnDragUpdate(
@@ -415,7 +415,7 @@ void CefTouchSelectionControllerClientOSR::OnDragUpdate(
 void CefTouchSelectionControllerClientOSR::InternalClient::OnDragUpdate(
     const ui::TouchSelectionDraggable::Type type,
     const gfx::PointF& position) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 std::unique_ptr<ui::TouchHandleDrawable>
@@ -427,12 +427,12 @@ void CefTouchSelectionControllerClientOSR::DidScroll() {}
 
 std::unique_ptr<ui::TouchHandleDrawable>
 CefTouchSelectionControllerClientOSR::InternalClient::CreateDrawable() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 void CefTouchSelectionControllerClientOSR::InternalClient::DidScroll() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool CefTouchSelectionControllerClientOSR::IsCommandIdEnabled(

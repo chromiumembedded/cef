@@ -50,7 +50,7 @@ std::string GetMimeType(const std::string& filename) {
     return "application/font-woff2";
   }
 
-  NOTREACHED() << "No known mime type for file: " << filename.c_str();
+  DCHECK(false) << "No known mime type for file: " << filename.c_str();
   return "text/plain";
 }
 
@@ -80,7 +80,7 @@ class RedirectHandler : public CefResourceHandler {
             int bytes_to_read,
             int& bytes_read,
             CefRefPtr<CefResourceReadCallback> callback) override {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
@@ -177,8 +177,8 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
             ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
                 action.resource_id);
         if (str.empty()) {
-          NOTREACHED() << "Failed to load internal resource for id: "
-                       << action.resource_id << " URL: " << url.spec().c_str();
+          DCHECK(false) << "Failed to load internal resource for id: "
+                        << action.resource_id << " URL: " << url.spec().c_str();
           return nullptr;
         }
         action.bytes =

@@ -45,12 +45,12 @@ void cef_sandbox_info_destroy(void* sandbox_info) {
 // Avoid bringing in partition_alloc dependencies.
 namespace partition_alloc {
 bool ReleaseReservation() {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 void TerminateBecauseOutOfMemory(size_t size) {
-  NOTREACHED();
+  DCHECK(false);
 }
 }  // namespace partition_alloc
 

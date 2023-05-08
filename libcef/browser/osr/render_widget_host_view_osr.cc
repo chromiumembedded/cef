@@ -175,7 +175,7 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
       return ui::ImeTextSpan::UnderlineStyle::kNone;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return ui::ImeTextSpan::UnderlineStyle::kSolid;
 }
 
@@ -489,7 +489,7 @@ CefRenderWidgetHostViewOSR::GetDisplayFeature() {
 
 void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
     const content::DisplayFeature* display_feature) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockMouse(
@@ -905,7 +905,7 @@ void CefRenderWidgetHostViewOSR::NotifyHostAndDelegateOnWasShown(
     blink::mojom::RecordContentToVisibleTimeRequestPtr visible_time_request) {
   // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
   // method should not be called.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefRenderWidgetHostViewOSR::
@@ -914,14 +914,14 @@ void CefRenderWidgetHostViewOSR::
             visible_time_request) {
   // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
   // method should not be called.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefRenderWidgetHostViewOSR::
     CancelSuccessfulPresentationTimeRequestForHostAndDelegate() {
   // We don't call RenderWidgetHostViewBase::OnShowWithPageVisibility, so this
   // method should not be called.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 std::unique_ptr<content::SyntheticGestureTarget>

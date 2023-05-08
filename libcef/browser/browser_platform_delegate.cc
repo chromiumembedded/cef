@@ -20,14 +20,14 @@ CefBrowserPlatformDelegate::~CefBrowserPlatformDelegate() {
 content::WebContents* CefBrowserPlatformDelegate::CreateWebContents(
     CefBrowserCreateParams& create_params,
     bool& own_web_contents) {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 void CefBrowserPlatformDelegate::CreateViewForWebContents(
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::WebContentsCreated(
@@ -48,7 +48,7 @@ void CefBrowserPlatformDelegate::AddNewContents(
     const blink::mojom::WindowFeatures& window_features,
     bool user_gesture,
     bool* was_blocked) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::WebContentsDestroyed(
@@ -87,12 +87,12 @@ void CefBrowserPlatformDelegate::CreateExtensionHost(
     const extensions::Extension* extension,
     const GURL& url,
     extensions::mojom::ViewType host_type) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 extensions::ExtensionHost* CefBrowserPlatformDelegate::GetExtensionHost()
     const {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -109,32 +109,32 @@ void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostBase* browser) {
 }
 
 bool CefBrowserPlatformDelegate::CreateHostWindow() {
-  NOTREACHED();
+  DCHECK(false);
   return true;
 }
 
 void CefBrowserPlatformDelegate::CloseHostWindow() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 CefWindowHandle CefBrowserPlatformDelegate::GetHostWindowHandle() const {
-  NOTREACHED();
+  DCHECK(false);
   return kNullWindowHandle;
 }
 
 views::Widget* CefBrowserPlatformDelegate::GetWindowWidget() const {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 web_modal::WebContentsModalDialogHost*
 CefBrowserPlatformDelegate::GetWebContentsModalDialogHost() const {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -150,12 +150,12 @@ void CefBrowserPlatformDelegate::PopupBrowserCreated(
     bool is_devtools) {}
 
 SkColor CefBrowserPlatformDelegate::GetBackgroundColor() const {
-  NOTREACHED();
+  DCHECK(false);
   return SkColor();
 }
 
 void CefBrowserPlatformDelegate::WasResized() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::SendKeyEvent(const CefKeyEvent& event) {
@@ -200,7 +200,7 @@ void CefBrowserPlatformDelegate::SizeTo(int width, int height) {}
 gfx::Point CefBrowserPlatformDelegate::GetScreenPoint(
     const gfx::Point& view,
     bool want_dip_coords) const {
-  NOTREACHED();
+  DCHECK(false);
   return gfx::Point();
 }
 
@@ -210,7 +210,7 @@ void CefBrowserPlatformDelegate::ViewText(const std::string& text) {
 
 bool CefBrowserPlatformDelegate::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
@@ -227,7 +227,7 @@ bool CefBrowserPlatformDelegate::IsNeverComposited(
 
 CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
-  NOTREACHED();
+  DCHECK(false);
   return kNullEventHandle;
 }
 
@@ -256,28 +256,28 @@ bool CefBrowserPlatformDelegate::HasExternalParent() const {
 }
 
 void CefBrowserPlatformDelegate::WasHidden(bool hidden) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool CefBrowserPlatformDelegate::IsHidden() const {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 void CefBrowserPlatformDelegate::NotifyScreenInfoChanged() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::Invalidate(cef_paint_element_type_t type) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::SendExternalBeginFrame() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::SetWindowlessFrameRate(int frame_rate) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::ImeSetComposition(
@@ -285,43 +285,43 @@ void CefBrowserPlatformDelegate::ImeSetComposition(
     const std::vector<CefCompositionUnderline>& underlines,
     const CefRange& replacement_range,
     const CefRange& selection_range) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::ImeCommitText(
     const CefString& text,
     const CefRange& replacement_range,
     int relative_cursor_pos) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::ImeFinishComposingText(bool keep_selection) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::ImeCancelComposition() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragTargetDragEnter(
     CefRefPtr<CefDragData> drag_data,
     const CefMouseEvent& event,
     cef_drag_operations_mask_t allowed_ops) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragTargetDragOver(
     const CefMouseEvent& event,
     cef_drag_operations_mask_t allowed_ops) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragTargetDragLeave() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragTargetDrop(const CefMouseEvent& event) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::StartDragging(
@@ -331,33 +331,33 @@ void CefBrowserPlatformDelegate::StartDragging(
     const gfx::Vector2d& image_offset,
     const blink::mojom::DragEventSourceInfo& event_info,
     content::RenderWidgetHostImpl* source_rwh) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::UpdateDragCursor(
     ui::mojom::DragOperation operation) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragSourceEndedAt(
     int x,
     int y,
     cef_drag_operations_mask_t op) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::DragSourceSystemDragEnded() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::AccessibilityEventReceived(
     const content::AXEventNotificationDetails& eventData) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
     const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 gfx::Point CefBrowserPlatformDelegate::GetDialogPosition(

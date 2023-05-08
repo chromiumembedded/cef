@@ -466,7 +466,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
         msg.message = event.is_system_key ? WM_SYSCHAR : WM_CHAR;
         break;
       default:
-        NOTREACHED();
+        DCHECK(false);
         return false;
     }
 
@@ -521,7 +521,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
       type = ui::ET_KEY_RELEASED;
       break;
     default:
-      NOTREACHED();
+      DCHECK(false);
   }
 
   ui::DomKey dom_key =

@@ -70,7 +70,7 @@ display::Display::Rotation OrientationAngleToRotation(
   if (orientation_angle == 270) {
     return display::Display::ROTATE_90;
   }
-  NOTREACHED();
+  DCHECK(false);
   return display::Display::ROTATE_0;
 }
 

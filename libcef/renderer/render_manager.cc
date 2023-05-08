@@ -375,7 +375,7 @@ void CefRenderManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
   }
 
   // No browser was found in the map.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 CefGuestView* CefRenderManager::GetGuestViewForView(blink::WebView* view) {
@@ -398,7 +398,7 @@ void CefRenderManager::OnGuestViewDestroyed(CefGuestView* guest_view) {
   }
 
   // No guest view was found in the map.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 // Enable deprecation warnings on Windows. See http://crbug.com/585142.

@@ -54,7 +54,7 @@ CefRefPtr<CefExtensionHandler> CefExtensionImpl::GetHandler() {
 
 CefRefPtr<CefRequestContext> CefExtensionImpl::GetLoaderContext() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return nullptr;
   }
 
@@ -63,7 +63,7 @@ CefRefPtr<CefRequestContext> CefExtensionImpl::GetLoaderContext() {
 
 bool CefExtensionImpl::IsLoaded() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 

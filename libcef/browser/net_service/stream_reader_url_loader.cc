@@ -553,7 +553,7 @@ void StreamReaderURLLoader::FollowRedirect(
     const net::HttpRequestHeaders& modified_headers,
     const net::HttpRequestHeaders& modified_cors_exempt_headers,
     const absl::optional<GURL>& new_url) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void StreamReaderURLLoader::SetPriority(net::RequestPriority priority,

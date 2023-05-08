@@ -88,7 +88,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
     result += '\n  const char* api_hash = cef_api_hash(0);'\
               '\n  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {'\
               '\n    // The libcef API hash does not match the current header API hash.'\
-              '\n    NOTREACHED();'\
+              '\n    DCHECK(false);'\
               '\n    return'+retval_default+';'\
               '\n  }\n'
 
@@ -649,18 +649,18 @@ def make_ctocpp_class_impl(header, clsname, impl):
   if base_scoped:
     const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<'+clsname+'> c) {\n'+ \
              unwrapderived[0] + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return nullptr;\n'+ \
              '}\n\n' + \
              'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<'+clsname+'> c) {\n'+ \
              unwrapderived[1] + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return nullptr;\n'+ \
              '}\n\n'
   else:
     const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+clsname+'* c) {\n'+ \
              unwrapderived + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
              '  return nullptr;\n'+ \
              '}\n\n'
 

@@ -33,7 +33,7 @@ bool AlloyWebContentsDialogHelper::IsWebContentsVisible(
   } else if (auto native_view = web_contents->GetNativeView()) {
     return platform_util::IsVisible(native_view);
   }
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
@@ -51,7 +51,7 @@ gfx::NativeView AlloyWebContentsDialogHelper::GetHostView() const {
   if (auto widget = browser_delegate_->GetWindowWidget()) {
     return widget->GetNativeView();
   }
-  NOTREACHED();
+  DCHECK(false);
   return gfx::NativeView();
 }
 
@@ -66,7 +66,7 @@ gfx::AcceleratedWidget AlloyWebContentsDialogHelper::GetHostWidget() const {
     return parent_widget;
   }
 #endif  // defined(USE_AURA)
-  NOTREACHED();
+  DCHECK(false);
   return gfx::kNullAcceleratedWidget;
 }
 

@@ -29,7 +29,7 @@ CefRefPtr<CefThread> CefThread::CreateThread(
     bool stoppable,
     cef_com_init_mode_t com_init_mode) {
   if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return nullptr;
   }
 
@@ -130,7 +130,7 @@ void CefThreadImpl::Stop() {
     return;
   }
   if (!owner_task_runner_->RunsTasksInCurrentSequence()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return;
   }
 
@@ -144,7 +144,7 @@ bool CefThreadImpl::IsRunning() {
     return false;
   }
   if (!owner_task_runner_->RunsTasksInCurrentSequence()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 

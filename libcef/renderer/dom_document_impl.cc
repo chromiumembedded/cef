@@ -271,7 +271,7 @@ void CefDOMDocumentImpl::Detach() {
 
 bool CefDOMDocumentImpl::VerifyContext() {
   if (!CEF_CURRENTLY_ON_RT() || frame_ == nullptr) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
   return true;

@@ -29,7 +29,7 @@ class AlloyConstrainedWindowViewsClient
     if (auto browser = GetPreferredBrowser(parent)) {
       return browser->platform_delegate()->GetWebContentsModalDialogHost();
     }
-    NOTREACHED();
+    DCHECK(false);
     return nullptr;
   }
 

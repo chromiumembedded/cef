@@ -296,7 +296,7 @@ CefValueType CefValueImpl::GetType() {
       case base::Value::Type::STRING:
         return VTYPE_STRING;
       default:
-        NOTREACHED();
+        DCHECK(false);
         break;
     }
   }

@@ -25,16 +25,16 @@
 #define CEF_CURRENTLY_ON_HT() CurrentlyOnHandlerThread()
 #define CEF_REQUIRE_HT() DCHECK(CEF_CURRENTLY_ON_HT())
 
-#define CEF_REQUIRE_HT_RETURN(var)              \
-  if (!CEF_CURRENTLY_ON_HT()) {                 \
-    NOTREACHED() << "called on invalid thread"; \
-    return var;                                 \
+#define CEF_REQUIRE_HT_RETURN(var)               \
+  if (!CEF_CURRENTLY_ON_HT()) {                  \
+    DCHECK(false) << "called on invalid thread"; \
+    return var;                                  \
   }
 
-#define CEF_REQUIRE_HT_RETURN_VOID()            \
-  if (!CEF_CURRENTLY_ON_HT()) {                 \
-    NOTREACHED() << "called on invalid thread"; \
-    return;                                     \
+#define CEF_REQUIRE_HT_RETURN_VOID()             \
+  if (!CEF_CURRENTLY_ON_HT()) {                  \
+    DCHECK(false) << "called on invalid thread"; \
+    return;                                      \
   }
 
 #define CEF_POST_TASK_HT(task) task_runner_->PostTask(FROM_HERE, task);

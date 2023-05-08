@@ -246,7 +246,7 @@ ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
 std::unique_ptr<ExtensionHostDelegate>
 CefExtensionsBrowserClient::CreateExtensionHostDelegate() {
   // CEF does not use the ExtensionHost constructor that calls this method.
-  NOTREACHED();
+  DCHECK(false);
   return std::unique_ptr<ExtensionHostDelegate>();
 }
 
@@ -353,7 +353,7 @@ std::unique_ptr<RuntimeAPIDelegate>
 CefExtensionsBrowserClient::CreateRuntimeAPIDelegate(
     content::BrowserContext* context) const {
   // TODO(extensions): Implement to support Apps.
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -378,7 +378,7 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
 
 ExtensionCache* CefExtensionsBrowserClient::GetExtensionCache() {
   // Only used by Chrome via ExtensionService.
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 

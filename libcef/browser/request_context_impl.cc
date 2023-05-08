@@ -94,7 +94,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 CefRefPtr<CefRequestContext> CefRequestContext::GetGlobalContext() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return nullptr;
   }
 
@@ -109,7 +109,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
     CefRefPtr<CefRequestContextHandler> handler) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return nullptr;
   }
 
@@ -126,7 +126,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
     CefRefPtr<CefRequestContextHandler> handler) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return nullptr;
   }
 
@@ -183,12 +183,12 @@ CefRequestContextImpl::GetOrCreateForRequestContext(
 
 bool CefRequestContextImpl::VerifyBrowserContext() const {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 
   if (!browser_context() || !browser_context()->IsInitialized()) {
-    NOTREACHED() << "Uninitialized context";
+    DCHECK(false) << "Uninitialized context";
     return false;
   }
 

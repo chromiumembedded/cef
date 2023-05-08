@@ -695,7 +695,7 @@ void CefBrowserURLRequest::Cancel() {
 
 bool CefBrowserURLRequest::VerifyContext() {
   if (!context_->CalledOnValidThread()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 

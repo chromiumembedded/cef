@@ -13,7 +13,7 @@ namespace {
 
 bool AllowWait() {
   if (CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO)) {
-    NOTREACHED() << "waiting is not allowed on the current thread";
+    DCHECK(false) << "waiting is not allowed on the current thread";
     return false;
   }
   return true;

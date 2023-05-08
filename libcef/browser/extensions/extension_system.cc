@@ -500,20 +500,20 @@ void CefExtensionSystem::InstallUpdate(
     const base::FilePath& temp_dir,
     bool install_immediately,
     InstallUpdateCallback install_update_callback) {
-  NOTREACHED();
+  DCHECK(false);
   base::DeletePathRecursively(temp_dir);
 }
 
 void CefExtensionSystem::PerformActionBasedOnOmahaAttributes(
     const std::string& extension_id,
     const base::Value& attributes) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool CefExtensionSystem::FinishDelayedInstallationIfReady(
     const std::string& extension_id,
     bool install_immediately) {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 

@@ -38,7 +38,7 @@ void LoadFromDisk(const base::FilePath& path) {
 
 void CefLoadCRLSetsFile(const CefString& path) {
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return;
   }
 
