@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6b90c347c6cc6cfbd8aa5e92eebc19929bd8c2c2$
+// $hash=acd29552be49802a4b18bbce49109ac8df466e88$
 //
 
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
@@ -335,7 +335,7 @@ CefRefPtr<CefContextMenuHandler> CefCppToCRefCounted<
     CefContextMenuHandler,
     cef_context_menu_handler_t>::UnwrapDerived(CefWrapperType type,
                                                cef_context_menu_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

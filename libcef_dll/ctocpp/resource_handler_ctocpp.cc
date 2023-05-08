@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=35588cfd8c8eb4000eb3de5edec70d361897c760$
+// $hash=e6ff075b94ab1f2196fd4ba112f014da22cfed8f$
 //
 
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
@@ -245,7 +245,7 @@ cef_resource_handler_t* CefCToCppRefCounted<
     CefResourceHandler,
     cef_resource_handler_t>::UnwrapDerived(CefWrapperType type,
                                            CefResourceHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

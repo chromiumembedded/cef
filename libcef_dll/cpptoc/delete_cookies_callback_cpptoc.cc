@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b464cf54dd6dbbe3b7f45adaf8defd0b0015c9c3$
+// $hash=72ebc189ce2a4bcfc796b818409d3b742651fda9$
 //
 
 #include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
@@ -56,7 +56,7 @@ CefRefPtr<CefDeleteCookiesCallback> CefCppToCRefCounted<
     cef_delete_cookies_callback_t>::UnwrapDerived(CefWrapperType type,
                                                   cef_delete_cookies_callback_t*
                                                       s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

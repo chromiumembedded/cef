@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1df7a3d15f0578169d5f7ae564c15b4c2b852882$
+// $hash=1ed6b4ab7a3ceeab451ba1b898ed91a88f483004$
 //
 
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
@@ -62,7 +62,7 @@ CefRefPtr<CefPdfPrintCallback> CefCppToCRefCounted<
     CefPdfPrintCallback,
     cef_pdf_print_callback_t>::UnwrapDerived(CefWrapperType type,
                                              cef_pdf_print_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

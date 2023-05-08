@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=06fc26b84bc5dda324774ba87944b41e3669bfb7$
+// $hash=00565554ad76306eea416264a355273d72af7820$
 //
 
 #include "libcef_dll/cpptoc/x509cert_principal_cpptoc.h"
@@ -259,7 +259,7 @@ CefRefPtr<CefX509CertPrincipal> CefCppToCRefCounted<
     CefX509CertPrincipal,
     cef_x509cert_principal_t>::UnwrapDerived(CefWrapperType type,
                                              cef_x509cert_principal_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

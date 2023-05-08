@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=978e101f569a95222ce4e962d681ff2b4df46955$
+// $hash=dc5d0e68bdc9b8ec86dbc9b4fa0ddce6e4597006$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -544,7 +544,7 @@ template <>
 CefRefPtr<CefDragData>
 CefCppToCRefCounted<CefDragDataCppToC, CefDragData, cef_drag_data_t>::
     UnwrapDerived(CefWrapperType type, cef_drag_data_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

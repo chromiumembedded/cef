@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d679c42dea71a6b726ac967998a9a0cb1571d2b9$
+// $hash=feca0218f8ab6da39dcf3db81d3d3b36fcb7f27d$
 //
 
 #include "libcef_dll/ctocpp/image_ctocpp.h"
@@ -334,7 +334,7 @@ cef_image_t*
 CefCToCppRefCounted<CefImageCToCpp, CefImage, cef_image_t>::UnwrapDerived(
     CefWrapperType type,
     CefImage* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

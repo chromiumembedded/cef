@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5428bc6354709f7b7083f545fa0ed5c1af82470d$
+// $hash=a6162679f74abe571ba59ff3811704fdb186a414$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -1240,7 +1240,7 @@ CefCppToCRefCounted<CefButtonCppToC, CefButton, cef_button_t>::UnwrapDerived(
   if (type == WT_MENU_BUTTON) {
     return CefMenuButtonCppToC::Unwrap(reinterpret_cast<cef_menu_button_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

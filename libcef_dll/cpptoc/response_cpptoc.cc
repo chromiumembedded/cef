@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=91a122bd04945c350a947a565acf15419e055404$
+// $hash=f0c69112a4eba6862aa54a4df7fa10f7e361edf7$
 //
 
 #include "libcef_dll/cpptoc/response_cpptoc.h"
@@ -347,7 +347,7 @@ template <>
 CefRefPtr<CefResponse>
 CefCppToCRefCounted<CefResponseCppToC, CefResponse, cef_response_t>::
     UnwrapDerived(CefWrapperType type, cef_response_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

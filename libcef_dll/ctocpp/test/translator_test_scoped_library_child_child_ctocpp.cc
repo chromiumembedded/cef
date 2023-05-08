@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=62c1f23411e35b3e4ec97748f4cb1c070d9ef763$
+// $hash=7021be9737238bd48745b5cfbfad8c0191f847fe$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_child_ctocpp.h"
@@ -145,7 +145,7 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildChildCToCpp,
                 cef_translator_test_scoped_library_child_child_t>::
     UnwrapDerivedOwn(CefWrapperType type,
                      CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
@@ -156,7 +156,7 @@ CefCToCppScoped<CefTranslatorTestScopedLibraryChildChildCToCpp,
                 cef_translator_test_scoped_library_child_child_t>::
     UnwrapDerivedRaw(CefWrapperType type,
                      CefRawPtr<CefTranslatorTestScopedLibraryChildChild> c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

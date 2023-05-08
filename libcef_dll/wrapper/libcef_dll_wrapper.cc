@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=60bb1af4e6451440a44e3469e69e34fd6f711d62$
+// $hash=e07503ba9fccaa021319d3857d437b4441947070$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -66,7 +66,7 @@ CEF_GLOBAL int CefExecuteProcess(const CefMainArgs& args,
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return 0;
   }
 
@@ -90,7 +90,7 @@ CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb94a7a2bc730d84808942098434a9fa482e348d$
+// $hash=dadbfc8511bfe89942a8e4403deebd2d1b1d3206$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -357,7 +357,7 @@ CefRefPtr<CefDownloadItem> CefCppToCRefCounted<
     CefDownloadItem,
     cef_download_item_t>::UnwrapDerived(CefWrapperType type,
                                         cef_download_item_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

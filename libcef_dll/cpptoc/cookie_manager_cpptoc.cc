@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8ed89e1ba19cde7c43e1c9e8d30354cfc356a1aa$
+// $hash=fc593830dcad16182301bd0033d3932e06820e1b$
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
@@ -115,7 +115,7 @@ cookie_manager_set_cookie(struct _cef_cookie_manager_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(cookie)) {
-    NOTREACHED() << "invalid cookie->[base.]size";
+    DCHECK(false) << "invalid cookie->[base.]size";
     return 0;
   }
   // Unverified params: callback
@@ -197,7 +197,7 @@ CefRefPtr<CefCookieManager> CefCppToCRefCounted<
     CefCookieManager,
     cef_cookie_manager_t>::UnwrapDerived(CefWrapperType type,
                                          cef_cookie_manager_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

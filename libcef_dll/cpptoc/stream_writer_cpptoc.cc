@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=349c01655f473acda59d69d5884ef82bcb5a72a0$
+// $hash=9e43a166c77c493dfdc85dd795f1fcf1010b4785$
 //
 
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
@@ -181,7 +181,7 @@ CefRefPtr<CefStreamWriter> CefCppToCRefCounted<
     CefStreamWriter,
     cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
                                         cef_stream_writer_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

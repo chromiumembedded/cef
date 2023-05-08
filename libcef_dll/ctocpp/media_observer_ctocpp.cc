@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b3e6ce9639724749d0077dbc8f6702afba83f561$
+// $hash=9b1b93f78443553cdf07bf096add8eda430ad13b$
 //
 
 #include "libcef_dll/ctocpp/media_observer_ctocpp.h"
@@ -156,7 +156,7 @@ CefCToCppRefCounted<CefMediaObserverCToCpp,
                     CefMediaObserver,
                     cef_media_observer_t>::UnwrapDerived(CefWrapperType type,
                                                          CefMediaObserver* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

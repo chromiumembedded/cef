@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=23cebc9bbfaeb250f98ce8357a5a473ce964db3b$
+// $hash=71acbdd04b0d9ed591ec351684b09f1375308cd6$
 //
 
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
@@ -64,7 +64,7 @@ cef_run_context_menu_callback_t* CefCToCppRefCounted<
     cef_run_context_menu_callback_t>::UnwrapDerived(CefWrapperType type,
                                                     CefRunContextMenuCallback*
                                                         c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

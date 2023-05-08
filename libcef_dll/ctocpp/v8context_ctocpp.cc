@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=af5dfb61e2e3f14c482c861af5a271adca93439a$
+// $hash=6bdcf32699e33c7e46b8b9ac67220a6edd0bd73a$
 //
 
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
@@ -254,7 +254,7 @@ template <>
 cef_v8context_t*
 CefCToCppRefCounted<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>::
     UnwrapDerived(CefWrapperType type, CefV8Context* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

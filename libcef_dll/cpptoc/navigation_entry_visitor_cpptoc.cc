@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=addccca2d817966a80bf0f33aa17b4cc2bab968c$
+// $hash=f1a90fb1b3cda0cec9e9b4349c722761be164d22$
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
@@ -69,7 +69,7 @@ CefCppToCRefCounted<CefNavigationEntryVisitorCppToC,
                     CefNavigationEntryVisitor,
                     cef_navigation_entry_visitor_t>::
     UnwrapDerived(CefWrapperType type, cef_navigation_entry_visitor_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

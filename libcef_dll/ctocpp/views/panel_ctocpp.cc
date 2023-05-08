@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=28af26c5e97ef246985cfb0828d5f13e325824b4$
+// $hash=c757b375edf4dd35fb31c4ae81048aa795b2518b$
 //
 
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -1146,7 +1146,7 @@ CefCToCppRefCounted<CefPanelCToCpp, CefPanel, cef_panel_t>::UnwrapDerived(
     return reinterpret_cast<cef_panel_t*>(
         CefWindowCToCpp::Unwrap(reinterpret_cast<CefWindow*>(c)));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

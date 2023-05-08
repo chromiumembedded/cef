@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eb693cdf087ac87c4fe8da576a41faa120f97cd1$
+// $hash=005e5ae02a04bc6fdd626063b1f83e465e21e498$
 //
 
 #include "libcef_dll/cpptoc/run_quick_menu_callback_cpptoc.h"
@@ -73,7 +73,7 @@ CefRefPtr<CefRunQuickMenuCallback> CefCppToCRefCounted<
     cef_run_quick_menu_callback_t>::UnwrapDerived(CefWrapperType type,
                                                   cef_run_quick_menu_callback_t*
                                                       s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

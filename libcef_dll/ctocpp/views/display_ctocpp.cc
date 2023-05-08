@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ce835458848e642bc1f9a8231a7d6996f4db85ee$
+// $hash=b80bdf378a812e1ab80aaf67c1042c69223eaa6b$
 //
 
 #include "libcef_dll/ctocpp/views/display_ctocpp.h"
@@ -294,7 +294,7 @@ cef_display_t*
 CefCToCppRefCounted<CefDisplayCToCpp, CefDisplay, cef_display_t>::UnwrapDerived(
     CefWrapperType type,
     CefDisplay* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

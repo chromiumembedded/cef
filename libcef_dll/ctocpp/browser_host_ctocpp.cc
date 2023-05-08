@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aad33efa7cb9fe4904f1fcafecd960e2b3c86ab1$
+// $hash=661cc019b1ef90360e09491c9ccaf1a7b69d6f7e$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -1193,7 +1193,7 @@ template <>
 cef_browser_host_t*
 CefCToCppRefCounted<CefBrowserHostCToCpp, CefBrowserHost, cef_browser_host_t>::
     UnwrapDerived(CefWrapperType type, CefBrowserHost* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

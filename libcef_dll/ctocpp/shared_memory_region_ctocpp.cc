@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=488fdead59657c8bdb17e6d3d6a970f6b65e970e$
+// $hash=26acb8a4438dd076be91d48565a6a59805bec0f8$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -84,7 +84,7 @@ cef_shared_memory_region_t* CefCToCppRefCounted<
     CefSharedMemoryRegion,
     cef_shared_memory_region_t>::UnwrapDerived(CefWrapperType type,
                                                CefSharedMemoryRegion* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

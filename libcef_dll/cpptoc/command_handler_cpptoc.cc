@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b58140cd5e363a79adf4e420ceae009a7d10811$
+// $hash=04f92bf7dfa4cfeec409e2418f69e63beff276ff$
 //
 
 #include "libcef_dll/cpptoc/command_handler_cpptoc.h"
@@ -169,7 +169,7 @@ CefRefPtr<CefCommandHandler> CefCppToCRefCounted<
     CefCommandHandler,
     cef_command_handler_t>::UnwrapDerived(CefWrapperType type,
                                           cef_command_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

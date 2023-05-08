@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=55296997cc48bab5c04548fa063f0692bfad12c5$
+// $hash=d141b95304de99ab093db8f6c524a05e26f4edb5$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -191,7 +191,7 @@ cef_life_span_handler_t* CefCToCppRefCounted<
     CefLifeSpanHandler,
     cef_life_span_handler_t>::UnwrapDerived(CefWrapperType type,
                                             CefLifeSpanHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

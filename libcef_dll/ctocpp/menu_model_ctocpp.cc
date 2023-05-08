@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=04b75e77074493307543f443a11d0b3ffade1ff8$
+// $hash=048b61ed29f9db56cba1a55354c367f941a59b14$
 //
 
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
@@ -1195,7 +1195,7 @@ template <>
 cef_menu_model_t*
 CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>::
     UnwrapDerived(CefWrapperType type, CefMenuModel* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

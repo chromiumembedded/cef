@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=499afac754e20ab09693803a14a047a576ed1eb2$
+// $hash=7556f5356f91f554c88cadd534f2260081b23e39$
 //
 
 #include "libcef_dll/ctocpp/frame_handler_ctocpp.h"
@@ -146,7 +146,7 @@ CefCToCppRefCounted<CefFrameHandlerCToCpp,
                     CefFrameHandler,
                     cef_frame_handler_t>::UnwrapDerived(CefWrapperType type,
                                                         CefFrameHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
