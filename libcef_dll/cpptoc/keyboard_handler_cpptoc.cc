@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d7c3e9ff25364593a84be3b1cf30ed09897ecbcb$
+// $hash=f663466a6f1faeac7a351bb5af13cb40224b3dc6$
 //
 
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
@@ -126,7 +126,7 @@ CefRefPtr<CefKeyboardHandler> CefCppToCRefCounted<
     CefKeyboardHandler,
     cef_keyboard_handler_t>::UnwrapDerived(CefWrapperType type,
                                            cef_keyboard_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

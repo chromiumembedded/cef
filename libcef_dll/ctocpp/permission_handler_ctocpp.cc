@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ff01ee1ca831e910dcd7b1767a0e9d251aa9747$
+// $hash=866524abe3d8f0ad9953a6364bbb49f625fe3a38$
 //
 
 #include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
@@ -151,7 +151,7 @@ cef_permission_handler_t* CefCToCppRefCounted<
     CefPermissionHandler,
     cef_permission_handler_t>::UnwrapDerived(CefWrapperType type,
                                              CefPermissionHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3e9334efe52aaa876470421341bbd8ca2936f19e$
+// $hash=ed7d4723843c212ea634d3d9fe3121591de1c71d$
 //
 
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
@@ -792,7 +792,7 @@ CefRefPtr<CefDictionaryValue> CefCppToCRefCounted<
     CefDictionaryValue,
     cef_dictionary_value_t>::UnwrapDerived(CefWrapperType type,
                                            cef_dictionary_value_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

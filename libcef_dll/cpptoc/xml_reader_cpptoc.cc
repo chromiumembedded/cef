@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a647c490d84ceb4828f633a3c95d741e9fb9d9f$
+// $hash=438fff1d95401704336388ff2b971403e4074ad1$
 //
 
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
@@ -660,7 +660,7 @@ template <>
 CefRefPtr<CefXmlReader>
 CefCppToCRefCounted<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>::
     UnwrapDerived(CefWrapperType type, cef_xml_reader_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

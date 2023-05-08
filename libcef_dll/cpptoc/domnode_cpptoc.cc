@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=92ad2a43af7fd73add03e0ed4c053d5e3d3595a7$
+// $hash=a9a7b8c8b2cb46d6bd2bb9a8883909ebbde803d7$
 //
 
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
@@ -575,7 +575,7 @@ CefRefPtr<CefDOMNode>
 CefCppToCRefCounted<CefDOMNodeCppToC, CefDOMNode, cef_domnode_t>::UnwrapDerived(
     CefWrapperType type,
     cef_domnode_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

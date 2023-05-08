@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7b605cbe624fc1d82b3b74000a03a7941fba7eba$
+// $hash=0554c435e85fb7efb50f22cc7c3e184af48f0ea0$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"
@@ -339,7 +339,7 @@ cef_textfield_delegate_t* CefCToCppRefCounted<
     CefTextfieldDelegate,
     cef_textfield_delegate_t>::UnwrapDerived(CefWrapperType type,
                                              CefTextfieldDelegate* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c55b3c940044e1ba8614366bc005404fb34f6cb1$
+// $hash=84848cc9affe98814d49ff6a27854b61bec42992$
 //
 
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -552,7 +552,7 @@ cef_domnode_t*
 CefCToCppRefCounted<CefDOMNodeCToCpp, CefDOMNode, cef_domnode_t>::UnwrapDerived(
     CefWrapperType type,
     CefDOMNode* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

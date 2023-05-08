@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80473999475a2327eca8289bd30d970c699abb21$
+// $hash=f422c73d022a8794c0cbb01f4bb3fbb2a3f7e045$
 //
 
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
@@ -179,7 +179,7 @@ CefRefPtr<CefProcessMessage> CefCppToCRefCounted<
     CefProcessMessage,
     cef_process_message_t>::UnwrapDerived(CefWrapperType type,
                                           cef_process_message_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

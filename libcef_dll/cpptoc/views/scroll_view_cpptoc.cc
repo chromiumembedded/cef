@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f6ba39e44e91b687fc1f4d0c2c1873664b5cf93$
+// $hash=171b3ef450c160ece605980988dd80af9dd97958$
 //
 
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
@@ -1309,7 +1309,7 @@ template <>
 CefRefPtr<CefScrollView>
 CefCppToCRefCounted<CefScrollViewCppToC, CefScrollView, cef_scroll_view_t>::
     UnwrapDerived(CefWrapperType type, cef_scroll_view_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

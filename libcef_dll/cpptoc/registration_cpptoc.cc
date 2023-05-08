@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9256f12f40a70c8a2e6100882473516f80c097c4$
+// $hash=b8ae4bec56faeb74fd5ddad0cacb053a17babc08$
 //
 
 #include "libcef_dll/cpptoc/registration_cpptoc.h"
@@ -31,7 +31,7 @@ CefCppToCRefCounted<CefRegistrationCppToC,
                     CefRegistration,
                     cef_registration_t>::UnwrapDerived(CefWrapperType type,
                                                        cef_registration_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

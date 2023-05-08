@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c7e5e137df27a4986c13e6f4e2b98eac19a48193$
+// $hash=c84eb9772fc902904ccbd0cebe2c2105d06a8164$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -823,7 +823,7 @@ CefRefPtr<CefWindowDelegate> CefCppToCRefCounted<
     CefWindowDelegate,
     cef_window_delegate_t>::UnwrapDerived(CefWrapperType type,
                                           cef_window_delegate_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

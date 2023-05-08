@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9a49bd42c37e24a9f968dc703b91ac0a0d467471$
+// $hash=34cf5c3fde544a2f8a323ea3f55ed88db0010672$
 //
 
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"
@@ -181,7 +181,7 @@ template <>
 CefRefPtr<CefMediaSink>
 CefCppToCRefCounted<CefMediaSinkCppToC, CefMediaSink, cef_media_sink_t>::
     UnwrapDerived(CefWrapperType type, cef_media_sink_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

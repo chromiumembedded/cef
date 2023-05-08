@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cba0c0be85a7b8de588f939e43c267dbfe5eaca7$
+// $hash=44561e34afa6d45b0c6c324e345bef6c0e9f31b8$
 //
 
 #include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"
@@ -57,7 +57,7 @@ CefCppToCRefCounted<CefV8ArrayBufferReleaseCallbackCppToC,
                     cef_v8array_buffer_release_callback_t>::
     UnwrapDerived(CefWrapperType type,
                   cef_v8array_buffer_release_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

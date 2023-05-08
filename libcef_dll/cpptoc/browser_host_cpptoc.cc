@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c4f784a8632ae70a588619db29e826fac26531e1$
+// $hash=2b2caf2af2d24ffbf9cc8d33946ce019b5bf98c9$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -49,7 +49,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
     return 0;
   }
   if (!template_util::has_valid_size(windowInfo)) {
-    NOTREACHED() << "invalid windowInfo->[base.]size";
+    DCHECK(false) << "invalid windowInfo->[base.]size";
     return 0;
   }
   // Verify param: settings; type: struct_byref_const
@@ -58,7 +58,7 @@ CEF_EXPORT int cef_browser_host_create_browser(
     return 0;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return 0;
   }
   // Unverified params: client, url, extra_info, request_context
@@ -101,7 +101,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     return NULL;
   }
   if (!template_util::has_valid_size(windowInfo)) {
-    NOTREACHED() << "invalid windowInfo->[base.]size";
+    DCHECK(false) << "invalid windowInfo->[base.]size";
     return NULL;
   }
   // Verify param: settings; type: struct_byref_const
@@ -110,7 +110,7 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     return NULL;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return NULL;
   }
   // Unverified params: client, url, extra_info, request_context
@@ -454,7 +454,7 @@ browser_host_print_to_pdf(struct _cef_browser_host_t* self,
     return;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return;
   }
   // Unverified params: callback
@@ -1470,7 +1470,7 @@ template <>
 CefRefPtr<CefBrowserHost>
 CefCppToCRefCounted<CefBrowserHostCppToC, CefBrowserHost, cef_browser_host_t>::
     UnwrapDerived(CefWrapperType type, cef_browser_host_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

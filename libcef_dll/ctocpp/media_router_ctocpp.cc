@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3c1bf66c510b9f2d4a63bb400b37b93e9f555349$
+// $hash=af200e153fda6b0d33e42d2dfd05346d6e2ae7f4$
 //
 
 #include "libcef_dll/ctocpp/media_router_ctocpp.h"
@@ -171,7 +171,7 @@ template <>
 cef_media_router_t*
 CefCToCppRefCounted<CefMediaRouterCToCpp, CefMediaRouter, cef_media_router_t>::
     UnwrapDerived(CefWrapperType type, CefMediaRouter* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

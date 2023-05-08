@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bb9fa0045c967777df8fd84c5b6c4223f7a84592$
+// $hash=8ed7a2cd363a38cde65551fa5366085d9fa5b919$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -47,7 +47,7 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
     return NULL;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return NULL;
   }
   // Unverified params: client, url, extra_info, request_context, delegate
@@ -1284,7 +1284,7 @@ template <>
 CefRefPtr<CefBrowserView>
 CefCppToCRefCounted<CefBrowserViewCppToC, CefBrowserView, cef_browser_view_t>::
     UnwrapDerived(CefWrapperType type, cef_browser_view_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

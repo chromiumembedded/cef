@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c291a5ca7c2c70c74ad26a20cafe0dffd07b5a73$
+// $hash=e96fe0660b55afa20c3bb5fdebc85635ccc53d09$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -67,7 +67,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     return 0;
   }
   if (!template_util::has_valid_size(windowInfo)) {
-    NOTREACHED() << "invalid windowInfo->[base.]size";
+    DCHECK(false) << "invalid windowInfo->[base.]size";
     return 0;
   }
   // Verify param: client; type: refptr_same_byref
@@ -81,7 +81,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     return 0;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return 0;
   }
   // Verify param: extra_info; type: refptr_diff_byref
@@ -261,7 +261,7 @@ CefRefPtr<CefLifeSpanHandler> CefCppToCRefCounted<
     CefLifeSpanHandler,
     cef_life_span_handler_t>::UnwrapDerived(CefWrapperType type,
                                             cef_life_span_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78817cc08a00cfafed41724327295d5437d922e9$
+// $hash=fe7f63c4ce0c3110dd9ff9170b5bb2ac59a83602$
 //
 
 #include "libcef_dll/ctocpp/shared_process_message_builder_ctocpp.h"
@@ -125,7 +125,7 @@ CefCToCppRefCounted<CefSharedProcessMessageBuilderCToCpp,
                     CefSharedProcessMessageBuilder,
                     cef_shared_process_message_builder_t>::
     UnwrapDerived(CefWrapperType type, CefSharedProcessMessageBuilder* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

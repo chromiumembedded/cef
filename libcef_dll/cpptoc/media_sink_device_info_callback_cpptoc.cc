@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=820d68c7a5b1ccc305da5f644b2875a5db6fabc9$
+// $hash=9e43a07b0d4886995b29b55315fe8397641293df$
 //
 
 #include "libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h"
@@ -37,7 +37,7 @@ void CEF_CALLBACK media_sink_device_info_callback_on_media_sink_device_info(
     return;
   }
   if (!template_util::has_valid_size(device_info)) {
-    NOTREACHED() << "invalid device_info->[base.]size";
+    DCHECK(false) << "invalid device_info->[base.]size";
     return;
   }
 
@@ -74,7 +74,7 @@ CefCppToCRefCounted<CefMediaSinkDeviceInfoCallbackCppToC,
                     cef_media_sink_device_info_callback_t>::
     UnwrapDerived(CefWrapperType type,
                   cef_media_sink_device_info_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

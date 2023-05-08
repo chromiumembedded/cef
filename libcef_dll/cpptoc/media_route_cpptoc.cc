@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=117fcfcb178f8a8a08272186c250c4042fcd74c0$
+// $hash=3273e6b77a9d01d328b538480cfd2fb0ed45201c$
 //
 
 #include "libcef_dll/cpptoc/media_route_cpptoc.h"
@@ -134,7 +134,7 @@ template <>
 CefRefPtr<CefMediaRoute>
 CefCppToCRefCounted<CefMediaRouteCppToC, CefMediaRoute, cef_media_route_t>::
     UnwrapDerived(CefWrapperType type, cef_media_route_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

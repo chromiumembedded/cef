@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9b5047524de83c24a2911a83b1cb48fc472774a$
+// $hash=e71369876af6d78b7f94e54b7ea5cf19c091a12a$
 //
 
 #include "libcef_dll/cpptoc/resolve_callback_cpptoc.h"
@@ -63,7 +63,7 @@ CefRefPtr<CefResolveCallback> CefCppToCRefCounted<
     CefResolveCallback,
     cef_resolve_callback_t>::UnwrapDerived(CefWrapperType type,
                                            cef_resolve_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

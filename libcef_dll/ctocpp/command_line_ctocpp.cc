@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e641e3609e9b096e6be7edc589314d4d3e909ad1$
+// $hash=aeb30347dcf0a11ee20524f07fe7eb980c2163f2$
 //
 
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
@@ -23,7 +23,7 @@ CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return nullptr;
   }
 
@@ -41,7 +41,7 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return nullptr;
   }
 
@@ -459,7 +459,7 @@ template <>
 cef_command_line_t*
 CefCToCppRefCounted<CefCommandLineCToCpp, CefCommandLine, cef_command_line_t>::
     UnwrapDerived(CefWrapperType type, CefCommandLine* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

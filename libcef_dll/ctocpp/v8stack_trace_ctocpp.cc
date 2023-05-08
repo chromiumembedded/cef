@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=baa09d0933e7754969e1503dd06c2f4d4b52e16c$
+// $hash=f35d094b71513d6d1201e53eda87148b415d286d$
 //
 
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
@@ -101,7 +101,7 @@ CefCToCppRefCounted<CefV8StackTraceCToCpp,
                     CefV8StackTrace,
                     cef_v8stack_trace_t>::UnwrapDerived(CefWrapperType type,
                                                         CefV8StackTrace* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

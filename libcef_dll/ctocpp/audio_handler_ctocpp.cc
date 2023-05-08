@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=88d580fa35d32ce62d7a20a4febc193ffdaa45ee$
+// $hash=add4d2a56f890fe5c868ebd23a03a4da4d8d6727$
 //
 
 #include "libcef_dll/ctocpp/audio_handler_ctocpp.h"
@@ -165,7 +165,7 @@ CefCToCppRefCounted<CefAudioHandlerCToCpp,
                     CefAudioHandler,
                     cef_audio_handler_t>::UnwrapDerived(CefWrapperType type,
                                                         CefAudioHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

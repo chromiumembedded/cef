@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e8d8216333b81676768e82762ec1da35a19e62f8$
+// $hash=6369dff04489cebf256d28015e676f2a5c09f48e$
 //
 
 #include "libcef_dll/cpptoc/views/layout_cpptoc.h"
@@ -101,7 +101,7 @@ CefCppToCRefCounted<CefLayoutCppToC, CefLayout, cef_layout_t>::UnwrapDerived(
   if (type == WT_FILL_LAYOUT) {
     return CefFillLayoutCppToC::Unwrap(reinterpret_cast<cef_fill_layout_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

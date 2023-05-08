@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a2d1836475451990a27eb757fc9396fe249daf0$
+// $hash=cd059e94feaa5f002332fcb6fac40fcd1cb14dca$
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
@@ -126,7 +126,7 @@ CefCToCppRefCounted<CefTranslatorTestRefPtrLibraryChildCToCpp,
         CefTranslatorTestRefPtrLibraryChildChildCToCpp::Unwrap(
             reinterpret_cast<CefTranslatorTestRefPtrLibraryChildChild*>(c)));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

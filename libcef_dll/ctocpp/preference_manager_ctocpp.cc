@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e1ea194c8ef69a57ee4bee0b1729798128eb8754$
+// $hash=b992dc943eedb028a5018c6204aa6ce9a106b367$
 //
 
 #include "libcef_dll/ctocpp/preference_manager_ctocpp.h"
@@ -164,7 +164,7 @@ cef_preference_manager_t* CefCToCppRefCounted<
         CefRequestContextCToCpp::Unwrap(
             reinterpret_cast<CefRequestContext*>(c)));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=52df98f1359e9a8e231ec9e2555bc883e1fa84b5$
+// $hash=75e19487438e6afe67c650ff5bf616a709c7273b$
 //
 
 #include "libcef_dll/ctocpp/views/menu_button_pressed_lock_ctocpp.h"
@@ -32,7 +32,7 @@ cef_menu_button_pressed_lock_t* CefCToCppRefCounted<
     cef_menu_button_pressed_lock_t>::UnwrapDerived(CefWrapperType type,
                                                    CefMenuButtonPressedLock*
                                                        c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

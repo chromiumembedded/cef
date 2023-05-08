@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=20d3c82d71ea1ba068d4b86487b9f24ae0bdaa29$
+// $hash=067877a410a4ae9d7d671d5826a5c93eb6cdad37$
 //
 
 #include "libcef_dll/ctocpp/media_sink_device_info_callback_ctocpp.h"
@@ -49,7 +49,7 @@ CefCToCppRefCounted<CefMediaSinkDeviceInfoCallbackCToCpp,
                     CefMediaSinkDeviceInfoCallback,
                     cef_media_sink_device_info_callback_t>::
     UnwrapDerived(CefWrapperType type, CefMediaSinkDeviceInfoCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

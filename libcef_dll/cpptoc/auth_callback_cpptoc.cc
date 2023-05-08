@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0a14f97c38bffa0ead433d74df13b04028c44a21$
+// $hash=708e231fbc5c80191b2a9ba3d6295a6b5ecf925e$
 //
 
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
@@ -72,7 +72,7 @@ CefRefPtr<CefAuthCallback> CefCppToCRefCounted<
     CefAuthCallback,
     cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
                                         cef_auth_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
