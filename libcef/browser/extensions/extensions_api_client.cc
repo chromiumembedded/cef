@@ -28,7 +28,7 @@ CefExtensionsAPIClient::CefExtensionsAPIClient() {}
 AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
     const {
   // TODO(extensions): Implement to support Apps.
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 

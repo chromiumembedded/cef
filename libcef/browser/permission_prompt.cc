@@ -225,7 +225,7 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return CEF_PERMISSION_TYPE_NONE;
 }
 

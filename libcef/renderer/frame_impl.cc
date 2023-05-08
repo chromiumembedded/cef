@@ -105,7 +105,7 @@ void CefFrameImpl::SelectAll() {
 }
 
 void CefFrameImpl::ViewSource() {
-  NOTREACHED() << "ViewSource cannot be called from the renderer process";
+  DCHECK(false) << "ViewSource cannot be called from the renderer process";
 }
 
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
@@ -258,7 +258,7 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 CefRefPtr<CefURLRequest> CefFrameImpl::CreateURLRequest(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client) {
-  NOTREACHED() << "CreateURLRequest cannot be called from the render process";
+  DCHECK(false) << "CreateURLRequest cannot be called from the render process";
   return nullptr;
 }
 

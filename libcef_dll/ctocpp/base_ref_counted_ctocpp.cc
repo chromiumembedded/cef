@@ -12,7 +12,7 @@ cef_base_ref_counted_t* CefCToCppRefCounted<
     CefBaseRefCounted,
     cef_base_ref_counted_t>::UnwrapDerived(CefWrapperType type,
                                            CefBaseRefCounted* c) {
-  NOTREACHED();
+  DCHECK(false);
   return NULL;
 }
 

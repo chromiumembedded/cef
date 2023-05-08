@@ -54,7 +54,7 @@ bool ChromeProfileAlloy::IsOffTheRecord() const {
 }
 
 const Profile::OTRProfileID& ChromeProfileAlloy::GetOTRProfileID() const {
-  NOTREACHED();
+  DCHECK(false);
   static base::NoDestructor<Profile::OTRProfileID> otr_profile_id(
       Profile::OTRProfileID::PrimaryID());
   return *otr_profile_id;
@@ -68,19 +68,19 @@ variations::VariationsClient* ChromeProfileAlloy::GetVariationsClient() {
 }
 
 scoped_refptr<base::SequencedTaskRunner> ChromeProfileAlloy::GetIOTaskRunner() {
-  NOTREACHED();
+  DCHECK(false);
   return scoped_refptr<base::SequencedTaskRunner>();
 }
 
 std::string ChromeProfileAlloy::GetProfileUserName() const {
-  NOTREACHED();
+  DCHECK(false);
   return std::string();
 }
 
 Profile* ChromeProfileAlloy::GetOffTheRecordProfile(
     const Profile::OTRProfileID& otr_profile_id,
     bool create_if_needed) {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -89,7 +89,7 @@ std::vector<Profile*> ChromeProfileAlloy::GetAllOffTheRecordProfiles() {
 }
 
 void ChromeProfileAlloy::DestroyOffTheRecordProfile(Profile* otr_profile) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool ChromeProfileAlloy::HasOffTheRecordProfile(
@@ -115,17 +115,17 @@ bool ChromeProfileAlloy::IsChild() const {
 
 ExtensionSpecialStoragePolicy*
 ChromeProfileAlloy::GetExtensionSpecialStoragePolicy() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 bool ChromeProfileAlloy::IsSameOrParent(Profile* profile) {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 base::Time ChromeProfileAlloy::GetStartTime() const {
-  NOTREACHED();
+  DCHECK(false);
   return base::Time();
 }
 
@@ -139,30 +139,30 @@ void ChromeProfileAlloy::set_last_selected_directory(
 }
 
 GURL ChromeProfileAlloy::GetHomePage() {
-  NOTREACHED();
+  DCHECK(false);
   return GURL();
 }
 
 bool ChromeProfileAlloy::WasCreatedByVersionOrLater(
     const std::string& version) {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 base::Time ChromeProfileAlloy::GetCreationTime() const {
-  NOTREACHED();
+  DCHECK(false);
   return base::Time();
 }
 
 void ChromeProfileAlloy::SetCreationTimeForTesting(base::Time creation_time) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void ChromeProfileAlloy::RecordPrimaryMainFrameNavigation() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool ChromeProfileAlloy::IsSignedIn() {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }

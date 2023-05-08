@@ -15,7 +15,7 @@ namespace {
 
 bool AllowFileIO() {
   if (CefCurrentlyOn(TID_UI) || CefCurrentlyOn(TID_IO)) {
-    NOTREACHED() << "file IO is not allowed on the current thread";
+    DCHECK(false) << "file IO is not allowed on the current thread";
     return false;
   }
   return true;

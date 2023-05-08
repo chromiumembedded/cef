@@ -161,7 +161,7 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiClickEvent(
       changed_button_flags |= ui::EF_RIGHT_MOUSE_BUTTON;
       break;
     default:
-      NOTREACHED();
+      DCHECK(false);
   }
 
   ui::MouseEvent result(event_type, location, root_location, time_stamp, flags,

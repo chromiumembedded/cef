@@ -26,7 +26,7 @@ ui::MotionEvent::ToolType CefPointerTypeToMotionEventToolType(
     case CEF_POINTER_TYPE_UNKNOWN:
       return ui::MotionEvent::ToolType::UNKNOWN;
   }
-  NOTREACHED();
+  DCHECK(false);
   return ui::MotionEvent::ToolType::UNKNOWN;
 }
 

@@ -293,7 +293,7 @@ CefString CefDOMNodeImpl::GetElementTagName() {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return str;
   }
 
@@ -312,7 +312,7 @@ bool CefDOMNodeImpl::HasElementAttributes() {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
@@ -326,7 +326,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
@@ -341,7 +341,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return str;
   }
 
@@ -361,7 +361,7 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return;
   }
 
@@ -385,7 +385,7 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
@@ -402,7 +402,7 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return str;
   }
 
@@ -422,7 +422,7 @@ CefRect CefDOMNodeImpl::GetElementBounds() {
   }
 
   if (!node_.IsElementNode()) {
-    NOTREACHED();
+    DCHECK(false);
     return rect;
   }
 
@@ -440,14 +440,14 @@ void CefDOMNodeImpl::Detach() {
 
 bool CefDOMNodeImpl::VerifyContext() {
   if (!document_.get()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
   if (!document_->VerifyContext()) {
     return false;
   }
   if (node_.IsNull()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
   return true;

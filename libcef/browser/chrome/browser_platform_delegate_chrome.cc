@@ -56,7 +56,7 @@ CefBrowserPlatformDelegateChrome::GetWebContentsModalDialogHost() const {
     ChromeWebModalDialogManagerDelegate* manager = chrome_browser_;
     return manager->GetWebContentsModalDialogHost();
   }
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -143,6 +143,6 @@ gfx::NativeWindow CefBrowserPlatformDelegateChrome::GetNativeWindow() const {
   if (chrome_browser_ && chrome_browser_->window()) {
     return chrome_browser_->window()->GetNativeWindow();
   }
-  NOTREACHED();
+  DCHECK(false);
   return gfx::NativeWindow();
 }

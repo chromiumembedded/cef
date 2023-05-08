@@ -43,7 +43,7 @@ bool CefGetPath(PathKey key, CefString& path) {
       pref_key = chrome::DIR_RESOURCES;
       break;
     default:
-      NOTREACHED() << "invalid argument";
+      DCHECK(false) << "invalid argument";
       return false;
   }
 

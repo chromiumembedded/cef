@@ -214,14 +214,14 @@ bool CefAddCrossOriginWhitelistEntry(const CefString& source_origin,
                                      bool allow_target_subdomains) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
   std::string source_url = source_origin;
   GURL gurl = GURL(source_url);
   if (gurl.is_empty() || !gurl.is_valid()) {
-    NOTREACHED() << "Invalid source_origin URL: " << source_url;
+    DCHECK(false) << "Invalid source_origin URL: " << source_url;
     return false;
   }
 
@@ -245,14 +245,14 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
                                         bool allow_target_subdomains) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 
   std::string source_url = source_origin;
   GURL gurl = GURL(source_url);
   if (gurl.is_empty() || !gurl.is_valid()) {
-    NOTREACHED() << "Invalid source_origin URL: " << source_url;
+    DCHECK(false) << "Invalid source_origin URL: " << source_url;
     return false;
   }
 
@@ -273,7 +273,7 @@ bool CefRemoveCrossOriginWhitelistEntry(const CefString& source_origin,
 bool CefClearCrossOriginWhitelist() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 

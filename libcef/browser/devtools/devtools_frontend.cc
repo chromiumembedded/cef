@@ -227,7 +227,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
     bindings_->loaders_.erase(bindings_->loaders_.find(this));
   }
 
-  void OnRetry(base::OnceClosure start_retry) override { NOTREACHED(); }
+  void OnRetry(base::OnceClosure start_retry) override { DCHECK(false); }
 
   const int stream_id_;
   CefDevToolsFrontend* const bindings_;

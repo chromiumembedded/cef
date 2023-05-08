@@ -74,7 +74,7 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
     } else if (impl_value.type() == base::Value::Type::LIST) {
       registry_->RegisterListPref(name, std::move(impl_value));
     } else {
-      NOTREACHED();
+      DCHECK(false);
     }
   }
 

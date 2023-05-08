@@ -486,7 +486,7 @@ void CefXmlReaderImpl::AppendError(const CefString& error_str) {
 bool CefXmlReaderImpl::VerifyContext() {
   if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 

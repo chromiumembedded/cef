@@ -12,12 +12,12 @@
 
 bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
   if (!command_line.get()) {
-    NOTREACHED() << "invalid parameter";
+    DCHECK(false) << "invalid parameter";
     return false;
   }
 
   if (!content::CurrentlyOnProcessLauncherTaskRunner()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 

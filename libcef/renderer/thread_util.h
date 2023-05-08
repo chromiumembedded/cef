@@ -16,16 +16,16 @@
 
 #define CEF_REQUIRE_RT() DCHECK(CEF_CURRENTLY_ON_RT())
 
-#define CEF_REQUIRE_RT_RETURN(var)              \
-  if (!CEF_CURRENTLY_ON_RT()) {                 \
-    NOTREACHED() << "called on invalid thread"; \
-    return var;                                 \
+#define CEF_REQUIRE_RT_RETURN(var)               \
+  if (!CEF_CURRENTLY_ON_RT()) {                  \
+    DCHECK(false) << "called on invalid thread"; \
+    return var;                                  \
   }
 
-#define CEF_REQUIRE_RT_RETURN_VOID()            \
-  if (!CEF_CURRENTLY_ON_RT()) {                 \
-    NOTREACHED() << "called on invalid thread"; \
-    return;                                     \
+#define CEF_REQUIRE_RT_RETURN_VOID()             \
+  if (!CEF_CURRENTLY_ON_RT()) {                  \
+    DCHECK(false) << "called on invalid thread"; \
+    return;                                      \
   }
 
 #define CEF_RENDER_TASK_RUNNER() \

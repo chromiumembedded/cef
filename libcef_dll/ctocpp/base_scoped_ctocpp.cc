@@ -10,7 +10,7 @@ template <>
 cef_base_scoped_t*
 CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
     UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<CefBaseScoped> c) {
-  NOTREACHED();
+  DCHECK(false);
   return NULL;
 }
 
@@ -18,7 +18,7 @@ template <>
 cef_base_scoped_t*
 CefCToCppScoped<CefBaseScopedCToCpp, CefBaseScoped, cef_base_scoped_t>::
     UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<CefBaseScoped> c) {
-  NOTREACHED();
+  DCHECK(false);
   return NULL;
 }
 

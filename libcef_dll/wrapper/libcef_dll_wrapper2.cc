@@ -22,7 +22,7 @@ int CefRunWinMainWithPreferredStackSize(wWinMainPtr wWinMain,
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return 0;
   }
 
@@ -36,7 +36,7 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]) {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    NOTREACHED();
+    DCHECK(false);
     return 0;
   }
 

@@ -12,12 +12,12 @@
 bool CefBeginTracing(const CefString& categories,
                      CefRefPtr<CefCompletionCallback> callback) {
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return false;
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 
@@ -32,12 +32,12 @@ bool CefBeginTracing(const CefString& categories,
 bool CefEndTracing(const CefString& tracing_file,
                    CefRefPtr<CefEndTracingCallback> callback) {
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return false;
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return false;
   }
 

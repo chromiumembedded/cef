@@ -136,27 +136,27 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
 }
 
 void ChromeBrowserProcessAlloy::EndSession() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void ChromeBrowserProcessAlloy::FlushLocalStateAndReply(
     base::OnceClosure reply) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 device::GeolocationManager* ChromeBrowserProcessAlloy::geolocation_manager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 metrics_services_manager::MetricsServicesManager*
 ChromeBrowserProcessAlloy::GetMetricsServicesManager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 metrics::MetricsService* ChromeBrowserProcessAlloy::metrics_service() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -168,7 +168,7 @@ ChromeBrowserProcessAlloy::system_network_context_manager() {
 
 network::NetworkQualityTracker*
 ChromeBrowserProcessAlloy::network_quality_tracker() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -197,17 +197,17 @@ PrefService* ChromeBrowserProcessAlloy::local_state() {
 
 scoped_refptr<network::SharedURLLoaderFactory>
 ChromeBrowserProcessAlloy::shared_url_loader_factory() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 variations::VariationsService* ChromeBrowserProcessAlloy::variations_service() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 BrowserProcessPlatformPart* ChromeBrowserProcessAlloy::platform_part() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -218,19 +218,19 @@ ChromeBrowserProcessAlloy::extension_event_router_forwarder() {
 }
 
 NotificationUIManager* ChromeBrowserProcessAlloy::notification_ui_manager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 NotificationPlatformBridge*
 ChromeBrowserProcessAlloy::notification_platform_bridge() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 void ChromeBrowserProcessAlloy::SetGeolocationManager(
     std::unique_ptr<device::GeolocationManager> geolocation_manager) {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 policy::ChromeBrowserPolicyConnector*
@@ -247,25 +247,25 @@ policy::PolicyService* ChromeBrowserProcessAlloy::policy_service() {
 }
 
 IconManager* ChromeBrowserProcessAlloy::icon_manager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 GpuModeManager* ChromeBrowserProcessAlloy::gpu_mode_manager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 void ChromeBrowserProcessAlloy::CreateDevToolsProtocolHandler() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void ChromeBrowserProcessAlloy::CreateDevToolsAutoOpener() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool ChromeBrowserProcessAlloy::IsShuttingDown() {
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
@@ -294,7 +294,7 @@ ChromeBrowserProcessAlloy::background_printing_manager() {
 
 IntranetRedirectDetector*
 ChromeBrowserProcessAlloy::intranet_redirect_detector() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -309,29 +309,29 @@ void ChromeBrowserProcessAlloy::SetApplicationLocale(
 }
 
 DownloadStatusUpdater* ChromeBrowserProcessAlloy::download_status_updater() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 DownloadRequestLimiter* ChromeBrowserProcessAlloy::download_request_limiter() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
 BackgroundModeManager* ChromeBrowserProcessAlloy::background_mode_manager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 void ChromeBrowserProcessAlloy::set_background_mode_manager_for_test(
     std::unique_ptr<BackgroundModeManager> manager) {
-  NOTREACHED();
+  DCHECK(false);
 }
 #endif
 
 StatusTray* ChromeBrowserProcessAlloy::status_tray() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -342,12 +342,12 @@ ChromeBrowserProcessAlloy::safe_browsing_service() {
 
 subresource_filter::RulesetService*
 ChromeBrowserProcessAlloy::subresource_filter_ruleset_service() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 StartupData* ChromeBrowserProcessAlloy::startup_data() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -379,55 +379,55 @@ ChromeBrowserProcessAlloy::component_updater() {
 
 MediaFileSystemRegistry*
 ChromeBrowserProcessAlloy::media_file_system_registry() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 WebRtcLogUploader* ChromeBrowserProcessAlloy::webrtc_log_uploader() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 network_time::NetworkTimeTracker*
 ChromeBrowserProcessAlloy::network_time_tracker() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 gcm::GCMDriver* ChromeBrowserProcessAlloy::gcm_driver() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 resource_coordinator::TabManager* ChromeBrowserProcessAlloy::GetTabManager() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 resource_coordinator::ResourceCoordinatorParts*
 ChromeBrowserProcessAlloy::resource_coordinator_parts() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 SerialPolicyAllowedPorts*
 ChromeBrowserProcessAlloy::serial_policy_allowed_ports() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 HidPolicyAllowedDevices*
 ChromeBrowserProcessAlloy::hid_policy_allowed_devices() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
 HidSystemTrayIcon* ChromeBrowserProcessAlloy::hid_system_tray_icon() {
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }

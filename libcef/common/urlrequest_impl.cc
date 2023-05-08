@@ -18,12 +18,12 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     CefRefPtr<CefURLRequestClient> client,
     CefRefPtr<CefRequestContext> request_context) {
   if (!request.get() || !client.get()) {
-    NOTREACHED() << "called with invalid parameters";
+    DCHECK(false) << "called with invalid parameters";
     return nullptr;
   }
 
   if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return nullptr;
   }
 
@@ -37,7 +37,7 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
     }
     return nullptr;
   } else {
-    NOTREACHED() << "called in unsupported process";
+    DCHECK(false) << "called in unsupported process";
     return nullptr;
   }
 }

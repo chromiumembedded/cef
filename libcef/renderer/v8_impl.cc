@@ -228,7 +228,7 @@ class V8TrackObject : public CefTrackNode {
   int AdjustExternallyAllocatedMemory(int change_in_bytes) {
     int new_value = external_memory_ + change_in_bytes;
     if (new_value < 0) {
-      NOTREACHED() << "External memory usage cannot be less than 0 bytes";
+      DCHECK(false) << "External memory usage cannot be less than 0 bytes";
       change_in_bytes = -(external_memory_);
       new_value = 0;
     }
@@ -861,26 +861,26 @@ bool CefRegisterExtension(const CefString& extension_name,
 // Helper macros
 
 #define CEF_V8_HAS_ISOLATE() (!!CefV8IsolateManager::Get())
-#define CEF_V8_REQUIRE_ISOLATE_RETURN(var)     \
-  if (!CEF_V8_HAS_ISOLATE()) {                 \
-    NOTREACHED() << "V8 isolate is not valid"; \
-    return var;                                \
+#define CEF_V8_REQUIRE_ISOLATE_RETURN(var)      \
+  if (!CEF_V8_HAS_ISOLATE()) {                  \
+    DCHECK(false) << "V8 isolate is not valid"; \
+    return var;                                 \
   }
 
 #define CEF_V8_CURRENTLY_ON_MLT() \
   (!handle_.get() || handle_->BelongsToCurrentThread())
-#define CEF_V8_REQUIRE_MLT_RETURN(var)            \
-  CEF_V8_REQUIRE_ISOLATE_RETURN(var);             \
-  if (!CEF_V8_CURRENTLY_ON_MLT()) {               \
-    NOTREACHED() << "called on incorrect thread"; \
-    return var;                                   \
+#define CEF_V8_REQUIRE_MLT_RETURN(var)             \
+  CEF_V8_REQUIRE_ISOLATE_RETURN(var);              \
+  if (!CEF_V8_CURRENTLY_ON_MLT()) {                \
+    DCHECK(false) << "called on incorrect thread"; \
+    return var;                                    \
   }
 
 #define CEF_V8_HANDLE_IS_VALID() (handle_.get() && handle_->IsValid())
 #define CEF_V8_REQUIRE_VALID_HANDLE_RETURN(ret) \
   CEF_V8_REQUIRE_MLT_RETURN(ret);               \
   if (!CEF_V8_HANDLE_IS_VALID()) {              \
-    NOTREACHED() << "V8 handle is not valid";   \
+    DCHECK(false) << "V8 handle is not valid";  \
     return ret;                                 \
   }
 
@@ -888,11 +888,11 @@ bool CefRegisterExtension(const CefString& extension_name,
   (CEF_V8_HAS_ISOLATE() && CEF_V8_CURRENTLY_ON_MLT() && \
    CEF_V8_HANDLE_IS_VALID())
 
-#define CEF_V8_REQUIRE_OBJECT_RETURN(ret)        \
-  CEF_V8_REQUIRE_VALID_HANDLE_RETURN(ret);       \
-  if (type_ != TYPE_OBJECT) {                    \
-    NOTREACHED() << "V8 value is not an object"; \
-    return ret;                                  \
+#define CEF_V8_REQUIRE_OBJECT_RETURN(ret)         \
+  CEF_V8_REQUIRE_VALID_HANDLE_RETURN(ret);        \
+  if (type_ != TYPE_OBJECT) {                     \
+    DCHECK(false) << "V8 value is not an object"; \
+    return ret;                                   \
   }
 
 // CefV8HandleBase
@@ -1087,7 +1087,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   }
 
   if (code.empty()) {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 
@@ -1115,7 +1115,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
     return true;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
@@ -1330,7 +1330,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -1350,7 +1350,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
 
     v8::MaybeLocal<v8::Object> maybe_object = tmpl->NewInstance(context);
     if (!maybe_object.ToLocal<v8::Object>(&obj)) {
-      NOTREACHED() << "Failed to create V8 Object with interceptor";
+      DCHECK(false) << "Failed to create V8 Object with interceptor";
       return nullptr;
     }
   } else {
@@ -1381,7 +1381,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArray(int length) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -1411,7 +1411,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -1453,7 +1453,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
   if (!handler.get()) {
-    NOTREACHED() << "invalid parameter";
+    DCHECK(false) << "invalid parameter";
     return nullptr;
   }
 
@@ -1462,7 +1462,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -1477,7 +1477,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateFunction(
   v8::MaybeLocal<v8::Function> maybe_func = tmpl->GetFunction(context);
   v8::Local<v8::Function> func;
   if (!maybe_func.ToLocal(&func)) {
-    NOTREACHED() << "failed to create V8 function";
+    DCHECK(false) << "failed to create V8 function";
     return nullptr;
   }
 
@@ -1506,7 +1506,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreatePromise() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -1672,7 +1672,7 @@ v8::Local<v8::Value> CefV8ValueImpl::GetV8Value(bool should_persist) {
       break;
   }
 
-  NOTREACHED() << "Invalid type for CefV8ValueImpl";
+  DCHECK(false) << "Invalid type for CefV8ValueImpl";
   return v8::Local<v8::Value>();
 }
 
@@ -1867,7 +1867,7 @@ bool CefV8ValueImpl::IsUserCreated() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -1918,7 +1918,7 @@ bool CefV8ValueImpl::HasValue(const CefString& key) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -1931,7 +1931,7 @@ bool CefV8ValueImpl::HasValue(int index) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 
@@ -1940,7 +1940,7 @@ bool CefV8ValueImpl::HasValue(int index) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -1957,7 +1957,7 @@ bool CefV8ValueImpl::DeleteValue(const CefString& key) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -1974,7 +1974,7 @@ bool CefV8ValueImpl::DeleteValue(int index) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 
@@ -1983,7 +1983,7 @@ bool CefV8ValueImpl::DeleteValue(int index) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -2004,7 +2004,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -2025,7 +2025,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index) {
   CEF_V8_REQUIRE_OBJECT_RETURN(nullptr);
 
   if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return nullptr;
   }
 
@@ -2034,7 +2034,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -2063,7 +2063,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
 
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     if (context.IsEmpty()) {
-      NOTREACHED() << "not currently in a V8 context";
+      DCHECK(false) << "not currently in a V8 context";
       return false;
     }
 
@@ -2087,7 +2087,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
       return (!HasCaught(context, try_catch) && set.FromJust());
     }
   } else {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 }
@@ -2096,7 +2096,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   if (index < 0) {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 
@@ -2107,7 +2107,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
 
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     if (context.IsEmpty()) {
-      NOTREACHED() << "not currently in a V8 context";
+      DCHECK(false) << "not currently in a V8 context";
       return false;
     }
 
@@ -2119,7 +2119,7 @@ bool CefV8ValueImpl::SetValue(int index, CefRefPtr<CefV8Value> value) {
     v8::Maybe<bool> set = obj->Set(context, index, impl->GetV8Value(true));
     return (!HasCaught(context, try_catch) && set.FromJust());
   } else {
-    NOTREACHED() << "invalid input parameter";
+    DCHECK(false) << "invalid input parameter";
     return false;
   }
 }
@@ -2134,7 +2134,7 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -2176,7 +2176,7 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -2204,7 +2204,7 @@ bool CefV8ValueImpl::SetUserData(CefRefPtr<CefBaseRefCounted> user_data) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
@@ -2228,7 +2228,7 @@ CefRefPtr<CefBaseRefCounted> CefV8ValueImpl::GetUserData() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
@@ -2251,7 +2251,7 @@ int CefV8ValueImpl::GetExternallyAllocatedMemory() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return 0;
   }
 
@@ -2274,7 +2274,7 @@ int CefV8ValueImpl::AdjustExternallyAllocatedMemory(int change_in_bytes) {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return 0;
   }
 
@@ -2297,13 +2297,13 @@ int CefV8ValueImpl::GetArrayLength() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return 0;
   }
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsArray()) {
-    NOTREACHED() << "V8 value is not an array";
+    DCHECK(false) << "V8 value is not an array";
     return 0;
   }
 
@@ -2321,13 +2321,13 @@ CefV8ValueImpl::GetArrayBufferReleaseCallback() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsArrayBuffer()) {
-    NOTREACHED() << "V8 value is not an array buffer";
+    DCHECK(false) << "V8 value is not an array buffer";
     return nullptr;
   }
 
@@ -2349,13 +2349,13 @@ bool CefV8ValueImpl::NeuterArrayBuffer() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return false;
   }
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsArrayBuffer()) {
-    NOTREACHED() << "V8 value is not an array buffer";
+    DCHECK(false) << "V8 value is not an array buffer";
     return false;
   }
   v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
@@ -2377,13 +2377,13 @@ CefString CefV8ValueImpl::GetFunctionName() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return rv;
   }
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsFunction()) {
-    NOTREACHED() << "V8 value is not a function";
+    DCHECK(false) << "V8 value is not a function";
     return rv;
   }
 
@@ -2402,13 +2402,13 @@ CefRefPtr<CefV8Handler> CefV8ValueImpl::GetFunctionHandler() {
 
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    NOTREACHED() << "not currently in a V8 context";
+    DCHECK(false) << "not currently in a V8 context";
     return nullptr;
   }
 
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsFunction()) {
-    NOTREACHED() << "V8 value is not a function";
+    DCHECK(false) << "V8 value is not a function";
     return nullptr;
   }
 
@@ -2439,16 +2439,16 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsFunction()) {
-    NOTREACHED() << "V8 value is not a function";
+    DCHECK(false) << "V8 value is not a function";
     return nullptr;
   }
 
   if (context.get() && !context->IsValid()) {
-    NOTREACHED() << "invalid V8 context parameter";
+    DCHECK(false) << "invalid V8 context parameter";
     return nullptr;
   }
   if (object.get() && (!object->IsValid() || !object->IsObject())) {
-    NOTREACHED() << "invalid V8 object parameter";
+    DCHECK(false) << "invalid V8 object parameter";
     return nullptr;
   }
 
@@ -2456,7 +2456,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
   if (argc > 0) {
     for (int i = 0; i < argc; ++i) {
       if (!arguments[i].get() || !arguments[i]->IsValid()) {
-        NOTREACHED() << "invalid V8 arguments parameter";
+        DCHECK(false) << "invalid V8 arguments parameter";
         return nullptr;
       }
     }
@@ -2523,12 +2523,12 @@ bool CefV8ValueImpl::ResolvePromise(CefRefPtr<CefV8Value> arg) {
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsPromise()) {
-    NOTREACHED() << "V8 value is not a Promise";
+    DCHECK(false) << "V8 value is not a Promise";
     return false;
   }
 
   if (arg.get() && !arg->IsValid()) {
-    NOTREACHED() << "invalid V8 arg parameter";
+    DCHECK(false) << "invalid V8 arg parameter";
     return false;
   }
 
@@ -2562,7 +2562,7 @@ bool CefV8ValueImpl::RejectPromise(const CefString& errorMsg) {
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
   if (!value->IsPromise()) {
-    NOTREACHED() << "V8 value is not a Promise";
+    DCHECK(false) << "V8 value is not a Promise";
     return false;
   }
 

@@ -58,7 +58,7 @@ OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)) {
       whence = SEEK_SET;
       break;
     default:
-      NOTREACHED();
+      DCHECK(false);
       return -1;
   }
   return reader->Seek(offset, whence);
@@ -295,7 +295,7 @@ bool CefZipReaderImpl::GetFileInfo() {
 bool CefZipReaderImpl::VerifyContext() {
   if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 

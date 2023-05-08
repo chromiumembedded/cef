@@ -358,7 +358,7 @@ void CefBrowserInfoManager::RemoveBrowserInfo(
     }
   }
 
-  NOTREACHED();
+  DCHECK(false);
 }
 
 void CefBrowserInfoManager::DestroyAllBrowsers() {

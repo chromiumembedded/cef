@@ -227,12 +227,12 @@ CefRefPtr<CefBrowser> CefFrameHostImpl::GetBrowser() {
 }
 
 CefRefPtr<CefV8Context> CefFrameHostImpl::GetV8Context() {
-  NOTREACHED() << "GetV8Context cannot be called from the browser process";
+  DCHECK(false) << "GetV8Context cannot be called from the browser process";
   return nullptr;
 }
 
 void CefFrameHostImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
-  NOTREACHED() << "VisitDOM cannot be called from the browser process";
+  DCHECK(false) << "VisitDOM cannot be called from the browser process";
 }
 
 CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
@@ -243,7 +243,7 @@ CefRefPtr<CefURLRequest> CefFrameHostImpl::CreateURLRequest(
   }
 
   if (!CefTaskRunnerImpl::GetCurrentTaskRunner()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return nullptr;
   }
 

@@ -94,7 +94,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       base::FilePath dir_path = suggested_path.DirName();
       if (!base::DirectoryExists(dir_path) &&
           !base::CreateDirectory(dir_path)) {
-        NOTREACHED() << "failed to create the download directory";
+        DCHECK(false) << "failed to create the download directory";
         suggested_path.clear();
       }
     }

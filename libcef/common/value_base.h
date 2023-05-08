@@ -84,7 +84,7 @@ class CefValueController
   inline bool VerifyThread() {
     if (!thread_safe() && !on_correct_thread()) {
       // This object should only be accessed from the thread that created it.
-      NOTREACHED() << "object accessed from incorrect thread.";
+      DCHECK(false) << "object accessed from incorrect thread.";
       return false;
     }
     return true;
@@ -349,7 +349,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
   inline bool VerifyAttached() const {
     if (detached()) {
       // This object should not be accessed after being detached.
-      NOTREACHED() << "object accessed after being detached.";
+      DCHECK(false) << "object accessed after being detached.";
       return false;
     }
     return true;
@@ -397,7 +397,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
 
     if (read_only() && modify) {
       // This object cannot be modified.
-      NOTREACHED() << "mutation attempted on read-only object.";
+      DCHECK(false) << "mutation attempted on read-only object.";
       return false;
     }
 

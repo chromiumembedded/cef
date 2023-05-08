@@ -493,7 +493,7 @@ void CefBrowserHostBase::GetNavigationEntries(
 
 CefRefPtr<CefNavigationEntry> CefBrowserHostBase::GetVisibleNavigationEntry() {
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
+    DCHECK(false) << "called on invalid thread";
     return nullptr;
   }
 

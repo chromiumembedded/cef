@@ -196,7 +196,7 @@ blink::mojom::PreferredColorScheme ToBlinkPreferredColorScheme(
       return blink::mojom::PreferredColorScheme::kLight;
   }
 
-  NOTREACHED();
+  DCHECK(false);
 }
 
 // From chrome/browser/chrome_content_browser_client.cc

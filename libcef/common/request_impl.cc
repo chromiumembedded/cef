@@ -158,16 +158,16 @@ void GetHeaderMap(const CefRequest::HeaderMap& source,
 
 }  // namespace
 
-#define CHECK_READONLY_RETURN(val)         \
-  if (read_only_) {                        \
-    NOTREACHED() << "object is read only"; \
-    return val;                            \
+#define CHECK_READONLY_RETURN(val)          \
+  if (read_only_) {                         \
+    DCHECK(false) << "object is read only"; \
+    return val;                             \
   }
 
-#define CHECK_READONLY_RETURN_VOID()       \
-  if (read_only_) {                        \
-    NOTREACHED() << "object is read only"; \
-    return;                                \
+#define CHECK_READONLY_RETURN_VOID()        \
+  if (read_only_) {                         \
+    DCHECK(false) << "object is read only"; \
+    return;                                 \
   }
 
 #define SETBOOLFLAG(obj, flags, method, FLAG) \
@@ -752,7 +752,7 @@ CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
     case REFERRER_POLICY_NO_REFERRER:
       return network::mojom::ReferrerPolicy::kNever;
   }
-  NOTREACHED();
+  DCHECK(false);
   return network::mojom::ReferrerPolicy::kDefault;
 }
 
@@ -779,7 +779,7 @@ cef_referrer_policy_t CefRequestImpl::BlinkReferrerPolicyToNetReferrerPolicy(
     case network::mojom::ReferrerPolicy::kDefault:
       return REFERRER_POLICY_DEFAULT;
   }
-  NOTREACHED();
+  DCHECK(false);
   return REFERRER_POLICY_DEFAULT;
 }
 
@@ -1179,7 +1179,7 @@ void CefPostDataElementImpl::Get(network::ResourceRequestBody& body) const {
     body.AppendFileRange(path, 0, std::numeric_limits<uint64_t>::max(),
                          base::Time());
   } else {
-    NOTREACHED();
+    DCHECK(false);
   }
 }
 

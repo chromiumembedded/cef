@@ -53,20 +53,20 @@ bool CefBrowserHost::CreateBrowser(
     CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return false;
   }
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
-    NOTREACHED() << "invalid CefBrowserSettings structure size";
+    DCHECK(false) << "invalid CefBrowserSettings structure size";
     return false;
   }
 
   // Verify windowless rendering requirements.
   if (windowInfo.windowless_rendering_enabled &&
       !client->GetRenderHandler().get()) {
-    NOTREACHED() << "CefRenderHandler implementation is required";
+    DCHECK(false) << "CefRenderHandler implementation is required";
     return false;
   }
 
@@ -110,13 +110,13 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
     CefRefPtr<CefRequestContext> request_context) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return nullptr;
   }
 
   // Verify that the settings structure is a valid size.
   if (settings.size != sizeof(cef_browser_settings_t)) {
-    NOTREACHED() << "invalid CefBrowserSettings structure size";
+    DCHECK(false) << "invalid CefBrowserSettings structure size";
     return nullptr;
   }
 
@@ -134,7 +134,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   // Verify windowless rendering requirements.
   if (windowInfo.windowless_rendering_enabled &&
       !client->GetRenderHandler().get()) {
-    NOTREACHED() << "CefRenderHandler implementation is required";
+    DCHECK(false) << "CefRenderHandler implementation is required";
     return nullptr;
   }
 

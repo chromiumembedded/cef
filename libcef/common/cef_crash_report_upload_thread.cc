@@ -100,7 +100,7 @@ void CefCrashReportUploadThread::ProcessPendingReport(
       return;
 
     case CrashReportDatabase::kCannotRequestUpload:
-      NOTREACHED();
+      DCHECK(false);
       return;
   }
 

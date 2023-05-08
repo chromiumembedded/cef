@@ -54,7 +54,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
       case MENUITEMTYPE_SUBMENU:
         return TYPE_SUBMENU;
       default:
-        NOTREACHED();
+        DCHECK(false);
         return TYPE_COMMAND;
     }
   }
@@ -1109,7 +1109,7 @@ void CefMenuModelImpl::OnMenuClosed() {
 bool CefMenuModelImpl::VerifyContext() {
   if (base::PlatformThread::CurrentId() != supported_thread_id_) {
     // This object should only be accessed from the thread that created it.
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
 

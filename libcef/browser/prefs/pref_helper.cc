@@ -35,7 +35,7 @@ const char* GetTypeString(base::Value::Type type) {
       return "LIST";
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return "UNKNOWN";
 }
 
