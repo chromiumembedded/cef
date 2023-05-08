@@ -219,7 +219,7 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
         extension, web_contents_, url, host_type);
     // Load will be triggered by ProcessManager::CreateBackgroundHost.
   } else {
-    NOTREACHED() << " Unsupported extension host type: " << host_type;
+    DCHECK(false) << " Unsupported extension host type: " << host_type;
   }
 }
 

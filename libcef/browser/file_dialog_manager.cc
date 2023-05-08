@@ -491,7 +491,7 @@ CefFileDialogManager::MaybeRunDelegate(
           mode = FILE_DIALOG_SAVE;
           break;
         default:
-          NOTREACHED();
+          DCHECK(false);
           break;
       }
 

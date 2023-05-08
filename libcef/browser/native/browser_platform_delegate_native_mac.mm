@@ -561,7 +561,7 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebClickEvent(
       result.button = blink::WebMouseEvent::Button::kRight;
       break;
     default:
-      NOTREACHED();
+      DCHECK(false);
   }
 
   result.click_count = clickCount;

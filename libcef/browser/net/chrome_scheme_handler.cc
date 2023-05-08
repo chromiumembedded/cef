@@ -363,7 +363,7 @@ bool OnLicenseUI(std::string* mime_type, std::string* output) {
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
           IDR_CEF_LICENSE_TXT);
   if (piece.empty()) {
-    NOTREACHED() << "Failed to load license txt resource.";
+    DCHECK(false) << "Failed to load license txt resource.";
     return false;
   }
 
@@ -381,7 +381,7 @@ bool OnVersionUI(Profile* profile,
       ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
           IDR_CEF_VERSION_HTML);
   if (tmpl.empty()) {
-    NOTREACHED() << "Failed to load version html resource.";
+    DCHECK(false) << "Failed to load version html resource.";
     return false;
   }
 

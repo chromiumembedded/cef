@@ -138,6 +138,6 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     return std::move(native_delegate);
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }

@@ -104,7 +104,7 @@ CefTaskRunnerImpl::GetCurrentTaskRunner() {
     } else if (current_id == BrowserThread::IO) {
       return content::GetIOThreadTaskRunner({});
     } else {
-      NOTREACHED();
+      DCHECK(false);
     }
   }
 

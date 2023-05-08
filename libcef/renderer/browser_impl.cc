@@ -53,7 +53,7 @@ bool CefBrowserImpl::IsValid() {
 }
 
 CefRefPtr<CefBrowserHost> CefBrowserImpl::GetHost() {
-  NOTREACHED() << "GetHost cannot be called from the render process";
+  DCHECK(false) << "GetHost cannot be called from the render process";
   return nullptr;
 }
 

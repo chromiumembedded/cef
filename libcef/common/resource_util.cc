@@ -113,7 +113,7 @@ base::FilePath GetUserDataPath(CefSettings* settings,
     return result;
   }
 
-  NOTREACHED();
+  DCHECK(false);
   return result;
 }
 
@@ -130,7 +130,7 @@ bool DownloadPathIsDangerous(const base::FilePath& download_path) {
 
   base::FilePath desktop_dir;
   if (!base::PathService::Get(base::DIR_USER_DESKTOP, &desktop_dir)) {
-    NOTREACHED();
+    DCHECK(false);
     return false;
   }
   return (download_path == desktop_dir);

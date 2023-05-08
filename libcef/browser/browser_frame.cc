@@ -77,6 +77,6 @@ CefRefPtr<CefFrameHostImpl> CefBrowserFrame::GetFrameHost(
     return browser->browser_info()->GetFrameForHost(rfh, nullptr,
                                                     prefer_speculative);
   }
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }

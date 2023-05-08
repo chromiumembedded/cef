@@ -276,7 +276,7 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
       type = ui::ET_KEY_RELEASED;
       break;
     default:
-      NOTREACHED();
+      DCHECK(false);
   }
 
 #if BUILDFLAG(OZONE_PLATFORM_X11)

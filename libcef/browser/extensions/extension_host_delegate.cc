@@ -26,7 +26,7 @@ void CefExtensionHostDelegate::OnMainFrameCreatedForBackgroundPage(
 content::JavaScriptDialogManager*
 CefExtensionHostDelegate::GetJavaScriptDialogManager() {
   // Never routed here from AlloyBrowserHostImpl.
-  NOTREACHED();
+  DCHECK(false);
   return nullptr;
 }
 
@@ -46,7 +46,7 @@ void CefExtensionHostDelegate::ProcessMediaAccessRequest(
     content::MediaResponseCallback callback,
     const Extension* extension) {
   // Never routed here from AlloyBrowserHostImpl.
-  NOTREACHED();
+  DCHECK(false);
 }
 
 bool CefExtensionHostDelegate::CheckMediaAccessPermission(
@@ -55,18 +55,18 @@ bool CefExtensionHostDelegate::CheckMediaAccessPermission(
     blink::mojom::MediaStreamType type,
     const Extension* extension) {
   // Never routed here from AlloyBrowserHostImpl.
-  NOTREACHED();
+  DCHECK(false);
   return false;
 }
 
 content::PictureInPictureResult CefExtensionHostDelegate::EnterPictureInPicture(
     content::WebContents* web_contents) {
-  NOTREACHED();
+  DCHECK(false);
   return content::PictureInPictureResult::kNotSupported;
 }
 
 void CefExtensionHostDelegate::ExitPictureInPicture() {
-  NOTREACHED();
+  DCHECK(false);
 }
 
 }  // namespace extensions

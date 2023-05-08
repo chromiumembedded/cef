@@ -18,10 +18,10 @@
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/platform/web_url_response.h"
 
-#define CHECK_READONLY_RETURN_VOID()       \
-  if (read_only_) {                        \
-    NOTREACHED() << "object is read only"; \
-    return;                                \
+#define CHECK_READONLY_RETURN_VOID()        \
+  if (read_only_) {                         \
+    DCHECK(false) << "object is read only"; \
+    return;                                 \
   }
 
 // CefResponse ----------------------------------------------------------------

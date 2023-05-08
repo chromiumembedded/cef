@@ -8,10 +8,10 @@
 #include "libcef/browser/stream_impl.h"
 #include "libcef/common/drag_data_impl.h"
 
-#define CHECK_READONLY_RETURN_VOID()       \
-  if (read_only_) {                        \
-    NOTREACHED() << "object is read only"; \
-    return;                                \
+#define CHECK_READONLY_RETURN_VOID()        \
+  if (read_only_) {                         \
+    DCHECK(false) << "object is read only"; \
+    return;                                 \
   }
 
 CefDragDataImpl::CefDragDataImpl(const content::DropData& data)

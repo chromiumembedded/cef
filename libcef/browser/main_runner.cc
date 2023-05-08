@@ -230,12 +230,12 @@ bool CefMainRunner::Initialize(CefSettings* settings,
   const int exit_code =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
   if (exit_code >= 0) {
-    NOTREACHED() << "ContentMainInitialize failed";
+    DCHECK(false) << "ContentMainInitialize failed";
     return false;
   }
 
   if (!ContentMainRun(initialized, std::move(context_initialized))) {
-    NOTREACHED() << "ContentMainRun failed";
+    DCHECK(false) << "ContentMainRun failed";
     return false;
   }
 

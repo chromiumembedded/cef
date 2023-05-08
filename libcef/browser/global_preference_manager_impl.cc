@@ -46,7 +46,7 @@ CefRefPtr<CefPreferenceManager>
 CefPreferenceManager::GetGlobalPreferenceManager() {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
+    DCHECK(false) << "context not valid";
     return nullptr;
   }
 
