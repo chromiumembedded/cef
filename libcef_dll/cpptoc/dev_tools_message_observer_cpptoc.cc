@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=78a2561a28bab409e06b44eaff38cac7e156bdf4$
+// $hash=d32b3a49e312971ee0c825fe765c584c033d65e9$
 //
 
 #include "libcef_dll/cpptoc/dev_tools_message_observer_cpptoc.h"
@@ -184,7 +184,7 @@ CefCppToCRefCounted<CefDevToolsMessageObserverCppToC,
                     CefDevToolsMessageObserver,
                     cef_dev_tools_message_observer_t>::
     UnwrapDerived(CefWrapperType type, cef_dev_tools_message_observer_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

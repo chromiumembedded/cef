@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=341388d9df93e67401777e34989f0bd43f341c80$
+// $hash=5b964d4de1850160f24a5cc43d4d51bc622cc546$
 //
 
 #include "libcef_dll/cpptoc/preference_registrar_cpptoc.h"
@@ -65,7 +65,7 @@ CefOwnPtr<CefPreferenceRegistrar> CefCppToCScoped<CefPreferenceRegistrarCppToC,
                                                   CefPreferenceRegistrar,
                                                   cef_preference_registrar_t>::
     UnwrapDerivedOwn(CefWrapperType type, cef_preference_registrar_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return CefOwnPtr<CefPreferenceRegistrar>();
 }
 
@@ -74,7 +74,7 @@ CefRawPtr<CefPreferenceRegistrar> CefCppToCScoped<CefPreferenceRegistrarCppToC,
                                                   CefPreferenceRegistrar,
                                                   cef_preference_registrar_t>::
     UnwrapDerivedRaw(CefWrapperType type, cef_preference_registrar_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

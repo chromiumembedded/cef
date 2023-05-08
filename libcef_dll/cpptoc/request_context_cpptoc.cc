@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e710aaf020af29d178d2668e24577c371ebf6d45$
+// $hash=11e75abce1b3d294f13b65739bd95fff8f790a3e$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -49,7 +49,7 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
     return NULL;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return NULL;
   }
   // Unverified params: handler
@@ -643,7 +643,7 @@ CefRefPtr<CefRequestContext> CefCppToCRefCounted<
     CefRequestContext,
     cef_request_context_t>::UnwrapDerived(CefWrapperType type,
                                           cef_request_context_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

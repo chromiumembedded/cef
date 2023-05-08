@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f104fb8a49bd3ad2cfc7f638995bbd04e1bbbd5b$
+// $hash=c4c46d19e0b5234bca4f1051d0113af666dc2c09$
 //
 
 #include "libcef_dll/ctocpp/views/overlay_controller_ctocpp.h"
@@ -355,7 +355,7 @@ cef_overlay_controller_t* CefCToCppRefCounted<
     CefOverlayController,
     cef_overlay_controller_t>::UnwrapDerived(CefWrapperType type,
                                              CefOverlayController* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

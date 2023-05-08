@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6351a3c3dc209334aa1371934d5eb846ed2f378$
+// $hash=c91c9abe489d40b7841d1de59c7fecf6cf4af362$
 //
 
 #include "libcef_dll/ctocpp/resource_skip_callback_ctocpp.h"
@@ -48,7 +48,7 @@ cef_resource_skip_callback_t* CefCToCppRefCounted<
     CefResourceSkipCallback,
     cef_resource_skip_callback_t>::UnwrapDerived(CefWrapperType type,
                                                  CefResourceSkipCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

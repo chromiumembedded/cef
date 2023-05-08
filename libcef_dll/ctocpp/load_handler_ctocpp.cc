@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=383c19c3c8f95deb40ca6eac2860b34f52b0a421$
+// $hash=cf0d34b49335d629c3cc9d8420cc834cb0430fe4$
 //
 
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
@@ -154,7 +154,7 @@ template <>
 cef_load_handler_t*
 CefCToCppRefCounted<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>::
     UnwrapDerived(CefWrapperType type, CefLoadHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

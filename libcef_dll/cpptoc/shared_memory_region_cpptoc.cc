@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5b181bf741072399ceb3c21ad010ce2bed04aab3$
+// $hash=8a13049bee943d760534a354df5d0e6b59cfa3d0$
 //
 
 #include "libcef_dll/cpptoc/shared_memory_region_cpptoc.h"
@@ -95,7 +95,7 @@ CefRefPtr<CefSharedMemoryRegion> CefCppToCRefCounted<
     CefSharedMemoryRegion,
     cef_shared_memory_region_t>::UnwrapDerived(CefWrapperType type,
                                                cef_shared_memory_region_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

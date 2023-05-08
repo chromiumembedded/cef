@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ac50966059a1ba14d20824a27bcc19e9c0c0d910$
+// $hash=f542bb5ffcf0d7543e424741a62e93c58cc2e3ee$
 //
 
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -165,7 +165,7 @@ cef_process_message_t* CefCToCppRefCounted<
     CefProcessMessage,
     cef_process_message_t>::UnwrapDerived(CefWrapperType type,
                                           CefProcessMessage* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

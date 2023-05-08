@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=42bab23e4d8596214bbc40591bc50c784eecbf4d$
+// $hash=73bfc92f74c8cd32ae894b99710c1de5bd5099a0$
 //
 
 #include "libcef_dll/cpptoc/frame_handler_cpptoc.h"
@@ -156,7 +156,7 @@ CefRefPtr<CefFrameHandler> CefCppToCRefCounted<
     CefFrameHandler,
     cef_frame_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_frame_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d62144c01e5efa6355c635ada089496a0fef4ec5$
+// $hash=870f78147369bc35912730714caef7559fa41c99$
 //
 
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
@@ -55,7 +55,7 @@ cef_end_tracing_callback_t* CefCToCppRefCounted<
     CefEndTracingCallback,
     cef_end_tracing_callback_t>::UnwrapDerived(CefWrapperType type,
                                                CefEndTracingCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

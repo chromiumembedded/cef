@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a7d0c28420e88fe055cc18eda55d9cae1f3ee33f$
+// $hash=9e4ec003479af870824a7b7609bc45e4f40fc52a$
 //
 
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
@@ -138,7 +138,7 @@ CefRefPtr<CefWriteHandler> CefCppToCRefCounted<
     CefWriteHandler,
     cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_write_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

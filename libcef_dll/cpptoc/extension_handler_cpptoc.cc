@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=febb11e8ea976823bf839bc77bc129be40af20bb$
+// $hash=268a62ebd9b7d8b14dc1510af1d395768d24e20f$
 //
 
 #include "libcef_dll/cpptoc/extension_handler_cpptoc.h"
@@ -119,7 +119,7 @@ int CEF_CALLBACK extension_handler_on_before_background_browser(
     return 0;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return 0;
   }
 
@@ -205,7 +205,7 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(windowInfo)) {
-    NOTREACHED() << "invalid windowInfo->[base.]size";
+    DCHECK(false) << "invalid windowInfo->[base.]size";
     return 0;
   }
   // Verify param: client; type: refptr_same_byref
@@ -219,7 +219,7 @@ extension_handler_on_before_browser(struct _cef_extension_handler_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return 0;
   }
 
@@ -416,7 +416,7 @@ CefRefPtr<CefExtensionHandler> CefCppToCRefCounted<
     CefExtensionHandler,
     cef_extension_handler_t>::UnwrapDerived(CefWrapperType type,
                                             cef_extension_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

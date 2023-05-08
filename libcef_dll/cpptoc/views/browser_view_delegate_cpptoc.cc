@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8b92c198857b0ca5c3ddc9b2c8a82febe7ed8cde$
+// $hash=1b695e1b06a8ba626073b4a610d47c5a931a4735$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -108,7 +108,7 @@ browser_view_delegate_get_delegate_for_popup_browser_view(
     return NULL;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return NULL;
   }
   // Unverified params: client
@@ -496,7 +496,7 @@ CefRefPtr<CefBrowserViewDelegate> CefCppToCRefCounted<
     cef_browser_view_delegate_t>::UnwrapDerived(CefWrapperType type,
                                                 cef_browser_view_delegate_t*
                                                     s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

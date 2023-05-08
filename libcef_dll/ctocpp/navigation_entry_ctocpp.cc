@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a832a32c3a3d5c43676c7bc76bafbe77a964a5f1$
+// $hash=4adb66632fea25a6f73e03ee839cc77567841db2$
 //
 
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
@@ -216,7 +216,7 @@ cef_navigation_entry_t* CefCToCppRefCounted<
     CefNavigationEntry,
     cef_navigation_entry_t>::UnwrapDerived(CefWrapperType type,
                                            CefNavigationEntry* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

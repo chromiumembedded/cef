@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f422501ac723c377df6b2ff14c8f0452de3ea055$
+// $hash=87e133cdd2e856ab8a9d45d990972e08a7a69fbc$
 //
 
 #include "libcef_dll/ctocpp/media_route_create_callback_ctocpp.h"
@@ -55,7 +55,7 @@ CefCToCppRefCounted<CefMediaRouteCreateCallbackCToCpp,
                     CefMediaRouteCreateCallback,
                     cef_media_route_create_callback_t>::
     UnwrapDerived(CefWrapperType type, CefMediaRouteCreateCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4ef592680d7650fb636a997f127d3c8e54d6c450$
+// $hash=f05652f759e16a6f2a3bc5f640ede99e3e123b4d$
 //
 
 #include "libcef_dll/ctocpp/media_source_ctocpp.h"
@@ -84,7 +84,7 @@ template <>
 cef_media_source_t*
 CefCToCppRefCounted<CefMediaSourceCToCpp, CefMediaSource, cef_media_source_t>::
     UnwrapDerived(CefWrapperType type, CefMediaSource* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

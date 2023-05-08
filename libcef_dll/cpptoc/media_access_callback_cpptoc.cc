@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a6f40e6aedccd7784cad96c4e8097dae6a1add6b$
+// $hash=80cfd5e986d8a5f4b71c3058806cf2ee66100f6e$
 //
 
 #include "libcef_dll/cpptoc/media_access_callback_cpptoc.h"
@@ -72,7 +72,7 @@ CefRefPtr<CefMediaAccessCallback> CefCppToCRefCounted<
     cef_media_access_callback_t>::UnwrapDerived(CefWrapperType type,
                                                 cef_media_access_callback_t*
                                                     s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

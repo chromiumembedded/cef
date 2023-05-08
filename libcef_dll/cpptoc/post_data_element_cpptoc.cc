@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=163df09395448195c38cd73e0cdff8e0018eed7a$
+// $hash=28878433f4b543be6353184d8f930099ea0c9f41$
 //
 
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
@@ -195,7 +195,7 @@ CefRefPtr<CefPostDataElement> CefCppToCRefCounted<
     CefPostDataElement,
     cef_post_data_element_t>::UnwrapDerived(CefWrapperType type,
                                             cef_post_data_element_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

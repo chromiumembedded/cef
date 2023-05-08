@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5a1986090e786d2d1c14f839cb9e18b97e1080b5$
+// $hash=5327e7e6f275416ba3e88025691c75dedcee72ef$
 //
 
 #include "libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h"
@@ -68,7 +68,7 @@ CefCToCppRefCounted<CefGetExtensionResourceCallbackCToCpp,
                     CefGetExtensionResourceCallback,
                     cef_get_extension_resource_callback_t>::
     UnwrapDerived(CefWrapperType type, CefGetExtensionResourceCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

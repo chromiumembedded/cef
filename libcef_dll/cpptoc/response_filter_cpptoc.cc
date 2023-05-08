@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67a86aa6e1d96bc5c9960dbee2b7e6786879a161$
+// $hash=403513566867d0fd85166242648f269fac987ca5$
 //
 
 #include "libcef_dll/cpptoc/response_filter_cpptoc.h"
@@ -115,7 +115,7 @@ CefRefPtr<CefResponseFilter> CefCppToCRefCounted<
     CefResponseFilter,
     cef_response_filter_t>::UnwrapDerived(CefWrapperType type,
                                           cef_response_filter_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

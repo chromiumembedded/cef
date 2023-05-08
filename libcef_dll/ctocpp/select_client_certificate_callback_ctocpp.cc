@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6949f8943b86edf4d444adbb8e20b8cff183eadb$
+// $hash=626530c59232a37a7f7a744637d11875a7d0d0f7$
 //
 
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
@@ -54,7 +54,7 @@ CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
                     CefSelectClientCertificateCallback,
                     cef_select_client_certificate_callback_t>::
     UnwrapDerived(CefWrapperType type, CefSelectClientCertificateCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

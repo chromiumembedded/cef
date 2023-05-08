@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=37ab08ce3f3226d0d38ac05bb91dbf060e43a598$
+// $hash=3ff7759e8f2dac0ae01122918c5ba0556b244532$
 //
 
 #include "libcef_dll/cpptoc/permission_prompt_callback_cpptoc.h"
@@ -55,7 +55,7 @@ CefCppToCRefCounted<CefPermissionPromptCallbackCppToC,
                     CefPermissionPromptCallback,
                     cef_permission_prompt_callback_t>::
     UnwrapDerived(CefWrapperType type, cef_permission_prompt_callback_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

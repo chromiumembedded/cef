@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5737d6b536a99ac844904acaa8977c25476ed524$
+// $hash=41a3981a7d293d6a13bba9961192d4fc7f0a49f1$
 //
 
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -306,7 +306,7 @@ CefRefPtr<CefRenderProcessHandler> CefCppToCRefCounted<
     cef_render_process_handler_t>::UnwrapDerived(CefWrapperType type,
                                                  cef_render_process_handler_t*
                                                      s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

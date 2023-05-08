@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f4164c6761097fed20cf8ef4a42784f193f141af$
+// $hash=a6bbf97ac7f70e325509631a3bbdbf4b8b860d0c$
 //
 
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
@@ -140,7 +140,7 @@ template <>
 CefRefPtr<CefV8Accessor>
 CefCppToCRefCounted<CefV8AccessorCppToC, CefV8Accessor, cef_v8accessor_t>::
     UnwrapDerived(CefWrapperType type, cef_v8accessor_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

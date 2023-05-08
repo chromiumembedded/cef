@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=08bc3d3dc2179824d250c38c1d1165c642110e87$
+// $hash=db95f4b4337e9eec478f506df6f322247f8b24f6$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -122,7 +122,7 @@ cef_browser_process_handler_t* CefCToCppRefCounted<
     CefBrowserProcessHandler,
     cef_browser_process_handler_t>::UnwrapDerived(CefWrapperType type,
                                                   CefBrowserProcessHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=49a9c2dc0a50b5afa3de2fa4e78606597227f175$
+// $hash=01a59b2a4850603dcb6df74f33431d13bcf2c5c9$
 //
 
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
@@ -78,7 +78,7 @@ cef_file_dialog_callback_t* CefCToCppRefCounted<
     CefFileDialogCallback,
     cef_file_dialog_callback_t>::UnwrapDerived(CefWrapperType type,
                                                CefFileDialogCallback* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

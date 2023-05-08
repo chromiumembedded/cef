@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3fb60285776c7480d0909430c04b3fe5a0c257be$
+// $hash=f6f6e03a419a412c7c4f15c252fef53c543c5397$
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
@@ -129,7 +129,7 @@ CefCppToCScoped<CefTranslatorTestScopedLibraryChildCppToC,
     return CefTranslatorTestScopedLibraryChildChildCppToC::UnwrapOwn(
         reinterpret_cast<cef_translator_test_scoped_library_child_child_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return CefOwnPtr<CefTranslatorTestScopedLibraryChild>();
 }
 
@@ -144,7 +144,7 @@ CefCppToCScoped<CefTranslatorTestScopedLibraryChildCppToC,
     return CefTranslatorTestScopedLibraryChildChildCppToC::UnwrapRaw(
         reinterpret_cast<cef_translator_test_scoped_library_child_child_t*>(s));
   }
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

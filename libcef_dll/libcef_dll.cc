@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f0c6529941194dc0bbbb1ac75268b6653653dbbb$
+// $hash=aae38cfe93c23ba06455e792151df4294c3d5dde$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -96,7 +96,7 @@ CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
     return 0;
   }
   if (!template_util::has_valid_size(settings)) {
-    NOTREACHED() << "invalid settings->[base.]size";
+    DCHECK(false) << "invalid settings->[base.]size";
     return 0;
   }
   // Unverified params: application, windows_sandbox_info
@@ -452,7 +452,7 @@ CEF_EXPORT int cef_parse_url(const cef_string_t* url,
     return 0;
   }
   if (!template_util::has_valid_size(parts)) {
-    NOTREACHED() << "invalid parts->[base.]size";
+    DCHECK(false) << "invalid parts->[base.]size";
     return 0;
   }
 
@@ -484,7 +484,7 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
     return 0;
   }
   if (!template_util::has_valid_size(parts)) {
-    NOTREACHED() << "invalid parts->[base.]size";
+    DCHECK(false) << "invalid parts->[base.]size";
     return 0;
   }
   // Verify param: url; type: string_byref

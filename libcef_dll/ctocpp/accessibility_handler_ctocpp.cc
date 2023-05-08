@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=236b528eccad839c6afca3c752c83868fe823fa8$
+// $hash=1833e824ccf9b8b5aa8a22ab4f0e731b3296603c$
 //
 
 #include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
@@ -79,7 +79,7 @@ cef_accessibility_handler_t* CefCToCppRefCounted<
     CefAccessibilityHandler,
     cef_accessibility_handler_t>::UnwrapDerived(CefWrapperType type,
                                                 CefAccessibilityHandler* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

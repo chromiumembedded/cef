@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=367c7e71f4d0e57f08b1c2fc63d54dcb475ee59e$
+// $hash=82e87e32f0c6e2da2ae52a8f3af76e22790ee911$
 //
 
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
@@ -119,7 +119,7 @@ template <>
 cef_sslstatus_t*
 CefCToCppRefCounted<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t>::
     UnwrapDerived(CefWrapperType type, CefSSLStatus* c) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

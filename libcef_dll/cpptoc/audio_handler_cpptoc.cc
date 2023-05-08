@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0e814467a4d428a493930a3e72123dfd6721786e$
+// $hash=5f113123b4a9cd31cb451c9b9e60d5e04c38a6b7$
 //
 
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
@@ -195,7 +195,7 @@ CefRefPtr<CefAudioHandler> CefCppToCRefCounted<
     CefAudioHandler,
     cef_audio_handler_t>::UnwrapDerived(CefWrapperType type,
                                         cef_audio_handler_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

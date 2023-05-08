@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f175b71f11857a4362fcf79178ea3ab531b15891$
+// $hash=d7bbbf41f806f415ac983a9a9f9475ab7783cb10$
 //
 
 #include "libcef_dll/cpptoc/cookie_access_filter_cpptoc.h"
@@ -46,7 +46,7 @@ cookie_access_filter_can_send_cookie(struct _cef_cookie_access_filter_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(cookie)) {
-    NOTREACHED() << "invalid cookie->[base.]size";
+    DCHECK(false) << "invalid cookie->[base.]size";
     return 0;
   }
   // Unverified params: browser, frame
@@ -95,7 +95,7 @@ cookie_access_filter_can_save_cookie(struct _cef_cookie_access_filter_t* self,
     return 0;
   }
   if (!template_util::has_valid_size(cookie)) {
-    NOTREACHED() << "invalid cookie->[base.]size";
+    DCHECK(false) << "invalid cookie->[base.]size";
     return 0;
   }
   // Unverified params: browser, frame
@@ -135,7 +135,7 @@ CefRefPtr<CefCookieAccessFilter> CefCppToCRefCounted<
     CefCookieAccessFilter,
     cef_cookie_access_filter_t>::UnwrapDerived(CefWrapperType type,
                                                cef_cookie_access_filter_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 

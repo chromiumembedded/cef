@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c794f92b885a3c50f229606dc1691502a7ab889b$
+// $hash=5867942bc6c9feb3f989d6797cef9777ad85d284$
 //
 
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
@@ -294,7 +294,7 @@ template <>
 CefRefPtr<CefZipReader>
 CefCppToCRefCounted<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t>::
     UnwrapDerived(CefWrapperType type, cef_zip_reader_t* s) {
-  NOTREACHED() << "Unexpected class type: " << type;
+  DCHECK(false) << "Unexpected class type: " << type;
   return nullptr;
 }
 
