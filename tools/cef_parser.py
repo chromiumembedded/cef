@@ -344,8 +344,6 @@ _cre_attrib = '/\*--cef\(([A-Za-z0-9_ ,=:\n]{0,})\)--\*/'
 _cre_cfname = '([A-Za-z0-9_]{1,})'
 # regex for matching class and function names including path separators
 _cre_cfnameorpath = '([A-Za-z0-9_\/]{1,})'
-# regex for matching function return values
-_cre_retval = '([A-Za-z0-9_<>:,\*\&]{1,})'
 # regex for matching typedef value and name combination
 _cre_typedef = '([A-Za-z0-9_<>:,\*\&\s]{1,})'
 # regex for matching function return value and name combination
@@ -418,6 +416,10 @@ def get_function_impls(content, ident, has_impl=True):
     return value, name, arguments and body. Ident must occur somewhere in
     the value.
     """
+  # Remove prefix from methods in CToCpp files.
+  content = content.replace('NO_SANITIZE("cfi-icall") ', '')
+  content = content.replace('NO_SANITIZE("cfi-icall")\n', '')
+
   # extract the functions
   find_regex = '\n' + _cre_func + '\((.*?)\)([A-Za-z0-9_\s]{0,})'
   if has_impl:

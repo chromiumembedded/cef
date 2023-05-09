@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=095699acd421d433e599a53919507f205b780f2f$
+// $hash=439e6639c3e7a3f99de34d6c499b1c6766dc7fa7$
 //
 
 #include "libcef_dll/ctocpp/shared_process_message_builder_ctocpp.h"
