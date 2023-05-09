@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eb7080f1bb2346bd513267f4c8c66af1ca0eb91f$
+// $hash=79771feab6c6d60667691c826ca9d6deaa23d068$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -58,8 +58,6 @@ NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
   if (CEF_MEMBER_MISSING(_struct, memory)) {
     return NULL;
   }
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   const void* _retval = _struct->memory(_struct);

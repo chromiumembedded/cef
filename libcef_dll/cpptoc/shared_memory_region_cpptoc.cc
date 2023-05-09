@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a13049bee943d760534a354df5d0e6b59cfa3d0$
+// $hash=9b9187a75a85ff63f2244471af1e54f40eae5a82$
 //
 
 #include "libcef_dll/cpptoc/shared_memory_region_cpptoc.h"
@@ -58,8 +58,6 @@ shared_memory_region_size(struct _cef_shared_memory_region_t* self) {
 const void* CEF_CALLBACK
 shared_memory_region_memory(struct _cef_shared_memory_region_t* self) {
   shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self) {
