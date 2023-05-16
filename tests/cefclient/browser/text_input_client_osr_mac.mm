@@ -45,11 +45,12 @@ void ExtractUnderlines(NSAttributedString* string,
         color = CefColorFromNSColor(
             [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
       }
-      cef_composition_underline_t line = {{static_cast<int>(range.location),
-                                           static_cast<int>(NSMaxRange(range))},
-                                          color,
-                                          0,
-                                          [style intValue] > 1};
+      cef_composition_underline_t line = {
+          {static_cast<uint32_t>(range.location),
+           static_cast<uint32_t>(NSMaxRange(range))},
+          color,
+          0,
+          [style intValue] > 1};
       underlines->push_back(line);
     }
     i = static_cast<int>(range.location + range.length);
@@ -109,8 +110,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   if (handlingKeyDown_) {
     textToBeInserted_.append([im_text UTF8String]);
   } else {
-    cef_range_t range = {static_cast<int>(replacementRange.location),
-                         static_cast<int>(NSMaxRange(replacementRange))};
+    cef_range_t range = {static_cast<uint32_t>(replacementRange.location),
+                         static_cast<uint32_t>(NSMaxRange(replacementRange))};
     browser_->GetHost()->ImeCommitText([im_text UTF8String], range, 0);
   }
 
@@ -131,7 +132,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 
   BOOL isAttributedString = [aString isKindOfClass:[NSAttributedString class]];
   NSString* im_text = isAttributedString ? [aString string] : aString;
-  int length = static_cast<int>([im_text length]);
+  uint32_t length = [im_text length];
 
   // |markedRange_| will get set in a callback from ImeSetComposition().
   selectedRange_ = newSelRange;
@@ -154,13 +155,14 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   // ongoing composition when we send empty text.
   if (handlingKeyDown_) {
     setMarkedTextReplacementRange_ = {
-        static_cast<int>(replacementRange.location),
-        static_cast<int>(NSMaxRange(replacementRange))};
+        static_cast<uint32_t>(replacementRange.location),
+        static_cast<uint32_t>(NSMaxRange(replacementRange))};
   } else if (!handlingKeyDown_) {
-    CefRange replacement_range(static_cast<int>(replacementRange.location),
-                               static_cast<int>(NSMaxRange(replacementRange)));
-    CefRange selection_range(static_cast<int>(newSelRange.location),
-                             static_cast<int>(NSMaxRange(newSelRange)));
+    CefRange replacement_range(
+        static_cast<uint32_t>(replacementRange.location),
+        static_cast<uint32_t>(NSMaxRange(replacementRange)));
+    CefRange selection_range(static_cast<uint32_t>(newSelRange.location),
+                             static_cast<uint32_t>(NSMaxRange(newSelRange)));
 
     browser_->GetHost()->ImeSetComposition(markedText_, underlines_,
                                            replacement_range, selection_range);
@@ -268,7 +270,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   textToBeInserted_.clear();
   markedText_.clear();
   underlines_.clear();
-  setMarkedTextReplacementRange_ = CefRange(UINT32_MAX, UINT32_MAX);
+  setMarkedTextReplacementRange_ = CefRange::InvalidRange();
   unmarkTextCalled_ = NO;
 }
 
@@ -306,7 +308,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   if (textToBeInserted_.length() >
       ((hasMarkedText_ || oldHasMarkedText_) ? 0u : 1u)) {
     browser_->GetHost()->ImeCommitText(textToBeInserted_,
-                                       CefRange(UINT32_MAX, UINT32_MAX), 0);
+                                       CefRange::InvalidRange(), 0);
     textToBeInserted_.clear();
   }
 
@@ -317,8 +319,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
     // |selectedRange_| is the range being selected inside the marked text.
     browser_->GetHost()->ImeSetComposition(
         markedText_, underlines_, setMarkedTextReplacementRange_,
-        CefRange(static_cast<int>(selectedRange_.location),
-                 static_cast<int>(NSMaxRange(selectedRange_))));
+        CefRange(static_cast<uint32_t>(selectedRange_.location),
+                 static_cast<uint32_t>(NSMaxRange(selectedRange_))));
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     // There was no marked text or inserted text. Complete or cancel the
     // composition.
@@ -329,7 +331,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
     }
   }
 
-  setMarkedTextReplacementRange_ = CefRange(UINT32_MAX, UINT32_MAX);
+  setMarkedTextReplacementRange_ = CefRange::InvalidRange();
 }
 
 - (void)ChangeCompositionRange:(CefRange)range

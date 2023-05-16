@@ -60,7 +60,7 @@ class OsrImeHandlerWin {
   virtual void CancelIME();
 
   // Updates the IME caret position of the given window.
-  void UpdateCaretPosition(int index);
+  void UpdateCaretPosition(uint32_t index);
 
   // Updates the composition range. |selected_range| is the range of characters
   // that have been selected. |character_bounds| is the bounds of each character
@@ -100,7 +100,7 @@ class OsrImeHandlerWin {
   CefRect ime_rect_;
 
   // The current cursor index in composition string.
-  int cursor_index_;
+  uint32_t cursor_index_;
 
   // The composition range in the string. This may be used to determine the
   // offset in composition bounds.

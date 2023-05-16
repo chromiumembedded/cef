@@ -1097,8 +1097,8 @@ class OSRTestHandler : public RoutingTestHandler,
       const CefRange& range,
       const CefRenderHandler::RectList& bounds) override {
     if (test_type_ == OSR_TEST_IME_SET_COMPOSITION && started()) {
-      EXPECT_EQ(range.from, 0);
-      EXPECT_EQ(range.to, 1);
+      EXPECT_EQ(range.from, 0U);
+      EXPECT_EQ(range.to, 1U);
       EXPECT_EQ(1U, bounds.size());
       DestroySucceededTestSoon();
     }
@@ -1586,7 +1586,7 @@ class OSRTestHandler : public RoutingTestHandler,
     // This text should be honored instead of 'ka' added via key events
     CefString markedText("osrimecommit");
 
-    CefRange range(0, static_cast<int>(markedText.length()));
+    CefRange range(0, static_cast<uint32_t>(markedText.length()));
     browser->GetHost()->ImeCommitText(markedText, range, 0);
 
     ClickButtonToNavigate(browser);
@@ -1621,12 +1621,12 @@ class OSRTestHandler : public RoutingTestHandler,
     std::vector<CefCompositionUnderline> underlines;
 
     // Use a thin black underline by default.
-    CefRange range(0, static_cast<int>(markedText.length()));
+    CefRange range(0, static_cast<uint32_t>(markedText.length()));
     cef_composition_underline_t line = {range, 0xFF000000, 0, false};
     underlines.push_back(line);
 
-    CefRange replacement_range(0, static_cast<int>(markedText.length()));
-    CefRange selection_range(0, static_cast<int>(markedText.length()));
+    CefRange replacement_range(0, static_cast<uint32_t>(markedText.length()));
+    CefRange selection_range(0, static_cast<uint32_t>(markedText.length()));
 
     // Composition should be updated
     browser->GetHost()->ImeSetComposition(markedText, underlines,
@@ -1646,12 +1646,12 @@ class OSRTestHandler : public RoutingTestHandler,
     std::vector<CefCompositionUnderline> underlines;
 
     // Use a thin black underline by default.
-    CefRange range(0, static_cast<int>(markedText.length()));
+    CefRange range(0, static_cast<uint32_t>(markedText.length()));
     cef_composition_underline_t line = {range, 0xFF000000, 0, false};
     underlines.push_back(line);
 
-    CefRange replacement_range(0, static_cast<int>(markedText.length()));
-    CefRange selection_range(0, static_cast<int>(markedText.length()));
+    CefRange replacement_range(0, static_cast<uint32_t>(markedText.length()));
+    CefRange selection_range(0, static_cast<uint32_t>(markedText.length()));
 
     // This should update composition range and
     // trigger the compositionRangeChanged callback
