@@ -3000,8 +3000,8 @@ typedef enum {
 /// Structure representing a range.
 ///
 typedef struct _cef_range_t {
-  int from;
-  int to;
+  uint32_t from;
+  uint32_t to;
 } cef_range_t;
 
 ///

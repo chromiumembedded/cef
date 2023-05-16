@@ -64,12 +64,12 @@ void RunTextfieldContents(CefRefPtr<CefWindow> window) {
 
   // Test select range.
   EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(
-      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
-      textfield->GetSelectedRange());
-  textfield->SelectRange(CefRange(0, static_cast<int>(cursor_pos)));
+  EXPECT_EQ(CefRange(static_cast<uint32_t>(cursor_pos),
+                     static_cast<uint32_t>(cursor_pos)),
+            textfield->GetSelectedRange());
+  textfield->SelectRange(CefRange(0, static_cast<uint32_t>(cursor_pos)));
   EXPECT_TRUE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+  EXPECT_EQ(CefRange(0, static_cast<uint32_t>(cursor_pos)),
             textfield->GetSelectedRange());
   EXPECT_STREQ(kText, textfield->GetSelectedText().ToString().c_str());
   EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
@@ -89,23 +89,23 @@ void RunTextfieldContents(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(textfield->HasSelection());
 
   cursor_pos = sizeof(kReplaceText) + sizeof(kAppendText) - 2;
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+  EXPECT_EQ(CefRange(0, static_cast<uint32_t>(cursor_pos)),
             textfield->GetSelectedRange());
   EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
   // Test clear selection.
   textfield->ClearSelection();
   EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(
-      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
-      textfield->GetSelectedRange());
+  EXPECT_EQ(CefRange(static_cast<uint32_t>(cursor_pos),
+                     static_cast<uint32_t>(cursor_pos)),
+            textfield->GetSelectedRange());
   EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
   // Test selection with command.
   EXPECT_TRUE(textfield->IsCommandEnabled(CEF_TFC_SELECT_ALL));
   textfield->ExecuteCommand(CEF_TFC_SELECT_ALL);
   EXPECT_TRUE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+  EXPECT_EQ(CefRange(0, static_cast<uint32_t>(cursor_pos)),
             textfield->GetSelectedRange());
   EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
