@@ -35,12 +35,13 @@ bool IsSelectionAttribute(char attribute) {
 // to get the target range that's selected by the user in the current
 // composition string.
 void GetCompositionSelectionRange(HIMC imc,
-                                  int* target_start,
-                                  int* target_end) {
-  int attribute_size = ::ImmGetCompositionString(imc, GCS_COMPATTR, nullptr, 0);
+                                  uint32_t* target_start,
+                                  uint32_t* target_end) {
+  uint32_t attribute_size =
+      ::ImmGetCompositionString(imc, GCS_COMPATTR, nullptr, 0);
   if (attribute_size > 0) {
-    int start = 0;
-    int end = 0;
+    uint32_t start = 0;
+    uint32_t end = 0;
     std::vector<char> attribute_data(attribute_size);
 
     ::ImmGetCompositionString(imc, GCS_COMPATTR, &attribute_data[0],
@@ -65,13 +66,13 @@ void GetCompositionSelectionRange(HIMC imc,
 // underlines information of the current composition string.
 void GetCompositionUnderlines(
     HIMC imc,
-    int target_start,
-    int target_end,
+    uint32_t target_start,
+    uint32_t target_end,
     std::vector<CefCompositionUnderline>& underlines) {
   int clause_size = ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, nullptr, 0);
   int clause_length = clause_size / sizeof(uint32);
   if (clause_length) {
-    std::vector<uint32> clause_data(clause_length);
+    std::vector<uint32_t> clause_data(clause_length);
 
     ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, &clause_data[0],
                               clause_size);
@@ -99,7 +100,7 @@ OsrImeHandlerWin::OsrImeHandlerWin(HWND hwnd)
     : is_composing_(false),
       input_language_id_(LANG_USER_DEFAULT),
       system_caret_(false),
-      cursor_index_(-1),
+      cursor_index_(std::numeric_limits<uint32_t>::max()),
       hwnd_(hwnd) {
   ime_rect_ = {-1, -1, 0, 0};
 }
@@ -157,10 +158,10 @@ void OsrImeHandlerWin::MoveImeWindow() {
   }
 
   CefRect rc = ime_rect_;
-  int location = cursor_index_;
+  uint32_t location = cursor_index_;
 
   // If location is not specified fall back to the composition range start.
-  if (location == -1) {
+  if (location == std::numeric_limits<uint32_t>::max()) {
     location = composition_range_.from;
   }
 
@@ -169,7 +170,7 @@ void OsrImeHandlerWin::MoveImeWindow() {
     location -= composition_range_.from;
   }
 
-  if (location < static_cast<int>(composition_bounds_.size())) {
+  if (location < composition_bounds_.size()) {
     rc = composition_bounds_[location];
   } else {
     return;
@@ -240,7 +241,7 @@ void OsrImeHandlerWin::CleanupComposition() {
 void OsrImeHandlerWin::ResetComposition() {
   // Reset the composition status.
   is_composing_ = false;
-  cursor_index_ = -1;
+  cursor_index_ = std::numeric_limits<uint32_t>::max();
 }
 
 void OsrImeHandlerWin::GetCompositionInfo(
@@ -253,11 +254,11 @@ void OsrImeHandlerWin::GetCompositionInfo(
   // convert them into underlines and selection range respectively.
   underlines.clear();
 
-  int length = static_cast<int>(composition_text.length());
+  uint32_t length = static_cast<uint32_t>(composition_text.length());
 
   // Find out the range selected by the user.
-  int target_start = length;
-  int target_end = length;
+  uint32_t target_start = length;
+  uint32_t target_end = length;
   if (lparam & GCS_COMPATTR) {
     GetCompositionSelectionRange(imc, &target_start, &target_end);
   }
@@ -386,7 +387,7 @@ void OsrImeHandlerWin::EnableIME() {
   ::ImmAssociateContextEx(hwnd_, nullptr, IACE_DEFAULT);
 }
 
-void OsrImeHandlerWin::UpdateCaretPosition(int index) {
+void OsrImeHandlerWin::UpdateCaretPosition(uint32_t index) {
   // Save the caret position.
   cursor_index_ = index;
   // Move the IME window.

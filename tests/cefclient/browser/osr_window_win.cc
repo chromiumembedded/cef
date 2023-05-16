@@ -418,8 +418,7 @@ void OsrWindowWin::OnIMEComposition(UINT message,
       // Send the text to the browser. The |replacement_range| and
       // |relative_cursor_pos| params are not used on Windows, so provide
       // default invalid values.
-      browser_->GetHost()->ImeCommitText(cTextStr,
-                                         CefRange(UINT32_MAX, UINT32_MAX), 0);
+      browser_->GetHost()->ImeCommitText(cTextStr, CefRange::InvalidRange(), 0);
       ime_handler_->ResetComposition();
       // Continue reading the composition string - Japanese IMEs send both
       // GCS_RESULTSTR and GCS_COMPSTR.
@@ -433,7 +432,7 @@ void OsrWindowWin::OnIMEComposition(UINT message,
       // Send the composition string to the browser. The |replacement_range|
       // param is not used on Windows, so provide a default invalid value.
       browser_->GetHost()->ImeSetComposition(
-          cTextStr, underlines, CefRange(UINT32_MAX, UINT32_MAX),
+          cTextStr, underlines, CefRange::InvalidRange(),
           CefRange(composition_start,
                    static_cast<int>(composition_start + cTextStr.length())));
 
