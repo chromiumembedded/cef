@@ -9,11 +9,14 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/common/values_impl.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
+#include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/profiles/profile.h"
+#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/child_process_host.h"
@@ -497,6 +500,99 @@ CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter(
   return media_router.get();
 }
 
+CefRefPtr<CefValue> CefRequestContextImpl::GetWebsiteSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type) {
+  if (!VerifyBrowserContext()) {
+    return nullptr;
+  }
+
+  auto* settings_map = HostContentSettingsMapFactory::GetForProfile(
+      browser_context()->AsProfile());
+  if (!settings_map) {
+    return nullptr;
+  }
+
+  // Either or both URLs may be invalid.
+  GURL requesting_gurl(requesting_url.ToString());
+  GURL top_level_gurl(top_level_url.ToString());
+
+  content_settings::SettingInfo info;
+  base::Value value = settings_map->GetWebsiteSetting(
+      requesting_gurl, top_level_gurl,
+      static_cast<ContentSettingsType>(content_type), &info);
+  if (value.is_none()) {
+    return nullptr;
+  }
+
+  return new CefValueImpl(std::move(value));
+}
+
+void CefRequestContextImpl::SetWebsiteSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    CefRefPtr<CefValue> value) {
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(&CefRequestContextImpl::SetWebsiteSettingInternal, this,
+                     requesting_url, top_level_url, content_type, value));
+}
+
+cef_content_setting_values_t CefRequestContextImpl::GetContentSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type) {
+  // Verify that our enums match Chromium's values.
+  static_assert(static_cast<int>(CEF_CONTENT_SETTING_TYPE_NUM_TYPES) ==
+                    static_cast<int>(ContentSettingsType::NUM_TYPES),
+                "Mismatched enum found for CEF_CONTENT_SETTING_TYPE_NUM_TYPES");
+  static_assert(
+      static_cast<int>(CEF_CONTENT_SETTING_VALUE_NUM_VALUES) ==
+          static_cast<int>(CONTENT_SETTING_NUM_SETTINGS),
+      "Mismatched enum found for CEF_CONTENT_SETTING_VALUE_NUM_VALUES");
+
+  if (!VerifyBrowserContext()) {
+    return CEF_CONTENT_SETTING_VALUE_DEFAULT;
+  }
+
+  auto* settings_map = HostContentSettingsMapFactory::GetForProfile(
+      browser_context()->AsProfile());
+  if (!settings_map) {
+    return CEF_CONTENT_SETTING_VALUE_DEFAULT;
+  }
+
+  ContentSetting value = ContentSetting::CONTENT_SETTING_DEFAULT;
+
+  if (requesting_url.empty() && top_level_url.empty()) {
+    value = settings_map->GetDefaultContentSetting(
+        static_cast<ContentSettingsType>(content_type),
+        /*provider_id=*/nullptr);
+  } else {
+    GURL requesting_gurl(requesting_url.ToString());
+    GURL top_level_gurl(top_level_url.ToString());
+    if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
+      value = settings_map->GetContentSetting(
+          requesting_gurl, top_level_gurl,
+          static_cast<ContentSettingsType>(content_type));
+    }
+  }
+
+  return static_cast<cef_content_setting_values_t>(value);
+}
+
+void CefRequestContextImpl::SetContentSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    cef_content_setting_values_t value) {
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(&CefRequestContextImpl::SetContentSettingInternal, this,
+                     requesting_url, top_level_url, content_type, value));
+}
+
 void CefRequestContextImpl::OnRenderFrameCreated(
     const content::GlobalRenderFrameHostId& global_id,
     bool is_main_frame,
@@ -669,6 +765,77 @@ void CefRequestContextImpl::ResolveHostInternal(
   // |helper| will be deleted in ResolveHostHelper::OnComplete().
   ResolveHostHelper* helper = new ResolveHostHelper(callback);
   helper->Start(browser_context, origin);
+}
+
+void CefRequestContextImpl::SetWebsiteSettingInternal(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    CefRefPtr<CefValue> value,
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context) {
+    return;
+  }
+
+  auto* settings_map = HostContentSettingsMapFactory::GetForProfile(
+      browser_context->AsProfile());
+  if (!settings_map) {
+    return;
+  }
+
+  // Starts as a NONE value.
+  base::Value new_value;
+  if (value && value->IsValid()) {
+    new_value = static_cast<CefValueImpl*>(value.get())->CopyValue();
+  }
+
+  if (requesting_url.empty() && top_level_url.empty()) {
+    settings_map->SetWebsiteSettingCustomScope(
+        ContentSettingsPattern::Wildcard(), ContentSettingsPattern::Wildcard(),
+        static_cast<ContentSettingsType>(content_type), std::move(new_value));
+  } else {
+    GURL requesting_gurl(requesting_url.ToString());
+    GURL top_level_gurl(top_level_url.ToString());
+    if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
+      settings_map->SetWebsiteSettingDefaultScope(
+          requesting_gurl, top_level_gurl,
+          static_cast<ContentSettingsType>(content_type), std::move(new_value));
+    }
+  }
+}
+
+void CefRequestContextImpl::SetContentSettingInternal(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    cef_content_setting_values_t value,
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context) {
+    return;
+  }
+
+  auto* settings_map = HostContentSettingsMapFactory::GetForProfile(
+      browser_context->AsProfile());
+  if (!settings_map) {
+    return;
+  }
+
+  if (requesting_url.empty() && top_level_url.empty()) {
+    settings_map->SetDefaultContentSetting(
+        static_cast<ContentSettingsType>(content_type),
+        static_cast<ContentSetting>(value));
+  } else {
+    GURL requesting_gurl(requesting_url.ToString());
+    GURL top_level_gurl(top_level_url.ToString());
+    if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
+      settings_map->SetContentSettingDefaultScope(
+          requesting_gurl, top_level_gurl,
+          static_cast<ContentSettingsType>(content_type),
+          static_cast<ContentSetting>(value));
+    }
+  }
 }
 
 void CefRequestContextImpl::InitializeCookieManagerInternal(

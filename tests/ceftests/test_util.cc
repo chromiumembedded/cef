@@ -362,6 +362,30 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
                      100);
 }
 
+void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
+                          const std::string& parent_url) {
+  if (IsChromeRuntimeEnabled()) {
+    static bool test_website_setting = []() {
+      return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+          "test-website-setting");
+    }();
+
+    // The below calls are equivalent.
+    // NOTE: If the popup allow functionality stops working, debug the code in
+    // components/blocked_content/popup_blocker.cc
+    if (test_website_setting) {
+      auto value = CefValue::Create();
+      value->SetInt(CEF_CONTENT_SETTING_VALUE_ALLOW);
+      request_context->SetWebsiteSetting(
+          parent_url, parent_url, CEF_CONTENT_SETTING_TYPE_POPUPS, value);
+    } else {
+      request_context->SetContentSetting(parent_url, parent_url,
+                                         CEF_CONTENT_SETTING_TYPE_POPUPS,
+                                         CEF_CONTENT_SETTING_VALUE_ALLOW);
+    }
+  }
+}
+
 CefRefPtr<CefRequestContext> CreateTestRequestContext(
     TestRequestContextMode mode,
     const std::string& cache_path) {

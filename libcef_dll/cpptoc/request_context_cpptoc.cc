@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=11e75abce1b3d294f13b65739bd95fff8f790a3e$
+// $hash=19ec3227b1676b8a359d6ea1264dea80ed717049$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -470,6 +470,89 @@ request_context_get_media_router(struct _cef_request_context_t* self,
   return CefMediaRouterCppToC::Wrap(_retval);
 }
 
+struct _cef_value_t* CEF_CALLBACK
+request_context_get_website_setting(struct _cef_request_context_t* self,
+                                    const cef_string_t* requesting_url,
+                                    const cef_string_t* top_level_url,
+                                    cef_content_setting_types_t content_type) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return NULL;
+  }
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  CefRefPtr<CefValue> _retval =
+      CefRequestContextCppToC::Get(self)->GetWebsiteSetting(
+          CefString(requesting_url), CefString(top_level_url), content_type);
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
+}
+
+void CEF_CALLBACK
+request_context_set_website_setting(struct _cef_request_context_t* self,
+                                    const cef_string_t* requesting_url,
+                                    const cef_string_t* top_level_url,
+                                    cef_content_setting_types_t content_type,
+                                    struct _cef_value_t* value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Unverified params: requesting_url, top_level_url, value
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->SetWebsiteSetting(
+      CefString(requesting_url), CefString(top_level_url), content_type,
+      CefValueCppToC::Unwrap(value));
+}
+
+cef_content_setting_values_t CEF_CALLBACK
+request_context_get_content_setting(struct _cef_request_context_t* self,
+                                    const cef_string_t* requesting_url,
+                                    const cef_string_t* top_level_url,
+                                    cef_content_setting_types_t content_type) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_CONTENT_SETTING_VALUE_DEFAULT;
+  }
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  cef_content_setting_values_t _retval =
+      CefRequestContextCppToC::Get(self)->GetContentSetting(
+          CefString(requesting_url), CefString(top_level_url), content_type);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK
+request_context_set_content_setting(struct _cef_request_context_t* self,
+                                    const cef_string_t* requesting_url,
+                                    const cef_string_t* top_level_url,
+                                    cef_content_setting_types_t content_type,
+                                    cef_content_setting_values_t value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->SetContentSetting(
+      CefString(requesting_url), CefString(top_level_url), content_type, value);
+}
+
 int CEF_CALLBACK
 request_context_has_preference(struct _cef_preference_manager_t* self,
                                const cef_string_t* name) {
@@ -626,6 +709,10 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->get_extensions = request_context_get_extensions;
   GetStruct()->get_extension = request_context_get_extension;
   GetStruct()->get_media_router = request_context_get_media_router;
+  GetStruct()->get_website_setting = request_context_get_website_setting;
+  GetStruct()->set_website_setting = request_context_set_website_setting;
+  GetStruct()->get_content_setting = request_context_get_content_setting;
+  GetStruct()->set_content_setting = request_context_set_content_setting;
   GetStruct()->base.has_preference = request_context_has_preference;
   GetStruct()->base.get_preference = request_context_get_preference;
   GetStruct()->base.get_all_preferences = request_context_get_all_preferences;

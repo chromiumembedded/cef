@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9c0cf12774084952a4497e83741a2f9988923109$
+// $hash=17602248a48e405470bdf7b6a34866cdf67a5780$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -457,6 +457,93 @@ CefRefPtr<CefMediaRouter> CefRequestContextCToCpp::GetMediaRouter(
 
   // Return type: refptr_same
   return CefMediaRouterCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefValue> CefRequestContextCToCpp::GetWebsiteSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_website_setting)) {
+    return nullptr;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  cef_value_t* _retval =
+      _struct->get_website_setting(_struct, requesting_url.GetStruct(),
+                                   top_level_url.GetStruct(), content_type);
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestContextCToCpp::SetWebsiteSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    CefRefPtr<CefValue> value) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_website_setting)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: requesting_url, top_level_url, value
+
+  // Execute
+  _struct->set_website_setting(_struct, requesting_url.GetStruct(),
+                               top_level_url.GetStruct(), content_type,
+                               CefValueCToCpp::Unwrap(value));
+}
+
+NO_SANITIZE("cfi-icall")
+cef_content_setting_values_t CefRequestContextCToCpp::GetContentSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_content_setting)) {
+    return CEF_CONTENT_SETTING_VALUE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  cef_content_setting_values_t _retval =
+      _struct->get_content_setting(_struct, requesting_url.GetStruct(),
+                                   top_level_url.GetStruct(), content_type);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestContextCToCpp::SetContentSetting(
+    const CefString& requesting_url,
+    const CefString& top_level_url,
+    cef_content_setting_types_t content_type,
+    cef_content_setting_values_t value) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_content_setting)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: requesting_url, top_level_url
+
+  // Execute
+  _struct->set_content_setting(_struct, requesting_url.GetStruct(),
+                               top_level_url.GetStruct(), content_type, value);
 }
 
 NO_SANITIZE("cfi-icall")

@@ -7,8 +7,11 @@
 
 #include "include/base/cef_callback.h"
 #include "include/cef_callback.h"
+#include "include/cef_request_context.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -1476,6 +1479,9 @@ class OrderNavTestHandler : public TestHandler {
     got_message_ = false;
 
     if (!browser->IsPopup()) {
+      GrantPopupPermission(browser->GetHost()->GetRequestContext(),
+                           browser->GetMainFrame()->GetURL());
+
       // Create the popup window.
       browser->GetMainFrame()->ExecuteJavaScript(
           "window.open('" + std::string(KONav2) + "');", CefString(), 0);
@@ -2309,6 +2315,9 @@ class PopupSimultaneousTestHandler : public TestHandler {
       EXPECT_LT(after_created_ct_, kSimultPopupCount);
       browser_id_[after_created_ct_] = browser->GetIdentifier();
       after_created_ct_++;
+    } else {
+      GrantPopupPermission(browser->GetHost()->GetRequestContext(),
+                           kSimultPopupMainUrl);
     }
   }
 
@@ -2410,18 +2419,22 @@ const char kPopupJSOpenPopupUrl[] = "https://www.tests-pjso.com/popup.html";
 // Test a popup where the URL is a JavaScript URI that opens another popup.
 class PopupJSWindowOpenTestHandler : public TestHandler {
  public:
-  PopupJSWindowOpenTestHandler()
-      : before_popup_ct_(0U),
-        after_created_ct_(0U),
-        load_end_ct_(0U),
-        before_close_ct_(0U) {}
+  PopupJSWindowOpenTestHandler(TestRequestContextMode mode,
+                               const std::string& cache_path)
+      : mode_(mode), cache_path_(cache_path) {}
 
   void RunTest() override {
     AddResource(kPopupJSOpenMainUrl, "<html>Main</html>", "text/html");
     AddResource(kPopupJSOpenPopupUrl, "<html>Popup</html>", "text/html");
 
+    // Create a new disk-based request context so that we can grant default
+    // popup permission (used for the popup without a valid URL) without
+    // impacting the global context.
+    auto request_context = CreateTestRequestContext(mode_, cache_path_);
+    GrantPopupPermission(request_context, CefString());
+
     // Create the browser.
-    CreateBrowser(kPopupJSOpenMainUrl);
+    CreateBrowser(kPopupJSOpenMainUrl, request_context);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -2487,6 +2500,10 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
       load_end_ct_++;
       CloseBrowser(browser, true);
     } else if (browser->GetMainFrame()->GetURL() == kPopupJSOpenMainUrl) {
+      // For the popup that has a valid URL.
+      GrantPopupPermission(browser->GetHost()->GetRequestContext(),
+                           kPopupJSOpenMainUrl);
+
       // Load the problematic JS URI.
       // This will result in 2 popups being created:
       // - An empty popup
@@ -2528,13 +2545,16 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
+  const TestRequestContextMode mode_;
+  const std::string cache_path_;
+
   CefRefPtr<CefBrowser> popup1_;
   CefRefPtr<CefBrowser> popup2_;
 
-  size_t before_popup_ct_;
-  size_t after_created_ct_;
-  size_t load_end_ct_;
-  size_t before_close_ct_;
+  size_t before_popup_ct_ = 0U;
+  size_t after_created_ct_ = 0U;
+  size_t load_end_ct_ = 0U;
+  size_t before_close_ct_ = 0U;
 
   IMPLEMENT_REFCOUNTING(PopupJSWindowOpenTestHandler);
 };
@@ -2542,12 +2562,11 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
 }  // namespace
 
 // Test a popup where the URL is a JavaScript URI that opens another popup.
-TEST(NavigationTest, PopupJSWindowOpen) {
-  CefRefPtr<PopupJSWindowOpenTestHandler> handler =
-      new PopupJSWindowOpenTestHandler();
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+RC_TEST_SINGLE(NavigationTest,
+               PopupJSWindowOpen,
+               PopupJSWindowOpenTestHandler,
+               TEST_RC_MODE_CUSTOM,
+               /*with_cache_path*/ true)
 
 namespace {
 
@@ -2604,6 +2623,9 @@ class PopupJSWindowEmptyTestHandler : public TestHandler {
       got_load_end_popup_.yes();
       CloseBrowser(browser, true);
     } else {
+      GrantPopupPermission(browser->GetHost()->GetRequestContext(),
+                           browser->GetMainFrame()->GetURL());
+
       browser->GetMainFrame()->LoadURL("javascript:window.open('')");
     }
   }
@@ -3582,6 +3604,9 @@ class ExtraInfoNavTestHandler : public TestHandler {
     if (popup_opened_) {
       DestroyTest();
     } else {
+      GrantPopupPermission(browser->GetHost()->GetRequestContext(),
+                           browser->GetMainFrame()->GetURL());
+
       browser->GetMainFrame()->ExecuteJavaScript(
           "window.open('" + std::string(kExtraInfoPopupUrl) + "');",
           CefString(), 0);

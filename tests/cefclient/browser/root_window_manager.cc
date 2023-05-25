@@ -58,6 +58,14 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
         }
       }
     }
+
+    // Allow the startup URL to create popups that bypass the popup blocker.
+    // For example, via Tests > New Popup from the top menu. This applies for
+    // for the Chrome runtime only.
+    const auto& startup_url = MainContext::Get()->GetMainURL();
+    request_context->SetContentSetting(startup_url, startup_url,
+                                       CEF_CONTENT_SETTING_TYPE_POPUPS,
+                                       CEF_CONTENT_SETTING_VALUE_ALLOW);
   }
 
   // CefExtensionHandler methods:

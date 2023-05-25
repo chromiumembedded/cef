@@ -108,12 +108,37 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
                          const CefMouseEvent& mouse_event,
                          cef_mouse_button_type_t mouse_button_type = MBT_LEFT);
 
+// Allow |parent_url| to create popups that bypass the popup blocker. If
+// |parent_url| is empty the default value will be configured. This method only
+// applies for the Chrome runtime.
+void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
+                          const std::string& parent_url);
+
 // Return a RequestContext object matching the specified |mode|.
 // |cache_path| may be specified for CUSTOM modes.
 // Use the RC_TEST_GROUP_BASE macro to test all valid combinations.
 CefRefPtr<CefRequestContext> CreateTestRequestContext(
     TestRequestContextMode mode,
     const std::string& cache_path);
+
+// Run a single test without additional test modes.
+#define RC_TEST_SINGLE(test_case_name, test_name, test_class, rc_mode,   \
+                       with_cache_path)                                  \
+  TEST(test_case_name, test_name) {                                      \
+    CefScopedTempDir scoped_temp_dir;                                    \
+    std::string cache_path;                                              \
+    if (with_cache_path) {                                               \
+      EXPECT_TRUE(scoped_temp_dir.CreateUniqueTempDirUnderPath(          \
+          CefTestSuite::GetInstance()->root_cache_path()));              \
+      cache_path = scoped_temp_dir.GetPath();                            \
+    }                                                                    \
+    CefRefPtr<test_class> handler = new test_class(rc_mode, cache_path); \
+    handler->ExecuteTest();                                              \
+    ReleaseAndWaitForDestructor(handler);                                \
+    if (!scoped_temp_dir.IsEmpty()) {                                    \
+      scoped_temp_dir.Take();                                            \
+    }                                                                    \
+  }
 
 // Helper macro for testing a single RequestContextMode value.
 // See RC_TEST_GROUP_ALL documentation for example usage.

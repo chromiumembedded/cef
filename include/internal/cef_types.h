@@ -35,6 +35,7 @@
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"
+#include "include/internal/cef_types_content_settings.h"
 #include "include/internal/cef_types_geometry.h"
 
 // Bring in platform-specific definitions.

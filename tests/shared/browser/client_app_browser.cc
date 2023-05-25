@@ -74,9 +74,6 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       command_line->AppendSwitch("disable-gpu-shader-disk-cache");
     }
 
-    // Disable popup blocking for the chrome runtime.
-    command_line->AppendSwitch("disable-popup-blocking");
-
 #if defined(OS_MAC)
     // Disable the toolchain prompt on macOS.
     command_line->AppendSwitch("use-mock-keychain");

@@ -1667,6 +1667,8 @@ class ParentOrderMainTestHandler : public OrderMainTestHandler {
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     OrderMainTestHandler::OnAfterCreated(browser);
 
+    GrantPopupPermission(browser->GetHost()->GetRequestContext(), GetMainURL());
+
     // Create the popup ASAP.
     browser->GetMainFrame()->ExecuteJavaScript(
         "window.open('" + popup_handler_->GetMainURL() + "');", CefString(), 0);

@@ -249,6 +249,8 @@ class PopupTestHandler : public TestHandler {
     context_ = CefRequestContext::CreateContext(settings, nullptr);
     cookie_manager_ = context_->GetCookieManager(nullptr);
 
+    GrantPopupPermission(context_, url_);
+
     // Create browser that loads the 1st URL.
     CreateBrowser(url_, context_);
 
@@ -486,6 +488,13 @@ class PopupNavTestHandler : public TestHandler {
 
     CefRefPtr<CefRequestContext> request_context =
         CreateTestRequestContext(rc_mode_, rc_cache_path_);
+
+    if (request_context) {
+      GrantPopupPermission(request_context, kPopupNavPageUrl);
+    } else {
+      GrantPopupPermission(CefRequestContext::GetGlobalContext(),
+                           kPopupNavPageUrl);
+    }
 
     // Create the browser.
     CreateBrowser(kPopupNavPageUrl, request_context);

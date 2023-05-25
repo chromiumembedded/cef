@@ -96,6 +96,22 @@ class CefRequestContextImpl : public CefRequestContext {
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
+  CefRefPtr<CefValue> GetWebsiteSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) override;
+  void SetWebsiteSetting(const CefString& requesting_url,
+                         const CefString& top_level_url,
+                         cef_content_setting_types_t content_type,
+                         CefRefPtr<CefValue> value) override;
+  cef_content_setting_values_t GetContentSetting(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type) override;
+  void SetContentSetting(const CefString& requesting_url,
+                         const CefString& top_level_url,
+                         cef_content_setting_types_t content_type,
+                         cef_content_setting_values_t value) override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
@@ -159,6 +175,18 @@ class CefRequestContextImpl : public CefRequestContext {
   void ResolveHostInternal(const CefString& origin,
                            CefRefPtr<CefResolveCallback> callback,
                            CefBrowserContext::Getter browser_context_getter);
+  void SetWebsiteSettingInternal(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type,
+      CefRefPtr<CefValue> value,
+      CefBrowserContext::Getter browser_context_getter);
+  void SetContentSettingInternal(
+      const CefString& requesting_url,
+      const CefString& top_level_url,
+      cef_content_setting_types_t content_type,
+      cef_content_setting_values_t value,
+      CefBrowserContext::Getter browser_context_getter);
 
   void InitializeCookieManagerInternal(
       CefRefPtr<CefCookieManagerImpl> cookie_manager,
