@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1b695e1b06a8ba626073b4a610d47c5a931a4735$
+// $hash=4bffd98075025b4d02063698dbec87e9b9a31597$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -181,6 +181,32 @@ browser_view_delegate_get_chrome_toolbar_type(
       CefBrowserViewDelegateCppToC::Get(self)->GetChromeToolbarType();
 
   // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK browser_view_delegate_on_gesture_command(
+    struct _cef_browser_view_delegate_t* self,
+    cef_browser_view_t* browser_view,
+    cef_gesture_command_t gesture_command) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view);
+  if (!browser_view) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserViewDelegateCppToC::Get(self)->OnGestureCommand(
+      CefBrowserViewCToCpp::Wrap(browser_view), gesture_command);
+
+  // Return type: bool
   return _retval;
 }
 
@@ -467,6 +493,7 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
       browser_view_delegate_on_popup_browser_view_created;
   GetStruct()->get_chrome_toolbar_type =
       browser_view_delegate_get_chrome_toolbar_type;
+  GetStruct()->on_gesture_command = browser_view_delegate_on_gesture_command;
   GetStruct()->base.get_preferred_size =
       browser_view_delegate_get_preferred_size;
   GetStruct()->base.get_minimum_size = browser_view_delegate_get_minimum_size;

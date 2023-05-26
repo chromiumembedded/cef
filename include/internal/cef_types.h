@@ -3488,6 +3488,14 @@ typedef enum {
   CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
 } cef_preferences_type_t;
 
+///
+/// Specifies the gesture commands.
+///
+typedef enum {
+  CEF_GESTURE_COMMAND_BACK,
+  CEF_GESTURE_COMMAND_FORWARD,
+} cef_gesture_command_t;
+
 #ifdef __cplusplus
 }
 #endif

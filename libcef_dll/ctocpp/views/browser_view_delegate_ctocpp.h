@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae219b09b69d7a49f48878a5d2f94b25c9b4150b$
+// $hash=15c0d7230887344fa77279c76ff377b3f2d9ee1d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -52,6 +52,8 @@ class CefBrowserViewDelegateCToCpp
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override;
   ChromeToolbarType GetChromeToolbarType() override;
+  bool OnGestureCommand(CefRefPtr<CefBrowserView> browser_view,
+                        cef_gesture_command_t gesture_command) override;
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
