@@ -218,6 +218,23 @@ void CefBrowserViewImpl::OnBoundsChanged() {
   }
 }
 
+void CefBrowserViewImpl::OnGestureCommand(cef_gesture_command_t command) {
+  if (delegate()->OnGestureCommand(this, command)) {
+    return;
+  }
+
+  if (browser_) {
+    switch (command) {
+      case CEF_GESTURE_COMMAND_BACK:
+        browser_->GoBack();
+        break;
+      case CEF_GESTURE_COMMAND_FORWARD:
+        browser_->GoForward();
+        break;
+    }
+  }
+}
+
 CefBrowserViewImpl::CefBrowserViewImpl(
     CefRefPtr<CefBrowserViewDelegate> delegate)
     : ParentClass(delegate), weak_ptr_factory_(this) {}

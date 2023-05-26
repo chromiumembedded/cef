@@ -4,7 +4,27 @@
 
 #include "libcef/browser/views/browser_view_view.h"
 
+#include <optional>
+
 #include "libcef/browser/views/browser_view_impl.h"
+
+namespace {
+
+std::optional<cef_gesture_command_t> GetGestureCommand(
+    ui::GestureEvent* event) {
+#if defined(OS_MAC)
+  if (event->details().type() == ui::ET_GESTURE_SWIPE) {
+    if (event->details().swipe_left()) {
+      return cef_gesture_command_t::CEF_GESTURE_COMMAND_BACK;
+    } else if (event->details().swipe_right()) {
+      return cef_gesture_command_t::CEF_GESTURE_COMMAND_FORWARD;
+    }
+  }
+#endif
+  return std::nullopt;
+}
+
+}  // namespace
 
 CefBrowserViewView::CefBrowserViewView(CefBrowserViewDelegate* cef_delegate,
                                        Delegate* browser_view_delegate)
@@ -37,4 +57,10 @@ void CefBrowserViewView::ViewHierarchyChanged(
 void CefBrowserViewView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
   ParentClass::OnBoundsChanged(previous_bounds);
   browser_view_delegate_->OnBoundsChanged();
+}
+
+void CefBrowserViewView::OnGestureEvent(ui::GestureEvent* event) {
+  if (auto command = GetGestureCommand(event)) {
+    browser_view_delegate_->OnGestureCommand(*command);
+  }
 }

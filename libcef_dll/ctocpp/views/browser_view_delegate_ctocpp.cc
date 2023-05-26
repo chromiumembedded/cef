@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b3486a52f25be7c189ca58fa5af1e12dc73299f$
+// $hash=bff0bff161e504deec6aef910ebf5d8962bd7c85$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -164,6 +164,33 @@ CefBrowserViewDelegateCToCpp::GetChromeToolbarType() {
 
   // Return type: simple
   return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserViewDelegateCToCpp::OnGestureCommand(
+    CefRefPtr<CefBrowserView> browser_view,
+    cef_gesture_command_t gesture_command) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_view_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_gesture_command)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view.get());
+  if (!browser_view.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->on_gesture_command(
+      _struct, CefBrowserViewCppToC::Wrap(browser_view), gesture_command);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")
