@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e38c41a553d518abcd1b912d32281e99b93c4fd7$
+// $hash=94e93810316b74e54eb315d97c6fc6f1cc0c9cc5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -120,6 +120,18 @@ typedef struct _cef_browser_view_delegate_t {
   ///
   cef_chrome_toolbar_type_t(CEF_CALLBACK* get_chrome_toolbar_type)(
       struct _cef_browser_view_delegate_t* self);
+
+  ///
+  /// Called when |browser_view| receives a gesture command. Return true (1) to
+  /// handle (or disable) a |gesture_command| or false (0) to propagate the
+  /// gesture to the browser for default handling. This function will only be
+  /// called with the Alloy runtime. To handle these commands with the Chrome
+  /// runtime implement cef_command_handler_t::OnChromeCommand instead.
+  ///
+  int(CEF_CALLBACK* on_gesture_command)(
+      struct _cef_browser_view_delegate_t* self,
+      struct _cef_browser_view_t* browser_view,
+      cef_gesture_command_t gesture_command);
 } cef_browser_view_delegate_t;
 
 #ifdef __cplusplus

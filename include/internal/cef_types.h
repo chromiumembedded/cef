@@ -3605,6 +3605,14 @@ typedef enum {
   CEF_DOWNLOAD_INTERRUPT_REASON_CRASH = 50,
 } cef_download_interrupt_reason_t;
 
+///
+/// Specifies the gesture commands.
+///
+typedef enum {
+  CEF_GESTURE_COMMAND_BACK,
+  CEF_GESTURE_COMMAND_FORWARD,
+} cef_gesture_command_t;
+
 #ifdef __cplusplus
 }
 #endif

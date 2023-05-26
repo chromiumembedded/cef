@@ -114,6 +114,19 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   ///
   /*--cef(default_retval=CEF_CTT_NONE)--*/
   virtual ChromeToolbarType GetChromeToolbarType() { return CEF_CTT_NONE; }
+
+  ///
+  /// Called when |browser_view| receives a gesture command. Return true to
+  /// handle (or disable) a |gesture_command| or false to propagate the gesture
+  /// to the browser for default handling. This method will only be called with
+  /// the Alloy runtime. To handle these commands with the Chrome runtime
+  /// implement CefCommandHandler::OnChromeCommand instead.
+  ///
+  /*--cef()--*/
+  virtual bool OnGestureCommand(CefRefPtr<CefBrowserView> browser_view,
+                                cef_gesture_command_t gesture_command) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BROWSER_VIEW_DELEGATE_H_
