@@ -69,6 +69,21 @@ bool CefSSLHostStateDelegate::IsHttpAllowedForHost(
   return false;
 }
 
+void CefSSLHostStateDelegate::SetHttpsEnforcementForHost(
+    const std::string& host,
+    bool enforce,
+    content::StoragePartition* storage_partition) {
+  // Intentional no-op.
+}
+
+bool CefSSLHostStateDelegate::IsHttpsEnforcedForHost(
+    const std::string& host,
+    content::StoragePartition* storage_partition) {
+  // Intentional no-op. Return value does not matter as HTTPS-First Mode is not
+  // enabled.
+  return false;
+}
+
 void CefSSLHostStateDelegate::AllowCert(
     const std::string& host,
     const net::X509Certificate& cert,

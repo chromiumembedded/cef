@@ -12,10 +12,10 @@ index f4f583be8fba9..a2ed253f3724d 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index ddd5d5f136346..51c55f7108ddf 100644
+index dcc79329a078f..fa5e1e45d1698 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -733,6 +733,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
+@@ -738,6 +738,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
            resource_request_->has_user_gesture, initiating_origin,
            initiator_document_.AsRenderFrameHostIfValid(), &loader_factory);
  
@@ -145,10 +145,10 @@ index a614d8eb1ecd3..51986244b8960 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index f84c233c3b069..a9fe097a3a438 100644
+index 93de85d842315..11c124e4bd06f 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -974,6 +974,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -975,6 +975,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -165,12 +165,12 @@ index f84c233c3b069..a9fe097a3a438 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 9c66a331c615b..822f9492fa50c 100644
+index 0067dcb8b5c6b..524af9093e620 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -229,6 +229,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
-   base::TimeDelta MinimumIntervalOfUserLevelMemoryPressureSignal() override;
- #endif
+   InertAndMinimumIntervalOfUserLevelMemoryPressureSignal() override;
+ #endif  // BUILDFLAG(IS_ANDROID)
  
 +  void DevToolsAgentAttached() override;
 +  void DevToolsAgentDetached() override;

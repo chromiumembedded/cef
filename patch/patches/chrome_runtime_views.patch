@@ -41,11 +41,11 @@ index 2a14f1b7c2f51..e679d7a24783b 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 3aa4da01852a1..59544aa46dc82 100644
+index e881f0cffc04f..f58fe5aab7685 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -169,6 +169,57 @@ absl::optional<std::u16string> GetInstallPWAAppMenuItemName(Browser* browser) {
-                                     ui::EscapeMenuLabelAmpersands(app_name));
+@@ -176,6 +176,57 @@ bool IsPasswordManagerPage(const GURL& url) {
+          url.DomainIs(password_manager::kChromeUIPasswordManagerHost);
  }
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -102,7 +102,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -901,7 +952,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -908,7 +959,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -111,7 +111,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -916,7 +967,7 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -923,7 +974,7 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -120,7 +120,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
    switch (command_id) {
      case IDC_PIN_TO_START_SCREEN:
        return false;
-@@ -939,6 +990,34 @@ bool AppMenuModel::IsCommandIdVisible(int command_id) const {
+@@ -946,6 +997,34 @@ bool AppMenuModel::IsCommandIdVisible(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if ((command_id == IDC_RECENT_TABS_MENU) ||
        (command_id == AppMenuModel::kMinRecentTabsCommandId)) {
-@@ -1085,11 +1164,15 @@ void AppMenuModel::Build() {
+@@ -1097,11 +1176,15 @@ void AppMenuModel::Build() {
      }
    }
  
@@ -176,7 +176,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
  
    AddItemWithStringId(IDC_PRINT, IDS_PRINT);
  
-@@ -1178,9 +1261,13 @@ void AppMenuModel::Build() {
+@@ -1190,9 +1273,13 @@ void AppMenuModel::Build() {
                           kMoreToolsMenuItem);
  
    if (!features::IsChromeRefresh2023()) {
@@ -193,7 +193,7 @@ index 3aa4da01852a1..59544aa46dc82 100644
    }
  
    if (!features::IsChromeRefresh2023()) {
-@@ -1265,6 +1352,11 @@ void AppMenuModel::Build() {
+@@ -1278,6 +1365,11 @@ void AppMenuModel::Build() {
      set_icon(IDC_EXIT, kExitMenuIcon);
    }
  

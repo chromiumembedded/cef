@@ -105,10 +105,10 @@ index ad5f1925735fd..a871f4a7792a7 100644
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index a7501a57c5149..1c148767f67a6 100644
+index 2e47c128f4d5c..c27d76a8227f9 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
-@@ -80,6 +80,8 @@ void BrowserPluginGuest::InitInternal(WebContentsImpl* owner_web_contents) {
+@@ -81,6 +81,8 @@ void BrowserPluginGuest::InitInternal(WebContentsImpl* owner_web_contents) {
        GetWebContents()->GetOrCreateWebPreferences();
    prefs.navigate_on_drag_drop = false;
    GetWebContents()->SetWebPreferences(prefs);
@@ -118,7 +118,7 @@ index a7501a57c5149..1c148767f67a6 100644
  
  BrowserPluginGuest::~BrowserPluginGuest() = default;
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index 17e98b60e8f7e..41f05cdd88d40 100644
+index 7f3083029d45e..94a5cbed96a10 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
 @@ -70,6 +70,8 @@ class BrowserPluginGuest : public WebContentsObserver {
@@ -130,10 +130,10 @@ index 17e98b60e8f7e..41f05cdd88d40 100644
   private:
    // BrowserPluginGuest is a WebContentsObserver of |web_contents| and
    // |web_contents| has to stay valid for the lifetime of BrowserPluginGuest.
-@@ -79,6 +81,8 @@ class BrowserPluginGuest : public WebContentsObserver {
-   void InitInternal(WebContentsImpl* owner_web_contents);
+@@ -80,6 +82,8 @@ class BrowserPluginGuest : public WebContentsObserver {
  
-   const raw_ptr<BrowserPluginGuestDelegate, DanglingUntriaged> delegate_;
+   // May be null during guest destruction.
+   const base::WeakPtr<BrowserPluginGuestDelegate> delegate_;
 +
 +  raw_ptr<WebContentsImpl> owner_web_contents_ = nullptr;
  };

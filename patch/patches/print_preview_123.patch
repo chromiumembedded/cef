@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 3a236b6752338..620c283a52db9 100644
+index 8c5ab5eb5cff8..ceae0fad1458d 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
-@@ -24,6 +24,7 @@
+@@ -23,6 +23,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -10,7 +10,7 @@ index 3a236b6752338..620c283a52db9 100644
  #include "chrome/browser/download/chrome_download_manager_delegate.h"
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
-@@ -64,6 +65,10 @@
+@@ -63,6 +64,10 @@
  #include "chrome/browser/download/bubble/download_bubble_prefs.h"
  #endif
  
@@ -21,7 +21,7 @@ index 3a236b6752338..620c283a52db9 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -361,6 +366,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -357,6 +362,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
