@@ -1,0 +1,62 @@
+diff --git base/ranges/ranges.h base/ranges/ranges.h
+index 641bbaf2c7576..afdd641e38452 100644
+--- base/ranges/ranges.h
++++ base/ranges/ranges.h
+@@ -30,12 +30,14 @@ constexpr T* begin(std::array<T, N>& array, priority_tag<2> tag) {
+   return const_cast<T*>(begin(const_cast<const std::array<T, N>&>(array), tag));
+ }
+ 
++#if !defined(CEF_EXCLUDE_PROBLEMATIC_CONST_ARRAY_OVERLOADS)
+ // Overload for const std::array. Required since std::array::begin is not
+ // constexpr prior to C++17.
+ template <typename T, size_t N>
+ constexpr const T* begin(const std::array<T, N>& array, priority_tag<2>) {
+   return N != 0 ? &array[0] : nullptr;
+ }
++#endif
+ 
+ // Generic container overload.
+ template <typename Range>
+@@ -65,12 +67,14 @@ constexpr T* end(std::array<T, N>& array, priority_tag<2> tag) {
+   return const_cast<T*>(end(const_cast<const std::array<T, N>&>(array), tag));
+ }
+ 
++#if !defined(CEF_EXCLUDE_PROBLEMATIC_CONST_ARRAY_OVERLOADS)
+ // Overload for const std::array. Required since std::array::end is not
+ // constexpr prior to C++17.
+ template <typename T, size_t N>
+ constexpr const T* end(const std::array<T, N>& array, priority_tag<2>) {
+   return N != 0 ? (&array[0]) + N : nullptr;
+ }
++#endif
+ 
+ // Generic container overload.
+ template <typename Range>
+diff --git base/win/registry.cc base/win/registry.cc
+index 473f5fdc861ce..eb85a31611560 100644
+--- base/win/registry.cc
++++ base/win/registry.cc
+@@ -13,6 +13,14 @@
+ #include <utility>
+ #include <vector>
+ 
++#include "cef/libcef/features/features.h"
++
++#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
++// Avoid overloads for const std::array in base/ranges/ranges.h that don't
++// compile with MSVC. See issue #3519.
++#define CEF_EXCLUDE_PROBLEMATIC_CONST_ARRAY_OVERLOADS 1
++#endif
++
+ #include "base/check_op.h"
+ #include "base/containers/fixed_flat_map.h"
+ #include "base/functional/callback.h"
+@@ -314,7 +322,7 @@ class ExportDerived {
+             {"RegSetValueExW", reinterpret_cast<void**>(&reg_set_value_ex_)},
+         });
+ 
+-    auto* entry = kMap.find(name);
++    auto entry = kMap.find(name);
+     if (entry == kMap.end()) {
+       return true;
+     }
