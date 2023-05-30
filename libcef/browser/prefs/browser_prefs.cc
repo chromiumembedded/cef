@@ -62,6 +62,7 @@
 #include "components/spellcheck/browser/pref_names.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
+#include "components/unified_consent/unified_consent_service.h"
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
@@ -277,6 +278,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
+    unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());
 
     const std::string& locale =
         command_line->GetSwitchValueASCII(switches::kLang);

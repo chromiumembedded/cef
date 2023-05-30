@@ -85,7 +85,7 @@ index 7b8afe19a3088..2a2ca57077f73 100644
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index fe52808643114..58197f52e19e5 100644
+index bef7961f8b227..72e064659fbda 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -52,6 +52,10 @@ namespace {
@@ -99,7 +99,7 @@ index fe52808643114..58197f52e19e5 100644
  #if BUILDFLAG(IS_WIN)
  // A callback function for EnumThreadWindows to enumerate and dismiss
  // any owned popup windows.
-@@ -833,6 +837,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
+@@ -862,6 +866,14 @@ void RenderWidgetHostViewEventHandler::MoveCursorToCenter(
      }
      return;
    }
@@ -114,7 +114,7 @@ index fe52808643114..58197f52e19e5 100644
  #endif
    synthetic_move_position_ = center_in_screen;
  }
-@@ -862,6 +874,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
+@@ -891,6 +903,17 @@ bool RenderWidgetHostViewEventHandler::MatchesSynthesizedMovePosition(
  }
  
  void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
@@ -243,10 +243,10 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 22487e3d3425f..7bbee50a0fbd9 100644
+index d676ba8d52c54..df78950ec1381 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -274,8 +274,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -280,8 +280,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
    if (properties.parent_widget) {
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
@@ -359,7 +359,7 @@ index 2e4bacce52a45..76916c5d21cb9 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index eb53fdc1b3564..3b6955ebca5ad 100644
+index 1f1b98525de2f..053a93a98c909 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -367,7 +367,8 @@ void Widget::Init(InitParams params) {
@@ -395,7 +395,7 @@ index eb53fdc1b3564..3b6955ebca5ad 100644
    }
  
    if (base::FeatureList::IsEnabled(features::kWidgetLayering)) {
-@@ -1615,10 +1624,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1621,10 +1630,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -413,7 +413,7 @@ index eb53fdc1b3564..3b6955ebca5ad 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 478b38681cd23..19ec8cc026029 100644
+index da0ed1c82d3cf..21cb551cd7852 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -351,6 +351,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

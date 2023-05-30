@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c577948bc4903eac504888829a610d149757fcc4$
+// $hash=5a5997b69936ad47fb9ab5b6f4016f33c91110c7$
 //
 
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
@@ -118,36 +118,6 @@ CefString CefX509CertPrincipalCToCpp::GetCountryName() {
 }
 
 NO_SANITIZE("cfi-icall")
-void CefX509CertPrincipalCToCpp::GetStreetAddresses(
-    std::vector<CefString>& addresses) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_street_addresses)) {
-    return;
-  }
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Translate param: addresses; type: string_vec_byref
-  cef_string_list_t addressesList = cef_string_list_alloc();
-  DCHECK(addressesList);
-  if (addressesList) {
-    transfer_string_list_contents(addresses, addressesList);
-  }
-
-  // Execute
-  _struct->get_street_addresses(_struct, addressesList);
-
-  // Restore param:addresses; type: string_vec_byref
-  if (addressesList) {
-    addresses.clear();
-    transfer_string_list_contents(addressesList, addresses);
-    cef_string_list_free(addressesList);
-  }
-}
-
-NO_SANITIZE("cfi-icall")
 void CefX509CertPrincipalCToCpp::GetOrganizationNames(
     std::vector<CefString>& names) {
   shutdown_checker::AssertNotShutdown();
@@ -204,36 +174,6 @@ void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
     names.clear();
     transfer_string_list_contents(namesList, names);
     cef_string_list_free(namesList);
-  }
-}
-
-NO_SANITIZE("cfi-icall")
-void CefX509CertPrincipalCToCpp::GetDomainComponents(
-    std::vector<CefString>& components) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_x509cert_principal_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_domain_components)) {
-    return;
-  }
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Translate param: components; type: string_vec_byref
-  cef_string_list_t componentsList = cef_string_list_alloc();
-  DCHECK(componentsList);
-  if (componentsList) {
-    transfer_string_list_contents(components, componentsList);
-  }
-
-  // Execute
-  _struct->get_domain_components(_struct, componentsList);
-
-  // Restore param:components; type: string_vec_byref
-  if (componentsList) {
-    components.clear();
-    transfer_string_list_contents(componentsList, components);
-    cef_string_list_free(componentsList);
   }
 }
 

@@ -13,10 +13,10 @@ index a23dd0a402704..91e4d3615fb6a 100644
    // Returns all <label> elements associated to this element.
    WebVector<WebLabelElement> Labels() const;
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 31c5027c972a7..ae418a4c1d004 100644
+index a2afa376065be..be829f7f58854 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -106,6 +106,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -105,6 +105,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

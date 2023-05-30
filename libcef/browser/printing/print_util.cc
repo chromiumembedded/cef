@@ -53,9 +53,7 @@ void OnPDFCreated(const CefString& path,
 
 void Print(content::WebContents* web_contents, bool print_preview_disabled) {
   // Like chrome::Print() but specifying the WebContents.
-  printing::StartPrint(web_contents,
-                       /*print_renderer=*/mojo::NullAssociatedRemote(),
-                       print_preview_disabled,
+  printing::StartPrint(web_contents, print_preview_disabled,
                        /*has_selection=*/false);
 }
 

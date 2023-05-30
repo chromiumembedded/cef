@@ -46,11 +46,6 @@ CefString CefX509CertPrincipalImpl::GetCountryName() {
   return value_.country_name;
 }
 
-void CefX509CertPrincipalImpl::GetStreetAddresses(
-    std::vector<CefString>& addresses) {
-  TransferVector(value_.street_addresses, addresses);
-}
-
 void CefX509CertPrincipalImpl::GetOrganizationNames(
     std::vector<CefString>& names) {
   TransferVector(value_.organization_names, names);
@@ -59,9 +54,4 @@ void CefX509CertPrincipalImpl::GetOrganizationNames(
 void CefX509CertPrincipalImpl::GetOrganizationUnitNames(
     std::vector<CefString>& names) {
   TransferVector(value_.organization_unit_names, names);
-}
-
-void CefX509CertPrincipalImpl::GetDomainComponents(
-    std::vector<CefString>& components) {
-  TransferVector(value_.domain_components, components);
 }

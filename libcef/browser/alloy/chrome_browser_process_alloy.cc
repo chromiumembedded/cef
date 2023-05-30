@@ -172,6 +172,12 @@ ChromeBrowserProcessAlloy::network_quality_tracker() {
   return nullptr;
 }
 
+embedder_support::OriginTrialsSettingsStorage*
+ChromeBrowserProcessAlloy::GetOriginTrialsSettingsStorage() {
+  DCHECK(false);
+  return nullptr;
+}
+
 ProfileManager* ChromeBrowserProcessAlloy::profile_manager() {
   DCHECK(context_initialized_);
   return profile_manager_.get();

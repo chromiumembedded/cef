@@ -171,6 +171,16 @@ void CefTouchSelectionControllerClientOSR::DidStopFlinging() {
   OnScrollCompleted();
 }
 
+void CefTouchSelectionControllerClientOSR::OnSwipeToMoveCursorBegin() {
+  rwhv_->selection_controller()->OnSwipeToMoveCursorBegin();
+  OnSelectionEvent(ui::INSERTION_HANDLE_DRAG_STARTED);
+}
+
+void CefTouchSelectionControllerClientOSR::OnSwipeToMoveCursorEnd() {
+  rwhv_->selection_controller()->OnSwipeToMoveCursorEnd();
+  OnSelectionEvent(ui::INSERTION_HANDLE_DRAG_STOPPED);
+}
+
 void CefTouchSelectionControllerClientOSR::UpdateClientSelectionBounds(
     const gfx::SelectionBound& start,
     const gfx::SelectionBound& end) {

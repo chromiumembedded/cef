@@ -1,8 +1,8 @@
 diff --git chrome/browser/browser_process.h chrome/browser/browser_process.h
-index 4279a763e28e2..2ec8e4cbfac7d 100644
+index 6dc8016311847..851f866e388f5 100644
 --- chrome/browser/browser_process.h
 +++ chrome/browser/browser_process.h
-@@ -206,9 +206,9 @@ class BrowserProcess {
+@@ -214,9 +214,9 @@ class BrowserProcess {
    virtual DownloadStatusUpdater* download_status_updater() = 0;
    virtual DownloadRequestLimiter* download_request_limiter() = 0;
  
@@ -14,10 +14,10 @@ index 4279a763e28e2..2ec8e4cbfac7d 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 787a23b85d06c..80a8667e58a86 100644
+index ff0bfdce017a5..0971782184774 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -1042,18 +1042,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -1054,18 +1054,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -38,10 +38,10 @@ index 787a23b85d06c..80a8667e58a86 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 35ab0ab1cc102..74252dc2b53aa 100644
+index 0f98eece3c159..a261c43634870 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -176,8 +176,8 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -187,8 +187,8 @@ class BrowserProcessImpl : public BrowserProcess,
    void SetApplicationLocale(const std::string& actual_locale) override;
    DownloadStatusUpdater* download_status_updater() override;
    DownloadRequestLimiter* download_request_limiter() override;
@@ -52,10 +52,10 @@ index 35ab0ab1cc102..74252dc2b53aa 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index ac79a59ef056b..cac2b4d97271c 100644
+index 1fbc225de7b84..55847e48ed0c2 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
-@@ -158,12 +158,14 @@ void BrowserCloseManager::CloseBrowsers() {
+@@ -157,12 +157,14 @@ void BrowserCloseManager::CloseBrowsers() {
    // exit can restore all browsers open before exiting.
    ProfileManager::ShutdownSessionServices();
  #endif

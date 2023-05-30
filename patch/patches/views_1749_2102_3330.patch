@@ -150,7 +150,7 @@ index e641dc163c5fc..785ccd20e4dd4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 6f46fb17b0916..cd0cfe163acb8 100644
+index 8faa59e449ddc..d07df64e9bd8e 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -50,12 +50,29 @@ enum LabelPropertyKey {
@@ -199,7 +199,7 @@ index 6f46fb17b0916..cd0cfe163acb8 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -761,6 +787,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -768,6 +794,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -217,7 +217,7 @@ index 6f46fb17b0916..cd0cfe163acb8 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index cdaa9899be3e0..40aa6ffcc639a 100644
+index 711dc633bffc2..0fa2626150de2 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -240,6 +240,10 @@ class VIEWS_EXPORT Label : public View,
@@ -231,7 +231,7 @@ index cdaa9899be3e0..40aa6ffcc639a 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -499,6 +503,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -504,6 +508,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -240,7 +240,7 @@ index cdaa9899be3e0..40aa6ffcc639a 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 10044c8def94f..a799a4841e113 100644
+index 127c58864174e..156ea7b413541 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -470,7 +470,8 @@ void MenuController::Run(Widget* parent,
@@ -396,10 +396,10 @@ index dac3249c247e5..0573e84ac24a4 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 3caeab8d93084..aa7c5541f5e71 100644
+index e235da77b57fb..ef0a2d3c3f303 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1112,6 +1112,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1115,6 +1115,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -415,7 +415,7 @@ index 3caeab8d93084..aa7c5541f5e71 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1178,6 +1187,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1182,6 +1191,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -676,7 +676,7 @@ index cf696fbcf0714..5c48fd7410b88 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index c4f9cea175824..6ab8c295abf8b 100644
+index 76bb4863858fb..feb949470219d 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -257,6 +257,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -692,7 +692,7 @@ index c4f9cea175824..6ab8c295abf8b 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index ef7fc4c8d6fc0..88b1b40355a97 100644
+index 187e55af5d7be..3a980d26fdaae 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -703,7 +703,7 @@ index ef7fc4c8d6fc0..88b1b40355a97 100644
  #include "ui/aura/client/screen_position_client.h"
  #include "ui/aura/env.h"
  #include "ui/aura/test/aura_test_utils.h"
-@@ -178,9 +179,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
+@@ -176,9 +177,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
        aura::test::QueryLatestMousePositionRequestInHost(host);
    host->ConvertPixelsToDIP(&root_current_location);
  

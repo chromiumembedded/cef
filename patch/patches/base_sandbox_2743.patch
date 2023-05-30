@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 425cb0ab0af16..57cda56dcfc19 100644
+index 4925a756be531..dbd2464d4cf9b 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 425cb0ab0af16..57cda56dcfc19 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1528,7 +1529,11 @@ component("base") {
+@@ -1529,7 +1530,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -88,7 +88,7 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index 38be94387237d..889550e16a6ce 100644
+index c9dd1249660c1..7d68b0d893e3d 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -15,8 +15,9 @@

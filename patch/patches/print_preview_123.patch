@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 3a236b6752338..620c283a52db9 100644
+index 33c15415b9574..fa8ca952ca658 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
-@@ -24,6 +24,7 @@
+@@ -23,6 +23,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -10,7 +10,7 @@ index 3a236b6752338..620c283a52db9 100644
  #include "chrome/browser/download/chrome_download_manager_delegate.h"
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
-@@ -64,6 +65,10 @@
+@@ -63,6 +64,10 @@
  #include "chrome/browser/download/bubble/download_bubble_prefs.h"
  #endif
  
@@ -21,7 +21,7 @@ index 3a236b6752338..620c283a52db9 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -361,6 +366,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -357,6 +362,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -34,7 +34,7 @@ index 3a236b6752338..620c283a52db9 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index 897184766020b..42a2991f3f31c 100644
+index a2f8a47b29a27..5d0da7d766d76 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -44,7 +44,7 @@ index 897184766020b..42a2991f3f31c 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/printing/print_view_manager.h"
- #include "chrome/browser/task_manager/web_contents_tags.h"
+ #include "chrome/browser/printing/print_view_manager_base.h"
 diff --git chrome/browser/resources/print_preview/ui/destination_dialog.html chrome/browser/resources/print_preview/ui/destination_dialog.html
 index 5d1658999d5bb..d1b7b7288c946 100644
 --- chrome/browser/resources/print_preview/ui/destination_dialog.html
@@ -84,10 +84,10 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 641551c50c9f0..86d5e597626b4 100644
+index 7afee9ec16059..5686f028d7e69 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -22,6 +22,7 @@
+@@ -23,6 +23,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -95,7 +95,7 @@ index 641551c50c9f0..86d5e597626b4 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/policy/management_utils.h"
-@@ -100,6 +101,13 @@ const char16_t kBasicPrintShortcut[] = u"\u0028\u21e7\u2318\u0050\u0029";
+@@ -101,6 +102,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -109,7 +109,7 @@ index 641551c50c9f0..86d5e597626b4 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -326,7 +334,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -285,7 +293,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

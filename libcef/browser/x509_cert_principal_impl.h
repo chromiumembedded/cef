@@ -24,10 +24,8 @@ class CefX509CertPrincipalImpl : public CefX509CertPrincipal {
   CefString GetLocalityName() override;
   CefString GetStateOrProvinceName() override;
   CefString GetCountryName() override;
-  void GetStreetAddresses(std::vector<CefString>& addresses) override;
   void GetOrganizationNames(std::vector<CefString>& names) override;
   void GetOrganizationUnitNames(std::vector<CefString>& names) override;
-  void GetDomainComponents(std::vector<CefString>& components) override;
 
  private:
   net::CertPrincipal value_;

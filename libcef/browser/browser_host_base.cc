@@ -28,6 +28,7 @@
 #include "content/public/browser/download_request_utils.h"
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/navigation_entry.h"
+#include "ui/base/resource/resource_scale_factor.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/shell_dialogs/select_file_policy.h"
 
@@ -340,9 +341,10 @@ void CefBrowserHostBase::DownloadImage(
     return;
   }
 
+  const float scale = ui::GetScaleForMaxSupportedResourceScaleFactor();
   web_contents->DownloadImage(
       gurl, is_favicon, gfx::Size(max_image_size, max_image_size),
-      max_image_size * gfx::ImageSkia::GetMaxSupportedScale(), bypass_cache,
+      max_image_size * scale, bypass_cache,
       base::BindOnce(
           [](uint32 max_image_size,
              CefRefPtr<CefDownloadImageCallback> callback, int id,

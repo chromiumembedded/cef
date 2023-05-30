@@ -70,9 +70,9 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
     auto impl_value = impl->CopyValue();
 
     if (impl_value.type() == base::Value::Type::DICT) {
-      registry_->RegisterDictionaryPref(name, std::move(impl_value));
+      registry_->RegisterDictionaryPref(name, std::move(impl_value.GetDict()));
     } else if (impl_value.type() == base::Value::Type::LIST) {
-      registry_->RegisterListPref(name, std::move(impl_value));
+      registry_->RegisterListPref(name, std::move(impl_value.GetList()));
     } else {
       DCHECK(false);
     }

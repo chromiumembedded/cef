@@ -550,7 +550,7 @@ def LinuxSysrootExists(cpu):
   if cpu == 'x64':
     sysroot_name = 'debian_%s_amd64-sysroot' % release
   elif cpu == 'arm':
-    sysroot_name = 'debian_%s_arm-sysroot' % release
+    sysroot_name = 'debian_%s_armhf-sysroot' % release
   elif cpu == 'arm64':
     sysroot_name = 'debian_%s_arm64-sysroot' % release
   else:

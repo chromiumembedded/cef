@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 2c3930e849719..12c81c7c0e7e6 100644
+index 8a18ecf567cd3..9697d43bbbfb9 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -342,6 +342,7 @@ class BLINK_EXPORT WebView {
+@@ -344,6 +344,7 @@ class BLINK_EXPORT WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    static void SetUseExternalPopupMenus(bool);
@@ -11,7 +11,7 @@ index 2c3930e849719..12c81c7c0e7e6 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 4f99cf1e984cb..7ed63f2db8267 100644
+index a1bcdb3b7ceb5..321a5fac3b4e4 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -250,8 +250,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -30,7 +30,7 @@ index 4f99cf1e984cb..7ed63f2db8267 100644
  }
  
  namespace {
-@@ -567,6 +572,7 @@ WebViewImpl::WebViewImpl(
+@@ -571,6 +576,7 @@ WebViewImpl::WebViewImpl(
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(PageZoomFactorToZoomLevel(kMinimumPageZoomFactor)),
        maximum_zoom_level_(PageZoomFactorToZoomLevel(kMaximumPageZoomFactor)),
@@ -39,10 +39,10 @@ index 4f99cf1e984cb..7ed63f2db8267 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 421ca0b15eea5..4802d65c6dc4f 100644
+index cce09d720fda1..c723dcdb1ff73 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -135,7 +135,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -137,7 +137,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index 421ca0b15eea5..4802d65c6dc4f 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -848,6 +849,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -851,6 +852,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  

@@ -198,7 +198,7 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 95cec35bfe57f..1479ac9fc29f8 100644
+index de61251db35b6..ad94482e2e7db 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -31,6 +31,7 @@
@@ -217,7 +217,7 @@ index 95cec35bfe57f..1479ac9fc29f8 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -250,6 +252,14 @@ class ExtensionsBrowserClient {
+@@ -247,6 +249,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -233,7 +233,7 @@ index 95cec35bfe57f..1479ac9fc29f8 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 73234aa98d4a7..bcf409cd09e3f 100644
+index e885327697fb9..7dc4c91069762 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -377,9 +377,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

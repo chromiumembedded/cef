@@ -139,7 +139,7 @@ index 1ee6c28cd47bc..62fd628dffd07 100644
        params->need_local_path ? ui::SelectFileDialog::FileTypeInfo::NATIVE_PATH
                                : ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index a900e41ccf973..4354a90469fd9 100644
+index d8d05b844383c..a18fe71e383d1 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -61,7 +61,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -323,10 +323,10 @@ index c7acd9b05fbb8..3e95e4125fa24 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index 0b8aaa3c0e4f0..fe01d3db2eabe 100644
+index 7c7a929ec5c36..ef0a6328229db 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
-@@ -102,6 +102,10 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -106,6 +106,10 @@ void SelectFileDialogImpl::SelectFileImpl(
      mojo_window->CreateSelectFileDialog(std::move(receiver));
    } else {
      NSWindow* ns_window = gfx_window.GetNativeNSWindow();

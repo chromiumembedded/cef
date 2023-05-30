@@ -70,6 +70,8 @@ class CefTouchSelectionControllerClientOSR
 
   // TouchSelectionControllerClientManager.
   void DidStopFlinging() override;
+  void OnSwipeToMoveCursorBegin() override;
+  void OnSwipeToMoveCursorEnd() override;
   void UpdateClientSelectionBounds(
       const gfx::SelectionBound& start,
       const gfx::SelectionBound& end,

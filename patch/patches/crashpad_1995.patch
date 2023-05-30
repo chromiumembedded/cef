@@ -262,10 +262,10 @@ index a604df7a5ea6a..618fbde10a65c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 55ae5145e81a4..81daed959d336 100644
+index 9ea9021f16006..cf187495ff3f0 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -130,7 +130,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -129,7 +129,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -349,12 +349,12 @@ index 99efa6b245b99..008eb397332c2 100644
                                annotations, arguments, false, false));
    } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index cab2c95eee53e..06e6f61ebccb1 100644
+index d7351f4a912b3..6f1577533d3e9 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
-@@ -16,11 +16,14 @@
+@@ -17,11 +17,14 @@
+ #include "base/check.h"
  #include "base/files/file_path.h"
- #include "base/mac/bundle_locations.h"
  #include "base/mac/foundation_util.h"
 +#include "base/path_service.h"
  #include "base/strings/string_number_conversions.h"
@@ -367,10 +367,10 @@ index cab2c95eee53e..06e6f61ebccb1 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -38,14 +41,24 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -43,15 +46,25 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
-       NSBundle* outer_bundle = base::mac::OuterBundle();
+       NSBundle* outer_bundle = base::apple::OuterBundle();
 +      CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
 +      const char* product_name = "";
 +      const char* product_version = "";
@@ -382,12 +382,14 @@ index cab2c95eee53e..06e6f61ebccb1 100644
 -      process_annotations["prod"] = "Chrome_Mac";
 +        process_annotations["product"] = "Chrome_Mac";
  #else
--      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
--          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
+-      NSString* product = base::mac::ObjCCast<NSString>(
+-          [outer_bundle objectForInfoDictionaryKey:base::apple::CFToNSPtrCast(
+-                                                       kCFBundleNameKey)]);
 -      process_annotations["prod"] =
 -          base::SysNSStringToUTF8(product).append("_Mac");
-+        NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
-+            objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
++        NSString* product = base::mac::ObjCCast<NSString>(
++            [outer_bundle objectForInfoDictionaryKey:base::apple::CFToNSPtrCast(
++                                                         kCFBundleNameKey)]);
 +        process_annotations["product"] =
 +            base::SysNSStringToUTF8(product).append("_Mac");
  #endif
@@ -397,17 +399,17 @@ index cab2c95eee53e..06e6f61ebccb1 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -76,12 +89,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -82,12 +95,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
 -      NSString* version =
--          base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
+-          base::mac::ObjCCast<NSString>([base::apple::FrameworkBundle()
 -              objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 -      process_annotations["ver"] = base::SysNSStringToUTF8(version);
 +      if (strlen(product_version) == 0) {
 +        NSString* version =
-+            base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
++            base::mac::ObjCCast<NSString>([base::apple::FrameworkBundle()
 +                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 +        process_annotations["version"] = base::SysNSStringToUTF8(version);
 +      } else {
@@ -423,11 +425,11 @@ index cab2c95eee53e..06e6f61ebccb1 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -141,10 +162,10 @@ bool PlatformCrashpadInitialization(
+@@ -147,10 +168,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
--      base::FilePath framework_bundle_path = base::mac::FrameworkBundlePath();
+-      base::FilePath framework_bundle_path = base::apple::FrameworkBundlePath();
 -      base::FilePath handler_path =
 -          framework_bundle_path.Append("Helpers").Append(
 -              "chrome_crashpad_handler");
@@ -438,7 +440,7 @@ index cab2c95eee53e..06e6f61ebccb1 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -173,6 +194,12 @@ bool PlatformCrashpadInitialization(
+@@ -179,6 +200,12 @@ bool PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

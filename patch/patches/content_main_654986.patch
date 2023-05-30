@@ -94,7 +94,7 @@ index 3062f57603321..d8532c9c2eabb 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 38c5f465d8e45..762c4b7562d55 100644
+index fa26be0ffd110..f231ab04022e3 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -46,6 +46,7 @@
@@ -105,7 +105,7 @@ index 38c5f465d8e45..762c4b7562d55 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1316,6 +1317,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1324,6 +1325,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -154,10 +154,10 @@ index 283161145d792..9f3f635abdd1c 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index a1eeb534c0743..aac5194a44efb 100644
+index baf8a17691bac..9e6b32c9c3692 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
-@@ -100,6 +100,13 @@ struct CONTENT_EXPORT ContentMainParams {
+@@ -96,6 +96,13 @@ struct CONTENT_EXPORT ContentMainParams {
    }
  };
  

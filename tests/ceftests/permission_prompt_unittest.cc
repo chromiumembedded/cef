@@ -324,8 +324,10 @@ TEST(PermissionPromptTest, WindowManagementNoGesture) {
   // prompts that are blocked.
   EXPECT_FALSE(test_setup.got_prompt);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Permission decision deferred.",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ(
+      "NotAllowedError: Transient activation is required to request "
+      "permission.",
+      test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_dismiss);
 }
 
@@ -425,7 +427,7 @@ TEST(PermissionPromptTest, WindowManagementResultDismiss) {
 
   EXPECT_TRUE(test_setup.got_prompt);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Permission decision deferred.",
+  EXPECT_STREQ("NotAllowedError: Permission denied.",
                test_setup.js_error_str.c_str());
   EXPECT_TRUE(test_setup.got_dismiss);
 }
@@ -443,7 +445,7 @@ TEST(PermissionPromptTest, WindowManagementResultDismissAsync) {
 
   EXPECT_TRUE(test_setup.got_prompt);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Permission decision deferred.",
+  EXPECT_STREQ("NotAllowedError: Permission denied.",
                test_setup.js_error_str.c_str());
   EXPECT_TRUE(test_setup.got_dismiss);
 }
@@ -460,7 +462,7 @@ TEST(PermissionPromptTest, WindowManagementResultIgnore) {
 
   EXPECT_TRUE(test_setup.got_prompt);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Permission decision deferred.",
+  EXPECT_STREQ("NotAllowedError: Permission denied.",
                test_setup.js_error_str.c_str());
   EXPECT_TRUE(test_setup.got_dismiss);
 }
@@ -478,7 +480,7 @@ TEST(PermissionPromptTest, WindowManagementResultIgnoreAsync) {
 
   EXPECT_TRUE(test_setup.got_prompt);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Permission decision deferred.",
+  EXPECT_STREQ("NotAllowedError: Permission denied.",
                test_setup.js_error_str.c_str());
   EXPECT_TRUE(test_setup.got_dismiss);
 }

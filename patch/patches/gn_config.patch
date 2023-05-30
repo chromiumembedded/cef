@@ -12,7 +12,7 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 27ef75902d11e..5c9ab8a865ff4 100644
+index ea3d57d093740..bad302160e7c9 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -31,7 +31,7 @@ index 27ef75902d11e..5c9ab8a865ff4 100644
 +      deps += [ "//cef" ]
 +    }
 +
-     if (enable_printing) {
+     if (enable_printing || enable_printing_unittests) {
        deps += [ "//printing:printing_unittests" ]
      }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni

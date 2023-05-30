@@ -6,10 +6,10 @@
 
 #include "libcef/common/cef_switches.h"
 
+#include "base/apple/bundle_locations.h"
 #include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
 #include "base/path_service.h"
 #include "base/strings/sys_string_conversions.h"
@@ -35,14 +35,14 @@ void OverrideFrameworkBundlePath() {
   base::FilePath framework_path = GetFrameworkDirectory();
   DCHECK(!framework_path.empty());
 
-  base::mac::SetOverrideFrameworkBundlePath(framework_path);
+  base::apple::SetOverrideFrameworkBundlePath(framework_path);
 }
 
 void OverrideOuterBundlePath() {
   base::FilePath bundle_path = GetMainBundlePath();
   DCHECK(!bundle_path.empty());
 
-  base::mac::SetOverrideOuterBundlePath(bundle_path);
+  base::apple::SetOverrideOuterBundlePath(bundle_path);
 }
 
 void OverrideBaseBundleID() {
@@ -134,7 +134,7 @@ base::FilePath GetMainBundlePath() {
 }
 
 std::string GetMainBundleID() {
-  NSBundle* bundle = base::mac::OuterBundle();
+  NSBundle* bundle = base::apple::OuterBundle();
   return base::SysNSStringToUTF8([bundle bundleIdentifier]);
 }
 

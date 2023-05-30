@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index c295b6c6bd54f..3c0f5a64baa6d 100644
+index 680ac2d851294..f8c1a8b64b2c4 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -27,7 +27,7 @@ index c295b6c6bd54f..3c0f5a64baa6d 100644
  }
  
  absl::optional<DisplayFeature> RenderWidgetHostViewAura::GetDisplayFeature() {
-@@ -2270,6 +2273,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2284,6 +2287,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    // This needs to happen only after |window_| has been initialized using
    // Init(), because it needs to have the layer.
    window_->SetEmbedFrameSinkId(frame_sink_id_);

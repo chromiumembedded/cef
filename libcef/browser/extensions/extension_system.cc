@@ -473,7 +473,7 @@ void CefExtensionSystem::InstallUpdate(
 
 void CefExtensionSystem::PerformActionBasedOnOmahaAttributes(
     const std::string& extension_id,
-    const base::Value& attributes) {
+    const base::Value::Dict& attributes) {
   DCHECK(false);
 }
 

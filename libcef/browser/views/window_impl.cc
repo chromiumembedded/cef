@@ -20,12 +20,11 @@
 #include "ui/views/controls/menu/menu_runner.h"
 
 #if defined(USE_AURA)
-#include "ui/aura/test/ui_controls_factory_aura.h"
 #include "ui/aura/window.h"
-#include "ui/base/test/ui_controls_aura.h"
 #endif  // defined(USE_AURA)
 
 #if BUILDFLAG(IS_WIN)
+#include "ui/aura/test/ui_controls_aurawin.h"
 #include "ui/display/win/screen_win.h"
 #endif
 
@@ -35,16 +34,11 @@ namespace {
 void InitializeUITesting() {
   static bool initialized = false;
   if (!initialized) {
-    ui_controls::EnableUIControls();
-
-#if defined(USE_AURA)
 #if BUILDFLAG(IS_WIN)
-    ui_controls::InstallUIControlsAura(
-        aura::test::CreateUIControlsAura(nullptr));
-#elif BUILDFLAG(IS_OZONE)
+    aura::test::EnableUIControlsAuraWin();
+#else
     ui_controls::EnableUIControls();
 #endif
-#endif  // defined(USE_AURA)
 
     initialized = true;
   }
