@@ -30,10 +30,10 @@ if %vcvars% == "none" goto found_vcvars
 if exist %vcvars% goto found_vcvars
 
 :: Search for the default VS installation path.
-for %%x in ("%PROGRAMFILES(X86)%" "%PROGRAMFILES%") do (
-  for %%y in (2022 2019 2017) do (
+for %%x in (2022) do (
+  for %%y in ("%PROGRAMFILES%" "%PROGRAMFILES(X86)%") do (
     for %%z in (Professional Enterprise Community BuildTools) do (
-      set vcvars="%%~x\Microsoft Visual Studio\%%y\%%z\VC\Auxiliary\Build\%vcvarsbat%"
+      set vcvars="%%~y\Microsoft Visual Studio\%%x\%%z\VC\Auxiliary\Build\%vcvarsbat%"
       if exist !vcvars! goto found_vcvars
     )
   )
