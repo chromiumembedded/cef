@@ -70,9 +70,9 @@ typedef struct _cef_string_utf8_t {
 } cef_string_utf8_t;
 
 typedef struct _cef_string_utf16_t {
-  char16* str;
+  char16_t* str;
   size_t length;
-  void (*dtor)(char16* str);
+  void (*dtor)(char16_t* str);
 } cef_string_utf16_t;
 
 ///
@@ -89,7 +89,7 @@ CEF_EXPORT int cef_string_utf8_set(const char* src,
                                    size_t src_len,
                                    cef_string_utf8_t* output,
                                    int copy);
-CEF_EXPORT int cef_string_utf16_set(const char16* src,
+CEF_EXPORT int cef_string_utf16_set(const char16_t* src,
                                     size_t src_len,
                                     cef_string_utf16_t* output,
                                     int copy);
@@ -141,14 +141,14 @@ CEF_EXPORT int cef_string_utf8_to_wide(const char* src,
 CEF_EXPORT int cef_string_wide_to_utf16(const wchar_t* src,
                                         size_t src_len,
                                         cef_string_utf16_t* output);
-CEF_EXPORT int cef_string_utf16_to_wide(const char16* src,
+CEF_EXPORT int cef_string_utf16_to_wide(const char16_t* src,
                                         size_t src_len,
                                         cef_string_wide_t* output);
 
 CEF_EXPORT int cef_string_utf8_to_utf16(const char* src,
                                         size_t src_len,
                                         cef_string_utf16_t* output);
-CEF_EXPORT int cef_string_utf16_to_utf8(const char16* src,
+CEF_EXPORT int cef_string_utf16_to_utf8(const char16_t* src,
                                         size_t src_len,
                                         cef_string_utf8_t* output);
 
@@ -198,10 +198,10 @@ CEF_EXPORT void cef_string_userfree_utf16_free(cef_string_userfree_utf16_t str);
 /// may change the length of the string in some cases.
 ///
 
-CEF_EXPORT int cef_string_utf16_to_lower(const char16* src,
+CEF_EXPORT int cef_string_utf16_to_lower(const char16_t* src,
                                          size_t src_len,
                                          cef_string_utf16_t* output);
-CEF_EXPORT int cef_string_utf16_to_upper(const char16* src,
+CEF_EXPORT int cef_string_utf16_to_upper(const char16_t* src,
                                          size_t src_len,
                                          cef_string_utf16_t* output);
 

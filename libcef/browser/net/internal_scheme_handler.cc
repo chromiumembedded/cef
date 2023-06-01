@@ -70,7 +70,7 @@ class RedirectHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     response_length = 0;
     redirectUrl = url_.spec();
@@ -111,7 +111,7 @@ class InternalHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     response_length = size_;
 

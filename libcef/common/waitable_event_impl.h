@@ -22,7 +22,7 @@ class CefWaitableEventImpl : public CefWaitableEvent {
   void Signal() override;
   bool IsSignaled() override;
   void Wait() override;
-  bool TimedWait(int64 max_ms) override;
+  bool TimedWait(int64_t max_ms) override;
 
  private:
   base::WaitableEvent event_;

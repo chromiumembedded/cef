@@ -229,7 +229,7 @@ base::TimeTicks CefBrowserPlatformDelegateNativeAura::GetEventTimeStamp() {
 
 // static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
-    uint32 cef_modifiers) {
+    uint32_t cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {
@@ -273,7 +273,7 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
 
 // static
 int CefBrowserPlatformDelegateNativeAura::TranslateUiChangedButtonFlags(
-    uint32 cef_modifiers) {
+    uint32_t cef_modifiers) {
   int result = 0;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON) {
     result |= ui::EF_LEFT_MOUSE_BUTTON;

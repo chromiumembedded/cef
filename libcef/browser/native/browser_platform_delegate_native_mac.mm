@@ -513,10 +513,12 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
   }
 
   NSString* charactersIgnoringModifiers =
-      [[NSString alloc] initWithCharacters:&key_event.unmodified_character
+      [[NSString alloc] initWithCharacters:reinterpret_cast<const unichar*>(
+                                               &key_event.unmodified_character)
                                     length:1];
-  NSString* characters =
-      [[NSString alloc] initWithCharacters:&key_event.character length:1];
+  NSString* characters = [[NSString alloc]
+      initWithCharacters:reinterpret_cast<const unichar*>(&key_event.character)
+                  length:1];
 
   NSEvent* synthetic_event =
       [NSEvent keyEventWithType:event_type

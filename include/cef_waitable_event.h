@@ -103,7 +103,7 @@ class CefWaitableEvent : public CefBaseRefCounted {
   /// called on the browser process UI or IO threads.
   ///
   /*--cef()--*/
-  virtual bool TimedWait(int64 max_ms) = 0;
+  virtual bool TimedWait(int64_t max_ms) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_WAITABLE_EVENT_H_

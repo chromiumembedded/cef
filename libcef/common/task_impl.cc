@@ -35,7 +35,7 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
 
 bool CefPostDelayedTask(CefThreadId threadId,
                         CefRefPtr<CefTask> task,
-                        int64 delay_ms) {
+                        int64_t delay_ms) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(threadId);
   if (task_runner.get()) {

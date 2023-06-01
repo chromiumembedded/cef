@@ -26,12 +26,12 @@ class CefZipReaderImpl : public CefZipReader {
   bool MoveToFile(const CefString& fileName, bool caseSensitive) override;
   bool Close() override;
   CefString GetFileName() override;
-  int64 GetFileSize() override;
+  int64_t GetFileSize() override;
   CefBaseTime GetFileLastModified() override;
   bool OpenFile(const CefString& password) override;
   bool CloseFile() override;
   int ReadFile(void* buffer, size_t bufferSize) override;
-  int64 Tell() override;
+  int64_t Tell() override;
   bool Eof() override;
 
   bool GetFileInfo();
@@ -46,7 +46,7 @@ class CefZipReaderImpl : public CefZipReader {
   bool has_fileopen_;
   bool has_fileinfo_;
   CefString filename_;
-  int64 filesize_;
+  int64_t filesize_;
   time_t filemodified_;
 
   IMPLEMENT_REFCOUNTING(CefZipReaderImpl);

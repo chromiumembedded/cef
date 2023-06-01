@@ -88,7 +88,7 @@ size_t CefFileReader::Read(void* ptr, size_t size, size_t n) {
   return fread(ptr, size, n, file_);
 }
 
-int CefFileReader::Seek(int64 offset, int whence) {
+int CefFileReader::Seek(int64_t offset, int whence) {
   base::AutoLock lock_scope(lock_);
 #if BUILDFLAG(IS_WIN)
   return _fseeki64(file_, offset, whence);
@@ -97,7 +97,7 @@ int CefFileReader::Seek(int64 offset, int whence) {
 #endif
 }
 
-int64 CefFileReader::Tell() {
+int64_t CefFileReader::Tell() {
   base::AutoLock lock_scope(lock_);
 #if BUILDFLAG(IS_WIN)
   return _ftelli64(file_);
@@ -128,12 +128,12 @@ size_t CefFileWriter::Write(const void* ptr, size_t size, size_t n) {
   return (size_t)fwrite(ptr, size, n, file_);
 }
 
-int CefFileWriter::Seek(int64 offset, int whence) {
+int CefFileWriter::Seek(int64_t offset, int whence) {
   base::AutoLock lock_scope(lock_);
   return fseek(file_, offset, whence);
 }
 
-int64 CefFileWriter::Tell() {
+int64_t CefFileWriter::Tell() {
   base::AutoLock lock_scope(lock_);
   return ftell(file_);
 }
@@ -145,7 +145,7 @@ int CefFileWriter::Flush() {
 
 // CefBytesReader
 
-CefBytesReader::CefBytesReader(void* data, int64 datasize, bool copy)
+CefBytesReader::CefBytesReader(void* data, int64_t datasize, bool copy)
     : data_(nullptr), datasize_(0), copy_(false), offset_(0) {
   SetData(data, datasize, copy);
 }
@@ -163,7 +163,7 @@ size_t CefBytesReader::Read(void* ptr, size_t size, size_t n) {
   return ret;
 }
 
-int CefBytesReader::Seek(int64 offset, int whence) {
+int CefBytesReader::Seek(int64_t offset, int whence) {
   int rv = -1L;
   base::AutoLock lock_scope(lock_);
   switch (whence) {
@@ -175,7 +175,7 @@ int CefBytesReader::Seek(int64 offset, int whence) {
       rv = 0;
       break;
     case SEEK_END: {
-      int64 offset_abs = std::abs(offset);
+      int64_t offset_abs = std::abs(offset);
       if (offset_abs > datasize_) {
         break;
       }
@@ -195,7 +195,7 @@ int CefBytesReader::Seek(int64 offset, int whence) {
   return rv;
 }
 
-int64 CefBytesReader::Tell() {
+int64_t CefBytesReader::Tell() {
   base::AutoLock lock_scope(lock_);
   return offset_;
 }
@@ -205,7 +205,7 @@ int CefBytesReader::Eof() {
   return (offset_ >= datasize_);
 }
 
-void CefBytesReader::SetData(void* data, int64 datasize, bool copy) {
+void CefBytesReader::SetData(void* data, int64_t datasize, bool copy) {
   base::AutoLock lock_scope(lock_);
   if (copy_) {
     free(data_);
@@ -245,7 +245,7 @@ CefBytesWriter::~CefBytesWriter() {
 size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n) {
   base::AutoLock lock_scope(lock_);
   size_t rv;
-  if (offset_ + static_cast<int64>(size * n) >= datasize_ &&
+  if (offset_ + static_cast<int64_t>(size * n) >= datasize_ &&
       Grow(size * n) == 0) {
     rv = 0;
   } else {
@@ -257,7 +257,7 @@ size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n) {
   return rv;
 }
 
-int CefBytesWriter::Seek(int64 offset, int whence) {
+int CefBytesWriter::Seek(int64_t offset, int whence) {
   int rv = -1L;
   base::AutoLock lock_scope(lock_);
   switch (whence) {
@@ -269,7 +269,7 @@ int CefBytesWriter::Seek(int64 offset, int whence) {
       rv = 0;
       break;
     case SEEK_END: {
-      int64 offset_abs = std::abs(offset);
+      int64_t offset_abs = std::abs(offset);
       if (offset_abs > datasize_) {
         break;
       }
@@ -289,7 +289,7 @@ int CefBytesWriter::Seek(int64 offset, int whence) {
   return rv;
 }
 
-int64 CefBytesWriter::Tell() {
+int64_t CefBytesWriter::Tell() {
   base::AutoLock lock_scope(lock_);
   return offset_;
 }

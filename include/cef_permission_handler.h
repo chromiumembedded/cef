@@ -57,7 +57,7 @@ class CefMediaAccessCallback : public virtual CefBaseRefCounted {
   /// OnRequestMediaAccessPermission.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue(uint32 allowed_permissions) = 0;
+  virtual void Continue(uint32_t allowed_permissions) = 0;
 
   ///
   /// Cancel the media access request.
@@ -104,7 +104,7 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       CefRefPtr<CefMediaAccessCallback> callback) {
     return false;
   }
@@ -123,9 +123,9 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual bool OnShowPermissionPrompt(
       CefRefPtr<CefBrowser> browser,
-      uint64 prompt_id,
+      uint64_t prompt_id,
       const CefString& requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       CefRefPtr<CefPermissionPromptCallback> callback) {
     return false;
   }
@@ -142,7 +142,7 @@ class CefPermissionHandler : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void OnDismissPermissionPrompt(
       CefRefPtr<CefBrowser> browser,
-      uint64 prompt_id,
+      uint64_t prompt_id,
       cef_permission_request_result_t result) {}
 };
 

@@ -118,7 +118,7 @@ class CefTaskRunner : public virtual CefBaseRefCounted {
   /// specified delay.
   ///
   /*--cef()--*/
-  virtual bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) = 0;
+  virtual bool PostDelayedTask(CefRefPtr<CefTask> task, int64_t delay_ms) = 0;
 };
 
 ///
@@ -143,6 +143,6 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task);
 /*--cef()--*/
 bool CefPostDelayedTask(CefThreadId threadId,
                         CefRefPtr<CefTask> task,
-                        int64 delay_ms);
+                        int64_t delay_ms);
 
 #endif  // CEF_INCLUDE_CEF_TASK_H_

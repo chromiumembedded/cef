@@ -58,12 +58,12 @@ class ReadHandler : public CefReadHandler {
     return read_bytes;
   }
 
-  int Seek(int64 offset, int whence) override {
+  int Seek(int64_t offset, int whence) override {
     EXPECT_TRUE(false);  // Not reached.
     return 0;
   }
 
-  int64 Tell() override {
+  int64_t Tell() override {
     EXPECT_TRUE(false);  // Not reached.
     return 0;
   }
@@ -117,7 +117,7 @@ class ReadTestHandler : public RoutingTestHandler {
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
-               int64 query_id,
+               int64_t query_id,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {

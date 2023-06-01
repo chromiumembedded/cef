@@ -112,7 +112,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
   bool last_nav_with_keyboard_;
 
   // Map of mnemonic to MenuButton ID.
-  typedef std::map<char16, int> MnemonicMap;
+  typedef std::map<char16_t, int> MnemonicMap;
   MnemonicMap mnemonics_;
 
   IMPLEMENT_REFCOUNTING(ViewsMenuBar);

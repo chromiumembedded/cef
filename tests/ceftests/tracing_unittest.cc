@@ -272,6 +272,6 @@ TRACING_TEST(TraceEventAsyncEnd1, TT_TRACE_EVENT_ASYNC_END1)
 TRACING_TEST(TraceEventAsyncEnd2, TT_TRACE_EVENT_ASYNC_END2)
 
 TEST(TracingTest, NowFromSystemTraceTime) {
-  int64 val = CefNowFromSystemTraceTime();
+  int64_t val = CefNowFromSystemTraceTime();
   EXPECT_NE(val, 0);
 }

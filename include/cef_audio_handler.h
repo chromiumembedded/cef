@@ -87,7 +87,7 @@ class CefAudioHandler : public virtual CefBaseRefCounted {
   virtual void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
                                    const float** data,
                                    int frames,
-                                   int64 pts) = 0;
+                                   int64_t pts) = 0;
 
   ///
   /// Called on the UI thread when the stream has stopped. OnAudioSteamStopped

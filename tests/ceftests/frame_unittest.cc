@@ -353,7 +353,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(args->SetInt(0, nav_));
     EXPECT_TRUE(args->SetBool(1, result));
 
-    const int64 frame_id = frame->GetIdentifier();
+    const int64_t frame_id = frame->GetIdentifier();
     EXPECT_TRUE(args->SetInt(2, CefInt64GetLow(frame_id)));
     EXPECT_TRUE(args->SetInt(3, CefInt64GetHigh(frame_id)));
 
@@ -491,7 +491,7 @@ class FrameNavTestHandler : public TestHandler {
           << "nav = " << nav_;
 
       // Test that browser and render process frame IDs match.
-      const int64 frame_id = CefInt64Set(args->GetInt(2), args->GetInt(3));
+      const int64_t frame_id = CefInt64Set(args->GetInt(2), args->GetInt(3));
       EXPECT_EQ(frame->GetIdentifier(), frame_id);
 
       return true;
@@ -842,7 +842,7 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
   V_DECLARE();
   V_EXPECT_TRUE(frame.get());
   V_EXPECT_TRUE(frame->IsValid());
-  const int64 frame_id = frame->GetIdentifier();
+  const int64_t frame_id = frame->GetIdentifier();
   V_EXPECT_TRUE(frame_id > 0) << frame_id;
   V_EXPECT_TRUE(frame->IsValid());
   V_EXPECT_TRUE(frame->IsMain());
@@ -879,7 +879,7 @@ bool VerifySingleBrowserFrames(CefRefPtr<CefBrowser> browser,
   size_t frame_count = browser->GetFrameCount();
   V_EXPECT_TRUE(frame_count == 1U);
 
-  std::vector<int64> identifiers;
+  std::vector<int64_t> identifiers;
   browser->GetFrameIdentifiers(identifiers);
   V_EXPECT_TRUE(identifiers.size() == 1U);
   if (identifiers.size() == 1U) {
@@ -1626,7 +1626,7 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   // frame0 contains frame1 contains frame2, contains frame3.
   CefRefPtr<CefFrame> frame0, frame1, frame2, frame3;
   CefRefPtr<CefFrame> frame0b, frame1b, frame2b, frame3b;
-  int64 frame0id, frame1id, frame2id, frame3id;
+  int64_t frame0id, frame1id, frame2id, frame3id;
   std::string frame0url, frame1url, frame2url, frame3url;
 
   // Verify the GetFrameNames result.
@@ -1751,9 +1751,9 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame_count == 4U) << " actual: " << frame_count;
 
   // Verify the GetFrameIdentifiers result.
-  std::set<int64> expected_idents = {frame0id, frame1id, frame2id, frame3id};
+  std::set<int64_t> expected_idents = {frame0id, frame1id, frame2id, frame3id};
 
-  std::vector<int64> idents;
+  std::vector<int64_t> idents;
   browser->GetFrameIdentifiers(idents);
   V_EXPECT_TRUE(idents.size() == expected_idents.size())
       << "expected: " << expected_idents.size() << " actual: " << idents.size();

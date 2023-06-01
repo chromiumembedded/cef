@@ -45,7 +45,7 @@ CefRefPtr<CefDownloadHandler> GetDownloadHandler(
 class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
  public:
   CefBeforeDownloadCallbackImpl(const base::WeakPtr<DownloadManager>& manager,
-                                uint32 download_id,
+                                uint32_t download_id,
                                 const base::FilePath& suggested_name,
                                 content::DownloadTargetCallback callback)
       : manager_(manager),
@@ -81,7 +81,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
  private:
   static void GenerateFilename(base::WeakPtr<DownloadManager> manager,
-                               uint32 download_id,
+                               uint32_t download_id,
                                const base::FilePath& suggested_name,
                                const base::FilePath& download_path,
                                bool show_dialog,
@@ -117,7 +117,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   }
 
   static void ChooseDownloadPath(base::WeakPtr<DownloadManager> manager,
-                                 uint32 download_id,
+                                 uint32_t download_id,
                                  const base::FilePath& suggested_path,
                                  bool show_dialog,
                                  content::DownloadTargetCallback callback) {
@@ -188,7 +188,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
   }
 
   base::WeakPtr<DownloadManager> manager_;
-  uint32 download_id_;
+  uint32_t download_id_;
   base::FilePath suggested_name_;
   content::DownloadTargetCallback callback_;
 
@@ -200,7 +200,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
  public:
   explicit CefDownloadItemCallbackImpl(
       const base::WeakPtr<DownloadManager>& manager,
-      uint32 download_id)
+      uint32_t download_id)
       : manager_(manager), download_id_(download_id) {}
 
   CefDownloadItemCallbackImpl(const CefDownloadItemCallbackImpl&) = delete;
@@ -265,7 +265,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
   }
 
   base::WeakPtr<DownloadManager> manager_;
-  uint32 download_id_;
+  uint32_t download_id_;
 
   IMPLEMENT_REFCOUNTING(CefDownloadItemCallbackImpl);
 };
@@ -416,7 +416,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
 
 void CefDownloadManagerDelegate::GetNextId(
     content::DownloadIdCallback callback) {
-  static uint32 next_id = DownloadItem::kInvalidId + 1;
+  static uint32_t next_id = DownloadItem::kInvalidId + 1;
   std::move(callback).Run(next_id++);
 }
 

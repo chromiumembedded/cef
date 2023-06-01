@@ -24,7 +24,7 @@ extern const int kDefaultIterations;
 #define PERF_TEST_ENTRY(name) PERF_TEST_ENTRY_EX(name, kDefaultIterations)
 
 // Test function declaration.
-#define PERF_TEST_RESULT int64
+#define PERF_TEST_RESULT int64_t
 #define PERF_TEST_PARAM_ITERATIONS iterations
 #define PERF_TEST_PARAMS int PERF_TEST_PARAM_ITERATIONS
 #define PERF_TEST_FUNC(name) \
@@ -51,7 +51,7 @@ class CefTimer {
     running_ = false;
   }
 
-  int64 Delta() {
+  int64_t Delta() {
     DCHECK(!running_);
     return start_.Delta(stop_);
   }
@@ -78,7 +78,7 @@ class CefTimer {
 
 // Perform test iterations and return the timing result.
 #define PERF_ITERATIONS_START() \
-  int64 _result = 0;            \
+  int64_t _result = 0;          \
   PERF_ITERATIONS_START_EX()
 
 #define PERF_ITERATIONS_END()     \

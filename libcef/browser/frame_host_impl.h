@@ -65,7 +65,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
-  int64 GetIdentifier() override;
+  int64_t GetIdentifier() override;
   CefRefPtr<CefFrame> GetParent() override;
   CefString GetURL() override;
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -156,7 +156,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   static const ui::PageTransition kPageTransitionExplicit;
 
  private:
-  int64 GetFrameId() const;
+  int64_t GetFrameId() const;
   scoped_refptr<CefBrowserInfo> GetBrowserInfo() const;
   CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
@@ -176,12 +176,12 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // The following members may be read/modified from any thread. All access must
   // be protected by |state_lock_|.
   mutable base::Lock state_lock_;
-  int64 frame_id_;
+  int64_t frame_id_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   bool is_focused_;
   CefString url_;
   CefString name_;
-  int64 parent_frame_id_;
+  int64_t parent_frame_id_;
 
   // The following members are only accessed on the UI thread.
   content::RenderFrameHost* render_frame_host_ = nullptr;

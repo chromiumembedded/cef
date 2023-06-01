@@ -408,7 +408,7 @@ void CefBrowserPlatformDelegate::StopFinding(bool clearSelection) {
 
 // static
 int CefBrowserPlatformDelegate::TranslateWebEventModifiers(
-    uint32 cef_modifiers) {
+    uint32_t cef_modifiers) {
   int result = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON) {

@@ -20,8 +20,8 @@ class CefFileReader : public CefStreamReader {
   ~CefFileReader() override;
 
   size_t Read(void* ptr, size_t size, size_t n) override;
-  int Seek(int64 offset, int whence) override;
-  int64 Tell() override;
+  int Seek(int64_t offset, int whence) override;
+  int64_t Tell() override;
   int Eof() override;
   bool MayBlock() override { return true; }
 
@@ -41,8 +41,8 @@ class CefFileWriter : public CefStreamWriter {
   ~CefFileWriter() override;
 
   size_t Write(const void* ptr, size_t size, size_t n) override;
-  int Seek(int64 offset, int whence) override;
-  int64 Tell() override;
+  int Seek(int64_t offset, int whence) override;
+  int64_t Tell() override;
   int Flush() override;
   bool MayBlock() override { return true; }
 
@@ -58,25 +58,25 @@ class CefFileWriter : public CefStreamWriter {
 // Implementation of CefStreamReader for byte buffers.
 class CefBytesReader : public CefStreamReader {
  public:
-  CefBytesReader(void* data, int64 datasize, bool copy);
+  CefBytesReader(void* data, int64_t datasize, bool copy);
   ~CefBytesReader() override;
 
   size_t Read(void* ptr, size_t size, size_t n) override;
-  int Seek(int64 offset, int whence) override;
-  int64 Tell() override;
+  int Seek(int64_t offset, int whence) override;
+  int64_t Tell() override;
   int Eof() override;
   bool MayBlock() override { return false; }
 
-  void SetData(void* data, int64 datasize, bool copy);
+  void SetData(void* data, int64_t datasize, bool copy);
 
   void* GetData() { return data_; }
   size_t GetDataSize() { return offset_; }
 
  protected:
   void* data_;
-  int64 datasize_;
+  int64_t datasize_;
   bool copy_;
-  int64 offset_;
+  int64_t offset_;
 
   base::Lock lock_;
 
@@ -90,13 +90,13 @@ class CefBytesWriter : public CefStreamWriter {
   ~CefBytesWriter() override;
 
   size_t Write(const void* ptr, size_t size, size_t n) override;
-  int Seek(int64 offset, int whence) override;
-  int64 Tell() override;
+  int Seek(int64_t offset, int whence) override;
+  int64_t Tell() override;
   int Flush() override;
   bool MayBlock() override { return false; }
 
   void* GetData() { return data_; }
-  int64 GetDataSize() { return offset_; }
+  int64_t GetDataSize() { return offset_; }
   std::string GetDataString();
 
  protected:
@@ -104,8 +104,8 @@ class CefBytesWriter : public CefStreamWriter {
 
   size_t grow_;
   void* data_;
-  int64 datasize_;
-  int64 offset_;
+  int64_t datasize_;
+  int64_t offset_;
 
   base::Lock lock_;
 
@@ -121,10 +121,10 @@ class CefHandlerReader : public CefStreamReader {
   size_t Read(void* ptr, size_t size, size_t n) override {
     return handler_->Read(ptr, size, n);
   }
-  int Seek(int64 offset, int whence) override {
+  int Seek(int64_t offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  int64 Tell() override { return handler_->Tell(); }
+  int64_t Tell() override { return handler_->Tell(); }
   int Eof() override { return handler_->Eof(); }
   bool MayBlock() override { return handler_->MayBlock(); }
 
@@ -143,10 +143,10 @@ class CefHandlerWriter : public CefStreamWriter {
   size_t Write(const void* ptr, size_t size, size_t n) override {
     return handler_->Write(ptr, size, n);
   }
-  int Seek(int64 offset, int whence) override {
+  int Seek(int64_t offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  int64 Tell() override { return handler_->Tell(); }
+  int64_t Tell() override { return handler_->Tell(); }
   int Flush() override { return handler_->Flush(); }
   bool MayBlock() override { return handler_->MayBlock(); }
 

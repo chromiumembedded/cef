@@ -86,7 +86,7 @@ class CefTestServer : public CefBaseRefCounted {
   ///
   /*--cef()--*/
   static CefRefPtr<CefTestServer> CreateAndStart(
-      uint16 port,
+      uint16_t port,
       bool https_server,
       cef_test_cert_type_t https_cert_type,
       CefRefPtr<CefTestServerHandler> handler);

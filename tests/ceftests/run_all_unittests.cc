@@ -59,7 +59,7 @@ void QuitMessageLoop() {
   }
 }
 
-void sleep(int64 ms) {
+void sleep(int64_t ms) {
 #if defined(OS_WIN)
   Sleep(ms);
 #elif defined(OS_POSIX)

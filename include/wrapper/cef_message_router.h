@@ -177,7 +177,7 @@
 // 8. Handle the query in your Handler::OnQuery implementation and execute the
 //    appropriate callback either immediately or asynchronously.
 //
-//    void MyHandler::OnQuery(int64 query_id,
+//    void MyHandler::OnQuery(int64_t query_id,
 //                            CefRefPtr<CefBrowser> browser,
 //                            CefRefPtr<CefFrame> frame,
 //                            const CefString& request,
@@ -269,7 +269,7 @@ class CefMessageRouterBrowserSide
     ///
     virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
-                         int64 query_id,
+                         int64_t query_id,
                          const CefString& request,
                          bool persistent,
                          CefRefPtr<Callback> callback) {
@@ -287,7 +287,7 @@ class CefMessageRouterBrowserSide
     ///
     virtual void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
-                                 int64 query_id) {}
+                                 int64_t query_id) {}
 
     virtual ~Handler() {}
   };

@@ -1278,7 +1278,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
   static CefRefPtr<CefRequestImpl> MakeRequest(
       const network::ResourceRequest* request,
-      int64 request_id,
+      int64_t request_id,
       bool read_only) {
     CefRefPtr<CefRequestImpl> requestPtr = new CefRequestImpl();
     requestPtr->Set(request, request_id);

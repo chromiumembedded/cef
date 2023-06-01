@@ -654,7 +654,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   mouseEvent.x = client::DeviceToLogical(point.x, device_scale_factor);
   mouseEvent.y = client::DeviceToLogical(point.y, device_scale_factor);
 
-  mouseEvent.modifiers = static_cast<uint32>([NSEvent modifierFlags]);
+  mouseEvent.modifiers = static_cast<uint32_t>([NSEvent modifierFlags]);
 }
 
 - (int)getModifiersForEvent:(NSEvent*)event {
@@ -1023,7 +1023,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     current_drag_data_->GetFileContents(writer);
-    DCHECK_EQ(handler->GetDataSize(), static_cast<int64>(size));
+    DCHECK_EQ(handler->GetDataSize(), static_cast<int64_t>(size));
 
     [pboard setData:[NSData dataWithBytes:handler->GetData()
                                    length:handler->GetDataSize()]

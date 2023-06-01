@@ -65,7 +65,7 @@ const char kRequestHostCustom[] = "test";
 
 // Server backend.
 const char* kRequestAddressServer = test_server::kHttpServerAddress;
-const uint16 kRequestPortServer = test_server::kHttpServerPort;
+const uint16_t kRequestPortServer = test_server::kHttpServerPort;
 const char kRequestSchemeServer[] = "http";
 
 const char kRequestSendCookieName[] = "urcookie_send";
@@ -591,7 +591,7 @@ class RequestSchemeHandlerOld : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
     GetNormalResponse(settings_, response);
@@ -675,20 +675,20 @@ class RequestSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
     GetNormalResponse(settings_, response);
     response_length = response_data_.length() - offset_;
   }
 
-  bool Skip(int64 bytes_to_skip,
-            int64& bytes_skipped,
+  bool Skip(int64_t bytes_to_skip,
+            int64_t& bytes_skipped,
             CefRefPtr<CefResourceSkipCallback> callback) override {
     size_t size = response_data_.length();
     if (offset_ < size) {
       bytes_skipped =
-          std::min(bytes_to_skip, static_cast<int64>(size - offset_));
+          std::min(bytes_to_skip, static_cast<int64_t>(size - offset_));
       offset_ += bytes_skipped;
     } else {
       bytes_skipped = ERR_FAILED;
@@ -777,7 +777,7 @@ class RequestRedirectSchemeHandlerOld : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
 
@@ -851,7 +851,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
 
@@ -943,7 +943,7 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(settings_->incomplete_type,
@@ -959,7 +959,7 @@ class IncompleteSchemeHandlerOld : public CefResourceHandler {
     settings_->response->GetHeaderMap(headerMap);
     settings_->response->SetHeaderMap(headerMap);
 
-    response_length = static_cast<int64>(settings_->response_data.size());
+    response_length = static_cast<int64_t>(settings_->response_data.size());
   }
 
   bool ReadResponse(void* data_out,
@@ -1047,7 +1047,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(settings_->incomplete_type,
@@ -1063,7 +1063,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
     settings_->response->GetHeaderMap(headerMap);
     settings_->response->SetHeaderMap(headerMap);
 
-    response_length = static_cast<int64>(settings_->response_data.size());
+    response_length = static_cast<int64_t>(settings_->response_data.size());
   }
 
   bool Read(void* data_out,
@@ -2350,7 +2350,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
       std::string upload_data;
       GetUploadData(expected_request, upload_data);
-      EXPECT_EQ((int64)upload_data.size(), client->upload_total_);
+      EXPECT_EQ((int64_t)upload_data.size(), client->upload_total_);
     } else {
       EXPECT_EQ(0, client->upload_progress_ct_);
       EXPECT_EQ(0, client->upload_total_);
@@ -2358,8 +2358,8 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     if (settings_.expect_download_progress) {
       EXPECT_LE(1, client->download_progress_ct_);
-      EXPECT_EQ((int64)(settings_.response_data.size() -
-                        settings_.expected_download_offset),
+      EXPECT_EQ((int64_t)(settings_.response_data.size() -
+                          settings_.expected_download_offset),
                 client->download_total_);
     } else {
       EXPECT_EQ(0, client->download_progress_ct_);
@@ -3074,14 +3074,14 @@ class InvalidURLTestClient : public CefURLRequestClient {
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                        int64 current,
-                        int64 total) override {
+                        int64_t current,
+                        int64_t total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                          int64 current,
-                          int64 total) override {
+                          int64_t current,
+                          int64_t total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 

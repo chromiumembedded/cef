@@ -214,8 +214,8 @@ class CefV8ValueImpl : public CefV8Value {
   void InitUndefined();
   void InitNull();
   void InitBool(bool value);
-  void InitInt(int32 value);
-  void InitUInt(uint32 value);
+  void InitInt(int32_t value);
+  void InitUInt(uint32_t value);
   void InitDouble(double value);
   void InitDate(CefBaseTime value);
   void InitString(CefString& value);
@@ -241,8 +241,8 @@ class CefV8ValueImpl : public CefV8Value {
   bool IsPromise() override;
   bool IsSame(CefRefPtr<CefV8Value> value) override;
   bool GetBoolValue() override;
-  int32 GetIntValue() override;
-  uint32 GetUIntValue() override;
+  int32_t GetIntValue() override;
+  uint32_t GetUIntValue() override;
   double GetDoubleValue() override;
   CefBaseTime GetDateValue() override;
   CefString GetStringValue() override;
@@ -348,8 +348,8 @@ class CefV8ValueImpl : public CefV8Value {
 
   union {
     bool bool_value_;
-    int32 int_value_;
-    uint32 uint_value_;
+    int32_t int_value_;
+    uint32_t uint_value_;
     double double_value_;
     cef_basetime_t date_value_;
     cef_string_t string_value_;

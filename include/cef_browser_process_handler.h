@@ -111,7 +111,7 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// pending scheduled call should be cancelled.
   ///
   /*--cef()--*/
-  virtual void OnScheduleMessagePumpWork(int64 delay_ms) {}
+  virtual void OnScheduleMessagePumpWork(int64_t delay_ms) {}
 
   ///
   /// Return the default client for use with a newly created browser window. If

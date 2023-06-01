@@ -70,7 +70,7 @@ void GetCompositionUnderlines(
     uint32_t target_end,
     std::vector<CefCompositionUnderline>& underlines) {
   int clause_size = ::ImmGetCompositionString(imc, GCS_COMPCLAUSE, nullptr, 0);
-  int clause_length = clause_size / sizeof(uint32);
+  int clause_length = clause_size / sizeof(uint32_t);
   if (clause_length) {
     std::vector<uint32_t> clause_data(clause_length);
 

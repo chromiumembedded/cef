@@ -383,7 +383,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Called due to cefQuery execution in media_router.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
-               int64 query_id,
+               int64_t query_id,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
@@ -497,7 +497,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
-                       int64 query_id) override {
+                       int64_t query_id) override {
     CEF_REQUIRE_UI_THREAD();
     RemoveSubscription(browser->GetIdentifier(), query_id);
   }
@@ -535,13 +535,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
   // Subscription state associated with a single browser.
   struct SubscriptionState {
-    int64 query_id;
+    int64_t query_id;
     CefRefPtr<MediaObserver> observer;
     CefRefPtr<CefRegistration> registration;
   };
 
   bool CreateSubscription(CefRefPtr<CefBrowser> browser,
-                          int64 query_id,
+                          int64_t query_id,
                           CefRefPtr<Callback> callback) {
     const int browser_id = browser->GetIdentifier();
     if (subscription_state_map_.find(browser_id) !=
@@ -566,7 +566,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     return true;
   }
 
-  void RemoveSubscription(int browser_id, int64 query_id) {
+  void RemoveSubscription(int browser_id, int64_t query_id) {
     SubscriptionStateMap::iterator it =
         subscription_state_map_.find(browser_id);
     if (it != subscription_state_map_.end() &&

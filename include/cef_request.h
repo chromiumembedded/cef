@@ -217,7 +217,7 @@ class CefRequest : public virtual CefBaseRefCounted {
   /// browser process to track a single request across multiple callbacks.
   ///
   /*--cef()--*/
-  virtual uint64 GetIdentifier() = 0;
+  virtual uint64_t GetIdentifier() = 0;
 };
 
 ///

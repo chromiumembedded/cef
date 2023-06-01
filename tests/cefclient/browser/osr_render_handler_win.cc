@@ -71,7 +71,7 @@ void OsrRenderHandlerWin::TriggerBeginFrame(uint64_t last_time_us,
   CefPostDelayedTask(TID_UI,
                      base::BindOnce(&OsrRenderHandlerWin::TriggerBeginFrame,
                                     weak_factory_.GetWeakPtr(), now, delay_us),
-                     int64(offset / 1000.0));
+                     static_cast<int64_t>(offset / 1000.0));
 
   if (settings_.external_begin_frame_enabled && browser_) {
     // We're running the BeginFrame timer. Trigger rendering via

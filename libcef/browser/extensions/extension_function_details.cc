@@ -98,7 +98,7 @@ class CefGetExtensionLoadFileCallbackImpl
 
     // Move to the end of the stream.
     stream->Seek(0, SEEK_END);
-    const int64 size = stream->Tell();
+    const int64_t size = stream->Tell();
     if (size == 0) {
       LOG(WARNING) << "Extension resource " << file << " is empty.";
       return nullptr;
@@ -111,7 +111,7 @@ class CefGetExtensionLoadFileCallbackImpl
     stream->Seek(0, SEEK_SET);
 
     // Read all stream contents into the string.
-    int64 read, offset = 0;
+    int64_t read, offset = 0;
     do {
       read =
           static_cast<int>(stream->Read(&(*result)[offset], 1, size - offset));

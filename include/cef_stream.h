@@ -58,13 +58,13 @@ class CefReadHandler : public virtual CefBaseRefCounted {
   /// failure.
   ///
   /*--cef()--*/
-  virtual int Seek(int64 offset, int whence) = 0;
+  virtual int Seek(int64_t offset, int whence) = 0;
 
   ///
   /// Return the current offset position.
   ///
   /*--cef()--*/
-  virtual int64 Tell() = 0;
+  virtual int64_t Tell() = 0;
 
   ///
   /// Return non-zero if at end of file.
@@ -119,13 +119,13 @@ class CefStreamReader : public virtual CefBaseRefCounted {
   /// failure.
   ///
   /*--cef()--*/
-  virtual int Seek(int64 offset, int whence) = 0;
+  virtual int Seek(int64_t offset, int whence) = 0;
 
   ///
   /// Return the current offset position.
   ///
   /*--cef()--*/
-  virtual int64 Tell() = 0;
+  virtual int64_t Tell() = 0;
 
   ///
   /// Return non-zero if at end of file.
@@ -161,13 +161,13 @@ class CefWriteHandler : public virtual CefBaseRefCounted {
   /// failure.
   ///
   /*--cef()--*/
-  virtual int Seek(int64 offset, int whence) = 0;
+  virtual int Seek(int64_t offset, int whence) = 0;
 
   ///
   /// Return the current offset position.
   ///
   /*--cef()--*/
-  virtual int64 Tell() = 0;
+  virtual int64_t Tell() = 0;
 
   ///
   /// Flush the stream.
@@ -215,13 +215,13 @@ class CefStreamWriter : public virtual CefBaseRefCounted {
   /// failure.
   ///
   /*--cef()--*/
-  virtual int Seek(int64 offset, int whence) = 0;
+  virtual int Seek(int64_t offset, int whence) = 0;
 
   ///
   /// Return the current offset position.
   ///
   /*--cef()--*/
-  virtual int64 Tell() = 0;
+  virtual int64_t Tell() = 0;
 
   ///
   /// Flush the stream.

@@ -180,7 +180,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame() {
   return nullptr;
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64 identifier) {
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64_t identifier) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   return GetWebFrameImpl(identifier).get();
@@ -234,7 +234,7 @@ size_t CefBrowserImpl::GetFrameCount() {
   return count;
 }
 
-void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
+void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64_t>& identifiers) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (identifiers.size() > 0) {

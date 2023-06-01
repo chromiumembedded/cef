@@ -80,10 +80,10 @@ class CefRequestImpl : public CefRequest {
   void SetFirstPartyForCookies(const CefString& url) override;
   ResourceType GetResourceType() override;
   TransitionType GetTransitionType() override;
-  uint64 GetIdentifier() override;
+  uint64_t GetIdentifier() override;
 
   // Populate this object from the ResourceRequest object.
-  void Set(const network::ResourceRequest* request, uint64 identifier);
+  void Set(const network::ResourceRequest* request, uint64_t identifier);
 
   // Populate the ResourceRequest object from this object.
   // If |changed_only| is true then only the changed fields will be updated.
@@ -145,7 +145,7 @@ class CefRequestImpl : public CefRequest {
   HeaderMap headermap_;
   ResourceType resource_type_;
   TransitionType transition_type_;
-  uint64 identifier_;
+  uint64_t identifier_;
 
   // The below members are used by CefURLRequest.
   int flags_;

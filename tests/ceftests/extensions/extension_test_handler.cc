@@ -131,7 +131,7 @@ void ExtensionTestHandler::OnExtensionLoadFailed(cef_errorcode_t result) {
 // CefMessageRouterBrowserSide::Handler methods:
 bool ExtensionTestHandler::OnQuery(CefRefPtr<CefBrowser> browser,
                                    CefRefPtr<CefFrame> frame,
-                                   int64 query_id,
+                                   int64_t query_id,
                                    const CefString& request,
                                    bool persistent,
                                    CefRefPtr<Callback> callback) {

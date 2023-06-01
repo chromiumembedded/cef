@@ -55,7 +55,7 @@ void CefWaitableEventImpl::Wait() {
   event_.Wait();
 }
 
-bool CefWaitableEventImpl::TimedWait(int64 max_ms) {
+bool CefWaitableEventImpl::TimedWait(int64_t max_ms) {
   if (!AllowWait()) {
     return false;
   }

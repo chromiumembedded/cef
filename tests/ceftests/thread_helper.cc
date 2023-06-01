@@ -12,14 +12,14 @@ void SignalEvent(CefRefPtr<CefWaitableEvent> event) {
   event->Signal();
 }
 
-void WaitForThread(CefThreadId thread_id, int64 delay_ms) {
+void WaitForThread(CefThreadId thread_id, int64_t delay_ms) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   CefPostDelayedTask(thread_id, base::BindOnce(SignalEvent, event), delay_ms);
   event->Wait();
 }
 
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms) {
+void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64_t delay_ms) {
   CefRefPtr<CefWaitableEvent> event =
       CefWaitableEvent::CreateWaitableEvent(true, false);
   task_runner->PostDelayedTask(

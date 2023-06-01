@@ -379,7 +379,7 @@ class CefBrowserPlatformDelegate {
   CefBrowserPlatformDelegate();
   virtual ~CefBrowserPlatformDelegate();
 
-  static int TranslateWebEventModifiers(uint32 cef_modifiers);
+  static int TranslateWebEventModifiers(uint32_t cef_modifiers);
 
   // Not owned by this object.
   content::WebContents* web_contents_ = nullptr;

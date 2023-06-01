@@ -109,9 +109,9 @@ bool CefPostTask(CefThreadId threadId, const base::RepeatingClosure& closure);
 ///
 bool CefPostDelayedTask(CefThreadId threadId,
                         base::OnceClosure closure,
-                        int64 delay_ms);
+                        int64_t delay_ms);
 bool CefPostDelayedTask(CefThreadId threadId,
                         const base::RepeatingClosure& closure,
-                        int64 delay_ms);
+                        int64_t delay_ms);
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_CLOSURE_TASK_H_

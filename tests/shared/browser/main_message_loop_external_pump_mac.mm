@@ -25,16 +25,16 @@ class MainMessageLoopExternalPumpMac : public MainMessageLoopExternalPump {
   int Run() override;
 
   // MainMessageLoopExternalPump methods:
-  void OnScheduleMessagePumpWork(int64 delay_ms) override;
+  void OnScheduleMessagePumpWork(int64_t delay_ms) override;
 
   // Internal methods used for processing the event callbacks. They are public
   // for simplicity but should not be used directly.
-  void HandleScheduleWork(int64 delay_ms);
+  void HandleScheduleWork(int64_t delay_ms);
   void HandleTimerTimeout();
 
  protected:
   // MainMessageLoopExternalPump methods:
-  void SetTimer(int64 delay_ms) override;
+  void SetTimer(int64_t delay_ms) override;
   void KillTimer() override;
   bool IsTimerPending() override { return timer_ != nil; }
 
@@ -127,7 +127,8 @@ int MainMessageLoopExternalPumpMac::Run() {
   return 0;
 }
 
-void MainMessageLoopExternalPumpMac::OnScheduleMessagePumpWork(int64 delay_ms) {
+void MainMessageLoopExternalPumpMac::OnScheduleMessagePumpWork(
+    int64_t delay_ms) {
   // This method may be called on any thread.
   NSNumber* number = [NSNumber numberWithInt:static_cast<int>(delay_ms)];
   [event_handler_ performSelector:@selector(scheduleWork:)
@@ -136,7 +137,7 @@ void MainMessageLoopExternalPumpMac::OnScheduleMessagePumpWork(int64 delay_ms) {
                     waitUntilDone:NO];
 }
 
-void MainMessageLoopExternalPumpMac::HandleScheduleWork(int64 delay_ms) {
+void MainMessageLoopExternalPumpMac::HandleScheduleWork(int64_t delay_ms) {
   OnScheduleWork(delay_ms);
 }
 
@@ -144,7 +145,7 @@ void MainMessageLoopExternalPumpMac::HandleTimerTimeout() {
   OnTimerTimeout();
 }
 
-void MainMessageLoopExternalPumpMac::SetTimer(int64 delay_ms) {
+void MainMessageLoopExternalPumpMac::SetTimer(int64_t delay_ms) {
   DCHECK_GT(delay_ms, 0);
   DCHECK(!timer_);
 

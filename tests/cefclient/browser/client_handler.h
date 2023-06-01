@@ -244,7 +244,7 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       CefRefPtr<CefMediaAccessCallback> callback) override;
 
   // CefRequestHandler methods

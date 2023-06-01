@@ -50,7 +50,7 @@ cef_download_interrupt_reason_t CefDownloadItemImpl::GetInterruptReason() {
       const_value().GetLastReason());
 }
 
-int64 CefDownloadItemImpl::GetCurrentSpeed() {
+int64_t CefDownloadItemImpl::GetCurrentSpeed() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().CurrentSpeed();
 }
@@ -60,12 +60,12 @@ int CefDownloadItemImpl::GetPercentComplete() {
   return const_value().PercentComplete();
 }
 
-int64 CefDownloadItemImpl::GetTotalBytes() {
+int64_t CefDownloadItemImpl::GetTotalBytes() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetTotalBytes();
 }
 
-int64 CefDownloadItemImpl::GetReceivedBytes() {
+int64_t CefDownloadItemImpl::GetReceivedBytes() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetReceivedBytes();
 }
@@ -85,7 +85,7 @@ CefString CefDownloadItemImpl::GetFullPath() {
   return const_value().GetFullPath().value();
 }
 
-uint32 CefDownloadItemImpl::GetId() {
+uint32_t CefDownloadItemImpl::GetId() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetId();
 }

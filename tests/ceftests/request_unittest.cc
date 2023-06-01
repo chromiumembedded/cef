@@ -225,7 +225,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     CreateRequest(request_);
 
     const std::string& resource = "<html><body>SendRecv Test</body></html>";
-    response_length_ = static_cast<int64>(resource.size());
+    response_length_ = static_cast<int64_t>(resource.size());
     AddResource(kTestUrl, resource, "text/html");
 
     // Create the browser.
@@ -311,7 +311,7 @@ class RequestSendRecvTestHandler : public TestHandler {
                               CefRefPtr<CefRequest> request,
                               CefRefPtr<CefResponse> response,
                               URLRequestStatus status,
-                              int64 received_content_length) override {
+                              int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
     if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
@@ -356,8 +356,8 @@ class RequestSendRecvTestHandler : public TestHandler {
   }
 
   CefRefPtr<CefRequest> request_;
-  int64 response_length_;
-  uint64 request_id_;
+  int64_t response_length_;
+  uint64_t request_id_;
 
   TrackCallback got_before_resource_load_;
   TrackCallback got_resource_handler_;

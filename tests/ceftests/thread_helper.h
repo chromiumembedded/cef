@@ -15,8 +15,8 @@ void SignalEvent(CefRefPtr<CefWaitableEvent> event);
 
 // Post a task to the specified thread and wait for the task to execute as
 // indication that all previously pending tasks on that thread have completed.
-void WaitForThread(CefThreadId thread_id, int64 delay_ms = 0);
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms = 0);
+void WaitForThread(CefThreadId thread_id, int64_t delay_ms = 0);
+void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64_t delay_ms = 0);
 
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)

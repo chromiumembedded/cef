@@ -361,12 +361,12 @@ _simpletypes = {
     'void': ['void', ''],
     'void*': ['void*', 'NULL'],
     'int': ['int', '0'],
-    'int16': ['int16', '0'],
-    'uint16': ['uint16', '0'],
-    'int32': ['int32', '0'],
-    'uint32': ['uint32', '0'],
-    'int64': ['int64', '0'],
-    'uint64': ['uint64', '0'],
+    'int16_t': ['int16_t', '0'],
+    'uint16_t': ['uint16_t', '0'],
+    'int32_t': ['int32_t', '0'],
+    'uint32_t': ['uint32_t', '0'],
+    'int64_t': ['int64_t', '0'],
+    'uint64_t': ['uint64_t', '0'],
     'double': ['double', '0'],
     'float': ['float', '0'],
     'float*': ['float*', 'NULL'],
@@ -571,8 +571,12 @@ class obj_header:
       filename = os.path.relpath(filepath, self.root_directory)
       filename = filename.replace('\\', '/')
 
-    # read the input file into memory
-    self.add_data(filename, read_file(filepath))
+    try:
+      # read the input file into memory
+      self.add_data(filename, read_file(filepath))
+    except Exception:
+      print('Exception while parsing %s' % filepath)
+      raise
 
   def add_data(self, filename, data):
     """ Add header file contents. """

@@ -18,7 +18,7 @@ namespace test_server {
 // Use of these values is deprecated. Instead use GetOrigin/GetHost in the
 // browser process after server initialization.
 extern const char kHttpServerAddress[];
-extern const uint16 kHttpServerPort;
+extern const uint16_t kHttpServerPort;
 
 // Used with incomplete tests for data that should not be sent.
 extern const char kIncompleteDoNotSendData[];

@@ -111,7 +111,7 @@ CefDisplayImpl::~CefDisplayImpl() {
   CEF_REQUIRE_UIT();
 }
 
-int64 CefDisplayImpl::GetID() {
+int64_t CefDisplayImpl::GetID() {
   CEF_REQUIRE_UIT_RETURN(-1);
   return display_.id();
 }

@@ -180,7 +180,7 @@ class ServerHandler : public CefServerHandler {
                                      CefResponse::HeaderMap extra_headers) {
     // Determine the stream size.
     stream->Seek(0, SEEK_END);
-    int64 content_length = stream->Tell();
+    int64_t content_length = stream->Tell();
     stream->Seek(0, SEEK_SET);
 
     // Send response headers.
@@ -226,7 +226,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Called due to cefQuery execution in server.html.
   virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
-                       int64 query_id,
+                       int64_t query_id,
                        const CefString& request,
                        bool persistent,
                        CefRefPtr<Callback> callback) override {

@@ -459,13 +459,13 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// Create a new CefV8Value object of type int.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefV8Value> CreateInt(int32 value);
+  static CefRefPtr<CefV8Value> CreateInt(int32_t value);
 
   ///
   /// Create a new CefV8Value object of type unsigned int.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefV8Value> CreateUInt(uint32 value);
+  static CefRefPtr<CefV8Value> CreateUInt(uint32_t value);
 
   ///
   /// Create a new CefV8Value object of type double.
@@ -648,13 +648,13 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// Return an int value.
   ///
   /*--cef()--*/
-  virtual int32 GetIntValue() = 0;
+  virtual int32_t GetIntValue() = 0;
 
   ///
   /// Return an unsigned int value.
   ///
   /*--cef()--*/
-  virtual uint32 GetUIntValue() = 0;
+  virtual uint32_t GetUIntValue() = 0;
 
   ///
   /// Return a double value.

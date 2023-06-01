@@ -361,7 +361,7 @@ class CefResourceManager
   ProviderEntryList providers_;
 
   // Map of response ID to pending CefResourceHandler object.
-  using PendingHandlersMap = std::map<uint64, CefRefPtr<CefResourceHandler>>;
+  using PendingHandlersMap = std::map<uint64_t, CefRefPtr<CefResourceHandler>>;
   PendingHandlersMap pending_handlers_;
 
   UrlFilter url_filter_;

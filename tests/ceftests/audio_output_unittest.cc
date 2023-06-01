@@ -916,7 +916,7 @@ class AudioTestHandler : public TestHandler, public CefAudioHandler {
   void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
                            const float** data,
                            int frames,
-                           int64 pts) override {
+                           int64_t pts) override {
     EXPECT_TRUE(got_on_audio_stream_started_);
     EXPECT_TRUE(browser_->IsSame(browser));
     EXPECT_EQ(frames, kFramesPerBuffer);
@@ -971,7 +971,7 @@ class AudioOutputTestHandler : public AudioTestHandler {
   void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
                            const float** data,
                            int frames,
-                           int64 pts) override {
+                           int64_t pts) override {
     if (!got_on_audio_stream_packet_.isSet()) {
       browser->GetMainFrame()->ExecuteJavaScript(
           "var ifr = document.getElementById(\"audio_output_frame\"); "
@@ -1002,7 +1002,7 @@ class AudioCloseBrowserTest : public AudioTestHandler {
   void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
                            const float** data,
                            int frames,
-                           int64 pts) override {
+                           int64_t pts) override {
     if (!got_on_audio_stream_packet_.isSet()) {
       CloseBrowser(browser, true);
     }

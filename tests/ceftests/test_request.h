@@ -29,10 +29,10 @@ struct State {
   int request_complete_ct_ = 0;
 
   // From OnUploadProgress.
-  int64 upload_total_ = 0;
+  int64_t upload_total_ = 0;
 
   // From OnDownloadProgress.
-  int64 download_total_ = 0;
+  int64_t download_total_ = 0;
 
   // From OnDownloadData.
   std::string download_data_;

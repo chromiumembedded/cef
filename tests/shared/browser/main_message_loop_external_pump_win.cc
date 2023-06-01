@@ -29,11 +29,11 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
   int Run() override;
 
   // MainMessageLoopExternalPump methods:
-  void OnScheduleMessagePumpWork(int64 delay_ms) override;
+  void OnScheduleMessagePumpWork(int64_t delay_ms) override;
 
  protected:
   // MainMessageLoopExternalPump methods:
-  void SetTimer(int64 delay_ms) override;
+  void SetTimer(int64_t delay_ms) override;
   void KillTimer() override;
   bool IsTimerPending() override { return timer_pending_; }
 
@@ -104,13 +104,14 @@ int MainMessageLoopExternalPumpWin::Run() {
   return 0;
 }
 
-void MainMessageLoopExternalPumpWin::OnScheduleMessagePumpWork(int64 delay_ms) {
+void MainMessageLoopExternalPumpWin::OnScheduleMessagePumpWork(
+    int64_t delay_ms) {
   // This method may be called on any thread.
   PostMessage(main_thread_target_, kMsgHaveWork, 0,
               static_cast<LPARAM>(delay_ms));
 }
 
-void MainMessageLoopExternalPumpWin::SetTimer(int64 delay_ms) {
+void MainMessageLoopExternalPumpWin::SetTimer(int64_t delay_ms) {
   DCHECK(!timer_pending_);
   DCHECK_GT(delay_ms, 0);
   timer_pending_ = true;
@@ -134,7 +135,7 @@ LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(HWND hwnd,
         GetUserDataPtr<MainMessageLoopExternalPumpWin*>(hwnd);
     if (msg == kMsgHaveWork) {
       // OnScheduleMessagePumpWork() request.
-      const int64 delay_ms = static_cast<int64>(lparam);
+      const int64_t delay_ms = static_cast<int64_t>(lparam);
       message_loop->OnScheduleWork(delay_ms);
     } else {
       // Timer timed out.

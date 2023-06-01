@@ -107,7 +107,7 @@ void ClientAppBrowser::OnBeforeChildProcessLaunch(
   }
 }
 
-void ClientAppBrowser::OnScheduleMessagePumpWork(int64 delay) {
+void ClientAppBrowser::OnScheduleMessagePumpWork(int64_t delay) {
   // Only used when `--external-message-pump` is passed via the command-line.
   MainMessageLoopExternalPump* message_pump =
       MainMessageLoopExternalPump::Get();

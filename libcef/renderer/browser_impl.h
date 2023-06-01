@@ -57,10 +57,10 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   bool HasDocument() override;
   CefRefPtr<CefFrame> GetMainFrame() override;
   CefRefPtr<CefFrame> GetFocusedFrame() override;
-  CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
+  CefRefPtr<CefFrame> GetFrame(int64_t identifier) override;
   CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
   size_t GetFrameCount() override;
-  void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
+  void GetFrameIdentifiers(std::vector<int64_t>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
 
   CefBrowserImpl(blink::WebView* web_view,
@@ -100,7 +100,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   bool is_windowless_;
 
   // Map of unique frame ids to CefFrameImpl references.
-  using FrameMap = std::map<int64, CefRefPtr<CefFrameImpl>>;
+  using FrameMap = std::map<int64_t, CefRefPtr<CefFrameImpl>>;
   FrameMap frames_;
 
   // True if the browser was in the BFCache.
@@ -108,7 +108,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
 
   // Map of unique frame ids to CefTrackManager objects that need to be cleaned
   // up when the frame is deleted.
-  using FrameObjectMap = std::map<int64, CefRefPtr<CefTrackManager>>;
+  using FrameObjectMap = std::map<int64_t, CefRefPtr<CefTrackManager>>;
   FrameObjectMap frame_objects_;
 
   struct LoadingState {

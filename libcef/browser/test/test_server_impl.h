@@ -17,7 +17,7 @@ class CefTestServerImpl : public CefTestServer {
   CefTestServerImpl(const CefTestServerImpl&) = delete;
   CefTestServerImpl& operator=(const CefTestServerImpl&) = delete;
 
-  bool Start(uint16 port,
+  bool Start(uint16_t port,
              bool https_server,
              cef_test_cert_type_t https_cert_type,
              CefRefPtr<CefTestServerHandler> handler);

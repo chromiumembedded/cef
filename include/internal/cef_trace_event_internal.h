@@ -51,60 +51,60 @@ extern "C" {
 CEF_EXPORT void cef_trace_event_instant(const char* category,
                                         const char* name,
                                         const char* arg1_name,
-                                        uint64 arg1_val,
+                                        uint64_t arg1_val,
                                         const char* arg2_name,
-                                        uint64 arg2_val);
+                                        uint64_t arg2_val);
 CEF_EXPORT void cef_trace_event_begin(const char* category,
                                       const char* name,
                                       const char* arg1_name,
-                                      uint64 arg1_val,
+                                      uint64_t arg1_val,
                                       const char* arg2_name,
-                                      uint64 arg2_val);
+                                      uint64_t arg2_val);
 CEF_EXPORT void cef_trace_event_end(const char* category,
                                     const char* name,
                                     const char* arg1_name,
-                                    uint64 arg1_val,
+                                    uint64_t arg1_val,
                                     const char* arg2_name,
-                                    uint64 arg2_val);
+                                    uint64_t arg2_val);
 CEF_EXPORT void cef_trace_counter(const char* category,
                                   const char* name,
                                   const char* value1_name,
-                                  uint64 value1_val,
+                                  uint64_t value1_val,
                                   const char* value2_name,
-                                  uint64 value2_val);
+                                  uint64_t value2_val);
 CEF_EXPORT void cef_trace_counter_id(const char* category,
                                      const char* name,
-                                     uint64 id,
+                                     uint64_t id,
                                      const char* value1_name,
-                                     uint64 value1_val,
+                                     uint64_t value1_val,
                                      const char* value2_name,
-                                     uint64 value2_val);
+                                     uint64_t value2_val);
 CEF_EXPORT void cef_trace_event_async_begin(const char* category,
                                             const char* name,
-                                            uint64 id,
+                                            uint64_t id,
                                             const char* arg1_name,
-                                            uint64 arg1_val,
+                                            uint64_t arg1_val,
                                             const char* arg2_name,
-                                            uint64 arg2_val);
+                                            uint64_t arg2_val);
 CEF_EXPORT void cef_trace_event_async_step_into(const char* category,
                                                 const char* name,
-                                                uint64 id,
-                                                uint64 step,
+                                                uint64_t id,
+                                                uint64_t step,
                                                 const char* arg1_name,
-                                                uint64 arg1_val);
+                                                uint64_t arg1_val);
 CEF_EXPORT void cef_trace_event_async_step_past(const char* category,
                                                 const char* name,
-                                                uint64 id,
-                                                uint64 step,
+                                                uint64_t id,
+                                                uint64_t step,
                                                 const char* arg1_name,
-                                                uint64 arg1_val);
+                                                uint64_t arg1_val);
 CEF_EXPORT void cef_trace_event_async_end(const char* category,
                                           const char* name,
-                                          uint64 id,
+                                          uint64_t id,
                                           const char* arg1_name,
-                                          uint64 arg1_val,
+                                          uint64_t arg1_val,
                                           const char* arg2_name,
-                                          uint64 arg2_val);
+                                          uint64_t arg2_val);
 
 #ifdef __cplusplus
 }

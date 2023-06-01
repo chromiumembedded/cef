@@ -34,7 +34,7 @@ class SkipCallbackWrapper : public CefResourceSkipCallback {
     }
   }
 
-  void Continue(int64 bytes_skipped) override {
+  void Continue(int64_t bytes_skipped) override {
     if (!work_thread_task_runner_->RunsTasksInCurrentSequence()) {
       work_thread_task_runner_->PostTask(
           FROM_HERE,

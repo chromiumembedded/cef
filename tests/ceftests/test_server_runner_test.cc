@@ -31,7 +31,7 @@ class ServerHandler : public CefTestServerHandler {
 
     // Use any available port number for HTTPS and the legacy port number for
     // HTTP.
-    const uint16 port = https_server_ ? 0 : kHttpServerPort;
+    const uint16_t port = https_server_ ? 0 : kHttpServerPort;
 
     // Use a "localhost" domain certificate instead of IP address. This is
     // required for HSTS tests (see https://crbug.com/456712).

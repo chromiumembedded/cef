@@ -389,13 +389,13 @@ CefRequestImpl::TransitionType CefRequestImpl::GetTransitionType() {
   return transition_type_;
 }
 
-uint64 CefRequestImpl::GetIdentifier() {
+uint64_t CefRequestImpl::GetIdentifier() {
   base::AutoLock lock_scope(lock_);
   return identifier_;
 }
 
 void CefRequestImpl::Set(const network::ResourceRequest* request,
-                         uint64 identifier) {
+                         uint64_t identifier) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 

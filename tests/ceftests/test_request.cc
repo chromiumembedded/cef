@@ -32,15 +32,15 @@ class RequestClient : public CefURLRequestClient, public State {
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                        int64 current,
-                        int64 total) override {
+                        int64_t current,
+                        int64_t total) override {
     upload_progress_ct_++;
     upload_total_ = total;
   }
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                          int64 current,
-                          int64 total) override {
+                          int64_t current,
+                          int64_t total) override {
     response_ = request->GetResponse();
     DCHECK(response_.get());
     DCHECK(response_->IsReadOnly());

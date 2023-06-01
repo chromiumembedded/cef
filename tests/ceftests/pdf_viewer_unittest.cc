@@ -20,9 +20,9 @@ const char kPdfDirectUrl[] = "https://tests/pdf.pdf";
 
 // Delay waiting for iframe tests to load the PDF file.
 #if defined(OS_LINUX)
-const int64 kPdfLoadDelayMs = 7000;
+const int64_t kPdfLoadDelayMs = 7000;
 #else
-const int64 kPdfLoadDelayMs = 5000;
+const int64_t kPdfLoadDelayMs = 5000;
 #endif
 
 // Browser-side test handler.

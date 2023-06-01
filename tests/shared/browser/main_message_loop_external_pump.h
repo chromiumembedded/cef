@@ -32,7 +32,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
   // Called from CefBrowserProcessHandler::OnScheduleMessagePumpWork() on any
   // thread. The platform subclass must implement this method and schedule a
   // call to OnScheduleWork() on the main application thread.
-  virtual void OnScheduleMessagePumpWork(int64 delay_ms) = 0;
+  virtual void OnScheduleMessagePumpWork(int64_t delay_ms) = 0;
 
  protected:
   // Only allow deletion via std::unique_ptr.
@@ -44,7 +44,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
 
   // The platform subclass calls this method on the main application thread in
   // response to the OnScheduleMessagePumpWork() call.
-  void OnScheduleWork(int64 delay_ms);
+  void OnScheduleWork(int64_t delay_ms);
 
   // The platform subclass calls this method on the main application thread when
   // the pending work timer times out.
@@ -52,7 +52,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
 
   // Control the pending work timer in the platform subclass. Only called on
   // the main application thread.
-  virtual void SetTimer(int64 delay_ms) = 0;
+  virtual void SetTimer(int64_t delay_ms) = 0;
   virtual void KillTimer() = 0;
   virtual bool IsTimerPending() = 0;
 

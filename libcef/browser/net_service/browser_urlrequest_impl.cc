@@ -600,8 +600,8 @@ class CefBrowserURLRequest::Context
   CefURLRequest::Status status_ = UR_IO_PENDING;
   CefRefPtr<CefResponseImpl> response_;
   bool response_was_cached_ = false;
-  int64 upload_data_size_ = 0;
-  int64 download_data_size_ = -1;
+  int64_t upload_data_size_ = 0;
+  int64_t download_data_size_ = -1;
   bool got_upload_progress_complete_ = false;
   bool cleanup_immediately_ = false;
 

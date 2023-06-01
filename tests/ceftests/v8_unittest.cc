@@ -331,7 +331,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(value->IsUInt());
     EXPECT_TRUE(value->IsDouble());
     EXPECT_EQ(12, value->GetIntValue());
-    EXPECT_EQ((uint32)12, value->GetUIntValue());
+    EXPECT_EQ((uint32_t)12, value->GetUIntValue());
     EXPECT_EQ(12, value->GetDoubleValue());
 
     EXPECT_FALSE(value->IsUndefined());
@@ -354,7 +354,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(value->IsUInt());
     EXPECT_TRUE(value->IsDouble());
     EXPECT_EQ(12, value->GetIntValue());
-    EXPECT_EQ((uint32)12, value->GetUIntValue());
+    EXPECT_EQ((uint32_t)12, value->GetUIntValue());
     EXPECT_EQ(12, value->GetDoubleValue());
 
     EXPECT_FALSE(value->IsUndefined());
@@ -1022,7 +1022,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     static const char* kName3 = "val3";
 
     static const int kValue1 = 20;
-    static const uint32 kValue2 = 30u;
+    static const uint32_t kValue2 = 30u;
     static const char* kValue3 = "40";
 
     static const int kArray[] = {50, 60, 70};

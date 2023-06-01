@@ -45,9 +45,9 @@ class V8Handler : public CefV8Handler {
         for (int i = 0; i < kPerfTestsCount; ++i) {
           if (test == kPerfTests[i].name) {
             // Execute the test.
-            int64 delta = kPerfTests[i].test(kPerfTests[i].iterations);
+            int64_t delta = kPerfTests[i].test(kPerfTests[i].iterations);
 
-            retval = CefV8Value::CreateInt(static_cast<int32>(delta));
+            retval = CefV8Value::CreateInt(static_cast<int32_t>(delta));
             found = true;
             break;
           }
@@ -74,7 +74,7 @@ class V8Handler : public CefV8Handler {
       if (arguments.size() == 0) {
         retval = CefV8Value::CreateInt(1);
       } else if (arguments.size() == 1 && arguments[0]->IsInt()) {
-        int32 type = arguments[0]->GetIntValue();
+        int32_t type = arguments[0]->GetIntValue();
         switch (type) {
           case 0:
             retval = CefV8Value::CreateUndefined();

@@ -75,7 +75,7 @@ class CefWindowImpl
   void SetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) override;
   CefWindowHandle GetWindowHandle() override;
-  void SendKeyPress(int key_code, uint32 event_flags) override;
+  void SendKeyPress(int key_code, uint32_t event_flags) override;
   void SendMouseMove(int screen_x, int screen_y) override;
   void SendMouseEvents(cef_mouse_button_type_t button,
                        bool mouse_down,

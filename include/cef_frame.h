@@ -184,7 +184,7 @@ class CefFrame : public virtual CefBaseRefCounted {
   /// underlying frame does not yet exist.
   ///
   /*--cef()--*/
-  virtual int64 GetIdentifier() = 0;
+  virtual int64_t GetIdentifier() = 0;
 
   ///
   /// Returns the parent of this frame or NULL if this is the main (top-level)

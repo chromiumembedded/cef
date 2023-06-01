@@ -187,7 +187,7 @@ class CefResourceRequestHandler : public virtual CefBaseRefCounted {
                                       CefRefPtr<CefRequest> request,
                                       CefRefPtr<CefResponse> response,
                                       URLRequestStatus status,
-                                      int64 received_content_length) {}
+                                      int64_t received_content_length) {}
 
   ///
   /// Called on the IO thread to handle requests for URLs with an unknown

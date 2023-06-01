@@ -49,6 +49,6 @@ bool CefEndTracing(const CefString& tracing_file,
   return subscriber->EndTracing(base::FilePath(tracing_file), callback);
 }
 
-int64 CefNowFromSystemTraceTime() {
+int64_t CefNowFromSystemTraceTime() {
   return base::TimeTicks::Now().ToInternalValue();
 }

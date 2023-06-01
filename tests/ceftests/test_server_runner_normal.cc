@@ -134,7 +134,7 @@ class ServerHandler : public CefServerHandler {
     }
 
     const CefString& content_type = response->GetMimeType();
-    int64 content_length = static_cast<int64>(response_data.size());
+    int64_t content_length = static_cast<int64_t>(response_data.size());
 
     CefResponse::HeaderMap extra_headers;
     response->GetHeaderMap(extra_headers);

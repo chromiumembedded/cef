@@ -21,7 +21,7 @@ class CefDisplayImpl : public CefDisplay {
   ~CefDisplayImpl() override;
 
   // CefDisplay methods:
-  int64 GetID() override;
+  int64_t GetID() override;
   float GetDeviceScaleFactor() override;
   void ConvertPointToPixels(CefPoint& point) override;
   void ConvertPointFromPixels(CefPoint& point) override;

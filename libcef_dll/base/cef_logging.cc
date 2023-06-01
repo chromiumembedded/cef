@@ -256,12 +256,25 @@ ErrnoLogMessage::~ErrnoLogMessage() {
 }  // namespace cef
 
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
-  std::wstring tmp_str(wstr);
-  if (!tmp_str.empty()) {
+  const auto length = wstr ? std::char_traits<wchar_t>::length(wstr) : 0U;
+  if (length > 0) {
     cef_string_utf8_t str = {0};
-    cef_string_wide_to_utf8(wstr, tmp_str.size(), &str);
+    cef_string_wide_to_utf8(wstr, length, &str);
     out << str.str;
     cef_string_utf8_clear(&str);
   }
   return out;
 }
+
+#if defined(WCHAR_T_IS_UTF32)
+std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
+  const auto length = wstr ? std::char_traits<char16_t>::length(wstr) : 0U;
+  if (length > 0) {
+    cef_string_utf8_t str = {0};
+    cef_string_utf16_to_utf8(wstr, length, &str);
+    out << str.str;
+    cef_string_utf8_clear(&str);
+  }
+  return out;
+}
+#endif

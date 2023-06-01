@@ -155,7 +155,7 @@ class AcceptWebSocketCallback : public CefCallback {
 
 // static
 void CefServer::CreateServer(const CefString& address,
-                             uint16 port,
+                             uint16_t port,
                              int backlog,
                              CefRefPtr<CefServerHandler> handler) {
   CefRefPtr<CefServerImpl> server(new CefServerImpl(handler));
@@ -178,7 +178,7 @@ CefServerImpl::CefServerImpl(CefRefPtr<CefServerHandler> handler)
 }
 
 void CefServerImpl::Start(const std::string& address,
-                          uint16 port,
+                          uint16_t port,
                           int backlog) {
   DCHECK(!address.empty());
   CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefServerImpl::StartOnUIThread, this,
@@ -280,7 +280,7 @@ void CefServerImpl::SendHttp500Response(int connection_id,
 void CefServerImpl::SendHttpResponse(int connection_id,
                                      int response_code,
                                      const CefString& content_type,
-                                     int64 content_length,
+                                     int64_t content_length,
                                      const HeaderMap& extra_headers) {
   if (!CEF_CURRENTLY_ON_HT()) {
     CEF_POST_TASK_HT(base::BindOnce(&CefServerImpl::SendHttpResponse, this,
@@ -540,7 +540,7 @@ void CefServerImpl::OnClose(int connection_id) {
 }
 
 void CefServerImpl::StartOnUIThread(const std::string& address,
-                                    uint16 port,
+                                    uint16_t port,
                                     int backlog) {
   CEF_REQUIRE_UIT();
   DCHECK(!thread_);
@@ -562,7 +562,7 @@ void CefServerImpl::StartOnUIThread(const std::string& address,
 }
 
 void CefServerImpl::StartOnHandlerThread(const std::string& address,
-                                         uint16 port,
+                                         uint16_t port,
                                          int backlog) {
   CEF_REQUIRE_HT();
 

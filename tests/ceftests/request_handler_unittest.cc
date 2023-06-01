@@ -61,7 +61,7 @@ class NetNotifyTestHandler : public TestHandler {
         "<head><script>document.cookie='name1=value1';</script></head>"
         "<body>Nav1</body>"
         "</html>";
-    response_length1_ = static_cast<int64>(resource1.size());
+    response_length1_ = static_cast<int64_t>(resource1.size());
     AddResource(url1_, resource1, "text/html");
 
     const std::string& resource2 =
@@ -69,7 +69,7 @@ class NetNotifyTestHandler : public TestHandler {
         "<head><script>document.cookie='name2=value2';</script></head>"
         "<body>Nav2</body>"
         "</html>";
-    response_length2_ = static_cast<int64>(resource2.size());
+    response_length2_ = static_cast<int64_t>(resource2.size());
     AddResource(url2_, resource2, "text/html");
 
     // Create the request context that will use an in-memory cache.
@@ -143,7 +143,7 @@ class NetNotifyTestHandler : public TestHandler {
                               CefRefPtr<CefRequest> request,
                               CefRefPtr<CefResponse> response,
                               URLRequestStatus status,
-                              int64 received_content_length) override {
+                              int64_t received_content_length) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
@@ -393,8 +393,8 @@ class NetNotifyTestHandler : public TestHandler {
   TrackCallback got_before_browse2_delayed_;
   int got_process_terminated_ct_ = 0;
 
-  int64 response_length1_;
-  int64 response_length2_;
+  int64_t response_length1_;
+  int64_t response_length2_;
 
   IMPLEMENT_REFCOUNTING(NetNotifyTestHandler);
 };

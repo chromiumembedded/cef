@@ -170,7 +170,7 @@ class CefBrowser : public virtual CefBaseRefCounted {
   /// Returns the frame with the specified identifier, or NULL if not found.
   ///
   /*--cef(capi_name=get_frame_byident)--*/
-  virtual CefRefPtr<CefFrame> GetFrame(int64 identifier) = 0;
+  virtual CefRefPtr<CefFrame> GetFrame(int64_t identifier) = 0;
 
   ///
   /// Returns the frame with the specified name, or NULL if not found.
@@ -188,7 +188,7 @@ class CefBrowser : public virtual CefBaseRefCounted {
   /// Returns the identifiers of all existing frames.
   ///
   /*--cef(count_func=identifiers:GetFrameCount)--*/
-  virtual void GetFrameIdentifiers(std::vector<int64>& identifiers) = 0;
+  virtual void GetFrameIdentifiers(std::vector<int64_t>& identifiers) = 0;
 
   ///
   /// Returns the names of all existing frames.
@@ -456,7 +456,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /*--cef()--*/
   virtual void DownloadImage(const CefString& image_url,
                              bool is_favicon,
-                             uint32 max_image_size,
+                             uint32_t max_image_size,
                              bool bypass_cache,
                              CefRefPtr<CefDownloadImageCallback> callback) = 0;
 

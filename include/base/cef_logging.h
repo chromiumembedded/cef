@@ -723,6 +723,13 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr);
 inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
   return out << wstr.c_str();
 }
+#if defined(WCHAR_T_IS_UTF32)
+std::ostream& operator<<(std::ostream& out, const char16_t* wstr);
+#elif defined(WCHAR_T_IS_UTF16)
+inline std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
+  return operator<<(out, reinterpret_cast<const wchar_t*>(wstr));
+}
+#endif
 
 // The NOTIMPLEMENTED() macro annotates codepaths which have
 // not been implemented yet.

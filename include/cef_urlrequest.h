@@ -152,8 +152,8 @@ class CefURLRequestClient : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                                int64 current,
-                                int64 total) = 0;
+                                int64_t current,
+                                int64_t total) = 0;
 
   ///
   /// Notifies the client of download progress. |current| denotes the number of
@@ -162,8 +162,8 @@ class CefURLRequestClient : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                                  int64 current,
-                                  int64 total) = 0;
+                                  int64_t current,
+                                  int64_t total) = 0;
 
   ///
   /// Called when some part of the response is read. |data| contains the current

@@ -185,7 +185,7 @@ CefString CefFrameImpl::GetName() {
   return name;
 }
 
-int64 CefFrameImpl::GetIdentifier() {
+int64_t CefFrameImpl::GetIdentifier() {
   CEF_REQUIRE_RT_RETURN(0);
 
   return frame_id_;

@@ -68,7 +68,7 @@ class CefStreamResourceHandler : public CefResourceHandler {
             bool& handle_request,
             CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override;
   bool Read(void* data_out,
             int bytes_to_read,

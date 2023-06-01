@@ -175,7 +175,7 @@ class CefTestServerImpl::Context {
     DCHECK(!test_server_);
   }
 
-  bool Start(uint16 port,
+  bool Start(uint16_t port,
              bool https_server,
              cef_test_cert_type_t https_cert_type) {
     DCHECK(thread_checker_.CalledOnValidThread());
@@ -252,7 +252,7 @@ class CefTestServerImpl::Context {
   EmbeddedTestServerHandle test_server_handle_;
 };
 
-bool CefTestServerImpl::Start(uint16 port,
+bool CefTestServerImpl::Start(uint16_t port,
                               bool https_server,
                               cef_test_cert_type_t https_cert_type,
                               CefRefPtr<CefTestServerHandler> handler) {
@@ -281,7 +281,7 @@ CefString CefTestServerImpl::GetOrigin() {
 
 // static
 CefRefPtr<CefTestServer> CefTestServer::CreateAndStart(
-    uint16 port,
+    uint16_t port,
     bool https_server,
     cef_test_cert_type_t https_cert_type,
     CefRefPtr<CefTestServerHandler> handler) {

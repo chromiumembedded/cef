@@ -75,8 +75,8 @@ class CefBrowserPlatformDelegateNativeAura
   base::OnceClosure GetWidgetDeleteCallback();
 
   static base::TimeTicks GetEventTimeStamp();
-  static int TranslateUiEventModifiers(uint32 cef_modifiers);
-  static int TranslateUiChangedButtonFlags(uint32 cef_modifiers);
+  static int TranslateUiEventModifiers(uint32_t cef_modifiers);
+  static int TranslateUiChangedButtonFlags(uint32_t cef_modifiers);
 
   // Widget hosting the web contents. It will be deleted automatically when the
   // associated root window is destroyed.

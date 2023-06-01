@@ -316,7 +316,7 @@ void CefBrowserHostBase::StartDownload(const CefString& url) {
 void CefBrowserHostBase::DownloadImage(
     const CefString& image_url,
     bool is_favicon,
-    uint32 max_image_size,
+    uint32_t max_image_size,
     bool bypass_cache,
     CefRefPtr<CefDownloadImageCallback> callback) {
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -346,7 +346,7 @@ void CefBrowserHostBase::DownloadImage(
       gurl, is_favicon, gfx::Size(max_image_size, max_image_size),
       max_image_size * scale, bypass_cache,
       base::BindOnce(
-          [](uint32 max_image_size,
+          [](uint32_t max_image_size,
              CefRefPtr<CefDownloadImageCallback> callback, int id,
              int http_status_code, const GURL& image_url,
              const std::vector<SkBitmap>& bitmaps,
@@ -765,7 +765,7 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFocusedFrame() {
   return GetFrame(CefFrameHostImpl::kFocusedFrameId);
 }
 
-CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64 identifier) {
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64_t identifier) {
   if (identifier == CefFrameHostImpl::kInvalidFrameId) {
     return nullptr;
   } else if (identifier == CefFrameHostImpl::kMainFrameId) {
@@ -796,7 +796,8 @@ size_t CefBrowserHostBase::GetFrameCount() {
   return browser_info_->GetAllFrames().size();
 }
 
-void CefBrowserHostBase::GetFrameIdentifiers(std::vector<int64>& identifiers) {
+void CefBrowserHostBase::GetFrameIdentifiers(
+    std::vector<int64_t>& identifiers) {
   if (identifiers.size() > 0) {
     identifiers.clear();
   }

@@ -833,7 +833,7 @@ class RedirectSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
@@ -3022,7 +3022,7 @@ class UnstartedSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     response->SetStatus(200);
     response->SetMimeType("text/html");
@@ -3242,7 +3242,7 @@ class StalledSchemeHandler : public CefResourceHandler {
   }
 
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override {
     response->SetStatus(200);
     response->SetMimeType("text/html");

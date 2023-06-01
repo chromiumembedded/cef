@@ -444,7 +444,7 @@ v8::Local<v8::String> GetV8String(v8::Isolate* isolate, const CefString& str) {
 }
 
 #if defined(CEF_STRING_TYPE_UTF16)
-void v8impl_string_dtor(char16* str) {
+void v8impl_string_dtor(char16_t* str) {
   delete[] str;
 }
 #elif defined(CEF_STRING_TYPE_UTF8)
@@ -481,7 +481,7 @@ void GetCefString(v8::Isolate* isolate,
   if (len == 0) {
     return;
   }
-  char16* buf = new char16[len + 1];
+  char16_t* buf = new char16_t[len + 1];
   str->Write(isolate, reinterpret_cast<uint16_t*>(buf), 0, len + 1);
 #else
   // Allocate enough space for a worst-case conversion.
@@ -1274,7 +1274,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateBool(bool value) {
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
+CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32_t value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
   v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
@@ -1283,7 +1283,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateInt(int32 value) {
 }
 
 // static
-CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32 value) {
+CefRefPtr<CefV8Value> CefV8Value::CreateUInt(uint32_t value) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
   v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
@@ -1597,13 +1597,13 @@ void CefV8ValueImpl::InitBool(bool value) {
   bool_value_ = value;
 }
 
-void CefV8ValueImpl::InitInt(int32 value) {
+void CefV8ValueImpl::InitInt(int32_t value) {
   DCHECK_EQ(type_, TYPE_INVALID);
   type_ = TYPE_INT;
   int_value_ = value;
 }
 
-void CefV8ValueImpl::InitUInt(uint32 value) {
+void CefV8ValueImpl::InitUInt(uint32_t value) {
   DCHECK_EQ(type_, TYPE_INVALID);
   type_ = TYPE_UINT;
   uint_value_ = value;
@@ -1814,7 +1814,7 @@ bool CefV8ValueImpl::GetBoolValue() {
   return false;
 }
 
-int32 CefV8ValueImpl::GetIntValue() {
+int32_t CefV8ValueImpl::GetIntValue() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(0);
   if (type_ == TYPE_INT || type_ == TYPE_UINT) {
     return int_value_;
@@ -1822,7 +1822,7 @@ int32 CefV8ValueImpl::GetIntValue() {
   return 0;
 }
 
-uint32 CefV8ValueImpl::GetUIntValue() {
+uint32_t CefV8ValueImpl::GetUIntValue() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(0);
   if (type_ == TYPE_INT || type_ == TYPE_UINT) {
     return uint_value_;

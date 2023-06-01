@@ -86,7 +86,7 @@ struct FrameStatus {
     // Specific formulation of the frame ID is an implementation detail that
     // should generally not be relied upon, but this decomposed format makes the
     // debug logging easier to follow.
-    uint64 frame_id = frame->GetIdentifier();
+    uint64_t frame_id = frame->GetIdentifier();
     uint32_t process_id = frame_id >> 32;
     uint32_t routing_id = std::numeric_limits<uint32_t>::max() & frame_id;
     std::stringstream ss;
@@ -100,7 +100,7 @@ struct FrameStatus {
         is_main_(frame->IsMain()),
         ident_str_(GetFrameDebugString(frame)) {}
 
-  int64 frame_id() const { return frame_id_; }
+  int64_t frame_id() const { return frame_id_; }
   bool is_main() const { return is_main_; }
 
   bool AllQueriesDelivered(std::string* msg = nullptr) const {
@@ -486,7 +486,7 @@ struct FrameStatus {
     }
   }
 
-  const int64 frame_id_;
+  const int64_t frame_id_;
   const bool is_main_;
   const std::string ident_str_;
 
@@ -576,7 +576,7 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
-               int64 query_id,
+               int64_t query_id,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
@@ -900,7 +900,7 @@ class FrameStatusMap {
 
     EXPECT_LT(size(), expected_frame_ct_);
 
-    const int64 id = frame->GetIdentifier();
+    const int64_t id = frame->GetIdentifier();
     EXPECT_NE(kInvalidFrameId, id);
     EXPECT_EQ(frame_map_.find(id), frame_map_.end());
 
@@ -912,7 +912,7 @@ class FrameStatusMap {
   FrameStatus* GetFrameStatus(CefRefPtr<CefFrame> frame) const {
     EXPECT_UI_THREAD();
 
-    const int64 id = frame->GetIdentifier();
+    const int64_t id = frame->GetIdentifier();
     EXPECT_NE(kInvalidFrameId, id);
     Map::const_iterator it = frame_map_.find(id);
     EXPECT_NE(it, frame_map_.end());
@@ -920,7 +920,7 @@ class FrameStatusMap {
   }
 
   void RemoveFrameStatus(CefRefPtr<CefFrame> frame) {
-    const int64 id = frame->GetIdentifier();
+    const int64_t id = frame->GetIdentifier();
     Map::iterator it = frame_map_.find(id);
     EXPECT_NE(it, frame_map_.end());
     frame_map_.erase(it);
@@ -1017,7 +1017,7 @@ class FrameStatusMap {
   size_t size() const { return frame_map_.size(); }
 
  private:
-  using Map = std::map<int64, FrameStatus*>;
+  using Map = std::map<int64_t, FrameStatus*>;
   Map frame_map_;
 
   // The expected number of sub-frames.
@@ -1063,7 +1063,7 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
-               int64 query_id,
+               int64_t query_id,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
@@ -1590,7 +1590,7 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,
                CefRefPtr<CefFrame> frame,
-               int64 query_id,
+               int64_t query_id,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {

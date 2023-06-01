@@ -96,7 +96,7 @@ class CefZipReader : public virtual CefBaseRefCounted {
   /// Returns the uncompressed size of the file.
   ///
   /*--cef()--*/
-  virtual int64 GetFileSize() = 0;
+  virtual int64_t GetFileSize() = 0;
 
   ///
   /// Returns the last modified timestamp for the file.
@@ -128,7 +128,7 @@ class CefZipReader : public virtual CefBaseRefCounted {
   /// Returns the current offset in the uncompressed file contents.
   ///
   /*--cef()--*/
-  virtual int64 Tell() = 0;
+  virtual int64_t Tell() = 0;
 
   ///
   /// Returns true if at end of the file contents.

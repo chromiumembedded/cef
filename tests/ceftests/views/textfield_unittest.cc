@@ -195,7 +195,7 @@ const int kTextfieldID = 1;
 // Contents need to be supported by the TranslateKey function.
 const char kTestInputMessage[] = "Test Message";
 
-void TranslateKey(int c, int* keycode, uint32* modifiers) {
+void TranslateKey(int c, int* keycode, uint32_t* modifiers) {
   *keycode = VKEY_UNKNOWN;
   *modifiers = 0;
 
@@ -228,7 +228,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
 
     if (event.type == KEYEVENT_CHAR) {
       int keycode;
-      uint32 modifiers;
+      uint32_t modifiers;
       TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
 
       EXPECT_EQ(keycode, event.windows_key_code);
@@ -288,7 +288,7 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   // Send the contents of |kTestInputMessage| to the textfield.
   for (size_t i = 0; i < sizeof(kTestInputMessage) - 1; ++i) {
     int keycode;
-    uint32 modifiers;
+    uint32_t modifiers;
     TranslateKey(kTestInputMessage[i], &keycode, &modifiers);
     window->SendKeyPress(keycode, modifiers);
   }

@@ -84,7 +84,7 @@ class TestSetup {
 
 class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
  public:
-  MediaAccessTestHandler(TestSetup* tr, uint32 request, uint32 response)
+  MediaAccessTestHandler(TestSetup* tr, uint32_t request, uint32_t response)
       : test_setup_(tr), request_(request), response_(response) {}
 
   cef_return_value_t OnBeforeResourceLoad(
@@ -217,7 +217,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& requesting_origin,
-      uint32 requested_permissions,
+      uint32_t requested_permissions,
       CefRefPtr<CefMediaAccessCallback> callback) override {
     EXPECT_UI_THREAD();
     EXPECT_TRUE(frame->IsMain());
@@ -315,8 +315,8 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
   }
 
   TestSetup* const test_setup_;
-  const uint32 request_;
-  const uint32 response_;
+  const uint32_t request_;
+  const uint32_t response_;
 
   CefRefPtr<CefMediaAccessCallback> callback_;
 

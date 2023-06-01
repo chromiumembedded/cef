@@ -554,7 +554,7 @@ CefWindowHandle CefWindowImpl::GetWindowHandle() {
   return view_util::GetWindowHandle(widget_);
 }
 
-void CefWindowImpl::SendKeyPress(int key_code, uint32 event_flags) {
+void CefWindowImpl::SendKeyPress(int key_code, uint32_t event_flags) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   InitializeUITesting();
 

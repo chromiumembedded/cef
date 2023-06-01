@@ -193,13 +193,13 @@ CefString CefFrameHostImpl::GetName() {
   return name_;
 }
 
-int64 CefFrameHostImpl::GetIdentifier() {
+int64_t CefFrameHostImpl::GetIdentifier() {
   base::AutoLock lock_scope(state_lock_);
   return frame_id_;
 }
 
 CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
-  int64 parent_frame_id;
+  int64_t parent_frame_id;
 
   {
     base::AutoLock lock_scope(state_lock_);
@@ -574,7 +574,7 @@ const ui::PageTransition CefFrameHostImpl::kPageTransitionExplicit =
     static_cast<ui::PageTransition>(ui::PAGE_TRANSITION_TYPED |
                                     ui::PAGE_TRANSITION_FROM_ADDRESS_BAR);
 
-int64 CefFrameHostImpl::GetFrameId() const {
+int64_t CefFrameHostImpl::GetFrameId() const {
   base::AutoLock lock_scope(state_lock_);
   return is_main_frame_ ? kMainFrameId : frame_id_;
 }

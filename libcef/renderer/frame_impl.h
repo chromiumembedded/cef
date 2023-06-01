@@ -70,7 +70,7 @@ class CefFrameImpl
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
-  int64 GetIdentifier() override;
+  int64_t GetIdentifier() override;
   CefRefPtr<CefFrame> GetParent() override;
   CefString GetURL() override;
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -166,7 +166,7 @@ class CefFrameImpl
 
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
-  const int64 frame_id_;
+  const int64_t frame_id_;
 
   bool did_commit_provisional_load_ = false;
   bool did_initialize_script_context_ = false;

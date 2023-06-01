@@ -185,7 +185,7 @@ CefString CefZipReaderImpl::GetFileName() {
   return filename_;
 }
 
-int64 CefZipReaderImpl::GetFileSize() {
+int64_t CefZipReaderImpl::GetFileSize() {
   if (!VerifyContext() || !GetFileInfo()) {
     return -1;
   }
@@ -244,7 +244,7 @@ int CefZipReaderImpl::ReadFile(void* buffer, size_t bufferSize) {
   return unzReadCurrentFile(reader_, buffer, bufferSize);
 }
 
-int64 CefZipReaderImpl::Tell() {
+int64_t CefZipReaderImpl::Tell() {
   if (!VerifyContext() || !has_fileopen_) {
     return -1;
   }

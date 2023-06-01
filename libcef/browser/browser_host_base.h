@@ -179,7 +179,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
-                     uint32 max_image_size,
+                     uint32_t max_image_size,
                      bool bypass_cache,
                      CefRefPtr<CefDownloadImageCallback> callback) override;
   void Print() override;
@@ -225,10 +225,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool IsPopup() override;
   CefRefPtr<CefFrame> GetMainFrame() override;
   CefRefPtr<CefFrame> GetFocusedFrame() override;
-  CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
+  CefRefPtr<CefFrame> GetFrame(int64_t identifier) override;
   CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
   size_t GetFrameCount() override;
-  void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
+  void GetFrameIdentifiers(std::vector<int64_t>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
 
   // CefBrowserContentsDelegate::Observer methods:
