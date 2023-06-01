@@ -220,8 +220,8 @@ class CefRange : public cef_range_t {
   CefRange(uint32_t from, uint32_t to) : cef_range_t{from, to} {}
 
   static CefRange InvalidRange() {
-    return CefRange(std::numeric_limits<uint32_t>::max(),
-                    std::numeric_limits<uint32_t>::max());
+    return CefRange((std::numeric_limits<uint32_t>::max)(),
+                    (std::numeric_limits<uint32_t>::max)());
   }
 
   void Set(int from_val, int to_val) { from = from_val, to = to_val; }
