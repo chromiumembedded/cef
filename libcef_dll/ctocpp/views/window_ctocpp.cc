@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=30ee552d6bcf02136ce44a3bb5d0d0be7eb112c0$
+// $hash=29399b84620b09e086f65f712b50573d7fcd1be8$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -589,7 +589,7 @@ NO_SANITIZE("cfi-icall") CefWindowHandle CefWindowCToCpp::GetWindowHandle() {
 }
 
 NO_SANITIZE("cfi-icall")
-void CefWindowCToCpp::SendKeyPress(int key_code, uint32 event_flags) {
+void CefWindowCToCpp::SendKeyPress(int key_code, uint32_t event_flags) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_t* _struct = GetStruct();

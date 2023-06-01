@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2bbeabe2eb7355b48188a0c0806fba7d08dc3144$
+// $hash=dcffd9ca0bb9504371e7c207e6e9768f9f4c31ae$
 //
 
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -87,7 +87,7 @@ size_t CefStreamWriterCToCpp::Write(const void* ptr, size_t size, size_t n) {
 }
 
 NO_SANITIZE("cfi-icall")
-int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
+int CefStreamWriterCToCpp::Seek(int64_t offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
@@ -104,7 +104,7 @@ int CefStreamWriterCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64_t CefStreamWriterCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_stream_writer_t* _struct = GetStruct();
@@ -115,7 +115,7 @@ NO_SANITIZE("cfi-icall") int64 CefStreamWriterCToCpp::Tell() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->tell(_struct);
+  int64_t _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;

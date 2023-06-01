@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8cf5fea5fc1d33f8268a4608417a75ef6ee9bf51$
+// $hash=8fb252b18d67a1b189bd8eafeabde08bf28f0904$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
@@ -41,10 +41,10 @@ class CefResourceHandlerCToCpp
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                          int64& response_length,
+                          int64_t& response_length,
                           CefString& redirectUrl) override;
-  bool Skip(int64 bytes_to_skip,
-            int64& bytes_skipped,
+  bool Skip(int64_t bytes_to_skip,
+            int64_t& bytes_skipped,
             CefRefPtr<CefResourceSkipCallback> callback) override;
   bool Read(void* data_out,
             int bytes_to_read,

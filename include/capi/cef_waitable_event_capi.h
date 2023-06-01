@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=683d592a2405ada0a9c46c004f003d640a3298ad$
+// $hash=be3741396459ccf1337f319965ba1dc509142536$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_WAITABLE_EVENT_CAPI_H_
@@ -96,7 +96,7 @@ typedef struct _cef_waitable_event_t {
   /// called on the browser process UI or IO threads.
   ///
   int(CEF_CALLBACK* timed_wait)(struct _cef_waitable_event_t* self,
-                                int64 max_ms);
+                                int64_t max_ms);
 } cef_waitable_event_t;
 
 ///

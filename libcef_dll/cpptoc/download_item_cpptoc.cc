@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0396657d42ed5b75838d1882434adefbcd562be6$
+// $hash=e9af4e17ed4b52627002dd4b7c47acee51e81764$
 //
 
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -125,7 +125,7 @@ download_item_get_interrupt_reason(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-int64 CEF_CALLBACK
+int64_t CEF_CALLBACK
 download_item_get_current_speed(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -137,7 +137,7 @@ download_item_get_current_speed(struct _cef_download_item_t* self) {
   }
 
   // Execute
-  int64 _retval = CefDownloadItemCppToC::Get(self)->GetCurrentSpeed();
+  int64_t _retval = CefDownloadItemCppToC::Get(self)->GetCurrentSpeed();
 
   // Return type: simple
   return _retval;
@@ -161,7 +161,7 @@ download_item_get_percent_complete(struct _cef_download_item_t* self) {
   return _retval;
 }
 
-int64 CEF_CALLBACK
+int64_t CEF_CALLBACK
 download_item_get_total_bytes(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -173,13 +173,13 @@ download_item_get_total_bytes(struct _cef_download_item_t* self) {
   }
 
   // Execute
-  int64 _retval = CefDownloadItemCppToC::Get(self)->GetTotalBytes();
+  int64_t _retval = CefDownloadItemCppToC::Get(self)->GetTotalBytes();
 
   // Return type: simple
   return _retval;
 }
 
-int64 CEF_CALLBACK
+int64_t CEF_CALLBACK
 download_item_get_received_bytes(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -191,7 +191,7 @@ download_item_get_received_bytes(struct _cef_download_item_t* self) {
   }
 
   // Execute
-  int64 _retval = CefDownloadItemCppToC::Get(self)->GetReceivedBytes();
+  int64_t _retval = CefDownloadItemCppToC::Get(self)->GetReceivedBytes();
 
   // Return type: simple
   return _retval;
@@ -251,7 +251,7 @@ download_item_get_full_path(struct _cef_download_item_t* self) {
   return _retval.DetachToUserFree();
 }
 
-uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
+uint32_t CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -262,7 +262,7 @@ uint32 CEF_CALLBACK download_item_get_id(struct _cef_download_item_t* self) {
   }
 
   // Execute
-  uint32 _retval = CefDownloadItemCppToC::Get(self)->GetId();
+  uint32_t _retval = CefDownloadItemCppToC::Get(self)->GetId();
 
   // Return type: simple
   return _retval;

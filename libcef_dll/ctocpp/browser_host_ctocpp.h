@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=95d1cd8a96633dc2338a636c3c4eda9a15442846$
+// $hash=4700b3b409abf624334f9f6ecf9c1c20131e4849$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -56,7 +56,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void StartDownload(const CefString& url) override;
   void DownloadImage(const CefString& image_url,
                      bool is_favicon,
-                     uint32 max_image_size,
+                     uint32_t max_image_size,
                      bool bypass_cache,
                      CefRefPtr<CefDownloadImageCallback> callback) override;
   void Print() override;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=01563ca6bfdf4177e300fd94befec528e5a3d2c8$
+// $hash=4d593132f79049ee1f5bc752b17d0a5c3a9aff91$
 //
 
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
@@ -44,8 +44,8 @@ void CefURLRequestClientCToCpp::OnRequestComplete(
 NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnUploadProgress(
     CefRefPtr<CefURLRequest> request,
-    int64 current,
-    int64 total) {
+    int64_t current,
+    int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();
@@ -69,8 +69,8 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
 NO_SANITIZE("cfi-icall")
 void CefURLRequestClientCToCpp::OnDownloadProgress(
     CefRefPtr<CefURLRequest> request,
-    int64 current,
-    int64 total) {
+    int64_t current,
+    int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   cef_urlrequest_client_t* _struct = GetStruct();

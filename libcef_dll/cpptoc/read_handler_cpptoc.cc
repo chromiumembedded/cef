@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d9cda583bea7df6ee7b9297e4187b37b5c3cc30a$
+// $hash=297d49ea4c02ae7ca19359c30bdcac380a45d95c$
 //
 
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
@@ -45,7 +45,7 @@ size_t CEF_CALLBACK read_handler_read(struct _cef_read_handler_t* self,
 }
 
 int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
-                                   int64 offset,
+                                   int64_t offset,
                                    int whence) {
   shutdown_checker::AssertNotShutdown();
 
@@ -63,7 +63,7 @@ int CEF_CALLBACK read_handler_seek(struct _cef_read_handler_t* self,
   return _retval;
 }
 
-int64 CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
+int64_t CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -74,7 +74,7 @@ int64 CEF_CALLBACK read_handler_tell(struct _cef_read_handler_t* self) {
   }
 
   // Execute
-  int64 _retval = CefReadHandlerCppToC::Get(self)->Tell();
+  int64_t _retval = CefReadHandlerCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;

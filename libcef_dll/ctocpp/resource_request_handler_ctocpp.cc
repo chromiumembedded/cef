@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bbb95fcb51fd9200a472d7a35f857750f4f8798b$
+// $hash=c83807dbfe712034b49de15498c682b0f0e42d71$
 //
 
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
@@ -226,7 +226,7 @@ void CefResourceRequestHandlerCToCpp::OnResourceLoadComplete(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response,
     URLRequestStatus status,
-    int64 received_content_length) {
+    int64_t received_content_length) {
   cef_resource_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete)) {
     return;

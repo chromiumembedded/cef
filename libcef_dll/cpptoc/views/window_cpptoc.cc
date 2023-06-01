@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=94b9ddc326e4b71aefa8488594a3a6f481624254$
+// $hash=2f28922e536557bff211610dd38bb7b4c8a64d5a$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -597,7 +597,7 @@ window_get_window_handle(struct _cef_window_t* self) {
 
 void CEF_CALLBACK window_send_key_press(struct _cef_window_t* self,
                                         int key_code,
-                                        uint32 event_flags) {
+                                        uint32_t event_flags) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

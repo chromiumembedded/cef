@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d38e55ad4edf278002de04d58023524d7ce633a8$
+// $hash=b13f9e52b84e1d9be3f7a43927002ae2e57d4636$
 //
 
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
@@ -42,7 +42,7 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
 }
 
 NO_SANITIZE("cfi-icall")
-int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
+int CefReadHandlerCToCpp::Seek(int64_t offset, int whence) {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
@@ -59,7 +59,7 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
+NO_SANITIZE("cfi-icall") int64_t CefReadHandlerCToCpp::Tell() {
   shutdown_checker::AssertNotShutdown();
 
   cef_read_handler_t* _struct = GetStruct();
@@ -70,7 +70,7 @@ NO_SANITIZE("cfi-icall") int64 CefReadHandlerCToCpp::Tell() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->tell(_struct);
+  int64_t _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;

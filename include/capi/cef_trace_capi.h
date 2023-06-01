@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=8d275bd73854b2b8d5a7a5bc55fa737e020705ee$
+// $hash=28e2d2d86dffdfdad0f275a444656a0638b44d0e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
@@ -109,7 +109,7 @@ CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
 /// high-res time. Can be used by clients to synchronize with the time
 /// information in trace events.
 ///
-CEF_EXPORT int64 cef_now_from_system_trace_time(void);
+CEF_EXPORT int64_t cef_now_from_system_trace_time(void);
 
 #ifdef __cplusplus
 }

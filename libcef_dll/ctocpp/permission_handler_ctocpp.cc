@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=866524abe3d8f0ad9953a6364bbb49f625fe3a38$
+// $hash=2461a078bc8ccb378b66d02981ca0dbe0f631452$
 //
 
 #include "libcef_dll/ctocpp/permission_handler_ctocpp.h"
@@ -26,7 +26,7 @@ bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     const CefString& requesting_origin,
-    uint32 requested_permissions,
+    uint32_t requested_permissions,
     CefRefPtr<CefMediaAccessCallback> callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -71,9 +71,9 @@ bool CefPermissionHandlerCToCpp::OnRequestMediaAccessPermission(
 NO_SANITIZE("cfi-icall")
 bool CefPermissionHandlerCToCpp::OnShowPermissionPrompt(
     CefRefPtr<CefBrowser> browser,
-    uint64 prompt_id,
+    uint64_t prompt_id,
     const CefString& requesting_origin,
-    uint32 requested_permissions,
+    uint32_t requested_permissions,
     CefRefPtr<CefPermissionPromptCallback> callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -113,7 +113,7 @@ bool CefPermissionHandlerCToCpp::OnShowPermissionPrompt(
 NO_SANITIZE("cfi-icall")
 void CefPermissionHandlerCToCpp::OnDismissPermissionPrompt(
     CefRefPtr<CefBrowser> browser,
-    uint64 prompt_id,
+    uint64_t prompt_id,
     cef_permission_request_result_t result) {
   shutdown_checker::AssertNotShutdown();
 

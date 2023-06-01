@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4ef8b73a5218531b370fdd76c23153a1f83b7f7b$
+// $hash=a146316e075450f0a6f37cb45d14e15e0ac7be08$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -121,7 +121,7 @@ typedef struct _cef_browser_process_handler_t {
   ///
   void(CEF_CALLBACK* on_schedule_message_pump_work)(
       struct _cef_browser_process_handler_t* self,
-      int64 delay_ms);
+      int64_t delay_ms);
 
   ///
   /// Return the default client for use with a newly created browser window. If

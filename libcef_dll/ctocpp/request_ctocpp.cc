@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6f9bdbf9eefdaee77d0e87c1c55b564752e903cd$
+// $hash=f8ac1c909cbcf2dfa78c14cfc790b5ea01b11dde$
 //
 
 #include "libcef_dll/ctocpp/request_ctocpp.h"
@@ -432,7 +432,7 @@ CefRequest::TransitionType CefRequestCToCpp::GetTransitionType() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") uint64 CefRequestCToCpp::GetIdentifier() {
+NO_SANITIZE("cfi-icall") uint64_t CefRequestCToCpp::GetIdentifier() {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_identifier)) {
     return 0;
@@ -441,7 +441,7 @@ NO_SANITIZE("cfi-icall") uint64 CefRequestCToCpp::GetIdentifier() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  uint64 _retval = _struct->get_identifier(_struct);
+  uint64_t _retval = _struct->get_identifier(_struct);
 
   // Return type: simple
   return _retval;

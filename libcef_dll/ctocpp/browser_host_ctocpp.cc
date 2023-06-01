@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=661cc019b1ef90360e09491c9ccaf1a7b69d6f7e$
+// $hash=02a6c45f14489fd5548eb61210ba453de05bcd2d$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -332,7 +332,7 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserHostCToCpp::DownloadImage(
     const CefString& image_url,
     bool is_favicon,
-    uint32 max_image_size,
+    uint32_t max_image_size,
     bool bypass_cache,
     CefRefPtr<CefDownloadImageCallback> callback) {
   shutdown_checker::AssertNotShutdown();

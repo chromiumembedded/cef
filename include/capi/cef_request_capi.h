@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3339290cad3a77c8b0b07d422f0faf902a047838$
+// $hash=241f8b8ba0a4555f8ad8ed1d60345ae83d4d62f4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CAPI_H_
@@ -214,7 +214,7 @@ typedef struct _cef_request_t {
   /// in the browser process to track a single request across multiple
   /// callbacks.
   ///
-  uint64(CEF_CALLBACK* get_identifier)(struct _cef_request_t* self);
+  uint64_t(CEF_CALLBACK* get_identifier)(struct _cef_request_t* self);
 } cef_request_t;
 
 ///

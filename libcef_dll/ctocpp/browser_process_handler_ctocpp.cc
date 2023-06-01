@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=db95f4b4337e9eec478f506df6f322247f8b24f6$
+// $hash=533775387bf1001675aeb94a62bc4ece1eb11125$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -80,7 +80,8 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
 }
 
 NO_SANITIZE("cfi-icall")
-void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
+void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(
+    int64_t delay_ms) {
   cef_browser_process_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_schedule_message_pump_work)) {
     return;

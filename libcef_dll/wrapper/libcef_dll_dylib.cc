@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b974b66c129de2b11c6b3fe38a60f695e7d67edd$
+// $hash=bcad216e5fef8b9c10a895524f8b1201608138f9$
 //
 
 #include <dlfcn.h>
@@ -811,7 +811,7 @@ int cef_post_task(cef_thread_id_t threadId, struct _cef_task_t* task) {
 NO_SANITIZE("cfi-icall")
 int cef_post_delayed_task(cef_thread_id_t threadId,
                           struct _cef_task_t* task,
-                          int64 delay_ms) {
+                          int64_t delay_ms) {
   return g_libcef_pointers.cef_post_delayed_task(threadId, task, delay_ms);
 }
 
@@ -827,7 +827,7 @@ int cef_end_tracing(const cef_string_t* tracing_file,
   return g_libcef_pointers.cef_end_tracing(tracing_file, callback);
 }
 
-NO_SANITIZE("cfi-icall") int64 cef_now_from_system_trace_time() {
+NO_SANITIZE("cfi-icall") int64_t cef_now_from_system_trace_time() {
   return g_libcef_pointers.cef_now_from_system_trace_time();
 }
 
@@ -971,7 +971,7 @@ NO_SANITIZE("cfi-icall") struct _cef_response_t* cef_response_create() {
 
 NO_SANITIZE("cfi-icall")
 void cef_server_create(const cef_string_t* address,
-                       uint16 port,
+                       uint16_t port,
                        int backlog,
                        struct _cef_server_handler_t* handler) {
   g_libcef_pointers.cef_server_create(address, port, backlog, handler);
@@ -1074,12 +1074,12 @@ struct _cef_v8value_t* cef_v8value_create_bool(int value) {
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_v8value_t* cef_v8value_create_int(int32 value) {
+struct _cef_v8value_t* cef_v8value_create_int(int32_t value) {
   return g_libcef_pointers.cef_v8value_create_int(value);
 }
 
 NO_SANITIZE("cfi-icall")
-struct _cef_v8value_t* cef_v8value_create_uint(uint32 value) {
+struct _cef_v8value_t* cef_v8value_create_uint(uint32_t value) {
   return g_libcef_pointers.cef_v8value_create_uint(value);
 }
 
@@ -1178,7 +1178,7 @@ struct _cef_zip_reader_t* cef_zip_reader_create(
 
 NO_SANITIZE("cfi-icall")
 struct _cef_test_server_t* cef_test_server_create_and_start(
-    uint16 port,
+    uint16_t port,
     int https_server,
     cef_test_cert_type_t https_cert_type,
     struct _cef_test_server_handler_t* handler) {
@@ -1511,7 +1511,7 @@ int cef_string_utf8_set(const char* src,
 }
 
 NO_SANITIZE("cfi-icall")
-int cef_string_utf16_set(const char16* src,
+int cef_string_utf16_set(const char16_t* src,
                          size_t src_len,
                          cef_string_utf16_t* output,
                          int copy) {
@@ -1570,7 +1570,7 @@ int cef_string_wide_to_utf16(const wchar_t* src,
 }
 
 NO_SANITIZE("cfi-icall")
-int cef_string_utf16_to_wide(const char16* src,
+int cef_string_utf16_to_wide(const char16_t* src,
                              size_t src_len,
                              cef_string_wide_t* output) {
   return g_libcef_pointers.cef_string_utf16_to_wide(src, src_len, output);
@@ -1584,7 +1584,7 @@ int cef_string_utf8_to_utf16(const char* src,
 }
 
 NO_SANITIZE("cfi-icall")
-int cef_string_utf16_to_utf8(const char16* src,
+int cef_string_utf16_to_utf8(const char16_t* src,
                              size_t src_len,
                              cef_string_utf8_t* output) {
   return g_libcef_pointers.cef_string_utf16_to_utf8(src, src_len, output);
@@ -1635,14 +1635,14 @@ void cef_string_userfree_utf16_free(cef_string_userfree_utf16_t str) {
 }
 
 NO_SANITIZE("cfi-icall")
-int cef_string_utf16_to_lower(const char16* src,
+int cef_string_utf16_to_lower(const char16_t* src,
                               size_t src_len,
                               cef_string_utf16_t* output) {
   return g_libcef_pointers.cef_string_utf16_to_lower(src, src_len, output);
 }
 
 NO_SANITIZE("cfi-icall")
-int cef_string_utf16_to_upper(const char16* src,
+int cef_string_utf16_to_upper(const char16_t* src,
                               size_t src_len,
                               cef_string_utf16_t* output) {
   return g_libcef_pointers.cef_string_utf16_to_upper(src, src_len, output);
@@ -1707,9 +1707,9 @@ NO_SANITIZE("cfi-icall")
 void cef_trace_event_instant(const char* category,
                              const char* name,
                              const char* arg1_name,
-                             uint64 arg1_val,
+                             uint64_t arg1_val,
                              const char* arg2_name,
-                             uint64 arg2_val) {
+                             uint64_t arg2_val) {
   g_libcef_pointers.cef_trace_event_instant(category, name, arg1_name, arg1_val,
                                             arg2_name, arg2_val);
 }
@@ -1718,9 +1718,9 @@ NO_SANITIZE("cfi-icall")
 void cef_trace_event_begin(const char* category,
                            const char* name,
                            const char* arg1_name,
-                           uint64 arg1_val,
+                           uint64_t arg1_val,
                            const char* arg2_name,
-                           uint64 arg2_val) {
+                           uint64_t arg2_val) {
   g_libcef_pointers.cef_trace_event_begin(category, name, arg1_name, arg1_val,
                                           arg2_name, arg2_val);
 }
@@ -1729,9 +1729,9 @@ NO_SANITIZE("cfi-icall")
 void cef_trace_event_end(const char* category,
                          const char* name,
                          const char* arg1_name,
-                         uint64 arg1_val,
+                         uint64_t arg1_val,
                          const char* arg2_name,
-                         uint64 arg2_val) {
+                         uint64_t arg2_val) {
   g_libcef_pointers.cef_trace_event_end(category, name, arg1_name, arg1_val,
                                         arg2_name, arg2_val);
 }
@@ -1740,9 +1740,9 @@ NO_SANITIZE("cfi-icall")
 void cef_trace_counter(const char* category,
                        const char* name,
                        const char* value1_name,
-                       uint64 value1_val,
+                       uint64_t value1_val,
                        const char* value2_name,
-                       uint64 value2_val) {
+                       uint64_t value2_val) {
   g_libcef_pointers.cef_trace_counter(category, name, value1_name, value1_val,
                                       value2_name, value2_val);
 }
@@ -1750,11 +1750,11 @@ void cef_trace_counter(const char* category,
 NO_SANITIZE("cfi-icall")
 void cef_trace_counter_id(const char* category,
                           const char* name,
-                          uint64 id,
+                          uint64_t id,
                           const char* value1_name,
-                          uint64 value1_val,
+                          uint64_t value1_val,
                           const char* value2_name,
-                          uint64 value2_val) {
+                          uint64_t value2_val) {
   g_libcef_pointers.cef_trace_counter_id(category, name, id, value1_name,
                                          value1_val, value2_name, value2_val);
 }
@@ -1762,11 +1762,11 @@ void cef_trace_counter_id(const char* category,
 NO_SANITIZE("cfi-icall")
 void cef_trace_event_async_begin(const char* category,
                                  const char* name,
-                                 uint64 id,
+                                 uint64_t id,
                                  const char* arg1_name,
-                                 uint64 arg1_val,
+                                 uint64_t arg1_val,
                                  const char* arg2_name,
-                                 uint64 arg2_val) {
+                                 uint64_t arg2_val) {
   g_libcef_pointers.cef_trace_event_async_begin(category, name, id, arg1_name,
                                                 arg1_val, arg2_name, arg2_val);
 }
@@ -1774,10 +1774,10 @@ void cef_trace_event_async_begin(const char* category,
 NO_SANITIZE("cfi-icall")
 void cef_trace_event_async_step_into(const char* category,
                                      const char* name,
-                                     uint64 id,
-                                     uint64 step,
+                                     uint64_t id,
+                                     uint64_t step,
                                      const char* arg1_name,
-                                     uint64 arg1_val) {
+                                     uint64_t arg1_val) {
   g_libcef_pointers.cef_trace_event_async_step_into(category, name, id, step,
                                                     arg1_name, arg1_val);
 }
@@ -1785,10 +1785,10 @@ void cef_trace_event_async_step_into(const char* category,
 NO_SANITIZE("cfi-icall")
 void cef_trace_event_async_step_past(const char* category,
                                      const char* name,
-                                     uint64 id,
-                                     uint64 step,
+                                     uint64_t id,
+                                     uint64_t step,
                                      const char* arg1_name,
-                                     uint64 arg1_val) {
+                                     uint64_t arg1_val) {
   g_libcef_pointers.cef_trace_event_async_step_past(category, name, id, step,
                                                     arg1_name, arg1_val);
 }
@@ -1796,11 +1796,11 @@ void cef_trace_event_async_step_past(const char* category,
 NO_SANITIZE("cfi-icall")
 void cef_trace_event_async_end(const char* category,
                                const char* name,
-                               uint64 id,
+                               uint64_t id,
                                const char* arg1_name,
-                               uint64 arg1_val,
+                               uint64_t arg1_val,
                                const char* arg2_name,
-                               uint64 arg2_val) {
+                               uint64_t arg2_val) {
   g_libcef_pointers.cef_trace_event_async_end(category, name, id, arg1_name,
                                               arg1_val, arg2_name, arg2_val);
 }

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2b2caf2af2d24ffbf9cc8d33946ce019b5bf98c9$
+// $hash=6a2ebf843d929371a15e34792b6900c0ab622877$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -387,7 +387,7 @@ void CEF_CALLBACK
 browser_host_download_image(struct _cef_browser_host_t* self,
                             const cef_string_t* image_url,
                             int is_favicon,
-                            uint32 max_image_size,
+                            uint32_t max_image_size,
                             int bypass_cache,
                             cef_download_image_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();

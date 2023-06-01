@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7254c050cd7db2ff7d40a1f54c99e941dc592692$
+// $hash=683d7bff8da04826eee83c7e23cf9c5a701ae265$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -167,7 +167,7 @@ typedef struct _cef_browser_t {
   ///
   struct _cef_frame_t*(CEF_CALLBACK* get_frame_byident)(
       struct _cef_browser_t* self,
-      int64 identifier);
+      int64_t identifier);
 
   ///
   /// Returns the frame with the specified name, or NULL if not found.
@@ -185,7 +185,7 @@ typedef struct _cef_browser_t {
   ///
   void(CEF_CALLBACK* get_frame_identifiers)(struct _cef_browser_t* self,
                                             size_t* identifiersCount,
-                                            int64* identifiers);
+                                            int64_t* identifiers);
 
   ///
   /// Returns the names of all existing frames.
@@ -424,7 +424,7 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self,
       const cef_string_t* image_url,
       int is_favicon,
-      uint32 max_image_size,
+      uint32_t max_image_size,
       int bypass_cache,
       struct _cef_download_image_callback_t* callback);
 

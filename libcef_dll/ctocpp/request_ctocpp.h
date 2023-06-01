@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=7e87acb36c494058615248f36c7536368d3d5fb5$
+// $hash=cede9199ca4b019787a67fe4bc2cb739759f3cd6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_
@@ -60,7 +60,7 @@ class CefRequestCToCpp
   void SetFirstPartyForCookies(const CefString& url) override;
   ResourceType GetResourceType() override;
   TransitionType GetTransitionType() override;
-  uint64 GetIdentifier() override;
+  uint64_t GetIdentifier() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_

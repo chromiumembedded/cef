@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a724b525291277cfec5b91bb0986bcac487cdea1$
+// $hash=2a09370f896a73d7e617fb4f6d856b89db0d5531$
 //
 
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
@@ -108,7 +108,7 @@ size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
 }
 
 int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
-                                    int64 offset,
+                                    int64_t offset,
                                     int whence) {
   shutdown_checker::AssertNotShutdown();
 
@@ -126,7 +126,7 @@ int CEF_CALLBACK stream_reader_seek(struct _cef_stream_reader_t* self,
   return _retval;
 }
 
-int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
+int64_t CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -137,7 +137,7 @@ int64 CEF_CALLBACK stream_reader_tell(struct _cef_stream_reader_t* self) {
   }
 
   // Execute
-  int64 _retval = CefStreamReaderCppToC::Get(self)->Tell();
+  int64_t _retval = CefStreamReaderCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;

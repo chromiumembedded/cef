@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2525282ec6eb7a1e2f59d464a2136466ecf1aa5b$
+// $hash=cc22e20810193cde875d9aa027dc140639060787$
 //
 
 #include "libcef_dll/ctocpp/media_access_callback_ctocpp.h"
@@ -18,7 +18,7 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 NO_SANITIZE("cfi-icall")
-void CefMediaAccessCallbackCToCpp::Continue(uint32 allowed_permissions) {
+void CefMediaAccessCallbackCToCpp::Continue(uint32_t allowed_permissions) {
   shutdown_checker::AssertNotShutdown();
 
   cef_media_access_callback_t* _struct = GetStruct();

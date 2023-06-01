@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3aa25e3d3dcaa8b1499fc4e54dd0cb9d3bb473cb$
+// $hash=bd4999e5bbad96be1e3897cfe9dc59bb1c186fba$
 //
 
 #include "libcef_dll/cpptoc/test/test_server_cpptoc.h"
@@ -19,7 +19,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_test_server_t* cef_test_server_create_and_start(
-    uint16 port,
+    uint16_t port,
     int https_server,
     cef_test_cert_type_t https_cert_type,
     struct _cef_test_server_handler_t* handler) {

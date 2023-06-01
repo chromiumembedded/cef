@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=06e8730f31f20b05a030d315593ab982c32539b6$
+// $hash=a06a115eda2d02beb98b73713fd60119a21eb67c$
 //
 
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
@@ -46,8 +46,8 @@ urlrequest_client_on_request_complete(struct _cef_urlrequest_client_t* self,
 void CEF_CALLBACK
 urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
                                      cef_urlrequest_t* request,
-                                     int64 current,
-                                     int64 total) {
+                                     int64_t current,
+                                     int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -70,8 +70,8 @@ urlrequest_client_on_upload_progress(struct _cef_urlrequest_client_t* self,
 void CEF_CALLBACK
 urlrequest_client_on_download_progress(struct _cef_urlrequest_client_t* self,
                                        cef_urlrequest_t* request,
-                                       int64 current,
-                                       int64 total) {
+                                       int64_t current,
+                                       int64_t total) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

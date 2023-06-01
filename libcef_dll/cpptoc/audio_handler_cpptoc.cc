@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5f113123b4a9cd31cb451c9b9e60d5e04c38a6b7$
+// $hash=b4b1529613a3609c6d5eee063c2f633475e0c68c$
 //
 
 #include "libcef_dll/cpptoc/audio_handler_cpptoc.h"
@@ -96,7 +96,7 @@ audio_handler_on_audio_stream_packet(struct _cef_audio_handler_t* self,
                                      struct _cef_browser_t* browser,
                                      const float** data,
                                      int frames,
-                                     int64 pts) {
+                                     int64_t pts) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

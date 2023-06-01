@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a8f5ea7a761afbc9add6949917bb51c6c66d101$
+// $hash=665dc752dccd84d278f794b5c6c76093f285112c$
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
@@ -419,7 +419,7 @@ request_get_transition_type(struct _cef_request_t* self) {
   return _retval;
 }
 
-uint64 CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
+uint64_t CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -428,7 +428,7 @@ uint64 CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
   }
 
   // Execute
-  uint64 _retval = CefRequestCppToC::Get(self)->GetIdentifier();
+  uint64_t _retval = CefRequestCppToC::Get(self)->GetIdentifier();
 
   // Return type: simple
   return _retval;

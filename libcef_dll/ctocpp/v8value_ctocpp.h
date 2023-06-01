@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec4b3cb221b3fcfb0f8f5e35aa351d3696cb78bb$
+// $hash=cab5b018f6706a3c8496865e0c9f30fcbc94cdd8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -50,8 +50,8 @@ class CefV8ValueCToCpp
   bool IsPromise() override;
   bool IsSame(CefRefPtr<CefV8Value> that) override;
   bool GetBoolValue() override;
-  int32 GetIntValue() override;
-  uint32 GetUIntValue() override;
+  int32_t GetIntValue() override;
+  uint32_t GetUIntValue() override;
   double GetDoubleValue() override;
   CefBaseTime GetDateValue() override;
   CefString GetStringValue() override;

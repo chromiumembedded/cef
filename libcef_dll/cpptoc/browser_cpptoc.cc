@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5cfbd6a3ef80fe1e42a841e3730d46f4ad3b4648$
+// $hash=095894b34598f0352049ba3d8a56a80b9b2ad68e$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
@@ -291,7 +291,7 @@ browser_get_focused_frame(struct _cef_browser_t* self) {
 }
 
 struct _cef_frame_t* CEF_CALLBACK
-browser_get_frame_byident(struct _cef_browser_t* self, int64 identifier) {
+browser_get_frame_byident(struct _cef_browser_t* self, int64_t identifier) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -348,7 +348,7 @@ size_t CEF_CALLBACK browser_get_frame_count(struct _cef_browser_t* self) {
 
 void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
                                                 size_t* identifiersCount,
-                                                int64* identifiers) {
+                                                int64_t* identifiers) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -364,7 +364,7 @@ void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
   }
 
   // Translate param: identifiers; type: simple_vec_byref
-  std::vector<int64> identifiersList;
+  std::vector<int64_t> identifiersList;
   if (identifiersCount && *identifiersCount > 0 && identifiers) {
     for (size_t i = 0; i < *identifiersCount; ++i) {
       identifiersList.push_back(identifiers[i]);

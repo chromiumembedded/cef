@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d9e9f4b914ae2d3b1ed83ae0d9e2e46e9e736af5$
+// $hash=c4ecfde5d6791400c4b3fd466e7d3676d51cf8d8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_ITEM_CAPI_H_
@@ -90,7 +90,7 @@ typedef struct _cef_download_item_t {
   ///
   /// Returns a simple speed estimate in bytes/s.
   ///
-  int64(CEF_CALLBACK* get_current_speed)(struct _cef_download_item_t* self);
+  int64_t(CEF_CALLBACK* get_current_speed)(struct _cef_download_item_t* self);
 
   ///
   /// Returns the rough percent complete or -1 if the receive total size is
@@ -101,12 +101,12 @@ typedef struct _cef_download_item_t {
   ///
   /// Returns the total number of bytes.
   ///
-  int64(CEF_CALLBACK* get_total_bytes)(struct _cef_download_item_t* self);
+  int64_t(CEF_CALLBACK* get_total_bytes)(struct _cef_download_item_t* self);
 
   ///
   /// Returns the number of received bytes.
   ///
-  int64(CEF_CALLBACK* get_received_bytes)(struct _cef_download_item_t* self);
+  int64_t(CEF_CALLBACK* get_received_bytes)(struct _cef_download_item_t* self);
 
   ///
   /// Returns the time that the download started.
@@ -129,7 +129,7 @@ typedef struct _cef_download_item_t {
   ///
   /// Returns the unique identifier for this download.
   ///
-  uint32(CEF_CALLBACK* get_id)(struct _cef_download_item_t* self);
+  uint32_t(CEF_CALLBACK* get_id)(struct _cef_download_item_t* self);
 
   ///
   /// Returns the URL.

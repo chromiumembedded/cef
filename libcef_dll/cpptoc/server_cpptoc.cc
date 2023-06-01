@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8c3f680313770151c050a6355b3ec042929ef4b8$
+// $hash=36b8cdbb6821347abd764616baa7b1582a2d8779$
 //
 
 #include "libcef_dll/cpptoc/server_cpptoc.h"
@@ -21,7 +21,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT void cef_server_create(const cef_string_t* address,
-                                  uint16 port,
+                                  uint16_t port,
                                   int backlog,
                                   struct _cef_server_handler_t* handler) {
   shutdown_checker::AssertNotShutdown();
@@ -223,7 +223,7 @@ server_send_http_response(struct _cef_server_t* self,
                           int connection_id,
                           int response_code,
                           const cef_string_t* content_type,
-                          int64 content_length,
+                          int64_t content_length,
                           cef_string_multimap_t extra_headers) {
   shutdown_checker::AssertNotShutdown();
 

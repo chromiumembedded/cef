@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a96ba2c140124da8865f2da4c2b8d6a0c958a1fa$
+// $hash=646804cf761ea9becc1e0001ae16b1f4d49e3000$
 //
 
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
@@ -133,7 +133,7 @@ int CEF_CALLBACK task_runner_post_task(struct _cef_task_runner_t* self,
 
 int CEF_CALLBACK task_runner_post_delayed_task(struct _cef_task_runner_t* self,
                                                cef_task_t* task,
-                                               int64 delay_ms) {
+                                               int64_t delay_ms) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

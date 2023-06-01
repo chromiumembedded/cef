@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4564ea5efd8c4be32e2df7c98fd70a645eb9f696$
+// $hash=7d93191b6f6cc58914df4909e3170d11fc826452$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RESOURCE_REQUEST_HANDLER_CTOCPP_H_
@@ -66,7 +66,7 @@ class CefResourceRequestHandlerCToCpp
                               CefRefPtr<CefRequest> request,
                               CefRefPtr<CefResponse> response,
                               URLRequestStatus status,
-                              int64 received_content_length) override;
+                              int64_t received_content_length) override;
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefRequest> request,

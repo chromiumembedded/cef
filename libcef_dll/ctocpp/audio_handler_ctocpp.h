@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=761b05f6a7cd2f0cfc1968a3902bd874060ad79b$
+// $hash=93c0cae17d2e380e7a0268ba658b1449cc0bc71c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_AUDIO_HANDLER_CTOCPP_H_
@@ -42,7 +42,7 @@ class CefAudioHandlerCToCpp : public CefCToCppRefCounted<CefAudioHandlerCToCpp,
   void OnAudioStreamPacket(CefRefPtr<CefBrowser> browser,
                            const float** data,
                            int frames,
-                           int64 pts) override;
+                           int64_t pts) override;
   void OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) override;
   void OnAudioStreamError(CefRefPtr<CefBrowser> browser,
                           const CefString& message) override;

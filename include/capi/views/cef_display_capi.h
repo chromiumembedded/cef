@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7674d3af52dd4272b454b2028e7a4ee72fb3c9ff$
+// $hash=2e9acfffaf1dbc70f0c76fcf58a5190326b131ba$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_DISPLAY_CAPI_H_
@@ -63,7 +63,7 @@ typedef struct _cef_display_t {
   ///
   /// Returns the unique identifier for this Display.
   ///
-  int64(CEF_CALLBACK* get_id)(struct _cef_display_t* self);
+  int64_t(CEF_CALLBACK* get_id)(struct _cef_display_t* self);
 
   ///
   /// Returns this Display's device pixel scale factor. This specifies how much

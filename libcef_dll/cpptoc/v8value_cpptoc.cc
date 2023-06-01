@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5f99f370a236b8cb01a0a5818860efe285d20060$
+// $hash=ecd6caa0c415b57e93bc66f3c7a4cfb547f022c1$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -54,7 +54,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_bool(int value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32 value) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32_t value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -64,7 +64,7 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_int(int32 value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32 value) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_uint(uint32_t value) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
@@ -443,7 +443,7 @@ int CEF_CALLBACK v8value_get_bool_value(struct _cef_v8value_t* self) {
   return _retval;
 }
 
-int32 CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
+int32_t CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -452,13 +452,13 @@ int32 CEF_CALLBACK v8value_get_int_value(struct _cef_v8value_t* self) {
   }
 
   // Execute
-  int32 _retval = CefV8ValueCppToC::Get(self)->GetIntValue();
+  int32_t _retval = CefV8ValueCppToC::Get(self)->GetIntValue();
 
   // Return type: simple
   return _retval;
 }
 
-uint32 CEF_CALLBACK v8value_get_uint_value(struct _cef_v8value_t* self) {
+uint32_t CEF_CALLBACK v8value_get_uint_value(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -467,7 +467,7 @@ uint32 CEF_CALLBACK v8value_get_uint_value(struct _cef_v8value_t* self) {
   }
 
   // Execute
-  uint32 _retval = CefV8ValueCppToC::Get(self)->GetUIntValue();
+  uint32_t _retval = CefV8ValueCppToC::Get(self)->GetUIntValue();
 
   // Return type: simple
   return _retval;

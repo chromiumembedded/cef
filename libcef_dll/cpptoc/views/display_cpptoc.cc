@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c179b70eb51a62fd00780eaea1be9c96e3ce3b3$
+// $hash=bddabd9fc04400c15bd2ea41f2677c110dadb299$
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
@@ -216,7 +216,7 @@ namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-int64 CEF_CALLBACK display_get_id(struct _cef_display_t* self) {
+int64_t CEF_CALLBACK display_get_id(struct _cef_display_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -227,7 +227,7 @@ int64 CEF_CALLBACK display_get_id(struct _cef_display_t* self) {
   }
 
   // Execute
-  int64 _retval = CefDisplayCppToC::Get(self)->GetID();
+  int64_t _retval = CefDisplayCppToC::Get(self)->GetID();
 
   // Return type: simple
   return _retval;

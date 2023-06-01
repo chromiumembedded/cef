@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b508744274495630cce72e1febb2503552ba9379$
+// $hash=6cda6276be92cb33660e4cff45fb664515facec1$
 //
 
 #include "libcef_dll/cpptoc/resource_request_handler_cpptoc.h"
@@ -234,7 +234,7 @@ void CEF_CALLBACK resource_request_handler_on_resource_load_complete(
     cef_request_t* request,
     struct _cef_response_t* response,
     cef_urlrequest_status_t status,
-    int64 received_content_length) {
+    int64_t received_content_length) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

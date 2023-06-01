@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=04aa6e193cc5d5658c0ef28a42c0777c0a955409$
+// $hash=e09c33a3604cb7a80ef7fdea72c838619e26dc8c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -286,7 +286,7 @@ typedef struct _cef_window_t {
   ///
   void(CEF_CALLBACK* send_key_press)(struct _cef_window_t* self,
                                      int key_code,
-                                     uint32 event_flags);
+                                     uint32_t event_flags);
 
   ///
   /// Simulate a mouse move. The mouse cursor will be moved to the specified

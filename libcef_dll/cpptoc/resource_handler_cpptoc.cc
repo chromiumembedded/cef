@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec0ed100e05a34f1f7909e93d8f6f3e8aaadbeaf$
+// $hash=b88df417b6c03aa94901820a7cc4682cf3bceb51$
 //
 
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
@@ -103,7 +103,7 @@ resource_handler_process_request(struct _cef_resource_handler_t* self,
 void CEF_CALLBACK
 resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
                                       struct _cef_response_t* response,
-                                      int64* response_length,
+                                      int64_t* response_length,
                                       cef_string_t* redirectUrl) {
   shutdown_checker::AssertNotShutdown();
 
@@ -130,7 +130,7 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
   }
 
   // Translate param: response_length; type: simple_byref
-  int64 response_lengthVal = response_length ? *response_length : 0;
+  int64_t response_lengthVal = response_length ? *response_length : 0;
   // Translate param: redirectUrl; type: string_byref
   CefString redirectUrlStr(redirectUrl);
 
@@ -145,8 +145,8 @@ resource_handler_get_response_headers(struct _cef_resource_handler_t* self,
 }
 
 int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
-                                       int64 bytes_to_skip,
-                                       int64* bytes_skipped,
+                                       int64_t bytes_to_skip,
+                                       int64_t* bytes_skipped,
                                        cef_resource_skip_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -168,7 +168,7 @@ int CEF_CALLBACK resource_handler_skip(struct _cef_resource_handler_t* self,
   }
 
   // Translate param: bytes_skipped; type: simple_byref
-  int64 bytes_skippedVal = bytes_skipped ? *bytes_skipped : 0;
+  int64_t bytes_skippedVal = bytes_skipped ? *bytes_skipped : 0;
 
   // Execute
   bool _retval = CefResourceHandlerCppToC::Get(self)->Skip(

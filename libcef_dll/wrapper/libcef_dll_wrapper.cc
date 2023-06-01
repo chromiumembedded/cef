@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e07503ba9fccaa021319d3857d437b4441947070$
+// $hash=231eb074788457c6fa690d3c82731c5334f322b2$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -760,7 +760,7 @@ CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
 NO_SANITIZE("cfi-icall")
 CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
                                    CefRefPtr<CefTask> task,
-                                   int64 delay_ms) {
+                                   int64_t delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: task; type: refptr_diff
@@ -807,11 +807,11 @@ CEF_GLOBAL bool CefEndTracing(const CefString& tracing_file,
   return _retval ? true : false;
 }
 
-NO_SANITIZE("cfi-icall") CEF_GLOBAL int64 CefNowFromSystemTraceTime() {
+NO_SANITIZE("cfi-icall") CEF_GLOBAL int64_t CefNowFromSystemTraceTime() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = cef_now_from_system_trace_time();
+  int64_t _retval = cef_now_from_system_trace_time();
 
   // Return type: simple
   return _retval;

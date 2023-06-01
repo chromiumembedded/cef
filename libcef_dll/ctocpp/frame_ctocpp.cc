@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=94e3dd98f86cbce550ab941e8ad10fa5423ee44b$
+// $hash=52b39b5e284097cb9f674258a89680ca23adb2bb$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -315,7 +315,7 @@ NO_SANITIZE("cfi-icall") CefString CefFrameCToCpp::GetName() {
   return _retvalStr;
 }
 
-NO_SANITIZE("cfi-icall") int64 CefFrameCToCpp::GetIdentifier() {
+NO_SANITIZE("cfi-icall") int64_t CefFrameCToCpp::GetIdentifier() {
   shutdown_checker::AssertNotShutdown();
 
   cef_frame_t* _struct = GetStruct();
@@ -326,7 +326,7 @@ NO_SANITIZE("cfi-icall") int64 CefFrameCToCpp::GetIdentifier() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = _struct->get_identifier(_struct);
+  int64_t _retval = _struct->get_identifier(_struct);
 
   // Return type: simple
   return _retval;

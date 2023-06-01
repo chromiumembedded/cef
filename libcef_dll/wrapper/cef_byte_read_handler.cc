@@ -22,7 +22,7 @@ size_t CefByteReadHandler::Read(void* ptr, size_t size, size_t n) {
   return ret;
 }
 
-int CefByteReadHandler::Seek(int64 offset, int whence) {
+int CefByteReadHandler::Seek(int64_t offset, int whence) {
   int rv = -1L;
   base::AutoLock lock_scope(lock_);
   switch (whence) {
@@ -35,9 +35,9 @@ int CefByteReadHandler::Seek(int64 offset, int whence) {
       break;
     case SEEK_END: {
 #if defined(OS_WIN)
-      int64 offset_abs = _abs64(offset);
+      int64_t offset_abs = _abs64(offset);
 #else
-      int64 offset_abs = std::abs(offset);
+      int64_t offset_abs = std::abs(offset);
 #endif
       if (offset_abs > size_) {
         break;
@@ -58,7 +58,7 @@ int CefByteReadHandler::Seek(int64 offset, int whence) {
   return rv;
 }
 
-int64 CefByteReadHandler::Tell() {
+int64_t CefByteReadHandler::Tell() {
   base::AutoLock lock_scope(lock_);
   return offset_;
 }

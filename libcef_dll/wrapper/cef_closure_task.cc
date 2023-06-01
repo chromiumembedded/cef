@@ -67,14 +67,14 @@ bool CefPostTask(CefThreadId threadId, const base::RepeatingClosure& closure) {
 
 bool CefPostDelayedTask(CefThreadId threadId,
                         base::OnceClosure closure,
-                        int64 delay_ms) {
+                        int64_t delay_ms) {
   return CefPostDelayedTask(
       threadId, new CefOnceClosureTask(std::move(closure)), delay_ms);
 }
 
 bool CefPostDelayedTask(CefThreadId threadId,
                         const base::RepeatingClosure& closure,
-                        int64 delay_ms) {
+                        int64_t delay_ms) {
   return CefPostDelayedTask(threadId, new CefRepeatingClosureTask(closure),
                             delay_ms);
 }

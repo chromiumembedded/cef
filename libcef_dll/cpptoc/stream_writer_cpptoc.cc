@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9e43a166c77c493dfdc85dd795f1fcf1010b4785$
+// $hash=01b28525b4e9c9d1245d7d910f1a45716ade9963$
 //
 
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
@@ -88,7 +88,7 @@ size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
 }
 
 int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
-                                    int64 offset,
+                                    int64_t offset,
                                     int whence) {
   shutdown_checker::AssertNotShutdown();
 
@@ -106,7 +106,7 @@ int CEF_CALLBACK stream_writer_seek(struct _cef_stream_writer_t* self,
   return _retval;
 }
 
-int64 CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self) {
+int64_t CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -117,7 +117,7 @@ int64 CEF_CALLBACK stream_writer_tell(struct _cef_stream_writer_t* self) {
   }
 
   // Execute
-  int64 _retval = CefStreamWriterCppToC::Get(self)->Tell();
+  int64_t _retval = CefStreamWriterCppToC::Get(self)->Tell();
 
   // Return type: simple
   return _retval;

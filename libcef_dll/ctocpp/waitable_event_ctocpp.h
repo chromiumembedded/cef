@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ea92b8c5871694e9c32c29a5d554774afe7aa3dd$
+// $hash=587149e6f5d7d1dd1200f6ce7dd7294da82417cf$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_WAITABLE_EVENT_CTOCPP_H_
@@ -39,7 +39,7 @@ class CefWaitableEventCToCpp
   void Signal() override;
   bool IsSignaled() override;
   void Wait() override;
-  bool TimedWait(int64 max_ms) override;
+  bool TimedWait(int64_t max_ms) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_WAITABLE_EVENT_CTOCPP_H_

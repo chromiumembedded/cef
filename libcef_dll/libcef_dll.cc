@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=aae38cfe93c23ba06455e792151df4294c3d5dde$
+// $hash=9d44fae857002c47910b25efb8e471ed453d2b55$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -828,7 +828,7 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
 
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
                                      struct _cef_task_t* task,
-                                     int64 delay_ms) {
+                                     int64_t delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: task; type: refptr_diff
@@ -873,11 +873,11 @@ CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
   return _retval;
 }
 
-CEF_EXPORT int64 cef_now_from_system_trace_time() {
+CEF_EXPORT int64_t cef_now_from_system_trace_time() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = CefNowFromSystemTraceTime();
+  int64_t _retval = CefNowFromSystemTraceTime();
 
   // Return type: simple
   return _retval;

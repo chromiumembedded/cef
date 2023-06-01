@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=70d6b393cbdc96a75864911d7ca3568cc8dcdebf$
+// $hash=757155e6dbceef47938fd562f7f5f48a609ce288$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_REQUEST_HANDLER_CAPI_H_
@@ -188,7 +188,7 @@ typedef struct _cef_resource_request_handler_t {
       struct _cef_request_t* request,
       struct _cef_response_t* response,
       cef_urlrequest_status_t status,
-      int64 received_content_length);
+      int64_t received_content_length);
 
   ///
   /// Called on the IO thread to handle requests for URLs with an unknown

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=273a6abfd4ac030701be00c45811c19e74e128bd$
+// $hash=fc609ce5aa3bc51e5cef1f9174dbfc5cff0a0689$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_CAPI_H_
@@ -114,7 +114,7 @@ typedef struct _cef_task_runner_t {
   ///
   int(CEF_CALLBACK* post_delayed_task)(struct _cef_task_runner_t* self,
                                        struct _cef_task_t* task,
-                                       int64 delay_ms);
+                                       int64_t delay_ms);
 } cef_task_runner_t;
 
 ///
@@ -149,7 +149,7 @@ CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, cef_task_t* task);
 ///
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
                                      cef_task_t* task,
-                                     int64 delay_ms);
+                                     int64_t delay_ms);
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bff1a6490007bd43ac28f862bcc145e3b385b1ca$
+// $hash=cd09888724297c57eac0b71ebbe54e097588cfd2$
 //
 
 #include "libcef_dll/cpptoc/resource_skip_callback_cpptoc.h"
@@ -21,7 +21,7 @@ namespace {
 
 void CEF_CALLBACK
 resource_skip_callback_cont(struct _cef_resource_skip_callback_t* self,
-                            int64 bytes_skipped) {
+                            int64_t bytes_skipped) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=372cc40047bb36d78f80f4d1edbbba30faad2c7f$
+// $hash=614f17d01c97522a373ef4a4710202bbe6b76d11$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
@@ -38,7 +38,7 @@ class CefTaskRunnerCToCpp : public CefCToCppRefCounted<CefTaskRunnerCToCpp,
   bool BelongsToCurrentThread() override;
   bool BelongsToThread(CefThreadId threadId) override;
   bool PostTask(CefRefPtr<CefTask> task) override;
-  bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) override;
+  bool PostDelayedTask(CefRefPtr<CefTask> task, int64_t delay_ms) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_

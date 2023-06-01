@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=80cfd5e986d8a5f4b71c3058806cf2ee66100f6e$
+// $hash=dd6210f86f9b0a4cc2a6b735fcf3b98a5e541789$
 //
 
 #include "libcef_dll/cpptoc/media_access_callback_cpptoc.h"
@@ -21,7 +21,7 @@ namespace {
 
 void CEF_CALLBACK
 media_access_callback_cont(struct _cef_media_access_callback_t* self,
-                           uint32 allowed_permissions) {
+                           uint32_t allowed_permissions) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a05d5f989630c0c031cbe9cc04150a6e1e54c4d4$
+// $hash=344eaf627105f0a3b80b44e1d576baa7f2cdc47d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_DISPLAY_CTOCPP_H_
@@ -33,7 +33,7 @@ class CefDisplayCToCpp
   virtual ~CefDisplayCToCpp();
 
   // CefDisplay methods.
-  int64 GetID() override;
+  int64_t GetID() override;
   float GetDeviceScaleFactor() override;
   void ConvertPointToPixels(CefPoint& point) override;
   void ConvertPointFromPixels(CefPoint& point) override;
