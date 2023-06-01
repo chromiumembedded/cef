@@ -38,7 +38,6 @@ extern "C" {
 #include <stdint.h>
 #include <time.h>
 
-#include "include/base/cef_basictypes.h"
 #include "include/internal/cef_export.h"
 
 ///

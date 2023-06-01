@@ -8,7 +8,6 @@
       'include/base/cef_atomic_flag.h',
       'include/base/cef_atomic_ref_count.h',
       'include/base/cef_auto_reset.h',
-      'include/base/cef_basictypes.h',
       'include/base/cef_bind.h',
       'include/base/cef_build.h',
       'include/base/cef_callback.h',

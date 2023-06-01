@@ -31,7 +31,11 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_H_
 #pragma once
 
-#include "include/base/cef_basictypes.h"
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <uchar.h>
+
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"

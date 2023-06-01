@@ -32,8 +32,8 @@
 #pragma once
 
 #include <stddef.h>
+#include <uchar.h>
 
-#include "include/base/cef_basictypes.h"
 #include "include/internal/cef_export.h"
 
 ///
