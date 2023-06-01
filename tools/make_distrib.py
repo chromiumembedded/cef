@@ -887,6 +887,7 @@ if platform == 'windows':
   # yapf: disable
   binaries = [
       {'path': 'chrome_elf.dll'},
+      {'path': 'd3dcompiler_47.dll'},
       {'path': libcef_dll},
       {'path': 'libEGL.dll'},
       {'path': 'libGLESv2.dll'},
@@ -959,9 +960,6 @@ if platform == 'windows':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
       copy_files_list(build_dir, dst_dir, binaries)
-      copy_files(
-          os.path.join(script_dir, 'distrib/win/%s/*.dll' % binary_arch),
-          dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -982,9 +980,6 @@ if platform == 'windows':
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Release')
       copy_files_list(build_dir, dst_dir, binaries)
-      copy_files(
-          os.path.join(script_dir, 'distrib/win/%s/*.dll' % binary_arch),
-          dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory

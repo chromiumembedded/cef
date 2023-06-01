@@ -493,6 +493,7 @@ if(OS_WINDOWS)
   # List of CEF binary files.
   set(CEF_BINARY_FILES
     chrome_elf.dll
+    d3dcompiler_47.dll
     libcef.dll
     libEGL.dll
     libGLESv2.dll
@@ -502,12 +503,6 @@ if(OS_WINDOWS)
     vk_swiftshader_icd.json
     vulkan-1.dll
     )
-
-  if(NOT PROJECT_ARCH STREQUAL "arm64")
-    list(APPEND CEF_BINARY_FILES
-      d3dcompiler_47.dll
-      )
-  endif()
 
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
