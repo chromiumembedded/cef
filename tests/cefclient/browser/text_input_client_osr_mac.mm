@@ -132,7 +132,7 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
 
   BOOL isAttributedString = [aString isKindOfClass:[NSAttributedString class]];
   NSString* im_text = isAttributedString ? [aString string] : aString;
-  uint32_t length = [im_text length];
+  uint32_t length = static_cast<uint32_t>([im_text length]);
 
   // |markedRange_| will get set in a callback from ImeSetComposition().
   selectedRange_ = newSelRange;
