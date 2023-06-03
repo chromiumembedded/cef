@@ -237,7 +237,7 @@ index 59024587ef6b7..0c30aa71768cf 100644
  
  void FindBarHost::RegisterAccelerators() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 24b85357b90b8..67e1bacb8d518 100644
+index e01f634cbe20f..9ece0073769e5 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -75,15 +75,23 @@ bool IsUsingLinuxSystemTheme(Profile* profile) {
@@ -347,7 +347,7 @@ index 24b85357b90b8..67e1bacb8d518 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    // ChromeOS SystemWebApps use the OS theme all the time.
    if (ash::IsSystemWebApp(browser_view_->browser())) {
-@@ -533,5 +566,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
+@@ -540,5 +573,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserFrame::IsIncognitoBrowser() const {

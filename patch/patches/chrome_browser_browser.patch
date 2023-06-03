@@ -410,10 +410,10 @@ index 23a838ba30c68..52601ebdcc9bd 100644
  
    // The opener browser of the document picture-in-picture browser. Null if the
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index edf4d8c7933e9..9e7c236dbf16a 100644
+index a45328dab1538..981e8e498752b 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
-@@ -555,6 +555,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+@@ -556,6 +556,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
    std::unique_ptr<WebContents> target_contents =
        WebContents::Create(create_params);
  
