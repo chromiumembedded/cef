@@ -462,7 +462,6 @@ bool CefContext::Initialize(const CefMainArgs& args,
                       "browser_subprocess_path");
   NormalizePathAndSet(settings_.framework_dir_path, "framework_dir_path");
   NormalizePathAndSet(settings_.main_bundle_path, "main_bundle_path");
-  NormalizePathAndSet(settings_.user_data_path, "user_data_path");
   NormalizePathAndSet(settings_.resources_dir_path, "resources_dir_path");
   NormalizePathAndSet(settings_.locales_dir_path, "locales_dir_path");
 

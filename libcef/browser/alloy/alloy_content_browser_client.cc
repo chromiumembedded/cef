@@ -300,11 +300,11 @@ void BindNetworkHintsHandler(
   predictors::NetworkHintsHandlerImpl::Create(frame_host, std::move(receiver));
 }
 
-base::FilePath GetRootCachePath() {
-  // The CefContext::ValidateCachePath method enforces the requirement that all
-  // cache_path values be either equal to or a child of root_cache_path.
-  return base::FilePath(
-      CefString(&CefContext::Get()->settings().root_cache_path));
+base::FilePath GetUserDataPath() {
+  base::FilePath user_data_path;
+  base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
+  DCHECK(!user_data_path.empty());
+  return user_data_path;
 }
 
 const extensions::Extension* GetEnabledExtensionFromSiteURL(
@@ -1159,19 +1159,7 @@ bool AlloyContentBrowserClient::ConfigureNetworkContextParams(
 // directories that are not returned by this method.
 std::vector<base::FilePath>
 AlloyContentBrowserClient::GetNetworkContextsParentDirectory() {
-  base::FilePath user_data_path;
-  base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
-  DCHECK(!user_data_path.empty());
-
-  const auto& root_cache_path = GetRootCachePath();
-
-  // root_cache_path may sometimes be empty or a child of user_data_path, so
-  // only return the one path in that case.
-  if (root_cache_path.empty() || user_data_path.IsParent(root_cache_path)) {
-    return {user_data_path};
-  }
-
-  return {user_data_path, root_cache_path};
+  return {GetUserDataPath()};
 }
 
 bool AlloyContentBrowserClient::HandleExternalProtocol(
@@ -1282,7 +1270,7 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForServiceWorker(
 
 base::FilePath
 AlloyContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
-  return GetRootCachePath();
+  return GetUserDataPath();
 }
 
 std::string AlloyContentBrowserClient::GetProduct() {

@@ -150,7 +150,6 @@ void CefTestSuite::GetSettings(CefSettings& settings) const {
 
   CefString(&settings.cache_path) = root_cache_path_;
   CefString(&settings.root_cache_path) = root_cache_path_;
-  CefString(&settings.user_data_path) = root_cache_path_;
 
   // Always expose the V8 gc() function to give tests finer-grained control over
   // memory management.

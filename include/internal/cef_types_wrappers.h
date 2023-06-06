@@ -364,7 +364,6 @@ struct CefSettingsTraits {
     cef_string_clear(&s->main_bundle_path);
     cef_string_clear(&s->cache_path);
     cef_string_clear(&s->root_cache_path);
-    cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
     cef_string_clear(&s->user_agent_product);
     cef_string_clear(&s->locale);
@@ -397,8 +396,6 @@ struct CefSettingsTraits {
                    &target->cache_path, copy);
     cef_string_set(src->root_cache_path.str, src->root_cache_path.length,
                    &target->root_cache_path, copy);
-    cef_string_set(src->user_data_path.str, src->user_data_path.length,
-                   &target->user_data_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
     target->persist_user_preferences = src->persist_user_preferences;
 

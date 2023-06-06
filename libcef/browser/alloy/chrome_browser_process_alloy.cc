@@ -16,6 +16,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
+#include "base/path_service.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/permissions/chrome_permissions_client.h"
@@ -24,6 +25,7 @@
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "chrome/browser/ui/prefs/pref_watcher.h"
+#include "chrome/common/chrome_paths.h"
 #include "components/component_updater/component_updater_service.h"
 #include "components/component_updater/timer_update_scheduler.h"
 #include "components/net_log/chrome_net_log.h"
@@ -186,16 +188,15 @@ ProfileManager* ChromeBrowserProcessAlloy::profile_manager() {
 PrefService* ChromeBrowserProcessAlloy::local_state() {
   DCHECK(initialized_);
   if (!local_state_) {
-    // Use a location that is shared by all request contexts.
-    const CefSettings& settings = CefContext::Get()->settings();
-    const base::FilePath& root_cache_path =
-        base::FilePath(CefString(&settings.root_cache_path));
+    base::FilePath user_data_path;
+    base::PathService::Get(chrome::DIR_USER_DATA, &user_data_path);
+    DCHECK(!user_data_path.empty());
 
     // Used for very early NetworkService initialization.
     // Always persist preferences for this PrefService if possible because it
     // contains the cookie encryption key on Windows.
     local_state_ =
-        browser_prefs::CreatePrefService(nullptr /* profile */, root_cache_path,
+        browser_prefs::CreatePrefService(nullptr /* profile */, user_data_path,
                                          true /* persist_user_preferences */);
   }
   return local_state_.get();
