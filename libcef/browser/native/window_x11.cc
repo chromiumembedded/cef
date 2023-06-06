@@ -127,6 +127,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
       /*visual_has_alpha=*/nullptr);
 
   xwindow_ = connection_->GenerateId<x11::Window>();
+
   connection_->CreateWindow({
       .depth = depth,
       .wid = xwindow_,
@@ -140,11 +141,14 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
       .background_pixel = 0,
       .border_pixel = 0,
       .override_redirect = x11::Bool32(false),
-      .event_mask = x11::EventMask::FocusChange |
-                    x11::EventMask::StructureNotify |
-                    x11::EventMask::PropertyChange,
       .colormap = colormap,
   });
+
+  auto event_mask = x11::EventMask::FocusChange |
+                    x11::EventMask::StructureNotify |
+                    x11::EventMask::PropertyChange;
+  xwindow_events_ =
+      std::make_unique<x11::XScopedEventSelector>(xwindow_, event_mask);
 
   connection_->Flush();
 
