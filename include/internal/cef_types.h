@@ -260,24 +260,16 @@ typedef struct _cef_settings_t {
   /// The root directory that all CefSettings.cache_path and
   /// CefRequestContextSettings.cache_path values must have in common. If this
   /// value is empty and CefSettings.cache_path is non-empty then it will
-  /// default to the CefSettings.cache_path value. If this value is non-empty
-  /// then it must be an absolute path. Failure to set this value correctly may
-  /// result in the sandbox blocking read/write access to the cache_path
-  /// directory.
-  ///
-  cef_string_t root_cache_path;
-
-  ///
-  /// The location where user data such as the Widevine CDM module and spell
-  /// checking dictionary files will be stored on disk. If this value is empty
-  /// then the default platform-specific user data directory will be used
+  /// default to the CefSettings.cache_path value. If both values are empty
+  /// then the default platform-specific directory will be used
   /// ("~/.config/cef_user_data" directory on Linux, "~/Library/Application
   /// Support/CEF/User Data" directory on MacOS, "AppData\Local\CEF\User Data"
   /// directory under the user profile directory on Windows). If this value is
-  /// non-empty then it must be an absolute path. When using the Chrome runtime
-  /// this value will be ignored in favor of the |root_cache_path| value.
+  /// non-empty then it must be an absolute path. Failure to set this value
+  /// correctly may result in the sandbox blocking read/write access to certain
+  /// files.
   ///
-  cef_string_t user_data_path;
+  cef_string_t root_cache_path;
 
   ///
   /// To persist session cookies (cookies without an expiry date or validity

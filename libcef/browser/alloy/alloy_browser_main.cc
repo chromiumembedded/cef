@@ -32,6 +32,7 @@
 #include "chrome/browser/ui/color/chrome_color_mixers.h"
 #include "chrome/browser/ui/javascript_dialogs/chrome_javascript_app_modal_dialog_view_factory.h"
 #include "chrome/browser/ui/ui_features.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/constrained_window/constrained_window_views.h"
 #include "content/public/browser/gpu_data_manager.h"
@@ -58,6 +59,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "base/enterprise_util.h"
+#include "base/files/file_util.h"
 #include "chrome/browser/chrome_browser_main_win.h"
 #include "chrome/browser/win/parental_controls.h"
 #endif
@@ -82,7 +84,6 @@
 #include "base/path_service.h"
 #include "chrome/browser/themes/theme_service_aura_linux.h"
 #include "chrome/browser/ui/views/theme_profile_key.h"
-#include "chrome/common/chrome_paths.h"
 #include "chrome/grit/chromium_strings.h"
 #include "components/os_crypt/sync/key_storage_config_linux.h"
 #include "libcef/browser/printing/print_dialog_linux.h"
@@ -241,6 +242,10 @@ void AlloyBrowserMainParts::PostCreateMainMessageLoop() {
   DCHECK(!config->user_data_path.empty());
   OSCrypt::SetConfig(std::move(config));
 #endif  // BUILDFLAG(IS_LINUX)
+
+#if BUILDFLAG(IS_WIN)
+  base::SetExtraNoExecuteAllowedPath(chrome::DIR_USER_DATA);
+#endif
 }
 
 int AlloyBrowserMainParts::PreCreateThreads() {

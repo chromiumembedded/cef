@@ -83,18 +83,12 @@ base::FilePath GetUserDataPath(CefSettings* settings,
                                const base::CommandLine* command_line) {
   // |settings| will be non-nullptr in the main process only.
   if (settings) {
-    // With the Chrome runtime Profile paths must always be relative to the
-    // user data directory, so defaulting to |root_cache_path| first is
-    // appropriate.
-    CefString user_data_path;
-    if (cef::IsChromeRuntimeEnabled() && settings->root_cache_path.length > 0) {
-      user_data_path = CefString(&settings->root_cache_path);
+    CefString root_cache_path;
+    if (settings->root_cache_path.length > 0) {
+      root_cache_path = CefString(&settings->root_cache_path);
     }
-    if (user_data_path.empty() && settings->user_data_path.length > 0) {
-      user_data_path = CefString(&settings->user_data_path);
-    }
-    if (!user_data_path.empty()) {
-      return base::FilePath(user_data_path);
+    if (!root_cache_path.empty()) {
+      return base::FilePath(root_cache_path);
     }
   }
 
