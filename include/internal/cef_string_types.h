@@ -32,7 +32,18 @@
 #pragma once
 
 #include <stddef.h>
+
+#ifdef __clang__
+// On macOS, <uchar.h> is only available with Xcode 14.3+.
+#if __has_include(<uchar.h>)
 #include <uchar.h>
+#else
+#include <stdint.h>
+typedef uint_least16_t char16_t;
+#endif
+#else
+#include <uchar.h>
+#endif
 
 #include "include/internal/cef_export.h"
 
