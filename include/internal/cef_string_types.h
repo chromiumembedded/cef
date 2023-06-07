@@ -37,7 +37,7 @@
 // On macOS, <uchar.h> is only available with Xcode 14.3+.
 #if __has_include(<uchar.h>)
 #include <uchar.h>
-#else
+#elif !defined(__cplusplus)
 #include <stdint.h>
 typedef uint_least16_t char16_t;
 #endif
