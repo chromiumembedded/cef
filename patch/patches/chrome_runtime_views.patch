@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index c1f28ebc372df..275657f54c517 100644
+index 28088dd31e26b..e67e8164ed181 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -395,6 +395,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -406,6 +406,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index c1f28ebc372df..275657f54c517 100644
      return false;
    }
  
-@@ -411,6 +412,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -422,6 +423,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index c1f28ebc372df..275657f54c517 100644
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1102,11 +1110,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1113,11 +1121,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -371,7 +371,7 @@ index 795f057fedc51..54b08509919af 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 39a1660cae03a..0faf50eb14298 100644
+index bd940fc19123c..c31d4c8fb90fb 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -314,11 +314,10 @@ using content::NativeWebKeyboardEvent;
@@ -439,7 +439,7 @@ index 39a1660cae03a..0faf50eb14298 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1087,12 +1103,14 @@ gfx::Size BrowserView::GetWebAppFrameToolbarPreferredSize() const {
+@@ -1082,12 +1098,14 @@ gfx::Size BrowserView::GetWebAppFrameToolbarPreferredSize() const {
  
  #if BUILDFLAG(IS_MAC)
  bool BrowserView::UsesImmersiveFullscreenMode() const {
@@ -456,7 +456,7 @@ index 39a1660cae03a..0faf50eb14298 100644
  }
  
  bool BrowserView::UsesImmersiveFullscreenTabbedMode() const {
-@@ -1817,6 +1835,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
+@@ -1812,6 +1830,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
    if (immersive_mode_controller_->IsEnabled())
      return false;
  
@@ -465,7 +465,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2722,7 +2742,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
+@@ -2711,7 +2731,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -475,7 +475,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton())
      return download_button->bubble_controller();
    return nullptr;
-@@ -3222,7 +3243,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3211,7 +3232,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -485,7 +485,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3776,8 +3798,10 @@ void BrowserView::Layout() {
+@@ -3765,8 +3787,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -498,7 +498,7 @@ index 39a1660cae03a..0faf50eb14298 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -3843,6 +3867,11 @@ void BrowserView::AddedToWidget() {
+@@ -3832,6 +3856,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -510,7 +510,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -3889,13 +3918,9 @@ void BrowserView::AddedToWidget() {
+@@ -3879,13 +3908,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -526,7 +526,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4300,7 +4325,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4290,7 +4315,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -536,7 +536,7 @@ index 39a1660cae03a..0faf50eb14298 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4671,6 +4697,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4661,6 +4687,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -545,7 +545,7 @@ index 39a1660cae03a..0faf50eb14298 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4693,6 +4721,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4683,6 +4711,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -555,10 +555,10 @@ index 39a1660cae03a..0faf50eb14298 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 3e812382f77e6..d821b03bfa510 100644
+index b9bb37f29425c..4b36ea92a74a2 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
-@@ -124,11 +124,16 @@ class BrowserView : public BrowserWindow,
+@@ -123,11 +123,16 @@ class BrowserView : public BrowserWindow,
                      public webapps::AppBannerManager::Observer {
   public:
    METADATA_HEADER(BrowserView);
@@ -575,7 +575,7 @@ index 3e812382f77e6..d821b03bfa510 100644
    void set_frame(BrowserFrame* frame) {
      frame_ = frame;
      paint_as_active_subscription_ =
-@@ -783,6 +788,12 @@ class BrowserView : public BrowserWindow,
+@@ -777,6 +782,12 @@ class BrowserView : public BrowserWindow,
      return web_app_frame_toolbar();
    }
  
