@@ -13,6 +13,7 @@
 
 #include "libcef/browser/views/overlay_view_host.h"
 #include "libcef/browser/views/panel_view.h"
+#include "libcef/browser/views/widget_destruction_observer.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/display/display.h"
@@ -116,19 +117,24 @@ class CefWindowView
   // Optionally modify the bounding box for the Chrome Find bar.
   void UpdateFindBarBoundingBox(gfx::Rect* bounds) const;
 
+  absl::optional<float> GetTitlebarHeight() const;
+  bool IsFrameless() const { return is_frameless_; }
+
+  // The Widget that hosts us, if we're a modal dialog. May return nullptr
+  // during initialization and destruction.
+  views::Widget* host_widget() const;
+
  private:
   // Called when removed from the Widget and before |this| is deleted.
   void DeleteDelegate();
 
   void MoveOverlaysIfNecessary();
 
-  absl::optional<float> GetTitlebarHeight() const;
-
   // Not owned by this object.
   Delegate* window_delegate_;
 
   // True if the window is frameless. It might still be resizable and draggable.
-  bool is_frameless_;
+  bool is_frameless_ = false;
 
   std::u16string title_;
   CefRefPtr<CefImage> window_icon_;
@@ -136,6 +142,9 @@ class CefWindowView
 
   std::unique_ptr<SkRegion> draggable_region_;
   std::vector<gfx::Rect> draggable_rects_;
+
+  // Tracks the Widget that hosts us, if we're a modal dialog.
+  std::unique_ptr<WidgetDestructionObserver> host_widget_destruction_observer_;
 
   // Hosts for overlay widgets.
   std::vector<std::unique_ptr<CefOverlayViewHost>> overlay_hosts_;

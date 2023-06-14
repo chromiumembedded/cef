@@ -53,7 +53,6 @@ class RootWindowViews : public RootWindow,
 
   // ViewsWindow::Delegate methods:
   bool WithControls() override;
-  bool WithExtension() override;
   bool InitiallyHidden() override;
   CefRefPtr<CefWindow> GetParentWindow() override;
   CefRect GetInitialBounds() override;

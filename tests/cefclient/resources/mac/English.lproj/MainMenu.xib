@@ -362,6 +362,12 @@
                                     <action selector="menuTestsWindowPopup:" target="-2" id="8GQ-Ph-2iP"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Dialog Window" id="a52-WG-ltZ">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuTestsWindowDialog:" target="-2" id="8GQ-Ph-2iQ"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Request" id="Ymm-D1-9xh">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

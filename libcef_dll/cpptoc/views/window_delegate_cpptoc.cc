@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c84eb9772fc902904ccbd0cebe2c2105d06a8164$
+// $hash=10ec416d3aeba7215b08604b1a329adc1c9aaf6f$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -192,6 +192,31 @@ window_delegate_get_parent_window(struct _cef_window_delegate_t* self,
 
   // Return type: refptr_diff
   return CefWindowCToCpp::Unwrap(_retval);
+}
+
+int CEF_CALLBACK
+window_delegate_is_window_modal_dialog(struct _cef_window_delegate_t* self,
+                                       cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->IsWindowModalDialog(
+      CefWindowCToCpp::Wrap(window));
+
+  // Return type: bool
+  return _retval;
 }
 
 cef_rect_t CEF_CALLBACK
@@ -781,6 +806,7 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->on_window_bounds_changed =
       window_delegate_on_window_bounds_changed;
   GetStruct()->get_parent_window = window_delegate_get_parent_window;
+  GetStruct()->is_window_modal_dialog = window_delegate_is_window_modal_dialog;
   GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
   GetStruct()->get_initial_show_state = window_delegate_get_initial_show_state;
   GetStruct()->is_frameless = window_delegate_is_frameless;

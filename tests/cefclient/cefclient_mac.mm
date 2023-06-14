@@ -40,6 +40,13 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   return nil;
 }
 
+void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
+  NSMenuItem* item = GetMenuItemWithAction(menu, action_selector);
+  if (item) {
+    [menu removeItem:item];
+  }
+}
+
 }  // namespace
 
 // Receives notifications from the application. Will delete itself when done.
@@ -57,6 +64,7 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsGetSource:(id)sender;
 - (IBAction)menuTestsWindowNew:(id)sender;
 - (IBAction)menuTestsWindowPopup:(id)sender;
+- (IBAction)menuTestsWindowDialog:(id)sender;
 - (IBAction)menuTestsRequest:(id)sender;
 - (IBAction)menuTestsZoomIn:(id)sender;
 - (IBAction)menuTestsZoomOut:(id)sender;
@@ -206,20 +214,18 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   // Set the delegate for application events.
   [application setDelegate:self];
 
-  if (!with_osr_) {
-    // Remove the OSR-related menu items when OSR is disabled.
-    NSMenuItem* tests_menu = GetMenuBarMenuWithTag(8);
-    if (tests_menu) {
-      NSMenuItem* set_fps_item = GetMenuItemWithAction(
-          tests_menu.submenu, @selector(menuTestsSetFPS:));
-      if (set_fps_item) {
-        [tests_menu.submenu removeItem:set_fps_item];
-      }
-      NSMenuItem* set_scale_factor_item = GetMenuItemWithAction(
-          tests_menu.submenu, @selector(menuTestsSetScaleFactor:));
-      if (set_scale_factor_item) {
-        [tests_menu.submenu removeItem:set_scale_factor_item];
-      }
+  auto* main_context = client::MainContext::Get();
+
+  NSMenuItem* tests_menu = GetMenuBarMenuWithTag(8);
+  if (tests_menu) {
+    if (!with_osr_) {
+      // Remove the OSR-related menu items when not using OSR.
+      RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetFPS:));
+      RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetScaleFactor:));
+    }
+    if (!main_context->UseViews()) {
+      // Remove the Views-related menu items when not using Views.
+      RemoveMenuItem(tests_menu.submenu, @selector(menuTestsWindowDialog:));
     }
   }
 
@@ -228,7 +234,7 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
   window_config->with_osr = with_osr_;
 
   // Create the first window.
-  client::MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+  main_context->GetRootWindowManager()->CreateRootWindow(
       std::move(window_config));
 }
 
@@ -260,6 +266,10 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsWindowPopup:(id)sender {
   [self testsItemSelected:ID_TESTS_WINDOW_POPUP];
+}
+
+- (IBAction)menuTestsWindowDialog:(id)sender {
+  [self testsItemSelected:ID_TESTS_WINDOW_DIALOG];
 }
 
 - (IBAction)menuTestsRequest:(id)sender {

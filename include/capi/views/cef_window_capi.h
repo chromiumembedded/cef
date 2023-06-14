@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e09c33a3604cb7a80ef7fdea72c838619e26dc8c$
+// $hash=d53c4a0a7e731a56a0edcb9d705c76b0a2770155$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -50,6 +50,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct _cef_browser_view_t;
 
 ///
 /// A Window is a top-level Window/widget in the Views hierarchy. By default it
@@ -68,6 +70,21 @@ typedef struct _cef_window_t {
   /// Show the Window.
   ///
   void(CEF_CALLBACK* show)(struct _cef_window_t* self);
+
+  ///
+  /// Show the Window as a browser modal dialog relative to |browser_view|. A
+  /// parent Window must be returned via
+  /// cef_window_delegate_t::get_parent_window() and |browser_view| must belong
+  /// to that parent Window. While this Window is visible, |browser_view| will
+  /// be disabled while other controls in the parent Window remain enabled.
+  /// Navigating or destroying the |browser_view| will close this Window
+  /// automatically. Alternately, use show() and return true (1) from
+  /// cef_window_delegate_t::is_window_modal_dialog() for a window modal dialog
+  /// where all controls in the parent Window are disabled.
+  ///
+  void(CEF_CALLBACK* show_as_browser_modal_dialog)(
+      struct _cef_window_t* self,
+      struct _cef_browser_view_t* browser_view);
 
   ///
   /// Hide the Window.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5ea05d2b5c24bfc214a529d62fba2e69ea626b78$
+// $hash=2a7aaed7d4296e29dca74345cf2b2d4db221a738$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -21,7 +21,9 @@
 #endif
 
 #include <vector>
+#include "include/capi/views/cef_browser_view_capi.h"
 #include "include/capi/views/cef_window_capi.h"
+#include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
@@ -35,6 +37,8 @@ class CefWindowCToCpp
 
   // CefWindow methods.
   void Show() override;
+  void ShowAsBrowserModalDialog(
+      CefRefPtr<CefBrowserView> browser_view) override;
   void Hide() override;
   void CenterWindow(const CefSize& size) override;
   void Close() override;

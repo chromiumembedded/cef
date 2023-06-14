@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2f28922e536557bff211610dd38bb7b4c8a64d5a$
+// $hash=23777aea864e9abf38c2e2c5d79a40d6bd22876d$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -64,6 +64,28 @@ void CEF_CALLBACK window_show(struct _cef_window_t* self) {
 
   // Execute
   CefWindowCppToC::Get(self)->Show();
+}
+
+void CEF_CALLBACK
+window_show_as_browser_modal_dialog(struct _cef_window_t* self,
+                                    cef_browser_view_t* browser_view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: browser_view; type: refptr_same
+  DCHECK(browser_view);
+  if (!browser_view) {
+    return;
+  }
+
+  // Execute
+  CefWindowCppToC::Get(self)->ShowAsBrowserModalDialog(
+      CefBrowserViewCppToC::Unwrap(browser_view));
 }
 
 void CEF_CALLBACK window_hide(struct _cef_window_t* self) {
@@ -1970,6 +1992,8 @@ int CEF_CALLBACK window_convert_point_from_view(struct _cef_view_t* self,
 
 CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->show = window_show;
+  GetStruct()->show_as_browser_modal_dialog =
+      window_show_as_browser_modal_dialog;
   GetStruct()->hide = window_hide;
   GetStruct()->center_window = window_center_window;
   GetStruct()->close = window_close;

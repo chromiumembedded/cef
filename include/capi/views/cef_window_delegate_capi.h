@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7201d268e16fc89f255b6ccd00d043f34fe77584$
+// $hash=61099a1ba8b16a5e46f5a80d326d1f9bfc99317d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -109,6 +109,18 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_t* window,
       int* is_menu,
       int* can_activate_menu);
+
+  ///
+  /// Return true (1) if |window| should be created as a window modal dialog.
+  /// Only called when a Window is returned via get_parent_window() with
+  /// |is_menu| set to false (0). All controls in the parent Window will be
+  /// disabled while |window| is visible. This functionality is not supported by
+  /// all Linux window managers. Alternately, use
+  /// cef_window_t::show_as_browser_modal_dialog() for a browser modal dialog
+  /// that works on all platforms.
+  ///
+  int(CEF_CALLBACK* is_window_modal_dialog)(struct _cef_window_delegate_t* self,
+                                            struct _cef_window_t* window);
 
   ///
   /// Return the initial bounds for |window| in density independent pixel (DIP)

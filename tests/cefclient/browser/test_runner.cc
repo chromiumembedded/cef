@@ -13,6 +13,7 @@
 #include "include/cef_parser.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
+#include "include/views/cef_browser_view.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/binding_test.h"
@@ -143,6 +144,20 @@ void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
       "window.open('https://www.google.com');", "about:blank", 0);
+}
+
+void RunDialogWindowTest(CefRefPtr<CefBrowser> browser) {
+  auto browser_view = CefBrowserView::GetForBrowser(browser);
+  if (!browser_view) {
+    LOG(ERROR) << "Dialog windows require Views";
+    return;
+  }
+
+  auto config = std::make_unique<RootWindowConfig>();
+  config->window_type = WindowType::DIALOG;
+  config->parent_window = browser_view->GetWindow();
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+      std::move(config));
 }
 
 void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
@@ -546,6 +561,9 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_WINDOW_POPUP:
       RunPopupWindowTest(browser);
+      break;
+    case ID_TESTS_WINDOW_DIALOG:
+      RunDialogWindowTest(browser);
       break;
     case ID_TESTS_REQUEST:
       RunRequestTest(browser);

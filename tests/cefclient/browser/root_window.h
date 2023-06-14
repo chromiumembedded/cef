@@ -20,9 +20,22 @@
 
 namespace client {
 
+enum class WindowType {
+  NORMAL,
+
+  // The window is hosting an extension app.
+  EXTENSION,
+
+  // The window is a modal dialog.
+  DIALOG,
+};
+
 // Used to configure how a RootWindow is created.
 struct RootWindowConfig {
   RootWindowConfig();
+
+  // Configure the window type.
+  WindowType window_type = WindowType::NORMAL;
 
   // If true the window will always display above other windows.
   bool always_on_top = false;
@@ -32,9 +45,6 @@ struct RootWindowConfig {
 
   // If true the window will use off-screen rendering.
   bool with_osr = false;
-
-  // If true the window is hosting an extension app.
-  bool with_extension = false;
 
   // If true the window will be created initially hidden.
   bool initially_hidden = false;

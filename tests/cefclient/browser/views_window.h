@@ -25,6 +25,7 @@
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
 #include "tests/cefclient/browser/image_cache.h"
+#include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/views_menu_bar.h"
 #include "tests/cefclient/browser/views_overlay_controls.h"
 
@@ -47,9 +48,6 @@ class ViewsWindow : public CefBrowserViewDelegate,
    public:
     // Return true if the window should show controls.
     virtual bool WithControls() = 0;
-
-    // Return true if the window is hosting an extension.
-    virtual bool WithExtension() = 0;
 
     // Return true if the window should be created initially hidden.
     virtual bool InitiallyHidden() = 0;
@@ -102,6 +100,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // Create a new top-level ViewsWindow hosting a browser with the specified
   // configuration.
   static CefRefPtr<ViewsWindow> Create(
+      WindowType type,
       Delegate* delegate,
       CefRefPtr<CefClient> client,
       const CefString& url,
@@ -172,6 +171,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
+  bool IsWindowModalDialog(CefRefPtr<CefWindow> window) override;
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
   cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
@@ -179,12 +179,15 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
                          float* titlebar_height) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
+  bool CanMaximize(CefRefPtr<CefWindow> window) override;
+  bool CanMinimize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
 
   // CefViewDelegate methods:
+  CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
@@ -201,7 +204,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // |delegate| is guaranteed to outlive this object.
   // |browser_view| may be nullptr, in which case SetBrowserView() will be
   // called.
-  ViewsWindow(Delegate* delegate, CefRefPtr<CefBrowserView> browser_view);
+  ViewsWindow(WindowType type,
+              Delegate* delegate,
+              CefRefPtr<CefBrowserView> browser_view);
 
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view);
 
@@ -239,6 +244,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   void NudgeWindow();
 
+  const WindowType type_;
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
@@ -246,6 +252,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool with_overlay_controls_;
   bool with_standard_buttons_;
   ChromeToolbarType chrome_toolbar_type_;
+  bool use_window_modal_dialog_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;

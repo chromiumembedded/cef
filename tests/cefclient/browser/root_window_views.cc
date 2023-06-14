@@ -184,17 +184,12 @@ ClientWindowHandle RootWindowViews::GetWindowHandle() const {
 
 bool RootWindowViews::WithExtension() const {
   DCHECK(initialized_);
-  return config_->with_extension;
+  return config_->window_type == WindowType::EXTENSION;
 }
 
 bool RootWindowViews::WithControls() {
   DCHECK(initialized_);
   return config_->with_controls;
-}
-
-bool RootWindowViews::WithExtension() {
-  DCHECK(initialized_);
-  return config_->with_extension;
 }
 
 void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
@@ -253,6 +248,10 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
 void RootWindowViews::OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(window_);
+
+  if (config_->window_type != WindowType::NORMAL) {
+    return;
+  }
 
   cef_show_state_t show_state;
   std::optional<CefRect> dip_bounds;
@@ -517,7 +516,7 @@ void RootWindowViews::InitOnUIThread(
     // Initial state was specified via the config object.
     initial_bounds_ = config_->bounds;
     initial_show_state_ = config_->show_state;
-  } else {
+  } else if (config_->window_type == WindowType::NORMAL) {
     // Initial state may be specified via the command-line or global
     // preferences.
     std::optional<CefRect> bounds;
@@ -556,8 +555,8 @@ void RootWindowViews::CreateViewsWindow(
 #endif
 
   // Create the ViewsWindow. It will show itself after creation.
-  ViewsWindow::Create(this, client_handler_, config_->url, settings,
-                      request_context);
+  ViewsWindow::Create(config_->window_type, this, client_handler_, config_->url,
+                      settings, request_context);
 }
 
 void RootWindowViews::NotifyViewsWindowDestroyed() {

@@ -801,6 +801,7 @@ source_set("libcef_static") {
     "libcef/browser/views/view_util.cc",
     "libcef/browser/views/view_util.h",
     "libcef/browser/views/view_view.h",
+    "libcef/browser/views/widget_destruction_observer.h",
     "libcef/browser/views/window_impl.cc",
     "libcef/browser/views/window_impl.h",
     "libcef/browser/views/window_view.cc",

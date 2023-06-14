@@ -6,6 +6,7 @@
 
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/browser/views/display_impl.h"
 #include "libcef/browser/views/fill_layout_impl.h"
 #include "libcef/browser/views/layout_util.h"
@@ -13,11 +14,13 @@
 #include "libcef/browser/views/window_view.h"
 
 #include "base/i18n/rtl.h"
+#include "components/constrained_window/constrained_window_views.h"
 #include "ui/base/test/ui_controls.h"
 #include "ui/compositor/compositor.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/views/controls/button/menu_button.h"
 #include "ui/views/controls/menu/menu_runner.h"
+#include "ui/views/controls/webview/webview.h"
 
 #if defined(USE_AURA)
 #include "ui/aura/window.h"
@@ -122,7 +125,35 @@ CefRefPtr<CefWindowImpl> CefWindowImpl::Create(
 void CefWindowImpl::Show() {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (widget_) {
+    shown_as_browser_modal_ = false;
     widget_->Show();
+  }
+}
+
+void CefWindowImpl::ShowAsBrowserModalDialog(
+    CefRefPtr<CefBrowserView> browser_view) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (widget_) {
+    auto* browser_view_impl =
+        static_cast<CefBrowserViewImpl*>(browser_view.get());
+
+    // |browser_view| must belong to the host widget.
+    auto* host_widget = static_cast<CefWindowView*>(root_view())->host_widget();
+    CHECK(host_widget &&
+          browser_view_impl->root_view()->GetWidget() == host_widget);
+
+    if (auto web_view = browser_view_impl->web_view()) {
+      if (auto web_contents = web_view->web_contents()) {
+        shown_as_browser_modal_ = true;
+        constrained_window::ShowModalDialog(widget_->GetNativeWindow(),
+                                            web_contents);
+
+        // NativeWebContentsModalDialogManagerViews::ManageDialog() disables
+        // movement. That has no impact on native frames but interferes with
+        // draggable regions.
+        widget_->set_movement_disabled(false);
+      }
+    }
   }
 }
 
@@ -403,6 +434,11 @@ void CefWindowImpl::SetBackgroundColor(cef_color_t color) {
 }
 
 bool CefWindowImpl::CanWidgetClose() {
+  if (shown_as_browser_modal_) {
+    // Always allow the close for browser modal dialogs to avoid an infinite
+    // loop in WebContentsModalDialogManager::CloseAllDialogs().
+    return true;
+  }
   if (delegate()) {
     return delegate()->CanClose(this);
   }

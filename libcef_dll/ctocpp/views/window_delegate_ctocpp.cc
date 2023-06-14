@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8998830c31f54e6e1199390c42a912033dabd6ad$
+// $hash=12bd03a8fb7d680a4e2b1a6818313c29bf14f011$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -180,6 +180,31 @@ CefRefPtr<CefWindow> CefWindowDelegateCToCpp::GetParentWindow(
 
   // Return type: refptr_diff
   return CefWindowCppToC::Unwrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefWindowDelegateCToCpp::IsWindowModalDialog(CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_window_modal_dialog)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval =
+      _struct->is_window_modal_dialog(_struct, CefWindowCppToC::Wrap(window));
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")
