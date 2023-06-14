@@ -133,7 +133,7 @@ void RootWindowWin::Init(RootWindow::Delegate* delegate,
   with_controls_ = config->with_controls;
   always_on_top_ = config->always_on_top;
   with_osr_ = config->with_osr;
-  with_extension_ = config->with_extension;
+  with_extension_ = config->window_type == WindowType::EXTENSION;
 
   CreateBrowserWindow(config->url);
 

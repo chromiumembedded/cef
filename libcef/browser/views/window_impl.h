@@ -40,6 +40,8 @@ class CefWindowImpl
 
   // CefWindow methods:
   void Show() override;
+  void ShowAsBrowserModalDialog(
+      CefRefPtr<CefBrowserView> browser_view) override;
   void Hide() override;
   void CenterWindow(const CefSize& size) override;
   void Close() override;
@@ -161,6 +163,9 @@ class CefWindowImpl
   // Native widget's handler to receive events after the event target.
   std::unique_ptr<ui::EventHandler> unhandled_key_event_handler_;
 #endif
+
+  // True if this window was shown using ShowAsBrowserModalDialog().
+  bool shown_as_browser_modal_ = false;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefWindowImpl);
 };

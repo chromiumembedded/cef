@@ -15,16 +15,16 @@ namespace view_util {
 
 gfx::NativeWindow GetNativeWindow(views::Widget* widget) {
   if (widget) {
-    aura::Window* window = widget->GetNativeWindow();
-    if (window) {
-      return window->GetRootWindow();
-    }
+    return widget->GetNativeWindow();
   }
   return nullptr;
 }
 
 gfx::NativeView GetNativeView(views::Widget* widget) {
-  return GetNativeWindow(widget);
+  if (widget) {
+    return widget->GetNativeView();
+  }
+  return nullptr;
 }
 
 CefWindowHandle GetWindowHandle(views::Widget* widget) {

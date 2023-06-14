@@ -48,6 +48,7 @@ extern const char kUseDefaultPopup[];
 extern const char kUseClientDialogs[];
 extern const char kUseTestHttpServer[];
 extern const char kShowWindowButtons[];
+extern const char kUseWindowModalDialog[];
 
 }  // namespace switches
 }  // namespace client

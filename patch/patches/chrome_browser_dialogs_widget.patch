@@ -77,10 +77,10 @@ index dc648ad1ae595..70698ed848990 100644
      DCHECK_EQ(parent_view, host->GetHostView());
      ModalDialogHostObserver* dialog_host_observer =
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-index 647391095306e..02aea9b01f59b 100644
+index 647391095306e..bd49316ac758e 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 +++ components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-@@ -184,9 +184,12 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
+@@ -184,9 +184,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
    if (host_) {
      host_->AddObserver(this);
  
@@ -90,8 +90,16 @@ index 647391095306e..02aea9b01f59b 100644
 +    // |host_view| will be nullptr with CEF windowless rendering.
 +    if (auto host_view = host_->GetHostView()) {
 +      for (auto* widget : observed_widgets_) {
-+        views::Widget::ReparentNativeView(widget->GetNativeView(),
-+                                          host_view);
++#if defined(USE_AURA)
++        auto widget_view = widget->GetNativeView();
++        // Don't reparent between different root windows. Doing so causes
++        // issues with layout of dialogs containing Chrome browsers.
++        if (host_view->GetRootWindow() == widget_view->GetRootWindow()) {
++          views::Widget::ReparentNativeView(widget_view, host_view);
++        }
++#else
++        views::Widget::ReparentNativeView(widget->GetNativeView(), host_view);
++#endif
 +      }
      }
  

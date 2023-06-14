@@ -45,6 +45,8 @@
 #include "include/views/cef_panel.h"
 #include "include/views/cef_window_delegate.h"
 
+class CefBrowserView;
+
 ///
 /// A Window is a top-level Window/widget in the Views hierarchy. By default it
 /// will have a non-client area with title bar, icon and buttons that supports
@@ -67,6 +69,20 @@ class CefWindow : public CefPanel {
   ///
   /*--cef()--*/
   virtual void Show() = 0;
+
+  ///
+  /// Show the Window as a browser modal dialog relative to |browser_view|. A
+  /// parent Window must be returned via CefWindowDelegate::GetParentWindow()
+  /// and |browser_view| must belong to that parent Window. While this Window is
+  /// visible, |browser_view| will be disabled while other controls in the
+  /// parent Window remain enabled. Navigating or destroying the |browser_view|
+  /// will close this Window automatically. Alternately, use Show() and return
+  /// true from CefWindowDelegate::IsWindowModalDialog() for a window modal
+  /// dialog where all controls in the parent Window are disabled.
+  ///
+  /*--cef()--*/
+  virtual void ShowAsBrowserModalDialog(
+      CefRefPtr<CefBrowserView> browser_view) = 0;
 
   ///
   /// Hide the Window.

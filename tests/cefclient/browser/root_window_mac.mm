@@ -279,7 +279,7 @@ void RootWindowMacImpl::Init(RootWindow::Delegate* delegate,
 
   with_controls_ = config->with_controls;
   with_osr_ = config->with_osr;
-  with_extension_ = config->with_extension;
+  with_extension_ = config->window_type == WindowType::EXTENSION;
 
   if (!config->bounds.IsEmpty()) {
     // Initial state was specified via the config object.

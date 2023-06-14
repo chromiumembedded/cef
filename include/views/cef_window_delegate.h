@@ -100,6 +100,19 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
+  /// Return true if |window| should be created as a window modal dialog. Only
+  /// called when a Window is returned via GetParentWindow() with |is_menu| set
+  /// to false. All controls in the parent Window will be disabled while
+  /// |window| is visible. This functionality is not supported by all Linux
+  /// window managers. Alternately, use CefWindow::ShowAsBrowserModalDialog()
+  /// for a browser modal dialog that works on all platforms.
+  ///
+  /*--cef()--*/
+  virtual bool IsWindowModalDialog(CefRefPtr<CefWindow> window) {
+    return false;
+  }
+
+  ///
   /// Return the initial bounds for |window| in density independent pixel (DIP)
   /// coordinates. If this method returns an empty CefRect then
   /// GetPreferredSize() will be called to retrieve the size, and the window

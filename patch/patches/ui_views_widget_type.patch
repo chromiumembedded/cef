@@ -1,0 +1,27 @@
+diff --git chrome/browser/ui/views/chrome_views_delegate_linux.cc chrome/browser/ui/views/chrome_views_delegate_linux.cc
+index ecc07a2a60505..918116c0efeef 100644
+--- chrome/browser/ui/views/chrome_views_delegate_linux.cc
++++ chrome/browser/ui/views/chrome_views_delegate_linux.cc
+@@ -51,7 +51,7 @@ NativeWidgetType GetNativeWidgetTypeForInitParams(
+   if (params.requires_accelerated_widget)
+     return NativeWidgetType::DESKTOP_NATIVE_WIDGET_AURA;
+ 
+-  return (params.parent &&
++  return (params.parent && params.child &&
+           params.type != views::Widget::InitParams::TYPE_MENU &&
+           params.type != views::Widget::InitParams::TYPE_TOOLTIP)
+              ? NativeWidgetType::NATIVE_WIDGET_AURA
+diff --git ui/views/test/desktop_test_views_delegate_aura.cc ui/views/test/desktop_test_views_delegate_aura.cc
+index 110eab7eec92a..2bfc96b6c439d 100644
+--- ui/views/test/desktop_test_views_delegate_aura.cc
++++ ui/views/test/desktop_test_views_delegate_aura.cc
+@@ -27,7 +27,8 @@ void DesktopTestViewsDelegate::OnBeforeWidgetInit(
+   if (params->native_widget)
+     return;
+ 
+-  if (params->parent && params->type != views::Widget::InitParams::TYPE_MENU &&
++  if (params->parent && params->child &&
++      params->type != views::Widget::InitParams::TYPE_MENU &&
+       params->type != views::Widget::InitParams::TYPE_TOOLTIP) {
+     params->native_widget = new views::NativeWidgetAura(delegate);
+   } else {

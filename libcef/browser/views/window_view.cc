@@ -11,6 +11,7 @@
 #include "libcef/features/runtime.h"
 
 #include "ui/base/hit_test.h"
+#include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 
@@ -18,12 +19,20 @@
 #include "ui/ozone/buildflags.h"
 #if BUILDFLAG(OZONE_PLATFORM_X11)
 #include "ui/base/x/x11_util.h"
+#include "ui/gfx/x/x11_atom_cache.h"
+#include "ui/gfx/x/xproto_util.h"
+#include "ui/linux/linux_ui_delegate.h"
 #endif
+#endif
+
+#if BUILDFLAG(IS_OZONE)
+#include "ui/ozone/public/ozone_platform.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
 #include <dwmapi.h>
 #include "base/win/windows_version.h"
+#include "ui/display/win/screen_win.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
 
@@ -68,17 +77,47 @@ class NativeFrameViewEx : public views::NativeFrameView {
 
   gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds) const override {
-#if BUILDFLAG(IS_WIN)
-    // views::GetWindowBoundsForClientBounds() expects the input Rect to be in
-    // pixel coordinates. NativeFrameView does not implement this correctly so
-    // we need to provide our own implementation. See http://crbug.com/602692.
-    gfx::Rect pixel_bounds =
-        display::Screen::GetScreen()->DIPToScreenRectInWindow(
-            view_util::GetNativeWindow(widget_), client_bounds);
-    pixel_bounds = views::GetWindowBoundsForClientBounds(
-        static_cast<View*>(const_cast<NativeFrameViewEx*>(this)), pixel_bounds);
-    return display::Screen::GetScreen()->ScreenToDIPRectInWindow(
-        view_util::GetNativeWindow(widget_), pixel_bounds);
+#if BUILDFLAG(IS_MAC)
+    // From NativeFrameView::GetWindowBoundsForClientBounds:
+    gfx::Rect window_bounds = client_bounds;
+    // Enforce minimum size (1, 1) in case that |client_bounds| is passed with
+    // empty size.
+    if (window_bounds.IsEmpty()) {
+      window_bounds.set_size(gfx::Size(1, 1));
+    }
+
+    if (!view_->IsFrameless()) {
+      if (auto titlebar_height = view_->GetTitlebarHeight()) {
+        window_bounds.Inset(gfx::Insets::TLBR(-(*titlebar_height), 0, 0, 0));
+      }
+    }
+
+    return window_bounds;
+#elif BUILDFLAG(IS_WIN)
+    HWND window = views::HWNDForWidget(widget_);
+    CHECK(window);
+
+    const DWORD style = GetWindowLong(window, GWL_STYLE);
+    const DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
+    const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
+
+    // Convert from DIP to pixel coordinates using a method that can handle
+    // multiple displays with different DPI.
+    const auto screen_rect =
+        display::win::ScreenWin::DIPToScreenRect(window, client_bounds);
+
+    RECT rect = {screen_rect.x(), screen_rect.y(),
+                 screen_rect.x() + screen_rect.width(),
+                 screen_rect.y() + screen_rect.height()};
+    AdjustWindowRectEx(&rect, style, has_menu, ex_style);
+
+    // Keep the original origin while potentially increasing the size to include
+    // the frame non-client area.
+    gfx::Rect pixel_rect(screen_rect.x(), screen_rect.y(),
+                         rect.right - rect.left, rect.bottom - rect.top);
+
+    // Convert back to DIP.
+    return display::win::ScreenWin::ScreenToDIPRect(window, pixel_rect);
 #else
     // Use the default implementation.
     return views::NativeFrameView::GetWindowBoundsForClientBounds(
@@ -273,13 +312,62 @@ bool IsWindowBorderHit(int code) {
 #endif
 }
 
+// Based on UpdateModalDialogPosition() from
+// components/constrained_window/constrained_window_views.cc
+void UpdateModalDialogPosition(views::Widget* widget,
+                               views::Widget* host_widget) {
+  // Do not forcibly update the dialog widget position if it is being dragged.
+  if (widget->HasCapture()) {
+    return;
+  }
+
+  const gfx::Size& size = widget->GetRootView()->GetPreferredSize();
+  const gfx::Size& host_size =
+      host_widget->GetClientAreaBoundsInScreen().size();
+
+  // Center the dialog. Position is relative to the host.
+  gfx::Point position;
+  position.set_x((host_size.width() - size.width()) / 2);
+  position.set_y((host_size.height() - size.height()) / 2);
+
+  // Align the first row of pixels inside the border. This is the apparent top
+  // of the dialog.
+  position.set_y(position.y() -
+                 widget->non_client_view()->frame_view()->GetInsets().top());
+
+  const bool supports_global_screen_coordinates =
+#if !BUILDFLAG(IS_OZONE)
+      true;
+#else
+      ui::OzonePlatform::GetInstance()
+          ->GetPlatformProperties()
+          .supports_global_screen_coordinates;
+#endif
+
+  if (widget->is_top_level() && supports_global_screen_coordinates) {
+    position += host_widget->GetClientAreaBoundsInScreen().OffsetFromOrigin();
+    // If the dialog extends partially off any display, clamp its position to
+    // be fully visible within that display. If the dialog doesn't intersect
+    // with any display clamp its position to be fully on the nearest display.
+    gfx::Rect display_rect = gfx::Rect(position, size);
+    const display::Display display =
+        display::Screen::GetScreen()->GetDisplayNearestView(
+            view_util::GetNativeView(host_widget));
+    const gfx::Rect work_area = display.work_area();
+    if (!work_area.Contains(display_rect)) {
+      display_rect.AdjustToFit(work_area);
+    }
+    position = display_rect.origin();
+  }
+
+  widget->SetBounds(gfx::Rect(position, size));
+}
+
 }  // namespace
 
 CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
                              Delegate* window_delegate)
-    : ParentClass(cef_delegate),
-      window_delegate_(window_delegate),
-      is_frameless_(false) {
+    : ParentClass(cef_delegate), window_delegate_(window_delegate) {
   DCHECK(window_delegate_);
 }
 
@@ -293,6 +381,8 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
   views::Widget::InitParams params;
   params.delegate = this;
+
+  views::Widget* host_widget = nullptr;
 
   bool can_activate = true;
   bool can_resize = true;
@@ -363,6 +453,12 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
         CefWindowImpl* parent_window_impl =
             static_cast<CefWindowImpl*>(parent_window.get());
         params.parent = view_util::GetNativeView(parent_window_impl->widget());
+
+        // Aura uses the same types for NativeView and NativeWindow, which can
+        // be confusing. Verify that we set |params.parent| correctly (to the
+        // expected internal::NativeWidgetPrivate) for Widget::Init usage.
+        DCHECK(views::Widget::GetWidgetForNativeView(params.parent));
+
         if (is_menu) {
           // Don't clip the window to parent bounds.
           params.type = views::Widget::InitParams::TYPE_MENU;
@@ -371,6 +467,24 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
           params.z_order = ui::ZOrderLevel::kNormal;
 
           can_activate = can_activate_menu;
+        } else {
+          // Create a top-level window that is moveable and can exceed the
+          // bounds of the parent window. By not setting |params.child| here we
+          // cause OnBeforeWidgetInit to create a views::DesktopNativeWidgetAura
+          // instead of a views::NativeWidgetAura. We need to use this desktop
+          // variant with browser windows to get proper focus and shutdown
+          // behavior.
+
+#if !BUILDFLAG(IS_LINUX)
+          // SetModalType doesn't work on Linux (no implementation in
+          // DesktopWindowTreeHostLinux::InitModalType). See the X11-specific
+          // implementation below that may work with some window managers.
+          if (cef_delegate()->IsWindowModalDialog(cef_window)) {
+            SetModalType(ui::MODAL_TYPE_WINDOW);
+          }
+#endif
+
+          host_widget = parent_window_impl->widget();
         }
       }
     }
@@ -415,13 +529,53 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
 #if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(OZONE_PLATFORM_X11)
+  auto x11window = static_cast<x11::Window>(view_util::GetWindowHandle(widget));
+  CHECK(x11window);
+
   if (is_frameless_) {
-    auto window = view_util::GetWindowHandle(widget);
-    DCHECK(window);
-    ui::SetUseOSWindowFrame(static_cast<x11::Window>(window), false);
+    ui::SetUseOSWindowFrame(x11window, false);
+  }
+
+  if (host_widget) {
+    auto parent = static_cast<gfx::AcceleratedWidget>(
+        view_util::GetWindowHandle(host_widget));
+    CHECK(parent);
+
+    if (cef_delegate() && cef_delegate()->IsWindowModalDialog(GetCefWindow())) {
+      // The presence of _NET_WM_STATE_MODAL in _NET_SUPPORTED indicates
+      // possible window manager support. However, some window managers still
+      // don't support this properly.
+      x11::Atom modal_atom = x11::GetAtom("_NET_WM_STATE_MODAL");
+      if (ui::WmSupportsHint(modal_atom)) {
+        ui::SetWMSpecState(x11window, true, modal_atom, x11::Atom::None);
+      } else {
+        LOG(ERROR)
+            << "Window modal dialogs are not supported by the window manager";
+      }
+    }
+
+    // From GtkUiPlatformX11::SetGtkWidgetTransientFor:
+    x11::SetProperty(x11window, x11::Atom::WM_TRANSIENT_FOR, x11::Atom::WINDOW,
+                     parent);
+    x11::SetProperty(x11window, x11::GetAtom("_NET_WM_WINDOW_TYPE"),
+                     x11::Atom::ATOM,
+                     x11::GetAtom("_NET_WM_WINDOW_TYPE_DIALOG"));
+
+    ui::LinuxUiDelegate::GetInstance()->SetTransientWindowForParent(
+        parent, static_cast<gfx::AcceleratedWidget>(x11window));
   }
 #endif
 #endif
+
+  if (host_widget) {
+    // Position |widget| relative to |host_widget|.
+    UpdateModalDialogPosition(widget, host_widget);
+
+    // Track the lifespan of |host_widget|, which may be destroyed before
+    // |widget|.
+    host_widget_destruction_observer_ =
+        std::make_unique<WidgetDestructionObserver>(host_widget);
+  }
 }
 
 CefRefPtr<CefWindow> CefWindowView::GetCefWindow() const {
@@ -477,6 +631,20 @@ ui::ImageModel CefWindowView::GetWindowAppIcon() {
 }
 
 void CefWindowView::WindowClosing() {
+#if BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(OZONE_PLATFORM_X11)
+  if (host_widget()) {
+    auto parent = static_cast<gfx::AcceleratedWidget>(
+        view_util::GetWindowHandle(host_widget()));
+    CHECK(parent);
+
+    // From GtkUiPlatformX11::ClearTransientFor:
+    ui::LinuxUiDelegate::GetInstance()->SetTransientWindowForParent(
+        parent, static_cast<gfx::AcceleratedWidget>(x11::Window::None));
+  }
+#endif
+#endif
+
   window_delegate_->OnWindowClosing();
 }
 
@@ -722,6 +890,13 @@ void CefWindowView::UpdateFindBarBoundingBox(gfx::Rect* bounds) const {
       bounds->Inset(inset);
     }
   }
+}
+
+views::Widget* CefWindowView::host_widget() const {
+  if (host_widget_destruction_observer_) {
+    return host_widget_destruction_observer_->widget();
+  }
+  return nullptr;
 }
 
 absl::optional<float> CefWindowView::GetTitlebarHeight() const {

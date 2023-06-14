@@ -183,9 +183,9 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsExtension(
   // We'll show the window when the desired size becomes available via
   // ClientHandler::OnAutoResize.
   auto config = std::make_unique<RootWindowConfig>();
+  config->window_type = WindowType::EXTENSION;
   config->with_controls = with_controls;
   config->with_osr = with_osr;
-  config->with_extension = true;
   config->initially_hidden = true;
   config->source_bounds = source_bounds;
   config->parent_window = parent_window;

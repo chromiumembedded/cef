@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=29399b84620b09e086f65f712b50573d7fcd1be8$
+// $hash=b6b0a2a563b475163aa71b20af6ec2ac8c1f0cae$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -63,6 +63,29 @@ NO_SANITIZE("cfi-icall") void CefWindowCToCpp::Show() {
 
   // Execute
   _struct->show(_struct);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowCToCpp::ShowAsBrowserModalDialog(
+    CefRefPtr<CefBrowserView> browser_view) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, show_as_browser_modal_dialog)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser_view; type: refptr_same
+  DCHECK(browser_view.get());
+  if (!browser_view.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->show_as_browser_modal_dialog(
+      _struct, CefBrowserViewCToCpp::Unwrap(browser_view));
 }
 
 NO_SANITIZE("cfi-icall") void CefWindowCToCpp::Hide() {

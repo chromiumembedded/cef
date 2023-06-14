@@ -90,6 +90,7 @@ void AddTestMenuItems(CefRefPtr<CefMenuModel> test_menu) {
   test_menu->AddItem(ID_TESTS_GETTEXT, "Get Text");
   test_menu->AddItem(ID_TESTS_WINDOW_NEW, "New Window");
   test_menu->AddItem(ID_TESTS_WINDOW_POPUP, "Popup Window");
+  test_menu->AddItem(ID_TESTS_WINDOW_DIALOG, "Dialog Window");
   test_menu->AddItem(ID_TESTS_REQUEST, "Request");
   test_menu->AddItem(ID_TESTS_ZOOM_IN, "Zoom In");
   test_menu->AddItem(ID_TESTS_ZOOM_OUT, "Zoom Out");
@@ -131,6 +132,7 @@ CefBrowserViewDelegate::ChromeToolbarType CalculateChromeToolbarType(
 
 // static
 CefRefPtr<ViewsWindow> ViewsWindow::Create(
+    WindowType type,
     Delegate* delegate,
     CefRefPtr<CefClient> client,
     const CefString& url,
@@ -140,7 +142,8 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
   DCHECK(delegate);
 
   // Create a new ViewsWindow.
-  CefRefPtr<ViewsWindow> views_window = new ViewsWindow(delegate, nullptr);
+  CefRefPtr<ViewsWindow> views_window =
+      new ViewsWindow(type, delegate, nullptr);
 
   // Create a new BrowserView.
   CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
@@ -158,7 +161,26 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
 void ViewsWindow::Show() {
   CEF_REQUIRE_UI_THREAD();
   if (window_) {
-    window_->Show();
+    if (type_ == WindowType::DIALOG) {
+      if (use_window_modal_dialog_) {
+        // Show as a window modal dialog (IsWindowModalDialog() will return
+        // true).
+        window_->Show();
+      } else {
+        CefRefPtr<CefBrowserView> browser_view;
+        if (auto parent_window = delegate_->GetParentWindow()) {
+          if (auto view = parent_window->GetViewForID(ID_BROWSER_VIEW)) {
+            browser_view = view->AsBrowserView();
+          }
+        }
+        CHECK(browser_view);
+
+        // Show as a browser modal dialog (relative to |browser_view|).
+        window_->ShowAsBrowserModalDialog(browser_view);
+      }
+    } else {
+      window_->Show();
+    }
   }
   if (browser_view_ && !window_->IsMinimized()) {
     // Give keyboard focus to the BrowserView.
@@ -430,7 +452,7 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   DCHECK(popup_delegate != delegate_);
 
   // Create a new ViewsWindow for the popup BrowserView.
-  return new ViewsWindow(popup_delegate, nullptr);
+  return new ViewsWindow(WindowType::NORMAL, popup_delegate, nullptr);
 }
 
 bool ViewsWindow::OnPopupBrowserViewCreated(
@@ -591,18 +613,18 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
   window_ = window;
   window_->SetID(ID_WINDOW);
 
-  with_controls_ = delegate_->WithControls();
-
   delegate_->OnViewsWindowCreated(this);
 
-  const CefRect bounds = delegate_->GetInitialBounds();
-  if (bounds.IsEmpty()) {
-    // Size the Window and center it at the default size.
-    window_->CenterWindow(CefSize(kDefaultWidth, kDefaultHeight));
-  } else {
-    // Remember the bounds from the previous application run in case the user
-    // does not move or resize the window during this application run.
-    last_visible_bounds_ = bounds;
+  if (type_ == WindowType::NORMAL) {
+    const CefRect bounds = delegate_->GetInitialBounds();
+    if (bounds.IsEmpty()) {
+      // Size the Window and center it at the default size.
+      window_->CenterWindow(CefSize(kDefaultWidth, kDefaultHeight));
+    } else {
+      // Remember the bounds from the previous application run in case the user
+      // does not move or resize the window during this application run.
+      last_visible_bounds_ = bounds;
+    }
   }
 
   // Set the background color for regions that are not obscured by other Views.
@@ -628,7 +650,7 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Add the BrowserView as the only child of the Window.
     window_->AddChildView(browser_view_);
 
-    if (!delegate_->WithExtension()) {
+    if (type_ != WindowType::EXTENSION) {
       // Choose a reasonable minimum window size.
       minimum_window_size_ = CefSize(100, 100);
     }
@@ -675,8 +697,8 @@ void ViewsWindow::OnWindowActivationChanged(CefRefPtr<CefWindow> window,
 
 void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
                                         const CefRect& new_bounds) {
-  if (!window->IsMinimized() && !window->IsMaximized() &&
-      !window->IsFullscreen()) {
+  if (type_ == WindowType::NORMAL && !window->IsMinimized() &&
+      !window->IsMaximized() && !window->IsFullscreen()) {
     // Track the last visible bounds for window restore purposes.
     last_visible_bounds_ = new_bounds;
   }
@@ -707,13 +729,19 @@ CefRefPtr<CefWindow> ViewsWindow::GetParentWindow(CefRefPtr<CefWindow> window,
   CEF_REQUIRE_UI_THREAD();
   CefRefPtr<CefWindow> parent_window = delegate_->GetParentWindow();
   if (parent_window) {
-    // Should be an extension window, in which case we want it to behave as a
-    // menu and allow activation.
-    DCHECK(delegate_->WithExtension());
-    *is_menu = true;
-    *can_activate_menu = true;
+    // Extension windows behave as a menu and allow activation.
+    if (type_ == WindowType::EXTENSION) {
+      *is_menu = true;
+      *can_activate_menu = true;
+    }
   }
   return parent_window;
+}
+
+bool ViewsWindow::IsWindowModalDialog(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  DCHECK(delegate_->GetParentWindow());
+  return use_window_modal_dialog_;
 }
 
 CefRect ViewsWindow::GetInitialBounds(CefRefPtr<CefWindow> window) {
@@ -756,8 +784,20 @@ bool ViewsWindow::GetTitlebarHeight(CefRefPtr<CefWindow> window,
 
 bool ViewsWindow::CanResize(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  // Don't allow windows hosting extensions to resize.
-  return !delegate_->WithExtension();
+  // Only allow resize of normal windows.
+  return type_ == WindowType::NORMAL;
+}
+
+bool ViewsWindow::CanMaximize(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  // Only allow maximize of normal windows.
+  return type_ == WindowType::NORMAL;
+}
+
+bool ViewsWindow::CanMinimize(CefRefPtr<CefWindow> window) {
+  CEF_REQUIRE_UI_THREAD();
+  // Only allow minimize of normal windows.
+  return type_ == WindowType::NORMAL;
 }
 
 bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
@@ -779,7 +819,7 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return false;
   }
 
-  if (delegate_->WithExtension() && event.type == KEYEVENT_RAWKEYDOWN &&
+  if (type_ == WindowType::EXTENSION && event.type == KEYEVENT_RAWKEYDOWN &&
       event.windows_key_code == VK_ESCAPE) {
     // Close the extension window on escape.
     Close(false);
@@ -811,6 +851,18 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
   }
 
   return false;
+}
+
+CefSize ViewsWindow::GetPreferredSize(CefRefPtr<CefView> view) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (view->GetID() == ID_WINDOW && type_ == WindowType::DIALOG) {
+    // Preferred size for a browser modal dialog. The dialog will be shrunk to
+    // fit inside the parent browser view if necessary.
+    return CefSize(kDefaultWidth, kDefaultHeight);
+  }
+
+  return CefSize();
 }
 
 CefSize ViewsWindow::GetMinimumSize(CefRefPtr<CefView> view) {
@@ -850,7 +902,7 @@ void ViewsWindow::OnBlur(CefRefPtr<CefView> view) {
   CEF_REQUIRE_UI_THREAD();
 
   const int view_id = view->GetID();
-  if (view_id == ID_BROWSER_VIEW && delegate_->WithExtension()) {
+  if (view_id == ID_BROWSER_VIEW && type_ == WindowType::EXTENSION) {
     // Close windows hosting extensions when the browser loses focus.
     Close(false);
   }
@@ -904,10 +956,11 @@ void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
   ExecuteCommand(menu_model, command_id, event_flags);
 }
 
-ViewsWindow::ViewsWindow(Delegate* delegate,
+ViewsWindow::ViewsWindow(WindowType type,
+                         Delegate* delegate,
                          CefRefPtr<CefBrowserView> browser_view)
-    : delegate_(delegate),
-      with_controls_(false),
+    : type_(type),
+      delegate_(delegate),
       menu_has_focus_(false),
       last_focused_view_(false) {
   DCHECK(delegate_);
@@ -918,19 +971,22 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
+  const bool is_normal_type = type_ == WindowType::NORMAL;
+
+  with_controls_ = is_normal_type && delegate_->WithControls();
+
   const bool hide_frame = command_line->HasSwitch(switches::kHideFrame);
-  const bool hide_overlays = command_line->HasSwitch(switches::kHideOverlays);
-  const bool hide_toolbar =
-      hide_frame && hide_overlays && !delegate_->WithControls();
+  const bool hide_overlays =
+      !is_normal_type || command_line->HasSwitch(switches::kHideOverlays);
+  const bool hide_toolbar = hide_overlays && !with_controls_;
   const bool show_window_buttons =
       command_line->HasSwitch(switches::kShowWindowButtons);
 
   // Without a window frame.
-  frameless_ = hide_frame || delegate_->WithExtension();
+  frameless_ = hide_frame || type_ == WindowType::EXTENSION;
 
   // With an overlay that mimics window controls.
-  with_overlay_controls_ =
-      hide_frame && !hide_overlays && !delegate_->WithControls();
+  with_overlay_controls_ = hide_frame && !hide_overlays && !with_controls_;
 
   // If window has frame or flag passed explicitly
   with_standard_buttons_ = !frameless_ || show_window_buttons;
@@ -954,6 +1010,9 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
     top_menu_bar_ = new ViewsMenuBar(this, ID_TOP_MENU_FIRST);
   }
 #endif
+
+  use_window_modal_dialog_ =
+      command_line->HasSwitch(switches::kUseWindowModalDialog);
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {
@@ -1084,8 +1143,9 @@ void ViewsWindow::AddControls() {
         top_panel->SetToBoxLayout(top_panel_layout_settings);
 
     // Add the buttons and URL textfield to |top_panel|.
-    for (auto& browse_button : browse_buttons)
+    for (auto& browse_button : browse_buttons) {
       top_panel->AddChildView(browse_button);
+    }
     top_panel->AddChildView(location_bar_);
 
     UpdateExtensionControls();

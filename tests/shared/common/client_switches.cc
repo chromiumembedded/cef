@@ -54,6 +54,7 @@ const char kUseDefaultPopup[] = "use-default-popup";
 const char kUseClientDialogs[] = "use-client-dialogs";
 const char kUseTestHttpServer[] = "use-test-http-server";
 const char kShowWindowButtons[] = "show-window-buttons";
+const char kUseWindowModalDialog[] = "use-window-modal-dialog";
 
 }  // namespace switches
 }  // namespace client
