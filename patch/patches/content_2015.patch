@@ -34,7 +34,7 @@ index 4438dea521489..987aa9714bd1c 100644
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 1c459729c7c90..173c162c9923b 100644
+index 139a3b1cbe854..cb26c1afd379a 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -990,7 +990,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -55,7 +55,7 @@ index 1c459729c7c90..173c162c9923b 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 44fbcd7d2dde2..3b7a441c3f596 100644
+index 42805faf7e6cf..57c4e444ec126 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -37,6 +37,7 @@
@@ -66,7 +66,7 @@ index 44fbcd7d2dde2..3b7a441c3f596 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1820,7 +1821,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1817,7 +1818,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -75,7 +75,7 @@ index 44fbcd7d2dde2..3b7a441c3f596 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2028,6 +2029,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2025,6 +2026,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -95,7 +95,7 @@ index 44fbcd7d2dde2..3b7a441c3f596 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2084,6 +2098,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2081,6 +2095,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

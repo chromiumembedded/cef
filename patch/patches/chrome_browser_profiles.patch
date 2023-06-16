@@ -99,7 +99,7 @@ index a3ee1846fcf77..13edaf1203d69 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 80acbb1473fc7..9db21208f8e81 100644
+index 92dec1c25477c..0723bdb6bc6ad 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -389,7 +389,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)

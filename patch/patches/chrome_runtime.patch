@@ -235,7 +235,7 @@ index 789d147f0b305..64a33cce013c5 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index dc9912b1dda9d..de1cb5e4eb93c 100644
+index fbe839fd4259d..fcca09183776d 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -41,6 +41,7 @@
@@ -297,7 +297,7 @@ index dc9912b1dda9d..de1cb5e4eb93c 100644
  }
  
  std::vector<base::FilePath>
-@@ -7261,10 +7273,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7274,10 +7286,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -310,7 +310,7 @@ index dc9912b1dda9d..de1cb5e4eb93c 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7283,7 +7295,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7296,7 +7308,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -320,7 +320,7 @@ index dc9912b1dda9d..de1cb5e4eb93c 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7419,7 +7432,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7432,7 +7445,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -330,7 +330,7 @@ index dc9912b1dda9d..de1cb5e4eb93c 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 902dcaf5df1ca..d8e698886df54 100644
+index 24b19245f3704..6ace7bc34a53e 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -135,6 +135,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -351,7 +351,7 @@ index 902dcaf5df1ca..d8e698886df54 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1010,7 +1012,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1013,7 +1015,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
