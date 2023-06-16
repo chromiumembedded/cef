@@ -22,7 +22,8 @@
 #endif
 
 #if BUILDFLAG(IS_WIN)
-#include "ui/display/screen.h"
+#include <dwmapi.h>
+#include "base/win/windows_version.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
 
@@ -98,6 +99,25 @@ class NativeFrameViewEx : public views::NativeFrameView {
 
     return views::NativeFrameView::NonClientHitTest(point);
   }
+
+#if BUILDFLAG(IS_WIN)
+  void OnThemeChanged() override {
+    views::NativeFrameView::OnThemeChanged();
+
+    // Value was 19 prior to Windows 10 20H1, according to
+    // https://stackoverflow.com/a/70693198
+    const DWORD dwAttribute =
+        base::win::GetVersion() >= base::win::Version::WIN10_20H1
+            ? DWMWA_USE_IMMERSIVE_DARK_MODE
+            : 19;
+
+    // From BrowserFrameViewWin::SetSystemMicaTitlebarAttributes:
+    const BOOL dark_titlebar_enabled = GetNativeTheme()->ShouldUseDarkColors();
+    DwmSetWindowAttribute(views::HWNDForWidget(widget_), dwAttribute,
+                          &dark_titlebar_enabled,
+                          sizeof(dark_titlebar_enabled));
+  }
+#endif
 
  private:
   // Not owned by this object.
