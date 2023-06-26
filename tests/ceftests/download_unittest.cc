@@ -274,14 +274,6 @@ class DownloadTestHandler : public TestHandler {
       // ALT key will trigger download of custom protocol links.
       SendClick(browser,
                 test_mode_ == CLICKED_INVALID ? EVENTFLAG_ALT_DOWN : 0);
-
-      if (is_clicked() && !is_clicked_and_downloaded()) {
-        // Destroy the test after a bit because there will be no further
-        // callbacks.
-        CefPostDelayedTask(
-            TID_UI, base::BindOnce(&DownloadTestHandler::DestroyTest, this),
-            200);
-      }
     } else {
       // Begin the download progammatically.
       browser->GetHost()->StartDownload(kTestDownloadUrl);
@@ -338,6 +330,13 @@ class DownloadTestHandler : public TestHandler {
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
     EXPECT_STREQ(download_url_.c_str(), url.ToString().c_str());
     EXPECT_STREQ("GET", request_method.ToString().c_str());
+
+    if (is_clicked() && !is_clicked_and_downloaded()) {
+      // Destroy the test after a bit because there will be no further
+      // callbacks.
+      CefPostDelayedTask(
+          TID_UI, base::BindOnce(&DownloadTestHandler::DestroyTest, this), 200);
+    }
 
     return test_mode_ != CLICKED_BLOCKED;
   }
