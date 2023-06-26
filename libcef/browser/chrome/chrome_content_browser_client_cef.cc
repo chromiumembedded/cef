@@ -241,7 +241,8 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
         header_client,
     bool* bypass_redirect_checks,
     bool* disable_secure_dns,
-    network::mojom::URLLoaderFactoryOverridePtr* factory_override) {
+    network::mojom::URLLoaderFactoryOverridePtr* factory_override,
+    scoped_refptr<base::SequencedTaskRunner> navigation_response_task_runner) {
   // Don't intercept requests for Profiles that were not created by CEF.
   // For example, the User Manager profile created via
   // profiles::CreateSystemProfileForUserManager.
@@ -250,7 +251,8 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     return ChromeContentBrowserClient::WillCreateURLLoaderFactory(
         browser_context, frame, render_process_id, type, request_initiator,
         navigation_id, ukm_source_id, factory_receiver, header_client,
-        bypass_redirect_checks, disable_secure_dns, factory_override);
+        bypass_redirect_checks, disable_secure_dns, factory_override,
+        navigation_response_task_runner);
   }
 
   // Based on content/browser/devtools/devtools_instrumentation.cc
@@ -281,7 +283,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
       navigation_id, ukm_source_id,
       &(intercepting_factory->overridden_factory_receiver),
       /*header_client=*/nullptr, bypass_redirect_checks, disable_secure_dns,
-      handler_override);
+      handler_override, navigation_response_task_runner);
 
   if (use_proxy) {
     DCHECK(intercepting_factory->overriding_factory);

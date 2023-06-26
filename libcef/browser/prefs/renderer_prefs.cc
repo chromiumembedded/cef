@@ -41,6 +41,7 @@
 #include "media/media_buildflags.h"
 #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
+#include "ui/color/color_provider_manager.h"
 #include "ui/native_theme/native_theme.h"
 
 namespace renderer_prefs {
@@ -206,6 +207,7 @@ blink::mojom::PreferredColorScheme ToBlinkPreferredColorScheme(
 // |native_theme| - For other platforms based on native theme scheme.
 bool UpdatePreferredColorScheme(blink::web_pref::WebPreferences* web_prefs,
                                 const GURL& url,
+                                content::WebContents* web_contents,
                                 const ui::NativeTheme* native_theme) {
   auto old_preferred_color_scheme = web_prefs->preferred_color_scheme;
 
@@ -213,19 +215,14 @@ bool UpdatePreferredColorScheme(blink::web_pref::WebPreferences* web_prefs,
   web_prefs->preferred_color_scheme =
       ToBlinkPreferredColorScheme(native_theme->GetPreferredColorScheme());
 
-  // Force a light preferred color scheme on certain URLs if kWebUIDarkMode is
-  // disabled; some of the UI is not yet correctly themed.
-  if (!base::FeatureList::IsEnabled(features::kWebUIDarkMode)) {
-    // Update based on last committed url.
-    bool force_light = url.SchemeIs(content::kChromeUIScheme);
-    if (!force_light) {
-      force_light = url.SchemeIs(extensions::kExtensionScheme) &&
-                    url.host_piece() == extension_misc::kPdfExtensionId;
-    }
-    if (force_light) {
-      web_prefs->preferred_color_scheme =
-          blink::mojom::PreferredColorScheme::kLight;
-    }
+  if (url.SchemeIs(content::kChromeUIScheme)) {
+    // WebUI should track the color mode of the ColorProvider associated with
+    // |web_contents|.
+    web_prefs->preferred_color_scheme =
+        web_contents->GetColorMode() ==
+                ui::ColorProviderManager::ColorMode::kLight
+            ? blink::mojom::PreferredColorScheme::kLight
+            : blink::mojom::PreferredColorScheme::kDark;
   }
 
   return old_preferred_color_scheme != web_prefs->preferred_color_scheme;
@@ -419,7 +416,7 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
   UpdatePreferredColorScheme(
       &web,
       web_contents->GetPrimaryMainFrame()->GetSiteInstance()->GetSiteURL(),
-      native_theme);
+      web_contents, native_theme);
 
   // Set preferences based on the extension.
   SetExtensionPrefs(web_contents, rvh, web);
@@ -445,7 +442,7 @@ bool PopulateWebPreferencesAfterNavigation(
     blink::web_pref::WebPreferences& web) {
   auto* native_theme = ui::NativeTheme::GetInstanceForWeb();
   return UpdatePreferredColorScheme(&web, web_contents->GetLastCommittedURL(),
-                                    native_theme);
+                                    web_contents, native_theme);
 }
 
 }  // namespace renderer_prefs

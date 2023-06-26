@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/bookmarks/bookmark_stats.cc chrome/browser/ui/bookmarks/bookmark_stats.cc
-index 45f661faa6e0b..777a1f6c333b6 100644
+index 7ae18c5a960b0..d48ba838efe6f 100644
 --- chrome/browser/ui/bookmarks/bookmark_stats.cc
 +++ chrome/browser/ui/bookmarks/bookmark_stats.cc
 @@ -21,7 +21,9 @@ bool IsBookmarkBarLocation(BookmarkLaunchLocation location) {

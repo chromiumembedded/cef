@@ -33,7 +33,7 @@ index 641bbaf2c7576..afdd641e38452 100644
  // Generic container overload.
  template <typename Range>
 diff --git base/win/registry.cc base/win/registry.cc
-index 473f5fdc861ce..eb85a31611560 100644
+index 4b3c3d75a2bb4..2869b29a410b9 100644
 --- base/win/registry.cc
 +++ base/win/registry.cc
 @@ -13,6 +13,14 @@

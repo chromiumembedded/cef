@@ -52,10 +52,10 @@ index 6cffe941b26f9..3e6223ab0d423 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 8b08095a9b21e..71b14e1f876cf 100644
+index 946b9cb533714..80815f7feb8f8 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -99,6 +99,10 @@ class Profile : public content::BrowserContext {
+@@ -104,6 +104,10 @@ class Profile : public content::BrowserContext {
      // be applicable to run. Please see crbug.com/1098697#c3 for more details.
      static OTRProfileID CreateUnique(const std::string& profile_id_prefix);
  
@@ -66,16 +66,16 @@ index 8b08095a9b21e..71b14e1f876cf 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -502,6 +506,8 @@ class Profile : public content::BrowserContext {
- 
-   base::WeakPtr<Profile> GetWeakPtr();
+@@ -529,6 +533,8 @@ class Profile : public content::BrowserContext {
+     return instant_service_;
+   }
  
 +  void NotifyOffTheRecordProfileCreated(Profile* off_the_record);
 +
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -513,7 +519,6 @@ class Profile : public content::BrowserContext {
+@@ -540,7 +546,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -99,7 +99,7 @@ index a3ee1846fcf77..13edaf1203d69 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 80acbb1473fc7..9db21208f8e81 100644
+index 92dec1c25477c..0723bdb6bc6ad 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -389,7 +389,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -161,7 +161,7 @@ index 884e79cd54e0d..4e840df66756d 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    oauth2_login_manager_ =
 diff --git chrome/browser/profiles/renderer_updater_factory.cc chrome/browser/profiles/renderer_updater_factory.cc
-index 908a1c3615d70..462500925f05a 100644
+index 711f449323737..b277b4386c16a 100644
 --- chrome/browser/profiles/renderer_updater_factory.cc
 +++ chrome/browser/profiles/renderer_updater_factory.cc
 @@ -4,6 +4,7 @@

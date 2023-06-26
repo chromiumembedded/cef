@@ -54,10 +54,10 @@ index 5eeaadec9773f..93a716decfbb9 100644
  #endif
  
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
-index 271486b45dcc8..a62210d8ca3c8 100644
+index 8f726bde2cb5d..0737835d1e9d1 100644
 --- components/viz/host/layered_window_updater_impl.cc
 +++ components/viz/host/layered_window_updater_impl.cc
-@@ -44,7 +44,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
+@@ -46,7 +46,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
    // |region|'s handle will close when it goes out of scope.
  }
  
@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 5583233391b21..d02bc281fc96e 100644
+index ef3c8ba80dd34..1088d6e3c5797 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -228,6 +228,8 @@ viz_component("service") {
@@ -134,10 +134,10 @@ index 0bc450ca4faf2..bdbdca76246c6 100644
    return CreateSoftwareOutputDeviceWin(surface_handle, &output_device_backing_,
                                         display_client);
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index d4d4c1444e7a1..d62a3939a31fa 100644
+index 796ae2688436e..37a3406790210 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
-@@ -192,8 +192,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
+@@ -193,8 +193,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
  
@@ -150,10 +150,10 @@ index d4d4c1444e7a1..d62a3939a31fa 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index ea2888e6e6ce0..2461e0dcb2038 100644
+index c86f1e090cb84..22df6791b7139 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -401,8 +401,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -395,8 +395,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();

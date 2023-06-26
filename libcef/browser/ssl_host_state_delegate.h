@@ -83,6 +83,8 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
   void RevokeUserAllowExceptions(const std::string& host) override;
   bool HasAllowException(const std::string& host,
                          content::StoragePartition* storage_partition) override;
+  bool HasAllowExceptionForAnyHost(
+      content::StoragePartition* storage_partition) override;
 
  private:
   // Certificate policies for each host.

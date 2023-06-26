@@ -199,6 +199,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_IDLE_DETECTION;
     case permissions::RequestType::kMicStream:
       return CEF_PERMISSION_TYPE_MIC_STREAM;
+    case permissions::RequestType::kMidi:
+      return CEF_PERMISSION_TYPE_MIDI;
     case permissions::RequestType::kMidiSysex:
       return CEF_PERMISSION_TYPE_MIDI_SYSEX;
     case permissions::RequestType::kMultipleDownloads:

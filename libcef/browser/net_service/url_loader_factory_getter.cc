@@ -70,7 +70,8 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
       url::Origin(), absl::nullopt /* navigation_id */, ukm::SourceIdObj(),
       &maybe_proxy_factory_receiver, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
-      nullptr /* factory_override */);
+      nullptr /* factory_override */,
+      nullptr /* navigation_response_task_runner */);
 
   // If anyone above indicated that they care about proxying, pass the
   // intermediate pipe along to the URLLoaderFactoryGetter.

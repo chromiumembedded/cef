@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index b30891c5efe8d..4b411229d5251 100644
+index 319bb85903871..9cd291c0553ea 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -10,7 +10,7 @@ index b30891c5efe8d..4b411229d5251 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/connectors/analysis/analysis_settings.h"
  #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog.h"
-@@ -246,6 +247,9 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
+@@ -247,6 +248,9 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
                                          GURL url,
                                          Data* data,
                                          AnalysisConnector connector) {
@@ -21,7 +21,7 @@ index b30891c5efe8d..4b411229d5251 100644
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index cf11f6a7e1077..dd21d7625c085 100644
+index 2795ff21d23b8..68552c8e0ba40 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -66,10 +66,10 @@ index cf11f6a7e1077..dd21d7625c085 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -817,7 +832,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-         base_cache_path.Append(chrome::kCacheDirname);
-     network_context_params->http_cache_max_size =
-         local_state->GetInteger(prefs::kDiskCacheSize);
+@@ -818,7 +833,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+     const int disk_cache_size = local_state->GetInteger(prefs::kDiskCacheSize);
+     network_context_params->http_cache_max_size = disk_cache_size;
+     network_context_params->shared_dictionary_cache_max_size = disk_cache_size;
 +  }
  
 +  if (!in_memory) {
@@ -77,7 +77,7 @@ index cf11f6a7e1077..dd21d7625c085 100644
          ::network::mojom::NetworkContextFilePaths::New();
  
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
-index fd58815c03393..c3865639affb1 100644
+index 9cf4c48627d33..23cf9f77b0ce2 100644
 --- chrome/browser/signin/identity_manager_factory.cc
 +++ chrome/browser/signin/identity_manager_factory.cc
 @@ -11,6 +11,7 @@
@@ -88,7 +88,7 @@ index fd58815c03393..c3865639affb1 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/image_fetcher/image_decoder_impl.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -89,6 +90,7 @@ IdentityManagerFactory::~IdentityManagerFactory() {
+@@ -96,6 +97,7 @@ IdentityManagerFactory::~IdentityManagerFactory() {
  // static
  signin::IdentityManager* IdentityManagerFactory::GetForProfile(
      Profile* profile) {
@@ -97,7 +97,7 @@ index fd58815c03393..c3865639affb1 100644
        GetInstance()->GetServiceForBrowserContext(profile, true));
  }
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index d54a6b2b2ef84..6ced1c9fb0750 100644
+index f8e822c0d54fe..2ec330cefe8fe 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -554,6 +554,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -127,7 +127,7 @@ index d54a6b2b2ef84..6ced1c9fb0750 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 8c47efddd4a33..cdd8b38e58803 100644
+index e4018759ec521..dd4a711ca4d3b 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -208,6 +208,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -178,10 +178,10 @@ index ba7f48e90026c..a509cc4565e9f 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 660df7d04bff9..f3cb3381ce462 100644
+index d553d31e90ca7..c27dc5a747aca 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2328,16 +2328,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2349,16 +2349,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -210,10 +210,10 @@ index 660df7d04bff9..f3cb3381ce462 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index e11f45e366c8f..a97152a3f0014 100644
+index bff25abd86e9d..114a818850751 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -357,6 +357,9 @@ struct NetworkContextParams {
+@@ -356,6 +356,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -34,7 +34,6 @@
 #include "content/public/browser/network_service_instance.h"
 #include "content/public/common/content_switches.h"
 #include "net/log/net_log_capture_mode.h"
-#include "services/device/public/cpp/geolocation/geolocation_manager.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
@@ -146,11 +145,6 @@ void ChromeBrowserProcessAlloy::FlushLocalStateAndReply(
   DCHECK(false);
 }
 
-device::GeolocationManager* ChromeBrowserProcessAlloy::geolocation_manager() {
-  DCHECK(false);
-  return nullptr;
-}
-
 metrics_services_manager::MetricsServicesManager*
 ChromeBrowserProcessAlloy::GetMetricsServicesManager() {
   DCHECK(false);
@@ -233,11 +227,6 @@ NotificationPlatformBridge*
 ChromeBrowserProcessAlloy::notification_platform_bridge() {
   DCHECK(false);
   return nullptr;
-}
-
-void ChromeBrowserProcessAlloy::SetGeolocationManager(
-    std::unique_ptr<device::GeolocationManager> geolocation_manager) {
-  DCHECK(false);
 }
 
 policy::ChromeBrowserPolicyConnector*
@@ -424,12 +413,6 @@ BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
 
 SerialPolicyAllowedPorts*
 ChromeBrowserProcessAlloy::serial_policy_allowed_ports() {
-  DCHECK(false);
-  return nullptr;
-}
-
-HidPolicyAllowedDevices*
-ChromeBrowserProcessAlloy::hid_policy_allowed_devices() {
   DCHECK(false);
   return nullptr;
 }

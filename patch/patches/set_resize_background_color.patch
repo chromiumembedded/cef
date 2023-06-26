@@ -14,7 +14,7 @@ index ee170d7984eb3..f45d171d15ea3 100644
    if (crashed_overlay_view_ == crashed_overlay_view)
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 42ccdb874b455..0142d75b381d5 100644
+index 2b7d528daf579..c71ff2a9c8dd3 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
 @@ -88,6 +88,10 @@ class WEBVIEW_EXPORT WebView : public View,

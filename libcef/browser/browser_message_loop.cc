@@ -115,7 +115,7 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
   }
 
 #if BUILDFLAG(IS_MAC)
-  return base::MessagePumpMac::Create();
+  return base::message_pump_mac::Create();
 #else
   return std::make_unique<base::MessagePumpForUI>();
 #endif

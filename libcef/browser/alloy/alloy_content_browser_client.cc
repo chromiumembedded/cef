@@ -322,6 +322,25 @@ const extensions::Extension* GetEnabledExtensionFromSiteURL(
   return registry->enabled_extensions().GetByID(site_url.host());
 }
 
+std::unique_ptr<blink::URLLoaderThrottle> CreateGoogleURLLoaderThrottle(
+    Profile* profile) {
+  chrome::mojom::DynamicParamsPtr dynamic_params =
+      chrome::mojom::DynamicParams::New(
+#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
+          /*bound_session_params=*/nullptr,
+#endif
+          profile->GetPrefs()->GetBoolean(
+              policy::policy_prefs::kForceGoogleSafeSearch),
+          profile->GetPrefs()->GetInteger(
+              policy::policy_prefs::kForceYouTubeRestrict),
+          profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps));
+  return std::make_unique<GoogleURLLoaderThrottle>(
+#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
+      /*bound_session_request_throttled_listener=*/nullptr,
+#endif
+      std::move(dynamic_params));
+}
+
 }  // namespace
 
 AlloyContentBrowserClient::AlloyContentBrowserClient() = default;
@@ -894,21 +913,28 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
 
   Profile* profile = Profile::FromBrowserContext(browser_context);
 
-  chrome::mojom::DynamicParamsPtr dynamic_params =
-      chrome::mojom::DynamicParams::New(
-#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
-          /*bound_session_params=*/nullptr,
-#endif
-          profile->GetPrefs()->GetBoolean(
-              policy::policy_prefs::kForceGoogleSafeSearch),
-          profile->GetPrefs()->GetInteger(
-              policy::policy_prefs::kForceYouTubeRestrict),
-          profile->GetPrefs()->GetString(prefs::kAllowedDomainsForApps));
-  result.push_back(std::make_unique<GoogleURLLoaderThrottle>(
-#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
-      /*bound_session_request_throttled_listener=*/nullptr,
-#endif
-      std::move(dynamic_params)));
+  if (auto google_throttle = CreateGoogleURLLoaderThrottle(profile)) {
+    result.push_back(std::move(google_throttle));
+  }
+
+  return result;
+}
+
+std::vector<std::unique_ptr<blink::URLLoaderThrottle>>
+AlloyContentBrowserClient::CreateURLLoaderThrottlesForKeepAlive(
+    const network::ResourceRequest& request,
+    content::BrowserContext* browser_context,
+    const base::RepeatingCallback<content::WebContents*()>& wc_getter,
+    int frame_tree_node_id) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+
+  std::vector<std::unique_ptr<blink::URLLoaderThrottle>> result;
+
+  Profile* profile = Profile::FromBrowserContext(browser_context);
+
+  if (auto google_throttle = CreateGoogleURLLoaderThrottle(profile)) {
+    result.push_back(std::move(google_throttle));
+  }
 
   return result;
 }
@@ -916,7 +942,9 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
 std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
 AlloyContentBrowserClient::WillCreateURLLoaderRequestInterceptors(
     content::NavigationUIData* navigation_ui_data,
-    int frame_tree_node_id) {
+    int frame_tree_node_id,
+    int64_t navigation_id,
+    scoped_refptr<base::SequencedTaskRunner> navigation_response_task_runner) {
   std::vector<std::unique_ptr<content::URLLoaderRequestInterceptor>>
       interceptors;
 
@@ -1091,7 +1119,8 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
         header_client,
     bool* bypass_redirect_checks,
     bool* disable_secure_dns,
-    network::mojom::URLLoaderFactoryOverridePtr* factory_override) {
+    network::mojom::URLLoaderFactoryOverridePtr* factory_override,
+    scoped_refptr<base::SequencedTaskRunner> navigation_response_task_runner) {
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,
       type == URLLoaderFactoryType::kNavigation,
@@ -1283,14 +1312,6 @@ std::string AlloyContentBrowserClient::GetChromeProduct() {
 
 std::string AlloyContentBrowserClient::GetUserAgent() {
   return embedder_support::GetUserAgent();
-}
-
-std::string AlloyContentBrowserClient::GetFullUserAgent() {
-  return embedder_support::GetFullUserAgent();
-}
-
-std::string AlloyContentBrowserClient::GetReducedUserAgent() {
-  return embedder_support::GetReducedUserAgent();
 }
 
 std::unique_ptr<content::WebContentsViewDelegate>

@@ -1,8 +1,8 @@
 diff --git content/browser/scheduler/browser_task_executor.cc content/browser/scheduler/browser_task_executor.cc
-index 69f9daf8388e9..6f1bc7c9ab40b 100644
+index 0e9aa441e3298..d22508fe1965f 100644
 --- content/browser/scheduler/browser_task_executor.cc
 +++ content/browser/scheduler/browser_task_executor.cc
-@@ -201,7 +201,7 @@ BrowserTaskExecutor::OnUserInputStart() {
+@@ -208,7 +208,7 @@ BrowserTaskExecutor::OnUserInputStart() {
  
  // static
  void BrowserTaskExecutor::Shutdown() {

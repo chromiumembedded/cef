@@ -77,7 +77,7 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
   // Make sure |pixel_size| is sane.
   size_t expected_bytes;
   bool size_result = viz::ResourceSizes::MaybeSizeInBytes(
-      pixel_size, viz::ResourceFormat::RGBA_8888, &expected_bytes);
+      pixel_size, viz::SinglePlaneFormat::kRGBA_8888, &expected_bytes);
   if (!size_result) {
     return;
   }

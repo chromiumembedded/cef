@@ -8,7 +8,6 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
-#include "base/memory/singleton.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/ui/chrome_select_file_policy.h"
 #include "ui/shell_dialogs/select_file_dialog_factory.h"
@@ -26,27 +25,17 @@ namespace {
 // |run_from_cef=false| to trigger creation of the default platform dialog.
 class CefSelectFileDialogFactory final : public ui::SelectFileDialogFactory {
  public:
+  CefSelectFileDialogFactory() = default;
+
   CefSelectFileDialogFactory(const CefSelectFileDialogFactory&) = delete;
   CefSelectFileDialogFactory& operator=(const CefSelectFileDialogFactory&) =
       delete;
-
-  static CefSelectFileDialogFactory* GetInstance() {
-    // Leaky because there is no useful cleanup to do.
-    return base::Singleton<
-        CefSelectFileDialogFactory,
-        base::LeakySingletonTraits<CefSelectFileDialogFactory>>::get();
-  }
 
   ui::SelectFileDialog* Create(
       ui::SelectFileDialog::Listener* listener,
       std::unique_ptr<ui::SelectFilePolicy> policy) override;
 
   bool IsCefFactory() const override { return true; }
-
- private:
-  friend struct base::DefaultSingletonTraits<CefSelectFileDialogFactory>;
-
-  CefSelectFileDialogFactory() { ui::SelectFileDialog::SetFactory(this); }
 };
 
 // Delegates the running of the dialog to CefFileDialogManager.
@@ -158,8 +147,8 @@ ui::SelectFileDialog* CefSelectFileDialogFactory::Create(
 namespace file_dialog_runner {
 
 void RegisterFactory() {
-  // Implicitly registers on creation.
-  CefSelectFileDialogFactory::GetInstance();
+  ui::SelectFileDialog::SetFactory(
+      std::make_unique<CefSelectFileDialogFactory>());
 }
 
 }  // namespace file_dialog_runner

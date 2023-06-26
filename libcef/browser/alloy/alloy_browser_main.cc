@@ -233,8 +233,6 @@ void AlloyBrowserMainParts::PostCreateMainMessageLoop() {
   config->store = command_line->GetSwitchValueASCII(switches::kPasswordStore);
   // Forward the product name (defaults to "Chromium").
   config->product_name = l10n_util::GetStringUTF8(IDS_PRODUCT_NAME);
-  // OSCrypt may target keyring, which requires calls from the main thread.
-  config->main_thread_runner = content::GetUIThreadTaskRunner({});
   // OSCrypt can be disabled in a special settings file.
   config->should_use_preference =
       command_line->HasSwitch(switches::kEnableEncryptionSelection);

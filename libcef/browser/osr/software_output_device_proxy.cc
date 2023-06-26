@@ -62,8 +62,9 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
   canvas_.reset();
 
   size_t required_bytes;
-  if (!ResourceSizes::MaybeSizeInBytes(
-          viewport_pixel_size_, ResourceFormat::RGBA_8888, &required_bytes)) {
+  if (!ResourceSizes::MaybeSizeInBytes(viewport_pixel_size_,
+                                       SinglePlaneFormat::kRGBA_8888,
+                                       &required_bytes)) {
     DLOG(ERROR) << "Invalid viewport size " << viewport_pixel_size_.ToString();
     return;
   }

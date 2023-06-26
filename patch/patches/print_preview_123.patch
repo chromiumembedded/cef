@@ -84,7 +84,7 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 7afee9ec16059..5686f028d7e69 100644
+index 341fffbe509b5..678a0ed4d2b26 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -23,6 +23,7 @@

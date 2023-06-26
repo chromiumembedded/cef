@@ -14,6 +14,7 @@
 #include "libcef/browser/native/menu_runner_mac.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/apple/owned_objc.h"
 #include "base/mac/scoped_nsautorelease_pool.h"
 #include "base/memory/ptr_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -456,15 +457,16 @@ void CefBrowserPlatformDelegateNativeMac::ViewText(const std::string& text) {
 bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Give the top level menu equivalents a chance to handle the event.
-  if ([event.os_event type] == NSEventTypeKeyDown) {
-    return [[NSApp mainMenu] performKeyEquivalent:event.os_event];
+  NSEvent* ns_event = event.os_event.Get();
+  if (ns_event.type == NSEventTypeKeyDown) {
+    return [[NSApp mainMenu] performKeyEquivalent:ns_event];
   }
   return false;
 }
 
 CefEventHandle CefBrowserPlatformDelegateNativeMac::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
-  return CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event.os_event);
+  return CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event.os_event.Get());
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
@@ -529,7 +531,8 @@ CefBrowserPlatformDelegateNativeMac::TranslateWebKeyEvent(
                             isARepeat:NO
                               keyCode:key_event.native_key_code];
 
-  result = content::NativeWebKeyboardEvent(synthetic_event);
+  result = content::NativeWebKeyboardEvent(
+      base::apple::OwnedNSEvent(synthetic_event));
   if (key_event.type == KEYEVENT_CHAR) {
     result.SetType(blink::WebInputEvent::Type::kChar);
   }

@@ -133,3 +133,13 @@ bool CefSSLHostStateDelegate::HasAllowException(
   return policy_iterator != cert_policy_for_host_.end() &&
          policy_iterator->second.HasAllowException();
 }
+
+bool CefSSLHostStateDelegate::HasAllowExceptionForAnyHost(
+    content::StoragePartition* storage_partition) {
+  for (auto const& it : cert_policy_for_host_) {
+    if (it.second.HasAllowException()) {
+      return true;
+    }
+  }
+  return false;
+}

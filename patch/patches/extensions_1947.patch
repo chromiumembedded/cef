@@ -198,10 +198,10 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index de61251db35b6..ad94482e2e7db 100644
+index fbef1f4fba931..1f98adb6b0bcb 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -31,6 +31,7 @@
+@@ -32,6 +32,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -209,7 +209,7 @@ index de61251db35b6..ad94482e2e7db 100644
  class PrefService;
  
  namespace base {
-@@ -75,6 +76,7 @@ class ComponentExtensionResourceManager;
+@@ -76,6 +77,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -217,7 +217,7 @@ index de61251db35b6..ad94482e2e7db 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -247,6 +249,14 @@ class ExtensionsBrowserClient {
+@@ -248,6 +250,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -233,7 +233,7 @@ index de61251db35b6..ad94482e2e7db 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index e885327697fb9..7dc4c91069762 100644
+index ac0da20879dc1..46e1eabeccab3 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -377,9 +377,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
