@@ -5,11 +5,29 @@
 #include "libcef/browser/browser_platform_delegate.h"
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
+#include "chrome/browser/platform_util.h"
+#include "chrome/browser/shell_integration.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
+
+namespace {
+
+void ExecuteExternalProtocol(const GURL& url) {
+  CEF_REQUIRE_BLOCKING();
+
+  // Check that an application is associated with the scheme.
+  if (shell_integration::GetApplicationNameForScheme(url).empty()) {
+    return;
+  }
+
+  CEF_POST_TASK(TID_UI, base::BindOnce(&platform_util::OpenExternal, url));
+}
+
+}  // namespace
 
 CefBrowserPlatformDelegate::CefBrowserPlatformDelegate() = default;
 
@@ -223,6 +241,11 @@ bool CefBrowserPlatformDelegate::PreHandleGestureEvent(
 bool CefBrowserPlatformDelegate::IsNeverComposited(
     content::WebContents* web_contents) {
   return false;
+}
+
+// static
+void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
+  CEF_POST_USER_VISIBLE_TASK(base::BindOnce(ExecuteExternalProtocol, url));
 }
 
 CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(

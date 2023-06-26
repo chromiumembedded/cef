@@ -462,9 +462,6 @@ bool CefBrowserPlatformDelegateNativeMac::HandleKeyboardEvent(
   return false;
 }
 
-// static
-void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
-
 CefEventHandle CefBrowserPlatformDelegateNativeMac::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   return CAST_NSEVENT_TO_CEF_EVENT_HANDLE(event.os_event);

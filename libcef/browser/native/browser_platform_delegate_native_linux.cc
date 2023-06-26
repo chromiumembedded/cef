@@ -233,9 +233,6 @@ bool CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(
   return false;
 }
 
-// static
-void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {}
-
 CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   // TODO(cef): We need to return an XEvent* from this method, but
