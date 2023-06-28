@@ -106,10 +106,10 @@ index 3c78525361ebf..c922dfe5019a3 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index c1c0631071a11..aa2c01ebce43e 100644
+index 109522be316f2..25fb550337fb6 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
-@@ -194,6 +194,8 @@ class VIEWS_EXPORT InkDropHost {
+@@ -189,6 +189,8 @@ class VIEWS_EXPORT InkDropHost {
    View* host_view() { return host_view_; }
    const View* host_view() const { return host_view_; }
  
