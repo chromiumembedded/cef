@@ -530,7 +530,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 #if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(OZONE_PLATFORM_X11)
   auto x11window = static_cast<x11::Window>(view_util::GetWindowHandle(widget));
-  CHECK(x11window);
+  CHECK(x11window != x11::Window::None);
 
   if (is_frameless_) {
     ui::SetUseOSWindowFrame(x11window, false);
