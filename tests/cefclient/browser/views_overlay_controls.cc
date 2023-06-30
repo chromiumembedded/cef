@@ -47,25 +47,31 @@ std::array<ViewsOverlayControls::Command, 3> GetButtons() {
 #endif
 }
 
-cef_docking_mode_t GetPanelDockingMode() {
+cef_docking_mode_t GetPanelDockingMode(bool use_bottom_controls) {
 #if defined(OS_MAC)
-  return CEF_DOCKING_MODE_TOP_LEFT;
+  return use_bottom_controls ? CEF_DOCKING_MODE_BOTTOM_LEFT
+                             : CEF_DOCKING_MODE_TOP_LEFT;
 #else
-  return CEF_DOCKING_MODE_TOP_RIGHT;
+  return use_bottom_controls ? CEF_DOCKING_MODE_BOTTOM_RIGHT
+                             : CEF_DOCKING_MODE_TOP_RIGHT;
 #endif
 }
-cef_docking_mode_t GetMenuDockingMode() {
+cef_docking_mode_t GetMenuDockingMode(bool use_bottom_controls) {
 #if defined(OS_MAC)
-  return CEF_DOCKING_MODE_TOP_RIGHT;
+  return use_bottom_controls ? CEF_DOCKING_MODE_BOTTOM_RIGHT
+                             : CEF_DOCKING_MODE_TOP_RIGHT;
 #else
-  return CEF_DOCKING_MODE_TOP_LEFT;
+  return use_bottom_controls ? CEF_DOCKING_MODE_BOTTOM_LEFT
+                             : CEF_DOCKING_MODE_TOP_LEFT;
 #endif
 }
 
 }  // namespace
 
-ViewsOverlayControls::ViewsOverlayControls(bool with_window_buttons)
-    : with_window_buttons_(with_window_buttons) {}
+ViewsOverlayControls::ViewsOverlayControls(bool with_window_buttons,
+                                           bool use_bottom_controls)
+    : with_window_buttons_(with_window_buttons),
+      use_bottom_controls_(use_bottom_controls) {}
 
 void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
                                       CefRefPtr<CefMenuButton> menu_button,
@@ -77,6 +83,13 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
 
   window_ = window;
   window_maximized_ = window_->IsMaximized();
+
+  CefInsets insets;
+  if (use_bottom_controls_) {
+    insets.Set(0, kInsets, kInsets, kInsets);
+  } else {
+    insets.Set(kInsets, kInsets, 0, kInsets);
+  }
 
   if (with_window_buttons_) {
     // Window control buttons. These controls are currently text which means
@@ -94,15 +107,17 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
     for (auto button : GetButtons()) {
       panel_->AddChildView(CreateButton(button));
     }
-    panel_controller_ = window->AddOverlayView(panel_, GetPanelDockingMode());
-    panel_controller_->SetInsets(CefInsets(kInsets, kInsets, 0, kInsets));
+    panel_controller_ = window->AddOverlayView(
+        panel_, GetPanelDockingMode(use_bottom_controls_));
+    panel_controller_->SetInsets(insets);
     panel_controller_->SetVisible(true);
   }
 
   // Menu button.
   menu_button->SetBackgroundColor(kBackgroundColor);
-  menu_controller_ = window_->AddOverlayView(menu_button, GetMenuDockingMode());
-  menu_controller_->SetInsets(CefInsets(kInsets, kInsets, 0, kInsets));
+  menu_controller_ = window_->AddOverlayView(
+      menu_button, GetMenuDockingMode(use_bottom_controls_));
+  menu_controller_->SetInsets(insets);
   menu_controller_->SetVisible(true);
 
   // Location bar. Will be made visible in UpdateControls().
@@ -130,10 +145,11 @@ void ViewsOverlayControls::Destroy() {
 
 void ViewsOverlayControls::UpdateControls() {
   // Update location bar size, position and visibility.
-  auto bounds = window_->GetBounds();
+  const auto window_bounds = window_->GetBounds();
+  auto bounds = window_bounds;
   bounds.x = kLocationBarPadding;
   bounds.width -= kLocationBarPadding * 2;
-  bounds.y = kInsets;
+
   if (is_chrome_toolbar_) {
     // Fit the standard Chrome toolbar.
     const auto preferred_size = location_bar_->GetPreferredSize();
@@ -142,6 +158,13 @@ void ViewsOverlayControls::UpdateControls() {
   } else {
     bounds.height = menu_controller_->GetSize().height;
   }
+
+  if (use_bottom_controls_) {
+    bounds.y = window_bounds.height - bounds.height - kInsets;
+  } else {
+    bounds.y = kInsets;
+  }
+
   if (bounds.width < kLocationBarPadding * 2) {
     // Not enough space.
     location_controller_->SetVisible(false);

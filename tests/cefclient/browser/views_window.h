@@ -253,11 +253,12 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool with_standard_buttons_;
   ChromeToolbarType chrome_toolbar_type_;
   bool use_window_modal_dialog_;
+  bool use_bottom_controls_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;
-  CefRefPtr<ViewsMenuBar> top_menu_bar_;
-  CefRefPtr<CefView> top_toolbar_;
+  CefRefPtr<ViewsMenuBar> menu_bar_;
+  CefRefPtr<CefView> toolbar_;
   CefRefPtr<CefMenuButton> menu_button_;
   CefRefPtr<CefView> location_bar_;
   bool menu_has_focus_;

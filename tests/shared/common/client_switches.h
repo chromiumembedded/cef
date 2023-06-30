@@ -49,6 +49,7 @@ extern const char kUseClientDialogs[];
 extern const char kUseTestHttpServer[];
 extern const char kShowWindowButtons[];
 extern const char kUseWindowModalDialog[];
+extern const char kUseBottomControls[];
 
 }  // namespace switches
 }  // namespace client
