@@ -346,7 +346,7 @@ void ViewsWindow::TakeFocus(bool next) {
   }
 
   if (chrome_toolbar_type_ == CEF_CTT_NORMAL) {
-    top_toolbar_->RequestFocus();
+    toolbar_->RequestFocus();
   } else if (location_bar_) {
     // Give focus to the location bar.
     location_bar_->RequestFocus();
@@ -550,14 +550,30 @@ void ViewsWindow::OnMenuButtonPressed(
   DCHECK(with_controls_ || with_overlay_controls_);
   DCHECK_EQ(ID_MENU_BUTTON, id);
 
+  const auto button_bounds = menu_button->GetBoundsInScreen();
+
   auto point = screen_point;
   if (with_overlay_controls_) {
     // Align the menu correctly under the button.
-    const int button_width = menu_button->GetSize().width;
     if (CefIsRTL()) {
-      point.x += button_width - 4;
+      point.x += button_bounds.width - 4;
     } else {
-      point.x -= button_width - 4;
+      point.x -= button_bounds.width - 4;
+    }
+  }
+
+  if (use_bottom_controls_) {
+    const auto display_bounds =
+        menu_button->GetWindow()->GetDisplay()->GetWorkArea();
+    const int available_height = display_bounds.y + display_bounds.height -
+                                 button_bounds.y - button_bounds.height;
+
+    // Approximation of the menu height.
+    const int menu_height =
+        button_menu_model_->GetCount() * button_bounds.height;
+    if (menu_height > available_height) {
+      // The menu will go upwards, so place it above the button.
+      point.y -= button_bounds.height - 8;
     }
   }
 
@@ -677,9 +693,9 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
   browser_view_ = nullptr;
   button_menu_model_ = nullptr;
-  if (top_menu_bar_) {
-    top_menu_bar_->Reset();
-    top_menu_bar_ = nullptr;
+  if (menu_bar_) {
+    menu_bar_->Reset();
+    menu_bar_ = nullptr;
   }
   extensions_panel_ = nullptr;
   menu_button_ = nullptr;
@@ -704,10 +720,10 @@ void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
   }
 
 #if defined(OS_MAC)
-  if (frameless_ && with_standard_buttons_ && top_toolbar_) {
-    auto insets = top_toolbar_->GetInsets();
+  if (frameless_ && with_standard_buttons_ && toolbar_) {
+    auto insets = toolbar_->GetInsets();
     insets.left = window->IsFullscreen() ? 0 : kWindowButtonsWidth;
-    top_toolbar_->SetInsets(insets);
+    toolbar_->SetInsets(insets);
   }
 #endif
 }
@@ -846,8 +862,8 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return true;
   }
 
-  if (menu_has_focus_ && top_menu_bar_) {
-    return top_menu_bar_->OnKeyEvent(event);
+  if (menu_has_focus_ && menu_bar_) {
+    return menu_bar_->OnKeyEvent(event);
   }
 
   return false;
@@ -882,14 +898,14 @@ void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
 
   // Keep track of the non-menu view that was last focused.
   if (last_focused_view_ != view_id &&
-      (!top_menu_bar_ || !top_menu_bar_->HasMenuId(view_id))) {
+      (!menu_bar_ || !menu_bar_->HasMenuId(view_id))) {
     last_focused_view_ = view_id;
   }
 
   // When focus leaves the menu buttons make them unfocusable.
   if (menu_has_focus_) {
-    if (top_menu_bar_) {
-      if (!top_menu_bar_->HasMenuId(view_id)) {
+    if (menu_bar_) {
+      if (!menu_bar_->HasMenuId(view_id)) {
         SetMenuFocusable(false);
       }
     } else if (view_id != ID_MENU_BUTTON) {
@@ -922,18 +938,25 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
     if (with_overlay_controls_) {
       // Add window buttons if we don't have standard ones
       const bool with_window_buttons = !with_standard_buttons_;
-      overlay_controls_ = new ViewsOverlayControls(with_window_buttons);
+      overlay_controls_ =
+          new ViewsOverlayControls(with_window_buttons, use_bottom_controls_);
       overlay_controls_->Initialize(window_, CreateMenuButton(),
                                     CreateLocationBar(),
                                     chrome_toolbar_type_ != CEF_CTT_NONE);
     }
   } else {
+    // Remove any controls that may include the Chrome toolbar before removing
+    // the BrowserView.
     if (overlay_controls_) {
-      // Overlay controls may include the Chrome toolbar, in which case they
-      // need to be removed before the BrowserView.
       overlay_controls_->Destroy();
       overlay_controls_ = nullptr;
       location_bar_ = nullptr;
+    } else if (use_bottom_controls_) {
+      if (toolbar_) {
+        window_->RemoveChildView(toolbar_);
+        toolbar_ = nullptr;
+        location_bar_ = nullptr;
+      }
     }
   }
 }
@@ -1003,11 +1026,13 @@ ViewsWindow::ViewsWindow(WindowType type,
   chrome_toolbar_type_ = CalculateChromeToolbarType(toolbar_type, hide_toolbar,
                                                     with_overlay_controls_);
 
+  use_bottom_controls_ = command_line->HasSwitch(switches::kUseBottomControls);
+
 #if !defined(OS_MAC)
   // On Mac we don't show a top menu on the window. The options are available in
   // the app menu instead.
   if (!command_line->HasSwitch(switches::kHideTopMenu)) {
-    top_menu_bar_ = new ViewsMenuBar(this, ID_TOP_MENU_FIRST);
+    menu_bar_ = new ViewsMenuBar(this, ID_TOP_MENU_FIRST, use_bottom_controls_);
   }
 #endif
 
@@ -1033,10 +1058,10 @@ void ViewsWindow::CreateMenuModel() {
   AddTestMenuItems(test_menu);
   AddFileMenuItems(button_menu_model_);
 
-  if (top_menu_bar_) {
+  if (menu_bar_) {
     // Add the menus to the top menu bar.
-    AddFileMenuItems(top_menu_bar_->CreateMenuModel("&File", nullptr));
-    AddTestMenuItems(top_menu_bar_->CreateMenuModel("&Tests", nullptr));
+    AddFileMenuItems(menu_bar_->CreateMenuModel("&File", nullptr));
+    AddTestMenuItems(menu_bar_->CreateMenuModel("&Tests", nullptr));
   }
 }
 
@@ -1110,20 +1135,20 @@ void ViewsWindow::AddControls() {
   // Build the remainder of the UI now that the BrowserView has been added to
   // the CefWindow. This is a requirement to use Chrome toolbars.
 
-  CefRefPtr<CefPanel> top_menu_panel;
-  if (top_menu_bar_) {
-    top_menu_panel = top_menu_bar_->GetMenuPanel();
+  CefRefPtr<CefPanel> menu_panel;
+  if (menu_bar_) {
+    menu_panel = menu_bar_->GetMenuPanel();
   }
 
   LabelButtons browse_buttons;
 
   if (chrome_toolbar_type_ == CEF_CTT_NORMAL) {
     // Chrome will provide a normal toolbar with location, menu, etc.
-    top_toolbar_ = browser_view_->GetChromeToolbar();
-    DCHECK(top_toolbar_);
+    toolbar_ = browser_view_->GetChromeToolbar();
+    DCHECK(toolbar_);
   }
 
-  if (!top_toolbar_) {
+  if (!toolbar_) {
     // Create the browse buttons.
     browse_buttons.push_back(CreateBrowseButton("Back", ID_BACK_BUTTON));
     browse_buttons.push_back(CreateBrowseButton("Forward", ID_FORWARD_BUTTON));
@@ -1133,48 +1158,56 @@ void ViewsWindow::AddControls() {
     CreateLocationBar();
     CreateMenuButton();
 
-    // Create the top panel.
-    CefRefPtr<CefPanel> top_panel = CefPanel::CreatePanel(nullptr);
+    // Create the toolbar panel.
+    CefRefPtr<CefPanel> panel = CefPanel::CreatePanel(nullptr);
 
-    // Use a horizontal box layout for |top_panel|.
-    CefBoxLayoutSettings top_panel_layout_settings;
-    top_panel_layout_settings.horizontal = true;
-    CefRefPtr<CefBoxLayout> top_panel_layout =
-        top_panel->SetToBoxLayout(top_panel_layout_settings);
+    // Use a horizontal box layout for |panel|.
+    CefBoxLayoutSettings panel_layout_settings;
+    panel_layout_settings.horizontal = true;
+    CefRefPtr<CefBoxLayout> panel_layout =
+        panel->SetToBoxLayout(panel_layout_settings);
 
-    // Add the buttons and URL textfield to |top_panel|.
+    // Add the buttons and URL textfield to |panel|.
     for (auto& browse_button : browse_buttons) {
-      top_panel->AddChildView(browse_button);
+      panel->AddChildView(browse_button);
     }
-    top_panel->AddChildView(location_bar_);
+    panel->AddChildView(location_bar_);
 
     UpdateExtensionControls();
     DCHECK(extensions_panel_);
-    top_panel->AddChildView(extensions_panel_);
+    panel->AddChildView(extensions_panel_);
 
-    top_panel->AddChildView(menu_button_);
-    views_style::ApplyTo(top_panel);
+    panel->AddChildView(menu_button_);
+    views_style::ApplyTo(panel);
 
     // Allow |location| to grow and fill any remaining space.
-    top_panel_layout->SetFlexForView(location_bar_, 1);
+    panel_layout->SetFlexForView(location_bar_, 1);
 
-    top_toolbar_ = top_panel;
+    toolbar_ = panel;
   }
 
 #if defined(OS_MAC)
   if (frameless_ && with_standard_buttons_) {
-    auto insets = top_toolbar_->GetInsets();
+    auto insets = toolbar_->GetInsets();
     insets.left = kWindowButtonsWidth;
-    top_toolbar_->SetInsets(insets);
+    toolbar_->SetInsets(insets);
   }
 #endif
 
-  // Add the top panel and browser view to |window|.
-  int top_index = 0;
-  if (top_menu_panel) {
-    window_->AddChildViewAt(top_menu_panel, top_index++);
+  if (use_bottom_controls_) {
+    // Add the panel at the bottom of |window|.
+    window_->AddChildView(toolbar_);
+    if (menu_panel) {
+      window_->AddChildView(menu_panel);
+    }
+  } else {
+    // Add the panel at the top of |window|.
+    int index = 0;
+    if (menu_panel) {
+      window_->AddChildViewAt(menu_panel, index++);
+    }
+    window_->AddChildViewAt(toolbar_, index);
   }
-  window_->AddChildViewAt(top_toolbar_, top_index);
 
   // Lay out |window| so we can get the default button sizes.
   window_->Layout();
@@ -1194,10 +1227,10 @@ void ViewsWindow::AddControls() {
                 menu_button_->GetBounds().width + 100;
   }
 
-  // Minimum window height is the hight of the top toolbar plus some extra.
-  int min_height = top_toolbar_->GetBounds().height + 100;
-  if (top_menu_panel) {
-    min_height += top_menu_panel->GetBounds().height;
+  // Minimum window height is the hight of the toolbar plus some extra.
+  int min_height = toolbar_->GetBounds().height + 100;
+  if (menu_panel) {
+    min_height += menu_panel->GetBounds().height;
   }
 
   minimum_window_size_ = CefSize(min_width, min_height);
@@ -1217,8 +1250,8 @@ void ViewsWindow::SetMenuFocusable(bool focusable) {
     return;
   }
 
-  if (top_menu_bar_) {
-    top_menu_bar_->SetMenuFocusable(focusable);
+  if (menu_bar_) {
+    menu_bar_->SetMenuFocusable(focusable);
   } else {
     window_->GetViewForID(ID_MENU_BUTTON)->SetFocusable(focusable);
 
@@ -1249,10 +1282,10 @@ void ViewsWindow::ShowTopControls(bool show) {
     return;
   }
 
-  // Change the visibility of the top toolbar.
-  if (top_toolbar_->IsVisible() != show) {
-    top_toolbar_->SetVisible(show);
-    top_toolbar_->InvalidateLayout();
+  // Change the visibility of the toolbar.
+  if (toolbar_->IsVisible() != show) {
+    toolbar_->SetVisible(show);
+    toolbar_->InvalidateLayout();
   }
 }
 
@@ -1266,11 +1299,11 @@ void ViewsWindow::UpdateExtensionControls() {
   if (!extensions_panel_) {
     extensions_panel_ = CefPanel::CreatePanel(nullptr);
 
-    // Use a horizontal box layout for |top_panel|.
-    CefBoxLayoutSettings top_panel_layout_settings;
-    top_panel_layout_settings.horizontal = true;
-    CefRefPtr<CefBoxLayout> top_panel_layout =
-        extensions_panel_->SetToBoxLayout(top_panel_layout_settings);
+    // Use a horizontal box layout for |panel|.
+    CefBoxLayoutSettings panel_layout_settings;
+    panel_layout_settings.horizontal = true;
+    CefRefPtr<CefBoxLayout> panel_layout =
+        extensions_panel_->SetToBoxLayout(panel_layout_settings);
   } else {
     extensions_panel_->RemoveAllChildViews();
   }
