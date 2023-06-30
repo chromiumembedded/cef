@@ -44,9 +44,12 @@ char16_t GetMnemonic(const std::u16string& title) {
 
 }  // namespace
 
-ViewsMenuBar::ViewsMenuBar(Delegate* delegate, int menu_id_start)
+ViewsMenuBar::ViewsMenuBar(Delegate* delegate,
+                           int menu_id_start,
+                           bool use_bottom_controls)
     : delegate_(delegate),
       id_start_(menu_id_start),
+      use_bottom_controls_(use_bottom_controls),
       id_next_(menu_id_start),
       last_nav_with_keyboard_(false) {
   DCHECK(delegate_);
@@ -164,12 +167,28 @@ void ViewsMenuBar::OnMenuButtonPressed(
     CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) {
   CefRefPtr<CefMenuModel> menu_model = GetMenuModel(menu_button->GetID());
 
+  const auto button_bounds = menu_button->GetBoundsInScreen();
+
   // Adjust menu position to align with the button.
   CefPoint point = screen_point;
   if (CefIsRTL()) {
-    point.x += menu_button->GetBounds().width - 4;
+    point.x += button_bounds.width - 4;
   } else {
-    point.x -= menu_button->GetBounds().width - 4;
+    point.x -= button_bounds.width - 4;
+  }
+
+  if (use_bottom_controls_) {
+    const auto display_bounds =
+        menu_button->GetWindow()->GetDisplay()->GetWorkArea();
+    const int available_height = display_bounds.y + display_bounds.height -
+                                 button_bounds.y - button_bounds.height;
+
+    // Approximation of the menu height.
+    const int menu_height = menu_model->GetCount() * button_bounds.height;
+    if (menu_height > available_height) {
+      // The menu will go upwards, so place it above the button.
+      point.y -= button_bounds.height - 8;
+    }
   }
 
   // Keep track of the current |last_nav_with_keyboard_| status and restore it
@@ -230,6 +249,10 @@ void ViewsMenuBar::MouseOutsideMenu(CefRefPtr<CefMenuModel> menu_model,
 
     CefRefPtr<CefView> button = panel_->GetViewForID(id);
     CefRect button_bounds = button->GetBounds();
+
+    // Adjust for window coordinates.
+    button_bounds.y += panel_bounds.y;
+
     if (CefIsRTL()) {
       // Adjust for right-to-left button layout.
       button_bounds.x =
