@@ -570,7 +570,7 @@ void ViewsWindow::OnMenuButtonPressed(
 
     // Approximation of the menu height.
     const int menu_height =
-        button_menu_model_->GetCount() * button_bounds.height;
+        static_cast<int>(button_menu_model_->GetCount()) * button_bounds.height;
     if (menu_height > available_height) {
       // The menu will go upwards, so place it above the button.
       point.y -= button_bounds.height - 8;
