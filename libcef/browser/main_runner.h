@@ -89,7 +89,7 @@ class CefMainRunner : public CefMainRunnerHandler {
   std::unique_ptr<CefUIThread> ui_thread_;
 
   // Used to quit the current base::RunLoop.
-  base::OnceClosure quit_when_idle_callback_;
+  base::OnceClosure quit_callback_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MAIN_RUNNER_H_

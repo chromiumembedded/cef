@@ -61,19 +61,19 @@ void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
   keep_alive_ = std::make_unique<ScopedKeepAlive>(
       KeepAliveOrigin::APP_CONTROLLER, KeepAliveRestartOption::DISABLED);
 
-  // The idle callback will be executed from BrowserProcessImpl::Unpin() via
+  // The QuitClosure will be executed from BrowserProcessImpl::Unpin() via
   // KeepAliveRegistry when the last ScopedKeepAlive is released.
   // ScopedKeepAlives are also held by Browser objects.
   DCHECK(g_browser_process);
   static_cast<BrowserProcessImpl*>(g_browser_process)
-      ->SetQuitClosure(run_loop->QuitWhenIdleClosure());
+      ->SetQuitClosure(run_loop->QuitClosure());
 }
 
 bool ChromeMainRunnerDelegate::HandleMainMessageLoopQuit() {
   // May be called multiple times. See comments in RunMainMessageLoopBefore.
   keep_alive_.reset();
 
-  // Cancel direct execution of the QuitWhenIdleClosure() in
+  // Cancel direct execution of the QuitClosure() in
   // CefMainRunner::QuitMessageLoop. We instead wait for all Chrome browser
   // windows to exit.
   return true;
