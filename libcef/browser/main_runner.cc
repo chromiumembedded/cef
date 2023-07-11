@@ -273,8 +273,8 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
 void CefMainRunner::RunMessageLoop() {
   base::RunLoop run_loop;
 
-  DCHECK(quit_when_idle_callback_.is_null());
-  quit_when_idle_callback_ = run_loop.QuitWhenIdleClosure();
+  DCHECK(quit_callback_.is_null());
+  quit_callback_ = run_loop.QuitClosure();
 
   main_delegate_->BeforeMainMessageLoopRun(&run_loop);
 
@@ -283,11 +283,11 @@ void CefMainRunner::RunMessageLoop() {
 }
 
 void CefMainRunner::QuitMessageLoop() {
-  if (!quit_when_idle_callback_.is_null()) {
+  if (!quit_callback_.is_null()) {
     if (main_delegate_->HandleMainMessageLoopQuit()) {
       return;
     }
-    std::move(quit_when_idle_callback_).Run();
+    std::move(quit_callback_).Run();
   }
 }
 
