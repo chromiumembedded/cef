@@ -12,7 +12,7 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 9298bc0945ff2..eb3a9628785f4 100644
+index acd08b3cc7ef4..98f64fb279c4e 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -75,21 +75,8 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -         "You must set the wdk_path if you set the visual studio path")
 -  visual_studio_runtime_dirs = []
  }
-diff --git chrome/app/framework.order chrome/app/framework.order
-index 60f573a736ba5..90dd6d0b37314 100644
---- chrome/app/framework.order
-+++ chrome/app/framework.order
-@@ -28,3 +28,8 @@ _ChromeMain
- _lprofDirMode
- ___llvm_profile_filename
- ___llvm_profile_raw_version
-+
-+# Symbols exported for CEF.
-+_OBJC_CLASS_$_UnderlayOpenGLHostingWindow
-+_OBJC_METACLASS_$_UnderlayOpenGLHostingWindow
-+
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 7b939af86e260..4f89bcabf4d77 100644
+index e90116935b87d..805c3b54b17f7 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")

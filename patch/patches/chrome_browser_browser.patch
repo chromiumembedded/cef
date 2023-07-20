@@ -13,7 +13,7 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
    return false;
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 16bf45bea457e..d9db045e7bd68 100644
+index c2b27aea9b244..021203f3a67cc 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/compiler/compiler.gni")
@@ -24,7 +24,7 @@ index 16bf45bea457e..d9db045e7bd68 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/ash/components/assistant/assistant.gni")
-@@ -478,6 +479,10 @@ static_library("ui") {
+@@ -376,6 +377,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -35,7 +35,7 @@ index 16bf45bea457e..d9db045e7bd68 100644
    # Since browser and browser_ui actually depend on each other,
    # we must omit the dependency from browser_ui to browser.
    # However, this means browser_ui and browser should more or less
-@@ -502,6 +507,7 @@ static_library("ui") {
+@@ -400,6 +405,7 @@ static_library("ui") {
      "//build:chromeos_buildflags",
      "//build/config/chromebox_for_meetings:buildflags",
      "//cc/paint",
@@ -43,7 +43,7 @@ index 16bf45bea457e..d9db045e7bd68 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -2726,6 +2732,8 @@ static_library("ui") {
+@@ -2646,6 +2652,8 @@ static_library("ui") {
        "views/apps/app_dialog/app_block_dialog_view.h",
        "views/apps/app_dialog/app_pause_dialog_view.cc",
        "views/apps/app_dialog/app_pause_dialog_view.h",
@@ -52,7 +52,7 @@ index 16bf45bea457e..d9db045e7bd68 100644
        "views/apps/app_info_dialog/arc_app_info_links_panel.cc",
        "views/apps/app_info_dialog/arc_app_info_links_panel.h",
        "views/apps/chrome_app_window_client_views_chromeos.cc",
-@@ -4528,8 +4536,6 @@ static_library("ui") {
+@@ -4524,8 +4532,6 @@ static_library("ui") {
        "views/accessibility/theme_tracking_non_accessible_image_view.h",
        "views/apps/app_dialog/app_dialog_view.cc",
        "views/apps/app_dialog/app_dialog_view.h",
@@ -61,7 +61,7 @@ index 16bf45bea457e..d9db045e7bd68 100644
        "views/apps/app_info_dialog/app_info_dialog_container.cc",
        "views/apps/app_info_dialog/app_info_dialog_container.h",
        "views/apps/app_info_dialog/app_info_dialog_views.cc",
-@@ -6135,6 +6141,7 @@ static_library("ui") {
+@@ -6165,6 +6171,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -308,7 +308,7 @@ index 9125b6d7e3e87..9140a9cf4ca7d 100644
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 2cbbda0614965..976a9e8be44b6 100644
+index b0fdd85964754..f86896354ec6f 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -356,7 +356,7 @@ index 2cbbda0614965..976a9e8be44b6 100644
    // Accessors ////////////////////////////////////////////////////////////////
  
    const CreateParams& create_params() const { return create_params_; }
-@@ -474,6 +491,12 @@ class Browser : public TabStripModelObserver,
+@@ -472,6 +489,12 @@ class Browser : public TabStripModelObserver,
  
    base::WeakPtr<Browser> AsWeakPtr();
  
@@ -369,7 +369,7 @@ index 2cbbda0614965..976a9e8be44b6 100644
    // Get the FindBarController for this browser, creating it if it does not
    // yet exist.
    FindBarController* GetFindBarController();
-@@ -850,11 +873,19 @@ class Browser : public TabStripModelObserver,
+@@ -867,11 +890,19 @@ class Browser : public TabStripModelObserver,
    void SetContentsBounds(content::WebContents* source,
                           const gfx::Rect& bounds) override;
    void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -389,7 +389,7 @@ index 2cbbda0614965..976a9e8be44b6 100644
    void BeforeUnloadFired(content::WebContents* source,
                           bool proceed,
                           bool* proceed_to_fire_unload) override;
-@@ -1266,6 +1297,8 @@ class Browser : public TabStripModelObserver,
+@@ -1279,6 +1310,8 @@ class Browser : public TabStripModelObserver,
    const std::string initial_workspace_;
    bool initial_visible_on_all_workspaces_state_;
  
@@ -398,7 +398,7 @@ index 2cbbda0614965..976a9e8be44b6 100644
    CreationSource creation_source_ = CreationSource::kUnknown;
  
    UnloadController unload_controller_;
-@@ -1330,6 +1363,10 @@ class Browser : public TabStripModelObserver,
+@@ -1343,6 +1376,10 @@ class Browser : public TabStripModelObserver,
        extension_browser_window_helper_;
  #endif
  

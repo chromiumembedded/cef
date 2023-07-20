@@ -84,10 +84,10 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 341fffbe509b5..678a0ed4d2b26 100644
+index e487948be00f9..bc77213050069 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -23,6 +23,7 @@
+@@ -24,6 +24,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -95,7 +95,7 @@ index 341fffbe509b5..678a0ed4d2b26 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
  #include "chrome/browser/policy/management_utils.h"
-@@ -101,6 +102,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
+@@ -105,6 +106,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -109,7 +109,7 @@ index 341fffbe509b5..678a0ed4d2b26 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -285,7 +293,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -300,7 +308,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

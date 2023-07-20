@@ -39,18 +39,15 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       content::BrowserContext* context) override;
   content::BrowserContext* GetOriginalContext(
       content::BrowserContext* context) override;
-  content::BrowserContext* GetRedirectedContextInIncognito(
+  content::BrowserContext* GetContextRedirectedToOriginal(
       content::BrowserContext* context,
-      bool force_guest_profile,
-      bool force_system_profile) override;
-  content::BrowserContext* GetContextForRegularAndIncognito(
+      bool force_guest_profile) override;
+  content::BrowserContext* GetContextOwnInstance(
       content::BrowserContext* context,
-      bool force_guest_profile,
-      bool force_system_profile) override;
-  content::BrowserContext* GetRegularProfile(
+      bool force_guest_profile) override;
+  content::BrowserContext* GetContextForOriginalOnly(
       content::BrowserContext* context,
-      bool force_guest_profile,
-      bool force_system_profile) override;
+      bool force_guest_profile) override;
   bool IsGuestSession(content::BrowserContext* context) const override;
   bool IsExtensionIncognitoEnabled(
       const std::string& extension_id,
@@ -118,6 +115,8 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   KioskDelegate* GetKioskDelegate() override;
   bool IsLockScreenContext(content::BrowserContext* context) override;
   std::string GetApplicationLocale() override;
+  media_device_salt::MediaDeviceSaltService* GetMediaDeviceSaltService(
+      content::BrowserContext* context) override;
 
  private:
   // Support for extension APIs.

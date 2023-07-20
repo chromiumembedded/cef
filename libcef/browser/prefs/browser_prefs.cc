@@ -21,7 +21,6 @@
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
-#include "chrome/browser/media/media_device_id_salt.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
@@ -46,6 +45,7 @@
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/language/core/browser/language_prefs.h"
 #include "components/language/core/browser/pref_names.h"
+#include "components/media_device_salt/media_device_id_salt.h"
 #include "components/permissions/permission_actions_history.h"
 #include "components/permissions/permission_hats_trigger_helper.h"
 #include "components/policy/core/common/policy_pref_names.h"
@@ -269,7 +269,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());
-    MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
+    media_device_salt::MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
     PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
     permissions::PermissionActionsHistory::RegisterProfilePrefs(registry.get());
     permissions::PermissionHatsTriggerHelper::RegisterProfilePrefs(

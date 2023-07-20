@@ -246,11 +246,11 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   blink::UserAgentMetadata GetUserAgentMetadata() override;
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;
-  bool ArePersistentMediaDeviceIDsAllowed(
-      content::BrowserContext* browser_context,
-      const GURL& scope,
+  void GetMediaDeviceIDSalt(
+      content::RenderFrameHost* rfh,
       const net::SiteForCookies& site_for_cookies,
-      const absl::optional<url::Origin>& top_frame_origin) override;
+      const blink::StorageKey& storage_key,
+      base::OnceCallback<void(bool, const std::string&)> callback) override;
   void OnWebContentsCreated(content::WebContents* web_contents) override;
   bool IsFindInPageDisabledForOrigin(const url::Origin& origin) override;
 

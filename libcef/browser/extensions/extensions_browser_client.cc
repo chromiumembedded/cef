@@ -20,6 +20,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
+#include "chrome/browser/media/webrtc/media_device_salt_service_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -149,25 +150,21 @@ BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
 }
 
 content::BrowserContext*
-CefExtensionsBrowserClient::GetRedirectedContextInIncognito(
+CefExtensionsBrowserClient::GetContextRedirectedToOriginal(
     content::BrowserContext* context,
-    bool force_guest_profile,
-    bool force_system_profile) {
+    bool force_guest_profile) {
   return context;
 }
 
-content::BrowserContext*
-CefExtensionsBrowserClient::GetContextForRegularAndIncognito(
+content::BrowserContext* CefExtensionsBrowserClient::GetContextOwnInstance(
     content::BrowserContext* context,
-    bool force_guest_profile,
-    bool force_system_profile) {
+    bool force_guest_profile) {
   return context;
 }
 
-content::BrowserContext* CefExtensionsBrowserClient::GetRegularProfile(
+content::BrowserContext* CefExtensionsBrowserClient::GetContextForOriginalOnly(
     content::BrowserContext* context,
-    bool force_guest_profile,
-    bool force_system_profile) {
+    bool force_guest_profile) {
   return context;
 }
 
@@ -411,6 +408,13 @@ bool CefExtensionsBrowserClient::IsLockScreenContext(
 
 std::string CefExtensionsBrowserClient::GetApplicationLocale() {
   return g_browser_process->GetApplicationLocale();
+}
+
+media_device_salt::MediaDeviceSaltService*
+CefExtensionsBrowserClient::GetMediaDeviceSaltService(
+    content::BrowserContext* context) {
+  return MediaDeviceSaltServiceFactory::GetInstance()->GetForBrowserContext(
+      context);
 }
 
 }  // namespace extensions

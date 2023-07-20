@@ -791,7 +791,7 @@ bool CefDictionaryValueImpl::Clear() {
 
 bool CefDictionaryValueImpl::HasKey(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().GetDict().contains(base::StringPiece(key));
+  return const_value().GetDict().contains(base::StringPiece(key.ToString()));
 }
 
 bool CefDictionaryValueImpl::GetKeys(KeyList& keys) {
@@ -813,7 +813,7 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, VTYPE_INVALID);
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value) {
     switch (value->type()) {
       case base::Value::Type::NONE:
@@ -842,7 +842,7 @@ CefRefPtr<CefValue> CefDictionaryValueImpl::GetValue(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value) {
     return CefValueImpl::GetOrCreateRefOrCopy(const_cast<base::Value*>(value),
                                               mutable_value_unchecked(),
@@ -858,7 +858,7 @@ bool CefDictionaryValueImpl::GetBool(const CefString& key) {
   bool ret_value = false;
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_bool()) {
     ret_value = value->GetBool();
   }
@@ -872,7 +872,7 @@ int CefDictionaryValueImpl::GetInt(const CefString& key) {
   int ret_value = 0;
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_int()) {
     ret_value = value->GetInt();
   }
@@ -886,7 +886,7 @@ double CefDictionaryValueImpl::GetDouble(const CefString& key) {
   double ret_value = 0;
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_double()) {
     ret_value = value->GetDouble();
   }
@@ -900,7 +900,7 @@ CefString CefDictionaryValueImpl::GetString(const CefString& key) {
   std::string ret_value;
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_string()) {
     ret_value = value->GetString();
   }
@@ -913,7 +913,7 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueImpl::GetBinary(
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_blob()) {
     base::Value* binary_value = const_cast<base::Value*>(value);
     return CefBinaryValueImpl::GetOrCreateRef(
@@ -928,7 +928,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetDictionary(
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_dict()) {
     base::Value* dict_value = const_cast<base::Value*>(value);
     return CefDictionaryValueImpl::GetOrCreateRef(
@@ -942,7 +942,7 @@ CefRefPtr<CefListValue> CefDictionaryValueImpl::GetList(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(false, nullptr);
 
   const base::Value* value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (value && value->is_list()) {
     base::Value* list_value = const_cast<base::Value*>(value);
     return CefListValueImpl::GetOrCreateRef(
@@ -1038,14 +1038,14 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
   // retrieve the actual Value pointer as it current exists first, for later
   // comparison purposes.
   const base::Value* actual_value =
-      const_value().GetDict().Find(base::StringPiece(key));
+      const_value().GetDict().Find(base::StringPiece(key.ToString()));
   if (!actual_value) {
     return false;
   }
 
   // |actual_value| is no longer valid after this call.
   absl::optional<base::Value> out_value =
-      mutable_value()->GetDict().Extract(base::StringPiece(key));
+      mutable_value()->GetDict().Extract(base::StringPiece(key.ToString()));
   if (!out_value.has_value()) {
     return false;
   }
@@ -1071,8 +1071,8 @@ base::Value* CefDictionaryValueImpl::SetInternal(
   // base::Value now uses move semantics which means that Set() will move the
   // contents of the passed-in base::Value instead of keeping the same object.
   // Set() then returns the actual Value pointer as it currently exists.
-  base::Value* actual_value =
-      mutable_value()->GetDict().Set(base::StringPiece(key), std::move(*value));
+  base::Value* actual_value = mutable_value()->GetDict().Set(
+      base::StringPiece(key.ToString()), std::move(*value));
   CHECK(actual_value);
 
   // |value| will be deleted when this method returns. Update the controller to

@@ -43,6 +43,7 @@
 #include "net/base/net_module.h"
 #include "third_party/widevine/cdm/buildflags.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/color/color_provider_manager.h"
 #include "ui/native_theme/native_theme.h"
 
 #if BUILDFLAG(IS_LINUX)

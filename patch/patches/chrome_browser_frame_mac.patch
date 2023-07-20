@@ -1,16 +1,16 @@
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.h chrome/browser/ui/views/frame/browser_frame_mac.h
-index ab1d8fd9bfa84..77f65b44e591a 100644
+index 986c2b47ee1f4..c3b6806e0c20a 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.h
 +++ chrome/browser/ui/views/frame/browser_frame_mac.h
-@@ -12,6 +12,7 @@
- #include "chrome/browser/command_observer.h"
- #include "ui/views/widget/native_widget_mac.h"
+@@ -15,6 +15,7 @@
+ #error "This file requires ARC support."
+ #endif
  
 +class Browser;
  class BrowserFrame;
  class BrowserView;
  @class BrowserWindowTouchBarController;
-@@ -55,6 +56,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
+@@ -58,6 +59,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
    bool ShouldUseInitialVisibleOnAllWorkspaces() const override;
    void AnnounceTextInInProcessWindow(const std::u16string& text) override;
  
@@ -33,10 +33,10 @@ index ab1d8fd9bfa84..77f65b44e591a 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 55f9663efa82a..d0fabd2273a80 100644
+index ef5f9343dc024..60cf660a8e63c 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
-@@ -181,7 +181,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
+@@ -185,7 +185,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
  void BrowserFrameMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -52,7 +52,7 @@ index 55f9663efa82a..d0fabd2273a80 100644
    if (!chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -309,8 +316,16 @@ bool BrowserFrameMac::WillExecuteCommand(
+@@ -313,8 +320,16 @@ bool BrowserFrameMac::WillExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -70,7 +70,7 @@ index 55f9663efa82a..d0fabd2273a80 100644
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -341,11 +356,20 @@ bool BrowserFrameMac::ExecuteCommand(
+@@ -345,11 +360,20 @@ bool BrowserFrameMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {

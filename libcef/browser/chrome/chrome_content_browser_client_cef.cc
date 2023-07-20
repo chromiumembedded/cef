@@ -115,8 +115,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
         switches::kUserAgentProductAndVersion,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
 
   const std::string& process_type =
@@ -127,8 +126,7 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
         switches::kUncaughtExceptionStackSize,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
 
   CefRefPtr<CefApp> app = CefAppManager::Get()->GetApplication();

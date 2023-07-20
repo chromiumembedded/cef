@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/profiles/profile_menu_view_base.cc chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-index 4e887ec33d100..67af3165246e5 100644
+index 7e8bcef6d5bd9..6cd5df220ff5f 100644
 --- chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-@@ -991,8 +991,8 @@ int ProfileMenuViewBase::GetMaxHeight() const {
+@@ -1018,8 +1018,8 @@ int ProfileMenuViewBase::GetMaxHeight() const {
            ->GetDisplayNearestPoint(anchor_rect.CenterPoint())
            .work_area();
    int available_space = screen_space.bottom() - anchor_rect.bottom();
@@ -14,10 +14,10 @@ index 4e887ec33d100..67af3165246e5 100644
        std::max(available_space, anchor_rect.y() - screen_space.y());
  #endif
 diff --git ui/views/style/platform_style_mac.mm ui/views/style/platform_style_mac.mm
-index 256bde37abf47..9ddfa6fc59f0a 100644
+index 4a695e7bab33e..5421e39cd5a9c 100644
 --- ui/views/style/platform_style_mac.mm
 +++ ui/views/style/platform_style_mac.mm
-@@ -43,7 +43,7 @@ const bool PlatformStyle::kTableViewSupportsKeyboardNavigationByCell = false;
+@@ -47,7 +47,7 @@ const bool PlatformStyle::kTableViewSupportsKeyboardNavigationByCell = false;
  const bool PlatformStyle::kTreeViewSelectionPaintsEntireRow = true;
  const bool PlatformStyle::kUseRipples = false;
  const bool PlatformStyle::kInactiveWidgetControlsAppearDisabled = true;

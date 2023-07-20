@@ -60,7 +60,7 @@ index cead7cfa14bae..24142c2e4896f 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index e8045d12672ed..0752c4780b312 100644
+index 30d6c2e509ae8..8240b0b078869 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -62,11 +62,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -131,7 +131,7 @@ index e8045d12672ed..0752c4780b312 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 9ba85048d1fcf..f3a5b8bc9bda0 100644
+index 20002c3204d18..a3795d86d1f96 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -59,6 +59,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -156,7 +156,7 @@ index 9ba85048d1fcf..f3a5b8bc9bda0 100644
    content::RenderFrameHost* main_frame_host() const { return main_frame_host_; }
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -205,7 +211,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -216,7 +222,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    raw_ptr<content::BrowserContext> browser_context_;
  
    // The host for our HTML content.
@@ -198,7 +198,7 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index fbef1f4fba931..1f98adb6b0bcb 100644
+index b70ec0a3bec7e..bb4280ff00696 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -32,6 +32,7 @@
@@ -209,7 +209,7 @@ index fbef1f4fba931..1f98adb6b0bcb 100644
  class PrefService;
  
  namespace base {
-@@ -76,6 +77,7 @@ class ComponentExtensionResourceManager;
+@@ -80,6 +81,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -217,7 +217,7 @@ index fbef1f4fba931..1f98adb6b0bcb 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -248,6 +250,14 @@ class ExtensionsBrowserClient {
+@@ -257,6 +259,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

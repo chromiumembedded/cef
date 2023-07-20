@@ -9,7 +9,6 @@
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include "base/memory/shared_memory_mapping.h"
-#include "components/viz/common/resources/resource_format.h"
 #include "components/viz/common/resources/resource_sizes.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "services/viz/privileged/mojom/compositing/layered_window_updater.mojom.h"

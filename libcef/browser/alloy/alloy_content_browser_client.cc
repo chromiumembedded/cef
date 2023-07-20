@@ -55,6 +55,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
+#include "chrome/browser/media/webrtc/media_device_salt_service_factory.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/profile_network_context_service_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
@@ -85,6 +86,7 @@
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/embedder_support/switches.h"
 #include "components/embedder_support/user_agent_utils.h"
+#include "components/media_device_salt/media_device_salt_service.h"
 #include "components/pdf/browser/pdf_navigation_throttle.h"
 #include "components/pdf/browser/pdf_url_loader_request_interceptor.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
@@ -567,8 +569,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       embedder_support::kUserAgent,
       switches::kUserAgentProductAndVersion,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
 
   const std::string& process_type =
@@ -586,8 +587,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
         switches::kUncaughtExceptionStackSize,
         network::switches::kUnsafelyTreatInsecureOriginAsSecure,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
 
     if (extensions::ExtensionsEnabled()) {
       content::RenderProcessHost* process =
@@ -615,8 +615,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
         switches::kLang,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
 
   // Necessary to populate DIR_USER_DATA in sub-processes.
@@ -642,8 +641,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
         switches::kLogFile,
     };
-    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
-                                   std::size(kSwitchNames));
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
 
   if (crash_reporting::Enabled()) {
@@ -1337,16 +1335,31 @@ AlloyContentBrowserClient::GetPluginMimeTypesWithExternalHandlers(
   return mime_types;
 }
 
-bool AlloyContentBrowserClient::ArePersistentMediaDeviceIDsAllowed(
-    content::BrowserContext* browser_context,
-    const GURL& url,
+void AlloyContentBrowserClient::GetMediaDeviceIDSalt(
+    content::RenderFrameHost* rfh,
     const net::SiteForCookies& site_for_cookies,
-    const absl::optional<url::Origin>& top_frame_origin) {
+    const blink::StorageKey& storage_key,
+    base::OnceCallback<void(bool, const std::string&)> callback) {
+  GURL url = rfh->GetLastCommittedURL();
+  url::Origin top_frame_origin = rfh->GetMainFrame()->GetLastCommittedOrigin();
+  content::BrowserContext* browser_context = rfh->GetBrowserContext();
+
   // Persistent MediaDevice IDs are allowed if cookies are allowed.
-  return CookieSettingsFactory::GetForProfile(
-             Profile::FromBrowserContext(browser_context))
-      ->IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin,
-                                  net::CookieSettingOverrides());
+  scoped_refptr<content_settings::CookieSettings> cookie_settings =
+      CookieSettingsFactory::GetForProfile(
+          Profile::FromBrowserContext(browser_context));
+  bool allowed = cookie_settings->IsFullCookieAccessAllowed(
+      url, site_for_cookies, top_frame_origin,
+      cookie_settings->SettingOverridesForStorage());
+  auto* salt_service =
+      MediaDeviceSaltServiceFactory::GetInstance()->GetForBrowserContext(
+          browser_context);
+  if (!salt_service) {
+    std::move(callback).Run(allowed, browser_context->UniqueId());
+    return;
+  }
+
+  salt_service->GetSalt(base::BindOnce(std::move(callback), allowed));
 }
 
 void AlloyContentBrowserClient::OnWebContentsCreated(

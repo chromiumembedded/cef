@@ -8,6 +8,7 @@
 #include "base/feature_list.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
+#include "chrome/browser/media/webrtc/media_device_salt_service_factory.h"
 #include "chrome/browser/plugins/plugin_prefs_factory.h"
 #include "chrome/browser/profiles/renderer_updater_factory.h"
 #include "chrome/browser/reduce_accept_language/reduce_accept_language_factory.h"
@@ -24,6 +25,7 @@ namespace cef {
 
 void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   CookieSettingsFactory::GetInstance();
+  MediaDeviceSaltServiceFactory::GetInstance();
   media_router::ChromeMediaRouterFactory::GetInstance();
   PluginPrefsFactory::GetInstance();
   PrefsTabHelper::GetServiceInstance();

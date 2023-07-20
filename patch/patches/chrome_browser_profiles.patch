@@ -84,10 +84,10 @@ index 946b9cb533714..80815f7feb8f8 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index a3ee1846fcf77..13edaf1203d69 100644
+index 5320b192eca93..cba2c8b7c461b 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1031,7 +1031,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1026,7 +1026,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -99,7 +99,7 @@ index a3ee1846fcf77..13edaf1203d69 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 92dec1c25477c..0723bdb6bc6ad 100644
+index fe2703aaa7a28..25bd6d48fcf3a 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -389,7 +389,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -112,7 +112,7 @@ index 92dec1c25477c..0723bdb6bc6ad 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 60c9fd19fe15b..2a3e317d9c240 100644
+index 9bb7cd968c95d..bf16634f7dfe8 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -130,7 +130,7 @@ class ProfileManager : public Profile::Delegate {

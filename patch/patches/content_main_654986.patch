@@ -94,7 +94,7 @@ index 3062f57603321..d8532c9c2eabb 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index ab6bc68812e36..1cd5ba7bd27f3 100644
+index 6cb42330a794c..f5294cc06ced3 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -46,6 +46,7 @@

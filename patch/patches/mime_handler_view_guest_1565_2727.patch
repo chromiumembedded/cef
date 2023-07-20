@@ -12,10 +12,10 @@ index a3f8485e40bbc..dc8c1aa898f72 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 44d0b99677a74..843c49ccaecc3 100644
+index 1e1712fdf38ec..6c80de2ae90e6 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -228,6 +228,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -202,6 +202,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index 44d0b99677a74..843c49ccaecc3 100644
    std::move(callback).Run(std::move(owned_this),
                            WebContents::CreateWithSessionStorage(
                                params, owner_web_contents()
-@@ -236,6 +238,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -210,6 +212,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index 44d0b99677a74..843c49ccaecc3 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    GetController().LoadURL(stream_->handler_url(), content::Referrer(),
                            ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
-@@ -497,6 +503,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+@@ -475,6 +481,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
    }
  }
  
@@ -51,10 +51,10 @@ index 44d0b99677a74..843c49ccaecc3 100644
      mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
    if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 2ade4d0b28ba4..8ba6293863a93 100644
+index 397bee1fc011b..7ee1e489503aa 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -196,6 +196,7 @@ class MimeHandlerViewGuest
+@@ -193,10 +193,12 @@ class MimeHandlerViewGuest
    void ReadyToCommitNavigation(
        content::NavigationHandle* navigation_handle) final;
    void DidFinishNavigation(content::NavigationHandle* navigation_handle) final;
@@ -62,9 +62,6 @@ index 2ade4d0b28ba4..8ba6293863a93 100644
  
    std::unique_ptr<MimeHandlerViewGuestDelegate> delegate_;
    std::unique_ptr<StreamContainer> stream_;
-@@ -204,6 +205,7 @@ class MimeHandlerViewGuest
-       content::ChildProcessHost::kInvalidUniqueID, MSG_ROUTING_NONE};
-   int embedder_widget_routing_id_ = MSG_ROUTING_NONE;
  
 +  bool is_guest_attached_ = false;
    bool is_guest_fullscreen_ = false;

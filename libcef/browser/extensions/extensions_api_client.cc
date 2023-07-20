@@ -33,13 +33,11 @@ AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
 }
 
 std::unique_ptr<guest_view::GuestViewManagerDelegate>
-CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
-    content::BrowserContext* context) const {
+CefExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
   // The GuestViewManager instance associated with the returned Delegate, which
   // will be retrieved in the future via GuestViewManager::FromBrowserContext,
   // will be associated with the CefBrowserContext.
-  return base::WrapUnique(
-      new extensions::ExtensionsGuestViewManagerDelegate(context));
+  return base::WrapUnique(new extensions::ExtensionsGuestViewManagerDelegate());
 }
 
 std::unique_ptr<MimeHandlerViewGuestDelegate>

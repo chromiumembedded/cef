@@ -421,3 +421,8 @@ HidSystemTrayIcon* ChromeBrowserProcessAlloy::hid_system_tray_icon() {
   DCHECK(false);
   return nullptr;
 }
+
+UsbSystemTrayIcon* ChromeBrowserProcessAlloy::usb_system_tray_icon() {
+  DCHECK(false);
+  return nullptr;
+}

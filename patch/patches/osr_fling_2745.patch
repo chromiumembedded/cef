@@ -41,10 +41,10 @@ index afefe3cd83dee..6668463247644 100644
  
  }  // namespace content
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 95d27f99acc0e..6955c18cde0fd 100644
+index f54d14751b488..2200fb38120fa 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3250,6 +3250,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3237,6 +3237,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  

@@ -213,14 +213,10 @@ cef_permission_request_types_t GetCefRequestType(
 #endif
     case permissions::RequestType::kRegisterProtocolHandler:
       return CEF_PERMISSION_TYPE_REGISTER_PROTOCOL_HANDLER;
-    case permissions::RequestType::kSecurityAttestation:
-      return CEF_PERMISSION_TYPE_SECURITY_ATTESTATION;
     case permissions::RequestType::kStorageAccess:
       return CEF_PERMISSION_TYPE_STORAGE_ACCESS;
     case permissions::RequestType::kTopLevelStorageAccess:
       return CEF_PERMISSION_TYPE_TOP_LEVEL_STORAGE_ACCESS;
-    case permissions::RequestType::kU2fApiRequest:
-      return CEF_PERMISSION_TYPE_U2F_API_REQUEST;
     case permissions::RequestType::kVrSession:
       return CEF_PERMISSION_TYPE_VR_SESSION;
     case permissions::RequestType::kWindowManagement:

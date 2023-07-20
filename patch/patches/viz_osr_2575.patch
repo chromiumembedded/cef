@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index ef3c8ba80dd34..1088d6e3c5797 100644
+index 7d16c747af4b8..d42e3636c4101 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -228,6 +228,8 @@ viz_component("service") {
@@ -191,7 +191,7 @@ index d63ec55ae38d6..ff86831efd68b 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 350fa67c49249..c03f924171720 100644
+index 29936bca703b8..8ffe0f5509475 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -108,13 +108,15 @@ interface DisplayPrivate {

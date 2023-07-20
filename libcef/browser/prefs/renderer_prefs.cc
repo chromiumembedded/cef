@@ -41,7 +41,7 @@
 #include "media/media_buildflags.h"
 #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
-#include "ui/color/color_provider_manager.h"
+#include "ui/color/color_provider_key.h"
 #include "ui/native_theme/native_theme.h"
 
 namespace renderer_prefs {
@@ -219,8 +219,7 @@ bool UpdatePreferredColorScheme(blink::web_pref::WebPreferences* web_prefs,
     // WebUI should track the color mode of the ColorProvider associated with
     // |web_contents|.
     web_prefs->preferred_color_scheme =
-        web_contents->GetColorMode() ==
-                ui::ColorProviderManager::ColorMode::kLight
+        web_contents->GetColorMode() == ui::ColorProviderKey::ColorMode::kLight
             ? blink::mojom::PreferredColorScheme::kLight
             : blink::mojom::PreferredColorScheme::kDark;
   }

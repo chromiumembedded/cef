@@ -90,7 +90,7 @@ scoped_refptr<ui::PlatformCursor> ToPlatformCursor(
   if (ui_cursor.type() == ui::mojom::CursorType::kCustom) {
     platform_cursor = ui::CursorFactory::GetInstance()->CreateImageCursor(
         ui::mojom::CursorType::kCustom, ui_cursor.custom_bitmap(),
-        ui_cursor.custom_hotspot());
+        ui_cursor.custom_hotspot(), ui_cursor.image_scale_factor());
   } else {
     cursor_loader.SetDisplay(GetDisplay(browser));
 

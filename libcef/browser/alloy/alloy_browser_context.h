@@ -18,7 +18,6 @@
 class CefDownloadManagerDelegate;
 class CefSSLHostStateDelegate;
 class CefVisitedLinkListener;
-class MediaDeviceIDSalt;
 class PrefService;
 
 namespace extensions {
@@ -83,7 +82,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
       override;
   content::ReduceAcceptLanguageControllerDelegate*
   GetReduceAcceptLanguageControllerDelegate() override;
-  std::string GetMediaDeviceIDSalt() override;
 
   // Profile overrides.
   ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;
@@ -146,8 +144,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<DownloadPrefs> download_prefs_;
 
   std::unique_ptr<content::ResourceContext> resource_context_;
-
-  scoped_refptr<MediaDeviceIDSalt> media_device_id_salt_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_

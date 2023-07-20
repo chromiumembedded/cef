@@ -18,8 +18,7 @@ class CefExtensionsAPIClient : public ExtensionsAPIClient {
   // ExtensionsAPIClient implementation.
   AppViewGuestDelegate* CreateAppViewGuestDelegate() const override;
   std::unique_ptr<guest_view::GuestViewManagerDelegate>
-  CreateGuestViewManagerDelegate(
-      content::BrowserContext* context) const override;
+  CreateGuestViewManagerDelegate() const override;
   std::unique_ptr<MimeHandlerViewGuestDelegate>
   CreateMimeHandlerViewGuestDelegate(
       MimeHandlerViewGuest* guest) const override;

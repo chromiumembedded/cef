@@ -120,10 +120,10 @@ index 51ed6bcf6b540..9ae4737e0737e 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index f8534ef8ee922..ca0c139d7ef1e 100644
+index cd6fa368d3960..3a1f64fd295c7 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -53,10 +53,12 @@ DialogDelegate::DialogDelegate() {
+@@ -64,10 +64,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -138,7 +138,7 @@ index f8534ef8ee922..ca0c139d7ef1e 100644
    widget->Init(std::move(params));
    return widget;
  }
-@@ -65,17 +67,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -76,17 +78,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -162,7 +162,7 @@ index f8534ef8ee922..ca0c139d7ef1e 100644
  #else
    return true;
  #endif
-@@ -86,14 +90,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -97,14 +101,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -180,7 +180,7 @@ index f8534ef8ee922..ca0c139d7ef1e 100644
  
    if (!dialog || dialog->use_custom_frame()) {
      params.opacity = Widget::InitParams::WindowOpacity::kTranslucent;
-@@ -106,6 +111,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -117,6 +122,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
@@ -189,7 +189,7 @@ index f8534ef8ee922..ca0c139d7ef1e 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index ca8ef29878e8e..90b845c480505 100644
+index 4d64cf4f40af7..1d77b1c152253 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -97,13 +97,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

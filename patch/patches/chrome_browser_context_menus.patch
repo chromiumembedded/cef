@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 2ab92db1a1136..dc9f25b79f3bd 100644
+index bb4d4e74f20d5..72bb071a6a4b5 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -330,6 +330,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -333,6 +333,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -16,7 +16,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -577,6 +584,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -584,6 +591,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +27,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -824,6 +835,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -812,6 +823,14 @@ RenderViewContextMenu::RenderViewContextMenu(
  #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
@@ -42,7 +42,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1260,6 +1279,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1244,6 +1263,12 @@ void RenderViewContextMenu::InitMenu() {
            autofill::PopupHidingReason::kContextMenuOpened);
      }
    }
@@ -55,7 +55,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3281,6 +3306,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3282,6 +3307,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -69,10 +69,10 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 0cbc7b7181130..8346c35242724 100644
+index 13d339371eb18..0be7773301641 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -146,6 +146,12 @@ class RenderViewContextMenu
+@@ -152,6 +152,12 @@ class RenderViewContextMenu
    }
  #endif
  
@@ -85,7 +85,7 @@ index 0cbc7b7181130..8346c35242724 100644
   protected:
    Profile* GetProfile() const;
  
-@@ -415,6 +421,9 @@ class RenderViewContextMenu
+@@ -429,6 +435,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -96,7 +96,7 @@ index 0cbc7b7181130..8346c35242724 100644
    // "Use enhanced spell check" items.
    std::unique_ptr<SpellingMenuObserver> spelling_suggestions_menu_observer_;
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index 357a070bcb8e4..f4346b8daa51a 100644
+index 18283c801689e..9838c25d6e584 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -149,6 +149,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
@@ -132,7 +132,7 @@ index 965a283dea477..74c1ee8258485 100644
    command_executed_ = true;
    RecordUsedItem(id);
 diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
-index 75986f68d98b4..5c51500093c1a 100644
+index b1e2fd00dc0db..aa05ffd7b93c2 100644
 --- components/renderer_context_menu/render_view_context_menu_base.h
 +++ components/renderer_context_menu/render_view_context_menu_base.h
 @@ -87,6 +87,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,

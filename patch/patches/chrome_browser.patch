@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index c7ff5942d379b..c6d138ad64f95 100644
+index dcf3e7327e022..99dd2617e437a 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index c7ff5942d379b..c6d138ad64f95 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1965,6 +1966,7 @@ static_library("browser") {
+@@ -1973,6 +1974,7 @@ static_library("browser") {
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index c7ff5942d379b..c6d138ad64f95 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2556,6 +2558,10 @@ static_library("browser") {
+@@ -2568,6 +2570,10 @@ static_library("browser") {
      ]
    }
  
@@ -28,4 +28,4 @@ index c7ff5942d379b..c6d138ad64f95 100644
 +
    if (is_android) {
      sources += [
-       "after_startup_task_utils_android.cc",
+       "accessibility/accessibility_prefs/android/accessibility_prefs_controller.cc",

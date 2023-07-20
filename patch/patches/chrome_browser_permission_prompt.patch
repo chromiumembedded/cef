@@ -77,7 +77,7 @@ index 18e2eec8f64ff..d36b3206aeb63 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index bac111192fab1..695c240875c31 100644
+index 0a357c35588fb..cb82d52628d64 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -174,7 +174,7 @@ index 82a50b7e22dfe..c4ba55ec6bd54 100644
    if (!browser) {
      DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
 diff --git components/embedder_support/permission_context_utils.cc components/embedder_support/permission_context_utils.cc
-index ff8391841fc28..08562a3a03aef 100644
+index 07f3c7c86b22d..110e48d59a75a 100644
 --- components/embedder_support/permission_context_utils.cc
 +++ components/embedder_support/permission_context_utils.cc
 @@ -5,6 +5,7 @@
@@ -185,9 +185,9 @@ index ff8391841fc28..08562a3a03aef 100644
  #include "components/background_sync/background_sync_permission_context.h"
  #include "components/permissions/contexts/accessibility_permission_context.h"
  #include "components/permissions/contexts/camera_pan_tilt_zoom_permission_context.h"
-@@ -75,12 +76,19 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
-           browser_context,
-           std::move(delegates.geolocation_permission_context_delegate));
+@@ -77,12 +78,19 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+           std::move(delegates.geolocation_permission_context_delegate),
+           is_regular_profile);
  #elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
 +  if (cef::IsAlloyRuntimeEnabled()) {
 +    permission_contexts[ContentSettingsType::GEOLOCATION] =

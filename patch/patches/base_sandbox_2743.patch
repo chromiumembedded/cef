@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 304223b58a706..67eb34f1f2ebb 100644
+index aa7f2d6b3f2ff..439d648f7a7a5 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 304223b58a706..67eb34f1f2ebb 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1588,7 +1589,11 @@ component("base") {
+@@ -1492,7 +1493,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 304223b58a706..67eb34f1f2ebb 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1994,6 +1999,12 @@ component("base") {
+@@ -1898,6 +1903,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -112,22 +112,23 @@ index c9dd1249660c1..7d68b0d893e3d 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 2d9a1633b564f..d304c204c43ff 100644
+index 549f4362af8b6..f08b1b2e7f061 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -21,14 +21,19 @@
- #include <limits>
+@@ -15,8 +15,12 @@
  
  #include "base/check.h"
+ #include "base/feature_list.h"
 +#include "cef/libcef/features/features.h"
 +
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
- #include "base/feature_list.h"
  #include "third_party/boringssl/src/include/openssl/crypto.h"
  #include "third_party/boringssl/src/include/openssl/rand.h"
 +#endif
  
- namespace base {
+ // Prototype for ProcessPrng.
+ // See: https://learn.microsoft.com/en-us/windows/win32/seccng/processprng
+@@ -28,6 +32,7 @@ namespace base {
  
  namespace internal {
  
@@ -135,7 +136,7 @@ index 2d9a1633b564f..d304c204c43ff 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -50,11 +55,16 @@ bool UseBoringSSLForRandBytes() {
+@@ -49,6 +54,10 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -146,20 +147,22 @@ index 2d9a1633b564f..d304c204c43ff 100644
  }  // namespace internal
  
  namespace {
+@@ -66,6 +75,7 @@ decltype(&ProcessPrng) GetProcessPrng() {
+ }
  
  void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
    if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
      // Ensure BoringSSL is initialized so it can use things like RDRAND.
      CRYPTO_library_init();
-@@ -62,6 +72,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
+@@ -73,6 +83,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
      (void)RAND_bytes(static_cast<uint8_t*>(output), output_length);
      return;
    }
 +#endif  // !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
  
-   char* output_ptr = static_cast<char*>(output);
-   while (output_length > 0) {
+   static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
+   BOOL success = process_prng_fn(static_cast<BYTE*>(output), output_length);
 diff --git base/unguessable_token.cc base/unguessable_token.cc
 index aa7423f88d278..1b2c7d3e3c4a0 100644
 --- base/unguessable_token.cc

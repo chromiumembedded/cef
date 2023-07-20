@@ -119,10 +119,10 @@ index c1c0631071a11..aa2c01ebce43e 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 3168220180af9..3ed7bec8438a2 100644
+index d6f4bdecfb441..cb7467bc661ea 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -553,6 +553,12 @@ void LabelButton::OnThemeChanged() {
+@@ -557,6 +557,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -136,10 +136,10 @@ index 3168220180af9..3ed7bec8438a2 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index e641dc163c5fc..785ccd20e4dd4 100644
+index d1ef026687694..d7efbe0338065 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -150,6 +150,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -152,6 +152,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -240,7 +240,7 @@ index 711dc633bffc2..0fa2626150de2 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index f8b3ded1dba82..86b9ddd90ee16 100644
+index 7816e1fe32d9a..733a8c0c5cedf 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -563,7 +563,8 @@ void MenuController::Run(Widget* parent,
@@ -261,7 +261,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2239,6 +2241,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2228,6 +2230,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2943,8 +2946,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2938,8 +2941,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2964,8 +2972,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2959,8 +2967,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -297,10 +297,10 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index e10b92be74908..59a12cab09536 100644
+index 1334ad5a759dd..3ee525615683f 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
-@@ -134,7 +134,9 @@ class VIEWS_EXPORT MenuController
+@@ -140,7 +140,9 @@ class VIEWS_EXPORT MenuController
             MenuAnchorPosition position,
             bool context_menu,
             bool is_nested_drag,
@@ -311,7 +311,7 @@ index e10b92be74908..59a12cab09536 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -703,6 +705,8 @@ class VIEWS_EXPORT MenuController
+@@ -723,6 +725,8 @@ class VIEWS_EXPORT MenuController
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -396,10 +396,10 @@ index c048ab2aa5ae4..810f62eed6676 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index f99daa29d9181..49b4a3da021ea 100644
+index dd34e0072ffa7..d45ed6a33251c 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1096,6 +1096,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1087,6 +1087,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -415,7 +415,7 @@ index f99daa29d9181..49b4a3da021ea 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1160,6 +1169,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1151,6 +1160,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -639,10 +639,10 @@ index e6587d2208a13..c2c72f7edb89c 100644
    void Cancel() override;
    base::TimeTicks GetClosingEventTime() const override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.h ui/views/controls/menu/menu_runner_impl_cocoa.h
-index 50291eb07440a..9716791a463aa 100644
+index 68c01b93a973a..543c1bf139d4d 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.h
-@@ -43,6 +43,7 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
+@@ -46,6 +46,7 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
        MenuAnchorPosition anchor,
        int32_t run_types,
        gfx::NativeView native_view_for_gestures,
@@ -651,10 +651,10 @@ index 50291eb07440a..9716791a463aa 100644
    void Cancel() override;
    base::TimeTicks GetClosingEventTime() const override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 46a50f5a808c3..689c7d3afb21c 100644
+index 8bbf8104fdb46..ecbcd0f9ef3cc 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
-@@ -193,6 +193,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
+@@ -194,6 +194,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
      MenuAnchorPosition anchor,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
@@ -716,7 +716,7 @@ index 187e55af5d7be..3a980d26fdaae 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index eec88617b7c9b..b5d77709d0bba 100644
+index ffec4f9971210..b5f7d0aa3126c 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@

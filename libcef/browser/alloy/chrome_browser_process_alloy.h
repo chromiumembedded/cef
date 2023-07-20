@@ -109,6 +109,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   BuildState* GetBuildState() override;
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
   HidSystemTrayIcon* hid_system_tray_icon() override;
+  UsbSystemTrayIcon* usb_system_tray_icon() override;
 
  private:
   bool initialized_;
