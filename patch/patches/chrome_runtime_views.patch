@@ -703,10 +703,10 @@ index 2753a95f8ff35..9745477102917 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 4682fa0f74996..099742d04102a 100644
+index 641236e5f8d88..03d55e77c1e31 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -175,12 +175,13 @@ constexpr int kBrowserAppMenuRefreshCollapsedMargin = 2;
+@@ -176,12 +176,13 @@ constexpr int kBrowserAppMenuRefreshCollapsedMargin = 2;
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -722,7 +722,7 @@ index 4682fa0f74996..099742d04102a 100644
    SetID(VIEW_ID_TOOLBAR);
  
    if (display_mode_ == DisplayMode::NORMAL) {
-@@ -202,6 +203,19 @@ ToolbarView::~ToolbarView() {
+@@ -203,6 +204,19 @@ ToolbarView::~ToolbarView() {
  }
  
  void ToolbarView::Init() {
@@ -742,7 +742,7 @@ index 4682fa0f74996..099742d04102a 100644
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -211,12 +225,13 @@ void ToolbarView::Init() {
+@@ -212,12 +226,13 @@ void ToolbarView::Init() {
  #endif
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -758,7 +758,7 @@ index 4682fa0f74996..099742d04102a 100644
      download_button =
          std::make_unique<DownloadToolbarButtonView>(browser_view_);
    }
-@@ -297,8 +312,10 @@ void ToolbarView::Init() {
+@@ -298,8 +313,10 @@ void ToolbarView::Init() {
      }
    }
    std::unique_ptr<media_router::CastToolbarButton> cast;
@@ -770,7 +770,7 @@ index 4682fa0f74996..099742d04102a 100644
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
    if (base::FeatureList::IsEnabled(media::kGlobalMediaControls)) {
-@@ -308,7 +325,8 @@ void ToolbarView::Init() {
+@@ -309,7 +326,8 @@ void ToolbarView::Init() {
  
    std::unique_ptr<send_tab_to_self::SendTabToSelfToolbarIconView>
        send_tab_to_self_button;
@@ -780,15 +780,15 @@ index 4682fa0f74996..099742d04102a 100644
      send_tab_to_self_button =
          std::make_unique<send_tab_to_self::SendTabToSelfToolbarIconView>(
              browser_view_);
-@@ -316,7 +334,7 @@ void ToolbarView::Init() {
+@@ -317,7 +335,7 @@ void ToolbarView::Init() {
  
    std::unique_ptr<SidePanelToolbarButton> side_panel_button;
    std::unique_ptr<SidePanelToolbarContainer> side_panel_toolbar_container;
 -  if (browser_view_->unified_side_panel()) {
 +  if (browser_view_->unified_side_panel() && BUTTON_VISIBLE(kSidePanel)) {
-     if (base::FeatureList::IsEnabled(
-             companion::features::kSidePanelCompanion)) {
+     if (companion::IsCompanionFeatureEnabled()) {
        side_panel_toolbar_container =
+           std::make_unique<SidePanelToolbarContainer>(browser_view_);
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
 index c38f2b0545d21..fe9a92b2f610c 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h

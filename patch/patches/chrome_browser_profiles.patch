@@ -99,7 +99,7 @@ index a3ee1846fcf77..13edaf1203d69 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 92dec1c25477c..0723bdb6bc6ad 100644
+index 9eb766c7a5818..3a66b90b55dd6 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
 @@ -389,7 +389,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
@@ -112,7 +112,7 @@ index 92dec1c25477c..0723bdb6bc6ad 100644
  
    zombie_metrics_timer_.Start(FROM_HERE, base::Minutes(30), this,
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index 60c9fd19fe15b..2a3e317d9c240 100644
+index 9bb7cd968c95d..bf16634f7dfe8 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -130,7 +130,7 @@ class ProfileManager : public Profile::Delegate {

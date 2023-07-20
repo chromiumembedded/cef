@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 7e25c4f0656fa..446075c9dfaf7 100644
+index 216e16410ba43..fabdee75267a3 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -322,6 +322,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -324,6 +324,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -16,7 +16,7 @@ index 7e25c4f0656fa..446075c9dfaf7 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -568,6 +575,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -570,6 +577,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +27,7 @@ index 7e25c4f0656fa..446075c9dfaf7 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -808,6 +819,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -810,6 +821,14 @@ RenderViewContextMenu::RenderViewContextMenu(
  #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
@@ -42,10 +42,10 @@ index 7e25c4f0656fa..446075c9dfaf7 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1229,6 +1248,12 @@ void RenderViewContextMenu::InitMenu() {
-   // menu, meaning that each menu item added/removed in this function will cause
-   // it to visibly jump on the screen (see b/173569669).
-   AppendQuickAnswersItems();
+@@ -1244,6 +1263,12 @@ void RenderViewContextMenu::InitMenu() {
+           autofill::PopupHidingReason::kContextMenuOpened);
+     }
+   }
 +
 +  if (first_observer_) {
 +    // Do this last so that the observer can optionally modify previously
@@ -55,7 +55,7 @@ index 7e25c4f0656fa..446075c9dfaf7 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3224,6 +3249,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3239,6 +3264,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
