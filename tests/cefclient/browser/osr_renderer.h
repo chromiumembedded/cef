@@ -6,9 +6,21 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_OSR_RENDERER_H_
 #pragma once
 
+#include <vector>
+
 #include "include/cef_browser.h"
 #include "include/cef_render_handler.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
+
+// Enable shader-based rendering for Linux only. Windows still uses OpenGL 1.1
+// to avoid the added complexity of linking newer OpenGL APIs on that platform.
+// MacOS has deprecated OpenGL and we should eventually provide a Metal-based
+// implementation on that platform.
+#if defined(OS_LINUX)
+#define USE_SHADERS 1
+#else
+#define USE_SHADERS 0
+#endif
 
 namespace client {
 
@@ -57,14 +69,21 @@ class OsrRenderer {
   }
 
   const OsrRendererSettings settings_;
-  bool initialized_;
-  unsigned int texture_id_;
-  int view_width_;
-  int view_height_;
+  bool initialized_ = false;
+  unsigned int texture_id_ = 0;
+#if USE_SHADERS
+  unsigned int vao_id_ = 0;
+  unsigned int vbo_id_ = 0;
+  unsigned int screen_shader_program_id_ = 0;
+  unsigned int update_rect_shader_program_id_ = 0;
+  std::vector<float> line_vertices_;
+#endif
+  int view_width_ = 0;
+  int view_height_ = 0;
   CefRect popup_rect_;
   CefRect original_popup_rect_;
-  float spin_x_;
-  float spin_y_;
+  float spin_x_ = 0;
+  float spin_y_ = 0;
   CefRect update_rect_;
 
   DISALLOW_COPY_AND_ASSIGN(OsrRenderer);

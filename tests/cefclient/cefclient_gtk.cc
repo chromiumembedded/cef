@@ -31,13 +31,11 @@ namespace client {
 namespace {
 
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
-  LOG(WARNING) << "X error received: "
-               << "type " << event->type << ", "
-               << "serial " << event->serial << ", "
-               << "error_code " << static_cast<int>(event->error_code) << ", "
-               << "request_code " << static_cast<int>(event->request_code)
-               << ", "
-               << "minor_code " << static_cast<int>(event->minor_code);
+  LOG(WARNING) << "X error received: " << "type " << event->type << ", "
+               << "serial " << event->serial << ", " << "error_code "
+               << static_cast<int>(event->error_code) << ", " << "request_code "
+               << static_cast<int>(event->request_code) << ", " << "minor_code "
+               << static_cast<int>(event->minor_code);
   return 0;
 }
 
@@ -97,13 +95,6 @@ int RunMain(int argc, char* argv[]) {
 
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
-
-  if (settings.windowless_rendering_enabled) {
-    // Force the app to use OpenGL <= 3.1 when off-screen rendering is enabled.
-    // TODO(cefclient): Rewrite OSRRenderer to use shaders instead of the
-    // fixed-function pipeline which was removed in OpenGL 3.2 (back in 2009).
-    setenv("MESA_GL_VERSION_OVERRIDE", "3.1", /*overwrite=*/0);
-  }
 
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
