@@ -92,6 +92,7 @@ if(OS_LINUX)
     -Wno-error=comment              # Don't warn about code in comments
     -Wno-comment                    # Don't warn about code in comments
     -Wno-deprecated-declarations    # Don't warn about using deprecated methods
+    -Wno-error=parentheses          # Don't warn about omitted parentheses in certain contexts
     )
   list(APPEND CEF_C_COMPILER_FLAGS
     -std=c99                        # Use the C99 language standard

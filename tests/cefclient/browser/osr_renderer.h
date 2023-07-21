@@ -10,6 +10,10 @@
 #include "include/cef_render_handler.h"
 #include "tests/cefclient/browser/osr_renderer_settings.h"
 
+#if defined(OS_MAC) || defined(OS_LINUX)
+typedef float mat4x4[16];
+#endif
+
 namespace client {
 
 class OsrRenderer {
@@ -59,6 +63,13 @@ class OsrRenderer {
   const OsrRendererSettings settings_;
   bool initialized_;
   unsigned int texture_id_;
+#if defined(OS_MAC) || defined(OS_LINUX)
+  unsigned int vao_id_;
+  unsigned int vbo_id_;
+  unsigned int screen_shader_program_id_;
+  unsigned int update_rect_shader_program_id_;
+  std::vector<float> line_vertices_;
+#endif
   int view_width_;
   int view_height_;
   CefRect popup_rect_;
