@@ -233,7 +233,7 @@ index ad3976cb46454..b49f7467156ed 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 67709dcb78e17..33efc8ca9766e 100644
+index 506b22b8fb061..b327360b4700c 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -41,6 +41,7 @@
@@ -265,7 +265,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4341,9 +4349,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4343,9 +4351,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -277,7 +277,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6360,7 +6370,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6362,7 +6372,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -286,7 +286,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6378,6 +6388,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6380,6 +6390,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -295,7 +295,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
  }
  
  std::vector<base::FilePath>
-@@ -7402,10 +7414,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7404,10 +7416,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -308,7 +308,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7424,7 +7436,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7426,7 +7438,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -318,7 +318,7 @@ index 67709dcb78e17..33efc8ca9766e 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7560,7 +7573,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7562,7 +7575,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -359,7 +359,7 @@ index e162b2d33f7bd..864ffbffb9f0a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 645106f10a85f..67a5dd14b1a2b 100644
+index af2d036f0b354..a7f185904e1be 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -13,6 +13,7 @@
@@ -381,7 +381,7 @@ index 645106f10a85f..67a5dd14b1a2b 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1529,6 +1534,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1538,6 +1543,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -393,7 +393,7 @@ index 645106f10a85f..67a5dd14b1a2b 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -1930,6 +1940,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -1939,6 +1949,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

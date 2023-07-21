@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 2ab92db1a1136..dc9f25b79f3bd 100644
+index 3806f2c155273..dae78e42b7fa2 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -330,6 +330,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -331,6 +331,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -16,7 +16,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -577,6 +584,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -580,6 +587,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +27,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -824,6 +835,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -827,6 +838,14 @@ RenderViewContextMenu::RenderViewContextMenu(
  #if BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
@@ -42,7 +42,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  }
  
  RenderViewContextMenu::~RenderViewContextMenu() = default;
-@@ -1260,6 +1279,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1263,6 +1282,12 @@ void RenderViewContextMenu::InitMenu() {
            autofill::PopupHidingReason::kContextMenuOpened);
      }
    }
@@ -55,7 +55,7 @@ index 2ab92db1a1136..dc9f25b79f3bd 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3281,6 +3306,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3302,6 +3327,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  

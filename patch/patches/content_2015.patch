@@ -55,7 +55,7 @@ index d7a8a6d628b79..9dd5a6f5992f4 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index a558365d87cb4..77eef4cee5a2d 100644
+index fe0b1b96209c4..e62fd5d108b89 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -38,6 +38,7 @@
@@ -66,7 +66,7 @@ index a558365d87cb4..77eef4cee5a2d 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1876,7 +1877,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1878,7 +1879,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -75,7 +75,7 @@ index a558365d87cb4..77eef4cee5a2d 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2084,6 +2085,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2086,6 +2087,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -95,7 +95,7 @@ index a558365d87cb4..77eef4cee5a2d 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2140,6 +2154,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2142,6 +2156,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

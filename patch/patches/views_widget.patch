@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index d7ff9f7303d80..40aa86fe87638 100644
+index f1d50fba17a0a..0ee633dfd0a9d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -640,6 +640,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -641,6 +641,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  
@@ -243,10 +243,10 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index e589b36f45df8..6b25e64bee95a 100644
+index 9b36a7639e0ac..06cd2b0fc662f 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -280,8 +280,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -285,8 +285,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
    if (properties.parent_widget) {
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
