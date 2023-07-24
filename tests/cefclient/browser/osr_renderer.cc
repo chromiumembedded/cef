@@ -7,6 +7,7 @@
 #if defined(OS_WIN)
 #include <gl/gl.h>
 #elif defined(OS_MAC)
+#define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
 #elif defined(OS_LINUX)
 #include <GL/gl.h>

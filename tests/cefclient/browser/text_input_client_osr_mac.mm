@@ -43,7 +43,7 @@ void ExtractUnderlines(NSAttributedString* string,
       if (NSColor* colorAttr =
               [attrs objectForKey:NSUnderlineColorAttributeName]) {
         color = CefColorFromNSColor(
-            [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
+            [colorAttr colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace]);
       }
       cef_composition_underline_t line = {
           {static_cast<uint32_t>(range.location),

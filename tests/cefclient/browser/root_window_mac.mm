@@ -58,7 +58,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [button autorelease];
 #endif  // !__has_feature(objc_arc)
   [button setTitle:title];
-  [button setBezelStyle:NSSmallSquareBezelStyle];
+  [button setBezelStyle:NSBezelStyleSmallSquare];
   [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
   [parent addSubview:button];
   rect->origin.x += BUTTON_WIDTH;

@@ -21,6 +21,10 @@
 
 #import <AppKit/NSAccessibility.h>
 
+// Begin disable NSOpenGL deprecation warnings.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface BrowserOpenGLView
     : NSOpenGLView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
  @private
@@ -119,14 +123,17 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
     [self resetDragDrop];
 
-    NSArray* types = [NSArray
-        arrayWithObjects:kCEFDragDummyPboardType, NSStringPboardType,
-                         NSFilenamesPboardType, NSPasteboardTypeString, nil];
+    NSArray* types = [NSArray arrayWithObjects:kCEFDragDummyPboardType,
+                                               NSPasteboardTypeFileURL,
+                                               NSPasteboardTypeString, nil];
     [self registerForDraggedTypes:types];
   }
 
   return self;
 }
+
+// End disable NSOpenGL deprecation warnings.
+#pragma clang diagnostic pop
 
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter]
@@ -998,7 +1005,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   }
 
   // URL.
-  if ([type isEqualToString:NSURLPboardType]) {
+  if ([type isEqualToString:NSPasteboardTypeURL]) {
     DCHECK(current_drag_data_->IsLink());
     NSString* strUrl =
         [NSString stringWithUTF8String:current_drag_data_->GetLinkURL()
@@ -1030,12 +1037,12 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
             forType:fileUTI_];
 
     // Plain text.
-  } else if ([type isEqualToString:NSStringPboardType]) {
+  } else if ([type isEqualToString:NSPasteboardTypeString]) {
     NSString* strTitle =
         [NSString stringWithUTF8String:current_drag_data_->GetFragmentText()
                                            .ToString()
                                            .c_str()];
-    [pboard setString:strTitle forType:NSStringPboardType];
+    [pboard setString:strTitle forType:NSPasteboardTypeString];
 
   } else if ([type isEqualToString:kCEFDragDummyPboardType]) {
     // The dummy type _was_ promised and someone decided to call the bluff.
@@ -1122,7 +1129,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
   // URL (and title).
   if (current_drag_data_->IsLink()) {
-    [pasteboard_ addTypes:@[ NSURLPboardType, kNSURLTitlePboardType ]
+    [pasteboard_ addTypes:@[ NSPasteboardTypeURL, kNSURLTitlePboardType ]
                     owner:self];
   }
 
@@ -1149,9 +1156,15 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       CFRelease(mimeTypeCF);
       // File (HFS) promise.
       NSArray* fileUTIList = @[ fileUTI_ ];
-      [pasteboard_ addTypes:@[ NSFilesPromisePboardType ] owner:self];
+      NSString* NSPasteboardTypeFileURLPromise =
+#if __has_feature(objc_arc)
+          (__bridge NSString*)kPasteboardTypeFileURLPromise;
+#else
+          (NSString*)kPasteboardTypeFileURLPromise;
+#endif
+      [pasteboard_ addTypes:@[ NSPasteboardTypeFileURLPromise ] owner:self];
       [pasteboard_ setPropertyList:fileUTIList
-                           forType:NSFilesPromisePboardType];
+                           forType:NSPasteboardTypeFileURLPromise];
 
       [pasteboard_ addTypes:fileUTIList owner:self];
     }
@@ -1159,7 +1172,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
   // Plain text.
   if (!current_drag_data_->GetFragmentText().empty()) {
-    [pasteboard_ addTypes:@[ NSStringPboardType ] owner:self];
+    [pasteboard_ addTypes:@[ NSPasteboardTypeString ] owner:self];
   }
 }
 
@@ -1171,14 +1184,14 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   NSArray* types = [pboard types];
 
   // Get plain text.
-  if ([types containsObject:NSStringPboardType]) {
+  if ([types containsObject:NSPasteboardTypeString]) {
     data->SetFragmentText(
-        [[pboard stringForType:NSStringPboardType] UTF8String]);
+        [[pboard stringForType:NSPasteboardTypeString] UTF8String]);
   }
 
   // Get files.
-  if ([types containsObject:NSFilenamesPboardType]) {
-    NSArray* files = [pboard propertyListForType:NSFilenamesPboardType];
+  if ([types containsObject:NSPasteboardTypeFileURL]) {
+    NSArray* files = [pboard propertyListForType:NSPasteboardTypeFileURL];
     if ([files isKindOfClass:[NSArray class]] && [files count]) {
       for (NSUInteger i = 0; i < [files count]; i++) {
         NSString* filename = [files objectAtIndex:i];
