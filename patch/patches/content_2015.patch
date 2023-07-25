@@ -178,6 +178,40 @@ index 587565fa2fd5d..d68eeea7e842e 100644
    // Tells this platform that the renderer is locked to a site (i.e., a scheme
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
+diff --git content/shell/browser/shell_content_browser_client.cc content/shell/browser/shell_content_browser_client.cc
+index cb7a832f8f5bd..9186ce40026f6 100644
+--- content/shell/browser/shell_content_browser_client.cc
++++ content/shell/browser/shell_content_browser_client.cc
+@@ -666,7 +666,7 @@ void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
+ #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+         // BUILDFLAG(IS_ANDROID)
+ 
+-void ShellContentBrowserClient::ConfigureNetworkContextParams(
++bool ShellContentBrowserClient::ConfigureNetworkContextParams(
+     BrowserContext* context,
+     bool in_memory,
+     const base::FilePath& relative_partition_path,
+@@ -675,6 +675,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
+         cert_verifier_creation_params) {
+   ConfigureNetworkContextParamsForShell(context, network_context_params,
+                                         cert_verifier_creation_params);
++  return true;
+ }
+ 
+ std::vector<base::FilePath>
+diff --git content/shell/browser/shell_content_browser_client.h content/shell/browser/shell_content_browser_client.h
+index 70ae93fd9301d..c8d6caa49ff2d 100644
+--- content/shell/browser/shell_content_browser_client.h
++++ content/shell/browser/shell_content_browser_client.h
+@@ -129,7 +129,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
+ #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+         // BUILDFLAG(IS_ANDROID)
+   device::GeolocationManager* GetGeolocationManager() override;
+-  void ConfigureNetworkContextParams(
++  bool ConfigureNetworkContextParams(
+       BrowserContext* context,
+       bool in_memory,
+       const base::FilePath& relative_partition_path,
 diff --git headless/lib/browser/headless_content_browser_client.cc headless/lib/browser/headless_content_browser_client.cc
 index ebdf4bcc2cbc8..3b4d19fae70d3 100644
 --- headless/lib/browser/headless_content_browser_client.cc
