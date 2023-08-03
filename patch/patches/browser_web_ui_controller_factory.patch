@@ -13,10 +13,10 @@ index 9d9c17ffd6474..4eb79c65369af 100644
  };
  
 diff --git content/public/browser/webui_config_map.h content/public/browser/webui_config_map.h
-index 19777632921fc..a22db4c49fd84 100644
+index a80034506bf45..4bda477df0558 100644
 --- content/public/browser/webui_config_map.h
 +++ content/public/browser/webui_config_map.h
-@@ -60,6 +60,10 @@ class CONTENT_EXPORT WebUIConfigMap {
+@@ -61,6 +61,10 @@ class CONTENT_EXPORT WebUIConfigMap {
    // Returns the size of the map, i.e. how many WebUIConfigs are registered.
    size_t GetSizeForTesting() { return configs_map_.size(); }
  
