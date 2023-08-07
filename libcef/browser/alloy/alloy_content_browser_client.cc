@@ -564,6 +564,7 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kMainBundlePath,
 #endif
       switches::kLocalesDirPath,
+      switches::kLogItems,
       switches::kLogSeverity,
       switches::kResourcesDirPath,
       embedder_support::kUserAgent,

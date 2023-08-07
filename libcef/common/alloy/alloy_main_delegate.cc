@@ -22,6 +22,7 @@
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "chrome/browser/browser_process.h"
@@ -212,6 +213,35 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       }
     }
 
+    if (settings_->log_items != LOG_ITEMS_DEFAULT) {
+      std::string log_items_str;
+      if (settings_->log_items == LOG_ITEMS_NONE) {
+        log_items_str = std::string(switches::kLogItems_None);
+      } else {
+        std::vector<base::StringPiece> added_items;
+        if (settings_->log_items & LOG_ITEMS_FLAG_PROCESS_ID) {
+          added_items.push_back(base::StringPiece(switches::kLogItems_PId));
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_THREAD_ID) {
+          added_items.push_back(base::StringPiece(switches::kLogItems_TId));
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_TIME_STAMP) {
+          added_items.push_back(
+              base::StringPiece(switches::kLogItems_TimeStamp));
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_TICK_COUNT) {
+          added_items.push_back(
+              base::StringPiece(switches::kLogItems_TickCount));
+        }
+        if (!added_items.empty()) {
+          log_items_str = base::JoinString(added_items, ",");
+        }
+      }
+      if (!log_items_str.empty()) {
+        command_line->AppendSwitchASCII(switches::kLogItems, log_items_str);
+      }
+    }
+
     if (settings_->javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(
           blink::switches::kJavaScriptFlags,
@@ -344,6 +374,42 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   } else {
     log_settings.logging_dest = logging::LOG_TO_ALL;
     logging::SetMinLogLevel(log_severity);
+  }
+
+  // Customization of items automatically prepended to log lines.
+  std::string log_items_str =
+      command_line->GetSwitchValueASCII(switches::kLogItems);
+  if (!log_items_str.empty()) {
+    bool enable_log_of_process_id, enable_log_of_thread_id,
+        enable_log_of_time_stamp, enable_log_of_tick_count;
+    enable_log_of_process_id = enable_log_of_thread_id =
+        enable_log_of_time_stamp = enable_log_of_tick_count = false;
+
+    for (const auto& cur_item_to_log :
+         base::SplitStringPiece(log_items_str, ",", base::TRIM_WHITESPACE,
+                                base::SPLIT_WANT_NONEMPTY)) {
+      // if "none" mode is present, all items are disabled.
+      if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                           switches::kLogItems_None)) {
+        enable_log_of_process_id = enable_log_of_thread_id =
+            enable_log_of_time_stamp = enable_log_of_tick_count = false;
+        break;
+      } else if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                                  switches::kLogItems_PId)) {
+        enable_log_of_process_id = true;
+      } else if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                                  switches::kLogItems_TId)) {
+        enable_log_of_thread_id = true;
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     cur_item_to_log, switches::kLogItems_TimeStamp)) {
+        enable_log_of_time_stamp = true;
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     cur_item_to_log, switches::kLogItems_TickCount)) {
+        enable_log_of_tick_count = true;
+      }
+    }
+    logging::SetLogItems(enable_log_of_process_id, enable_log_of_thread_id,
+                         enable_log_of_time_stamp, enable_log_of_tick_count);
   }
 
   logging::InitLogging(log_settings);

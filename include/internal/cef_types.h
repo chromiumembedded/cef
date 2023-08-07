@@ -133,6 +133,42 @@ typedef enum {
 } cef_log_severity_t;
 
 ///
+/// Log items prepended to each log line.
+///
+typedef enum {
+  ///
+  /// Prepend the default list of items.
+  ///
+  LOG_ITEMS_DEFAULT = 0,
+
+  ///
+  /// Prepend no items.
+  ///
+  LOG_ITEMS_NONE = 1,
+
+  ///
+  /// Prepend the process ID.
+  ///
+  LOG_ITEMS_FLAG_PROCESS_ID = 1 << 1,
+
+  ///
+  /// Prepend the thread ID.
+  ///
+  LOG_ITEMS_FLAG_THREAD_ID = 1 << 2,
+
+  ///
+  /// Prepend the timestamp.
+  ///
+  LOG_ITEMS_FLAG_TIME_STAMP = 1 << 3,
+
+  ///
+  /// Prepend the tickcount.
+  ///
+  LOG_ITEMS_FLAG_TICK_COUNT = 1 << 4,
+
+} cef_log_items_t;
+
+///
 /// Represents the state of a setting.
 ///
 typedef enum {
@@ -335,6 +371,14 @@ typedef struct _cef_settings_t {
   /// "warning", "error", "fatal" or "disable".
   ///
   cef_log_severity_t log_severity;
+
+  ///
+  /// The log items prepended to each log line. If not set the default log items
+  /// will be used. Also configurable using the "log-items" command-line switch
+  /// with a value of "none" for no log items, or a comma-delimited list of
+  /// values "pid", "tid", "timestamp" or "tickcount" for custom log items.
+  ///
+  cef_log_items_t log_items;
 
   ///
   /// Custom flags that will be used when initializing the V8 JavaScript engine.

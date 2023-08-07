@@ -15,6 +15,14 @@ const char kLogSeverity_Error[] = "error";
 const char kLogSeverity_Fatal[] = "fatal";
 const char kLogSeverity_Disable[] = "disable";
 
+// Customization of items automatically prepended to log lines.
+const char kLogItems[] = "log-items";
+const char kLogItems_None[] = "none";
+const char kLogItems_PId[] = "pid";
+const char kLogItems_TId[] = "tid";
+const char kLogItems_TimeStamp[] = "timestamp";
+const char kLogItems_TickCount[] = "tickcount";
+
 // Path to resources directory.
 const char kResourcesDirPath[] = "resources-dir-path";
 
