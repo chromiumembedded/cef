@@ -436,6 +436,56 @@ if(OS_WINDOWS)
   list(APPEND CEF_EXE_LINKER_FLAGS
     /MANIFEST:NO        # No default manifest (see ADD_WINDOWS_MANIFEST macro usage)
     /LARGEADDRESSAWARE  # Allow 32-bit processes to access 3GB of RAM
+
+    # Delayload most libraries as the dlls are simply not required at startup (or
+    # at all, depending on the process type). Some dlls open handles when they are
+    # loaded, and we may not want them to be loaded in renderers or other sandboxed
+    # processes. Conversely, some dlls must be loaded before sandbox lockdown. In
+    # unsandboxed processes they will load when first needed. The linker will
+    # automatically ignore anything which is not linked to the binary at all (it is
+    # harmless to have an unmatched /delayload). This list should be kept in sync
+    # with Chromium's "delayloads" target from the //build/config/win/BUILD.gn file.
+    /DELAYLOAD:api-ms-win-core-winrt-error-l1-1-0.dll
+    /DELAYLOAD:api-ms-win-core-winrt-l1-1-0.dll
+    /DELAYLOAD:api-ms-win-core-winrt-string-l1-1-0.dll
+    /DELAYLOAD:advapi32.dll
+    /DELAYLOAD:comctl32.dll
+    /DELAYLOAD:comdlg32.dll
+    /DELAYLOAD:credui.dll
+    /DELAYLOAD:cryptui.dll
+    /DELAYLOAD:d3d11.dll
+    /DELAYLOAD:d3d9.dll
+    /DELAYLOAD:dwmapi.dll
+    /DELAYLOAD:dxgi.dll
+    /DELAYLOAD:dxva2.dll
+    /DELAYLOAD:esent.dll
+    /DELAYLOAD:gdi32.dll
+    /DELAYLOAD:hid.dll
+    /DELAYLOAD:imagehlp.dll
+    /DELAYLOAD:imm32.dll
+    /DELAYLOAD:msi.dll
+    /DELAYLOAD:netapi32.dll
+    /DELAYLOAD:ncrypt.dll
+    /DELAYLOAD:ole32.dll
+    /DELAYLOAD:oleacc.dll
+    /DELAYLOAD:propsys.dll
+    /DELAYLOAD:psapi.dll
+    /DELAYLOAD:rpcrt4.dll
+    /DELAYLOAD:rstrtmgr.dll
+    /DELAYLOAD:setupapi.dll
+    /DELAYLOAD:shell32.dll
+    /DELAYLOAD:shlwapi.dll
+    /DELAYLOAD:uiautomationcore.dll
+    /DELAYLOAD:urlmon.dll
+    /DELAYLOAD:user32.dll
+    /DELAYLOAD:usp10.dll
+    /DELAYLOAD:uxtheme.dll
+    /DELAYLOAD:wer.dll
+    /DELAYLOAD:wevtapi.dll
+    /DELAYLOAD:wininet.dll
+    /DELAYLOAD:winusb.dll
+    /DELAYLOAD:wsock32.dll
+    /DELAYLOAD:wtsapi32.dll
     )
   list(APPEND CEF_COMPILER_DEFINES
     WIN32 _WIN32 _WINDOWS             # Windows platform

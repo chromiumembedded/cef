@@ -1674,6 +1674,10 @@ if (is_mac) {
         # ResourceBundle. See crbug.com/147663.
         "//ui/resources:ui_unscaled_resources_grd",
       ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
     }
 
     if (is_linux && !is_debug && !use_partition_alloc_as_malloc) {
@@ -2176,6 +2180,10 @@ if (is_mac) {
       configs -= [ "//build/config/win:console" ]
       configs += [ "//build/config/win:windowed" ]
 
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
+
       defines += [
         "CEF_USE_ATL",
       ]
@@ -2264,6 +2272,10 @@ if (is_mac) {
       configs -= [ "//build/config/win:console" ]
       configs += [ "//build/config/win:windowed" ]
 
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
+
       deps += [
         ":cef_sandbox",
         "//build/win:default_exe_manifest",
@@ -2330,6 +2342,10 @@ if (is_mac) {
     if (is_win) {
       sources += gypi_paths2.shared_sources_win +
                  gypi_paths2.ceftests_sources_win
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
 
       deps += [
         ":cef_sandbox",
