@@ -20,10 +20,10 @@ index 2bfca65cd8d13..0a5b7a68fca46 100644
  
            // Make an exception to allow most visited tiles to commit in
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 76a53ed5fcae9..8b21a96635537 100644
+index a09b5bc4973fc..3593dd66d977f 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -7292,10 +7292,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -7301,10 +7301,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -47,9 +47,9 @@ index 76a53ed5fcae9..8b21a96635537 100644
    }
  
    return origin_and_debug_info;
-@@ -7325,6 +7337,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
-       GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
-           SandboxFlagsToCommit());
+@@ -7408,6 +7420,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+       DetermineInitiatorRelationship(initiator_rfh,
+                                      frame_tree_node_->current_frame_host()));
  
 +  if (origin_with_debug_info.first.opaque() &&
 +      origin_with_debug_info.second.find("cef_nonstandard") !=

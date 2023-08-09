@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 3a1539905f1fb..84071f39325a2 100644
+index d55fc46d9dc0a..0f4dd2b3e68f9 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -40,6 +40,7 @@
@@ -10,7 +10,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  #include "chrome/browser/buildflags.h"
  #include "chrome/browser/chrome_content_browser_client.h"
  #include "chrome/browser/chrome_resource_bundle_helper.h"
-@@ -504,6 +505,8 @@ struct MainFunction {
+@@ -505,6 +506,8 @@ struct MainFunction {
  
  // Initializes the user data dir. Must be called before InitializeLocalState().
  void InitializeUserDataDir(base::CommandLine* command_line) {
@@ -19,7 +19,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  #if BUILDFLAG(IS_WIN)
    // Reach out to chrome_elf for the truth on the user data directory.
    // Note that in tests, this links to chrome_elf_test_stubs.
-@@ -653,6 +656,10 @@ ChromeMainDelegate::~ChromeMainDelegate() {
+@@ -654,6 +657,10 @@ ChromeMainDelegate::~ChromeMainDelegate() {
  ChromeMainDelegate::~ChromeMainDelegate() = default;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
@@ -30,7 +30,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
      InvokedIn invoked_in) {
    DCHECK(base::ThreadPoolInstance::Get());
-@@ -876,7 +883,8 @@ absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -877,7 +884,8 @@ absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
  
    if (base::FeatureList::IsEnabled(
            features::kWriteBasicSystemProfileToPersistentHistogramsFile)) {
@@ -40,7 +40,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  #if BUILDFLAG(IS_ANDROID)
      record =
          base::FeatureList::IsEnabled(chrome::android::kUmaBackgroundSessions);
-@@ -1304,6 +1312,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1306,6 +1314,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -48,7 +48,7 @@ index 3a1539905f1fb..84071f39325a2 100644
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_POSIX)
-@@ -1314,6 +1323,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1316,6 +1325,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -56,7 +56,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  
  #if BUILDFLAG(IS_WIN)
    child_process_logging::Init();
-@@ -1508,6 +1518,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1510,6 +1520,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -64,7 +64,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1551,6 +1562,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1553,6 +1564,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -72,7 +72,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1670,6 +1682,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1672,6 +1684,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -80,7 +80,7 @@ index 3a1539905f1fb..84071f39325a2 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1692,6 +1705,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1694,6 +1707,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -88,7 +88,7 @@ index 3a1539905f1fb..84071f39325a2 100644
  }
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-@@ -1789,6 +1803,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1791,6 +1805,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
                                channel == version_info::Channel::DEV);
    const bool gwp_asan_boost_sampling = is_canary_dev || is_browser_process;
  
@@ -96,7 +96,7 @@ index 3a1539905f1fb..84071f39325a2 100644
    memory_system::Initializer()
        .SetGwpAsanParameters(gwp_asan_boost_sampling, process_type)
        .SetProfilingClientParameters(channel,
-@@ -1797,5 +1812,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1799,5 +1814,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
                                     PoissonAllocationSamplerInclusion::kEnforce,
                                 memory_system::DispatcherParameters::
                                     AllocationTraceRecorderInclusion::kDynamic)
@@ -233,7 +233,7 @@ index ad3976cb46454..b49f7467156ed 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 506b22b8fb061..b327360b4700c 100644
+index c9d9ffa8d77a3..43e1701c73f2b 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -41,6 +41,7 @@
