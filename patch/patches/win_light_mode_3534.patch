@@ -1,0 +1,55 @@
+diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
+index 325bc70b6ba97..6ba7f2f2becf6 100644
+--- base/win/dark_mode_support.cc
++++ base/win/dark_mode_support.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <windows.h>
+ 
++#include "base/command_line.h"
+ #include "base/native_library.h"
+ #include "base/win/windows_version.h"
+ 
+@@ -85,11 +86,20 @@ const DarkModeSupport& GetDarkModeSupport() {
+   return dark_mode_support;
+ }
+ 
++bool IsForcedLightMode() {
++  static bool kIsForcedDarkMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "force-light-mode");
++  return kIsForcedDarkMode;
++}
++
+ }  // namespace
+ 
+ namespace base::win {
+ 
+ bool IsDarkModeAvailable() {
++  if (IsForcedLightMode())
++    return false;
+   auto& dark_mode_support = GetDarkModeSupport();
+   return (dark_mode_support.allow_dark_mode_for_app ||
+           dark_mode_support.set_preferred_app_mode) &&
+diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
+index 87807be3558a2..7b069213cfea6 100644
+--- ui/native_theme/native_theme_win.cc
++++ ui/native_theme/native_theme_win.cc
+@@ -628,7 +628,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+ 
+ NativeTheme::PreferredColorScheme
+ NativeThemeWin::CalculatePreferredColorScheme() const {
+-  if (!InForcedColorsMode())
++  if (!InForcedColorsMode() || !supports_windows_dark_mode_)
+     return NativeTheme::CalculatePreferredColorScheme();
+ 
+   // According to the spec, the preferred color scheme for web content is 'dark'
+@@ -1581,7 +1581,7 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+ 
+ void NativeThemeWin::UpdateDarkModeStatus() {
+   bool dark_mode_enabled = false;
+-  if (hkcu_themes_regkey_.Valid()) {
++  if (supports_windows_dark_mode_ && hkcu_themes_regkey_.Valid()) {
+     DWORD apps_use_light_theme = 1;
+     hkcu_themes_regkey_.ReadValueDW(L"AppsUseLightTheme",
+                                     &apps_use_light_theme);
