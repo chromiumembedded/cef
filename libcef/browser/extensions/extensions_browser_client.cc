@@ -168,6 +168,11 @@ content::BrowserContext* CefExtensionsBrowserClient::GetContextForOriginalOnly(
   return context;
 }
 
+bool CefExtensionsBrowserClient::AreExtensionsDisabledForContext(
+    content::BrowserContext* context) {
+  return false;
+}
+
 bool CefExtensionsBrowserClient::IsGuestSession(BrowserContext* context) const {
   return false;
 }

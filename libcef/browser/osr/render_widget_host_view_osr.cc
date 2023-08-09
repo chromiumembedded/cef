@@ -1796,15 +1796,17 @@ void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
-    const std::vector<gfx::Rect>& character_bounds) {
+    const absl::optional<std::vector<gfx::Rect>>& character_bounds,
+    const absl::optional<std::vector<gfx::Rect>>& line_bounds) {
   if (browser_impl_.get()) {
     CefRange cef_range(range.start(), range.end());
     CefRenderHandler::RectList rcList;
 
-    for (size_t i = 0; i < character_bounds.size(); ++i) {
-      rcList.push_back(CefRect(character_bounds[i].x(), character_bounds[i].y(),
-                               character_bounds[i].width(),
-                               character_bounds[i].height()));
+    if (character_bounds.has_value()) {
+      for (auto& rect : character_bounds.value()) {
+        rcList.push_back(
+            CefRect(rect.x(), rect.y(), rect.width(), rect.height()));
+      }
     }
 
     CefRefPtr<CefRenderHandler> handler =

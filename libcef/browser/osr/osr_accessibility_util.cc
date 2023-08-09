@@ -106,7 +106,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kTableRowIndex:
       case ax::mojom::IntAttribute::kActivedescendantId:
       case ax::mojom::IntAttribute::kInPageLinkTargetId:
-      case ax::mojom::IntAttribute::kErrormessageId:
+      case ax::mojom::IntAttribute::kErrormessageIdDeprecated:
       case ax::mojom::IntAttribute::kDOMNodeId:
       case ax::mojom::IntAttribute::kDropeffect:
       case ax::mojom::IntAttribute::kMemberOfId:

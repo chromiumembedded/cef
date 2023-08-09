@@ -1,5 +1,5 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 3062f57603321..d8532c9c2eabb 100644
+index 6c672cdc421bd..048282646af69 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -173,11 +173,8 @@ ContentMainParams::~ContentMainParams() = default;

@@ -27,7 +27,7 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   // DevToolsManagerDelegate implementation.
   scoped_refptr<content::DevToolsAgentHost> CreateNewTarget(
       const GURL& url,
-      bool for_tab) override;
+      content::DevToolsManagerDelegate::TargetType target_type) override;
   std::string GetDiscoveryPageHTML() override;
   bool HasBundledFrontendResources() override;
 };

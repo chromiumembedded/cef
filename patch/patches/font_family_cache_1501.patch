@@ -1,5 +1,5 @@
 diff --git chrome/browser/font_family_cache.h chrome/browser/font_family_cache.h
-index 6ec531bbc4f0d..df9e376fa9f05 100644
+index d4a32438bd20d..7e1d40e973333 100644
 --- chrome/browser/font_family_cache.h
 +++ chrome/browser/font_family_cache.h
 @@ -19,6 +19,8 @@ class Profile;

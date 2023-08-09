@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 844803229c2ca..5dde2357e8951 100644
+index ce7ee517b04db..0cc6bf2f2d775 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -19,10 +19,12 @@
@@ -15,7 +15,7 @@ index 844803229c2ca..5dde2357e8951 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/google/google_brand.h"
-@@ -400,7 +402,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -401,7 +403,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
@@ -28,7 +28,7 @@ index 844803229c2ca..5dde2357e8951 100644
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
  #if BUILDFLAG(IS_WIN)
-@@ -478,8 +484,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -481,8 +487,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -41,7 +41,7 @@ index 844803229c2ca..5dde2357e8951 100644
    std::string extensions_list;
    for (const scoped_refptr<const extensions::Extension>& extension :
         extension_registry->enabled_extensions()) {
-@@ -583,6 +593,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -586,6 +596,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if BUILDFLAG(IS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {
@@ -51,22 +51,23 @@ index 844803229c2ca..5dde2357e8951 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 2565fae8b1433..9ca16abf99c92 100644
+index 1cf8e8840a22b..79be0f2825288 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
-@@ -294,8 +294,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
-     if (render_process_host) {
+@@ -298,9 +298,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+                 render_process_host->GetBrowserContext())) {
        content::BrowserContext* context =
            render_process_host->GetBrowserContext();
 +
 +      // May be nullptr if using CEF Alloy with extensions disabled.
        extensions::ExtensionRegistry* extension_registry =
            extensions::ExtensionRegistry::Get(context);
+-      DCHECK(extension_registry);
 +      if (extension_registry) {
        extension_set = &extension_registry->enabled_extensions();
        extensions::ProcessMap* process_map =
            extensions::ProcessMap::Get(context);
-@@ -311,6 +314,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -317,6 +319,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
            break;
          }
        }

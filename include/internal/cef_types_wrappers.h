@@ -680,6 +680,8 @@ struct CefPdfPrintSettingsTraits {
                    &target->header_template, copy);
     cef_string_set(src->footer_template.str, src->footer_template.length,
                    &target->footer_template, copy);
+
+    target->generate_tagged_pdf = src->generate_tagged_pdf;
   }
 };
 

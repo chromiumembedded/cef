@@ -260,7 +260,8 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
   base::TimeTicks time_stamp = GetEventTimeStamp();
 
   if (key_event.type == KEYEVENT_CHAR) {
-    return ui::KeyEvent(character, key_code, dom_code, flags, time_stamp);
+    return ui::KeyEvent::FromCharacter(character, key_code, dom_code, flags,
+                                       time_stamp);
   }
 
   ui::EventType type = ui::ET_UNKNOWN;

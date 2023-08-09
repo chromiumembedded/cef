@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index e2cb049c1ce6c..8c2b6242894b3 100644
+index 37e2d2a50aa2c..bb6ac82cd9cb7 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -349,7 +349,7 @@ index 99efa6b245b99..008eb397332c2 100644
                                annotations, arguments, false, false));
    } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index d7351f4a912b3..6f1577533d3e9 100644
+index e6c1805bfd52f..7eeceee06338a 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -17,11 +17,14 @@
@@ -367,7 +367,7 @@ index d7351f4a912b3..6f1577533d3e9 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -43,15 +46,25 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -39,15 +42,25 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
        NSBundle* outer_bundle = base::apple::OuterBundle();
@@ -399,7 +399,7 @@ index d7351f4a912b3..6f1577533d3e9 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -82,12 +95,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -78,12 +91,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
@@ -425,7 +425,7 @@ index d7351f4a912b3..6f1577533d3e9 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -147,10 +168,10 @@ bool PlatformCrashpadInitialization(
+@@ -143,10 +164,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -440,7 +440,7 @@ index d7351f4a912b3..6f1577533d3e9 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -179,6 +200,12 @@ bool PlatformCrashpadInitialization(
+@@ -175,6 +196,12 @@ bool PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

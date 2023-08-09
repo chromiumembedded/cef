@@ -343,6 +343,12 @@ typedef enum {
   /// Used to indicate whether HTTPS-First Mode is enabled on the hostname.
   CEF_CONTENT_SETTING_TYPE_HTTPS_ENFORCED,
 
+  /// Stores per origin metadata for cookie controls.
+  CEF_CONTENT_SETTING_TYPE_COOKIE_CONTROLS_METADATA,
+
+  /// Setting for supporting 3PCD.
+  CEF_CONTENT_SETTING_TYPE_TPCD_SUPPORT,
+
   CEF_CONTENT_SETTING_TYPE_NUM_TYPES,
 } cef_content_setting_types_t;
 

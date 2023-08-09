@@ -181,6 +181,17 @@ void CefTouchSelectionControllerClientOSR::OnSwipeToMoveCursorEnd() {
   OnSelectionEvent(ui::INSERTION_HANDLE_DRAG_STOPPED);
 }
 
+void CefTouchSelectionControllerClientOSR::OnClientHitTestRegionUpdated(
+    ui::TouchSelectionControllerClient* client) {
+  if (client != active_client_ || !rwhv_->selection_controller() ||
+      rwhv_->selection_controller()->active_status() ==
+          ui::TouchSelectionController::INACTIVE) {
+    return;
+  }
+
+  active_client_->DidScroll();
+}
+
 void CefTouchSelectionControllerClientOSR::UpdateClientSelectionBounds(
     const gfx::SelectionBound& start,
     const gfx::SelectionBound& end) {

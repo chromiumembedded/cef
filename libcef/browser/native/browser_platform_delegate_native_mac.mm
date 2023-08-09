@@ -30,10 +30,6 @@
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !defined(__has_feature) || !__has_feature(objc_arc)
-#error "This file requires ARC support."
-#endif
-
 // Wrapper NSView for the native view. Necessary to destroy the browser when
 // the view is deleted.
 @interface CefBrowserHostView : NSView {

@@ -2624,6 +2624,11 @@ typedef struct _cef_pdf_print_settings_t {
   /// |header_template|.
   ///
   cef_string_t footer_template;
+
+  ///
+  /// Set to true (1) to generate tagged (accessible) PDF.
+  ///
+  int generate_tagged_pdf;
 } cef_pdf_print_settings_t;
 
 ///

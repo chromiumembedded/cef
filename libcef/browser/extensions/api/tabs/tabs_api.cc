@@ -205,13 +205,6 @@ bool TabsUpdateFunction::UpdateURL(const std::string& url_string,
     return false;
   }
 
-  const bool is_javascript_scheme = url.SchemeIs(url::kJavaScriptScheme);
-  // JavaScript URLs are forbidden in chrome.tabs.update().
-  if (is_javascript_scheme) {
-    *error = tabs_constants::kJavaScriptUrlsNotAllowedInTabsUpdate;
-    return false;
-  }
-
   content::NavigationController::LoadURLParams load_params(url);
 
   // Treat extension-initiated navigations as renderer-initiated so that the URL

@@ -11,10 +11,6 @@
 #import "ui/base/cocoa/menu_controller.h"
 #include "ui/gfx/geometry/point.h"
 
-#if !defined(__has_feature) || !__has_feature(objc_arc)
-#error "This file requires ARC support."
-#endif
-
 CefMenuRunnerMac::CefMenuRunnerMac() {}
 
 CefMenuRunnerMac::~CefMenuRunnerMac() {}

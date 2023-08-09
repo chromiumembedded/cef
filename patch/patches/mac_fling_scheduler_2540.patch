@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/input/fling_scheduler_mac.mm content/browser/renderer_host/input/fling_scheduler_mac.mm
-index 063ccc809ee9b..61b80c72b8a26 100644
+index 50ed39df38044..7839bdaf7b7e5 100644
 --- content/browser/renderer_host/input/fling_scheduler_mac.mm
 +++ content/browser/renderer_host/input/fling_scheduler_mac.mm
-@@ -30,6 +30,10 @@ ui::Compositor* FlingSchedulerMac::GetCompositor() {
+@@ -26,6 +26,10 @@ ui::Compositor* FlingSchedulerMac::GetCompositor() {
        return nullptr;
    }
  

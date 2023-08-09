@@ -5,8 +5,10 @@
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
 
+#if !__has_feature(objc_arc)
 // Memory AutoRelease pool.
 static NSAutoreleasePool* g_autopool = nil;
+#endif
 
 // Provide the CefAppProtocol implementation required by CEF.
 @interface TestApplication : NSApplication <CefAppProtocol> {
@@ -31,14 +33,18 @@ static NSAutoreleasePool* g_autopool = nil;
 @end
 
 void PlatformInit() {
+#if !__has_feature(objc_arc)
   // Initialize the AutoRelease pool.
   g_autopool = [[NSAutoreleasePool alloc] init];
+#endif
 
   // Initialize the TestApplication instance.
   [TestApplication sharedApplication];
 }
 
 void PlatformCleanup() {
+#if !__has_feature(objc_arc)
   // Release the AutoRelease pool.
   [g_autopool release];
+#endif
 }

@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index f1d50fba17a0a..0ee633dfd0a9d 100644
+index c099a8701b7e0..4baf820ea9647 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -641,6 +641,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -648,6 +648,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  
@@ -18,7 +18,7 @@ index f1d50fba17a0a..0ee633dfd0a9d 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index aed9a4aaa7c9f..ca312b74c79e4 100644
+index eed8db485e54b..80eeba983a573 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -71,6 +71,7 @@ class CursorManager;
@@ -29,7 +29,7 @@ index aed9a4aaa7c9f..ca312b74c79e4 100644
  class SyntheticGestureTarget;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -135,6 +136,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -150,6 +151,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
                          const gfx::Size& max_size) override;
    void DisableAutoResize(const gfx::Size& new_size) override;
    float GetDeviceScaleFactor() const final;
@@ -38,7 +38,7 @@ index aed9a4aaa7c9f..ca312b74c79e4 100644
    TouchSelectionControllerClientManager*
    GetTouchSelectionControllerClientManager() override;
    ui::mojom::VirtualKeyboardMode GetVirtualKeyboardMode() override;
-@@ -171,6 +174,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -186,6 +189,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    // Called when screen information or native widget bounds change.
    virtual void UpdateScreenInfo();
  
@@ -49,7 +49,7 @@ index aed9a4aaa7c9f..ca312b74c79e4 100644
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -424,6 +431,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -441,6 +448,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -62,7 +62,7 @@ index aed9a4aaa7c9f..ca312b74c79e4 100644
    // Sets the cursor for this view to the one specified.
    virtual void UpdateCursor(const ui::Cursor& cursor) = 0;
  
-@@ -672,6 +685,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -696,6 +709,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -73,7 +73,7 @@ index aed9a4aaa7c9f..ca312b74c79e4 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -693,10 +710,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -717,10 +734,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
  
    void SynchronizeVisualProperties();
  
@@ -359,7 +359,7 @@ index 2e4bacce52a45..76916c5d21cb9 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 2b52ad2f63bd6..db0059cc38055 100644
+index ce7b498ca6bf9..ea7226f91831c 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -368,7 +368,8 @@ void Widget::Init(InitParams params) {
@@ -395,7 +395,7 @@ index 2b52ad2f63bd6..db0059cc38055 100644
    }
  
    if (base::FeatureList::IsEnabled(features::kWidgetLayering)) {
-@@ -1605,10 +1614,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1611,10 +1620,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -413,7 +413,7 @@ index 2b52ad2f63bd6..db0059cc38055 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 51017b6f5dd9a..62fb61fc142ad 100644
+index 745d643b1a878..f20c04ce8683a 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -351,6 +351,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -426,7 +426,7 @@ index 51017b6f5dd9a..62fb61fc142ad 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index cc74cc5f60ce1..d2698e765db76 100644
+index 6982b27ace7ae..c25a505d62e20 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
 @@ -375,6 +375,10 @@ class VIEWS_EXPORT WidgetDelegate
@@ -455,7 +455,7 @@ index 3b9b00b7d79ae..e759e3c1a9f34 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index bb3e9c6759cef..e3a83f0060dc3 100644
+index a386fb0594530..edc5dc99de31d 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -953,8 +953,12 @@ bool HWNDMessageHandler::IsActive() const {
@@ -472,7 +472,7 @@ index bb3e9c6759cef..e3a83f0060dc3 100644
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3339,10 +3343,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3346,10 +3350,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

@@ -7,10 +7,6 @@
 
 #import "ui/base/cocoa/cursor_utils.h"
 
-#if !defined(__has_feature) || !__has_feature(objc_arc)
-#error "This file requires ARC support."
-#endif
-
 namespace cursor_util {
 
 namespace {

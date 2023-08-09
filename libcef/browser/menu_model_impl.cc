@@ -37,8 +37,6 @@ class CefSimpleMenuModel : public ui::MenuModel {
   CefSimpleMenuModel& operator=(const CefSimpleMenuModel&) = delete;
 
   // MenuModel methods.
-  bool HasIcons() const override { return false; }
-
   size_t GetItemCount() const override { return impl_->GetCount(); }
 
   ItemType GetTypeAt(size_t index) const override {

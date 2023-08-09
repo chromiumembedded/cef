@@ -23,7 +23,9 @@ void OverrideChildProcessPath() {
   }
 
   // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
-  base::PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
+  base::PathService::OverrideAndCreateIfNeeded(
+      content::CHILD_PROCESS_EXE, child_process_path, /*is_absolute=*/true,
+      /*create=*/false);
 }
 
 }  // namespace

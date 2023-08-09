@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index aa7f2d6b3f2ff..439d648f7a7a5 100644
+index 6e6f24e479cce..2e1632ce35865 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index aa7f2d6b3f2ff..439d648f7a7a5 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1492,7 +1493,11 @@ component("base") {
+@@ -1500,7 +1501,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index aa7f2d6b3f2ff..439d648f7a7a5 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1898,6 +1903,12 @@ component("base") {
+@@ -1907,6 +1912,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,10 +37,10 @@ index aa7f2d6b3f2ff..439d648f7a7a5 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 2d4f17ea2a301..ff2ccafd53056 100644
+index 616e2e89af7d3..2a2993e74d53a 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
-@@ -12,6 +12,7 @@
+@@ -10,6 +10,7 @@
  #include "base/check.h"
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
@@ -48,7 +48,7 @@ index 2d4f17ea2a301..ff2ccafd53056 100644
  
  #if DCHECK_IS_ON()
  #include <atomic>
-@@ -31,7 +32,7 @@ struct Dispatcher::Impl {
+@@ -33,7 +34,7 @@ struct Dispatcher::Impl {
    }
  
    void Reset() {

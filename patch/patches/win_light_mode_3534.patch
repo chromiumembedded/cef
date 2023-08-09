@@ -32,10 +32,10 @@ index 325bc70b6ba97..6ba7f2f2becf6 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 87807be3558a2..7b069213cfea6 100644
+index d3f9fcbed28f9..94673728a3e11 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -628,7 +628,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -637,7 +637,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
@@ -44,7 +44,7 @@ index 87807be3558a2..7b069213cfea6 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1581,7 +1581,7 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+@@ -1591,7 +1591,7 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
  
  void NativeThemeWin::UpdateDarkModeStatus() {
    bool dark_mode_enabled = false;

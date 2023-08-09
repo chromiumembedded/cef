@@ -1,5 +1,5 @@
 diff --git device/bluetooth/BUILD.gn device/bluetooth/BUILD.gn
-index f619de1d332d7..4ea25b48a27eb 100644
+index 4885f927ae2b8..5e7d3e61391bf 100644
 --- device/bluetooth/BUILD.gn
 +++ device/bluetooth/BUILD.gn
 @@ -46,10 +46,12 @@ source_set("deprecated_experimental_mojo") {

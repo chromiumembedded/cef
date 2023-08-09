@@ -125,6 +125,9 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
       const override {
     return permissions::PermissionPromptDisposition::CUSTOM_MODAL_DIALOG;
   }
+  absl::optional<gfx::Rect> GetViewBoundsInScreen() const override {
+    return absl::nullopt;
+  }
 
  private:
   // We don't expose AcceptThisTime() because it's a special case for

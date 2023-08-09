@@ -11,10 +11,10 @@ index 8a18ecf567cd3..9697d43bbbfb9 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 980108560a9d0..0ae00d2c70526 100644
+index f4bd3d4fa8d85..21ee67dbae410 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -250,8 +250,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -249,8 +249,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 980108560a9d0..0ae00d2c70526 100644
  }
  
  namespace {
-@@ -571,6 +576,7 @@ WebViewImpl::WebViewImpl(
+@@ -584,6 +589,7 @@ WebViewImpl::WebViewImpl(
        chrome_client_(MakeGarbageCollected<ChromeClientImpl>(this)),
        minimum_zoom_level_(PageZoomFactorToZoomLevel(kMinimumPageZoomFactor)),
        maximum_zoom_level_(PageZoomFactorToZoomLevel(kMaximumPageZoomFactor)),
@@ -62,7 +62,7 @@ index 6a180620e00c7..09d11bfd3c83f 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 37f49afb2d01c..3b6aef63e31fc 100644
+index 1c03e9e20199a..946f36adcb131 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -917,7 +917,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {

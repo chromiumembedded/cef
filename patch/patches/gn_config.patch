@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index a9b0a5a827fc8..9a0fd388756f3 100644
+index 16bf620b7c2ee..37d7ab18e670b 100644
 --- .gn
 +++ .gn
-@@ -151,6 +151,8 @@ exec_script_whitelist =
+@@ -145,6 +145,8 @@ exec_script_whitelist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,7 +12,7 @@ index a9b0a5a827fc8..9a0fd388756f3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index acd08b3cc7ef4..98f64fb279c4e 100644
+index dfcf0ad823868..6e041f3f6eb1f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index e90116935b87d..805c3b54b17f7 100644
+index 98d206b764d92..ae9a84745e761 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")

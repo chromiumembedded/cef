@@ -928,6 +928,7 @@ if platform == 'windows':
       cef_sandbox_lib,
       'obj\\sandbox\\common\\*.obj',
       'obj\\sandbox\\win\\sandbox.lib',
+      'obj\\sandbox\\win\\service_resolver\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\base\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\debugging\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\numeric\\**\\*.obj',

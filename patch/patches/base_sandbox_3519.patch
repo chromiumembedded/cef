@@ -33,7 +33,7 @@ index 641bbaf2c7576..afdd641e38452 100644
  // Generic container overload.
  template <typename Range>
 diff --git base/win/registry.cc base/win/registry.cc
-index 4b3c3d75a2bb4..2869b29a410b9 100644
+index 9e67b3596356e..0ba2136d91e36 100644
 --- base/win/registry.cc
 +++ base/win/registry.cc
 @@ -13,6 +13,14 @@
@@ -49,14 +49,5 @@ index 4b3c3d75a2bb4..2869b29a410b9 100644
 +#endif
 +
  #include "base/check_op.h"
- #include "base/containers/fixed_flat_map.h"
  #include "base/functional/callback.h"
-@@ -314,7 +322,7 @@ class ExportDerived {
-             {"RegSetValueExW", reinterpret_cast<void**>(&reg_set_value_ex_)},
-         });
- 
--    auto* entry = kMap.find(name);
-+    auto entry = kMap.find(name);
-     if (entry == kMap.end()) {
-       return true;
-     }
+ #include "base/notreached.h"

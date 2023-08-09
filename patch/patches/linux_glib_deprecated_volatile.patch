@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 0d3fdc9b8cdff..e76f7ab4129ae 100644
+index 4e23c38763184..162f8b453f4ac 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -289,6 +289,10 @@ component("platform") {
+@@ -287,6 +287,10 @@ component("platform") {
        if (use_gio) {
          configs += [ "//build/linux:gio_config" ]
        }
@@ -14,7 +14,7 @@ index 0d3fdc9b8cdff..e76f7ab4129ae 100644
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 76ab8c9765bec..8bc3cdd0fec96 100644
+index f4c5a2bcebbb7..5faf19980b1bd 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
 @@ -174,4 +174,8 @@ component("gtk") {

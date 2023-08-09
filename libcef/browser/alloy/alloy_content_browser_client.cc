@@ -736,6 +736,7 @@ void AlloyContentBrowserClient::AllowCertificateError(
 }
 
 base::OnceClosure AlloyContentBrowserClient::SelectClientCertificate(
+    content::BrowserContext* browser_context,
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
     net::ClientCertIdentityList client_certs,
@@ -1352,7 +1353,7 @@ void AlloyContentBrowserClient::GetMediaDeviceIDSalt(
   bool allowed = cookie_settings->IsFullCookieAccessAllowed(
       url, site_for_cookies, top_frame_origin,
       cookie_settings->SettingOverridesForStorage());
-  auto* salt_service =
+  media_device_salt::MediaDeviceSaltService* salt_service =
       MediaDeviceSaltServiceFactory::GetInstance()->GetForBrowserContext(
           browser_context);
   if (!salt_service) {
@@ -1360,7 +1361,8 @@ void AlloyContentBrowserClient::GetMediaDeviceIDSalt(
     return;
   }
 
-  salt_service->GetSalt(base::BindOnce(std::move(callback), allowed));
+  salt_service->GetSalt(rfh->GetStorageKey(),
+                        base::BindOnce(std::move(callback), allowed));
 }
 
 void AlloyContentBrowserClient::OnWebContentsCreated(
