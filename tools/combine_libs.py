@@ -30,11 +30,11 @@ def Shell(*args):
   return output
 
 
-def CollectRemovals(remove_re, inputs):
+def CollectRemovals(remove_re, build_dir, inputs):
   '''Returns a list of all object files in inputs that match remove_re.'''
   removals = []
   for input in inputs:
-    output = Shell('lib.exe', '/list', input)
+    output = Shell('lib.exe', '/list', os.path.join(build_dir, input))
 
     for line in output:
       line = line.rstrip()
@@ -44,20 +44,20 @@ def CollectRemovals(remove_re, inputs):
   return removals
 
 
-def CombineLibraries(output, remove_re, inputs):
+def CombineLibraries(build_dir, output, remove_re, inputs):
   '''Combines all the libraries and objects in inputs, while removing any
   object files that match remove_re.
   '''
   removals = []
   if remove_re:
-    removals = CollectRemovals(remove_re, inputs)
+    removals = CollectRemovals(remove_re, build_dir, inputs)
 
   if len(removals) > 0:
     print('Removals: ', removals)
 
   args = ['lib.exe', '/out:%s' % output]
   args += ['/remove:%s' % obj for obj in removals]
-  args += inputs
+  args += [os.path.join(build_dir, input) for input in inputs]
   Shell(*args)
 
 
@@ -71,6 +71,8 @@ expression.
 
 def GetOptionParser():
   parser = optparse.OptionParser(USAGE)
+  parser.add_option(
+      '-b', '--build-dir', dest='build_dir', help='build directory')
   parser.add_option(
       '-o', '--output', dest='output', help='write to this output library')
   parser.add_option(
@@ -86,6 +88,7 @@ def Main():
   '''Main function for this script'''
   parser = GetOptionParser()
   (opt, args) = parser.parse_args()
+  build_dir = opt.build_dir
   output = opt.output
   remove = opt.remove
   if not output:
@@ -113,7 +116,7 @@ def Main():
   if 'VS_UNICODE_OUTPUT' in os.environ:
     del os.environ['VS_UNICODE_OUTPUT']
 
-  CombineLibraries(output, remove_re, args)
+  CombineLibraries(build_dir, output, remove_re, args)
   return 0
 
 

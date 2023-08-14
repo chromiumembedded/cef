@@ -367,8 +367,8 @@ def combine_libs(platform, build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
   intermediate_obj = None
   if platform == 'windows':
-    cmdline = 'msvs_env.bat win%s "%s" combine_libs.py -o "%s"' % (
-        platform_arch, sys.executable, dest_lib)
+    cmdline = 'msvs_env.bat win%s "%s" combine_libs.py -b "%s" -o "%s"' % (
+        platform_arch, sys.executable, build_dir, dest_lib)
   elif platform == 'mac':
     # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
     # Export only symbols that include these strings.
@@ -400,6 +400,8 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
       if not path_exists(path):
         raise Exception('File not found: ' + path)
+      if platform == 'windows':
+        path = os.path.relpath(path, build_dir)
       cmdline += ' "%s"' % path
   run(cmdline, os.path.join(cef_dir, 'tools'))
 
