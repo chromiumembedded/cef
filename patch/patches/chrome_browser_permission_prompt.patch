@@ -44,7 +44,7 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index 18e2eec8f64ff..d36b3206aeb63 100644
+index 4d895c857260c..4dbfba9b15cae 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -67,7 +67,7 @@ index 18e2eec8f64ff..d36b3206aeb63 100644
        ->GetScore(origin);
 @@ -338,8 +342,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
-   selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
+   selectors.emplace_back(std::make_unique<PrefBasedQuietPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
 +  if (!cef::IsAlloyRuntimeEnabled()) {
    selectors.emplace_back(std::make_unique<PredictionBasedPermissionUiSelector>(

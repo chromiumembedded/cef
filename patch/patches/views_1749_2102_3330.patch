@@ -240,7 +240,7 @@ index 711dc633bffc2..0fa2626150de2 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 3f81597c41a3e..b281eb2e7ac65 100644
+index b3207f7f32500..05018a895dbaf 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -564,7 +564,8 @@ void MenuController::Run(Widget* parent,
@@ -269,7 +269,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2936,8 +2939,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2927,8 +2930,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2957,8 +2965,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2948,8 +2956,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -676,7 +676,7 @@ index cf696fbcf0714..5c48fd7410b88 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index a80ff0b70cab9..b37fed46d6cbd 100644
+index af45e941c3ee9..9f32d109cc44b 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -246,6 +246,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
