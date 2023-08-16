@@ -466,11 +466,6 @@ def GetConfigArgs(args, is_debug, cpu):
   """
   add_args = {}
 
-  if platform == 'windows' and cpu == 'x86':
-    # Disable Rust dependencies for Windows x86 builds due to
-    # https://crbug.com/1465165.
-    add_args['enable_rust'] = False
-
   # Cannot create is_official_build=true is_debug=true builds.
   # This restriction is enforced in //build/config/BUILDCONFIG.gn.
   # Instead, our "official Debug" build is a Release build with dchecks and
