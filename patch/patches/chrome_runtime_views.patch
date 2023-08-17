@@ -231,7 +231,7 @@ index 59024587ef6b7..0c30aa71768cf 100644
  
  void FindBarHost::RegisterAccelerators() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index dad33e7ccfaa8..d1a644672d8e2 100644
+index 40fc0ef6a91bb..c5f4b4e3b363d 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -91,15 +91,23 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
@@ -331,7 +331,7 @@ index dad33e7ccfaa8..d1a644672d8e2 100644
  
    key.app_controller = browser_view_->browser()->app_controller();
  
-@@ -584,5 +614,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
+@@ -597,5 +627,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserFrame::IsIncognitoBrowser() const {

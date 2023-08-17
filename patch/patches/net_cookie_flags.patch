@@ -10,10 +10,10 @@ index 4fc3870bcfbc8..24c6d32d4a8d8 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 19)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index d748009dece6f..b88a28c870f8a 100644
+index 43e03be287f2a..e969f58ed80a2 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -1761,7 +1761,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -1768,7 +1768,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
