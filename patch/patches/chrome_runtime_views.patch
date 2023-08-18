@@ -681,9 +681,18 @@ index fb8bfdbcb2bd5..741d84ecba4ea 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index c9e50271f2716..063e5b353f0a3 100644
+index c9e50271f2716..182d75fc96ab6 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
+@@ -182,7 +182,7 @@ class TabstripLikeBackground : public views::Background {
+   void Paint(gfx::Canvas* canvas, views::View* view) const override {
+     bool painted = TopContainerBackground::PaintThemeCustomImage(
+         canvas, view, browser_view_, /*translate_view_coordinates=*/false);
+-    if (!painted) {
++    if (!painted && browser_view_->frame()->GetFrameView()) {
+       SkColor frame_color =
+           browser_view_->frame()->GetFrameView()->GetFrameColor(
+               BrowserFrameActiveState::kUseCurrent);
 @@ -208,12 +208,13 @@ class ToolbarView::ContainerView : public views::View {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
