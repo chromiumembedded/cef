@@ -240,10 +240,10 @@ index 711dc633bffc2..0fa2626150de2 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index f8b3ded1dba82..86b9ddd90ee16 100644
+index 63c4954542acf..432eedd0243bc 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -563,7 +563,8 @@ void MenuController::Run(Widget* parent,
+@@ -561,7 +561,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -608,6 +609,7 @@ void MenuController::Run(Widget* parent,
+@@ -606,6 +607,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2239,6 +2241,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2231,6 +2233,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2943,8 +2946,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2935,8 +2938,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index f8b3ded1dba82..86b9ddd90ee16 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2964,8 +2972,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2956,8 +2964,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -396,10 +396,10 @@ index c048ab2aa5ae4..810f62eed6676 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 4eb86394166d0..1533acb185438 100644
+index f2490a947896e..2212a635e6923 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1096,6 +1096,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1055,6 +1055,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -415,7 +415,7 @@ index 4eb86394166d0..1533acb185438 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1159,6 +1168,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1118,6 +1127,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -578,7 +578,7 @@ index 562b67396f27f..7679dbd79e565 100644
  
    // Returns true if we're in a nested run loop running the menu.
 diff --git ui/views/controls/menu/menu_runner_impl.cc ui/views/controls/menu/menu_runner_impl.cc
-index c2513d2889a2b..5dfef1af49685 100644
+index e82249ad5e887..3a7429bcaf9f1 100644
 --- ui/views/controls/menu/menu_runner_impl.cc
 +++ ui/views/controls/menu/menu_runner_impl.cc
 @@ -117,6 +117,7 @@ void MenuRunnerImpl::RunMenuAt(Widget* parent,
@@ -676,7 +676,7 @@ index cf696fbcf0714..5c48fd7410b88 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 76bb4863858fb..feb949470219d 100644
+index 3ff9bc06e51c4..4b13811a51144 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -257,6 +257,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
