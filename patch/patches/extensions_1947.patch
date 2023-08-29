@@ -198,7 +198,7 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index c8b79578252a9..fbfac71f6a861 100644
+index 058367b7ab78d..99a9e901566ce 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -32,6 +32,7 @@
@@ -217,7 +217,7 @@ index c8b79578252a9..fbfac71f6a861 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -263,6 +265,14 @@ class ExtensionsBrowserClient {
+@@ -265,6 +267,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  

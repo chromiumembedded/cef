@@ -681,10 +681,10 @@ index dc792bea0ab88..e02cdd3214b1d 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 55c2762426eaa..d2a6f69ad70aa 100644
+index 619f741f15097..79356428c64bf 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -182,7 +182,7 @@ class TabstripLikeBackground : public views::Background {
+@@ -190,7 +190,7 @@ class TabstripLikeBackground : public views::Background {
    void Paint(gfx::Canvas* canvas, views::View* view) const override {
      bool painted = TopContainerBackground::PaintThemeCustomImage(
          canvas, view, browser_view_, /*translate_view_coordinates=*/false);
@@ -693,7 +693,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
        SkColor frame_color =
            browser_view_->frame()->GetFrameView()->GetFrameColor(
                BrowserFrameActiveState::kUseCurrent);
-@@ -208,12 +208,13 @@ class ToolbarView::ContainerView : public views::View {
+@@ -226,12 +226,13 @@ class ToolbarView::ContainerView : public views::View {
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -709,7 +709,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
    SetID(VIEW_ID_TOOLBAR);
  
    container_view_ = AddChildView(std::make_unique<ContainerView>());
-@@ -238,6 +239,19 @@ ToolbarView::~ToolbarView() {
+@@ -256,6 +257,19 @@ ToolbarView::~ToolbarView() {
  }
  
  void ToolbarView::Init() {
@@ -729,7 +729,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -262,12 +276,13 @@ void ToolbarView::Init() {
+@@ -280,12 +294,13 @@ void ToolbarView::Init() {
  
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -745,7 +745,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
      download_button =
          std::make_unique<DownloadToolbarButtonView>(browser_view_);
    }
-@@ -349,8 +364,10 @@ void ToolbarView::Init() {
+@@ -367,8 +382,10 @@ void ToolbarView::Init() {
      }
    }
    std::unique_ptr<media_router::CastToolbarButton> cast;
@@ -757,7 +757,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
    if (base::FeatureList::IsEnabled(media::kGlobalMediaControls)) {
-@@ -360,7 +377,8 @@ void ToolbarView::Init() {
+@@ -378,7 +395,8 @@ void ToolbarView::Init() {
  
    std::unique_ptr<send_tab_to_self::SendTabToSelfToolbarIconView>
        send_tab_to_self_button;
@@ -767,7 +767,7 @@ index 55c2762426eaa..d2a6f69ad70aa 100644
      send_tab_to_self_button =
          std::make_unique<send_tab_to_self::SendTabToSelfToolbarIconView>(
              browser_view_);
-@@ -368,7 +386,7 @@ void ToolbarView::Init() {
+@@ -386,7 +404,7 @@ void ToolbarView::Init() {
  
    std::unique_ptr<SidePanelToolbarButton> side_panel_button;
    std::unique_ptr<SidePanelToolbarContainer> side_panel_toolbar_container;
