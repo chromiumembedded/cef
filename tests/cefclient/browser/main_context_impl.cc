@@ -135,6 +135,9 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     // Parse the background color value.
     background_color_ =
         ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
+  } else if (command_line_->HasSwitch("force-dark-mode")) {
+    // Use black background color by default with dark mode.
+    background_color_ = ParseColor("black");
   }
 
   if (background_color_ == 0 && !use_views_) {

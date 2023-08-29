@@ -1,0 +1,103 @@
+diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
+index 325bc70b6ba97..d4117dbb1d4d8 100644
+--- base/win/dark_mode_support.cc
++++ base/win/dark_mode_support.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <windows.h>
+ 
++#include "base/command_line.h"
+ #include "base/native_library.h"
+ #include "base/win/windows_version.h"
+ 
+@@ -85,11 +86,20 @@ const DarkModeSupport& GetDarkModeSupport() {
+   return dark_mode_support;
+ }
+ 
++bool IsForcedLightMode() {
++  static bool kIsForcedLightMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "force-light-mode");
++  return kIsForcedLightMode;
++}
++
+ }  // namespace
+ 
+ namespace base::win {
+ 
+ bool IsDarkModeAvailable() {
++  if (IsForcedLightMode())
++    return false;
+   auto& dark_mode_support = GetDarkModeSupport();
+   return (dark_mode_support.allow_dark_mode_for_app ||
+           dark_mode_support.set_preferred_app_mode) &&
+diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
+index 604ef6b4771e3..0011a095f8a66 100644
+--- ui/native_theme/native_theme_mac.mm
++++ ui/native_theme/native_theme_mac.mm
+@@ -45,6 +45,14 @@ bool PrefersReducedTransparency() {
+ bool IsHighContrast() {
+   return NSWorkspace.sharedWorkspace.accessibilityDisplayShouldIncreaseContrast;
+ }
++
++bool IsForcedLightMode() {
++  static bool kIsForcedLightMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "force-light-mode");
++  return kIsForcedLightMode;
++}
++
+ }  // namespace
+ 
+ // Helper object to respond to light mode/dark mode changeovers.
+@@ -567,11 +575,15 @@ static void CaptionSettingsChangedNotificationCallback(CFNotificationCenterRef,
+ 
+ void NativeThemeMac::InitializeDarkModeStateAndObserver() {
+   __block auto theme = this;
+-  set_use_dark_colors(IsDarkMode());
++  if (!IsForcedLightMode()) {
++    set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++  }
+   set_preferred_color_scheme(CalculatePreferredColorScheme());
+   appearance_observer_ =
+       [[NativeThemeEffectiveAppearanceObserver alloc] initWithHandler:^{
+-        theme->set_use_dark_colors(IsDarkMode());
++        if (!IsForcedLightMode()) {
++          theme->set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++        }
+         theme->set_preferred_color_scheme(CalculatePreferredColorScheme());
+         theme->NotifyOnNativeThemeUpdated();
+       }];
+@@ -580,7 +592,9 @@ static void CaptionSettingsChangedNotificationCallback(CFNotificationCenterRef,
+ void NativeThemeMac::ConfigureWebInstance() {
+   // NativeThemeAura is used as web instance so we need to initialize its state.
+   NativeTheme* web_instance = NativeTheme::GetInstanceForWeb();
+-  web_instance->set_use_dark_colors(IsDarkMode());
++  if (!IsForcedLightMode()) {
++    web_instance->set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++  }
+   web_instance->set_preferred_color_scheme(CalculatePreferredColorScheme());
+   web_instance->SetPreferredContrast(CalculatePreferredContrast());
+   web_instance->set_prefers_reduced_transparency(PrefersReducedTransparency());
+diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
+index d3f9fcbed28f9..94673728a3e11 100644
+--- ui/native_theme/native_theme_win.cc
++++ ui/native_theme/native_theme_win.cc
+@@ -637,7 +637,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+ 
+ NativeTheme::PreferredColorScheme
+ NativeThemeWin::CalculatePreferredColorScheme() const {
+-  if (!InForcedColorsMode())
++  if (!InForcedColorsMode() || !supports_windows_dark_mode_)
+     return NativeTheme::CalculatePreferredColorScheme();
+ 
+   // According to the spec, the preferred color scheme for web content is 'dark'
+@@ -1591,7 +1591,7 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+ 
+ void NativeThemeWin::UpdateDarkModeStatus() {
+   bool dark_mode_enabled = false;
+-  if (hkcu_themes_regkey_.Valid()) {
++  if (supports_windows_dark_mode_ && hkcu_themes_regkey_.Valid()) {
+     DWORD apps_use_light_theme = 1;
+     hkcu_themes_regkey_.ReadValueDW(L"AppsUseLightTheme",
+                                     &apps_use_light_theme);
