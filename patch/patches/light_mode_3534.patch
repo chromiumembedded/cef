@@ -50,7 +50,7 @@ index 604ef6b4771e3..0011a095f8a66 100644
  }  // namespace
  
  // Helper object to respond to light mode/dark mode changeovers.
-@@ -567,11 +575,15 @@ static void CaptionSettingsChangedNotificationCallback(CFNotificationCenterRef,
+@@ -567,11 +575,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -68,7 +68,7 @@ index 604ef6b4771e3..0011a095f8a66 100644
          theme->set_preferred_color_scheme(CalculatePreferredColorScheme());
          theme->NotifyOnNativeThemeUpdated();
        }];
-@@ -580,7 +592,9 @@ static void CaptionSettingsChangedNotificationCallback(CFNotificationCenterRef,
+@@ -580,7 +592,9 @@ void NativeThemeMac::InitializeDarkModeStateAndObserver() {
  void NativeThemeMac::ConfigureWebInstance() {
    // NativeThemeAura is used as web instance so we need to initialize its state.
    NativeTheme* web_instance = NativeTheme::GetInstanceForWeb();
@@ -80,10 +80,21 @@ index 604ef6b4771e3..0011a095f8a66 100644
    web_instance->SetPreferredContrast(CalculatePreferredContrast());
    web_instance->set_prefers_reduced_transparency(PrefersReducedTransparency());
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index d3f9fcbed28f9..94673728a3e11 100644
+index d3f9fcbed28f9..32ab3dc997027 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -637,7 +637,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -630,14 +630,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+   // Windows high contrast modes are entirely different themes,
+   // so let them take priority over dark mode.
+   // ...unless --force-dark-mode was specified in which case caveat emptor.
+-  if (InForcedColorsMode() && !IsForcedDarkMode())
++  if (supports_windows_dark_mode_ && IsForcedDarkMode()) {
++    return true;
++  }
++  if (InForcedColorsMode())
+     return false;
+   return NativeTheme::ShouldUseDarkColors();
+ }
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
@@ -92,12 +103,15 @@ index d3f9fcbed28f9..94673728a3e11 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1591,7 +1591,7 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+@@ -1590,8 +1593,9 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+ }
  
  void NativeThemeWin::UpdateDarkModeStatus() {
-   bool dark_mode_enabled = false;
+-  bool dark_mode_enabled = false;
 -  if (hkcu_themes_regkey_.Valid()) {
-+  if (supports_windows_dark_mode_ && hkcu_themes_regkey_.Valid()) {
++  bool dark_mode_enabled = ShouldUseDarkColors();
++  if (supports_windows_dark_mode_ && !IsForcedDarkMode() &&
++      hkcu_themes_regkey_.Valid()) {
      DWORD apps_use_light_theme = 1;
      hkcu_themes_regkey_.ReadValueDW(L"AppsUseLightTheme",
                                      &apps_use_light_theme);
