@@ -1,0 +1,117 @@
+diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
+index 325bc70b6ba97..d4117dbb1d4d8 100644
+--- base/win/dark_mode_support.cc
++++ base/win/dark_mode_support.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <windows.h>
+ 
++#include "base/command_line.h"
+ #include "base/native_library.h"
+ #include "base/win/windows_version.h"
+ 
+@@ -85,11 +86,20 @@ const DarkModeSupport& GetDarkModeSupport() {
+   return dark_mode_support;
+ }
+ 
++bool IsForcedLightMode() {
++  static bool kIsForcedLightMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "force-light-mode");
++  return kIsForcedLightMode;
++}
++
+ }  // namespace
+ 
+ namespace base::win {
+ 
+ bool IsDarkModeAvailable() {
++  if (IsForcedLightMode())
++    return false;
+   auto& dark_mode_support = GetDarkModeSupport();
+   return (dark_mode_support.allow_dark_mode_for_app ||
+           dark_mode_support.set_preferred_app_mode) &&
+diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
+index 37a21af908449..bb3d9a1841156 100644
+--- ui/native_theme/native_theme_mac.mm
++++ ui/native_theme/native_theme_mac.mm
+@@ -47,6 +47,14 @@ bool IsDarkMode() {
+ bool IsHighContrast() {
+   return NSWorkspace.sharedWorkspace.accessibilityDisplayShouldIncreaseContrast;
+ }
++
++bool IsForcedLightMode() {
++  static bool kIsForcedLightMode =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "force-light-mode");
++  return kIsForcedLightMode;
++}
++
+ }  // namespace
+ 
+ // Helper object to respond to light mode/dark mode changeovers.
+@@ -549,11 +557,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+ 
+ void NativeThemeMac::InitializeDarkModeStateAndObserver() {
+   __block auto theme = this;
+-  set_use_dark_colors(IsDarkMode());
++  if (!IsForcedLightMode()) {
++    set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++  }
+   set_preferred_color_scheme(CalculatePreferredColorScheme());
+   appearance_observer_.reset(
+       [[NativeThemeEffectiveAppearanceObserver alloc] initWithHandler:^{
+-        theme->set_use_dark_colors(IsDarkMode());
++        if (!IsForcedLightMode()) {
++          theme->set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++        }
+         theme->set_preferred_color_scheme(CalculatePreferredColorScheme());
+         theme->NotifyOnNativeThemeUpdated();
+       }]);
+@@ -562,7 +574,9 @@ void NativeThemeMac::InitializeDarkModeStateAndObserver() {
+ void NativeThemeMac::ConfigureWebInstance() {
+   // NativeThemeAura is used as web instance so we need to initialize its state.
+   NativeTheme* web_instance = NativeTheme::GetInstanceForWeb();
+-  web_instance->set_use_dark_colors(IsDarkMode());
++  if (!IsForcedLightMode()) {
++    web_instance->set_use_dark_colors(IsForcedDarkMode() || IsDarkMode());
++  }
+   web_instance->set_preferred_color_scheme(CalculatePreferredColorScheme());
+   web_instance->SetPreferredContrast(CalculatePreferredContrast());
+ 
+diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
+index 87807be3558a2..adb672aee957b 100644
+--- ui/native_theme/native_theme_win.cc
++++ ui/native_theme/native_theme_win.cc
+@@ -621,14 +621,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+   // Windows high contrast modes are entirely different themes,
+   // so let them take priority over dark mode.
+   // ...unless --force-dark-mode was specified in which case caveat emptor.
+-  if (InForcedColorsMode() && !IsForcedDarkMode())
++  if (supports_windows_dark_mode_ && IsForcedDarkMode()) {
++    return true;
++  }
++  if (InForcedColorsMode())
+     return false;
+   return NativeTheme::ShouldUseDarkColors();
+ }
+ 
+ NativeTheme::PreferredColorScheme
+ NativeThemeWin::CalculatePreferredColorScheme() const {
+-  if (!InForcedColorsMode())
++  if (!InForcedColorsMode() || !supports_windows_dark_mode_)
+     return NativeTheme::CalculatePreferredColorScheme();
+ 
+   // According to the spec, the preferred color scheme for web content is 'dark'
+@@ -1580,8 +1583,9 @@ void NativeThemeWin::RegisterThemeRegkeyObserver() {
+ }
+ 
+ void NativeThemeWin::UpdateDarkModeStatus() {
+-  bool dark_mode_enabled = false;
+-  if (hkcu_themes_regkey_.Valid()) {
++  bool dark_mode_enabled = ShouldUseDarkColors();
++  if (supports_windows_dark_mode_ && !IsForcedDarkMode() &&
++      hkcu_themes_regkey_.Valid()) {
+     DWORD apps_use_light_theme = 1;
+     hkcu_themes_regkey_.ReadValueDW(L"AppsUseLightTheme",
+                                     &apps_use_light_theme);
