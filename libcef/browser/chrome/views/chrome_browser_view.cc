@@ -70,6 +70,13 @@ void ChromeBrowserView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
   browser_view_delegate_->OnBoundsChanged();
 }
 
+void ChromeBrowserView::OnGestureEvent(ui::GestureEvent* event) {
+  if (browser_view_delegate_->OnGestureEvent(event)) {
+    return;
+  }
+  ParentClass::OnGestureEvent(event);
+}
+
 ToolbarView* ChromeBrowserView::OverrideCreateToolbar(
     Browser* browser,
     BrowserView* browser_view) {

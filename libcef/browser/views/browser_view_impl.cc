@@ -13,7 +13,26 @@
 #include "libcef/browser/views/window_impl.h"
 
 #include "content/public/browser/native_web_keyboard_event.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/content_accelerators/accelerator_util.h"
+
+namespace {
+
+absl::optional<cef_gesture_command_t> GetGestureCommand(
+    ui::GestureEvent* event) {
+#if BUILDFLAG(IS_MAC)
+  if (event->details().type() == ui::ET_GESTURE_SWIPE) {
+    if (event->details().swipe_left()) {
+      return CEF_GESTURE_COMMAND_BACK;
+    } else if (event->details().swipe_right()) {
+      return CEF_GESTURE_COMMAND_FORWARD;
+    }
+  }
+#endif
+  return absl::nullopt;
+}
+
+}  // namespace
 
 // static
 CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
@@ -218,21 +237,27 @@ void CefBrowserViewImpl::OnBoundsChanged() {
   }
 }
 
-void CefBrowserViewImpl::OnGestureCommand(cef_gesture_command_t command) {
-  if (delegate()->OnGestureCommand(this, command)) {
-    return;
-  }
+bool CefBrowserViewImpl::OnGestureEvent(ui::GestureEvent* event) {
+  if (auto command = GetGestureCommand(event)) {
+    if (delegate() && delegate()->OnGestureCommand(this, *command)) {
+      return true;
+    }
 
-  if (browser_) {
-    switch (command) {
-      case CEF_GESTURE_COMMAND_BACK:
-        browser_->GoBack();
-        break;
-      case CEF_GESTURE_COMMAND_FORWARD:
-        browser_->GoForward();
-        break;
+    if (!cef::IsChromeRuntimeEnabled() && browser_) {
+      // Default handling for the Alloy runtime.
+      switch (*command) {
+        case CEF_GESTURE_COMMAND_BACK:
+          browser_->GoBack();
+          break;
+        case CEF_GESTURE_COMMAND_FORWARD:
+          browser_->GoForward();
+          break;
+      }
+      return true;
     }
   }
+
+  return false;
 }
 
 CefBrowserViewImpl::CefBrowserViewImpl(
