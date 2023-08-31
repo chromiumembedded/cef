@@ -41,8 +41,9 @@ class CefBrowserViewView
     // Called when the BrowserView bounds have changed.
     virtual void OnBoundsChanged() = 0;
 
-    // Called when the BrowserView receives a gesture command.
-    virtual void OnGestureCommand(cef_gesture_command_t command) = 0;
+    // Called when the BrowserView receives a gesture event.
+    // Returns true if the gesture was handled.
+    virtual bool OnGestureEvent(ui::GestureEvent* event) = 0;
 
    protected:
     virtual ~Delegate() {}

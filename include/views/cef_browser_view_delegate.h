@@ -118,9 +118,8 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   ///
   /// Called when |browser_view| receives a gesture command. Return true to
   /// handle (or disable) a |gesture_command| or false to propagate the gesture
-  /// to the browser for default handling. This method will only be called with
-  /// the Alloy runtime. To handle these commands with the Chrome runtime
-  /// implement CefCommandHandler::OnChromeCommand instead.
+  /// to the browser for default handling. With the Chrome runtime these
+  /// commands can also be handled via CefCommandHandler::OnChromeCommand.
   ///
   /*--cef()--*/
   virtual bool OnGestureCommand(CefRefPtr<CefBrowserView> browser_view,

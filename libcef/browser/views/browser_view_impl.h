@@ -74,7 +74,7 @@ class CefBrowserViewImpl
   // CefBrowserViewView::Delegate methods:
   void OnBrowserViewAdded() override;
   void OnBoundsChanged() override;
-  void OnGestureCommand(cef_gesture_command_t command) override;
+  bool OnGestureEvent(ui::GestureEvent* event) override;
 
   // Return the WebView representation of this object.
   views::WebView* web_view() const;
