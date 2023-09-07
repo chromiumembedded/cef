@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=15c0d7230887344fa77279c76ff377b3f2d9ee1d$
+// $hash=2157bfb760455bcd97d4e30eba9db474c7b3cabd$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -51,7 +51,10 @@ class CefBrowserViewDelegateCToCpp
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override;
-  ChromeToolbarType GetChromeToolbarType() override;
+  ChromeToolbarType GetChromeToolbarType(
+      CefRefPtr<CefBrowserView> browser_view) override;
+  bool UseFramelessWindowForPictureInPicture(
+      CefRefPtr<CefBrowserView> browser_view) override;
   bool OnGestureCommand(CefRefPtr<CefBrowserView> browser_view,
                         cef_gesture_command_t gesture_command) override;
 

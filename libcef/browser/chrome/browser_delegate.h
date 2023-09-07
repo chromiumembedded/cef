@@ -11,6 +11,8 @@
 #include "base/memory/scoped_refptr.h"
 #include "chrome/browser/ui/page_action/page_action_icon_type.h"
 #include "content/public/browser/web_contents_delegate.h"
+#include "third_party/abseil-cpp/absl/types/optional.h"
+#include "third_party/skia/include/core/SkRegion.h"
 #include "ui/base/window_open_disposition.h"
 
 class Browser;
@@ -33,7 +35,8 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Called from the Browser constructor to create a new delegate.
   static std::unique_ptr<BrowserDelegate> Create(
       Browser* browser,
-      scoped_refptr<CreateParams> cef_params);
+      scoped_refptr<CreateParams> cef_params,
+      const Browser* opener);
 
   ~BrowserDelegate() override {}
 
@@ -103,6 +106,26 @@ class BrowserDelegate : public content::WebContentsDelegate {
                                  content::MediaResponseCallback callback) {
     return callback;
   }
+
+  // Optionally override support for the specified window feature of type
+  // Browser::WindowFeature.
+  virtual absl::optional<bool> SupportsWindowFeature(int feature) const {
+    return absl::nullopt;
+  }
+
+  // Returns true if draggable regions are supported.
+  virtual bool SupportsDraggableRegion() const { return false; }
+
+  // Returns the draggable region, if any, relative to the web contents.
+  // Called from PictureInPictureBrowserFrameView::NonClientHitTest and
+  // BrowserView::ShouldDescendIntoChildForEventHandling.
+  virtual const absl::optional<SkRegion> GetDraggableRegion() const {
+    return absl::nullopt;
+  }
+
+  // Set the draggable region relative to web contents.
+  // Called from DraggableRegionsHostImpl::UpdateDraggableRegions.
+  virtual void UpdateDraggableRegion(const SkRegion& region) {}
 };
 
 }  // namespace cef

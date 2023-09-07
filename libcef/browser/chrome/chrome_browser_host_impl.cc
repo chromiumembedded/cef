@@ -332,6 +332,13 @@ bool ChromeBrowserHostImpl::IsBackgroundHost() {
   return false;
 }
 
+ChromeBrowserView* ChromeBrowserHostImpl::chrome_browser_view() const {
+  if (browser_ && is_views_hosted_) {
+    return static_cast<ChromeBrowserView*>(browser_->window());
+  }
+  return nullptr;
+}
+
 bool ChromeBrowserHostImpl::Navigate(const content::OpenURLParams& params) {
   CEF_REQUIRE_UIT();
   if (GetCurrentTabIndex() == TabStripModel::kNoTab) {
@@ -413,8 +420,7 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
     auto view_impl =
         static_cast<CefBrowserViewImpl*>(params.browser_view.get());
 
-    chrome_browser_view =
-        static_cast<ChromeBrowserView*>(view_impl->root_view());
+    chrome_browser_view = view_impl->chrome_browser_view();
     chrome_params.window = chrome_browser_view;
 
     auto chrome_widget =
@@ -433,8 +439,7 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   if (chrome_browser_view) {
     // Initialize the BrowserFrame and BrowserView and create the controls that
     // require access to the Browser.
-    chrome_browser_view->InitBrowser(base::WrapUnique(browser),
-                                     params.browser_view);
+    chrome_browser_view->InitBrowser(base::WrapUnique(browser));
 
     // Don't set theme colors in ContentsWebView::UpdateBackgroundColor.
     chrome_browser_view->contents_web_view()->SetBackgroundVisible(false);
@@ -514,10 +519,8 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
 
 void ChromeBrowserHostImpl::WindowDestroyed() {
   CEF_REQUIRE_UIT();
-  if (browser_ && is_views_hosted_) {
-    auto chrome_browser_view =
-        static_cast<ChromeBrowserView*>(browser_->window());
-    chrome_browser_view->Destroyed();
+  if (auto view = chrome_browser_view()) {
+    view->Destroyed();
   }
 
   platform_delegate_->CloseHostWindow();
@@ -532,6 +535,7 @@ bool ChromeBrowserHostImpl::WillBeDestroyed() const {
 void ChromeBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
   browser_ = nullptr;
+  weak_ptr_factory_.InvalidateWeakPtrs();
 
   OnBeforeClose();
   OnBrowserDestroyed();

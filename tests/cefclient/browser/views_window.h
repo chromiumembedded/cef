@@ -140,7 +140,10 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override;
-  ChromeToolbarType GetChromeToolbarType() override;
+  ChromeToolbarType GetChromeToolbarType(
+      CefRefPtr<CefBrowserView> browser_view) override;
+  bool UseFramelessWindowForPictureInPicture(
+      CefRefPtr<CefBrowserView> browser_view) override;
 
   // CefButtonDelegate methods:
   void OnButtonPressed(CefRefPtr<CefButton> button) override;
@@ -254,6 +257,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   ChromeToolbarType chrome_toolbar_type_;
   bool use_window_modal_dialog_;
   bool use_bottom_controls_;
+  bool hide_pip_frame_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;

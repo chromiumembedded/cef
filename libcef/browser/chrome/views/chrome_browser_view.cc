@@ -7,27 +7,19 @@
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/views/browser_view_impl.h"
 
-ChromeBrowserView::ChromeBrowserView(CefBrowserViewDelegate* cef_delegate,
-                                     Delegate* browser_view_delegate)
-    : ParentClass(cef_delegate), browser_view_delegate_(browser_view_delegate) {
-  DCHECK(browser_view_delegate_);
-}
+ChromeBrowserView::ChromeBrowserView(CefBrowserViewImpl* cef_browser_view)
+    : ParentClass(cef_browser_view->delegate()),
+      cef_browser_view_(cef_browser_view) {}
 
-void ChromeBrowserView::InitBrowser(std::unique_ptr<Browser> browser,
-                                    CefRefPtr<CefBrowserView> browser_view) {
-  DCHECK(!browser_);
+void ChromeBrowserView::InitBrowser(std::unique_ptr<Browser> browser) {
   DCHECK(!web_view_);
-
-  browser_ = browser.get();
-  DCHECK(browser_);
 
   // Initialize the BrowserFrame and BrowserView.
   auto chrome_widget = static_cast<ChromeBrowserFrame*>(GetWidget());
   chrome_widget->Init(this, std::move(browser));
 
   // Retrieve the views::WebView that was created by the above initializations.
-  auto view_impl = static_cast<CefBrowserViewImpl*>(browser_view.get());
-  web_view_ = view_impl->web_view();
+  web_view_ = cef_browser_view_->web_view();
   DCHECK(web_view_);
 
   ParentClass::AddedToWidget();
@@ -36,7 +28,6 @@ void ChromeBrowserView::InitBrowser(std::unique_ptr<Browser> browser,
 void ChromeBrowserView::Destroyed() {
   DCHECK(!destroyed_);
   destroyed_ = true;
-  browser_ = nullptr;
   web_view_ = nullptr;
 }
 
@@ -62,26 +53,24 @@ void ChromeBrowserView::ViewHierarchyChanged(
 
 void ChromeBrowserView::AddedToWidget() {
   // Results in a call to InitBrowser which calls ParentClass::AddedToWidget.
-  browser_view_delegate_->OnBrowserViewAdded();
+  cef_browser_view_->OnBrowserViewAdded();
 }
 
 void ChromeBrowserView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
   ParentClass::OnBoundsChanged(previous_bounds);
-  browser_view_delegate_->OnBoundsChanged();
+  cef_browser_view_->OnBoundsChanged();
 }
 
 void ChromeBrowserView::OnGestureEvent(ui::GestureEvent* event) {
-  if (browser_view_delegate_->OnGestureEvent(event)) {
+  if (cef_browser_view_->OnGestureEvent(event)) {
     return;
   }
   ParentClass::OnGestureEvent(event);
 }
 
-ToolbarView* ChromeBrowserView::OverrideCreateToolbar(
-    Browser* browser,
-    BrowserView* browser_view) {
+ToolbarView* ChromeBrowserView::OverrideCreateToolbar() {
   if (cef_delegate()) {
-    auto toolbar_type = cef_delegate()->GetChromeToolbarType();
+    auto toolbar_type = cef_delegate()->GetChromeToolbarType(cef_browser_view_);
     absl::optional<ToolbarView::DisplayMode> display_mode;
     switch (toolbar_type) {
       case CEF_CTT_NORMAL:
@@ -94,8 +83,8 @@ ToolbarView* ChromeBrowserView::OverrideCreateToolbar(
         break;
     }
     if (display_mode) {
-      cef_toolbar_ = CefToolbarViewImpl::Create(nullptr, browser, browser_view,
-                                                display_mode);
+      cef_toolbar_ =
+          CefToolbarViewImpl::Create(nullptr, browser(), this, display_mode);
       // Ownership will be taken by BrowserView.
       view_util::PassOwnership(cef_toolbar_).release();
       return cef_toolbar_->root_view();

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d49d6b19e52e8a0496c69ec5cbd00750f7ac4740$
+// $hash=9e8dd2187d592f7556cbee0db3ceab851f9aae13$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -119,7 +119,17 @@ typedef struct _cef_browser_view_delegate_t {
   /// documentation.
   ///
   cef_chrome_toolbar_type_t(CEF_CALLBACK* get_chrome_toolbar_type)(
-      struct _cef_browser_view_delegate_t* self);
+      struct _cef_browser_view_delegate_t* self,
+      struct _cef_browser_view_t* browser_view);
+
+  ///
+  /// Return true (1) to create frameless windows for Document picture-in-
+  /// picture popups. Content in frameless windows should specify draggable
+  /// regions using "-webkit-app-region: drag" CSS.
+  ///
+  int(CEF_CALLBACK* use_frameless_window_for_picture_in_picture)(
+      struct _cef_browser_view_delegate_t* self,
+      struct _cef_browser_view_t* browser_view);
 
   ///
   /// Called when |browser_view| receives a gesture command. Return true (1) to

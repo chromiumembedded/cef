@@ -56,6 +56,7 @@ const char kUseTestHttpServer[] = "use-test-http-server";
 const char kShowWindowButtons[] = "show-window-buttons";
 const char kUseWindowModalDialog[] = "use-window-modal-dialog";
 const char kUseBottomControls[] = "use-bottom-controls";
+const char kHidePipFrame[] = "hide-pip-frame";
 
 }  // namespace switches
 }  // namespace client

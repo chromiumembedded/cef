@@ -355,7 +355,7 @@ index 77ca1dbf118f9..c60711991d093 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 261dfb8562dbd..650a2847fb6c8 100644
+index 261dfb8562dbd..64bb1900483c8 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -336,11 +336,10 @@ using content::NativeWebKeyboardEvent;
@@ -411,7 +411,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
  
 -  toolbar_ = top_container_->AddChildView(
 -      std::make_unique<ToolbarView>(browser_.get(), this));
-+  toolbar_ = OverrideCreateToolbar(browser_.get(), this);
++  toolbar_ = OverrideCreateToolbar();
 +  if (!toolbar_) {
 +    toolbar_ = new ToolbarView(browser_.get(), this, absl::nullopt);
 +  } else {
@@ -469,7 +469,57 @@ index 261dfb8562dbd..650a2847fb6c8 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3994,8 +4016,10 @@ void BrowserView::Layout() {
+@@ -3873,11 +3895,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+     gfx::NativeView child,
+     const gfx::Point& location) {
++#if BUILDFLAG(ENABLE_CEF)
++  const bool frameless_pip =
++      GetIsPictureInPictureType() &&
++      !browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
++  if (frameless_pip) {
++    if (auto frame_view = frame()->GetFrameView()) {
++      int result = frame_view->NonClientHitTest(location);
++      if (result == HTTOP || result == HTTOPLEFT || result == HTTOPRIGHT) {
++        // Allow resize from the top of a frameless window.
++        return false;
++      }
++    }
++  }
++#endif
++
++  absl::optional<SkRegion> draggable_region;
++
+   // Window for PWAs with window-controls-overlay display override should claim
+   // mouse events that fall within the draggable region.
+   web_app::AppBrowserController* controller = browser()->app_controller();
+-  if (AreDraggableRegionsEnabled() && controller &&
+-      controller->draggable_region().has_value()) {
++  if (AreDraggableRegionsEnabled() && controller) {
++    draggable_region = controller->draggable_region();
++  }
++
++#if BUILDFLAG(ENABLE_CEF)
++  // Match logic in PictureInPictureBrowserFrameView::NonClientHitTest.
++  if (!draggable_region.has_value() && frameless_pip) {
++    draggable_region = browser_->cef_delegate()->GetDraggableRegion();
++  }
++#endif
++
++  if (draggable_region.has_value()) {
+     // Draggable regions are defined relative to the web contents.
+     gfx::Point point_in_contents_web_view_coords(location);
+     views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
+@@ -3886,7 +3935,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+ 
+     // Draggable regions should be ignored for clicks into any browser view's
+     // owned widgets, for example alerts, permission prompts or find bar.
+-    return !controller->draggable_region()->contains(
++    return !draggable_region->contains(
+                point_in_contents_web_view_coords.x(),
+                point_in_contents_web_view_coords.y()) ||
+            WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
+@@ -3994,8 +4043,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -482,7 +532,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    // In chromeOS ash we round the bottom two corners of the browser frame by
-@@ -4073,6 +4097,11 @@ void BrowserView::AddedToWidget() {
+@@ -4073,6 +4124,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -494,7 +544,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -4120,13 +4149,9 @@ void BrowserView::AddedToWidget() {
+@@ -4120,13 +4176,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -510,7 +560,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4544,7 +4569,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4544,7 +4596,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -520,7 +570,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -4915,6 +4941,8 @@ Profile* BrowserView::GetProfile() {
+@@ -4915,6 +4968,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -529,7 +579,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -4937,6 +4965,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -4937,6 +4992,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -539,7 +589,7 @@ index 261dfb8562dbd..650a2847fb6c8 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 58f128d2217a0..c8dd2a4a5a940 100644
+index 58f128d2217a0..2d5115f2a568e 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -136,11 +136,16 @@ class BrowserView : public BrowserWindow,
@@ -559,15 +609,12 @@ index 58f128d2217a0..c8dd2a4a5a940 100644
    void set_frame(BrowserFrame* frame) {
      frame_ = frame;
      paint_as_active_subscription_ =
-@@ -810,6 +815,12 @@ class BrowserView : public BrowserWindow,
+@@ -810,6 +815,9 @@ class BrowserView : public BrowserWindow,
      return web_app_frame_toolbar();
    }
  
 + protected:
-+  virtual ToolbarView* OverrideCreateToolbar(Browser* browser,
-+                                             BrowserView* browser_view) {
-+    return nullptr;
-+  }
++  virtual ToolbarView* OverrideCreateToolbar() { return nullptr; }
 +
   private:
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
@@ -617,6 +664,100 @@ index 8267a265a8e10..ee08f18e96a34 100644
  }
  
  ContentsWebView::~ContentsWebView() {
+diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
+index deb2cbe415610..b19dba22d8cc2 100644
+--- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
++++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
+@@ -404,6 +404,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
+   frame->GetNativeWindow()->SetEventTargeter(
+       std::make_unique<chromeos::InteriorResizeHandleTargeter>());
+ #endif
++
++  if (!browser_view->browser()->SupportsWindowFeature(
++          Browser::FEATURE_TITLEBAR)) {
++    top_bar_container_view_->SetVisible(false);
++  }
+ }
+ 
+ PictureInPictureBrowserFrameView::~PictureInPictureBrowserFrameView() {
+@@ -503,17 +508,20 @@ gfx::Rect PictureInPictureBrowserFrameView::GetWindowBoundsForClientBounds(
+ 
+ int PictureInPictureBrowserFrameView::NonClientHitTest(
+     const gfx::Point& point) {
+-  // Allow interacting with the buttons.
+-  if (GetLocationIconViewBounds().Contains(point) ||
+-      GetBackToTabControlsBounds().Contains(point) ||
+-      GetCloseControlsBounds().Contains(point)) {
+-    return HTCLIENT;
+-  }
+-
+-  for (size_t i = 0; i < content_setting_views_.size(); i++) {
+-    if (GetContentSettingViewBounds(i).Contains(point)) {
++  const bool frameless = !top_bar_container_view_->GetVisible();
++  if (!frameless) {
++    // Allow interacting with the buttons.
++    if (GetLocationIconViewBounds().Contains(point) ||
++        GetBackToTabControlsBounds().Contains(point) ||
++        GetCloseControlsBounds().Contains(point)) {
+       return HTCLIENT;
+     }
++
++    for (size_t i = 0; i < content_setting_views_.size(); i++) {
++      if (GetContentSettingViewBounds(i).Contains(point)) {
++        return HTCLIENT;
++      }
++    }
+   }
+ 
+   // Allow dragging and resizing the window.
+@@ -523,6 +531,27 @@ int PictureInPictureBrowserFrameView::NonClientHitTest(
+   if (window_component != HTNOWHERE)
+     return window_component;
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  if (frameless) {
++    // Match logic in BrowserView::ShouldDescendIntoChildForEventHandling.
++    const auto draggable_region =
++        browser_view()->browser()->cef_delegate()->GetDraggableRegion();
++    if (draggable_region.has_value()) {
++      // Draggable regions are defined relative to the web contents.
++      gfx::Point point_in_contents_web_view_coords(point);
++      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
++                                        browser_view()->contents_web_view(),
++                                        &point_in_contents_web_view_coords);
++
++      if (draggable_region->contains(
++              point_in_contents_web_view_coords.x(),
++              point_in_contents_web_view_coords.y())) {
++        return HTCAPTION;
++      }
++    }
++  }
++#endif  // BUILDFLAG(ENABLE_CEF)
++
+   // Allow interacting with the web contents.
+   int frame_component = frame()->client_view()->NonClientHitTest(point);
+   if (frame_component != HTNOWHERE)
+@@ -581,7 +610,8 @@ void PictureInPictureBrowserFrameView::Layout() {
+   gfx::Rect content_area = GetLocalBounds();
+   content_area.Inset(FrameBorderInsets());
+   gfx::Rect top_bar = content_area;
+-  top_bar.set_height(kTopControlsHeight);
++  top_bar.set_height(
++      top_bar_container_view_->GetVisible() ? kTopControlsHeight : 0);
+   top_bar_container_view_->SetBoundsRect(top_bar);
+ #if !BUILDFLAG(IS_ANDROID)
+   if (auto_pip_setting_overlay_) {
+@@ -982,7 +1012,8 @@ gfx::Insets PictureInPictureBrowserFrameView::ResizeBorderInsets() const {
+ }
+ 
+ int PictureInPictureBrowserFrameView::GetTopAreaHeight() const {
+-  return FrameBorderInsets().top() + kTopControlsHeight;
++  return FrameBorderInsets().top() +
++         (top_bar_container_view_->GetVisible() ? kTopControlsHeight : 0);
+ }
+ 
+ gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
 diff --git chrome/browser/ui/views/page_action/page_action_icon_controller.cc chrome/browser/ui/views/page_action/page_action_icon_controller.cc
 index 723a2840bd988..975152c988917 100644
 --- chrome/browser/ui/views/page_action/page_action_icon_controller.cc
@@ -790,3 +931,64 @@ index be3bd96444563..96669547e3ccf 100644
    ToolbarView(const ToolbarView&) = delete;
    ToolbarView& operator=(const ToolbarView&) = delete;
    ~ToolbarView() override;
+diff --git chrome/browser/ui/web_applications/draggable_region_host_impl.cc chrome/browser/ui/web_applications/draggable_region_host_impl.cc
+index 460a2b08f964b..cb1b67d8b1213 100644
+--- chrome/browser/ui/web_applications/draggable_region_host_impl.cc
++++ chrome/browser/ui/web_applications/draggable_region_host_impl.cc
+@@ -11,6 +11,24 @@
+ #include "chrome/common/chrome_features.h"
+ #include "mojo/public/cpp/bindings/self_owned_receiver.h"
+ 
++namespace {
++
++bool IsSupported(Browser* browser) {
++  if (web_app::AppBrowserController::IsWebApp(browser))
++    return true;
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (browser->cef_delegate() &&
++      browser->cef_delegate()->SupportsDraggableRegion()) {
++    return true;
++  }
++#endif
++
++  return false;
++}
++  
++}  // namespace
++
+ DraggableRegionsHostImpl::DraggableRegionsHostImpl(
+     content::RenderFrameHost& render_frame_host,
+     mojo::PendingReceiver<chrome::mojom::DraggableRegions> receiver)
+@@ -28,7 +46,7 @@ void DraggableRegionsHostImpl::CreateIfAllowed(
+   auto* browser = chrome::FindBrowserWithWebContents(web_contents);
+ 
+   // We only want to bind the receiver for PWAs.
+-  if (!web_app::AppBrowserController::IsWebApp(browser))
++  if (!IsSupported(browser))
+     return;
+ 
+   // The object is bound to the lifetime of |render_frame_host| and the mojo
+@@ -43,7 +61,7 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
+   auto* browser = chrome::FindBrowserWithWebContents(web_contents);
+   // When a WebApp browser's WebContents is reparented to a tabbed browser, a
+   // draggable regions update may race with the reparenting logic.
+-  if (!web_app::AppBrowserController::IsWebApp(browser))
++  if (!IsSupported(browser))
+     return;
+ 
+   SkRegion sk_region;
+@@ -56,5 +74,12 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
+   }
+ 
+   auto* app_browser_controller = browser->app_controller();
+-  app_browser_controller->UpdateDraggableRegion(sk_region);
++  if (app_browser_controller) {
++    app_browser_controller->UpdateDraggableRegion(sk_region);
++  }
++#if BUILDFLAG(ENABLE_CEF)
++  else {
++    browser->cef_delegate()->UpdateDraggableRegion(sk_region);
++  }
++#endif
+ }

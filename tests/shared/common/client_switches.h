@@ -50,6 +50,7 @@ extern const char kUseTestHttpServer[];
 extern const char kShowWindowButtons[];
 extern const char kUseWindowModalDialog[];
 extern const char kUseBottomControls[];
+extern const char kHidePipFrame[];
 
 }  // namespace switches
 }  // namespace client
