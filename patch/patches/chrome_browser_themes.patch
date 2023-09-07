@@ -1,5 +1,5 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index bd7eba5b91f7d..07cad646a70b8 100644
+index c9d21e2861e0e..baa94ae75a77a 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
 @@ -30,6 +30,7 @@
@@ -21,7 +21,7 @@ index bd7eba5b91f7d..07cad646a70b8 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/scoped_observation.h"
  #include "extensions/browser/extension_registry_observer.h"
-@@ -272,11 +277,19 @@ void ThemeService::Init() {
+@@ -273,11 +278,19 @@ void ThemeService::Init() {
    // OnExtensionServiceReady. Otherwise, the ThemeObserver won't be
    // constructed in time to observe the corresponding events.
  #if BUILDFLAG(ENABLE_EXTENSIONS)
