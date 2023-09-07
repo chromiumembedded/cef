@@ -19,25 +19,23 @@ namespace views {
 class WebView;
 }  // namespace views
 
+class CefBrowserViewImpl;
+
 // A variant of CefBrowserViewView that extends BrowserView instead of
 // views::WebView. See chrome_browser_frame.h for related documentation.
 class ChromeBrowserView
     : public CefViewView<BrowserView, CefBrowserViewDelegate> {
  public:
   using ParentClass = CefViewView<BrowserView, CefBrowserViewDelegate>;
-  using Delegate = CefBrowserViewView::Delegate;
 
-  // |cef_delegate| may be nullptr.
-  // |browser_view_delegate| must be non-nullptr.
-  ChromeBrowserView(CefBrowserViewDelegate* cef_delegate,
-                    Delegate* browser_view_delegate);
+  // |cef_browser_view| is non-nullptr and will outlive this object.
+  explicit ChromeBrowserView(CefBrowserViewImpl* cef_browser_view);
 
   ChromeBrowserView(const ChromeBrowserView&) = delete;
   ChromeBrowserView& operator=(const ChromeBrowserView&) = delete;
 
   // Called by ChromeBrowserHostImpl.
-  void InitBrowser(std::unique_ptr<Browser> browser,
-                   CefRefPtr<CefBrowserView> browser_view);
+  void InitBrowser(std::unique_ptr<Browser> browser);
   void Destroyed();
 
   // View methods:
@@ -48,16 +46,14 @@ class ChromeBrowserView
   void OnGestureEvent(ui::GestureEvent* event) override;
 
   // BrowserView methods:
-  ToolbarView* OverrideCreateToolbar(Browser* browser,
-                                     BrowserView* browser_view) override;
+  ToolbarView* OverrideCreateToolbar() override;
 
   CefRefPtr<CefToolbarViewImpl> cef_toolbar() const { return cef_toolbar_; }
+  CefBrowserViewImpl* cef_browser_view() const { return cef_browser_view_; }
 
  private:
-  // Not owned by this object.
-  Delegate* browser_view_delegate_;
+  CefBrowserViewImpl* const cef_browser_view_;
 
-  Browser* browser_ = nullptr;
   views::WebView* web_view_ = nullptr;
 
   bool destroyed_ = false;

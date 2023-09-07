@@ -113,7 +113,21 @@ class CefBrowserViewDelegate : public CefViewDelegate {
   /// documentation.
   ///
   /*--cef(default_retval=CEF_CTT_NONE)--*/
-  virtual ChromeToolbarType GetChromeToolbarType() { return CEF_CTT_NONE; }
+  virtual ChromeToolbarType GetChromeToolbarType(
+      CefRefPtr<CefBrowserView> browser_view) {
+    return CEF_CTT_NONE;
+  }
+
+  ///
+  /// Return true to create frameless windows for Document picture-in-picture
+  /// popups. Content in frameless windows should specify draggable regions
+  /// using "-webkit-app-region: drag" CSS.
+  ///
+  /*--cef()--*/
+  virtual bool UseFramelessWindowForPictureInPicture(
+      CefRefPtr<CefBrowserView> browser_view) {
+    return false;
+  }
 
   ///
   /// Called when |browser_view| receives a gesture command. Return true to

@@ -40,7 +40,8 @@ class ChromeBrowserHostImpl;
 class ChromeBrowserDelegate : public cef::BrowserDelegate {
  public:
   ChromeBrowserDelegate(Browser* browser,
-                        const CefBrowserCreateParams& create_params);
+                        const CefBrowserCreateParams& create_params,
+                        const Browser* opener);
 
   ChromeBrowserDelegate(const ChromeBrowserDelegate&) = delete;
   ChromeBrowserDelegate& operator=(const ChromeBrowserDelegate&) = delete;
@@ -65,6 +66,10 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       content::MediaResponseCallback callback) override;
+  absl::optional<bool> SupportsWindowFeature(int feature) const override;
+  bool SupportsDraggableRegion() const override;
+  const absl::optional<SkRegion> GetDraggableRegion() const override;
+  void UpdateDraggableRegion(const SkRegion& region) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,
@@ -113,12 +118,17 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   CefBrowserContentsDelegate* GetDelegateForWebContents(
       content::WebContents* web_contents);
 
+  bool SupportsFramelessPictureInPicture() const;
+
   Browser* const browser_;
+  base::WeakPtr<ChromeBrowserHostImpl> opener_host_;
 
   // Used when creating a new browser host.
   const CefBrowserCreateParams create_params_;
 
   absl::optional<bool> show_status_bubble_;
+  absl::optional<SkRegion> draggable_region_;
+  mutable absl::optional<bool> frameless_pip_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_DELEGATE_H_

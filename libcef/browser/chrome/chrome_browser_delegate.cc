@@ -11,8 +11,10 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "libcef/browser/chrome/views/chrome_browser_view.h"
 #include "libcef/browser/media_access_query.h"
 #include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/frame_util.h"
 
@@ -27,9 +29,19 @@ using content::KeyboardEventProcessingResult;
 
 ChromeBrowserDelegate::ChromeBrowserDelegate(
     Browser* browser,
-    const CefBrowserCreateParams& create_params)
+    const CefBrowserCreateParams& create_params,
+    const Browser* opener)
     : browser_(browser), create_params_(create_params) {
   DCHECK(browser_);
+
+  if (opener) {
+    DCHECK(browser->is_type_picture_in_picture());
+    auto opener_host = ChromeBrowserHostImpl::GetBrowserForBrowser(opener);
+    DCHECK(opener_host);
+    if (opener_host) {
+      opener_host_ = opener_host->GetWeakPtr();
+    }
+  }
 }
 
 ChromeBrowserDelegate::~ChromeBrowserDelegate() = default;
@@ -193,6 +205,56 @@ ChromeBrowserDelegate::RequestMediaAccessPermissionEx(
         /*default_disallow=*/false);
   }
   return callback;
+}
+
+bool ChromeBrowserDelegate::SupportsFramelessPictureInPicture() const {
+  if (!browser_->is_type_picture_in_picture()) {
+    return false;
+  }
+
+  if (frameless_pip_.has_value()) {
+    return *frameless_pip_;
+  }
+
+  frameless_pip_ = false;
+
+  if (opener_host_) {
+    if (auto chrome_browser_view = opener_host_->chrome_browser_view()) {
+      if (auto cef_delegate = chrome_browser_view->cef_delegate()) {
+        frameless_pip_ = cef_delegate->UseFramelessWindowForPictureInPicture(
+            chrome_browser_view->cef_browser_view());
+      }
+    }
+  }
+
+  return *frameless_pip_;
+}
+
+absl::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
+    int feature) const {
+  // Override the default value from
+  // Browser::PictureInPictureBrowserSupportsWindowFeature.
+  if (feature == Browser::FEATURE_TITLEBAR &&
+      browser_->is_type_picture_in_picture()) {
+    // Return false to hide titlebar and enable draggable regions.
+    return !SupportsFramelessPictureInPicture();
+  }
+  return absl::nullopt;
+}
+
+bool ChromeBrowserDelegate::SupportsDraggableRegion() const {
+  return SupportsFramelessPictureInPicture();
+}
+
+const absl::optional<SkRegion> ChromeBrowserDelegate::GetDraggableRegion()
+    const {
+  DCHECK(SupportsDraggableRegion());
+  return draggable_region_;
+}
+
+void ChromeBrowserDelegate::UpdateDraggableRegion(const SkRegion& region) {
+  DCHECK(SupportsDraggableRegion());
+  draggable_region_ = region;
 }
 
 void ChromeBrowserDelegate::WebContentsCreated(
@@ -397,7 +459,12 @@ namespace cef {
 // static
 std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     Browser* browser,
-    scoped_refptr<CreateParams> cef_params) {
+    scoped_refptr<CreateParams> cef_params,
+    const Browser* opener) {
+  if (!cef::IsChromeRuntimeEnabled()) {
+    return nullptr;
+  }
+
   CefBrowserCreateParams create_params;
 
   // Parameters from ChromeBrowserHostImpl::Create, or nullptr if the Browser
@@ -412,7 +479,8 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     params->create_params_.browser_view = nullptr;
   }
 
-  return std::make_unique<ChromeBrowserDelegate>(browser, create_params);
+  return std::make_unique<ChromeBrowserDelegate>(browser, create_params,
+                                                 opener);
 }
 
 }  // namespace cef

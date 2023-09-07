@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4bffd98075025b4d02063698dbec87e9b9a31597$
+// $hash=f82440b30a75049733b4dd200494ab06d52c68b3$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -166,7 +166,8 @@ int CEF_CALLBACK browser_view_delegate_on_popup_browser_view_created(
 
 cef_chrome_toolbar_type_t CEF_CALLBACK
 browser_view_delegate_get_chrome_toolbar_type(
-    struct _cef_browser_view_delegate_t* self) {
+    struct _cef_browser_view_delegate_t* self,
+    cef_browser_view_t* browser_view) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -175,12 +176,45 @@ browser_view_delegate_get_chrome_toolbar_type(
   if (!self) {
     return CEF_CTT_NONE;
   }
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view);
+  if (!browser_view) {
+    return CEF_CTT_NONE;
+  }
 
   // Execute
   cef_chrome_toolbar_type_t _retval =
-      CefBrowserViewDelegateCppToC::Get(self)->GetChromeToolbarType();
+      CefBrowserViewDelegateCppToC::Get(self)->GetChromeToolbarType(
+          CefBrowserViewCToCpp::Wrap(browser_view));
 
   // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK
+browser_view_delegate_use_frameless_window_for_picture_in_picture(
+    struct _cef_browser_view_delegate_t* self,
+    cef_browser_view_t* browser_view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view);
+  if (!browser_view) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserViewDelegateCppToC::Get(self)
+                     ->UseFramelessWindowForPictureInPicture(
+                         CefBrowserViewCToCpp::Wrap(browser_view));
+
+  // Return type: bool
   return _retval;
 }
 
@@ -493,6 +527,8 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
       browser_view_delegate_on_popup_browser_view_created;
   GetStruct()->get_chrome_toolbar_type =
       browser_view_delegate_get_chrome_toolbar_type;
+  GetStruct()->use_frameless_window_for_picture_in_picture =
+      browser_view_delegate_use_frameless_window_for_picture_in_picture;
   GetStruct()->on_gesture_command = browser_view_delegate_on_gesture_command;
   GetStruct()->base.get_preferred_size =
       browser_view_delegate_get_preferred_size;

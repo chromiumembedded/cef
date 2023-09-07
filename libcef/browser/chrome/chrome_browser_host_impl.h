@@ -11,8 +11,11 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/chrome/browser_delegate.h"
 
+#include "base/memory/weak_ptr.h"
+
 class Browser;
 class ChromeBrowserDelegate;
+class ChromeBrowserView;
 
 // CefBrowser implementation for the chrome runtime. Method calls are delegated
 // to the chrome Browser object or the WebContents as appropriate. See the
@@ -114,6 +117,15 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   CefRefPtr<CefExtension> GetExtension() override;
   bool IsBackgroundHost() override;
 
+  Browser* browser() const { return browser_; }
+
+  // Return the CEF specialization of BrowserView.
+  ChromeBrowserView* chrome_browser_view() const;
+
+  base::WeakPtr<ChromeBrowserHostImpl> GetWeakPtr() {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
+
  protected:
   bool Navigate(const content::OpenURLParams& params) override;
 
@@ -157,6 +169,8 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   Browser* browser_ = nullptr;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
+
+  base::WeakPtrFactory<ChromeBrowserHostImpl> weak_ptr_factory_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_HOST_IMPL_H_

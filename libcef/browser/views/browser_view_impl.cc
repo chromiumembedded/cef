@@ -165,7 +165,7 @@ CefRefPtr<CefBrowser> CefBrowserViewImpl::GetBrowser() {
 CefRefPtr<CefView> CefBrowserViewImpl::GetChromeToolbar() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   if (cef::IsChromeRuntimeEnabled()) {
-    return static_cast<ChromeBrowserView*>(root_view())->cef_toolbar();
+    return chrome_browser_view()->cef_toolbar();
   }
 
   return nullptr;
@@ -288,7 +288,7 @@ void CefBrowserViewImpl::SetDefaults(const CefBrowserSettings& settings) {
 
 views::View* CefBrowserViewImpl::CreateRootView() {
   if (cef::IsChromeRuntimeEnabled()) {
-    return new ChromeBrowserView(delegate(), this);
+    return new ChromeBrowserView(this);
   }
 
   return new CefBrowserViewView(delegate(), this);
@@ -296,7 +296,7 @@ views::View* CefBrowserViewImpl::CreateRootView() {
 
 void CefBrowserViewImpl::InitializeRootView() {
   if (cef::IsChromeRuntimeEnabled()) {
-    static_cast<ChromeBrowserView*>(root_view())->Initialize();
+    chrome_browser_view()->Initialize();
   } else {
     static_cast<CefBrowserViewView*>(root_view())->Initialize();
   }
@@ -308,10 +308,15 @@ views::WebView* CefBrowserViewImpl::web_view() const {
   }
 
   if (cef::IsChromeRuntimeEnabled()) {
-    return static_cast<ChromeBrowserView*>(root_view())->contents_web_view();
+    return chrome_browser_view()->contents_web_view();
   }
 
   return static_cast<CefBrowserViewView*>(root_view());
+}
+
+ChromeBrowserView* CefBrowserViewImpl::chrome_browser_view() const {
+  CHECK(cef::IsChromeRuntimeEnabled());
+  return static_cast<ChromeBrowserView*>(root_view());
 }
 
 bool CefBrowserViewImpl::HandleAccelerator(

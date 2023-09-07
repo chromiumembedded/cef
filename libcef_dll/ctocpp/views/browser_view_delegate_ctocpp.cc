@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bff0bff161e504deec6aef910ebf5d8962bd7c85$
+// $hash=a3ab5cba4139ac15763ef0df69988b1bfc00b2bf$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -149,7 +149,8 @@ bool CefBrowserViewDelegateCToCpp::OnPopupBrowserViewCreated(
 
 NO_SANITIZE("cfi-icall")
 CefBrowserViewDelegate::ChromeToolbarType
-CefBrowserViewDelegateCToCpp::GetChromeToolbarType() {
+CefBrowserViewDelegateCToCpp::GetChromeToolbarType(
+    CefRefPtr<CefBrowserView> browser_view) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_view_delegate_t* _struct = GetStruct();
@@ -159,11 +160,45 @@ CefBrowserViewDelegateCToCpp::GetChromeToolbarType() {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view.get());
+  if (!browser_view.get()) {
+    return CEF_CTT_NONE;
+  }
+
   // Execute
-  cef_chrome_toolbar_type_t _retval = _struct->get_chrome_toolbar_type(_struct);
+  cef_chrome_toolbar_type_t _retval = _struct->get_chrome_toolbar_type(
+      _struct, CefBrowserViewCppToC::Wrap(browser_view));
 
   // Return type: simple
   return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserViewDelegateCToCpp::UseFramelessWindowForPictureInPicture(
+    CefRefPtr<CefBrowserView> browser_view) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_view_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct,
+                         use_frameless_window_for_picture_in_picture)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser_view; type: refptr_diff
+  DCHECK(browser_view.get());
+  if (!browser_view.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->use_frameless_window_for_picture_in_picture(
+      _struct, CefBrowserViewCppToC::Wrap(browser_view));
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

@@ -485,8 +485,14 @@ bool ViewsWindow::OnPopupBrowserViewCreated(
   return true;
 }
 
-CefBrowserViewDelegate::ChromeToolbarType ViewsWindow::GetChromeToolbarType() {
+CefBrowserViewDelegate::ChromeToolbarType ViewsWindow::GetChromeToolbarType(
+    CefRefPtr<CefBrowserView> browser_view) {
   return chrome_toolbar_type_;
+}
+
+bool ViewsWindow::UseFramelessWindowForPictureInPicture(
+    CefRefPtr<CefBrowserView> browser_view) {
+  return hide_pip_frame_;
 }
 
 void ViewsWindow::OnButtonPressed(CefRefPtr<CefButton> button) {
@@ -1038,6 +1044,7 @@ ViewsWindow::ViewsWindow(WindowType type,
 
   use_window_modal_dialog_ =
       command_line->HasSwitch(switches::kUseWindowModalDialog);
+  hide_pip_frame_ = command_line->HasSwitch(switches::kHidePipFrame);
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {
