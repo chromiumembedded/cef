@@ -1,2 +1,2 @@
 @echo off
-python.bat tools\gclient_hook.py
+python3.bat tools\gclient_hook.py
