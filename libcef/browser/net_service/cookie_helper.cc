@@ -292,7 +292,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
         request.url, cookie_string, base::Time::Now(),
         absl::make_optional(response_date), /*partition_key=*/absl::nullopt,
-        &returned_status);
+        /*block_truncated_cookies=*/true, &returned_status);
     if (!returned_status.IsInclude()) {
       continue;
     }

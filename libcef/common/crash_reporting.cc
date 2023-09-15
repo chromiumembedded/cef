@@ -21,7 +21,7 @@
 #include "content/public/common/content_switches.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "base/mac/foundation_util.h"
+#include "base/apple/foundation_util.h"
 #include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
 #endif
@@ -103,18 +103,18 @@ void InitCrashReporter(const base::CommandLine& command_line,
   // framework dylib is even loaded, to catch potential early crashes.
   crash_reporter::InitializeCrashpad(process_type.empty(), process_type);
 
-  if (base::mac::AmIBundled()) {
+  if (base::apple::AmIBundled()) {
     // Mac Chrome is packaged with a main app bundle and a helper app bundle.
     // The main app bundle should only be used for the browser process, so it
     // should never see a --type switch (switches::kProcessType).  Likewise,
     // the helper should always have a --type switch.
     //
     // This check is done this late so there is already a call to
-    // base::mac::IsBackgroundOnlyProcess(), so there is no change in
+    // base::apple::IsBackgroundOnlyProcess(), so there is no change in
     // startup/initialization order.
 
     // The helper's Info.plist marks it as a background only app.
-    if (base::mac::IsBackgroundOnlyProcess()) {
+    if (base::apple::IsBackgroundOnlyProcess()) {
       CHECK(command_line.HasSwitch(switches::kProcessType) &&
             !process_type.empty())
           << "Helper application requires --type.";

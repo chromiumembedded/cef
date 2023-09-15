@@ -13,7 +13,6 @@
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/focused_node_details.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
-#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/notification_details.h"
@@ -23,6 +22,7 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_observer.h"
 #include "content/public/browser/render_widget_host_view.h"
+#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 #include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
@@ -278,7 +278,7 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
-  if (event.skip_in_browser) {
+  if (event.skip_if_unhandled) {
     return false;
   }
 

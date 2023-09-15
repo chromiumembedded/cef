@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index c099a8701b7e0..4baf820ea9647 100644
+index 9dd7439e8c1c0..7da7d04fb2d00 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -648,6 +648,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -18,7 +18,7 @@ index c099a8701b7e0..4baf820ea9647 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index eed8db485e54b..80eeba983a573 100644
+index 3b4461acc2fc6..ed1ef17fb3667 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -71,6 +71,7 @@ class CursorManager;
@@ -49,7 +49,7 @@ index eed8db485e54b..80eeba983a573 100644
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -441,6 +448,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -450,6 +457,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -62,7 +62,7 @@ index eed8db485e54b..80eeba983a573 100644
    // Sets the cursor for this view to the one specified.
    virtual void UpdateCursor(const ui::Cursor& cursor) = 0;
  
-@@ -696,6 +709,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -705,6 +718,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -73,7 +73,7 @@ index eed8db485e54b..80eeba983a573 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -717,10 +734,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
+@@ -726,10 +743,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView {
  
    void SynchronizeVisualProperties();
  
@@ -85,7 +85,7 @@ index eed8db485e54b..80eeba983a573 100644
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index c611cb3bd15b2..ee6b5407f50cb 100644
+index 36b742a3f2b77..9f9d22b531237 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -52,6 +52,10 @@ namespace {
@@ -243,10 +243,10 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 9b36a7639e0ac..06cd2b0fc662f 100644
+index 91bee2b0173c6..c0ccd724d4bcc 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-@@ -285,8 +285,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
+@@ -286,8 +286,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
    if (properties.parent_widget) {
      window_parent_ = DesktopWindowTreeHostPlatform::GetHostForWidget(
          properties.parent_widget);
@@ -359,7 +359,7 @@ index 2e4bacce52a45..76916c5d21cb9 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index ce7b498ca6bf9..ea7226f91831c 100644
+index 6e1bc593b0082..4c5925f946616 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -368,7 +368,8 @@ void Widget::Init(InitParams params) {
@@ -372,7 +372,7 @@ index ce7b498ca6bf9..ea7226f91831c 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -468,13 +469,21 @@ void Widget::Init(InitParams params) {
+@@ -472,13 +473,21 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -395,7 +395,7 @@ index ce7b498ca6bf9..ea7226f91831c 100644
    }
  
    if (base::FeatureList::IsEnabled(features::kWidgetLayering)) {
-@@ -1611,10 +1620,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1615,10 +1624,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -413,7 +413,7 @@ index ce7b498ca6bf9..ea7226f91831c 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 745d643b1a878..f20c04ce8683a 100644
+index 6d10ae19965c3..6eba4e7492e81 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -351,6 +351,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -426,10 +426,10 @@ index 745d643b1a878..f20c04ce8683a 100644
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 6982b27ace7ae..c25a505d62e20 100644
+index 6d87be86ae8b3..02fe7a11958d0 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -375,6 +375,10 @@ class VIEWS_EXPORT WidgetDelegate
+@@ -380,6 +380,10 @@ class VIEWS_EXPORT WidgetDelegate
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  

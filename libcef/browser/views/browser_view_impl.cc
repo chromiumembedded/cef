@@ -12,7 +12,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_impl.h"
 
-#include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/content_accelerators/accelerator_util.h"
 

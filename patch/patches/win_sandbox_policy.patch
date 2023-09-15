@@ -1,8 +1,8 @@
 diff --git sandbox/win/src/sandbox_policy.h sandbox/win/src/sandbox_policy.h
-index 8277058c7e7dc..cf7403c4530df 100644
+index daf2af3079a2a..00197897c3c73 100644
 --- sandbox/win/src/sandbox_policy.h
 +++ sandbox/win/src/sandbox_policy.h
-@@ -278,7 +278,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
+@@ -281,7 +281,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
    // Adds a blob of data that will be made available in the child early in
    // startup via sandbox::GetDelegateData(). The contents of this data should
    // not vary between children with the same TargetConfig().
@@ -12,10 +12,10 @@ index 8277058c7e7dc..cf7403c4530df 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 7a9bdbc017a8d..84cf8055b9d18 100644
+index 9b4f763a894bd..4ba0a7ab4de60 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
-@@ -157,12 +157,12 @@ PolicyGlobal* ConfigBase::policy() {
+@@ -190,12 +190,12 @@ PolicyGlobal* ConfigBase::policy() {
    return policy_;
  }
  
@@ -31,7 +31,7 @@ index 7a9bdbc017a8d..84cf8055b9d18 100644
    }
    return absl::nullopt;
  }
-@@ -740,19 +740,19 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
+@@ -783,19 +783,19 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
    return handle_closer->InitializeTargetHandles(target);
  }
  
@@ -55,10 +55,10 @@ index 7a9bdbc017a8d..84cf8055b9d18 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index 23208fa570ce9..811def75d24aa 100644
+index 9e6738f676d07..a3525e0cfe283 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
-@@ -114,7 +114,7 @@ class ConfigBase final : public TargetConfig {
+@@ -115,7 +115,7 @@ class ConfigBase final : public TargetConfig {
  
    // Should only be called once the object is configured.
    PolicyGlobal* policy();
@@ -67,7 +67,7 @@ index 23208fa570ce9..811def75d24aa 100644
    std::vector<std::wstring>& blocklisted_dlls();
    AppContainerBase* app_container();
    IntegrityLevel integrity_level() { return integrity_level_; }
-@@ -172,7 +172,7 @@ class PolicyBase final : public TargetPolicy {
+@@ -175,7 +175,7 @@ class PolicyBase final : public TargetPolicy {
    ResultCode SetStdoutHandle(HANDLE handle) override;
    ResultCode SetStderrHandle(HANDLE handle) override;
    void AddHandleToShare(HANDLE handle) override;
@@ -76,7 +76,7 @@ index 23208fa570ce9..811def75d24aa 100644
  
    // Creates a Job object with the level specified in a previous call to
    // SetJobLevel().
-@@ -234,13 +234,13 @@ class PolicyBase final : public TargetPolicy {
+@@ -237,13 +237,13 @@ class PolicyBase final : public TargetPolicy {
    // time.
  
    // Returns nullopt if no data has been set, or a view into the data.

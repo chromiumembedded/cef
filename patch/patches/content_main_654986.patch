@@ -1,5 +1,5 @@
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 6c672cdc421bd..048282646af69 100644
+index a3c00c9743117..d596775057fb9 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -173,11 +173,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -21,7 +21,7 @@ index 6c672cdc421bd..048282646af69 100644
  #endif
    int exit_code = -1;
 -#if BUILDFLAG(IS_MAC)
--  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool;
+-  std::unique_ptr<base::apple::ScopedNSAutoreleasePool> autorelease_pool;
 -#endif
  
    // A flag to indicate whether Main() has been called before. On Android, we
@@ -34,7 +34,7 @@ index 6c672cdc421bd..048282646af69 100644
 -    // loop, but we don't want to leave them hanging around until the app quits.
 -    // Each "main" needs to flush this pool right before it goes into its main
 -    // event loop to get rid of the cruft.
--    autorelease_pool = std::make_unique<base::mac::ScopedNSAutoreleasePool>();
+-    autorelease_pool = std::make_unique<base::apple::ScopedNSAutoreleasePool>();
 -    params.autorelease_pool = autorelease_pool.get();
      InitializeMac();
  #endif
@@ -74,8 +74,8 @@ index 6c672cdc421bd..048282646af69 100644
 +  // loop, but we don't want to leave them hanging around until the app quits.
 +  // Each "main" needs to flush this pool right before it goes into its main
 +  // event loop to get rid of the cruft.
-+  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool =
-+      std::make_unique<base::mac::ScopedNSAutoreleasePool>();
++  std::unique_ptr<base::apple::ScopedNSAutoreleasePool> autorelease_pool =
++      std::make_unique<base::apple::ScopedNSAutoreleasePool>();
 +  params.autorelease_pool = autorelease_pool.get();
 +#endif
 +
@@ -94,7 +94,7 @@ index 6c672cdc421bd..048282646af69 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 6cb42330a794c..f5294cc06ced3 100644
+index 11dcd5eaabaab..ea72a69767e7c 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -46,6 +46,7 @@
@@ -105,7 +105,7 @@ index 6cb42330a794c..f5294cc06ced3 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1306,6 +1307,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1328,6 +1329,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
@@ -153,7 +153,7 @@ index 283161145d792..9f3f635abdd1c 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/public/app/content_main.h content/public/app/content_main.h
-index 9be99b20469c0..7d5095593b5fa 100644
+index 876ee72774be1..2b458ac4dcc7a 100644
 --- content/public/app/content_main.h
 +++ content/public/app/content_main.h
 @@ -96,6 +96,13 @@ struct CONTENT_EXPORT ContentMainParams {

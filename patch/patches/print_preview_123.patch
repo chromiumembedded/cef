@@ -34,7 +34,7 @@ index 578e66a7e8209..e25eff9c4e6d5 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index a2f8a47b29a27..5d0da7d766d76 100644
+index 1a6740b36343b..6c1a3fe19cf07 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -15,6 +15,7 @@
@@ -84,7 +84,7 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index e487948be00f9..bc77213050069 100644
+index 9e616396c9c97..87803d244eda3 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -24,6 +24,7 @@
@@ -93,9 +93,9 @@ index e487948be00f9..bc77213050069 100644
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/runtime.h"
  #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
- #include "chrome/browser/policy/management_utils.h"
-@@ -105,6 +106,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
+@@ -106,6 +107,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -108,8 +108,8 @@ index e487948be00f9..bc77213050069 100644
 +
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
- constexpr char kInvalidPageNumberForDidPreviewPage[] =
-@@ -300,7 +308,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+ constexpr char kInvalidPageIndexForDidPreviewPage[] =
+@@ -303,7 +311,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

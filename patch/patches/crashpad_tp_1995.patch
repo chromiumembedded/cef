@@ -248,7 +248,7 @@ index 22bb26e31893b..87c80604e5f7a 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index b7ba6b14bb9b3..0567343c99325 100644
+index 7e908c0a305be..e35414a131f07 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -39,6 +39,7 @@

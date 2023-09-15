@@ -10,8 +10,8 @@
 #include "base/message_loop/message_pump_for_ui.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "base/mac/scoped_nsautorelease_pool.h"
-#include "base/message_loop/message_pump_mac.h"
+#include "base/apple/scoped_nsautorelease_pool.h"
+#include "base/message_loop/message_pump_apple.h"
 #endif
 
 #include "content/public/browser/browser_thread.h"
@@ -30,7 +30,7 @@ class MessagePumpExternal : public base::MessagePumpForUI {
     base::TimeTicks start = base::TimeTicks::Now();
     while (true) {
 #if BUILDFLAG(IS_MAC)
-      base::mac::ScopedNSAutoreleasePool autorelease_pool;
+      base::apple::ScopedNSAutoreleasePool autorelease_pool;
 #endif
 
       base::TimeTicks next_run_time;  // is_null()
@@ -115,7 +115,7 @@ std::unique_ptr<base::MessagePump> MessagePumpFactoryForUI() {
   }
 
 #if BUILDFLAG(IS_MAC)
-  return base::message_pump_mac::Create();
+  return base::message_pump_apple::Create();
 #else
   return std::make_unique<base::MessagePumpForUI>();
 #endif

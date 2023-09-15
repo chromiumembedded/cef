@@ -1,9 +1,9 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 12f1c58c28a91..07cc49d755630 100644
+index 46833be700bb8..3ffdedd8509ac 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -144,6 +144,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
-     MaybeEnableAutoResize(web_contents()->GetPrimaryMainFrame());
+@@ -150,6 +150,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+   }
  }
  
 +void WebView::SetResizeBackgroundColor(SkColor resize_background_color) {
@@ -11,13 +11,13 @@ index 12f1c58c28a91..07cc49d755630 100644
 +}
 +
  void WebView::SetCrashedOverlayView(View* crashed_overlay_view) {
-   if (crashed_overlay_view_ == crashed_overlay_view)
+   if (crashed_overlay_view_.view() == crashed_overlay_view) {
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index 2c69bd3f2b62a..06c9ca5846c77 100644
+index e5bc9be5a44b3..132e374aff1de 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
-@@ -88,6 +88,10 @@ class WEBVIEW_EXPORT WebView : public View,
+@@ -89,6 +89,10 @@ class WEBVIEW_EXPORT WebView : public View,
    void EnableSizingFromWebContents(const gfx::Size& min_size,
                                     const gfx::Size& max_size);
  
@@ -27,4 +27,4 @@ index 2c69bd3f2b62a..06c9ca5846c77 100644
 +
    // If provided, this View will be shown in place of the web contents
    // when the web contents is in a crashed state. This is cleared automatically
-   // if the web contents is changed.
+   // if the web contents is changed. The passed-in overlay view must be owned by

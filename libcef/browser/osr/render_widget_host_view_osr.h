@@ -154,6 +154,8 @@ class CefRenderWidgetHostViewOSR
 #endif  // BUILDFLAG(IS_MAC)
 
   // RenderWidgetHostViewBase implementation.
+  void InvalidateLocalSurfaceIdAndAllocationGroup() override;
+  void ClearFallbackSurfaceForCommitPending() override;
   void ResetFallbackToFirstNavigationSurface() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& bounds,

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 16bf620b7c2ee..37d7ab18e670b 100644
+index 628071cb9a464..1595a4283e134 100644
 --- .gn
 +++ .gn
-@@ -145,6 +145,8 @@ exec_script_whitelist =
+@@ -144,6 +144,8 @@ exec_script_whitelist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,7 +12,7 @@ index 16bf620b7c2ee..37d7ab18e670b 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index dfcf0ad823868..6e041f3f6eb1f 100644
+index e8c8a8450ff83..065f99491a2cb 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index dfcf0ad823868..6e041f3f6eb1f 100644
  import("//chrome/browser/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -282,6 +283,10 @@ group("gn_all") {
+@@ -276,6 +277,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 98d206b764d92..ae9a84745e761 100644
+index 353fdabb937ca..4e09414bc211f 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -99,7 +99,7 @@ index 98d206b764d92..ae9a84745e761 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index adc881122cb9c..cafa71386fad6 100644
+index 7aa8989a0f471..7c93cbd96b362 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -110,7 +110,7 @@ index adc881122cb9c..cafa71386fad6 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -91,6 +92,10 @@ template("chrome_repack_locales") {
+@@ -93,6 +94,10 @@ template("chrome_repack_locales") {
            [ "${root_gen_dir}/chromeos/strings/chromeos_strings_" ]
        deps += [ "//chromeos/strings" ]
      }
@@ -122,7 +122,7 @@ index adc881122cb9c..cafa71386fad6 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index e9b34c78999b0..a1e06920636f6 100644
+index 71803adcfbe02..80543d0aa58c8 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
@@ -132,8 +132,8 @@ index e9b34c78999b0..a1e06920636f6 100644
 +import("//cef/libcef/features/features.gni")
  import("//chrome/process_version_rc_template.gni")
  import("//components/nacl/features.gni")
- import("//third_party/ffmpeg/ffmpeg_options.gni")
-@@ -125,11 +126,13 @@ action("mini_installer_archive") {
+ import("//third_party/dawn/scripts/dawn_features.gni")
+@@ -123,11 +124,13 @@ action("mini_installer_archive") {
    inputs = [
      "$root_out_dir/chrome.dll",
      "$root_out_dir/chrome.exe",

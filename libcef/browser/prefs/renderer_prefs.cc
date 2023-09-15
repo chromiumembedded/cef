@@ -103,7 +103,7 @@ void SetChromePrefs(Profile* profile, blink::web_pref::WebPreferences& web) {
   web.allow_running_insecure_content =
       prefs->GetBoolean(prefs::kWebKitAllowRunningInsecureContent);
 
-  web.password_echo_enabled = browser_defaults::kPasswordEchoEnabled;
+  web.password_echo_enabled = false;
 
   web.text_areas_are_resizable =
       prefs->GetBoolean(prefs::kWebKitTextAreasAreResizable);

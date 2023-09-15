@@ -37,9 +37,10 @@ CefExtensionSystemFactory::CefExtensionSystemFactory()
 
 CefExtensionSystemFactory::~CefExtensionSystemFactory() {}
 
-KeyedService* CefExtensionSystemFactory::BuildServiceInstanceFor(
+std::unique_ptr<KeyedService>
+CefExtensionSystemFactory::BuildServiceInstanceForBrowserContext(
     BrowserContext* context) const {
-  return new CefExtensionSystem(context);
+  return std::make_unique<CefExtensionSystem>(context);
 }
 
 BrowserContext* CefExtensionSystemFactory::GetBrowserContextToUse(

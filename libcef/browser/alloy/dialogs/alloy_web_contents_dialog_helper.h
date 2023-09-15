@@ -31,7 +31,7 @@ class AlloyWebContentsDialogHelper
 
   // web_modal::WebContentsModalDialogHost methods:
   gfx::NativeView GetHostView() const override;
-  gfx::AcceleratedWidget GetHostWidget() const override;
+  gfx::AcceleratedWidget GetAcceleratedWidget() const override;
   gfx::Point GetDialogPosition(const gfx::Size& size) override;
   gfx::Size GetMaximumDialogSize() override;
   void AddObserver(web_modal::ModalDialogHostObserver* observer) override;

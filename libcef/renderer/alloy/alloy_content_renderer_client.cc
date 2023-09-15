@@ -216,9 +216,9 @@ void AlloyContentRendererClient::RenderThreadStarted() {
 
 #if BUILDFLAG(IS_MAC)
   {
-    base::ScopedCFTypeRef<CFStringRef> key(
+    base::apple::ScopedCFTypeRef<CFStringRef> key(
         base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
-    base::ScopedCFTypeRef<CFStringRef> value;
+    base::apple::ScopedCFTypeRef<CFStringRef> value;
 
     // If the command-line switch is specified then set the value that will be
     // checked in RenderThreadImpl::Init(). Otherwise, remove the application-

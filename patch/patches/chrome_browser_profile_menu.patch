@@ -59,15 +59,15 @@ index f5f266328283d..672609d94d1b7 100644
  
    base::RecordAction(base::UserMetricsAction("IncognitoMenu_Show"));
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index a315cdc513f1d..036236798652c 100644
+index 521991e8e47ff..76f00e99336ee 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -45,7 +45,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
-       feature_engagement::kIPHProfileSwitchFeature);
+@@ -52,7 +52,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
+   is_incognito &= !browser.profile()->IsGuestSession();
+ #endif
  
-   std::unique_ptr<ProfileMenuViewBase> bubble;
--  if (browser.profile()->IsIncognitoProfile()) {
-+  if (browser.profile()->IsIncognitoProfile() ||
+-  if (is_incognito) {
++  if (is_incognito ||
 +         (browser.profile()->IsOffTheRecord() &&
 +          browser.profile()->GetOTRProfileID().IsUniqueForCEF())) {
      bubble =

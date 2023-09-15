@@ -349,13 +349,13 @@ index 99efa6b245b99..008eb397332c2 100644
                                annotations, arguments, false, false));
    } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index e6c1805bfd52f..7eeceee06338a 100644
+index eb5bcfe0234c3..8963b26806922 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -17,11 +17,14 @@
+ #include "base/apple/foundation_util.h"
  #include "base/check.h"
  #include "base/files/file_path.h"
- #include "base/mac/foundation_util.h"
 +#include "base/path_service.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_piece.h"
@@ -382,12 +382,12 @@ index e6c1805bfd52f..7eeceee06338a 100644
 -      process_annotations["prod"] = "Chrome_Mac";
 +        process_annotations["product"] = "Chrome_Mac";
  #else
--      NSString* product = base::mac::ObjCCast<NSString>(
+-      NSString* product = base::apple::ObjCCast<NSString>(
 -          [outer_bundle objectForInfoDictionaryKey:base::apple::CFToNSPtrCast(
 -                                                       kCFBundleNameKey)]);
 -      process_annotations["prod"] =
 -          base::SysNSStringToUTF8(product).append("_Mac");
-+        NSString* product = base::mac::ObjCCast<NSString>(
++        NSString* product = base::apple::ObjCCast<NSString>(
 +            [outer_bundle objectForInfoDictionaryKey:base::apple::CFToNSPtrCast(
 +                                                         kCFBundleNameKey)]);
 +        process_annotations["product"] =
@@ -404,12 +404,12 @@ index e6c1805bfd52f..7eeceee06338a 100644
        }
  
 -      NSString* version =
--          base::mac::ObjCCast<NSString>([base::apple::FrameworkBundle()
+-          base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 -              objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 -      process_annotations["ver"] = base::SysNSStringToUTF8(version);
 +      if (strlen(product_version) == 0) {
 +        NSString* version =
-+            base::mac::ObjCCast<NSString>([base::apple::FrameworkBundle()
++            base::apple::ObjCCast<NSString>([base::apple::FrameworkBundle()
 +                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
 +        process_annotations["version"] = base::SysNSStringToUTF8(version);
 +      } else {

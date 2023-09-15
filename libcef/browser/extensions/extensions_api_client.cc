@@ -14,9 +14,7 @@
 
 #include "base/memory/ptr_util.h"
 #include "chrome/browser/printing/print_view_manager.h"
-#include "chrome/browser/ui/pdf/chrome_pdf_web_contents_helper_client.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
-#include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/zoom/zoom_controller.h"
 #include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
 #include "printing/mojom/print.mojom.h"
@@ -50,11 +48,6 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
     content::WebContents* web_contents) const {
   PrefsTabHelper::CreateForWebContents(web_contents);
   printing::PrintViewManager::CreateForWebContents(web_contents);
-
-  // Used by the PDF extension.
-  pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
-      web_contents, std::unique_ptr<pdf::PDFWebContentsHelperClient>(
-                        new ChromePDFWebContentsHelperClient()));
 
   // Used by the tabs extension API.
   zoom::ZoomController::CreateForWebContents(web_contents);

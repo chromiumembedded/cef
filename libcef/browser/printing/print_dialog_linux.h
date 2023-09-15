@@ -13,6 +13,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "content/public/browser/browser_thread.h"
+#include "printing/buildflags/buildflags.h"
 #include "printing/print_dialog_linux_interface.h"
 #include "ui/linux/linux_ui.h"
 
@@ -56,6 +57,9 @@ class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
   void UseDefaultSettings() override;
   void UpdateSettings(
       std::unique_ptr<printing::PrintSettings> settings) override;
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+  void LoadPrintSettings(const printing::PrintSettings& settings) override;
+#endif
   void ShowDialog(
       gfx::NativeView parent_view,
       bool has_selection,

@@ -1,5 +1,5 @@
 diff --git chrome/browser/background_fetch/background_fetch_permission_context.cc chrome/browser/background_fetch/background_fetch_permission_context.cc
-index 0a5aef10879ac..1b122c8848c97 100644
+index 429739d7b8dfe..0f4bff365f62b 100644
 --- chrome/browser/background_fetch/background_fetch_permission_context.cc
 +++ chrome/browser/background_fetch/background_fetch_permission_context.cc
 @@ -4,6 +4,7 @@
@@ -21,7 +21,7 @@ index 0a5aef10879ac..1b122c8848c97 100644
          g_browser_process->download_request_limiter();
      DCHECK(limiter);
 diff --git chrome/browser/background_sync/periodic_background_sync_permission_context.cc chrome/browser/background_sync/periodic_background_sync_permission_context.cc
-index 16107572d4d0d..409e9ea870482 100644
+index ea1467d09700d..5537a99500e7f 100644
 --- chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 +++ chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 @@ -6,6 +6,7 @@
@@ -44,7 +44,7 @@ index 16107572d4d0d..409e9ea870482 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index 18e2eec8f64ff..d36b3206aeb63 100644
+index 4d895c857260c..4dbfba9b15cae 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -67,7 +67,7 @@ index 18e2eec8f64ff..d36b3206aeb63 100644
        ->GetScore(origin);
 @@ -338,8 +342,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
-   selectors.emplace_back(std::make_unique<PrefNotificationPermissionUiSelector>(
+   selectors.emplace_back(std::make_unique<PrefBasedQuietPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
 +  if (!cef::IsAlloyRuntimeEnabled()) {
    selectors.emplace_back(std::make_unique<PredictionBasedPermissionUiSelector>(
@@ -77,7 +77,7 @@ index 18e2eec8f64ff..d36b3206aeb63 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index 0a357c35588fb..cb82d52628d64 100644
+index b0374f3adafea..faf9e7102f571 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -100,7 +100,7 @@ index 0a357c35588fb..cb82d52628d64 100644
    delegates.media_stream_device_enumerator =
        MediaCaptureDevicesDispatcher::GetInstance();
 diff --git chrome/browser/storage/durable_storage_permission_context.cc chrome/browser/storage/durable_storage_permission_context.cc
-index c96408b160973..8bda825517235 100644
+index 9934727f31a59..765b822241e4d 100644
 --- chrome/browser/storage/durable_storage_permission_context.cc
 +++ chrome/browser/storage/durable_storage_permission_context.cc
 @@ -8,6 +8,7 @@
@@ -111,17 +111,18 @@ index c96408b160973..8bda825517235 100644
  #include "chrome/browser/bookmarks/bookmark_model_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -56,7 +57,9 @@ void DurableStoragePermissionContext::DecidePermission(
+@@ -56,7 +57,10 @@ void DurableStoragePermissionContext::DecidePermission(
  
    // Durable is only allowed to be granted to the top-level origin. Embedding
    // origin is the last committed navigation origin to the web contents.
--  if (requesting_origin != embedding_origin) {
+-  if (request_data.requesting_origin != request_data.embedding_origin) {
 +  // Permission depends on PWA and site engagement subsystems which are not
 +  // supported by the Alloy runtime (see issue #3379).
-+  if (cef::IsAlloyRuntimeEnabled() || requesting_origin != embedding_origin) {
-     NotifyPermissionSet(id, requesting_origin, embedding_origin,
-                         std::move(callback), /*persist=*/false,
-                         CONTENT_SETTING_DEFAULT, /*is_one_time=*/false,
++  if (cef::IsAlloyRuntimeEnabled() ||
++      request_data.requesting_origin != request_data.embedding_origin) {
+     NotifyPermissionSet(request_data.id, request_data.requesting_origin,
+                         request_data.embedding_origin, std::move(callback),
+                         /*persist=*/false, CONTENT_SETTING_DEFAULT,
 diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
 index fbce13c16ad10..0512b2f09937e 100644
 --- chrome/browser/ui/permission_bubble/permission_prompt.h
@@ -141,10 +142,10 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 82a50b7e22dfe..c4ba55ec6bd54 100644
+index 162e03560b2ed..8d3c92202e55f 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -158,11 +158,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -181,11 +181,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  

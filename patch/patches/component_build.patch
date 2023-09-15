@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index e01c49c01b820..8e8634b2f96ba 100644
+index d7bf8b91f83e8..af05c80574ac1 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -102,7 +102,7 @@ bool ApplyUserAgentMetadataOverrides(

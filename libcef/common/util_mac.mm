@@ -7,10 +7,10 @@
 #include "libcef/common/cef_switches.h"
 
 #include "base/apple/bundle_locations.h"
+#include "base/apple/foundation_util.h"
 #include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "base/mac/foundation_util.h"
 #include "base/path_service.h"
 #include "base/strings/sys_string_conversions.h"
 #include "content/public/common/content_paths.h"
@@ -49,7 +49,7 @@ void OverrideBaseBundleID() {
   std::string bundle_id = GetMainBundleID();
   DCHECK(!bundle_id.empty());
 
-  base::mac::SetBaseBundleID(bundle_id.c_str());
+  base::apple::SetBaseBundleID(bundle_id.c_str());
 }
 
 base::FilePath GetNormalChildProcessPath() {
@@ -84,7 +84,7 @@ void OverrideChildProcessPath() {
 }  // namespace
 
 bool GetLocalLibraryDirectory(base::FilePath* result) {
-  return base::mac::GetLocalDirectory(NSLibraryDirectory, result);
+  return base::apple::GetLocalDirectory(NSLibraryDirectory, result);
 }
 
 base::FilePath::StringType GetFrameworkName() {
@@ -132,7 +132,7 @@ base::FilePath GetMainBundlePath() {
     return main_bundle_path;
   }
 
-  return base::mac::GetAppBundlePath(GetMainProcessPath());
+  return base::apple::GetAppBundlePath(GetMainProcessPath());
 }
 
 std::string GetMainBundleID() {

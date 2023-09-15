@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index a293917068e9e..cf576136f1fc8 100644
+index 961f04a054a1a..b2080237e8deb 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -10,7 +10,7 @@ index a293917068e9e..cf576136f1fc8 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/connectors/common.h"
  #include "chrome/browser/platform_util.h"
-@@ -252,6 +253,13 @@ void FileSelectHelper::OnListFile(
+@@ -253,6 +254,13 @@ void FileSelectHelper::OnListFile(
  void FileSelectHelper::LaunchConfirmationDialog(
      const base::FilePath& path,
      std::vector<ui::SelectedFileInfo> selected_files) {
@@ -24,7 +24,7 @@ index a293917068e9e..cf576136f1fc8 100644
    ShowFolderUploadConfirmationDialog(
        path,
        base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -336,6 +344,12 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
+@@ -337,6 +345,12 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
    if (AbortIfWebContentsDestroyed())
      return;
  
@@ -37,7 +37,7 @@ index a293917068e9e..cf576136f1fc8 100644
  #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
    enterprise_connectors::ContentAnalysisDelegate::Data data;
    if (enterprise_connectors::ContentAnalysisDelegate::IsEnabled(
-@@ -464,7 +478,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
+@@ -467,7 +481,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
  
  std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
  FileSelectHelper::GetFileTypesFromAcceptType(
@@ -47,7 +47,7 @@ index a293917068e9e..cf576136f1fc8 100644
    auto base_file_type = std::make_unique<ui::SelectFileDialog::FileTypeInfo>();
    if (accept_types.empty())
      return base_file_type;
-@@ -477,17 +492,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -480,17 +495,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -73,7 +73,7 @@ index a293917068e9e..cf576136f1fc8 100644
      } else {
        if (!base::IsStringASCII(accept_type))
          continue;
-@@ -498,10 +520,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -501,10 +523,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          description_id = IDS_AUDIO_FILES;
        else if (ascii_type == "video/*")
          description_id = IDS_VIDEO_FILES;
@@ -94,7 +94,7 @@ index a293917068e9e..cf576136f1fc8 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -526,6 +556,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -529,6 +559,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
          l10n_util::GetStringUTF16(description_id));
    }
  
@@ -110,7 +110,7 @@ index a293917068e9e..cf576136f1fc8 100644
    return file_type;
  }
  
-@@ -533,7 +572,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -536,7 +575,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -120,7 +120,7 @@ index a293917068e9e..cf576136f1fc8 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -552,6 +592,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -555,6 +595,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -128,7 +128,7 @@ index a293917068e9e..cf576136f1fc8 100644
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -603,7 +644,8 @@ void FileSelectHelper::RunFileChooser(
+@@ -606,7 +647,8 @@ void FileSelectHelper::RunFileChooser(
  }
  
  void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
@@ -255,7 +255,7 @@ index e2c00b2ec1532..a2e8753766597 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index 780665236e418..9114cae0bd629 100644
+index f4c63672b1a5f..6c756beaba0f3 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -114,7 +114,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -290,7 +290,7 @@ index 780665236e418..9114cae0bd629 100644
  
 @@ -236,6 +250,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
-   raw_ptr<Listener, AcrossTasksDanglingUntriaged> listener_;
+   raw_ptr<Listener> listener_;
  
 +  std::unique_ptr<SelectFilePolicy> select_file_policy_;
 +

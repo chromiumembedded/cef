@@ -33,13 +33,14 @@
   if (!in_full_screen_) {
     bool override_titlebar_height = false;
     float titlebar_height = 0;
-    auto* window = base::mac::ObjCCast<CefNSWindow>([self window]);
+    auto* window = base::apple::ObjCCast<CefNSWindow>([self window]);
     if (auto* bridge = [window bridge]) {
       bridge->host()->GetWindowFrameTitlebarHeight(&override_titlebar_height,
                                                    &titlebar_height);
 
-      if (override_titlebar_height)
+      if (override_titlebar_height) {
         return titlebar_height;
+      }
     }
   }
 
@@ -47,7 +48,7 @@
 }
 
 - (BOOL)_shouldCenterTrafficLights {
-  auto* window = base::mac::ObjCCast<CefNSWindow>([self window]);
+  auto* window = base::apple::ObjCCast<CefNSWindow>([self window]);
   return [window shouldCenterTrafficLights];
 }
 

@@ -43,7 +43,7 @@ AlloyWebContentsDialogHelper::GetWebContentsModalDialogHost() {
 }
 
 gfx::NativeView AlloyWebContentsDialogHelper::GetHostView() const {
-  // Windowless rendering uses GetHostWidget() instead.
+  // Windowless rendering uses GetAcceleratedWidget() instead.
   if (browser_delegate_->IsWindowless()) {
     return gfx::NativeView();
   }
@@ -55,7 +55,8 @@ gfx::NativeView AlloyWebContentsDialogHelper::GetHostView() const {
   return gfx::NativeView();
 }
 
-gfx::AcceleratedWidget AlloyWebContentsDialogHelper::GetHostWidget() const {
+gfx::AcceleratedWidget AlloyWebContentsDialogHelper::GetAcceleratedWidget()
+    const {
 #if defined(USE_AURA)
   // Windowed rendering uses GetHostView() instead.
   if (!browser_delegate_->IsWindowless()) {

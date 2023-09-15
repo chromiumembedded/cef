@@ -118,8 +118,8 @@ bool CefExtensionsBrowserClient::AreExtensionsDisabled(
   return false;
 }
 
-bool CefExtensionsBrowserClient::IsValidContext(BrowserContext* context) {
-  return GetOriginalContext(context) != nullptr;
+bool CefExtensionsBrowserClient::IsValidContext(void* context) {
+  return GetOriginalContext(static_cast<BrowserContext*>(context)) != nullptr;
 }
 
 bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,

@@ -588,6 +588,17 @@ void CefRenderWidgetHostViewOSR::AddDamageRect(uint32_t sequence,
   damage_rects_[sequence] = rect;
 }
 
+void CefRenderWidgetHostViewOSR::InvalidateLocalSurfaceIdAndAllocationGroup() {
+  InvalidateLocalSurfaceId();
+}
+
+void CefRenderWidgetHostViewOSR::ClearFallbackSurfaceForCommitPending() {
+  if (delegated_frame_host_) {
+    delegated_frame_host_->ClearFallbackSurfaceForCommitPending();
+  }
+  InvalidateLocalSurfaceId();
+}
+
 void CefRenderWidgetHostViewOSR::ResetFallbackToFirstNavigationSurface() {
   if (delegated_frame_host_) {
     delegated_frame_host_->ResetFallbackToFirstNavigationSurface();

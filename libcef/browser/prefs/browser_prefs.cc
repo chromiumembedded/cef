@@ -40,6 +40,7 @@
 #include "components/component_updater/component_updater_service.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/content_settings/core/common/pref_names.h"
 #include "components/domain_reliability/domain_reliability_prefs.h"
 #include "components/flags_ui/pref_service_flags_storage.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
@@ -297,7 +298,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                   !extensions::PrintPreviewEnabled());
     registry->RegisterStringPref(
         prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
-    registry->RegisterBooleanPref(prefs::kCloudPrintSubmitEnabled, false);
     registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);
     printing::PolicySettings::RegisterProfilePrefs(registry.get());
     printing::PrintPreviewStickySettings::RegisterProfilePrefs(registry.get());
@@ -319,6 +319,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     // Based on browser_prefs::RegisterProfilePrefs.
     registry->RegisterBooleanPref(prefs::kAccessibilityPdfOcrAlwaysActive,
                                   false);
+    registry->RegisterBooleanPref(prefs::kBlockTruncatedCookies, true);
 
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.

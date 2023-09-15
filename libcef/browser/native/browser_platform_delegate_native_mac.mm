@@ -15,13 +15,13 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/apple/owned_objc.h"
-#include "base/mac/scoped_nsautorelease_pool.h"
+#include "base/apple/scoped_nsautorelease_pool.h"
 #include "base/memory/ptr_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/browser/renderer_host/render_widget_host_view_mac.h"
-#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/common/input/web_input_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
@@ -254,7 +254,7 @@ void CefBrowserPlatformDelegateNativeMac::BrowserDestroyed(
 }
 
 bool CefBrowserPlatformDelegateNativeMac::CreateHostWindow() {
-  base::mac::ScopedNSAutoreleasePool autorelease_pool;
+  base::apple::ScopedNSAutoreleasePool autorelease_pool;
 
   NSWindow* new_window = nil;
 

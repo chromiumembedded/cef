@@ -22,7 +22,7 @@
 #include "ui/base/layout.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "base/mac/foundation_util.h"
+#include "base/apple/foundation_util.h"
 #include "libcef/common/util_mac.h"
 #endif
 
@@ -166,7 +166,7 @@ base::FilePath GetResourcesDir() {
 // of the running executable.
 base::FilePath GetDefaultLogFilePath() {
   std::string exe_name = util_mac::GetMainProcessPath().BaseName().value();
-  return base::mac::GetUserLibraryPath()
+  return base::apple::GetUserLibraryPath()
       .Append(FILE_PATH_LITERAL("Logs"))
       .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
 }

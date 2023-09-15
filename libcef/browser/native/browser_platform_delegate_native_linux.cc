@@ -11,8 +11,8 @@
 
 #include "base/no_destructor.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"

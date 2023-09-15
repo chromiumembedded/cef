@@ -72,6 +72,7 @@
 #include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
 #include "chrome/browser/ui/chrome_select_file_policy.h"
+#include "chrome/browser/ui/pdf/chrome_pdf_document_helper_client.h"
 #include "chrome/common/chrome_content_client.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -87,9 +88,9 @@
 #include "components/embedder_support/switches.h"
 #include "components/embedder_support/user_agent_utils.h"
 #include "components/media_device_salt/media_device_salt_service.h"
+#include "components/pdf/browser/pdf_document_helper.h"
 #include "components/pdf/browser/pdf_navigation_throttle.h"
 #include "components/pdf/browser/pdf_url_loader_request_interceptor.h"
-#include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "components/pdf/common/internal_plugin_helpers.h"
 #include "components/policy/core/common/policy_pref_names.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
@@ -868,8 +869,9 @@ void AlloyContentBrowserClient::
   associated_registry.AddInterface<pdf::mojom::PdfService>(base::BindRepeating(
       [](content::RenderFrameHost* render_frame_host,
          mojo::PendingAssociatedReceiver<pdf::mojom::PdfService> receiver) {
-        pdf::PDFWebContentsHelper::BindPdfService(std::move(receiver),
-                                                  render_frame_host);
+        pdf::PDFDocumentHelper::BindPdfService(
+            std::move(receiver), render_frame_host,
+            std::make_unique<ChromePDFDocumentHelperClient>());
       },
       &render_frame_host));
 }

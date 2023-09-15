@@ -229,6 +229,14 @@ void CefPrintDialogLinux::UpdateSettings(
   UpdateSettings(std::move(settings), false);
 }
 
+#if BUILDFLAG(ENABLE_OOP_PRINTING_NO_OOP_BASIC_PRINT_DIALOG)
+void CefPrintDialogLinux::LoadPrintSettings(
+    const printing::PrintSettings& settings) {
+  // TODO(linux): Need to read data from |settings.system_print_dialog_data()|?
+  UseDefaultSettings();
+}
+#endif
+
 void CefPrintDialogLinux::ShowDialog(
     gfx::NativeView parent_view,
     bool has_selection,

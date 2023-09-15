@@ -52,7 +52,7 @@ index 6cffe941b26f9..3e6223ab0d423 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 946b9cb533714..80815f7feb8f8 100644
+index ee1675aa1ecc9..cb526d1aba30d 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -104,6 +104,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index 946b9cb533714..80815f7feb8f8 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -529,6 +533,8 @@ class Profile : public content::BrowserContext {
+@@ -528,6 +532,8 @@ class Profile : public content::BrowserContext {
      return instant_service_;
    }
  
@@ -75,7 +75,7 @@ index 946b9cb533714..80815f7feb8f8 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -540,7 +546,6 @@ class Profile : public content::BrowserContext {
+@@ -539,7 +545,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -99,10 +99,10 @@ index f3e41082fe306..abdefa172be33 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index ad64bc75b7383..f8eb816d6f2cf 100644
+index d403a5b78dfbf..85620c16dbf6e 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -394,7 +394,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -435,7 +435,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    profile_manager_android_ = std::make_unique<ProfileManagerAndroid>(this);
  #endif
  
@@ -134,7 +134,7 @@ index 5f471502c07a8..6a28e9452a359 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 884e79cd54e0d..4e840df66756d 100644
+index 421a3a60d308a..b89123a708f79 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -9,6 +9,7 @@
@@ -161,7 +161,7 @@ index 884e79cd54e0d..4e840df66756d 100644
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    oauth2_login_manager_ =
 diff --git chrome/browser/profiles/renderer_updater_factory.cc chrome/browser/profiles/renderer_updater_factory.cc
-index 711f449323737..b277b4386c16a 100644
+index ed5b366aa47ab..58ebe795e4636 100644
 --- chrome/browser/profiles/renderer_updater_factory.cc
 +++ chrome/browser/profiles/renderer_updater_factory.cc
 @@ -4,6 +4,7 @@

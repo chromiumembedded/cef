@@ -82,7 +82,7 @@ index 794b77e9eca3e..636589ae29c20 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 3c78525361ebf..c922dfe5019a3 100644
+index 678bc9cbf63b4..92322cf339523 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -347,6 +347,10 @@ class GFX_EXPORT RenderText {
@@ -119,10 +119,10 @@ index c1c0631071a11..aa2c01ebce43e 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index c2a8637c2c1c7..d641d08a1a9fc 100644
+index 6d6c45b7dc519..f09365053469d 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -561,6 +561,12 @@ void LabelButton::OnThemeChanged() {
+@@ -562,6 +562,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -240,10 +240,10 @@ index 711dc633bffc2..0fa2626150de2 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 3f81597c41a3e..b281eb2e7ac65 100644
+index b02f25526d9cb..2961ef6ba1185 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -564,7 +564,8 @@ void MenuController::Run(Widget* parent,
+@@ -565,7 +565,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -609,6 +610,7 @@ void MenuController::Run(Widget* parent,
+@@ -610,6 +611,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2233,6 +2235,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2230,6 +2232,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2936,8 +2939,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2915,8 +2918,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2957,8 +2965,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2936,8 +2944,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -297,7 +297,7 @@ index 3f81597c41a3e..b281eb2e7ac65 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 4c3cda2db0400..7383b2c97de2e 100644
+index 97c1f62da483b..2c8a52f562147 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -138,7 +138,9 @@ class VIEWS_EXPORT MenuController
@@ -360,10 +360,10 @@ index b8fa1c116ebcd..015f15ed72385 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 8a2eb859afa1f..c5d4532a1ce68 100644
+index 2da9d8fb49d8d..9f344ff8180f1 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
-@@ -143,6 +143,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -141,6 +141,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
                                         : gfx::NativeWindow();
    params.bounds = init_params.bounds;
  
@@ -372,7 +372,7 @@ index 8a2eb859afa1f..c5d4532a1ce68 100644
  #if defined(USE_AURA)
    // TODO(msisov): remove kMenutype once positioning of anchored windows
    // finally migrates to a new path.
-@@ -154,7 +156,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -152,7 +154,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
    // If MenuHost has no parent widget, it needs to be marked
    // Activatable, so that calling Show in ShowMenuHost will
    // get keyboard focus.
@@ -383,10 +383,10 @@ index 8a2eb859afa1f..c5d4532a1ce68 100644
  
  #if BUILDFLAG(IS_WIN)
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index c048ab2aa5ae4..810f62eed6676 100644
+index 10c4ecd08f76b..062f0c58bb805 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
-@@ -55,6 +55,8 @@ class MenuHost : public Widget, public WidgetObserver {
+@@ -53,6 +53,8 @@ class MenuHost : public Widget, public WidgetObserver {
      // Additional information that helps to position anchored windows in such
      // backends as Wayland.
      ui::OwnedWindowAnchor owned_window_anchor;
@@ -396,10 +396,10 @@ index c048ab2aa5ae4..810f62eed6676 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 35419b44bcf81..8e268dd4274e5 100644
+index e509227da023b..c4d85ccd39302 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1043,6 +1043,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1045,6 +1045,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -651,7 +651,7 @@ index 2056016df3098..6c6467f5a719e 100644
    void Cancel() override;
    base::TimeTicks GetClosingEventTime() const override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 9d148ed4bd5f1..6a4c407165190 100644
+index f137d6f86aba7..5b329ae12ada1 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -190,6 +190,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
@@ -676,10 +676,10 @@ index cf696fbcf0714..5c48fd7410b88 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index a80ff0b70cab9..b37fed46d6cbd 100644
+index 6b6df6857209a..75c62afef88b4 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -246,6 +246,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -250,6 +250,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -716,7 +716,7 @@ index 187e55af5d7be..3a980d26fdaae 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 6891cfa1f7ce3..5eaa9fb195a3d 100644
+index 80a2b76b266f5..17b85ef182b55 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@
