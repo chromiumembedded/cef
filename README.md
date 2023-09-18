@@ -49,6 +49,7 @@ The base CEF framework includes support for the C and C++ programming languages.
 * Delphi - https://github.com/hgourvest/dcef3
 * Delphi - https://github.com/salvadordf/CEF4Delphi
 * Go - https://github.com/CzarekTomczak/cef2go
+* Go - https://github.com/energye/energy
 * Java - https://bitbucket.org/chromiumembedded/java-cef
 * Python - http://code.google.com/p/cefpython/
 
