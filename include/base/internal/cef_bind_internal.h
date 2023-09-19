@@ -68,7 +68,6 @@
 #include "include/base/cef_build.h"
 #include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_template_util.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/base/internal/cef_callback_internal.h"
 #include "include/base/internal/cef_raw_scoped_refptr_mismatch_checker.h"
@@ -356,14 +355,14 @@ template <typename Functor, typename SFINAE = void>
 struct IsCallableObject : std::false_type {};
 
 template <typename Callable>
-struct IsCallableObject<Callable, void_t<decltype(&Callable::operator())>>
+struct IsCallableObject<Callable, std::void_t<decltype(&Callable::operator())>>
     : std::true_type {};
 
 // HasRefCountedTypeAsRawPtr inherits from true_type when any of the |Args| is a
 // raw pointer to a RefCounted type.
 template <typename... Ts>
 struct HasRefCountedTypeAsRawPtr
-    : disjunction<NeedsScopedRefptrButGetsRawPtr<Ts>...> {};
+    : std::disjunction<NeedsScopedRefptrButGetsRawPtr<Ts>...> {};
 
 // ForceVoidReturn<>
 //
@@ -878,7 +877,7 @@ BanUnconstructedRefCountedReceiver(const Receiver& receiver, Unused&&...) {
 // This stores all the state passed into Bind().
 template <typename Functor, typename... BoundArgs>
 struct BindState final : BindStateBase {
-  using IsCancellable = bool_constant<
+  using IsCancellable = std::bool_constant<
       CallbackCancellationTraits<Functor,
                                  std::tuple<BoundArgs...>>::is_cancellable>;
   template <typename ForwardFunctor, typename... ForwardBoundArgs>
@@ -1252,7 +1251,7 @@ decltype(auto) BindImpl(Functor&& functor, Args&&... args) {
   // PolymorphicInvoke, to which CallbackType will cast back.
   using PolymorphicInvoke = typename CallbackType::PolymorphicInvoke;
   PolymorphicInvoke invoke_func =
-      GetInvokeFunc<Invoker>(bool_constant<kIsOnce>());
+      GetInvokeFunc<Invoker>(std::bool_constant<kIsOnce>());
 
   using InvokeFuncStorage = BindStateBase::InvokeFuncStorage;
   return CallbackType(BindState::Create(

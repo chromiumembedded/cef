@@ -50,7 +50,6 @@
 #include "include/base/cef_compiler_specific.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_scoped_refptr.h"
-#include "include/base/cef_template_util.h"
 #include "include/base/cef_thread_checker.h"
 
 namespace base {
@@ -485,7 +484,7 @@ class RefCountedData
   RefCountedData(const T& in_value) : data(in_value) {}
   RefCountedData(T&& in_value) : data(std::move(in_value)) {}
   template <typename... Args>
-  explicit RefCountedData(in_place_t, Args&&... args)
+  explicit RefCountedData(std::in_place_t, Args&&... args)
       : data(std::forward<Args>(args)...) {}
 
   T data;
