@@ -23,7 +23,6 @@
       'include/base/cef_ptr_util.h',
       'include/base/cef_ref_counted.h',
       'include/base/cef_scoped_refptr.h',
-      'include/base/cef_template_util.h',
       'include/base/cef_thread_checker.h',
       'include/base/cef_trace_event.h',
       'include/base/cef_tuple.h',
