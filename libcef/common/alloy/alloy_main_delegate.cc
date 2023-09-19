@@ -42,6 +42,7 @@
 #include "net/base/features.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/features.h"
+#include "third_party/blink/public/common/features.h"
 #include "third_party/blink/public/common/switches.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_features.h"
@@ -269,6 +270,15 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       // blink::RuntimeEnabledFeatures::BackForwardCacheEnabled reports the
       // correct value in the renderer process (see issue #3374).
       disable_features.push_back(features::kBackForwardCache.name);
+    }
+
+    if (blink::features::kDocumentPictureInPictureAPI.default_state ==
+        base::FEATURE_ENABLED_BY_DEFAULT) {
+      // Disable DocumentPictureInPictureAPI globally so that
+      // blink::RuntimeEnabledFeatures::DocumentPictureInPictureAPIEnabled
+      // reports the correct value in the renderer process (see issue #3448).
+      disable_features.push_back(
+          blink::features::kDocumentPictureInPictureAPI.name);
     }
 
     if (!disable_features.empty()) {
