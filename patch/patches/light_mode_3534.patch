@@ -79,10 +79,10 @@ index e6078b2a45d88..bf051fb8a02f4 100644
    web_instance->SetPreferredContrast(CalculatePreferredContrast());
    web_instance->set_prefers_reduced_transparency(PrefersReducedTransparency());
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index faa15be0b3e08..a61974c495507 100644
+index 595b718583212..001a8a041090e 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -656,14 +656,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -661,14 +661,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -102,7 +102,7 @@ index faa15be0b3e08..a61974c495507 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1652,8 +1655,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1657,8 +1660,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

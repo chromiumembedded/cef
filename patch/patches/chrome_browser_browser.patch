@@ -13,7 +13,7 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
    return false;
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index a521886e9eb44..4ba68bf125c94 100644
+index aaaab0d2783ad..c97e5091c6e9f 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -9,6 +9,7 @@ import("//build/config/compiler/compiler.gni")
@@ -61,7 +61,7 @@ index a521886e9eb44..4ba68bf125c94 100644
        "views/apps/app_info_dialog/app_info_dialog_container.cc",
        "views/apps/app_info_dialog/app_info_dialog_container.h",
        "views/apps/app_info_dialog/app_info_dialog_views.cc",
-@@ -6279,6 +6285,7 @@ static_library("ui") {
+@@ -6281,6 +6287,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",

@@ -131,7 +131,7 @@ index 3d2108f13ea2f..261b0a42bfb21 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index dda0620251895..2b29bdef52444 100644
+index dda0620251895..4014bd801f727 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -62,6 +62,12 @@ class ExtensionHost : public DeferredStartRenderHost,
