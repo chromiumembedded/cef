@@ -37,6 +37,7 @@ class CefDragDataImpl : public CefDragData {
   CefString GetFileName() override;
   size_t GetFileContents(CefRefPtr<CefStreamWriter> writer) override;
   bool GetFileNames(std::vector<CefString>& names) override;
+  bool GetFilePaths(std::vector<CefString>& paths) override;
   void SetLinkURL(const CefString& url) override;
   void SetLinkTitle(const CefString& title) override;
   void SetLinkMetadata(const CefString& data) override;
