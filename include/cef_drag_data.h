@@ -146,6 +146,13 @@ class CefDragData : public virtual CefBaseRefCounted {
   virtual bool GetFileNames(std::vector<CefString>& names) = 0;
 
   ///
+  /// Retrieve the list of file paths that are being dragged into the browser
+  /// window.
+  ///
+  /*--cef()--*/
+  virtual bool GetFilePaths(std::vector<CefString>& paths) = 0;
+
+  ///
   /// Set the link URL that is being dragged.
   ///
   /*--cef(optional_param=url)--*/
