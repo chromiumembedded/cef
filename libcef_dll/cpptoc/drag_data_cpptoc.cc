@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=dc5d0e68bdc9b8ec86dbc9b4fa0ddce6e4597006$
+// $hash=14322f994bd6eb8732cef20a3a70fc8ebbf32dea$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -300,6 +300,38 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
   return _retval;
 }
 
+int CEF_CALLBACK
+drag_data_get_file_paths(struct _cef_drag_data_t* self,
+                         cef_string_list_t paths) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: paths; type: string_vec_byref
+  DCHECK(paths);
+  if (!paths) {
+    return 0;
+  }
+
+  // Translate param: paths; type: string_vec_byref
+  std::vector<CefString> pathsList;
+  transfer_string_list_contents(paths, pathsList);
+
+  // Execute
+  bool _retval = CefDragDataCppToC::Get(self)->GetFilePaths(pathsList);
+
+  // Restore param: paths; type: string_vec_byref
+  cef_string_list_clear(paths);
+  transfer_string_list_contents(pathsList, paths);
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK drag_data_set_link_url(struct _cef_drag_data_t* self,
                                          const cef_string_t* url) {
   shutdown_checker::AssertNotShutdown();
@@ -520,6 +552,7 @@ CefDragDataCppToC::CefDragDataCppToC() {
   GetStruct()->get_file_name = drag_data_get_file_name;
   GetStruct()->get_file_contents = drag_data_get_file_contents;
   GetStruct()->get_file_names = drag_data_get_file_names;
+  GetStruct()->get_file_paths = drag_data_get_file_paths;
   GetStruct()->set_link_url = drag_data_set_link_url;
   GetStruct()->set_link_title = drag_data_set_link_title;
   GetStruct()->set_link_metadata = drag_data_set_link_metadata;
