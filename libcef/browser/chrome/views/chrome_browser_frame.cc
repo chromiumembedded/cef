@@ -6,6 +6,7 @@
 
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -17,10 +18,10 @@
 void ChromeBrowserFrame::Init(BrowserView* browser_view,
                               std::unique_ptr<Browser> browser) {
   DCHECK(browser_view);
+  DCHECK(browser);
 
-  DCHECK(!browser_);
-  browser_ = browser.get();
-  DCHECK(browser_);
+  DCHECK(!browser_view_);
+  browser_view_ = browser_view;
 
   // Initialize BrowserFrame state.
   InitBrowserView(browser_view);
@@ -40,6 +41,10 @@ void ChromeBrowserFrame::Init(BrowserView* browser_view,
     }
   }
 #endif  // BUILDFLAG(IS_MAC)
+}
+
+void ChromeBrowserFrame::ToggleFullscreenMode() {
+  chrome::ToggleFullscreenMode(browser_view_->browser());
 }
 
 views::internal::RootView* ChromeBrowserFrame::CreateRootView() {

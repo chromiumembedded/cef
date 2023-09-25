@@ -48,6 +48,9 @@ class CefNativeWidgetMac : public views::NativeWidgetMac {
   const CefRefPtr<CefWindow> window_;
   CefWindowDelegate* const window_delegate_;
 
+  // Returns true if the CefWindow is fully initialized.
+  bool IsCefWindowInitialized() const;
+
   BrowserView* browser_view_ = nullptr;
 };
 

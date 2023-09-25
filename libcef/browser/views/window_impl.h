@@ -132,6 +132,7 @@ class CefWindowImpl
   void MenuClosed();
 
   views::Widget* widget() const { return widget_; }
+  bool initialized() const { return initialized_; }
 
  private:
   // Create a new implementation object.
@@ -146,10 +147,13 @@ class CefWindowImpl
   // Initialize the Widget.
   void CreateWidget(gfx::AcceleratedWidget parent_widget);
 
-  views::Widget* widget_;
+  views::Widget* widget_ = nullptr;
+
+  // True if the window has been initialized.
+  bool initialized_ = false;
 
   // True if the window has been destroyed.
-  bool destroyed_;
+  bool destroyed_ = false;
 
   // The currently active menu model and runner.
   CefRefPtr<CefMenuModelImpl> menu_model_;

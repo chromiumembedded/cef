@@ -38,6 +38,10 @@ function restore() {
   setTimeout(function() { send_message('Restore'); }, 1000);
 }
 
+function fullscreen() {
+  send_message('Fullscreen');
+}
+
 function position() {
   var x = parseInt(document.getElementById('x').value);
   var y = parseInt(document.getElementById('y').value);
@@ -64,6 +68,7 @@ Click a button to perform the associated window action.
 <br/><input type="button" onclick="minimize();" value="Minimize">
 <br/><input type="button" onclick="maximize();" value="Maximize">
 <br/><input type="button" onclick="restore();" value="Restore"> (minimizes and then restores the window as topmost)
+<br/><input type="button" onclick="fullscreen();" value="Toggle Fullscreen"> (works with Views)
 <br/><input type="button" onclick="position();" value="Set Position">
 X: <input type="text" size="4" id="x" value="200">
 Y: <input type="text" size="4" id="y" value="100">

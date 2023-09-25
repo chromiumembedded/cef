@@ -35,6 +35,7 @@ const char kMessagePositionName[] = "WindowTest.Position";
 const char kMessageMinimizeName[] = "WindowTest.Minimize";
 const char kMessageMaximizeName[] = "WindowTest.Maximize";
 const char kMessageRestoreName[] = "WindowTest.Restore";
+const char kMessageFullscreenName[] = "WindowTest.Fullscreen";
 const char kMessageTitlebarHeightName[] = "WindowTest.TitlebarHeight";
 
 // Create the appropriate platform test runner object.
@@ -109,6 +110,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       runner_->Maximize(browser);
     } else if (message_name == kMessageRestoreName) {
       runner_->Restore(browser);
+    } else if (message_name == kMessageFullscreenName) {
+      runner_->Fullscreen(browser);
     } else if (message_name.find(kMessageTitlebarHeightName) == 0) {
       const auto height = ParseHeight(message_name);
       runner_->SetTitleBarHeight(browser, height);

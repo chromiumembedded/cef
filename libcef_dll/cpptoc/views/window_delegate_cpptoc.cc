@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=10ec416d3aeba7215b08604b1a329adc1c9aaf6f$
+// $hash=61afa22f2b3401bab08c3faeb872e3de7a99ca5b$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -139,6 +139,29 @@ window_delegate_on_window_bounds_changed(struct _cef_window_delegate_t* self,
   // Execute
   CefWindowDelegateCppToC::Get(self)->OnWindowBoundsChanged(
       CefWindowCToCpp::Wrap(window), new_boundsVal);
+}
+
+void CEF_CALLBACK window_delegate_on_window_fullscreen_transition(
+    struct _cef_window_delegate_t* self,
+    cef_window_t* window,
+    int is_completed) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return;
+  }
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnWindowFullscreenTransition(
+      CefWindowCToCpp::Wrap(window), is_completed ? true : false);
 }
 
 cef_window_t* CEF_CALLBACK
@@ -509,29 +532,6 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
   return _retval;
 }
 
-void CEF_CALLBACK window_delegate_on_window_fullscreen_transition(
-    struct _cef_window_delegate_t* self,
-    cef_window_t* window,
-    int is_completed) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self) {
-    return;
-  }
-  // Verify param: window; type: refptr_diff
-  DCHECK(window);
-  if (!window) {
-    return;
-  }
-
-  // Execute
-  CefWindowDelegateCppToC::Get(self)->OnWindowFullscreenTransition(
-      CefWindowCToCpp::Wrap(window), is_completed ? true : false);
-}
-
 cef_size_t CEF_CALLBACK
 window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
@@ -805,6 +805,8 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
       window_delegate_on_window_activation_changed;
   GetStruct()->on_window_bounds_changed =
       window_delegate_on_window_bounds_changed;
+  GetStruct()->on_window_fullscreen_transition =
+      window_delegate_on_window_fullscreen_transition;
   GetStruct()->get_parent_window = window_delegate_get_parent_window;
   GetStruct()->is_window_modal_dialog = window_delegate_is_window_modal_dialog;
   GetStruct()->get_initial_bounds = window_delegate_get_initial_bounds;
@@ -819,8 +821,6 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->can_close = window_delegate_can_close;
   GetStruct()->on_accelerator = window_delegate_on_accelerator;
   GetStruct()->on_key_event = window_delegate_on_key_event;
-  GetStruct()->on_window_fullscreen_transition =
-      window_delegate_on_window_fullscreen_transition;
   GetStruct()->base.base.get_preferred_size =
       window_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_delegate_get_minimum_size;
