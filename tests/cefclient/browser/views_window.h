@@ -188,6 +188,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
+  void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                    bool is_completed) override;
 
   // CefViewDelegate methods:
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;

@@ -20,6 +20,8 @@ class TestWindowDelegate : public CefWindowDelegate {
       base::OnceCallback<void(CefRefPtr<CefWindow>)>;
   using OnWindowDestroyedCallback =
       base::OnceCallback<void(CefRefPtr<CefWindow>)>;
+  using OnWindowFullscreenTransitionCompleteCallback =
+      base::RepeatingCallback<void(CefRefPtr<CefWindow>, size_t /*count*/)>;
   using OnAcceleratorCallback =
       base::RepeatingCallback<bool(CefRefPtr<CefWindow>, int)>;
   using OnKeyEventCallback =
@@ -28,12 +30,15 @@ class TestWindowDelegate : public CefWindowDelegate {
   struct Config {
     OnWindowCreatedCallback on_window_created;
     OnWindowDestroyedCallback on_window_destroyed;
+    OnWindowFullscreenTransitionCompleteCallback
+        on_window_fullscreen_transition_complete;
     OnAcceleratorCallback on_accelerator;
     OnKeyEventCallback on_key_event;
     bool frameless = false;
     bool close_window = true;
     int window_size = kWSize;
     CefPoint window_origin = {};
+    cef_show_state_t initial_show_state = CEF_SHOW_STATE_NORMAL;
   };
 
   // Creates a Window with a new TestWindowDelegate instance and executes
@@ -48,8 +53,11 @@ class TestWindowDelegate : public CefWindowDelegate {
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
+  void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                    bool is_completed) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override;
+  cef_show_state_t GetInitialShowState(CefRefPtr<CefWindow> window) override;
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
@@ -72,6 +80,9 @@ class TestWindowDelegate : public CefWindowDelegate {
 
   bool got_get_initial_bounds_ = false;
   bool got_get_preferred_size_ = false;
+
+  size_t fullscreen_transition_callback_count_ = 0;
+  size_t fullscreen_transition_complete_count_ = 0;
 
   // Must be the last member.
   base::WeakPtrFactory<TestWindowDelegate> weak_ptr_factory_;

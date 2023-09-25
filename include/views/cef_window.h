@@ -165,7 +165,9 @@ class CefWindow : public CefPanel {
   virtual void Restore() = 0;
 
   ///
-  /// Set fullscreen Window state.
+  /// Set fullscreen Window state. The
+  /// CefWindowDelegate::OnWindowFullscreenTransition method will be called
+  /// during the fullscreen transition for notification purposes.
   ///
   /*--cef()--*/
   virtual void SetFullscreen(bool fullscreen) = 0;

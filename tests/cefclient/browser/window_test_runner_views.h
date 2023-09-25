@@ -24,6 +24,7 @@ class WindowTestRunnerViews : public WindowTestRunner {
   void Minimize(CefRefPtr<CefBrowser> browser) override;
   void Maximize(CefRefPtr<CefBrowser> browser) override;
   void Restore(CefRefPtr<CefBrowser> browser) override;
+  void Fullscreen(CefRefPtr<CefBrowser> browser) override;
   void SetTitleBarHeight(CefRefPtr<CefBrowser> browser,
                          const std::optional<float>& height) override;
 };

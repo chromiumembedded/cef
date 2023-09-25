@@ -126,6 +126,9 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Set the draggable region relative to web contents.
   // Called from DraggableRegionsHostImpl::UpdateDraggableRegions.
   virtual void UpdateDraggableRegion(const SkRegion& region) {}
+
+  // Called at the end of a fullscreen transition.
+  virtual void WindowFullscreenStateChanged() {}
 };
 
 }  // namespace cef

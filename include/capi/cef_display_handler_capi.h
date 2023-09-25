@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1de3354bd0a042cc28199f1f56753b1df9e279a2$
+// $hash=5374127458a7cac3ee9b4d2b4ad8a6f5ca81ec52$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DISPLAY_HANDLER_CAPI_H_
@@ -84,8 +84,13 @@ typedef struct _cef_display_handler_t {
   /// Called when web content in the page has toggled fullscreen mode. If
   /// |fullscreen| is true (1) the content will automatically be sized to fill
   /// the browser content area. If |fullscreen| is false (0) the content will
-  /// automatically return to its original size and position. The client is
-  /// responsible for resizing the browser if desired.
+  /// automatically return to its original size and position. With the Alloy
+  /// runtime the client is responsible for triggering the fullscreen transition
+  /// (for example, by calling cef_window_t::SetFullscreen when using Views).
+  /// With the Chrome runtime the fullscreen transition will be triggered
+  /// automatically. The cef_window_delegate_t::OnWindowFullscreenTransition
+  /// function will be called during the fullscreen transition for notification
+  /// purposes.
   ///
   void(CEF_CALLBACK* on_fullscreen_mode_change)(
       struct _cef_display_handler_t* self,

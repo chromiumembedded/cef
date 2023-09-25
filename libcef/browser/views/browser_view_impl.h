@@ -18,6 +18,7 @@
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 
 class CefBrowserHostBase;
+class CefWindowImpl;
 class ChromeBrowserView;
 
 class CefBrowserViewImpl
@@ -82,6 +83,9 @@ class CefBrowserViewImpl
 
   // Return the CEF specialization of BrowserView.
   ChromeBrowserView* chrome_browser_view() const;
+
+  // Return the CefWindowImpl hosting this object.
+  CefWindowImpl* cef_window() const;
 
  private:
   // Create a new implementation object.

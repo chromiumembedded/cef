@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=25487f4d82069d1e4c0c7b27c1c1fcbcebbbacea$
+// $hash=e1ed42bb378f9f140e006ec582c0e908f711e7fa$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -44,6 +44,8 @@ class CefWindowDelegateCToCpp
                                  bool active) override;
   void OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
                              const CefRect& new_bounds) override;
+  void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                    bool is_completed) override;
   CefRefPtr<CefWindow> GetParentWindow(CefRefPtr<CefWindow> window,
                                        bool* is_menu,
                                        bool* can_activate_menu) override;
@@ -61,8 +63,6 @@ class CefWindowDelegateCToCpp
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
-  void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
-                                    bool is_completed) override;
 
   // CefPanelDelegate methods.
 

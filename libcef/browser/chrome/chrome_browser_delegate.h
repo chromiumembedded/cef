@@ -70,6 +70,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool SupportsDraggableRegion() const override;
   const absl::optional<SkRegion> GetDraggableRegion() const override;
   void UpdateDraggableRegion(const SkRegion& region) override;
+  void WindowFullscreenStateChanged() override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,

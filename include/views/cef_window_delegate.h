@@ -85,6 +85,19 @@ class CefWindowDelegate : public CefPanelDelegate {
                                      const CefRect& new_bounds) {}
 
   ///
+  /// Called when |window| is transitioning to or from fullscreen mode. On MacOS
+  /// the transition occurs asynchronously with |is_competed| set to false when
+  /// the transition starts and true after the transition completes. On other
+  /// platforms the transition occurs synchronously with |is_completed| set to
+  /// true after the transition completes. With the Alloy runtime you must also
+  /// implement CefDisplayHandler::OnFullscreenModeChange to handle fullscreen
+  /// transitions initiated by browser content.
+  ///
+  /*--cef()--*/
+  virtual void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                            bool is_completed) {}
+
+  ///
   /// Return the parent for |window| or NULL if the |window| does not have a
   /// parent. Windows with parents will not get a taskbar button. Set |is_menu|
   /// to true if |window| will be displayed as a menu, in which case it will not
@@ -209,16 +222,6 @@ class CefWindowDelegate : public CefPanelDelegate {
                           const CefKeyEvent& event) {
     return false;
   }
-
-  ///
-  /// Called when the |window| is transitioning to or from fullscreen mode. The
-  /// transition occurs in two stages, with |is_competed| set to false when the
-  /// transition starts and true when the transition completes.
-  /// This method is only supported on macOS.
-  ///
-  /*--cef()--*/
-  virtual void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
-                                            bool is_completed) {}
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

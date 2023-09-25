@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=61099a1ba8b16a5e46f5a80d326d1f9bfc99317d$
+// $hash=456f00f7afbac910cf36feecd38399a2fb16960d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -95,6 +95,20 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window,
       const cef_rect_t* new_bounds);
+
+  ///
+  /// Called when |window| is transitioning to or from fullscreen mode. On MacOS
+  /// the transition occurs asynchronously with |is_competed| set to false (0)
+  /// when the transition starts and true (1) after the transition completes. On
+  /// other platforms the transition occurs synchronously with |is_completed|
+  /// set to true (1) after the transition completes. With the Alloy runtime you
+  /// must also implement cef_display_handler_t::OnFullscreenModeChange to
+  /// handle fullscreen transitions initiated by browser content.
+  ///
+  void(CEF_CALLBACK* on_window_fullscreen_transition)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int is_completed);
 
   ///
   /// Return the parent for |window| or NULL if the |window| does not have a
@@ -210,17 +224,6 @@ typedef struct _cef_window_delegate_t {
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,
                                   const cef_key_event_t* event);
-
-  ///
-  /// Called when the |window| is transitioning to or from fullscreen mode. The
-  /// transition occurs in two stages, with |is_competed| set to false (0) when
-  /// the transition starts and true (1) when the transition completes. This
-  /// function is only supported on macOS.
-  ///
-  void(CEF_CALLBACK* on_window_fullscreen_transition)(
-      struct _cef_window_delegate_t* self,
-      struct _cef_window_t* window,
-      int is_completed);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus
