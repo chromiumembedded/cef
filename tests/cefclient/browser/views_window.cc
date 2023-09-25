@@ -277,12 +277,18 @@ void ViewsWindow::SetFavicon(CefRefPtr<CefImage> image) {
 
 void ViewsWindow::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_UI_THREAD();
-  if (window_) {
-    // Hide the top controls while in full-screen mode.
-    if (with_controls_) {
-      ShowTopControls(!fullscreen);
-    }
 
+  // For Chrome runtime we ignore this notification from
+  // ClientHandler::OnFullscreenModeChange(). Chrome runtime will trigger
+  // the fullscreen change internally and then call
+  // OnWindowFullscreenTransition().
+  if (MainContext::Get()->UseChromeRuntime()) {
+    return;
+  }
+
+  // For Alloy runtime we need to explicitly trigger the fullscreen change.
+  if (window_) {
+    // Results in a call to OnWindowFullscreenTransition().
     window_->SetFullscreen(fullscreen);
   }
 }
@@ -404,10 +410,12 @@ bool ViewsWindow::GetWindowRestorePreferences(
   show_state = CEF_SHOW_STATE_NORMAL;
   if (window_->IsMinimized()) {
     show_state = CEF_SHOW_STATE_MINIMIZED;
+  } else if (window_->IsFullscreen()) {
+    // On MacOS, IsMaximized() will also return true for fullscreen, so check
+    // IsFullscreen() first.
+    show_state = CEF_SHOW_STATE_FULLSCREEN;
   } else if (window_->IsMaximized()) {
     show_state = CEF_SHOW_STATE_MAXIMIZED;
-  } else if (window_->IsFullscreen()) {
-    show_state = CEF_SHOW_STATE_FULLSCREEN;
   }
 
   if (show_state == CEF_SHOW_STATE_NORMAL) {
@@ -624,6 +632,25 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefTextfield> textfield,
   }
 
   return false;
+}
+
+void ViewsWindow::OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
+                                               bool is_completed) {
+#if defined(OS_MAC)
+  // On MacOS we get two asynchronous callbacks, and we want to change the UI on
+  // |is_completed=false| (e.g. when the fullscreen transition begins).
+  const bool should_change = !is_completed;
+#else
+  // On other platforms we only get a single synchronous callback with
+  // |is_completed=true|.
+  DCHECK(is_completed);
+  const bool should_change = true;
+#endif
+
+  // Hide the top controls while in fullscreen mode.
+  if (should_change && with_controls_) {
+    ShowTopControls(!window->IsFullscreen());
+  }
 }
 
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {

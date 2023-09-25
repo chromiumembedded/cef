@@ -7,6 +7,7 @@
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
 #include "libcef/browser/views/ns_window.h"
+#include "libcef/browser/views/window_impl.h"
 
 #include "chrome/browser/apps/app_shim/app_shim_host_mac.h"
 #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
@@ -118,12 +119,16 @@ void CefNativeWidgetMac::GetWindowFrameTitlebarHeight(
 
 void CefNativeWidgetMac::OnWindowFullscreenTransitionStart() {
   views::NativeWidgetMac::OnWindowFullscreenTransitionStart();
-  window_delegate_->OnWindowFullscreenTransition(window_, false);
+  if (IsCefWindowInitialized()) {
+    window_delegate_->OnWindowFullscreenTransition(window_, false);
+  }
 }
 
 void CefNativeWidgetMac::OnWindowFullscreenTransitionComplete() {
   views::NativeWidgetMac::OnWindowFullscreenTransitionComplete();
-  window_delegate_->OnWindowFullscreenTransition(window_, true);
+  if (IsCefWindowInitialized()) {
+    window_delegate_->OnWindowFullscreenTransition(window_, true);
+  }
 }
 
 void CefNativeWidgetMac::OnWindowInitialized() {
@@ -141,4 +146,8 @@ void CefNativeWidgetMac::OnWindowInitialized() {
           GetNSWindowHost()->bridged_native_widget_id());
     }
   }
+}
+
+bool CefNativeWidgetMac::IsCefWindowInitialized() const {
+  return static_cast<CefWindowImpl*>(window_.get())->initialized();
 }

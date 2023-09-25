@@ -27,6 +27,7 @@ class WindowTestRunner {
   virtual void Minimize(CefRefPtr<CefBrowser> browser) = 0;
   virtual void Maximize(CefRefPtr<CefBrowser> browser) = 0;
   virtual void Restore(CefRefPtr<CefBrowser> browser) = 0;
+  virtual void Fullscreen(CefRefPtr<CefBrowser> browser);
 
   // Fit |window| inside |display|. Coordinates are relative to the upper-left
   // corner of the display.

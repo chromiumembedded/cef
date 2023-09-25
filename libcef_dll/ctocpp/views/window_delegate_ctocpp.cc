@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=12bd03a8fb7d680a4e2b1a6818313c29bf14f011$
+// $hash=bb69763a25cd013a50504d762a81c0a4454ce8eb$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -127,6 +127,30 @@ void CefWindowDelegateCToCpp::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
   // Execute
   _struct->on_window_bounds_changed(_struct, CefWindowCppToC::Wrap(window),
                                     &new_bounds);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnWindowFullscreenTransition(
+    CefRefPtr<CefWindow> window,
+    bool is_completed) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_window_fullscreen_transition)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_window_fullscreen_transition(
+      _struct, CefWindowCppToC::Wrap(window), is_completed);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -485,30 +509,6 @@ bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
 
   // Return type: bool
   return _retval ? true : false;
-}
-
-NO_SANITIZE("cfi-icall")
-void CefWindowDelegateCToCpp::OnWindowFullscreenTransition(
-    CefRefPtr<CefWindow> window,
-    bool is_completed) {
-  shutdown_checker::AssertNotShutdown();
-
-  cef_window_delegate_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_window_fullscreen_transition)) {
-    return;
-  }
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: window; type: refptr_diff
-  DCHECK(window.get());
-  if (!window.get()) {
-    return;
-  }
-
-  // Execute
-  _struct->on_window_fullscreen_transition(
-      _struct, CefWindowCppToC::Wrap(window), is_completed);
 }
 
 NO_SANITIZE("cfi-icall")

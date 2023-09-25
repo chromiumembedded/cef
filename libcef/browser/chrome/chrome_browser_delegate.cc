@@ -15,6 +15,7 @@
 #include "libcef/browser/media_access_query.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/views/browser_view_impl.h"
+#include "libcef/browser/views/window_impl.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/frame_util.h"
 
@@ -255,6 +256,23 @@ const absl::optional<SkRegion> ChromeBrowserDelegate::GetDraggableRegion()
 void ChromeBrowserDelegate::UpdateDraggableRegion(const SkRegion& region) {
   DCHECK(SupportsDraggableRegion());
   draggable_region_ = region;
+}
+
+void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
+  // Use a synchronous callback for notification on Windows/Linux. MacOS gets
+  // notified asynchronously via CefNativeWidgetMac callbacks.
+#if !BUILDFLAG(IS_MAC)
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    if (auto chrome_browser_view = browser->chrome_browser_view()) {
+      auto* cef_window = chrome_browser_view->cef_browser_view()->cef_window();
+      if (auto* delegate = cef_window->delegate()) {
+        // Give the CefWindowDelegate a chance to handle the event.
+        delegate->OnWindowFullscreenTransition(cef_window,
+                                               /*is_completed=*/true);
+      }
+    }
+  }
+#endif
 }
 
 void ChromeBrowserDelegate::WebContentsCreated(

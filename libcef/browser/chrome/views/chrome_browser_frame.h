@@ -97,13 +97,17 @@ class ChromeBrowserFrame : public BrowserFrame {
 
   void Init(BrowserView* browser_view, std::unique_ptr<Browser> browser);
 
+  void ToggleFullscreenMode();
+
   // views::Widget methods:
   views::internal::RootView* CreateRootView() override;
   std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView()
       override;
 
+  BrowserView* browser_view() const { return browser_view_; }
+
  private:
-  Browser* browser_ = nullptr;
+  BrowserView* browser_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_

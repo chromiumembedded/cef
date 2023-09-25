@@ -70,7 +70,7 @@ index a521886e9eb44..4ba68bf125c94 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index fdb96dee05067..7719f86fd4e0e 100644
+index fdb96dee05067..a188b6442b1ca 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -265,6 +265,25 @@
@@ -123,7 +123,16 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  ///////////////////////////////////////////////////////////////////////////////
-@@ -1394,6 +1423,14 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
+@@ -1055,6 +1084,8 @@ void Browser::WindowFullscreenStateChanged() {
+       ->WindowFullscreenStateChanged();
+   command_controller_->FullscreenStateChanged();
+   UpdateBookmarkBarState(BOOKMARK_BAR_STATE_CHANGE_TOGGLE_FULLSCREEN);
++
++  CALL_CEF_DELEGATE(WindowFullscreenStateChanged);
+ }
+ 
+ void Browser::FullscreenTopUIStateChanged() {
+@@ -1394,6 +1425,14 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
    if (exclusive_access_manager_->HandleUserKeyEvent(event))
      return content::KeyboardEventProcessingResult::HANDLED;
  
@@ -138,7 +147,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
    return window()->PreHandleKeyboardEvent(event);
  }
  
-@@ -1401,8 +1438,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
+@@ -1401,8 +1440,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
                                    const NativeWebKeyboardEvent& event) {
    DevToolsWindow* devtools_window =
        DevToolsWindow::GetInstanceForInspectedWebContents(source);
@@ -159,7 +168,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  bool Browser::TabsNeedBeforeUnloadFired() {
-@@ -1613,6 +1660,14 @@ WebContents* Browser::OpenURLFromTab(WebContents* source,
+@@ -1613,6 +1662,14 @@ WebContents* Browser::OpenURLFromTab(WebContents* source,
    }
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -174,7 +183,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -1770,6 +1825,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -1770,6 +1827,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool should_show_loading_ui) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, should_show_loading_ui);
@@ -183,7 +192,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -1798,6 +1855,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -1798,6 +1857,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -192,7 +201,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
    if (!GetStatusBubble())
      return;
  
-@@ -1805,6 +1864,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -1805,6 +1866,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
      GetStatusBubble()->SetURL(url);
  }
  
@@ -210,7 +219,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  void Browser::ContentsMouseEvent(WebContents* source,
                                   bool motion,
                                   bool exited) {
-@@ -1829,6 +1899,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
+@@ -1829,6 +1901,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
    return false;
  }
  
@@ -230,7 +239,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -1921,6 +2004,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -1921,6 +2006,10 @@ void Browser::WebContentsCreated(WebContents* source_contents,
  
    // Make the tab show up in the task manager.
    task_manager::WebContentsTags::CreateForTabContents(new_contents);
@@ -241,7 +250,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  void Browser::PortalWebContentsCreated(WebContents* portal_web_contents) {
-@@ -2038,11 +2125,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2038,11 +2127,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -257,7 +266,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2232,6 +2323,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2232,6 +2325,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -273,7 +282,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -2783,13 +2883,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2783,13 +2885,20 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -295,7 +304,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
    return window_ ? window_->GetStatusBubble() : nullptr;
  }
  
-@@ -2923,6 +3030,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -2923,6 +3032,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -304,7 +313,7 @@ index fdb96dee05067..7719f86fd4e0e 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3077,6 +3186,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3077,6 +3188,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {

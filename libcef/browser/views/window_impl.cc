@@ -5,6 +5,7 @@
 #include "libcef/browser/views/window_impl.h"
 
 #include "libcef/browser/browser_util.h"
+#include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/browser/views/display_impl.h"
@@ -12,6 +13,7 @@
 #include "libcef/browser/views/layout_util.h"
 #include "libcef/browser/views/view_util.h"
 #include "libcef/browser/views/window_view.h"
+#include "libcef/features/runtime.h"
 
 #include "base/i18n/rtl.h"
 #include "components/constrained_window/constrained_window_views.h"
@@ -116,9 +118,6 @@ CefRefPtr<CefWindowImpl> CefWindowImpl::Create(
   CefRefPtr<CefWindowImpl> window = new CefWindowImpl(delegate);
   window->Initialize();
   window->CreateWidget(parent_widget);
-  if (delegate) {
-    delegate->OnWindowCreated(window.get());
-  }
   return window;
 }
 
@@ -253,7 +252,29 @@ void CefWindowImpl::Restore() {
 void CefWindowImpl::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (widget_ && fullscreen != widget_->IsFullscreen()) {
+    if (cef::IsChromeRuntimeEnabled()) {
+      // If a BrowserView exists, toggle fullscreen mode via the Chrome command
+      // for consistent behavior.
+      auto* browser_frame = static_cast<ChromeBrowserFrame*>(widget_);
+      if (browser_frame->browser_view()) {
+        browser_frame->ToggleFullscreenMode();
+        return;
+      }
+    }
+
+    // Call the Widget method directly with Alloy runtime, or Chrome runtime
+    // when no BrowserView exists.
     widget_->SetFullscreen(fullscreen);
+
+    // Use a synchronous callback notification on Windows/Linux. Chrome runtime
+    // on Windows/Linux gets notified synchronously via ChromeBrowserDelegate
+    // callbacks when a BrowserView exists. MacOS (both runtimes) gets notified
+    // asynchronously via CefNativeWidgetMac callbacks.
+#if !BUILDFLAG(IS_MAC)
+    if (delegate()) {
+      delegate()->OnWindowFullscreenTransition(this, /*is_completed=*/true);
+    }
+#endif
   }
 }
 
@@ -714,7 +735,7 @@ void CefWindowImpl::RemoveAllAccelerators() {
 }
 
 CefWindowImpl::CefWindowImpl(CefRefPtr<CefWindowDelegate> delegate)
-    : ParentClass(delegate), widget_(nullptr), destroyed_(false) {}
+    : ParentClass(delegate) {}
 
 CefWindowView* CefWindowImpl::CreateRootView() {
   return new CefWindowView(delegate(), this);
@@ -740,4 +761,10 @@ void CefWindowImpl::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   // keep an owned reference.
   std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(this);
   [[maybe_unused]] views::View* view = view_ptr.release();
+
+  initialized_ = true;
+
+  if (delegate()) {
+    delegate()->OnWindowCreated(this);
+  }
 }

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d53c4a0a7e731a56a0edcb9d705c76b0a2770155$
+// $hash=4b43fe0b493d860e8b28d7a6d892db49d1135b34$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -155,7 +155,9 @@ typedef struct _cef_window_t {
   void(CEF_CALLBACK* restore)(struct _cef_window_t* self);
 
   ///
-  /// Set fullscreen Window state.
+  /// Set fullscreen Window state. The
+  /// cef_window_delegate_t::OnWindowFullscreenTransition function will be
+  /// called during the fullscreen transition for notification purposes.
   ///
   void(CEF_CALLBACK* set_fullscreen)(struct _cef_window_t* self,
                                      int fullscreen);
