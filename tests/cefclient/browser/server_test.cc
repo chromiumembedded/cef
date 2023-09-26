@@ -31,9 +31,6 @@ const char kPortKey[] = "port";
 const char kStatusKey[] = "status";
 const char kMessageKey[] = "message";
 
-// Required URL for cefQuery execution.
-const char kTestUrl[] = "http://tests/server";
-
 // Server default values.
 const char kServerAddress[] = "127.0.0.1";
 const int kServerPortDefault = 8099;
@@ -234,7 +231,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
-    if (url.find(kTestUrl) != 0) {
+    if (url.find(test_runner::GetTestURL("server")) != 0) {
       return false;
     }
 

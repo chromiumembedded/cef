@@ -39,7 +39,7 @@ namespace {
 
 const char kTestHost[] = "tests";
 const char kLocalHost[] = "localhost";
-const char kTestOrigin[] = "http://tests/";
+const char kTestOrigin[] = "https://tests/";
 
 // Pages handled via StringResourceProvider.
 const char kTestGetSourcePage[] = "get_source.html";
@@ -102,18 +102,18 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser) {
   // Create a new request
   CefRefPtr<CefRequest> request(CefRequest::Create());
 
-  if (browser->GetMainFrame()->GetURL().ToString().find("http://tests/") != 0) {
+  if (browser->GetMainFrame()->GetURL().ToString().find(kTestOrigin) != 0) {
     // The LoadRequest method will fail with "bad IPC message" reason
     // INVALID_INITIATOR_ORIGIN (213) unless you first navigate to the
     // request origin using some other mechanism (LoadURL, link click, etc).
-    Alert(browser,
-          "Please first navigate to a http://tests/ URL. "
-          "For example, first load Tests > Other Tests.");
+    Alert(browser, "Please first navigate to a " + std::string(kTestOrigin) +
+                       " URL. "
+                       "For example, first load Tests > Other Tests.");
     return;
   }
 
   // Set the request URL
-  request->SetURL("http://tests/request");
+  request->SetURL(GetTestURL("request"));
 
   // Add post data to the request.  The correct method and content-
   // type headers will be set by CEF.
@@ -419,7 +419,7 @@ void MuteAudio(CefRefPtr<CefBrowser> browser, bool mute) {
 }
 
 void RunOtherTests(CefRefPtr<CefBrowser> browser) {
-  browser->GetMainFrame()->LoadURL("http://tests/other_tests");
+  browser->GetMainFrame()->LoadURL(GetTestURL("other_tests"));
 }
 
 // Provider that dumps the request contents.
@@ -679,7 +679,7 @@ CefRefPtr<CefStreamReader> GetDumpResponse(
   }
 
   if (!origin.empty() &&
-      (origin.find("http://" + std::string(kTestHost)) == 0 ||
+      (origin.find("https://" + std::string(kTestHost)) == 0 ||
        origin.find("http://" + std::string(kLocalHost)) == 0)) {
     // Allow cross-origin XMLHttpRequests from test origins.
     response_headers.insert(
@@ -830,6 +830,10 @@ void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
   // Execute a JavaScript alert().
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
   frame->ExecuteJavaScript("alert('" + msg + "');", frame->GetURL(), 0);
+}
+
+std::string GetTestURL(const std::string& path) {
+  return kTestOrigin + path;
 }
 
 bool IsTestURL(const std::string& url, const std::string& path) {
