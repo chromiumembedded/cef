@@ -44,8 +44,11 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
 // Show a JS alert message.
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message);
 
+// Returns "https://tests/<path>".
+std::string GetTestURL(const std::string& path);
+
 // Returns true if |url| is a test URL with the specified |path|. This matches
-// both http://tests/<path> and http://localhost:xxxx/<path>.
+// both "https://tests/<path>" and "http://localhost:xxxx/<path>".
 bool IsTestURL(const std::string& url, const std::string& path);
 
 // Create all CefMessageRouterBrowserSide::Handler objects. They will be
