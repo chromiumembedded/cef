@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "include/cef_parser.h"
+#include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/common/string_util.h"
@@ -128,7 +129,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   if (use_views_ && command_line->HasSwitch(switches::kHideFrame) &&
       !command_line_->HasSwitch(switches::kUrl)) {
     // Use the draggable regions test as the default URL for frameless windows.
-    main_url_ = "http://tests/draggable";
+    main_url_ = test_runner::GetTestURL("draggable");
   }
 
   if (command_line_->HasSwitch(switches::kBackgroundColor)) {

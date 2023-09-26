@@ -24,7 +24,7 @@ function setButtonState(start_enabled, stop_enabled) {
 }
 
 function setup() {
-  if (location.origin != 'http://tests') {
+  if (location.origin != 'https://tests') {
     document.getElementById('warning').style.display = 'block';
     return;
   }
@@ -84,7 +84,7 @@ function openServer() {
 </head>
 <body bgcolor="white" onload="setup()">
 <div id="warning" style="display:none;color:red;font-weight:bold;">
-This page can only be run from the http://tests origin.
+This page can only be run from the https://tests origin.
 </div>
 <p>
 This page starts an HTTP/WebSocket server on localhost with the specified port number.
