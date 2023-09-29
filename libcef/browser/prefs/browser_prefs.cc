@@ -21,6 +21,7 @@
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
+#include "chrome/browser/media/router/discovery/access_code/access_code_cast_feature.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
@@ -269,6 +270,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());
+    media_router::RegisterAccessCodeProfilePrefs(registry.get());
     media_router::RegisterProfilePrefs(registry.get());
     media_device_salt::MediaDeviceIDSalt::RegisterProfilePrefs(registry.get());
     PermissionBubbleMediaAccessHandler::RegisterProfilePrefs(registry.get());
