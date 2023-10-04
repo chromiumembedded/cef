@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=683d7bff8da04826eee83c7e23cf9c5a701ae265$
+// $hash=db4fce1215cb4f69346ef2d048974ba34187b2b1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -365,16 +365,39 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  /// Get the current zoom level. The default zoom level is 0.0. This function
-  /// can only be called on the UI thread.
+  /// Returns true (1) if this browser can execute the specified zoom command.
+  /// This function can only be called on the UI thread.
+  ///
+  int(CEF_CALLBACK* can_zoom)(struct _cef_browser_host_t* self,
+                              cef_zoom_command_t command);
+
+  ///
+  /// Execute a zoom command in this browser. If called on the UI thread the
+  /// change will be applied immediately. Otherwise, the change will be applied
+  /// asynchronously on the UI thread.
+  ///
+  void(CEF_CALLBACK* zoom)(struct _cef_browser_host_t* self,
+                           cef_zoom_command_t command);
+
+  ///
+  /// Get the default zoom level. This value will be 0.0 by default but can be
+  /// configured with the Chrome runtime. This function can only be called on
+  /// the UI thread.
+  ///
+  double(CEF_CALLBACK* get_default_zoom_level)(
+      struct _cef_browser_host_t* self);
+
+  ///
+  /// Get the current zoom level. This function can only be called on the UI
+  /// thread.
   ///
   double(CEF_CALLBACK* get_zoom_level)(struct _cef_browser_host_t* self);
 
   ///
   /// Change the zoom level to the specified value. Specify 0.0 to reset the
-  /// zoom level. If called on the UI thread the change will be applied
-  /// immediately. Otherwise, the change will be applied asynchronously on the
-  /// UI thread.
+  /// zoom level to the default. If called on the UI thread the change will be
+  /// applied immediately. Otherwise, the change will be applied asynchronously
+  /// on the UI thread.
   ///
   void(CEF_CALLBACK* set_zoom_level)(struct _cef_browser_host_t* self,
                                      double zoomLevel);

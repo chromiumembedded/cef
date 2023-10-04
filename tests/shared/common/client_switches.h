@@ -43,7 +43,6 @@ extern const char kNoActivate[];
 extern const char kEnableChromeRuntime[];
 extern const char kShowChromeToolbar[];
 extern const char kInitialShowState[];
-extern const char kHideChromeStatusBubble[];
 extern const char kUseDefaultPopup[];
 extern const char kUseClientDialogs[];
 extern const char kUseTestHttpServer[];
@@ -51,6 +50,7 @@ extern const char kShowWindowButtons[];
 extern const char kUseWindowModalDialog[];
 extern const char kUseBottomControls[];
 extern const char kHidePipFrame[];
+extern const char kHideChromeBubbles[];
 
 }  // namespace switches
 }  // namespace client

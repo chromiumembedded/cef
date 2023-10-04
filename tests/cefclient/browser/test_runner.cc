@@ -160,16 +160,6 @@ void RunDialogWindowTest(CefRefPtr<CefBrowser> browser) {
       std::move(config));
 }
 
-void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI, base::BindOnce(&ModifyZoom, browser, delta));
-    return;
-  }
-
-  browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + delta);
-}
-
 const char kPrompt[] = "Prompt.";
 const char kPromptFPS[] = "FPS";
 const char kPromptDSF[] = "DSF";
@@ -569,13 +559,13 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       RunRequestTest(browser);
       break;
     case ID_TESTS_ZOOM_IN:
-      ModifyZoom(browser, 0.5);
+      browser->GetHost()->Zoom(CEF_ZOOM_COMMAND_IN);
       break;
     case ID_TESTS_ZOOM_OUT:
-      ModifyZoom(browser, -0.5);
+      browser->GetHost()->Zoom(CEF_ZOOM_COMMAND_OUT);
       break;
     case ID_TESTS_ZOOM_RESET:
-      browser->GetHost()->SetZoomLevel(0.0);
+      browser->GetHost()->Zoom(CEF_ZOOM_COMMAND_RESET);
       break;
     case ID_TESTS_OSR_FPS:
       PromptFPS(browser);

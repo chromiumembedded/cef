@@ -171,11 +171,7 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   permissions::PermissionRequestManager::CreateForWebContents(web_contents_);
   PrefsTabHelper::CreateForWebContents(web_contents_);
   printing::PrintViewManager::CreateForWebContents(web_contents_);
-
-  if (extensions::ExtensionsEnabled()) {
-    // Used by the tabs extension API.
-    zoom::ZoomController::CreateForWebContents(web_contents_);
-  }
+  zoom::ZoomController::CreateForWebContents(web_contents_);
 
   javascript_dialogs::TabModalDialogManager::CreateForWebContents(
       web_contents_,

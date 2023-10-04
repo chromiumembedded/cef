@@ -49,7 +49,6 @@ const char kNoActivate[] = "no-activate";
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
 const char kShowChromeToolbar[] = "show-chrome-toolbar";
 const char kInitialShowState[] = "initial-show-state";
-const char kHideChromeStatusBubble[] = "hide-chrome-status-bubble";
 const char kUseDefaultPopup[] = "use-default-popup";
 const char kUseClientDialogs[] = "use-client-dialogs";
 const char kUseTestHttpServer[] = "use-test-http-server";
@@ -57,6 +56,7 @@ const char kShowWindowButtons[] = "show-window-buttons";
 const char kUseWindowModalDialog[] = "use-window-modal-dialog";
 const char kUseBottomControls[] = "use-bottom-controls";
 const char kHidePipFrame[] = "hide-pip-frame";
+const char kHideChromeBubbles[] = "hide-chrome-bubbles";
 
 }  // namespace switches
 }  // namespace client

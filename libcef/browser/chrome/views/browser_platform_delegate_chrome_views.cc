@@ -7,7 +7,9 @@
 #include "include/views/cef_window.h"
 #include "libcef/browser/views/window_impl.h"
 
+#include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/ui/browser.h"
+#include "components/zoom/zoom_controller.h"
 #include "ui/views/widget/widget.h"
 
 namespace {
@@ -77,8 +79,30 @@ void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
 }
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
-  if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_);
+  if (auto delegate = browser_view_->delegate()) {
+    delegate->OnBrowserCreated(browser_view_, browser_);
+
+    // DevTools windows hide the notification bubble by default. However, we
+    // don't currently have the ability to intercept WebContents creation via
+    // DevToolsWindow::Create(), so |show_by_default| will always be true here.
+    const bool show_by_default =
+        !DevToolsWindow::IsDevToolsWindow(web_contents_);
+
+    bool show_zoom_bubble = show_by_default;
+    const auto& state = browser_->settings().chrome_zoom_bubble;
+    if (show_by_default && state == STATE_DISABLED) {
+      show_zoom_bubble = false;
+    } else if (!show_by_default && state == STATE_ENABLED) {
+      show_zoom_bubble = true;
+    }
+
+    if (show_zoom_bubble != show_by_default) {
+      // We may be called before TabHelpers::AttachTabHelpers(), so create
+      // the ZoomController if necessary.
+      zoom::ZoomController::CreateForWebContents(web_contents_);
+      zoom::ZoomController::FromWebContents(web_contents_)
+          ->SetShowsNotificationBubble(show_zoom_bubble);
+    }
   }
 }
 

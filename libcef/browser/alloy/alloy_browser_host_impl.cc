@@ -34,10 +34,10 @@
 #include "base/functional/callback_helpers.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+#include "components/zoom/page_zoom.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/file_select_listener.h"
-#include "content/public/browser/host_zoom_map.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_handle.h"
@@ -328,31 +328,6 @@ CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
 
 CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
   return opener_;
-}
-
-double AlloyBrowserHostImpl::GetZoomLevel() {
-  // Verify that this method is being called on the UI thread.
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    DCHECK(false) << "called on invalid thread";
-    return 0;
-  }
-
-  if (web_contents()) {
-    return content::HostZoomMap::GetZoomLevel(web_contents());
-  }
-
-  return 0;
-}
-
-void AlloyBrowserHostImpl::SetZoomLevel(double zoomLevel) {
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents()) {
-      content::HostZoomMap::SetZoomLevel(web_contents(), zoomLevel);
-    }
-  } else {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SetZoomLevel,
-                                          this, zoomLevel));
-  }
 }
 
 void AlloyBrowserHostImpl::Find(const CefString& searchText,
@@ -1116,6 +1091,11 @@ bool AlloyBrowserHostImpl::DidAddMessageToConsole(
     const std::u16string& source_id) {
   return contents_delegate_->DidAddMessageToConsole(source, level, message,
                                                     line_no, source_id);
+}
+
+void AlloyBrowserHostImpl::ContentsZoomChange(bool zoom_in) {
+  zoom::PageZoom::Zoom(
+      web_contents(), zoom_in ? content::PAGE_ZOOM_IN : content::PAGE_ZOOM_OUT);
 }
 
 void AlloyBrowserHostImpl::BeforeUnloadFired(content::WebContents* source,

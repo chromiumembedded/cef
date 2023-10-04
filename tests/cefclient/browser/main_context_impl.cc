@@ -224,8 +224,9 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
   }
 
   if (use_chrome_runtime_ &&
-      command_line_->HasSwitch(switches::kHideChromeStatusBubble)) {
+      command_line_->HasSwitch(switches::kHideChromeBubbles)) {
     settings->chrome_status_bubble = STATE_DISABLED;
+    settings->chrome_zoom_bubble = STATE_DISABLED;
   }
 }
 

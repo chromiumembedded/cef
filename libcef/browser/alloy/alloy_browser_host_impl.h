@@ -80,8 +80,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   bool TryCloseBrowser() override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
-  double GetZoomLevel() override;
-  void SetZoomLevel(double zoomLevel) override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,
@@ -204,6 +202,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                               const std::u16string& message,
                               int32_t line_no,
                               const std::u16string& source_id) override;
+  void ContentsZoomChange(bool zoom_in) override;
   void BeforeUnloadFired(content::WebContents* source,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;

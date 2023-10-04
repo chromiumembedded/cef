@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=02a6c45f14489fd5548eb61210ba453de05bcd2d$
+// $hash=cd4e4aa1670f0c887090e23f5e7e3a01e5de9d13$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -232,6 +232,56 @@ CefRefPtr<CefRequestContext> CefBrowserHostCToCpp::GetRequestContext() {
 
   // Return type: refptr_same
   return CefRequestContextCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::CanZoom(cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_zoom)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->can_zoom(_struct, command);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::Zoom(cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, zoom)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->zoom(_struct, command);
+}
+
+NO_SANITIZE("cfi-icall") double CefBrowserHostCToCpp::GetDefaultZoomLevel() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_default_zoom_level)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  double _retval = _struct->get_default_zoom_level(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") double CefBrowserHostCToCpp::GetZoomLevel() {
