@@ -67,8 +67,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   bool TryCloseBrowser() override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
-  double GetZoomLevel() override;
-  void SetZoomLevel(double zoomLevel) override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,

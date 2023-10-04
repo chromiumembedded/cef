@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6a2ebf843d929371a15e34792b6900c0ab622877$
+// $hash=497607653318fe0245cbe18c8911e39867e16249$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -296,6 +296,57 @@ browser_host_get_request_context(struct _cef_browser_host_t* self) {
 
   // Return type: refptr_same
   return CefRequestContextCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK browser_host_can_zoom(struct _cef_browser_host_t* self,
+                                       cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->CanZoom(command);
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK browser_host_zoom(struct _cef_browser_host_t* self,
+                                    cef_zoom_command_t command) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->Zoom(command);
+}
+
+double CEF_CALLBACK
+browser_host_get_default_zoom_level(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  double _retval = CefBrowserHostCppToC::Get(self)->GetDefaultZoomLevel();
+
+  // Return type: simple
+  return _retval;
 }
 
 double CEF_CALLBACK
@@ -1398,6 +1449,9 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->has_view = browser_host_has_view;
   GetStruct()->get_client = browser_host_get_client;
   GetStruct()->get_request_context = browser_host_get_request_context;
+  GetStruct()->can_zoom = browser_host_can_zoom;
+  GetStruct()->zoom = browser_host_zoom;
+  GetStruct()->get_default_zoom_level = browser_host_get_default_zoom_level;
   GetStruct()->get_zoom_level = browser_host_get_zoom_level;
   GetStruct()->set_zoom_level = browser_host_set_zoom_level;
   GetStruct()->run_file_dialog = browser_host_run_file_dialog;

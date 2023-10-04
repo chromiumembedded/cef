@@ -687,6 +687,12 @@ typedef struct _cef_browser_settings_t {
   /// https://www.chromium.org/user-experience/status-bubble/
   ///
   cef_state_t chrome_status_bubble;
+
+  ///
+  /// Controls whether the Chrome zoom bubble will be shown when zooming. Only
+  /// supported with the Chrome runtime.
+  ///
+  cef_state_t chrome_zoom_bubble;
 } cef_browser_settings_t;
 
 ///
@@ -3659,6 +3665,15 @@ typedef enum {
   CEF_GESTURE_COMMAND_BACK,
   CEF_GESTURE_COMMAND_FORWARD,
 } cef_gesture_command_t;
+
+///
+/// Specifies the zoom commands supported by CefBrowserHost::Zoom.
+///
+typedef enum {
+  CEF_ZOOM_COMMAND_OUT,
+  CEF_ZOOM_COMMAND_RESET,
+  CEF_ZOOM_COMMAND_IN,
+} cef_zoom_command_t;
 
 #ifdef __cplusplus
 }

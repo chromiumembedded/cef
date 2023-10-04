@@ -169,6 +169,11 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
+  bool CanZoom(cef_zoom_command_t command) override;
+  void Zoom(cef_zoom_command_t command) override;
+  double GetDefaultZoomLevel() override;
+  double GetZoomLevel() override;
+  void SetZoomLevel(double zoomLevel) override;
   bool HasView() override;
   void SetFocus(bool focus) override;
   void RunFileDialog(FileDialogMode mode,

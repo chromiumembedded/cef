@@ -20,8 +20,10 @@
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
+#include "chrome/browser/ui/browser_commands.cc"
 #include "components/favicon/core/favicon_url.h"
 #include "components/spellcheck/common/spellcheck_features.h"
+#include "components/zoom/page_zoom.h"
 #include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_manager.h"
@@ -234,6 +236,109 @@ CefRefPtr<CefClient> CefBrowserHostBase::GetClient() {
 
 CefRefPtr<CefRequestContext> CefBrowserHostBase::GetRequestContext() {
   return request_context_;
+}
+
+bool CefBrowserHostBase::CanZoom(cef_zoom_command_t command) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    switch (command) {
+      case CEF_ZOOM_COMMAND_OUT:
+        return chrome::CanZoomOut(web_contents);
+      case CEF_ZOOM_COMMAND_RESET:
+        return chrome::CanResetZoom(web_contents);
+      case CEF_ZOOM_COMMAND_IN:
+        return chrome::CanZoomIn(web_contents);
+    }
+  }
+
+  return false;
+}
+
+void CefBrowserHostBase::Zoom(cef_zoom_command_t command) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::Zoom, this, command));
+    return;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    const content::PageZoom page_zoom = [command]() {
+      switch (command) {
+        case CEF_ZOOM_COMMAND_OUT:
+          return content::PAGE_ZOOM_OUT;
+        case CEF_ZOOM_COMMAND_RESET:
+          return content::PAGE_ZOOM_RESET;
+        case CEF_ZOOM_COMMAND_IN:
+          return content::PAGE_ZOOM_IN;
+      }
+    }();
+
+    // Same implementation as chrome::Zoom(), but explicitly specifying the
+    // WebContents.
+    zoom::PageZoom::Zoom(web_contents, page_zoom);
+  }
+}
+
+double CefBrowserHostBase::GetDefaultZoomLevel() {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return 0.0;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    zoom::ZoomController* zoom_controller =
+        zoom::ZoomController::FromWebContents(web_contents);
+    if (zoom_controller) {
+      return zoom_controller->GetDefaultZoomLevel();
+    }
+  }
+
+  return 0.0;
+}
+
+double CefBrowserHostBase::GetZoomLevel() {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return 0.0;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    zoom::ZoomController* zoom_controller =
+        zoom::ZoomController::FromWebContents(web_contents);
+    if (zoom_controller) {
+      return zoom_controller->GetZoomLevel();
+    }
+  }
+
+  return 0.0;
+}
+
+void CefBrowserHostBase::SetZoomLevel(double zoomLevel) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetZoomLevel,
+                                          this, zoomLevel));
+    return;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    zoom::ZoomController* zoom_controller =
+        zoom::ZoomController::FromWebContents(web_contents);
+    if (zoom_controller) {
+      if (zoomLevel == 0.0) {
+        // Same logic as PageZoom::Zoom(PAGE_ZOOM_RESET).
+        zoomLevel = zoom_controller->GetDefaultZoomLevel();
+        web_contents->SetPageScale(1.f);
+      }
+      zoom_controller->SetZoomLevel(zoomLevel);
+    }
+  }
 }
 
 bool CefBrowserHostBase::HasView() {

@@ -179,15 +179,6 @@ CefWindowHandle ChromeBrowserHostImpl::GetOpenerWindowHandle() {
   return kNullWindowHandle;
 }
 
-double ChromeBrowserHostImpl::GetZoomLevel() {
-  NOTIMPLEMENTED();
-  return 0.0;
-}
-
-void ChromeBrowserHostImpl::SetZoomLevel(double zoomLevel) {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::Find(const CefString& searchText,
                                  bool forward,
                                  bool matchCase,

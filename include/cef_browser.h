@@ -396,17 +396,40 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual CefRefPtr<CefRequestContext> GetRequestContext() = 0;
 
   ///
-  /// Get the current zoom level. The default zoom level is 0.0. This method can
-  /// only be called on the UI thread.
+  /// Returns true if this browser can execute the specified zoom command. This
+  /// method can only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool CanZoom(cef_zoom_command_t command) = 0;
+
+  ///
+  /// Execute a zoom command in this browser. If called on the UI thread the
+  /// change will be applied immediately. Otherwise, the change will be applied
+  /// asynchronously on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual void Zoom(cef_zoom_command_t command) = 0;
+
+  ///
+  /// Get the default zoom level. This value will be 0.0 by default but can be
+  /// configured with the Chrome runtime. This method can only be called on the
+  /// UI thread.
+  ///
+  /*--cef()--*/
+  virtual double GetDefaultZoomLevel() = 0;
+
+  ///
+  /// Get the current zoom level. This method can only be called on the UI
+  /// thread.
   ///
   /*--cef()--*/
   virtual double GetZoomLevel() = 0;
 
   ///
   /// Change the zoom level to the specified value. Specify 0.0 to reset the
-  /// zoom level. If called on the UI thread the change will be applied
-  /// immediately. Otherwise, the change will be applied asynchronously on the
-  /// UI thread.
+  /// zoom level to the default. If called on the UI thread the change will be
+  /// applied immediately. Otherwise, the change will be applied asynchronously
+  /// on the UI thread.
   ///
   /*--cef()--*/
   virtual void SetZoomLevel(double zoomLevel) = 0;

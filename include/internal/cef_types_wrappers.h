@@ -541,6 +541,7 @@ struct CefBrowserSettingsTraits {
                    &target->accept_language_list, copy);
 
     target->chrome_status_bubble = src->chrome_status_bubble;
+    target->chrome_zoom_bubble = src->chrome_zoom_bubble;
   }
 };
 

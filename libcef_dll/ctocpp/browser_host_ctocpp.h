@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4700b3b409abf624334f9f6ecf9c1c20131e4849$
+// $hash=b4e11c91197cd5d6ccbe3a0d96aaae3792a6e05c$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -46,6 +46,9 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   bool HasView() override;
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
+  bool CanZoom(cef_zoom_command_t command) override;
+  void Zoom(cef_zoom_command_t command) override;
+  double GetDefaultZoomLevel() override;
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
   void RunFileDialog(FileDialogMode mode,
