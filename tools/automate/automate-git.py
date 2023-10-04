@@ -461,6 +461,11 @@ def check_pattern_matches(output_file=None):
       # Don't continue when we know the build will be wrong.
       sys.exit(1)
 
+def invalid_options_combination(a, b):
+  print("Invalid combination of options: '%s' and '%s'" % (a, b))
+  parser.print_help(sys.stderr)
+  sys.exit(1)
+
 
 ##
 # Program entry point.
@@ -808,14 +813,18 @@ if options.noupdate:
 if options.runtests:
   options.buildtests = True
 
-if (options.nochromiumupdate and options.forceupdate) or \
-   (options.nocefupdate and options.forceupdate) or \
-   (options.nobuild and options.forcebuild) or \
-   (options.nodistrib and options.forcedistrib) or \
-   ((options.forceclean or options.forcecleandeps) and options.fastupdate):
-  print("Invalid combination of options.")
-  parser.print_help(sys.stderr)
-  sys.exit(1)
+if (options.nochromiumupdate and options.forceupdate):
+    invalid_options_combination('--no-chromium-update', '--force-update')
+if (options.nocefupdate and options.forceupdate):
+    invalid_options_combination('--no-cef-update', '--force-update')
+if (options.nobuild and options.forcebuild):
+    invalid_options_combination('--no-build', '--force-build')
+if (options.nodistrib and options.forcedistrib):
+    invalid_options_combination('--no-distrib', '--force-distrib')
+if (options.forceclean and options.fastupdate):
+    invalid_options_combination('--force-clean', '--fast-update')
+if (options.forcecleandeps and options.fastupdate):
+    invalid_options_combination('--force-clean-deps', '--fast-update')
 
 if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
