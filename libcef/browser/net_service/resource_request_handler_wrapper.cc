@@ -274,8 +274,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       unhandled_request_callback_ = unhandled_request_callback;
 
       // Default values for standard headers.
-      accept_language_ = browser_prefs::GetAcceptLanguageList(
-          cef_browser_context, browser.get());
+      accept_language_ = browser_prefs::GetAcceptLanguageList(profile);
       DCHECK(!accept_language_.empty());
       user_agent_ =
           CefAppManager::Get()->GetContentClient()->browser()->GetUserAgent();

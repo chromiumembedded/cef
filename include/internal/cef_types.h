@@ -449,10 +449,9 @@ typedef struct _cef_settings_t {
 
   ///
   /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. May be overridden on a
-  /// per-browser basis using the CefBrowserSettings.accept_language_list value.
-  /// If both values are empty then "en-US,en" will be used. Can be overridden
-  /// for individual CefRequestContext instances via the
+  /// will be used in the "Accept-Language" HTTP request header and
+  /// "navigator.language" JS attribute. Can be overridden for individual
+  /// CefRequestContext instances via the
   /// CefRequestContextSettings.accept_language_list value.
   ///
   cef_string_t accept_language_list;
@@ -515,11 +514,11 @@ typedef struct _cef_request_context_settings_t {
 
   ///
   /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. Can be set globally
-  /// using the CefSettings.accept_language_list value or overridden on a per-
-  /// browser basis using the CefBrowserSettings.accept_language_list value. If
-  /// all values are empty then "en-US,en" will be used. This value will be
-  /// ignored if |cache_path| matches the CefSettings.cache_path value.
+  /// will be used in the "Accept-Language" HTTP request header and
+  /// "navigator.language" JS attribute. Can be set globally using the
+  /// CefSettings.accept_language_list value. If all values are empty then
+  /// "en-US,en" will be used. This value will be ignored if |cache_path|
+  /// matches the CefSettings.cache_path value.
   ///
   cef_string_t accept_language_list;
 
@@ -672,14 +671,6 @@ typedef struct _cef_browser_settings_t {
   /// painting will be enabled.
   ///
   cef_color_t background_color;
-
-  ///
-  /// Comma delimited ordered list of language codes without any whitespace that
-  /// will be used in the "Accept-Language" HTTP header. May be set globally
-  /// using the CefSettings.accept_language_list value. If both values are
-  /// empty then "en-US,en" will be used.
-  ///
-  cef_string_t accept_language_list;
 
   ///
   /// Controls whether the Chrome status bubble will be used. Only supported

@@ -225,9 +225,6 @@ class TestHandler : public CefClient,
   // SetTestTimeout(). Calls DestroyTest() by default.
   virtual void OnTestTimeout(int timeout_ms, bool treat_as_error);
 
-  // Called from CreateBrowser() to optionally set per-browser settings.
-  virtual void PopulateBrowserSettings(CefBrowserSettings* settings) {}
-
   void CreateBrowser(const CefString& url,
                      CefRefPtr<CefRequestContext> request_context = nullptr,
                      CefRefPtr<CefDictionaryValue> extra_info = nullptr);
