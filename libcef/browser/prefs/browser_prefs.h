@@ -37,8 +37,10 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 // |browser_context| and/or |browser| may be nullptr. If |expand| is true then
 // base languages and Q values may be added.
 std::string GetAcceptLanguageList(CefBrowserContext* browser_context,
-                                  CefBrowserHostBase* browser,
-                                  bool expand);
+                                  CefBrowserHostBase* browser);
+
+// Set preferences for a newly initialized Profile.
+void SetInitialProfilePrefs(Profile* profile);
 
 }  // namespace browser_prefs
 
