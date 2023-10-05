@@ -151,7 +151,7 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
   CefBinaryValueImpl(base::Value* value, bool will_delete);
 
   // The data will always be copied.
-  CefBinaryValueImpl(char* data, size_t data_size);
+  explicit CefBinaryValueImpl(base::span<const uint8_t> value);
 
   CefBinaryValueImpl(const CefBinaryValueImpl&) = delete;
   CefBinaryValueImpl& operator=(const CefBinaryValueImpl&) = delete;
