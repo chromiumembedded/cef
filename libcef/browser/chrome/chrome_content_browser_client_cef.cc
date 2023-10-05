@@ -411,17 +411,6 @@ bool ChromeContentBrowserClientCef::ConfigureNetworkContextParams(
       cef_context ? cef_context->GetCookieableSchemes()
                   : CefBrowserContext::GetGlobalCookieableSchemes();
 
-  // Prefer the CEF settings configuration, if specified, instead of the
-  // kAcceptLanguages preference which is controlled by the
-  // chrome://settings/languages configuration.
-  const std::string& accept_language_list =
-      browser_prefs::GetAcceptLanguageList(cef_context, /*browser=*/nullptr,
-                                           /*expand=*/true);
-  if (!accept_language_list.empty() &&
-      accept_language_list != network_context_params->accept_language) {
-    network_context_params->accept_language = accept_language_list;
-  }
-
   return true;
 }
 

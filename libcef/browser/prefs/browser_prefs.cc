@@ -365,8 +365,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 }
 
 std::string GetAcceptLanguageList(CefBrowserContext* browser_context,
-                                  CefBrowserHostBase* browser,
-                                  bool expand) {
+                                  CefBrowserHostBase* browser) {
   // Always prefer to the CEF settings configuration, if specified.
   std::string accept_language_list =
       GetAcceptLanguageListSetting(browser_context, browser);
@@ -380,10 +379,29 @@ std::string GetAcceptLanguageList(CefBrowserContext* browser_context,
     accept_language_list = prefs->GetString(language::prefs::kAcceptLanguages);
   }
 
-  if (!accept_language_list.empty() && expand) {
+  if (!accept_language_list.empty()) {
     return ComputeAcceptLanguageFromPref(accept_language_list);
   }
   return std::string();
+}
+
+void SetInitialProfilePrefs(Profile* profile) {
+  auto* prefs = profile->GetPrefs();
+
+  // Language preferences.
+  const std::string& accept_language_list = GetAcceptLanguageListSetting(
+      CefBrowserContext::FromProfile(profile), /*browser=*/nullptr);
+  if (!accept_language_list.empty()) {
+    // Used by ProfileNetworkContextService and InterceptedRequestHandlerWrapper
+    // (via GetAcceptLanguageList) for request headers, and
+    // renderer_preferences_util::UpdateFromSystemSettings() for
+    // `navigator.language`.
+    prefs->SetString(language::prefs::kAcceptLanguages, accept_language_list);
+
+    // Necessary to avoid a reset of the kAcceptLanguages value in
+    // LanguagePrefs::UpdateAcceptLanguagesPref().
+    prefs->SetString(language::prefs::kSelectedLanguages, accept_language_list);
+  }
 }
 
 }  // namespace browser_prefs
