@@ -487,7 +487,6 @@ struct CefBrowserSettingsTraits {
     cef_string_clear(&s->cursive_font_family);
     cef_string_clear(&s->fantasy_font_family);
     cef_string_clear(&s->default_encoding);
-    cef_string_clear(&s->accept_language_list);
   }
 
   static inline void set(const struct_type* src,
@@ -535,10 +534,6 @@ struct CefBrowserSettingsTraits {
     target->webgl = src->webgl;
 
     target->background_color = src->background_color;
-
-    cef_string_set(src->accept_language_list.str,
-                   src->accept_language_list.length,
-                   &target->accept_language_list, copy);
 
     target->chrome_status_bubble = src->chrome_status_bubble;
     target->chrome_zoom_bubble = src->chrome_zoom_bubble;

@@ -370,7 +370,6 @@ void TestHandler::CreateBrowser(const CefString& url,
 
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
-  PopulateBrowserSettings(&settings);
 
   if (use_views) {
     // Create the BrowserView.

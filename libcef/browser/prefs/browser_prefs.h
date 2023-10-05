@@ -11,8 +11,6 @@ namespace base {
 class FilePath;
 }
 
-class CefBrowserContext;
-class CefBrowserHostBase;
 class PrefRegistrySimple;
 class PrefService;
 class Profile;
@@ -36,8 +34,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 // Returns the value for populating the accept-language HTTP request header.
 // |browser_context| and/or |browser| may be nullptr. If |expand| is true then
 // base languages and Q values may be added.
-std::string GetAcceptLanguageList(CefBrowserContext* browser_context,
-                                  CefBrowserHostBase* browser);
+std::string GetAcceptLanguageList(Profile* profile);
 
 // Set preferences for a newly initialized Profile.
 void SetInitialProfilePrefs(Profile* profile);

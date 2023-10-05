@@ -8,6 +8,8 @@
 #include "include/base/cef_callback.h"
 #include "include/cef_callback.h"
 #include "include/cef_origin_whitelist.h"
+#include "include/cef_request_context.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
@@ -19,6 +21,9 @@ namespace {
 class TestResults {
  public:
   TestResults() = default;
+
+  // Used for running tests in a custom request context.
+  CefRefPtr<CefRequestContext> request_context;
 
   std::string url;
   std::string html;
@@ -43,7 +48,7 @@ class TestResults {
   // Used for testing XSS requests
   bool needs_same_origin_policy_relaxation = false;
 
-  // Used for testing per-browser Accept-Language.
+  // Used for testing Accept-Language.
   std::string accept_language;
 
   // Used for testing received console messages.
@@ -54,7 +59,7 @@ class TestResults {
 
   TrackCallback got_request, got_read, got_output, got_sub_output, got_redirect,
       got_error, got_sub_error, got_sub_redirect, got_sub_request, got_sub_read,
-      got_sub_success, got_exit_request;
+      git_exit_success, got_exit_request;
 };
 
 // Current scheme handler object. Used when destroying the test from
@@ -68,15 +73,8 @@ class TestSchemeHandler : public TestHandler {
     g_current_handler = this;
   }
 
-  void PopulateBrowserSettings(CefBrowserSettings* settings) override {
-    if (!test_results_->accept_language.empty()) {
-      CefString(&settings->accept_language_list) =
-          test_results_->accept_language;
-    }
-  }
-
   void RunTest() override {
-    CreateBrowser(test_results_->url);
+    CreateBrowser(test_results_->url, test_results_->request_context);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -130,7 +128,7 @@ class TestSchemeHandler : public TestHandler {
       test_results_->got_exit_request.yes();
       // XHR tests use an exit URL to destroy the test.
       if (newUrl.find("SUCCESS") != std::string::npos) {
-        test_results_->got_sub_success.yes();
+        test_results_->git_exit_success.yes();
       }
       DestroyTestIfDone();
       return RV_CANCEL;
@@ -273,8 +271,7 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
     EXPECT_TRUE(!accept_language.empty());
 
     if (!test_results_->accept_language.empty()) {
-      // Value from CefBrowserSettings.accept_language set in
-      // PopulateBrowserSettings().
+      // Value from CefRequestContextSettings.accept_language_list.
       EXPECT_STREQ(test_results_->accept_language.data(),
                    accept_language.data());
     } else {
@@ -463,8 +460,7 @@ class ClientSchemeHandler : public CefResourceHandler {
     EXPECT_TRUE(!accept_language.empty());
 
     if (!test_results_->accept_language.empty()) {
-      // Value from CefBrowserSettings.accept_language set in
-      // PopulateBrowserSettings().
+      // Value from CefRequestContextSettings.accept_language_list.
       EXPECT_STREQ(test_results_->accept_language.data(),
                    accept_language.data());
     } else {
@@ -663,13 +659,22 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
 void RegisterTestScheme(TestResults* test_results,
                         const std::string& scheme,
                         const std::string& domain) {
-  EXPECT_TRUE(CefRegisterSchemeHandlerFactory(
-      scheme, domain, new ClientSchemeHandlerFactory(test_results)));
+  if (test_results->request_context) {
+    EXPECT_TRUE(test_results->request_context->RegisterSchemeHandlerFactory(
+        scheme, domain, new ClientSchemeHandlerFactory(test_results)));
+  } else {
+    EXPECT_TRUE(CefRegisterSchemeHandlerFactory(
+        scheme, domain, new ClientSchemeHandlerFactory(test_results)));
+  }
   WaitForIOThread();
 }
 
-void ClearTestSchemes() {
-  EXPECT_TRUE(CefClearSchemeHandlerFactories());
+void ClearTestSchemes(TestResults* test_results) {
+  if (test_results->request_context) {
+    EXPECT_TRUE(test_results->request_context->ClearSchemeHandlerFactories());
+  } else {
+    EXPECT_TRUE(CefClearSchemeHandlerFactories());
+  }
   WaitForIOThread();
 }
 
@@ -910,7 +915,7 @@ TEST(SchemeHandlerTest, Registration) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can return normal results.
@@ -929,7 +934,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponse) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can return normal results with delayed
@@ -950,7 +955,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom nonstandard scheme can return normal results.
@@ -969,7 +974,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNormalResponse) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can return an error code.
@@ -988,7 +993,7 @@ TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can return a CEF error code in the
@@ -1009,7 +1014,7 @@ TEST(SchemeHandlerTest, CustomStandardErrorCodeResponse) {
   EXPECT_FALSE(test_results.got_output);
   EXPECT_TRUE(test_results.got_error);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom nonstandard scheme can return an error code.
@@ -1028,7 +1033,7 @@ TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom standard scheme handling fails when the scheme name is
@@ -1048,7 +1053,7 @@ TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
   EXPECT_FALSE(test_results.got_output);
   EXPECT_TRUE(test_results.got_error);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom nonstandard scheme handling fails when the scheme name is
@@ -1068,7 +1073,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
   EXPECT_FALSE(test_results.got_output);
   EXPECT_TRUE(test_results.got_error);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom standard scheme handling fails when the domain name is
@@ -1088,7 +1093,7 @@ TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   EXPECT_FALSE(test_results.got_output);
   EXPECT_TRUE(test_results.got_error);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can return no response.
@@ -1105,7 +1110,7 @@ TEST(SchemeHandlerTest, CustomStandardNoResponse) {
   EXPECT_FALSE(test_results.got_read);
   EXPECT_FALSE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom nonstandard scheme can return no response.
@@ -1122,7 +1127,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNoResponse) {
   EXPECT_FALSE(test_results.got_read);
   EXPECT_FALSE(test_results.got_output);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate redirects.
@@ -1143,7 +1148,7 @@ TEST(SchemeHandlerTest, CustomStandardRedirect) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_redirect);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom nonstandard scheme can generate redirects.
@@ -1164,7 +1169,7 @@ TEST(SchemeHandlerTest, CustomNonStandardRedirect) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_redirect);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate same origin XHR requests.
@@ -1186,9 +1191,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOriginSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate same origin XHR requests.
@@ -1211,9 +1216,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOriginAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom nonstandard schemes are treated as unique origins that
@@ -1241,9 +1246,9 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_FALSE(test_results.got_sub_request);
   EXPECT_FALSE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom nonstandard schemes are treated as unique origins that
@@ -1272,9 +1277,9 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_FALSE(test_results.got_sub_request);
   EXPECT_FALSE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a non fetch enabled custom standard scheme can't generate same
@@ -1301,9 +1306,9 @@ TEST(SchemeHandlerTest, CustomStandardFetchSameOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_FALSE(test_results.got_sub_request);
   EXPECT_FALSE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a fetch enabled custom standard scheme can generate same origin
@@ -1326,9 +1331,9 @@ TEST(SchemeHandlerTest, FetchCustomStandardFetchSameOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom nonstandard schemes are treated as unique origins that
@@ -1355,9 +1360,9 @@ TEST(SchemeHandlerTest, CustomNonStandardFetchSameOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_FALSE(test_results.got_sub_request);
   EXPECT_FALSE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate same origin XSS requests.
@@ -1376,9 +1381,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that custom nonstandard schemes are treated as unique origins that
@@ -1402,9 +1407,9 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
@@ -1434,9 +1439,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
@@ -1467,9 +1472,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain Fetch
@@ -1500,9 +1505,9 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XSS requests
@@ -1527,9 +1532,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a cross-protocol iframe load succeeds, and that the custom
@@ -1554,9 +1559,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a cross-protocol iframe load succeeds, and that the custom
@@ -1582,9 +1587,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
@@ -1609,9 +1614,9 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a cross-protocol iframe load succeeds, and that the HTTP protocol
@@ -1636,9 +1641,9 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
@@ -1668,9 +1673,9 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme cannot generate cross-domain XHR requests by
@@ -1701,9 +1706,9 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme cannot generate cross-domain Fetch requests by
@@ -1735,9 +1740,9 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme cannot generate cross-domain XSS requests by
@@ -1761,9 +1766,9 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -1789,9 +1794,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -1818,9 +1823,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain Fetch requests
@@ -1846,9 +1851,9 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithHeader) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -1876,12 +1881,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync1) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches any domain.
@@ -1908,12 +1913,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync2) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches sub-domains.
@@ -1940,12 +1945,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync3) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -1974,12 +1979,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches any domain.
@@ -2007,12 +2012,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches sub-domains.
@@ -2040,12 +2045,12 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain Fetch requests
@@ -2073,12 +2078,12 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist1) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches any domain.
@@ -2105,12 +2110,12 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist2) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches sub-domains.
@@ -2137,12 +2142,12 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginWithWhitelist3) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
@@ -2167,9 +2172,9 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
@@ -2195,9 +2200,9 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme can generate cross-domain XHR requests when setting
@@ -2222,9 +2227,9 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginWithHeader) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XSS requests
@@ -2245,9 +2250,9 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that an HTTP scheme can generate cross-domain XSS requests when using
@@ -2268,9 +2273,9 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
@@ -2302,9 +2307,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain XHR requests
@@ -2337,9 +2342,9 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme cannot generate cross-domain Fetch
@@ -2373,9 +2378,9 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_FALSE(test_results.got_sub_success);
+  EXPECT_FALSE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -2406,12 +2411,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain XHR requests
@@ -2443,12 +2448,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches any domain.
@@ -2479,12 +2484,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches sub-domains.
@@ -2515,12 +2520,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Test that a custom standard scheme can generate cross-domain Fetch requests
@@ -2551,12 +2556,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches any domain.
@@ -2586,12 +2591,12 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Same as above but origin whitelist matches sub-domains.
@@ -2621,25 +2626,43 @@ TEST(SchemeHandlerTest,
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
   EXPECT_TRUE(test_results.got_sub_read);
-  EXPECT_TRUE(test_results.got_sub_success);
+  EXPECT_TRUE(test_results.git_exit_success);
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
-// Test per-browser setting of Accept-Language.
+// Test that CefRequestContextSettings.accept_language_list configures both
+// the Accept-Language request header and `navigator.language` JS attribute.
 TEST(SchemeHandlerTest, AcceptLanguage) {
   TestResults test_results;
+
+  // Value that will be set via CefRequestContextSettings.accept_language_list.
+  test_results.accept_language = "uk";
+
+  // Create an in-memory request context with custom settings.
+  CefRequestContextSettings settings;
+  CefString(&settings.accept_language_list) = test_results.accept_language;
+  test_results.request_context =
+      CefRequestContext::CreateContext(settings, nullptr);
+
   RegisterTestScheme(&test_results, "customstd", "test");
   test_results.url = "customstd://test/run.html";
   test_results.html =
-      "<html><head></head><body><h1>Success!</h1></body></html>";
-
-  // Value that will be set via CefBrowserSettings.accept_language in
-  // PopulateBrowserSettings().
-  test_results.accept_language = "uk";
+      "<html><head></head><body>"
+      "<script>"
+      "if (navigator.language == 'uk') {"
+      "  result = 'SUCCESS';"
+      "} else {"
+      "  result = 'FAILURE';"
+      "  console.log('navigator.language: '+navigator.language+' != uk');"
+      "}"
+      "document.location = 'https://tests/exit?result='+result;"
+      "</script>"
+      "</body></html>";
+  test_results.exit_url = "https://tests/exit";
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
   handler->ExecuteTest();
@@ -2648,8 +2671,9 @@ TEST(SchemeHandlerTest, AcceptLanguage) {
   EXPECT_TRUE(test_results.got_request);
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
+  EXPECT_TRUE(test_results.git_exit_success);
 
-  ClearTestSchemes();
+  ClearTestSchemes(&test_results);
 }
 
 // Entry point for registering custom schemes.
