@@ -493,8 +493,8 @@ CefRefPtr<CefBinaryValue> CefBinaryValue::Create(const void* data,
     return nullptr;
   }
 
-  return new CefBinaryValueImpl(static_cast<char*>(const_cast<void*>(data)),
-                                data_size);
+  const auto ptr = static_cast<const uint8_t*>(data);
+  return new CefBinaryValueImpl(base::make_span(ptr, data_size));
 }
 
 // static
@@ -525,12 +525,11 @@ CefBinaryValueImpl::CefBinaryValueImpl(base::Value* value, bool will_delete)
                          will_delete ? kOwnerWillDelete : kOwnerNoDelete,
                          nullptr) {}
 
-CefBinaryValueImpl::CefBinaryValueImpl(char* data, size_t data_size)
-    : CefBinaryValueImpl(
-          new base::Value(std::vector<char>(data, data + data_size)),
-          nullptr,
-          kOwnerWillDelete,
-          nullptr) {}
+CefBinaryValueImpl::CefBinaryValueImpl(base::span<const uint8_t> value)
+    : CefBinaryValueImpl(new base::Value(value),
+                         nullptr,
+                         kOwnerWillDelete,
+                         nullptr) {}
 
 base::Value CefBinaryValueImpl::CopyValue() {
   CEF_VALUE_VERIFY_RETURN(false, base::Value());
