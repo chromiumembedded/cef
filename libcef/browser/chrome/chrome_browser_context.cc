@@ -4,6 +4,7 @@
 
 #include "libcef/browser/chrome/chrome_browser_context.h"
 
+#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/threading/thread_restrictions.h"
@@ -166,6 +167,8 @@ void ChromeBrowserContext::ProfileCreated(Profile::CreateStatus status,
                                         ? SessionStartupPref::kPrefValueLast
                                         : SessionStartupPref::kPrefValueNewTab);
     }
+
+    browser_prefs::SetInitialProfilePrefs(profile_);
 
     if (!init_callbacks_.empty()) {
       for (auto& callback : init_callbacks_) {
