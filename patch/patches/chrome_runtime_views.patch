@@ -41,7 +41,7 @@ index db31ee0b50746..2f3aebdcb6101 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 4019934ef504e..de1b99b3aa342 100644
+index 1edfddc63af51..d4ee5f2c93cc0 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -590,6 +590,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
@@ -102,7 +102,7 @@ index 4019934ef504e..de1b99b3aa342 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1378,7 +1429,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1385,7 +1436,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -111,7 +111,7 @@ index 4019934ef504e..de1b99b3aa342 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1393,6 +1444,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1400,6 +1451,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -142,7 +142,7 @@ index 4019934ef504e..de1b99b3aa342 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if ((command_id == IDC_RECENT_TABS_MENU) ||
        (command_id == AppMenuModel::kMinRecentTabsCommandId)) {
-@@ -1563,11 +1638,15 @@ void AppMenuModel::Build() {
+@@ -1570,11 +1645,15 @@ void AppMenuModel::Build() {
                                         kDefaultIconSize));
    }
  
@@ -163,7 +163,7 @@ index 4019934ef504e..de1b99b3aa342 100644
  
    AddItemWithStringId(IDC_PRINT, IDS_PRINT);
  
-@@ -1648,9 +1727,13 @@ void AppMenuModel::Build() {
+@@ -1655,9 +1734,13 @@ void AppMenuModel::Build() {
                           kMoreToolsMenuItem);
  
    if (!features::IsChromeRefresh2023()) {
@@ -180,7 +180,7 @@ index 4019934ef504e..de1b99b3aa342 100644
    }
  
    if (!features::IsChromeRefresh2023()) {
-@@ -1732,6 +1815,11 @@ void AppMenuModel::Build() {
+@@ -1739,6 +1822,11 @@ void AppMenuModel::Build() {
      SetCommandIcon(this, IDC_EXIT, kExitMenuIcon);
    }
  
@@ -193,10 +193,10 @@ index 4019934ef504e..de1b99b3aa342 100644
  }
  
 diff --git chrome/browser/ui/toolbar/app_menu_model.h chrome/browser/ui/toolbar/app_menu_model.h
-index deae3ef37b950..407db3e600c5a 100644
+index f06cf1bf08ba4..4e89b522715fc 100644
 --- chrome/browser/ui/toolbar/app_menu_model.h
 +++ chrome/browser/ui/toolbar/app_menu_model.h
-@@ -203,6 +203,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -204,6 +204,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
    void ExecuteCommand(int command_id, int event_flags) override;
    bool IsCommandIdChecked(int command_id) const override;
    bool IsCommandIdEnabled(int command_id) const override;
@@ -204,7 +204,7 @@ index deae3ef37b950..407db3e600c5a 100644
    bool IsCommandIdAlerted(int command_id) const override;
    bool GetAcceleratorForCommandId(int command_id,
                                    ui::Accelerator* accelerator) const override;
-@@ -235,6 +236,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -236,6 +237,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
    // took to select the command.
    void LogMenuMetrics(int command_id);
  
