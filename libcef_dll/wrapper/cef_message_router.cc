@@ -4,6 +4,7 @@
 
 #include "include/wrapper/cef_message_router.h"
 
+#include <limits>
 #include <map>
 #include <set>
 
@@ -164,7 +165,14 @@ ParsedMessage ParseMessage(const CefRefPtr<CefProcessMessage>& message) {
   return ParsedMessage{};
 }
 
-// Helper template for generated ID values.
+/**
+ * @brief A helper template for generating ID values.
+ *
+ * This class generates monotonically increasing ID values within the interval
+ * [kReservedId + 1, numeric_limits<T>::max()].
+ *
+ * @tparam T The data type for the ID values.
+ */
 template <typename T>
 class IdGenerator {
  public:
@@ -174,11 +182,10 @@ class IdGenerator {
   IdGenerator& operator=(const IdGenerator&) = delete;
 
   T GetNextId() {
-    T id = ++next_id_;
-    if (id == kReservedId) {  // In case the integer value wraps.
-      id = ++next_id_;
+    if (next_id_ == std::numeric_limits<T>::max()) {
+      next_id_ = kReservedId;
     }
-    return id;
+    return ++next_id_;
   }
 
  private:
