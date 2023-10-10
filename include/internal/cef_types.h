@@ -469,6 +469,21 @@ typedef struct _cef_settings_t {
   ///
   cef_string_t cookieable_schemes_list;
   int cookieable_schemes_exclude_defaults;
+
+  ///
+  /// Specify an ID to enable Chrome policy management via Platform and OS-user
+  /// policies. On Windows, this is a registry key like
+  /// "SOFTWARE\\Policies\\Google\\Chrome". On MacOS, this is a bundle ID like
+  /// "com.google.Chrome". On Linux, this is an absolute directory path like
+  /// "/etc/opt/chrome/policies". Only supported with the Chrome runtime. See
+  /// https://support.google.com/chrome/a/answer/9037717 for details.
+  ///
+  /// Chrome Browser Cloud Management integration, when enabled via the
+  /// "enable-chrome-browser-cloud-management" command-line flag, will also use
+  /// the specified ID. See https://support.google.com/chrome/a/answer/9116814
+  /// for details.
+  ///
+  cef_string_t chrome_policy_id;
 } cef_settings_t;
 
 ///

@@ -20,6 +20,7 @@
 #include "base/lazy_instance.h"
 #include "base/threading/threading_features.h"
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
+#include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/embedder_support/switches.h"
@@ -208,6 +209,13 @@ absl::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
 
 absl::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
     InvokedIn invoked_in) {
+  // Configure this before ChromeMainDelegate::PostEarlyInitialization triggers
+  // ChromeBrowserPolicyConnector creation.
+  if (settings_ && settings_->chrome_policy_id.length > 0) {
+    policy::ChromeBrowserPolicyConnector::EnablePlatformPolicySupport(
+        CefString(&settings_->chrome_policy_id).ToString());
+  }
+
   const auto result = ChromeMainDelegate::PostEarlyInitialization(invoked_in);
   if (!result) {
     const auto* invoked_in_browser =
