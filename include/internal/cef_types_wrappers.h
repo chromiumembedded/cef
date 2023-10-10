@@ -373,6 +373,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->locales_dir_path);
     cef_string_clear(&s->accept_language_list);
     cef_string_clear(&s->cookieable_schemes_list);
+    cef_string_clear(&s->chrome_policy_id);
   }
 
   static inline void set(const struct_type* src,
@@ -430,6 +431,9 @@ struct CefSettingsTraits {
                    &target->cookieable_schemes_list, copy);
     target->cookieable_schemes_exclude_defaults =
         src->cookieable_schemes_exclude_defaults;
+
+    cef_string_set(src->chrome_policy_id.str, src->chrome_policy_id.length,
+                   &target->chrome_policy_id, copy);
   }
 };
 

@@ -214,6 +214,23 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
     CefString(&settings->accept_language_list) =
         command_line_->GetSwitchValue("lang");
   }
+
+  if (command_line_->HasSwitch("enable-chrome-policy")) {
+    // Enable Chrome policy management via Platform and OS-user policies.
+    // Use the same configuration ID as Google Chrome for testing purposes.
+    // If Google Chrome is managed on this machine we'll show the same
+    // configured policies in chrome://policy/.
+    CefString(&settings->chrome_policy_id) =
+#if defined(OS_WIN)
+        "SOFTWARE\\Policies\\Google\\Chrome";
+#elif defined(OS_MAC)
+        "com.google.Chrome";
+#elif defined(OS_LINUX)
+        "/etc/opt/chrome/policies";
+#else
+        "";
+#endif
+  }
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
