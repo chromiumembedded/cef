@@ -2430,14 +2430,21 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
     // Create a new disk-based request context so that we can grant default
     // popup permission (used for the popup without a valid URL) without
     // impacting the global context.
-    auto request_context = CreateTestRequestContext(mode_, cache_path_);
+    CreateTestRequestContext(
+        mode_, cache_path_,
+        base::BindOnce(&PopupJSWindowOpenTestHandler::RunTestContinue, this));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
+
     GrantPopupPermission(request_context, CefString());
 
     // Create the browser.
     CreateBrowser(kPopupJSOpenMainUrl, request_context);
-
-    // Time out the test after a reasonable period of time.
-    SetTestTimeout();
   }
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
@@ -2565,7 +2572,7 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
 RC_TEST_SINGLE(NavigationTest,
                PopupJSWindowOpen,
                PopupJSWindowOpenTestHandler,
-               TEST_RC_MODE_CUSTOM,
+               TEST_RC_MODE_CUSTOM_WITH_HANDLER,
                /*with_cache_path*/ true)
 
 namespace {

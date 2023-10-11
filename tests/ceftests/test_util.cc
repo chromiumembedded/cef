@@ -13,6 +13,7 @@
 #include "include/cef_command_line.h"
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_helpers.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/common/string_util.h"
 
@@ -386,43 +387,54 @@ void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
   }
 }
 
-CefRefPtr<CefRequestContext> CreateTestRequestContext(
-    TestRequestContextMode mode,
-    const std::string& cache_path) {
-  EXPECT_TRUE(cache_path.empty() || mode == TEST_RC_MODE_CUSTOM ||
-              mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER);
+void CreateTestRequestContext(TestRequestContextMode mode,
+                              const std::string& cache_path,
+                              RCInitCallback init_callback) {
+  DCHECK(!init_callback.is_null());
+  EXPECT_TRUE(cache_path.empty() || mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER);
 
-  if (mode == TEST_RC_MODE_NONE) {
-    return nullptr;
-  }
-  if (mode == TEST_RC_MODE_GLOBAL) {
-    return CefRequestContext::GetGlobalContext();
-  }
+  if (mode == TEST_RC_MODE_NONE || mode == TEST_RC_MODE_GLOBAL) {
+    // Global contexts are initialized synchronously during startup, so we can
+    // execute the callback immediately.
+    CefRefPtr<CefRequestContext> request_context;
+    if (mode == TEST_RC_MODE_GLOBAL) {
+      request_context = CefRequestContext::GetGlobalContext();
+    }
 
-  CefRefPtr<CefRequestContextHandler> rc_handler;
-  if (mode == TEST_RC_MODE_GLOBAL_WITH_HANDLER ||
-      mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
-    class Handler : public CefRequestContextHandler {
-     public:
-      Handler() {}
-
-     private:
-      IMPLEMENT_REFCOUNTING(Handler);
-    };
-    rc_handler = new Handler();
+    CefPostTask(TID_UI,
+                base::BindOnce(std::move(init_callback), request_context));
+    return;
   }
 
-  if (mode == TEST_RC_MODE_CUSTOM || mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
+  class Handler : public CefRequestContextHandler {
+   public:
+    explicit Handler(RCInitCallback init_callback)
+        : init_callback_(std::move(init_callback)) {}
+
+    void OnRequestContextInitialized(
+        CefRefPtr<CefRequestContext> request_context) override {
+      CEF_REQUIRE_UI_THREAD();
+      std::move(init_callback_).Run(request_context);
+    }
+
+   private:
+    RCInitCallback init_callback_;
+    IMPLEMENT_REFCOUNTING(Handler);
+  };
+
+  CefRefPtr<CefRequestContextHandler> rc_handler =
+      new Handler(std::move(init_callback));
+
+  if (mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER) {
     CefRequestContextSettings settings;
     if (!cache_path.empty()) {
       CefString(&settings.cache_path) = cache_path;
     }
-    return CefRequestContext::CreateContext(settings, rc_handler);
+    CefRequestContext::CreateContext(settings, rc_handler);
+  } else {
+    CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
+                                     rc_handler);
   }
-
-  EXPECT_EQ(mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER);
-  return CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
-                                          rc_handler);
 }
 
 CefTime CefTimeFrom(CefBaseTime value) {

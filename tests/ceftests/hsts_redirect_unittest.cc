@@ -263,8 +263,14 @@ class HSTSRedirectTest : public TestHandler {
     EXPECT_TRUE(https_url_.find("https://localhost:") == 0);
 
     // Create a new in-memory context so HSTS decisions aren't cached.
-    auto request_context = CreateTestRequestContext(
-        TEST_RC_MODE_CUSTOM, /*cache_path=*/std::string());
+    CreateTestRequestContext(
+        TEST_RC_MODE_CUSTOM_WITH_HANDLER, /*cache_path=*/std::string(),
+        base::BindOnce(&HSTSRedirectTest::StartedHttpsServerContinue, this));
+  }
+
+  void StartedHttpsServerContinue(
+      CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
 
     CreateBrowser(http_url_, request_context);
   }
