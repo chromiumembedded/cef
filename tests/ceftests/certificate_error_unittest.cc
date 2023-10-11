@@ -249,8 +249,13 @@ class CertificateErrorTest : public TestHandler, public CefTestServerHandler {
     EXPECT_UI_THREAD();
 
     // Create a new in-memory context so certificate decisions aren't cached.
-    auto request_context = CreateTestRequestContext(
-        TEST_RC_MODE_CUSTOM, /*cache_path=*/std::string());
+    CreateTestRequestContext(
+        TEST_RC_MODE_CUSTOM_WITH_HANDLER, /*cache_path=*/std::string(),
+        base::BindOnce(&CertificateErrorTest::DoCreateBrowserContinue, this));
+  }
+
+  void DoCreateBrowserContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
 
     CreateBrowser(GetStartURL(), request_context);
   }

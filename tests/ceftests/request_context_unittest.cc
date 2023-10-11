@@ -486,8 +486,16 @@ class PopupNavTestHandler : public TestHandler {
       AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
     }
 
-    CefRefPtr<CefRequestContext> request_context =
-        CreateTestRequestContext(rc_mode_, rc_cache_path_);
+    CreateTestRequestContext(
+        rc_mode_, rc_cache_path_,
+        base::BindOnce(&PopupNavTestHandler::RunTestContinue, this));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
 
     if (request_context) {
       GrantPopupPermission(request_context, kPopupNavPageUrl);
@@ -498,9 +506,6 @@ class PopupNavTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(kPopupNavPageUrl, request_context);
-
-    // Time out the test after a reasonable period of time.
-    SetTestTimeout();
   }
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,

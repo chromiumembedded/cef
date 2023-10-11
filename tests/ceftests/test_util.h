@@ -8,6 +8,7 @@
 
 #include <optional>
 
+#include "include/base/cef_callback.h"
 #include "include/cef_process_message.h"
 #include "include/cef_request.h"
 #include "include/cef_request_context.h"
@@ -74,13 +75,11 @@ enum TestRequestContextMode {
   TEST_RC_MODE_NONE,
   TEST_RC_MODE_GLOBAL,
   TEST_RC_MODE_GLOBAL_WITH_HANDLER,
-  TEST_RC_MODE_CUSTOM,
   TEST_RC_MODE_CUSTOM_WITH_HANDLER,
 };
 
 inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
-  return mode == TEST_RC_MODE_CUSTOM ||
-         mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER;
+  return mode == TEST_RC_MODE_CUSTOM_WITH_HANDLER;
 }
 
 // Returns true if the old CefResourceHandler API should be tested.
@@ -114,12 +113,14 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
 void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
                           const std::string& parent_url);
 
-// Return a RequestContext object matching the specified |mode|.
-// |cache_path| may be specified for CUSTOM modes.
-// Use the RC_TEST_GROUP_BASE macro to test all valid combinations.
-CefRefPtr<CefRequestContext> CreateTestRequestContext(
-    TestRequestContextMode mode,
-    const std::string& cache_path);
+// Create a CefRequestContext object matching the specified |mode|. |cache_path|
+// may be specified for CUSTOM modes. |init_callback| will be executed
+// asynchronously on the UI thread. Use the RC_TEST_GROUP_ALL macro to test all
+// valid combinations.
+using RCInitCallback = base::OnceCallback<void(CefRefPtr<CefRequestContext>)>;
+void CreateTestRequestContext(TestRequestContextMode mode,
+                              const std::string& cache_path,
+                              RCInitCallback init_callback);
 
 // Run a single test without additional test modes.
 #define RC_TEST_SINGLE(test_case_name, test_name, test_class, rc_mode,   \
@@ -170,17 +171,13 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
                TEST_RC_MODE_GLOBAL, false)                                 \
   RC_TEST_BASE(test_case_name, test_name##RCGlobalWithHandler, test_class, \
                test_mode, TEST_RC_MODE_GLOBAL_WITH_HANDLER, false)         \
-  RC_TEST_BASE(test_case_name, test_name##RCCustomInMemory, test_class,    \
-               test_mode, TEST_RC_MODE_CUSTOM, false)                      \
   RC_TEST_BASE(test_case_name, test_name##RCCustomInMemoryWithHandler,     \
                test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER, false)
 
 // RequestContextModes that operate on disk.
-#define RC_TEST_GROUP_ON_DISK(test_case_name, test_name, test_class,  \
-                              test_mode)                              \
-  RC_TEST_BASE(test_case_name, test_name##RCCustomOnDisk, test_class, \
-               test_mode, TEST_RC_MODE_CUSTOM, true)                  \
-  RC_TEST_BASE(test_case_name, test_name##RCCustomOnDiskWithHandler,  \
+#define RC_TEST_GROUP_ON_DISK(test_case_name, test_name, test_class, \
+                              test_mode)                             \
+  RC_TEST_BASE(test_case_name, test_name##RCCustomOnDiskWithHandler, \
                test_class, test_mode, TEST_RC_MODE_CUSTOM_WITH_HANDLER, true)
 
 // Helper macro for testing all valid combinations of RequestContextMode values.
@@ -204,9 +201,11 @@ CefRefPtr<CefRequestContext> CreateTestRequestContext(
 //
 //     void RunTest() override {
 //        // Create a RequestContext with the specified attributes.
-//        CefRefPtr<CefRequestContext> request_context =
-//            CreateTestRequestContext(rc_mode_, rc_cache_path_);
+//        CreateTestRequestContext(rc_mode_, rc_cache_path_,
+//            base::BindOnce(&MyTestHandler::RunTestContinue, this));
+//     }
 //
+//     void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
 //        // Do something with |test_mode_| and |request_context|...
 //     }
 //

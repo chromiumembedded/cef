@@ -199,6 +199,24 @@ class DownloadTestHandler : public TestHandler {
   }
 
   void RunTest() override {
+    if (!is_clicked() || is_clicked_and_downloaded()) {
+      // Create a new temporary directory.
+      EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
+      test_path_ =
+          client::file_util::JoinPath(temp_dir_.GetPath(), kTestFileName);
+    }
+
+    CreateTestRequestContext(
+        rc_mode_, rc_cache_path_,
+        base::BindOnce(&DownloadTestHandler::RunTestContinue, this));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void RunTestContinue(CefRefPtr<CefRequestContext> request_context) {
+    EXPECT_UI_THREAD();
+
     DelayCallbackVendor delay_callback_vendor;
     if (test_mode_ == NAVIGATED || test_mode_ == PENDING) {
       delay_callback_vendor = base::BindRepeating(
@@ -212,20 +230,11 @@ class DownloadTestHandler : public TestHandler {
         new DownloadSchemeHandlerFactory(delay_callback_vendor,
                                          &got_download_request_);
 
-    CefRefPtr<CefRequestContext> request_context =
-        CreateTestRequestContext(rc_mode_, rc_cache_path_);
     if (request_context) {
       request_context->RegisterSchemeHandlerFactory("https", kTestDomain,
                                                     scheme_factory);
     } else {
       CefRegisterSchemeHandlerFactory("https", kTestDomain, scheme_factory);
-    }
-
-    if (!is_clicked() || is_clicked_and_downloaded()) {
-      // Create a new temporary directory.
-      EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
-      test_path_ =
-          client::file_util::JoinPath(temp_dir_.GetPath(), kTestFileName);
     }
 
     if (test_mode_ == NAVIGATED) {
@@ -254,9 +263,6 @@ class DownloadTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser(kTestStartUrl, request_context);
-
-    // Time out the test after a reasonable period of time.
-    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
