@@ -4,6 +4,8 @@
 
 #include "tests/ceftests/test_handler.h"
 
+#include <sstream>
+
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
@@ -16,17 +18,29 @@
 #include "tests/ceftests/test_util.h"
 #include "tests/shared/common/client_switches.h"
 
+// Set to 1 to enable verbose debugging info logging.
+#define VERBOSE_DEBUGGING 0
+
 namespace {
+
+bool UseViews() {
+  static bool use_views = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        client::switches::kUseViews);
+  }();
+  return use_views;
+}
 
 // Delegate implementation for the CefWindow that will host the Views-based
 // browser.
 class TestWindowDelegate : public CefWindowDelegate {
  public:
   // Create a new top-level Window hosting |browser_view|.
-  static void CreateBrowserWindow(CefRefPtr<CefBrowserView> browser_view,
+  static void CreateBrowserWindow(TestHandler* handler,
+                                  CefRefPtr<CefBrowserView> browser_view,
                                   const std::string& title) {
-    CefWindow::CreateTopLevelWindow(
-        new TestWindowDelegate(browser_view, "CefUnitTestViews " + title));
+    CefWindow::CreateTopLevelWindow(new TestWindowDelegate(
+        handler, browser_view, "CefUnitTestViews " + title));
   }
 
   // CefWindowDelegate methods:
@@ -37,10 +51,17 @@ class TestWindowDelegate : public CefWindowDelegate {
     window->SetTitle(title_);
     window->AddChildView(browser_view_);
     window->Show();
+
+    // With Chrome runtime, the Browser is not created until after the
+    // BrowserView is assigned to the Window.
+    browser_id_ = browser_view_->GetBrowser()->GetIdentifier();
+    handler_->OnWindowCreated(browser_id_);
   }
 
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
+    auto browser = browser_view_->GetBrowser();
     browser_view_ = nullptr;
+    handler_->OnWindowDestroyed(browser_id_);
   }
 
   bool CanClose(CefRefPtr<CefWindow> window) override {
@@ -53,11 +74,14 @@ class TestWindowDelegate : public CefWindowDelegate {
   }
 
  private:
-  TestWindowDelegate(CefRefPtr<CefBrowserView> browser_view,
+  TestWindowDelegate(TestHandler* handler,
+                     CefRefPtr<CefBrowserView> browser_view,
                      const CefString& title)
-      : browser_view_(browser_view), title_(title) {}
+      : handler_(handler), browser_view_(browser_view), title_(title) {}
 
+  TestHandler* const handler_;
   CefRefPtr<CefBrowserView> browser_view_;
+  int browser_id_ = 0;
   CefString title_;
 
   IMPLEMENT_REFCOUNTING(TestWindowDelegate);
@@ -67,20 +91,57 @@ class TestWindowDelegate : public CefWindowDelegate {
 // Delegate implementation for the CefBrowserView.
 class TestBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
-  TestBrowserViewDelegate() {}
+  explicit TestBrowserViewDelegate(TestHandler* handler) : handler_(handler) {}
 
   // CefBrowserViewDelegate methods:
+
+  void OnBrowserDestroyed(CefRefPtr<CefBrowserView> browser_view,
+                          CefRefPtr<CefBrowser> browser) override {
+#if VERBOSE_DEBUGGING
+    LOG(INFO) << handler_->debug_string_prefix() << browser->GetIdentifier()
+              << ": OnBrowserDestroyed";
+#endif
+    // Always close the containing Window when the browser is destroyed.
+    if (auto window = browser_view->GetWindow()) {
+#if VERBOSE_DEBUGGING
+      LOG(INFO) << handler_->debug_string_prefix() << browser->GetIdentifier()
+                << ": OnBrowserDestroyed Close";
+#endif
+      window->Close();
+    }
+  }
+
+  CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
+      CefRefPtr<CefBrowserView> browser_view,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      bool is_devtools) override {
+    if (client.get() == handler_) {
+      // Use the same Delegate when using the same TestHandler instance.
+      return this;
+    }
+
+    // Return a new Delegate when using a different TestHandler instance.
+    auto* handler = static_cast<TestHandler*>(client.get());
+    return new TestBrowserViewDelegate(handler);
+  }
 
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override {
+    // The popup may use a different TestHandler instance.
+    auto* handler = static_cast<TestHandler*>(
+        popup_browser_view->GetBrowser()->GetHost()->GetClient().get());
+
     // Create our own Window for popups. It will show itself after creation.
-    TestWindowDelegate::CreateBrowserWindow(popup_browser_view,
+    TestWindowDelegate::CreateBrowserWindow(handler, popup_browser_view,
                                             is_devtools ? "DevTools" : "Popup");
     return true;
   }
 
  private:
+  TestHandler* const handler_;
+
   IMPLEMENT_REFCOUNTING(TestBrowserViewDelegate);
   DISALLOW_COPY_AND_ASSIGN(TestBrowserViewDelegate);
 };
@@ -175,11 +236,7 @@ void TestHandler::UIThreadHelper::TaskHelper(base::OnceClosure task) {
 int TestHandler::browser_count_ = 0;
 
 TestHandler::TestHandler(CompletionState* completion_state)
-    : first_browser_id_(0),
-      signal_completion_when_all_browsers_close_(true),
-      destroy_event_(nullptr),
-      destroy_test_expected_(true),
-      destroy_test_called_(false) {
+    : debug_string_prefix_(MakeDebugStringPrefix()) {
   if (completion_state) {
     completion_state_ = completion_state;
     completion_state_owned_ = false;
@@ -197,6 +254,8 @@ TestHandler::~TestHandler() {
     EXPECT_FALSE(destroy_test_called_);
   }
   EXPECT_TRUE(browser_map_.empty());
+  EXPECT_EQ(0U, window_count_);
+  EXPECT_TRUE(browser_status_map_.empty());
 
   if (completion_state_owned_) {
     delete completion_state_;
@@ -210,8 +269,6 @@ TestHandler::~TestHandler() {
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   EXPECT_UI_THREAD();
 
-  browser_count_++;
-
   const int browser_id = browser->GetIdentifier();
   EXPECT_EQ(browser_map_.find(browser_id), browser_map_.end());
   if (browser_map_.empty()) {
@@ -219,6 +276,8 @@ void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     first_browser_ = browser;
   }
   browser_map_.insert(std::make_pair(browser_id, browser));
+
+  OnCreated(browser_id, NT_BROWSER);
 }
 
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
@@ -235,12 +294,102 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     first_browser_ = nullptr;
   }
 
-  if (browser_map_.empty() && signal_completion_when_all_browsers_close_) {
-    // Signal that the test is now complete.
+  OnClosed(browser_id, NT_BROWSER);
+}
+
+void TestHandler::OnWindowCreated(int browser_id) {
+  CHECK(UseViews());
+  EXPECT_UI_THREAD();
+  window_count_++;
+  OnCreated(browser_id, NT_WINDOW);
+}
+
+void TestHandler::OnWindowDestroyed(int browser_id) {
+  CHECK(UseViews());
+  EXPECT_UI_THREAD();
+  window_count_--;
+  OnClosed(browser_id, NT_WINDOW);
+}
+
+void TestHandler::OnCreated(int browser_id, NotifyType type) {
+  bool creation_complete = false;
+
+  auto& browser_status = browser_status_map_[browser_id];
+  EXPECT_FALSE(browser_status.got_created[type])
+      << "Duplicate call to OnCreated(" << browser_id << ", "
+      << (type == NT_BROWSER ? "BROWSER" : "WINDOW") << ")";
+  browser_status.got_created[type].yes();
+
+  // When using Views, wait for both Browser and Window notifications.
+  if (UseViews()) {
+    creation_complete = browser_status.got_created[NT_BROWSER] &&
+                        browser_status.got_created[NT_WINDOW];
+  } else {
+    creation_complete = browser_status.got_created[NT_BROWSER];
+  }
+
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_ << browser_id << ": OnCreated type="
+            << (type == NT_BROWSER ? "BROWSER" : "WINDOW")
+            << " creation_complete=" << creation_complete;
+#endif
+
+  if (creation_complete) {
+    browser_count_++;
+  }
+}
+
+void TestHandler::OnClosed(int browser_id, NotifyType type) {
+  bool close_complete = false;
+
+  auto& browser_status = browser_status_map_[browser_id];
+  EXPECT_FALSE(browser_status.got_closed[type])
+      << "Duplicate call to OnClosed(" << browser_id << ", "
+      << (type == NT_BROWSER ? "BROWSER" : "WINDOW") << ")";
+  browser_status.got_closed[type].yes();
+
+  // When using Views, wait for both Browser and Window notifications.
+  if (UseViews()) {
+    close_complete = browser_status.got_closed[NT_BROWSER] &&
+                     browser_status.got_closed[NT_WINDOW];
+  } else {
+    close_complete = browser_status.got_closed[NT_BROWSER];
+  }
+
+  // Test is complete if no Browsers/Windows are remaining.
+  const bool test_complete =
+      close_complete &&
+      (UseViews() ? window_count_ == 0 : browser_map_.empty());
+
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_ << browser_id
+            << ": OnClosed type=" << (type == NT_BROWSER ? "BROWSER" : "WINDOW")
+            << " close_complete=" << close_complete
+            << " test_complete=" << test_complete;
+#endif
+
+  if (close_complete) {
+    browser_status_map_.erase(browser_id);
+  }
+
+  if (test_complete && signal_completion_when_all_browsers_close_) {
+    // Signal that the test is now complete. May result in |this| being deleted.
     TestComplete();
   }
 
-  browser_count_--;
+  if (close_complete) {
+    browser_count_--;
+  }
+}
+
+std::string TestHandler::MakeDebugStringPrefix() const {
+#if VERBOSE_DEBUGGING
+  std::stringstream ss;
+  ss << "TestHandler [0x" << std::hex << this << "]: ";
+  return ss.str();
+#else
+  return std::string();
+#endif
 }
 
 namespace {
@@ -359,9 +508,7 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 void TestHandler::CreateBrowser(const CefString& url,
                                 CefRefPtr<CefRequestContext> request_context,
                                 CefRefPtr<CefDictionaryValue> extra_info) {
-  const bool use_views = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-      client::switches::kUseViews);
-  if (use_views && !CefCurrentlyOn(TID_UI)) {
+  if (UseViews() && !CefCurrentlyOn(TID_UI)) {
     // Views classes must be accessed on the UI thread.
     CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateBrowser, this, url,
                                        request_context, extra_info));
@@ -371,14 +518,14 @@ void TestHandler::CreateBrowser(const CefString& url,
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
 
-  if (use_views) {
+  if (UseViews()) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         this, url, settings, extra_info, request_context,
-        new TestBrowserViewDelegate());
+        new TestBrowserViewDelegate(this));
 
     // Create the Window. It will show itself after creation.
-    TestWindowDelegate::CreateBrowserWindow(browser_view, std::string());
+    TestWindowDelegate::CreateBrowserWindow(this, browser_view, std::string());
   } else {
 #if defined(OS_WIN)
     windowInfo.SetAsPopup(nullptr, "CefUnitTest");
@@ -392,6 +539,10 @@ void TestHandler::CreateBrowser(const CefString& url,
 // static
 void TestHandler::CloseBrowser(CefRefPtr<CefBrowser> browser,
                                bool force_close) {
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << "TestHandler: " << browser->GetIdentifier()
+            << ": CloseBrowser force_close=" << force_close;
+#endif
   browser->GetHost()->CloseBrowser(force_close);
 }
 
@@ -460,6 +611,10 @@ void TestHandler::TestComplete() {
     CefPostTask(TID_UI, base::BindOnce(&TestHandler::TestComplete, this));
     return;
   }
+
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_ << "TestComplete";
+#endif
 
   EXPECT_TRUE(browser_map_.empty());
   completion_state_->TestComplete();

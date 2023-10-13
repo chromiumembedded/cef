@@ -124,8 +124,17 @@ void ChromeBrowserHostImpl::AddNewContents(
 
 void ChromeBrowserHostImpl::OnWebContentsDestroyed(
     content::WebContents* web_contents) {
-  platform_delegate_->WebContentsDestroyed(web_contents);
-  DestroyBrowser();
+  // GetWebContents() should return nullptr at this point.
+  DCHECK(!GetWebContents());
+
+  // In most cases WebContents destruction will trigger browser destruction.
+  // The exception is if the browser still exists at CefShutdown, in which
+  // case DestroyBrowser() will be called first via
+  // CefBrowserInfoManager::DestroyAllBrowsers().
+  if (platform_delegate_) {
+    platform_delegate_->WebContentsDestroyed(web_contents);
+    DestroyBrowser();
+  }
 }
 
 void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
@@ -525,14 +534,33 @@ bool ChromeBrowserHostImpl::WillBeDestroyed() const {
 
 void ChromeBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
-  browser_ = nullptr;
-  weak_ptr_factory_.InvalidateWeakPtrs();
 
+  // Notify that this browser has been destroyed. These must be delivered in
+  // the expected order.
+
+  // 1. Notify the platform delegate. With Views this will result in a call to
+  // CefBrowserViewDelegate::OnBrowserDestroyed().
+  platform_delegate_->NotifyBrowserDestroyed();
+
+  // 2. Notify the browser's LifeSpanHandler. This must always be the last
+  // notification for this browser.
   OnBeforeClose();
+
+  // Notify any observers that may have state associated with this browser.
   OnBrowserDestroyed();
+
+  // If the WebContents still exists at this point, signal destruction before
+  // browser destruction.
+  if (auto web_contents = GetWebContents()) {
+    platform_delegate_->WebContentsDestroyed(web_contents);
+  }
 
   // Disassociate the platform delegate from this browser.
   platform_delegate_->BrowserDestroyed(this);
+
+  // Clean up UI thread state.
+  browser_ = nullptr;
+  weak_ptr_factory_.InvalidateWeakPtrs();
 
   CefBrowserHostBase::DestroyBrowser();
 }

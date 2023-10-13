@@ -206,8 +206,14 @@ class TestHandler : public CefClient,
     destroy_test_expected_ = expected;
   }
 
+  // Called from TestWindowDelegate when Views is enabled.
+  void OnWindowCreated(int browser_id);
+  void OnWindowDestroyed(int browser_id);
+
   // Returns true if a browser currently exists.
   static bool HasBrowser() { return browser_count_ > 0; }
+
+  std::string debug_string_prefix() const { return debug_string_prefix_; }
 
  protected:
   // Indicate that test setup is complete. Only used in combination with a
@@ -260,17 +266,38 @@ class TestHandler : public CefClient,
   UIThreadHelper* GetUIThreadHelper();
 
  private:
+  enum NotifyType {
+    NT_BROWSER,
+    NT_WINDOW,
+  };
+  void OnCreated(int browser_id, NotifyType type);
+  void OnClosed(int browser_id, NotifyType type);
+
+  std::string MakeDebugStringPrefix() const;
+  const std::string debug_string_prefix_;
+
   // Used to notify when the test is complete. Can be accessed on any thread.
   CompletionState* completion_state_;
   bool completion_state_owned_;
 
-  // Map browser ID to browser object for non-popup browsers. Only accessed on
-  // the UI thread.
+  // Map of browser ID to browser object. Only accessed on the UI thread.
   BrowserMap browser_map_;
+
+  // Count of window objects. Only accessed on the UI thread.
+  size_t window_count_ = 0;
+
+  struct NotifyStatus {
+    // Keyed by NotifyType.
+    TrackCallback got_created[2];
+    TrackCallback got_closed[2];
+  };
+
+  // Map of browser ID to current status. Only accessed on the UI thread.
+  std::map<int, NotifyStatus> browser_status_map_;
 
   // Values for the first created browser. Modified on the UI thread but can be
   // accessed on any thread.
-  int first_browser_id_;
+  int first_browser_id_ = 0;
   CefRefPtr<CefBrowser> first_browser_;
 
   // Map of resources that can be automatically loaded. Only accessed on the
@@ -279,13 +306,13 @@ class TestHandler : public CefClient,
   ResourceMap resource_map_;
 
   // If true test completion will be signaled when all browsers have closed.
-  bool signal_completion_when_all_browsers_close_;
+  bool signal_completion_when_all_browsers_close_ = true;
 
   CefRefPtr<CefWaitableEvent> destroy_event_;
 
   // Tracks whether DestroyTest() is expected or has been called.
-  bool destroy_test_expected_;
-  bool destroy_test_called_;
+  bool destroy_test_expected_ = true;
+  bool destroy_test_called_ = false;
 
   std::unique_ptr<UIThreadHelper> ui_thread_helper_;
 
