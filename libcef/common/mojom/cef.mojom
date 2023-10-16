@@ -59,7 +59,7 @@ interface RenderFrame {
   SendMessage(string name, mojo_base.mojom.ListValue arguments);
 
   // Send a shared memory region to the render process.
-  SendSharedMemoryRegion(string name, mojo_base.mojom.ReadOnlySharedMemoryRegion region);
+  SendSharedMemoryRegion(string name, mojo_base.mojom.WritableSharedMemoryRegion region);
 
   // Send a command.
   SendCommand(string command);
@@ -91,7 +91,7 @@ interface BrowserFrame {
   SendMessage(string name, mojo_base.mojom.ListValue arguments);
 
   // Send a shared memory region to the browser process.
-  SendSharedMemoryRegion(string name, mojo_base.mojom.ReadOnlySharedMemoryRegion region);
+  SendSharedMemoryRegion(string name, mojo_base.mojom.WritableSharedMemoryRegion region);
 
   // The render frame is ready to begin handling actions.
   FrameAttached(pending_remote<RenderFrame> render_frame,

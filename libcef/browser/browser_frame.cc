@@ -44,7 +44,7 @@ void CefBrowserFrame::SendMessage(const std::string& name,
 
 void CefBrowserFrame::SendSharedMemoryRegion(
     const std::string& name,
-    base::ReadOnlySharedMemoryRegion region) {
+    base::WritableSharedMemoryRegion region) {
   // Always send to the newly created RFH, which may be speculative when
   // navigating cross-origin.
   if (auto host = GetFrameHost(/*prefer_speculative=*/true)) {

@@ -63,7 +63,7 @@ class CefSharedMemoryRegion : public virtual CefBaseRefCounted {
   /// The returned pointer is only valid for the life span of this object.
   ///
   /*--cef()--*/
-  virtual const void* Memory() = 0;
+  virtual void* Memory() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_SHARED_MEMORY_REGION_H_

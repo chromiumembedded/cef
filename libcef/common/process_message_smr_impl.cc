@@ -12,7 +12,7 @@ namespace {
 
 class CefSharedMemoryRegionImpl final : public CefSharedMemoryRegion {
  public:
-  CefSharedMemoryRegionImpl(base::ReadOnlySharedMemoryMapping&& mapping)
+  CefSharedMemoryRegionImpl(base::WritableSharedMemoryMapping&& mapping)
       : mapping_(std::move(mapping)) {}
   CefSharedMemoryRegionImpl(const CefSharedMemoryRegionImpl&) = delete;
   CefSharedMemoryRegionImpl& operator=(const CefSharedMemoryRegionImpl&) =
@@ -21,10 +21,10 @@ class CefSharedMemoryRegionImpl final : public CefSharedMemoryRegion {
   // CefSharedMemoryRegion methods
   bool IsValid() override { return mapping_.IsValid(); }
   size_t Size() override { return IsValid() ? mapping_.size() : 0; }
-  const void* Memory() override { return mapping_.memory(); }
+  void* Memory() override { return mapping_.memory(); }
 
  private:
-  base::ReadOnlySharedMemoryMapping mapping_;
+  base::WritableSharedMemoryMapping mapping_;
   IMPLEMENT_REFCOUNTING(CefSharedMemoryRegionImpl);
 };
 
@@ -32,7 +32,7 @@ class CefSharedMemoryRegionImpl final : public CefSharedMemoryRegion {
 
 CefProcessMessageSMRImpl::CefProcessMessageSMRImpl(
     const CefString& name,
-    base::ReadOnlySharedMemoryRegion&& region)
+    base::WritableSharedMemoryRegion&& region)
     : name_(name), region_(std::move(region)) {
   DCHECK(!name_.empty());
   DCHECK(region_.IsValid());
@@ -53,7 +53,7 @@ CefProcessMessageSMRImpl::GetSharedMemoryRegion() {
   return new CefSharedMemoryRegionImpl(region_.Map());
 }
 
-base::ReadOnlySharedMemoryRegion CefProcessMessageSMRImpl::TakeRegion() {
+base::WritableSharedMemoryRegion CefProcessMessageSMRImpl::TakeRegion() {
   return std::move(region_);
 }
 
@@ -68,23 +68,27 @@ CefSharedProcessMessageBuilderImpl::CefSharedProcessMessageBuilderImpl(
     const CefString& name,
     size_t byte_size)
     : name_(name),
-      region_(base::ReadOnlySharedMemoryRegion::Create(byte_size)) {}
+      region_(base::WritableSharedMemoryRegion::Create(byte_size)),
+      mapping_(region_.Map()) {}
 
 bool CefSharedProcessMessageBuilderImpl::IsValid() {
-  return region_.region.IsValid() && region_.mapping.IsValid();
+  return region_.IsValid() && mapping_.IsValid();
 }
 
 size_t CefSharedProcessMessageBuilderImpl::Size() {
-  return !IsValid() ? 0 : region_.mapping.size();
+  return !IsValid() ? 0 : region_.GetSize();
 }
 
 void* CefSharedProcessMessageBuilderImpl::Memory() {
-  return !IsValid() ? nullptr : region_.mapping.memory();
+  return !IsValid() ? nullptr : mapping_.memory();
 }
 
 CefRefPtr<CefProcessMessage> CefSharedProcessMessageBuilderImpl::Build() {
   if (!IsValid()) {
     return nullptr;
   }
-  return new CefProcessMessageSMRImpl(name_, std::move(region_.region));
+
+  // Invalidate mappping
+  mapping_ = base::WritableSharedMemoryMapping();
+  return new CefProcessMessageSMRImpl(name_, std::move(region_));
 }

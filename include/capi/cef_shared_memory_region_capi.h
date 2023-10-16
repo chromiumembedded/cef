@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=08f64795d78bdad29a45222a7263e795ce77a52d$
+// $hash=dfa2f2d57339e05592d7ee5f4c4c54dd0932cd94$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SHARED_MEMORY_REGION_CAPI_H_
@@ -69,7 +69,7 @@ typedef struct _cef_shared_memory_region_t {
   /// Returns the pointer to the memory. Returns nullptr for invalid instances.
   /// The returned pointer is only valid for the life span of this object.
   ///
-  const void*(CEF_CALLBACK* memory)(struct _cef_shared_memory_region_t* self);
+  void*(CEF_CALLBACK* memory)(struct _cef_shared_memory_region_t* self);
 } cef_shared_memory_region_t;
 
 #ifdef __cplusplus

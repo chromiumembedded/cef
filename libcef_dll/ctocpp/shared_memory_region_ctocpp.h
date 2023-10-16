@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f5d0285d28412c40b8e04953025294c5f0779ecd$
+// $hash=a81ba6b7aca8e1f7e6e6ef41e727ddcffc06f204$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SHARED_MEMORY_REGION_CTOCPP_H_
@@ -37,7 +37,7 @@ class CefSharedMemoryRegionCToCpp
   // CefSharedMemoryRegion methods.
   bool IsValid() override;
   size_t Size() override;
-  const void* Memory() override;
+  void* Memory() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SHARED_MEMORY_REGION_CTOCPP_H_

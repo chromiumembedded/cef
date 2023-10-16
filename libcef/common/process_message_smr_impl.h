@@ -9,12 +9,12 @@
 #include "include/cef_process_message.h"
 #include "include/cef_shared_process_message_builder.h"
 
-#include "base/memory/read_only_shared_memory_region.h"
+#include "base/memory/writable_shared_memory_region.h"
 
 class CefProcessMessageSMRImpl final : public CefProcessMessage {
  public:
   CefProcessMessageSMRImpl(const CefString& name,
-                           base::ReadOnlySharedMemoryRegion&& region);
+                           base::WritableSharedMemoryRegion&& region);
   CefProcessMessageSMRImpl(const CefProcessMessageSMRImpl&) = delete;
   CefProcessMessageSMRImpl& operator=(const CefProcessMessageSMRImpl&) = delete;
   ~CefProcessMessageSMRImpl() override;
@@ -26,11 +26,11 @@ class CefProcessMessageSMRImpl final : public CefProcessMessage {
   CefString GetName() override;
   CefRefPtr<CefListValue> GetArgumentList() override { return nullptr; }
   CefRefPtr<CefSharedMemoryRegion> GetSharedMemoryRegion() override;
-  [[nodiscard]] base::ReadOnlySharedMemoryRegion TakeRegion();
+  [[nodiscard]] base::WritableSharedMemoryRegion TakeRegion();
 
  private:
   const CefString name_;
-  base::ReadOnlySharedMemoryRegion region_;
+  base::WritableSharedMemoryRegion region_;
 
   IMPLEMENT_REFCOUNTING(CefProcessMessageSMRImpl);
 };
@@ -50,7 +50,8 @@ class CefSharedProcessMessageBuilderImpl final
 
  private:
   const CefString name_;
-  base::MappedReadOnlyRegion region_;
+  base::WritableSharedMemoryRegion region_;
+  base::WritableSharedMemoryMapping mapping_;
 
   IMPLEMENT_REFCOUNTING(CefSharedProcessMessageBuilderImpl);
 };
