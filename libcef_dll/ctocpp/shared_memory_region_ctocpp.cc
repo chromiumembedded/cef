@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=79771feab6c6d60667691c826ca9d6deaa23d068$
+// $hash=31516110398f9fe682988645d74ac8789b712181$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -51,7 +51,7 @@ NO_SANITIZE("cfi-icall") size_t CefSharedMemoryRegionCToCpp::Size() {
   return _retval;
 }
 
-NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
+NO_SANITIZE("cfi-icall") void* CefSharedMemoryRegionCToCpp::Memory() {
   shutdown_checker::AssertNotShutdown();
 
   cef_shared_memory_region_t* _struct = GetStruct();
@@ -60,9 +60,9 @@ NO_SANITIZE("cfi-icall") const void* CefSharedMemoryRegionCToCpp::Memory() {
   }
 
   // Execute
-  const void* _retval = _struct->memory(_struct);
+  void* _retval = _struct->memory(_struct);
 
-  // Return type: simple
+  // Return type: simple_byaddr
   return _retval;
 }
 

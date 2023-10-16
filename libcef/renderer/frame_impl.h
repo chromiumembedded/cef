@@ -145,7 +145,7 @@ class CefFrameImpl
   void SendMessage(const std::string& name,
                    base::Value::List arguments) override;
   void SendSharedMemoryRegion(const std::string& name,
-                              base::ReadOnlySharedMemoryRegion region) override;
+                              base::WritableSharedMemoryRegion region) override;
   void SendCommand(const std::string& command) override;
   void SendCommandWithResponse(
       const std::string& command,

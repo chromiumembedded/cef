@@ -289,7 +289,7 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
     SendToBrowserFrame(
         __FUNCTION__,
         base::BindOnce(
-            [](const CefString& name, base::ReadOnlySharedMemoryRegion region,
+            [](const CefString& name, base::WritableSharedMemoryRegion region,
                const BrowserFrameType& render_frame) {
               render_frame->SendSharedMemoryRegion(name, std::move(region));
             },
@@ -698,7 +698,7 @@ void CefFrameImpl::SendMessage(const std::string& name,
 
 void CefFrameImpl::SendSharedMemoryRegion(
     const std::string& name,
-    base::ReadOnlySharedMemoryRegion region) {
+    base::WritableSharedMemoryRegion region) {
   if (auto app = CefAppManager::Get()->GetApplication()) {
     if (auto handler = app->GetRenderProcessHandler()) {
       CefRefPtr<CefProcessMessage> message(
