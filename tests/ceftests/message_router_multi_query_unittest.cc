@@ -957,7 +957,7 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
         AssertQueryCount(nullptr, nullptr, 0);
       } else if (cancel_type_ == CANCEL_BY_CLOSING_BROWSER) {
         // Change the expected behavior in the handler.
-        SetSignalCompletionWhenAllBrowsersClose(false);
+        SetSignalTestCompletionCount(1U);
         CloseBrowser(GetBrowser(), false);
       }
     }
@@ -971,11 +971,12 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 
     DestroyTest();
 
-    if (!SignalCompletionWhenAllBrowsersClose()) {
+    if (!AllowTestCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
-      CefPostTask(TID_UI,
-                  base::BindOnce(
-                      &MultiQuerySingleFrameTestHandler::TestComplete, this));
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(
+              &MultiQuerySingleFrameTestHandler::SignalTestCompletion, this));
     }
   }
 
