@@ -2628,6 +2628,18 @@ class RequestTestHandler : public TestHandler {
         base::BindOnce(&RequestTestHandler::OnIncompleteRequest, this));
     test_runner_->Initialize();
 
+    // Configure the number of times that SignalTestCompletion() will be called.
+    // We need to call it at least 1 time if we don't create a browser.
+    size_t completion_count = test_frame_method_ ? 0U : 1U;
+    if (context_mode_ != CONTEXT_GLOBAL) {
+      // Don't end the test until the temporary request context has been
+      // destroyed.
+      completion_count++;
+    }
+    if (completion_count > 0U) {
+      SetSignalTestCompletionCount(completion_count);
+    }
+
     // Get or create the request context.
     if (context_mode_ == CONTEXT_GLOBAL) {
       CefRefPtr<CefRequestContext> request_context =
@@ -2637,10 +2649,6 @@ class RequestTestHandler : public TestHandler {
 
       PreSetupComplete();
     } else {
-      // Don't end the test until the temporary request context has been
-      // destroyed.
-      SetSignalCompletionWhenAllBrowsersClose(false);
-
       CefRequestContextSettings settings;
 
       if (context_mode_ == CONTEXT_ONDISK) {
@@ -2768,7 +2776,6 @@ class RequestTestHandler : public TestHandler {
 
     // TestComplete will eventually be called from DestroyTest instead of being
     // triggered by browser destruction.
-    SetSignalCompletionWhenAllBrowsersClose(false);
     CefPostDelayedTask(
         TID_UI, base::BindOnce(&TestHandler::CloseBrowser, GetBrowser(), false),
         1000);
@@ -2826,24 +2833,11 @@ class RequestTestHandler : public TestHandler {
 
     TestHandler::DestroyTest();
 
-    // For non-global contexts OnTestComplete() will be called when the
-    // RequestContextHandler is destroyed.
-    bool call_test_complete = false;
-    if (context_mode_ == CONTEXT_GLOBAL) {
-      if (!test_frame_method_) {
-        // These tests don't create a browser that would signal implicitly.
-        call_test_complete = true;
-      } else if (!SignalCompletionWhenAllBrowsersClose()) {
-        // These tests close the browser to terminate in-progress requests
-        // before test completion.
-        call_test_complete = true;
-      }
-    }
-
     // Release references to the context and handler.
     test_runner_->Destroy();
 
-    if (call_test_complete) {
+    // These tests don't create a browser that would signal implicitly.
+    if (!test_frame_method_) {
       OnTestComplete();
     }
   }
@@ -2855,15 +2849,12 @@ class RequestTestHandler : public TestHandler {
       return;
     }
 
-    EXPECT_FALSE(got_on_test_complete_);
-    got_on_test_complete_.yes();
-
     if (!context_tmpdir_.IsEmpty()) {
       // Temp directory will be deleted on application shutdown.
       context_tmpdir_.Take();
     }
 
-    TestComplete();
+    SignalTestCompletion();
   }
 
  private:
@@ -2904,7 +2895,6 @@ class RequestTestHandler : public TestHandler {
 
  public:
   int auth_credentials_ct_ = 0;
-  TrackCallback got_on_test_complete_;
 
   IMPLEMENT_REFCOUNTING(RequestTestHandler);
 };

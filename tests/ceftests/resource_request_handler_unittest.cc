@@ -500,7 +500,7 @@ class BasicResponseTest : public TestHandler {
     TestHandler::OnAfterCreated(browser);
 
     if (mode_ == ABORT_AFTER_CREATED) {
-      SetSignalCompletionWhenAllBrowsersClose(false);
+      SetSignalTestCompletionCount(1U);
       CloseBrowser(browser, false);
     }
   }
@@ -547,7 +547,7 @@ class BasicResponseTest : public TestHandler {
     VerifyState(kOnBeforeBrowse, request, nullptr);
 
     if (mode_ == ABORT_BEFORE_BROWSE) {
-      SetSignalCompletionWhenAllBrowsersClose(false);
+      SetSignalTestCompletionCount(1U);
       CloseBrowser(browser, false);
     }
 
@@ -994,10 +994,10 @@ class BasicResponseTest : public TestHandler {
 
     TestHandler::DestroyTest();
 
-    if (!SignalCompletionWhenAllBrowsersClose()) {
+    if (!AllowTestCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
-      CefPostTask(TID_UI,
-                  base::BindOnce(&BasicResponseTest::TestComplete, this));
+      CefPostTask(TID_UI, base::BindOnce(
+                              &BasicResponseTest::SignalTestCompletion, this));
     }
   }
 
@@ -1337,7 +1337,7 @@ class BasicResponseTest : public TestHandler {
 
   void CloseBrowserAsync() {
     EXPECT_TRUE(IsIncomplete());
-    SetSignalCompletionWhenAllBrowsersClose(false);
+    SetSignalTestCompletionCount(1U);
     CefPostDelayedTask(
         TID_UI, base::BindOnce(&TestHandler::CloseBrowser, GetBrowser(), false),
         100);
@@ -2131,10 +2131,11 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
     TestHandler::DestroyTest();
 
-    if (!SignalCompletionWhenAllBrowsersClose()) {
+    if (!AllowTestCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
-      CefPostTask(TID_UI,
-                  base::BindOnce(&SubresourceResponseTest::TestComplete, this));
+      CefPostTask(
+          TID_UI,
+          base::BindOnce(&SubresourceResponseTest::SignalTestCompletion, this));
     }
   }
 
@@ -2544,7 +2545,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
 
   void CloseBrowserAsync() {
     EXPECT_TRUE(IsIncomplete());
-    SetSignalCompletionWhenAllBrowsersClose(false);
+    SetSignalTestCompletionCount(1U);
     CefPostDelayedTask(
         TID_UI, base::BindOnce(&TestHandler::CloseBrowser, GetBrowser(), false),
         100);

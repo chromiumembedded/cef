@@ -233,10 +233,13 @@ void TestHandler::UIThreadHelper::TaskHelper(base::OnceClosure task) {
 
 // TestHandler
 
-int TestHandler::browser_count_ = 0;
+// static
+std::atomic<size_t> TestHandler::test_handler_count_{0U};
 
 TestHandler::TestHandler(CompletionState* completion_state)
     : debug_string_prefix_(MakeDebugStringPrefix()) {
+  test_handler_count_++;
+
   if (completion_state) {
     completion_state_ = completion_state;
     completion_state_owned_ = false;
@@ -254,7 +257,6 @@ TestHandler::~TestHandler() {
     EXPECT_FALSE(destroy_test_called_);
   }
   EXPECT_TRUE(browser_map_.empty());
-  EXPECT_EQ(0U, window_count_);
   EXPECT_TRUE(browser_status_map_.empty());
 
   if (completion_state_owned_) {
@@ -264,6 +266,8 @@ TestHandler::~TestHandler() {
   if (destroy_event_) {
     destroy_event_->Signal();
   }
+
+  test_handler_count_--;
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -300,25 +304,24 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 void TestHandler::OnWindowCreated(int browser_id) {
   CHECK(UseViews());
   EXPECT_UI_THREAD();
-  window_count_++;
   OnCreated(browser_id, NT_WINDOW);
 }
 
 void TestHandler::OnWindowDestroyed(int browser_id) {
   CHECK(UseViews());
   EXPECT_UI_THREAD();
-  window_count_--;
   OnClosed(browser_id, NT_WINDOW);
 }
 
 void TestHandler::OnCreated(int browser_id, NotifyType type) {
-  bool creation_complete = false;
-
   auto& browser_status = browser_status_map_[browser_id];
   EXPECT_FALSE(browser_status.got_created[type])
       << "Duplicate call to OnCreated(" << browser_id << ", "
       << (type == NT_BROWSER ? "BROWSER" : "WINDOW") << ")";
   browser_status.got_created[type].yes();
+
+#if VERBOSE_DEBUGGING
+  bool creation_complete = false;
 
   // When using Views, wait for both Browser and Window notifications.
   if (UseViews()) {
@@ -328,15 +331,10 @@ void TestHandler::OnCreated(int browser_id, NotifyType type) {
     creation_complete = browser_status.got_created[NT_BROWSER];
   }
 
-#if VERBOSE_DEBUGGING
   LOG(INFO) << debug_string_prefix_ << browser_id << ": OnCreated type="
             << (type == NT_BROWSER ? "BROWSER" : "WINDOW")
             << " creation_complete=" << creation_complete;
-#endif
-
-  if (creation_complete) {
-    browser_count_++;
-  }
+#endif  // VERBOSE_DEBUGGING
 }
 
 void TestHandler::OnClosed(int browser_id, NotifyType type) {
@@ -356,29 +354,23 @@ void TestHandler::OnClosed(int browser_id, NotifyType type) {
     close_complete = browser_status.got_closed[NT_BROWSER];
   }
 
-  // Test is complete if no Browsers/Windows are remaining.
-  const bool test_complete =
-      close_complete &&
-      (UseViews() ? window_count_ == 0 : browser_map_.empty());
+  if (close_complete) {
+    browser_status_map_.erase(browser_id);
+  }
+
+  // Test may be complete if no Browsers/Windows are remaining.
+  const bool all_browsers_closed = AllBrowsersClosed();
 
 #if VERBOSE_DEBUGGING
   LOG(INFO) << debug_string_prefix_ << browser_id
             << ": OnClosed type=" << (type == NT_BROWSER ? "BROWSER" : "WINDOW")
             << " close_complete=" << close_complete
-            << " test_complete=" << test_complete;
+            << " all_browsers_closed=" << all_browsers_closed;
 #endif
 
-  if (close_complete) {
-    browser_status_map_.erase(browser_id);
-  }
-
-  if (test_complete && signal_completion_when_all_browsers_close_) {
-    // Signal that the test is now complete. May result in |this| being deleted.
-    TestComplete();
-  }
-
-  if (close_complete) {
-    browser_count_--;
+  if (all_browsers_closed) {
+    // May result in |this| being deleted.
+    MaybeTestComplete();
   }
 }
 
@@ -491,18 +483,30 @@ void TestHandler::DestroyTest() {
       CloseBrowser(it->second, false);
     }
   }
-
-  if (ui_thread_helper_.get()) {
-    ui_thread_helper_.reset(nullptr);
-  }
 }
 
 void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   EXPECT_UI_THREAD();
+
+  EXPECT_FALSE(test_timeout_called_);
+  test_timeout_called_ = true;
+
   if (treat_as_error) {
     EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
   }
+
+  EXPECT_FALSE(AllBrowsersClosed() && AllowTestCompletionWhenAllBrowsersClose())
+      << "Test timed out unexpectedly; should be complete";
+
+  // Close any remaining browsers.
   DestroyTest();
+
+  // Reset signal completion count.
+  if (signal_completion_count_ > 0) {
+    signal_completion_count_ = 0;
+    // May result in |this| being deleted.
+    MaybeTestComplete();
+  }
 }
 
 void TestHandler::CreateBrowser(const CefString& url,
@@ -606,17 +610,79 @@ void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
       *timeout);
 }
 
-void TestHandler::TestComplete() {
+void TestHandler::SetSignalTestCompletionCount(size_t count) {
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_
+            << "SetSignalTestCompletionCount count=" << count;
+#endif
+  signal_completion_count_ = count;
+}
+
+void TestHandler::SignalTestCompletion() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(&TestHandler::TestComplete, this));
+    CefPostTask(TID_UI,
+                base::BindOnce(&TestHandler::SignalTestCompletion, this));
     return;
   }
+
+  if (test_timeout_called_) {
+    // Ignore any signals that arrive after test timeout.
+    return;
+  }
+
+  CHECK_GT(signal_completion_count_, 0U);
+  signal_completion_count_--;
+
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_
+            << "SignalTestComplete remaining=" << signal_completion_count_;
+#endif
+
+  if (signal_completion_count_ == 0) {
+    // May result in |this| being deleted.
+    MaybeTestComplete();
+  }
+}
+
+bool TestHandler::AllowTestCompletionWhenAllBrowsersClose() const {
+  EXPECT_UI_THREAD();
+  return signal_completion_count_ == 0U;
+}
+
+bool TestHandler::AllBrowsersClosed() const {
+  EXPECT_UI_THREAD();
+  return browser_status_map_.empty();
+}
+
+void TestHandler::MaybeTestComplete() {
+  EXPECT_UI_THREAD();
+
+  const bool all_browsers_closed = AllBrowsersClosed();
+  const bool allow_test_completion = AllowTestCompletionWhenAllBrowsersClose();
+
+#if VERBOSE_DEBUGGING
+  LOG(INFO) << debug_string_prefix_
+            << "MaybeTestComplete all_browsers_closed=" << all_browsers_closed
+            << " allow_test_completion=" << allow_test_completion;
+#endif
+
+  if (all_browsers_closed && allow_test_completion) {
+    TestComplete();
+  }
+}
+
+void TestHandler::TestComplete() {
+  EXPECT_UI_THREAD();
+  EXPECT_TRUE(AllBrowsersClosed());
+  EXPECT_TRUE(AllowTestCompletionWhenAllBrowsersClose());
 
 #if VERBOSE_DEBUGGING
   LOG(INFO) << debug_string_prefix_ << "TestComplete";
 #endif
 
-  EXPECT_TRUE(browser_map_.empty());
+  // Cancel any pending tasks posted via UIThreadHelper.
+  ui_thread_helper_.reset();
+
   completion_state_->TestComplete();
 }
 

@@ -74,8 +74,8 @@ void RunTestsOnTestThread() {
   // Run the test suite.
   CefTestSuite::GetInstance()->Run();
 
-  // Wait for all browsers to exit.
-  while (TestHandler::HasBrowser()) {
+  // Wait for all TestHandlers to be destroyed.
+  while (TestHandler::HasTestHandler()) {
     sleep(100);
   }
 
