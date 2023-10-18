@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <title>IPC Performance Tests</title>
-    <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <style>
       body {
         font-family: Tahoma, Serif;
@@ -70,8 +71,8 @@
         <td>
           <p>
             There is no progress indication of the tests because it
-            significantly influences measurements. <br />It usually takes 30
-            seconds (for 100 samples) to complete the tests. <br /><b>AL</b> -
+            significantly influences measurements. <br />It usually takes 15
+            seconds (for 1000 samples) to complete the tests. <br /><b>AL</b> -
             ArgumentList-based process messages. <b>SM</b> -
             SharedMemoryRegion-based process messages.
           </p>
@@ -83,7 +84,7 @@
           <input
             id="sSamples"
             type="text"
-            value="100"
+            value="1000"
             required
             pattern="[0-9]+"
           />
@@ -97,8 +98,8 @@
         <thead>
           <tr>
             <td class="center" style="width: 8%">Message Size</td>
-            <td class="center" style="width: 8%">AL Round Trip Avg,&nbsp;ms</td>
-            <td class="center" style="width: 8%">SM Round Trip Avg,&nbsp;ms</td>
+            <td class="center" style="width: 8%">AL Round Trip Avg,&nbsp;μs</td>
+            <td class="center" style="width: 8%">SM Round Trip Avg,&nbsp;μs</td>
             <td class="center" style="width: 10%">Relative Trip Difference</td>
             <td class="center" style="width: 8%">AL Speed,&nbsp;MB/s</td>
             <td class="center" style="width: 8%">SM Speed,&nbsp;MB/s</td>
@@ -126,27 +127,18 @@
       let box_plot_test_data = [];
       let round_trip_avg_plot_data = [];
 
-      function nextTest(test) {
-        setTimeout(() => {
-          execNextTest(test.index);
-        }, 0);
-      }
-
       function testSendProcessMessageResult(
         testIndex,
         fromRendererToBrowser,
         fromBrowserToRenderer
       ) {
         const test = tests[testIndex];
-
         const roundTrip = fromRendererToBrowser + fromBrowserToRenderer;
         test.totalRoundTrip += roundTrip;
         test.sample++;
         box_plot_test_data[testIndex].x.push(roundTrip);
 
-        setTimeout(() => {
-          execTest(testIndex);
-        }, 10);
+        setTimeout(execTest, 0, testIndex);
       }
 
       function sendRequest(size, testIndex) {
@@ -176,10 +168,10 @@
         const test = tests[testIndex];
 
         if (test.sample >= test.totalSamples) {
-          return nextTest(test);
+          setTimeout(execNextTest, 0, testIndex);
+        } else {
+          test.func(test.messageSize, test.index);
         }
-
-        test.func(test.index);
       }
 
       function column(prepared, value) {
@@ -269,8 +261,8 @@
             ((avgRoundTripSMR - avgRoundTrip) / avgRoundTrip) * 100;
 
           // In MB/s
-          const speed = test.messageSize / (avgRoundTrip * 1000);
-          const speedSMR = testSMR.messageSize / (avgRoundTripSMR * 1000);
+          const speed = test.messageSize / avgRoundTrip;
+          const speedSMR = testSMR.messageSize / avgRoundTripSMR;
           const relativeSpeedDiff = ((speedSMR - speed) / speed) * 100;
 
           const stdDeviation = getStandardDeviation(
@@ -362,16 +354,16 @@
       function execNextTest(testIndex) {
         testIndex++;
         if (tests.length <= testIndex) {
-          return testSuiteFinished();
+          testSuiteFinished();
         } else {
-          return execTest(testIndex);
+          execTest(testIndex);
         }
       }
 
       function execQueuedTests(totalSamples) {
         prepareQueuedTests(totalSamples);
         // Let the updated table render before starting the tests
-        setTimeout(() => execNextTest(-1), 200);
+        setTimeout(execNextTest, 200, -1);
       }
 
       function setSettingsState(disabled) {
@@ -401,7 +393,6 @@
 
       function humanFileSize(bytes) {
         const step = 1024;
-        const originalBytes = bytes;
 
         if (Math.abs(bytes) < step) {
           return bytes + " B";
@@ -432,13 +423,8 @@
       };
 
       for (let size = 512; size <= 512 * 1024; size = size * 2) {
-        queueTest(humanFileSize(size) + " AL", size, (testIndex) =>
-          sendRequest(size, testIndex)
-        );
-
-        queueTest(humanFileSize(size) + " SM", size, (testIndex) =>
-          sendSMRRequest(size, testIndex)
-        );
+        queueTest(humanFileSize(size) + " AL", size, sendRequest);
+        queueTest(humanFileSize(size) + " SM", size, sendSMRRequest);
       }
 
       const totalSamples = parseInt(document.getElementById("sSamples").value);

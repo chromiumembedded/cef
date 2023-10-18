@@ -61,9 +61,12 @@ struct ParsedMessage {
   CefString message;
 };
 
+size_t GetByteLength(const CefString& value) {
+  return value.size() * sizeof(CefString::char_type);
+}
+
 size_t GetMessageSize(const CefString& response) {
-  return sizeof(MessageHeader) +
-         (response.size() * sizeof(CefString::char_type));
+  return sizeof(MessageHeader) + GetByteLength(response);
 }
 
 void CopyResponseIntoMemory(void* memory, const CefString& response) {
@@ -126,7 +129,7 @@ CefRefPtr<CefProcessMessage> BuildMessage(size_t threshold,
                                           int context_id,
                                           int request_id,
                                           const CefString& response) {
-  if (response.size() <= threshold) {
+  if (GetByteLength(response) <= threshold) {
     return BuildListMessage(message_name, context_id, request_id, response);
   } else {
     return BuildBinaryMessage(message_name, context_id, request_id, response);

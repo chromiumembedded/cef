@@ -18,6 +18,10 @@ CefRefPtr<CefBinaryValue> CreateCefBinaryValue(
   return CefBinaryValue::Create(data.data(), data.size());
 }
 
+void CopyDataIntoMemory(const std::vector<uint8_t>& data, void* dst) {
+  memcpy(dst, data.data(), data.size());
+}
+
 RendererMessage GetRendererMsgFromBinary(
     const CefRefPtr<CefBinaryValue>& value) {
   DCHECK_GE(value->GetSize(), sizeof(RendererMessage));
@@ -33,9 +37,9 @@ BrowserMessage GetBrowserMsgFromBinary(const CefRefPtr<CefBinaryValue>& value) {
   return *reinterpret_cast<const BrowserMessage*>(data.data());
 }
 
-std::string ToMilliString(const Duration& duration) {
+std::string ToMicroSecString(const Duration& duration) {
   const auto ms =
-      std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(
+      std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(
           duration);
 
   return std::to_string(ms.count());

@@ -207,15 +207,17 @@ class IpcDelegate final : public client::ClientAppRenderer::Delegate {
 
     const auto buffer_size =
         std::max(message_size, sizeof(bv_utils::RendererMessage));
-    const auto start_time = bv_utils::Now();
+
+    std::vector<uint8_t> buffer(buffer_size);
+    const auto renderer_msg =
+        reinterpret_cast<bv_utils::RendererMessage*>(buffer.data());
+    renderer_msg->test_id = test_id;
+    renderer_msg->start_time = bv_utils::Now();
 
     auto builder = CefSharedProcessMessageBuilder::Create(
         bv_utils::kTestSendSMRProcessMessage, buffer_size);
 
-    auto renderer_msg =
-        static_cast<bv_utils::RendererMessage*>(builder->Memory());
-    renderer_msg->test_id = test_id;
-    renderer_msg->start_time = start_time;
+    bv_utils::CopyDataIntoMemory(buffer, builder->Memory());
 
     frame->SendProcessMessage(PID_BROWSER, builder->Build());
   }
@@ -229,8 +231,8 @@ class IpcDelegate final : public client::ClientAppRenderer::Delegate {
 
     CefString code = "testSendProcessMessageResult(" +
                      std::to_string(msg.test_id) + ", " +
-                     bv_utils::ToMilliString(rendered_to_browser) + ", " +
-                     bv_utils::ToMilliString(browser_to_rendered) + ");";
+                     bv_utils::ToMicroSecString(rendered_to_browser) + ", " +
+                     bv_utils::ToMicroSecString(browser_to_rendered) + ");";
 
     frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
