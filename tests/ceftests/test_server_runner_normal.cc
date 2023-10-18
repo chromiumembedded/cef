@@ -124,8 +124,10 @@ class ServerHandler : public CefServerHandler {
       return;
     }
 
-    // No response should be sent yet.
-    EXPECT_TRUE(server->IsValidConnection(connection_id));
+    if (!server->IsValidConnection(connection_id)) {
+      // This can occur if the connected browser has already closed.
+      return;
+    }
 
     const int response_code = response->GetStatus();
     if (response_code <= 0) {
