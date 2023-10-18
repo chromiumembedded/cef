@@ -285,18 +285,18 @@ void OnTestSMRProcessMessageReceived(
       static_cast<const bv_utils::RendererMessage*>(region->Memory());
   const auto message_size =
       std::max(region->Size(), sizeof(bv_utils::BrowserMessage));
-  const auto renderer_time = renderer_msg->start_time;
-  const auto duration = finish_time - renderer_time;
-  const auto start_time = bv_utils::Now();
+
+  std::vector<uint8_t> data(message_size);
+  const auto browser_msg =
+      reinterpret_cast<bv_utils::BrowserMessage*>(data.data());
+  browser_msg->test_id = renderer_msg->test_id;
+  browser_msg->duration = finish_time - renderer_msg->start_time;
+  browser_msg->start_time = bv_utils::Now();
 
   auto builder = CefSharedProcessMessageBuilder::Create(
       bv_utils::kTestSendSMRProcessMessage, message_size);
 
-  const auto browser_msg =
-      static_cast<bv_utils::BrowserMessage*>(builder->Memory());
-  browser_msg->test_id = renderer_msg->test_id;
-  browser_msg->duration = duration;
-  browser_msg->start_time = start_time;
+  bv_utils::CopyDataIntoMemory(data, builder->Memory());
 
   frame->SendProcessMessage(PID_RENDERER, builder->Build());
 }
