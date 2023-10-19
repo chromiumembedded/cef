@@ -34,10 +34,10 @@ index 3b58e4f2de295..e0348501c83d8 100644
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index a0d56a9a24f22..c7cc6c3f6ae3f 100644
+index 5733e6d1ea77f..5aa0dffc85def 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -1047,7 +1047,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -1060,7 +1060,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -46,7 +46,7 @@ index a0d56a9a24f22..c7cc6c3f6ae3f 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -1056,6 +1056,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -1069,6 +1069,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -55,7 +55,7 @@ index a0d56a9a24f22..c7cc6c3f6ae3f 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index a6e922be7e686..e4b4a9150295a 100644
+index 8b4b26ed9f976..6f01db1ae5ef7 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -40,6 +40,7 @@
@@ -66,7 +66,7 @@ index a6e922be7e686..e4b4a9150295a 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1914,7 +1915,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1940,7 +1941,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -75,7 +75,7 @@ index a6e922be7e686..e4b4a9150295a 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2128,6 +2129,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2154,6 +2155,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -95,7 +95,7 @@ index a6e922be7e686..e4b4a9150295a 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2184,6 +2198,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2210,6 +2224,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -132,10 +132,10 @@ index a4130ad4dc815..b303f6c8768b7 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 328ed025f6b71..3f0e661054c7e 100644
+index 3c3ebfeec280e..b239506a39b43 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -621,6 +621,8 @@ void RenderThreadImpl::Init() {
+@@ -584,6 +584,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -145,10 +145,10 @@ index 328ed025f6b71..3f0e661054c7e 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 3206463a734a8..39cd7e0e2656c 100644
+index cddb519c4c893..68b5fc0f60d9c 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -947,6 +947,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -941,6 +941,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -165,10 +165,10 @@ index 3206463a734a8..39cd7e0e2656c 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 4813c8ce4525f..be9f6167288a7 100644
+index 84c36d410a352..7904a0050e3bb 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -224,6 +224,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -225,6 +225,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
    InertAndMinimumIntervalOfUserLevelMemoryPressureSignal() override;
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -179,10 +179,10 @@ index 4813c8ce4525f..be9f6167288a7 100644
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
 diff --git content/shell/browser/shell_content_browser_client.cc content/shell/browser/shell_content_browser_client.cc
-index c1834434b9e7d..71b9d1034e7d8 100644
+index 0008e3c7c9600..e639ae5373af0 100644
 --- content/shell/browser/shell_content_browser_client.cc
 +++ content/shell/browser/shell_content_browser_client.cc
-@@ -668,7 +668,7 @@ void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
+@@ -685,7 +685,7 @@ void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
          // BUILDFLAG(IS_ANDROID)
  
@@ -191,7 +191,7 @@ index c1834434b9e7d..71b9d1034e7d8 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -677,6 +677,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
+@@ -694,6 +694,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    ConfigureNetworkContextParamsForShell(context, network_context_params,
                                          cert_verifier_creation_params);
@@ -200,10 +200,10 @@ index c1834434b9e7d..71b9d1034e7d8 100644
  
  std::vector<base::FilePath>
 diff --git content/shell/browser/shell_content_browser_client.h content/shell/browser/shell_content_browser_client.h
-index 32966a5dcf3e6..0954d033d0f4b 100644
+index b33300b6da3ea..fb7d4c5f7b029 100644
 --- content/shell/browser/shell_content_browser_client.h
 +++ content/shell/browser/shell_content_browser_client.h
-@@ -130,7 +130,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
+@@ -137,7 +137,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
          // BUILDFLAG(IS_ANDROID)
    device::GeolocationManager* GetGeolocationManager() override;

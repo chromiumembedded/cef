@@ -347,9 +347,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
   RegisterAnimationPolicyPrefs(registry);
 
   // From chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserUserPrefs.
-  registry->RegisterBooleanPref(
-      prefs::kEnableDoNotTrack, false,
-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
   registry->RegisterBooleanPref(prefs::kCaretBrowsingEnabled, false);
 
   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,

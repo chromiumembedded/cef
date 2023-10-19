@@ -81,7 +81,7 @@ index 27a803784eb9e..a8b033f475cb4 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 819bffbbe47c1..c00e3e6925cfe 100644
+index 680c8ec662ecf..2c898fc6e1c70 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -6,6 +6,8 @@
@@ -93,7 +93,7 @@ index 819bffbbe47c1..c00e3e6925cfe 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -90,8 +92,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -100,8 +102,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -105,7 +105,7 @@ index 819bffbbe47c1..c00e3e6925cfe 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -149,11 +153,9 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -159,11 +163,9 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  

@@ -82,7 +82,8 @@ class CefBrowserPlatformDelegateOsr
                      const gfx::Vector2d& image_offset,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
-  void UpdateDragCursor(ui::mojom::DragOperation operation) override;
+  void UpdateDragOperation(ui::mojom::DragOperation operation,
+                           bool document_is_handling_drag) override;
   void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(
@@ -125,11 +126,16 @@ class CefBrowserPlatformDelegateOsr
   // We also keep track of the RenderViewHost we're dragging over to avoid
   // sending the drag exited message after leaving the current
   // view. |current_rvh_for_drag_| should not be dereferenced.
-  void* current_rvh_for_drag_;
+  void* current_rvh_for_drag_ = nullptr;
 
   // We keep track of the RenderWidgetHost from which the current drag started,
   // in order to properly route the drag end message to it.
   base::WeakPtr<content::RenderWidgetHostImpl> drag_start_rwh_;
+
+  // Set to true when the document is handling the drag. This means that the
+  // document has registered an interest in the dropped data and the renderer
+  // process should pass the data to the document on drop.
+  bool document_is_handling_drag_ = false;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_

@@ -1403,12 +1403,12 @@ make_pack_header("strings") {
   header = "$root_out_dir/includes/include/cef_pack_strings.h"
   inputs = [
     "$root_gen_dir/cef/grit/cef_strings.h",
-    "$root_gen_dir/chrome/grit/chromium_strings.h",
+    "$root_gen_dir/chrome/grit/branded_strings.h",
     "$root_gen_dir/chrome/grit/generated_resources.h",
     "$root_gen_dir/chrome/grit/locale_settings.h",
     "$root_gen_dir/chrome/grit/platform_locale_settings.h",
     "$root_gen_dir/components/omnibox/resources/grit/omnibox_pedal_synonyms.h",
-    "$root_gen_dir/components/strings/grit/components_chromium_strings.h",
+    "$root_gen_dir/components/strings/grit/components_branded_strings.h",
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
     "$root_gen_dir/services/strings/grit/services_strings.h",
@@ -1419,12 +1419,12 @@ make_pack_header("strings") {
 
   deps = [
     ":cef_strings",
-    "//chrome/app:chromium_strings",
+    "//chrome/app:branded_strings",
     "//chrome/app:generated_resources",
     "//chrome/app/resources:locale_settings",
     "//chrome/app/resources:platform_locale_settings",
     "//components/omnibox/resources:omnibox_pedal_synonyms",
-    "//components/strings:components_chromium_strings",
+    "//components/strings:components_branded_strings",
     "//components/strings:components_locale_settings",
     "//components/strings:components_strings",
     "//extensions/strings",

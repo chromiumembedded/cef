@@ -84,7 +84,7 @@ index ee1675aa1ecc9..cb526d1aba30d 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index f3e41082fe306..abdefa172be33 100644
+index 90859a99248a4..26fec83939559 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -1023,7 +1023,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,

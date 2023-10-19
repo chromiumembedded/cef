@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index a3f8485e40bbc..dc8c1aa898f72 100644
+index dc763b0fac47b..d8b63a0f62267 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -25,7 +25,7 @@ struct DropData;

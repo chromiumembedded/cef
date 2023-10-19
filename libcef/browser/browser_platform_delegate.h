@@ -350,7 +350,8 @@ class CefBrowserPlatformDelegate {
       const gfx::Vector2d& image_offset,
       const blink::mojom::DragEventSourceInfo& event_info,
       content::RenderWidgetHostImpl* source_rwh);
-  virtual void UpdateDragCursor(ui::mojom::DragOperation operation);
+  virtual void UpdateDragOperation(ui::mojom::DragOperation operation,
+                                   bool document_is_handling_drag);
   virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(

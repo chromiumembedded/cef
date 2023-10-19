@@ -347,6 +347,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   CefDragDataImpl* data_impl = static_cast<CefDragDataImpl*>(drag_data.get());
   base::AutoLock lock_scope(data_impl->lock());
   content::DropData* drop_data = data_impl->drop_data();
+  drop_data->document_is_handling_drag = document_is_handling_drag_;
   const gfx::Point& screen_pt =
       GetScreenPoint(client_pt, /*want_dip_coords=*/false);
   blink::DragOperationsMask ops =
@@ -494,6 +495,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
         static_cast<CefDragDataImpl*>(drag_data_.get());
     base::AutoLock lock_scope(data_impl->lock());
     content::DropData* drop_data = data_impl->drop_data();
+    drop_data->document_is_handling_drag = document_is_handling_drag_;
     int modifiers = TranslateWebEventModifiers(event.modifiers);
 
     target_rwh->DragTargetDrop(*drop_data, transformed_pt,
@@ -535,8 +537,11 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
   }
 }
 
-void CefBrowserPlatformDelegateOsr::UpdateDragCursor(
-    ui::mojom::DragOperation operation) {
+void CefBrowserPlatformDelegateOsr::UpdateDragOperation(
+    ui::mojom::DragOperation operation,
+    bool document_is_handling_drag) {
+  document_is_handling_drag_ = document_is_handling_drag;
+
   CefRefPtr<CefRenderHandler> handler =
       browser_->GetClient()->GetRenderHandler();
   if (handler.get()) {

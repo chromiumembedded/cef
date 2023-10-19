@@ -1304,6 +1304,31 @@ AlloyContentBrowserClient::GetSandboxedStorageServiceDataDirectory() {
   return GetUserDataPath();
 }
 
+base::FilePath AlloyContentBrowserClient::GetShaderDiskCacheDirectory() {
+  return GetUserDataPath().Append(FILE_PATH_LITERAL("ShaderCache"));
+}
+
+base::FilePath AlloyContentBrowserClient::GetGrShaderDiskCacheDirectory() {
+  return GetUserDataPath().Append(FILE_PATH_LITERAL("GrShaderCache"));
+}
+
+base::FilePath AlloyContentBrowserClient::GetGraphiteDawnDiskCacheDirectory() {
+  return GetUserDataPath().Append(FILE_PATH_LITERAL("GraphiteDawnCache"));
+}
+
+base::FilePath AlloyContentBrowserClient::GetNetLogDefaultDirectory() {
+  return GetUserDataPath();
+}
+
+base::FilePath AlloyContentBrowserClient::GetFirstPartySetsDirectory() {
+  return GetUserDataPath();
+}
+
+absl::optional<base::FilePath>
+AlloyContentBrowserClient::GetLocalTracesDirectory() {
+  return GetUserDataPath();
+}
+
 std::string AlloyContentBrowserClient::GetProduct() {
   return GetChromeProduct();
 }

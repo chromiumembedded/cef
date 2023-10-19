@@ -9,7 +9,6 @@
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 
 #include "base/stl_util.h"
-#include "base/types/optional_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/resource_request_policy.h"
 #include "content/public/common/content_constants.h"
@@ -126,8 +125,7 @@ void CefExtensionsRendererClient::WillSendRequest(
   // URL to something invalid to prevent the request and cause an error.
   if (url.ProtocolIs(extensions::kExtensionScheme) &&
       !resource_request_policy_->CanRequestResource(
-          GURL(url), frame, transition_type,
-          base::OptionalFromPtr(initiator_origin))) {
+          GURL(url), frame, transition_type, initiator_origin)) {
     *new_url = GURL(chrome::kExtensionInvalidRequestURL);
   }
 }

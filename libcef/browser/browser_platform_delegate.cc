@@ -360,8 +360,9 @@ void CefBrowserPlatformDelegate::StartDragging(
   DCHECK(false);
 }
 
-void CefBrowserPlatformDelegate::UpdateDragCursor(
-    ui::mojom::DragOperation operation) {
+void CefBrowserPlatformDelegate::UpdateDragOperation(
+    ui::mojom::DragOperation operation,
+    bool document_is_handling_drag) {
   DCHECK(false);
 }
 

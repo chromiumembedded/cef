@@ -30,6 +30,81 @@ using blink::WebInputElement;
 using blink::WebNode;
 using blink::WebSelectElement;
 using blink::WebString;
+using FormControlType = WebFormControlElement::Type;
+
+namespace {
+
+cef_dom_form_control_type_t GetCefFormControlType(FormControlType type) {
+  switch (type) {
+    case FormControlType::kButtonButton:
+      return DOM_FORM_CONTROL_TYPE_BUTTON_BUTTON;
+    case FormControlType::kButtonSubmit:
+      return DOM_FORM_CONTROL_TYPE_BUTTON_SUBMIT;
+    case FormControlType::kButtonReset:
+      return DOM_FORM_CONTROL_TYPE_BUTTON_RESET;
+    case FormControlType::kButtonSelectList:
+      return DOM_FORM_CONTROL_TYPE_BUTTON_SELECT_LIST;
+    case FormControlType::kFieldset:
+      return DOM_FORM_CONTROL_TYPE_FIELDSET;
+    case FormControlType::kInputButton:
+      return DOM_FORM_CONTROL_TYPE_INPUT_BUTTON;
+    case FormControlType::kInputCheckbox:
+      return DOM_FORM_CONTROL_TYPE_INPUT_CHECKBOX;
+    case FormControlType::kInputColor:
+      return DOM_FORM_CONTROL_TYPE_INPUT_COLOR;
+    case FormControlType::kInputDate:
+      return DOM_FORM_CONTROL_TYPE_INPUT_DATE;
+    case FormControlType::kInputDatetimeLocal:
+      return DOM_FORM_CONTROL_TYPE_INPUT_DATETIME_LOCAL;
+    case FormControlType::kInputEmail:
+      return DOM_FORM_CONTROL_TYPE_INPUT_EMAIL;
+    case FormControlType::kInputFile:
+      return DOM_FORM_CONTROL_TYPE_INPUT_FILE;
+    case FormControlType::kInputHidden:
+      return DOM_FORM_CONTROL_TYPE_INPUT_HIDDEN;
+    case FormControlType::kInputImage:
+      return DOM_FORM_CONTROL_TYPE_INPUT_IMAGE;
+    case FormControlType::kInputMonth:
+      return DOM_FORM_CONTROL_TYPE_INPUT_MONTH;
+    case FormControlType::kInputNumber:
+      return DOM_FORM_CONTROL_TYPE_INPUT_NUMBER;
+    case FormControlType::kInputPassword:
+      return DOM_FORM_CONTROL_TYPE_INPUT_PASSWORD;
+    case FormControlType::kInputRadio:
+      return DOM_FORM_CONTROL_TYPE_INPUT_RADIO;
+    case FormControlType::kInputRange:
+      return DOM_FORM_CONTROL_TYPE_INPUT_RANGE;
+    case FormControlType::kInputReset:
+      return DOM_FORM_CONTROL_TYPE_INPUT_RESET;
+    case FormControlType::kInputSearch:
+      return DOM_FORM_CONTROL_TYPE_INPUT_SEARCH;
+    case FormControlType::kInputSubmit:
+      return DOM_FORM_CONTROL_TYPE_INPUT_SUBMIT;
+    case FormControlType::kInputTelephone:
+      return DOM_FORM_CONTROL_TYPE_INPUT_TELEPHONE;
+    case FormControlType::kInputText:
+      return DOM_FORM_CONTROL_TYPE_INPUT_TEXT;
+    case FormControlType::kInputTime:
+      return DOM_FORM_CONTROL_TYPE_INPUT_TIME;
+    case FormControlType::kInputUrl:
+      return DOM_FORM_CONTROL_TYPE_INPUT_URL;
+    case FormControlType::kInputWeek:
+      return DOM_FORM_CONTROL_TYPE_INPUT_WEEK;
+    case FormControlType::kOutput:
+      return DOM_FORM_CONTROL_TYPE_OUTPUT;
+    case FormControlType::kSelectOne:
+      return DOM_FORM_CONTROL_TYPE_SELECT_ONE;
+    case FormControlType::kSelectMultiple:
+      return DOM_FORM_CONTROL_TYPE_SELECT_MULTIPLE;
+    case FormControlType::kSelectList:
+      return DOM_FORM_CONTROL_TYPE_SELECT_LIST;
+    case FormControlType::kTextArea:
+      return DOM_FORM_CONTROL_TYPE_TEXT_AREA;
+  }
+  return DOM_FORM_CONTROL_TYPE_UNSUPPORTED;
+}
+
+}  // namespace
 
 CefDOMNodeImpl::CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                                const blink::WebNode& node)
@@ -113,10 +188,9 @@ bool CefDOMNodeImpl::IsFormControlElement() {
   return false;
 }
 
-CefString CefDOMNodeImpl::GetFormControlElementType() {
-  CefString str;
+CefDOMNodeImpl::FormControlType CefDOMNodeImpl::GetFormControlElementType() {
   if (!VerifyContext()) {
-    return str;
+    return DOM_FORM_CONTROL_TYPE_UNSUPPORTED;
   }
 
   if (node_.IsElementNode()) {
@@ -125,14 +199,11 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
       // Retrieve the type from the form control element.
       const WebFormControlElement& formElement =
           node_.To<WebFormControlElement>();
-
-      const std::u16string& form_control_type =
-          formElement.FormControlType().Utf16();
-      str = form_control_type;
+      return GetCefFormControlType(formElement.FormControlType());
     }
   }
 
-  return str;
+  return DOM_FORM_CONTROL_TYPE_UNSUPPORTED;
 }
 
 bool CefDOMNodeImpl::IsSame(CefRefPtr<CefDOMNode> that) {
@@ -175,19 +246,7 @@ CefString CefDOMNodeImpl::GetValue() {
       const WebFormControlElement& formElement =
           node_.To<WebFormControlElement>();
 
-      std::u16string value;
-      const std::u16string& form_control_type =
-          formElement.FormControlType().Utf16();
-      if (form_control_type == u"text") {
-        const WebInputElement& input_element =
-            formElement.To<WebInputElement>();
-        value = input_element.Value().Utf16();
-      } else if (form_control_type == u"select-one") {
-        const WebSelectElement& select_element =
-            formElement.To<WebSelectElement>();
-        value = select_element.Value().Utf16();
-      }
-
+      std::u16string value = formElement.Value().Utf16();
       base::TrimWhitespace(value, base::TRIM_LEADING, &value);
       str = value;
     }

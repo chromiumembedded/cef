@@ -12,7 +12,7 @@ index 239c3870a149a..9f5a34fc846bd 100644
  if (use_atk) {
    assert(use_glib, "use_atk=true requires that use_glib=true")
 diff --git build/config/linux/atspi2/BUILD.gn build/config/linux/atspi2/BUILD.gn
-index 51b6d33aab3c2..970d454e6b539 100644
+index d1629205c82a3..21de94bee534b 100644
 --- build/config/linux/atspi2/BUILD.gn
 +++ build/config/linux/atspi2/BUILD.gn
 @@ -6,7 +6,7 @@ import("//build/config/linux/pkg_config.gni")

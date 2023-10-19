@@ -821,9 +821,10 @@ void SetupIframeRequest(CookieTestSetup* setup,
           !has_same_origin || IsNonStandardType(iframe_handler)
               ? "null"
               : GetOrigin(iframe_handler);
-      setup->AddConsoleMessage("SecurityError: Blocked a frame with origin \"" +
-                               origin +
-                               "\" from accessing a cross-origin frame.");
+      setup->AddConsoleMessage(
+          "SecurityError: Failed to read a named property 'document' from "
+          "'Window': Blocked a frame with origin \"" +
+          origin + "\" from accessing a cross-origin frame.");
     }
 
     if (has_same_origin && main_handler == iframe_handler &&

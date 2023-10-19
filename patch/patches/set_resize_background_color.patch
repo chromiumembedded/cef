@@ -1,8 +1,8 @@
 diff --git ui/views/controls/webview/webview.cc ui/views/controls/webview/webview.cc
-index 46833be700bb8..3ffdedd8509ac 100644
+index a2459f3137633..ad29bed6db43a 100644
 --- ui/views/controls/webview/webview.cc
 +++ ui/views/controls/webview/webview.cc
-@@ -150,6 +150,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
+@@ -160,6 +160,10 @@ void WebView::EnableSizingFromWebContents(const gfx::Size& min_size,
    }
  }
  
@@ -14,10 +14,10 @@ index 46833be700bb8..3ffdedd8509ac 100644
    if (crashed_overlay_view_.view() == crashed_overlay_view) {
      return;
 diff --git ui/views/controls/webview/webview.h ui/views/controls/webview/webview.h
-index e5bc9be5a44b3..132e374aff1de 100644
+index ff8755f0cfa28..0c7d3e22b863a 100644
 --- ui/views/controls/webview/webview.h
 +++ ui/views/controls/webview/webview.h
-@@ -89,6 +89,10 @@ class WEBVIEW_EXPORT WebView : public View,
+@@ -91,6 +91,10 @@ class WEBVIEW_EXPORT WebView : public View,
    void EnableSizingFromWebContents(const gfx::Size& min_size,
                                     const gfx::Size& max_size);
  

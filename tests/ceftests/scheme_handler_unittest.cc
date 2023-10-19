@@ -1395,7 +1395,8 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
            "customnonstd:xhr%20value");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1520,7 +1521,8 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
            "customstd://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"customstd://test2\" from accessing "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"customstd://test2\" from accessing "
       "a cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1547,7 +1549,8 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
            "https://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"https://test2\" from accessing a "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"https://test2\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1575,7 +1578,8 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
            "customnonstd:some%20value");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1602,7 +1606,8 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
            "customstd://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"customstd://test2\" from accessing "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"customstd://test2\" from accessing "
       "a cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1629,7 +1634,8 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
            "customnonstd:some%20value");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"null\" from accessing a "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
@@ -1754,7 +1760,8 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   SetUpXSS(&test_results, "https://test1/run.html", "https://test2/xss.html");
 
   test_results.console_messages.push_back(
-      "Error: Blocked a frame with origin \"https://test2\" from accessing a "
+      "Error: Failed to read a named property 'getResult' from 'Window': "
+      "Blocked a frame with origin \"https://test2\" from accessing a "
       "cross-origin frame.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);

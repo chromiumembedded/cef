@@ -42,7 +42,7 @@ index 438276b719c2f..69635e429be78 100644
      const extensions::Extension* extension =
          registry->enabled_extensions().GetByID(extension_id);
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index c573a3908fd43..1077f313f71b8 100644
+index 8ef09f60649bb..8a4eb86233f67 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
 @@ -982,6 +982,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(

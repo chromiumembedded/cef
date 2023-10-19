@@ -189,10 +189,10 @@ void CefMediaRouterManager::CreateRoute(
     const url::Origin& origin,
     CreateRouteResultCallback callback) {
   GetMediaRouter()->CreateRoute(
-      source_id, sink_id, origin, nullptr /* web_contents */,
+      source_id, sink_id, origin, /*web_contents=*/nullptr,
       base::BindOnce(&CefMediaRouterManager::OnCreateRoute,
                      weak_ptr_factory_.GetWeakPtr(), std::move(callback)),
-      base::Milliseconds(kTimeoutMs), false /* incognito */);
+      base::Milliseconds(kTimeoutMs));
 }
 
 void CefMediaRouterManager::SendRouteMessage(

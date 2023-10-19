@@ -170,9 +170,6 @@ void GetHeaderMap(const CefRequest::HeaderMap& source,
     return;                                 \
   }
 
-#define SETBOOLFLAG(obj, flags, method, FLAG) \
-  obj.method((flags & (FLAG)) == (FLAG))
-
 // CefRequest -----------------------------------------------------------------
 
 // static
@@ -611,10 +608,12 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
   }
   request.SetCacheMode(GetFetchCacheMode(flags));
 
-  SETBOOLFLAG(request, params->load_flags, SetAllowStoredCredentials,
-              UR_FLAG_ALLOW_STORED_CREDENTIALS);
-  SETBOOLFLAG(request, params->load_flags, SetReportUploadProgress,
-              UR_FLAG_REPORT_UPLOAD_PROGRESS);
+  request.SetCredentialsMode(
+      (params->load_flags & UR_FLAG_ALLOW_STORED_CREDENTIALS)
+          ? network::mojom::CredentialsMode::kInclude
+          : network::mojom::CredentialsMode::kOmit);
+  request.SetReportUploadProgress(params->load_flags &
+                                  UR_FLAG_REPORT_UPLOAD_PROGRESS);
 }
 
 void CefRequestImpl::Get(cef::mojom::RequestParamsPtr& params) const {

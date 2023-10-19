@@ -60,18 +60,19 @@ index cead7cfa14bae..24142c2e4896f 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 3d2108f13ea2f..261b0a42bfb21 100644
+index 9c44797e9e238..b61704db987b6 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
-@@ -62,11 +62,12 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -62,12 +62,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
           host_type == mojom::ViewType::kExtensionDialog ||
           host_type == mojom::ViewType::kExtensionPopup ||
           host_type == mojom::ViewType::kExtensionSidePanel);
 -  host_contents_ = WebContents::Create(
 +  host_contents_owned_ = WebContents::Create(
-       WebContents::CreateParams(browser_context_, site_instance)),
--  content::WebContentsObserver::Observe(host_contents_.get());
+       WebContents::CreateParams(browser_context_, site_instance));
 +  host_contents_ = host_contents_owned_.get();
+   host_contents_->SetOwnerLocationForDebug(FROM_HERE);
+-  content::WebContentsObserver::Observe(host_contents_.get());
 +  content::WebContentsObserver::Observe(host_contents_);
    host_contents_->SetDelegate(this);
 -  SetViewType(host_contents_.get(), host_type);
@@ -79,7 +80,7 @@ index 3d2108f13ea2f..261b0a42bfb21 100644
    main_frame_host_ = host_contents_->GetPrimaryMainFrame();
  
    // Listen for when an extension is unloaded from the same profile, as it may
-@@ -82,11 +83,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -83,11 +84,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
    // Create password reuse detection manager when new extension web contents are
    // created.
    ExtensionsBrowserClient::Get()->CreatePasswordReuseDetectionManager(
@@ -131,7 +132,7 @@ index 3d2108f13ea2f..261b0a42bfb21 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index dda0620251895..2b29bdef52444 100644
+index dda0620251895..4014bd801f727 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -62,6 +62,12 @@ class ExtensionHost : public DeferredStartRenderHost,

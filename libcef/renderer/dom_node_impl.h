@@ -23,7 +23,7 @@ class CefDOMNodeImpl : public CefDOMNode {
   bool IsElement() override;
   bool IsEditable() override;
   bool IsFormControlElement() override;
-  CefString GetFormControlElementType() override;
+  FormControlType GetFormControlElementType() override;
   bool IsSame(CefRefPtr<CefDOMNode> that) override;
   CefString GetName() override;
   CefString GetValue() override;

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d703b8af664ed9dfac8ad935616ef43fafc062e2$
+// $hash=f18407bec715e682d5745aeb155a0113473723dd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
@@ -209,8 +209,7 @@ typedef struct _cef_domnode_t {
   ///
   /// Returns the type of this form control element node.
   ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t(CEF_CALLBACK* get_form_control_element_type)(
+  cef_dom_form_control_type_t(CEF_CALLBACK* get_form_control_element_type)(
       struct _cef_domnode_t* self);
 
   ///

@@ -163,7 +163,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                      const gfx::Vector2d& image_offset,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh);
-  void UpdateDragCursor(ui::mojom::DragOperation operation);
+  void UpdateDragOperation(ui::mojom::DragOperation operation,
+                           bool document_is_handling_drag);
 
   // Accessors that must be called on the UI thread.
   extensions::ExtensionHost* GetExtensionHost() const;

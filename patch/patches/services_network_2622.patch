@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index 0257b1e7e2ad4..b910f788f5a57 100644
+index 0a6c1f498b8fc..79e0cf27a7715 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -21,7 +21,7 @@ index 0257b1e7e2ad4..b910f788f5a57 100644
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index fd92bb9a1f148..4d27c25791033 100644
+index 1200475275e91..d32195f01c7ed 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -32,7 +32,7 @@ index fd92bb9a1f148..4d27c25791033 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -337,8 +338,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -320,8 +321,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
@@ -45,7 +45,17 @@ index fd92bb9a1f148..4d27c25791033 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -893,9 +896,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -480,6 +483,9 @@ void ProfileNetworkContextService::OnTruncatedCookieBlockingChanged() {
+ 
+ void ProfileNetworkContextService::OnFirstPartySetsEnabledChanged(
+     bool enabled) {
++  if (cef::IsAlloyRuntimeEnabled()) {
++    return;
++  }
+   // Update all FPS Access Delegates on the FPS service to be `enabled`.
+   first_party_sets::FirstPartySetsPolicyServiceFactory::GetForBrowserContext(
+       profile_)
+@@ -866,9 +872,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -73,7 +83,7 @@ index fd92bb9a1f148..4d27c25791033 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -904,15 +924,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -877,15 +900,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -93,6 +103,46 @@ index fd92bb9a1f148..4d27c25791033 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
+@@ -1038,6 +1060,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+   network_context_params->block_trust_tokens =
+       anti_abuse_content_setting == CONTENT_SETTING_BLOCK;
+ 
++  if (!cef::IsAlloyRuntimeEnabled()) {
+   network_context_params->first_party_sets_access_delegate_params =
+       network::mojom::FirstPartySetsAccessDelegateParams::New();
+   network_context_params->first_party_sets_access_delegate_params->enabled =
+@@ -1054,6 +1077,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+           GetForBrowserContext(profile_);
+   DCHECK(fps_service);
+   fps_service->AddRemoteAccessDelegate(std::move(fps_access_delegate_remote));
++  }
+ 
+   network_context_params->acam_preflight_spec_conformant =
+       profile_->GetPrefs()->GetBoolean(
+diff --git chrome/browser/net/profile_network_context_service_factory.cc chrome/browser/net/profile_network_context_service_factory.cc
+index 14ac2ce8b90c5..99297094beea2 100644
+--- chrome/browser/net/profile_network_context_service_factory.cc
++++ chrome/browser/net/profile_network_context_service_factory.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
+ #include "chrome/browser/net/profile_network_context_service.h"
+ #include "chrome/browser/privacy_sandbox/privacy_sandbox_settings_factory.h"
+@@ -53,9 +54,11 @@ ProfileNetworkContextServiceFactory::ProfileNetworkContextServiceFactory()
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+   DependsOn(chromeos::CertificateProviderServiceFactory::GetInstance());
+ #endif
++  if (!cef::IsAlloyRuntimeEnabled()) {
+   DependsOn(PrivacySandboxSettingsFactory::GetInstance());
+   DependsOn(
+       first_party_sets::FirstPartySetsPolicyServiceFactory::GetInstance());
++  }
+ }
+ 
+ ProfileNetworkContextServiceFactory::~ProfileNetworkContextServiceFactory() =
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
 index 77522f65b7b6e..51cc2d60d4b8d 100644
 --- chrome/browser/signin/identity_manager_factory.cc
@@ -195,10 +245,10 @@ index 6c804ec1092af..605ff3b32b0b8 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index f076c5dc62ca5..5b53652ef63df 100644
+index 0a0fa8772cab9..e581302c76db1 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2444,16 +2444,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2509,16 +2509,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -227,10 +277,10 @@ index f076c5dc62ca5..5b53652ef63df 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 039407080ba9b..aa960e5943129 100644
+index 3d95f8cd1adeb..8a2fa92c7eb5e 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -377,6 +377,9 @@ struct NetworkContextParams {
+@@ -376,6 +376,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

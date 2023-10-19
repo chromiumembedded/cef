@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 9dd7439e8c1c0..7da7d04fb2d00 100644
+index 1634c3556dc78..276a9f58e2bac 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -648,6 +648,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -18,7 +18,7 @@ index 9dd7439e8c1c0..7da7d04fb2d00 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 3b4461acc2fc6..ed1ef17fb3667 100644
+index b010d43aaeb90..5172abec682b9 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -71,6 +71,7 @@ class CursorManager;
@@ -85,7 +85,7 @@ index 3b4461acc2fc6..ed1ef17fb3667 100644
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 36b742a3f2b77..9f9d22b531237 100644
+index 401e65a8ebe6f..b83410da96f67 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -52,6 +52,10 @@ namespace {
@@ -179,10 +179,10 @@ index e4e6d3104da9e..bb372b0cd2960 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index 19e84689c878f..a8943c34699c5 100644
+index e5c4e4d662261..15ed8c1a24557 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-@@ -165,6 +165,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
+@@ -171,6 +171,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
    return result;
  }
  
@@ -201,7 +201,7 @@ index 19e84689c878f..a8943c34699c5 100644
  void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
    // In Windows, the native events sent to chrome are separated into client
    // and non-client versions of events, which we record on our LocatedEvent
-@@ -288,6 +300,8 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
+@@ -294,6 +306,8 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
  
    properties->wayland_app_id = params.wayland_app_id;
  
@@ -211,10 +211,10 @@ index 19e84689c878f..a8943c34699c5 100644
    properties->x11_extension_delegate = this;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index 01d4ffe408a84..fbe41fefbb2bd 100644
+index ee09e16753ff0..256a24a0c6ebd 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-@@ -57,6 +57,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -59,6 +59,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
    // Disables event listening to make |dialog| modal.
    base::OnceClosure DisableEventListening();
  
@@ -223,7 +223,7 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
   protected:
    // Overridden from DesktopWindowTreeHost:
    void Init(const Widget::InitParams& params) override;
-@@ -66,6 +68,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -68,6 +70,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
        const gfx::Vector2d& drag_offset,
        Widget::MoveLoopSource source,
        Widget::MoveLoopEscapeBehavior escape_behavior) override;
@@ -232,7 +232,7 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
  
    // PlatformWindowDelegate:
    void DispatchEvent(ui::Event* event) override;
-@@ -114,6 +118,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
+@@ -116,6 +120,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
  
    uint32_t modal_dialog_counter_ = 0;
  
@@ -243,7 +243,7 @@ index 01d4ffe408a84..fbe41fefbb2bd 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 91bee2b0173c6..c0ccd724d4bcc 100644
+index 9092e91e37b7d..9d749f2508eb0 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -286,8 +286,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -359,7 +359,7 @@ index 2e4bacce52a45..76916c5d21cb9 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 6e1bc593b0082..4c5925f946616 100644
+index 2f552f72074e3..3f057242d198c 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -368,7 +368,8 @@ void Widget::Init(InitParams params) {
@@ -372,7 +372,7 @@ index 6e1bc593b0082..4c5925f946616 100644
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
        params.type != views::Widget::InitParams::TYPE_WINDOW) {
-@@ -472,13 +473,21 @@ void Widget::Init(InitParams params) {
+@@ -480,14 +481,22 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -385,17 +385,18 @@ index 6e1bc593b0082..4c5925f946616 100644
      }
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
--    SetInitialBoundsForFramelessWindow(bounds);
-+    if (params.parent_widget != gfx::kNullAcceleratedWidget) {
-+      // Set the bounds directly instead of applying an inset.
-+      SetBounds(bounds);
-+    } else {
-+      SetInitialBoundsForFramelessWindow(bounds);
-+    }
+     if (should_set_initial_bounds) {
+-      SetInitialBoundsForFramelessWindow(bounds);
++      if (params.parent_widget != gfx::kNullAcceleratedWidget) {
++        // Set the bounds directly instead of applying an inset.
++        SetBounds(bounds);
++      } else {
++        SetInitialBoundsForFramelessWindow(bounds);
++      }
+     }
    }
  
-   if (base::FeatureList::IsEnabled(features::kWidgetLayering)) {
-@@ -1615,10 +1624,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1631,10 +1640,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -413,7 +414,7 @@ index 6e1bc593b0082..4c5925f946616 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 6d10ae19965c3..6eba4e7492e81 100644
+index 419b75d0608b2..d772dc17d165c 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -351,6 +351,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -455,10 +456,10 @@ index 3b9b00b7d79ae..e759e3c1a9f34 100644
        if (native_widget_delegate->IsDialogBox()) {
          *style |= DS_MODALFRAME;
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index a386fb0594530..edc5dc99de31d 100644
+index f43aa724b2a8e..2782c80694a70 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -953,8 +953,12 @@ bool HWNDMessageHandler::IsActive() const {
+@@ -955,8 +955,12 @@ bool HWNDMessageHandler::IsActive() const {
    // In headless mode return expected activation state instead of the
    // actual one. This ensures that onfocus/onblur notifications work
    // as expected and no unexpected throttling occurs.
@@ -472,7 +473,7 @@ index a386fb0594530..edc5dc99de31d 100644
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3346,10 +3350,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3353,10 +3357,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

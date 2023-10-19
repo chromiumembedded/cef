@@ -25,8 +25,8 @@
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
-#include "chrome/browser/prefetch/prefetch_prefs.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
+#include "chrome/browser/preloading/preloading_prefs.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
@@ -55,7 +55,7 @@
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "components/privacy_sandbox/privacy_sandbox_prefs.h"
+#include "components/privacy_sandbox/tracking_protection_prefs.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
@@ -269,7 +269,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     permissions::PermissionHatsTriggerHelper::RegisterProfilePrefs(
         registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
-    privacy_sandbox::RegisterProfilePrefs(registry.get());
+    privacy_sandbox::tracking_protection::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());

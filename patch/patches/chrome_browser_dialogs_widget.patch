@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 819da6b0bff94..b25a48fb2516b 100644
+index 819da6b0bff94..a8e3ecd8527bd 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -77,10 +77,10 @@ index 819da6b0bff94..b25a48fb2516b 100644
      DCHECK_EQ(parent_view, host->GetHostView());
      ModalDialogHostObserver* dialog_host_observer =
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-index 647391095306e..bd49316ac758e 100644
+index b986b7fa98c73..1000f529acc82 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 +++ components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-@@ -184,9 +184,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
+@@ -188,9 +188,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
    if (host_) {
      host_->AddObserver(this);
  
@@ -105,7 +105,7 @@ index 647391095306e..bd49316ac758e 100644
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index 51ed6bcf6b540..9ae4737e0737e 100644
+index 51ed6bcf6b540..c6e1161140655 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
 @@ -34,6 +34,10 @@ class WEB_MODAL_EXPORT ModalDialogHost {

@@ -39,51 +39,58 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void RenderViewCreated();
 
   // WebContentsView methods.
-  gfx::NativeView GetNativeView() const override;
-  gfx::NativeView GetContentNativeView() const override;
-  gfx::NativeWindow GetTopLevelNativeWindow() const override;
+  gfx::NativeView GetNativeView() const override { return gfx::NativeView(); }
+  gfx::NativeView GetContentNativeView() const override {
+    return gfx::NativeView();
+  }
+  gfx::NativeWindow GetTopLevelNativeWindow() const override {
+    return gfx::NativeWindow();
+  }
   gfx::Rect GetContainerBounds() const override;
-  void Focus() override;
-  void SetInitialFocus() override;
-  void StoreFocus() override;
-  void RestoreFocus() override;
-  void FocusThroughTabTraversal(bool reverse) override;
-  content::DropData* GetDropData() const override;
+  void Focus() override {}
+  void SetInitialFocus() override {}
+  void StoreFocus() override {}
+  void RestoreFocus() override {}
+  void FocusThroughTabTraversal(bool reverse) override {}
+  content::DropData* GetDropData() const override { return nullptr; }
   gfx::Rect GetViewBounds() const override;
-  void CreateView(gfx::NativeView context) override;
+  void CreateView(gfx::NativeView context) override {}
   content::RenderWidgetHostViewBase* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host) override;
   content::RenderWidgetHostViewBase* CreateViewForChildWidget(
       content::RenderWidgetHost* render_widget_host) override;
-  void SetPageTitle(const std::u16string& title) override;
-  void RenderViewReady() override;
+  void SetPageTitle(const std::u16string& title) override {}
+  void RenderViewReady() override {}
   void RenderViewHostChanged(content::RenderViewHost* old_host,
-                             content::RenderViewHost* new_host) override;
-  void SetOverscrollControllerEnabled(bool enabled) override;
-  void OnCapturerCountChanged() override;
-  void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override;
+                             content::RenderViewHost* new_host) override {}
+  void SetOverscrollControllerEnabled(bool enabled) override {}
+  void OnCapturerCountChanged() override {}
+  void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override {}
+  void CancelDragDropForPortalActivation() override {}
 
 #if BUILDFLAG(IS_MAC)
-  bool CloseTabAfterEventTrackingIfNeeded() override;
+  bool CloseTabAfterEventTrackingIfNeeded() override { return false; }
 #endif
 
   // RenderViewHostDelegateView methods.
   void ShowContextMenu(content::RenderFrameHost& render_frame_host,
                        const content::ContextMenuParams& params) override;
   void StartDragging(const content::DropData& drop_data,
+                     const url::Origin& source_origin,
                      blink::DragOperationsMask allowed_ops,
                      const gfx::ImageSkia& image,
                      const gfx::Vector2d& cursor_offset,
                      const gfx::Rect& drag_obj_rect,
                      const blink::mojom::DragEventSourceInfo& event_info,
                      content::RenderWidgetHostImpl* source_rwh) override;
-  void UpdateDragCursor(ui::mojom::DragOperation operation) override;
+  void UpdateDragOperation(ui::mojom::DragOperation operation,
+                           bool document_is_handling_drag) override;
   virtual void GotFocus(
       content::RenderWidgetHostImpl* render_widget_host) override;
   virtual void LostFocus(
       content::RenderWidgetHostImpl* render_widget_host) override;
   virtual void TakeFocus(bool reverse) override;
-  virtual void FullscreenStateChanged(bool is_fullscreen) override;
+  virtual void FullscreenStateChanged(bool is_fullscreen) override {}
 
  private:
   CefRenderWidgetHostViewOSR* GetView() const;

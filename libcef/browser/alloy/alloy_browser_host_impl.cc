@@ -1500,9 +1500,11 @@ void AlloyBrowserHostImpl::StartDragging(
   }
 }
 
-void AlloyBrowserHostImpl::UpdateDragCursor(
-    ui::mojom::DragOperation operation) {
+void AlloyBrowserHostImpl::UpdateDragOperation(
+    ui::mojom::DragOperation operation,
+    bool document_is_handling_drag) {
   if (platform_delegate_) {
-    platform_delegate_->UpdateDragCursor(operation);
+    platform_delegate_->UpdateDragOperation(operation,
+                                            document_is_handling_drag);
   }
 }

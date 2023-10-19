@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=84848cc9affe98814d49ff6a27854b61bec42992$
+// $hash=37ed8551da23d022650ec89ce0fb82b8eec55eae$
 //
 
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
@@ -92,7 +92,7 @@ NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsFormControlElement() {
 
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, is_form_control_element)) {
-    return false;
+    return DOM_NODE_TYPE_UNSUPPORTED;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -105,24 +105,22 @@ NO_SANITIZE("cfi-icall") bool CefDOMNodeCToCpp::IsFormControlElement() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefString CefDOMNodeCToCpp::GetFormControlElementType() {
+CefDOMNode::FormControlType CefDOMNodeCToCpp::GetFormControlElementType() {
   shutdown_checker::AssertNotShutdown();
 
   cef_domnode_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_form_control_element_type)) {
-    return CefString();
+    return DOM_FORM_CONTROL_TYPE_UNSUPPORTED;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval =
+  cef_dom_form_control_type_t _retval =
       _struct->get_form_control_element_type(_struct);
 
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

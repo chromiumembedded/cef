@@ -1162,14 +1162,16 @@ class OSRTestHandler : public RoutingTestHandler,
 
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         DragOperation operation) override {
+    if (operation == DRAG_OPERATION_NONE) {
+      return;
+    }
+
     if (test_type_ == OSR_TEST_DRAG_DROP_UPDATE_CURSOR && started()) {
-      if (operation != DRAG_OPERATION_NONE) {
-        const CefRect& dropdiv = GetElementBounds("dropdiv");
-        browser->GetHost()->DragSourceEndedAt(
-            MiddleX(dropdiv), MiddleY(dropdiv), DRAG_OPERATION_NONE);
-        browser->GetHost()->DragSourceSystemDragEnded();
-        DestroySucceededTestSoon();
-      }
+      const CefRect& dropdiv = GetElementBounds("dropdiv");
+      browser->GetHost()->DragSourceEndedAt(MiddleX(dropdiv), MiddleY(dropdiv),
+                                            DRAG_OPERATION_NONE);
+      browser->GetHost()->DragSourceSystemDragEnded();
+      DestroySucceededTestSoon();
     } else if (test_type_ == OSR_TEST_DRAG_DROP_DROP && started()) {
       // Don't end the drag multiple times.
       if (got_update_cursor_) {

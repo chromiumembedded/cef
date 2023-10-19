@@ -68,12 +68,6 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       command_line->AppendSwitchWithValue("top-chrome-md", "non-material");
     }
 
-    if (!command_line->HasSwitch(switches::kCachePath) &&
-        !command_line->HasSwitch("disable-gpu-shader-disk-cache")) {
-      // Don't create a "GPUCache" directory when cache-path is unspecified.
-      command_line->AppendSwitch("disable-gpu-shader-disk-cache");
-    }
-
 #if defined(OS_MAC)
     // Disable the toolchain prompt on macOS.
     command_line->AppendSwitch("use-mock-keychain");

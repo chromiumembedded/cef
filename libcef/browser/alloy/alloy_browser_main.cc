@@ -85,7 +85,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/themes/theme_service_aura_linux.h"
 #include "chrome/browser/ui/views/theme_profile_key.h"
-#include "chrome/grit/chromium_strings.h"
+#include "chrome/grit/branded_strings.h"
 #include "components/os_crypt/sync/key_storage_config_linux.h"
 #include "libcef/browser/printing/print_dialog_linux.h"
 #include "ui/base/cursor/cursor_factory.h"

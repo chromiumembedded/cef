@@ -1,0 +1,25 @@
+diff --git content/browser/renderer_host/ipc_utils.cc content/browser/renderer_host/ipc_utils.cc
+index 5cb6e6463767d..84a9de1dfc6f0 100644
+--- content/browser/renderer_host/ipc_utils.cc
++++ content/browser/renderer_host/ipc_utils.cc
+@@ -73,7 +73,7 @@ bool VerifyInitiatorOrigin(
+           navigation_url_key,
+           navigation_url->DeprecatedGetOriginAsURL().spec());
+     }
+-    if (initiator_frame_token) {
++    if (initiator_frame_token && initiator_frame_token->has_value()) {
+       if (RenderFrameHostImpl* initiator_render_frame_host =
+               RenderFrameHostImpl::FromFrameToken(
+                   process_id, initiator_frame_token->value())) {
+diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
+index f9295c24641e9..118e86979c5c7 100644
+--- content/browser/renderer_host/render_frame_host_impl.cc
++++ content/browser/renderer_host/render_frame_host_impl.cc
+@@ -10086,6 +10086,7 @@ void RenderFrameHostImpl::CommitNavigation(
+   auto browser_calc_origin_to_commit =
+       navigation_request->GetOriginToCommitWithDebugInfo();
+   if (!process_lock.is_error_page() && !is_mhtml_subframe &&
++      common_params->url.IsStandard() &&
+       !policy->CanAccessDataForOrigin(
+           GetProcess()->GetID(), browser_calc_origin_to_commit.first.value())) {
+     SCOPED_CRASH_KEY_STRING64("CommitNavigation", "lock_url",

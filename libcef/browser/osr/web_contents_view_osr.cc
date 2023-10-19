@@ -44,31 +44,9 @@ void CefWebContentsViewOSR::RenderViewCreated() {
   }
 }
 
-gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
-  return gfx::NativeView();
-}
-
-gfx::NativeView CefWebContentsViewOSR::GetContentNativeView() const {
-  return gfx::NativeView();
-}
-
-gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
-  return gfx::NativeWindow();
-}
-
 gfx::Rect CefWebContentsViewOSR::GetContainerBounds() const {
   return GetViewBounds();
 }
-
-void CefWebContentsViewOSR::Focus() {}
-
-void CefWebContentsViewOSR::SetInitialFocus() {}
-
-void CefWebContentsViewOSR::StoreFocus() {}
-
-void CefWebContentsViewOSR::RestoreFocus() {}
-
-void CefWebContentsViewOSR::FocusThroughTabTraversal(bool reverse) {}
 
 void CefWebContentsViewOSR::GotFocus(
     content::RenderWidgetHostImpl* render_widget_host) {
@@ -98,18 +76,10 @@ void CefWebContentsViewOSR::TakeFocus(bool reverse) {
   }
 }
 
-void CefWebContentsViewOSR::FullscreenStateChanged(bool is_fullscreen) {}
-
-content::DropData* CefWebContentsViewOSR::GetDropData() const {
-  return nullptr;
-}
-
 gfx::Rect CefWebContentsViewOSR::GetViewBounds() const {
   CefRenderWidgetHostViewOSR* view = GetView();
   return view ? view->GetViewBounds() : gfx::Rect();
 }
-
-void CefWebContentsViewOSR::CreateView(gfx::NativeView context) {}
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
     content::RenderWidgetHost* render_widget_host) {
@@ -135,29 +105,6 @@ CefWebContentsViewOSR::CreateViewForChildWidget(
                                         render_widget_host, view);
 }
 
-void CefWebContentsViewOSR::SetPageTitle(const std::u16string& title) {}
-
-void CefWebContentsViewOSR::RenderViewReady() {
-  RenderViewCreated();
-}
-
-void CefWebContentsViewOSR::RenderViewHostChanged(
-    content::RenderViewHost* old_host,
-    content::RenderViewHost* new_host) {}
-
-void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {}
-
-void CefWebContentsViewOSR::OnCapturerCountChanged() {}
-
-void CefWebContentsViewOSR::UpdateWindowControlsOverlay(
-    const gfx::Rect& bounding_rect) {}
-
-#if BUILDFLAG(IS_MAC)
-bool CefWebContentsViewOSR::CloseTabAfterEventTrackingIfNeeded() {
-  return false;
-}
-#endif  // BUILDFLAG(IS_MAC)
-
 void CefWebContentsViewOSR::ShowContextMenu(
     content::RenderFrameHost& render_frame_host,
     const content::ContextMenuParams& params) {
@@ -176,6 +123,7 @@ void CefWebContentsViewOSR::ShowContextMenu(
 
 void CefWebContentsViewOSR::StartDragging(
     const content::DropData& drop_data,
+    const url::Origin& source_origin,
     blink::DragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& cursor_offset,
@@ -192,11 +140,12 @@ void CefWebContentsViewOSR::StartDragging(
   }
 }
 
-void CefWebContentsViewOSR::UpdateDragCursor(
-    ui::mojom::DragOperation operation) {
+void CefWebContentsViewOSR::UpdateDragOperation(
+    ui::mojom::DragOperation operation,
+    bool document_is_handling_drag) {
   CefRefPtr<AlloyBrowserHostImpl> browser = GetBrowser();
   if (browser.get()) {
-    browser->UpdateDragCursor(operation);
+    browser->UpdateDragOperation(operation, document_is_handling_drag);
   }
 }
 
