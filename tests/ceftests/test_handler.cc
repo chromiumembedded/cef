@@ -444,6 +444,9 @@ void TestHandler::ExecuteTest() {
   EXPECT_EQ(completion_state_->total(), 1);
 
   // Reset any state from the previous run.
+  if (test_timeout_called_) {
+    test_timeout_called_ = false;
+  }
   if (destroy_test_called_) {
     destroy_test_called_ = false;
   }
@@ -498,13 +501,15 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   EXPECT_FALSE(AllBrowsersClosed() && AllowTestCompletionWhenAllBrowsersClose())
       << "Test timed out unexpectedly; should be complete";
 
+  // Keep |this| alive until after the method completes.
+  CefRefPtr<TestHandler> self(this);
+
   // Close any remaining browsers.
   DestroyTest();
 
   // Reset signal completion count.
   if (signal_completion_count_ > 0) {
     signal_completion_count_ = 0;
-    // May result in |this| being deleted.
     MaybeTestComplete();
   }
 }
