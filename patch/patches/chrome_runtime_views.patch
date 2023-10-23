@@ -355,7 +355,7 @@ index 0c231b6ac5b01..6b5af98e18e42 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 41376bb2d8af1..43ed7312cd8d9 100644
+index 41376bb2d8af1..fa9ede3614aca 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -343,11 +343,10 @@ using content::NativeWebKeyboardEvent;
@@ -461,25 +461,15 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
  }
  
  // static
-@@ -1159,12 +1181,14 @@ gfx::Size BrowserView::GetWebAppFrameToolbarPreferredSize() const {
+@@ -1939,9 +1961,14 @@ void BrowserView::OnExclusiveAccessUserInput() {
  
- #if BUILDFLAG(IS_MAC)
- bool BrowserView::UsesImmersiveFullscreenMode() const {
-+  if (!base::FeatureList::IsEnabled(features::kImmersiveFullscreen)) {
-+    return false;
-+  }
-   const bool is_pwa =
-       base::FeatureList::IsEnabled(features::kImmersiveFullscreenPWAs) &&
-       GetIsWebAppType();
-   const bool is_tabbed_window = GetSupportsTabStrip();
--  return base::FeatureList::IsEnabled(features::kImmersiveFullscreen) &&
--         (is_pwa || is_tabbed_window);
-+  return is_pwa || is_tabbed_window;
- }
- 
- bool BrowserView::UsesImmersiveFullscreenTabbedMode() const {
-@@ -1942,6 +1966,8 @@ bool BrowserView::ShouldHideUIForFullscreen() const {
-   if (immersive_mode_controller_->IsEnabled())
+ bool BrowserView::ShouldHideUIForFullscreen() const {
+   // Immersive mode needs UI for the slide-down top panel.
+-  if (immersive_mode_controller_->IsEnabled())
++  // Avoid callback into |immersive_mode_controller_| during construction.
++  // See CEF issue #3527.
++  if (immersive_mode_controller_ &&
++      immersive_mode_controller_->IsEnabled())
      return false;
  
 +  if (!frame_->GetFrameView())
@@ -487,7 +477,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -2956,7 +2982,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
+@@ -2956,7 +2983,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -497,7 +487,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton())
      return download_button->bubble_controller();
    return nullptr;
-@@ -3490,7 +3517,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3490,7 +3518,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -507,7 +497,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -3948,11 +3976,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -3948,11 +3977,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -548,7 +538,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -3961,7 +4016,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -3961,7 +4017,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -557,7 +547,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -4069,8 +4124,10 @@ void BrowserView::Layout() {
+@@ -4069,8 +4125,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -570,7 +560,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    // In chromeOS ash we round the bottom two corners of the browser frame by
-@@ -4148,6 +4205,11 @@ void BrowserView::AddedToWidget() {
+@@ -4148,6 +4206,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -582,7 +572,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -4196,13 +4258,9 @@ void BrowserView::AddedToWidget() {
+@@ -4196,13 +4259,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -598,7 +588,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4614,7 +4672,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4614,7 +4673,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -608,7 +598,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -5003,6 +5062,8 @@ Profile* BrowserView::GetProfile() {
+@@ -5003,6 +5063,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -617,7 +607,7 @@ index 41376bb2d8af1..43ed7312cd8d9 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -5025,6 +5086,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -5025,6 +5087,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
