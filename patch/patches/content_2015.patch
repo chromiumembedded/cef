@@ -12,10 +12,10 @@ index 34cacda8ef225..e0465b8ac1185 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 3b58e4f2de295..e0348501c83d8 100644
+index 1aa2cfcabd6e9..61f6a8e228286 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -774,6 +774,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
+@@ -753,6 +753,17 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
            resource_request_->has_user_gesture, initiating_origin,
            initiator_document_.AsRenderFrameHostIfValid(), &loader_factory);
  
@@ -145,7 +145,7 @@ index 3c3ebfeec280e..b239506a39b43 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index cddb519c4c893..68b5fc0f60d9c 100644
+index 4ed1a50637e40..ce57912529596 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
 @@ -941,6 +941,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {

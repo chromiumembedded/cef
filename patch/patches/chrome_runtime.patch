@@ -233,7 +233,7 @@ index a509d0b37e953..0d48c4a1f1daf 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 54053dfc9b86d..19c11cf71046d 100644
+index 9b845c0e331c4..6a2128ae2b562 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -42,6 +42,7 @@
@@ -295,7 +295,7 @@ index 54053dfc9b86d..19c11cf71046d 100644
  }
  
  std::vector<base::FilePath>
-@@ -7652,10 +7664,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7653,10 +7665,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -308,7 +308,7 @@ index 54053dfc9b86d..19c11cf71046d 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7674,7 +7686,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7675,7 +7687,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -318,7 +318,7 @@ index 54053dfc9b86d..19c11cf71046d 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7816,7 +7829,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7817,7 +7830,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
