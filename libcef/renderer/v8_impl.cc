@@ -2368,6 +2368,61 @@ bool CefV8ValueImpl::NeuterArrayBuffer() {
   return true;
 }
 
+size_t CefV8ValueImpl::GetArrayBufferByteLength() {
+  size_t rv = 0;
+  CEF_V8_REQUIRE_ISOLATE_RETURN(rv);
+  if (type_ != TYPE_OBJECT) {
+    DCHECK(false) << "V8 value is not an object";
+    return rv;
+  }
+
+  v8::Isolate* isolate = handle_->isolate();
+  v8::HandleScope handle_scope(isolate);
+
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  if (context.IsEmpty()) {
+    DCHECK(false) << "not currently in a V8 context";
+    return rv;
+  }
+
+  v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
+  if (!value->IsArrayBuffer()) {
+    DCHECK(false) << "V8 value is not an array buffer";
+    return rv;
+  }
+
+  v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+  return v8::Local<v8::ArrayBuffer>::Cast(obj)->ByteLength();
+}
+
+void* CefV8ValueImpl::GetArrayBufferData() {
+  void* rv = nullptr;
+  CEF_V8_REQUIRE_ISOLATE_RETURN(rv);
+  if (type_ != TYPE_OBJECT) {
+    DCHECK(false) << "V8 value is not an object";
+    return rv;
+  }
+
+  v8::Isolate* isolate = handle_->isolate();
+  v8::HandleScope handle_scope(isolate);
+
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  if (context.IsEmpty()) {
+    DCHECK(false) << "not currently in a V8 context";
+    return rv;
+  }
+
+  v8::Local<v8::Value> value = handle_->GetNewV8Handle(false);
+  if (!value->IsArrayBuffer()) {
+    DCHECK(false) << "V8 value is not an array buffer";
+    return rv;
+  }
+
+  v8::Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+  v8::Local<v8::ArrayBuffer> arr = v8::Local<v8::ArrayBuffer>::Cast(obj);
+  return arr->Data();
+}
+
 CefString CefV8ValueImpl::GetFunctionName() {
   CefString rv;
   CEF_V8_REQUIRE_OBJECT_RETURN(rv);

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=459c331b0c02f55c4b700761ad2132d7320fd467$
+// $hash=f67b0996d7e2133f3f28f2d8ba5446c5ff40aaba$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -147,16 +147,12 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
     CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: buffer; type: simple_byaddr
-  DCHECK(buffer);
-  if (!buffer) {
-    return nullptr;
-  }
   // Verify param: release_callback; type: refptr_diff
   DCHECK(release_callback.get());
   if (!release_callback.get()) {
     return nullptr;
   }
+  // Unverified params: buffer
 
   // Execute
   cef_v8value_t* _retval = cef_v8value_create_array_buffer(
@@ -955,6 +951,37 @@ NO_SANITIZE("cfi-icall") bool CefV8ValueCToCpp::NeuterArrayBuffer() {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") size_t CefV8ValueCToCpp::GetArrayBufferByteLength() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_array_buffer_byte_length)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  size_t _retval = _struct->get_array_buffer_byte_length(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall") void* CefV8ValueCToCpp::GetArrayBufferData() {
+  cef_v8value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_array_buffer_data)) {
+    return nullptr;
+  }
+
+  // This manual implementation can be removed once support for 'void*'
+  // is integrated into the CEF translator tool (issue #3591).
+
+  // Execute
+  void* _retval = _struct->get_array_buffer_data(_struct);
+
+  // Return type: simple_byaddr
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") CefString CefV8ValueCToCpp::GetFunctionName() {

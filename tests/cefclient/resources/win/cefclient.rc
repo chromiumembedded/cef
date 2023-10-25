@@ -29,6 +29,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
+IDS_BINARY_TRANSFER_HTML BINARY "..\\binary_transfer.html"
 IDS_BINDING_HTML BINARY "..\\binding.html"
 IDS_DIALOGS_HTML BINARY "..\\dialogs.html"
 IDS_DRAGGABLE_HTML BINARY "..\\draggable.html"
@@ -228,4 +229,3 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-
