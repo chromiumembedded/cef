@@ -13,7 +13,8 @@ int GetResourceId(const char* resource_name) {
   static struct _resource_map {
     const char* name;
     int id;
-  } resource_map[] = {{"binding.html", IDS_BINDING_HTML},
+  } resource_map[] = {{"binary_transfer.html", IDS_BINARY_TRANSFER_HTML},
+                      {"binding.html", IDS_BINDING_HTML},
                       {"dialogs.html", IDS_DIALOGS_HTML},
                       {"draggable.html", IDS_DRAGGABLE_HTML},
                       {"extensions/set_page_color/icon.png",

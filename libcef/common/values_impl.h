@@ -177,6 +177,7 @@ class CefBinaryValueImpl : public CefValueBase<CefBinaryValue, base::Value> {
   bool IsSame(CefRefPtr<CefBinaryValue> that) override;
   bool IsEqual(CefRefPtr<CefBinaryValue> that) override;
   CefRefPtr<CefBinaryValue> Copy() override;
+  const void* GetRawData() override;
   size_t GetSize() override;
   size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) override;
 

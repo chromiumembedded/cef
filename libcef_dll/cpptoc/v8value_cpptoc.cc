@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ecd6caa0c415b57e93bc66f3c7a4cfb547f022c1$
+// $hash=21d8fb47eb282f40fb9d602f44b8c1fd4ff44dea$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -138,16 +138,12 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array_buffer(
     cef_v8array_buffer_release_callback_t* release_callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: buffer; type: simple_byaddr
-  DCHECK(buffer);
-  if (!buffer) {
-    return NULL;
-  }
   // Verify param: release_callback; type: refptr_diff
   DCHECK(release_callback);
   if (!release_callback) {
     return NULL;
   }
+  // Unverified params: buffer
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArrayBuffer(
@@ -948,6 +944,38 @@ int CEF_CALLBACK v8value_neuter_array_buffer(struct _cef_v8value_t* self) {
   return _retval;
 }
 
+size_t CEF_CALLBACK
+v8value_get_array_buffer_byte_length(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  size_t _retval = CefV8ValueCppToC::Get(self)->GetArrayBufferByteLength();
+
+  // Return type: simple
+  return _retval;
+}
+
+void* CEF_CALLBACK v8value_get_array_buffer_data(struct _cef_v8value_t* self) {
+  DCHECK(self);
+  if (!self) {
+    return NULL;
+  }
+
+  // This manual implementation can be removed once support for 'void*'
+  // is integrated into the CEF translator tool (issue #3591).
+
+  // Execute
+  void* _retval = CefV8ValueCppToC::Get(self)->GetArrayBufferData();
+
+  // Return type: simple_byaddr
+  return _retval;
+}
+
 cef_string_userfree_t CEF_CALLBACK
 v8value_get_function_name(struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1153,6 +1181,9 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
   GetStruct()->get_array_buffer_release_callback =
       v8value_get_array_buffer_release_callback;
   GetStruct()->neuter_array_buffer = v8value_neuter_array_buffer;
+  GetStruct()->get_array_buffer_byte_length =
+      v8value_get_array_buffer_byte_length;
+  GetStruct()->get_array_buffer_data = v8value_get_array_buffer_data;
   GetStruct()->get_function_name = v8value_get_function_name;
   GetStruct()->get_function_handler = v8value_get_function_handler;
   GetStruct()->execute_function = v8value_execute_function;

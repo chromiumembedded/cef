@@ -16,6 +16,7 @@
 #include "include/views/cef_browser_view.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "tests/cefclient/browser/binary_transfer_test.h"
 #include "tests/cefclient/browser/binding_test.h"
 #include "tests/cefclient/browser/client_handler.h"
 #include "tests/cefclient/browser/dialog_test.h"
@@ -841,6 +842,9 @@ bool IsTestURL(const std::string& url, const std::string& path) {
 
 void CreateMessageHandlers(MessageHandlerSet& handlers) {
   handlers.insert(new PromptHandler);
+
+  // Create the binary trasfer test handlers.
+  binary_transfer_test::CreateMessageHandlers(handlers);
 
   // Create the binding test handlers.
   binding_test::CreateMessageHandlers(handlers);

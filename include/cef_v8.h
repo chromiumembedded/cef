@@ -520,7 +520,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// or CefV8Accessor callback, or in combination with calling Enter() and
   /// Exit() on a stored CefV8Context reference.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=buffer)--*/
   static CefRefPtr<CefV8Value> CreateArrayBuffer(
       void* buffer,
       size_t length,
@@ -865,6 +865,20 @@ class CefV8Value : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool NeuterArrayBuffer() = 0;
+
+  ///
+  /// Returns the length (in bytes) of the ArrayBuffer.
+  ///
+  /*--cef()--*/
+  virtual size_t GetArrayBufferByteLength() = 0;
+
+  ///
+  /// Returns a pointer to the beginning of the memory block for this
+  /// ArrayBuffer backing store. The returned pointer is valid as long as the
+  /// CefV8Value is alive.
+  ///
+  /*--cef()--*/
+  virtual void* GetArrayBufferData() = 0;
 
   // FUNCTION METHODS - These methods are only available on functions.
 

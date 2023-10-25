@@ -606,6 +606,11 @@ CefRefPtr<CefBinaryValue> CefBinaryValueImpl::Copy() {
   return new CefBinaryValueImpl(const_value().Clone());
 }
 
+const void* CefBinaryValueImpl::GetRawData() {
+  CEF_VALUE_VERIFY_RETURN(false, nullptr);
+  return const_value().GetBlob().data();
+}
+
 size_t CefBinaryValueImpl::GetSize() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetBlob().size();

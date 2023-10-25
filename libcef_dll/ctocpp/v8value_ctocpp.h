@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cab5b018f6706a3c8496865e0c9f30fcbc94cdd8$
+// $hash=c81cc0910be6678c0512c5423b8fc5dc1df42743$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -83,6 +83,8 @@ class CefV8ValueCToCpp
   CefRefPtr<CefV8ArrayBufferReleaseCallback> GetArrayBufferReleaseCallback()
       override;
   bool NeuterArrayBuffer() override;
+  size_t GetArrayBufferByteLength() override;
+  void* GetArrayBufferData() override;
   CefString GetFunctionName() override;
   CefRefPtr<CefV8Handler> GetFunctionHandler() override;
   CefRefPtr<CefV8Value> ExecuteFunction(

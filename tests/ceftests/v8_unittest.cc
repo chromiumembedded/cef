@@ -59,6 +59,7 @@ enum V8TestMode {
   V8TEST_ARRAY_CREATE,
   V8TEST_ARRAY_VALUE,
   V8TEST_ARRAY_BUFFER,
+  V8TEST_ARRAY_BUFFER_CREATE_EMPTY,
   V8TEST_ARRAY_BUFFER_VALUE,
   V8TEST_OBJECT_CREATE,
   V8TEST_OBJECT_USERDATA,
@@ -144,6 +145,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         break;
       case V8TEST_ARRAY_BUFFER:
         RunArrayBufferTest();
+        break;
+      case V8TEST_ARRAY_BUFFER_CREATE_EMPTY:
+        RunArrayBufferCreateEmptyTest();
         break;
       case V8TEST_ARRAY_BUFFER_VALUE:
         RunArrayBufferValueTest();
@@ -593,6 +597,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       EXPECT_TRUE(value.get());
       EXPECT_TRUE(value->IsArrayBuffer());
       EXPECT_TRUE(value->IsObject());
+      EXPECT_EQ(value->GetArrayBufferByteLength(), sizeof(static_data));
+      void* data = value->GetArrayBufferData();
+      EXPECT_EQ(static_cast<int*>(data), static_data);
       EXPECT_FALSE(value->HasValue(0));
       EXPECT_TRUE(value->GetArrayBufferReleaseCallback().get() != nullptr);
       EXPECT_TRUE(((TestArrayBufferReleaseCallback*)value
@@ -636,6 +643,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     static_data[0] = 3;
     value =
         CefV8Value::CreateArrayBuffer(static_data, sizeof(static_data), owner);
+    EXPECT_EQ(value->GetArrayBufferByteLength(), sizeof(static_data));
+    void* data = value->GetArrayBufferData();
+    EXPECT_EQ(static_cast<int*>(data), static_data);
 
     CefRefPtr<CefV8Value> object = context->GetGlobal();
     EXPECT_TRUE(object.get());
@@ -649,8 +659,43 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       ADD_FAILURE() << exception->GetMessage().c_str();
     }
 
-    EXPECT_TRUE(static_data[0] == 19);
-    EXPECT_TRUE(value->GetArrayBufferReleaseCallback().get() != nullptr);
+    EXPECT_EQ(static_data[0], 19);
+    EXPECT_NE(value->GetArrayBufferReleaseCallback().get(), nullptr);
+    EXPECT_TRUE(value->NeuterArrayBuffer());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
+    DestroyTest();
+  }
+
+  void RunArrayBufferCreateEmptyTest() {
+    class TestArrayBufferReleaseCallback
+        : public CefV8ArrayBufferReleaseCallback {
+     public:
+      void ReleaseBuffer(void* buffer) override {}
+
+      IMPLEMENT_REFCOUNTING(TestArrayBufferReleaseCallback);
+    };
+
+    CefRefPtr<TestArrayBufferReleaseCallback> owner =
+        new TestArrayBufferReleaseCallback();
+
+    // Enter the V8 context
+    CefRefPtr<CefV8Context> context = GetContext();
+    EXPECT_TRUE(context->Enter());
+
+    const size_t zero_size = 0;
+    void* null_data = nullptr;
+
+    CefRefPtr<CefV8Value> value =
+        CefV8Value::CreateArrayBuffer(null_data, zero_size, owner);
+    EXPECT_EQ(value->GetArrayBufferByteLength(), zero_size);
+    EXPECT_EQ(value->GetArrayBufferData(), null_data);
+
+    CefRefPtr<CefV8Value> object = context->GetGlobal();
+    EXPECT_TRUE(object.get());
+    EXPECT_TRUE(object->SetValue("arr", value, V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_NE(value->GetArrayBufferReleaseCallback().get(), nullptr);
     EXPECT_TRUE(value->NeuterArrayBuffer());
 
     // Exit the V8 context.
@@ -3321,6 +3366,7 @@ V8_TEST(EmptyStringCreate, V8TEST_EMPTY_STRING_CREATE)
 V8_TEST(ArrayCreate, V8TEST_ARRAY_CREATE)
 V8_TEST(ArrayValue, V8TEST_ARRAY_VALUE)
 V8_TEST(ArrayBuffer, V8TEST_ARRAY_BUFFER)
+V8_TEST(ArrayBufferCreateEmpty, V8TEST_ARRAY_BUFFER_CREATE_EMPTY)
 V8_TEST(ArrayBufferValue, V8TEST_ARRAY_BUFFER_VALUE)
 V8_TEST(ObjectCreate, V8TEST_OBJECT_CREATE)
 V8_TEST(ObjectUserData, V8TEST_OBJECT_USERDATA)

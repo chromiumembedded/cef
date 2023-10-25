@@ -274,6 +274,8 @@ class CefV8ValueImpl : public CefV8Value {
   CefRefPtr<CefV8ArrayBufferReleaseCallback> GetArrayBufferReleaseCallback()
       override;
   bool NeuterArrayBuffer() override;
+  size_t GetArrayBufferByteLength() override;
+  void* GetArrayBufferData() override;
   CefString GetFunctionName() override;
   CefRefPtr<CefV8Handler> GetFunctionHandler() override;
   CefRefPtr<CefV8Value> ExecuteFunction(

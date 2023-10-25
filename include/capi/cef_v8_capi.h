@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=42de7c0e6f5ec529d9182fe4cbf2c1edfacd7392$
+// $hash=865ca5bff4a0867d0c25cb41bd2aa808cf3fddbd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -678,6 +678,19 @@ typedef struct _cef_v8value_t {
   /// release the underlying buffer.
   ///
   int(CEF_CALLBACK* neuter_array_buffer)(struct _cef_v8value_t* self);
+
+  ///
+  /// Returns the length (in bytes) of the ArrayBuffer.
+  ///
+  size_t(CEF_CALLBACK* get_array_buffer_byte_length)(
+      struct _cef_v8value_t* self);
+
+  ///
+  /// Returns a pointer to the beginning of the memory block for this
+  /// ArrayBuffer backing store. The returned pointer is valid as long as the
+  /// cef_v8value_t is alive.
+  ///
+  void*(CEF_CALLBACK* get_array_buffer_data)(struct _cef_v8value_t* self);
 
   ///
   /// Returns the function name.

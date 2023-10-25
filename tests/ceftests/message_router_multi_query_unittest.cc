@@ -19,8 +19,18 @@ const char kMultiQueryError[] = "error";
 const char kMultiQueryErrorMessage[] = "errormsg";
 const int kMultiQueryPersistentResponseCount = 5;
 
+template <typename T>
+constexpr bool IsCefString() {
+  return std::is_same_v<std::remove_cv_t<T>, CefString>;
+}
+
+enum class TransferType {
+  STRING,
+  BINARY,
+};
+
 // Generates HTML and verifies results for multiple simultanious queries.
-class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
+class MultiQueryManager {
  public:
   enum TestType {
     // Initiates a non-persistent query with a successful response.
@@ -70,10 +80,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   MultiQueryManager(const std::string& label,
                     bool synchronous,
-                    int id_offset = 0)
+                    int id_offset = 0,
+                    TransferType transfer_type = TransferType::STRING)
       : label_(label),
         synchronous_(synchronous),
         id_offset_(id_offset),
+        transfer_type_(transfer_type),
         finalized_(false),
         running_(false),
         manual_total_(0),
@@ -82,8 +94,6 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
         auto_complete_count_(0),
         will_cancel_by_removing_handler_(false),
         weak_ptr_factory_(this) {}
-
-  virtual ~MultiQueryManager() {}
 
   std::string label() const { return label_; }
 
@@ -282,12 +292,13 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     }
   }
 
-  bool OnQuery(CefRefPtr<CefBrowser> browser,
-               CefRefPtr<CefFrame> frame,
-               int64_t query_id,
-               const CefString& request,
-               bool persistent,
-               CefRefPtr<Callback> callback) override {
+  template <class RequestType>
+  bool OnQueryImpl(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   int64_t query_id,
+                   const RequestType& request,
+                   bool persistent,
+                   CefRefPtr<CefMessageRouterBrowserSide::Callback> callback) {
     EXPECT_TRUE(finalized_);
     EXPECT_UI_THREAD();
 
@@ -328,12 +339,25 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     if (query.type == SUCCESS) {
       // Send the single success response.
-      callback->Success(GetIDString(kMultiQueryResponse, index));
+      if constexpr (IsCefString<RequestType>()) {
+        const auto response = GetIDString(kMultiQueryResponse, index);
+        callback->Success(response);
+      } else {
+        const auto response = GetIDBinary(kMultiQueryResponse, index);
+        callback->Success(response.data(), response.size());
+      }
     } else if (IsPersistent(query.type)) {
       // Send the required number of successful responses.
-      const std::string& response = GetIDString(kMultiQueryResponse, index);
-      for (int i = 0; i < kMultiQueryPersistentResponseCount; ++i) {
-        callback->Success(response);
+      if constexpr (IsCefString<RequestType>()) {
+        const auto response = GetIDString(kMultiQueryResponse, index);
+        for (int i = 0; i < kMultiQueryPersistentResponseCount; ++i) {
+          callback->Success(response);
+        }
+      } else {
+        const auto response = GetIDBinary(kMultiQueryResponse, index);
+        for (int i = 0; i < kMultiQueryPersistentResponseCount; ++i) {
+          callback->Success(response.data(), response.size());
+        }
       }
     }
 
@@ -359,7 +383,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
-                       int64_t query_id) override {
+                       int64_t query_id) {
     EXPECT_TRUE(finalized_);
     EXPECT_UI_THREAD();
 
@@ -495,7 +519,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     // Used when a query is canceled.
     int64_t query_id;
-    CefRefPtr<Callback> callback;
+    CefRefPtr<CefMessageRouterBrowserSide::Callback> callback;
 
     TrackCallback got_query;
     TrackCallback got_query_canceled;
@@ -610,12 +634,23 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     const std::string& request_id_var =
         GetIDString(kMultiQueryRequestId, index);
     const std::string& repeat_ct_var = GetIDString(kMultiQueryRepeatCt, index);
-    const std::string& request_val =
+    const std::string& request_str =
         GetIDString(std::string(kMultiQueryRequest) + ":", index);
     const std::string& success_val =
         GetIDString(std::string(kMultiQuerySuccess) + ":", index);
     const std::string& error_val =
         GetIDString(std::string(kMultiQueryError) + ":", index);
+
+    const std::string request_val =
+        transfer_type_ == TransferType::BINARY
+            ? ("new TextEncoder().encode('" + request_str + "').buffer")
+            : "'" + request_str + "'";
+
+    const std::string response_conversion =
+        transfer_type_ == TransferType::BINARY
+            ? "    const decoder = new TextDecoder('utf-8');\n"
+              "    const message = decoder.decode(response);\n"
+            : "    const message = response;\n";
 
     std::string html;
 
@@ -627,33 +662,29 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     html += "var " + request_id_var +
             " = window.mrtQuery({\n"
-            "  request: '" +
+            "  request: " +
             request_val +
-            "',\n"
-            "  persistent: " +
-            (persistent ? "true" : "false") + ",\n";
+            ",\n  persistent: " + (persistent ? "true" : "false") + ",\n";
 
     if (query.type == SUCCESS) {
       const std::string& response_val = GetIDString(kMultiQueryResponse, index);
 
-      html +=
-          "  onSuccess: function(response) {\n"
-          "    if (response == '" +
-          response_val +
-          "')\n"
-          "      window.mrtNotify('" +
-          success_val +
-          "');\n"
-          "    else\n"
-          "      window.mrtNotify('" +
-          error_val +
-          "');\n"
-          "  },\n"
-          "  onFailure: function(error_code, error_message) {\n"
-          "    window.mrtNotify('" +
-          error_val +
-          "');\n"
-          "  }\n";
+      html += "  onSuccess: function(response) {\n" + response_conversion +
+              "    if (message == '" + response_val +
+              "')\n"
+              "      window.mrtNotify('" +
+              success_val +
+              "');\n"
+              "    else\n"
+              "      window.mrtNotify('" +
+              error_val +
+              "');\n"
+              "  },\n"
+              "  onFailure: function(error_code, error_message) {\n"
+              "    window.mrtNotify('" +
+              error_val +
+              "');\n"
+              "  }\n";
     } else if (query.type == FAILURE) {
       const std::string& error_code_val = GetIntString(index);
       const std::string& error_message_val =
@@ -683,17 +714,15 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       const std::string& repeat_ct =
           GetIntString(kMultiQueryPersistentResponseCount);
 
-      html +=
-          "  onSuccess: function(response) {\n"
-          "    if (response == '" +
-          response_val +
-          "') {\n"
-          // Should get repeat_ct number of successful responses.
-          "      if (++" +
-          repeat_ct_var + " == " + repeat_ct +
-          ") {\n"
-          "        window.mrtNotify('" +
-          success_val + "');\n";
+      html += "  onSuccess: function(response) {\n" + response_conversion +
+              "    if (message == '" + response_val +
+              "') {\n"
+              // Should get repeat_ct number of successful responses.
+              "      if (++" +
+              repeat_ct_var + " == " + repeat_ct +
+              ") {\n"
+              "        window.mrtNotify('" +
+              success_val + "');\n";
 
       if (query.type == PERSISTENT_SUCCESS) {
         // Manually cancel the request.
@@ -773,9 +802,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   std::string GetIDString(const std::string& prefix, int index) const {
     EXPECT_TRUE(!prefix.empty());
-    std::stringstream ss;
-    ss << prefix << GetIDFromIndex(index);
-    return ss.str();
+    return prefix + std::to_string(GetIDFromIndex(index));
+  }
+
+  std::vector<uint8_t> GetIDBinary(const std::string& prefix, int index) const {
+    auto str = GetIDString(prefix, index);
+    return std::vector<uint8_t>(str.begin(), str.end());
   }
 
   bool SplitIDString(const std::string& str,
@@ -792,6 +824,19 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     return false;
   }
 
+  bool SplitIDString(const CefRefPtr<const CefBinaryBuffer>& request,
+                     std::string* value,
+                     int* index) const {
+    const size_t string_len =
+        request->GetSize() / sizeof(std::string::value_type);
+    const auto* src =
+        static_cast<const std::string::value_type*>(request->GetData());
+    CefString result;
+    result.FromString(src, string_len);
+
+    return SplitIDString(result, value, index);
+  }
+
   std::string GetIntString(int val) const {
     std::stringstream ss;
     ss << val;
@@ -804,6 +849,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   const std::string label_;
   const bool synchronous_;
   const int id_offset_;
+  const TransferType transfer_type_;
 
   typedef std::vector<TestQuery> TestQueryVector;
   TestQueryVector test_query_vector_;
@@ -904,8 +950,10 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 
   MultiQuerySingleFrameTestHandler(
       bool synchronous,
+      TransferType transfer_type,
       CancelType cancel_type = CANCEL_BY_NAVIGATION)
-      : manager_(std::string(), synchronous), cancel_type_(cancel_type) {
+      : manager_(std::string(), synchronous, 0, transfer_type),
+        cancel_type_(cancel_type) {
     manager_.AddObserver(this);
   }
 
@@ -929,8 +977,21 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
     AssertMainBrowser(browser);
     AssertMainFrame(frame);
 
-    return manager_.OnQuery(browser, frame, query_id, request, persistent,
-                            callback);
+    return manager_.OnQueryImpl(browser, frame, query_id, request, persistent,
+                                callback);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               CefRefPtr<const CefBinaryBuffer> request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    AssertMainBrowser(browser);
+    AssertMainFrame(frame);
+
+    return manager_.OnQueryImpl(browser, frame, query_id, request, persistent,
+                                callback);
   }
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
@@ -994,10 +1055,22 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
 
 }  // namespace
 
-#define MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(name, type, synchronous) \
-  TEST(MessageRouterTest, name) {                                   \
+#define MQSF_TYPE_TEST(name, type, synchronous)                     \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##String) {    \
     CefRefPtr<MultiQuerySingleFrameTestHandler> handler =           \
-        new MultiQuerySingleFrameTestHandler(synchronous);          \
+        new MultiQuerySingleFrameTestHandler(synchronous,           \
+                                             TransferType::STRING); \
+    MultiQueryManager* manager = handler->GetManager();             \
+    manager->AddTestQuery(MultiQueryManager::type);                 \
+    manager->Finalize();                                            \
+    handler->ExecuteTest();                                         \
+    ReleaseAndWaitForDestructor(handler);                           \
+  }                                                                 \
+                                                                    \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##Binary) {    \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =           \
+        new MultiQuerySingleFrameTestHandler(synchronous,           \
+                                             TransferType::BINARY); \
     MultiQueryManager* manager = handler->GetManager();             \
     manager->AddTestQuery(MultiQueryManager::type);                 \
     manager->Finalize();                                            \
@@ -1006,97 +1079,80 @@ class MultiQuerySingleFrameTestHandler : public SingleLoadTestHandler,
   }
 
 // Test the query types individually.
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncSuccess,
-                                   SUCCESS,
-                                   true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncSuccess,
-                                   SUCCESS,
-                                   false)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncFailure,
-                                   FAILURE,
-                                   true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncFailure,
-                                   FAILURE,
-                                   false)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentSuccess,
-                                   PERSISTENT_SUCCESS,
-                                   true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentSuccess,
-                                   PERSISTENT_SUCCESS,
-                                   false)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameSyncPersistentFailure,
-                                   PERSISTENT_FAILURE,
-                                   true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAsyncPersistentFailure,
-                                   PERSISTENT_FAILURE,
-                                   false)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameCancel, CANCEL, true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFrameAutoCancel,
-                                   AUTOCANCEL,
-                                   true)
-MULTI_QUERY_SINGLE_FRAME_TYPE_TEST(MultiQuerySingleFramePersistentAutoCancel,
-                                   PERSISTENT_AUTOCANCEL,
-                                   true)
+MQSF_TYPE_TEST(SyncSuccess, SUCCESS, true)
+MQSF_TYPE_TEST(AsyncSuccess, SUCCESS, false)
+MQSF_TYPE_TEST(SyncFailure, FAILURE, true)
+MQSF_TYPE_TEST(AsyncFailure, FAILURE, false)
+MQSF_TYPE_TEST(SyncPersistentSuccess, PERSISTENT_SUCCESS, true)
+MQSF_TYPE_TEST(AsyncPersistentSuccess, PERSISTENT_SUCCESS, false)
+MQSF_TYPE_TEST(SyncPersistentFailure, PERSISTENT_FAILURE, true)
+MQSF_TYPE_TEST(AsyncPersistentFailure, PERSISTENT_FAILURE, false)
+MQSF_TYPE_TEST(Cancel, CANCEL, true)
+MQSF_TYPE_TEST(AutoCancel, AUTOCANCEL, true)
+MQSF_TYPE_TEST(PersistentAutoCancel, PERSISTENT_AUTOCANCEL, true)
+
+#define MQSF_QUERY_RANGE_TEST(name, some, synchronous)              \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##String) {    \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =           \
+        new MultiQuerySingleFrameTestHandler(synchronous,           \
+                                             TransferType::STRING); \
+    MakeTestQueries(handler->GetManager(), some);                   \
+    handler->ExecuteTest();                                         \
+    ReleaseAndWaitForDestructor(handler);                           \
+  }                                                                 \
+                                                                    \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##Binary) {    \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =           \
+        new MultiQuerySingleFrameTestHandler(synchronous,           \
+                                             TransferType::BINARY); \
+    MakeTestQueries(handler->GetManager(), some);                   \
+    handler->ExecuteTest();                                         \
+    ReleaseAndWaitForDestructor(handler);                           \
+  }
 
 // Test that one frame can run some queries successfully in a synchronous
-// manner.
-TEST(MessageRouterTest, MultiQuerySingleFrameSyncSome) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(true);
-  MakeTestQueries(handler->GetManager(), true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+// manner
+MQSF_QUERY_RANGE_TEST(SyncSome, true, true)
 
 // Test that one frame can run some queries successfully in an asynchronous
 // manner.
-TEST(MessageRouterTest, MultiQuerySingleFrameAsyncSome) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(false);
-  MakeTestQueries(handler->GetManager(), true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQSF_QUERY_RANGE_TEST(AsyncSome, true, false)
 
 // Test that one frame can run many queries successfully in a synchronous
 // manner.
-TEST(MessageRouterTest, MultiQuerySingleFrameSyncMany) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(true);
-  MakeTestQueries(handler->GetManager(), false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQSF_QUERY_RANGE_TEST(SyncMany, false, true)
 
 // Test that one frame can run many queries successfully in an asynchronous
 // manner.
-TEST(MessageRouterTest, MultiQuerySingleFrameAsyncMany) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(false);
-  MakeTestQueries(handler->GetManager(), false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQSF_QUERY_RANGE_TEST(AsyncMany, false, false)
+
+#define MQSF_QUERY_RANGE_CANCEL_TEST(name, cancelType)           \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##String) { \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =        \
+        new MultiQuerySingleFrameTestHandler(                    \
+            false, TransferType::STRING,                         \
+            MultiQuerySingleFrameTestHandler::cancelType);       \
+    MakeTestQueries(handler->GetManager(), false);               \
+    handler->ExecuteTest();                                      \
+    ReleaseAndWaitForDestructor(handler);                        \
+  }                                                              \
+                                                                 \
+  TEST(MessageRouterTest, MultiQuerySingleFrame##name##Binary) { \
+    CefRefPtr<MultiQuerySingleFrameTestHandler> handler =        \
+        new MultiQuerySingleFrameTestHandler(                    \
+            false, TransferType::BINARY,                         \
+            MultiQuerySingleFrameTestHandler::cancelType);       \
+    MakeTestQueries(handler->GetManager(), false);               \
+    handler->ExecuteTest();                                      \
+    ReleaseAndWaitForDestructor(handler);                        \
+  }
 
 // Test that pending queries can be canceled by removing the handler.
-TEST(MessageRouterTest, MultiQuerySingleFrameCancelByRemovingHandler) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(
-          false, MultiQuerySingleFrameTestHandler::CANCEL_BY_REMOVING_HANDLER);
-  MakeTestQueries(handler->GetManager(), false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQSF_QUERY_RANGE_CANCEL_TEST(CancelByRemovingHandler,
+                             CANCEL_BY_REMOVING_HANDLER)
 
 // Test that pending queries can be canceled by closing the browser.
-TEST(MessageRouterTest, MultiQuerySingleFrameCancelByClosingBrowser) {
-  CefRefPtr<MultiQuerySingleFrameTestHandler> handler =
-      new MultiQuerySingleFrameTestHandler(
-          false, MultiQuerySingleFrameTestHandler::CANCEL_BY_CLOSING_BROWSER);
-  MakeTestQueries(handler->GetManager(), false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQSF_QUERY_RANGE_CANCEL_TEST(CancelByClosingBrowser, CANCEL_BY_CLOSING_BROWSER)
 
 namespace {
 
@@ -1211,8 +1267,21 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
     AssertMainBrowser(browser);
     AssertMainFrame(frame);
 
-    return manager_.OnQuery(browser, frame, query_id, request, persistent,
-                            callback);
+    return manager_.OnQueryImpl(browser, frame, query_id, request, persistent,
+                                callback);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               CefRefPtr<const CefBinaryBuffer> request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    AssertMainBrowser(browser);
+    AssertMainFrame(frame);
+
+    return manager_.OnQueryImpl(browser, frame, query_id, request, persistent,
+                                callback);
   }
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
@@ -1334,8 +1403,7 @@ TEST(MessageRouterTest, MultiQueryMultiHandlerCancelByRemovingHandler) {
 namespace {
 
 // Map of managers on a per-URL basis.
-class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
-                             public MultiQueryManager::Observer {
+class MultiQueryManagerMap : public MultiQueryManager::Observer {
  public:
   class Observer {
    public:
@@ -1367,11 +1435,14 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
     EXPECT_TRUE(observer_set_.erase(observer));
   }
 
-  MultiQueryManager* CreateManager(const std::string& url, bool synchronous) {
+  MultiQueryManager* CreateManager(const std::string& url,
+                                   bool synchronous,
+                                   TransferType transfer_type) {
     EXPECT_FALSE(finalized_);
 
     MultiQueryManager* manager = new MultiQueryManager(
-        url, synchronous, static_cast<int>(manager_map_.size()) * 1000);
+        url, synchronous, static_cast<int>(manager_map_.size()) * 1000,
+        transfer_type);
     manager->AddObserver(this);
     all_managers_.push_back(manager);
     pending_managers_.push_back(manager);
@@ -1412,25 +1483,26 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
     manager->OnNotify(browser, frame, message);
   }
 
-  bool OnQuery(CefRefPtr<CefBrowser> browser,
-               CefRefPtr<CefFrame> frame,
-               int64_t query_id,
-               const CefString& request,
-               bool persistent,
-               CefRefPtr<Callback> callback) override {
+  template <class RequestType>
+  bool OnQueryImpl(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   int64_t query_id,
+                   const RequestType& request,
+                   bool persistent,
+                   CefRefPtr<CefMessageRouterBrowserSide::Callback> callback) {
     EXPECT_TRUE(finalized_);
     if (!running_) {
       running_ = true;
     }
 
     MultiQueryManager* manager = GetManager(browser, frame);
-    return manager->OnQuery(browser, frame, query_id, request, persistent,
-                            callback);
+    return manager->OnQueryImpl(browser, frame, query_id, request, persistent,
+                                callback);
   }
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
-                       int64_t query_id) override {
+                       int64_t query_id) {
     EXPECT_TRUE(finalized_);
     if (!running_) {
       running_ = true;
@@ -1611,8 +1683,12 @@ class MultiQueryManagerMap : public CefMessageRouterBrowserSide::Handler,
 class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
                                         public MultiQueryManagerMap::Observer {
  public:
-  MultiQueryMultiFrameTestHandler(bool synchronous, bool cancel_with_subnav)
-      : synchronous_(synchronous), cancel_with_subnav_(cancel_with_subnav) {
+  MultiQueryMultiFrameTestHandler(bool synchronous,
+                                  bool cancel_with_subnav,
+                                  TransferType transfer_type)
+      : synchronous_(synchronous),
+        cancel_with_subnav_(cancel_with_subnav),
+        transfer_type_(transfer_type) {
     manager_map_.AddObserver(this);
   }
 
@@ -1657,8 +1733,21 @@ class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
     AssertMainBrowser(browser);
     EXPECT_FALSE(frame->IsMain());
 
-    return manager_map_.OnQuery(browser, frame, query_id, request, persistent,
-                                callback);
+    return manager_map_.OnQueryImpl(browser, frame, query_id, request,
+                                    persistent, callback);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               CefRefPtr<const CefBinaryBuffer> request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    AssertMainBrowser(browser);
+    EXPECT_FALSE(frame->IsMain());
+
+    return manager_map_.OnQueryImpl(browser, frame, query_id, request,
+                                    persistent, callback);
   }
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
@@ -1709,7 +1798,8 @@ class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
   void AddSubFrameResource(const std::string& name) {
     const std::string& url = std::string(kTestDomain1) + name + ".html";
 
-    MultiQueryManager* manager = manager_map_.CreateManager(url, synchronous_);
+    MultiQueryManager* manager =
+        manager_map_.CreateManager(url, synchronous_, transfer_type_);
     MakeTestQueries(manager, false, 100);
 
     const std::string& html = manager->GetHTML(false, false);
@@ -1718,6 +1808,7 @@ class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
 
   const bool synchronous_;
   const bool cancel_with_subnav_;
+  const TransferType transfer_type_;
 
   MultiQueryManagerMap manager_map_;
 
@@ -1726,41 +1817,38 @@ class MultiQueryMultiFrameTestHandler : public SingleLoadTestHandler,
 
 }  // namespace
 
+#define MQMF_TEST(name, sync, cancel_with_subnav)                     \
+  TEST(MessageRouterTest, MultiQueryMultiFrame##name##String) {       \
+    CefRefPtr<MultiQueryMultiFrameTestHandler> handler =              \
+        new MultiQueryMultiFrameTestHandler(sync, cancel_with_subnav, \
+                                            TransferType::STRING);    \
+    handler->ExecuteTest();                                           \
+    ReleaseAndWaitForDestructor(handler);                             \
+  }                                                                   \
+                                                                      \
+  TEST(MessageRouterTest, MultiQueryMultiFrame##name##Binary) {       \
+    CefRefPtr<MultiQueryMultiFrameTestHandler> handler =              \
+        new MultiQueryMultiFrameTestHandler(sync, cancel_with_subnav, \
+                                            TransferType::BINARY);    \
+    handler->ExecuteTest();                                           \
+    ReleaseAndWaitForDestructor(handler);                             \
+  }
+
 // Test that multiple frames can run many queries successfully in a synchronous
 // manner.
-TEST(MessageRouterTest, MultiQueryMultiFrameSync) {
-  CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
-      new MultiQueryMultiFrameTestHandler(true, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMF_TEST(Sync, true, false)
 
 // Test that multiple frames can run many queries successfully in an
 // asynchronous manner.
-TEST(MessageRouterTest, MultiQueryMultiFrameAsync) {
-  CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
-      new MultiQueryMultiFrameTestHandler(false, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMF_TEST(Async, false, false)
 
 // Test that multiple frames can run many queries successfully in a synchronous
 // manner. Cancel auto queries with sub-frame navigation.
-TEST(MessageRouterTest, MultiQueryMultiFrameSyncSubnavCancel) {
-  CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
-      new MultiQueryMultiFrameTestHandler(true, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMF_TEST(SyncSubnavCancel, true, true)
 
 // Test that multiple frames can run many queries successfully in an
 // asynchronous manner. Cancel auto queries with sub-frame navigation.
-TEST(MessageRouterTest, MultiQueryMultiFrameAsyncSubnavCancel) {
-  CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
-      new MultiQueryMultiFrameTestHandler(false, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMF_TEST(AsyncSubnavCancel, false, true)
 
 namespace {
 
@@ -1772,8 +1860,10 @@ class MultiQueryMultiLoadTestHandler
       public MultiQueryManagerMap::Observer,
       public MultiQueryManager::Observer {
  public:
-  MultiQueryMultiLoadTestHandler(bool some, bool synchronous)
-      : some_(some), synchronous_(synchronous) {
+  MultiQueryMultiLoadTestHandler(bool some,
+                                 bool synchronous,
+                                 TransferType transfer_type)
+      : some_(some), synchronous_(synchronous), transfer_type_(transfer_type) {
     manager_map_.AddObserver(this);
   }
 
@@ -1795,8 +1885,18 @@ class MultiQueryMultiLoadTestHandler
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
-    return manager_map_.OnQuery(browser, frame, query_id, request, persistent,
-                                callback);
+    return manager_map_.OnQueryImpl(browser, frame, query_id, request,
+                                    persistent, callback);
+  }
+
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               CefRefPtr<const CefBinaryBuffer> request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
+    return manager_map_.OnQueryImpl(browser, frame, query_id, request,
+                                    persistent, callback);
   }
 
   void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
@@ -1838,7 +1938,8 @@ class MultiQueryMultiLoadTestHandler
   void AddManagedResource(const std::string& url,
                           bool assert_total,
                           bool assert_browser) {
-    MultiQueryManager* manager = manager_map_.CreateManager(url, synchronous_);
+    MultiQueryManager* manager =
+        manager_map_.CreateManager(url, synchronous_, transfer_type_);
     manager->AddObserver(this);
     MakeTestQueries(manager, some_, 75);
 
@@ -1860,6 +1961,7 @@ class MultiQueryMultiLoadTestHandler
  private:
   const bool some_;
   const bool synchronous_;
+  const TransferType transfer_type_;
 
   std::string cancel_url_;
 };
@@ -1868,8 +1970,10 @@ class MultiQueryMultiLoadTestHandler
 class MultiQueryMultiBrowserTestHandler
     : public MultiQueryMultiLoadTestHandler {
  public:
-  MultiQueryMultiBrowserTestHandler(bool synchronous, bool same_origin)
-      : MultiQueryMultiLoadTestHandler(false, synchronous),
+  MultiQueryMultiBrowserTestHandler(bool synchronous,
+                                    bool same_origin,
+                                    TransferType transfer_type)
+      : MultiQueryMultiLoadTestHandler(false, synchronous, transfer_type),
         same_origin_(same_origin) {}
 
  protected:
@@ -1899,37 +2003,34 @@ class MultiQueryMultiBrowserTestHandler
 
 }  // namespace
 
-// Test that multiple browsers can query simultaniously from the same origin.
-TEST(MessageRouterTest, MultiQueryMultiBrowserSameOriginSync) {
-  CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
-      new MultiQueryMultiBrowserTestHandler(true, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+#define MQMB_TEST(name, sync, same_origin)                           \
+  TEST(MessageRouterTest, MultiQueryMultiBrowser##name##String) {    \
+    CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =           \
+        new MultiQueryMultiBrowserTestHandler(sync, same_origin,     \
+                                              TransferType::STRING); \
+    handler->ExecuteTest();                                          \
+    ReleaseAndWaitForDestructor(handler);                            \
+  }                                                                  \
+                                                                     \
+  TEST(MessageRouterTest, MultiQueryMultiBrowser##name##Binary) {    \
+    CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =           \
+        new MultiQueryMultiBrowserTestHandler(sync, same_origin,     \
+                                              TransferType::BINARY); \
+    handler->ExecuteTest();                                          \
+    ReleaseAndWaitForDestructor(handler);                            \
+  }
 
 // Test that multiple browsers can query simultaniously from the same origin.
-TEST(MessageRouterTest, MultiQueryMultiBrowserSameOriginAsync) {
-  CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
-      new MultiQueryMultiBrowserTestHandler(false, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMB_TEST(SameOriginSync, true, true)
+
+// Test that multiple browsers can query simultaniously from the same origin.
+MQMB_TEST(SameOriginAsync, false, true)
 
 // Test that multiple browsers can query simultaniously from different origins.
-TEST(MessageRouterTest, MultiQueryMultiBrowserDifferentOriginSync) {
-  CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
-      new MultiQueryMultiBrowserTestHandler(true, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMB_TEST(DifferentOriginSync, true, false)
 
 // Test that multiple browsers can query simultaniously from different origins.
-TEST(MessageRouterTest, MultiQueryMultiBrowserDifferentOriginAsync) {
-  CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
-      new MultiQueryMultiBrowserTestHandler(false, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMB_TEST(DifferentOriginAsync, false, false)
 
 namespace {
 
@@ -1937,8 +2038,10 @@ namespace {
 class MultiQueryMultiNavigateTestHandler
     : public MultiQueryMultiLoadTestHandler {
  public:
-  MultiQueryMultiNavigateTestHandler(bool synchronous, bool same_origin)
-      : MultiQueryMultiLoadTestHandler(false, synchronous),
+  MultiQueryMultiNavigateTestHandler(bool synchronous,
+                                     bool same_origin,
+                                     TransferType transfer_type)
+      : MultiQueryMultiLoadTestHandler(false, synchronous, transfer_type),
         same_origin_(same_origin) {}
 
   void OnManualQueriesCompleted(MultiQueryManager* manager) override {
@@ -1981,34 +2084,31 @@ class MultiQueryMultiNavigateTestHandler
 
 }  // namespace
 
-// Test that multiple navigations can query from the same origin.
-TEST(MessageRouterTest, MultiQueryMultiNavigateSameOriginSync) {
-  CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
-      new MultiQueryMultiNavigateTestHandler(true, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+#define MQMN_TEST(name, sync, same_origin)                            \
+  TEST(MessageRouterTest, MultiQueryMultiNavigate##name##String) {    \
+    CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =           \
+        new MultiQueryMultiNavigateTestHandler(sync, same_origin,     \
+                                               TransferType::STRING); \
+    handler->ExecuteTest();                                           \
+    ReleaseAndWaitForDestructor(handler);                             \
+  }                                                                   \
+                                                                      \
+  TEST(MessageRouterTest, MultiQueryMultiNavigate##name##Binary) {    \
+    CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =           \
+        new MultiQueryMultiNavigateTestHandler(sync, same_origin,     \
+                                               TransferType::BINARY); \
+    handler->ExecuteTest();                                           \
+    ReleaseAndWaitForDestructor(handler);                             \
+  }
 
 // Test that multiple navigations can query from the same origin.
-TEST(MessageRouterTest, MultiQueryMultiNavigateSameOriginAsync) {
-  CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
-      new MultiQueryMultiNavigateTestHandler(false, true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMN_TEST(SameOriginSync, true, true)
+
+// Test that multiple navigations can query from the same origin.
+MQMN_TEST(SameOriginAsync, false, true)
 
 // Test that multiple navigations can query from different origins.
-TEST(MessageRouterTest, MultiQueryMultiNavigateDifferentOriginSync) {
-  CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
-      new MultiQueryMultiNavigateTestHandler(true, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMN_TEST(DifferentOriginSync, true, false)
 
 // Test that multiple navigations can query from different origins.
-TEST(MessageRouterTest, MultiQueryMultiNavigateDifferentOriginAsync) {
-  CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
-      new MultiQueryMultiNavigateTestHandler(false, false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
+MQMN_TEST(DifferentOriginAsync, false, false)
