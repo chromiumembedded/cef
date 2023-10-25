@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=35ef2ba61ce63ffcc269a326874d135090b0937a$
+// $hash=5b562d0924fd4a825f43ae7735c1fc98c474de6a$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -64,7 +64,8 @@ class CefWindowCToCpp
   CefRefPtr<CefImage> GetWindowAppIcon() override;
   CefRefPtr<CefOverlayController> AddOverlayView(
       CefRefPtr<CefView> view,
-      cef_docking_mode_t docking_mode) override;
+      cef_docking_mode_t docking_mode,
+      bool can_activate) override;
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                 const CefPoint& screen_point,
                 cef_menu_anchor_position_t anchor_position) override;

@@ -167,7 +167,9 @@ CefOverlayViewHost::CefOverlayViewHost(CefWindowView* window_view,
                                        cef_docking_mode_t docking_mode)
     : window_view_(window_view), docking_mode_(docking_mode) {}
 
-void CefOverlayViewHost::Init(views::View* host_view, CefRefPtr<CefView> view) {
+void CefOverlayViewHost::Init(views::View* host_view,
+                              CefRefPtr<CefView> view,
+                              bool can_activate) {
   DCHECK(view);
 
   // Match the logic in CEF_PANEL_IMPL_D::AddChildView().
@@ -186,7 +188,9 @@ void CefOverlayViewHost::Init(views::View* host_view, CefRefPtr<CefView> view) {
   params.ownership = views::Widget::InitParams::WIDGET_OWNS_NATIVE_WIDGET;
   params.parent = window_view_->GetWidget()->GetNativeView();
   params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
-  params.activatable = views::Widget::InitParams::Activatable::kNo;
+  params.activatable = can_activate
+                           ? views::Widget::InitParams::Activatable::kYes
+                           : views::Widget::InitParams::Activatable::kNo;
   widget_->Init(std::move(params));
 
   view_ = widget_->GetContentsView()->AddChildView(std::move(controls_view));

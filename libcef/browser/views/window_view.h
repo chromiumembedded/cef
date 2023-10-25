@@ -105,7 +105,8 @@ class CefWindowView
 
   CefRefPtr<CefOverlayController> AddOverlayView(
       CefRefPtr<CefView> view,
-      cef_docking_mode_t docking_mode);
+      cef_docking_mode_t docking_mode,
+      bool can_activate);
 
   // Set/get the draggable regions.
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);

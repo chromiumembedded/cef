@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9c7fea32f82cc202af9aac038b78000ed45aac2e$
+// $hash=a5f9a7de12728e82f8dee6d8dde3b9275a3e4ee4$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -467,7 +467,8 @@ window_get_window_app_icon(struct _cef_window_t* self) {
 cef_overlay_controller_t* CEF_CALLBACK
 window_add_overlay_view(struct _cef_window_t* self,
                         cef_view_t* view,
-                        cef_docking_mode_t docking_mode) {
+                        cef_docking_mode_t docking_mode,
+                        int can_activate) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -485,7 +486,8 @@ window_add_overlay_view(struct _cef_window_t* self,
   // Execute
   CefRefPtr<CefOverlayController> _retval =
       CefWindowCppToC::Get(self)->AddOverlayView(CefViewCppToC::Unwrap(view),
-                                                 docking_mode);
+                                                 docking_mode,
+                                                 can_activate ? true : false);
 
   // Return type: refptr_same
   return CefOverlayControllerCppToC::Wrap(_retval);

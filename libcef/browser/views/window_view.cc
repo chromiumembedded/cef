@@ -795,7 +795,8 @@ void CefWindowView::SetWindowAppIcon(CefRefPtr<CefImage> window_app_icon) {
 
 CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
     CefRefPtr<CefView> view,
-    cef_docking_mode_t docking_mode) {
+    cef_docking_mode_t docking_mode,
+    bool can_activate) {
   DCHECK(view.get());
   DCHECK(view->IsValid());
   if (!view.get() || !view->IsValid()) {
@@ -811,7 +812,7 @@ CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
         std::make_unique<CefOverlayViewHost>(this, docking_mode));
 
     auto& overlay_host = overlay_hosts_.back();
-    overlay_host->Init(overlay_host_view, view);
+    overlay_host->Init(overlay_host_view, view, can_activate);
 
     return overlay_host->controller();
   }
