@@ -349,10 +349,11 @@ CefRefPtr<CefImage> CefWindowImpl::GetWindowAppIcon() {
 
 CefRefPtr<CefOverlayController> CefWindowImpl::AddOverlayView(
     CefRefPtr<CefView> view,
-    cef_docking_mode_t docking_mode) {
+    cef_docking_mode_t docking_mode,
+    bool can_activate) {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   if (root_view()) {
-    return root_view()->AddOverlayView(view, docking_mode);
+    return root_view()->AddOverlayView(view, docking_mode, can_activate);
   }
   return nullptr;
 }

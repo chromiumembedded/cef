@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6078993477d8e0570528593193ec06efbfd0843c$
+// $hash=dbe89dfdd14eb114e3f2d16fbfc55624bb91e7ce$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -220,8 +220,9 @@ typedef struct _cef_window_t {
   ///
   /// Add a View that will be overlayed on the Window contents with absolute
   /// positioning and high z-order. Positioning is controlled by |docking_mode|
-  /// as described below. The returned cef_overlay_controller_t object is used
-  /// to control the overlay. Overlays are hidden by default.
+  /// as described below. Setting |can_activate| to true (1) will allow the
+  /// overlay view to receive input focus. The returned cef_overlay_controller_t
+  /// object is used to control the overlay. Overlays are hidden by default.
   ///
   /// With CEF_DOCKING_MODE_CUSTOM:
   ///   1. The overlay is initially hidden, sized to |view|'s preferred size,
@@ -249,7 +250,8 @@ typedef struct _cef_window_t {
   struct _cef_overlay_controller_t*(CEF_CALLBACK* add_overlay_view)(
       struct _cef_window_t* self,
       struct _cef_view_t* view,
-      cef_docking_mode_t docking_mode);
+      cef_docking_mode_t docking_mode,
+      int can_activate);
 
   ///
   /// Show a menu with contents |menu_model|. |screen_point| specifies the menu

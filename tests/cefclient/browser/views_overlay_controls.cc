@@ -108,7 +108,8 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
       panel_->AddChildView(CreateButton(button));
     }
     panel_controller_ = window->AddOverlayView(
-        panel_, GetPanelDockingMode(use_bottom_controls_));
+        panel_, GetPanelDockingMode(use_bottom_controls_),
+        /*can_activate=*/false);
     panel_controller_->SetInsets(insets);
     panel_controller_->SetVisible(true);
   }
@@ -116,7 +117,8 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
   // Menu button.
   menu_button->SetBackgroundColor(kBackgroundColor);
   menu_controller_ = window_->AddOverlayView(
-      menu_button, GetMenuDockingMode(use_bottom_controls_));
+      menu_button, GetMenuDockingMode(use_bottom_controls_),
+      /*can_activate=*/false);
   menu_controller_->SetInsets(insets);
   menu_controller_->SetVisible(true);
 
@@ -125,8 +127,8 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
   is_chrome_toolbar_ = is_chrome_toolbar;
   // Use a 100% transparent background for the Chrome toolbar.
   location_bar_->SetBackgroundColor(is_chrome_toolbar_ ? 0 : kBackgroundColor);
-  location_controller_ =
-      window_->AddOverlayView(location_bar_, CEF_DOCKING_MODE_CUSTOM);
+  location_controller_ = window_->AddOverlayView(
+      location_bar_, CEF_DOCKING_MODE_CUSTOM, /*can_activate=*/false);
 }
 
 void ViewsOverlayControls::Destroy() {

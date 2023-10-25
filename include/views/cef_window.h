@@ -233,8 +233,9 @@ class CefWindow : public CefPanel {
   ///
   /// Add a View that will be overlayed on the Window contents with absolute
   /// positioning and high z-order. Positioning is controlled by |docking_mode|
-  /// as described below. The returned CefOverlayController object is used to
-  /// control the overlay. Overlays are hidden by default.
+  /// as described below. Setting |can_activate| to true will allow the overlay
+  /// view to receive input focus. The returned CefOverlayController object is
+  /// used to control the overlay. Overlays are hidden by default.
   ///
   /// With CEF_DOCKING_MODE_CUSTOM:
   ///   1. The overlay is initially hidden, sized to |view|'s preferred size,
@@ -262,7 +263,8 @@ class CefWindow : public CefPanel {
   /*--cef()--*/
   virtual CefRefPtr<CefOverlayController> AddOverlayView(
       CefRefPtr<CefView> view,
-      cef_docking_mode_t docking_mode) = 0;
+      cef_docking_mode_t docking_mode,
+      bool can_activate) = 0;
 
   ///
   /// Show a menu with contents |menu_model|. |screen_point| specifies the menu
