@@ -12,10 +12,10 @@ index 5cb6e6463767d..84a9de1dfc6f0 100644
                RenderFrameHostImpl::FromFrameToken(
                    process_id, initiator_frame_token->value())) {
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index f9295c24641e9..118e86979c5c7 100644
+index 44ab3ea5a90eb..9962e033ab103 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -10086,6 +10086,7 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -10100,6 +10100,7 @@ void RenderFrameHostImpl::CommitNavigation(
    auto browser_calc_origin_to_commit =
        navigation_request->GetOriginToCommitWithDebugInfo();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&

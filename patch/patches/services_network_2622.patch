@@ -21,7 +21,7 @@ index 0a6c1f498b8fc..79e0cf27a7715 100644
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 2d4683b149ed0..761a2216aaf63 100644
+index 6271f349464b9..caa45362f52cc 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -55,7 +55,7 @@ index 2d4683b149ed0..761a2216aaf63 100644
    // Update all FPS Access Delegates on the FPS service to be `enabled`.
    first_party_sets::FirstPartySetsPolicyServiceFactory::GetForBrowserContext(
        profile_)
-@@ -879,9 +885,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -881,9 +887,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -83,7 +83,7 @@ index 2d4683b149ed0..761a2216aaf63 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -890,15 +913,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -892,15 +915,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -103,7 +103,7 @@ index 2d4683b149ed0..761a2216aaf63 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
-@@ -1051,6 +1073,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1053,6 +1075,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->block_trust_tokens =
        anti_abuse_content_setting == CONTENT_SETTING_BLOCK;
  
@@ -111,7 +111,7 @@ index 2d4683b149ed0..761a2216aaf63 100644
    network_context_params->first_party_sets_access_delegate_params =
        network::mojom::FirstPartySetsAccessDelegateParams::New();
    network_context_params->first_party_sets_access_delegate_params->enabled =
-@@ -1067,6 +1090,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1069,6 +1092,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
            GetForBrowserContext(profile_);
    DCHECK(fps_service);
    fps_service->AddRemoteAccessDelegate(std::move(fps_access_delegate_remote));
