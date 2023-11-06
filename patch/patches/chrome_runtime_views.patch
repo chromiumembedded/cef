@@ -700,7 +700,7 @@ index 8267a265a8e10..ee08f18e96a34 100644
  
  ContentsWebView::~ContentsWebView() {
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-index f1d303e9b7fd8..8a5935e8f10da 100644
+index f1d303e9b7fd8..fa1dcef4ec63f 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 +++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 @@ -549,6 +549,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
@@ -715,7 +715,7 @@ index f1d303e9b7fd8..8a5935e8f10da 100644
  }
  
  PictureInPictureBrowserFrameView::~PictureInPictureBrowserFrameView() {
-@@ -644,17 +649,20 @@ gfx::Rect PictureInPictureBrowserFrameView::GetWindowBoundsForClientBounds(
+@@ -644,18 +649,42 @@ gfx::Rect PictureInPictureBrowserFrameView::GetWindowBoundsForClientBounds(
  
  int PictureInPictureBrowserFrameView::NonClientHitTest(
      const gfx::Point& point) {
@@ -724,18 +724,14 @@ index f1d303e9b7fd8..8a5935e8f10da 100644
 -      GetBackToTabControlsBounds().Contains(point) ||
 -      GetCloseControlsBounds().Contains(point)) {
 -    return HTCLIENT;
--  }
--
--  for (size_t i = 0; i < content_setting_views_.size(); i++) {
--    if (GetContentSettingViewBounds(i).Contains(point)) {
 +  const bool frameless = !top_bar_container_view_->GetVisible();
 +  if (!frameless) {
 +    // Allow interacting with the buttons.
 +    if (GetLocationIconViewBounds().Contains(point) ||
 +        GetBackToTabControlsBounds().Contains(point) ||
 +        GetCloseControlsBounds().Contains(point)) {
-       return HTCLIENT;
-     }
++      return HTCLIENT;
++    }
 +
 +    for (size_t i = 0; i < content_setting_views_.size(); i++) {
 +      if (GetContentSettingViewBounds(i).Contains(point)) {
@@ -744,11 +740,9 @@ index f1d303e9b7fd8..8a5935e8f10da 100644
 +    }
    }
  
-   // Allow dragging and resizing the window.
-@@ -664,6 +672,27 @@ int PictureInPictureBrowserFrameView::NonClientHitTest(
-   if (window_component != HTNOWHERE)
-     return window_component;
- 
+-  for (size_t i = 0; i < content_setting_views_.size(); i++) {
+-    if (GetContentSettingViewBounds(i).Contains(point)) {
+-      return HTCLIENT;
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (frameless) {
 +    // Match logic in BrowserView::ShouldDescendIntoChildForEventHandling.
@@ -766,13 +760,12 @@ index f1d303e9b7fd8..8a5935e8f10da 100644
 +              point_in_contents_web_view_coords.y())) {
 +        return HTCAPTION;
 +      }
-+    }
-+  }
+     }
+   }
 +#endif  // BUILDFLAG(ENABLE_CEF)
-+
-   // Allow interacting with the web contents.
-   int frame_component = frame()->client_view()->NonClientHitTest(point);
-   if (frame_component != HTNOWHERE)
+ 
+   // Allow dragging and resizing the window.
+   int window_component = GetHTComponentForFrame(
 @@ -722,7 +751,8 @@ void PictureInPictureBrowserFrameView::Layout() {
    gfx::Rect content_area = GetLocalBounds();
    content_area.Inset(FrameBorderInsets());
