@@ -633,6 +633,31 @@ void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
 #endif
 }
 
+bool CefBrowserHostBase::IsFullscreen() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    return web_contents->IsFullscreen();
+  }
+  return false;
+}
+
+void CefBrowserHostBase::ExitFullscreen(bool will_cause_resize) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::ExitFullscreen,
+                                          this, will_cause_resize));
+    return;
+  }
+
+  auto web_contents = GetWebContents();
+  if (web_contents && web_contents->IsFullscreen()) {
+    web_contents->ExitFullscreen(will_cause_resize);
+  }
+}
+
 void CefBrowserHostBase::ReplaceMisspelling(const CefString& word) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(

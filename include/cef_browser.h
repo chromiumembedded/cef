@@ -964,6 +964,30 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool IsAudioMuted() = 0;
+
+  ///
+  /// Returns true if the renderer is currently in browser fullscreen. This
+  /// differs from window fullscreen in that browser fullscreen is entered using
+  /// the JavaScript Fullscreen API and modifies CSS attributes such as the
+  /// ::backdrop pseudo-element and :fullscreen pseudo-class. This method can
+  /// only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool IsFullscreen() = 0;
+
+  ///
+  /// Requests the renderer to exit browser fullscreen. In most cases exiting
+  /// window fullscreen should also exit browser fullscreen. With the Alloy
+  /// runtime this method should be called in response to a user action such as
+  /// clicking the green traffic light button on MacOS
+  /// (CefWindowDelegate::OnWindowFullscreenTransition callback) or pressing the
+  /// "ESC" key (CefKeyboardHandler::OnPreKeyEvent callback). With the Chrome
+  /// runtime these standard exit actions are handled internally but
+  /// new/additional user actions can use this method. Set |will_cause_resize|
+  /// to true if exiting browser fullscreen will cause a view resize.
+  ///
+  /*--cef()--*/
+  virtual void ExitFullscreen(bool will_cause_resize) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

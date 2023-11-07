@@ -212,6 +212,8 @@ class CefBrowserHostBase : public CefBrowserHost,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
   void NotifyMoveOrResizeStarted() override;
+  bool IsFullscreen() override;
+  void ExitFullscreen(bool will_cause_resize) override;
 
   // CefBrowser methods:
   bool IsValid() override;
