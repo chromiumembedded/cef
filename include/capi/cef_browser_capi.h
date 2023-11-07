@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=db4fce1215cb4f69346ef2d048974ba34187b2b1$
+// $hash=13ba2d807f2c1ac3adfc65f2bdb269baecba57ec$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -932,6 +932,29 @@ typedef struct _cef_browser_host_t {
   /// be called on the UI thread.
   ///
   int(CEF_CALLBACK* is_audio_muted)(struct _cef_browser_host_t* self);
+
+  ///
+  /// Returns true (1) if the renderer is currently in browser fullscreen. This
+  /// differs from window fullscreen in that browser fullscreen is entered using
+  /// the JavaScript Fullscreen API and modifies CSS attributes such as the
+  /// ::backdrop pseudo-element and :fullscreen pseudo-structure. This function
+  /// can only be called on the UI thread.
+  ///
+  int(CEF_CALLBACK* is_fullscreen)(struct _cef_browser_host_t* self);
+
+  ///
+  /// Requests the renderer to exit browser fullscreen. In most cases exiting
+  /// window fullscreen should also exit browser fullscreen. With the Alloy
+  /// runtime this function should be called in response to a user action such
+  /// as clicking the green traffic light button on MacOS
+  /// (cef_window_delegate_t::OnWindowFullscreenTransition callback) or pressing
+  /// the "ESC" key (cef_keyboard_handler_t::OnPreKeyEvent callback). With the
+  /// Chrome runtime these standard exit actions are handled internally but
+  /// new/additional user actions can use this function. Set |will_cause_resize|
+  /// to true (1) if exiting browser fullscreen will cause a view resize.
+  ///
+  void(CEF_CALLBACK* exit_fullscreen)(struct _cef_browser_host_t* self,
+                                      int will_cause_resize);
 } cef_browser_host_t;
 
 ///

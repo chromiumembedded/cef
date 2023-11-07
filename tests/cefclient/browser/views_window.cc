@@ -651,6 +651,18 @@ void ViewsWindow::OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
   if (should_change && with_controls_) {
     ShowTopControls(!window->IsFullscreen());
   }
+
+  // With Alloy runtime we need to explicitly exit browser fullscreen when
+  // exiting window fullscreen. Chrome runtime handles this internally.
+  if (!MainContext::Get()->UseChromeRuntime() && should_change &&
+      !window->IsFullscreen()) {
+    CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
+    if (browser && browser->GetHost()->IsFullscreen()) {
+      // Will not cause a resize because the fullscreen transition has already
+      // begun.
+      browser->GetHost()->ExitFullscreen(/*will_cause_resize=*/false);
+    }
+  }
 }
 
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
