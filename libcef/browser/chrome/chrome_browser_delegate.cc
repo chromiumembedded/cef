@@ -24,6 +24,8 @@
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
+#include "content/public/browser/render_widget_host.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
 
 using content::KeyboardEventProcessingResult;
@@ -378,6 +380,14 @@ void ChromeBrowserDelegate::ExitFullscreenModeForTab(
     content::WebContents* web_contents) {
   if (auto delegate = GetDelegateForWebContents(web_contents)) {
     delegate->ExitFullscreenModeForTab(web_contents);
+  }
+
+  // Workaround for https://crbug.com/1500371. Ensure WebContents exits
+  // fullscreen state by explicitly sending a resize message.
+  if (auto* rwhv = web_contents->GetRenderWidgetHostView()) {
+    if (auto* render_widget_host = rwhv->GetRenderWidgetHost()) {
+      render_widget_host->SynchronizeVisualProperties();
+    }
   }
 }
 
