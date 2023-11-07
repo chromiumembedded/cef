@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cd4e4aa1670f0c887090e23f5e7e3a01e5de9d13$
+// $hash=4d51bbece0dd5773f9c97163008d6b2f4bf1ccbf$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -1227,6 +1227,38 @@ NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsAudioMuted() {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefBrowserHostCToCpp::IsFullscreen() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_fullscreen)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_fullscreen(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::ExitFullscreen(bool will_cause_resize) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, exit_fullscreen)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->exit_fullscreen(_struct, will_cause_resize);
 }
 
 // CONSTRUCTOR - Do not edit by hand.

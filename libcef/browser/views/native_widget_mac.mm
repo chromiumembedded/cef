@@ -121,12 +121,18 @@ void CefNativeWidgetMac::OnWindowFullscreenTransitionStart() {
   views::NativeWidgetMac::OnWindowFullscreenTransitionStart();
   if (IsCefWindowInitialized()) {
     window_delegate_->OnWindowFullscreenTransition(window_, false);
+    if (browser_view_) {
+      browser_view_->FullscreenStateChanging();
+    }
   }
 }
 
 void CefNativeWidgetMac::OnWindowFullscreenTransitionComplete() {
   views::NativeWidgetMac::OnWindowFullscreenTransitionComplete();
   if (IsCefWindowInitialized()) {
+    if (browser_view_) {
+      browser_view_->FullscreenStateChanged();
+    }
     window_delegate_->OnWindowFullscreenTransition(window_, true);
   }
 }

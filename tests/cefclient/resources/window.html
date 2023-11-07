@@ -2,6 +2,12 @@
 <html lang="en-US">
 <head>
 <title>Window Test</title>
+<style>
+/* Background becomes pink in fullscreen mode. */
+:fullscreen {
+  background: pink;
+}
+</style>
 <script>
 function setup() {
   if (location.hostname == 'tests' || location.hostname == 'localhost')
@@ -38,8 +44,16 @@ function restore() {
   setTimeout(function() { send_message('Restore'); }, 1000);
 }
 
-function fullscreen() {
+function fullscreenWindow() {
   send_message('Fullscreen');
+}
+
+function fullscreenBrowser() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.getElementById('form').requestFullscreen();
+  }
 }
 
 function position() {
@@ -68,7 +82,8 @@ Click a button to perform the associated window action.
 <br/><input type="button" onclick="minimize();" value="Minimize">
 <br/><input type="button" onclick="maximize();" value="Maximize">
 <br/><input type="button" onclick="restore();" value="Restore"> (minimizes and then restores the window as topmost)
-<br/><input type="button" onclick="fullscreen();" value="Toggle Fullscreen"> (works with Views)
+<br/><input type="button" onclick="fullscreenWindow();" value="Toggle Window Fullscreen"> (works with Views)
+<br/><input type="button" onclick="fullscreenBrowser();" value="Toggle Browser Fullscreen"> (uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API" target="_new">Fullscreen API</a>; background turns pink)
 <br/><input type="button" onclick="position();" value="Set Position">
 X: <input type="text" size="4" id="x" value="200">
 Y: <input type="text" size="4" id="y" value="100">

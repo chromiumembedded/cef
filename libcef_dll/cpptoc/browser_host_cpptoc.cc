@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=497607653318fe0245cbe18c8911e39867e16249$
+// $hash=5358aa617ebb6d7d074e2d346599fbd6777f1770$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1435,6 +1435,39 @@ int CEF_CALLBACK browser_host_is_audio_muted(struct _cef_browser_host_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK browser_host_is_fullscreen(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsFullscreen();
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK browser_host_exit_fullscreen(struct _cef_browser_host_t* self,
+                                               int will_cause_resize) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ExitFullscreen(will_cause_resize ? true
+                                                                    : false);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1512,6 +1545,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->is_background_host = browser_host_is_background_host;
   GetStruct()->set_audio_muted = browser_host_set_audio_muted;
   GetStruct()->is_audio_muted = browser_host_is_audio_muted;
+  GetStruct()->is_fullscreen = browser_host_is_fullscreen;
+  GetStruct()->exit_fullscreen = browser_host_exit_fullscreen;
 }
 
 // DESTRUCTOR - Do not edit by hand.
