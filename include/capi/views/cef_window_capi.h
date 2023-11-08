@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4b43fe0b493d860e8b28d7a6d892db49d1135b34$
+// $hash=a48904fcd0f6be07e27839922d8feb07271ed2b5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -332,16 +332,25 @@ typedef struct _cef_window_t {
 
   ///
   /// Set the keyboard accelerator for the specified |command_id|. |key_code|
-  /// can be any virtual key or character value.
+  /// can be any virtual key or character value. Required modifier keys are
+  /// specified by |shift_pressed|, |ctrl_pressed| and/or |alt_pressed|.
   /// cef_window_delegate_t::OnAccelerator will be called if the keyboard
   /// combination is triggered while this window has focus.
+  ///
+  /// The |high_priority| value will be considered if a child cef_browser_view_t
+  /// has focus when the keyboard combination is triggered. If |high_priority|
+  /// is true (1) then the key event will not be forwarded to the web content
+  /// (`keydown` event handler) or cef_keyboard_handler_t first. If
+  /// |high_priority| is false (0) then the behavior will depend on the
+  /// cef_browser_view_t::SetPreferAccelerators configuration.
   ///
   void(CEF_CALLBACK* set_accelerator)(struct _cef_window_t* self,
                                       int command_id,
                                       int key_code,
                                       int shift_pressed,
                                       int ctrl_pressed,
-                                      int alt_pressed);
+                                      int alt_pressed,
+                                      int high_priority);
 
   ///
   /// Remove the keyboard accelerator for the specified |command_id|.

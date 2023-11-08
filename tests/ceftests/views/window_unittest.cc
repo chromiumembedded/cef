@@ -562,7 +562,7 @@ bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
 }
 
 void RunWindowAccelerator(CefRefPtr<CefWindow> window) {
-  window->SetAccelerator(kCloseWindowId, kChar, false, false, true);
+  window->SetAccelerator(kCloseWindowId, kChar, false, false, true, false);
   window->Show();
 
   CefPostDelayedTask(TID_UI, base::BindOnce(TriggerAccelerator, window),

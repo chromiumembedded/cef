@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=23777aea864e9abf38c2e2c5d79a40d6bd22876d$
+// $hash=38a50bca35881beb6400f3ad5d81b0a5ec86331d$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -672,7 +672,8 @@ void CEF_CALLBACK window_set_accelerator(struct _cef_window_t* self,
                                          int key_code,
                                          int shift_pressed,
                                          int ctrl_pressed,
-                                         int alt_pressed) {
+                                         int alt_pressed,
+                                         int high_priority) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -685,7 +686,8 @@ void CEF_CALLBACK window_set_accelerator(struct _cef_window_t* self,
   // Execute
   CefWindowCppToC::Get(self)->SetAccelerator(
       command_id, key_code, shift_pressed ? true : false,
-      ctrl_pressed ? true : false, alt_pressed ? true : false);
+      ctrl_pressed ? true : false, alt_pressed ? true : false,
+      high_priority ? true : false);
 }
 
 void CEF_CALLBACK window_remove_accelerator(struct _cef_window_t* self,

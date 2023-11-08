@@ -669,7 +669,8 @@ void CefWindowImpl::SetAccelerator(int command_id,
                                    int key_code,
                                    bool shift_pressed,
                                    bool ctrl_pressed,
-                                   bool alt_pressed) {
+                                   bool alt_pressed,
+                                   bool high_priority) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (!widget_) {
     return;
@@ -698,7 +699,10 @@ void CefWindowImpl::SetAccelerator(int command_id,
   views::FocusManager* focus_manager = widget_->GetFocusManager();
   DCHECK(focus_manager);
   focus_manager->RegisterAccelerator(
-      accelerator, ui::AcceleratorManager::kNormalPriority, this);
+      accelerator,
+      high_priority ? ui::AcceleratorManager::kHighPriority
+                    : ui::AcceleratorManager::kNormalPriority,
+      this);
 }
 
 void CefWindowImpl::RemoveAccelerator(int command_id) {

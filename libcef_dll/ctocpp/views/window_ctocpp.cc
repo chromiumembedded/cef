@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b6b0a2a563b475163aa71b20af6ec2ac8c1f0cae$
+// $hash=c8f164d20875c8071837c04abb44e09672d894af$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -663,7 +663,8 @@ void CefWindowCToCpp::SetAccelerator(int command_id,
                                      int key_code,
                                      bool shift_pressed,
                                      bool ctrl_pressed,
-                                     bool alt_pressed) {
+                                     bool alt_pressed,
+                                     bool high_priority) {
   shutdown_checker::AssertNotShutdown();
 
   cef_window_t* _struct = GetStruct();
@@ -675,7 +676,7 @@ void CefWindowCToCpp::SetAccelerator(int command_id,
 
   // Execute
   _struct->set_accelerator(_struct, command_id, key_code, shift_pressed,
-                           ctrl_pressed, alt_pressed);
+                           ctrl_pressed, alt_pressed, high_priority);
 }
 
 NO_SANITIZE("cfi-icall")

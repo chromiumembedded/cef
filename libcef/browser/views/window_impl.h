@@ -86,7 +86,8 @@ class CefWindowImpl
                       int key_code,
                       bool shift_pressed,
                       bool ctrl_pressed,
-                      bool alt_pressed) override;
+                      bool alt_pressed,
+                      bool high_priority) override;
   void RemoveAccelerator(int command_id) override;
   void RemoveAllAccelerators() override;
 

@@ -92,13 +92,18 @@ class CefBrowserView : public CefView {
   virtual CefRefPtr<CefView> GetChromeToolbar() = 0;
 
   ///
-  /// Sets whether accelerators registered with CefWindow::SetAccelerator are
-  /// triggered before or after the event is sent to the CefBrowser. If
-  /// |prefer_accelerators| is true then the matching accelerator will be
-  /// triggered immediately and the event will not be sent to the CefBrowser. If
-  /// |prefer_accelerators| is false then the matching accelerator will only be
-  /// triggered if the event is not handled by web content or by
-  /// CefKeyboardHandler. The default value is false.
+  /// Sets whether normal priority accelerators are first forwarded to the web
+  /// content (`keydown` event handler) or CefKeyboardHandler. Normal priority
+  /// accelerators can be registered via CefWindow::SetAccelerator (with
+  /// |high_priority|=false) or internally for standard accelerators supported
+  /// by the Chrome runtime. If |prefer_accelerators| is true then the matching
+  /// accelerator will be triggered immediately (calling
+  /// CefWindowDelegate::OnAccelerator or CefCommandHandler::OnChromeCommand
+  /// respectively) and the event will not be forwarded to the web content or
+  /// CefKeyboardHandler first. If |prefer_accelerators| is false then the
+  /// matching accelerator will only be triggered if the event is not handled by
+  /// web content (`keydown` event handler that calls `event.preventDefault()`)
+  /// or by CefKeyboardHandler. The default value is false.
   ///
   /*--cef()--*/
   virtual void SetPreferAccelerators(bool prefer_accelerators) = 0;
