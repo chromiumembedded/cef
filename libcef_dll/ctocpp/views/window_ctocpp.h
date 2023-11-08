@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2a7aaed7d4296e29dca74345cf2b2d4db221a738$
+// $hash=d0c31c38bf29c9b44f645e69a912b6b8a4030066$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -83,7 +83,8 @@ class CefWindowCToCpp
                       int key_code,
                       bool shift_pressed,
                       bool ctrl_pressed,
-                      bool alt_pressed) override;
+                      bool alt_pressed,
+                      bool high_priority) override;
   void RemoveAccelerator(int command_id) override;
   void RemoveAllAccelerators() override;
 

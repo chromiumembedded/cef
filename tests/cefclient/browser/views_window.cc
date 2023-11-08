@@ -1283,12 +1283,11 @@ void ViewsWindow::AddControls() {
 }
 
 void ViewsWindow::AddAccelerators() {
-  // Trigger accelerators without first forwarding to web content.
-  browser_view_->SetPreferAccelerators(true);
-
   // Specify the accelerators to handle. OnAccelerator will be called when the
   // accelerator is triggered.
-  window_->SetAccelerator(ID_QUIT, 'X', false, false, true);
+  window_->SetAccelerator(ID_QUIT, 'X', /*shift_pressed=*/false,
+                          /*ctrl_pressed=*/false, /*alt_pressed=*/true,
+                          /*high_priority=*/true);
 }
 
 void ViewsWindow::SetMenuFocusable(bool focusable) {

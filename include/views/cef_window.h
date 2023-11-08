@@ -344,16 +344,25 @@ class CefWindow : public CefPanel {
 
   ///
   /// Set the keyboard accelerator for the specified |command_id|. |key_code|
-  /// can be any virtual key or character value.
+  /// can be any virtual key or character value. Required modifier keys are
+  /// specified by |shift_pressed|, |ctrl_pressed| and/or |alt_pressed|.
   /// CefWindowDelegate::OnAccelerator will be called if the keyboard
   /// combination is triggered while this window has focus.
+  ///
+  /// The |high_priority| value will be considered if a child CefBrowserView has
+  /// focus when the keyboard combination is triggered. If |high_priority| is
+  /// true then the key event will not be forwarded to the web content
+  /// (`keydown` event handler) or CefKeyboardHandler first. If |high_priority|
+  /// is false then the behavior will depend on the
+  /// CefBrowserView::SetPreferAccelerators configuration.
   ///
   /*--cef()--*/
   virtual void SetAccelerator(int command_id,
                               int key_code,
                               bool shift_pressed,
                               bool ctrl_pressed,
-                              bool alt_pressed) = 0;
+                              bool alt_pressed,
+                              bool high_priority) = 0;
 
   ///
   /// Remove the keyboard accelerator for the specified |command_id|.
