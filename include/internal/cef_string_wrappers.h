@@ -353,7 +353,7 @@ struct CefStringTraitsUTF16 {
 /// modifying CEF strings from multiple threads.
 ///
 template <class traits>
-class CefStringBase {
+class CefStringBase final {
  public:
   typedef typename traits::char_type char_type;
   typedef typename traits::struct_type struct_type;
@@ -442,7 +442,7 @@ class CefStringBase {
     Attach(const_cast<struct_type*>(src), false);
   }
 
-  virtual ~CefStringBase() { ClearAndFree(); }
+  ~CefStringBase() { ClearAndFree(); }
 
   /// The following methods are named for compatibility with the standard
   /// library string template types.
