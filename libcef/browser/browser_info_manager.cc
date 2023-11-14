@@ -193,15 +193,8 @@ bool CefBrowserInfoManager::CanCreateWindow(
       pending_popup->use_default_browser_creation = true;
     }
 
-    // In most cases, Views-hosted browsers should create Views-hosted popups
-    // and native browsers should use default popup handling. With the Chrome
-    // runtime, we should additionally use default handling (a) when using an
-    // external parent and (b) when using default Browser creation.
-    create_params.popup_with_views_hosted_opener =
-        browser->HasView() &&
-        !browser->platform_delegate()->HasExternalParent() &&
-        !pending_popup->use_default_browser_creation;
-
+    create_params.popup_with_views_hosted_opener = ShouldCreateViewsHostedPopup(
+        browser, pending_popup->use_default_browser_creation);
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
     create_params.extra_info = pending_popup->extra_info;
@@ -418,6 +411,19 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
 
   browser_out = browser;
   return true;
+}
+
+// static
+bool CefBrowserInfoManager::ShouldCreateViewsHostedPopup(
+    CefRefPtr<CefBrowserHostBase> opener,
+    bool use_default_browser_creation) {
+  // In most cases, Views-hosted browsers should create Views-hosted popups
+  // and native browsers should use default popup handling. With the Chrome
+  // runtime, we should additionally use default handling (a) when using an
+  // external parent and (b) when using default Browser creation.
+  return opener->HasView() &&
+         !opener->platform_delegate()->HasExternalParent() &&
+         !use_default_browser_creation;
 }
 
 CefBrowserInfoManager::BrowserInfoList

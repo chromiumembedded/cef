@@ -249,7 +249,7 @@ void RootWindowViews::OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(window_);
 
-  if (config_->window_type != WindowType::NORMAL) {
+  if (!window_->SupportsWindowRestore()) {
     return;
   }
 
@@ -516,7 +516,7 @@ void RootWindowViews::InitOnUIThread(
     // Initial state was specified via the config object.
     initial_bounds_ = config_->bounds;
     initial_show_state_ = config_->show_state;
-  } else if (config_->window_type == WindowType::NORMAL) {
+  } else if (ViewsWindow::SupportsWindowRestore(config_->window_type)) {
     // Initial state may be specified via the command-line or global
     // preferences.
     std::optional<CefRect> bounds;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5358aa617ebb6d7d074e2d346599fbd6777f1770$
+// $hash=a5c3b05b23c536eba7ce2e7242c3840e93729b29$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1468,6 +1468,44 @@ void CEF_CALLBACK browser_host_exit_fullscreen(struct _cef_browser_host_t* self,
                                                                     : false);
 }
 
+int CEF_CALLBACK
+browser_host_can_execute_chrome_command(struct _cef_browser_host_t* self,
+                                        int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefBrowserHostCppToC::Get(self)->CanExecuteChromeCommand(command_id);
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK
+browser_host_execute_chrome_command(struct _cef_browser_host_t* self,
+                                    int command_id,
+                                    cef_window_open_disposition_t disposition) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ExecuteChromeCommand(command_id,
+                                                        disposition);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1547,6 +1585,9 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->is_audio_muted = browser_host_is_audio_muted;
   GetStruct()->is_fullscreen = browser_host_is_fullscreen;
   GetStruct()->exit_fullscreen = browser_host_exit_fullscreen;
+  GetStruct()->can_execute_chrome_command =
+      browser_host_can_execute_chrome_command;
+  GetStruct()->execute_chrome_command = browser_host_execute_chrome_command;
 }
 
 // DESTRUCTOR - Do not edit by hand.

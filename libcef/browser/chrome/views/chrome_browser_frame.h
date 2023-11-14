@@ -103,6 +103,7 @@ class ChromeBrowserFrame : public BrowserFrame {
   views::internal::RootView* CreateRootView() override;
   std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView()
       override;
+  void Activate() override;
 
   BrowserView* browser_view() const { return browser_view_; }
 

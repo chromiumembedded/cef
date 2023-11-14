@@ -42,6 +42,10 @@ class MainContext {
   // Returns true if the Chrome runtime will be used.
   virtual bool UseChromeRuntime() = 0;
 
+  // Returns true if a native parent window is being used with the Chrome
+  // runtime.
+  virtual bool UseChromeRuntimeNative() = 0;
+
   // Returns true if the Views framework will be used.
   virtual bool UseViews() = 0;
 

@@ -143,6 +143,9 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                             const content::OpenURLParams& params,
                             CefRefPtr<CefBrowserHostBase>& browser) const;
 
+  static bool ShouldCreateViewsHostedPopup(CefRefPtr<CefBrowserHostBase> opener,
+                                           bool use_default_browser_creation);
+
  private:
   // RenderProcessHostObserver methods:
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;

@@ -127,6 +127,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
   void OnExtensionsChanged(const ExtensionSet& extensions);
 
+  static bool SupportsWindowRestore(WindowType type);
+  bool SupportsWindowRestore() const;
   bool GetWindowRestorePreferences(cef_show_state_t& show_state,
                                    std::optional<CefRect>& dip_bounds);
   void SetTitlebarHeight(const std::optional<float>& height);

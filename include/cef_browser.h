@@ -988,6 +988,24 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void ExitFullscreen(bool will_cause_resize) = 0;
+
+  ///
+  /// Returns true if a Chrome command is supported and enabled. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. This method can
+  /// only be called on the UI thread. Only used with the Chrome runtime.
+  ///
+  /*--cef()--*/
+  virtual bool CanExecuteChromeCommand(int command_id) = 0;
+
+  ///
+  /// Execute a Chrome command. Values for |command_id| can be found in the
+  /// cef_command_ids.h file. |disposition| provides information about the
+  /// intended command target. Only used with the Chrome runtime.
+  ///
+  /*--cef()--*/
+  virtual void ExecuteChromeCommand(
+      int command_id,
+      cef_window_open_disposition_t disposition) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

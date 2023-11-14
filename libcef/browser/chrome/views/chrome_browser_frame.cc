@@ -4,6 +4,8 @@
 
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 
+#include "libcef/browser/chrome/chrome_browser_host_impl.h"
+
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -56,4 +58,25 @@ std::unique_ptr<views::NonClientFrameView>
 ChromeBrowserFrame::CreateNonClientFrameView() {
   // Bypass the BrowserFrame implementation.
   return views::Widget::CreateNonClientFrameView();
+}
+
+void ChromeBrowserFrame::Activate() {
+  if (browser_view_ && browser_view_->browser() &&
+      browser_view_->browser()->is_type_devtools()) {
+    if (auto browser_host = ChromeBrowserHostImpl::GetBrowserForBrowser(
+            browser_view_->browser())) {
+      if (browser_host->platform_delegate()->HasExternalParent()) {
+        // Handle activation of DevTools with external parent via the platform
+        // delegate. On Windows the default platform implementation
+        // (HWNDMessageHandler::Activate) will call SetForegroundWindow but that
+        // doesn't seem to work for DevTools windows when activated via the
+        // right-click context menu.
+        browser_host->SetFocus(true);
+        return;
+      }
+    }
+  }
+
+  // Proceed with default handling.
+  BrowserFrame::Activate();
 }

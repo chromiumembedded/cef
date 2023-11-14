@@ -11,10 +11,8 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
-#include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
-using client::ClientAppBrowser;
 using client::ClientAppRenderer;
 
 // How to add a new test:
@@ -3280,8 +3278,7 @@ class V8TestHandler : public TestHandler {
         CefBrowserSettings settings;
 
 #if defined(OS_WIN)
-        windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(),
-                              "DevTools");
+        windowInfo.SetAsPopup(nullptr, "DevTools");
 #endif
 
         browser->GetHost()->ShowDevTools(windowInfo, this, settings,

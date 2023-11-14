@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5c1df6572bffebd983970394be27397837db0b25$
+// $hash=e07873b7e67c06fb54dafa370eca83d2c698ffb9$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -136,6 +136,9 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   bool IsAudioMuted() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
+  bool CanExecuteChromeCommand(int command_id) override;
+  void ExecuteChromeCommand(int command_id,
+                            cef_window_open_disposition_t disposition) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_

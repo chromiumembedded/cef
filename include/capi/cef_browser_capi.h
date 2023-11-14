@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=13ba2d807f2c1ac3adfc65f2bdb269baecba57ec$
+// $hash=eed525e9abcbf8e8b959067e0056ca470c5210c7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -955,6 +955,25 @@ typedef struct _cef_browser_host_t {
   ///
   void(CEF_CALLBACK* exit_fullscreen)(struct _cef_browser_host_t* self,
                                       int will_cause_resize);
+
+  ///
+  /// Returns true (1) if a Chrome command is supported and enabled. Values for
+  /// |command_id| can be found in the cef_command_ids.h file. This function can
+  /// only be called on the UI thread. Only used with the Chrome runtime.
+  ///
+  int(CEF_CALLBACK* can_execute_chrome_command)(
+      struct _cef_browser_host_t* self,
+      int command_id);
+
+  ///
+  /// Execute a Chrome command. Values for |command_id| can be found in the
+  /// cef_command_ids.h file. |disposition| provides information about the
+  /// intended command target. Only used with the Chrome runtime.
+  ///
+  void(CEF_CALLBACK* execute_chrome_command)(
+      struct _cef_browser_host_t* self,
+      int command_id,
+      cef_window_open_disposition_t disposition);
 } cef_browser_host_t;
 
 ///

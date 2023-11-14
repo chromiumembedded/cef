@@ -224,6 +224,12 @@ class ClientHandler : public CefClient,
       CefBrowserSettings& settings,
       CefRefPtr<CefDictionaryValue>& extra_info,
       bool* no_javascript_access) override;
+  void OnBeforeDevToolsPopup(CefRefPtr<CefBrowser> browser,
+                             CefWindowInfo& windowInfo,
+                             CefRefPtr<CefClient>& client,
+                             CefBrowserSettings& settings,
+                             CefRefPtr<CefDictionaryValue>& extra_info,
+                             bool* use_default_window) override;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   bool DoClose(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
@@ -348,9 +354,8 @@ class ClientHandler : public CefClient,
   friend class ClientDownloadImageCallback;
 
   // Create a new popup window using the specified information. |is_devtools|
-  // will be true if the window will be used for DevTools. Return true to
-  // proceed with popup browser creation or false to cancel the popup browser.
-  // May be called on any thead.
+  // will be true if the window will be used for DevTools. Returns true if a
+  // RootWindow was created for the popup.
   bool CreatePopupWindow(CefRefPtr<CefBrowser> browser,
                          bool is_devtools,
                          const CefPopupFeatures& popupFeatures,

@@ -111,8 +111,9 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 
 #if defined(OS_WIN) || defined(OS_LINUX)
-  if (use_chrome_runtime_ && !use_views_ &&
-      !command_line->HasSwitch(switches::kUseNative)) {
+  use_chrome_runtime_native_ =
+      use_chrome_runtime_ && command_line->HasSwitch(switches::kUseNative);
+  if (use_chrome_runtime_ && !use_views_ && !use_chrome_runtime_native_) {
     LOG(WARNING) << "Chrome runtime defaults to the Views framework.";
     use_views_ = true;
   }
@@ -172,6 +173,10 @@ cef_color_t MainContextImpl::GetBackgroundColor() {
 
 bool MainContextImpl::UseChromeRuntime() {
   return use_chrome_runtime_;
+}
+
+bool MainContextImpl::UseChromeRuntimeNative() {
+  return use_chrome_runtime_native_;
 }
 
 bool MainContextImpl::UseViews() {

@@ -231,7 +231,7 @@ index 59024587ef6b7..0c30aa71768cf 100644
  
  void FindBarHost::RegisterAccelerators() {
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index bb4b3821bcfda..9734fe4aaffcf 100644
+index bb4b3821bcfda..4014f61a7057f 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -114,15 +114,23 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
@@ -260,7 +260,7 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
  }
  
  BrowserFrame::~BrowserFrame() {}
-@@ -228,6 +236,12 @@ void BrowserFrame::LayoutWebAppWindowTitle(
+@@ -228,10 +236,20 @@ void BrowserFrame::LayoutWebAppWindowTitle(
  }
  
  int BrowserFrame::GetTopInset() const {
@@ -273,7 +273,15 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
    return browser_frame_view_->GetTopInset(false);
  }
  
-@@ -240,6 +254,8 @@ BrowserNonClientFrameView* BrowserFrame::GetFrameView() const {
+ void BrowserFrame::UpdateThrobber(bool running) {
++  if (!browser_frame_view_) {
++    // Not supported with CEF Views-hosted DevTools windows.
++    return;
++  }
+   browser_frame_view_->UpdateThrobber(running);
+ }
+ 
+@@ -240,6 +258,8 @@ BrowserNonClientFrameView* BrowserFrame::GetFrameView() const {
  }
  
  bool BrowserFrame::UseCustomFrame() const {
@@ -282,7 +290,7 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
    return native_browser_frame_->UseCustomFrame();
  }
  
-@@ -253,20 +269,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
+@@ -253,20 +273,30 @@ bool BrowserFrame::ShouldDrawFrameHeader() const {
  
  void BrowserFrame::GetWindowPlacement(gfx::Rect* bounds,
                                        ui::WindowShowState* show_state) const {
@@ -313,7 +321,7 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
    browser_frame_view_->OnBrowserViewInitViewsComplete();
  }
  
-@@ -367,6 +393,8 @@ ui::ColorProviderKey::ThemeInitializerSupplier* BrowserFrame::GetCustomTheme()
+@@ -367,6 +397,8 @@ ui::ColorProviderKey::ThemeInitializerSupplier* BrowserFrame::GetCustomTheme()
  }
  
  void BrowserFrame::OnNativeWidgetWorkspaceChanged() {
@@ -322,7 +330,7 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
    chrome::SaveWindowWorkspace(browser_view_->browser(), GetWorkspace());
    chrome::SaveWindowVisibleOnAllWorkspaces(browser_view_->browser(),
                                             IsVisibleOnAllWorkspaces());
-@@ -478,6 +506,8 @@ void BrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
+@@ -478,6 +510,8 @@ void BrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
  
  ui::ColorProviderKey BrowserFrame::GetColorProviderKey() const {
    auto key = Widget::GetColorProviderKey();
@@ -331,7 +339,7 @@ index bb4b3821bcfda..9734fe4aaffcf 100644
  
    key.app_controller = browser_view_->browser()->app_controller();
  
-@@ -632,5 +662,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
+@@ -632,5 +666,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserFrame::IsIncognitoBrowser() const {

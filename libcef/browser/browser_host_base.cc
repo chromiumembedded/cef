@@ -505,6 +505,22 @@ void CefBrowserHostBase::PrintToPDF(const CefString& path,
   print_util::PrintToPDF(web_contents, path, settings, callback);
 }
 
+void CefBrowserHostBase::ShowDevTools(const CefWindowInfo& windowInfo,
+                                      CefRefPtr<CefClient> client,
+                                      const CefBrowserSettings& settings,
+                                      const CefPoint& inspect_element_at) {
+  auto params = std::make_unique<CefShowDevToolsParams>(
+      windowInfo, client, settings, inspect_element_at);
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::ShowDevToolsOnUIThread,
+                                 this, std::move(params)));
+  } else {
+    ShowDevToolsOnUIThread(std::move(params));
+  }
+}
+
 bool CefBrowserHostBase::SendDevToolsMessage(const void* message,
                                              size_t message_size) {
   if (!message || message_size == 0) {

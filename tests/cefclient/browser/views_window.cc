@@ -399,10 +399,21 @@ void ViewsWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
       base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded, this, extensions));
 }
 
+// static
+bool ViewsWindow::SupportsWindowRestore(WindowType type) {
+  // Only support window restore with normal windows.
+  return type == WindowType::NORMAL;
+}
+
+bool ViewsWindow::SupportsWindowRestore() const {
+  return SupportsWindowRestore(type_);
+}
+
 bool ViewsWindow::GetWindowRestorePreferences(
     cef_show_state_t& show_state,
     std::optional<CefRect>& dip_bounds) {
   CEF_REQUIRE_UI_THREAD();
+  DCHECK(SupportsWindowRestore());
   if (!window_) {
     return false;
   }
@@ -460,7 +471,9 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   DCHECK(popup_delegate != delegate_);
 
   // Create a new ViewsWindow for the popup BrowserView.
-  return new ViewsWindow(WindowType::NORMAL, popup_delegate, nullptr);
+  return new ViewsWindow(
+      is_devtools ? WindowType::DEVTOOLS : WindowType::NORMAL, popup_delegate,
+      nullptr);
 }
 
 bool ViewsWindow::OnPopupBrowserViewCreated(
@@ -676,12 +689,12 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   delegate_->OnViewsWindowCreated(this);
 
-  if (type_ == WindowType::NORMAL) {
+  if (type_ == WindowType::NORMAL || type_ == WindowType::DEVTOOLS) {
     const CefRect bounds = delegate_->GetInitialBounds();
     if (bounds.IsEmpty()) {
       // Size the Window and center it at the default size.
       window_->CenterWindow(CefSize(kDefaultWidth, kDefaultHeight));
-    } else {
+    } else if (SupportsWindowRestore()) {
       // Remember the bounds from the previous application run in case the user
       // does not move or resize the window during this application run.
       last_visible_bounds_ = bounds;
@@ -758,7 +771,7 @@ void ViewsWindow::OnWindowActivationChanged(CefRefPtr<CefWindow> window,
 
 void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
                                         const CefRect& new_bounds) {
-  if (type_ == WindowType::NORMAL && !window->IsMinimized() &&
+  if (SupportsWindowRestore() && !window->IsMinimized() &&
       !window->IsMaximized() && !window->IsFullscreen()) {
     // Track the last visible bounds for window restore purposes.
     last_visible_bounds_ = new_bounds;
@@ -845,20 +858,18 @@ bool ViewsWindow::GetTitlebarHeight(CefRefPtr<CefWindow> window,
 
 bool ViewsWindow::CanResize(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  // Only allow resize of normal windows.
-  return type_ == WindowType::NORMAL;
+  // Only allow resize of normal and DevTools windows.
+  return type_ == WindowType::NORMAL || type_ == WindowType::DEVTOOLS;
 }
 
 bool ViewsWindow::CanMaximize(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  // Only allow maximize of normal windows.
-  return type_ == WindowType::NORMAL;
+  return CanResize(window);
 }
 
 bool ViewsWindow::CanMinimize(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
-  // Only allow minimize of normal windows.
-  return type_ == WindowType::NORMAL;
+  return CanResize(window);
 }
 
 bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {

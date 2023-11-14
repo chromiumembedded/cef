@@ -298,7 +298,7 @@ class PopupTestHandler : public TestHandler {
     const std::string& url = target_url;
     EXPECT_STREQ(url.c_str(), popup_url_.c_str());
 
-    EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
+    EXPECT_EQ(CEF_WOD_NEW_FOREGROUND_TAB, target_disposition);
 
     if (mode_ == MODE_WINDOW_OPEN) {
       EXPECT_FALSE(user_gesture);
@@ -528,7 +528,7 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_STREQ(kPopupNavPageUrl, frame->GetURL().ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
-    EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
+    EXPECT_EQ(CEF_WOD_NEW_FOREGROUND_TAB, target_disposition);
     EXPECT_FALSE(user_gesture);
     EXPECT_FALSE(*no_javascript_access);
 

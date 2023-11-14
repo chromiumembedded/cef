@@ -94,6 +94,23 @@ struct CefBrowserCreateParams {
       extensions::mojom::ViewType::kInvalid;
 };
 
+// Parameters passed to ShowDevToolsOnUIThread().
+struct CefShowDevToolsParams {
+  CefShowDevToolsParams(const CefWindowInfo& windowInfo,
+                        CefRefPtr<CefClient> client,
+                        const CefBrowserSettings& settings,
+                        const CefPoint& inspect_element_at)
+      : window_info_(windowInfo),
+        client_(client),
+        settings_(settings),
+        inspect_element_at_(inspect_element_at) {}
+
+  CefWindowInfo window_info_;
+  CefRefPtr<CefClient> client_;
+  CefBrowserSettings settings_;
+  CefPoint inspect_element_at_;
+};
+
 // Base class for CefBrowserHost implementations. Includes functionality that is
 // shared by the alloy and chrome runtimes. All methods are thread-safe unless
 // otherwise indicated.
@@ -191,6 +208,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
                   CefRefPtr<CefPdfPrintCallback> callback) override;
+  void ShowDevTools(const CefWindowInfo& windowInfo,
+                    CefRefPtr<CefClient> client,
+                    const CefBrowserSettings& settings,
+                    const CefPoint& inspect_element_at) override;
   void ReplaceMisspelling(const CefString& word) override;
   void AddWordToDictionary(const CefString& word) override;
   void SendKeyEvent(const CefKeyEvent& event) override;
@@ -345,6 +366,10 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Called from LoadMainFrameURL to perform the actual navigation.
   virtual bool Navigate(const content::OpenURLParams& params);
+
+  // Called from ShowDevTools to perform the actual show.
+  virtual void ShowDevToolsOnUIThread(
+      std::unique_ptr<CefShowDevToolsParams> params) = 0;
 
   // Create the CefFileDialogManager if it doesn't already exist.
   bool EnsureFileDialogManager();

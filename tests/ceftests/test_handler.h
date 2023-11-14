@@ -262,7 +262,7 @@ class TestHandler : public CefClient,
   // number of times.
   void SignalTestCompletion();
 
-  // Reuturns true if SignalTestCompletion() has been called the necessary
+  // Returns true if SignalTestCompletion() has been called the necessary
   // number of times (may be 0), in which case TestComplete() will be called
   // automatically when all browsers have closed. Must be called on the
   // UI thread.
@@ -274,6 +274,11 @@ class TestHandler : public CefClient,
 
   // Call OnTestTimeout() after the specified amount of time.
   void SetTestTimeout(int timeout_ms = 5000, bool treat_as_error = true);
+
+  // Call prior to CreateBrowser() to configure whether browsers will be created
+  // as Views-hosted. Defaults to false unless the `--use-views` command-line
+  // flag is specified.
+  void SetUseViews(bool use_views);
 
   // Returns the single UIThreadHelper instance, creating it if necessary. Must
   // be called on the UI thread.
@@ -290,7 +295,7 @@ class TestHandler : public CefClient,
     NT_BROWSER,
     NT_WINDOW,
   };
-  void OnCreated(int browser_id, NotifyType type);
+  void OnCreated(int browser_id, NotifyType type, bool views_hosted);
   void OnClosed(int browser_id, NotifyType type);
 
   std::string MakeDebugStringPrefix() const;
@@ -300,10 +305,17 @@ class TestHandler : public CefClient,
   CompletionState* completion_state_;
   bool completion_state_owned_;
 
+  bool use_views_;
+
   // Map of browser ID to browser object. Only accessed on the UI thread.
   BrowserMap browser_map_;
 
   struct NotifyStatus {
+    // True if this particular browser window is Views-hosted (see SetUseViews).
+    // Some tests create popup or DevTools windows with default handling (e.g.
+    // not Views-hosted).
+    bool views_hosted;
+
     // Keyed by NotifyType.
     TrackCallback got_created[2];
     TrackCallback got_closed[2];

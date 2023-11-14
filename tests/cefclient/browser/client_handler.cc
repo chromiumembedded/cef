@@ -583,7 +583,7 @@ bool ClientHandler::OnChromeCommand(CefRefPtr<CefBrowser> browser,
   } else if (!with_controls_) {
     // If controls are hidden, block all commands that don't target the current
     // tab or aren't specifically allowed.
-    block = disposition != WOD_CURRENT_TAB || !allowed;
+    block = disposition != CEF_WOD_CURRENT_TAB || !allowed;
   }
 
   if (block) {
@@ -644,11 +644,12 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       model->AddSeparator();
     }
 
+    // Add DevTools items to all context menus.
+    model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
+    model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
+
     if (!use_chrome_runtime) {
-      // TODO(chrome-runtime): Add support for this.
-      // Add DevTools items to all context menus.
-      model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
-      model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
+      // Chrome runtime already gives us an "Inspect" menu item.
       model->AddSeparator();
       model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
     }
@@ -938,15 +939,36 @@ bool ClientHandler::OnBeforePopup(
     bool* no_javascript_access) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (target_disposition == WOD_NEW_PICTURE_IN_PICTURE) {
+  if (target_disposition == CEF_WOD_NEW_PICTURE_IN_PICTURE) {
     // Use default handling for document picture-in-picture popups.
     client = nullptr;
     return false;
   }
 
-  // Return true to cancel the popup window.
-  return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client,
-                            settings);
+  // Potentially create a new RootWindow for the popup browser that will be
+  // created asynchronously.
+  CreatePopupWindow(browser, /*is_devtools=*/false, popupFeatures, windowInfo,
+                    client, settings);
+
+  // Allow popup creation.
+  return false;
+}
+
+void ClientHandler::OnBeforeDevToolsPopup(
+    CefRefPtr<CefBrowser> browser,
+    CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue>& extra_info,
+    bool* use_default_window) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // Potentially create a new RootWindow for the DevTools popup browser that
+  // will be created immediately after this method returns.
+  if (!CreatePopupWindow(browser, /*is_devtools=*/true, CefPopupFeatures(),
+                         windowInfo, client, settings)) {
+    *use_default_window = true;
+  }
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -1081,8 +1103,8 @@ bool ClientHandler::OnOpenURLFromTab(
     const CefString& target_url,
     CefRequestHandler::WindowOpenDisposition target_disposition,
     bool user_gesture) {
-  if (target_disposition == WOD_NEW_BACKGROUND_TAB ||
-      target_disposition == WOD_NEW_FOREGROUND_TAB) {
+  if (target_disposition == CEF_WOD_NEW_BACKGROUND_TAB ||
+      target_disposition == CEF_WOD_NEW_FOREGROUND_TAB) {
     // Handle middle-click and ctrl + left-click by opening the URL in a new
     // browser window.
     auto config = std::make_unique<RootWindowConfig>();
@@ -1303,25 +1325,21 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
   CefRefPtr<CefClient> client;
   CefBrowserSettings settings;
 
-  MainContext::Get()->PopulateBrowserSettings(&settings);
-
   CefRefPtr<CefBrowserHost> host = browser->GetHost();
 
   // Test if the DevTools browser already exists.
-  bool has_devtools = host->HasDevTools();
-  if (!has_devtools) {
-    // Create a new RootWindow for the DevTools browser that will be created
-    // by ShowDevTools().
-    has_devtools = CreatePopupWindow(browser, true, CefPopupFeatures(),
-                                     windowInfo, client, settings);
+  if (!MainContext::Get()->UseChromeRuntime() && !host->HasDevTools()) {
+    // Potentially create a new RootWindow for the DevTools browser that will be
+    // created by ShowDevTools(). For Chrome runtime this occurs in
+    // OnBeforeDevToolsPopup instead.
+    CreatePopupWindow(browser, /*is_devtools=*/true, CefPopupFeatures(),
+                      windowInfo, client, settings);
   }
 
-  if (has_devtools) {
-    // Create the DevTools browser if it doesn't already exist.
-    // Otherwise, focus the existing DevTools browser and inspect the element
-    // at |inspect_element_at| if non-empty.
-    host->ShowDevTools(windowInfo, client, settings, inspect_element_at);
-  }
+  // Create the DevTools browser if it doesn't already exist.
+  // Otherwise, focus the existing DevTools browser and inspect the element
+  // at |inspect_element_at| if non-empty.
+  host->ShowDevTools(windowInfo, client, settings, inspect_element_at);
 }
 
 void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
@@ -1407,11 +1425,10 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
 
   // The popup browser will be parented to a new native window.
   // Don't show URL bar and navigation buttons on DevTools windows.
-  MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
+  // May return nullptr if UseDefaultPopup() returns true.
+  return !!MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
       with_controls_ && !is_devtools, is_osr_, popupFeatures, windowInfo,
       client, settings);
-
-  return true;
 }
 
 void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {

@@ -28,6 +28,9 @@ enum class WindowType {
 
   // The window is a modal dialog.
   DIALOG,
+
+  // The window is a DevTools popup.
+  DEVTOOLS,
 };
 
 // Used to configure how a RootWindow is created.
