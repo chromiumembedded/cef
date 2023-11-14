@@ -29,6 +29,7 @@ class MainContextImpl : public MainContext {
   std::string GetMainURL() override;
   cef_color_t GetBackgroundColor() override;
   bool UseChromeRuntime() override;
+  bool UseChromeRuntimeNative() override;
   bool UseViews() override;
   bool UseWindowlessRendering() override;
   bool TouchEventsEnabled() override;
@@ -74,6 +75,7 @@ class MainContextImpl : public MainContext {
   bool use_windowless_rendering_;
   int windowless_frame_rate_ = 0;
   bool use_chrome_runtime_;
+  bool use_chrome_runtime_native_ = false;
   bool use_views_;
 
   std::unique_ptr<RootWindowManager> root_window_manager_;

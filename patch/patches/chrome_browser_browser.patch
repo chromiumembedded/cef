@@ -12,6 +12,68 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
  
    return false;
  }
+diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
+index 4d99a769d6069..0ebd577182dc6 100644
+--- chrome/browser/devtools/devtools_window.cc
++++ chrome/browser/devtools/devtools_window.cc
+@@ -31,6 +31,7 @@
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/task_manager/web_contents_tags.h"
+ #include "chrome/browser/ui/browser.h"
++#include "chrome/browser/ui/browser_finder.h"
+ #include "chrome/browser/ui/browser_list.h"
+ #include "chrome/browser/ui/browser_tabstrip.h"
+ #include "chrome/browser/ui/browser_window.h"
+@@ -1162,6 +1163,13 @@ DevToolsWindow* DevToolsWindow::Create(
+         !browser->is_type_normal()) {
+       can_dock = false;
+     }
++
++#if BUILDFLAG(ENABLE_CEF)
++    if (can_dock && browser && browser->cef_delegate()) {
++      // Don't dock DevTools for CEF-managed browsers.
++      can_dock = false;
++    }
++#endif
+   }
+ 
+   // Create WebContents with devtools.
+@@ -1738,12 +1746,29 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+       Browser::CreationStatus::kOk) {
+     return;
+   }
+-  browser_ =
+-      Browser::Create(Browser::CreateParams::CreateForDevTools(profile_));
+-  browser_->tab_strip_model()->AddWebContents(
+-      OwnedMainWebContents::TakeWebContents(
+-          std::move(owned_main_web_contents_)),
+-      -1, ui::PAGE_TRANSITION_AUTO_TOPLEVEL, AddTabTypes::ADD_ACTIVE);
++
++  auto opener = chrome::FindBrowserWithWebContents(GetInspectedWebContents());
++  auto devtools_contents = OwnedMainWebContents::TakeWebContents(
++      std::move(owned_main_web_contents_));
++
++#if BUILDFLAG(ENABLE_CEF)
++  if (opener && opener->cef_delegate()) {
++    // If a Browser is created, it will take ownership of |devtools_contents|.
++    browser_ = opener->cef_delegate()->CreateDevToolsBrowser(
++        profile_, opener, devtools_contents);
++  }
++#endif
++
++  if (!browser_) {
++    auto create_params = Browser::CreateParams::CreateForDevTools(profile_);
++    create_params.opener = opener;
++
++    browser_ = Browser::Create(std::move(create_params));
++    browser_->tab_strip_model()->AddWebContents(
++        std::move(devtools_contents),
++        -1, ui::PAGE_TRANSITION_AUTO_TOPLEVEL, AddTabTypes::ADD_ACTIVE);
++  }
++
+   OverrideAndSyncDevToolsRendererPrefs();
+ }
+ 
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
 index d5bc836ec888d..4da459c08e7af 100644
 --- chrome/browser/ui/BUILD.gn
@@ -333,7 +395,7 @@ index 9ba2025634365..b6ceaa7f0b531 100644
      case TYPE_NORMAL:
        return NormalBrowserSupportsWindowFeature(feature, check_can_support);
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index db37e861d2546..c47dfc31131f7 100644
+index db37e861d2546..ea85b9966267d 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -22,6 +22,7 @@
@@ -364,7 +426,7 @@ index db37e861d2546..c47dfc31131f7 100644
 +    scoped_refptr<cef::BrowserDelegate::CreateParams> cef_params;
 +
 +    // Specify the Browser that is opening this popup.
-+    // Currently only used with TYPE_PICTURE_IN_PICTURE.
++    // Currently only used with TYPE_PICTURE_IN_PICTURE and TYPE_DEVTOOLS.
 +    raw_ptr<Browser, DanglingUntriaged> opener = nullptr;
 +#endif
 +

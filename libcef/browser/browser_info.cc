@@ -33,6 +33,16 @@ CefBrowserInfo::CefBrowserInfo(int browser_id,
       is_windowless_(is_windowless),
       extra_info_(extra_info) {
   DCHECK_GT(browser_id, 0);
+
+  if (extra_info_ && !extra_info_->IsReadOnly()) {
+    // |extra_info_| should always be read-only to avoid accidental future
+    // modification. Take a copy instead of modifying the passed-in object for
+    // backwards compatibility.
+    extra_info_ = extra_info_->Copy(/*exclude_empty_children=*/false);
+    auto extra_info_impl =
+        static_cast<CefDictionaryValueImpl*>(extra_info_.get());
+    extra_info_impl->MarkReadOnly();
+  }
 }
 
 CefBrowserInfo::~CefBrowserInfo() {

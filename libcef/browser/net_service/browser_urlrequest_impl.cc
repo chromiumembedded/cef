@@ -202,14 +202,8 @@ class CefBrowserURLRequest::Context
       scoped_refptr<base::SequencedTaskRunner> task_runner) {
     CEF_REQUIRE_UIT();
 
-    // Get or create the request context and browser context.
-    CefRefPtr<CefRequestContextImpl> request_context_impl =
-        CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
-    CHECK(request_context_impl);
-    CefBrowserContext* cef_browser_context =
-        request_context_impl->GetBrowserContext();
-    CHECK(cef_browser_context);
-    auto browser_context = cef_browser_context->AsBrowserContext();
+    auto* browser_context =
+        CefRequestContextImpl::GetBrowserContext(request_context);
     CHECK(browser_context);
 
     scoped_refptr<net_service::URLLoaderFactoryGetter> loader_factory_getter;

@@ -23,7 +23,7 @@
 
 namespace {
 
-bool UseViews() {
+bool UseViewsGlobal() {
   static bool use_views = []() {
     return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
         client::switches::kUseViews);
@@ -237,7 +237,8 @@ void TestHandler::UIThreadHelper::TaskHelper(base::OnceClosure task) {
 std::atomic<size_t> TestHandler::test_handler_count_{0U};
 
 TestHandler::TestHandler(CompletionState* completion_state)
-    : debug_string_prefix_(MakeDebugStringPrefix()) {
+    : debug_string_prefix_(MakeDebugStringPrefix()),
+      use_views_(UseViewsGlobal()) {
   test_handler_count_++;
 
   if (completion_state) {
@@ -281,7 +282,8 @@ void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   }
   browser_map_.insert(std::make_pair(browser_id, browser));
 
-  OnCreated(browser_id, NT_BROWSER);
+  const bool views_hosted = !!CefBrowserView::GetForBrowser(browser);
+  OnCreated(browser_id, NT_BROWSER, views_hosted);
 }
 
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
@@ -302,19 +304,31 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 }
 
 void TestHandler::OnWindowCreated(int browser_id) {
-  CHECK(UseViews());
+  CHECK(use_views_);
   EXPECT_UI_THREAD();
-  OnCreated(browser_id, NT_WINDOW);
+  OnCreated(browser_id, NT_WINDOW, /*views_hosted=*/true);
 }
 
 void TestHandler::OnWindowDestroyed(int browser_id) {
-  CHECK(UseViews());
+  CHECK(use_views_);
   EXPECT_UI_THREAD();
   OnClosed(browser_id, NT_WINDOW);
 }
 
-void TestHandler::OnCreated(int browser_id, NotifyType type) {
+void TestHandler::OnCreated(int browser_id,
+                            NotifyType type,
+                            bool views_hosted) {
+  CHECK(use_views_ || !views_hosted);
+
+  const bool has_value = browser_status_map_.contains(browser_id);
+
   auto& browser_status = browser_status_map_[browser_id];
+  if (has_value) {
+    CHECK_EQ(browser_status.views_hosted, views_hosted);
+  } else {
+    browser_status.views_hosted = views_hosted;
+  }
+
   EXPECT_FALSE(browser_status.got_created[type])
       << "Duplicate call to OnCreated(" << browser_id << ", "
       << (type == NT_BROWSER ? "BROWSER" : "WINDOW") << ")";
@@ -324,7 +338,7 @@ void TestHandler::OnCreated(int browser_id, NotifyType type) {
   bool creation_complete = false;
 
   // When using Views, wait for both Browser and Window notifications.
-  if (UseViews()) {
+  if (browser_status.views_hosted) {
     creation_complete = browser_status.got_created[NT_BROWSER] &&
                         browser_status.got_created[NT_WINDOW];
   } else {
@@ -347,7 +361,7 @@ void TestHandler::OnClosed(int browser_id, NotifyType type) {
   browser_status.got_closed[type].yes();
 
   // When using Views, wait for both Browser and Window notifications.
-  if (UseViews()) {
+  if (browser_status.views_hosted) {
     close_complete = browser_status.got_closed[NT_BROWSER] &&
                      browser_status.got_closed[NT_WINDOW];
   } else {
@@ -517,8 +531,7 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 void TestHandler::CreateBrowser(const CefString& url,
                                 CefRefPtr<CefRequestContext> request_context,
                                 CefRefPtr<CefDictionaryValue> extra_info) {
-  if (UseViews() && !CefCurrentlyOn(TID_UI)) {
-    // Views classes must be accessed on the UI thread.
+  if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(&TestHandler::CreateBrowser, this, url,
                                        request_context, extra_info));
     return;
@@ -527,7 +540,7 @@ void TestHandler::CreateBrowser(const CefString& url,
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
 
-  if (UseViews()) {
+  if (use_views_) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         this, url, settings, extra_info, request_context,
@@ -613,6 +626,16 @@ void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
       base::BindOnce(&TestHandler::OnTestTimeout, base::Unretained(this),
                      *timeout, treat_as_error),
       *timeout);
+}
+
+void TestHandler::SetUseViews(bool use_views) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI,
+                base::BindOnce(&TestHandler::SetUseViews, this, use_views));
+    return;
+  }
+
+  use_views_ = use_views;
 }
 
 void TestHandler::SetSignalTestCompletionCount(size_t count) {

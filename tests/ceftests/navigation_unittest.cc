@@ -1980,7 +1980,7 @@ class LoadNavTestHandler : public TestHandler {
       EXPECT_TRUE(user_gesture);
     }
 
-    EXPECT_EQ(WOD_NEW_BACKGROUND_TAB, target_disposition);
+    EXPECT_EQ(CEF_WOD_NEW_BACKGROUND_TAB, target_disposition);
 
     // OnOpenURLFromTab should be called before OnBeforeBrowse for the file URL.
     EXPECT_FALSE(got_before_browse_);

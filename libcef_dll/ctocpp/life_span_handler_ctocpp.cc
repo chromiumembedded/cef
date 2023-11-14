@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d141b95304de99ab093db8f6c524a05e26f4edb5$
+// $hash=d85695db88a025b1f7e4e4604f3085da29d5eabf$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -107,6 +107,76 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefLifeSpanHandlerCToCpp::OnBeforeDevToolsPopup(
+    CefRefPtr<CefBrowser> browser,
+    CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings,
+    CefRefPtr<CefDictionaryValue>& extra_info,
+    bool* use_default_window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_life_span_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_dev_tools_popup)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return;
+  }
+  // Verify param: use_default_window; type: bool_byaddr
+  DCHECK(use_default_window);
+  if (!use_default_window) {
+    return;
+  }
+
+  // Translate param: client; type: refptr_same_byref
+  cef_client_t* clientStruct = NULL;
+  if (client.get()) {
+    clientStruct = CefClientCToCpp::Unwrap(client);
+  }
+  cef_client_t* clientOrig = clientStruct;
+  // Translate param: extra_info; type: refptr_diff_byref
+  cef_dictionary_value_t* extra_infoStruct = NULL;
+  if (extra_info.get()) {
+    extra_infoStruct = CefDictionaryValueCppToC::Wrap(extra_info);
+  }
+  cef_dictionary_value_t* extra_infoOrig = extra_infoStruct;
+  // Translate param: use_default_window; type: bool_byaddr
+  int use_default_windowInt = use_default_window ? *use_default_window : 0;
+
+  // Execute
+  _struct->on_before_dev_tools_popup(_struct, CefBrowserCppToC::Wrap(browser),
+                                     &windowInfo, &clientStruct, &settings,
+                                     &extra_infoStruct, &use_default_windowInt);
+
+  // Restore param:client; type: refptr_same_byref
+  if (clientStruct) {
+    if (clientStruct != clientOrig) {
+      client = CefClientCToCpp::Wrap(clientStruct);
+    }
+  } else {
+    client = nullptr;
+  }
+  // Restore param:extra_info; type: refptr_diff_byref
+  if (extra_infoStruct) {
+    if (extra_infoStruct != extra_infoOrig) {
+      extra_info = CefDictionaryValueCppToC::Unwrap(extra_infoStruct);
+    }
+  } else {
+    extra_info = nullptr;
+  }
+  // Restore param:use_default_window; type: bool_byaddr
+  if (use_default_window) {
+    *use_default_window = use_default_windowInt ? true : false;
+  }
 }
 
 NO_SANITIZE("cfi-icall")

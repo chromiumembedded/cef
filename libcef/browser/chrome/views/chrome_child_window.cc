@@ -126,8 +126,6 @@ class ChildBrowserViewDelegate : public CefBrowserViewDelegate {
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override {
-    DCHECK(!is_devtools);
-
     auto new_browser = static_cast<CefBrowserHostBase*>(
         popup_browser_view->GetBrowser().get());
     auto new_platform_delegate = new_browser->platform_delegate();

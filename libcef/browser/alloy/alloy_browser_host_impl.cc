@@ -57,33 +57,6 @@ using content::KeyboardEventProcessingResult;
 
 namespace {
 
-class ShowDevToolsHelper {
- public:
-  ShowDevToolsHelper(CefRefPtr<AlloyBrowserHostImpl> browser,
-                     const CefWindowInfo& windowInfo,
-                     CefRefPtr<CefClient> client,
-                     const CefBrowserSettings& settings,
-                     const CefPoint& inspect_element_at)
-      : browser_(browser),
-        window_info_(windowInfo),
-        client_(client),
-        settings_(settings),
-        inspect_element_at_(inspect_element_at) {}
-
-  CefRefPtr<AlloyBrowserHostImpl> browser_;
-  CefWindowInfo window_info_;
-  CefRefPtr<CefClient> client_;
-  CefBrowserSettings settings_;
-  CefPoint inspect_element_at_;
-};
-
-void ShowDevToolsWithHelper(ShowDevToolsHelper* helper) {
-  helper->browser_->ShowDevTools(helper->window_info_, helper->client_,
-                                 helper->settings_,
-                                 helper->inspect_element_at_);
-  delete helper;
-}
-
 static constexpr base::TimeDelta kRecentlyAudibleTimeout = base::Seconds(2);
 
 }  // namespace
@@ -358,22 +331,15 @@ void AlloyBrowserHostImpl::StopFinding(bool clearSelection) {
   }
 }
 
-void AlloyBrowserHostImpl::ShowDevTools(const CefWindowInfo& windowInfo,
-                                        CefRefPtr<CefClient> client,
-                                        const CefBrowserSettings& settings,
-                                        const CefPoint& inspect_element_at) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    ShowDevToolsHelper* helper = new ShowDevToolsHelper(
-        this, windowInfo, client, settings, inspect_element_at);
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(ShowDevToolsWithHelper, helper));
-    return;
-  }
-
+void AlloyBrowserHostImpl::ShowDevToolsOnUIThread(
+    std::unique_ptr<CefShowDevToolsParams> params) {
+  CEF_REQUIRE_UIT();
   if (!EnsureDevToolsManager()) {
     return;
   }
-  devtools_manager_->ShowDevTools(windowInfo, client, settings,
-                                  inspect_element_at);
+  devtools_manager_->ShowDevTools(params->window_info_, params->client_,
+                                  params->settings_,
+                                  params->inspect_element_at_);
 }
 
 void AlloyBrowserHostImpl::CloseDevTools() {
@@ -436,6 +402,16 @@ CefRefPtr<CefExtension> AlloyBrowserHostImpl::GetExtension() {
 
 bool AlloyBrowserHostImpl::IsBackgroundHost() {
   return is_background_host_;
+}
+
+bool AlloyBrowserHostImpl::CanExecuteChromeCommand(int command_id) {
+  return false;
+}
+
+void AlloyBrowserHostImpl::ExecuteChromeCommand(
+    int command_id,
+    cef_window_open_disposition_t disposition) {
+  NOTIMPLEMENTED();
 }
 
 bool AlloyBrowserHostImpl::IsWindowRenderingDisabled() {

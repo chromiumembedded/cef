@@ -16,6 +16,7 @@
 #include "ui/base/window_open_disposition.h"
 
 class Browser;
+class Profile;
 
 namespace cef {
 
@@ -39,6 +40,14 @@ class BrowserDelegate : public content::WebContentsDelegate {
       const Browser* opener);
 
   ~BrowserDelegate() override {}
+
+  // Optionally override Browser creation in
+  // DevToolsWindow::CreateDevToolsBrowser. The returned Browser, if any, will
+  // take ownership of |devtools_contents|.
+  virtual Browser* CreateDevToolsBrowser(
+      Profile* profile,
+      Browser* opener,
+      std::unique_ptr<content::WebContents>& devtools_contents) = 0;
 
   // Optionally override chrome::AddWebContents behavior. This is most often
   // called via Browser::AddNewContents for new popup browsers and provides an

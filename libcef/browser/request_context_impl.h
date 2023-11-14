@@ -38,6 +38,15 @@ class CefRequestContextImpl : public CefRequestContext {
   static CefRefPtr<CefRequestContextImpl> GetOrCreateForRequestContext(
       CefRefPtr<CefRequestContext> request_context);
 
+  // Returns the BrowserContext for the specified |request_context|. Will return
+  // the global BrowserContext if |request_context| is NULL.
+  static content::BrowserContext* GetBrowserContext(
+      CefRefPtr<CefRequestContext> request_context);
+
+  // Returns the Profile for the specified |request_context|. Will return the
+  // global Profile if |request_context| is NULL.
+  static Profile* GetProfile(CefRefPtr<CefRequestContext> request_context);
+
   // Verify that the browser context can be directly accessed (e.g. on the UI
   // thread and initialized).
   bool VerifyBrowserContext() const;

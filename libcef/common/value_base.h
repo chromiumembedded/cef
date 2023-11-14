@@ -296,6 +296,13 @@ class CefValueBase : public CefType, public CefValueController::Object {
   // True if access to the underlying value is read-only.
   inline bool read_only() const { return read_only_; }
 
+  // Convert a writable value to read-only. The reverse could be surprising and
+  // is therefore not supported.
+  void MarkReadOnly() {
+    DCHECK(!read_only_);
+    read_only_ = true;
+  }
+
   // True if the underlying value has been detached.
   inline bool detached() const { return !controller_.get(); }
 

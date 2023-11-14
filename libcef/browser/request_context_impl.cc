@@ -89,6 +89,17 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
   mojo::Receiver<network::mojom::ResolveHostClient> receiver_{this};
 };
 
+CefBrowserContext* GetCefBrowserContext(
+    CefRefPtr<CefRequestContext> request_context) {
+  CEF_REQUIRE_UIT();
+  CefRefPtr<CefRequestContextImpl> request_context_impl =
+      CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
+  CHECK(request_context_impl);
+  auto* cef_browser_context = request_context_impl->GetBrowserContext();
+  CHECK(cef_browser_context);
+  return cef_browser_context;
+}
+
 }  // namespace
 
 // CefBrowserContext
@@ -182,6 +193,21 @@ CefRequestContextImpl::GetOrCreateForRequestContext(
   Config config;
   config.is_global = true;
   return CefRequestContextImpl::GetOrCreateRequestContext(config);
+}
+
+content::BrowserContext* CefRequestContextImpl::GetBrowserContext(
+    CefRefPtr<CefRequestContext> request_context) {
+  auto* browser_context =
+      GetCefBrowserContext(request_context)->AsBrowserContext();
+  CHECK(browser_context);
+  return browser_context;
+}
+
+Profile* CefRequestContextImpl::GetProfile(
+    CefRefPtr<CefRequestContext> request_context) {
+  auto* profile = GetCefBrowserContext(request_context)->AsProfile();
+  CHECK(profile);
+  return profile;
 }
 
 bool CefRequestContextImpl::VerifyBrowserContext() const {

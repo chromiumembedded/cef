@@ -414,7 +414,7 @@ index 2f552f72074e3..3f057242d198c 100644
  }
  
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 419b75d0608b2..d772dc17d165c 100644
+index 419b75d0608b2..57bb1fca770ed 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -351,6 +351,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -426,6 +426,15 @@ index 419b75d0608b2..d772dc17d165c 100644
      // Specifies the initial bounds of the Widget. Default is empty, which means
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
+@@ -742,7 +744,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+   void ShowInactive();
+ 
+   // Activates the widget, assuming it already exists and is visible.
+-  void Activate();
++  virtual void Activate();
+ 
+   // Deactivates the widget, making the next window in the Z order the active
+   // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
 index 6d87be86ae8b3..02fe7a11958d0 100644
 --- ui/views/widget/widget_delegate.h

@@ -95,6 +95,33 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   }
 
   ///
+  /// Called on the UI thread before a new DevTools popup browser is created.
+  /// The |browser| value represents the source of the popup request. Optionally
+  /// modify |windowInfo|, |client|, |settings| and |extra_info| values. The
+  /// |client|, |settings| and |extra_info| values will default to the source
+  /// browser's values. Any modifications to |windowInfo| will be ignored if the
+  /// parent browser is Views-hosted (wrapped in a CefBrowserView).
+  ///
+  /// The |extra_info| parameter provides an opportunity to specify extra
+  /// information specific to the created popup browser that will be passed to
+  /// CefRenderProcessHandler::OnBrowserCreated() in the render process. The
+  /// existing |extra_info| object, if any, will be read-only but may be
+  /// replaced with a new object.
+  ///
+  /// Views-hosted source browsers will create Views-hosted DevTools popups
+  /// unless |use_default_window| is set to to true. DevTools popups can be
+  /// blocked by returning true from CefCommandHandler::OnChromeCommand for
+  /// IDC_DEV_TOOLS. Only used with the Chrome runtime.
+  ///
+  /*--cef()--*/
+  virtual void OnBeforeDevToolsPopup(CefRefPtr<CefBrowser> browser,
+                                     CefWindowInfo& windowInfo,
+                                     CefRefPtr<CefClient>& client,
+                                     CefBrowserSettings& settings,
+                                     CefRefPtr<CefDictionaryValue>& extra_info,
+                                     bool* use_default_window) {}
+
+  ///
   /// Called after a new browser is created. It is now safe to begin performing
   /// actions with |browser|. CefFrameHandler callbacks related to initial main
   /// frame creation will arrive before this callback. See CefFrameHandler

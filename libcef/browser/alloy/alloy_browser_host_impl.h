@@ -85,10 +85,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
             bool matchCase,
             bool findNext) override;
   void StopFinding(bool clearSelection) override;
-  void ShowDevTools(const CefWindowInfo& windowInfo,
-                    CefRefPtr<CefClient> client,
-                    const CefBrowserSettings& settings,
-                    const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
   bool IsWindowRenderingDisabled() override;
@@ -127,6 +123,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
                             const CefSize& max_size) override;
   CefRefPtr<CefExtension> GetExtension() override;
   bool IsBackgroundHost() override;
+  bool CanExecuteChromeCommand(int command_id) override;
+  void ExecuteChromeCommand(int command_id,
+                            cef_window_open_disposition_t disposition) override;
 
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const override;
@@ -284,6 +283,10 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;
   void WebContentsDestroyed() override;
+
+ protected:
+  void ShowDevToolsOnUIThread(
+      std::unique_ptr<CefShowDevToolsParams> params) override;
 
  private:
   friend class CefBrowserPlatformDelegateAlloy;

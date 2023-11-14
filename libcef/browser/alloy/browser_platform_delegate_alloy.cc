@@ -39,19 +39,14 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
   REQUIRE_ALLOY_RUNTIME();
   DCHECK(primary_);
 
-  // Get or create the request context and browser context.
-  CefRefPtr<CefRequestContextImpl> request_context_impl =
-      CefRequestContextImpl::GetOrCreateForRequestContext(
-          create_params.request_context);
-  CHECK(request_context_impl);
-  auto cef_browser_context = request_context_impl->GetBrowserContext();
-  CHECK(cef_browser_context);
-  auto browser_context = cef_browser_context->AsBrowserContext();
-
   if (!create_params.request_context) {
     // Using the global request context.
-    create_params.request_context = request_context_impl.get();
+    create_params.request_context = CefRequestContext::GetGlobalContext();
   }
+
+  auto* browser_context =
+      CefRequestContextImpl::GetBrowserContext(create_params.request_context);
+  CHECK(browser_context);
 
   scoped_refptr<content::SiteInstance> site_instance;
   if (extensions::ExtensionsEnabled() && !create_params.url.empty()) {

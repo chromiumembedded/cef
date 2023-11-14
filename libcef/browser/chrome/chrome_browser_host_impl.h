@@ -12,8 +12,8 @@
 #include "libcef/browser/chrome/browser_delegate.h"
 
 #include "base/memory/weak_ptr.h"
+#include "chrome/browser/ui/browser.h"
 
-class Browser;
 class ChromeBrowserDelegate;
 class ChromeBrowserView;
 
@@ -72,10 +72,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
             bool matchCase,
             bool findNext) override;
   void StopFinding(bool clearSelection) override;
-  void ShowDevTools(const CefWindowInfo& windowInfo,
-                    CefRefPtr<CefClient> client,
-                    const CefBrowserSettings& settings,
-                    const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
   bool HasDevTools() override;
   bool IsWindowRenderingDisabled() override;
@@ -114,6 +110,9 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
                             const CefSize& max_size) override;
   CefRefPtr<CefExtension> GetExtension() override;
   bool IsBackgroundHost() override;
+  bool CanExecuteChromeCommand(int command_id) override;
+  void ExecuteChromeCommand(int command_id,
+                            cef_window_open_disposition_t disposition) override;
 
   Browser* browser() const { return browser_; }
 
@@ -126,6 +125,8 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
  protected:
   bool Navigate(const content::OpenURLParams& params) override;
+  void ShowDevToolsOnUIThread(
+      std::unique_ptr<CefShowDevToolsParams> params) override;
 
  private:
   friend class ChromeBrowserDelegate;
@@ -138,21 +139,31 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
       CefRefPtr<CefRequestContextImpl> request_context);
 
   // Create a new Browser without initializing the WebContents.
-  static Browser* CreateBrowser(const CefBrowserCreateParams& params);
+  // |browser_create_params| may be empty for default Browser creation behavior.
+  static Browser* CreateBrowser(
+      const CefBrowserCreateParams& params,
+      std::optional<Browser::CreateParams> browser_create_params);
 
   // Called from ChromeBrowserDelegate::CreateBrowser when this object is first
   // created. Must be called on the UI thread.
   void Attach(content::WebContents* web_contents,
+              bool is_devtools_popup,
               CefRefPtr<ChromeBrowserHostImpl> opener);
 
   // Called from ChromeBrowserDelegate::AddNewContents to take ownership of a
-  // popup WebContents.
-  void AddNewContents(std::unique_ptr<content::WebContents> contents);
+  // popup WebContents. |browser_create_params| may be empty for default Browser
+  // creation behavior.
+  void AddNewContents(
+      std::unique_ptr<content::WebContents> contents,
+      std::optional<Browser::CreateParams> browser_create_params);
 
   // Called when this object changes Browser ownership (e.g. initially created,
   // dragging between windows, etc). The old Browser, if any, will be cleared
   // before the new Browser is added. Must be called on the UI thread.
   void SetBrowser(Browser* browser);
+
+  void SetDevToolsBrowserHost(
+      base::WeakPtr<ChromeBrowserHostImpl> devtools_browser_host);
 
   // CefBrowserHostBase methods:
   void WindowDestroyed() override;
@@ -167,6 +178,8 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   Browser* browser_ = nullptr;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
+
+  base::WeakPtr<ChromeBrowserHostImpl> devtools_browser_host_;
 
   base::WeakPtrFactory<ChromeBrowserHostImpl> weak_ptr_factory_{this};
 };

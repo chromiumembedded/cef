@@ -1004,52 +1004,52 @@ typedef enum {
 /// renumbered.
 ///
 typedef enum {
-  WOD_UNKNOWN,
+  CEF_WOD_UNKNOWN,
 
   ///
   /// Current tab. This is the default in most cases.
   ///
-  WOD_CURRENT_TAB,
+  CEF_WOD_CURRENT_TAB,
 
   ///
   /// Indicates that only one tab with the url should exist in the same window.
   ///
-  WOD_SINGLETON_TAB,
+  CEF_WOD_SINGLETON_TAB,
 
   ///
   /// Shift key + Middle mouse button or meta/ctrl key while clicking.
   ///
-  WOD_NEW_FOREGROUND_TAB,
+  CEF_WOD_NEW_FOREGROUND_TAB,
 
   ///
   /// Middle mouse button or meta/ctrl key while clicking.
   ///
-  WOD_NEW_BACKGROUND_TAB,
+  CEF_WOD_NEW_BACKGROUND_TAB,
 
   ///
   /// New popup window.
   ///
-  WOD_NEW_POPUP,
+  CEF_WOD_NEW_POPUP,
 
   ///
   /// Shift key while clicking.
   ///
-  WOD_NEW_WINDOW,
+  CEF_WOD_NEW_WINDOW,
 
   ///
   /// Alt key while clicking.
   ///
-  WOD_SAVE_TO_DISK,
+  CEF_WOD_SAVE_TO_DISK,
 
   ///
   /// New off-the-record (incognito) window.
   ///
-  WOD_OFF_THE_RECORD,
+  CEF_WOD_OFF_THE_RECORD,
 
   ///
   /// Special case error condition from the renderer.
   ///
-  WOD_IGNORE_ACTION,
+  CEF_WOD_IGNORE_ACTION,
 
   ///
   /// Activates an existing tab containing the url, rather than navigating.
@@ -1059,12 +1059,14 @@ typedef enum {
   /// no session history; and behaves like CURRENT_TAB instead of
   /// NEW_FOREGROUND_TAB when no existing tab is found.
   ///
-  WOD_SWITCH_TO_TAB,
+  CEF_WOD_SWITCH_TO_TAB,
 
   ///
   /// Creates a new document picture-in-picture window showing a child WebView.
   ///
-  WOD_NEW_PICTURE_IN_PICTURE,
+  CEF_WOD_NEW_PICTURE_IN_PICTURE,
+
+  CEF_WOD_MAX_VALUE = CEF_WOD_NEW_PICTURE_IN_PICTURE,
 } cef_window_open_disposition_t;
 
 ///

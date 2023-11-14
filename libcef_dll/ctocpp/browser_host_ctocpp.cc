@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4d51bbece0dd5773f9c97163008d6b2f4bf1ccbf$
+// $hash=b06e3bbc86769bbc2485d4ab9530b5c39dc73243$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -1259,6 +1259,41 @@ void CefBrowserHostCToCpp::ExitFullscreen(bool will_cause_resize) {
 
   // Execute
   _struct->exit_fullscreen(_struct, will_cause_resize);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::CanExecuteChromeCommand(int command_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_execute_chrome_command)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->can_execute_chrome_command(_struct, command_id);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefBrowserHostCToCpp::ExecuteChromeCommand(
+    int command_id,
+    cef_window_open_disposition_t disposition) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, execute_chrome_command)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->execute_chrome_command(_struct, command_id, disposition);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
