@@ -149,7 +149,7 @@ def create_readme():
                    'section of this document for licensing terms and conditions.'
   elif mode == 'minimal':
     distrib_type = 'Minimal'
-    distrib_desc = 'This distribution contains the minimial components necessary to build and\n' \
+    distrib_desc = 'This distribution contains the minimal components necessary to build and\n' \
                    'distribute an application using CEF on the ' + platform_str + ' platform. Please see\n' \
                    'the LICENSING section of this document for licensing terms and conditions.'
   elif mode == 'client':
