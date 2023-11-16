@@ -36,7 +36,7 @@ class CefAppManager {
   // (url/url_util.h) via ContentClient::AddAdditionalSchemes which calls
   // AddCustomScheme, and second with Blink (SchemeRegistry) via
   // ContentRendererClient::WebKitInitialized which calls GetCustomSchemes.
-  void AddCustomScheme(CefSchemeInfo* scheme_info);
+  void AddCustomScheme(const CefSchemeInfo* scheme_info);
   bool HasCustomScheme(const std::string& scheme_name);
 
   using SchemeInfoList = std::list<CefSchemeInfo>;

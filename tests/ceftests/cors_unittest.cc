@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <set>
+#include <sstream>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -67,6 +68,14 @@ enum class HandlerType {
 std::string GetOrigin(HandlerType handler) {
   switch (handler) {
     case HandlerType::SERVER:
+      // TODO: Only call test_server::GetOrigin() after test server
+      // initialization.
+      if (!kUseHttpsServerScheme) {
+        std::stringstream ss;
+        ss << "http://" << test_server::kHttpServerAddress << ":"
+           << test_server::kHttpServerPort;
+        return ss.str();
+      }
       return test_server::GetOrigin(kUseHttpsServerScheme);
     case HandlerType::HTTP_SCHEME:
       // Use HTTPS because requests from HTTP to the loopback address will be

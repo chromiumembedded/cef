@@ -39,7 +39,7 @@ CefAppManager::~CefAppManager() {
   g_manager = nullptr;
 }
 
-void CefAppManager::AddCustomScheme(CefSchemeInfo* scheme_info) {
+void CefAppManager::AddCustomScheme(const CefSchemeInfo* scheme_info) {
   DCHECK(!scheme_info_list_locked_);
   scheme_info_list_.push_back(*scheme_info);
 

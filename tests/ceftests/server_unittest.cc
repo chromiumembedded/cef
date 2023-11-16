@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <sstream>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_ref_counted.h"

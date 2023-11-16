@@ -249,11 +249,19 @@ void LoadCookies(const CefBrowserContext::Getter& browser_context_getter,
     return;
   }
 
+  net::CookiePartitionKeyCollection partition_key_collection;
+  if (request.trusted_params.has_value() &&
+      !request.trusted_params->isolation_info.IsEmpty()) {
+    partition_key_collection = net::CookiePartitionKeyCollection::FromOptional(
+        net::CookiePartitionKey::FromNetworkIsolationKey(
+            request.trusted_params->isolation_info.network_isolation_key()));
+  }
+
   CEF_POST_TASK(
       CEF_UIT,
       base::BindOnce(LoadCookiesOnUIThread, browser_context_getter, request.url,
                      GetCookieOptions(request, /*for_loading_cookies=*/true),
-                     net::CookiePartitionKeyCollection(), allow_cookie_callback,
+                     std::move(partition_key_collection), allow_cookie_callback,
                      std::move(done_callback)));
 }
 

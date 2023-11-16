@@ -49,6 +49,9 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
   // with Blink only.
   if (is_standard) {
     schemes_.standard_schemes.push_back(scheme);
+    if (!is_local && !is_display_isolated) {
+      schemes_.referrer_schemes.push_back(scheme);
+    }
   }
   if (is_local) {
     schemes_.local_schemes.push_back(scheme);
@@ -74,6 +77,7 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
 void CefSchemeRegistrarImpl::GetSchemes(
     content::ContentClient::Schemes* schemes) {
   AppendArray(schemes_.standard_schemes, &schemes->standard_schemes);
+  AppendArray(schemes_.referrer_schemes, &schemes->referrer_schemes);
   AppendArray(schemes_.local_schemes, &schemes->local_schemes);
   AppendArray(schemes_.secure_schemes, &schemes->secure_schemes);
   AppendArray(schemes_.cors_enabled_schemes, &schemes->cors_enabled_schemes);

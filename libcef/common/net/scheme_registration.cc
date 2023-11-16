@@ -40,22 +40,26 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
   // with Blink only.
   for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
        ++i) {
-    if (internal_schemes[i].is_standard) {
-      schemes->standard_schemes.push_back(internal_schemes[i].scheme_name);
+    const auto& scheme = internal_schemes[i];
+    if (scheme.is_standard) {
+      schemes->standard_schemes.push_back(scheme.scheme_name);
+      if (!scheme.is_local && !scheme.is_display_isolated) {
+        schemes->referrer_schemes.push_back(scheme.scheme_name);
+      }
     }
-    if (internal_schemes[i].is_local) {
-      schemes->local_schemes.push_back(internal_schemes[i].scheme_name);
+    if (scheme.is_local) {
+      schemes->local_schemes.push_back(scheme.scheme_name);
     }
-    if (internal_schemes[i].is_secure) {
-      schemes->secure_schemes.push_back(internal_schemes[i].scheme_name);
+    if (scheme.is_secure) {
+      schemes->secure_schemes.push_back(scheme.scheme_name);
     }
-    if (internal_schemes[i].is_cors_enabled) {
-      schemes->cors_enabled_schemes.push_back(internal_schemes[i].scheme_name);
+    if (scheme.is_cors_enabled) {
+      schemes->cors_enabled_schemes.push_back(scheme.scheme_name);
     }
-    if (internal_schemes[i].is_csp_bypassing) {
-      schemes->csp_bypassing_schemes.push_back(internal_schemes[i].scheme_name);
+    if (scheme.is_csp_bypassing) {
+      schemes->csp_bypassing_schemes.push_back(scheme.scheme_name);
     }
-    CefAppManager::Get()->AddCustomScheme(&internal_schemes[i]);
+    CefAppManager::Get()->AddCustomScheme(&scheme);
   }
 }
 
