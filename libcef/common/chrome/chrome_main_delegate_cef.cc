@@ -35,10 +35,6 @@
 #include "libcef/common/util_linux.h"
 #endif
 
-#if BUILDFLAG(IS_MAC)
-#include "libcef/common/util_mac.h"
-#endif
-
 namespace {
 
 base::LazyInstance<ChromeContentRendererClientCef>::DestructorAtExit
@@ -61,7 +57,7 @@ ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 
 absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
-  // Returns false if startup should proceed.
+  // Returns no value if startup should proceed.
   auto result = ChromeMainDelegate::BasicStartupComplete();
   if (result.has_value()) {
     return result;
