@@ -434,6 +434,7 @@ struct CefSettingsTraits {
 
     cef_string_set(src->chrome_policy_id.str, src->chrome_policy_id.length,
                    &target->chrome_policy_id, copy);
+    target->chrome_app_icon_id = src->chrome_app_icon_id;
   }
 };
 

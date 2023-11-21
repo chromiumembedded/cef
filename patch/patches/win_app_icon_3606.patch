@@ -1,35 +1,66 @@
 diff --git chrome/browser/win/app_icon.cc chrome/browser/win/app_icon.cc
-index db721b75aad6f..a4826e16dd43d 100644
+index db721b75aad6f..fac8b38c7dde7 100644
 --- chrome/browser/win/app_icon.cc
 +++ chrome/browser/win/app_icon.cc
-@@ -25,6 +25,10 @@ HICON GetAppIcon() {
+@@ -18,13 +18,26 @@ int GetAppIconResourceId() {
+   return install_static::InstallDetails::Get().app_icon_resource_id();
+ }
+ 
++int g_exe_app_icon_resource_id = 0;
++
+ }  // namespace
+ 
++void SetExeAppIconResourceId(int icon_id) {
++  g_exe_app_icon_resource_id = icon_id;
++}
++
+ HICON GetAppIcon() {
+   // TODO(mgiuca): Use GetAppIconImageFamily/CreateExact instead of LoadIcon, to
    // get correct scaling. (See http://crbug.com/551256)
-   const int icon_id = GetAppIconResourceId();
+-  const int icon_id = GetAppIconResourceId();
    // HICON returned from LoadIcon do not leak and do not have to be destroyed.
-+  // Try to load the icon from the exe first.
-+  if (auto icon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(icon_id))) {
-+    return icon;
++  if (g_exe_app_icon_resource_id > 0) {
++    // Try to load the icon from the exe first.
++    if (auto icon = LoadIcon(GetModuleHandle(NULL),
++            MAKEINTRESOURCE(g_exe_app_icon_resource_id))) {
++      return icon;
++    }
 +  }
++  const int icon_id = GetAppIconResourceId();
    return LoadIcon(GetModuleHandle(chrome::kBrowserResourcesDll),
                    MAKEINTRESOURCE(icon_id));
  }
-@@ -35,6 +39,13 @@ HICON GetSmallAppIcon() {
-   const int icon_id = GetAppIconResourceId();
+@@ -32,9 +45,18 @@ HICON GetAppIcon() {
+ HICON GetSmallAppIcon() {
+   // TODO(mgiuca): Use GetAppIconImageFamily/CreateExact instead of LoadIcon, to
+   // get correct scaling. (See http://crbug.com/551256)
+-  const int icon_id = GetAppIconResourceId();
    gfx::Size size = GetSmallAppIconSize();
    // HICON returned from LoadImage must be released using DestroyIcon.
-+  // Try to load the icon from the exe first.
-+  if (auto icon = static_cast<HICON>(LoadImage(
-+          GetModuleHandle(NULL), MAKEINTRESOURCE(icon_id),
-+          IMAGE_ICON, size.width(), size.height(),
-+          LR_DEFAULTCOLOR | LR_SHARED))) {
-+    return icon;
++  if (g_exe_app_icon_resource_id > 0) {
++    // Try to load the icon from the exe first.
++    if (auto icon = static_cast<HICON>(LoadImage(
++            GetModuleHandle(NULL), MAKEINTRESOURCE(g_exe_app_icon_resource_id),
++            IMAGE_ICON, size.width(), size.height(),
++            LR_DEFAULTCOLOR | LR_SHARED))) {
++      return icon;
++    }
 +  }
++  const int icon_id = GetAppIconResourceId();
    return static_cast<HICON>(LoadImage(
        GetModuleHandle(chrome::kBrowserResourcesDll), MAKEINTRESOURCE(icon_id),
        IMAGE_ICON, size.width(), size.height(), LR_DEFAULTCOLOR | LR_SHARED));
-@@ -51,14 +62,11 @@ gfx::Size GetSmallAppIconSize() {
+@@ -50,15 +72,14 @@ gfx::Size GetSmallAppIconSize() {
+ }
  
  std::unique_ptr<gfx::ImageFamily> GetAppIconImageFamily() {
++  if (g_exe_app_icon_resource_id > 0) {
++    // Try to load the icon from the exe first.
++    if (auto image_family = IconUtil::CreateImageFamilyFromIconResource(
++            GetModuleHandle(NULL), g_exe_app_icon_resource_id)) {
++      return image_family;
++    }
++  }
    const int icon_id = GetAppIconResourceId();
 -  // Get the icon from chrome.dll (not chrome.exe, which has different resource
 -  // IDs). If chrome.dll is not loaded, we are probably in a unit test, so fall
@@ -41,14 +72,22 @@ index db721b75aad6f..a4826e16dd43d 100644
 -  DCHECK(module);
 -
 -  return IconUtil::CreateImageFamilyFromIconResource(module, icon_id);
-+  // Try to load the icon from the exe first.
-+  if (auto image_family = IconUtil::CreateImageFamilyFromIconResource(
-+          GetModuleHandle(NULL), icon_id)) {
-+    return image_family;
-+  }
 +  return IconUtil::CreateImageFamilyFromIconResource(
 +      GetModuleHandle(chrome::kBrowserResourcesDll), icon_id);
  }
+diff --git chrome/browser/win/app_icon.h chrome/browser/win/app_icon.h
+index db8209bbcc214..b50bce7fae5b5 100644
+--- chrome/browser/win/app_icon.h
++++ chrome/browser/win/app_icon.h
+@@ -14,6 +14,8 @@ class ImageFamily;
+ class Size;
+ }
+ 
++void SetExeAppIconResourceId(int icon_id);
++
+ HICON GetAppIcon();
+ HICON GetSmallAppIcon();
+ 
 diff --git chrome/common/chrome_constants.cc chrome/common/chrome_constants.cc
 index 3a39e2bb7b608..27c6038cf7a47 100644
 --- chrome/common/chrome_constants.cc

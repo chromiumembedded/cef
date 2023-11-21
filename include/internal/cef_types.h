@@ -484,6 +484,15 @@ typedef struct _cef_settings_t {
   /// for details.
   ///
   cef_string_t chrome_policy_id;
+
+  ///
+  /// Specify an ID for an ICON resource that can be loaded from the main
+  /// executable and used when creating default Chrome windows such as DevTools
+  /// and Task Manager. If unspecified the default Chromium ICON (IDR_MAINFRAME
+  /// [101]) will be loaded from libcef.dll. Only supported with the Chrome
+  /// runtime on Windows.
+  ///
+  int chrome_app_icon_id;
 } cef_settings_t;
 
 ///

@@ -10,6 +10,7 @@
 #include "include/cef_sandbox_win.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/main_message_loop_multithreaded_win.h"
+#include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/client_app_browser.h"
@@ -78,6 +79,11 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
+
+  // Set the ID for the ICON resource that will be loaded from the main
+  // executable and used when creating default Chrome windows such as DevTools
+  // and Task Manager. Only used with the Chrome runtime.
+  settings.chrome_app_icon_id = IDR_MAINFRAME;
 
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
