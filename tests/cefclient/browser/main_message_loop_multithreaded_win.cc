@@ -54,7 +54,7 @@ int MainMessageLoopMultithreadedWin::Run() {
   }
 
   HACCEL hAccelTable =
-      LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+      LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_MAINFRAME));
 
   MSG msg;
 

@@ -340,7 +340,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
 
   // Load strings from the resource file.
   const std::wstring& window_title = GetResourceString(IDS_APP_TITLE);
-  const std::wstring& window_class = GetResourceString(IDC_CEFCLIENT);
+  const std::wstring& window_class = GetResourceString(IDR_MAINFRAME);
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
   const HBRUSH background_brush = CreateSolidBrush(
@@ -446,10 +446,10 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
   wcex.cbClsExtra = 0;
   wcex.cbWndExtra = 0;
   wcex.hInstance = hInstance;
-  wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CEFCLIENT));
+  wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDR_MAINFRAME));
   wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wcex.hbrBackground = background_brush;
-  wcex.lpszMenuName = MAKEINTRESOURCE(IDC_CEFCLIENT);
+  wcex.lpszMenuName = MAKEINTRESOURCE(IDR_MAINFRAME);
   wcex.lpszClassName = window_class.c_str();
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 

@@ -7,8 +7,8 @@
 // Used by cefsimple.rc
 //
 
-#define IDI_CEFSIMPLE 100
-#define IDI_SMALL 101
+#define IDI_CEFSIMPLE 120
+#define IDI_SMALL 121
 
 // Avoid files associated with MacOS
 #define _X86_

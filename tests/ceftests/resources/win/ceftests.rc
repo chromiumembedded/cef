@@ -42,7 +42,7 @@ IDS_WINDOW_ICON_2X_PNG BINARY "..\\..\\..\\shared\\resources\\window_icon.2x.png
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ICI_UNITTESTS           ICON                    "ceftests.ico"
+ICI_CEFTESTS            ICON                    "ceftests.ico"
 IDI_SMALL               ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////

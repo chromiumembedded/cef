@@ -68,7 +68,7 @@ IDS_EXTENSIONS_SET_PAGE_COLOR_POPUP_JS BINARY "..\\extensions\\set_page_color\\p
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_CEFCLIENT           ICON                    "cefclient.ico"
+IDR_MAINFRAME           ICON                    "cefclient.ico"
 IDI_SMALL               ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ IDI_SMALL               ICON                    "small.ico"
 // Menu
 //
 
-IDC_CEFCLIENT MENU
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -116,7 +116,7 @@ END
 // Accelerator
 //
 
-IDC_CEFCLIENT ACCELERATORS
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -133,7 +133,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "System"
 BEGIN
-    ICON            IDI_CEFCLIENT,IDC_MYICON,14,9,16,16
+    ICON            IDR_MAINFRAME,IDC_MYICON,14,9,16,16
     LTEXT           "cefclient Version 1.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2008",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
@@ -212,7 +212,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "cefclient"
-    IDC_CEFCLIENT           "CEFCLIENT"
+    IDR_MAINFRAME           "CEFCLIENT"
 END
 
 #endif    // English (U.S.) resources

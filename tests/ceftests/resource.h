@@ -7,6 +7,8 @@
 // Used by cefclient.rc
 //
 #define BINARY 256
+#define ICI_CEFTESTS 120
+#define IDI_SMALL 121
 #define IDS_OSRTEST_HTML 1000
 #define IDS_PDF_HTML 1001
 #define IDS_PDF_PDF 1002
