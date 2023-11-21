@@ -85,7 +85,7 @@ CEF_EXPORT int cef_time_to_doublet(const cef_time_t* cef_time, double* time) {
 
   base::Time base_time;
   cef_time_to_basetime(*cef_time, base_time);
-  *time = base_time.ToDoubleT();
+  *time = base_time.InSecondsFSinceUnixEpoch();
   return 1;
 }
 
@@ -94,7 +94,7 @@ CEF_EXPORT int cef_time_from_doublet(double time, cef_time_t* cef_time) {
     return 0;
   }
 
-  base::Time base_time = base::Time::FromDoubleT(time);
+  base::Time base_time = base::Time::FromSecondsSinceUnixEpoch(time);
   cef_time_from_basetime(base_time, *cef_time);
   return 1;
 }

@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index e175525a96266..7434b2f5eaa75 100644
+index 9fefdc150acf8..6c16766e89584 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
-@@ -122,6 +122,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
+@@ -123,6 +123,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
        rfh_id_(rfh_id),
        cookie_(PrintSettings::NewCookie()) {
    DCHECK_CURRENTLY_ON(content::BrowserThread::UI);

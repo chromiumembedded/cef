@@ -119,10 +119,10 @@ index c1c0631071a11..aa2c01ebce43e 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index c7b00c3852d02..be30a1995d570 100644
+index 30a4011aeb0d7..d5f2bc68d3dda 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -566,6 +566,12 @@ void LabelButton::OnThemeChanged() {
+@@ -575,6 +575,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -136,10 +136,10 @@ index c7b00c3852d02..be30a1995d570 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 8dbd918f09528..06fad642642c4 100644
+index bd646d55e25c7..b1d0089f439ac 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -155,6 +155,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
+@@ -160,6 +160,9 @@ class VIEWS_EXPORT LabelButton : public Button, public NativeThemeDelegate {
    ui::NativeTheme::State GetForegroundThemeState(
        ui::NativeTheme::ExtraParams* params) const override;
  
@@ -150,10 +150,10 @@ index 8dbd918f09528..06fad642642c4 100644
    ImageView* image() const { return image_; }
    Label* label() const { return label_; }
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index a1a17ca0f4090..ad4ac7a2678e0 100644
+index ec6433aa7412b..f33ca106e27c3 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -53,12 +53,29 @@ enum LabelPropertyKey {
+@@ -54,12 +54,29 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -183,7 +183,7 @@ index a1a17ca0f4090..ad4ac7a2678e0 100644
  }  // namespace
  
  namespace views {
-@@ -474,6 +491,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -479,6 +496,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -199,7 +199,7 @@ index a1a17ca0f4090..ad4ac7a2678e0 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -778,6 +804,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -799,6 +825,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -217,7 +217,7 @@ index a1a17ca0f4090..ad4ac7a2678e0 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 711dc633bffc2..0fa2626150de2 100644
+index 0f1f9cb251b23..9b42eac91562b 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -240,6 +240,10 @@ class VIEWS_EXPORT Label : public View,
@@ -231,7 +231,7 @@ index 711dc633bffc2..0fa2626150de2 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -504,6 +508,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -515,6 +519,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -240,10 +240,10 @@ index 711dc633bffc2..0fa2626150de2 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index b02f25526d9cb..2961ef6ba1185 100644
+index 9b0b1c6011fec..f0d037e75e790 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -565,7 +565,8 @@ void MenuController::Run(Widget* parent,
+@@ -566,7 +566,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -253,7 +253,7 @@ index b02f25526d9cb..2961ef6ba1185 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -610,6 +611,7 @@ void MenuController::Run(Widget* parent,
+@@ -611,6 +612,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -261,7 +261,7 @@ index b02f25526d9cb..2961ef6ba1185 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2230,6 +2232,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2233,6 +2235,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -269,7 +269,7 @@ index b02f25526d9cb..2961ef6ba1185 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2915,8 +2918,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2918,8 +2921,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -284,7 +284,7 @@ index b02f25526d9cb..2961ef6ba1185 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2936,8 +2944,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2939,8 +2947,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -544,10 +544,10 @@ index a8354c0699920..9b5deb522c29a 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_runner.cc ui/views/controls/menu/menu_runner.cc
-index adb22671b94fa..59cc421e82e1b 100644
+index b434cf87b0bb2..bc13038952f64 100644
 --- ui/views/controls/menu/menu_runner.cc
 +++ ui/views/controls/menu/menu_runner.cc
-@@ -36,6 +36,7 @@ void MenuRunner::RunMenuAt(Widget* parent,
+@@ -37,6 +37,7 @@ void MenuRunner::RunMenuAt(Widget* parent,
                             MenuAnchorPosition anchor,
                             ui::MenuSourceType source_type,
                             gfx::NativeView native_view_for_gestures,
@@ -555,7 +555,7 @@ index adb22671b94fa..59cc421e82e1b 100644
                             absl::optional<gfx::RoundedCornersF> corners) {
    // Do not attempt to show the menu if the application is currently shutting
    // down. MenuDelegate::OnMenuClosed would not be called.
-@@ -82,7 +83,7 @@ void MenuRunner::RunMenuAt(Widget* parent,
+@@ -83,7 +84,7 @@ void MenuRunner::RunMenuAt(Widget* parent,
    }
  
    impl_->RunMenuAt(parent, button_controller, bounds, anchor, run_types_,
@@ -565,7 +565,7 @@ index adb22671b94fa..59cc421e82e1b 100644
  
  bool MenuRunner::IsRunning() const {
 diff --git ui/views/controls/menu/menu_runner.h ui/views/controls/menu/menu_runner.h
-index 562b67396f27f..7679dbd79e565 100644
+index 78148a4a753c5..633404c4accc9 100644
 --- ui/views/controls/menu/menu_runner.h
 +++ ui/views/controls/menu/menu_runner.h
 @@ -152,6 +152,8 @@ class VIEWS_EXPORT MenuRunner {
@@ -611,10 +611,10 @@ index 4d2909b5094ab..245e1a24dd810 100644
    void Cancel() override;
    base::TimeTicks GetClosingEventTime() const override;
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.cc ui/views/controls/menu/menu_runner_impl_adapter.cc
-index b6c680063889b..a1efa677a43a5 100644
+index f7d363455a8bc..5f89c39338b0c 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.cc
 +++ ui/views/controls/menu/menu_runner_impl_adapter.cc
-@@ -34,9 +34,10 @@ void MenuRunnerImplAdapter::RunMenuAt(
+@@ -35,9 +35,10 @@ void MenuRunnerImplAdapter::RunMenuAt(
      MenuAnchorPosition anchor,
      int32_t types,
      gfx::NativeView native_view_for_gestures,
@@ -627,7 +627,7 @@ index b6c680063889b..a1efa677a43a5 100644
  
  void MenuRunnerImplAdapter::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.h ui/views/controls/menu/menu_runner_impl_adapter.h
-index e6587d2208a13..c2c72f7edb89c 100644
+index 5064010572a55..dd975e37b32cb 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.h
 +++ ui/views/controls/menu/menu_runner_impl_adapter.h
 @@ -44,6 +44,7 @@ class VIEWS_EXPORT MenuRunnerImplAdapter : public MenuRunnerImplInterface {
@@ -651,7 +651,7 @@ index 2325534ec9243..7573a54cc891c 100644
    void Cancel() override;
    base::TimeTicks GetClosingEventTime() const override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index c3c80f6becee7..5b6fc116f6255 100644
+index a7a82c6c40216..cdf5007d7b3ab 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -190,6 +190,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
@@ -692,7 +692,7 @@ index 8c093e002326c..3a500adcd39bb 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 187e55af5d7be..3a980d26fdaae 100644
+index 616efdce0e7c5..e0e20fdb0f80b 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -703,7 +703,7 @@ index 187e55af5d7be..3a980d26fdaae 100644
  #include "ui/aura/client/screen_position_client.h"
  #include "ui/aura/env.h"
  #include "ui/aura/test/aura_test_utils.h"
-@@ -176,9 +177,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
+@@ -180,9 +181,11 @@ bool SendMouseMoveNotifyWhenDone(int screen_x,
        aura::test::QueryLatestMousePositionRequestInHost(host);
    host->ConvertPixelsToDIP(&root_current_location);
  
@@ -716,7 +716,7 @@ index 187e55af5d7be..3a980d26fdaae 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 80a2b76b266f5..17b85ef182b55 100644
+index 6cfd912339c89..37877b3ce96be 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -21,6 +21,7 @@

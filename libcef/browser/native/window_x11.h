@@ -72,6 +72,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
 
   void ProcessXEvent(const x11::Event& xev);
 
+  bool IsTargetedBy(const x11::Event& xev) const;
+
   CefRefPtr<CefBrowserHostBase> browser_;
 
   // The display and the native X window hosting the root window.

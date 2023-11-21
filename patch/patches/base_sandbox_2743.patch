@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 55479f4187323..207b9e3a1e281 100644
+index 24f2397278ccb..e511ec4aedd97 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 55479f4187323..207b9e3a1e281 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1495,7 +1496,11 @@ component("base") {
+@@ -1497,7 +1498,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 55479f4187323..207b9e3a1e281 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1909,6 +1914,12 @@ component("base") {
+@@ -1919,6 +1924,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index 55479f4187323..207b9e3a1e281 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 616e2e89af7d3..2a2993e74d53a 100644
+index 4595034abae30..da29453cf7d71 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -10,6 +10,7 @@
@@ -88,7 +88,7 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index c9dd1249660c1..7d68b0d893e3d 100644
+index 47e7917f785f7..42fe89f3ded27 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -15,8 +15,9 @@
@@ -102,7 +102,7 @@ index c9dd1249660c1..7d68b0d893e3d 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -97,7 +98,7 @@ class RandomBitGenerator {
+@@ -112,7 +113,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  

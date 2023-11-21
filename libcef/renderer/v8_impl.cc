@@ -1569,7 +1569,7 @@ void CefV8ValueImpl::InitFromV8Value(v8::Local<v8::Context> context,
     InitDouble(value->ToNumber(context).ToLocalChecked()->Value());
   } else if (value->IsDate()) {
     // Convert from milliseconds to seconds.
-    InitDate(base::Time::FromJsTime(
+    InitDate(base::Time::FromMillisecondsSinceUnixEpoch(
         value->ToNumber(context).ToLocalChecked()->Value()));
   } else if (value->IsString()) {
     CefString rv;
@@ -1662,7 +1662,7 @@ v8::Local<v8::Value> CefV8ValueImpl::GetV8Value(bool should_persist) {
       // Convert from seconds to milliseconds.
       return v8::Date::New(isolate_->GetCurrentContext(),
                            static_cast<base::Time>(CefBaseTime(date_value_))
-                               .ToJsTimeIgnoringNull())
+                               .InMillisecondsFSinceUnixEpochIgnoringNull())
           .ToLocalChecked();
     case TYPE_STRING:
       return GetV8String(isolate_, CefString(&string_value_));

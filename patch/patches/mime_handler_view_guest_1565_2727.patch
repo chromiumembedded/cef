@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index dc763b0fac47b..d8b63a0f62267 100644
+index 66c632b1818a6..fca4dcbb4a38b 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -25,7 +25,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index dc763b0fac47b..d8b63a0f62267 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 0fc4a40faf070..66b40489529e2 100644
+index 02f204564a67e..2500ebbc92cb3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -202,6 +202,8 @@ void MimeHandlerViewGuest::CreateWebContents(
@@ -35,7 +35,7 @@ index 0fc4a40faf070..66b40489529e2 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    GetController().LoadURL(stream_->handler_url(), content::Referrer(),
                            ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
-@@ -474,6 +480,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+@@ -480,6 +486,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
    }
  }
  
@@ -51,10 +51,10 @@ index 0fc4a40faf070..66b40489529e2 100644
      mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
    if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 2a2f0b6b44293..b5a5e9949138f 100644
+index a5066da1a593c..880fc3c87e48f 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -194,10 +194,12 @@ class MimeHandlerViewGuest
+@@ -195,10 +195,12 @@ class MimeHandlerViewGuest
    void ReadyToCommitNavigation(
        content::NavigationHandle* navigation_handle) final;
    void DidFinishNavigation(content::NavigationHandle* navigation_handle) final;

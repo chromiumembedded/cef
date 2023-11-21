@@ -30,7 +30,7 @@ using blink::WebInputElement;
 using blink::WebNode;
 using blink::WebSelectElement;
 using blink::WebString;
-using FormControlType = WebFormControlElement::Type;
+using FormControlType = blink::mojom::FormControlType;
 
 namespace {
 

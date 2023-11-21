@@ -60,9 +60,9 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
     if (create_params.extension) {
       if (create_params.extension_host_type ==
           extensions::mojom::ViewType::kInvalid) {
-        // Default to dialog behavior.
+        // Default to popup behavior.
         create_params.extension_host_type =
-            extensions::mojom::ViewType::kExtensionDialog;
+            extensions::mojom::ViewType::kExtensionPopup;
       }
 
       // Extension resources will fail to load if we don't use a SiteInstance
@@ -191,8 +191,7 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
 
   auto alloy_browser = static_cast<AlloyBrowserHostImpl*>(browser_);
 
-  if (host_type == extensions::mojom::ViewType::kExtensionDialog ||
-      host_type == extensions::mojom::ViewType::kExtensionPopup) {
+  if (host_type == extensions::mojom::ViewType::kExtensionPopup) {
     // Create an extension host that we own.
     extension_host_ = new extensions::CefExtensionViewHost(
         alloy_browser, extension, web_contents_, url, host_type);

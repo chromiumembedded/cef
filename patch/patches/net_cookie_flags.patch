@@ -1,19 +1,19 @@
 diff --git net/base/load_flags_list.h net/base/load_flags_list.h
-index 4fc3870bcfbc8..24c6d32d4a8d8 100644
+index 17b1395583e24..9b41b21f42b1f 100644
 --- net/base/load_flags_list.h
 +++ net/base/load_flags_list.h
-@@ -110,3 +110,6 @@ LOAD_FLAG(CAN_USE_SHARED_DICTIONARY, 1 << 17)
- // Indicates that CAN_USE_SHARED_DICTIONARY must be disabled after a redirect to
- // another origin.
- LOAD_FLAG(DISABLE_SHARED_DICTIONARY_AFTER_CROSS_ORIGIN_REDIRECT, 1 << 18)
+@@ -114,3 +114,6 @@ LOAD_FLAG(DISABLE_SHARED_DICTIONARY_AFTER_CROSS_ORIGIN_REDIRECT, 1 << 18)
+ // This flag is used to bypass HSTS upgrades. This flag must be set for AIA,
+ // CRL, and OCSP requests in order to prevent circular dependencies.
+ LOAD_FLAG(SHOULD_BYPASS_HSTS, 1 << 19)
 +
 +// This load will not send any cookies. For CEF usage.
-+LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 19)
++LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 20)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index db9ca10ea0f1c..48af940fa0571 100644
+index 689818d34e56e..c4d897053b7e4 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -1797,7 +1797,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -1808,7 +1808,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
@@ -24,10 +24,10 @@ index db9ca10ea0f1c..48af940fa0571 100644
  
  bool URLRequestHttpJob::IsPartitionedCookiesEnabled() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 14049395fbc56..f56bfb60e693e 100644
+index 2a309fe2b1dd6..4e8dcaf0e2608 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
-@@ -311,7 +311,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+@@ -312,7 +312,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
  }
  
  bool ResourceRequest::SendsCookies() const {

@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index c4c7b83733167..3a22deb1cdb19 100644
+index fdbc3e45a8380..3fd34f6264120 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
@@ -21,7 +21,7 @@ index c4c7b83733167..3a22deb1cdb19 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -358,6 +363,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -356,6 +361,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -34,7 +34,7 @@ index c4c7b83733167..3a22deb1cdb19 100644
  }
  
 diff --git chrome/browser/printing/print_preview_dialog_controller.cc chrome/browser/printing/print_preview_dialog_controller.cc
-index c7ba18ac2081e..2d5dbe156d335 100644
+index 54efe456fd86e..a685c4e0722cc 100644
 --- chrome/browser/printing/print_preview_dialog_controller.cc
 +++ chrome/browser/printing/print_preview_dialog_controller.cc
 @@ -16,6 +16,7 @@
@@ -62,7 +62,7 @@ index 5d1658999d5bb..d1b7b7288c946 100644
        $i18n{cancel}
      </cr-button>
 diff --git chrome/browser/ui/webui/constrained_web_dialog_ui.cc chrome/browser/ui/webui/constrained_web_dialog_ui.cc
-index d5767fe27db0d..5778847a68208 100644
+index c85248ab0d0a0..05b3454c0356d 100644
 --- chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 +++ chrome/browser/ui/webui/constrained_web_dialog_ui.cc
 @@ -13,6 +13,7 @@
@@ -70,10 +70,10 @@ index d5767fe27db0d..5778847a68208 100644
  #include "base/memory/raw_ptr.h"
  #include "base/values.h"
 +#include "cef/libcef/features/runtime.h"
- #include "content/public/browser/notification_service.h"
  #include "content/public/browser/render_frame_host.h"
  #include "content/public/browser/web_contents.h"
-@@ -57,7 +58,9 @@ class ConstrainedWebDialogDelegateUserData
+ #include "content/public/browser/web_ui.h"
+@@ -56,7 +57,9 @@ class ConstrainedWebDialogDelegateUserData
  ConstrainedWebDialogUI::ConstrainedWebDialogUI(content::WebUI* web_ui)
      : WebUIController(web_ui) {
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -84,10 +84,10 @@ index d5767fe27db0d..5778847a68208 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index 363b7f7037532..2ac23b428fbea 100644
+index f1a9d46a70ffb..2cf6c5aefa1c7 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-@@ -24,6 +24,7 @@
+@@ -25,6 +25,7 @@
  #include "base/values.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -95,7 +95,7 @@ index 363b7f7037532..2ac23b428fbea 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
  #include "chrome/browser/pdf/pdf_extension_util.h"
-@@ -106,6 +107,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
+@@ -107,6 +108,13 @@ const char16_t kBasicPrintShortcut[] = u"(\u2325\u2318P)";
  const char16_t kBasicPrintShortcut[] = u"(Ctrl+Shift+P)";
  #endif
  
@@ -109,7 +109,7 @@ index 363b7f7037532..2ac23b428fbea 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageIndexForDidPreviewPage[] =
-@@ -299,7 +307,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -300,7 +308,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

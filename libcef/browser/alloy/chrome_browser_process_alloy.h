@@ -106,6 +106,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   resource_coordinator::TabManager* GetTabManager() override;
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
+  os_crypt_async::OSCryptAsync* os_crypt_async() override;
   BuildState* GetBuildState() override;
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
   HidSystemTrayIcon* hid_system_tray_icon() override;

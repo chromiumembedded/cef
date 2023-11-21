@@ -731,9 +731,8 @@ void StreamReaderURLLoader::ReadMore() {
   DCHECK(thread_checker_.CalledOnValidThread());
   DCHECK(!pending_buffer_.get());
 
-  uint32_t num_bytes;
   MojoResult mojo_result = network::NetToMojoPendingBuffer::BeginWrite(
-      &producer_handle_, &pending_buffer_, &num_bytes);
+      &producer_handle_, &pending_buffer_);
   if (mojo_result == MOJO_RESULT_SHOULD_WAIT) {
     // The pipe is full. We need to wait for it to have more space.
     writable_handle_watcher_.ArmOrNotify();
@@ -759,7 +758,7 @@ void StreamReaderURLLoader::ReadMore() {
   }
 
   input_stream_reader_->Read(
-      buffer, base::checked_cast<int>(num_bytes),
+      buffer, base::checked_cast<int>(pending_buffer_->size()),
       base::BindOnce(&StreamReaderURLLoader::OnReaderReadCompleted,
                      weak_factory_.GetWeakPtr()));
 }

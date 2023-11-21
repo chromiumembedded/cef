@@ -4,6 +4,14 @@
 
 #include "libcef/browser/views/window_view.h"
 
+#if BUILDFLAG(IS_LINUX)
+#include "ui/ozone/buildflags.h"
+#if BUILDFLAG(OZONE_PLATFORM_X11)
+// Include first due to redefinition of x11::EventMask.
+#include "ui/base/x/x11_util.h"
+#endif
+#endif
+
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/geometry_util.h"
 #include "libcef/browser/image_impl.h"
@@ -16,9 +24,7 @@
 #include "ui/views/window/native_frame_view.h"
 
 #if BUILDFLAG(IS_LINUX)
-#include "ui/ozone/buildflags.h"
 #if BUILDFLAG(OZONE_PLATFORM_X11)
-#include "ui/base/x/x11_util.h"
 #include "ui/gfx/x/x11_atom_cache.h"
 #include "ui/gfx/x/xproto_util.h"
 #include "ui/linux/linux_ui_delegate.h"

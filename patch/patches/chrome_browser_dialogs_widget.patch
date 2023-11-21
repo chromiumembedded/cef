@@ -120,10 +120,10 @@ index 51ed6bcf6b540..c6e1161140655 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 5a69839dd683d..b217b537eba4c 100644
+index 89942cb82dee4..ce30f3bb93fc0 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -59,10 +59,12 @@ DialogDelegate::DialogDelegate() {
+@@ -60,10 +60,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -138,7 +138,7 @@ index 5a69839dd683d..b217b537eba4c 100644
    widget->Init(std::move(params));
    return widget;
  }
-@@ -71,17 +73,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -72,17 +74,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -162,7 +162,7 @@ index 5a69839dd683d..b217b537eba4c 100644
  #else
    return true;
  #endif
-@@ -92,14 +96,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -93,14 +97,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -180,7 +180,7 @@ index 5a69839dd683d..b217b537eba4c 100644
  
    if (!dialog || dialog->use_custom_frame()) {
      params.opacity = Widget::InitParams::WindowOpacity::kTranslucent;
-@@ -112,6 +117,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -113,6 +118,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;

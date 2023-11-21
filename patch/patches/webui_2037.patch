@@ -1,8 +1,8 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index a7ab5cf0c3cd0..8a8014df43457 100644
+index 44d34bbffa88f..39ca99524dda6 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-@@ -18,10 +18,12 @@
+@@ -19,10 +19,12 @@
  #include "base/strings/string_util.h"
  #include "base/system/sys_info.h"
  #include "base/task/thread_pool.h"
@@ -15,7 +15,7 @@ index a7ab5cf0c3cd0..8a8014df43457 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/google/google_brand.h"
-@@ -422,7 +424,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -425,7 +427,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
@@ -28,7 +28,7 @@ index a7ab5cf0c3cd0..8a8014df43457 100644
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
  #if BUILDFLAG(IS_WIN)
-@@ -504,8 +510,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -513,8 +519,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
@@ -41,7 +41,7 @@ index a7ab5cf0c3cd0..8a8014df43457 100644
    std::string extensions_list;
    for (const scoped_refptr<const extensions::Extension>& extension :
         extension_registry->enabled_extensions()) {
-@@ -606,6 +616,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -615,6 +625,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if BUILDFLAG(IS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {

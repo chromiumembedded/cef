@@ -20,6 +20,7 @@
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
+#include "chrome/browser/first_party_sets/first_party_sets_pref_names.h"
 #include "chrome/browser/media/router/discovery/access_code/access_code_cast_feature.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
@@ -55,7 +56,7 @@
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "components/privacy_sandbox/tracking_protection_prefs.h"
+#include "components/privacy_sandbox/privacy_sandbox_prefs.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
@@ -269,7 +270,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     permissions::PermissionHatsTriggerHelper::RegisterProfilePrefs(
         registry.get());
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
-    privacy_sandbox::tracking_protection::RegisterProfilePrefs(registry.get());
+    privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());
@@ -344,6 +345,11 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                     base::Value(accept_language_list));
     }
     registry->RegisterListPref(prefs::kWebRtcLocalIpsAllowedUrls);
+
+    // First party sets preferences.
+    // Based on FirstPartySetsPolicyServiceFactory::RegisterProfilePrefs.
+    registry->RegisterDictionaryPref(
+        first_party_sets::kRelatedWebsiteSetsOverrides);
 
     // Always do this after all other profile prefs.
     RegisterProfilePrefs(registry.get());

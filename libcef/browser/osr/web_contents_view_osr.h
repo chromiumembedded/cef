@@ -66,7 +66,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void SetOverscrollControllerEnabled(bool enabled) override {}
   void OnCapturerCountChanged() override {}
   void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override {}
-  void CancelDragDropForPortalActivation() override {}
+  void TransferDragSecurityInfo(content::WebContentsView* view) override {}
 
 #if BUILDFLAG(IS_MAC)
   bool CloseTabAfterEventTrackingIfNeeded() override { return false; }

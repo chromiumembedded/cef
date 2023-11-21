@@ -1,8 +1,8 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 0c63e0d59b6b0..bdbac6fceb1df 100644
+index e4e7ac767c927..7c1fd1eda14b1 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -47,9 +47,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
@@ -18,7 +18,7 @@ index 0c63e0d59b6b0..bdbac6fceb1df 100644
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -58,7 +63,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -57,7 +62,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -30,10 +30,10 @@ index 0c63e0d59b6b0..bdbac6fceb1df 100644
      gpu::SurfaceHandle child_window) {
    NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 5eeaadec9773f..93a716decfbb9 100644
+index fa7f12e204cda..4706e1d19868a 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -42,16 +42,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    gfx::AcceleratedWidget widget() const { return widget_; }
  #endif
  
@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index d3a1ba02c0924..cf74aba62b079 100644
+index 9e66224b5cdb1..c7dee3b3fe7c9 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -230,6 +230,8 @@ viz_component("service") {
+@@ -228,6 +228,8 @@ viz_component("service") {
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
      "viz_service_export.h",
@@ -150,10 +150,10 @@ index 796ae2688436e..37a3406790210 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index c34c0854efeec..7b51180b6d8ac 100644
+index 2705338b960a4..94d030c3a2154 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -393,8 +393,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -397,8 +397,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -170,10 +170,10 @@ index c34c0854efeec..7b51180b6d8ac 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index d63ec55ae38d6..ff86831efd68b 100644
+index 2b923566128b9..37c28f2978527 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -42,6 +42,7 @@ class Compositor;
+@@ -43,6 +43,7 @@ class Compositor;
  }  // namespace ui
  
  namespace viz {
@@ -181,7 +181,7 @@ index d63ec55ae38d6..ff86831efd68b 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -118,6 +119,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -125,6 +126,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
@@ -191,7 +191,7 @@ index d63ec55ae38d6..ff86831efd68b 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 29936bca703b8..8ffe0f5509475 100644
+index 62f98959d80cf..7c988630b4bc6 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -108,13 +108,15 @@ interface DisplayPrivate {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index c9f14ed6547ba..f4a3da53f53ef 100644
+index 456adfeb57253..59a553cbb1f28 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -33,7 +33,9 @@
@@ -236,7 +236,7 @@ index c9f14ed6547ba..f4a3da53f53ef 100644
  #include "mojo/public/cpp/bindings/associated_remote.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
-@@ -145,6 +147,14 @@ class COMPOSITOR_EXPORT ContextFactory {
+@@ -149,6 +151,14 @@ class COMPOSITOR_EXPORT ContextFactory {
    virtual viz::HostFrameSinkManager* GetHostFrameSinkManager() = 0;
  };
  
@@ -251,7 +251,7 @@ index c9f14ed6547ba..f4a3da53f53ef 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -188,6 +198,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -192,6 +202,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -261,7 +261,7 @@ index c9f14ed6547ba..f4a3da53f53ef 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -525,6 +538,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -533,6 +546,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

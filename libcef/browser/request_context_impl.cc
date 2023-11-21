@@ -25,6 +25,7 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "net/dns/host_resolver.h"
 #include "services/network/public/cpp/resolve_host_client_base.h"
+#include "services/network/public/mojom/clear_data_filter.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 
 using content::BrowserThread;
@@ -764,6 +765,7 @@ void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(
 
   browser_context->GetNetworkContext()->ClearHttpAuthCache(
       /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
+      /*filter=*/nullptr,
       base::BindOnce(&CefCompletionCallback::OnComplete, callback));
 }
 

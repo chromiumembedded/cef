@@ -360,12 +360,14 @@ AlloyContentBrowserClient::CreateBrowserMainParts(
 
 void AlloyContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-  const int id = host->GetID();
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
+#if BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
   if (extensions::ExtensionsEnabled()) {
-    host->AddFilter(new extensions::ExtensionMessageFilter(id, profile));
+    host->AddFilter(
+        new extensions::ExtensionMessageFilter(host->GetID(), profile));
   }
+#endif
 
   // If the renderer process crashes then the host may already have
   // CefBrowserInfoManager as an observer. Try to remove it first before adding

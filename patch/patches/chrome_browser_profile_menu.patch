@@ -59,10 +59,10 @@ index f5f266328283d..672609d94d1b7 100644
  
    base::RecordAction(base::UserMetricsAction("IncognitoMenu_Show"));
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 521991e8e47ff..76f00e99336ee 100644
+index 9410144d268a2..49866ff94ffbf 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -52,7 +52,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
+@@ -54,7 +54,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
    is_incognito &= !browser.profile()->IsGuestSession();
  #endif
  

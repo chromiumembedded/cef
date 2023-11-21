@@ -29,9 +29,8 @@ CefExtensionViewHost::CefExtensionViewHost(AlloyBrowserHostImpl* browser,
                     host_contents,
                     url,
                     host_type) {
-  // Only used for dialogs and popups.
-  DCHECK(host_type == mojom::ViewType::kExtensionDialog ||
-         host_type == mojom::ViewType::kExtensionPopup);
+  // Only used for popups.
+  DCHECK(host_type == mojom::ViewType::kExtensionPopup);
 }
 
 CefExtensionViewHost::~CefExtensionViewHost() {}

@@ -406,6 +406,11 @@ ChromeBrowserProcessAlloy::resource_coordinator_parts() {
   return nullptr;
 }
 
+os_crypt_async::OSCryptAsync* ChromeBrowserProcessAlloy::os_crypt_async() {
+  DCHECK(false);
+  return nullptr;
+}
+
 BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
   DCHECK(false);
   return nullptr;

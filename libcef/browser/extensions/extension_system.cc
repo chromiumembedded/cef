@@ -42,6 +42,7 @@
 #include "extensions/browser/service_worker_manager.h"
 #include "extensions/browser/state_store.h"
 #include "extensions/browser/unloaded_extension_reason.h"
+#include "extensions/browser/user_script_manager.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_messages.h"
 #include "extensions/common/file_util.h"
@@ -397,9 +398,11 @@ void CefExtensionSystem::Shutdown() {
 
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   DCHECK(!initialized_);
-  service_worker_manager_.reset(new ServiceWorkerManager(browser_context_));
-  quota_service_.reset(new QuotaService);
-  app_sorting_.reset(new NullAppSorting);
+  service_worker_manager_ =
+      std::make_unique<ServiceWorkerManager>(browser_context_);
+  quota_service_ = std::make_unique<QuotaService>();
+  app_sorting_ = std::make_unique<NullAppSorting>();
+  user_script_manager_ = std::make_unique<UserScriptManager>(browser_context_);
 }
 
 ExtensionService* CefExtensionSystem::extension_service() {
@@ -415,7 +418,7 @@ ServiceWorkerManager* CefExtensionSystem::service_worker_manager() {
 }
 
 UserScriptManager* CefExtensionSystem::user_script_manager() {
-  return nullptr;
+  return user_script_manager_.get();
 }
 
 StateStore* CefExtensionSystem::state_store() {

@@ -228,6 +228,10 @@ def GetRecommendedDefaultArgs():
       # CefV8Value::CreateArrayBuffer with memory allocated outside of the V8
       # sandbox. See https://github.com/chromiumembedded/cef/issues/3332.
       'v8_enable_sandbox': False,
+
+      # Disable downgrade processing/restart with the Chrome runtime.
+      # https://github.com/chromiumembedded/cef/issues/3608
+      'enable_downgrade_processing': False,
   }
 
   if platform == 'windows' or platform == 'mac':

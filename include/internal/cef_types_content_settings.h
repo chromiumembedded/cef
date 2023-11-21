@@ -380,6 +380,10 @@ typedef enum {
   /// permission request.
   CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_ACCESS_EXTENDED_PERMISSION,
 
+  /// Content Setting for temporary 3PC accesses granted by user behavior
+  /// heuristics.
+  CEF_CONTENT_SETTING_TYPE_TPCD_HEURISTICS_GRANTS,
+
   CEF_CONTENT_SETTING_TYPE_NUM_TYPES,
 } cef_content_setting_types_t;
 

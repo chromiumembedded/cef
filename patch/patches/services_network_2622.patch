@@ -21,7 +21,7 @@ index 0a6c1f498b8fc..79e0cf27a7715 100644
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 1200475275e91..d32195f01c7ed 100644
+index 9a777bb144d00..b6eeebc040351 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -22,6 +22,7 @@
@@ -32,7 +32,7 @@ index 1200475275e91..d32195f01c7ed 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -320,8 +321,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -272,8 +273,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
@@ -45,7 +45,7 @@ index 1200475275e91..d32195f01c7ed 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -480,6 +483,9 @@ void ProfileNetworkContextService::OnTruncatedCookieBlockingChanged() {
+@@ -442,6 +445,9 @@ void ProfileNetworkContextService::OnTruncatedCookieBlockingChanged() {
  
  void ProfileNetworkContextService::OnFirstPartySetsEnabledChanged(
      bool enabled) {
@@ -55,7 +55,7 @@ index 1200475275e91..d32195f01c7ed 100644
    // Update all FPS Access Delegates on the FPS service to be `enabled`.
    first_party_sets::FirstPartySetsPolicyServiceFactory::GetForBrowserContext(
        profile_)
-@@ -866,9 +872,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -817,9 +823,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -83,7 +83,7 @@ index 1200475275e91..d32195f01c7ed 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -877,15 +900,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -828,15 +851,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -103,7 +103,7 @@ index 1200475275e91..d32195f01c7ed 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
-@@ -1038,6 +1060,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -989,6 +1011,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->block_trust_tokens =
        anti_abuse_content_setting == CONTENT_SETTING_BLOCK;
  
@@ -111,7 +111,7 @@ index 1200475275e91..d32195f01c7ed 100644
    network_context_params->first_party_sets_access_delegate_params =
        network::mojom::FirstPartySetsAccessDelegateParams::New();
    network_context_params->first_party_sets_access_delegate_params->enabled =
-@@ -1054,6 +1077,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1005,6 +1028,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
            GetForBrowserContext(profile_);
    DCHECK(fps_service);
    fps_service->AddRemoteAccessDelegate(std::move(fps_access_delegate_remote));
@@ -223,10 +223,10 @@ index 61fd008fc067e..73909be088278 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 6c804ec1092af..605ff3b32b0b8 100644
+index bcc62a6f41379..b0e052349ad35 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -297,14 +297,9 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -303,14 +303,9 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -245,10 +245,10 @@ index 6c804ec1092af..605ff3b32b0b8 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 0a0fa8772cab9..e581302c76db1 100644
+index 344fb45470747..100c815cf3db4 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2509,16 +2509,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2528,16 +2528,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -277,10 +277,10 @@ index 0a0fa8772cab9..e581302c76db1 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 3d95f8cd1adeb..8a2fa92c7eb5e 100644
+index 88fc9ddba7fff..9a50865fa2d14 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -376,6 +376,9 @@ struct NetworkContextParams {
+@@ -371,6 +371,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

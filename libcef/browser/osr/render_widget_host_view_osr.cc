@@ -263,12 +263,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     GetTextInputManager()->AddObserver(this);
   }
 
-  if (render_widget_host_->delegate() &&
-      render_widget_host_->delegate()->GetInputEventRouter()) {
-    render_widget_host_->delegate()->GetInputEventRouter()->AddFrameSinkIdOwner(
-        GetFrameSinkId(), this);
-  }
-
   if (browser_impl_ && !parent_host_view_) {
     // For child/popup views this will be called from the associated InitAs*()
     // method.

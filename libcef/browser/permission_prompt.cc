@@ -128,6 +128,7 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
   absl::optional<gfx::Rect> GetViewBoundsInScreen() const override {
     return absl::nullopt;
   }
+  bool ShouldFinalizeRequestAfterDecided() const override { return true; }
 
  private:
   // We don't expose AcceptThisTime() because it's a special case for
@@ -224,6 +225,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_VR_SESSION;
     case permissions::RequestType::kWindowManagement:
       return CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT;
+    case permissions::RequestType::kFileSystemAccess:
+      return CEF_PERMISSION_TYPE_FILE_SYSTEM_ACCESS;
   }
 
   DCHECK(false);
