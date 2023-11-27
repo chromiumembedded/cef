@@ -12,10 +12,10 @@ index 34cacda8ef225..e0465b8ac1185 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 75cc859b67292..6b565adaef9c7 100644
+index 19f6f2a31b7ad..a2214012ce641 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -752,6 +752,22 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
+@@ -753,6 +753,22 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
                : nullptr,
            &loader_factory);
  
@@ -39,10 +39,10 @@ index 75cc859b67292..6b565adaef9c7 100644
          factory = base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
              std::move(loader_factory));
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index dcdc54f90f114..cc4d517b22809 100644
+index 86e81bb8b922c..63bff74ab4621 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -1067,7 +1067,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -1077,7 +1077,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -51,7 +51,7 @@ index dcdc54f90f114..cc4d517b22809 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -1076,6 +1076,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -1086,6 +1086,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -60,7 +60,7 @@ index dcdc54f90f114..cc4d517b22809 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 06e22b37dfbce..95f433c7c2a5e 100644
+index 5298101d6dbf0..510ea90a8b186 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -40,6 +40,7 @@
@@ -71,7 +71,7 @@ index 06e22b37dfbce..95f433c7c2a5e 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -1961,7 +1962,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1991,7 +1992,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -80,7 +80,7 @@ index 06e22b37dfbce..95f433c7c2a5e 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2175,6 +2176,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2205,6 +2206,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -100,7 +100,7 @@ index 06e22b37dfbce..95f433c7c2a5e 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2232,6 +2246,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2262,6 +2276,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

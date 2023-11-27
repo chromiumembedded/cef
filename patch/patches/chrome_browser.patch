@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index bce36d7ffb408..33fdb680fb20a 100644
+index 44d3b5e543101..09b095cffd89e 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -20,7 +20,7 @@ index bce36d7ffb408..33fdb680fb20a 100644
      flags += [ "ENABLE_PROCESS_SINGLETON=0" ]
    } else {
      flags += [ "ENABLE_PROCESS_SINGLETON=1" ]
-@@ -2073,6 +2075,7 @@ static_library("browser") {
+@@ -2075,6 +2077,7 @@ static_library("browser") {
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -28,7 +28,7 @@ index bce36d7ffb408..33fdb680fb20a 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2729,6 +2732,10 @@ static_library("browser") {
+@@ -2731,6 +2734,10 @@ static_library("browser") {
      ]
    }
  

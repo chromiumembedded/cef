@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index eab88872f0cee..de1775aa46b7d 100644
+index 63eafd910dad5..1abd7d266c244 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3448,6 +3448,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -99,7 +99,7 @@ index 3707858d0af59..58f794f35608a 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index a3da78805b9bc..982e63aee498b 100644
+index 253f028c108b2..81fb346dae241 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -59,9 +59,11 @@ class EyeDropperListener;
