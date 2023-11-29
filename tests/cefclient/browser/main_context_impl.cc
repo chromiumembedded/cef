@@ -46,14 +46,6 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       terminate_when_all_windows_closed_(terminate_when_all_windows_closed) {
   DCHECK(command_line_.get());
 
-  // Set the main URL.
-  if (command_line_->HasSwitch(switches::kUrl)) {
-    main_url_ = command_line_->GetSwitchValue(switches::kUrl);
-  }
-  if (main_url_.empty()) {
-    main_url_ = kDefaultUrl;
-  }
-
   // Whether windowless (off-screen) rendering will be used.
   use_windowless_rendering_ =
       command_line_->HasSwitch(switches::kOffScreenRenderingEnabled);
@@ -127,12 +119,6 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 #endif  // !(defined(OS_WIN) || defined(OS_LINUX))
 
-  if (use_views_ && command_line->HasSwitch(switches::kHideFrame) &&
-      !command_line_->HasSwitch(switches::kUrl)) {
-    // Use the draggable regions test as the default URL for frameless windows.
-    main_url_ = test_runner::GetTestURL("draggable");
-  }
-
   if (command_line_->HasSwitch(switches::kBackgroundColor)) {
     // Parse the background color value.
     background_color_ =
@@ -159,12 +145,28 @@ MainContextImpl::~MainContextImpl() {
   DCHECK(!initialized_ || shutdown_);
 }
 
+CefRefPtr<CefCommandLine> MainContextImpl::GetCommandLine() {
+  return command_line_;
+}
+
 std::string MainContextImpl::GetConsoleLogPath() {
   return GetAppWorkingDirectory() + "console.log";
 }
 
-std::string MainContextImpl::GetMainURL() {
-  return main_url_;
+std::string MainContextImpl::GetMainURL(
+    CefRefPtr<CefCommandLine> command_line) {
+  if (!command_line) {
+    command_line = command_line_;
+  }
+
+  std::string main_url = kDefaultUrl;
+  if (command_line->HasSwitch(switches::kUrl)) {
+    main_url = command_line->GetSwitchValue(switches::kUrl);
+  } else if (use_views_ && command_line->HasSwitch(switches::kHideFrame)) {
+    // Use the draggable regions test as the default URL for frameless windows.
+    main_url = test_runner::GetTestURL("draggable");
+  }
+  return main_url;
 }
 
 cef_color_t MainContextImpl::GetBackgroundColor() {

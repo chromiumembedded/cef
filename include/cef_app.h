@@ -67,10 +67,13 @@ int CefExecuteProcess(const CefMainArgs& args,
 
 ///
 /// This function should be called on the main application thread to initialize
-/// the CEF browser process. The |application| parameter may be empty. A return
-/// value of true indicates that it succeeded and false indicates that it
-/// failed. The |windows_sandbox_info| parameter is only used on Windows and may
-/// be NULL (see cef_sandbox_win.h for details).
+/// the CEF browser process. The |application| parameter may be empty. Returns
+/// true if initialization succeeds. Returns false if initialization fails or if
+/// early exit is desired (for example, due to process singleton relaunch
+/// behavior). If this function returns false then the application should exit
+/// immediately without calling any other CEF functions. The
+/// |windows_sandbox_info| parameter is only used on Windows and may be NULL
+/// (see cef_sandbox_win.h for details).
 ///
 /*--cef(api_hash_check,optional_param=application,
         optional_param=windows_sandbox_info)--*/
@@ -81,7 +84,8 @@ bool CefInitialize(const CefMainArgs& args,
 
 ///
 /// This function should be called on the main application thread to shut down
-/// the CEF browser process before the application exits.
+/// the CEF browser process before the application exits. Do not call any
+/// other CEF functions after calling this function.
 ///
 /*--cef()--*/
 void CefShutdown();

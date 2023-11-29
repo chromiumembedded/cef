@@ -15,9 +15,15 @@
 class CefCommandLineImpl
     : public CefValueBase<CefCommandLine, base::CommandLine> {
  public:
+  // If |will_delete=false| make sure to call |std::ignore =
+  // obj->Detach(nullptr);| to invalidate this object when the client should no
+  // longer be accessing it.
   CefCommandLineImpl(base::CommandLine* value,
                      bool will_delete,
                      bool read_only);
+
+  // Shortcut for |will_delete=false|, |read_only=true|.
+  explicit CefCommandLineImpl(const base::CommandLine& value);
 
   CefCommandLineImpl(const CefCommandLineImpl&) = delete;
   CefCommandLineImpl& operator=(const CefCommandLineImpl&) = delete;

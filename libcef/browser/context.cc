@@ -307,8 +307,15 @@ bool CefInitialize(const CefMainArgs& args,
   g_context = new CefContext();
 
   // Initialize the global context.
-  return g_context->Initialize(args, settings, application,
-                               windows_sandbox_info);
+  if (!g_context->Initialize(args, settings, application,
+                             windows_sandbox_info)) {
+    // Initialization failed. Delete the global context object.
+    delete g_context;
+    g_context = nullptr;
+    return false;
+  }
+
+  return true;
 }
 
 void CefShutdown() {
@@ -469,10 +476,16 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   main_runner_.reset(new CefMainRunner(settings_.multi_threaded_message_loop,
                                        settings_.external_message_pump));
-  return main_runner_->Initialize(
-      &settings_, application, args, windows_sandbox_info, &initialized_,
-      base::BindOnce(&CefContext::OnContextInitialized,
-                     base::Unretained(this)));
+  if (!main_runner_->Initialize(
+          &settings_, application, args, windows_sandbox_info, &initialized_,
+          base::BindOnce(&CefContext::OnContextInitialized,
+                         base::Unretained(this)))) {
+    shutting_down_ = true;
+    FinalizeShutdown();
+    return false;
+  }
+
+  return true;
 }
 
 void CefContext::RunMessageLoop() {

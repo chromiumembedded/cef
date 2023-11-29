@@ -36,6 +36,7 @@ class RootWindowManager : public RootWindow::Delegate {
   // This method is called from ClientHandler::CreatePopupWindow() to
   // create a new popup or DevTools window. Must be called on the UI thread.
   scoped_refptr<RootWindow> CreateRootWindowAsPopup(
+      scoped_refptr<RootWindow> parent_window,
       bool with_controls,
       bool with_osr,
       const CefPopupFeatures& popupFeatures,

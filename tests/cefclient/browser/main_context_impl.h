@@ -23,10 +23,11 @@ class MainContextImpl : public MainContext {
                   bool terminate_when_all_windows_closed);
 
   // MainContext members.
+  CefRefPtr<CefCommandLine> GetCommandLine() override;
   std::string GetConsoleLogPath() override;
   std::string GetDownloadPath(const std::string& file_name) override;
   std::string GetAppWorkingDirectory() override;
-  std::string GetMainURL() override;
+  std::string GetMainURL(CefRefPtr<CefCommandLine> command_line) override;
   cef_color_t GetBackgroundColor() override;
   bool UseChromeRuntime() override;
   bool UseChromeRuntimeNative() override;
@@ -69,7 +70,6 @@ class MainContextImpl : public MainContext {
   bool initialized_ = false;
   bool shutdown_ = false;
 
-  std::string main_url_;
   cef_color_t background_color_ = 0;
   cef_color_t browser_background_color_ = 0;
   bool use_windowless_rendering_;

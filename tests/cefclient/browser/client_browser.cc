@@ -11,6 +11,8 @@
 #include "include/cef_file_util.h"
 #include "tests/cefclient/browser/client_prefs.h"
 #include "tests/cefclient/browser/default_client_handler.h"
+#include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
@@ -60,6 +62,20 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
     if (client::MainContext::Get()->TouchEventsEnabled()) {
       command_line->AppendSwitchWithValue("touch-events", "enabled");
     }
+  }
+
+  bool OnAlreadyRunningAppRelaunch(
+      CefRefPtr<ClientAppBrowser> app,
+      CefRefPtr<CefCommandLine> command_line,
+      const CefString& current_directory) override {
+    // Create a new root window based on |command_line|.
+    auto config = std::make_unique<RootWindowConfig>(command_line->Copy());
+
+    MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+        std::move(config));
+
+    // Relaunch was handled.
+    return true;
   }
 
   CefRefPtr<CefClient> GetDefaultClient(

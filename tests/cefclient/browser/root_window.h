@@ -13,6 +13,7 @@
 #include "include/base/cef_callback_forward.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_browser.h"
+#include "include/cef_command_line.h"
 #include "include/views/cef_window.h"
 #include "tests/cefclient/browser/client_types.h"
 #include "tests/cefclient/browser/image_cache.h"
@@ -35,7 +36,13 @@ enum class WindowType {
 
 // Used to configure how a RootWindow is created.
 struct RootWindowConfig {
-  RootWindowConfig();
+  // |command_line| will be non-nullptr when used for new window creation
+  // via OnAlreadyRunningAppRelaunch (chrome runtime only). Otherwise, the
+  // global command-line will be used.
+  RootWindowConfig(CefRefPtr<CefCommandLine> command_line = nullptr);
+
+  // Associated command-line.
+  CefRefPtr<CefCommandLine> command_line;
 
   // Configure the window type.
   WindowType window_type = WindowType::NORMAL;
@@ -59,18 +66,18 @@ struct RootWindowConfig {
   // Position of the UI element that triggered the window creation. If |bounds|
   // is empty and |source_bounds| is non-empty the new window will be positioned
   // relative to |source_bounds|. This is currently only implemented for Views-
-  // based windows when |initially_hidden| is also true.
+  // hosted windows when |initially_hidden| is also true.
   CefRect source_bounds;
 
   // Requested window show state. Only used when |bounds| is non-empty and
   // |initially_hidden| is false.
   cef_show_state_t show_state = CEF_SHOW_STATE_NORMAL;
 
-  // Parent window. Only used for Views-based windows.
+  // Parent window. Only used for Views-hosted windows.
   CefRefPtr<CefWindow> parent_window;
 
   // Callback to be executed when the window is closed. Will be executed on the
-  // main thread. This is currently only implemented for Views-based windows.
+  // main thread. This is currently only implemented for Views-hosted windows.
   base::OnceClosure close_callback;
 
   // Initial URL to load.
@@ -128,12 +135,18 @@ class RootWindow
   // Create a new RootWindow object. This method may be called on any thread.
   // Use RootWindowManager::CreateRootWindow() or CreateRootWindowAsPopup()
   // instead of calling this method directly. |use_views| will be true if the
-  // Views framework should be used.
-  static scoped_refptr<RootWindow> Create(bool use_views);
+  // Views framework should be used. |parent_window| will be non-nullptr for
+  // popup browsers with a RootWindow parent (on the UI thread only).
+  static scoped_refptr<RootWindow> Create(
+      bool use_views,
+      scoped_refptr<RootWindow> parent_window);
 
   // Returns the RootWindow associated with the specified |browser_id|. Must be
   // called on the main thread.
   static scoped_refptr<RootWindow> GetForBrowser(int browser_id);
+
+  // Returns true if the RootWindow is Views-hosted.
+  virtual bool IsViewsHosted() const { return false; }
 
   // Initialize as a normal window. This will create and show a native window
   // hosting a single browser instance. This method may be called on any thread.

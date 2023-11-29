@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9b523fbf312a8a0cb1c743a3c8aca7bc9cc22bbc$
+// $hash=692f2719fc029131ce17a7c90abca178daadb63e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -133,10 +133,13 @@ CEF_EXPORT int cef_execute_process(const cef_main_args_t* args,
 
 ///
 /// This function should be called on the main application thread to initialize
-/// the CEF browser process. The |application| parameter may be NULL. A return
-/// value of true (1) indicates that it succeeded and false (0) indicates that
-/// it failed. The |windows_sandbox_info| parameter is only used on Windows and
-/// may be NULL (see cef_sandbox_win.h for details).
+/// the CEF browser process. The |application| parameter may be NULL. Returns
+/// true (1) if initialization succeeds. Returns false (0) if initialization
+/// fails or if early exit is desired (for example, due to process singleton
+/// relaunch behavior). If this function returns false (0) then the application
+/// should exit immediately without calling any other CEF functions. The
+/// |windows_sandbox_info| parameter is only used on Windows and may be NULL
+/// (see cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
                               const struct _cef_settings_t* settings,
@@ -145,7 +148,8 @@ CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
 
 ///
 /// This function should be called on the main application thread to shut down
-/// the CEF browser process before the application exits.
+/// the CEF browser process before the application exits. Do not call any other
+/// CEF functions after calling this function.
 ///
 CEF_EXPORT void cef_shutdown(void);
 

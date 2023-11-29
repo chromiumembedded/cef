@@ -8,10 +8,14 @@
 
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/root_window_manager.h"
+#include "tests/shared/common/client_switches.h"
 
 namespace client {
 
-RootWindowConfig::RootWindowConfig() : url(MainContext::Get()->GetMainURL()) {}
+RootWindowConfig::RootWindowConfig(CefRefPtr<CefCommandLine> cmd)
+    : command_line(cmd ? cmd : MainContext::Get()->GetCommandLine()),
+      with_controls(!command_line->HasSwitch(switches::kHideControls)),
+      url(MainContext::Get()->GetMainURL(command_line)) {}
 
 RootWindow::RootWindow() : delegate_(nullptr) {}
 

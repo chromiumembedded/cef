@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 
 #include "libcef/browser/chrome/chrome_context_menu_handler.h"
+#include "libcef/browser/chrome/chrome_startup_browser_creator.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
@@ -12,6 +13,10 @@
 
 #include "base/task/thread_pool.h"
 #include "chrome/browser/profiles/profile.h"
+
+#if BUILDFLAG(IS_LINUX)
+#include "base/linux_util.h"
+#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/win/app_icon.h"
@@ -36,6 +41,18 @@ void ChromeBrowserMainExtraPartsCef::PostProfileInit(Profile* profile,
   // Create the global RequestContext.
   global_request_context_ =
       CefRequestContextImpl::CreateGlobalRequestContext(settings);
+}
+
+void ChromeBrowserMainExtraPartsCef::PostBrowserStart() {
+  // Register the callback before ChromeBrowserMainParts::PostBrowserStart
+  // allows ProcessSingleton to begin processing messages.
+  startup_browser_creator::RegisterProcessCommandLineCallback();
+
+#if BUILDFLAG(IS_LINUX)
+  // This may be called indirectly via StartupBrowserCreator::LaunchBrowser.
+  // Call it here before blocking is disallowed to avoid assertions.
+  base::GetLinuxDistro();
+#endif
 }
 
 void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {

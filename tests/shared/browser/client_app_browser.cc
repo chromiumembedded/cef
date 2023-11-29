@@ -94,11 +94,16 @@ void ClientAppBrowser::OnContextInitialized() {
   }
 }
 
-void ClientAppBrowser::OnBeforeChildProcessLaunch(
-    CefRefPtr<CefCommandLine> command_line) {
+bool ClientAppBrowser::OnAlreadyRunningAppRelaunch(
+    CefRefPtr<CefCommandLine> command_line,
+    const CefString& current_directory) {
   for (auto& delegate : delegates_) {
-    delegate->OnBeforeChildProcessLaunch(this, command_line);
+    if (delegate->OnAlreadyRunningAppRelaunch(this, command_line,
+                                              current_directory)) {
+      return true;
+    }
   }
+  return false;
 }
 
 void ClientAppBrowser::OnScheduleMessagePumpWork(int64_t delay) {

@@ -22,7 +22,17 @@ static const char* kDefaultImageCache[] = {"menu_icon", "window_icon"};
 
 }  // namespace
 
-RootWindowViews::RootWindowViews() = default;
+RootWindowViews::RootWindowViews(RootWindowViews* parent_window) {
+  // |parent_window| will be non-nullptr for popups only.
+  if (parent_window) {
+    CEF_REQUIRE_UI_THREAD();
+
+    // Initialize |config_| for values that are not passed to InitAsPopup().
+    config_ = std::make_unique<RootWindowConfig>(
+        parent_window->config_->command_line);
+    DCHECK(config_->command_line);
+  }
+}
 
 RootWindowViews::~RootWindowViews() {
   REQUIRE_MAIN_THREAD();
@@ -38,6 +48,7 @@ void RootWindowViews::Init(RootWindow::Delegate* delegate,
                            std::unique_ptr<RootWindowConfig> config,
                            const CefBrowserSettings& settings) {
   DCHECK(delegate);
+  DCHECK(config->command_line);
   DCHECK(!config->with_osr);  // Windowless rendering is not supported.
   DCHECK(!initialized_);
 
@@ -65,7 +76,9 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
   DCHECK(!initialized_);
 
   delegate_ = delegate;
-  config_ = std::make_unique<RootWindowConfig>();
+
+  // |config_| should be created in the constructor.
+  DCHECK(config_);
   config_->with_controls = with_controls;
 
   if (popupFeatures.xSet) {
@@ -556,7 +569,7 @@ void RootWindowViews::CreateViewsWindow(
 
   // Create the ViewsWindow. It will show itself after creation.
   ViewsWindow::Create(config_->window_type, this, client_handler_, config_->url,
-                      settings, request_context);
+                      settings, request_context, config_->command_line);
 }
 
 void RootWindowViews::NotifyViewsWindowDestroyed() {

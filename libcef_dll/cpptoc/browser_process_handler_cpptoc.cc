@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5b13f3f4cac21266cab10ca5153ccebe99d6869b$
+// $hash=257c836d87c9caa665028dde1ff768569bef816b$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
@@ -79,6 +79,33 @@ void CEF_CALLBACK browser_process_handler_on_before_child_process_launch(
       CefCommandLineCToCpp::Wrap(command_line));
 }
 
+int CEF_CALLBACK browser_process_handler_on_already_running_app_relaunch(
+    struct _cef_browser_process_handler_t* self,
+    struct _cef_command_line_t* command_line,
+    const cef_string_t* current_directory) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: command_line; type: refptr_diff
+  DCHECK(command_line);
+  if (!command_line) {
+    return 0;
+  }
+  // Unverified params: current_directory
+
+  // Execute
+  bool _retval =
+      CefBrowserProcessHandlerCppToC::Get(self)->OnAlreadyRunningAppRelaunch(
+          CefCommandLineCToCpp::Wrap(command_line),
+          CefString(current_directory));
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
     struct _cef_browser_process_handler_t* self,
     int64_t delay_ms) {
@@ -122,6 +149,8 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
       browser_process_handler_on_context_initialized;
   GetStruct()->on_before_child_process_launch =
       browser_process_handler_on_before_child_process_launch;
+  GetStruct()->on_already_running_app_relaunch =
+      browser_process_handler_on_already_running_app_relaunch;
   GetStruct()->on_schedule_message_pump_work =
       browser_process_handler_on_schedule_message_pump_work;
   GetStruct()->get_default_client = browser_process_handler_get_default_client;

@@ -137,13 +137,14 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
     CefRefPtr<CefClient> client,
     const CefString& url,
     const CefBrowserSettings& settings,
-    CefRefPtr<CefRequestContext> request_context) {
+    CefRefPtr<CefRequestContext> request_context,
+    CefRefPtr<CefCommandLine> command_line) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(delegate);
 
   // Create a new ViewsWindow.
   CefRefPtr<ViewsWindow> views_window =
-      new ViewsWindow(type, delegate, nullptr);
+      new ViewsWindow(type, delegate, nullptr, command_line);
 
   // Create a new BrowserView.
   CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
@@ -473,7 +474,7 @@ CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
   // Create a new ViewsWindow for the popup BrowserView.
   return new ViewsWindow(
       is_devtools ? WindowType::DEVTOOLS : WindowType::NORMAL, popup_delegate,
-      nullptr);
+      nullptr, command_line_);
 }
 
 bool ViewsWindow::OnPopupBrowserViewCreated(
@@ -1037,18 +1038,18 @@ void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
 
 ViewsWindow::ViewsWindow(WindowType type,
                          Delegate* delegate,
-                         CefRefPtr<CefBrowserView> browser_view)
+                         CefRefPtr<CefBrowserView> browser_view,
+                         CefRefPtr<CefCommandLine> command_line)
     : type_(type),
       delegate_(delegate),
+      command_line_(command_line),
       menu_has_focus_(false),
       last_focused_view_(false) {
   DCHECK(delegate_);
+
   if (browser_view) {
     SetBrowserView(browser_view);
   }
-
-  CefRefPtr<CefCommandLine> command_line =
-      CefCommandLine::GetGlobalCommandLine();
 
   const bool is_normal_type = type_ == WindowType::NORMAL;
 

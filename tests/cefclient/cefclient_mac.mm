@@ -52,11 +52,10 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 // Receives notifications from the application. Will delete itself when done.
 @interface ClientAppDelegate : NSObject <NSApplicationDelegate> {
  @private
-  bool with_controls_;
   bool with_osr_;
 }
 
-- (id)initWithControls:(bool)with_controls andOsr:(bool)with_osr;
+- (id)initWithOsr:(bool)with_osr;
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 - (void)testsItemSelected:(int)command_id;
@@ -162,9 +161,8 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 
 @implementation ClientAppDelegate
 
-- (id)initWithControls:(bool)with_controls andOsr:(bool)with_osr {
+- (id)initWithOsr:(bool)with_osr {
   if (self = [super init]) {
-    with_controls_ = with_controls;
     with_osr_ = with_osr;
   }
   return self;
@@ -230,7 +228,6 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
   }
 
   auto window_config = std::make_unique<client::RootWindowConfig>();
-  window_config->with_controls = with_controls_;
   window_config->with_osr = with_osr_;
 
   // Create the first window.
@@ -570,16 +567,19 @@ int RunMain(int argc, char* argv[]) {
       message_loop.reset(new MainMessageLoopStd);
     }
 
-    // Initialize CEF.
-    context->Initialize(main_args, settings, app, nullptr);
+    // Initialize the CEF browser process. May return false if initialization
+    // fails or if early exit is desired (for example, due to process singleton
+    // relaunch behavior).
+    if (!context->Initialize(main_args, settings, app, nullptr)) {
+      return 1;
+    }
 
     // Register scheme handlers.
     test_runner::RegisterSchemeHandlers();
 
     // Create the application delegate and window.
     ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
-        initWithControls:!command_line->HasSwitch(switches::kHideControls)
-                  andOsr:settings.windowless_rendering_enabled ? true : false];
+        initWithOsr:settings.windowless_rendering_enabled ? true : false];
     [delegate performSelectorOnMainThread:@selector(createApplication:)
                                withObject:nil
                             waitUntilDone:NO];

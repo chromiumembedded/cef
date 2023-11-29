@@ -95,8 +95,12 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
     message_loop.reset(new MainMessageLoopStd);
   }
 
-  // Initialize CEF.
-  context->Initialize(main_args, settings, app, sandbox_info);
+  // Initialize the CEF browser process. May return false if initialization
+  // fails or if early exit is desired (for example, due to process singleton
+  // relaunch behavior).
+  if (!context->Initialize(main_args, settings, app, sandbox_info)) {
+    return 1;
+  }
 
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();
@@ -104,8 +108,6 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   auto window_config = std::make_unique<RootWindowConfig>();
   window_config->always_on_top =
       command_line->HasSwitch(switches::kAlwaysOnTop);
-  window_config->with_controls =
-      !command_line->HasSwitch(switches::kHideControls);
   window_config->with_osr =
       settings.windowless_rendering_enabled ? true : false;
 

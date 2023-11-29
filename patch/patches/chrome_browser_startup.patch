@@ -1,0 +1,70 @@
+diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
+index cef85a137d3e2..985d716ec7549 100644
+--- chrome/browser/ui/startup/startup_browser_creator.cc
++++ chrome/browser/ui/startup/startup_browser_creator.cc
+@@ -578,6 +578,14 @@ void OpenNewWindowForFirstRun(
+                                 is_first_run, std::move(launch_mode_recorder));
+ }
+ #endif  // BUILDFLAG(IS_CHROMEOS_LACROS) || BUILDFLAG(ENABLE_DICE_SUPPORT)
++
++StartupBrowserCreator::ProcessCommandLineCallback*
++GetProcessCommandLineCallback() {
++  static base::NoDestructor<StartupBrowserCreator::ProcessCommandLineCallback>
++      callback;
++  return callback.get();
++}
++
+ }  // namespace
+ 
+ StartupProfileMode StartupProfileModeFromReason(
+@@ -1441,6 +1449,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+       {profile, mode}, last_opened_profiles);
+ }
+ 
++// static
++void StartupBrowserCreator::RegisterProcessCommandLineCallback(
++    ProcessCommandLineCallback cb) {
++  *GetProcessCommandLineCallback() = cb;
++}
++
+ // static
+ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+     const base::CommandLine& command_line,
+@@ -1450,6 +1464,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+     return;
+   }
+ 
++  auto* cb = GetProcessCommandLineCallback();
++  if (!cb->is_null() && cb->Run(command_line, cur_dir)) {
++    return;
++  }
++
+   Profile* profile = nullptr;
+   StartupProfileMode mode =
+       StartupProfileModeFromReason(profile_path_info.reason);
+diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
+index e22ea9b782910..68724228e79f5 100644
+--- chrome/browser/ui/startup/startup_browser_creator.h
++++ chrome/browser/ui/startup/startup_browser_creator.h
+@@ -9,6 +9,7 @@
+ #include <vector>
+ 
+ #include "base/files/file_path.h"
++#include "base/functional/callback.h"
+ #include "base/gtest_prod_util.h"
+ #include "base/memory/raw_ptr.h"
+ #include "build/build_config.h"
+@@ -136,6 +137,13 @@ class StartupBrowserCreator {
+              StartupProfileInfo profile_info,
+              const Profiles& last_opened_profiles);
+ 
++  // Registers a callback that will be executed each time
++  // ProcessCommandLineAlreadyRunning is called.
++  using ProcessCommandLineCallback = base::RepeatingCallback<bool(
++      const base::CommandLine& command_line,
++      const base::FilePath& cur_dir)>;
++  static void RegisterProcessCommandLineCallback(ProcessCommandLineCallback cb);
++
+   // This function performs command-line handling and is invoked only after
+   // start up (for example when we get a start request for another process).
+   // |command_line| holds the command line we need to process.
