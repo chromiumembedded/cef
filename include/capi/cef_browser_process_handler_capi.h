@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a146316e075450f0a6f37cb45d14e15e0ac7be08$
+// $hash=9e91adb231d67a65ce02294a0806d7effd40d280$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -105,6 +105,30 @@ typedef struct _cef_browser_process_handler_t {
   void(CEF_CALLBACK* on_before_child_process_launch)(
       struct _cef_browser_process_handler_t* self,
       struct _cef_command_line_t* command_line);
+
+  ///
+  /// Implement this function to provide app-specific behavior when an already
+  /// running app is relaunched with the same CefSettings.root_cache_path value.
+  /// For example, activate an existing app window or create a new app window.
+  /// |command_line| will be read-only. Do not keep a reference to
+  /// |command_line| outside of this function. Return true (1) if the relaunch
+  /// is handled or false (0) for default relaunch behavior. Default behavior
+  /// will create a new default styled Chrome window.
+  ///
+  /// To avoid cache corruption only a single app instance is allowed to run for
+  /// a given CefSettings.root_cache_path value. On relaunch the app checks a
+  /// process singleton lock and then forwards the new launch arguments to the
+  /// already running app process before exiting early. Client apps should
+  /// therefore check the cef_initialize() return value for early exit before
+  /// proceeding.
+  ///
+  /// This function will be called on the browser process UI thread. Currently
+  /// only used with the chrome runtime.
+  ///
+  int(CEF_CALLBACK* on_already_running_app_relaunch)(
+      struct _cef_browser_process_handler_t* self,
+      struct _cef_command_line_t* command_line,
+      const cef_string_t* current_directory);
 
   ///
   /// Called from any thread when work has been scheduled for the browser

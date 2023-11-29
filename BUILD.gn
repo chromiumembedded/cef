@@ -524,6 +524,8 @@ source_set("libcef_static") {
     "libcef/browser/chrome/chrome_content_browser_client_cef.h",
     "libcef/browser/chrome/chrome_context_menu_handler.cc",
     "libcef/browser/chrome/chrome_context_menu_handler.h",
+    "libcef/browser/chrome/chrome_startup_browser_creator.cc",
+    "libcef/browser/chrome/chrome_startup_browser_creator.h",
     "libcef/browser/chrome_crash_reporter_client_stub.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h",

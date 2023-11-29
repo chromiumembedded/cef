@@ -22,13 +22,16 @@ class RootWindowViews : public RootWindow,
                         public ClientHandler::Delegate,
                         public ViewsWindow::Delegate {
  public:
-  // Constructor may be called on any thread.
-  RootWindowViews();
+  // Constructor may be called on any thread. |parent_window| will be
+  // non-nullptr for popup browsers with a RootWindow parent (called on the UI
+  // thread only).
+  explicit RootWindowViews(RootWindowViews* parent_window);
   ~RootWindowViews();
 
   void SetTitlebarHeight(const std::optional<float>& height);
 
   // RootWindow methods:
+  bool IsViewsHosted() const override { return true; }
   void Init(RootWindow::Delegate* delegate,
             std::unique_ptr<RootWindowConfig> config,
             const CefBrowserSettings& settings) override;

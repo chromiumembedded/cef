@@ -21,6 +21,7 @@
 #include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "chrome/common/chrome_result_codes.h"
 #include "components/crash/core/app/crash_switches.h"
 #include "content/app/content_main_runner_impl.h"
 #include "content/browser/scheduler/browser_task_executor.h"
@@ -227,15 +228,21 @@ bool CefMainRunner::Initialize(CefSettings* settings,
       settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::ALLOY, this,
       settings, application);
 
-  const int exit_code =
+  int exit_code =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
   if (exit_code >= 0) {
-    DCHECK(false) << "ContentMainInitialize failed";
+    LOG(ERROR) << "ContentMainInitialize failed with exit code " << exit_code;
     return false;
   }
 
-  if (!ContentMainRun(initialized, std::move(context_initialized))) {
-    DCHECK(false) << "ContentMainRun failed";
+  exit_code = ContentMainRun(initialized, std::move(context_initialized));
+  if (exit_code != content::RESULT_CODE_NORMAL_EXIT) {
+    // Some exit codes are used to exit early, but are otherwise a normal
+    // result. Don't log for those codes.
+    if (!chrome::IsNormalResultCode(
+            static_cast<chrome::ResultCode>(exit_code))) {
+      LOG(ERROR) << "ContentMainRun failed with exit code " << exit_code;
+    }
     return false;
   }
 
@@ -383,9 +390,11 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
                                         main_runner_.get());
 }
 
-bool CefMainRunner::ContentMainRun(bool* initialized,
-                                   base::OnceClosure context_initialized) {
+int CefMainRunner::ContentMainRun(bool* initialized,
+                                  base::OnceClosure context_initialized) {
   main_delegate_->BeforeMainThreadRun(multi_threaded_message_loop_);
+
+  int exit_code = -1;
 
   if (multi_threaded_message_loop_) {
     // Detach the CommandLine from the main thread so that it can be
@@ -397,14 +406,15 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
         base::WaitableEvent::InitialState::NOT_SIGNALED);
 
     if (!CreateUIThread(base::BindOnce(
-            [](CefMainRunner* runner, base::WaitableEvent* event) {
+            [](CefMainRunner* runner, base::WaitableEvent* event,
+               int* exit_code) {
               runner->main_delegate_->BeforeUIThreadInitialize();
-              content::ContentMainRun(runner->main_runner_.get());
+              *exit_code = content::ContentMainRun(runner->main_runner_.get());
               event->Signal();
             },
-            base::Unretained(this),
-            base::Unretained(&uithread_startup_event)))) {
-      return false;
+            base::Unretained(this), base::Unretained(&uithread_startup_event),
+            base::Unretained(&exit_code)))) {
+      return exit_code;
     }
 
     *initialized = true;
@@ -414,19 +424,23 @@ bool CefMainRunner::ContentMainRun(bool* initialized,
   } else {
     *initialized = true;
     main_delegate_->BeforeUIThreadInitialize();
-    content::ContentMainRun(main_runner_.get());
+    exit_code = content::ContentMainRun(main_runner_.get());
   }
 
-  if (CEF_CURRENTLY_ON_UIT()) {
-    OnContextInitialized(std::move(context_initialized));
-  } else {
-    // Continue initialization on the UI thread.
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefMainRunner::OnContextInitialized,
-                                          base::Unretained(this),
-                                          std::move(context_initialized)));
+  if (exit_code == content::RESULT_CODE_NORMAL_EXIT) {
+    // content::ContentMainRun was successful and we're not exiting early.
+    if (CEF_CURRENTLY_ON_UIT()) {
+      OnContextInitialized(std::move(context_initialized));
+    } else {
+      // Continue initialization on the UI thread.
+      CEF_POST_TASK(CEF_UIT,
+                    base::BindOnce(&CefMainRunner::OnContextInitialized,
+                                   base::Unretained(this),
+                                   std::move(context_initialized)));
+    }
   }
 
-  return true;
+  return exit_code;
 }
 
 void CefMainRunner::PreBrowserMain() {

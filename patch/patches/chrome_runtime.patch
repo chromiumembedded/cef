@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index dc84cbd4c97d1..b8a1dd5a19be1 100644
+index dc84cbd4c97d1..696af79e6cec5 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -41,6 +41,7 @@
@@ -30,6 +30,15 @@ index dc84cbd4c97d1..b8a1dd5a19be1 100644
  absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
      InvokedIn invoked_in) {
    DCHECK(base::ThreadPoolInstance::Get());
+@@ -782,7 +789,7 @@ absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+     // future session's metrics.
+     DeferBrowserMetrics(user_data_dir);
+ 
+-#if BUILDFLAG(IS_WIN)
++#if BUILDFLAG(IS_WIN) && !BUILDFLAG(ENABLE_CEF)
+     // In the case the process is not the singleton process, the uninstall tasks
+     // need to be executed here. A window will be displayed asking to close all
+     // running instances.
 @@ -946,7 +953,8 @@ absl::optional<int> ChromeMainDelegate::PostEarlyInitialization(
  
    if (base::FeatureList::IsEnabled(
@@ -126,7 +135,7 @@ index 176b6248f18e8..1360e8c209eba 100644
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    std::unique_ptr<chromeos::LacrosService> lacros_service_;
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index e819129536dc0..d0f1e684ae019 100644
+index e819129536dc0..e9287f6e03a88 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -52,6 +52,7 @@
@@ -137,6 +146,15 @@ index e819129536dc0..d0f1e684ae019 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
+@@ -486,7 +487,7 @@ void ProcessSingletonNotificationCallbackImpl(
+     return;
+   }
+ 
+-#if BUILDFLAG(IS_WIN)
++#if BUILDFLAG(IS_WIN) && !BUILDFLAG(ENABLE_CEF)
+   // The uninstall command-line switch is handled by the origin process; see
+   // ChromeMainDelegate::PostEarlyInitialization(...). The other process won't
+   // be able to become the singleton process and will display a window asking
 @@ -774,7 +775,7 @@ int ChromeBrowserMainParts::PreEarlyInitialization() {
      return content::RESULT_CODE_NORMAL_EXIT;
    }

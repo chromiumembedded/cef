@@ -77,8 +77,12 @@ int main(int argc, char* argv[]) {
   // CEF has initialized.
   CefRefPtr<SimpleApp> app(new SimpleApp);
 
-  // Initialize CEF for the browser process.
-  CefInitialize(main_args, settings, app.get(), nullptr);
+  // Initialize the CEF browser process. May return false if initialization
+  // fails or if early exit is desired (for example, due to process singleton
+  // relaunch behavior).
+  if (!CefInitialize(main_args, settings, app.get(), nullptr)) {
+    return 1;
+  }
 
   // Run the CEF message loop. This will block until CefQuitMessageLoop() is
   // called.

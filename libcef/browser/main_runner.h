@@ -59,7 +59,7 @@ class CefMainRunner : public CefMainRunnerHandler {
   int ContentMainInitialize(const CefMainArgs& args,
                             void* windows_sandbox_info,
                             int* no_sandbox);
-  bool ContentMainRun(bool* initialized, base::OnceClosure context_initialized);
+  int ContentMainRun(bool* initialized, base::OnceClosure context_initialized);
 
   // CefMainRunnerHandler methods:
   void PreBrowserMain() override;

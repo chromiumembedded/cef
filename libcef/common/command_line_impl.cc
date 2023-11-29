@@ -18,6 +18,11 @@ CefCommandLineImpl::CefCommandLineImpl(base::CommandLine* value,
           read_only,
           nullptr) {}
 
+CefCommandLineImpl::CefCommandLineImpl(const base::CommandLine& value)
+    : CefCommandLineImpl(const_cast<base::CommandLine*>(&value),
+                         /*will_delete=*/false,
+                         /*read_only=*/true) {}
+
 bool CefCommandLineImpl::IsValid() {
   return !detached();
 }

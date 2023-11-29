@@ -1423,12 +1423,15 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
                                       CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
+  auto parent_window = RootWindow::GetForBrowser(browser->GetIdentifier());
+  CHECK(parent_window);
+
   // The popup browser will be parented to a new native window.
   // Don't show URL bar and navigation buttons on DevTools windows.
   // May return nullptr if UseDefaultPopup() returns true.
   return !!MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
-      with_controls_ && !is_devtools, is_osr_, popupFeatures, windowInfo,
-      client, settings);
+      parent_window, with_controls_ && !is_devtools, is_osr_, popupFeatures,
+      windowInfo, client, settings);
 }
 
 void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {

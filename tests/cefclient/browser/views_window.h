@@ -34,7 +34,7 @@ namespace client {
 typedef std::set<CefRefPtr<CefExtension>> ExtensionSet;
 
 // Implements a CefWindow that hosts a single CefBrowserView and optional
-// Views-based controls. All methods must be called on the browser process UI
+// Views-hosted controls. All methods must be called on the browser process UI
 // thread.
 class ViewsWindow : public CefBrowserViewDelegate,
                     public CefMenuButtonDelegate,
@@ -105,7 +105,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
-      CefRefPtr<CefRequestContext> request_context);
+      CefRefPtr<CefRequestContext> request_context,
+      CefRefPtr<CefCommandLine> command_line);
 
   void Show();
   void Hide();
@@ -213,7 +214,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // called.
   ViewsWindow(WindowType type,
               Delegate* delegate,
-              CefRefPtr<CefBrowserView> browser_view);
+              CefRefPtr<CefBrowserView> browser_view,
+              CefRefPtr<CefCommandLine> command_line);
 
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view);
 
@@ -254,6 +256,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   const WindowType type_;
   Delegate* delegate_;  // Not owned by this object.
   CefRefPtr<CefBrowserView> browser_view_;
+  CefRefPtr<CefCommandLine> command_line_;
   bool frameless_;
   bool with_controls_;
   bool with_overlay_controls_;

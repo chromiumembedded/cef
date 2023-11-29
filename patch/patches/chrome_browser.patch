@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 44d3b5e543101..09b095cffd89e 100644
+index 44d3b5e543101..07af0af8b2330 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,17 +10,7 @@ index 44d3b5e543101..09b095cffd89e 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -110,7 +111,8 @@ buildflag_header("buildflags") {
- 
-   # Android and ChromeOS don't support multiple browser processes, so they don't
-   # employ ProcessSingleton.
--  if (is_android || is_chromeos) {
-+  # Also disable for CEF (see issue #3609).
-+  if (is_android || is_chromeos || enable_cef) {
-     flags += [ "ENABLE_PROCESS_SINGLETON=0" ]
-   } else {
-     flags += [ "ENABLE_PROCESS_SINGLETON=1" ]
-@@ -2075,6 +2077,7 @@ static_library("browser") {
+@@ -2075,6 +2076,7 @@ static_library("browser") {
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
      "//cc",
@@ -28,7 +18,7 @@ index 44d3b5e543101..09b095cffd89e 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2731,6 +2734,10 @@ static_library("browser") {
+@@ -2731,6 +2733,10 @@ static_library("browser") {
      ]
    }
  
@@ -39,37 +29,3 @@ index 44d3b5e543101..09b095cffd89e 100644
    if (is_android) {
      sources += [
        "accessibility/accessibility_prefs/android/accessibility_prefs_controller.cc",
-diff --git chrome/browser/browser_process_platform_part_win.cc chrome/browser/browser_process_platform_part_win.cc
-index 66fa1aa8b10b3..9b506f6d153ae 100644
---- chrome/browser/browser_process_platform_part_win.cc
-+++ chrome/browser/browser_process_platform_part_win.cc
-@@ -9,6 +9,7 @@
- BrowserProcessPlatformPart::BrowserProcessPlatformPart() = default;
- BrowserProcessPlatformPart::~BrowserProcessPlatformPart() = default;
- 
-+#if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
- void BrowserProcessPlatformPart::OnBrowserLaunch() {
-   if constexpr (kShouldRecordActiveUse) {
-     if (!did_run_updater_) {
-@@ -16,3 +17,4 @@ void BrowserProcessPlatformPart::OnBrowserLaunch() {
-     }
-   }
- }
-+#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-diff --git chrome/browser/browser_process_platform_part_win.h chrome/browser/browser_process_platform_part_win.h
-index fc4b9808f3f6e..92cef9459811f 100644
---- chrome/browser/browser_process_platform_part_win.h
-+++ chrome/browser/browser_process_platform_part_win.h
-@@ -18,10 +18,12 @@ class BrowserProcessPlatformPart : public BrowserProcessPlatformPartBase {
-   ~BrowserProcessPlatformPart() override;
- 
-   // BrowserProcessPlatformPartBase:
-+#if BUILDFLAG(ENABLE_PROCESS_SINGLETON)
-   void OnBrowserLaunch() override;
- 
-  private:
-   absl::optional<DidRunUpdater> did_run_updater_;
-+#endif  // BUILDFLAG(ENABLE_PROCESS_SINGLETON)
- };
- 
- #endif  // CHROME_BROWSER_BROWSER_PROCESS_PLATFORM_PART_WIN_H_

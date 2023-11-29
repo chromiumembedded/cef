@@ -31,9 +31,6 @@ namespace {
 // 4. FrameNavTestHandler retrieves the URL to load via
 //    FrameNavExpectationsBrowser::GetMainURL and calls either CreateBrowser
 //    (for the first navigation) or LoadURL (for the following navigations).
-// 5. If the renderer process does not already exist CEF creates it with
-//    command-line arguments that specify the FrameNavFactoryId via
-//    FrameNavBrowserTest::OnBeforeChildProcessLaunch.
 //
 // In the renderer process:
 // 6. If the renderer process is newly created FrameNavRendererTest calls

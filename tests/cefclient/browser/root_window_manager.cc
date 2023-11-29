@@ -62,7 +62,8 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
     // Allow the startup URL to create popups that bypass the popup blocker.
     // For example, via Tests > New Popup from the top menu. This applies for
     // for the Chrome runtime only.
-    const auto& startup_url = MainContext::Get()->GetMainURL();
+    const auto& startup_url =
+        MainContext::Get()->GetMainURL(/*command_line=*/nullptr);
     request_context->SetContentSetting(startup_url, startup_url,
                                        CEF_CONTENT_SETTING_TYPE_POPUPS,
                                        CEF_CONTENT_SETTING_VALUE_ALLOW);
@@ -121,8 +122,8 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
   CefBrowserSettings settings;
   MainContext::Get()->PopulateBrowserSettings(&settings);
 
-  scoped_refptr<RootWindow> root_window =
-      RootWindow::Create(MainContext::Get()->UseViews());
+  scoped_refptr<RootWindow> root_window = RootWindow::Create(
+      MainContext::Get()->UseViews(), /*parent_window=*/nullptr);
   root_window->Init(this, std::move(config), settings);
 
   // Store a reference to the root window on the main thread.
@@ -132,6 +133,7 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
 }
 
 scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
+    scoped_refptr<RootWindow> parent_window,
     bool with_controls,
     bool with_osr,
     const CefPopupFeatures& popupFeatures,
@@ -155,8 +157,11 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     temp_window_.reset(new TempWindow());
   }
 
+  const bool use_views = parent_window ? parent_window->IsViewsHosted()
+                                       : MainContext::Get()->UseViews();
+
   scoped_refptr<RootWindow> root_window =
-      RootWindow::Create(MainContext::Get()->UseViews());
+      RootWindow::Create(use_views, parent_window);
   root_window->InitAsPopup(this, with_controls, with_osr, popupFeatures,
                            windowInfo, client, settings);
 

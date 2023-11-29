@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=533775387bf1001675aeb94a62bc4ece1eb11125$
+// $hash=8a552c517824da5047969cf0ef19a9258596e3b9$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
@@ -77,6 +77,33 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
   // Execute
   _struct->on_before_child_process_launch(
       _struct, CefCommandLineCppToC::Wrap(command_line));
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserProcessHandlerCToCpp::OnAlreadyRunningAppRelaunch(
+    CefRefPtr<CefCommandLine> command_line,
+    const CefString& current_directory) {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_already_running_app_relaunch)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: command_line; type: refptr_diff
+  DCHECK(command_line.get());
+  if (!command_line.get()) {
+    return false;
+  }
+  // Unverified params: current_directory
+
+  // Execute
+  int _retval = _struct->on_already_running_app_relaunch(
+      _struct, CefCommandLineCppToC::Wrap(command_line),
+      current_directory.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

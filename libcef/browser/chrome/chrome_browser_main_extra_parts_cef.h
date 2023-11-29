@@ -42,6 +42,7 @@ class ChromeBrowserMainExtraPartsCef : public ChromeBrowserMainExtraParts {
  private:
   // ChromeBrowserMainExtraParts overrides.
   void PostProfileInit(Profile* profile, bool is_initial_profile) override;
+  void PostBrowserStart() override;
   void PreMainMessageLoopRun() override;
 
   CefRefPtr<CefRequestContextImpl> global_request_context_;
