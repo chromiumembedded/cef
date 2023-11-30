@@ -490,7 +490,7 @@ index 7c47a56574e7a..390c47f95f725 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 1e7a865273e07..d5c8889ee79d7 100644
+index 0af94fd3059cf..a634aa982ce4c 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -14,6 +14,7 @@
@@ -522,7 +522,7 @@ index 1e7a865273e07..d5c8889ee79d7 100644
    DeviceOAuth2TokenStoreDesktop::RegisterPrefs(registry);
  #endif
  
-@@ -1618,6 +1625,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1627,6 +1634,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -534,7 +534,7 @@ index 1e7a865273e07..d5c8889ee79d7 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -2046,6 +2058,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2055,6 +2067,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  
