@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=9e91adb231d67a65ce02294a0806d7effd40d280$
+// $hash=dad764dddf92655cc580e0e7e85d3f3c34bdd46d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -122,8 +122,7 @@ typedef struct _cef_browser_process_handler_t {
   /// therefore check the cef_initialize() return value for early exit before
   /// proceeding.
   ///
-  /// This function will be called on the browser process UI thread. Currently
-  /// only used with the chrome runtime.
+  /// This function will be called on the browser process UI thread.
   ///
   int(CEF_CALLBACK* on_already_running_app_relaunch)(
       struct _cef_browser_process_handler_t* self,

@@ -35,6 +35,7 @@
 #include "chrome/browser/ui/webui/chrome_untrusted_web_ui_configs.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/url_constants.h"
 #include "content/browser/renderer_host/debug_urls.h"
 #include "content/public/browser/browser_url_handler.h"
@@ -385,6 +386,9 @@ bool OnVersionUI(Profile* profile,
     return false;
   }
 
+  base::FilePath user_data_dir =
+      base::PathService::CheckedGet(chrome::DIR_USER_DATA);
+
   TemplateParser parser;
   parser.Add("YEAR", MAKE_STRING(COPYRIGHT_YEAR));
   parser.Add("CEF", CEF_VERSION);
@@ -400,6 +404,7 @@ bool OnVersionUI(Profile* profile,
       CefAppManager::Get()->GetContentClient()->browser()->GetUserAgent());
   parser.Add("COMMANDLINE", GetCommandLine());
   parser.Add("MODULEPATH", GetModulePath());
+  parser.Add("ROOTCACHEPATH", CefString(user_data_dir.value()));
   parser.Add("CACHEPATH", CefString(profile->GetPath().value()));
 
   parser.Parse(&tmpl);

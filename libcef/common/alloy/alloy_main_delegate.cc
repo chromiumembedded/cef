@@ -24,16 +24,22 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/strings/sys_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/synchronization/waitable_event.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_result_codes.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/grit/generated_resources.h"
 #include "chrome/utility/chrome_content_utility_client.h"
 #include "components/component_updater/component_updater_paths.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/embedder_support/switches.h"
+#include "components/metrics/persistent_histograms.h"
 #include "components/viz/common/features.h"
 #include "content/public/common/content_features.h"
 #include "content/public/common/content_switches.h"
@@ -45,7 +51,9 @@
 #include "services/network/public/cpp/features.h"
 #include "third_party/blink/public/common/features.h"
 #include "third_party/blink/public/common/switches.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/base/resource/scoped_startup_resource_bundle.h"
 #include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
@@ -69,6 +77,46 @@ const char* const kNonWildcardDomainNonPortSchemes[] = {
 const size_t kNonWildcardDomainNonPortSchemesSize =
     std::size(kNonWildcardDomainNonPortSchemes);
 
+absl::optional<int> AcquireProcessSingleton(
+    const base::FilePath& user_data_dir) {
+  // Take the Chrome process singleton lock. The process can become the
+  // Browser process if it succeed to take the lock. Otherwise, the
+  // command-line is sent to the actual Browser process and the current
+  // process can be exited.
+  ChromeProcessSingleton::CreateInstance(user_data_dir);
+
+  ProcessSingleton::NotifyResult notify_result =
+      ChromeProcessSingleton::GetInstance()->NotifyOtherProcessOrCreate();
+  switch (notify_result) {
+    case ProcessSingleton::PROCESS_NONE:
+      break;
+
+    case ProcessSingleton::PROCESS_NOTIFIED: {
+      // Ensure there is an instance of ResourceBundle that is initialized for
+      // localized string resource accesses.
+      ui::ScopedStartupResourceBundle startup_resource_bundle;
+      printf("%s\n", base::SysWideToNativeMB(
+                         base::UTF16ToWide(l10n_util::GetStringUTF16(
+                             IDS_USED_EXISTING_BROWSER)))
+                         .c_str());
+      return chrome::RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED;
+    }
+
+    case ProcessSingleton::PROFILE_IN_USE:
+      return chrome::RESULT_CODE_PROFILE_IN_USE;
+
+    case ProcessSingleton::LOCK_ERROR:
+      LOG(ERROR) << "Failed to create a ProcessSingleton for your profile "
+                    "directory. This means that running multiple instances "
+                    "would start multiple browser processes rather than "
+                    "opening a new window in the existing process. Aborting "
+                    "now to avoid profile corruption.";
+      return chrome::RESULT_CODE_PROFILE_IN_USE;
+  }
+
+  return absl::nullopt;
+}
+
 }  // namespace
 
 AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
@@ -84,6 +132,35 @@ AlloyMainDelegate::~AlloyMainDelegate() {}
 
 absl::optional<int> AlloyMainDelegate::PreBrowserMain() {
   runner_->PreBrowserMain();
+  return absl::nullopt;
+}
+
+absl::optional<int> AlloyMainDelegate::PostEarlyInitialization(
+    InvokedIn invoked_in) {
+  const auto* invoked_in_browser =
+      absl::get_if<InvokedInBrowserProcess>(&invoked_in);
+  if (!invoked_in_browser) {
+    return absl::nullopt;
+  }
+
+  // Based on ChromeMainDelegate::PostEarlyInitialization.
+  // The User Data dir is guaranteed to be valid as per PreSandboxStartup.
+  base::FilePath user_data_dir =
+      base::PathService::CheckedGet(chrome::DIR_USER_DATA);
+
+  // On platforms that support the process rendezvous, acquire the process
+  // singleton. In case of failure, it means there is already a running browser
+  // instance that handled the command-line.
+  if (auto process_singleton_result = AcquireProcessSingleton(user_data_dir);
+      process_singleton_result.has_value()) {
+    // To ensure that the histograms emitted in this process are reported in
+    // case of early exit, report the metrics accumulated this session with a
+    // future session's metrics.
+    DeferBrowserMetrics(user_data_dir);
+
+    return process_singleton_result;
+  }
+
   return absl::nullopt;
 }
 

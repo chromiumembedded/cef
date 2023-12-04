@@ -19,6 +19,7 @@
 #include "libcef/browser/permission_prompt.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
+#include "libcef/common/command_line_impl.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net/net_resource_provider.h"
 
@@ -27,6 +28,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/task/thread_pool.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/ui/color/chrome_color_mixers.h"
@@ -140,6 +142,56 @@ ui::LinuxUi* GetLinuxUI() {
 }
 
 #endif  // BUILDFLAG(IS_LINUX)
+
+void ProcessSingletonNotificationCallbackImpl(
+    const base::CommandLine& command_line,
+    const base::FilePath& current_directory) {
+  // Drop the request if the browser process is already shutting down.
+  if (!CONTEXT_STATE_VALID()) {
+    return;
+  }
+
+  bool handled = false;
+
+  if (auto app = CefAppManager::Get()->GetApplication()) {
+    if (auto handler = app->GetBrowserProcessHandler()) {
+      CefRefPtr<CefCommandLineImpl> commandLinePtr(
+          new CefCommandLineImpl(command_line));
+      handled = handler->OnAlreadyRunningAppRelaunch(commandLinePtr.get(),
+                                                     current_directory.value());
+      std::ignore = commandLinePtr->Detach(nullptr);
+    }
+  }
+
+  if (!handled) {
+    LOG(WARNING) << "Unhandled app relaunch; implement "
+                    "CefBrowserProcessHandler::OnAlreadyRunningAppRelaunch.";
+  }
+}
+
+// Based on ChromeBrowserMainParts::ProcessSingletonNotificationCallback.
+bool ProcessSingletonNotificationCallback(
+    const base::CommandLine& command_line,
+    const base::FilePath& current_directory) {
+  // Drop the request if the browser process is already shutting down.
+  // Note that we're going to post an async task below. Even if the browser
+  // process isn't shutting down right now, it could be by the time the task
+  // starts running. So, an additional check needs to happen when it starts.
+  // But regardless of any future check, there is no reason to post the task
+  // now if we know we're already shutting down.
+  if (!CONTEXT_STATE_VALID()) {
+    return false;
+  }
+
+  // In order to handle this request on Windows, there is platform specific
+  // code in browser_finder.cc that requires making outbound COM calls to
+  // cross-apartment shell objects (via IVirtualDesktopManager). That is not
+  // allowed within a SendMessage handler, which this function is a part of.
+  // So, we post a task to asynchronously finish the command line processing.
+  return base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+      FROM_HERE, base::BindOnce(&ProcessSingletonNotificationCallbackImpl,
+                                command_line, current_directory));
+}
 
 }  // namespace
 
@@ -262,6 +314,10 @@ int AlloyBrowserMainParts::PreCreateThreads() {
   return 0;
 }
 
+void AlloyBrowserMainParts::PostCreateThreads() {
+  ChromeProcessSingleton::GetInstance()->StartWatching();
+}
+
 int AlloyBrowserMainParts::PreMainMessageLoopRun() {
 #if defined(USE_AURA)
   screen_ = views::CreateDesktopScreen();
@@ -339,12 +395,20 @@ int AlloyBrowserMainParts::PreMainMessageLoopRun() {
   }
 #endif
 
+  // Allow ProcessSingleton to process messages.
+  // This is done here instead of just relying on the main message loop's start
+  // to avoid rendezvous in RunLoops that may precede MainMessageLoopRun.
+  ChromeProcessSingleton::GetInstance()->Unlock(
+      base::BindRepeating(&ProcessSingletonNotificationCallback));
+
   return content::RESULT_CODE_NORMAL_EXIT;
 }
 
 void AlloyBrowserMainParts::PostMainMessageLoopRun() {
   // NOTE: Destroy objects in reverse order of creation.
   CefDevToolsManagerDelegate::StopHttpHandler();
+
+  ChromeProcessSingleton::GetInstance()->Cleanup();
 
   // There should be no additional references to the global CefRequestContext
   // during shutdown. Did you forget to release a CefBrowser reference?

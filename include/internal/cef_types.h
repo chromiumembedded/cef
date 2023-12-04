@@ -279,31 +279,46 @@ typedef struct _cef_settings_t {
   int command_line_args_disabled;
 
   ///
-  /// The location where data for the global browser cache will be stored on
+  /// The directory where data for the global browser cache will be stored on
   /// disk. If this value is non-empty then it must be an absolute path that is
   /// either equal to or a child directory of CefSettings.root_cache_path. If
   /// this value is empty then browsers will be created in "incognito mode"
-  /// where in-memory caches are used for storage and no data is persisted to
-  /// disk. HTML5 databases such as localStorage will only persist across
-  /// sessions if a cache path is specified. Can be overridden for individual
-  /// CefRequestContext instances via the CefRequestContextSettings.cache_path
-  /// value. When using the Chrome runtime the "default" profile will be used if
-  /// |cache_path| and |root_cache_path| have the same value.
+  /// where in-memory caches are used for storage and no profile-specific data
+  /// is persisted to disk (installation-specific data will still be persisted
+  /// in root_cache_path). HTML5 databases such as localStorage will only
+  /// persist across sessions if a cache path is specified. Can be overridden
+  /// for individual CefRequestContext instances via the
+  /// CefRequestContextSettings.cache_path value. When using the Chrome runtime
+  /// any child directory value will be ignored and the "default" profile (also
+  /// a child directory) will be used instead.
   ///
   cef_string_t cache_path;
 
   ///
-  /// The root directory that all CefSettings.cache_path and
-  /// CefRequestContextSettings.cache_path values must have in common. If this
-  /// value is empty and CefSettings.cache_path is non-empty then it will
-  /// default to the CefSettings.cache_path value. If both values are empty
-  /// then the default platform-specific directory will be used
+  /// The root directory for installation-specific data and the parent directory
+  /// for profile-specific data. All CefSettings.cache_path and
+  /// CefRequestContextSettings.cache_path values must have this parent
+  /// directory in common. If this value is empty and CefSettings.cache_path is
+  /// non-empty then it will default to the CefSettings.cache_path value. Any
+  /// non-empty value must be an absolute path. If both values are empty then
+  /// the default platform-specific directory will be used
   /// ("~/.config/cef_user_data" directory on Linux, "~/Library/Application
   /// Support/CEF/User Data" directory on MacOS, "AppData\Local\CEF\User Data"
-  /// directory under the user profile directory on Windows). If this value is
-  /// non-empty then it must be an absolute path. Failure to set this value
-  /// correctly may result in the sandbox blocking read/write access to certain
-  /// files.
+  /// directory under the user profile directory on Windows). Use of the default
+  /// directory is not recommended in production applications (see below).
+  ///
+  /// Multiple application instances writing to the same root_cache_path
+  /// directory could result in data corruption. A process singleton lock based
+  /// on the root_cache_path value is therefore used to protect against this.
+  /// This singleton behavior applies to all CEF-based applications using
+  /// version 120 or newer. You should customize root_cache_path for your
+  /// application and implement CefBrowserProcessHandler::
+  /// OnAlreadyRunningAppRelaunch, which will then be called on any app relaunch
+  /// with the same root_cache_path value.
+  ///
+  /// Failure to set the root_cache_path value correctly may result in startup
+  /// crashes or other unexpected behaviors (for example, the sandbox blocking
+  /// read/write access to certain files).
   ///
   cef_string_t root_cache_path;
 
@@ -506,14 +521,15 @@ typedef struct _cef_request_context_settings_t {
   size_t size;
 
   ///
-  /// The location where cache data for this request context will be stored on
+  /// The directory where cache data for this request context will be stored on
   /// disk. If this value is non-empty then it must be an absolute path that is
   /// either equal to or a child directory of CefSettings.root_cache_path. If
   /// this value is empty then browsers will be created in "incognito mode"
-  /// where in-memory caches are used for storage and no data is persisted to
-  /// disk. HTML5 databases such as localStorage will only persist across
-  /// sessions if a cache path is specified. To share the global browser cache
-  /// and related configuration set this value to match the
+  /// where in-memory caches are used for storage and no profile-specific data
+  /// is persisted to disk (installation-specific data will still be persisted
+  /// in root_cache_path). HTML5 databases such as localStorage will only
+  /// persist across sessions if a cache path is specified. To share the global
+  /// browser cache and related configuration set this value to match the
   /// CefSettings.cache_path value.
   ///
   cef_string_t cache_path;

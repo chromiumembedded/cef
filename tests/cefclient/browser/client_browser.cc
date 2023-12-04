@@ -68,6 +68,21 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line,
       const CefString& current_directory) override {
+    // Add logging for some common switches that the user may attempt to use.
+    static const char* kIgnoredSwitches[] = {
+        switches::kEnableChromeRuntime,
+        switches::kMultiThreadedMessageLoop,
+        switches::kOffScreenRenderingEnabled,
+        switches::kUseViews,
+    };
+    for (size_t i = 0;
+         i < sizeof(kIgnoredSwitches) / sizeof(kIgnoredSwitches[0]); ++i) {
+      if (command_line->HasSwitch(kIgnoredSwitches[i])) {
+        LOG(WARNING) << "The --" << kIgnoredSwitches[i]
+                     << " command-line switch is ignored on app relaunch.";
+      }
+    }
+
     // Create a new root window based on |command_line|.
     auto config = std::make_unique<RootWindowConfig>(command_line->Copy());
 
