@@ -36,9 +36,9 @@ enum class WindowType {
 
 // Used to configure how a RootWindow is created.
 struct RootWindowConfig {
-  // |command_line| will be non-nullptr when used for new window creation
-  // via OnAlreadyRunningAppRelaunch (chrome runtime only). Otherwise, the
-  // global command-line will be used.
+  // |command_line| will be non-nullptr when used for new window creation via
+  // OnAlreadyRunningAppRelaunch. Otherwise, the global command-line will be
+  // used.
   RootWindowConfig(CefRefPtr<CefCommandLine> command_line = nullptr);
 
   // Associated command-line.

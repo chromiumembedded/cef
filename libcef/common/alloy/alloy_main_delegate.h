@@ -47,6 +47,7 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
 
   // content::ContentMainDelegate overrides.
   absl::optional<int> PreBrowserMain() override;
+  absl::optional<int> PostEarlyInitialization(InvokedIn invoked_in) override;
   absl::optional<int> BasicStartupComplete() override;
   void PreSandboxStartup() override;
   absl::variant<int, content::MainFunctionParams> RunProcess(

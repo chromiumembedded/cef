@@ -13,6 +13,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/logging.h"
 #include "base/notreached.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_constants.h"
@@ -89,6 +90,10 @@ base::FilePath GetUserDataPath(CefSettings* settings,
     }
     if (!root_cache_path.empty()) {
       return base::FilePath(root_cache_path);
+    } else {
+      LOG(WARNING) << "Please customize CefSettings.root_cache_path for your "
+                      "application. Use of the default value may lead to "
+                      "unintended process singleton behavior.";
     }
   }
 

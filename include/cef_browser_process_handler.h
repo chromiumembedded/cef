@@ -113,8 +113,7 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// therefore check the CefInitialize() return value for early exit before
   /// proceeding.
   ///
-  /// This method will be called on the browser process UI thread. Currently
-  /// only used with the chrome runtime.
+  /// This method will be called on the browser process UI thread.
   ///
   /*--cef(optional_param=current_directory)--*/
   virtual bool OnAlreadyRunningAppRelaunch(
