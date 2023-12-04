@@ -20,6 +20,28 @@ index 0a6c1f498b8fc..79e0cf27a7715 100644
    auto* service = ConnectorsServiceFactory::GetForBrowserContext(profile);
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
+diff --git chrome/browser/feedback/system_logs/log_sources/related_website_sets_source.cc chrome/browser/feedback/system_logs/log_sources/related_website_sets_source.cc
+index 9f4750b283306..c00f77eefd4a7 100644
+--- chrome/browser/feedback/system_logs/log_sources/related_website_sets_source.cc
++++ chrome/browser/feedback/system_logs/log_sources/related_website_sets_source.cc
+@@ -8,6 +8,7 @@
+ 
+ #include "base/json/json_writer.h"
+ #include "base/values.h"
++#include "cef/libcef/features/runtime.h"
+ #include "chrome/browser/first_party_sets/first_party_sets_policy_service.h"
+ #include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -49,6 +50,9 @@ const char* GetSiteType(const net::SiteType type) {
+ //   "PrimarySites": [ "https://example2.com", "https://example2.com.co" ]
+ // } ]
+ std::string ComputeRelatedWebsiteSetsInfo() {
++  if (cef::IsAlloyRuntimeEnabled()) {
++    return "";
++  }
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+   Profile* profile = ProfileManager::GetActiveUserProfile();
+ #else
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
 index 9a777bb144d00..b6eeebc040351 100644
 --- chrome/browser/net/profile_network_context_service.cc
