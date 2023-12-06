@@ -7,19 +7,13 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_
 #pragma once
 
-#include <memory>
-
 #include "include/internal/cef_ptr.h"
 
 #include "base/memory/weak_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
+#include "ui/gfx/x/atom_cache.h"
 #include "ui/gfx/x/connection.h"
-#include "ui/gfx/x/x11_atom_cache.h"
-
-namespace x11 {
-class XScopedEventSelector;
-}
 
 namespace views {
 class DesktopWindowTreeHostLinux;
@@ -82,7 +76,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   x11::Window xwindow_;
 
   // Events selected on |xwindow_|.
-  std::unique_ptr<x11::XScopedEventSelector> xwindow_events_;
+  x11::ScopedEventSelector xwindow_events_;
 
   // Is the window mapped to the screen?
   bool window_mapped_ = false;

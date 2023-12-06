@@ -2708,6 +2708,11 @@ typedef struct _cef_pdf_print_settings_t {
   /// Set to true (1) to generate tagged (accessible) PDF.
   ///
   int generate_tagged_pdf;
+
+  ///
+  /// Set to true (1) to generate a document outline.
+  ///
+  int generate_document_outline;
 } cef_pdf_print_settings_t;
 
 ///
@@ -3416,7 +3421,8 @@ typedef enum {
   CEF_CPAIT_SAVE_IBAN,
   CEF_CPAIT_MANDATORY_REAUTH,
   CEF_CPAIT_PRICE_INSIGHTS,
-  CEF_CPAIT_MAX_VALUE = CEF_CPAIT_PRICE_INSIGHTS,
+  CEF_CPAIT_PRICE_READ_ANYTHING,
+  CEF_CPAIT_MAX_VALUE = CEF_CPAIT_PRICE_READ_ANYTHING,
 } cef_chrome_page_action_icon_type_t;
 
 ///

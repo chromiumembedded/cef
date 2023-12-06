@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 24f2397278ccb..e511ec4aedd97 100644
+index 3d538b3370caa..5a4ba79e0af64 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -40,6 +40,7 @@ import("//build/config/ui.gni")
@@ -10,7 +10,7 @@ index 24f2397278ccb..e511ec4aedd97 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1497,7 +1498,11 @@ component("base") {
+@@ -1483,7 +1484,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 24f2397278ccb..e511ec4aedd97 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1919,6 +1924,12 @@ component("base") {
+@@ -1907,6 +1912,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -88,10 +88,10 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index 47e7917f785f7..42fe89f3ded27 100644
+index 8387bc9596ad7..c3dafe80e33b7 100644
 --- base/rand_util.h
 +++ base/rand_util.h
-@@ -15,8 +15,9 @@
+@@ -16,8 +16,9 @@
  #include "base/compiler_specific.h"
  #include "base/gtest_prod_util.h"
  #include "build/build_config.h"
@@ -102,7 +102,7 @@ index 47e7917f785f7..42fe89f3ded27 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -112,7 +113,7 @@ class RandomBitGenerator {
+@@ -122,7 +123,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  
@@ -164,7 +164,7 @@ index 549f4362af8b6..f08b1b2e7f061 100644
    static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
    BOOL success = process_prng_fn(static_cast<BYTE*>(output), output_length);
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index aa7423f88d278..1b2c7d3e3c4a0 100644
+index 44bfc3e2624d5..cccb306a383ce 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -10,8 +10,9 @@
@@ -181,11 +181,11 @@ index aa7423f88d278..1b2c7d3e3c4a0 100644
 @@ -46,7 +47,7 @@ absl::optional<UnguessableToken> UnguessableToken::Deserialize(uint64_t high,
  }
  
- bool UnguessableToken::operator==(const UnguessableToken& other) const {
+ bool operator==(const UnguessableToken& lhs, const UnguessableToken& rhs) {
 -#if BUILDFLAG(IS_NACL)
 +#if BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD)
    // BoringSSL is unavailable for NaCl builds so it remains timing dependent.
-   return token_ == other.token_;
+   return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
 index 0f1a2ec79aa4b..7f92778a4a776 100644

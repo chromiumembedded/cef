@@ -69,7 +69,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/renderer_updater.h"
 #include "chrome/browser/profiles/renderer_updater_factory.h"
-#include "chrome/browser/renderer_host/pepper/chrome_browser_pepper_host_factory.h"
 #include "chrome/browser/spellchecker/spell_check_host_chrome_impl.h"
 #include "chrome/browser/ui/chrome_select_file_policy.h"
 #include "chrome/browser/ui/pdf/chrome_pdf_document_helper_client.h"
@@ -98,7 +97,6 @@
 #include "content/browser/plugin_service_impl.h"
 #include "content/browser/renderer_host/render_frame_host_impl.h"
 #include "content/public/browser/browser_context.h"
-#include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/navigation_handle.h"
@@ -134,7 +132,6 @@
 #include "net/ssl/ssl_cert_request_info.h"
 #include "net/ssl/ssl_private_key.h"
 #include "pdf/pdf_features.h"
-#include "ppapi/host/ppapi_host.h"
 #include "sandbox/policy/switches.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/proxy_resolver/public/mojom/proxy_resolver.mojom.h"
@@ -561,17 +558,13 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to all command lines (along with any
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
-      switches::kDisablePackLoading,
+        switches::kDisablePackLoading,
 #if BUILDFLAG(IS_MAC)
-      switches::kFrameworkDirPath,
-      switches::kMainBundlePath,
+        switches::kFrameworkDirPath,   switches::kMainBundlePath,
 #endif
-      switches::kLocalesDirPath,
-      switches::kLogItems,
-      switches::kLogSeverity,
-      switches::kResourcesDirPath,
-      embedder_support::kUserAgent,
-      switches::kUserAgentProductAndVersion,
+        switches::kLocalesDirPath,     switches::kLogItems,
+        switches::kLogSeverity,        switches::kResourcesDirPath,
+        embedder_support::kUserAgent,  switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
@@ -832,13 +825,6 @@ std::string AlloyContentBrowserClient::GetDefaultDownloadName() {
   return "download";
 }
 
-void AlloyContentBrowserClient::DidCreatePpapiPlugin(
-    content::BrowserPpapiHost* browser_host) {
-  browser_host->GetPpapiHost()->AddHostFactoryFilter(
-      std::unique_ptr<ppapi::host::HostFactory>(
-          new ChromeBrowserPepperHostFactory(browser_host)));
-}
-
 std::unique_ptr<content::DevToolsManagerDelegate>
 AlloyContentBrowserClient::CreateDevToolsManagerDelegate() {
   return std::make_unique<CefDevToolsManagerDelegate>();
@@ -848,16 +834,6 @@ void AlloyContentBrowserClient::
     RegisterAssociatedInterfaceBindersForRenderFrameHost(
         content::RenderFrameHost& render_frame_host,
         blink::AssociatedInterfaceRegistry& associated_registry) {
-  associated_registry.AddInterface<extensions::mojom::LocalFrameHost>(
-      base::BindRepeating(
-          [](content::RenderFrameHost* render_frame_host,
-             mojo::PendingAssociatedReceiver<extensions::mojom::LocalFrameHost>
-                 receiver) {
-            extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
-                std::move(receiver), render_frame_host);
-          },
-          &render_frame_host));
-
   associated_registry.AddInterface<printing::mojom::PrintManagerHost>(
       base::BindRepeating(
           [](content::RenderFrameHost* render_frame_host,
@@ -876,6 +852,37 @@ void AlloyContentBrowserClient::
             std::make_unique<ChromePDFDocumentHelperClient>());
       },
       &render_frame_host));
+
+  associated_registry.AddInterface<chrome::mojom::PluginInfoHost>(
+      base::BindRepeating(&BindPluginInfoHost,
+                          render_frame_host.GetProcess()->GetID()));
+
+  if (extensions::ExtensionsEnabled()) {
+    int render_process_id = render_frame_host.GetProcess()->GetID();
+    associated_registry.AddInterface<extensions::mojom::EventRouter>(
+        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
+                            render_process_id));
+    associated_registry.AddInterface<extensions::mojom::RendererHost>(
+        base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
+                            render_process_id));
+    associated_registry.AddInterface<extensions::mojom::LocalFrameHost>(
+        base::BindRepeating(
+            [](content::RenderFrameHost* render_frame_host,
+               mojo::PendingAssociatedReceiver<
+                   extensions::mojom::LocalFrameHost> receiver) {
+              extensions::ExtensionWebContentsObserver::BindLocalFrameHost(
+                  std::move(receiver), render_frame_host);
+            },
+            &render_frame_host));
+    associated_registry.AddInterface<guest_view::mojom::GuestViewHost>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForComponents,
+            render_frame_host.GetGlobalId()));
+    associated_registry.AddInterface<extensions::mojom::GuestView>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForExtensions,
+            render_frame_host.GetGlobalId()));
+  }
 }
 
 std::vector<std::unique_ptr<content::NavigationThrottle>>
@@ -980,26 +987,6 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
-  associated_registry->AddInterface<chrome::mojom::PluginInfoHost>(
-      base::BindRepeating(&BindPluginInfoHost, host->GetID()));
-
-  if (extensions::ExtensionsEnabled()) {
-    associated_registry->AddInterface<extensions::mojom::EventRouter>(
-        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
-                            host->GetID()));
-    associated_registry->AddInterface<guest_view::mojom::GuestViewHost>(
-        base::BindRepeating(
-            &extensions::ExtensionsGuestView::CreateForComponents,
-            host->GetID()));
-    associated_registry->AddInterface<extensions::mojom::GuestView>(
-        base::BindRepeating(
-            &extensions::ExtensionsGuestView::CreateForExtensions,
-            host->GetID()));
-    associated_registry->AddInterface<extensions::mojom::RendererHost>(
-        base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
-                            host->GetID()));
-  }
-
   CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
                                                 host);
 }
@@ -1038,7 +1025,6 @@ AlloyContentBrowserClient::CreateLoginDelegate(
 
 void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
     int frame_tree_node_id,
-    ukm::SourceIdObj ukm_source_id,
     NonNetworkURLLoaderFactoryMap* factories) {
   if (!extensions::ExtensionsEnabled()) {
     return;
@@ -1049,7 +1035,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
   factories->emplace(
       extensions::kExtensionScheme,
       extensions::CreateExtensionNavigationURLLoaderFactory(
-          web_contents->GetBrowserContext(), ukm_source_id,
+          web_contents->GetBrowserContext(),
           !!extensions::WebViewGuest::FromWebContents(web_contents)));
 }
 
@@ -1116,7 +1102,7 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
-    absl::optional<int64_t> navigation_id,
+    std::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
@@ -1205,7 +1191,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    const absl::optional<url::Origin>& initiating_origin,
+    const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // Call the other HandleExternalProtocol variant.
@@ -1220,7 +1206,7 @@ bool AlloyContentBrowserClient::HandleExternalProtocol(
     bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
-    const absl::optional<url::Origin>& initiating_origin,
+    const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
@@ -1326,7 +1312,7 @@ base::FilePath AlloyContentBrowserClient::GetFirstPartySetsDirectory() {
   return GetUserDataPath();
 }
 
-absl::optional<base::FilePath>
+std::optional<base::FilePath>
 AlloyContentBrowserClient::GetLocalTracesDirectory() {
   return GetUserDataPath();
 }

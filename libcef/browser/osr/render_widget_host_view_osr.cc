@@ -895,6 +895,13 @@ const viz::LocalSurfaceId& CefRenderWidgetHostViewOSR::GetLocalSurfaceId()
       ->GetOrCreateLocalSurfaceId();
 }
 
+void CefRenderWidgetHostViewOSR::UpdateFrameSinkIdRegistration() {
+  RenderWidgetHostViewBase::UpdateFrameSinkIdRegistration();
+  if (delegated_frame_host_) {
+    delegated_frame_host_->SetIsFrameSinkIdOwner(is_frame_sink_id_owner());
+  }
+}
+
 const viz::FrameSinkId& CefRenderWidgetHostViewOSR::GetFrameSinkId() const {
   return delegated_frame_host_
              ? delegated_frame_host_->frame_sink_id()

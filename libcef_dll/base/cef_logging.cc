@@ -266,7 +266,7 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   return out;
 }
 
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
 std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
   const auto length = wstr ? std::char_traits<char16_t>::length(wstr) : 0U;
   if (length > 0) {

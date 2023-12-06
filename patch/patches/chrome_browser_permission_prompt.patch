@@ -44,7 +44,7 @@ index ea1467d09700d..5537a99500e7f 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index dff5883f7536c..27e58f8fbfe24 100644
+index c26bff9382b26..8c93b7b8351c7 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -55,7 +55,7 @@ index dff5883f7536c..27e58f8fbfe24 100644
  #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -185,6 +186,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
+@@ -186,6 +187,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
  double ChromePermissionsClient::GetSiteEngagementScore(
      content::BrowserContext* browser_context,
      const GURL& origin) {
@@ -65,7 +65,7 @@ index dff5883f7536c..27e58f8fbfe24 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -348,8 +352,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -350,8 +354,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefBasedQuietPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
@@ -142,10 +142,10 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index bc44c36d50d80..31fb2f3fe7e7e 100644
+index 3a4d21b89411f..75673d62f5738 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -174,11 +174,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -173,11 +173,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  

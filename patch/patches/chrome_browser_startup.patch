@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index cef85a137d3e2..985d716ec7549 100644
+index d830d64348d63..a4a84c1214163 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -578,6 +578,14 @@ void OpenNewWindowForFirstRun(
+@@ -580,6 +580,14 @@ void OpenNewWindowForFirstRun(
                                  is_first_run, std::move(launch_mode_recorder));
  }
  #endif  // BUILDFLAG(IS_CHROMEOS_LACROS) || BUILDFLAG(ENABLE_DICE_SUPPORT)
@@ -17,7 +17,7 @@ index cef85a137d3e2..985d716ec7549 100644
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1441,6 +1449,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1450,6 +1458,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -30,7 +30,7 @@ index cef85a137d3e2..985d716ec7549 100644
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1450,6 +1464,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1459,6 +1473,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
@@ -43,7 +43,7 @@ index cef85a137d3e2..985d716ec7549 100644
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index e22ea9b782910..68724228e79f5 100644
+index 5e961db0d6f21..f0c065b16d9f0 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@

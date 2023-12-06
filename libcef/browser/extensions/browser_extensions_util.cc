@@ -25,22 +25,15 @@
 
 namespace extensions {
 
-namespace {
-
-bool InsertWebContents(std::vector<content::WebContents*>* vector,
-                       content::WebContents* web_contents) {
-  vector->push_back(web_contents);
-  return false;  // Continue iterating.
-}
-
-}  // namespace
-
 void GetAllGuestsForOwnerContents(content::WebContents* owner,
                                   std::vector<content::WebContents*>* guests) {
   content::BrowserPluginGuestManager* plugin_guest_manager =
       owner->GetBrowserContext()->GetGuestManager();
   plugin_guest_manager->ForEachGuest(
-      owner, base::BindRepeating(InsertWebContents, guests));
+      owner, [guests](content::WebContents* web_contents) {
+        guests->push_back(web_contents);
+        return false;  // Continue iterating.
+      });
 }
 
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {

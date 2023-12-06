@@ -296,7 +296,7 @@ bool CheckCommandLinePermission() {
 
 bool CheckMediaAccessPermission(CefBrowserHostBase* browser,
                                 content::RenderFrameHost* render_frame_host,
-                                const GURL& security_origin,
+                                const url::Origin& security_origin,
                                 blink::mojom::MediaStreamType type) {
   // Always allowed here. RequestMediaAccessPermission will be called.
   return true;

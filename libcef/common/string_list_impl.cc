@@ -6,7 +6,7 @@
 
 #include "include/internal/cef_string_list.h"
 
-#include "base/logging.h"
+#include "base/check_op.h"
 
 namespace {
 using StringList = std::vector<CefString>;

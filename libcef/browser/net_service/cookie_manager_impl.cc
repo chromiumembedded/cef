@@ -300,11 +300,10 @@ bool CefCookieManagerImpl::SetCookieInternal(
 
   auto canonical_cookie = net::CanonicalCookie::CreateSanitizedCookie(
       url, name, value, domain, path,
-      base::Time(),  // Creation time.
-      expiration_time,
-      base::Time(),  // Last access time.
-      cookie.secure ? true : false, cookie.httponly ? true : false, same_site,
-      priority, /*same_party=*/false, /*partition_key=*/absl::nullopt);
+      /*creation_time=*/base::Time(), expiration_time,
+      /*last_access_time=*/base::Time(), cookie.secure ? true : false,
+      cookie.httponly ? true : false, same_site, priority,
+      /*partition_key=*/absl::nullopt);
 
   if (!canonical_cookie) {
     SetCookieCallbackImpl(

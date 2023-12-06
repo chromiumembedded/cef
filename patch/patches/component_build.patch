@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 7fa53303b844c..06016ae9beb4e 100644
+index 4300a5d94e04a..7ff40d52d3ec5 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -110,7 +110,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -108,7 +108,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      absl::optional<blink::UserAgentMetadata>* override_out);
  
@@ -33,17 +33,17 @@ index d69f9d4641613..e88aaf8617c52 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 95ce91508908e..94042da4b46bf 100644
+index 1a1a07dad71dd..42048c360e797 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
-@@ -9,6 +9,7 @@
+@@ -8,6 +8,7 @@
+ #include "base/functional/callback_forward.h"
  #include "base/memory/raw_ptr.h"
  #include "base/time/time.h"
- #include "content/browser/renderer_host/input/synthetic_gesture_target.h"
 +#include "content/common/content_export.h"
+ #include "content/common/input/synthetic_gesture_target.h"
  #include "ui/gfx/geometry/point_f.h"
  
- namespace ui {
 @@ -26,7 +27,8 @@ namespace content {
  
  class RenderWidgetHostImpl;
@@ -68,7 +68,7 @@ index 97c7dc7c25000..63c42610bfd9c 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 1b0bfc81ebda9..fb5b9f1c1fc1a 100644
+index af07b543f8a96..ff537ffb32224 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -35,6 +35,7 @@ component("controller") {

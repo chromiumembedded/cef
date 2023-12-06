@@ -227,7 +227,8 @@ void AlloyContentRendererClient::RenderThreadStarted() {
       value.reset(base::SysUTF8ToCFStringRef("false"));
     }
 
-    CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
+    CFPreferencesSetAppValue(key.get(), value.get(),
+                             kCFPreferencesCurrentApplication);
     CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
   }
 #endif  // BUILDFLAG(IS_MAC)
@@ -282,7 +283,7 @@ void AlloyContentRendererClient::RenderFrameCreated(
         ->AddInterface<extensions::mojom::MimeHandlerViewContainerManager>(
             base::BindRepeating(
                 &extensions::MimeHandlerViewContainerManager::BindReceiver,
-                render_frame->GetRoutingID()));
+                base::Unretained(render_frame)));
   }
 
   const base::CommandLine* command_line =
@@ -335,7 +336,10 @@ bool AlloyContentRendererClient::IsPluginHandledExternally(
   // not supported. Here it suffices to return false but there should perhaps be
   // a more unified approach to avoid sending the IPC twice.
   chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
-  ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
+  mojo::AssociatedRemote<chrome::mojom::PluginInfoHost> plugin_info_host;
+  render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
+      &plugin_info_host);
+  plugin_info_host->GetPluginInfo(
       original_url, render_frame->GetWebFrame()->Top()->GetSecurityOrigin(),
       mime_type, &plugin_info);
   // TODO(ekaramad): Not continuing here due to a disallowed status should take
@@ -379,7 +383,10 @@ bool AlloyContentRendererClient::OverrideCreatePlugin(
 
   GURL url(params.url);
   chrome::mojom::PluginInfoPtr plugin_info = chrome::mojom::PluginInfo::New();
-  ChromeContentRendererClient::GetPluginInfoHost()->GetPluginInfo(
+  mojo::AssociatedRemote<chrome::mojom::PluginInfoHost> plugin_info_host;
+  render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
+      &plugin_info_host);
+  plugin_info_host->GetPluginInfo(
       url, render_frame->GetWebFrame()->Top()->GetSecurityOrigin(),
       orig_mime_type, &plugin_info);
   *plugin = ChromeContentRendererClient::CreatePlugin(render_frame, params,

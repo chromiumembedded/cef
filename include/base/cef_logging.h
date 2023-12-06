@@ -723,9 +723,9 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr);
 inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
   return out << wstr.c_str();
 }
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
 std::ostream& operator<<(std::ostream& out, const char16_t* wstr);
-#elif defined(WCHAR_T_IS_UTF16)
+#elif defined(WCHAR_T_IS_16_BIT)
 inline std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
   return operator<<(out, reinterpret_cast<const wchar_t*>(wstr));
 }

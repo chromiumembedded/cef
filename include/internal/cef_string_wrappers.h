@@ -99,7 +99,7 @@ struct CefStringTraitsWide {
   static inline bool from_wstring(const std::wstring& str, struct_type* s) {
     return from_wstring(str.data(), str.length(), s);
   }
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
   static inline std::u16string to_string16(const struct_type* s) {
     cef_string_utf16_t cstr;
     memset(&cstr, 0, sizeof(cstr));
@@ -120,7 +120,7 @@ struct CefStringTraitsWide {
                ? true
                : false;
   }
-#else   // WCHAR_T_IS_UTF32
+#elif defined(WCHAR_T_IS_16_BIT)
   static inline std::u16string to_string16(const struct_type* s) {
     return std::u16string(
         reinterpret_cast<const std::u16string::value_type*>(s->str), s->length);
@@ -133,7 +133,7 @@ struct CefStringTraitsWide {
                ? true
                : false;
   }
-#endif  // WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_16_BIT
   static inline bool from_string16(const std::u16string& str, struct_type* s) {
     return from_string16(str.data(), str.length(), s);
   }
@@ -271,7 +271,7 @@ struct CefStringTraitsUTF16 {
   static inline bool from_string(const std::string& str, struct_type* s) {
     return from_string(str.data(), str.length(), s);
   }
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
   static inline std::wstring to_wstring(const struct_type* s) {
     cef_string_wide_t cstr;
     memset(&cstr, 0, sizeof(cstr));
@@ -288,7 +288,7 @@ struct CefStringTraitsUTF16 {
                                   struct_type* s) {
     return cef_string_wide_to_utf16(data, length, s) ? true : false;
   }
-#else   // WCHAR_T_IS_UTF32
+#elif defined(WCHAR_T_IS_16_BIT)
   static inline std::wstring to_wstring(const struct_type* s) {
     return std::wstring(reinterpret_cast<wchar_t*>(s->str), s->length);
   }
@@ -300,7 +300,7 @@ struct CefStringTraitsUTF16 {
                ? true
                : false;
   }
-#endif  // WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_16_BIT
   static inline bool from_wstring(const std::wstring& str, struct_type* s) {
     return from_wstring(str.data(), str.length(), s);
   }

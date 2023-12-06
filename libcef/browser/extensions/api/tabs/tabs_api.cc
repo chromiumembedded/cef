@@ -38,24 +38,24 @@ namespace {
 const char kNotImplementedError[] = "Not implemented";
 
 void ZoomModeToZoomSettings(zoom::ZoomController::ZoomMode zoom_mode,
-                            api::tabs::ZoomSettings* zoom_settings) {
+                            tabs::ZoomSettings* zoom_settings) {
   DCHECK(zoom_settings);
   switch (zoom_mode) {
     case zoom::ZoomController::ZOOM_MODE_DEFAULT:
-      zoom_settings->mode = api::tabs::ZOOM_SETTINGS_MODE_AUTOMATIC;
-      zoom_settings->scope = api::tabs::ZOOM_SETTINGS_SCOPE_PER_ORIGIN;
+      zoom_settings->mode = tabs::ZoomSettingsMode::kAutomatic;
+      zoom_settings->scope = tabs::ZoomSettingsScope::kPerOrigin;
       break;
     case zoom::ZoomController::ZOOM_MODE_ISOLATED:
-      zoom_settings->mode = api::tabs::ZOOM_SETTINGS_MODE_AUTOMATIC;
-      zoom_settings->scope = api::tabs::ZOOM_SETTINGS_SCOPE_PER_TAB;
+      zoom_settings->mode = tabs::ZoomSettingsMode::kAutomatic;
+      zoom_settings->scope = tabs::ZoomSettingsScope::kPerTab;
       break;
     case zoom::ZoomController::ZOOM_MODE_MANUAL:
-      zoom_settings->mode = api::tabs::ZOOM_SETTINGS_MODE_MANUAL;
-      zoom_settings->scope = api::tabs::ZOOM_SETTINGS_SCOPE_PER_TAB;
+      zoom_settings->mode = tabs::ZoomSettingsMode::kManual;
+      zoom_settings->scope = tabs::ZoomSettingsScope::kPerTab;
       break;
     case zoom::ZoomController::ZOOM_MODE_DISABLED:
-      zoom_settings->mode = api::tabs::ZOOM_SETTINGS_MODE_DISABLED;
-      zoom_settings->scope = api::tabs::ZOOM_SETTINGS_SCOPE_PER_TAB;
+      zoom_settings->mode = tabs::ZoomSettingsMode::kDisabled;
+      zoom_settings->scope = tabs::ZoomSettingsScope::kPerTab;
       break;
   }
 }
@@ -271,8 +271,8 @@ ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
   if (!details_value.is_dict()) {
     return set_init_result(VALIDATION_FAILURE);
   }
-  std::unique_ptr<InjectDetails> details(new InjectDetails());
-  if (!InjectDetails::Populate(details_value.GetDict(), *details)) {
+  auto details = InjectDetails::FromValue(details_value.GetDict());
+  if (!details) {
     return set_init_result(VALIDATION_FAILURE);
   }
 
@@ -463,7 +463,7 @@ ExtensionFunction::ResponseAction TabsGetZoomFunction::Run() {
 }
 
 ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
-  using api::tabs::ZoomSettings;
+  using tabs::ZoomSettings;
 
   absl::optional<tabs::SetZoomSettings::Params> params =
       tabs::SetZoomSettings::Params::Create(args());
@@ -482,9 +482,9 @@ ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
   }
 
   // "per-origin" scope is only available in "automatic" mode.
-  if (params->zoom_settings.scope == tabs::ZOOM_SETTINGS_SCOPE_PER_ORIGIN &&
-      params->zoom_settings.mode != tabs::ZOOM_SETTINGS_MODE_AUTOMATIC &&
-      params->zoom_settings.mode != tabs::ZOOM_SETTINGS_MODE_NONE) {
+  if (params->zoom_settings.scope == tabs::ZoomSettingsScope::kPerOrigin &&
+      params->zoom_settings.mode != tabs::ZoomSettingsMode::kAutomatic &&
+      params->zoom_settings.mode != tabs::ZoomSettingsMode::kNone) {
     return RespondNow(Error(tabs_constants::kPerOriginOnlyInAutomaticError));
   }
 
@@ -492,21 +492,21 @@ ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
   // user-specified |zoom_settings|.
   ZoomController::ZoomMode zoom_mode = ZoomController::ZOOM_MODE_DEFAULT;
   switch (params->zoom_settings.mode) {
-    case tabs::ZOOM_SETTINGS_MODE_NONE:
-    case tabs::ZOOM_SETTINGS_MODE_AUTOMATIC:
+    case tabs::ZoomSettingsMode::kNone:
+    case tabs::ZoomSettingsMode::kAutomatic:
       switch (params->zoom_settings.scope) {
-        case tabs::ZOOM_SETTINGS_SCOPE_NONE:
-        case tabs::ZOOM_SETTINGS_SCOPE_PER_ORIGIN:
+        case tabs::ZoomSettingsScope::kNone:
+        case tabs::ZoomSettingsScope::kPerOrigin:
           zoom_mode = ZoomController::ZOOM_MODE_DEFAULT;
           break;
-        case tabs::ZOOM_SETTINGS_SCOPE_PER_TAB:
+        case tabs::ZoomSettingsScope::kPerTab:
           zoom_mode = ZoomController::ZOOM_MODE_ISOLATED;
       }
       break;
-    case tabs::ZOOM_SETTINGS_MODE_MANUAL:
+    case tabs::ZoomSettingsMode::kManual:
       zoom_mode = ZoomController::ZOOM_MODE_MANUAL;
       break;
-    case tabs::ZOOM_SETTINGS_MODE_DISABLED:
+    case tabs::ZoomSettingsMode::kDisabled:
       zoom_mode = ZoomController::ZOOM_MODE_DISABLED;
   }
 
@@ -529,13 +529,13 @@ ExtensionFunction::ResponseAction TabsGetZoomSettingsFunction::Run() {
       ZoomController::FromWebContents(web_contents);
 
   ZoomController::ZoomMode zoom_mode = zoom_controller->zoom_mode();
-  api::tabs::ZoomSettings zoom_settings;
+  tabs::ZoomSettings zoom_settings;
   ZoomModeToZoomSettings(zoom_mode, &zoom_settings);
   zoom_settings.default_zoom_factor =
       blink::PageZoomLevelToZoomFactor(zoom_controller->GetDefaultZoomLevel());
 
   return RespondNow(
-      ArgumentList(api::tabs::GetZoomSettings::Results::Create(zoom_settings)));
+      ArgumentList(tabs::GetZoomSettings::Results::Create(zoom_settings)));
 }
 
 }  // namespace cef

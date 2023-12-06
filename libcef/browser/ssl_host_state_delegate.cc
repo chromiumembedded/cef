@@ -76,8 +76,8 @@ void CefSSLHostStateDelegate::SetHttpsEnforcementForHost(
   // Intentional no-op.
 }
 
-bool CefSSLHostStateDelegate::IsHttpsEnforcedForHost(
-    const std::string& host,
+bool CefSSLHostStateDelegate::IsHttpsEnforcedForUrl(
+    const GURL& url,
     content::StoragePartition* storage_partition) {
   // Intentional no-op. Return value does not matter as HTTPS-First Mode is not
   // enabled.

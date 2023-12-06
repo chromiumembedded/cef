@@ -80,8 +80,9 @@ CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetImage(
   if (image) {
     image_skia = static_cast<CefImageImpl*>(image.get())->AsImageSkia();
   }
-  ParentClass::root_view()->SetImage(
-      static_cast<views::Button::ButtonState>(button_state), image_skia);
+  ParentClass::root_view()->SetImageModel(
+      static_cast<views::Button::ButtonState>(button_state),
+      ui::ImageModel::FromImageSkia(image_skia));
 }
 
 CEF_LABEL_BUTTON_IMPL_T CefRefPtr<CefImage> CEF_LABEL_BUTTON_IMPL_D::GetImage(

@@ -14,10 +14,10 @@ index e50822a2c8d5f..b44dd9191ed08 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 228c377a1bec5..d296c7e46591f 100644
+index 15e4fdcda89d2..66d26abb33af5 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -1059,18 +1059,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -1063,18 +1063,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -38,10 +38,10 @@ index 228c377a1bec5..d296c7e46591f 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index 906ec958256ef..f7c6973bcad3b 100644
+index af96779d25b87..4ef9f7945136c 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
-@@ -189,8 +189,8 @@ class BrowserProcessImpl : public BrowserProcess,
+@@ -191,8 +191,8 @@ class BrowserProcessImpl : public BrowserProcess,
    void SetApplicationLocale(const std::string& actual_locale) override;
    DownloadStatusUpdater* download_status_updater() override;
    DownloadRequestLimiter* download_request_limiter() override;

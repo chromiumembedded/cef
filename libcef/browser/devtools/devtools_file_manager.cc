@@ -10,6 +10,7 @@
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
+#include "base/hash/md5.h"
 #include "base/json/json_writer.h"
 #include "base/json/values_util.h"
 #include "base/lazy_instance.h"

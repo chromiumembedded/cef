@@ -17,9 +17,9 @@
 #include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/events/x/x11_event_translation.h"
 #include "ui/gfx/x/connection.h"
-#include "ui/gfx/x/x11_window_event_manager.h"
+#include "ui/gfx/x/visual_manager.h"
+#include "ui/gfx/x/window_event_manager.h"
 #include "ui/gfx/x/xinput.h"
-#include "ui/gfx/x/xproto_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"
 
 namespace {
@@ -34,8 +34,10 @@ const char kXdndProxy[] = "XdndProxy";
 
 // Return true if |window| has any property with |property_name|.
 // Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
-bool PropertyExists(x11::Window window, x11::Atom property) {
-  auto response = x11::Connection::Get()
+bool PropertyExists(x11::Connection* connection,
+                    x11::Window window,
+                    x11::Atom property) {
+  auto response = connection
                       ->GetProperty(x11::GetPropertyRequest{
                           .window = window,
                           .property = property,
@@ -47,16 +49,16 @@ bool PropertyExists(x11::Window window, x11::Atom property) {
 
 // Returns true if |window| is visible.
 // Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
-bool IsWindowVisible(x11::Window window) {
-  auto response = x11::Connection::Get()->GetWindowAttributes({window}).Sync();
+bool IsWindowVisible(x11::Connection* connection, x11::Window window) {
+  auto response = connection->GetWindowAttributes({window}).Sync();
   if (!response || response->map_state != x11::MapState::Viewable) {
     return false;
   }
 
   // Minimized windows are not visible.
   std::vector<x11::Atom> wm_states;
-  if (x11::GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
-                            &wm_states)) {
+  if (connection->GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
+                                   &wm_states)) {
     x11::Atom hidden_atom = x11::GetAtom("_NET_WM_STATE_HIDDEN");
     if (base::Contains(wm_states, hidden_atom)) {
       return false;
@@ -70,8 +72,8 @@ bool IsWindowVisible(x11::Window window) {
   return true;
 }
 
-x11::Window FindChild(x11::Window window) {
-  auto query_tree = x11::Connection::Get()->QueryTree({window}).Sync();
+x11::Window FindChild(x11::Connection* connection, x11::Window window) {
+  auto query_tree = connection->QueryTree({window}).Sync();
   if (query_tree && query_tree->children.size() == 1U) {
     return query_tree->children[0];
   }
@@ -79,17 +81,19 @@ x11::Window FindChild(x11::Window window) {
   return x11::Window::None;
 }
 
-x11::Window FindToplevelParent(x11::Window window) {
+x11::Window FindToplevelParent(x11::Connection* connection,
+                               x11::Window window) {
   x11::Window top_level_window = window;
 
   do {
-    auto query_tree = x11::Connection::Get()->QueryTree({window}).Sync();
+    auto query_tree = connection->QueryTree({window}).Sync();
     if (!query_tree) {
       break;
     }
 
     top_level_window = window;
-    if (!PropertyExists(query_tree->parent, x11::GetAtom(kNetWMPid)) ||
+    if (!PropertyExists(connection, query_tree->parent,
+                        x11::GetAtom(kNetWMPid)) ||
         query_tree->parent == query_tree->root) {
       break;
     }
@@ -125,7 +129,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
   x11::VisualId visual;
   uint8_t depth;
   x11::ColorMap colormap;
-  ui::XVisualManager::GetInstance()->ChooseVisualForWindow(
+  connection_->GetOrCreateVisualManager().ChooseVisualForWindow(
       /*want_argb_visual=*/false, &visual, &depth, &colormap,
       /*visual_has_alpha=*/nullptr);
 
@@ -150,8 +154,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
   auto event_mask = x11::EventMask::FocusChange |
                     x11::EventMask::StructureNotify |
                     x11::EventMask::PropertyChange;
-  xwindow_events_ =
-      std::make_unique<x11::XScopedEventSelector>(xwindow_, event_mask);
+  xwindow_events_ = connection_->ScopedSelectEvent(xwindow_, event_mask);
 
   connection_->Flush();
 
@@ -163,13 +166,13 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
       x11::GetAtom(kWMDeleteWindow),
       x11::GetAtom(kNetWMPing),
   };
-  x11::SetArrayProperty(xwindow_, x11::GetAtom(kWMProtocols), x11::Atom::ATOM,
-                        protocols);
+  connection_->SetArrayProperty(xwindow_, x11::GetAtom(kWMProtocols),
+                                x11::Atom::ATOM, protocols);
 
   // We need a WM_CLIENT_MACHINE value so we integrate with the desktop
   // environment.
-  x11::SetStringProperty(xwindow_, x11::Atom::WM_CLIENT_MACHINE,
-                         x11::Atom::STRING, net::GetHostName());
+  connection_->SetStringProperty(xwindow_, x11::Atom::WM_CLIENT_MACHINE,
+                                 x11::Atom::STRING, net::GetHostName());
 
   // Likewise, the X server needs to know this window's pid so it knows which
   // program to kill if the window hangs.
@@ -177,14 +180,15 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostBase> browser,
   static_assert(sizeof(uint32_t) >= sizeof(pid_t),
                 "pid_t should not be larger than uint32_t");
   uint32_t pid = getpid();
-  x11::SetProperty(xwindow_, x11::GetAtom(kNetWMPid), x11::Atom::CARDINAL, pid);
+  connection_->SetProperty(xwindow_, x11::GetAtom(kNetWMPid),
+                           x11::Atom::CARDINAL, pid);
 
   // Set the initial window name, if provided.
   if (!title.empty()) {
-    x11::SetStringProperty(xwindow_, x11::Atom::WM_NAME, x11::Atom::STRING,
-                           title);
-    x11::SetStringProperty(xwindow_, x11::Atom::WM_ICON_NAME, x11::Atom::STRING,
-                           title);
+    connection_->SetStringProperty(xwindow_, x11::Atom::WM_NAME,
+                                   x11::Atom::STRING, title);
+    connection_->SetStringProperty(xwindow_, x11::Atom::WM_ICON_NAME,
+                                   x11::Atom::STRING, title);
   }
 }
 
@@ -220,13 +224,13 @@ void CefWindowX11::Show() {
   if (!window_mapped_) {
     // Before we map the window, set size hints. Otherwise, some window managers
     // will ignore toplevel XMoveWindow commands.
-    ui::SizeHints size_hints;
+    x11::SizeHints size_hints;
     memset(&size_hints, 0, sizeof(size_hints));
-    ui::GetWmNormalHints(xwindow_, &size_hints);
-    size_hints.flags |= ui::SIZE_HINT_P_POSITION;
+    connection_->GetWmNormalHints(xwindow_, &size_hints);
+    size_hints.flags |= x11::SIZE_HINT_P_POSITION;
     size_hints.x = bounds_.x();
     size_hints.y = bounds_.y();
-    ui::SetWmNormalHints(xwindow_, size_hints);
+    connection_->SetWmNormalHints(xwindow_, size_hints);
 
     connection_->MapWindow({xwindow_});
 
@@ -236,8 +240,8 @@ void CefWindowX11::Show() {
 
     // Setup the drag and drop proxy on the top level window of the application
     // to be the child of this window.
-    auto child = FindChild(xwindow_);
-    auto toplevel_window = FindToplevelParent(xwindow_);
+    auto child = FindChild(connection_, xwindow_);
+    auto toplevel_window = FindToplevelParent(connection_, xwindow_);
     DCHECK_NE(toplevel_window, x11::Window::None);
     if (child != x11::Window::None && toplevel_window != x11::Window::None) {
       // Configure the drag&drop proxy property for the top-most window so
@@ -246,14 +250,15 @@ void CefWindowX11::Show() {
       // DesktopDragDropClientAuraX11::FindWindowFor.
       x11::Window window = x11::Window::None;
       auto dndproxy_atom = x11::GetAtom(kXdndProxy);
-      x11::GetProperty(toplevel_window, dndproxy_atom, &window);
+      connection_->GetPropertyAs(toplevel_window, dndproxy_atom, &window);
 
       if (window != child) {
         // Set the proxy target for the top-most window.
-        x11::SetProperty(toplevel_window, dndproxy_atom, x11::Atom::WINDOW,
-                         child);
+        connection_->SetProperty(toplevel_window, dndproxy_atom,
+                                 x11::Atom::WINDOW, child);
         // Do the same for the proxy target per the spec.
-        x11::SetProperty(child, dndproxy_atom, x11::Atom::WINDOW, child);
+        connection_->SetProperty(child, dndproxy_atom, x11::Atom::WINDOW,
+                                 child);
       }
     }
   }
@@ -265,7 +270,7 @@ void CefWindowX11::Hide() {
   }
 
   if (window_mapped_) {
-    ui::WithdrawWindow(xwindow_);
+    connection_->WithdrawWindow(xwindow_);
     window_mapped_ = false;
   }
 }
@@ -278,8 +283,8 @@ void CefWindowX11::Focus() {
   x11::Window focus_target = xwindow_;
 
   if (browser_.get()) {
-    auto child = FindChild(xwindow_);
-    if (child != x11::Window::None && IsWindowVisible(child)) {
+    auto child = FindChild(connection_, xwindow_);
+    if (child != x11::Window::None && IsWindowVisible(connection_, child)) {
       // Give focus to the child DesktopWindowTreeHostLinux.
       focus_target = child;
     }
@@ -331,7 +336,7 @@ gfx::Rect CefWindowX11::GetBoundsInScreen() {
 
 views::DesktopWindowTreeHostLinux* CefWindowX11::GetHost() {
   if (browser_.get()) {
-    auto child = FindChild(xwindow_);
+    auto child = FindChild(connection_, xwindow_);
     if (child != x11::Window::None) {
       return static_cast<views::DesktopWindowTreeHostLinux*>(
           views::DesktopWindowTreeHostLinux::GetHostForWidget(
@@ -373,14 +378,14 @@ void CefWindowX11::ContinueFocus() {
 }
 
 bool CefWindowX11::TopLevelAlwaysOnTop() const {
-  auto toplevel_window = FindToplevelParent(xwindow_);
+  auto toplevel_window = FindToplevelParent(connection_, xwindow_);
   if (toplevel_window == x11::Window::None) {
     return false;
   }
 
   std::vector<x11::Atom> wm_states;
-  if (x11::GetArrayProperty(toplevel_window, x11::GetAtom(kNetWMState),
-                            &wm_states)) {
+  if (connection_->GetArrayProperty(toplevel_window, x11::GetAtom(kNetWMState),
+                                    &wm_states)) {
     x11::Atom keep_above_atom = x11::GetAtom(kNetWMStateKeepAbove);
     if (base::Contains(wm_states, keep_above_atom)) {
       return true;
@@ -399,7 +404,7 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
                         configure->height);
 
     if (browser_.get()) {
-      auto child = FindChild(xwindow_);
+      auto child = FindChild(connection_, xwindow_);
       if (child != x11::Window::None) {
         // Resize the child DesktopWindowTreeHostLinux to match this window.
         x11::ConfigureWindowRequest req{
@@ -434,9 +439,9 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
       } else if (protocol == x11::GetAtom(kNetWMPing)) {
         x11::ClientMessageEvent reply_event = *client;
         reply_event.window = parent_xwindow_;
-        x11::SendEvent(reply_event, reply_event.window,
-                       x11::EventMask::SubstructureNotify |
-                           x11::EventMask::SubstructureRedirect);
+        connection_->SendEvent(reply_event, reply_event.window,
+                               x11::EventMask::SubstructureNotify |
+                                   x11::EventMask::SubstructureRedirect);
       }
     }
   } else if (auto* focus = event.As<x11::FocusEvent>()) {
@@ -466,15 +471,15 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
     if (property->atom == wm_state_atom) {
       // State change event like minimize/maximize.
       if (browser_.get()) {
-        auto child = FindChild(xwindow_);
+        auto child = FindChild(connection_, xwindow_);
         if (child != x11::Window::None) {
           // Forward the state change to the child DesktopWindowTreeHostLinux
           // window so that resource usage will be reduced while the window is
           // minimized. |atom_list| may be empty.
           std::vector<x11::Atom> atom_list;
-          x11::GetArrayProperty(xwindow_, wm_state_atom, &atom_list);
-          x11::SetArrayProperty(child, wm_state_atom, x11::Atom::ATOM,
-                                atom_list);
+          connection_->GetArrayProperty(xwindow_, wm_state_atom, &atom_list);
+          connection_->SetArrayProperty(child, wm_state_atom, x11::Atom::ATOM,
+                                        atom_list);
         }
       }
     }

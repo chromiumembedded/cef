@@ -235,7 +235,8 @@ void ChromeBrowserHostImpl::ShowDevToolsOnUIThread(
     DevToolsWindow::InspectElement(web_contents->GetPrimaryMainFrame(),
                                    inspect_element_at.x, inspect_element_at.y);
   } else {
-    DevToolsWindow::OpenDevToolsWindow(web_contents, profile);
+    DevToolsWindow::OpenDevToolsWindow(web_contents, profile,
+                                       DevToolsOpenedByAction::kUnknown);
   }
 
   // The DevTools browser host should now exist.

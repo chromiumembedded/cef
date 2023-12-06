@@ -1,16 +1,16 @@
 diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
-index 325bc70b6ba97..d4117dbb1d4d8 100644
+index 6b9d2c180c904..3570ef071ba07 100644
 --- base/win/dark_mode_support.cc
 +++ base/win/dark_mode_support.cc
-@@ -6,6 +6,7 @@
- 
+@@ -7,6 +7,7 @@
  #include <windows.h>
  
+ #include "base/check.h"
 +#include "base/command_line.h"
  #include "base/native_library.h"
  #include "base/win/windows_version.h"
  
-@@ -85,11 +86,20 @@ const DarkModeSupport& GetDarkModeSupport() {
+@@ -86,11 +87,20 @@ const DarkModeSupport& GetDarkModeSupport() {
    return dark_mode_support;
  }
  
@@ -32,7 +32,7 @@ index 325bc70b6ba97..d4117dbb1d4d8 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index e6078b2a45d88..bf051fb8a02f4 100644
+index b9feac1c87c51..bb63c6d350bfe 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
 @@ -50,6 +50,13 @@ bool InvertedColors() {

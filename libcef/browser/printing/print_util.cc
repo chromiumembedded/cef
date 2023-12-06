@@ -118,7 +118,7 @@ void PrintToPDF(content::WebContents* web_contents,
           margin_top, margin_bottom, margin_left, margin_right,
           CefString(&settings.header_template),
           CefString(&settings.footer_template), !!settings.prefer_css_page_size,
-          !!settings.generate_tagged_pdf);
+          !!settings.generate_tagged_pdf, !!settings.generate_document_outline);
 
   if (absl::holds_alternative<std::string>(print_pages_params)) {
     LOG(ERROR) << "PrintToPDF failed with error: "

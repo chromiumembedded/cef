@@ -46,7 +46,7 @@ CefURLLoaderThrottleProviderImpl::Clone() {
 
 blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefURLLoaderThrottleProviderImpl::CreateThrottles(
-    int render_frame_id,
+    base::optional_ref<const blink::LocalFrameToken> local_frame_token,
     const blink::WebURLRequest& request) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 

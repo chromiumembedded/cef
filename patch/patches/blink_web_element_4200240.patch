@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index 68855feea1605..69e5d1e064601 100644
+index 02fa305524694..29e77bafa710c 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
 @@ -81,6 +81,9 @@ class BLINK_EXPORT WebElement : public WebNode {
@@ -13,10 +13,10 @@ index 68855feea1605..69e5d1e064601 100644
    // Returns true if the element's contenteditable attribute is in the true
    // state or in the plaintext-only state:
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 214c3196b1fb2..ca2c35b1edecb 100644
+index e8c7cb3cdb29f..1cf10e52779e1 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -115,6 +115,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -116,6 +116,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

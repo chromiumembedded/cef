@@ -30,7 +30,7 @@ class CefURLLoaderThrottleProviderImpl
   // blink::URLLoaderThrottleProvider implementation.
   std::unique_ptr<blink::URLLoaderThrottleProvider> Clone() override;
   blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>> CreateThrottles(
-      int render_frame_id,
+      base::optional_ref<const blink::LocalFrameToken> local_frame_token,
       const blink::WebURLRequest& request) override;
   void SetOnline(bool is_online) override;
 

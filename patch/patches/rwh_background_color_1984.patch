@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 96dbd73ff0972..c222ef20a598a 100644
+index 268533e5bd0ef..48e2089d95729 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -27,10 +27,10 @@ index 96dbd73ff0972..c222ef20a598a 100644
  }
  
  #if BUILDFLAG(IS_WIN)
-@@ -2387,6 +2390,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
-   // This needs to happen only after |window_| has been initialized using
-   // Init(), because it needs to have the layer.
-   window_->SetEmbedFrameSinkId(frame_sink_id_);
+@@ -2381,6 +2384,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+   window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
+                                                   : SK_ColorWHITE);
+   UpdateFrameSinkIdRegistration();
 +
 +  // Do this after |window_| is created to avoid crashes on Win10.
 +  // See https://crbug.com/761389.
@@ -43,4 +43,4 @@ index 96dbd73ff0972..c222ef20a598a 100644
 +  }
  }
  
- void RenderWidgetHostViewAura::CreateDelegatedFrameHostClient() {
+ void RenderWidgetHostViewAura::UpdateFrameSinkIdRegistration() {

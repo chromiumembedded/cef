@@ -51,7 +51,7 @@ void CefExtensionHostDelegate::ProcessMediaAccessRequest(
 
 bool CefExtensionHostDelegate::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
-    const GURL& security_origin,
+    const url::Origin& security_origin,
     blink::mojom::MediaStreamType type,
     const Extension* extension) {
   // Never routed here from AlloyBrowserHostImpl.

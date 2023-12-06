@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index e4e7ac767c927..7c1fd1eda14b1 100644
+index 7af928a9a030c..a702033cb2d47 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -47,9 +47,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -30,10 +30,10 @@ index e4e7ac767c927..7c1fd1eda14b1 100644
      gpu::SurfaceHandle child_window) {
    NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index fa7f12e204cda..4706e1d19868a 100644
+index cb16487f9fc08..6191f8801f302 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -42,16 +42,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
+@@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
    gfx::AcceleratedWidget widget() const { return widget_; }
  #endif
  
@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 9e66224b5cdb1..c7dee3b3fe7c9 100644
+index 2dddd66f9326f..6d1979c993f10 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -228,6 +228,8 @@ viz_component("service") {
@@ -93,18 +93,18 @@ index 9e66224b5cdb1..c7dee3b3fe7c9 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 0bc450ca4faf2..bdbdca76246c6 100644
+index e8e3237bb2b8f..cec146af141ba 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -17,6 +17,7 @@
+@@ -18,6 +18,7 @@
  #include "build/chromecast_buildflags.h"
  #include "build/chromeos_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
  #include "components/viz/common/display/renderer_settings.h"
+ #include "components/viz/common/features.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
- #include "components/viz/service/display/display_compositor_memory_and_task_controller.h"
-@@ -29,6 +30,7 @@
+@@ -31,6 +32,7 @@
  #include "gpu/command_buffer/service/scheduler_sequence.h"
  #include "gpu/config/gpu_finch_features.h"
  #include "gpu/ipc/common/surface_handle.h"
@@ -112,7 +112,7 @@ index 0bc450ca4faf2..bdbdca76246c6 100644
  #include "ui/base/ui_base_switches.h"
  
  #if BUILDFLAG(IS_WIN)
-@@ -144,6 +146,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -146,6 +148,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -150,10 +150,10 @@ index 796ae2688436e..37a3406790210 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 2705338b960a4..94d030c3a2154 100644
+index d149ead2520ed..a81dca282b8ae 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -397,8 +397,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -408,8 +408,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -170,7 +170,7 @@ index 2705338b960a4..94d030c3a2154 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index 2b923566128b9..37c28f2978527 100644
+index 0173f9b181714..36a734d64738e 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -43,6 +43,7 @@ class Compositor;
@@ -181,7 +181,7 @@ index 2b923566128b9..37c28f2978527 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -125,6 +126,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -119,6 +120,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // For preventing frame swaps of wrong size during resize on Windows.
    // (https://crbug.com/811945)
    friend class ui::Compositor;
@@ -191,7 +191,7 @@ index 2b923566128b9..37c28f2978527 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 62f98959d80cf..7c988630b4bc6 100644
+index d7deccb6e6ec6..6a91f4aae6259 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -108,13 +108,15 @@ interface DisplayPrivate {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 456adfeb57253..59a553cbb1f28 100644
+index d2d3757f75a6b..a69f9af6c2c08 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -33,7 +33,9 @@
@@ -261,7 +261,7 @@ index 456adfeb57253..59a553cbb1f28 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -533,6 +546,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -543,6 +556,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
  
    std::unique_ptr<PendingBeginFrameArgs> pending_begin_frame_args_;
  

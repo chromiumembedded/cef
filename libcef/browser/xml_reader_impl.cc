@@ -80,7 +80,8 @@ void XMLCALL xml_error_callback(void* arg,
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-void XMLCALL xml_structured_error_callback(void* userData, xmlErrorPtr error) {
+void XMLCALL xml_structured_error_callback(void* userData,
+                                           const xmlError* error) {
   if (!error->message) {
     return;
   }

@@ -77,7 +77,7 @@ const char* const kNonWildcardDomainNonPortSchemes[] = {
 const size_t kNonWildcardDomainNonPortSchemesSize =
     std::size(kNonWildcardDomainNonPortSchemes);
 
-absl::optional<int> AcquireProcessSingleton(
+std::optional<int> AcquireProcessSingleton(
     const base::FilePath& user_data_dir) {
   // Take the Chrome process singleton lock. The process can become the
   // Browser process if it succeed to take the lock. Otherwise, the
@@ -114,7 +114,7 @@ absl::optional<int> AcquireProcessSingleton(
       return chrome::RESULT_CODE_PROFILE_IN_USE;
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace
@@ -130,17 +130,17 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
 
 AlloyMainDelegate::~AlloyMainDelegate() {}
 
-absl::optional<int> AlloyMainDelegate::PreBrowserMain() {
+std::optional<int> AlloyMainDelegate::PreBrowserMain() {
   runner_->PreBrowserMain();
-  return absl::nullopt;
+  return std::nullopt;
 }
 
-absl::optional<int> AlloyMainDelegate::PostEarlyInitialization(
+std::optional<int> AlloyMainDelegate::PostEarlyInitialization(
     InvokedIn invoked_in) {
   const auto* invoked_in_browser =
       absl::get_if<InvokedInBrowserProcess>(&invoked_in);
   if (!invoked_in_browser) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   // Based on ChromeMainDelegate::PostEarlyInitialization.
@@ -161,10 +161,10 @@ absl::optional<int> AlloyMainDelegate::PostEarlyInitialization(
     return process_singleton_result;
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
-absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
+std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -510,7 +510,7 @@ absl::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   util_mac::BasicStartupComplete();
 #endif
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void AlloyMainDelegate::PreSandboxStartup() {

@@ -15,14 +15,12 @@
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/navigation_handle.h"
-#include "content/public/browser/notification_details.h"
-#include "content/public/browser/notification_source.h"
-#include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_observer.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
+#include "services/network/public/mojom/url_response_head.mojom.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 #include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
@@ -86,17 +84,6 @@ void CefBrowserContentsDelegate::ObserveWebContents(
   WebContentsObserver::Observe(new_contents);
 
   if (new_contents) {
-    registrar_.reset(new content::NotificationRegistrar);
-
-    // When navigating through the history, the restored NavigationEntry's title
-    // will be used. If the entry ends up having the same title after we return
-    // to it, as will usually be the case, the
-    // NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED will then be suppressed, since
-    // the NavigationEntry's title hasn't changed.
-    registrar_->Add(this, content::NOTIFICATION_LOAD_STOP,
-                    content::Source<content::NavigationController>(
-                        &new_contents->GetController()));
-
     // Make sure MaybeCreateFrame is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
     // browser.
@@ -106,8 +93,6 @@ void CefBrowserContentsDelegate::ObserveWebContents(
     // Make sure RenderWidgetCreated is called at least one time. This Observer
     // is registered too late to catch the initial creation.
     RenderWidgetCreated(new_contents->GetRenderViewHost()->GetWidget());
-  } else {
-    registrar_.reset();
   }
 }
 
@@ -443,6 +428,8 @@ void CefBrowserContentsDelegate::DidStopLoading() {
   for (const auto& frame : browser_info_->GetAllFrames()) {
     frame->MaybeSendDidStopLoading();
   }
+
+  OnTitleChange(web_contents()->GetTitle());
 }
 
 void CefBrowserContentsDelegate::DidFinishNavigation(
@@ -532,8 +519,10 @@ void CefBrowserContentsDelegate::DidFinishLoad(
   frame->RefreshAttributes();
 
   int http_status_code = 0;
-  if (auto response_headers = render_frame_host->GetLastResponseHeaders()) {
-    http_status_code = response_headers->response_code();
+  if (auto response_head = render_frame_host->GetLastResponseHead()) {
+    if (response_head->headers) {
+      http_status_code = response_head->headers->response_code();
+    }
   }
 
   OnLoadEnd(frame, validated_url, http_status_code);
@@ -588,17 +577,6 @@ void CefBrowserContentsDelegate::WebContentsDestroyed() {
   ObserveWebContents(nullptr);
   for (auto& observer : observers_) {
     observer.OnWebContentsDestroyed(wc);
-  }
-}
-
-void CefBrowserContentsDelegate::Observe(
-    int type,
-    const content::NotificationSource& source,
-    const content::NotificationDetails& details) {
-  DCHECK_EQ(type, content::NOTIFICATION_LOAD_STOP);
-
-  if (type == content::NOTIFICATION_LOAD_STOP) {
-    OnTitleChange(web_contents()->GetTitle());
   }
 }
 

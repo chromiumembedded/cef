@@ -77,8 +77,8 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
       const std::string& host,
       bool enforce,
       content::StoragePartition* storage_partition) override;
-  bool IsHttpsEnforcedForHost(
-      const std::string& host,
+  bool IsHttpsEnforcedForUrl(
+      const GURL& url,
       content::StoragePartition* storage_partition) override;
   void RevokeUserAllowExceptions(const std::string& host) override;
   bool HasAllowException(const std::string& host,

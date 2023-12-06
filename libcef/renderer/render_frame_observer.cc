@@ -71,7 +71,7 @@ void CefRenderFrameObserver::DidFinishLoad() {
   }
 }
 
-void CefRenderFrameObserver::WillDetach() {
+void CefRenderFrameObserver::WillDetach(blink::DetachReason detach_reason) {
   if (frame_) {
     frame_->OnDetached();
     frame_ = nullptr;

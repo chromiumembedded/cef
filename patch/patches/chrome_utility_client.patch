@@ -1,5 +1,5 @@
 diff --git chrome/utility/chrome_content_utility_client.cc chrome/utility/chrome_content_utility_client.cc
-index 6413d01cb4b41..b38eb084d8508 100644
+index 9b666cd9c1989..dd0814403474c 100644
 --- chrome/utility/chrome_content_utility_client.cc
 +++ chrome/utility/chrome_content_utility_client.cc
 @@ -13,6 +13,7 @@

@@ -390,8 +390,12 @@ source_set("libcef_static_unittested") {
   ]
 
   deps = [
-    "//base",
     "//ui/gfx/geometry",
+  ]
+
+  public_deps = [
+    # Support relative include paths.
+    "//base",
   ]
 
   configs += [
@@ -964,6 +968,7 @@ source_set("libcef_static") {
     # Bring in feature flag defines.
     "//cef/libcef/features",
     # Support relative include paths.
+    "//base",
     "//third_party/abseil-cpp:absl",
   ]
 
@@ -981,7 +986,6 @@ source_set("libcef_static") {
     "libcef/common/extensions/api:extensions_features",
 
     # Normal build dependencies. Should be sorted alphabetically.
-    "//base",
     "//base:base_static",
     "//base/third_party/dynamic_annotations",
     "//cc",

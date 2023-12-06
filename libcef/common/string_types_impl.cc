@@ -180,16 +180,10 @@ CEF_EXPORT int cef_string_utf16_cmp(const cef_string_utf16_t* str1,
   if (str1->length == 0 && str2->length == 0) {
     return 0;
   }
-#if defined(WCHAR_T_IS_UTF32)
   int r = std::char_traits<std::u16string::value_type>::compare(
       reinterpret_cast<std::u16string::value_type*>(str1->str),
       reinterpret_cast<std::u16string::value_type*>(str2->str),
       std::min(str1->length, str2->length));
-#else
-  int r = wcsncmp(reinterpret_cast<wchar_t*>(str1->str),
-                  reinterpret_cast<wchar_t*>(str2->str),
-                  std::min(str1->length, str2->length));
-#endif
   if (r == 0) {
     if (str1->length > str2->length) {
       return 1;

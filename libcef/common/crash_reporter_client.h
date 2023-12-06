@@ -10,7 +10,7 @@
 
 #include "include/cef_version.h"
 
-#include "base/strings/string_piece_forward.h"
+#include "base/strings/string_piece.h"
 #include "base/synchronization/lock.h"
 #include "build/build_config.h"
 #include "components/crash/core/app/crash_reporter_client.h"

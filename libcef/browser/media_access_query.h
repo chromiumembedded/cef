@@ -12,15 +12,18 @@ namespace content {
 class RenderFrameHost;
 }
 
+namespace url {
+class Origin;
+}
+
 class CefBrowserHostBase;
-class GURL;
 
 namespace media_access_query {
 
 // Called from WebContentsDelegate::CheckMediaAccessPermission.
 bool CheckMediaAccessPermission(CefBrowserHostBase* browser,
                                 content::RenderFrameHost* render_frame_host,
-                                const GURL& security_origin,
+                                const url::Origin& security_origin,
                                 blink::mojom::MediaStreamType type);
 
 // Called from WebContentsDelegate::RequestMediaAccessPermission.

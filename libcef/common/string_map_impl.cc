@@ -7,7 +7,7 @@
 
 #include "include/internal/cef_string_map.h"
 
-#include "base/logging.h"
+#include "base/check_op.h"
 
 namespace {
 

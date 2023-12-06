@@ -1,5 +1,5 @@
 diff --git ui/display/screen.cc ui/display/screen.cc
-index 5e8e23ada050f..c11ea072109ec 100644
+index 22747ebcf31c0..8fba5da85a656 100644
 --- ui/display/screen.cc
 +++ ui/display/screen.cc
 @@ -107,13 +107,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {

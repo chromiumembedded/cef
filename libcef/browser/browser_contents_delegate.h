@@ -12,8 +12,6 @@
 
 #include "base/callback_list.h"
 #include "base/observer_list.h"
-#include "content/public/browser/notification_observer.h"
-#include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -49,8 +47,7 @@ constexpr inline CefBrowserContentsState operator|(
 // Includes functionality that is shared by the alloy and chrome runtimes.
 // Only accessed on the UI thread.
 class CefBrowserContentsDelegate : public content::WebContentsDelegate,
-                                   public content::WebContentsObserver,
-                                   public content::NotificationObserver {
+                                   public content::WebContentsObserver {
  public:
   using State = CefBrowserContentsState;
 
@@ -143,11 +140,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void OnFocusChangedInPage(content::FocusedNodeDetails* details) override;
   void WebContentsDestroyed() override;
 
-  // NotificationObserver methods.
-  void Observe(int type,
-               const content::NotificationSource& source,
-               const content::NotificationDetails& details) override;
-
   // Accessors for state information. Changes will be signaled to
   // Observer::OnStateChanged.
   bool is_loading() const { return is_loading_; }
@@ -195,9 +187,6 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
 
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer> observers_;
-
-  // Used for managing notification subscriptions.
-  std::unique_ptr<content::NotificationRegistrar> registrar_;
 
   // True if the focus is currently on an editable field on the page.
   bool focus_on_editable_field_ = false;

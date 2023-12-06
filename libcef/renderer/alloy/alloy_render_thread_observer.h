@@ -47,8 +47,8 @@ class AlloyRenderThreadObserver : public content::RenderThreadObserver,
           chromeos_listener_receiver,
       mojo::PendingRemote<content_settings::mojom::ContentSettingsManager>
           content_settings_manager,
-      mojo::PendingRemote<chrome::mojom::BoundSessionRequestThrottledListener>
-          bound_session_request_throttled_listener) override;
+      mojo::PendingRemote<chrome::mojom::BoundSessionRequestThrottledHandler>
+          bound_session_request_throttled_handler) override;
   void SetConfiguration(chrome::mojom::DynamicParamsPtr params) override;
 
   void OnRendererConfigurationAssociatedRequest(

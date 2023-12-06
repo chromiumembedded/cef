@@ -1273,7 +1273,7 @@ void AlloyBrowserHostImpl::RequestMediaAccessPermission(
 
 bool AlloyBrowserHostImpl::CheckMediaAccessPermission(
     content::RenderFrameHost* render_frame_host,
-    const GURL& security_origin,
+    const url::Origin& security_origin,
     blink::mojom::MediaStreamType type) {
   return media_access_query::CheckMediaAccessPermission(this, render_frame_host,
                                                         security_origin, type);

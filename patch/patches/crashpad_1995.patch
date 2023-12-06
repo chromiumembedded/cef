@@ -81,7 +81,7 @@ index 27a803784eb9e..a8b033f475cb4 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 680c8ec662ecf..2c898fc6e1c70 100644
+index 2f69ae87fd93d..69a1bb6e008b4 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -6,6 +6,8 @@
@@ -105,7 +105,7 @@ index 680c8ec662ecf..2c898fc6e1c70 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -159,11 +163,9 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -160,11 +164,9 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  

@@ -13,12 +13,12 @@ index 9d9c17ffd6474..4eb79c65369af 100644
  };
  
 diff --git content/public/browser/webui_config_map.h content/public/browser/webui_config_map.h
-index a80034506bf45..4bda477df0558 100644
+index e7b6a9b841abb..1c98be86c0db1 100644
 --- content/public/browser/webui_config_map.h
 +++ content/public/browser/webui_config_map.h
-@@ -61,6 +61,10 @@ class CONTENT_EXPORT WebUIConfigMap {
-   // Returns the size of the map, i.e. how many WebUIConfigs are registered.
-   size_t GetSizeForTesting() { return configs_map_.size(); }
+@@ -68,6 +68,10 @@ class CONTENT_EXPORT WebUIConfigMap {
+   std::vector<WebUIConfigInfo> GetWebUIConfigList(
+       BrowserContext* browser_context);
  
 +  WebUIControllerFactory* controller_factory() const {
 +    return webui_controller_factory_.get();

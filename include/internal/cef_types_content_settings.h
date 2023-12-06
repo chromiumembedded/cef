@@ -251,8 +251,7 @@ typedef enum {
   /// use by the File System Access API.
   CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_LAST_PICKED_DIRECTORY,
 
-  /// Controls access to the getDisplayMedia API when {preferCurrentTab: true}
-  /// is specified.
+  /// Controls access to the getDisplayMedia API.
   CEF_CONTENT_SETTING_TYPE_DISPLAY_CAPTURE,
 
   /// Website setting to store permissions metadata granted to paths on the
@@ -289,7 +288,8 @@ typedef enum {
   /// a specified account. When this is present it allows access to session
   /// management capabilities between the sites. This setting is associated
   /// with the relying party's origin.
-  CEF_CONTENT_SETTING_TYPE_FEDERATED_IDENTITY_ACTIVE_SESSION,
+  // Obsolete on Nov 2023.
+  CEF_CONTENT_SETTING_TYPE_DEPRECATED_FEDERATED_IDENTITY_ACTIVE_SESSION,
 
   /// Setting to indicate whether Chrome should automatically apply darkening to
   /// web content.
@@ -383,6 +383,10 @@ typedef enum {
   /// Content Setting for temporary 3PC accesses granted by user behavior
   /// heuristics.
   CEF_CONTENT_SETTING_TYPE_TPCD_HEURISTICS_GRANTS,
+
+  /// Whether the FSA Persistent Permissions restore prompt is eligible to be
+  /// shown to the user, for a given origin.
+  CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_ACCESS_RESTORE_PERMISSION,
 
   CEF_CONTENT_SETTING_TYPE_NUM_TYPES,
 } cef_content_setting_types_t;

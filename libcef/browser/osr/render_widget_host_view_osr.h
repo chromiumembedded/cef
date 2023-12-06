@@ -196,6 +196,7 @@ class CefRenderWidgetHostViewOSR
                         size_t offset,
                         const gfx::Range& range) override;
   const viz::LocalSurfaceId& GetLocalSurfaceId() const override;
+  void UpdateFrameSinkIdRegistration() override;
   const viz::FrameSinkId& GetFrameSinkId() const override;
   viz::FrameSinkId GetRootFrameSinkId() override;
   void NotifyHostAndDelegateOnWasShown(

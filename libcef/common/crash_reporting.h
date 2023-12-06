@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "base/strings/string_piece_forward.h"
+#include "base/strings/string_piece.h"
 #include "build/build_config.h"
 
 namespace base {

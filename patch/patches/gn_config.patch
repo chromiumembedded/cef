@@ -12,7 +12,7 @@ index 321877844bd21..f7f00a99d6244 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index ad4b830fa0932..f6bd36461ae40 100644
+index 678989ac85db1..b05b5aac2fc64 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -31,7 +31,7 @@ index ad4b830fa0932..f6bd36461ae40 100644
 +      deps += [ "//cef" ]
 +    }
 +
-     if (enable_printing || enable_printing_unittests) {
+     if (enable_printing || enable_printing_tests) {
        deps += [ "//printing:printing_unittests" ]
      }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 54efa2d231a3b..bee18f42509b6 100644
+index 5a4ddf12a9db3..6c255f9db2433 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -99,7 +99,7 @@ index 54efa2d231a3b..bee18f42509b6 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index fdb87c7e75342..7ba91bd740c81 100644
+index c43aa5873d96a..68978caa5b96b 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -110,9 +110,9 @@ index fdb87c7e75342..7ba91bd740c81 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -93,6 +94,10 @@ template("chrome_repack_locales") {
-           [ "${root_gen_dir}/chromeos/strings/chromeos_strings_" ]
-       deps += [ "//chromeos/strings" ]
+@@ -97,6 +98,10 @@ template("chrome_repack_locales") {
+       source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
+       deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }
 +    if (enable_cef) {
 +      source_patterns += [ "${root_gen_dir}/cef/cef_strings_" ]
@@ -149,7 +149,7 @@ index 6a32fb624ea4c..923a92b478368 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 77f1be6116d0c..6bc41416af551 100644
+index 79d613489bac2..86b82e96b7ec0 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -5,6 +5,7 @@

@@ -62,6 +62,7 @@
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 #include "components/safe_search_api/safe_search_util.h"
 #include "components/spellcheck/browser/pref_names.h"
+#include "components/supervised_user/core/common/buildflags.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
 #include "components/unified_consent/unified_consent_service.h"
@@ -245,7 +246,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPrintPreviewUseSystemDefaultPrinter,
                                 false);
-  registry->RegisterBooleanPref(prefs::kWebRTCAllowLegacyTLSProtocols, false);
 
   // Profile preferences.
   // Based on chrome/browser/profiles/profiles_state.cc RegisterPrefs.

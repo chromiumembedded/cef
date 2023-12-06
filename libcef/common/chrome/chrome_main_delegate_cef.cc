@@ -56,7 +56,7 @@ ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
 
 ChromeMainDelegateCef::~ChromeMainDelegateCef() = default;
 
-absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
+std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
   // Returns no value if startup should proceed.
   auto result = ChromeMainDelegate::BasicStartupComplete();
   if (result.has_value()) {
@@ -165,7 +165,7 @@ absl::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
   util_mac::BasicStartupComplete();
 #endif
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void ChromeMainDelegateCef::PreSandboxStartup() {
@@ -195,15 +195,15 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   crash_reporting::PreSandboxStartup(*command_line, process_type);
 }
 
-absl::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
+std::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
   // The parent ChromeMainDelegate implementation creates the NSApplication
   // instance on macOS, and we intentionally don't want to do that here.
   // TODO(macos): Do we need l10n_util::OverrideLocaleWithCocoaLocale()?
   runner_->PreBrowserMain();
-  return absl::nullopt;
+  return std::nullopt;
 }
 
-absl::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
+std::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
     InvokedIn invoked_in) {
   // Configure this before ChromeMainDelegate::PostEarlyInitialization triggers
   // ChromeBrowserPolicyConnector creation.

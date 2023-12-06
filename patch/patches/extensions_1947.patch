@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index cead7cfa14bae..24142c2e4896f 100644
+index 8cea5bf4591cd..c5fca9dd1a9e8 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -10,9 +10,9 @@ index cead7cfa14bae..24142c2e4896f 100644
  #include "chrome/browser/extensions/extension_tab_util.h"
  #include "chrome/browser/preloading/prefetch/no_state_prefetch/chrome_no_state_prefetch_contents_delegate.h"
  #include "components/no_state_prefetch/browser/no_state_prefetch_contents.h"
-@@ -18,6 +19,10 @@
- #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
- #include "extensions/common/manifest_handlers/mime_types_handler.h"
+@@ -26,6 +27,10 @@
+ #include "pdf/pdf_features.h"
+ #endif  // BUILDFLAG(ENABLE_PDF)
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/extensions/alloy_extensions_util.h"
@@ -21,7 +21,7 @@ index cead7cfa14bae..24142c2e4896f 100644
  namespace extensions {
  
  void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
-@@ -34,6 +39,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -43,6 +48,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -29,7 +29,7 @@ index cead7cfa14bae..24142c2e4896f 100644
    // If the request was for NoStatePrefetch, abort the prefetcher and do not
    // continue. This is because plugins cancel NoStatePrefetch, see
    // http://crbug.com/343590.
-@@ -44,6 +50,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -53,6 +59,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      no_state_prefetch_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -37,7 +37,7 @@ index cead7cfa14bae..24142c2e4896f 100644
  
    auto* browser_context = web_contents->GetBrowserContext();
  
-@@ -70,9 +77,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -79,9 +86,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    // forms of zooming won't work).
    // TODO(1042323): Present a coherent representation of a tab id for portal
    // contents.
@@ -60,7 +60,7 @@ index cead7cfa14bae..24142c2e4896f 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index bf2c4d83e99b0..55c8c05898e2d 100644
+index 55f83aa0e801a..e111e3273796e 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -62,12 +62,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -132,7 +132,7 @@ index bf2c4d83e99b0..55c8c05898e2d 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 316d778267f30..49de50e79fa37 100644
+index c0398bdd68648..93fc2409ab3d7 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -62,6 +62,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -157,7 +157,7 @@ index 316d778267f30..49de50e79fa37 100644
    content::RenderFrameHost* main_frame_host() const { return main_frame_host_; }
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -230,7 +236,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -238,7 +244,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    raw_ptr<content::BrowserContext> browser_context_;
  
    // The host for our HTML content.
@@ -199,10 +199,10 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 058367b7ab78d..99a9e901566ce 100644
+index bded50cb03354..4df474bd3c7bb 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -32,6 +32,7 @@
+@@ -31,6 +31,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -210,7 +210,7 @@ index 058367b7ab78d..99a9e901566ce 100644
  class PrefService;
  
  namespace base {
-@@ -80,6 +81,7 @@ class ComponentExtensionResourceManager;
+@@ -79,6 +80,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -218,7 +218,7 @@ index 058367b7ab78d..99a9e901566ce 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -265,6 +267,14 @@ class ExtensionsBrowserClient {
+@@ -264,6 +266,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -257,7 +257,7 @@ index fcfb4635bfc23..619f210c7240e 100644
        base::BindOnce(&ProcessManager::HandleCloseExtensionHost,
                       weak_ptr_factory_.GetWeakPtr()));
 diff --git extensions/common/extensions_client.cc extensions/common/extensions_client.cc
-index a8108350ddde2..7ae49e78b4327 100644
+index 713e66b05abcf..de97074586d0f 100644
 --- extensions/common/extensions_client.cc
 +++ extensions/common/extensions_client.cc
 @@ -23,7 +23,7 @@ ExtensionsClient* g_client = nullptr;

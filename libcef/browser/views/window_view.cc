@@ -25,8 +25,7 @@
 
 #if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(OZONE_PLATFORM_X11)
-#include "ui/gfx/x/x11_atom_cache.h"
-#include "ui/gfx/x/xproto_util.h"
+#include "ui/gfx/x/atom_cache.h"
 #include "ui/linux/linux_ui_delegate.h"
 #endif
 #endif
@@ -547,12 +546,14 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
         view_util::GetWindowHandle(host_widget));
     CHECK(parent);
 
+    auto connection = x11::Connection::Get();
+
     if (cef_delegate() && cef_delegate()->IsWindowModalDialog(GetCefWindow())) {
       // The presence of _NET_WM_STATE_MODAL in _NET_SUPPORTED indicates
       // possible window manager support. However, some window managers still
       // don't support this properly.
       x11::Atom modal_atom = x11::GetAtom("_NET_WM_STATE_MODAL");
-      if (ui::WmSupportsHint(modal_atom)) {
+      if (connection->WmSupportsHint(modal_atom)) {
         ui::SetWMSpecState(x11window, true, modal_atom, x11::Atom::None);
       } else {
         LOG(ERROR)
@@ -561,11 +562,11 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     }
 
     // From GtkUiPlatformX11::SetGtkWidgetTransientFor:
-    x11::SetProperty(x11window, x11::Atom::WM_TRANSIENT_FOR, x11::Atom::WINDOW,
-                     parent);
-    x11::SetProperty(x11window, x11::GetAtom("_NET_WM_WINDOW_TYPE"),
-                     x11::Atom::ATOM,
-                     x11::GetAtom("_NET_WM_WINDOW_TYPE_DIALOG"));
+    connection->SetProperty(x11window, x11::Atom::WM_TRANSIENT_FOR,
+                            x11::Atom::WINDOW, parent);
+    connection->SetProperty(x11window, x11::GetAtom("_NET_WM_WINDOW_TYPE"),
+                            x11::Atom::ATOM,
+                            x11::GetAtom("_NET_WM_WINDOW_TYPE_DIALOG"));
 
     ui::LinuxUiDelegate::GetInstance()->SetTransientWindowForParent(
         parent, static_cast<gfx::AcceleratedWidget>(x11window));

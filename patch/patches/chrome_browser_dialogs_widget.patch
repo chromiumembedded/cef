@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 819da6b0bff94..a8e3ecd8527bd 100644
+index 9e07412327ce9..f889c0e6a03d0 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -41,7 +41,7 @@ index 819da6b0bff94..a8e3ecd8527bd 100644
      return;
    }
  
-@@ -219,7 +228,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
+@@ -224,7 +233,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
  
    views::Widget* widget = views::DialogDelegate::CreateDialogWidget(
        dialog, nullptr,
@@ -51,7 +51,7 @@ index 819da6b0bff94..a8e3ecd8527bd 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -241,8 +251,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -246,8 +256,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
  
    gfx::NativeView parent_view =
        parent ? CurrentClient()->GetDialogHostView(parent) : nullptr;
@@ -66,7 +66,7 @@ index 819da6b0bff94..a8e3ecd8527bd 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -258,8 +273,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -263,8 +278,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
    if (!requires_positioning)
      return widget;
  
