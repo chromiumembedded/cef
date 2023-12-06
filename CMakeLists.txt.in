@@ -12,7 +12,7 @@
 # distribution include:
 #
 # Linux:      Ninja, GCC 7.5.0+, Unix Makefiles
-# MacOS:      Ninja, Xcode 12.2 to 13.0
+# MacOS:      Ninja, Xcode 12.2 to 15.0
 # Windows:    Ninja, Visual Studio 2022
 #
 # Ninja is a cross-platform open-source tool for running fast builds using
@@ -36,7 +36,7 @@
 #
 # The below requirements must be met to build this CEF binary distribution.
 #
-# - CMake version 3.19 or newer.
+# - CMake version 3.21 or newer.
 #
 # - Linux requirements:
 #   Currently supported distributions include Debian 10 (Buster), Ubuntu 18
@@ -48,7 +48,7 @@
 #     libgtk3.0-dev     (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 12.2 to 13.4 building on MacOS 10.15.4 (Catalina) or newer. Only
+#   Xcode 12.2 to 15.0 building on MacOS 10.15.4 (Catalina) or newer. Only
 #   64-bit builds are supported. The Xcode command-line tools must also be
 #   installed. Newer Xcode versions may not have been been tested and are not
 #   recommended.
