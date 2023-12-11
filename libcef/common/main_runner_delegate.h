@@ -26,6 +26,7 @@ class CefMainRunnerDelegate {
   virtual bool HandleMainMessageLoopQuit() { return false; }
   virtual void BeforeUIThreadInitialize() {}
   virtual void AfterUIThreadInitialize() {}
+  virtual void BeforeUIThreadShutdown() {}
   virtual void AfterUIThreadShutdown() {}
   virtual void BeforeMainThreadShutdown() {}
   virtual void AfterMainThreadShutdown() {}

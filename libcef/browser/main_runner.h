@@ -71,13 +71,13 @@ class CefMainRunner : public CefMainRunnerHandler {
   // Called on the UI thread after the context is initialized.
   void OnContextInitialized(base::OnceClosure context_initialized);
 
-  // Performs shutdown actions that need to occur on the UI thread before any
-  // threads are destroyed.
-  void FinishShutdownOnUIThread(base::OnceClosure shutdown_on_ui_thread,
-                                base::WaitableEvent* uithread_shutdown_event);
+  // Performs shutdown actions that need to occur on the UI thread before the
+  // thread RunLoop has stopped.
+  void StartShutdownOnUIThread(base::OnceClosure shutdown_on_ui_thread);
 
-  // Destroys the runtime and related objects.
-  void FinalizeShutdown(base::OnceClosure finalize_shutdown);
+  // Performs shutdown actions that need to occur on the UI thread after the
+  // thread RunLoop has stopped and before running exit callbacks.
+  void FinishShutdownOnUIThread();
 
   const bool multi_threaded_message_loop_;
   const bool external_message_pump_;

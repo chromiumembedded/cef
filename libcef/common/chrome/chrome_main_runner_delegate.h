@@ -37,6 +37,7 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   void BeforeMainMessageLoopRun(base::RunLoop* run_loop) override;
   bool HandleMainMessageLoopQuit() override;
   void BeforeUIThreadInitialize() override;
+  void BeforeUIThreadShutdown() override;
   void AfterUIThreadShutdown() override;
   void BeforeExecuteProcess(const CefMainArgs& args) override;
   void AfterExecuteProcess() override;
@@ -50,6 +51,8 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   CefMainRunnerHandler* const runner_;
   CefSettings* const settings_;
   CefRefPtr<CefApp> application_;
+
+  bool multi_threaded_message_loop_ = false;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CHROME_CHROME_MAIN_RUNNER_DELEGATE_CEF_

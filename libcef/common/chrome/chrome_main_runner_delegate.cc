@@ -12,6 +12,7 @@
 #include "base/run_loop.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/chrome_content_browser_client.h"
+#include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
@@ -46,6 +47,8 @@ void ChromeMainRunnerDelegate::BeforeMainThreadInitialize(
 void ChromeMainRunnerDelegate::BeforeMainThreadRun(
     bool multi_threaded_message_loop) {
   if (multi_threaded_message_loop) {
+    multi_threaded_message_loop_ = true;
+
     // Detach from the main thread so that these objects can be attached and
     // modified from the UI thread going forward.
     metrics::GlobalPersistentSystemProfile::GetInstance()
@@ -83,13 +86,21 @@ void ChromeMainRunnerDelegate::BeforeUIThreadInitialize() {
   sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
 }
 
-void ChromeMainRunnerDelegate::AfterUIThreadShutdown() {
+void ChromeMainRunnerDelegate::BeforeUIThreadShutdown() {
   static_cast<ChromeContentBrowserClient*>(
       CefAppManager::Get()->GetContentClient()->browser())
       ->CleanupOnUIThread();
   main_delegate_->CleanupOnUIThread();
 
   sampling_profiler_.reset();
+}
+
+void ChromeMainRunnerDelegate::AfterUIThreadShutdown() {
+  if (multi_threaded_message_loop_) {
+    // Don't wait for this to be called in ChromeMainDelegate::ProcessExiting.
+    // It is safe to call multiple times.
+    ChromeProcessSingleton::DeleteInstance();
+  }
 }
 
 void ChromeMainRunnerDelegate::BeforeExecuteProcess(const CefMainArgs& args) {

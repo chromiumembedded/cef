@@ -33,6 +33,7 @@ class AlloyMainRunnerDelegate : public CefMainRunnerDelegate {
   void BeforeMainThreadInitialize(const CefMainArgs& args) override;
   void BeforeMainThreadRun(bool multi_threaded_message_loop) override;
   void AfterUIThreadInitialize() override;
+  void BeforeUIThreadShutdown() override;
   void AfterUIThreadShutdown() override;
   void BeforeMainThreadShutdown() override;
   void AfterMainThreadShutdown() override;

@@ -9,6 +9,7 @@
 #include "libcef/common/alloy/alloy_main_delegate.h"
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
+#include "chrome/browser/chrome_process_singleton.h"
 #include "content/public/browser/render_process_host.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -42,11 +43,15 @@ void AlloyMainRunnerDelegate::AfterUIThreadInitialize() {
       ->OnContextInitialized();
 }
 
-void AlloyMainRunnerDelegate::AfterUIThreadShutdown() {
+void AlloyMainRunnerDelegate::BeforeUIThreadShutdown() {
   static_cast<ChromeBrowserProcessAlloy*>(g_browser_process)
       ->CleanupOnUIThread();
 
   ui::ResourceBundle::GetSharedInstance().CleanupOnUIThread();
+}
+
+void AlloyMainRunnerDelegate::AfterUIThreadShutdown() {
+  ChromeProcessSingleton::DeleteInstance();
 }
 
 void AlloyMainRunnerDelegate::BeforeMainThreadShutdown() {

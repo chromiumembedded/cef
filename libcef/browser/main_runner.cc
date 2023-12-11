@@ -162,6 +162,10 @@ class CefUIThread : public base::PlatformThread::Delegate {
     CHECK_EQ(exit_code, -1);
   }
 
+  void set_shutdown_callback(base::OnceClosure shutdown_callback) {
+    shutdown_callback_ = std::move(shutdown_callback);
+  }
+
  protected:
   void ThreadMain() override {
     base::PlatformThread::SetName("CefUIThread");
@@ -182,6 +186,8 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
     content::BrowserTaskExecutor::Shutdown();
 
+    std::move(shutdown_callback_).Run();
+
     // Run exit callbacks on the UI thread to avoid sequence check failures.
     base::AtExitManager::ProcessCallbacksNow();
 
@@ -194,6 +200,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
   CefMainRunner* const runner_;
   base::OnceClosure setup_callback_;
+  base::OnceClosure shutdown_callback_;
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
 
@@ -252,29 +259,45 @@ bool CefMainRunner::Initialize(CefSettings* settings,
 void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
                              base::OnceClosure finalize_shutdown) {
   if (multi_threaded_message_loop_) {
-    // Events that will be used to signal when shutdown is complete. Start in
-    // non-signaled mode so that the event will block.
-    base::WaitableEvent uithread_shutdown_event(
-        base::WaitableEvent::ResetPolicy::AUTOMATIC,
-        base::WaitableEvent::InitialState::NOT_SIGNALED);
+    // Start shutdown on the UI thread. This is guaranteed to run before the
+    // thread RunLoop has stopped.
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefMainRunner::StartShutdownOnUIThread,
+                                 base::Unretained(this),
+                                 std::move(shutdown_on_ui_thread)));
 
-    // Finish shutdown on the UI thread.
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&CefMainRunner::FinishShutdownOnUIThread,
-                       base::Unretained(this), std::move(shutdown_on_ui_thread),
-                       &uithread_shutdown_event));
+    // Finish shutdown on the UI thread after the thread RunLoop has stopped and
+    // before running exit callbacks.
+    ui_thread_->set_shutdown_callback(base::BindOnce(
+        &CefMainRunner::FinishShutdownOnUIThread, base::Unretained(this)));
 
-    /// Block until UI thread shutdown is complete.
-    uithread_shutdown_event.Wait();
-
-    FinalizeShutdown(std::move(finalize_shutdown));
-  } else {
-    // Finish shutdown on the current thread, which should be the UI thread.
-    FinishShutdownOnUIThread(std::move(shutdown_on_ui_thread), nullptr);
-
-    FinalizeShutdown(std::move(finalize_shutdown));
+    // Blocks until the thread has stopped.
+    ui_thread_->Stop();
+    ui_thread_.reset();
   }
+
+  main_delegate_->BeforeMainThreadShutdown();
+
+  if (!multi_threaded_message_loop_) {
+    // Main thread and UI thread are the same.
+    StartShutdownOnUIThread(std::move(shutdown_on_ui_thread));
+
+    browser_runner_->Shutdown();
+    browser_runner_.reset();
+
+    FinishShutdownOnUIThread();
+  }
+
+  // Shut down the content runner.
+  content::ContentMainShutdown(main_runner_.get());
+
+  main_runner_.reset();
+
+  std::move(finalize_shutdown).Run();
+  main_delegate_->AfterMainThreadShutdown();
+
+  main_delegate_.reset();
+  g_runtime_type = RuntimeType::UNINITIALIZED;
 }
 
 void CefMainRunner::RunMessageLoop() {
@@ -493,9 +516,8 @@ void CefMainRunner::OnContextInitialized(
   std::move(context_initialized).Run();
 }
 
-void CefMainRunner::FinishShutdownOnUIThread(
-    base::OnceClosure shutdown_on_ui_thread,
-    base::WaitableEvent* uithread_shutdown_event) {
+void CefMainRunner::StartShutdownOnUIThread(
+    base::OnceClosure shutdown_on_ui_thread) {
   CEF_REQUIRE_UIT();
 
   // Execute all pending tasks now before proceeding with shutdown. Otherwise,
@@ -512,37 +534,11 @@ void CefMainRunner::FinishShutdownOnUIThread(
       ->ShutdownOnUIThread();
 
   std::move(shutdown_on_ui_thread).Run();
-  main_delegate_->AfterUIThreadShutdown();
-
-  if (uithread_shutdown_event) {
-    uithread_shutdown_event->Signal();
-  }
+  main_delegate_->BeforeUIThreadShutdown();
 }
 
-void CefMainRunner::FinalizeShutdown(base::OnceClosure finalize_shutdown) {
-  main_delegate_->BeforeMainThreadShutdown();
-
-  if (browser_runner_.get()) {
-    browser_runner_->Shutdown();
-    browser_runner_.reset();
-  }
-
-  if (ui_thread_.get()) {
-    // Blocks until the thread has stopped.
-    ui_thread_->Stop();
-    ui_thread_.reset();
-  }
-
-  // Shut down the content runner.
-  content::ContentMainShutdown(main_runner_.get());
-
-  main_runner_.reset();
-
-  std::move(finalize_shutdown).Run();
-  main_delegate_->AfterMainThreadShutdown();
-
-  main_delegate_.reset();
-  g_runtime_type = RuntimeType::UNINITIALIZED;
+void CefMainRunner::FinishShutdownOnUIThread() {
+  main_delegate_->AfterUIThreadShutdown();
 }
 
 // From libcef/features/runtime.h:
