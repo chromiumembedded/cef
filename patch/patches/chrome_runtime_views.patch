@@ -363,7 +363,7 @@ index 0c231b6ac5b01..6b5af98e18e42 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index c74a820ce00ad..55267b61c15af 100644
+index 79a1220f51d81..1f43f36cc2743 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -342,11 +342,10 @@ using content::NativeWebKeyboardEvent;
@@ -594,7 +594,7 @@ index c74a820ce00ad..55267b61c15af 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -5133,6 +5193,8 @@ Profile* BrowserView::GetProfile() {
+@@ -5142,6 +5202,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -603,7 +603,7 @@ index c74a820ce00ad..55267b61c15af 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -5155,6 +5217,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -5164,6 +5226,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
