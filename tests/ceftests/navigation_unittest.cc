@@ -1713,6 +1713,10 @@ const char kLoadNavCrossOrigin2[] = "https://tests-conav2.com/nav2.html";
 const char kLoadNavMsg[] = "NavigationTest.LoadNav";
 const char kLoadNavTestCmdKey[] = "nav-load-test";
 
+bool IsInitialUrl(const CefString& url) {
+  return url == kLoadNav1;
+}
+
 // Renderer side.
 class LoadNavRendererTest : public ClientAppRenderer::Delegate,
                             public CefLoadHandler {
@@ -1853,8 +1857,7 @@ class LoadNavTestHandler : public TestHandler {
       return;
     }
 
-    std::string url = browser->GetMainFrame()->GetURL();
-    if (url == kLoadNav1) {
+    if (IsInitialUrl(browser->GetMainFrame()->GetURL())) {
       // Verify the behavior of the previous load.
       EXPECT_TRUE(got_before_browse_);
       EXPECT_TRUE(got_before_resource_load_);
@@ -1927,23 +1930,18 @@ class LoadNavTestHandler : public TestHandler {
                       bool user_gesture,
                       bool is_redirect) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
+    if (mode_ == LOAD || IsInitialUrl(request->GetURL())) {
       EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       if (IsChromeRuntimeEnabled()) {
         // With the Chrome runtime this is true on initial navigation via
-        // chrome::AddTabAt() and also true for clicked links.
-        EXPECT_TRUE(user_gesture);
+        // chrome::AddTabAt()
+        EXPECT_EQ(user_gesture, IsInitialUrl(request->GetURL()));
       } else {
         EXPECT_FALSE(user_gesture);
       }
     } else {
       EXPECT_EQ(ExpectedOpenURLTransitionType(), request->GetTransitionType());
-
-      if (mode_ == LEFT_CLICK || IsChromeRuntimeEnabled()) {
-        EXPECT_TRUE(user_gesture);
-      } else {
-        EXPECT_FALSE(user_gesture);
-      }
+      EXPECT_EQ(user_gesture, mode_ == LEFT_CLICK);
     }
 
     EXPECT_GT(browser_id_current_, 0);
@@ -2011,7 +2009,7 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
 
     const auto transition_type = request->GetTransitionType();
-    if (mode_ == LOAD || request->GetURL() == kLoadNav1) {
+    if (mode_ == LOAD || IsInitialUrl(request->GetURL())) {
       EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     } else {
       EXPECT_EQ(ExpectedOpenURLTransitionType(), transition_type);
@@ -2031,7 +2029,7 @@ class LoadNavTestHandler : public TestHandler {
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
-    if (mode_ == LOAD || frame->GetURL() == kLoadNav1) {
+    if (mode_ == LOAD || IsInitialUrl(frame->GetURL())) {
       EXPECT_EQ(kTransitionExplicitLoad, transition_type);
     } else {
       EXPECT_EQ(ExpectedOpenURLTransitionType(), transition_type);
