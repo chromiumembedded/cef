@@ -370,7 +370,7 @@ class RequestSendRecvTestHandler : public TestHandler {
 
 }  // namespace
 
-// Verify send and recieve
+// Verify send and receive
 TEST(RequestTest, SendRecv) {
   CefRefPtr<RequestSendRecvTestHandler> handler =
       new RequestSendRecvTestHandler();

@@ -335,7 +335,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     return false;
   }
 
-  // The request was unhandled and we've recieved a callback from
+  // The request was unhandled and we've received a callback from
   // HandleExternalProtocolHelper. Forward to the chrome layer for default
   // handling.
   return ChromeContentBrowserClient::HandleExternalProtocol(

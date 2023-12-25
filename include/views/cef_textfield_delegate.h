@@ -51,7 +51,7 @@ class CefTextfield;
 class CefTextfieldDelegate : public CefViewDelegate {
  public:
   ///
-  /// Called when |textfield| recieves a keyboard event. |event| contains
+  /// Called when |textfield| receives a keyboard event. |event| contains
   /// information about the keyboard event. Return true if the keyboard event
   /// was handled or false otherwise for default handling.
   ///

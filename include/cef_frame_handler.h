@@ -95,7 +95,7 @@
 /// will then be discarded after the real cross-origin sub-frame is created in
 /// the new/target renderer process. The client will receive cross-origin
 /// navigation callbacks (2) for the transition from the temporary sub-frame to
-/// the real sub-frame. The temporary sub-frame will not recieve or execute
+/// the real sub-frame. The temporary sub-frame will not receive or execute
 /// commands during this transitional period (any sent commands will be
 /// discarded).
 ///
@@ -103,7 +103,7 @@
 /// browser, a temporary main frame object for the popup will first be created
 /// in the parent's renderer process. That temporary main frame will then be
 /// discarded after the real cross-origin main frame is created in the
-/// new/target renderer process. The client will recieve creation and initial
+/// new/target renderer process. The client will receive creation and initial
 /// navigation callbacks (1) for the temporary main frame, followed by
 /// cross-origin navigation callbacks (2) for the transition from the temporary
 /// main frame to the real main frame. The temporary main frame may receive and

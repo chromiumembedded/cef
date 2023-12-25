@@ -109,7 +109,7 @@ class SharedMessageTestHandler final : public TestHandler {
     EXPECT_TRUE(message->IsReadOnly());
     EXPECT_EQ(message->GetArgumentList(), nullptr);
 
-    // Verify that the recieved message is the same as the sent message.
+    // Verify that the received message is the same as the sent message.
     auto region = message->GetSharedMemoryRegion();
     const TestData* received = static_cast<const TestData*>(region->Memory());
     EXPECT_EQ(data_.flag, received->flag);

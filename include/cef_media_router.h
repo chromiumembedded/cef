@@ -145,7 +145,7 @@ class CefMediaObserver : public virtual CefBaseRefCounted {
                                    ConnectionState state) = 0;
 
   ///
-  /// A message was recieved over |route|. |message| is only valid for
+  /// A message was received over |route|. |message| is only valid for
   /// the scope of this callback and should be copied if necessary.
   ///
   /*--cef()--*/
