@@ -119,7 +119,7 @@ class SendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(message->IsValid());
     EXPECT_TRUE(message->IsReadOnly());
 
-    // Verify that the recieved message is the same as the sent message.
+    // Verify that the received message is the same as the sent message.
     TestProcessMessageEqual(CreateTestMessage(), message);
 
     got_message_.yes();
@@ -155,14 +155,14 @@ class SendRecvTestHandler : public TestHandler {
 
 }  // namespace
 
-// Verify send from the UI thread and recieve.
+// Verify send from the UI thread and receive.
 TEST(ProcessMessageTest, SendRecvUI) {
   CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(TID_UI);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
-// Verify send from the IO thread and recieve.
+// Verify send from the IO thread and receive.
 TEST(ProcessMessageTest, SendRecvIO) {
   CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(TID_IO);
   handler->ExecuteTest();
