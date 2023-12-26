@@ -31,7 +31,7 @@ def read_file(name, normalize=True):
 def write_file(name, data):
   """ Write a file. """
   try:
-    with open(name, 'w', encoding='utf-8') as f:
+    with open(name, 'w', encoding='utf-8', newline='\n') as f:
       # write the data
       if sys.version_info.major == 2:
         f.write(data.decode('utf-8'))
