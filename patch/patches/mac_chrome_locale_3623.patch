@@ -1,0 +1,40 @@
+diff --git chrome/browser/chrome_resource_bundle_helper.cc chrome/browser/chrome_resource_bundle_helper.cc
+index 0cfc966050b60..8268a8b1f4fcb 100644
+--- chrome/browser/chrome_resource_bundle_helper.cc
++++ chrome/browser/chrome_resource_bundle_helper.cc
+@@ -82,16 +82,8 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+            .empty());
+ #endif
+ 
+-  std::string preferred_locale;
+-#if BUILDFLAG(IS_MAC)
+-  // TODO(markusheintz): Read preference pref::kApplicationLocale in order
+-  // to enforce the application locale.
+-  // Tests always get en-US.
+-  preferred_locale = is_running_tests ? "en-US" : std::string();
+-#else
+-  preferred_locale =
++  std::string preferred_locale =
+       local_state->GetString(language::prefs::kApplicationLocale);
+-#endif
+ 
+ #if BUILDFLAG(IS_CHROMEOS_ASH)
+   ui::ResourceBundle::SetLottieParsingFunctions(
+diff --git components/language/core/browser/locale_util.cc components/language/core/browser/locale_util.cc
+index aa43742055b04..e84f21ab963cc 100644
+--- components/language/core/browser/locale_util.cc
++++ components/language/core/browser/locale_util.cc
+@@ -17,11 +17,11 @@ std::string GetApplicationLocale(PrefService* local_state) {
+   // LoadLocaleResources(), which is how the global locale is set.
+   // TODO(asvitkine): We should try to refactor things so that the logic is not
+   // duplicated in multiple files.
+-#if !BUILDFLAG(IS_APPLE)
++
+   // The pref isn't always registered in unit tests.
+   if (local_state->HasPrefPath(prefs::kApplicationLocale))
+     preferred_locale = local_state->GetString(prefs::kApplicationLocale);
+-#endif
++
+   // Note: The call below is necessary even if |preferred_locale| is empty, as
+   // it will get the locale that should be used potentially from other sources,
+   // depending on the platform (e.g. the OS locale on Mac).
