@@ -75,15 +75,24 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
     base::UnsafeSharedMemoryRegion region) {
   // Make sure |pixel_size| is sane.
   size_t expected_bytes;
-  bool size_result = viz::ResourceSizes::MaybeSizeInBytes(
-      pixel_size, viz::SinglePlaneFormat::kRGBA_8888, &expected_bytes);
-  if (!size_result) {
+  if (!viz::ResourceSizes::MaybeSizeInBytes(
+          pixel_size, viz::SinglePlaneFormat::kRGBA_8888, &expected_bytes)) {
+    DLOG(ERROR) << "OnAllocatedSharedMemory with size that overflows";
+    return;
+  }
+
+  auto mapping = region.Map();
+  if (!mapping.IsValid()) {
+    DLOG(ERROR) << "Shared memory mapping failed.";
+    return;
+  }
+  if (mapping.size() < expected_bytes) {
+    DLOG(ERROR) << "Shared memory size was less than expected.";
     return;
   }
 
   pixel_size_ = pixel_size;
-  shared_memory_ = region.Map();
-  DCHECK(shared_memory_.IsValid());
+  shared_memory_ = std::move(mapping);
 }
 
 void CefLayeredWindowUpdaterOSR::Draw(const gfx::Rect& damage_rect,
