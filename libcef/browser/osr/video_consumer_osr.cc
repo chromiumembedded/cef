@@ -88,6 +88,11 @@ void CefVideoConsumerOSR::OnFrameCaptured(
         callbacks) {
   ScopedVideoFrameDone scoped_done(std::move(callbacks));
 
+  if (info->pixel_format != media::PIXEL_FORMAT_ARGB) {
+    DLOG(ERROR) << "Unsupported pixel format " << info->pixel_format;
+    return;
+  }
+
   CHECK(data->is_read_only_shmem_region());
   base::ReadOnlySharedMemoryRegion& shmem_region =
       data->get_read_only_shmem_region();
