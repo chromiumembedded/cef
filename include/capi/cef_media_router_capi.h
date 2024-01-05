@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=401b881a3bd1d0c36f9646804260f129eb5f70d9$
+// $hash=62e7e781f3fef0d332b6a921d48a192fd0115295$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_MEDIA_ROUTER_CAPI_H_
@@ -156,7 +156,7 @@ typedef struct _cef_media_observer_t {
       cef_media_route_connection_state_t state);
 
   ///
-  /// A message was recieved over |route|. |message| is only valid for the scope
+  /// A message was received over |route|. |message| is only valid for the scope
   /// of this callback and should be copied if necessary.
   ///
   void(CEF_CALLBACK* on_route_message_received)(

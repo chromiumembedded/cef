@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1c029e99b4b81f39fba362e297e85ec9bfcf16fb$
+// $hash=06d17ed2939b57c97d73a0025e9f9ff65834b51a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_LABEL_BUTTON_CAPI_H_
@@ -113,14 +113,15 @@ typedef struct _cef_label_button_t {
 
   ///
   /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
-  /// where: - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  /// where:
+  /// - FONT_FAMILY_LIST is a comma-separated list of font family names,
   /// - STYLES is an optional space-separated list of style names (case-
-  /// sensitive
-  ///   "Bold" and "Italic" are supported), and
+  ///   sensitive "Bold" and "Italic" are supported), and
   /// - SIZE is an integer font size in pixels with the suffix "px".
   ///
-  /// Here are examples of valid font description strings: - "Arial, Helvetica,
-  /// Bold Italic 14px" - "Arial, 14px"
+  /// Here are examples of valid font description strings:
+  /// - "Arial, Helvetica, Bold Italic 14px"
+  /// - "Arial, 14px"
   ///
   void(CEF_CALLBACK* set_font_list)(struct _cef_label_button_t* self,
                                     const cef_string_t* font_list);

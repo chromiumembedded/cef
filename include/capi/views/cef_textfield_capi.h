@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f8474005e8b9e20dfb390e4b6fe0cc023dcebe3c$
+// $hash=f47d33d79e9f321536aa87921d973745f6ec8b5e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_CAPI_H_
@@ -183,14 +183,15 @@ typedef struct _cef_textfield_t {
 
   ///
   /// Sets the font list. The format is "<FONT_FAMILY_LIST>,[STYLES] <SIZE>",
-  /// where: - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  /// where:
+  /// - FONT_FAMILY_LIST is a comma-separated list of font family names,
   /// - STYLES is an optional space-separated list of style names (case-
-  /// sensitive
-  ///   "Bold" and "Italic" are supported), and
+  ///   sensitive "Bold" and "Italic" are supported), and
   /// - SIZE is an integer font size in pixels with the suffix "px".
   ///
-  /// Here are examples of valid font description strings: - "Arial, Helvetica,
-  /// Bold Italic 14px" - "Arial, 14px"
+  /// Here are examples of valid font description strings:
+  /// - "Arial, Helvetica, Bold Italic 14px"
+  /// - "Arial, 14px"
   ///
   void(CEF_CALLBACK* set_font_list)(struct _cef_textfield_t* self,
                                     const cef_string_t* font_list);
