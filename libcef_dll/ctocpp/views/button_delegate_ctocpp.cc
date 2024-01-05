@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=91c554eefa0d182363ba9b50f952f68a8f69ac0d$
+// $hash=68df0ecd51479bdc9f55fb605933ac10ca15affd$
 //
 
 #include "libcef_dll/ctocpp/views/button_delegate_ctocpp.h"

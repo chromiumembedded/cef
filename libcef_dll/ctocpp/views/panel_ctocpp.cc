@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c757b375edf4dd35fb31c4ae81048aa795b2518b$
+// $hash=c821f6ba0426bc3c508b8edfc56369a80d39bce7$
 //
 
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"

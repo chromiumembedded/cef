@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=14322f994bd6eb8732cef20a3a70fc8ebbf32dea$
+// $hash=1042df299c2edfdf8925380a03bac4663cd9be82$
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
@@ -300,9 +300,8 @@ int CEF_CALLBACK drag_data_get_file_names(struct _cef_drag_data_t* self,
   return _retval;
 }
 
-int CEF_CALLBACK
-drag_data_get_file_paths(struct _cef_drag_data_t* self,
-                         cef_string_list_t paths) {
+int CEF_CALLBACK drag_data_get_file_paths(struct _cef_drag_data_t* self,
+                                          cef_string_list_t paths) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

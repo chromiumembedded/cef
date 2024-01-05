@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c0ff4cb4baaaeb981c9c143e6379a7ae1927c51e$
+// $hash=eca79cd972c29f1615ddbecf0e0689ff6609da66$
 //
 
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
