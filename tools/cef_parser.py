@@ -19,15 +19,19 @@ def notify(msg):
   sys.stdout.write('  NOTE: ' + msg + '\n')
 
 
-def wrap_text(text, indent='', maxchars=80):
+def wrap_text(text, indent='', maxchars=80, listitem=False):
   """ Wrap the text to the specified number of characters. If
     necessary a line will be broken and wrapped after a word.
     """
-  result = ''
-  lines = textwrap.wrap(text, maxchars - len(indent))
-  for line in lines:
-    result += indent + line + '\n'
-  return result
+  if listitem:
+    initial_indent=indent + '- '
+    subsequent_indent=indent+'  '
+  else:
+    initial_indent=indent
+    subsequent_indent=indent
+  lines = textwrap.wrap(text, maxchars, initial_indent=initial_indent,
+                        subsequent_indent=subsequent_indent)
+  return '\n'.join(lines) + '\n'
 
 
 def is_base_class(clsname):
@@ -143,6 +147,7 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
   result = ''
   wrapme = ''
   hasemptyline = False
+  listitem = False
   for line in comment:
     # if the line starts with a leading space, remove that space
     if not line is None and len(line) > 0 and line[0] == ' ':
@@ -151,19 +156,28 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
     else:
       didremovespace = False
 
-    if line is None or len(line) == 0 or line[0] == ' ':
-      # the previous paragraph, if any, has ended
+    if line is None or len(line) == 0 or (line[0] == ' ' and not listitem) \
+        or line[0] == '-':
+      # the previous paragraph or list item, if any, has ended
       if len(wrapme) > 0:
         if not translate_map is None:
           # apply the translation
           for key in translate_keys:
             wrapme = wrapme.replace(key, translate_map[key])
         # output the previous paragraph
-        result += wrap_text(wrapme, indent + '/// ', maxchars)
+        result += wrap_text(wrapme, indent + '/// ', maxchars, listitem)
         wrapme = ''
+        listitem = False
 
     if not line is None:
-      if len(line) == 0 or line[0] == ' ':
+      if len(line) > 0 and line[0] == '-':
+        # list item
+        listitem = True
+        wrapme = line[1:].strip()
+      if len(line) > 0 and line[0] == ' ' and listitem:
+        # list item continues
+        wrapme += line[1:]
+      if len(line) == 0 or (line[0] == ' ' and not listitem):
         # blank lines or anything that's further indented should be
         # output as-is
         result += indent + '///'
@@ -173,9 +187,11 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
           else:
             result += line
         result += '\n'
+        listitem = False;
       else:
-        # add to the current paragraph
-        wrapme += line + ' '
+        if not listitem:
+          # add to the current paragraph
+          wrapme += line + ' '
     else:
       # output an empty line
       hasemptyline = True
@@ -187,7 +203,7 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
       for key in translate_map.keys():
         wrapme = wrapme.replace(key, translate_map[key])
     # output the previous paragraph
-    result += wrap_text(wrapme, indent + '/// ', maxchars)
+    result += wrap_text(wrapme, indent + '/// ', maxchars, listitem)
 
   if hasemptyline:
     # an empty line means a break between comments, so the comment is
