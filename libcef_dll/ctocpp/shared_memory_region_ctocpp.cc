@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a396f422ed18fe4aae90d4fef3750b4726279c7e$
+// $hash=b2e33c91a598c69f92031e0624bf96803247439c$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"

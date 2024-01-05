@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=820d021d1a2ca4ef4b3fa858f10649676ca46bc8$
+// $hash=592d43a6597f03f91eb13ea9354ed552f581ebec$
 //
 
 #include "libcef_dll/cpptoc/shared_process_message_builder_cpptoc.h"
