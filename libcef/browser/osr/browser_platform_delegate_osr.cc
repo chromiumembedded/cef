@@ -333,12 +333,20 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
 
   const gfx::Point client_pt(event.x, event.y);
   gfx::PointF transformed_pt;
-  current_rwh_for_drag_ =
-      web_contents->GetInputEventRouter()
-          ->GetRenderWidgetHostAtPoint(
-              web_contents->GetRenderViewHost()->GetWidget()->GetView(),
-              gfx::PointF(client_pt), &transformed_pt)
-          ->GetWeakPtr();
+
+  // Some random crashes occured when GetWeakPtr is called on a null pointer
+  // that is the return of GetRenderWidgetHostAtPoint As the root cause is not
+  // yet understood (no reproducible scenario yet), the current fix is only a
+  // protection against null pointer dereferencing.
+  content::RenderWidgetHostImpl* ptr_current_rwh_for_drag =
+      web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
+          web_contents->GetRenderViewHost()->GetWidget()->GetView(),
+          gfx::PointF(client_pt), &transformed_pt);
+  if (!ptr_current_rwh_for_drag) {
+    return;
+  }
+  current_rwh_for_drag_ = ptr_current_rwh_for_drag->GetWeakPtr();
+
   current_rvh_for_drag_ = web_contents->GetRenderViewHost();
 
   drag_data_ = drag_data;
