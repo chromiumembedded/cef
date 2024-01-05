@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5f808dd18e66966b62a3b8980075e87a5109e23f$
+// $hash=fc6fbee765ce2b649f5293c8c4b076d36014e4aa$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_HANDLER_CAPI_H_
@@ -53,48 +53,41 @@ extern "C" {
 /// The order of callbacks is:
 ///
 /// (1) During initial cef_browser_host_t creation and navigation of the main
-/// frame: - cef_frame_handler_t::OnFrameCreated => The initial main frame
-/// object has been
-///   created. Any commands will be queued until the frame is attached.
+/// frame:
+/// - cef_frame_handler_t::OnFrameCreated => The initial main frame object has
+///   been created. Any commands will be queued until the frame is attached.
 /// - cef_frame_handler_t::OnMainFrameChanged => The initial main frame object
-/// has
-///   been assigned to the browser.
+///   has been assigned to the browser.
 /// - cef_life_span_handler_t::OnAfterCreated => The browser is now valid and
-/// can be
-///   used.
+///   can be used.
 /// - cef_frame_handler_t::OnFrameAttached => The initial main frame object is
-/// now
-///   connected to its peer in the renderer process. Commands can be routed.
+///   now connected to its peer in the renderer process. Commands can be routed.
 ///
 /// (2) During further cef_browser_host_t navigation/loading of the main frame
 ///     and/or sub-frames:
 /// - cef_frame_handler_t::OnFrameCreated => A new main frame or sub-frame
-/// object
-///   has been created. Any commands will be queued until the frame is attached.
+///   object has been created. Any commands will be queued until the frame is
+///   attached.
 /// - cef_frame_handler_t::OnFrameAttached => A new main frame or sub-frame
-/// object
-///   is now connected to its peer in the renderer process. Commands can be
-///   routed.
+///   object is now connected to its peer in the renderer process. Commands can
+///   be routed.
 /// - cef_frame_handler_t::OnFrameDetached => An existing main frame or sub-
-/// frame
-///   object has lost its connection to the renderer process. If multiple
+///   frame object has lost its connection to the renderer process. If multiple
 ///   objects are detached at the same time then notifications will be sent for
 ///   any sub-frame objects before the main frame object. Commands can no longer
 ///   be routed and will be discarded.
 /// - cef_frame_handler_t::OnMainFrameChanged => A new main frame object has
-/// been
-///   assigned to the browser. This will only occur with cross-origin navigation
-///   or re-navigation after renderer process termination (due to crashes, etc).
+///   been assigned to the browser. This will only occur with cross-origin
+///   navigation or re-navigation after renderer process termination (due to
+///   crashes, etc).
 ///
-/// (3) During final cef_browser_host_t destruction of the main frame: -
-/// cef_frame_handler_t::OnFrameDetached => Any sub-frame objects have lost
-/// their
-///   connection to the renderer process. Commands can no longer be routed and
-///   will be discarded.
+/// (3) During final cef_browser_host_t destruction of the main frame:
+/// - cef_frame_handler_t::OnFrameDetached => Any sub-frame objects have lost
+///   their connection to the renderer process. Commands can no longer be routed
+///   and will be discarded.
 /// - cef_life_span_handler_t::OnBeforeClose => The browser has been destroyed.
 /// - cef_frame_handler_t::OnFrameDetached => The main frame object have lost
-/// its
-///   connection to the renderer process. Notifications will be sent for any
+///   its connection to the renderer process. Notifications will be sent for any
 ///   sub-frame objects before the main frame object. Commands can no longer be
 ///   routed and will be discarded.
 /// - cef_frame_handler_t::OnMainFrameChanged => The final main frame object has
@@ -111,7 +104,7 @@ extern "C" {
 /// will then be discarded after the real cross-origin sub-frame is created in
 /// the new/target renderer process. The client will receive cross-origin
 /// navigation callbacks (2) for the transition from the temporary sub-frame to
-/// the real sub-frame. The temporary sub-frame will not recieve or execute
+/// the real sub-frame. The temporary sub-frame will not receive or execute
 /// commands during this transitional period (any sent commands will be
 /// discarded).
 ///
@@ -119,7 +112,7 @@ extern "C" {
 /// browser, a temporary main frame object for the popup will first be created
 /// in the parent's renderer process. That temporary main frame will then be
 /// discarded after the real cross-origin main frame is created in the
-/// new/target renderer process. The client will recieve creation and initial
+/// new/target renderer process. The client will receive creation and initial
 /// navigation callbacks (1) for the temporary main frame, followed by cross-
 /// origin navigation callbacks (2) for the transition from the temporary main
 /// frame to the real main frame. The temporary main frame may receive and

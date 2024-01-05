@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=199e86ccf09d571a5dd24f39b23ff5cc2bd32129$
+// $hash=740d6eb5bea1bfc7c4ea413fefd3bf6586a81f20$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
@@ -80,8 +80,10 @@ typedef struct _cef_end_tracing_callback_t {
 /// have an optional '-' prefix to make it an excluded category. Having both
 /// included and excluded categories in the same list is not supported.
 ///
-/// Examples: - "test_MyTest*" - "test_MyTest*,test_OtherStuff" -
-/// "-excluded_category1,-excluded_category2"
+/// Examples:
+/// - "test_MyTest*"
+/// - "test_MyTest*,test_OtherStuff"
+/// - "-excluded_category1,-excluded_category2"
 ///
 /// This function must be called on the browser process UI thread.
 ///

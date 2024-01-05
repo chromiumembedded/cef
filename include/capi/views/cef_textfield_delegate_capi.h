@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=afe2cd6a8c8af576d67cf099858c9920ded4a3c5$
+// $hash=c894c96b089861c183059c54876af9ed9382e349$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_TEXTFIELD_DELEGATE_CAPI_H_
@@ -60,7 +60,7 @@ typedef struct _cef_textfield_delegate_t {
   cef_view_delegate_t base;
 
   ///
-  /// Called when |textfield| recieves a keyboard event. |event| contains
+  /// Called when |textfield| receives a keyboard event. |event| contains
   /// information about the keyboard event. Return true (1) if the keyboard
   /// event was handled or false (0) otherwise for default handling.
   ///
