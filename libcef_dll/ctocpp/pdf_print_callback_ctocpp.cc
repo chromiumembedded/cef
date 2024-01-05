@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f235c0f4a088d1b4487af49d98c5d08044b1419c$
+// $hash=a08dd0d4f29c64a4f638d70a95cf7b2fb02d6f93$
 //
 
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"

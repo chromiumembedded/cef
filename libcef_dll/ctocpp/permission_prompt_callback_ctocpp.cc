@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a84aa33807e480e03cc065b3b195d2fcf766cbfb$
+// $hash=2a9862aaf02e64b32d50e31fd0e61e17007f53de$
 //
 
 #include "libcef_dll/ctocpp/permission_prompt_callback_ctocpp.h"
