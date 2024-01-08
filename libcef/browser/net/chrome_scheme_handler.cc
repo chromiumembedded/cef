@@ -33,6 +33,7 @@
 #include "chrome/browser/devtools/devtools_ui_bindings.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/chrome_untrusted_web_ui_configs.h"
+#include "chrome/browser/ui/webui/chrome_web_ui_configs.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/common/chrome_paths.h"
@@ -715,6 +716,7 @@ void RegisterWebUIControllerFactory() {
   content::WebUIControllerFactory::RegisterFactory(
       CefWebUIControllerFactory::GetInstance());
 
+  RegisterChromeWebUIConfigs();
   RegisterChromeUntrustedWebUIConfigs();
 }
 
