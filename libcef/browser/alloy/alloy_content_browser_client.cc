@@ -107,12 +107,15 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
+#include "content/public/browser/service_worker_version_base_info.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_ui_url_loader_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
 #include "crypto/crypto_buildflags.h"
+#include "extensions/browser/api/automation_internal/automation_event_router.h"
+#include "extensions/browser/api/mime_handler_private/mime_handler_private.h"
 #include "extensions/browser/event_router.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
@@ -120,11 +123,18 @@
 #include "extensions/browser/extension_web_contents_observer.h"
 #include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/guest_view/extensions_guest_view.h"
+#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 #include "extensions/browser/guest_view/web_view/web_view_guest.h"
 #include "extensions/browser/process_map.h"
 #include "extensions/browser/renderer_startup_helper.h"
+#include "extensions/browser/service_worker/service_worker_host.h"
 #include "extensions/browser/url_loader_factory_manager.h"
+#include "extensions/common/api/mime_handler.mojom.h"
 #include "extensions/common/constants.h"
+#include "extensions/common/mojom/automation_registry.mojom.h"
+#include "extensions/common/mojom/event_router.mojom.h"
+#include "extensions/common/mojom/guest_view.mojom.h"
+#include "extensions/common/mojom/renderer_host.mojom.h"
 #include "extensions/common/switches.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "mojo/public/cpp/bindings/self_owned_associated_receiver.h"
@@ -298,6 +308,33 @@ void BindNetworkHintsHandler(
     content::RenderFrameHost* frame_host,
     mojo::PendingReceiver<network_hints::mojom::NetworkHintsHandler> receiver) {
   predictors::NetworkHintsHandlerImpl::Create(frame_host, std::move(receiver));
+}
+
+// From chrome/browser/chrome_browser_interface_binders.cc
+void BindMimeHandlerService(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<extensions::mime_handler::MimeHandlerService>
+        receiver) {
+  auto* guest_view =
+      extensions::MimeHandlerViewGuest::FromRenderFrameHost(frame_host);
+  if (!guest_view) {
+    return;
+  }
+  extensions::MimeHandlerServiceImpl::Create(guest_view->GetStreamWeakPtr(),
+                                             std::move(receiver));
+}
+
+// From chrome/browser/chrome_browser_interface_binders.cc
+void BindBeforeUnloadControl(
+    content::RenderFrameHost* frame_host,
+    mojo::PendingReceiver<extensions::mime_handler::BeforeUnloadControl>
+        receiver) {
+  auto* guest_view =
+      extensions::MimeHandlerViewGuest::FromRenderFrameHost(frame_host);
+  if (!guest_view) {
+    return;
+  }
+  guest_view->FuseBeforeUnloadControl(std::move(receiver));
 }
 
 base::FilePath GetUserDataPath() {
@@ -830,6 +867,64 @@ AlloyContentBrowserClient::CreateDevToolsManagerDelegate() {
   return std::make_unique<CefDevToolsManagerDelegate>();
 }
 
+void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
+    service_manager::BinderRegistry* registry,
+    blink::AssociatedInterfaceRegistry* associated_registry,
+    content::RenderProcessHost* render_process_host) {
+  CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
+                                                render_process_host);
+
+  if (extensions::ExtensionsEnabled()) {
+    // From ChromeContentBrowserClientExtensionsPart::
+    // ExposeInterfacesToRenderer
+    associated_registry->AddInterface<extensions::mojom::RendererHost>(
+        base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
+                            render_process_host->GetID()));
+#if BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
+    associated_registry->AddInterface<extensions::mojom::EventRouter>(
+        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
+                            host->GetID()));
+    associated_registry->AddInterface<extensions::mojom::ServiceWorkerHost>(
+        base::BindRepeating(&extensions::ServiceWorkerHost::BindReceiver,
+                            host->GetID()));
+    associated_registry
+        ->AddInterface<extensions::mojom::RendererAutomationRegistry>(
+            base::BindRepeating(
+                &extensions::AutomationEventRouter::BindForRenderer,
+                host->GetID()));
+#endif
+  }
+}
+
+void AlloyContentBrowserClient::
+    RegisterAssociatedInterfaceBindersForServiceWorker(
+        const content::ServiceWorkerVersionBaseInfo&
+            service_worker_version_info,
+        blink::AssociatedInterfaceRegistry& associated_registry) {
+  if (extensions::ExtensionsEnabled()) {
+    // From ChromeContentBrowserClientExtensionsPart::
+    // ExposeInterfacesToRendererForServiceWorker
+    CHECK(service_worker_version_info.process_id !=
+          content::ChildProcessHost::kInvalidUniqueID);
+    associated_registry.AddInterface<extensions::mojom::RendererHost>(
+        base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
+                            service_worker_version_info.process_id));
+#if !BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
+    associated_registry.AddInterface<extensions::mojom::ServiceWorkerHost>(
+        base::BindRepeating(&extensions::ServiceWorkerHost::BindReceiver,
+                            service_worker_version_info.process_id));
+    associated_registry
+        .AddInterface<extensions::mojom::RendererAutomationRegistry>(
+            base::BindRepeating(
+                &extensions::AutomationEventRouter::BindForRenderer,
+                service_worker_version_info.process_id));
+    associated_registry.AddInterface<extensions::mojom::EventRouter>(
+        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
+                            service_worker_version_info.process_id));
+#endif
+  }
+}
+
 void AlloyContentBrowserClient::
     RegisterAssociatedInterfaceBindersForRenderFrameHost(
         content::RenderFrameHost& render_frame_host,
@@ -858,13 +953,31 @@ void AlloyContentBrowserClient::
                           render_frame_host.GetProcess()->GetID()));
 
   if (extensions::ExtensionsEnabled()) {
+    // From ChromeContentBrowserClientExtensionsPart::
+    // ExposeInterfacesToRendererForRenderFrameHost
     int render_process_id = render_frame_host.GetProcess()->GetID();
-    associated_registry.AddInterface<extensions::mojom::EventRouter>(
-        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
-                            render_process_id));
     associated_registry.AddInterface<extensions::mojom::RendererHost>(
         base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
                             render_process_id));
+    associated_registry
+        .AddInterface<extensions::mojom::RendererAutomationRegistry>(
+            base::BindRepeating(
+                &extensions::AutomationEventRouter::BindForRenderer,
+                render_process_id));
+    associated_registry.AddInterface<extensions::mojom::EventRouter>(
+        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
+                            render_process_id));
+    associated_registry.AddInterface<guest_view::mojom::GuestViewHost>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForComponents,
+            render_frame_host.GetGlobalId()));
+    associated_registry.AddInterface<extensions::mojom::GuestView>(
+        base::BindRepeating(
+            &extensions::ExtensionsGuestView::CreateForExtensions,
+            render_frame_host.GetGlobalId()));
+
+    // From ChromeContentBrowserClient::
+    // RegisterAssociatedInterfaceBindersForRenderFrameHost
     associated_registry.AddInterface<extensions::mojom::LocalFrameHost>(
         base::BindRepeating(
             [](content::RenderFrameHost* render_frame_host,
@@ -874,14 +987,6 @@ void AlloyContentBrowserClient::
                   std::move(receiver), render_frame_host);
             },
             &render_frame_host));
-    associated_registry.AddInterface<guest_view::mojom::GuestViewHost>(
-        base::BindRepeating(
-            &extensions::ExtensionsGuestView::CreateForComponents,
-            render_frame_host.GetGlobalId()));
-    associated_registry.AddInterface<extensions::mojom::GuestView>(
-        base::BindRepeating(
-            &extensions::ExtensionsGuestView::CreateForExtensions,
-            render_frame_host.GetGlobalId()));
   }
 }
 
@@ -982,14 +1087,6 @@ void AlloyContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
   }
 }
 #endif  //  BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
-
-void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
-    service_manager::BinderRegistry* registry,
-    blink::AssociatedInterfaceRegistry* associated_registry,
-    content::RenderProcessHost* host) {
-  CefBrowserManager::ExposeInterfacesToRenderer(registry, associated_registry,
-                                                host);
-}
 
 std::unique_ptr<net::ClientCertStore>
 AlloyContentBrowserClient::CreateClientCertStore(
@@ -1253,6 +1350,11 @@ void AlloyContentBrowserClient::RegisterBrowserInterfaceBindersForFrame(
   if (!extensions::ExtensionsEnabled()) {
     return;
   }
+
+  map->Add<extensions::mime_handler::MimeHandlerService>(
+      base::BindRepeating(&BindMimeHandlerService));
+  map->Add<extensions::mime_handler::BeforeUnloadControl>(
+      base::BindRepeating(&BindBeforeUnloadControl));
 
   content::WebContents* web_contents =
       content::WebContents::FromRenderFrameHost(render_frame_host);
