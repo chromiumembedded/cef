@@ -624,6 +624,18 @@ def GetAllPlatformConfigs(build_args):
       result['Release_GN_' + cpu + '_sandbox'] = GetConfigArgsSandbox(
           platform, args, False, cpu)
 
+  out_configs = os.environ.get('GN_OUT_CONFIGS', None)
+  if not out_configs is None:
+    # Only generate the specified configurations.
+    out_configs = [c.strip() for c in out_configs.split(',')]
+    for key in list(result.keys()):
+      if not key in out_configs:
+        msg('Not generating %s configuration due to GN_OUT_CONFIGS' % key)
+        del result[key]
+    if not bool(result):
+      raise Exception('No supported configurations in GN_OUT_CONFIGS ("%s")' %
+                      ','.join(out_configs))
+
   return result
 
 
