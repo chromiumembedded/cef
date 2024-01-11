@@ -92,7 +92,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
     }
 
     if (!view_->IsFrameless()) {
-      if (auto titlebar_height = view_->GetTitlebarHeight()) {
+      if (auto titlebar_height = view_->GetTitlebarHeight(/*required=*/true)) {
         window_bounds.Inset(gfx::Insets::TLBR(-(*titlebar_height), 0, 0, 0));
       }
     }
@@ -829,12 +829,23 @@ void CefWindowView::MoveOverlaysIfNecessary() {
   }
 }
 
+void CefWindowView::InvalidateExclusionRegions() {
+  if (last_dialog_top_inset_ != -1) {
+    last_dialog_top_y_ = last_dialog_top_inset_ = -1;
+  }
+}
+
 void CefWindowView::SetDraggableRegions(
     const std::vector<CefDraggableRegion>& regions) {
+  if (regions.empty() && !draggable_region_) {
+    // Still empty.
+    return;
+  }
+
+  InvalidateExclusionRegions();
+
   if (regions.empty()) {
-    if (draggable_region_) {
-      draggable_region_.reset(nullptr);
-    }
+    draggable_region_.reset();
     draggable_rects_.clear();
     return;
   }
@@ -854,6 +865,10 @@ void CefWindowView::SetDraggableRegions(
   }
 }
 
+void CefWindowView::OnOverlayBoundsChanged() {
+  InvalidateExclusionRegions();
+}
+
 views::NonClientFrameView* CefWindowView::GetNonClientFrameView() const {
   const views::Widget* widget = GetWidget();
   if (!widget) {
@@ -865,7 +880,8 @@ views::NonClientFrameView* CefWindowView::GetNonClientFrameView() const {
   return widget->non_client_view()->frame_view();
 }
 
-void CefWindowView::UpdateFindBarBoundingBox(gfx::Rect* bounds) const {
+void CefWindowView::UpdateBoundingBox(gfx::Rect* bounds,
+                                      bool add_titlebar_height) const {
   // Max distance from the edges of |bounds| to qualify for subtraction.
   const int kMaxDistance = 10;
 
@@ -878,16 +894,8 @@ void CefWindowView::UpdateFindBarBoundingBox(gfx::Rect* bounds) const {
     *bounds = SubtractOverlayFromBoundingBox(*bounds, rect, kMaxDistance);
   }
 
-  if (auto titlebar_height = GetTitlebarHeight()) {
+  if (auto titlebar_height = GetTitlebarHeight(add_titlebar_height)) {
     gfx::Insets inset;
-
-#if BUILDFLAG(IS_MAC)
-    // For framed windows on macOS we must add the titlebar height.
-    const bool add_titlebar_height = !is_frameless_;
-#else
-    const bool add_titlebar_height = false;
-#endif
-
     if (add_titlebar_height) {
       inset.set_top(*titlebar_height);
     } else if (bounds->y() < *titlebar_height) {
@@ -900,6 +908,46 @@ void CefWindowView::UpdateFindBarBoundingBox(gfx::Rect* bounds) const {
   }
 }
 
+void CefWindowView::UpdateFindBarBoundingBox(gfx::Rect* bounds) const {
+#if BUILDFLAG(IS_MAC)
+  // For framed windows on macOS we must add the titlebar height.
+  const bool add_titlebar_height = !is_frameless_;
+#else
+  const bool add_titlebar_height = false;
+#endif
+
+  UpdateBoundingBox(bounds, add_titlebar_height);
+}
+
+void CefWindowView::UpdateDialogTopInset(int* dialog_top_y) const {
+  if (*dialog_top_y == last_dialog_top_y_ && last_dialog_top_inset_ != -1) {
+    // Return the cached value.
+    *dialog_top_y = last_dialog_top_inset_;
+    return;
+  }
+
+  const views::Widget* widget = GetWidget();
+  if (!widget) {
+    return;
+  }
+
+  gfx::Rect bounds(widget->GetSize());
+  if (*dialog_top_y > 0) {
+    // Start with the value computed in
+    // BrowserViewLayout::LayoutBookmarkAndInfoBars.
+    gfx::Insets inset;
+    inset.set_top(*dialog_top_y);
+    bounds.Inset(inset);
+  }
+
+  UpdateBoundingBox(&bounds, /*add_titlebar_height=*/false);
+
+  last_dialog_top_y_ = *dialog_top_y;
+  last_dialog_top_inset_ = bounds.y();
+
+  *dialog_top_y = bounds.y();
+}
+
 views::Widget* CefWindowView::host_widget() const {
   if (host_widget_destruction_observer_) {
     return host_widget_destruction_observer_->widget();
@@ -907,7 +955,7 @@ views::Widget* CefWindowView::host_widget() const {
   return nullptr;
 }
 
-absl::optional<float> CefWindowView::GetTitlebarHeight() const {
+std::optional<float> CefWindowView::GetTitlebarHeight(bool required) const {
   if (cef_delegate()) {
     float title_bar_height = 0;
     const bool has_title_bar_height =
@@ -918,7 +966,7 @@ absl::optional<float> CefWindowView::GetTitlebarHeight() const {
   }
 
 #if BUILDFLAG(IS_MAC)
-  if (!is_frameless_) {
+  if (required) {
     // For framed windows on macOS we must include the titlebar height in the
     // UpdateFindBarBoundingBox() calculation.
     return view_util::GetNSWindowTitleBarHeight(
@@ -926,5 +974,5 @@ absl::optional<float> CefWindowView::GetTitlebarHeight() const {
   }
 #endif
 
-  return absl::nullopt;
+  return std::nullopt;
 }

@@ -141,7 +141,7 @@ bool CefBrowserViewImpl::HandleKeyboardEvent(
   }
 
   // Give the CefWindowDelegate a chance to handle the event.
-  if (auto* window_impl = cef_window()) {
+  if (auto* window_impl = cef_window_impl()) {
     CefKeyEvent cef_event;
     if (browser_util::GetCefKeyEvent(event, cef_event) &&
         window_impl->OnKeyEvent(cef_event)) {
@@ -316,7 +316,11 @@ ChromeBrowserView* CefBrowserViewImpl::chrome_browser_view() const {
   return static_cast<ChromeBrowserView*>(root_view());
 }
 
-CefWindowImpl* CefBrowserViewImpl::cef_window() const {
+CefWindowImpl* CefBrowserViewImpl::cef_window_impl() const {
+  // Same implementation as GetWindow().
+  if (!root_view()) {
+    return nullptr;
+  }
   CefRefPtr<CefWindow> window =
       view_util::GetWindowFor(root_view()->GetWidget());
   return static_cast<CefWindowImpl*>(window.get());

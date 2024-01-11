@@ -278,6 +278,7 @@ void CefOverlayViewHost::SetOverlayBounds(const gfx::Rect& bounds) {
     view_->SetSize(bounds_.size());
   }
   widget_->SetBounds(bounds_);
+  window_view_->OnOverlayBoundsChanged();
 
   bounds_changing_ = false;
 }

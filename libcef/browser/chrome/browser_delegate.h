@@ -7,11 +7,11 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 #include "base/memory/scoped_refptr.h"
 #include "chrome/browser/ui/page_action/page_action_icon_type.h"
 #include "content/public/browser/web_contents_delegate.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/base/window_open_disposition.h"
 
@@ -107,6 +107,9 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Optionally modify the bounding box for the Find bar.
   virtual void UpdateFindBarBoundingBox(gfx::Rect* bounds) {}
 
+  // Optionally modify the top inset for dialogs.
+  virtual void UpdateDialogTopInset(int* dialog_top_y) {}
+
   // Same as RequestMediaAccessPermission but returning |callback| if the
   // request is unhandled.
   [[nodiscard]] virtual content::MediaResponseCallback
@@ -118,8 +121,8 @@ class BrowserDelegate : public content::WebContentsDelegate {
 
   // Optionally override support for the specified window feature of type
   // Browser::WindowFeature.
-  virtual absl::optional<bool> SupportsWindowFeature(int feature) const {
-    return absl::nullopt;
+  virtual std::optional<bool> SupportsWindowFeature(int feature) const {
+    return std::nullopt;
   }
 
   // Returns true if draggable regions are supported.
@@ -128,8 +131,8 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Returns the draggable region, if any, relative to the web contents.
   // Called from PictureInPictureBrowserFrameView::NonClientHitTest and
   // BrowserView::ShouldDescendIntoChildForEventHandling.
-  virtual const absl::optional<SkRegion> GetDraggableRegion() const {
-    return absl::nullopt;
+  virtual const std::optional<SkRegion> GetDraggableRegion() const {
+    return std::nullopt;
   }
 
   // Set the draggable region relative to web contents.

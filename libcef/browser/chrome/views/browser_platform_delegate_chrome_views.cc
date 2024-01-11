@@ -195,15 +195,6 @@ void CefBrowserPlatformDelegateChromeViews::PopupBrowserCreated(
   }
 }
 
-void CefBrowserPlatformDelegateChromeViews::UpdateFindBarBoundingBox(
-    gfx::Rect* bounds) const {
-  if (auto* window_impl = GetWindowImpl()) {
-    if (window_impl->root_view()) {
-      window_impl->root_view()->UpdateFindBarBoundingBox(bounds);
-    }
-  }
-}
-
 bool CefBrowserPlatformDelegateChromeViews::IsViewsHosted() const {
   return true;
 }

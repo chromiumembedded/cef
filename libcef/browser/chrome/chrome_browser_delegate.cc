@@ -336,8 +336,16 @@ bool ChromeBrowserDelegate::IsToolbarButtonVisible(
 }
 
 void ChromeBrowserDelegate::UpdateFindBarBoundingBox(gfx::Rect* bounds) {
-  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
-    browser->platform_delegate()->UpdateFindBarBoundingBox(bounds);
+  if (auto cef_window_view = GetCefWindowView()) {
+    cef_window_view->UpdateFindBarBoundingBox(bounds);
+  }
+}
+
+void ChromeBrowserDelegate::UpdateDialogTopInset(int* dialog_top_y) {
+  // This may be called during Browser initialization (before Tab/WebContents
+  // creation), so we can't route through the ChromeBrowserHostImpl.
+  if (auto cef_window_view = GetCefWindowView()) {
+    cef_window_view->UpdateDialogTopInset(dialog_top_y);
   }
 }
 
@@ -377,7 +385,7 @@ bool ChromeBrowserDelegate::SupportsFramelessPictureInPicture() const {
   return *frameless_pip_;
 }
 
-absl::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
+std::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
     int feature) const {
   // Override the default value from
   // Browser::PictureInPictureBrowserSupportsWindowFeature.
@@ -386,14 +394,14 @@ absl::optional<bool> ChromeBrowserDelegate::SupportsWindowFeature(
     // Return false to hide titlebar and enable draggable regions.
     return !SupportsFramelessPictureInPicture();
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 bool ChromeBrowserDelegate::SupportsDraggableRegion() const {
   return SupportsFramelessPictureInPicture();
 }
 
-const absl::optional<SkRegion> ChromeBrowserDelegate::GetDraggableRegion()
+const std::optional<SkRegion> ChromeBrowserDelegate::GetDraggableRegion()
     const {
   DCHECK(SupportsDraggableRegion());
   return draggable_region_;
@@ -408,14 +416,11 @@ void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
   // Use a synchronous callback for notification on Windows/Linux. MacOS gets
   // notified asynchronously via CefNativeWidgetMac callbacks.
 #if !BUILDFLAG(IS_MAC)
-  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
-    if (auto chrome_browser_view = browser->chrome_browser_view()) {
-      auto* cef_window = chrome_browser_view->cef_browser_view()->cef_window();
-      if (auto* delegate = cef_window->delegate()) {
-        // Give the CefWindowDelegate a chance to handle the event.
-        delegate->OnWindowFullscreenTransition(cef_window,
-                                               /*is_completed=*/true);
-      }
+  if (auto cef_window_impl = GetCefWindowImpl()) {
+    if (auto* delegate = cef_window_impl->delegate()) {
+      // Give the CefWindowDelegate a chance to handle the event.
+      delegate->OnWindowFullscreenTransition(cef_window_impl,
+                                             /*is_completed=*/true);
     }
   }
 #endif
@@ -646,11 +651,33 @@ ChromeBrowserDelegate::CreateBrowserHostForPopup(
 }
 
 CefBrowserContentsDelegate* ChromeBrowserDelegate::GetDelegateForWebContents(
-    content::WebContents* web_contents) {
+    content::WebContents* web_contents) const {
   auto browser_host =
       ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
   if (browser_host) {
     return browser_host->contents_delegate();
+  }
+  return nullptr;
+}
+
+bool ChromeBrowserDelegate::IsViewsHosted() const {
+  return create_params_.browser_view != nullptr ||
+         create_params_.popup_with_views_hosted_opener;
+}
+
+CefWindowImpl* ChromeBrowserDelegate::GetCefWindowImpl() const {
+  if (IsViewsHosted()) {
+    if (auto chrome_browser_view =
+            static_cast<ChromeBrowserView*>(browser_->window())) {
+      return chrome_browser_view->cef_browser_view()->cef_window_impl();
+    }
+  }
+  return nullptr;
+}
+
+CefWindowView* ChromeBrowserDelegate::GetCefWindowView() const {
+  if (auto cef_window_impl = GetCefWindowImpl()) {
+    return cef_window_impl->cef_window_view();
   }
   return nullptr;
 }

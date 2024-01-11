@@ -37,7 +37,6 @@ class CefBrowserPlatformDelegateChromeViews
       bool is_devtools) override;
   void PopupBrowserCreated(CefBrowserHostBase* new_browser,
                            bool is_devtools) override;
-  void UpdateFindBarBoundingBox(gfx::Rect* bounds) const override;
   bool IsViewsHosted() const override;
 
   CefRefPtr<CefBrowserViewImpl> browser_view() const { return browser_view_; }

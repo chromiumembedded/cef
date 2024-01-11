@@ -16,6 +16,8 @@
 
 class CefBrowserContentsDelegate;
 class CefRequestContextImpl;
+class CefWindowImpl;
+class CefWindowView;
 class ChromeBrowserHostImpl;
 
 // Implementation of the cef::BrowserDelegate interface. Lifespan is controlled
@@ -69,13 +71,14 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool IsPageActionIconVisible(PageActionIconType icon_type) override;
   bool IsToolbarButtonVisible(ToolbarButtonType button_type) override;
   void UpdateFindBarBoundingBox(gfx::Rect* bounds) override;
+  void UpdateDialogTopInset(int* dialog_top_y) override;
   [[nodiscard]] content::MediaResponseCallback RequestMediaAccessPermissionEx(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       content::MediaResponseCallback callback) override;
-  absl::optional<bool> SupportsWindowFeature(int feature) const override;
+  std::optional<bool> SupportsWindowFeature(int feature) const override;
   bool SupportsDraggableRegion() const override;
-  const absl::optional<SkRegion> GetDraggableRegion() const override;
+  const std::optional<SkRegion> GetDraggableRegion() const override;
   void UpdateDraggableRegion(const SkRegion& region) override;
   void WindowFullscreenStateChanged() override;
 
@@ -137,9 +140,15 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       CefRefPtr<ChromeBrowserHostImpl> opener);
 
   CefBrowserContentsDelegate* GetDelegateForWebContents(
-      content::WebContents* web_contents);
+      content::WebContents* web_contents) const;
 
   bool SupportsFramelessPictureInPicture() const;
+
+  bool IsViewsHosted() const;
+
+  // Will return nullptr if the Browser is not Views-hosted.
+  CefWindowImpl* GetCefWindowImpl() const;
+  CefWindowView* GetCefWindowView() const;
 
   Browser* const browser_;
   base::WeakPtr<ChromeBrowserHostImpl> opener_host_;
@@ -147,9 +156,9 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   // Used when creating a new browser host.
   const CefBrowserCreateParams create_params_;
 
-  absl::optional<bool> show_status_bubble_;
-  absl::optional<SkRegion> draggable_region_;
-  mutable absl::optional<bool> frameless_pip_;
+  std::optional<bool> show_status_bubble_;
+  std::optional<SkRegion> draggable_region_;
+  mutable std::optional<bool> frameless_pip_;
 
   std::unique_ptr<CefShowDevToolsParams> pending_show_devtools_params_;
 };

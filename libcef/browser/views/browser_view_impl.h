@@ -85,7 +85,7 @@ class CefBrowserViewImpl
   ChromeBrowserView* chrome_browser_view() const;
 
   // Return the CefWindowImpl hosting this object.
-  CefWindowImpl* cef_window() const;
+  CefWindowImpl* cef_window_impl() const;
 
  private:
   // Create a new implementation object.

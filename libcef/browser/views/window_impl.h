@@ -133,6 +133,8 @@ class CefWindowImpl
                 cef_menu_anchor_position_t anchor_position);
   void MenuClosed();
 
+  CefWindowView* cef_window_view() const;
+
   views::Widget* widget() const { return widget_; }
   bool initialized() const { return initialized_; }
 

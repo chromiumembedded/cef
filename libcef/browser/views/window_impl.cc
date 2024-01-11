@@ -137,7 +137,7 @@ void CefWindowImpl::ShowAsBrowserModalDialog(
         static_cast<CefBrowserViewImpl*>(browser_view.get());
 
     // |browser_view| must belong to the host widget.
-    auto* host_widget = static_cast<CefWindowView*>(root_view())->host_widget();
+    auto* host_widget = cef_window_view()->host_widget();
     CHECK(host_widget &&
           browser_view_impl->root_view()->GetWidget() == host_widget);
 
@@ -739,6 +739,10 @@ void CefWindowImpl::RemoveAllAccelerators() {
   focus_manager->UnregisterAccelerators(this);
 }
 
+CefWindowView* CefWindowImpl::cef_window_view() const {
+  return static_cast<CefWindowView*>(root_view());
+}
+
 CefWindowImpl::CefWindowImpl(CefRefPtr<CefWindowDelegate> delegate)
     : ParentClass(delegate) {}
 
@@ -747,7 +751,7 @@ CefWindowView* CefWindowImpl::CreateRootView() {
 }
 
 void CefWindowImpl::InitializeRootView() {
-  static_cast<CefWindowView*>(root_view())->Initialize();
+  cef_window_view()->Initialize();
 }
 
 void CefWindowImpl::CreateWidget(gfx::AcceleratedWidget parent_widget) {
