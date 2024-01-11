@@ -93,8 +93,15 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForBrowser(
     const Browser* browser) {
   REQUIRE_CHROME_RUNTIME();
-  return GetBrowserForContents(
-      browser->tab_strip_model()->GetActiveWebContents());
+  // Return the ChromeBrowserHostImpl that is currently active.
+  // Views-hosted Browsers will contain a single ChromeBrowserHostImpl.
+  // Otherwise, there will be a ChromeBrowserHostImpl per Tab/WebContents.
+  // |contents| may be nullptr during Browser initialization or destruction.
+  auto contents = browser->tab_strip_model()->GetActiveWebContents();
+  if (!contents) {
+    return nullptr;
+  }
+  return GetBrowserForContents(contents);
 }
 
 ChromeBrowserHostImpl::~ChromeBrowserHostImpl() = default;

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_WINDOW_VIEW_H_
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "include/views/cef_window.h"
@@ -112,13 +113,19 @@ class CefWindowView
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   SkRegion* draggable_region() const { return draggable_region_.get(); }
 
+  // Called from CefOverlayViewHost::SetOverlayBounds().
+  void OnOverlayBoundsChanged();
+
   // Returns the NonClientFrameView for this Window. May be nullptr.
   views::NonClientFrameView* GetNonClientFrameView() const;
 
   // Optionally modify the bounding box for the Chrome Find bar.
   void UpdateFindBarBoundingBox(gfx::Rect* bounds) const;
 
-  absl::optional<float> GetTitlebarHeight() const;
+  // Optionally modify the top inset for Chrome dialogs.
+  void UpdateDialogTopInset(int* dialog_top_y) const;
+
+  std::optional<float> GetTitlebarHeight(bool required) const;
   bool IsFrameless() const { return is_frameless_; }
 
   // The Widget that hosts us, if we're a modal dialog. May return nullptr
@@ -130,6 +137,9 @@ class CefWindowView
   void DeleteDelegate();
 
   void MoveOverlaysIfNecessary();
+  void InvalidateExclusionRegions();
+
+  void UpdateBoundingBox(gfx::Rect* bounds, bool add_titlebar_height) const;
 
   // Not owned by this object.
   Delegate* window_delegate_;
@@ -143,6 +153,9 @@ class CefWindowView
 
   std::unique_ptr<SkRegion> draggable_region_;
   std::vector<gfx::Rect> draggable_rects_;
+
+  mutable int last_dialog_top_y_ = -1;
+  mutable int last_dialog_top_inset_ = -1;
 
   // Tracks the Widget that hosts us, if we're a modal dialog.
   std::unique_ptr<WidgetDestructionObserver> host_widget_destruction_observer_;

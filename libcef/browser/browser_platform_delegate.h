@@ -286,9 +286,6 @@ class CefBrowserPlatformDelegate {
   // Create the platform-specific menu runner.
   virtual std::unique_ptr<CefMenuRunner> CreateMenuRunner();
 
-  // Optionally modify the bounding box for the Chrome Find bar.
-  virtual void UpdateFindBarBoundingBox(gfx::Rect* bounds) const;
-
   // Returns true if this delegate implements windowless rendering. May be
   // called on multiple threads.
   virtual bool IsWindowless() const;
