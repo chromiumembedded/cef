@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 9e07412327ce9..f889c0e6a03d0 100644
+index 9e07412327ce9..3ac78725eba18 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -41,7 +41,57 @@ index 9e07412327ce9..f889c0e6a03d0 100644
      return;
    }
  
-@@ -224,7 +233,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
+@@ -123,36 +132,22 @@ void UpdateModalDialogPosition(views::Widget* widget,
+   position.set_y(position.y() -
+                  widget->non_client_view()->frame_view()->GetInsets().top());
+ 
+-  gfx::Rect dialog_bounds(position, size);
+-
+   if (widget->is_top_level() && SupportsGlobalScreenCoordinates()) {
+-    const gfx::Rect initial_dialog_bounds =
+-        dialog_bounds +
+-        host_widget->GetClientAreaBoundsInScreen().OffsetFromOrigin();
+-    const gfx::Rect initial_host_bounds =
+-        host_widget->GetWindowBoundsInScreen();
+-
+-    // TODO(crbug.com/1341530): The requested dialog bounds should never fall
+-    // outside the bounds of the transient parent.
+-    DCHECK(initial_dialog_bounds.Intersects(initial_host_bounds));
+-
+-    // We should not show a window-modal dialog for a window that exists outside
+-    // the bounds of the screen. This risks the modal window becoming
+-    // effectively deadlocked as controls to dismiss the dialog may become
+-    // inaccessible.
+-    // It is also insufficient to reposition only the dialog but not the host
+-    // window as many systems will clip child dialogs to their transient
+-    // parents. Further, if the window-constrained dialog is visually
+-    // disassociated with its parent window it may be difficult to discern which
+-    // window the dialog is modal to.
+-    host_widget->SetBoundsConstrained(initial_host_bounds);
+-    const gfx::Rect adjusted_host_bounds =
+-        host_widget->GetClientAreaBoundsInScreen();
+-    dialog_bounds += adjusted_host_bounds.OffsetFromOrigin();
+-    dialog_bounds.AdjustToFit(adjusted_host_bounds);
++    position += host_widget->GetClientAreaBoundsInScreen().OffsetFromOrigin();
++    // If the dialog extends partially off any display, clamp its position to
++    // be fully visible within that display. If the dialog doesn't intersect
++    // with any display clamp its position to be fully on the nearest display.
++    gfx::Rect display_rect = gfx::Rect(position, size);
++    const display::Display display =
++        display::Screen::GetScreen()->GetDisplayNearestView(
++            dialog_host->GetHostView());
++    const gfx::Rect work_area = display.work_area();
++    if (!work_area.Contains(display_rect))
++      display_rect.AdjustToFit(work_area);
++    position = display_rect.origin();
+   }
+ 
+-  widget->SetBounds(dialog_bounds);
++  widget->SetBounds(gfx::Rect(position, size));
+ }
+ 
+ }  // namespace
+@@ -224,7 +219,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
  
    views::Widget* widget = views::DialogDelegate::CreateDialogWidget(
        dialog, nullptr,
@@ -51,7 +101,7 @@ index 9e07412327ce9..f889c0e6a03d0 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -246,8 +256,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -246,8 +242,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
  
    gfx::NativeView parent_view =
        parent ? CurrentClient()->GetDialogHostView(parent) : nullptr;
@@ -66,7 +116,7 @@ index 9e07412327ce9..f889c0e6a03d0 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -263,8 +278,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -263,8 +264,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
    if (!requires_positioning)
      return widget;
  
