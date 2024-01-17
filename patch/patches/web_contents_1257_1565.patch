@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 63eafd910dad5..1abd7d266c244 100644
+index dba3fa7b487fe..c58c06ae73bda 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3448,6 +3448,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -33,7 +33,7 @@ index 63eafd910dad5..1abd7d266c244 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -3984,6 +3994,10 @@ void WebContentsImpl::Restore() {
+@@ -3989,6 +3999,10 @@ void WebContentsImpl::Restore() {
  ui::WindowShowState WebContentsImpl::GetWindowShowState() {
  #if defined(USE_AURA)
    aura::Window* window = GetTopLevelNativeWindow();
@@ -44,7 +44,7 @@ index 63eafd910dad5..1abd7d266c244 100644
    return wm::GetWindowState(window);
  #else
    // TODO(laurila, crbug.com/1466855): This API function currently works only on
-@@ -4451,6 +4465,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -4456,6 +4470,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -60,7 +60,7 @@ index 63eafd910dad5..1abd7d266c244 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -8599,6 +8622,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -8604,6 +8627,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
