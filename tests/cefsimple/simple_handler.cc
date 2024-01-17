@@ -151,11 +151,9 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
 
 // static
 bool SimpleHandler::IsChromeRuntimeEnabled() {
-  static int value = -1;
-  if (value == -1) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    value = command_line->HasSwitch("enable-chrome-runtime") ? 1 : 0;
-  }
-  return value == 1;
+  static bool enabled = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        "enable-chrome-runtime");
+  }();
+  return enabled;
 }
