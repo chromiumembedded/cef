@@ -139,11 +139,11 @@ int main(int argc, char* argv[]) {
     // Specify CEF global settings here.
     CefSettings settings;
 
-    const bool with_chrome_runtime =
-        command_line->HasSwitch("enable-chrome-runtime");
-
-    if (with_chrome_runtime) {
-      // Enable experimental Chrome runtime. See issue #2969 for details.
+    // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
+    // the command-line. Otherwise, use the CEF Alloy runtime. For more
+    // information about CEF runtimes see
+    // https://bitbucket.org/chromiumembedded/cef/wiki/Architecture.md#markdown-header-cef3
+    if (command_line->HasSwitch("enable-chrome-runtime")) {
       settings.chrome_runtime = true;
     }
 

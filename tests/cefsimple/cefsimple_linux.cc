@@ -15,13 +15,11 @@
 namespace {
 
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
-  LOG(WARNING) << "X error received: "
-               << "type " << event->type << ", "
-               << "serial " << event->serial << ", "
-               << "error_code " << static_cast<int>(event->error_code) << ", "
-               << "request_code " << static_cast<int>(event->request_code)
-               << ", "
-               << "minor_code " << static_cast<int>(event->minor_code);
+  LOG(WARNING) << "X error received: " << "type " << event->type << ", "
+               << "serial " << event->serial << ", " << "error_code "
+               << static_cast<int>(event->error_code) << ", " << "request_code "
+               << static_cast<int>(event->request_code) << ", " << "minor_code "
+               << static_cast<int>(event->minor_code);
   return 0;
 }
 
@@ -60,8 +58,11 @@ int main(int argc, char* argv[]) {
   // Specify CEF global settings here.
   CefSettings settings;
 
+  // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
+  // the command-line. Otherwise, use the CEF Alloy runtime. For more
+  // information about CEF runtimes see
+  // https://bitbucket.org/chromiumembedded/cef/wiki/Architecture.md#markdown-header-cef3
   if (command_line->HasSwitch("enable-chrome-runtime")) {
-    // Enable experimental Chrome runtime. See issue #2969 for details.
     settings.chrome_runtime = true;
   }
 
