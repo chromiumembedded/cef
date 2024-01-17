@@ -52,7 +52,7 @@ index af96779d25b87..4ef9f7945136c 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index 1fbc225de7b84..55847e48ed0c2 100644
+index f9f2936904a4a..a44a00b978a2b 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
 @@ -157,12 +157,14 @@ void BrowserCloseManager::CloseBrowsers() {
