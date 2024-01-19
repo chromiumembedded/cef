@@ -363,10 +363,10 @@ index 0c231b6ac5b01..6b5af98e18e42 100644
    BrowserFrame(const BrowserFrame&) = delete;
    BrowserFrame& operator=(const BrowserFrame&) = delete;
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 4273a5f004935..55f2782c262e4 100644
+index 5392c8ddc6f13..153ad48fc65ba 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -343,11 +343,10 @@ using content::NativeWebKeyboardEvent;
+@@ -345,11 +345,10 @@ using content::NativeWebKeyboardEvent;
  using content::WebContents;
  using web_modal::WebContentsModalDialogHost;
  
@@ -381,7 +381,7 @@ index 4273a5f004935..55f2782c262e4 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  // UMA histograms that record animation smoothness for tab loading animation.
-@@ -701,6 +700,14 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
+@@ -703,6 +702,14 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
      return browser_view_->frame()->GetTopInset() - browser_view_->y();
    }
  
@@ -396,7 +396,7 @@ index 4273a5f004935..55f2782c262e4 100644
    bool IsToolbarVisible() const override {
      return browser_view_->IsToolbarVisible();
    }
-@@ -862,11 +869,21 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
+@@ -864,11 +871,21 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -419,7 +419,7 @@ index 4273a5f004935..55f2782c262e4 100644
    // Store the actions so that the access is available for other classes.
    if (features::IsSidePanelPinningEnabled()) {
      browser_->SetUserData(BrowserActions::UserDataKey(),
-@@ -963,8 +980,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -965,8 +982,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
    contents_container->SetLayoutManager(std::make_unique<ContentsLayoutManager>(
        devtools_web_view_, contents_web_view_));
  
@@ -437,7 +437,7 @@ index 4273a5f004935..55f2782c262e4 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1038,7 +1062,9 @@ BrowserView::~BrowserView() {
+@@ -1040,7 +1064,9 @@ BrowserView::~BrowserView() {
  
    // All the tabs should have been destroyed already. If we were closed by the
    // OS with some tabs than the NativeBrowserFrame should have destroyed them.
@@ -447,7 +447,7 @@ index 4273a5f004935..55f2782c262e4 100644
  
    // Stop the animation timer explicitly here to avoid running it in a nested
    // message loop, which may run by Browser destructor.
-@@ -1052,12 +1078,14 @@ BrowserView::~BrowserView() {
+@@ -1054,12 +1080,14 @@ BrowserView::~BrowserView() {
    // child views and it is an observer for avatar toolbar button if any.
    autofill_bubble_handler_.reset();
  
@@ -462,7 +462,7 @@ index 4273a5f004935..55f2782c262e4 100644
  
    // The TabStrip attaches a listener to the model. Make sure we shut down the
    // TabStrip first so that it can cleanly remove the listener.
-@@ -1075,7 +1103,9 @@ BrowserView::~BrowserView() {
+@@ -1077,7 +1105,9 @@ BrowserView::~BrowserView() {
  
    // `SidePanelUI::RemoveSidePanelUIForBrowser()` deletes the
    // SidePanelCoordinator.
@@ -472,7 +472,7 @@ index 4273a5f004935..55f2782c262e4 100644
  }
  
  // static
-@@ -1950,9 +1980,14 @@ void BrowserView::OnExclusiveAccessUserInput() {
+@@ -1955,9 +1985,14 @@ void BrowserView::OnExclusiveAccessUserInput() {
  
  bool BrowserView::ShouldHideUIForFullscreen() const {
    // Immersive mode needs UI for the slide-down top panel.
@@ -488,7 +488,7 @@ index 4273a5f004935..55f2782c262e4 100644
    return frame_->GetFrameView()->ShouldHideTopUIForFullscreen();
  }
  
-@@ -3065,7 +3100,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
+@@ -3078,7 +3113,8 @@ DownloadShelf* BrowserView::GetDownloadShelf() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -498,7 +498,7 @@ index 4273a5f004935..55f2782c262e4 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton())
      return download_button->bubble_controller();
    return nullptr;
-@@ -3616,7 +3652,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -3629,7 +3665,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
    if (top_container()->parent() == this)
      return;
  
@@ -508,7 +508,7 @@ index 4273a5f004935..55f2782c262e4 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -4078,11 +4115,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4091,11 +4128,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -549,7 +549,7 @@ index 4273a5f004935..55f2782c262e4 100644
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4091,7 +4155,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4104,7 +4168,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -558,7 +558,7 @@ index 4273a5f004935..55f2782c262e4 100644
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -4199,8 +4263,10 @@ void BrowserView::Layout() {
+@@ -4212,8 +4276,10 @@ void BrowserView::Layout() {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -571,7 +571,7 @@ index 4273a5f004935..55f2782c262e4 100644
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    // In chromeOS ash we round the bottom two corners of the browser frame by
-@@ -4278,6 +4344,11 @@ void BrowserView::AddedToWidget() {
+@@ -4291,6 +4357,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -583,7 +583,7 @@ index 4273a5f004935..55f2782c262e4 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -4326,13 +4397,9 @@ void BrowserView::AddedToWidget() {
+@@ -4339,13 +4410,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -599,7 +599,7 @@ index 4273a5f004935..55f2782c262e4 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4749,7 +4816,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
+@@ -4767,7 +4834,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen,
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -609,7 +609,7 @@ index 4273a5f004935..55f2782c262e4 100644
  }
  
  bool BrowserView::ShouldUseImmersiveFullscreenForUrl(const GURL& url) const {
-@@ -5147,6 +5215,8 @@ Profile* BrowserView::GetProfile() {
+@@ -5165,6 +5233,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -618,7 +618,7 @@ index 4273a5f004935..55f2782c262e4 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -5169,6 +5239,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -5187,6 +5257,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -628,7 +628,7 @@ index 4273a5f004935..55f2782c262e4 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 2e4054890db75..1a518ba936fd1 100644
+index 773124dcd15cd..64c6d648c8321 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -138,11 +138,16 @@ class BrowserView : public BrowserWindow,
@@ -940,7 +940,7 @@ index 9536b049aeb9d..30f3091939675 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index f43c6d4d5f030..cd85d5ddda2d8 100644
+index 836617ff76c51..d4d685783edfb 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -190,7 +190,7 @@ class TabstripLikeBackground : public views::Background {

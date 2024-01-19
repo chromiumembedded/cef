@@ -1,5 +1,5 @@
 diff --git ui/gfx/x/connection.cc ui/gfx/x/connection.cc
-index e9034ec7dea3e..b11df74c1d9dd 100644
+index 8c59d60a30148..6cc6326e65639 100644
 --- ui/gfx/x/connection.cc
 +++ ui/gfx/x/connection.cc
 @@ -183,6 +183,7 @@ Connection::Connection(const std::string& address)
