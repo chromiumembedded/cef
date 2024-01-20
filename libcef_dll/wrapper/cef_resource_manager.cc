@@ -5,6 +5,7 @@
 #include "include/wrapper/cef_resource_manager.h"
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 #include "include/base/cef_callback.h"
@@ -181,8 +182,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
       : url_path_(url_path),
         archive_path_(archive_path),
         password_(password),
-        archive_load_started_(false),
-        archive_load_ended_(false),
+
         weak_ptr_factory_(this) {
     DCHECK(!url_path_.empty());
     DCHECK(!archive_path_.empty());
@@ -294,8 +294,8 @@ class ArchiveProvider : public CefResourceManager::Provider {
   std::string archive_path_;
   std::string password_;
 
-  bool archive_load_started_;
-  bool archive_load_ended_;
+  bool archive_load_started_ = false;
+  bool archive_load_ended_ = false;
   CefRefPtr<CefZipArchive> archive_;
 
   // List of requests that are pending while the archive is being loaded.
@@ -313,10 +313,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
 
 struct CefResourceManager::ProviderEntry {
   ProviderEntry(Provider* provider, int order, const std::string& identifier)
-      : provider_(provider),
-        order_(order),
-        identifier_(identifier),
-        deletion_pending_(false) {}
+      : provider_(provider), order_(order), identifier_(identifier) {}
 
   std::unique_ptr<Provider> provider_;
   int order_;
@@ -326,7 +323,7 @@ struct CefResourceManager::ProviderEntry {
   RequestList pending_requests_;
 
   // True if deletion of this provider is pending.
-  bool deletion_pending_;
+  bool deletion_pending_ = false;
 };
 
 // CefResourceManager::RequestState implementation.
@@ -602,7 +599,8 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
     // thread. This object performs most of its work on the IO thread and will
     // be destroyed on the IO thread so, now that we're on the IO thread,
     // properly initialize the WeakPtrFactory.
-    weak_ptr_factory_.reset(new base::WeakPtrFactory<CefResourceManager>(this));
+    weak_ptr_factory_ =
+        std::make_unique<base::WeakPtrFactory<CefResourceManager>>(this);
   }
 
   state->manager_ = weak_ptr_factory_->GetWeakPtr();

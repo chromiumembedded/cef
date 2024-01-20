@@ -98,7 +98,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     CallbackImpl(const CallbackImpl&) = delete;
     CallbackImpl& operator=(const CallbackImpl&) = delete;
 
-    virtual ~CallbackImpl() {
+    ~CallbackImpl() override {
       // Hitting this DCHECK means that you didn't call Success or Failure
       // on the Callback after returning true from Handler::OnQuery. You must
       // call Failure to terminate persistent queries.
@@ -191,7 +191,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
   CefMessageRouterBrowserSideImpl& operator=(
       const CefMessageRouterBrowserSideImpl&) = delete;
 
-  virtual ~CefMessageRouterBrowserSideImpl() {
+  ~CefMessageRouterBrowserSideImpl() override {
     // There should be no pending queries when the router is deleted.
     DCHECK(browser_query_info_map_.empty());
   }
@@ -231,7 +231,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       // Need to iterate over each QueryInfo object to test the handler.
       class Visitor : public BrowserQueryInfoMap::Visitor {
        public:
-        explicit Visitor(Handler* handler) : handler_(handler), count_(0) {}
+        explicit Visitor(Handler* handler) : handler_(handler) {}
 
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
@@ -247,7 +247,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
        private:
         Handler* handler_;
-        int count_;
+        int count_ = 0;
       };
 
       Visitor visitor(handler);
@@ -398,8 +398,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
                           bool* removed) {
     class Visitor : public BrowserQueryInfoMap::Visitor {
      public:
-      explicit Visitor(bool always_remove)
-          : always_remove_(always_remove), removed_(false) {}
+      explicit Visitor(bool always_remove) : always_remove_(always_remove) {}
 
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
@@ -413,7 +412,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
      private:
       const bool always_remove_;
-      bool removed_;
+      bool removed_ = false;
     };
 
     Visitor visitor(always_remove);
@@ -779,7 +778,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       // Need to iterate over each RequestInfo object to test the context.
       class Visitor : public BrowserRequestInfoMap::Visitor {
        public:
-        explicit Visitor(int context_id) : context_id_(context_id), count_(0) {}
+        explicit Visitor(int context_id) : context_id_(context_id) {}
 
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
@@ -795,7 +794,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
        private:
         int context_id_;
-        int count_;
+        int count_ = 0;
       };
 
       Visitor visitor(context_id);
@@ -908,8 +907,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
                               bool* removed) {
     class Visitor : public BrowserRequestInfoMap::Visitor {
      public:
-      explicit Visitor(bool always_remove)
-          : always_remove_(always_remove), removed_(false) {}
+      explicit Visitor(bool always_remove) : always_remove_(always_remove) {}
 
       bool OnNextInfo(int browser_id,
                       InfoIdType info_id,
@@ -923,7 +921,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
      private:
       const bool always_remove_;
-      bool removed_;
+      bool removed_ = false;
     };
 
     Visitor visitor(always_remove);
@@ -988,8 +986,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
       // Cancel all requests with the specified context ID.
       class Visitor : public BrowserRequestInfoMap::Visitor {
        public:
-        explicit Visitor(int context_id)
-            : context_id_(context_id), cancel_count_(0) {}
+        explicit Visitor(int context_id) : context_id_(context_id) {}
 
         bool OnNextInfo(int browser_id,
                         InfoIdType info_id,
@@ -1007,7 +1004,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
        private:
         const int context_id_;
-        int cancel_count_;
+        int cancel_count_ = 0;
       };
 
       Visitor visitor(context_id);

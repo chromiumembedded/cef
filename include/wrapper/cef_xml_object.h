@@ -184,7 +184,7 @@ class CefXmlObject : public base::RefCountedThreadSafe<CefXmlObject> {
   void SetParent(CefXmlObject* parent);
 
   CefString name_;
-  CefXmlObject* parent_;
+  CefXmlObject* parent_ = nullptr;
   CefString value_;
   AttributeMap attributes_;
   ObjectVector children_;

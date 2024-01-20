@@ -144,7 +144,7 @@ class CefScopedArgArray {
       values_[i] = argv[i];
       array_[i] = const_cast<char*>(values_[i].c_str());
     }
-    array_[argc] = NULL;
+    array_[argc] = nullptr;
   }
 
   CefScopedArgArray(const CefScopedArgArray&) = delete;

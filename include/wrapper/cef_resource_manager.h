@@ -206,7 +206,7 @@ class CefResourceManager
     ///
     virtual void OnRequestCanceled(scoped_refptr<Request> request) {}
 
-    virtual ~Provider() {}
+    virtual ~Provider() = default;
   };
 
   CefResourceManager();

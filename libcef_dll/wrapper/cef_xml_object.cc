@@ -158,10 +158,9 @@ class CefXmlObjectLoader {
 
 }  // namespace
 
-CefXmlObject::CefXmlObject(const CefString& name)
-    : name_(name), parent_(nullptr) {}
+CefXmlObject::CefXmlObject(const CefString& name) : name_(name) {}
 
-CefXmlObject::~CefXmlObject() {}
+CefXmlObject::~CefXmlObject() = default;
 
 bool CefXmlObject::Load(CefRefPtr<CefStreamReader> stream,
                         CefXmlReader::EncodingType encodingType,

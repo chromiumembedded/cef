@@ -11,7 +11,7 @@
 CefByteReadHandler::CefByteReadHandler(const unsigned char* bytes,
                                        size_t size,
                                        CefRefPtr<CefBaseRefCounted> source)
-    : bytes_(bytes), size_(size), offset_(0), source_(source) {}
+    : bytes_(bytes), size_(size), source_(source) {}
 
 size_t CefByteReadHandler::Read(void* ptr, size_t size, size_t n) {
   base::AutoLock lock_scope(lock_);

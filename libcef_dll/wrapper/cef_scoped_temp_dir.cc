@@ -7,7 +7,7 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_file_util.h"
 
-CefScopedTempDir::CefScopedTempDir() {}
+CefScopedTempDir::CefScopedTempDir() = default;
 
 CefScopedTempDir::~CefScopedTempDir() {
   if (!path_.empty() && !Delete()) {
