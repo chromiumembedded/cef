@@ -13,8 +13,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/test_runner.h"
 
-namespace client {
-namespace urlrequest_test {
+namespace client::urlrequest_test {
 
 namespace {
 
@@ -86,7 +85,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
   Handler() { CEF_REQUIRE_UI_THREAD(); }
 
-  ~Handler() { CancelPendingRequest(); }
+  ~Handler() override { CancelPendingRequest(); }
 
   // Called due to cefQuery execution in urlrequest.html.
   bool OnQuery(CefRefPtr<CefBrowser> browser,
@@ -184,5 +183,4 @@ void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
-}  // namespace urlrequest_test
-}  // namespace client
+}  // namespace client::urlrequest_test

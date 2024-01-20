@@ -9,8 +9,7 @@
 #include <limits>
 #include <string>
 
-namespace client {
-namespace file_util {
+namespace client::file_util {
 
 // Platform-specific path separator.
 extern const char kPathSep;
@@ -39,7 +38,6 @@ std::string JoinPath(const std::string& path1, const std::string& path2);
 // Extracts the file extension from |path|.
 std::string GetFileExtension(const std::string& path);
 
-}  // namespace file_util
-}  // namespace client
+}  // namespace client::file_util
 
 #endif  // CEF_TESTS_SHARED_BROWSER_FILE_UTIL_H_

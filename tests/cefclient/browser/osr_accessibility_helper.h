@@ -27,7 +27,7 @@ class OsrAXTree {
 
  private:
   CefString parent_tree_id_;
-  int root_node_id_;
+  int root_node_id_ = -1;
   std::map<int, OsrAXNode*> node_map_;
 };
 
@@ -71,7 +71,7 @@ class OsrAccessibilityHelper {
   void DestroyNode(OsrAXNode* node);
   CefString root_tree_id_;
   CefString focused_tree_id_;
-  int focused_node_id_;
+  int focused_node_id_ = -1;
   CefRefPtr<CefBrowser> browser_;
   std::map<CefString, OsrAXTree> accessibility_node_map_;
 };

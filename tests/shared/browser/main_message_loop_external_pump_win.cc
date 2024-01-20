@@ -22,7 +22,7 @@ static const int kMsgHaveWork = WM_USER + 1;
 class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
  public:
   MainMessageLoopExternalPumpWin();
-  ~MainMessageLoopExternalPumpWin();
+  ~MainMessageLoopExternalPumpWin() override;
 
   // MainMessageLoopStd methods:
   void Quit() override;
@@ -44,14 +44,13 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
                                   LPARAM lparam);
 
   // True if a timer event is currently pending.
-  bool timer_pending_;
+  bool timer_pending_ = false;
 
   // HWND owned by the thread that CefDoMessageLoopWork should be invoked on.
-  HWND main_thread_target_;
+  HWND main_thread_target_ = nullptr;
 };
 
-MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
-    : timer_pending_(false), main_thread_target_(nullptr) {
+MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin() {
   HINSTANCE hInstance = GetModuleHandle(nullptr);
   const wchar_t* const kClassName = L"CEFMainTargetHWND";
 

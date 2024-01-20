@@ -88,11 +88,11 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
   if (settings.multi_threaded_message_loop) {
-    message_loop.reset(new MainMessageLoopMultithreadedWin);
+    message_loop = std::make_unique<MainMessageLoopMultithreadedWin>();
   } else if (settings.external_message_pump) {
     message_loop = MainMessageLoopExternalPump::Create();
   } else {
-    message_loop.reset(new MainMessageLoopStd);
+    message_loop = std::make_unique<MainMessageLoopStd>();
   }
 
   // Initialize the CEF browser process. May return false if initialization

@@ -11,8 +11,7 @@
 #include "include/base/cef_build.h"
 #include "include/cef_task.h"
 
-namespace client {
-namespace file_util {
+namespace client::file_util {
 
 namespace {
 
@@ -129,5 +128,4 @@ std::string GetFileExtension(const std::string& path) {
   return std::string();
 }
 
-}  // namespace file_util
-}  // namespace client
+}  // namespace client::file_util

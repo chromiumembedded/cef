@@ -5,6 +5,7 @@
 #include "tests/cefclient/browser/main_context_impl.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "include/cef_parser.h"
 #include "tests/cefclient/browser/test_runner.h"
@@ -288,8 +289,8 @@ bool MainContextImpl::Initialize(const CefMainArgs& args,
 
   // Need to create the RootWindowManager after calling CefInitialize because
   // TempWindowX11 uses cef_get_xdisplay().
-  root_window_manager_.reset(
-      new RootWindowManager(terminate_when_all_windows_closed_));
+  root_window_manager_ =
+      std::make_unique<RootWindowManager>(terminate_when_all_windows_closed_);
 
   initialized_ = true;
 

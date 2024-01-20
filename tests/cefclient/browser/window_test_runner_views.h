@@ -8,8 +8,7 @@
 
 #include "tests/cefclient/browser/window_test_runner.h"
 
-namespace client {
-namespace window_test {
+namespace client::window_test {
 
 // Views platform implementation.
 class WindowTestRunnerViews : public WindowTestRunner {
@@ -29,7 +28,6 @@ class WindowTestRunnerViews : public WindowTestRunner {
                          const std::optional<float>& height) override;
 };
 
-}  // namespace window_test
-}  // namespace client
+}  // namespace client::window_test
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_TEST_RUNNER_VIEWS_H_

@@ -26,7 +26,7 @@ class RootWindowViews : public RootWindow,
   // non-nullptr for popup browsers with a RootWindow parent (called on the UI
   // thread only).
   explicit RootWindowViews(RootWindowViews* parent_window);
-  ~RootWindowViews();
+  ~RootWindowViews() override;
 
   void SetTitlebarHeight(const std::optional<float>& height);
 

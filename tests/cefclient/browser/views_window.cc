@@ -66,8 +66,8 @@ void MakeButtonsSameSize(const LabelButtons& buttons) {
   CefSize size;
 
   // Determine the largest button size.
-  for (size_t i = 0U; i < buttons.size(); ++i) {
-    const CefSize& button_size = buttons[i]->GetPreferredSize();
+  for (const auto& button : buttons) {
+    const CefSize& button_size = button->GetPreferredSize();
     if (size.width < button_size.width) {
       size.width = button_size.width;
     }
@@ -76,12 +76,12 @@ void MakeButtonsSameSize(const LabelButtons& buttons) {
     }
   }
 
-  for (size_t i = 0U; i < buttons.size(); ++i) {
+  for (const auto& button : buttons) {
     // Set the button's minimum size.
-    buttons[i]->SetMinimumSize(size);
+    button->SetMinimumSize(size);
 
     // Re-layout the button and all parent Views.
-    buttons[i]->InvalidateLayout();
+    button->InvalidateLayout();
   }
 }
 
@@ -1040,11 +1040,7 @@ ViewsWindow::ViewsWindow(WindowType type,
                          Delegate* delegate,
                          CefRefPtr<CefBrowserView> browser_view,
                          CefRefPtr<CefCommandLine> command_line)
-    : type_(type),
-      delegate_(delegate),
-      command_line_(command_line),
-      menu_has_focus_(false),
-      last_focused_view_(false) {
+    : type_(type), delegate_(delegate), command_line_(command_line) {
   DCHECK(delegate_);
 
   if (browser_view) {
@@ -1411,7 +1407,7 @@ void ViewsWindow::OnExtensionIconsLoaded(const ExtensionSet& extensions,
     if (!icon) {
       icon = delegate_->GetImageCache()->GetCachedImage(kDefaultExtensionIcon);
     }
-    extensions_.push_back(ExtensionInfo(*it1, icon));
+    extensions_.emplace_back(*it1, icon);
   }
 
   UpdateExtensionControls();

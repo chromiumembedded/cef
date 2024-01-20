@@ -25,8 +25,7 @@
 #include "tests/cefclient/browser/window_test_runner_mac.h"
 #endif
 
-namespace client {
-namespace window_test {
+namespace client::window_test {
 
 namespace {
 
@@ -86,12 +85,12 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   Handler() : runner_(CreateWindowTestRunner()) {}
 
   // Called due to cefBroadcast execution in window.html.
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64_t query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) override {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     // Only handle messages from the test URL.
     const std::string& url = frame->GetURL();
     if (!test_runner::IsTestURL(url, kTestUrlPath)) {
@@ -133,5 +132,4 @@ void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
-}  // namespace window_test
-}  // namespace client
+}  // namespace client::window_test

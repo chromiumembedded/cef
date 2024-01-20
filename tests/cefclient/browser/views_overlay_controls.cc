@@ -182,18 +182,18 @@ void ViewsOverlayControls::UpdateControls() {
 void ViewsOverlayControls::UpdateDraggableRegions(
     std::vector<CefDraggableRegion>& window_regions) {
   if (panel_controller_ && panel_controller_->IsVisible()) {
-    window_regions.push_back(CefDraggableRegion(panel_controller_->GetBounds(),
-                                                /*draggable=*/false));
+    window_regions.emplace_back(panel_controller_->GetBounds(),
+                                /*draggable=*/false);
   }
 
   if (menu_controller_ && menu_controller_->IsVisible()) {
-    window_regions.push_back(
-        CefDraggableRegion(menu_controller_->GetBounds(), /*draggable=*/false));
+    window_regions.emplace_back(menu_controller_->GetBounds(),
+                                /*draggable=*/false);
   }
 
   if (location_controller_ && location_controller_->IsVisible()) {
-    window_regions.push_back(CefDraggableRegion(
-        location_controller_->GetBounds(), /*draggable=*/false));
+    window_regions.emplace_back(location_controller_->GetBounds(),
+                                /*draggable=*/false);
   }
 }
 

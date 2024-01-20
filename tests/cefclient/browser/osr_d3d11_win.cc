@@ -28,8 +28,7 @@
 #include "include/internal/cef_string.h"
 #include "tests/shared/browser/util_win.h"
 
-namespace client {
-namespace d3d11 {
+namespace client::d3d11 {
 
 namespace {
 
@@ -63,9 +62,7 @@ SwapChain::SwapChain(IDXGISwapChain* swapchain,
     : sampler_(to_com_ptr(sampler)),
       blender_(to_com_ptr(blender)),
       swapchain_(to_com_ptr(swapchain)),
-      rtv_(to_com_ptr(rtv)),
-      width_(0),
-      height_(0) {}
+      rtv_(to_com_ptr(rtv)) {}
 
 void SwapChain::bind(const std::shared_ptr<Context>& ctx) {
   ctx_ = ctx;
@@ -113,7 +110,7 @@ void SwapChain::resize(int width, int height) {
   ID3D11DeviceContext* d3d11_ctx = (ID3D11DeviceContext*)(*ctx_);
   CHECK(d3d11_ctx);
 
-  d3d11_ctx->OMSetRenderTargets(0, 0, 0);
+  d3d11_ctx->OMSetRenderTargets(0, nullptr, nullptr);
   rtv_.reset();
 
   DXGI_SWAP_CHAIN_DESC desc;
@@ -505,16 +502,15 @@ std::shared_ptr<SwapChain> Device::create_swapchain(HWND window,
     D3D11_BLEND_DESC desc;
     desc.AlphaToCoverageEnable = FALSE;
     desc.IndependentBlendEnable = FALSE;
-    const auto count = sizeof(desc.RenderTarget) / sizeof(desc.RenderTarget[0]);
-    for (size_t n = 0; n < count; ++n) {
-      desc.RenderTarget[n].BlendEnable = TRUE;
-      desc.RenderTarget[n].SrcBlend = D3D11_BLEND_ONE;
-      desc.RenderTarget[n].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-      desc.RenderTarget[n].SrcBlendAlpha = D3D11_BLEND_ONE;
-      desc.RenderTarget[n].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-      desc.RenderTarget[n].BlendOp = D3D11_BLEND_OP_ADD;
-      desc.RenderTarget[n].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-      desc.RenderTarget[n].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    for (auto& n : desc.RenderTarget) {
+      n.BlendEnable = TRUE;
+      n.SrcBlend = D3D11_BLEND_ONE;
+      n.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+      n.SrcBlendAlpha = D3D11_BLEND_ONE;
+      n.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+      n.BlendOp = D3D11_BLEND_OP_ADD;
+      n.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+      n.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     }
     device_->CreateBlendState(&desc, &blender);
   }
@@ -787,7 +783,7 @@ Layer::Layer(const std::shared_ptr<Device>& device, bool flip)
   bounds_.x = bounds_.y = bounds_.width = bounds_.height = 0.0f;
 }
 
-Layer::~Layer() {}
+Layer::~Layer() = default;
 
 void Layer::attach(const std::shared_ptr<Composition>& parent) {
   composition_ = parent;
@@ -842,7 +838,7 @@ void Layer::render_texture(const std::shared_ptr<Context>& ctx,
 Composition::Composition(const std::shared_ptr<Device>& device,
                          int width,
                          int height)
-    : width_(width), height_(height), vsync_(true), device_(device) {
+    : width_(width), height_(height), device_(device) {
   fps_ = 0.0;
   time_ = 0.0;
   frame_ = 0;
@@ -932,5 +928,4 @@ void FrameBuffer::on_paint(void* shared_handle) {
   }
 }
 
-}  // namespace d3d11
-}  // namespace client
+}  // namespace client::d3d11

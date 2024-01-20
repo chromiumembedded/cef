@@ -6,8 +6,7 @@
 #include "tests/cefclient/renderer/performance_test.h"
 #include "tests/cefclient/renderer/performance_test_setup.h"
 
-namespace client {
-namespace performance_test {
+namespace client::performance_test {
 
 namespace {
 
@@ -92,12 +91,12 @@ PERF_TEST_FUNC(V8ArrayGetValue) {
 PERF_TEST_FUNC(V8FunctionCreate) {
   class Handler : public CefV8Handler {
    public:
-    Handler() {}
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) override {
+    Handler() = default;
+    bool Execute(const CefString& name,
+                 CefRefPtr<CefV8Value> object,
+                 const CefV8ValueList& arguments,
+                 CefRefPtr<CefV8Value>& retval,
+                 CefString& exception) override {
       return false;
     }
     IMPLEMENT_REFCOUNTING(Handler);
@@ -114,12 +113,12 @@ PERF_TEST_FUNC(V8FunctionCreate) {
 PERF_TEST_FUNC(V8FunctionExecute) {
   class Handler : public CefV8Handler {
    public:
-    Handler() {}
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) override {
+    Handler() = default;
+    bool Execute(const CefString& name,
+                 CefRefPtr<CefV8Value> object,
+                 const CefV8ValueList& arguments,
+                 CefRefPtr<CefV8Value>& retval,
+                 CefString& exception) override {
       return true;
     }
     IMPLEMENT_REFCOUNTING(Handler);
@@ -139,12 +138,12 @@ PERF_TEST_FUNC(V8FunctionExecute) {
 PERF_TEST_FUNC(V8FunctionExecuteWithContext) {
   class Handler : public CefV8Handler {
    public:
-    Handler() {}
-    virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) override {
+    Handler() = default;
+    bool Execute(const CefString& name,
+                 CefRefPtr<CefV8Value> object,
+                 const CefV8ValueList& arguments,
+                 CefRefPtr<CefV8Value>& retval,
+                 CefString& exception) override {
       return true;
     }
     IMPLEMENT_REFCOUNTING(Handler);
@@ -171,17 +170,17 @@ PERF_TEST_FUNC(V8ObjectCreate) {
 PERF_TEST_FUNC(V8ObjectCreateWithAccessor) {
   class Accessor : public CefV8Accessor {
    public:
-    Accessor() {}
-    virtual bool Get(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) override {
+    Accessor() = default;
+    bool Get(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             CefRefPtr<CefV8Value>& retval,
+             CefString& exception) override {
       return true;
     }
-    virtual bool Set(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) override {
+    bool Set(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             const CefRefPtr<CefV8Value> value,
+             CefString& exception) override {
       return true;
     }
     IMPLEMENT_REFCOUNTING(Accessor);
@@ -197,29 +196,29 @@ PERF_TEST_FUNC(V8ObjectCreateWithAccessor) {
 PERF_TEST_FUNC(V8ObjectCreateWithInterceptor) {
   class Interceptor : public CefV8Interceptor {
    public:
-    Interceptor() {}
-    virtual bool Get(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) override {
+    Interceptor() = default;
+    bool Get(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             CefRefPtr<CefV8Value>& retval,
+             CefString& exception) override {
       return true;
     }
-    virtual bool Get(int index,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) override {
+    bool Get(int index,
+             const CefRefPtr<CefV8Value> object,
+             CefRefPtr<CefV8Value>& retval,
+             CefString& exception) override {
       return true;
     }
-    virtual bool Set(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) override {
+    bool Set(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             const CefRefPtr<CefV8Value> value,
+             CefString& exception) override {
       return true;
     }
-    virtual bool Set(int index,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) override {
+    bool Set(int index,
+             const CefRefPtr<CefV8Value> object,
+             const CefRefPtr<CefV8Value> value,
+             CefString& exception) override {
       return true;
     }
     IMPLEMENT_REFCOUNTING(Interceptor);
@@ -257,17 +256,17 @@ PERF_TEST_FUNC(V8ObjectGetValue) {
 PERF_TEST_FUNC(V8ObjectSetValueWithAccessor) {
   class Accessor : public CefV8Accessor {
    public:
-    Accessor() {}
-    virtual bool Get(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) override {
+    Accessor() = default;
+    bool Get(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             CefRefPtr<CefV8Value>& retval,
+             CefString& exception) override {
       return true;
     }
-    virtual bool Set(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) override {
+    bool Set(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             const CefRefPtr<CefV8Value> value,
+             CefString& exception) override {
       val_ = value;
       return true;
     }
@@ -292,17 +291,17 @@ PERF_TEST_FUNC(V8ObjectGetValueWithAccessor) {
   class Accessor : public CefV8Accessor {
    public:
     Accessor() : val_(CefV8Value::CreateBool(true)) {}
-    virtual bool Get(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     CefRefPtr<CefV8Value>& retval,
-                     CefString& exception) override {
+    bool Get(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             CefRefPtr<CefV8Value>& retval,
+             CefString& exception) override {
       retval = val_;
       return true;
     }
-    virtual bool Set(const CefString& name,
-                     const CefRefPtr<CefV8Value> object,
-                     const CefRefPtr<CefV8Value> value,
-                     CefString& exception) override {
+    bool Set(const CefString& name,
+             const CefRefPtr<CefV8Value> object,
+             const CefRefPtr<CefV8Value> value,
+             CefString& exception) override {
       return true;
     }
     CefRefPtr<CefV8Value> val_;
@@ -392,5 +391,4 @@ const PerfTestEntry kPerfTests[] = {
 
 const int kPerfTestsCount = (sizeof(kPerfTests) / sizeof(kPerfTests[0]));
 
-}  // namespace performance_test
-}  // namespace client
+}  // namespace client::performance_test

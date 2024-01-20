@@ -11,9 +11,7 @@
 #include "include/views/cef_panel.h"
 #include "include/views/cef_textfield.h"
 
-namespace client {
-
-namespace views_style {
+namespace client::views_style {
 
 // Returns true if a style is set.
 bool IsSet();
@@ -25,8 +23,6 @@ void ApplyTo(CefRefPtr<CefLabelButton> label_button);
 void ApplyTo(CefRefPtr<CefTextfield> textfield);
 void ApplyTo(CefRefPtr<CefMenuModel> menu_model);
 
-}  // namespace views_style
-
-}  // namespace client
+}  // namespace client::views_style
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_VIEWS_STYLE_H_

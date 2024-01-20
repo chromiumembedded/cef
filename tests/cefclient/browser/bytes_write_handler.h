@@ -14,7 +14,7 @@ namespace client {
 class BytesWriteHandler : public CefWriteHandler {
  public:
   explicit BytesWriteHandler(size_t grow);
-  ~BytesWriteHandler();
+  ~BytesWriteHandler() override;
 
   size_t Write(const void* ptr, size_t size, size_t n) override;
   int Seek(int64_t offset, int whence) override;
@@ -31,7 +31,7 @@ class BytesWriteHandler : public CefWriteHandler {
   size_t grow_;
   void* data_;
   int64_t datasize_;
-  int64_t offset_;
+  int64_t offset_ = 0;
 
   base::Lock lock_;
 

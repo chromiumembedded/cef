@@ -6,6 +6,7 @@
 
 #include <shellscalingapi.h>
 
+#include <memory>
 #include <optional>
 
 #include "include/base/cef_build.h"
@@ -323,11 +324,11 @@ void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
     OsrRendererSettings settings = {};
     MainContext::Get()->PopulateOsrSettings(&settings);
-    browser_window_.reset(
-        new BrowserWindowOsrWin(this, with_controls_, startup_url, settings));
+    browser_window_ = std::make_unique<BrowserWindowOsrWin>(
+        this, with_controls_, startup_url, settings);
   } else {
-    browser_window_.reset(
-        new BrowserWindowStdWin(this, with_controls_, startup_url));
+    browser_window_ = std::make_unique<BrowserWindowStdWin>(
+        this, with_controls_, startup_url);
   }
 }
 
@@ -944,38 +945,39 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     back_hwnd_ = CreateWindow(
         L"BUTTON", L"Back", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
         x_offset, 0, button_width, urlbar_height, hwnd_,
-        reinterpret_cast<HMENU>(IDC_NAV_BACK), hInstance, 0);
+        reinterpret_cast<HMENU>(IDC_NAV_BACK), hInstance, nullptr);
     CHECK(back_hwnd_);
     x_offset += button_width;
 
-    forward_hwnd_ =
-        CreateWindow(L"BUTTON", L"Forward",
-                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-                     x_offset, 0, button_width, urlbar_height, hwnd_,
-                     reinterpret_cast<HMENU>(IDC_NAV_FORWARD), hInstance, 0);
+    forward_hwnd_ = CreateWindow(
+        L"BUTTON", L"Forward",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED, x_offset, 0,
+        button_width, urlbar_height, hwnd_,
+        reinterpret_cast<HMENU>(IDC_NAV_FORWARD), hInstance, nullptr);
     CHECK(forward_hwnd_);
     x_offset += button_width;
 
-    reload_hwnd_ =
-        CreateWindow(L"BUTTON", L"Reload",
-                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-                     x_offset, 0, button_width, urlbar_height, hwnd_,
-                     reinterpret_cast<HMENU>(IDC_NAV_RELOAD), hInstance, 0);
+    reload_hwnd_ = CreateWindow(
+        L"BUTTON", L"Reload",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED, x_offset, 0,
+        button_width, urlbar_height, hwnd_,
+        reinterpret_cast<HMENU>(IDC_NAV_RELOAD), hInstance, nullptr);
     CHECK(reload_hwnd_);
     x_offset += button_width;
 
     stop_hwnd_ = CreateWindow(
         L"BUTTON", L"Stop", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
         x_offset, 0, button_width, urlbar_height, hwnd_,
-        reinterpret_cast<HMENU>(IDC_NAV_STOP), hInstance, 0);
+        reinterpret_cast<HMENU>(IDC_NAV_STOP), hInstance, nullptr);
     CHECK(stop_hwnd_);
     x_offset += button_width;
 
-    edit_hwnd_ = CreateWindow(L"EDIT", 0,
-                              WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT |
-                                  ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_DISABLED,
-                              x_offset, 0, rect.right - button_width * 4,
-                              urlbar_height, hwnd_, 0, hInstance, 0);
+    edit_hwnd_ =
+        CreateWindow(L"EDIT", nullptr,
+                     WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT |
+                         ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_DISABLED,
+                     x_offset, 0, rect.right - button_width * 4, urlbar_height,
+                     hwnd_, nullptr, hInstance, nullptr);
     CHECK(edit_hwnd_);
 
     // Override the edit control's window procedure.

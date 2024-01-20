@@ -28,8 +28,7 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type) {
 
 }  // namespace
 
-SimpleHandler::SimpleHandler(bool use_views)
-    : use_views_(use_views), is_closing_(false) {
+SimpleHandler::SimpleHandler(bool use_views) : use_views_(use_views) {
   DCHECK(!g_instance);
   g_instance = this;
 }

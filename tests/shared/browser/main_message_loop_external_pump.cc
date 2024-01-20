@@ -26,8 +26,7 @@ client::MainMessageLoopExternalPump* g_external_message_pump = nullptr;
 
 }  // namespace
 
-MainMessageLoopExternalPump::MainMessageLoopExternalPump()
-    : is_active_(false), reentrancy_detected_(false) {
+MainMessageLoopExternalPump::MainMessageLoopExternalPump() {
   DCHECK(!g_external_message_pump);
   g_external_message_pump = this;
 }

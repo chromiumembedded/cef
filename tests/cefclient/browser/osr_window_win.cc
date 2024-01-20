@@ -5,9 +5,12 @@
 #include "tests/cefclient/browser/osr_window_win.h"
 
 #include <windowsx.h>
+
 #if defined(CEF_USE_ATL)
 #include <oleacc.h>
 #endif
+
+#include <memory>
 
 #include "include/base/cef_build.h"
 #include "tests/cefclient/browser/main_context.h"
@@ -85,19 +88,9 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
                            const OsrRendererSettings& settings)
     : delegate_(delegate),
       settings_(settings),
-      hwnd_(nullptr),
-      device_scale_factor_(0),
-      hidden_(false),
+
       last_mouse_pos_(),
-      current_mouse_pos_(),
-      mouse_rotation_(false),
-      mouse_tracking_(false),
-      last_click_x_(0),
-      last_click_y_(0),
-      last_click_button_(MBT_LEFT),
-      last_click_count_(1),
-      last_click_time_(0),
-      last_mouse_down_on_view_(false) {
+      current_mouse_pos_() {
   DCHECK(delegate_);
   client_rect_ = {0};
 }
@@ -299,10 +292,10 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   // Create the native window with a border so it's easier to visually identify
   // OSR windows.
   hwnd_ = ::CreateWindowEx(
-      ex_style, kWndClass, 0,
+      ex_style, kWndClass, nullptr,
       WS_BORDER | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
       rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
-      parent_hwnd, 0, hInst, 0);
+      parent_hwnd, nullptr, hInst, nullptr);
   CHECK(hwnd_);
 
   client_rect_ = rect;
@@ -319,7 +312,7 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   DCHECK_EQ(register_res, S_OK);
 #endif
 
-  ime_handler_.reset(new OsrImeHandlerWin(hwnd_));
+  ime_handler_ = std::make_unique<OsrImeHandlerWin>(hwnd_);
 
   // Enable Touch Events if requested
   if (client::MainContext::Get()->TouchEventsEnabled()) {
@@ -1135,7 +1128,8 @@ void OsrWindowWin::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
 
 #if defined(CEF_USE_ATL)
   if (!accessibility_handler_) {
-    accessibility_handler_.reset(new OsrAccessibilityHelper(value, browser_));
+    accessibility_handler_ =
+        std::make_unique<OsrAccessibilityHelper>(value, browser_);
   } else {
     accessibility_handler_->UpdateAccessibilityTree(value);
   }

@@ -86,7 +86,7 @@ class ClientHandler : public CefClient,
     virtual void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {}
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
@@ -439,9 +439,9 @@ class ClientHandler : public CefClient,
 
   // Track state information for the text context menu.
   struct TestMenuState {
-    TestMenuState() : check_item(true), radio_item(0) {}
-    bool check_item;
-    int radio_item;
+    TestMenuState() = default;
+    bool check_item = true;
+    int radio_item = 0;
   } test_menu_state_;
 
   // The current number of browsers using this handler.

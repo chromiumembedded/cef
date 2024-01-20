@@ -18,7 +18,7 @@ const char kEmptyId[] = "__empty";
 
 }  // namespace
 
-ImageCache::ImageCache() {}
+ImageCache::ImageCache() = default;
 
 ImageCache::~ImageCache() {
   CEF_REQUIRE_UI_THREAD();
@@ -54,7 +54,7 @@ ImageCache::ImageInfo ImageCache::ImageInfo::Create1x(
     const std::string& path_1x,
     bool internal) {
   ImageRepSet reps;
-  reps.push_back(ImageRep(path_1x, 1.0f));
+  reps.emplace_back(path_1x, 1.0f);
   return ImageInfo(id, reps, internal, false);
 }
 
@@ -65,8 +65,8 @@ ImageCache::ImageInfo ImageCache::ImageInfo::Create2x(
     const std::string& path_2x,
     bool internal) {
   ImageRepSet reps;
-  reps.push_back(ImageRep(path_1x, 1.0f));
-  reps.push_back(ImageRep(path_2x, 2.0f));
+  reps.emplace_back(path_1x, 1.0f);
+  reps.emplace_back(path_2x, 2.0f);
   return ImageInfo(id, reps, internal, false);
 }
 
@@ -76,7 +76,7 @@ ImageCache::ImageInfo ImageCache::ImageInfo::Create2x(const std::string& id) {
 }
 
 struct ImageCache::ImageContent {
-  ImageContent() {}
+  ImageContent() = default;
 
   struct RepContent {
     RepContent(ImageType type, float scale_factor, const std::string& contents)
@@ -217,8 +217,7 @@ bool ImageCache::LoadImageContents(const ImageInfo& info,
                  << rep.path_;
       return false;
     }
-    content->contents_.push_back(
-        ImageContent::RepContent(rep_type, rep.scale_factor_, rep_contents));
+    content->contents_.emplace_back(rep_type, rep.scale_factor_, rep_contents);
   }
 
   return true;

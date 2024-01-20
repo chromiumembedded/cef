@@ -94,7 +94,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
     virtual void OnExit() = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // Create a new top-level ViewsWindow hosting a browser with the specified
@@ -272,8 +272,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefView> toolbar_;
   CefRefPtr<CefMenuButton> menu_button_;
   CefRefPtr<CefView> location_bar_;
-  bool menu_has_focus_;
-  int last_focused_view_;
+  bool menu_has_focus_ = false;
+  int last_focused_view_ = false;
   std::optional<CefRect> last_visible_bounds_;
 
   CefSize minimum_window_size_;

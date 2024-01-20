@@ -18,15 +18,14 @@
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/resource_util.h"
 
-namespace client {
-namespace scheme_test {
+namespace client::scheme_test {
 
 namespace {
 
 // Implementation of the schema handler for client:// requests.
 class ClientSchemeHandler : public CefResourceHandler {
  public:
-  ClientSchemeHandler() : offset_(0) {}
+  ClientSchemeHandler() = default;
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -119,7 +118,7 @@ class ClientSchemeHandler : public CefResourceHandler {
  private:
   std::string data_;
   std::string mime_type_;
-  size_t offset_;
+  size_t offset_ = 0;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
   DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandler);
@@ -128,7 +127,7 @@ class ClientSchemeHandler : public CefResourceHandler {
 // Implementation of the factory for for creating schema handlers.
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
-  ClientSchemeHandlerFactory() {}
+  ClientSchemeHandlerFactory() = default;
 
   // Return a new scheme handler instance to handle the request.
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
@@ -150,5 +149,4 @@ void RegisterSchemeHandlers() {
                                   new ClientSchemeHandlerFactory());
 }
 
-}  // namespace scheme_test
-}  // namespace client
+}  // namespace client::scheme_test

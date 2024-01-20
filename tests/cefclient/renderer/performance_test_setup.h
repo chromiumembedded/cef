@@ -9,8 +9,7 @@
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 
-namespace client {
-namespace performance_test {
+namespace client::performance_test {
 
 // Default number of iterations.
 extern const int kDefaultIterations;
@@ -35,7 +34,7 @@ typedef PERF_TEST_RESULT(PerfTest(PERF_TEST_PARAMS));
 
 class CefTimer {
  public:
-  CefTimer() : running_(false) {}
+  CefTimer() = default;
 
   bool IsRunning() { return running_; }
 
@@ -57,7 +56,7 @@ class CefTimer {
   }
 
  private:
-  bool running_;
+  bool running_ = false;
   CefTime start_;
   CefTime stop_;
 
@@ -96,7 +95,6 @@ struct PerfTestEntry {
 extern const PerfTestEntry kPerfTests[];
 extern const int kPerfTestsCount;
 
-}  // namespace performance_test
-}  // namespace client
+}  // namespace client::performance_test
 
 #endif  // CEF_TESTS_CEFCLIENT_RENDERER_PERFORMANCE_TEST_H_

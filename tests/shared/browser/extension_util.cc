@@ -15,8 +15,7 @@
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/string_util.h"
 
-namespace client {
-namespace extension_util {
+namespace client::extension_util {
 
 namespace {
 
@@ -124,9 +123,9 @@ bool IsInternalExtension(const std::string& extension_path) {
   static const char* extensions[] = {"set_page_color"};
 
   const std::string& internal_path = GetInternalPath(extension_path);
-  for (size_t i = 0; i < std::size(extensions); ++i) {
+  for (auto& i : extensions) {
     // Exact match or first directory component.
-    const std::string& extension = extensions[i];
+    const std::string& extension = i;
     if (internal_path == extension ||
         internal_path.find(extension + '/') == 0) {
       return true;
@@ -253,5 +252,4 @@ std::string GetExtensionIconPath(CefRefPtr<CefExtension> extension,
   return std::string();
 }
 
-}  // namespace extension_util
-}  // namespace client
+}  // namespace client::extension_util

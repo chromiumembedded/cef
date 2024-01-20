@@ -32,7 +32,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
                                        cef_event_flags_t event_flags) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // |delegate| must outlive this object.
@@ -110,7 +110,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
   int id_next_;
   CefRefPtr<CefPanel> panel_;
   std::vector<CefRefPtr<CefMenuModel>> models_;
-  bool last_nav_with_keyboard_;
+  bool last_nav_with_keyboard_ = false;
 
   // Map of mnemonic to MenuButton ID.
   typedef std::map<char16_t, int> MnemonicMap;

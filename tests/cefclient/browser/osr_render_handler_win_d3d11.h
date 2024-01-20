@@ -75,7 +75,7 @@ class OsrRenderHandlerWinD3D11 : public OsrRenderHandlerWin {
  private:
   void Render() override;
 
-  uint64_t start_time_;
+  uint64_t start_time_ = 0;
   std::shared_ptr<d3d11::Device> device_;
   std::shared_ptr<d3d11::SwapChain> swap_chain_;
   std::shared_ptr<d3d11::Composition> composition_;

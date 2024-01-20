@@ -8,7 +8,7 @@
 
 namespace client {
 
-MainMessageLoopStd::MainMessageLoopStd() {}
+MainMessageLoopStd::MainMessageLoopStd() = default;
 
 int MainMessageLoopStd::Run() {
   CefRunMessageLoop();

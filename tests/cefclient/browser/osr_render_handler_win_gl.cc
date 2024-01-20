@@ -40,11 +40,7 @@ class ScopedGLContext {
 OsrRenderHandlerWinGL::OsrRenderHandlerWinGL(
     const OsrRendererSettings& settings,
     HWND hwnd)
-    : OsrRenderHandlerWin(settings, hwnd),
-      renderer_(settings),
-      hdc_(nullptr),
-      hrc_(nullptr),
-      painting_popup_(false) {}
+    : OsrRenderHandlerWin(settings, hwnd), renderer_(settings) {}
 
 void OsrRenderHandlerWinGL::Initialize(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();

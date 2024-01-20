@@ -33,8 +33,7 @@
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/string_util.h"
 
-namespace client {
-namespace test_runner {
+namespace client::test_runner {
 
 namespace {
 
@@ -61,7 +60,7 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
-    virtual void Visit(const CefString& string) override {
+    void Visit(const CefString& string) override {
       std::string source = AsciiStrReplace(string, "<", "&lt;");
       source = AsciiStrReplace(source, ">", "&gt;");
       std::stringstream ss;
@@ -82,7 +81,7 @@ void RunGetTextTest(CefRefPtr<CefBrowser> browser) {
   class Visitor : public CefStringVisitor {
    public:
     explicit Visitor(CefRefPtr<CefBrowser> browser) : browser_(browser) {}
-    virtual void Visit(const CefString& string) override {
+    void Visit(const CefString& string) override {
       std::string text = AsciiStrReplace(string, "<", "&lt;");
       text = AsciiStrReplace(text, ">", "&gt;");
       std::stringstream ss;
@@ -168,15 +167,15 @@ const char kPromptDSF[] = "DSF";
 // Handles execution of prompt results.
 class PromptHandler : public CefMessageRouterBrowserSide::Handler {
  public:
-  PromptHandler() {}
+  PromptHandler() = default;
 
   // Called due to cefQuery execution.
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64_t query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) override {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     // Parse |request| which takes the form "Prompt.[type]:[value]".
     const std::string& request_str = request;
     if (request_str.find(kPrompt) != 0) {
@@ -883,5 +882,4 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
                                                          request, response);
 }
 
-}  // namespace test_runner
-}  // namespace client
+}  // namespace client::test_runner

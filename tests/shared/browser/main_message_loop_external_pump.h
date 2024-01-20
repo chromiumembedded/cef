@@ -40,7 +40,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
 
   // Construct and destruct this object on the main application thread.
   MainMessageLoopExternalPump();
-  ~MainMessageLoopExternalPump();
+  ~MainMessageLoopExternalPump() override;
 
   // The platform subclass calls this method on the main application thread in
   // response to the OnScheduleMessagePumpWork() call.
@@ -61,8 +61,8 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
   void DoWork();
   bool PerformMessageLoopWork();
 
-  bool is_active_;
-  bool reentrancy_detected_;
+  bool is_active_ = false;
+  bool reentrancy_detected_ = false;
 };
 
 }  // namespace client

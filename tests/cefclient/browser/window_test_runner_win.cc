@@ -6,8 +6,7 @@
 
 #include "tests/shared/browser/main_message_loop.h"
 
-namespace client {
-namespace window_test {
+namespace client::window_test {
 
 namespace {
 
@@ -99,7 +98,7 @@ void RestoreImpl(CefRefPtr<CefBrowser> browser) {
 
 }  // namespace
 
-WindowTestRunnerWin::WindowTestRunnerWin() {}
+WindowTestRunnerWin::WindowTestRunnerWin() = default;
 
 void WindowTestRunnerWin::SetPos(CefRefPtr<CefBrowser> browser,
                                  int x,
@@ -141,5 +140,4 @@ void WindowTestRunnerWin::Restore(CefRefPtr<CefBrowser> browser) {
   }
 }
 
-}  // namespace window_test
-}  // namespace client
+}  // namespace client::window_test

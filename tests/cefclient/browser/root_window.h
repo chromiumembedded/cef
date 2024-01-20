@@ -39,7 +39,7 @@ struct RootWindowConfig {
   // |command_line| will be non-nullptr when used for new window creation via
   // OnAlreadyRunningAppRelaunch. Otherwise, the global command-line will be
   // used.
-  RootWindowConfig(CefRefPtr<CefCommandLine> command_line = nullptr);
+  explicit RootWindowConfig(CefRefPtr<CefCommandLine> command_line = nullptr);
 
   // Associated command-line.
   CefRefPtr<CefCommandLine> command_line;
@@ -129,7 +129,7 @@ class RootWindow
                                        bool with_osr) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // Create a new RootWindow object. This method may be called on any thread.
@@ -223,7 +223,7 @@ class RootWindow
   RootWindow();
   virtual ~RootWindow();
 
-  Delegate* delegate_;
+  Delegate* delegate_ = nullptr;
 };
 
 }  // namespace client

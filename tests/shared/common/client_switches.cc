@@ -4,8 +4,7 @@
 
 #include "tests/shared/common/client_switches.h"
 
-namespace client {
-namespace switches {
+namespace client::switches {
 
 // CEF and Chromium support a wide range of command-line switches. This file
 // only contains command-line switches specific to the cefclient application.
@@ -58,5 +57,4 @@ const char kUseBottomControls[] = "use-bottom-controls";
 const char kHidePipFrame[] = "hide-pip-frame";
 const char kHideChromeBubbles[] = "hide-chrome-bubbles";
 
-}  // namespace switches
-}  // namespace client
+}  // namespace client::switches

@@ -14,8 +14,7 @@
 #include "include/wrapper/cef_message_router.h"
 #include "include/wrapper/cef_resource_manager.h"
 
-namespace client {
-namespace test_runner {
+namespace client::test_runner {
 
 // Run a test.
 void RunTest(CefRefPtr<CefBrowser> browser, int id);
@@ -66,7 +65,6 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response);
 
-}  // namespace test_runner
-}  // namespace client
+}  // namespace client::test_runner
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_TEST_RUNNER_H_

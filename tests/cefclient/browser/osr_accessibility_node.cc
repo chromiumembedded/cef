@@ -17,9 +17,7 @@ OsrAXNode::OsrAXNode(const CefString& treeId,
                      OsrAccessibilityHelper* helper)
     : tree_id_(treeId),
       node_id_(nodeId),
-      platform_accessibility_(nullptr),
-      parent_(nullptr),
-      offset_container_id_(-1),
+
       accessibility_helper_(helper) {
   UpdateValue(value);
 }

@@ -15,8 +15,7 @@
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/common/string_util.h"
 
-namespace client {
-namespace prefs {
+namespace client::prefs {
 
 namespace {
 
@@ -41,18 +40,18 @@ static struct {
 
 std::optional<cef_show_state_t> ShowStateFromString(const std::string& str) {
   const auto strLower = AsciiStrToLower(str);
-  for (size_t i = 0; i < std::size(kWindowRestoreStateValueMap); ++i) {
-    if (strLower == kWindowRestoreStateValueMap[i].str) {
-      return kWindowRestoreStateValueMap[i].state;
+  for (auto i : kWindowRestoreStateValueMap) {
+    if (strLower == i.str) {
+      return i.state;
     }
   }
   return std::nullopt;
 }
 
 const char* ShowStateToString(cef_show_state_t show_state) {
-  for (size_t i = 0; i < std::size(kWindowRestoreStateValueMap); ++i) {
-    if (show_state == kWindowRestoreStateValueMap[i].state) {
-      return kWindowRestoreStateValueMap[i].str;
+  for (auto i : kWindowRestoreStateValueMap) {
+    if (show_state == i.state) {
+      return i.str;
     }
   }
   NOTREACHED();
@@ -202,5 +201,4 @@ bool SaveWindowRestorePreferences(cef_show_state_t show_state,
       error);
 }
 
-}  // namespace prefs
-}  // namespace client
+}  // namespace client::prefs

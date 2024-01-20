@@ -72,7 +72,7 @@ class ClientHandlerOsr : public ClientHandler,
     virtual void UpdateAccessibilityLocation(CefRefPtr<CefValue> value) = 0;
 
    protected:
-    virtual ~OsrDelegate() {}
+    virtual ~OsrDelegate() = default;
   };
 
   ClientHandlerOsr(Delegate* delegate,

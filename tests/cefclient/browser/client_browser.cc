@@ -15,14 +15,13 @@
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/shared/common/client_switches.h"
 
-namespace client {
-namespace browser {
+namespace client::browser {
 
 namespace {
 
 class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
  public:
-  ClientBrowserDelegate() {}
+  ClientBrowserDelegate() = default;
 
   void OnRegisterCustomPreferences(
       CefRefPtr<client::ClientAppBrowser> app,
@@ -75,10 +74,9 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
         switches::kOffScreenRenderingEnabled,
         switches::kUseViews,
     };
-    for (size_t i = 0;
-         i < sizeof(kIgnoredSwitches) / sizeof(kIgnoredSwitches[0]); ++i) {
-      if (command_line->HasSwitch(kIgnoredSwitches[i])) {
-        LOG(WARNING) << "The --" << kIgnoredSwitches[i]
+    for (auto& kIgnoredSwitche : kIgnoredSwitches) {
+      if (command_line->HasSwitch(kIgnoredSwitche)) {
+        LOG(WARNING) << "The --" << kIgnoredSwitche
                      << " command-line switch is ignored on app relaunch.";
       }
     }
@@ -112,5 +110,4 @@ void CreateDelegates(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new ClientBrowserDelegate);
 }
 
-}  // namespace browser
-}  // namespace client
+}  // namespace client::browser

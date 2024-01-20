@@ -57,7 +57,7 @@ class SimpleWindowDelegate : public CefWindowDelegate {
 
 class SimpleBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
-  SimpleBrowserViewDelegate() {}
+  SimpleBrowserViewDelegate() = default;
 
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
@@ -78,7 +78,7 @@ class SimpleBrowserViewDelegate : public CefBrowserViewDelegate {
 
 }  // namespace
 
-SimpleApp::SimpleApp() {}
+SimpleApp::SimpleApp() = default;
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();

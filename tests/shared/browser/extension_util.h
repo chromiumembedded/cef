@@ -12,8 +12,7 @@
 #include "include/cef_extension_handler.h"
 #include "include/wrapper/cef_resource_manager.h"
 
-namespace client {
-namespace extension_util {
+namespace client::extension_util {
 
 // Returns true if |extension_path| can be handled internally via
 // LoadBinaryResource. This checks a hard-coded list of allowed extension path
@@ -74,7 +73,6 @@ std::string GetExtensionURL(CefRefPtr<CefExtension> extension);
 std::string GetExtensionIconPath(CefRefPtr<CefExtension> extension,
                                  bool* internal);
 
-}  // namespace extension_util
-}  // namespace client
+}  // namespace client::extension_util
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_EXTENSION_UTIL_H_

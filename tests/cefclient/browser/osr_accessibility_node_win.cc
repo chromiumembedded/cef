@@ -247,17 +247,17 @@ struct CefIAccessible : public IAccessible {
                       EXCEPINFO FAR* pExcepInfo,
                       unsigned int FAR* puArgErr) override;
 
-  CefIAccessible(OsrAXNode* node) : ref_count_(0), node_(node) {}
+  explicit CefIAccessible(OsrAXNode* node) : node_(node) {}
 
   // Remove the node reference when OsrAXNode is destroyed, so that
   // MSAA clients get  CO_E_OBJNOTCONNECTED
   void MarkDestroyed() { node_ = nullptr; }
 
  protected:
-  virtual ~CefIAccessible() {}
+  virtual ~CefIAccessible() = default;
 
   // Ref Count
-  ULONG ref_count_;
+  ULONG ref_count_ = 0;
   // OsrAXNode* proxy object
   OsrAXNode* node_;
 };

@@ -80,7 +80,7 @@ void PopupLayer::set_bounds(const CefRect& bounds) {
 OsrRenderHandlerWinD3D11::OsrRenderHandlerWinD3D11(
     const OsrRendererSettings& settings,
     HWND hwnd)
-    : OsrRenderHandlerWin(settings, hwnd), start_time_(0) {}
+    : OsrRenderHandlerWin(settings, hwnd) {}
 
 bool OsrRenderHandlerWinD3D11::Initialize(CefRefPtr<CefBrowser> browser,
                                           int width,

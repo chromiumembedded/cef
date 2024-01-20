@@ -41,7 +41,7 @@ class OsrWindowWin
     virtual void OnOsrNativeWindowCreated(HWND hwnd) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // |delegate| must outlive this object.
@@ -72,7 +72,7 @@ class OsrWindowWin
   friend struct CefDeleteOnThread<TID_UI>;
   friend class base::RefCountedThreadSafe<OsrWindowWin, CefDeleteOnUIThread>;
 
-  ~OsrWindowWin();
+  ~OsrWindowWin() override;
 
   // Manage native window lifespan.
   void Create(HWND parent_hwnd, const RECT& rect);
@@ -172,14 +172,14 @@ class OsrWindowWin
   Delegate* delegate_;
 
   const OsrRendererSettings settings_;
-  HWND hwnd_;
+  HWND hwnd_ = nullptr;
   std::unique_ptr<OsrRenderHandlerWin> render_handler_;
 
   // Class that encapsulates IMM32 APIs and controls IMEs attached to a window.
   std::unique_ptr<OsrImeHandlerWin> ime_handler_;
 
   RECT client_rect_;
-  float device_scale_factor_;
+  float device_scale_factor_ = 0;
 
   CefRefPtr<CefBrowser> browser_;
 
@@ -193,19 +193,19 @@ class OsrWindowWin
   IAccessible* accessibility_root_;
 #endif
 
-  bool hidden_;
+  bool hidden_ = false;
 
   // Mouse state tracking.
   POINT last_mouse_pos_;
   POINT current_mouse_pos_;
-  bool mouse_rotation_;
-  bool mouse_tracking_;
-  int last_click_x_;
-  int last_click_y_;
-  CefBrowserHost::MouseButtonType last_click_button_;
-  int last_click_count_;
-  double last_click_time_;
-  bool last_mouse_down_on_view_;
+  bool mouse_rotation_ = false;
+  bool mouse_tracking_ = false;
+  int last_click_x_ = 0;
+  int last_click_y_ = 0;
+  CefBrowserHost::MouseButtonType last_click_button_ = MBT_LEFT;
+  int last_click_count_ = 1;
+  double last_click_time_ = 0;
+  bool last_mouse_down_on_view_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(OsrWindowWin);
 };

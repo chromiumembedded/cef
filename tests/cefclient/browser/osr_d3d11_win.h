@@ -26,8 +26,7 @@
 
 #include "include/base/cef_macros.h"
 
-namespace client {
-namespace d3d11 {
+namespace client::d3d11 {
 
 class Composition;
 class Context;
@@ -68,11 +67,11 @@ class ScopedBinder {
 
 class Context {
  public:
-  Context(ID3D11DeviceContext*);
+  explicit Context(ID3D11DeviceContext*);
 
   void flush();
 
-  operator ID3D11DeviceContext*() { return ctx_.get(); }
+  explicit operator ID3D11DeviceContext*() { return ctx_.get(); }
 
  private:
   const std::shared_ptr<ID3D11DeviceContext> ctx_;
@@ -87,7 +86,7 @@ class Device {
 
   std::string adapter_name() const;
 
-  operator ID3D11Device*() { return device_.get(); }
+  explicit operator ID3D11Device*() { return device_.get(); }
 
   std::shared_ptr<Context> immedidate_context();
 
@@ -157,8 +156,8 @@ class SwapChain {
   const std::shared_ptr<IDXGISwapChain> swapchain_;
   std::shared_ptr<ID3D11RenderTargetView> rtv_;
   std::shared_ptr<Context> ctx_;
-  int width_;
-  int height_;
+  int width_ = 0;
+  int height_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(SwapChain);
 };
@@ -273,9 +272,9 @@ class Layer {
 // A collection of layers. Will render 1-N layers to a D3D11 device.
 class Composition : public std::enable_shared_from_this<Composition> {
  public:
-  Composition(const std::shared_ptr<Device>& device,
-              int width = 0,
-              int height = 0);
+  explicit Composition(const std::shared_ptr<Device>& device,
+                       int width = 0,
+                       int height = 0);
 
   int width() const { return width_; }
   int height() const { return height_; }
@@ -299,7 +298,7 @@ class Composition : public std::enable_shared_from_this<Composition> {
   int64_t fps_start_;
   double fps_;
   double time_;
-  bool vsync_;
+  bool vsync_ = true;
 
   const std::shared_ptr<Device> device_;
   std::vector<std::shared_ptr<Layer>> layers_;
@@ -324,7 +323,6 @@ class FrameBuffer {
   DISALLOW_COPY_AND_ASSIGN(FrameBuffer);
 };
 
-}  // namespace d3d11
-}  // namespace client
+}  // namespace client::d3d11
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_OSR_D3D11_WIN_H_

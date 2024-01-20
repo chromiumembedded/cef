@@ -50,8 +50,7 @@ ViewsMenuBar::ViewsMenuBar(Delegate* delegate,
     : delegate_(delegate),
       id_start_(menu_id_start),
       use_bottom_controls_(use_bottom_controls),
-      id_next_(menu_id_start),
-      last_nav_with_keyboard_(false) {
+      id_next_(menu_id_start) {
   DCHECK(delegate_);
   DCHECK_GT(id_start_, 0);
 }

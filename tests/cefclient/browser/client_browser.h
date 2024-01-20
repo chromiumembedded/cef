@@ -9,13 +9,11 @@
 #include "include/cef_base.h"
 #include "tests/shared/browser/client_app_browser.h"
 
-namespace client {
-namespace browser {
+namespace client::browser {
 
 // Create the browser delegate. Called from client_app_delegates_browser.cc.
 void CreateDelegates(ClientAppBrowser::DelegateSet& delegates);
 
-}  // namespace browser
-}  // namespace client
+}  // namespace client::browser
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_CLIENT_BROWSER_H_

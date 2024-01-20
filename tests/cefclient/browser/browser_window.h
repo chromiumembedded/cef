@@ -54,7 +54,7 @@ class BrowserWindow : public ClientHandler::Delegate {
         const std::vector<CefDraggableRegion>& regions) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // Create a new browser and native window.
@@ -135,7 +135,7 @@ class BrowserWindow : public ClientHandler::Delegate {
   Delegate* delegate_;
   CefRefPtr<CefBrowser> browser_;
   CefRefPtr<ClientHandler> client_handler_;
-  bool is_closing_;
+  bool is_closing_ = false;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BrowserWindow);

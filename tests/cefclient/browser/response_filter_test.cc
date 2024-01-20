@@ -13,8 +13,7 @@
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/common/client_switches.h"
 
-namespace client {
-namespace response_filter_test {
+namespace client::response_filter_test {
 
 namespace {
 
@@ -31,10 +30,7 @@ const char kReplaceString[] = "This is the replaced string!";
 // the logic in this implementation.
 class FindReplaceResponseFilter : public CefResponseFilter {
  public:
-  FindReplaceResponseFilter()
-      : find_match_offset_(0U),
-        replace_overflow_size_(0U),
-        replace_count_(0U) {}
+  FindReplaceResponseFilter() = default;
 
   bool InitFilter() override {
     const size_t find_size = sizeof(kFindString) - 1;
@@ -158,16 +154,16 @@ class FindReplaceResponseFilter : public CefResponseFilter {
   }
 
   // The portion of the find string that is currently matching.
-  size_t find_match_offset_;
+  size_t find_match_offset_ = 0U;
 
   // The likely amount of overflow.
-  size_t replace_overflow_size_;
+  size_t replace_overflow_size_ = 0U;
 
   // Overflow from the output buffer.
   std::string overflow_;
 
   // Number of times the the string was found/replaced.
-  size_t replace_count_;
+  size_t replace_count_ = 0U;
 
   IMPLEMENT_REFCOUNTING(FindReplaceResponseFilter);
 };
@@ -175,7 +171,7 @@ class FindReplaceResponseFilter : public CefResponseFilter {
 // Filter that writes out all of the contents unchanged.
 class PassThruResponseFilter : public CefResponseFilter {
  public:
-  PassThruResponseFilter() {}
+  PassThruResponseFilter() = default;
 
   bool InitFilter() override { return true; }
 
@@ -242,5 +238,4 @@ CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
   return nullptr;
 }
 
-}  // namespace response_filter_test
-}  // namespace client
+}  // namespace client::response_filter_test

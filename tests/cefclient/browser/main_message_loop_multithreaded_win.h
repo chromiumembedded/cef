@@ -22,7 +22,7 @@ namespace client {
 class MainMessageLoopMultithreadedWin : public MainMessageLoop {
  public:
   MainMessageLoopMultithreadedWin();
-  ~MainMessageLoopMultithreadedWin();
+  ~MainMessageLoopMultithreadedWin() override;
 
   // MainMessageLoop methods.
   int Run() override;
@@ -47,12 +47,12 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   UINT task_message_id_;
 
   // Only accessed on the main thread.
-  HWND dialog_hwnd_;
+  HWND dialog_hwnd_ = nullptr;
 
   base::Lock lock_;
 
   // Must be protected by |lock_|.
-  HWND message_hwnd_;
+  HWND message_hwnd_ = nullptr;
   std::queue<CefRefPtr<CefTask>> queued_tasks_;
 
   DISALLOW_COPY_AND_ASSIGN(MainMessageLoopMultithreadedWin);

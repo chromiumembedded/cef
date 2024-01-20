@@ -12,7 +12,7 @@
 namespace client {
 
 BytesWriteHandler::BytesWriteHandler(size_t grow)
-    : grow_(grow), datasize_(grow), offset_(0) {
+    : grow_(grow), datasize_(grow) {
   DCHECK_GT(grow, 0U);
   data_ = malloc(grow);
   DCHECK(data_ != nullptr);

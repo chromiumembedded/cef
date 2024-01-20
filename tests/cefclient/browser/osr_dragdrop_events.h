@@ -29,7 +29,7 @@ class OsrDragEvents {
       CefBrowserHost::DragOperationsMask effect) = 0;
 
  protected:
-  virtual ~OsrDragEvents() {}
+  virtual ~OsrDragEvents() = default;
 };
 
 }  // namespace client

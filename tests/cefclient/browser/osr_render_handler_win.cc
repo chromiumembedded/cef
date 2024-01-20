@@ -15,7 +15,7 @@ OsrRenderHandlerWin::OsrRenderHandlerWin(const OsrRendererSettings& settings,
                                          HWND hwnd)
     : settings_(settings),
       hwnd_(hwnd),
-      begin_frame_pending_(false),
+
       weak_factory_(this) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(hwnd_);

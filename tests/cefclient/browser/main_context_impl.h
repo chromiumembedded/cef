@@ -55,7 +55,7 @@ class MainContextImpl : public MainContext {
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<MainContextImpl>;
 
-  ~MainContextImpl();
+  ~MainContextImpl() override;
 
   // Returns true if the context is in a valid state (initialized and not yet
   // shut down).

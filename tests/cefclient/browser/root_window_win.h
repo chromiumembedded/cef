@@ -25,7 +25,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
   RootWindowWin();
-  ~RootWindowWin();
+  ~RootWindowWin() override;
 
   // RootWindow methods.
   void Init(RootWindow::Delegate* delegate,

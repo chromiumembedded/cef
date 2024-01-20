@@ -13,8 +13,7 @@
 #include "include/cef_parser.h"
 #include "tests/cefclient/browser/test_runner.h"
 
-namespace client {
-namespace preferences_test {
+namespace client::preferences_test {
 
 namespace {
 
@@ -263,8 +262,8 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
       CefDictionaryValue::KeyList keys;
       dict->GetKeys(keys);
-      for (size_t i = 0; i < keys.size(); ++i) {
-        const std::string& key = keys[i];
+      for (const auto& i : keys) {
+        const std::string& key = i;
         const std::string& current_name = name.empty() ? key : name + "." + key;
         if (!ApplyPrefs(context, current_name, dict->GetValue(key), error,
                         changed_names)) {
@@ -342,5 +341,4 @@ void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
-}  // namespace preferences_test
-}  // namespace client
+}  // namespace client::preferences_test

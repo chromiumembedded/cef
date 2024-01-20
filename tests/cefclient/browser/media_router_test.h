@@ -8,13 +8,11 @@
 
 #include "tests/cefclient/browser/test_runner.h"
 
-namespace client {
-namespace media_router_test {
+namespace client::media_router_test {
 
 // Create message handlers. Called from test_runner.cc.
 void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
-}  // namespace media_router_test
-}  // namespace client
+}  // namespace client::media_router_test
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_MEDIA_ROUTER_TEST_H_

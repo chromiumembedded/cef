@@ -24,7 +24,7 @@ namespace {
 class ClientRequestContextHandler : public CefRequestContextHandler,
                                     public CefExtensionHandler {
  public:
-  ClientRequestContextHandler() {}
+  ClientRequestContextHandler() = default;
 
   // CefRequestContextHandler methods:
   void OnRequestContextInitialized(

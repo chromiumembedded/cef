@@ -111,9 +111,9 @@ class OsrAXNode {
   CefRect location_;
   CefPoint scroll_;
   std::vector<int> child_ids_;
-  CefNativeAccessible* platform_accessibility_;
-  OsrAXNode* parent_;
-  int offset_container_id_;
+  CefNativeAccessible* platform_accessibility_ = nullptr;
+  OsrAXNode* parent_ = nullptr;
+  int offset_container_id_ = -1;
   OsrAccessibilityHelper* accessibility_helper_;
   CefRefPtr<CefDictionaryValue> attributes_;
 };

@@ -15,8 +15,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/shared/browser/resource_util.h"
 
-namespace client {
-namespace server_test {
+namespace client::server_test {
 
 namespace {
 
@@ -42,7 +41,7 @@ class ServerHandler : public CefServerHandler {
  public:
   using CompleteCallback = base::OnceCallback<void(bool /* success */)>;
 
-  ServerHandler() {}
+  ServerHandler() = default;
 
   // |complete_callback| will be executed on the UI thread after completion.
   void StartServer(int port, CompleteCallback complete_callback) {
@@ -213,7 +212,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
   Handler() : weak_ptr_factory_(this) {}
 
-  virtual ~Handler() {
+  ~Handler() override {
     if (handler_) {
       handler_->StopServer(ServerHandler::CompleteCallback());
       handler_ = nullptr;
@@ -221,12 +220,12 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   }
 
   // Called due to cefQuery execution in server.html.
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64_t query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) override {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64_t query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.
@@ -388,5 +387,4 @@ void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
-}  // namespace server_test
-}  // namespace client
+}  // namespace client::server_test

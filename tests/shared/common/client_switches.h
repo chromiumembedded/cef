@@ -8,8 +8,7 @@
 #define CEF_TESTS_SHARED_SHARED_COMMON_SWITCHES_H_
 #pragma once
 
-namespace client {
-namespace switches {
+namespace client::switches {
 
 extern const char kMultiThreadedMessageLoop[];
 extern const char kExternalMessagePump[];
@@ -52,7 +51,6 @@ extern const char kUseBottomControls[];
 extern const char kHidePipFrame[];
 extern const char kHideChromeBubbles[];
 
-}  // namespace switches
-}  // namespace client
+}  // namespace client::switches
 
 #endif  // CEF_TESTS_SHARED_SHARED_COMMON_SWITCHES_H_

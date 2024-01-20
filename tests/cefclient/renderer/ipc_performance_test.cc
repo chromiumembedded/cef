@@ -240,12 +240,10 @@ class IpcDelegate final : public client::ClientAppRenderer::Delegate {
 
 }  // namespace
 
-namespace client {
-namespace ipc_performance_test {
+namespace client::ipc_performance_test {
 
 void CreateDelegates(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new IpcDelegate());
 }
 
-}  // namespace ipc_performance_test
-}  // namespace client
+}  // namespace client::ipc_performance_test

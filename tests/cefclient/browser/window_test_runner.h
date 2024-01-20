@@ -10,8 +10,7 @@
 
 #include <optional>
 
-namespace client {
-namespace window_test {
+namespace client::window_test {
 
 // Implement this interface for different platforms. Methods will be called on
 // the browser process UI thread unless otherwise indicated.
@@ -37,7 +36,6 @@ class WindowTestRunner {
                                  const std::optional<float>& height);
 };
 
-}  // namespace window_test
-}  // namespace client
+}  // namespace client::window_test
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_TEST_RUNNER_H_

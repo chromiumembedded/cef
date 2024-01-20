@@ -543,8 +543,8 @@ void RootWindowViews::InitOnUIThread(
 
   // Populate the default image cache.
   ImageCache::ImageInfoSet image_set;
-  for (size_t i = 0U; i < std::size(kDefaultImageCache); ++i) {
-    image_set.push_back(ImageCache::ImageInfo::Create2x(kDefaultImageCache[i]));
+  for (auto& i : kDefaultImageCache) {
+    image_set.push_back(ImageCache::ImageInfo::Create2x(i));
   }
 
   image_cache_->LoadImages(

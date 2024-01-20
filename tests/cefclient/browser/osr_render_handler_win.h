@@ -68,7 +68,7 @@ class OsrRenderHandlerWin {
   // The below members are only accessed on the UI thread.
   const OsrRendererSettings settings_;
   const HWND hwnd_;
-  bool begin_frame_pending_;
+  bool begin_frame_pending_ = false;
   CefRefPtr<CefBrowser> browser_;
 
   // Must be the last member.

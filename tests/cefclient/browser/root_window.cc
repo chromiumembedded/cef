@@ -17,9 +17,9 @@ RootWindowConfig::RootWindowConfig(CefRefPtr<CefCommandLine> cmd)
       with_controls(!command_line->HasSwitch(switches::kHideControls)),
       url(MainContext::Get()->GetMainURL(command_line)) {}
 
-RootWindow::RootWindow() : delegate_(nullptr) {}
+RootWindow::RootWindow() = default;
 
-RootWindow::~RootWindow() {}
+RootWindow::~RootWindow() = default;
 
 // static
 scoped_refptr<RootWindow> RootWindow::GetForBrowser(int browser_id) {

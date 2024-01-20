@@ -88,7 +88,7 @@ class RootWindowManager : public RootWindow::Delegate {
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<RootWindowManager>;
 
-  ~RootWindowManager();
+  ~RootWindowManager() override;
 
   void OnRootWindowCreated(scoped_refptr<RootWindow> root_window);
   void NotifyExtensionsChanged();

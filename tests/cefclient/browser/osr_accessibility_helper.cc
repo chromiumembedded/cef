@@ -7,7 +7,7 @@
 
 namespace client {
 
-OsrAXTree::OsrAXTree() : root_node_id_(-1) {}
+OsrAXTree::OsrAXTree() = default;
 
 OsrAXNode* OsrAXTree::GetNode(int nodeId) const {
   auto result = node_map_.find(nodeId);
@@ -38,7 +38,7 @@ void OsrAXTree::UpdateTreeData(CefRefPtr<CefDictionaryValue> value) {
 
 OsrAccessibilityHelper::OsrAccessibilityHelper(CefRefPtr<CefValue> value,
                                                CefRefPtr<CefBrowser> browser)
-    : focused_node_id_(-1), browser_(browser) {
+    : browser_(browser) {
   UpdateAccessibilityTree(value);
 }
 

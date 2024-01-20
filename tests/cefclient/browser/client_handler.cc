@@ -353,8 +353,8 @@ bool IsAllowedAppMenuCommandId(int command_id) {
       IDC_OPTIONS,
       IDC_EXIT,
   };
-  for (size_t i = 0; i < std::size(kAllowedCommandIds); ++i) {
-    if (command_id == kAllowedCommandIds[i]) {
+  for (int kAllowedCommandId : kAllowedCommandIds) {
+    if (command_id == kAllowedCommandId) {
       return true;
     }
   }
@@ -397,8 +397,8 @@ bool IsAllowedContextMenuCommandId(int command_id) {
       IDC_CONTENT_CONTEXT_UNDO,
       IDC_CONTENT_CONTEXT_REDO,
   };
-  for (size_t i = 0; i < std::size(kAllowedCommandIds); ++i) {
-    if (command_id == kAllowedCommandIds[i]) {
+  for (int kAllowedCommandId : kAllowedCommandIds) {
+    if (command_id == kAllowedCommandId) {
       return true;
     }
   }

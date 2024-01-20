@@ -6,9 +6,7 @@
 
 #include "tests/cefclient/browser/main_context.h"
 
-namespace client {
-
-namespace views_style {
+namespace client::views_style {
 
 namespace {
 
@@ -113,6 +111,4 @@ void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
   }
 }
 
-}  // namespace views_style
-
-}  // namespace client
+}  // namespace client::views_style

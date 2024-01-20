@@ -8,13 +8,11 @@
 
 #include "tests/cefclient/browser/test_runner.h"
 
-namespace client {
-namespace dialog_test {
+namespace client::dialog_test {
 
 // Create message handlers. Called from test_runner.cc.
 void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
-}  // namespace dialog_test
-}  // namespace client
+}  // namespace client::dialog_test
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_DIALOG_TEST_H_

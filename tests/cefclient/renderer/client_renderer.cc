@@ -12,8 +12,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
 
-namespace client {
-namespace renderer {
+namespace client::renderer {
 
 namespace {
 
@@ -22,7 +21,7 @@ const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
 class ClientRenderDelegate : public ClientAppRenderer::Delegate {
  public:
-  ClientRenderDelegate() : last_node_is_editable_(false) {}
+  ClientRenderDelegate() = default;
 
   void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     if (CefCrashReportingEnabled()) {
@@ -80,7 +79,7 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
   }
 
  private:
-  bool last_node_is_editable_;
+  bool last_node_is_editable_ = false;
 
   // Handles the renderer side of query routing.
   CefRefPtr<CefMessageRouterRendererSide> message_router_;
@@ -95,5 +94,4 @@ void CreateDelegates(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new ClientRenderDelegate);
 }
 
-}  // namespace renderer
-}  // namespace client
+}  // namespace client::renderer

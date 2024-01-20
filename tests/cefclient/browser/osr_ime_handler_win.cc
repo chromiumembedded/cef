@@ -97,9 +97,8 @@ void GetCompositionUnderlines(
 }  // namespace
 
 OsrImeHandlerWin::OsrImeHandlerWin(HWND hwnd)
-    : is_composing_(false),
-      input_language_id_(LANG_USER_DEFAULT),
-      system_caret_(false),
+    : input_language_id_(LANG_USER_DEFAULT),
+
       cursor_index_(std::numeric_limits<uint32_t>::max()),
       hwnd_(hwnd) {
   ime_rect_ = {-1, -1, 0, 0};

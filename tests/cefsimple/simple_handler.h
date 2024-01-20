@@ -15,35 +15,31 @@ class SimpleHandler : public CefClient,
                       public CefLoadHandler {
  public:
   explicit SimpleHandler(bool use_views);
-  ~SimpleHandler();
+  ~SimpleHandler() override;
 
   // Provide access to the single global instance of this object.
   static SimpleHandler* GetInstance();
 
   // CefClient methods:
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() override {
-    return this;
-  }
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override {
-    return this;
-  }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+  CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
 
   // CefDisplayHandler methods:
-  virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
-                             const CefString& title) override;
+  void OnTitleChange(CefRefPtr<CefBrowser> browser,
+                     const CefString& title) override;
 
   // CefLifeSpanHandler methods:
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
-  virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  bool DoClose(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
   // CefLoadHandler methods:
-  virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           ErrorCode errorCode,
-                           const CefString& errorText,
-                           const CefString& failedUrl) override;
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override;
 
   // Request that all existing browser windows close.
   void CloseAllBrowsers(bool force_close);
@@ -65,7 +61,7 @@ class SimpleHandler : public CefClient,
   typedef std::list<CefRefPtr<CefBrowser>> BrowserList;
   BrowserList browser_list_;
 
-  bool is_closing_;
+  bool is_closing_ = false;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(SimpleHandler);

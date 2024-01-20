@@ -342,7 +342,8 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
         if (format == CF_HDROP) {
           HDROP hdrop = (HDROP)hGlobal;
           const int kMaxFilenameLen = 4096;
-          const unsigned num_files = DragQueryFileW(hdrop, 0xffffffff, 0, 0);
+          const unsigned num_files =
+              DragQueryFileW(hdrop, 0xffffffff, nullptr, 0);
           for (unsigned int x = 0; x < num_files; ++x) {
             wchar_t filename[kMaxFilenameLen];
             if (!DragQueryFileW(hdrop, x, filename, kMaxFilenameLen)) {
@@ -475,7 +476,7 @@ HRESULT DragEnumFormatEtc::CreateEnumFormatEtc(
     UINT cfmt,
     FORMATETC* afmt,
     IEnumFORMATETC** ppEnumFormatEtc) {
-  if (cfmt == 0 || afmt == 0 || ppEnumFormatEtc == 0) {
+  if (cfmt == 0 || afmt == nullptr || ppEnumFormatEtc == nullptr) {
     return E_INVALIDARG;
   }
 
@@ -497,7 +498,7 @@ HRESULT DragEnumFormatEtc::Next(ULONG celt,
   }
 
   // store result
-  if (pceltFetched != 0) {
+  if (pceltFetched != nullptr) {
     *pceltFetched = copied;
   }
 
@@ -508,7 +509,7 @@ HRESULT DragEnumFormatEtc::Skip(ULONG celt) {
   m_nIndex += celt;
   return (m_nIndex <= m_nNumFormats) ? S_OK : S_FALSE;
 }
-HRESULT DragEnumFormatEtc::Reset(void) {
+HRESULT DragEnumFormatEtc::Reset() {
   m_nIndex = 0;
   return S_OK;
 }
@@ -620,7 +621,7 @@ HRESULT DataObjectWin::GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium) {
 
   // found a match - transfer data into supplied storage medium
   pMedium->tymed = m_pFormatEtc[idx].tymed;
-  pMedium->pUnkForRelease = 0;
+  pMedium->pUnkForRelease = nullptr;
 
   // copy the data into the caller's storage medium
   switch (m_pFormatEtc[idx].tymed) {

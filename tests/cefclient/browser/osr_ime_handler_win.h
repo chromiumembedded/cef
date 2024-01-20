@@ -83,7 +83,7 @@ class OsrImeHandlerWin {
   bool GetString(HIMC imm_context, WPARAM lparam, int type, CefString& result);
 
   // Represents whether or not there is an ongoing composition.
-  bool is_composing_;
+  bool is_composing_ = false;
 
   // The current composition character range and its bounds.
   std::vector<CefRect> composition_bounds_;
@@ -94,7 +94,7 @@ class OsrImeHandlerWin {
 
   // Represents whether or not the current input context has created a system
   // caret to set the position of its IME candidate window.
-  bool system_caret_;
+  bool system_caret_ = false;
 
   // The rectangle of the input caret retrieved from a renderer process.
   CefRect ime_rect_;
