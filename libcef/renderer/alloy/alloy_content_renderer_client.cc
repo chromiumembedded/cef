@@ -5,6 +5,7 @@
 
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 
+#include <memory>
 #include <utility>
 
 #include "build/build_config.h"
@@ -110,7 +111,7 @@ AlloyContentRendererClient::AlloyContentRendererClient()
     : main_entry_time_(base::TimeTicks::Now()),
       render_manager_(new CefRenderManager) {
   if (extensions::ExtensionsEnabled()) {
-    extensions_client_.reset(new extensions::CefExtensionsClient);
+    extensions_client_ = std::make_unique<extensions::CefExtensionsClient>();
     extensions::ExtensionsClient::Set(extensions_client_.get());
     extensions_renderer_client_ =
         std::make_unique<extensions::CefExtensionsRendererClient>(this);
@@ -119,7 +120,7 @@ AlloyContentRendererClient::AlloyContentRendererClient()
   }
 }
 
-AlloyContentRendererClient::~AlloyContentRendererClient() {}
+AlloyContentRendererClient::~AlloyContentRendererClient() = default;
 
 // static
 AlloyContentRendererClient* AlloyContentRendererClient::Get() {

@@ -68,7 +68,7 @@ CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
                            int64_t frame_id)
     : browser_(browser), frame_(frame), frame_id_(frame_id) {}
 
-CefFrameImpl::~CefFrameImpl() {}
+CefFrameImpl::~CefFrameImpl() = default;
 
 bool CefFrameImpl::IsValid() {
   CEF_REQUIRE_RT_RETURN(false);
@@ -436,8 +436,7 @@ void CefFrameImpl::ExecuteOnLocalFrame(const std::string& function_name,
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (!context_created_) {
-    queued_context_actions_.push(
-        std::make_pair(function_name, std::move(action)));
+    queued_context_actions_.emplace(function_name, std::move(action));
     MaybeInitializeScriptContext();
     return;
   }
@@ -623,8 +622,7 @@ void CefFrameImpl::SendToBrowserFrame(const std::string& function_name,
   if (browser_connection_state_ != ConnectionState::CONNECTION_ACKED) {
     // Queue actions until we're notified by the browser that it's ready to
     // handle them.
-    queued_browser_actions_.push(
-        std::make_pair(function_name, std::move(action)));
+    queued_browser_actions_.emplace(function_name, std::move(action));
     return;
   }
 

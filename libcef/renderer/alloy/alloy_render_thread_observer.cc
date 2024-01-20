@@ -17,7 +17,7 @@ AlloyRenderThreadObserver::AlloyRenderThreadObserver() {
   net::NetModule::SetResourceProvider(NetResourceProvider);
 }
 
-AlloyRenderThreadObserver::~AlloyRenderThreadObserver() {}
+AlloyRenderThreadObserver::~AlloyRenderThreadObserver() = default;
 
 chrome::mojom::DynamicParamsPtr AlloyRenderThreadObserver::GetDynamicParams()
     const {

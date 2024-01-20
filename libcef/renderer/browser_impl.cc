@@ -5,6 +5,7 @@
 
 #include "libcef/renderer/browser_impl.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -281,7 +282,7 @@ CefBrowserImpl::CefBrowserImpl(blink::WebView* web_view,
       is_popup_(is_popup),
       is_windowless_(is_windowless) {}
 
-CefBrowserImpl::~CefBrowserImpl() {}
+CefBrowserImpl::~CefBrowserImpl() = default;
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebLocalFrame* frame) {
@@ -419,8 +420,8 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
 
         load_handler->OnLoadingStateChange(this, isLoading, canGoBack,
                                            canGoForward);
-        last_loading_state_.reset(
-            new LoadingState(isLoading, canGoBack, canGoForward));
+        last_loading_state_ =
+            std::make_unique<LoadingState>(isLoading, canGoBack, canGoForward);
       }
     }
   }

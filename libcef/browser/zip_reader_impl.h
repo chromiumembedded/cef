@@ -42,12 +42,12 @@ class CefZipReaderImpl : public CefZipReader {
 
  protected:
   base::PlatformThreadId supported_thread_id_;
-  unzFile reader_;
-  bool has_fileopen_;
-  bool has_fileinfo_;
+  unzFile reader_ = nullptr;
+  bool has_fileopen_ = false;
+  bool has_fileinfo_ = false;
   CefString filename_;
-  int64_t filesize_;
-  time_t filemodified_;
+  int64_t filesize_ = 0;
+  time_t filemodified_ = 0;
 
   IMPLEMENT_REFCOUNTING(CefZipReaderImpl);
 };

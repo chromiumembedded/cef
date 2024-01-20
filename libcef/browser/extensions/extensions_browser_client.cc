@@ -5,6 +5,7 @@
 
 #include "libcef/browser/extensions/extensions_browser_client.h"
 
+#include <memory>
 #include <utility>
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
@@ -100,7 +101,7 @@ CefExtensionsBrowserClient::CefExtensionsBrowserClient()
   AddAPIProvider(std::make_unique<CefExtensionsBrowserAPIProvider>());
 }
 
-CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {}
+CefExtensionsBrowserClient::~CefExtensionsBrowserClient() = default;
 
 // static
 CefExtensionsBrowserClient* CefExtensionsBrowserClient::Get() {
@@ -401,7 +402,7 @@ CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
 
 KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
   if (!kiosk_delegate_) {
-    kiosk_delegate_.reset(new CefKioskDelegate());
+    kiosk_delegate_ = std::make_unique<CefKioskDelegate>();
   }
   return kiosk_delegate_.get();
 }

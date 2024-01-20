@@ -52,14 +52,14 @@ class CefResponseImpl : public CefResponse {
   void SetReadOnly(bool read_only);
 
  protected:
-  cef_errorcode_t error_code_;
-  int status_code_;
+  cef_errorcode_t error_code_ = ERR_NONE;
+  int status_code_ = 0;
   CefString status_text_;
   CefString mime_type_;
   CefString charset_;
   CefString url_;
   HeaderMap header_map_;
-  bool read_only_;
+  bool read_only_ = false;
 
   base::Lock lock_;
 

@@ -4,6 +4,8 @@
 
 #include "libcef/browser/devtools/devtools_manager.h"
 
+#include <memory>
+
 #include "libcef/browser/devtools/devtools_controller.h"
 #include "libcef/browser/devtools/devtools_frontend.h"
 #include "libcef/features/runtime.h"
@@ -209,8 +211,8 @@ void CefDevToolsManager::OnFrontEndDestroyed() {
 
 bool CefDevToolsManager::EnsureController() {
   if (!devtools_controller_) {
-    devtools_controller_.reset(new CefDevToolsController(
-        inspected_browser_->contents_delegate()->web_contents()));
+    devtools_controller_ = std::make_unique<CefDevToolsController>(
+        inspected_browser_->contents_delegate()->web_contents());
   }
   return true;
 }

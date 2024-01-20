@@ -114,7 +114,7 @@ CefHostDisplayClientOSR::CefHostDisplayClientOSR(
     gfx::AcceleratedWidget widget)
     : viz::HostDisplayClient(widget), view_(view) {}
 
-CefHostDisplayClientOSR::~CefHostDisplayClientOSR() {}
+CefHostDisplayClientOSR::~CefHostDisplayClientOSR() = default;
 
 void CefHostDisplayClientOSR::SetActive(bool active) {
   active_ = active;

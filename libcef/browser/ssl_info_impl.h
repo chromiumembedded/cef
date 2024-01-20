@@ -23,7 +23,7 @@ class CefSSLInfoImpl : public CefSSLInfo {
   CefRefPtr<CefX509Certificate> GetX509Certificate() override;
 
  private:
-  cef_cert_status_t cert_status_;
+  cef_cert_status_t cert_status_ = CERT_STATUS_NONE;
   CefRefPtr<CefX509Certificate> cert_;
 
   IMPLEMENT_REFCOUNTING(CefSSLInfoImpl);

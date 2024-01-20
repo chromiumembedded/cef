@@ -136,11 +136,9 @@ const struct {
 };
 
 ChromeHostId GetChromeHostId(const std::string& host) {
-  for (size_t i = 0; i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]);
-       ++i) {
-    if (base::EqualsCaseInsensitiveASCII(kAllowedCefHosts[i].host,
-                                         host.c_str())) {
-      return kAllowedCefHosts[i].host_id;
+  for (auto kAllowedCefHost : kAllowedCefHosts) {
+    if (base::EqualsCaseInsensitiveASCII(kAllowedCefHost.host, host.c_str())) {
+      return kAllowedCefHost.host_id;
     }
   }
 
@@ -150,17 +148,15 @@ ChromeHostId GetChromeHostId(const std::string& host) {
 // Returns WebUI hosts. Does not include chrome debug hosts (for crashing, etc).
 void GetAllowedHosts(std::vector<std::string>* hosts) {
   // Explicitly whitelisted WebUI hosts.
-  for (size_t i = 0;
-       i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
-    hosts->push_back(kAllowedWebUIHosts[i]);
+  for (auto& kAllowedWebUIHost : kAllowedWebUIHosts) {
+    hosts->push_back(kAllowedWebUIHost);
   }
 }
 
 // Returns true if a host should not be listed on "chrome://webui-hosts".
 bool IsUnlistedHost(const std::string& host) {
-  for (size_t i = 0; i < sizeof(kUnlistedHosts) / sizeof(kUnlistedHosts[0]);
-       ++i) {
-    if (host == kUnlistedHosts[i]) {
+  for (auto& kUnlistedHost : kUnlistedHosts) {
+    if (host == kUnlistedHost) {
       return true;
     }
   }
@@ -175,9 +171,8 @@ bool IsAllowedWebUIHost(const std::string& host) {
   }
 
   // Explicitly whitelisted WebUI hosts.
-  for (size_t i = 0;
-       i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
-    if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i], host.c_str())) {
+  for (auto& kAllowedWebUIHost : kAllowedWebUIHosts) {
+    if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHost, host.c_str())) {
       return true;
     }
   }
@@ -195,9 +190,8 @@ void GetDebugURLs(std::vector<std::string>* urls) {
     urls->push_back(chrome::kChromeDebugURLs[i]);
   }
 
-  for (size_t i = 0;
-       i < sizeof(kAllowedDebugURLs) / sizeof(kAllowedDebugURLs[0]); ++i) {
-    urls->push_back(kAllowedDebugURLs[i]);
+  for (auto& kAllowedDebugURL : kAllowedDebugURLs) {
+    urls->push_back(kAllowedDebugURL);
   }
 }
 
@@ -425,13 +419,12 @@ bool OnWebUIHostsUI(std::string* mime_type, std::string* output) {
   GetAllowedHosts(&list);
   std::sort(list.begin(), list.end());
 
-  for (size_t i = 0U; i < list.size(); ++i) {
-    if (IsUnlistedHost(list[i])) {
+  for (const auto& i : list) {
+    if (IsUnlistedHost(i)) {
       continue;
     }
 
-    html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" + list[i] +
-            "</a></li>\n";
+    html += "<li><a href=\"chrome://" + i + "\">chrome://" + i + "</a></li>\n";
   }
 
   list.clear();
@@ -443,8 +436,8 @@ bool OnWebUIHostsUI(std::string* mime_type, std::string* output) {
       "<p>The following pages are for debugging purposes only. Because they "
       "crash or hang the renderer, they're not linked directly; you can type "
       "them into the address bar if you need them.</p>\n<ul>\n";
-  for (size_t i = 0U; i < list.size(); ++i) {
-    html += "<li>" + std::string(list[i]) + "</li>\n";
+  for (const auto& i : list) {
+    html += "<li>" + std::string(i) + "</li>\n";
   }
   html += "</ul>\n";
 

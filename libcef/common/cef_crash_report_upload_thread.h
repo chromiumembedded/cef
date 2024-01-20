@@ -19,7 +19,7 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
   CefCrashReportUploadThread& operator=(const CefCrashReportUploadThread&) =
       delete;
 
-  ~CefCrashReportUploadThread();
+  ~CefCrashReportUploadThread() override;
 
  private:
   void ProcessPendingReports() override;

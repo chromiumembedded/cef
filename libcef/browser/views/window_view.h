@@ -42,7 +42,7 @@ class CefWindowView
     virtual void OnWindowViewDeleted() = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // |cef_delegate| may be nullptr.

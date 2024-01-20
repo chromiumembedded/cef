@@ -18,7 +18,7 @@ namespace base {
 class Thread;
 }
 
-class CefServerImpl : public CefServer, net::HttpServer::Delegate {
+class CefServerImpl : public CefServer, public net::HttpServer::Delegate {
  public:
   explicit CefServerImpl(CefRefPtr<CefServerHandler> handler);
 

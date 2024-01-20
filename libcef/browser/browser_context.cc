@@ -5,6 +5,7 @@
 #include "libcef/browser/browser_context.h"
 
 #include <map>
+#include <memory>
 #include <utility>
 
 #include "libcef/browser/context.h"
@@ -36,7 +37,7 @@ class ImplManager {
  public:
   using Vector = std::vector<CefBrowserContext*>;
 
-  ImplManager() {}
+  ImplManager() = default;
 
   ImplManager(const ImplManager&) = delete;
   ImplManager& operator=(const ImplManager&) = delete;
@@ -423,7 +424,8 @@ network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
 CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
   CEF_REQUIRE_UIT();
   if (!media_router_manager_) {
-    media_router_manager_.reset(new CefMediaRouterManager(AsBrowserContext()));
+    media_router_manager_ =
+        std::make_unique<CefMediaRouterManager>(AsBrowserContext());
   }
   return media_router_manager_.get();
 }

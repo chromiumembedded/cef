@@ -43,7 +43,7 @@ CefExtensionsRendererClient::CefExtensionsRendererClient(
     AlloyContentRendererClient* alloy_content_renderer_client)
     : alloy_content_renderer_client_(alloy_content_renderer_client) {}
 
-CefExtensionsRendererClient::~CefExtensionsRendererClient() {}
+CefExtensionsRendererClient::~CefExtensionsRendererClient() = default;
 
 bool CefExtensionsRendererClient::IsIncognitoProcess() const {
   return alloy_content_renderer_client_->GetAlloyObserver()

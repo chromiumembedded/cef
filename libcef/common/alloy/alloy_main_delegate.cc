@@ -4,6 +4,7 @@
 
 #include "libcef/common/alloy/alloy_main_delegate.h"
 
+#include <memory>
 #include <tuple>
 
 #include "libcef/browser/alloy/alloy_browser_context.h"
@@ -128,7 +129,7 @@ AlloyMainDelegate::AlloyMainDelegate(CefMainRunnerHandler* runner,
 #endif
 }
 
-AlloyMainDelegate::~AlloyMainDelegate() {}
+AlloyMainDelegate::~AlloyMainDelegate() = default;
 
 std::optional<int> AlloyMainDelegate::PreBrowserMain() {
   runner_->PreBrowserMain();
@@ -298,18 +299,16 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       } else {
         std::vector<base::StringPiece> added_items;
         if (settings_->log_items & LOG_ITEMS_FLAG_PROCESS_ID) {
-          added_items.push_back(base::StringPiece(switches::kLogItems_PId));
+          added_items.emplace_back(switches::kLogItems_PId);
         }
         if (settings_->log_items & LOG_ITEMS_FLAG_THREAD_ID) {
-          added_items.push_back(base::StringPiece(switches::kLogItems_TId));
+          added_items.emplace_back(switches::kLogItems_TId);
         }
         if (settings_->log_items & LOG_ITEMS_FLAG_TIME_STAMP) {
-          added_items.push_back(
-              base::StringPiece(switches::kLogItems_TimeStamp));
+          added_items.emplace_back(switches::kLogItems_TimeStamp);
         }
         if (settings_->log_items & LOG_ITEMS_FLAG_TICK_COUNT) {
-          added_items.push_back(
-              base::StringPiece(switches::kLogItems_TickCount));
+          added_items.emplace_back(switches::kLogItems_TickCount);
         }
         if (!added_items.empty()) {
           log_items_str = base::JoinString(added_items, ",");
@@ -574,18 +573,18 @@ void AlloyMainDelegate::ZygoteForked() {
 #endif
 
 content::ContentBrowserClient* AlloyMainDelegate::CreateContentBrowserClient() {
-  browser_client_.reset(new AlloyContentBrowserClient);
+  browser_client_ = std::make_unique<AlloyContentBrowserClient>();
   return browser_client_.get();
 }
 
 content::ContentRendererClient*
 AlloyMainDelegate::CreateContentRendererClient() {
-  renderer_client_.reset(new AlloyContentRendererClient);
+  renderer_client_ = std::make_unique<AlloyContentRendererClient>();
   return renderer_client_.get();
 }
 
 content::ContentUtilityClient* AlloyMainDelegate::CreateContentUtilityClient() {
-  utility_client_.reset(new ChromeContentUtilityClient);
+  utility_client_ = std::make_unique<ChromeContentUtilityClient>();
   return utility_client_.get();
 }
 
@@ -692,7 +691,7 @@ void AlloyMainDelegate::InitializeResourceBundle() {
   auto module_handle =
       ::GetModuleHandle(CefAppManager::Get()->GetResourceDllName());
   if (!module_handle) {
-    module_handle = ::GetModuleHandle(NULL);
+    module_handle = ::GetModuleHandle(nullptr);
   }
 
   ui::SetResourcesDataDLL(module_handle);

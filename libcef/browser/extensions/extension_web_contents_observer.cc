@@ -20,7 +20,7 @@ CefExtensionWebContentsObserver::CefExtensionWebContentsObserver(
           *web_contents),
       script_executor_(new ScriptExecutor(web_contents)) {}
 
-CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() {}
+CefExtensionWebContentsObserver::~CefExtensionWebContentsObserver() = default;
 
 // static
 void CefExtensionWebContentsObserver::CreateForWebContents(

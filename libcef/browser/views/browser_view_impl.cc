@@ -4,6 +4,8 @@
 
 #include "libcef/browser/views/browser_view_impl.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
@@ -269,7 +271,7 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
     CefRefPtr<CefDictionaryValue> extra_info,
     CefRefPtr<CefRequestContext> request_context) {
   DCHECK(!pending_browser_create_params_);
-  pending_browser_create_params_.reset(new CefBrowserCreateParams());
+  pending_browser_create_params_ = std::make_unique<CefBrowserCreateParams>();
   pending_browser_create_params_->MaybeSetWindowInfo(window_info);
   pending_browser_create_params_->client = client;
   pending_browser_create_params_->url = url;

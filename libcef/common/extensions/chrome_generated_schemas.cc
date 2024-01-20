@@ -8,9 +8,7 @@
 
 #include "chrome/common/extensions/api/generated_schemas.h"
 
-namespace extensions {
-namespace api {
-namespace cef {
+namespace extensions::api::cef {
 
 // static
 base::StringPiece ChromeGeneratedSchemas::Get(const std::string& name) {
@@ -28,6 +26,4 @@ bool ChromeGeneratedSchemas::IsGenerated(std::string name) {
   return extensions::api::ChromeGeneratedSchemas::IsGenerated(name);
 }
 
-}  // namespace cef
-}  // namespace api
-}  // namespace extensions
+}  // namespace extensions::api::cef

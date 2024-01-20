@@ -6,6 +6,7 @@
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include <stdint.h>
+#include <memory>
 #include <utility>
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
@@ -220,14 +221,15 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
-  delegated_frame_host_client_.reset(new CefDelegatedFrameHostClient(this));
+  delegated_frame_host_client_ =
+      std::make_unique<CefDelegatedFrameHostClient>(this);
 
   // Matching the attributes from BrowserCompositorMac.
   delegated_frame_host_ = std::make_unique<content::DelegatedFrameHost>(
       AllocateFrameSinkId(), delegated_frame_host_client_.get(),
       false /* should_register_frame_sink_id */);
 
-  root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
+  root_layer_ = std::make_unique<ui::Layer>(ui::LAYER_SOLID_COLOR);
 
   bool opaque = SkColorGetA(background_color_) == SK_AlphaOPAQUE;
   GetRootLayer()->SetFillsBoundsOpaquely(opaque);
@@ -238,10 +240,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   auto context_factory = content::GetContextFactory();
 
   // Matching the attributes from RecyclableCompositorMac.
-  compositor_.reset(new ui::Compositor(
+  compositor_ = std::make_unique<ui::Compositor>(
       context_factory->AllocateFrameSinkId(), context_factory,
       base::SingleThreadTaskRunner::GetCurrentDefault(),
-      false /* enable_pixel_canvas */, use_external_begin_frame));
+      false /* enable_pixel_canvas */, use_external_begin_frame);
   compositor_->SetAcceleratedWidget(gfx::kNullAcceleratedWidget);
 
   compositor_->SetDelegate(this);
@@ -254,7 +256,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     render_widget_host_impl->SetCompositorForFlingScheduler(compositor_.get());
   }
 
-  cursor_manager_.reset(new content::CursorManager(this));
+  cursor_manager_ = std::make_unique<content::CursorManager>(this);
 
   // This may result in a call to GetFrameSinkId().
   render_widget_host_->SetView(this);
@@ -395,7 +397,7 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
     // Start generating frames when we're visible and at the correct size.
     if (!video_consumer_) {
-      video_consumer_.reset(new CefVideoConsumerOSR(this));
+      video_consumer_ = std::make_unique<CefVideoConsumerOSR>(this);
       UpdateFrameRate();
     } else {
       video_consumer_->SetActive(true);
@@ -805,12 +807,12 @@ void CefRenderWidgetHostViewOSR::ImeSetComposition(
   std::vector<ui::ImeTextSpan> web_underlines;
   web_underlines.reserve(underlines.size());
   for (const CefCompositionUnderline& line : underlines) {
-    web_underlines.push_back(ui::ImeTextSpan(
+    web_underlines.emplace_back(
         ui::ImeTextSpan::Type::kComposition, line.range.from, line.range.to,
         line.thick ? ui::ImeTextSpan::Thickness::kThick
                    : ui::ImeTextSpan::Thickness::kThin,
         GetImeUnderlineStyle(line.style), line.background_color, line.color,
-        std::vector<std::string>()));
+        std::vector<std::string>());
   }
   gfx::Range range(replacement_range.from, replacement_range.to);
 
@@ -1571,8 +1573,8 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
   rect_in_pixels.Intersect(damage_rect);
 
   CefRenderHandler::RectList rcList;
-  rcList.push_back(CefRect(rect_in_pixels.x(), rect_in_pixels.y(),
-                           rect_in_pixels.width(), rect_in_pixels.height()));
+  rcList.emplace_back(rect_in_pixels.x(), rect_in_pixels.y(),
+                      rect_in_pixels.width(), rect_in_pixels.height());
 
   handler->OnPaint(browser_impl_.get(), IsPopupWidget() ? PET_POPUP : PET_VIEW,
                    rcList, pixels, pixel_size.width(), pixel_size.height());
@@ -1816,8 +1818,7 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 
     if (character_bounds.has_value()) {
       for (auto& rect : character_bounds.value()) {
-        rcList.push_back(
-            CefRect(rect.x(), rect.y(), rect.width(), rect.height()));
+        rcList.emplace_back(rect.x(), rect.y(), rect.width(), rect.height());
       }
     }
 

@@ -45,7 +45,7 @@ class CefMediaRouterManager
         const content::PresentationConnectionStateChangeInfo& info) = 0;
 
    protected:
-    ~Observer() override {}
+    ~Observer() override = default;
   };
 
   explicit CefMediaRouterManager(content::BrowserContext* browser_context);

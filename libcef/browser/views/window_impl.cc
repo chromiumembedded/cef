@@ -4,6 +4,8 @@
 
 #include "libcef/browser/views/window_impl.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/thread_util.h"
@@ -538,11 +540,11 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
   // We'll send the MenuClosed notification manually for better accuracy.
   menu_model_->set_auto_notify_menu_closed(false);
 
-  menu_runner_.reset(new views::MenuRunner(
+  menu_runner_ = std::make_unique<views::MenuRunner>(
       menu_model_impl->model(),
       menu_button ? views::MenuRunner::HAS_MNEMONICS
                   : views::MenuRunner::CONTEXT_MENU,
-      base::BindRepeating(&CefWindowImpl::MenuClosed, this)));
+      base::BindRepeating(&CefWindowImpl::MenuClosed, this));
 
   menu_runner_->RunMenuAt(
       widget_, menu_button ? menu_button->button_controller() : nullptr,

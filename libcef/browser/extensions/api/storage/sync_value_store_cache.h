@@ -16,8 +16,7 @@ namespace value_store {
 class ValueStoreFactory;
 }
 
-namespace extensions {
-namespace cef {
+namespace extensions::cef {
 
 // Based on LocalValueStoreCache
 // ValueStoreCache for the SYNC namespace. It owns a backend for apps and
@@ -54,7 +53,6 @@ class SyncValueStoreCache : public ValueStoreCache {
   StorageMap storage_map_;
 };
 
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_API_STORAGE_SYNC_VALUE_STORE_CACHE_H_

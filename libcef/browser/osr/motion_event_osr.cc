@@ -36,7 +36,7 @@ CefMotionEventOSR::CefMotionEventOSR() {
   std::fill(id_map_, id_map_ + blink::WebTouchEvent::kTouchesLengthCap, -1);
 }
 
-CefMotionEventOSR::~CefMotionEventOSR() {}
+CefMotionEventOSR::~CefMotionEventOSR() = default;
 
 int CefMotionEventOSR::GetSourceDeviceId(size_t pointer_index) const {
   if (IsValidIndex(pointer_index)) {
@@ -165,9 +165,9 @@ int CefMotionEventOSR::AddId(int id) {
 }
 
 void CefMotionEventOSR::RemoveId(int id) {
-  for (int i = 0; i < blink::WebTouchEvent::kTouchesLengthCap; i++) {
-    if (id_map_[i] == id) {
-      id_map_[i] = -1;
+  for (int& i : id_map_) {
+    if (i == id) {
+      i = -1;
     }
   }
 }

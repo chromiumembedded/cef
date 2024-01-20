@@ -20,10 +20,9 @@ CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color,
                                              bool use_external_begin_frame)
     : background_color_(background_color),
       use_shared_texture_(use_shared_texture),
-      use_external_begin_frame_(use_external_begin_frame),
-      web_contents_(nullptr) {}
+      use_external_begin_frame_(use_external_begin_frame) {}
 
-CefWebContentsViewOSR::~CefWebContentsViewOSR() {}
+CefWebContentsViewOSR::~CefWebContentsViewOSR() = default;
 
 void CefWebContentsViewOSR::WebContentsCreated(
     content::WebContents* web_contents) {

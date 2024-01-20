@@ -47,8 +47,8 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
 
   using DisplayVector = std::vector<display::Display>;
   DisplayVector vec = display::Screen::GetScreen()->GetAllDisplays();
-  for (size_t i = 0; i < vec.size(); ++i) {
-    displays.push_back(new CefDisplayImpl(vec[i]));
+  for (const auto& i : vec) {
+    displays.push_back(new CefDisplayImpl(i));
   }
 }
 

@@ -90,8 +90,8 @@ void RunFileDialogDismissed(CefRefPtr<CefRunFileDialogCallback> callback,
                             const std::vector<base::FilePath>& file_paths) {
   std::vector<CefString> paths;
   if (file_paths.size() > 0) {
-    for (size_t i = 0; i < file_paths.size(); ++i) {
-      paths.push_back(file_paths[i].value());
+    for (const auto& file_path : file_paths) {
+      paths.push_back(file_path.value());
     }
   }
   callback->OnFileDialogDismissed(paths);

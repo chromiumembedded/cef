@@ -18,8 +18,7 @@ namespace network {
 struct ResourceRequest;
 }  // namespace network
 
-namespace net_service {
-namespace cookie_helper {
+namespace net_service::cookie_helper {
 
 // Returns true if the scheme for |url| supports cookies. |cookieable_schemes|
 // is the optional list of schemes that the client has explicitly registered as
@@ -59,7 +58,6 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
                  const AllowCookieCallback& allow_cookie_callback,
                  DoneCookieCallback done_callback);
 
-}  // namespace cookie_helper
-}  // namespace net_service
+}  // namespace net_service::cookie_helper
 
 #endif  // CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_HELPER_H_

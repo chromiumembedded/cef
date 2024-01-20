@@ -148,7 +148,7 @@ void LoadExtensionFromDisk(base::WeakPtr<CefExtensionSystem> context,
 
 CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
     : browser_context_(browser_context),
-      initialized_(false),
+
       registry_(ExtensionRegistry::Get(browser_context)),
       renderer_helper_(
           extensions::RendererStartupHelperFactory::GetForBrowserContext(
@@ -157,7 +157,7 @@ CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
   InitPrefs();
 }
 
-CefExtensionSystem::~CefExtensionSystem() {}
+CefExtensionSystem::~CefExtensionSystem() = default;
 
 void CefExtensionSystem::Init() {
   DCHECK(!initialized_);
@@ -621,13 +621,11 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
     info.name = base::UTF8ToUTF16(extension->name());
     info.path = base::FilePath::FromUTF8Unsafe(extension->url().spec());
 
-    for (std::set<std::string>::const_iterator mime_type =
-             handler->mime_type_set().begin();
-         mime_type != handler->mime_type_set().end(); ++mime_type) {
+    for (const auto& mime_type : handler->mime_type_set()) {
       content::WebPluginMimeType mime_type_info;
-      mime_type_info.mime_type = *mime_type;
+      mime_type_info.mime_type = mime_type;
       base::FilePath::StringType file_extension;
-      if (net::GetPreferredExtensionForMimeType(*mime_type, &file_extension)) {
+      if (net::GetPreferredExtensionForMimeType(mime_type, &file_extension)) {
         mime_type_info.file_extensions.push_back(
             base::FilePath(file_extension).AsUTF8Unsafe());
       }

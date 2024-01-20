@@ -35,7 +35,7 @@ CefExtensionSystemFactory::CefExtensionSystemFactory()
   DependsOn(ExtensionRegistryFactory::GetInstance());
 }
 
-CefExtensionSystemFactory::~CefExtensionSystemFactory() {}
+CefExtensionSystemFactory::~CefExtensionSystemFactory() = default;
 
 std::unique_ptr<KeyedService>
 CefExtensionSystemFactory::BuildServiceInstanceForBrowserContext(

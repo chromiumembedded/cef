@@ -18,9 +18,7 @@
 #include "extensions/browser/api/storage/storage_api.h"
 #include "extensions/browser/extension_function_registry.h"
 
-namespace extensions {
-namespace api {
-namespace cef {
+namespace extensions::api::cef {
 
 namespace cefimpl = extensions::cef;
 
@@ -111,6 +109,4 @@ void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<cefimpl::TabsGetZoomSettingsFunction>();
 }
 
-}  // namespace cef
-}  // namespace api
-}  // namespace extensions
+}  // namespace extensions::api::cef

@@ -34,8 +34,7 @@ CefRefPtr<CefResponse> CefResponse::Create() {
 
 // CefResponseImpl ------------------------------------------------------------
 
-CefResponseImpl::CefResponseImpl()
-    : error_code_(ERR_NONE), status_code_(0), read_only_(false) {}
+CefResponseImpl::CefResponseImpl() = default;
 
 bool CefResponseImpl::IsReadOnly() {
   base::AutoLock lock_scope(lock_);

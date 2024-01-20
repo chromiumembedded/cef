@@ -4,6 +4,8 @@
 
 #include "libcef/common/thread_impl.h"
 
+#include <memory>
+
 #include "libcef/common/task_runner_impl.h"
 
 #include "base/functional/bind.h"
@@ -41,7 +43,7 @@ CefRefPtr<CefThread> CefThread::CreateThread(
   return thread_impl;
 }
 
-CefThreadImpl::CefThreadImpl() : thread_id_(kInvalidPlatformThreadId) {}
+CefThreadImpl::CefThreadImpl() = default;
 
 CefThreadImpl::~CefThreadImpl() {
   if (thread_.get()) {
@@ -67,7 +69,7 @@ bool CefThreadImpl::Create(const CefString& display_name,
     return false;
   }
 
-  thread_.reset(new base::Thread(display_name));
+  thread_ = std::make_unique<base::Thread>(display_name);
 
   base::Thread::Options options;
 

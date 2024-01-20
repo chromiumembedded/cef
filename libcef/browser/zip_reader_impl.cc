@@ -78,12 +78,7 @@ int ZCALLBACK zlib_error_callback OF((voidpf opaque, voidpf stream)) {
 }  // namespace
 
 CefZipReaderImpl::CefZipReaderImpl()
-    : supported_thread_id_(base::PlatformThread::CurrentId()),
-      reader_(nullptr),
-      has_fileopen_(false),
-      has_fileinfo_(false),
-      filesize_(0),
-      filemodified_(0) {}
+    : supported_thread_id_(base::PlatformThread::CurrentId()) {}
 
 CefZipReaderImpl::~CefZipReaderImpl() {
   if (reader_ != nullptr) {
@@ -270,7 +265,7 @@ bool CefZipReaderImpl::GetFileInfo() {
   memset(&file_info, 0, sizeof(file_info));
 
   if (unzGetCurrentFileInfo(reader_, &file_info, file_name, sizeof(file_name),
-                            NULL, 0, NULL, 0) != UNZ_OK) {
+                            nullptr, 0, nullptr, 0) != UNZ_OK) {
     return false;
   }
 

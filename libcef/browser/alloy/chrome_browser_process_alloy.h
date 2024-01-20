@@ -113,9 +113,9 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   UsbSystemTrayIcon* usb_system_tray_icon() override;
 
  private:
-  bool initialized_;
-  bool context_initialized_;
-  bool shutdown_;
+  bool initialized_ = false;
+  bool context_initialized_ = false;
+  bool shutdown_ = false;
 
   std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
   std::unique_ptr<extensions::ExtensionsBrowserClient>

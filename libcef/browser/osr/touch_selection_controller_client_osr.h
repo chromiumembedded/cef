@@ -120,7 +120,7 @@ class CefTouchSelectionControllerClientOSR
   class InternalClient final : public ui::TouchSelectionControllerClient {
    public:
     explicit InternalClient(CefRenderWidgetHostViewOSR* rwhv) : rwhv_(rwhv) {}
-    ~InternalClient() final {}
+    ~InternalClient() final = default;
 
     bool SupportsAnimation() const final;
     void SetNeedsAnimate() final;

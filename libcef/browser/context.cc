@@ -4,6 +4,8 @@
 
 #include "libcef/browser/context.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -426,10 +428,9 @@ void CefSetOSModalLoop(bool osModalLoop) {
 
 // CefContext
 
-CefContext::CefContext()
-    : initialized_(false), shutting_down_(false), init_thread_id_(0) {}
+CefContext::CefContext() = default;
 
-CefContext::~CefContext() {}
+CefContext::~CefContext() = default;
 
 // static
 CefContext* CefContext::Get() {
@@ -472,10 +473,10 @@ bool CefContext::Initialize(const CefMainArgs& args,
   NormalizePathAndSet(settings_.resources_dir_path, "resources_dir_path");
   NormalizePathAndSet(settings_.locales_dir_path, "locales_dir_path");
 
-  browser_info_manager_.reset(new CefBrowserInfoManager);
+  browser_info_manager_ = std::make_unique<CefBrowserInfoManager>();
 
-  main_runner_.reset(new CefMainRunner(settings_.multi_threaded_message_loop,
-                                       settings_.external_message_pump));
+  main_runner_ = std::make_unique<CefMainRunner>(
+      settings_.multi_threaded_message_loop, settings_.external_message_pump);
   if (!main_runner_->Initialize(
           &settings_, application, args, windows_sandbox_info, &initialized_,
           base::BindOnce(&CefContext::OnContextInitialized,
@@ -543,7 +544,7 @@ CefTraceSubscriber* CefContext::GetTraceSubscriber() {
     return nullptr;
   }
   if (!trace_subscriber_.get()) {
-    trace_subscriber_.reset(new CefTraceSubscriber());
+    trace_subscriber_ = std::make_unique<CefTraceSubscriber>();
   }
   return trace_subscriber_.get();
 }

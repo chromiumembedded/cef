@@ -118,8 +118,7 @@ CefString xmlCharToString(const xmlChar* xmlStr, bool free) {
 }  // namespace
 
 CefXmlReaderImpl::CefXmlReaderImpl()
-    : supported_thread_id_(base::PlatformThread::CurrentId()),
-      reader_(nullptr) {}
+    : supported_thread_id_(base::PlatformThread::CurrentId()) {}
 
 CefXmlReaderImpl::~CefXmlReaderImpl() {
   if (reader_ != nullptr) {

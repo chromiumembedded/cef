@@ -269,7 +269,8 @@ RegisterExecutionContextLifecycleStateObserver(
 
   class Registration : public CefObserverRegistration {
    public:
-    Registration(blink::Persistent<Observer> observer) : observer_(observer) {}
+    explicit Registration(blink::Persistent<Observer> observer)
+        : observer_(observer) {}
 
    private:
     blink::Persistent<Observer> observer_;
@@ -289,7 +290,7 @@ struct CefScriptForbiddenScope::Impl {
 
 CefScriptForbiddenScope::CefScriptForbiddenScope() : impl_(new Impl()) {}
 
-CefScriptForbiddenScope::~CefScriptForbiddenScope() {}
+CefScriptForbiddenScope::~CefScriptForbiddenScope() = default;
 
 bool ResponseWasCached(const blink::WebURLResponse& response) {
   return response.ToResourceResponse().WasCached();

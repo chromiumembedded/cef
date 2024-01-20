@@ -12,7 +12,8 @@ namespace {
 
 class CefSharedMemoryRegionImpl final : public CefSharedMemoryRegion {
  public:
-  CefSharedMemoryRegionImpl(base::WritableSharedMemoryMapping&& mapping)
+  explicit CefSharedMemoryRegionImpl(
+      base::WritableSharedMemoryMapping&& mapping)
       : mapping_(std::move(mapping)) {}
   CefSharedMemoryRegionImpl(const CefSharedMemoryRegionImpl&) = delete;
   CefSharedMemoryRegionImpl& operator=(const CefSharedMemoryRegionImpl&) =

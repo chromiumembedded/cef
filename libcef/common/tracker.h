@@ -36,8 +36,8 @@ class CefTrackNode {
   void RemoveTracking();
 
  private:
-  CefTrackNode* track_next_;
-  CefTrackNode* track_prev_;
+  CefTrackNode* track_next_ = nullptr;
+  CefTrackNode* track_prev_ = nullptr;
 
   friend class CefTrackManager;
 };
@@ -67,7 +67,7 @@ class CefTrackManager : public CefBaseRefCounted {
 
  private:
   CefTrackNode tracker_;
-  int object_count_;
+  int object_count_ = 0;
 
   base::Lock lock_;
 

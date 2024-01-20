@@ -162,7 +162,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   if (!window_info_.parent_window) {
     const bool has_menu =
-        !(window_info_.style & WS_CHILD) && (window_info_.menu != NULL);
+        !(window_info_.style & WS_CHILD) && (window_info_.menu != nullptr);
     window_rect = GetAdjustedScreenFrameRect(window_rect, window_info_.style,
                                              window_info_.ex_style, has_menu);
   }
@@ -172,7 +172,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
                  window_info_.style, window_rect.x, window_rect.y,
                  window_rect.width, window_rect.height,
                  window_info_.parent_window, window_info_.menu,
-                 ::GetModuleHandle(NULL), this);
+                 ::GetModuleHandle(nullptr), this);
 
   // It's possible for CreateWindowEx to fail if the parent window was
   // destroyed between the call to CreateBrowser and the above one.
@@ -248,7 +248,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 }
 
 void CefBrowserPlatformDelegateNativeWin::CloseHostWindow() {
-  if (window_info_.window != NULL) {
+  if (window_info_.window != nullptr) {
     HWND frameWnd = GetAncestor(window_info_.window, GA_ROOT);
     PostMessage(frameWnd, WM_CLOSE, 0, 0);
   }
@@ -361,13 +361,13 @@ void CefBrowserPlatformDelegateNativeWin::SizeTo(int width, int height) {
 
   const DWORD style = GetWindowLong(window, GWL_STYLE);
   const DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
-  const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
+  const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != nullptr);
 
   const auto frame_rect = GetScreenFrameRectFromDIPContentRect(
       window, gfx::Rect(0, 0, width, height), style, ex_style, has_menu);
 
   // Size the window. The left/top values may be negative.
-  SetWindowPos(window, NULL, 0, 0, frame_rect.width, frame_rect.height,
+  SetWindowPos(window, nullptr, 0, 0, frame_rect.width, frame_rect.height,
                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 
@@ -421,7 +421,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
     const content::NativeWebKeyboardEvent& event) const {
   if (!event.os_event) {
-    return NULL;
+    return nullptr;
   }
   return ChromeToWindowsType(
       const_cast<CHROME_MSG*>(&event.os_event->native_event()));
@@ -496,13 +496,13 @@ void CefBrowserPlatformDelegateNativeWin::RegisterWindowClass() {
       /* lpfnWndProc = */ CefBrowserPlatformDelegateNativeWin::WndProc,
       /* cbClsExtra = */ 0,
       /* cbWndExtra = */ 0,
-      /* hInstance = */ ::GetModuleHandle(NULL),
-      /* hIcon = */ NULL,
-      /* hCursor = */ LoadCursor(NULL, IDC_ARROW),
-      /* hbrBackground = */ 0,
-      /* lpszMenuName = */ NULL,
+      /* hInstance = */ ::GetModuleHandle(nullptr),
+      /* hIcon = */ nullptr,
+      /* hCursor = */ LoadCursor(nullptr, IDC_ARROW),
+      /* hbrBackground = */ nullptr,
+      /* lpszMenuName = */ nullptr,
       /* lpszClassName = */ CefBrowserPlatformDelegateNativeWin::GetWndClass(),
-      /* hIconSm = */ NULL,
+      /* hIconSm = */ nullptr,
   };
   RegisterClassEx(&wcex);
 
@@ -568,7 +568,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
     case WM_NCDESTROY:
       if (platform_delegate) {
         // Clear the user data pointer.
-        gfx::SetWindowUserData(hwnd, NULL);
+        gfx::SetWindowUserData(hwnd, nullptr);
 
         // Force the browser to be destroyed. This will result in a call to
         // BrowserDestroyed() that will release the reference added in
@@ -584,7 +584,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // will cause the widget to be hidden which reduces resource usage.
         RECT rc;
         GetClientRect(hwnd, &rc);
-        SetWindowPos(HWNDForWidget(platform_delegate->window_widget_), NULL,
+        SetWindowPos(HWNDForWidget(platform_delegate->window_widget_), nullptr,
                      rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
                      SWP_NOZORDER);
       }
@@ -614,8 +614,8 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // Suggested size and position of the current window scaled for the
         // new DPI.
         const RECT* rect = reinterpret_cast<RECT*>(lParam);
-        SetWindowPos(platform_delegate->GetHostWindowHandle(), NULL, rect->left,
-                     rect->top, rect->right - rect->left,
+        SetWindowPos(platform_delegate->GetHostWindowHandle(), nullptr,
+                     rect->left, rect->top, rect->right - rect->left,
                      rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
       }
       break;

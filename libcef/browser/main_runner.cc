@@ -34,6 +34,8 @@
 #if BUILDFLAG(IS_WIN)
 #include <Objbase.h>
 #include <windows.h>
+
+#include <memory>
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
@@ -498,7 +500,7 @@ int CefMainRunner::RunMainProcess(
 bool CefMainRunner::CreateUIThread(base::OnceClosure setup_callback) {
   DCHECK(!ui_thread_);
 
-  ui_thread_.reset(new CefUIThread(this, std::move(setup_callback)));
+  ui_thread_ = std::make_unique<CefUIThread>(this, std::move(setup_callback));
   ui_thread_->Start();
   ui_thread_->WaitUntilThreadStarted();
 

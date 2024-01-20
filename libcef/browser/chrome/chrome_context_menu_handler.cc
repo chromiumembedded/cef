@@ -132,7 +132,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
 
  private:
   struct ItemInfo {
-    ItemInfo() {}
+    ItemInfo() = default;
 
     bool checked = false;
     absl::optional<ui::Accelerator> accel;

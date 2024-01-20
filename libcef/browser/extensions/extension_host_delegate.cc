@@ -15,7 +15,7 @@ namespace extensions {
 CefExtensionHostDelegate::CefExtensionHostDelegate(
     AlloyBrowserHostImpl* browser) {}
 
-CefExtensionHostDelegate::~CefExtensionHostDelegate() {}
+CefExtensionHostDelegate::~CefExtensionHostDelegate() = default;
 
 void CefExtensionHostDelegate::OnExtensionHostCreated(
     content::WebContents* web_contents) {}

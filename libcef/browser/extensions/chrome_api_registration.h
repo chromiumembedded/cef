@@ -9,9 +9,7 @@
 
 class ExtensionFunctionRegistry;
 
-namespace extensions {
-namespace api {
-namespace cef {
+namespace extensions::api::cef {
 
 // Array of currently supported APIs.
 extern const char* const kSupportedAPIs[];
@@ -22,8 +20,6 @@ class ChromeFunctionRegistry {
   static void RegisterAll(ExtensionFunctionRegistry* registry);
 };
 
-}  // namespace cef
-}  // namespace api
-}  // namespace extensions
+}  // namespace extensions::api::cef
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_CHROME_API_REGISTRATION_H_

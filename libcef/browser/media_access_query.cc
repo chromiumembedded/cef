@@ -146,8 +146,8 @@ class CefMediaAccessQuery {
     }
 
     if (desktop_audio_requested()) {
-      audio_devices.push_back(blink::MediaStreamDevice(
-          request_.audio_type, "loopback", "System Audio"));
+      audio_devices.emplace_back(request_.audio_type, "loopback",
+                                 "System Audio");
     }
 
     if (desktop_video_requested()) {
@@ -160,8 +160,8 @@ class CefMediaAccessQuery {
         media_id =
             content::DesktopMediaID::Parse(request_.requested_video_device_id);
       }
-      video_devices.push_back(blink::MediaStreamDevice(
-          request_.video_type, media_id.ToString(), "Screen"));
+      video_devices.emplace_back(request_.video_type, media_id.ToString(),
+                                 "Screen");
     }
 
     blink::mojom::StreamDevicesSetPtr stream_devices_set =

@@ -5,6 +5,8 @@
 
 #include "libcef/browser/alloy/chrome_browser_process_alloy.h"
 
+#include <memory>
+
 #include "libcef/browser/alloy/chrome_profile_manager_alloy.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/context.h"
@@ -37,11 +39,7 @@
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-ChromeBrowserProcessAlloy::ChromeBrowserProcessAlloy()
-    : initialized_(false),
-      context_initialized_(false),
-      shutdown_(false),
-      locale_("en-US") {}
+ChromeBrowserProcessAlloy::ChromeBrowserProcessAlloy() : locale_("en-US") {}
 
 ChromeBrowserProcessAlloy::~ChromeBrowserProcessAlloy() {
   DCHECK((!initialized_ && !context_initialized_) || shutdown_);
@@ -64,10 +62,10 @@ void ChromeBrowserProcessAlloy::Initialize() {
   if (extensions::ExtensionsEnabled()) {
     // Initialize extension global objects before creating the global
     // BrowserContext.
-    extensions_client_.reset(new extensions::CefExtensionsClient());
+    extensions_client_ = std::make_unique<extensions::CefExtensionsClient>();
     extensions::ExtensionsClient::Set(extensions_client_.get());
-    extensions_browser_client_.reset(
-        new extensions::CefExtensionsBrowserClient);
+    extensions_browser_client_ =
+        std::make_unique<extensions::CefExtensionsBrowserClient>();
     extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
   }
 
@@ -84,8 +82,8 @@ void ChromeBrowserProcessAlloy::OnContextInitialized() {
   DCHECK(!shutdown_);
 
   // Must be created after the NotificationService.
-  print_job_manager_.reset(new printing::PrintJobManager());
-  profile_manager_.reset(new ChromeProfileManagerAlloy());
+  print_job_manager_ = std::make_unique<printing::PrintJobManager>();
+  profile_manager_ = std::make_unique<ChromeProfileManagerAlloy>();
   event_router_forwarder_ = new extensions::EventRouterForwarder();
   context_initialized_ = true;
 }
@@ -282,8 +280,8 @@ ChromeBrowserProcessAlloy::print_preview_dialog_controller() {
 printing::BackgroundPrintingManager*
 ChromeBrowserProcessAlloy::background_printing_manager() {
   if (!background_printing_manager_.get()) {
-    background_printing_manager_.reset(
-        new printing::BackgroundPrintingManager());
+    background_printing_manager_ =
+        std::make_unique<printing::BackgroundPrintingManager>();
   }
   return background_printing_manager_.get();
 }

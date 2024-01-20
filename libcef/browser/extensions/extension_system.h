@@ -155,7 +155,7 @@ class CefExtensionSystem : public ExtensionSystem {
 
   content::BrowserContext* browser_context_;  // Not owned.
 
-  bool initialized_;
+  bool initialized_ = false;
 
   std::unique_ptr<ServiceWorkerManager> service_worker_manager_;
   std::unique_ptr<QuotaService> quota_service_;

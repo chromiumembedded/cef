@@ -14,9 +14,7 @@
 
 #include "base/strings/string_piece.h"
 
-namespace extensions {
-namespace api {
-namespace cef {
+namespace extensions::api::cef {
 
 class ChromeGeneratedSchemas {
  public:
@@ -27,8 +25,6 @@ class ChromeGeneratedSchemas {
   static base::StringPiece Get(const std::string& name);
 };
 
-}  // namespace cef
-}  // namespace api
-}  // namespace extensions
+}  // namespace extensions::api::cef
 
 #endif  // CEF_LIBCEF_COMMON_EXTENSIONS_CHROME_GENERATED_SCHEMAS_H_

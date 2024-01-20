@@ -198,8 +198,8 @@ void CefDragDataImpl::AddFile(const CefString& path,
                               const CefString& display_name) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.filenames.push_back(
-      ui::FileInfo(base::FilePath(path), base::FilePath(display_name)));
+  data_.filenames.emplace_back(base::FilePath(path),
+                               base::FilePath(display_name));
 }
 
 void CefDragDataImpl::ClearFilenames() {

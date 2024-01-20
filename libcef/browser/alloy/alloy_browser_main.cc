@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include <memory>
 #include <string>
 
 #include "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h"
@@ -206,7 +207,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 
-  wm_state_.reset(new wm::WMState);
+  wm_state_ = std::make_unique<wm::WMState>();
 #endif  // defined(USE_AURA)
 
 #if BUILDFLAG(IS_MAC)

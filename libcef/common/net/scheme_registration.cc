@@ -38,9 +38,7 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
 
   // The |is_display_isolated| value is excluded here because it's registered
   // with Blink only.
-  for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
-       ++i) {
-    const auto& scheme = internal_schemes[i];
+  for (const auto& scheme : internal_schemes) {
     if (scheme.is_standard) {
       schemes->standard_schemes.push_back(scheme.scheme_name);
       if (!scheme.is_local && !scheme.is_display_isolated) {
@@ -81,8 +79,8 @@ bool IsInternalHandledScheme(const std::string& scheme) {
       url::kWssScheme,
   };
 
-  for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
-    if (scheme == schemes[i]) {
+  for (auto& i : schemes) {
+    if (scheme == i) {
       return true;
     }
   }

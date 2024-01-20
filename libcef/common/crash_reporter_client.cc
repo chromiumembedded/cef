@@ -112,8 +112,8 @@ bool isInvalidFileCharacter(unsigned char c) {
   if (c < ' ' || c == 0x7F) {
     return true;
   }
-  for (size_t i = 0; i < sizeof(kInvalidFileChars); ++i) {
-    if (c == kInvalidFileChars[i]) {
+  for (char kInvalidFileChar : kInvalidFileChars) {
+    if (c == kInvalidFileChar) {
       return true;
     }
   }
@@ -201,8 +201,7 @@ std::string sanitizePath(const std::string& s) {
   std::vector<std::string> parts =
       base::SplitString(path, std::string() + kPathSep, base::KEEP_WHITESPACE,
                         base::SPLIT_WANT_NONEMPTY);
-  for (size_t i = 0; i < parts.size(); ++i) {
-    std::string part = parts[i];
+  for (auto part : parts) {
     if (part != "." && part != "..") {
       part = sanitizePathComponent(part);
     }
@@ -371,8 +370,8 @@ bool GetDefaultCrashDumpLocation(std::wstring* crash_dir,
 
 #endif  // OS_WIN
 
-CefCrashReporterClient::CefCrashReporterClient() {}
-CefCrashReporterClient::~CefCrashReporterClient() {}
+CefCrashReporterClient::CefCrashReporterClient() = default;
+CefCrashReporterClient::~CefCrashReporterClient() = default;
 
 // Be aware that logging is not initialized at the time this method is called.
 bool CefCrashReporterClient::ReadCrashConfigFile() {
@@ -535,10 +534,10 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
                   "Not enough storage for key map");
 
     size_t offset = 0;
-    for (size_t i = 0; i < std::size(ids); ++i) {
+    for (auto& id : ids) {
       size_t length = std::min(map_keys.size() - offset,
                                crashpad::Annotation::kValueMaxSize);
-      ids[i].Set(base::StringPiece(map_keys.data() + offset, length));
+      id.Set(base::StringPiece(map_keys.data() + offset, length));
       offset += length;
       if (offset >= map_keys.size()) {
         break;
@@ -690,7 +689,7 @@ std::string CefCrashReporterClient::GetUploadUrl() {
 void CefCrashReporterClient::GetCrashOptionalArguments(
     std::vector<std::string>* arguments) {
   if (!rate_limit_) {
-    arguments->push_back(std::string("--no-rate-limit"));
+    arguments->emplace_back("--no-rate-limit");
   }
 
   if (max_uploads_ > 0) {

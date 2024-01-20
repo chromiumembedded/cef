@@ -42,7 +42,7 @@ void CefV8SetWorkerAttributes(int worker_id, const GURL& worker_url);
 // Used to detach handles when the associated context is released.
 class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
  public:
-  CefV8ContextState() : valid_(true) {}
+  CefV8ContextState() = default;
 
   bool IsValid() { return valid_; }
   void Detach() {
@@ -64,9 +64,9 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
  private:
   friend class base::RefCounted<CefV8ContextState>;
 
-  ~CefV8ContextState() {}
+  ~CefV8ContextState() = default;
 
-  bool valid_;
+  bool valid_ = true;
   CefTrackManager track_manager_;
 };
 
@@ -327,10 +327,10 @@ class CefV8ValueImpl : public CefV8Value {
     CefTrackNode* tracker_;
 
     // True if the handle needs to persist due to it being passed into V8.
-    bool should_persist_;
+    bool should_persist_ = false;
 
     // True if the handle has been set as weak.
-    bool is_set_weak_;
+    bool is_set_weak_ = false;
   };
 
   v8::Isolate* isolate_;
@@ -407,10 +407,10 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   CefString script_name_;
   CefString script_name_or_source_url_;
   CefString function_name_;
-  int line_number_;
-  int column_;
-  bool is_eval_;
-  bool is_constructor_;
+  int line_number_ = 0;
+  int column_ = 0;
+  bool is_eval_ = false;
+  bool is_constructor_ = false;
 
   IMPLEMENT_REFCOUNTING(CefV8StackFrameImpl);
 };

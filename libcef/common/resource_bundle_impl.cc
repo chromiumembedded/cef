@@ -7,7 +7,7 @@
 #include "base/memory/ref_counted_memory.h"
 #include "ui/base/resource/resource_bundle.h"
 
-CefResourceBundleImpl::CefResourceBundleImpl() {}
+CefResourceBundleImpl::CefResourceBundleImpl() = default;
 
 CefString CefResourceBundleImpl::GetLocalizedString(int string_id) {
   if (!ui::ResourceBundle::HasSharedInstance()) {

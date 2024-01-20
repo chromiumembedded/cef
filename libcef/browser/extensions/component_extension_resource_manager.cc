@@ -33,7 +33,8 @@ CefComponentExtensionResourceManager::CefComponentExtensionResourceManager() {
       std::move(pdf_viewer_replacements);
 }
 
-CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() {}
+CefComponentExtensionResourceManager::~CefComponentExtensionResourceManager() =
+    default;
 
 bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
     const base::FilePath& extension_path,

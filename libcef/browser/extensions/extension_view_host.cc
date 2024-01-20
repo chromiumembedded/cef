@@ -33,7 +33,7 @@ CefExtensionViewHost::CefExtensionViewHost(AlloyBrowserHostImpl* browser,
   DCHECK(host_type == mojom::ViewType::kExtensionPopup);
 }
 
-CefExtensionViewHost::~CefExtensionViewHost() {}
+CefExtensionViewHost::~CefExtensionViewHost() = default;
 
 void CefExtensionViewHost::OnDidStopFirstLoad() {
   // Nothing to do here, but don't call the base class method.

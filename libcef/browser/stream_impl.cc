@@ -145,8 +145,7 @@ int CefFileWriter::Flush() {
 
 // CefBytesReader
 
-CefBytesReader::CefBytesReader(void* data, int64_t datasize, bool copy)
-    : data_(nullptr), datasize_(0), copy_(false), offset_(0) {
+CefBytesReader::CefBytesReader(void* data, int64_t datasize, bool copy) {
   SetData(data, datasize, copy);
 }
 
@@ -228,8 +227,7 @@ void CefBytesReader::SetData(void* data, int64_t datasize, bool copy) {
 
 // CefBytesWriter
 
-CefBytesWriter::CefBytesWriter(size_t grow)
-    : grow_(grow), datasize_(grow), offset_(0) {
+CefBytesWriter::CefBytesWriter(size_t grow) : grow_(grow), datasize_(grow) {
   DCHECK(grow > 0);
   data_ = malloc(grow);
   DCHECK(data_ != nullptr);

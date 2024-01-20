@@ -32,7 +32,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefCallback {
   CefAllowCertificateErrorCallbackImpl& operator=(
       const CefAllowCertificateErrorCallbackImpl&) = delete;
 
-  ~CefAllowCertificateErrorCallbackImpl() {
+  ~CefAllowCertificateErrorCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {

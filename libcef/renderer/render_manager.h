@@ -43,7 +43,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
   CefRenderManager(const CefRenderManager&) = delete;
   CefRenderManager& operator=(const CefRenderManager&) = delete;
 
-  ~CefRenderManager();
+  ~CefRenderManager() override;
 
   // Returns this singleton instance of this class.
   static CefRenderManager* Get();

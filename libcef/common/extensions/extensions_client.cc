@@ -36,7 +36,7 @@ CefExtensionsClient::CefExtensionsClient()
   AddAPIProvider(std::make_unique<CefExtensionsAPIProvider>());
 }
 
-CefExtensionsClient::~CefExtensionsClient() {}
+CefExtensionsClient::~CefExtensionsClient() = default;
 
 void CefExtensionsClient::Initialize() {}
 

@@ -85,12 +85,10 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                      content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragOperation(ui::mojom::DragOperation operation,
                            bool document_is_handling_drag) override;
-  virtual void GotFocus(
-      content::RenderWidgetHostImpl* render_widget_host) override;
-  virtual void LostFocus(
-      content::RenderWidgetHostImpl* render_widget_host) override;
-  virtual void TakeFocus(bool reverse) override;
-  virtual void FullscreenStateChanged(bool is_fullscreen) override {}
+  void GotFocus(content::RenderWidgetHostImpl* render_widget_host) override;
+  void LostFocus(content::RenderWidgetHostImpl* render_widget_host) override;
+  void TakeFocus(bool reverse) override;
+  void FullscreenStateChanged(bool is_fullscreen) override {}
 
  private:
   CefRenderWidgetHostViewOSR* GetView() const;
@@ -101,7 +99,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   const bool use_shared_texture_;
   const bool use_external_begin_frame_;
 
-  content::WebContents* web_contents_;
+  content::WebContents* web_contents_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_WEB_CONTENTS_VIEW_OSR_H_

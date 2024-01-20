@@ -21,9 +21,7 @@
 
 using content::BrowserThread;
 
-namespace extensions {
-
-namespace cef {
+namespace extensions::cef {
 
 namespace {
 
@@ -101,5 +99,4 @@ value_store::ValueStore* SyncValueStoreCache::GetStorage(
   storage_map_[extension->id()] = std::move(storage);
   return storage_ptr;
 }
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef

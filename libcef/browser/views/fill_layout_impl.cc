@@ -14,7 +14,7 @@ CefRefPtr<CefFillLayout> CefFillLayoutImpl::Create(views::View* owner_view) {
   return impl;
 }
 
-CefFillLayoutImpl::CefFillLayoutImpl() {}
+CefFillLayoutImpl::CefFillLayoutImpl() = default;
 
 views::FillLayout* CefFillLayoutImpl::CreateLayout() {
   return new views::FillLayout();

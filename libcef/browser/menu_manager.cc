@@ -44,7 +44,7 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
   CefRunContextMenuCallbackImpl& operator=(
       const CefRunContextMenuCallbackImpl&) = delete;
 
-  ~CefRunContextMenuCallbackImpl() {
+  ~CefRunContextMenuCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
@@ -95,7 +95,7 @@ CefMenuManager::CefMenuManager(AlloyBrowserHostImpl* browser,
     : content::WebContentsObserver(browser->web_contents()),
       browser_(browser),
       runner_(std::move(runner)),
-      custom_menu_callback_(nullptr),
+
       weak_ptr_factory_(this) {
   DCHECK(web_contents());
   model_ = new CefMenuModelImpl(this, nullptr, false);
@@ -497,8 +497,8 @@ bool CefMenuManager::IsCustomContextMenuCommand(int command_id) {
 
   // Verify that the specific command ID was passed from the renderer process.
   if (!params_.custom_items.empty()) {
-    for (size_t i = 0; i < params_.custom_items.size(); ++i) {
-      if (static_cast<int>(params_.custom_items[i]->action) == command_id) {
+    for (const auto& custom_item : params_.custom_items) {
+      if (static_cast<int>(custom_item->action) == command_id) {
         return true;
       }
     }

@@ -32,7 +32,7 @@ CefBrowserContext* GetActiveBrowserContext() {
 ChromeProfileManagerAlloy::ChromeProfileManagerAlloy()
     : ProfileManager(base::FilePath()) {}
 
-ChromeProfileManagerAlloy::~ChromeProfileManagerAlloy() {}
+ChromeProfileManagerAlloy::~ChromeProfileManagerAlloy() = default;
 
 Profile* ChromeProfileManagerAlloy::GetProfile(
     const base::FilePath& profile_dir) {

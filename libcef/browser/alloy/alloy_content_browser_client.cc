@@ -196,7 +196,7 @@ class CefSelectClientCertificateCallbackImpl
   CefSelectClientCertificateCallbackImpl& operator=(
       const CefSelectClientCertificateCallbackImpl&) = delete;
 
-  ~CefSelectClientCertificateCallbackImpl() {
+  ~CefSelectClientCertificateCallbackImpl() override {
     // If Select has not been called, call it with NULL to continue without any
     // client certificate.
     if (delegate_) {
@@ -792,9 +792,8 @@ base::OnceClosure AlloyContentBrowserClient::SelectClientCertificate(
   }
 
   CefRequestHandler::X509CertificateList certs;
-  for (net::ClientCertIdentityList::iterator iter = client_certs.begin();
-       iter != client_certs.end(); iter++) {
-    certs.push_back(new CefX509CertificateImpl(std::move(*iter)));
+  for (auto& client_cert : client_certs) {
+    certs.push_back(new CefX509CertificateImpl(std::move(client_cert)));
   }
 
   CefRefPtr<CefSelectClientCertificateCallbackImpl> callbackImpl(

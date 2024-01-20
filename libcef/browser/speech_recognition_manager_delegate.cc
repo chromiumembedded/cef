@@ -35,7 +35,8 @@ CefSpeechRecognitionManagerDelegate ::CefSpeechRecognitionManagerDelegate() {
       command_line->HasSwitch(switches::kEnableProfanityFilter);
 }
 
-CefSpeechRecognitionManagerDelegate ::~CefSpeechRecognitionManagerDelegate() {}
+CefSpeechRecognitionManagerDelegate ::~CefSpeechRecognitionManagerDelegate() =
+    default;
 
 void CefSpeechRecognitionManagerDelegate::OnRecognitionStart(int session_id) {}
 

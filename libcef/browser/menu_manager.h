@@ -72,7 +72,7 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
   content::ContextMenuParams params_;
 
   // Not owned by this class.
-  CefRunContextMenuCallback* custom_menu_callback_;
+  CefRunContextMenuCallback* custom_menu_callback_ = nullptr;
 
   // Must be the last member.
   base::WeakPtrFactory<CefMenuManager> weak_ptr_factory_;

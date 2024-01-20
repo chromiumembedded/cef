@@ -92,7 +92,7 @@ class ResourceContextData : public base::SupportsUserData::Data {
   ResourceContextData(const ResourceContextData&) = delete;
   ResourceContextData& operator=(const ResourceContextData&) = delete;
 
-  ~ResourceContextData() override {}
+  ~ResourceContextData() override = default;
 
   static void AddProxyOnUIThread(
       ProxyURLLoaderFactory* proxy,
@@ -1250,8 +1250,8 @@ void InterceptedRequest::OnUploadProgressACK() {
 // InterceptedRequestHandler
 //==============================
 
-InterceptedRequestHandler::InterceptedRequestHandler() {}
-InterceptedRequestHandler::~InterceptedRequestHandler() {}
+InterceptedRequestHandler::InterceptedRequestHandler() = default;
+InterceptedRequestHandler::~InterceptedRequestHandler() = default;
 
 void InterceptedRequestHandler::OnBeforeRequest(
     int32_t request_id,

@@ -19,7 +19,7 @@ CefMimeHandlerViewGuestDelegate::CefMimeHandlerViewGuestDelegate(
     MimeHandlerViewGuest* guest)
     : guest_(guest), owner_web_contents_(guest_->owner_web_contents()) {}
 
-CefMimeHandlerViewGuestDelegate::~CefMimeHandlerViewGuestDelegate() {}
+CefMimeHandlerViewGuestDelegate::~CefMimeHandlerViewGuestDelegate() = default;
 
 void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
     content::WebContents::CreateParams* params) {

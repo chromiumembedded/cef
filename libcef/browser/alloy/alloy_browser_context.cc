@@ -5,6 +5,7 @@
 #include "libcef/browser/alloy/alloy_browser_context.h"
 
 #include <map>
+#include <memory>
 #include <utility>
 
 #include "libcef/browser/download_manager_delegate.h"
@@ -167,15 +168,15 @@ void AlloyBrowserContext::Initialize() {
     visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
   }
   visitedlink_listener_ = new CefVisitedLinkListener;
-  visitedlink_master_.reset(new visitedlink::VisitedLinkWriter(
+  visitedlink_master_ = std::make_unique<visitedlink::VisitedLinkWriter>(
       visitedlink_listener_, this, !visited_link_path.empty(), false,
-      visited_link_path, 0));
+      visited_link_path, 0);
   visitedlink_listener_->CreateListenerForContext(this);
   visitedlink_master_->Init();
 
   // Initialize proxy configuration tracker.
-  pref_proxy_config_tracker_.reset(new PrefProxyConfigTrackerImpl(
-      GetPrefs(), content::GetIOThreadTaskRunner({})));
+  pref_proxy_config_tracker_ = std::make_unique<PrefProxyConfigTrackerImpl>(
+      GetPrefs(), content::GetIOThreadTaskRunner({}));
 
   // Spell checking support and possibly other subsystems retrieve the
   // PrefService associated with a BrowserContext via UserPrefs::Get().
@@ -355,8 +356,8 @@ AlloyBrowserContext::CreateZoomLevelDelegate(
 content::DownloadManagerDelegate*
 AlloyBrowserContext::GetDownloadManagerDelegate() {
   if (!download_manager_delegate_) {
-    download_manager_delegate_.reset(
-        new CefDownloadManagerDelegate(GetDownloadManager()));
+    download_manager_delegate_ =
+        std::make_unique<CefDownloadManagerDelegate>(GetDownloadManager());
   }
   return download_manager_delegate_.get();
 }
@@ -388,7 +389,7 @@ AlloyBrowserContext::GetStorageNotificationService() {
 
 content::SSLHostStateDelegate* AlloyBrowserContext::GetSSLHostStateDelegate() {
   if (!ssl_host_state_delegate_) {
-    ssl_host_state_delegate_.reset(new CefSSLHostStateDelegate());
+    ssl_host_state_delegate_ = std::make_unique<CefSSLHostStateDelegate>();
   }
   return ssl_host_state_delegate_.get();
 }
@@ -475,7 +476,7 @@ void AlloyBrowserContext::RebuildTable(
 DownloadPrefs* AlloyBrowserContext::GetDownloadPrefs() {
   CEF_REQUIRE_UIT();
   if (!download_prefs_) {
-    download_prefs_.reset(new DownloadPrefs(this));
+    download_prefs_ = std::make_unique<DownloadPrefs>(this);
   }
   return download_prefs_.get();
 }

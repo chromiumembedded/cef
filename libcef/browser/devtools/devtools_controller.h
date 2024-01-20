@@ -36,7 +36,7 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
     virtual void OnDevToolsControllerDestroyed() = 0;
 
    protected:
-    ~Observer() override {}
+    ~Observer() override = default;
   };
 
   // |inspected_contents| will outlive this object.

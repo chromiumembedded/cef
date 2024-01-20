@@ -162,8 +162,8 @@ bool IsBoringCEFSwitch(const std::string& flag) {
 
   size_t end = flag.find("=");
   size_t len = (end == std::string::npos) ? flag.length() - 2 : end - 2;
-  for (size_t i = 0; i < std::size(kIgnoreSwitches); ++i) {
-    if (flag.compare(2, len, kIgnoreSwitches[i]) == 0) {
+  for (auto kIgnoreSwitche : kIgnoreSwitches) {
+    if (flag.compare(2, len, kIgnoreSwitche) == 0) {
       return true;
     }
   }

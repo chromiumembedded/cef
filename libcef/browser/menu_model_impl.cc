@@ -5,6 +5,7 @@
 
 #include "libcef/browser/menu_model_impl.h"
 
+#include <memory>
 #include <vector>
 
 #include "libcef/browser/thread_util.h"
@@ -247,10 +248,10 @@ CefMenuModelImpl::CefMenuModelImpl(
       menu_model_delegate_(menu_model_delegate),
       is_submenu_(is_submenu) {
   DCHECK(delegate_ || menu_model_delegate_);
-  model_.reset(new CefSimpleMenuModel(this));
+  model_ = std::make_unique<CefSimpleMenuModel>(this);
 }
 
-CefMenuModelImpl::~CefMenuModelImpl() {}
+CefMenuModelImpl::~CefMenuModelImpl() = default;
 
 bool CefMenuModelImpl::IsSubMenu() {
   if (!VerifyContext()) {
@@ -986,9 +987,9 @@ bool CefMenuModelImpl::VerifyRefCount() {
     return false;
   }
 
-  for (ItemVector::iterator i = items_.begin(); i != items_.end(); ++i) {
-    if ((*i).submenu_.get()) {
-      if (!(*i).submenu_->VerifyRefCount()) {
+  for (auto& item : items_) {
+    if (item.submenu_.get()) {
+      if (!item.submenu_->VerifyRefCount()) {
         return false;
       }
     }
@@ -1017,8 +1018,8 @@ void CefMenuModelImpl::AddMenuItem(
     case blink::mojom::CustomContextMenuItemType::kSubMenu: {
       CefRefPtr<CefMenuModelImpl> sub_menu = static_cast<CefMenuModelImpl*>(
           AddSubMenu(command_id, menu_item.label).get());
-      for (size_t i = 0; i < menu_item.submenu.size(); ++i) {
-        sub_menu->AddMenuItem(*menu_item.submenu[i]);
+      for (const auto& i : menu_item.submenu) {
+        sub_menu->AddMenuItem(*i);
       }
       break;
     }

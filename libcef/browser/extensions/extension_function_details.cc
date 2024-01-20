@@ -4,6 +4,8 @@
 
 #include "libcef/browser/extensions/extension_function_details.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -42,7 +44,7 @@ class CefGetExtensionLoadFileCallbackImpl
   CefGetExtensionLoadFileCallbackImpl& operator=(
       const CefGetExtensionLoadFileCallbackImpl&) = delete;
 
-  ~CefGetExtensionLoadFileCallbackImpl() {
+  ~CefGetExtensionLoadFileCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
@@ -139,7 +141,7 @@ CefExtensionFunctionDetails::CefExtensionFunctionDetails(
     ExtensionFunction* function)
     : function_(function) {}
 
-CefExtensionFunctionDetails::~CefExtensionFunctionDetails() {}
+CefExtensionFunctionDetails::~CefExtensionFunctionDetails() = default;
 
 Profile* CefExtensionFunctionDetails::GetProfile() const {
   return Profile::FromBrowserContext(function_->browser_context());
@@ -285,9 +287,9 @@ bool CefExtensionFunctionDetails::LoadFile(const std::string& file,
   return false;
 }
 
-CefExtensionFunctionDetails::OpenTabParams::OpenTabParams() {}
+CefExtensionFunctionDetails::OpenTabParams::OpenTabParams() = default;
 
-CefExtensionFunctionDetails::OpenTabParams::~OpenTabParams() {}
+CefExtensionFunctionDetails::OpenTabParams::~OpenTabParams() = default;
 
 std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
     const OpenTabParams& params,
@@ -369,7 +371,7 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   CefBrowserCreateParams create_params;
   create_params.url = url.spec();
   create_params.request_context = request_context;
-  create_params.window_info.reset(new CefWindowInfo);
+  create_params.window_info = std::make_unique<CefWindowInfo>();
 
 #if BUILDFLAG(IS_WIN)
   create_params.window_info->SetAsPopup(nullptr, CefString());

@@ -4,6 +4,8 @@
 
 #include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
 
+#include <memory>
+
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
@@ -173,8 +175,8 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
       CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(web_contents_));
 
   // Used for print preview and JavaScript dialogs.
-  web_contents_dialog_helper_.reset(
-      new AlloyWebContentsDialogHelper(web_contents_, this));
+  web_contents_dialog_helper_ =
+      std::make_unique<AlloyWebContentsDialogHelper>(web_contents_, this);
 }
 
 void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(

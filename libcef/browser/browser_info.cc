@@ -4,6 +4,8 @@
 
 #include "libcef/browser/browser_info.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/frame_util.h"
@@ -542,7 +544,8 @@ CefBrowserInfo::NotificationStateLock::NotificationStateLock(
   }
 
   // Take the browser info state lock.
-  browser_info_lock_scope_.reset(new base::AutoLock(browser_info_->lock_));
+  browser_info_lock_scope_ =
+      std::make_unique<base::AutoLock>(browser_info_->lock_);
 }
 
 CefBrowserInfo::NotificationStateLock::~NotificationStateLock() {

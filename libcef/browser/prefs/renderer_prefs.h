@@ -12,11 +12,9 @@
 
 class CommandLinePrefStore;
 
-namespace blink {
-namespace web_pref {
+namespace blink::web_pref {
 struct WebPreferences;
 }
-}  // namespace blink
 
 namespace content {
 class RenderViewHost;

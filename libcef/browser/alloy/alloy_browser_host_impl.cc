@@ -5,6 +5,7 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -233,7 +234,7 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::GetBrowserForGlobalId(
 // AlloyBrowserHostImpl methods.
 // -----------------------------------------------------------------------------
 
-AlloyBrowserHostImpl::~AlloyBrowserHostImpl() {}
+AlloyBrowserHostImpl::~AlloyBrowserHostImpl() = default;
 
 void AlloyBrowserHostImpl::CloseBrowser(bool force_close) {
   if (CEF_CURRENTLY_ON_UIT()) {
@@ -1206,13 +1207,14 @@ void AlloyBrowserHostImpl::WebContentsCreated(
   CefRefPtr<AlloyBrowserHostImpl> browser =
       CreateInternal(settings, client, new_contents, /*own_web_contents=*/false,
                      info, opener, /*is_devtools_popup=*/false, request_context,
-                     std::move(platform_delegate), /*cef_extension=*/nullptr);
+                     std::move(platform_delegate), /*extension=*/nullptr);
 }
 
 content::JavaScriptDialogManager*
 AlloyBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
   if (!javascript_dialog_manager_) {
-    javascript_dialog_manager_.reset(new CefJavaScriptDialogManager(this));
+    javascript_dialog_manager_ =
+        std::make_unique<CefJavaScriptDialogManager>(this);
   }
   return javascript_dialog_manager_.get();
 }
@@ -1230,8 +1232,8 @@ bool AlloyBrowserHostImpl::ShowContextMenu(
     const content::ContextMenuParams& params) {
   CEF_REQUIRE_UIT();
   if (!menu_manager_.get() && platform_delegate_) {
-    menu_manager_.reset(
-        new CefMenuManager(this, platform_delegate_->CreateMenuRunner()));
+    menu_manager_ = std::make_unique<CefMenuManager>(
+        this, platform_delegate_->CreateMenuRunner());
   }
   return menu_manager_->CreateContextMenu(params);
 }
@@ -1402,7 +1404,8 @@ void AlloyBrowserHostImpl::StartAudioCapturer() {
     return;
   }
 
-  audio_capturer_.reset(new CefAudioCapturer(params, this, audio_handler));
+  audio_capturer_ =
+      std::make_unique<CefAudioCapturer>(params, this, audio_handler);
 }
 
 // AlloyBrowserHostImpl private methods.

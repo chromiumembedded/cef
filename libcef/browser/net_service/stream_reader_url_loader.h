@@ -27,7 +27,7 @@ class InputStreamReader;
 // sequence on a worker thread, but not necessarily on the same thread.
 class InputStream {
  public:
-  virtual ~InputStream() {}
+  virtual ~InputStream() = default;
 
   // Callback for asynchronous continuation of Skip(). If |bytes_skipped| > 0
   // then either Skip() will be called again until the requested number of
@@ -69,7 +69,7 @@ class InputStream {
 // called on the IO thread unless otherwise indicated.
 class ResourceResponse {
  public:
-  virtual ~ResourceResponse() {}
+  virtual ~ResourceResponse() = default;
 
   // Callback for asynchronous continuation of Open(). If the InputStream is
   // null the request will be canceled.

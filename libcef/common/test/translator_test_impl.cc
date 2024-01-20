@@ -390,8 +390,8 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
       return false;
     }
     val.clear();
-    val.push_back(CefPoint(TEST_X_VAL, TEST_Y_VAL));
-    val.push_back(CefPoint(TEST_X_VAL2, TEST_Y_VAL2));
+    val.emplace_back(TEST_X_VAL, TEST_Y_VAL);
+    val.emplace_back(TEST_X_VAL2, TEST_Y_VAL2);
     return true;
   }
 

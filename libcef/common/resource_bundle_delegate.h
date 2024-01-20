@@ -13,7 +13,7 @@ class AlloyContentClient;
 
 class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
  public:
-  CefResourceBundleDelegate() {}
+  CefResourceBundleDelegate() = default;
 
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
   bool pack_loading_disabled() const { return pack_loading_disabled_; }

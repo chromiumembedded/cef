@@ -29,19 +29,19 @@ class InternalHandlerDelegate {
     // Option 1: Provide a stream for the resource contents. Set |stream_size|
     // to the stream size or to -1 if unknown.
     CefRefPtr<CefStreamReader> stream;
-    int stream_size;
+    int stream_size = -1;
 
     // Option 2: Provide a base::RefCountedMemory for the resource contents.
     scoped_refptr<base::RefCountedMemory> bytes;
 
     // Option 3: Specify a resource id to load static content.
-    int resource_id;
+    int resource_id = -1;
 
     // Option 4: Redirect to the specified URL.
     GURL redirect_url;
   };
 
-  virtual ~InternalHandlerDelegate() {}
+  virtual ~InternalHandlerDelegate() = default;
 
   // Populate |action| and return true if the request was handled.
   virtual bool OnRequest(CefRefPtr<CefBrowser> browser,

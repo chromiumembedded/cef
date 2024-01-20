@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include <iomanip>
+#include <memory>
 #include <utility>
 
 #include "libcef/browser/browser_context.h"
@@ -256,7 +257,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   if (inspected_browser->is_views_hosted()) {
     create_params.popup_with_views_hosted_opener = true;
   } else {
-    create_params.window_info.reset(new CefWindowInfo(windowInfo));
+    create_params.window_info = std::make_unique<CefWindowInfo>(windowInfo);
   }
   create_params.client = client;
   create_params.settings = new_settings;
@@ -322,7 +323,7 @@ CefDevToolsFrontend::CefDevToolsFrontend(
   DCHECK(!frontend_destroyed_callback_.is_null());
 }
 
-CefDevToolsFrontend::~CefDevToolsFrontend() {}
+CefDevToolsFrontend::~CefDevToolsFrontend() = default;
 
 void CefDevToolsFrontend::ReadyToCommitNavigation(
     content::NavigationHandle* navigation_handle) {

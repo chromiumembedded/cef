@@ -13,9 +13,7 @@
 CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : window_info_(window_info),
-      background_color_(background_color),
-      windowless_handler_(nullptr) {}
+    : window_info_(window_info), background_color_(background_color) {}
 
 SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
   return background_color_;

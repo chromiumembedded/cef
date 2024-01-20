@@ -49,7 +49,7 @@ class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
  protected:
   // Create a new implementation object.
   // Always call Initialize() after creation.
-  CefLayoutImpl() : layout_ref_(nullptr), owner_view_(nullptr) {}
+  CefLayoutImpl() = default;
 
   // Initialize this object and assign ownership to |owner_view|.
   void Initialize(views::View* owner_view) {
@@ -67,11 +67,11 @@ class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
  private:
   // Unowned reference to the views::LayoutManager wrapped by this object. Will
   // be nullptr after the views::LayoutManager is destroyed.
-  ViewsLayoutClass* layout_ref_;
+  ViewsLayoutClass* layout_ref_ = nullptr;
 
   // Unowned reference to the views::View that owns this object. Will be nullptr
   // after the views::LayoutManager is destroyed.
-  views::View* owner_view_;
+  views::View* owner_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_LAYOUT_IMPL_H_

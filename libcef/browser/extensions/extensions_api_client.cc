@@ -21,7 +21,7 @@
 
 namespace extensions {
 
-CefExtensionsAPIClient::CefExtensionsAPIClient() {}
+CefExtensionsAPIClient::CefExtensionsAPIClient() = default;
 
 AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
     const {

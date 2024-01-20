@@ -27,7 +27,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // possibly shared by multiple Browser instances.
   class DelegateCreateParams : public cef::BrowserDelegate::CreateParams {
    public:
-    DelegateCreateParams(const CefBrowserCreateParams& create_params)
+    explicit DelegateCreateParams(const CefBrowserCreateParams& create_params)
         : create_params_(create_params) {}
 
     CefBrowserCreateParams create_params_;

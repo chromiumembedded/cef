@@ -46,7 +46,7 @@ class CefRunQuickMenuCallbackImpl : public CefRunQuickMenuCallback {
   CefRunQuickMenuCallbackImpl& operator=(const CefRunQuickMenuCallbackImpl&) =
       delete;
 
-  ~CefRunQuickMenuCallbackImpl() {
+  ~CefRunQuickMenuCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {

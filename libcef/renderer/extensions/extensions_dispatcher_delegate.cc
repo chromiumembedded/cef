@@ -11,9 +11,9 @@
 
 namespace extensions {
 
-CefExtensionsDispatcherDelegate::CefExtensionsDispatcherDelegate() {}
+CefExtensionsDispatcherDelegate::CefExtensionsDispatcherDelegate() = default;
 
-CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() {}
+CefExtensionsDispatcherDelegate::~CefExtensionsDispatcherDelegate() = default;
 
 void CefExtensionsDispatcherDelegate::PopulateSourceMap(
     extensions::ResourceBundleSourceMap* source_map) {}

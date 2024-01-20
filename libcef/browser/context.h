@@ -30,7 +30,7 @@ class CefContext {
     virtual void OnContextDestroyed() = 0;
 
    protected:
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
   };
 
   CefContext();
@@ -98,11 +98,11 @@ class CefContext {
   void FinalizeShutdown();
 
   // Track context state.
-  bool initialized_;
-  bool shutting_down_;
+  bool initialized_ = false;
+  bool shutting_down_ = false;
 
   // The thread on which the context was initialized.
-  base::PlatformThreadId init_thread_id_;
+  base::PlatformThreadId init_thread_id_ = 0;
 
   CefSettings settings_;
   CefRefPtr<CefApp> application_;

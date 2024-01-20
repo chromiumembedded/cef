@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -790,7 +791,7 @@ void CefRequestImpl::Changed(uint8_t changes) {
 
   if (backup_on_change_) {
     if (!backup_) {
-      backup_.reset(new Backup());
+      backup_ = std::make_unique<Backup>();
     }
 
     // Set the backup values if not already set.
@@ -815,7 +816,7 @@ void CefRequestImpl::Changed(uint8_t changes) {
     }
     if ((changes & kChangedHeaderMap) &&
         !(backup_->backups_ & kChangedHeaderMap)) {
-      backup_->headermap_.reset(new HeaderMap());
+      backup_->headermap_ = std::make_unique<HeaderMap>();
       if (!headermap_.empty()) {
         backup_->headermap_->insert(headermap_.begin(), headermap_.end());
       }
@@ -893,11 +894,7 @@ CefRefPtr<CefPostData> CefPostData::Create() {
 
 // CefPostDataImpl ------------------------------------------------------------
 
-CefPostDataImpl::CefPostDataImpl()
-    : read_only_(false),
-      has_excluded_elements_(false),
-      track_changes_(false),
-      has_changes_(false) {}
+CefPostDataImpl::CefPostDataImpl() = default;
 
 bool CefPostDataImpl::IsReadOnly() {
   base::AutoLock lock_scope(lock_);
@@ -1054,11 +1051,7 @@ CefRefPtr<CefPostDataElement> CefPostDataElement::Create() {
 
 // CefPostDataElementImpl -----------------------------------------------------
 
-CefPostDataElementImpl::CefPostDataElementImpl()
-    : type_(PDE_TYPE_EMPTY),
-      read_only_(false),
-      track_changes_(false),
-      has_changes_(false) {
+CefPostDataElementImpl::CefPostDataElementImpl() {
   memset(&data_, 0, sizeof(data_));
 }
 

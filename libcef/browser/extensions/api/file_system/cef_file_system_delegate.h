@@ -18,8 +18,7 @@ namespace content {
 class WebContents;
 }
 
-namespace extensions {
-namespace cef {
+namespace extensions::cef {
 
 class CefFileSystemDelegate : public FileSystemDelegate {
  public:
@@ -52,7 +51,6 @@ class CefFileSystemDelegate : public FileSystemDelegate {
       content::BrowserContext* browser_context) override;
 };
 
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_API_FILE_SYSTEM_FILE_SYSTEM_DELEGATE_H_

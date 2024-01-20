@@ -50,7 +50,7 @@ class CefMenuModelImpl : public CefMenuModel {
                              std::u16string& label) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // Either |delegate| or |menu_model_delegate| must be non-nullptr.

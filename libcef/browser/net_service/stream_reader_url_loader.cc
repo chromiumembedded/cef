@@ -249,7 +249,7 @@ InputStreamReader::InputStreamReader(
   DCHECK(work_thread_task_runner_);
 }
 
-InputStreamReader::~InputStreamReader() {}
+InputStreamReader::~InputStreamReader() = default;
 
 void InputStreamReader::Skip(int64_t skip_bytes,
                              InputStream::SkipCallback callback) {
@@ -698,7 +698,7 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
   if (has_redirect_url || pending_headers->IsRedirect(&location)) {
     pending_response->encoded_data_length = header_length_;
     pending_response->content_length = 0;
-    pending_response->encoded_body_length = 0;
+    pending_response->encoded_body_length = nullptr;
     const GURL new_location =
         has_redirect_url ? *redirect_url : request_.url.Resolve(location);
     client_->OnReceiveRedirect(

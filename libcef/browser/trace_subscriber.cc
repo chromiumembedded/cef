@@ -55,8 +55,7 @@ class CefCompletionCallbackWrapper : public CefCompletionCallback {
 
 using content::TracingController;
 
-CefTraceSubscriber::CefTraceSubscriber()
-    : collecting_trace_data_(false), weak_factory_(this) {
+CefTraceSubscriber::CefTraceSubscriber() : weak_factory_(this) {
   CEF_REQUIRE_UIT();
 }
 

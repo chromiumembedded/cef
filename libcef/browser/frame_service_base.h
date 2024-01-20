@@ -51,7 +51,7 @@ class FrameServiceBase : public Interface, public WebContentsObserver {
 
  protected:
   // Make the destructor private since |this| can only be deleted by Close().
-  virtual ~FrameServiceBase() = default;
+  ~FrameServiceBase() override = default;
 
   // All subclasses should use this function to obtain the origin instead of
   // trying to get it from the RenderFrameHost pointer directly.

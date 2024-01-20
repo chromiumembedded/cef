@@ -11,8 +11,8 @@ using content::SSLHostStateDelegate;
 
 namespace internal {
 
-CertPolicy::CertPolicy() {}
-CertPolicy::~CertPolicy() {}
+CertPolicy::CertPolicy() = default;
+CertPolicy::~CertPolicy() = default;
 
 // For an allowance, we consider a given |cert| to be a match to a saved
 // allowed cert if the |error| is an exact match to or subset of the errors
@@ -36,9 +36,9 @@ void CertPolicy::Allow(const net::X509Certificate& cert, int error) {
 
 }  // namespace internal
 
-CefSSLHostStateDelegate::CefSSLHostStateDelegate() {}
+CefSSLHostStateDelegate::CefSSLHostStateDelegate() = default;
 
-CefSSLHostStateDelegate::~CefSSLHostStateDelegate() {}
+CefSSLHostStateDelegate::~CefSSLHostStateDelegate() = default;
 
 void CefSSLHostStateDelegate::HostRanInsecureContent(
     const std::string& host,

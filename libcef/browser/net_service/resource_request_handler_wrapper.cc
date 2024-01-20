@@ -4,6 +4,8 @@
 
 #include "libcef/browser/net_service/resource_request_handler_wrapper.h"
 
+#include <memory>
+
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/iothread_state.h"
@@ -89,7 +91,7 @@ class RequestCallbackWrapper : public CefCallback {
 class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
  public:
   struct RequestState {
-    RequestState() {}
+    RequestState() = default;
 
     void Reset(CefRefPtr<CefResourceRequestHandler> handler,
                CefRefPtr<CefSchemeHandlerFactory> scheme_factory,
@@ -164,7 +166,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DestructionObserver(const DestructionObserver&) = delete;
     DestructionObserver& operator=(const DestructionObserver&) = delete;
 
-    virtual ~DestructionObserver() {
+    ~DestructionObserver() override {
       CEF_REQUIRE_UIT();
       if (!registered_) {
         return;
@@ -225,7 +227,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   // initialized on the UI thread and later passed to the *Wrapper object on
   // the IO thread.
   struct InitState {
-    InitState() {}
+    InitState() = default;
 
     ~InitState() {
       if (destruction_observer_) {
@@ -259,7 +261,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // that we can stop accepting new requests and cancel pending/in-progress
       // requests in a timely manner (e.g. before we start asserting about
       // leaked objects during CEF shutdown).
-      destruction_observer_.reset(new DestructionObserver(browser.get()));
+      destruction_observer_ =
+          std::make_unique<DestructionObserver>(browser.get());
 
       if (browser) {
         // These references will be released in OnDestroyed().

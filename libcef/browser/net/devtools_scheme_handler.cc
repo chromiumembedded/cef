@@ -22,7 +22,7 @@ namespace {
 
 class Delegate : public InternalHandlerDelegate {
  public:
-  Delegate() {}
+  Delegate() = default;
 
   bool OnRequest(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefRequest> request,

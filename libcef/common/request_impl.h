@@ -211,16 +211,16 @@ class CefPostDataImpl : public CefPostData {
   ElementVector elements_;
 
   // True if this object is read-only.
-  bool read_only_;
+  bool read_only_ = false;
 
   // True if this object has excluded elements.
-  bool has_excluded_elements_;
+  bool has_excluded_elements_ = false;
 
   // True if this object should track changes.
-  bool track_changes_;
+  bool track_changes_ = false;
 
   // True if this object has changes.
-  bool has_changes_;
+  bool has_changes_ = false;
 
   mutable base::Lock lock_;
 
@@ -256,7 +256,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void Changed();
   void Cleanup();
 
-  Type type_;
+  Type type_ = PDE_TYPE_EMPTY;
   union {
     struct {
       void* bytes;
@@ -266,13 +266,13 @@ class CefPostDataElementImpl : public CefPostDataElement {
   } data_;
 
   // True if this object is read-only.
-  bool read_only_;
+  bool read_only_ = false;
 
   // True if this object should track changes.
-  bool track_changes_;
+  bool track_changes_ = false;
 
   // True if this object has changes.
-  bool has_changes_;
+  bool has_changes_ = false;
 
   mutable base::Lock lock_;
 

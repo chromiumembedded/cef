@@ -615,8 +615,7 @@ void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
   if (!render_frame_.is_bound()) {
     // Queue actions until we're notified by the renderer that it's ready to
     // handle them.
-    queued_renderer_actions_.push(
-        std::make_pair(function_name, std::move(action)));
+    queued_renderer_actions_.emplace(function_name, std::move(action));
     return;
   }
 
@@ -706,8 +705,7 @@ void CefFrameHostImpl::UpdateDraggableRegions(
     for (const auto& region : *regions) {
       const auto& rect = region->bounds;
       const CefRect bounds(rect.x(), rect.y(), rect.width(), rect.height());
-      draggable_regions.push_back(
-          CefDraggableRegion(bounds, region->draggable));
+      draggable_regions.emplace_back(bounds, region->draggable);
     }
   }
 

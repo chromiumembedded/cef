@@ -28,7 +28,7 @@ class Extension;
 
 // Parameters that are passed to the runtime-specific Create methods.
 struct CefBrowserCreateParams {
-  CefBrowserCreateParams() {}
+  CefBrowserCreateParams() = default;
 
   // Copy constructor used with the chrome runtime only.
   CefBrowserCreateParams(const CefBrowserCreateParams& that) {
@@ -127,7 +127,7 @@ class CefBrowserHostBase : public CefBrowserHost,
     virtual void OnBrowserDestroyed(CefBrowserHostBase* browser) = 0;
 
    protected:
-    virtual ~Observer() {}
+    ~Observer() override = default;
   };
 
   // Create a new CefBrowserHost instance of the current runtime type with

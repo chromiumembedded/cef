@@ -32,7 +32,7 @@ class CefMainRunner : public CefMainRunnerHandler {
   CefMainRunner(const CefMainRunner&) = delete;
   CefMainRunner& operator=(const CefMainRunner&) = delete;
 
-  ~CefMainRunner();
+  ~CefMainRunner() override;
 
   // Called from CefContext::Initialize.
   bool Initialize(CefSettings* settings,

@@ -21,7 +21,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
  public:
   using CallbackType = content::JavaScriptDialogManager::DialogClosedCallback;
 
-  CefJSDialogCallbackImpl(CallbackType callback)
+  explicit CefJSDialogCallbackImpl(CallbackType callback)
       : callback_(std::move(callback)) {}
   ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
@@ -72,7 +72,7 @@ CefJavaScriptDialogManager::CefJavaScriptDialogManager(
     CefBrowserHostBase* browser)
     : browser_(browser), weak_ptr_factory_(this) {}
 
-CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {}
+CefJavaScriptDialogManager::~CefJavaScriptDialogManager() = default;
 
 void CefJavaScriptDialogManager::Destroy() {
   if (handler_) {

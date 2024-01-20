@@ -61,7 +61,7 @@ class WebContentsUserDataAdapter : public base::SupportsUserData::Data {
   }
 
  private:
-  WebContentsUserDataAdapter(CefRefPtr<CefBrowserHostBase> browser)
+  explicit WebContentsUserDataAdapter(CefRefPtr<CefBrowserHostBase> browser)
       : browser_(browser) {
     auto web_contents = browser->GetWebContents();
     DCHECK(web_contents);

@@ -73,10 +73,10 @@ class CefBytesReader : public CefStreamReader {
   size_t GetDataSize() { return offset_; }
 
  protected:
-  void* data_;
-  int64_t datasize_;
-  bool copy_;
-  int64_t offset_;
+  void* data_ = nullptr;
+  int64_t datasize_ = 0;
+  bool copy_ = false;
+  int64_t offset_ = 0;
 
   base::Lock lock_;
 
@@ -105,7 +105,7 @@ class CefBytesWriter : public CefStreamWriter {
   size_t grow_;
   void* data_;
   int64_t datasize_;
-  int64_t offset_;
+  int64_t offset_ = 0;
 
   base::Lock lock_;
 

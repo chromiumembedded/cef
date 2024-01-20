@@ -91,7 +91,7 @@ class BrowserView;
 // CefWindowView::CreateWidget() when the Chrome runtime is enabled.
 class ChromeBrowserFrame : public BrowserFrame {
  public:
-  ChromeBrowserFrame() {}
+  ChromeBrowserFrame() = default;
   ChromeBrowserFrame(const ChromeBrowserFrame&) = delete;
   ChromeBrowserFrame& operator=(const ChromeBrowserFrame&) = delete;
 

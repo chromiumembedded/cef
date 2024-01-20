@@ -63,7 +63,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
     virtual void OnWebContentsDestroyed(content::WebContents* web_contents) = 0;
 
    protected:
-    ~Observer() override {}
+    ~Observer() override = default;
   };
 
   explicit CefBrowserContentsDelegate(

@@ -9,13 +9,11 @@ namespace content {
 class WebContents;
 }
 
-namespace extensions {
-namespace alloy {
+namespace extensions::alloy {
 
 // Returns the tabId for |web_contents|, or -1 if not found.
 int GetTabIdForWebContents(content::WebContents* web_contents);
 
-}  // namespace alloy
-}  // namespace extensions
+}  // namespace extensions::alloy
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_ALLOY_EXTENSIONS_UTIL_H_

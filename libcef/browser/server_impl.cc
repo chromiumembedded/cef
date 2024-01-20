@@ -4,6 +4,8 @@
 
 #include "libcef/browser/server_impl.h"
 
+#include <memory>
+
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
@@ -46,9 +48,10 @@ std::unique_ptr<std::string> CreateUniqueString(const void* data,
                                                 size_t data_size) {
   std::unique_ptr<std::string> ptr;
   if (data && data_size > 0) {
-    ptr.reset(new std::string(static_cast<const char*>(data), data_size));
+    ptr = std::make_unique<std::string>(static_cast<const char*>(data),
+                                        data_size);
   } else {
-    ptr.reset(new std::string());
+    ptr = std::make_unique<std::string>();
   }
   return ptr;
 }
@@ -165,11 +168,11 @@ void CefServer::CreateServer(const CefString& address,
 // CefServerImpl
 
 struct CefServerImpl::ConnectionInfo {
-  ConnectionInfo() : is_websocket(false), is_websocket_pending(false) {}
+  ConnectionInfo() = default;
 
   // True if this connection is a WebSocket connection.
-  bool is_websocket;
-  bool is_websocket_pending;
+  bool is_websocket = false;
+  bool is_websocket_pending = false;
 };
 
 CefServerImpl::CefServerImpl(CefRefPtr<CefServerHandler> handler)
@@ -569,7 +572,7 @@ void CefServerImpl::StartOnHandlerThread(const std::string& address,
   std::unique_ptr<net::ServerSocket> socket(
       new net::TCPServerSocket(nullptr, net::NetLogSource()));
   if (socket->ListenWithAddressAndPort(address, port, backlog) == net::OK) {
-    server_.reset(new net::HttpServer(std::move(socket), this));
+    server_ = std::make_unique<net::HttpServer>(std::move(socket), this);
 
     net::IPEndPoint ip_address;
     if (server_->GetLocalAddress(&ip_address) == net::OK) {

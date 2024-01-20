@@ -13,8 +13,7 @@
 #include "extensions/common/api/file_system.h"
 #include "extensions/common/extension.h"
 
-namespace extensions {
-namespace cef {
+namespace extensions::cef {
 
 CefFileSystemDelegate::CefFileSystemDelegate() = default;
 
@@ -85,5 +84,4 @@ SavedFilesServiceInterface* CefFileSystemDelegate::GetSavedFilesService(
   return apps::SavedFilesService::Get(browser_context);
 }
 
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef

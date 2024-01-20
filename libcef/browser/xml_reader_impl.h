@@ -65,7 +65,7 @@ class CefXmlReaderImpl : public CefXmlReader {
  protected:
   base::PlatformThreadId supported_thread_id_;
   CefRefPtr<CefStreamReader> stream_;
-  xmlTextReaderPtr reader_;
+  xmlTextReaderPtr reader_ = nullptr;
   std::stringstream error_buf_;
 
   IMPLEMENT_REFCOUNTING(CefXmlReaderImpl);

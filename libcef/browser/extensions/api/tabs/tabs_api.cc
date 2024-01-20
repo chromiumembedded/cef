@@ -25,8 +25,7 @@
 
 using zoom::ZoomController;
 
-namespace extensions {
-namespace cef {
+namespace extensions::cef {
 
 namespace keys = extensions::tabs_constants;
 namespace tabs = api::tabs;
@@ -241,10 +240,9 @@ ExtensionFunction::ResponseValue TabsUpdateFunction::GetResult() {
       /*opener_browser_id=*/-1, /*active=*/true, tab_id_)));
 }
 
-ExecuteCodeInTabFunction::ExecuteCodeInTabFunction()
-    : cef_details_(this), execute_tab_id_(-1) {}
+ExecuteCodeInTabFunction::ExecuteCodeInTabFunction() : cef_details_(this) {}
 
-ExecuteCodeInTabFunction::~ExecuteCodeInTabFunction() {}
+ExecuteCodeInTabFunction::~ExecuteCodeInTabFunction() = default;
 
 ExecuteCodeFunction::InitResult ExecuteCodeInTabFunction::Init() {
   if (init_result_) {
@@ -538,5 +536,4 @@ ExtensionFunction::ResponseAction TabsGetZoomSettingsFunction::Run() {
       ArgumentList(tabs::GetZoomSettings::Results::Create(zoom_settings)));
 }
 
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef

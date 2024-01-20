@@ -40,7 +40,11 @@ CEF_EXPORT void cef_string_list_append(cef_string_list_t list,
                                        const cef_string_t* value) {
   DCHECK(list);
   StringList* impl = reinterpret_cast<StringList*>(list);
-  impl->push_back(CefString(value));
+  if (value) {
+    impl->emplace_back(value->str, value->length, /*copy=*/true);
+  } else {
+    impl->emplace_back();
+  }
 }
 
 CEF_EXPORT void cef_string_list_clear(cef_string_list_t list) {

@@ -4,8 +4,7 @@
 
 #include "libcef/common/value_base.h"
 
-CefValueController::CefValueController()
-    : owner_value_(nullptr), owner_object_(nullptr) {}
+CefValueController::CefValueController() = default;
 
 CefValueController::~CefValueController() {
   // Everything should already have been removed.

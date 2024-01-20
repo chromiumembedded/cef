@@ -18,11 +18,10 @@ namespace content {
 class WebContents;
 }
 
-namespace extensions {
-namespace cef {
+namespace extensions::cef {
 
 class TabsGetFunction : public ExtensionFunction {
-  ~TabsGetFunction() override {}
+  ~TabsGetFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -32,7 +31,7 @@ class TabsGetFunction : public ExtensionFunction {
 class TabsCreateFunction : public ExtensionFunction {
  public:
   TabsCreateFunction();
-  ~TabsCreateFunction() override {}
+  ~TabsCreateFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -47,7 +46,7 @@ class BaseAPIFunction : public ExtensionFunction {
   BaseAPIFunction();
 
  protected:
-  ~BaseAPIFunction() override {}
+  ~BaseAPIFunction() override = default;
 
   // Gets the WebContents for |tab_id| if it is specified. Otherwise get the
   // WebContents for the active tab in the current window. Calling this function
@@ -60,7 +59,7 @@ class BaseAPIFunction : public ExtensionFunction {
 
 class TabsUpdateFunction : public BaseAPIFunction {
  private:
-  ~TabsUpdateFunction() override {}
+  ~TabsUpdateFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -98,19 +97,19 @@ class ExecuteCodeInTabFunction : public ExecuteCodeFunction {
                         std::unique_ptr<std::string> data);
 
   // Id of tab which executes code.
-  int execute_tab_id_;
+  int execute_tab_id_ = -1;
 };
 
 class TabsExecuteScriptFunction : public ExecuteCodeInTabFunction {
  private:
-  ~TabsExecuteScriptFunction() override {}
+  ~TabsExecuteScriptFunction() override = default;
 
   DECLARE_EXTENSION_FUNCTION("tabs.executeScript", TABS_EXECUTESCRIPT)
 };
 
 class TabsInsertCSSFunction : public ExecuteCodeInTabFunction {
  private:
-  ~TabsInsertCSSFunction() override {}
+  ~TabsInsertCSSFunction() override = default;
 
   bool ShouldInsertCSS() const override;
 
@@ -119,7 +118,7 @@ class TabsInsertCSSFunction : public ExecuteCodeInTabFunction {
 
 class TabsRemoveCSSFunction : public ExecuteCodeInTabFunction {
  private:
-  ~TabsRemoveCSSFunction() override {}
+  ~TabsRemoveCSSFunction() override = default;
 
   bool ShouldRemoveCSS() const override;
 
@@ -132,7 +131,7 @@ class ZoomAPIFunction : public ExtensionFunction {
   ZoomAPIFunction();
 
  protected:
-  ~ZoomAPIFunction() override {}
+  ~ZoomAPIFunction() override = default;
 
   // Gets the WebContents for |tab_id| if it is specified. Otherwise get the
   // WebContents for the active tab in the current window. Calling this function
@@ -147,7 +146,7 @@ class ZoomAPIFunction : public ExtensionFunction {
 
 class TabsSetZoomFunction : public BaseAPIFunction {
  private:
-  ~TabsSetZoomFunction() override {}
+  ~TabsSetZoomFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -156,7 +155,7 @@ class TabsSetZoomFunction : public BaseAPIFunction {
 
 class TabsGetZoomFunction : public BaseAPIFunction {
  private:
-  ~TabsGetZoomFunction() override {}
+  ~TabsGetZoomFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -165,7 +164,7 @@ class TabsGetZoomFunction : public BaseAPIFunction {
 
 class TabsSetZoomSettingsFunction : public BaseAPIFunction {
  private:
-  ~TabsSetZoomSettingsFunction() override {}
+  ~TabsSetZoomSettingsFunction() override = default;
 
   ResponseAction Run() override;
 
@@ -174,14 +173,13 @@ class TabsSetZoomSettingsFunction : public BaseAPIFunction {
 
 class TabsGetZoomSettingsFunction : public BaseAPIFunction {
  private:
-  ~TabsGetZoomSettingsFunction() override {}
+  ~TabsGetZoomSettingsFunction() override = default;
 
   ResponseAction Run() override;
 
   DECLARE_EXTENSION_FUNCTION("tabs.getZoomSettings", TABS_GETZOOMSETTINGS)
 };
 
-}  // namespace cef
-}  // namespace extensions
+}  // namespace extensions::cef
 
 #endif  // CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_

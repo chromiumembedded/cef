@@ -39,9 +39,9 @@ CefMediaCaptureDevicesDispatcher::GetInstance() {
   return base::Singleton<CefMediaCaptureDevicesDispatcher>::get();
 }
 
-CefMediaCaptureDevicesDispatcher::CefMediaCaptureDevicesDispatcher() {}
+CefMediaCaptureDevicesDispatcher::CefMediaCaptureDevicesDispatcher() = default;
 
-CefMediaCaptureDevicesDispatcher::~CefMediaCaptureDevicesDispatcher() {}
+CefMediaCaptureDevicesDispatcher::~CefMediaCaptureDevicesDispatcher() = default;
 
 void CefMediaCaptureDevicesDispatcher::RegisterPrefs(
     PrefRegistrySimple* registry) {

@@ -123,9 +123,9 @@ void CefDevToolsManagerDelegate::StopHttpHandler() {
   content::DevToolsAgentHost::StopRemoteDebuggingServer();
 }
 
-CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() {}
+CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() = default;
 
-CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {}
+CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() = default;
 
 scoped_refptr<content::DevToolsAgentHost>
 CefDevToolsManagerDelegate::CreateNewTarget(

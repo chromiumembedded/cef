@@ -5,6 +5,7 @@
 
 #include "libcef/browser/net_service/browser_urlrequest_impl.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -59,7 +60,7 @@ bool IsValidRequestID(int32_t request_id) {
 // Manages the mapping of request IDs to request objects.
 class RequestManager {
  public:
-  RequestManager() {}
+  RequestManager() = default;
 
   RequestManager(const RequestManager&) = delete;
   RequestManager& operator=(const RequestManager&) = delete;
@@ -626,10 +627,11 @@ CefBrowserURLRequest::CefBrowserURLRequest(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefURLRequestClient> client,
     CefRefPtr<CefRequestContext> request_context) {
-  context_.reset(new Context(this, frame, request, client, request_context));
+  context_ =
+      std::make_unique<Context>(this, frame, request, client, request_context);
 }
 
-CefBrowserURLRequest::~CefBrowserURLRequest() {}
+CefBrowserURLRequest::~CefBrowserURLRequest() = default;
 
 bool CefBrowserURLRequest::Start() {
   if (!VerifyContext()) {

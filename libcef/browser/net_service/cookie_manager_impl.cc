@@ -122,7 +122,7 @@ void GetCookiesCallbackImpl(
 
 }  // namespace
 
-CefCookieManagerImpl::CefCookieManagerImpl() {}
+CefCookieManagerImpl::CefCookieManagerImpl() = default;
 
 void CefCookieManagerImpl::Initialize(
     CefBrowserContext::Getter browser_context_getter,

@@ -564,7 +564,7 @@ CefRefPtr<CefSimpleMenuModelImpl> CefSimpleMenuModelImpl::CreateNewSubMenu(
   }
 
   CefRefPtr<CefSimpleMenuModelImpl> new_impl = new CefSimpleMenuModelImpl(
-      model, delegate_, state_delegate_, is_owned, /*is_submodel=*/true);
+      model, delegate_, state_delegate_, is_owned, /*is_submenu=*/true);
   submenumap_.insert(std::make_pair(model, new_impl));
   return new_impl;
 }

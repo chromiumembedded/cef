@@ -25,7 +25,7 @@ class CefBrowserPlatformDelegateNative
                                             bool want_dip_coords) const = 0;
 
    protected:
-    virtual ~WindowlessHandler() {}
+    virtual ~WindowlessHandler() = default;
   };
 
   // CefBrowserPlatformDelegate methods:
@@ -69,7 +69,8 @@ class CefBrowserPlatformDelegateNative
   CefWindowInfo window_info_;
   const SkColor background_color_;
 
-  WindowlessHandler* windowless_handler_;  // Not owned by this object.
+  // Not owned by this object.
+  WindowlessHandler* windowless_handler_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_H_

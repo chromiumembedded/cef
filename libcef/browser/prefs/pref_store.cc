@@ -10,14 +10,7 @@
 #include "base/memory/ptr_util.h"
 #include "base/values.h"
 
-CefPrefStore::CefPrefStore()
-    : read_only_(true),
-      read_success_(true),
-      read_error_(PersistentPrefStore::PREF_READ_ERROR_NONE),
-      block_async_read_(false),
-      pending_async_read_(false),
-      init_complete_(false),
-      committed_(true) {}
+CefPrefStore::CefPrefStore() = default;
 
 bool CefPrefStore::GetValue(base::StringPiece key,
                             const base::Value** value) const {
@@ -214,4 +207,4 @@ void CefPrefStore::set_read_error(
   read_error_ = read_error;
 }
 
-CefPrefStore::~CefPrefStore() {}
+CefPrefStore::~CefPrefStore() = default;

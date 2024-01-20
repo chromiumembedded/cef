@@ -47,9 +47,8 @@ class CefPrefStore : public PersistentPrefStore {
   PrefReadError GetReadError() const override;
   PersistentPrefStore::PrefReadError ReadPrefs() override;
   void ReadPrefsAsync(ReadErrorDelegate* error_delegate) override;
-  virtual void CommitPendingWrite(
-      base::OnceClosure done_callback,
-      base::OnceClosure synchronous_done_callback) override;
+  void CommitPendingWrite(base::OnceClosure done_callback,
+                          base::OnceClosure synchronous_done_callback) override;
   void SchedulePendingLossyWrites() override;
   void OnStoreDeletionFromDisk() override;
 
@@ -90,26 +89,27 @@ class CefPrefStore : public PersistentPrefStore {
   PrefValueMap prefs_;
 
   // Flag that indicates if the PrefStore is read-only
-  bool read_only_;
+  bool read_only_ = true;
 
   // The result to pass to PrefStore::Observer::OnInitializationCompleted
-  bool read_success_;
+  bool read_success_ = true;
 
   // The result to return from ReadPrefs or ReadPrefsAsync.
-  PersistentPrefStore::PrefReadError read_error_;
+  PersistentPrefStore::PrefReadError read_error_ =
+      PersistentPrefStore::PREF_READ_ERROR_NONE;
 
   // Whether a call to ReadPrefsAsync should block.
-  bool block_async_read_;
+  bool block_async_read_ = false;
 
   // Whether there is a pending call to ReadPrefsAsync.
-  bool pending_async_read_;
+  bool pending_async_read_ = false;
 
   // Whether initialization has been completed.
-  bool init_complete_;
+  bool init_complete_ = false;
 
   // Whether the store contents have been committed to disk since the last
   // mutation.
-  bool committed_;
+  bool committed_ = true;
 
   std::unique_ptr<ReadErrorDelegate> error_delegate_;
   base::ObserverList<PrefStore::Observer, true>::Unchecked observers_;

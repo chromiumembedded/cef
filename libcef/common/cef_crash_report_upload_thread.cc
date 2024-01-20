@@ -19,7 +19,7 @@ CefCrashReportUploadThread::CefCrashReportUploadThread(
     : CrashReportUploadThread(database, url, options, std::move(callback)),
       max_uploads_(max_uploads) {}
 
-CefCrashReportUploadThread::~CefCrashReportUploadThread() {}
+CefCrashReportUploadThread::~CefCrashReportUploadThread() = default;
 
 void CefCrashReportUploadThread::ProcessPendingReports() {
   if (BackoffPending()) {

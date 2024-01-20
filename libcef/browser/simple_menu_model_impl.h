@@ -27,7 +27,7 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
                                 absl::optional<ui::Accelerator> accel) = 0;
 
    protected:
-    virtual ~StateDelegate() {}
+    virtual ~StateDelegate() = default;
   };
 
   // |delegate| should be the same that was used to create |model|.

@@ -66,7 +66,7 @@ CefRefPtr<CefValue> CefValueImpl::GetOrCreateRefOrCopy(
   return new CefValueImpl(value->Clone());
 }
 
-CefValueImpl::CefValueImpl() {}
+CefValueImpl::CefValueImpl() = default;
 
 CefValueImpl::CefValueImpl(base::Value value) {
   SetValue(std::move(value));
@@ -81,7 +81,7 @@ CefValueImpl::CefValueImpl(CefRefPtr<CefDictionaryValue> value)
 CefValueImpl::CefValueImpl(CefRefPtr<CefListValue> value)
     : list_value_(value) {}
 
-CefValueImpl::~CefValueImpl() {}
+CefValueImpl::~CefValueImpl() = default;
 
 void CefValueImpl::SetValue(base::Value value) {
   base::AutoLock lock_scope(lock_);

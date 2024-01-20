@@ -41,7 +41,7 @@ ChromeProfileAlloy::ChromeProfileAlloy() {
       this, profile_metrics::BrowserProfileType::kRegular);
 }
 
-ChromeProfileAlloy::~ChromeProfileAlloy() {}
+ChromeProfileAlloy::~ChromeProfileAlloy() = default;
 
 bool ChromeProfileAlloy::IsOffTheRecord() {
   return false;

@@ -25,7 +25,7 @@ void AppendArray(const std::vector<std::string>& source,
 }
 }  // namespace
 
-CefSchemeRegistrarImpl::CefSchemeRegistrarImpl() {}
+CefSchemeRegistrarImpl::CefSchemeRegistrarImpl() = default;
 
 bool CefSchemeRegistrarImpl::AddCustomScheme(const CefString& scheme_name,
                                              int options) {

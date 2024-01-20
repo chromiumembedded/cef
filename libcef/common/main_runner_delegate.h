@@ -33,7 +33,7 @@ class CefMainRunnerDelegate {
   virtual void BeforeExecuteProcess(const CefMainArgs& args) {}
   virtual void AfterExecuteProcess() {}
 
-  virtual ~CefMainRunnerDelegate() {}
+  virtual ~CefMainRunnerDelegate() = default;
 };
 
 #endif  // CEF_LIBCEF_COMMON_MAIN_RUNNER_DELEGATE_H_

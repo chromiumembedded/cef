@@ -17,8 +17,7 @@
 #include "services/network/cookie_manager.h"
 #include "services/network/public/cpp/resource_request.h"
 
-namespace net_service {
-namespace cookie_helper {
+namespace net_service::cookie_helper {
 
 namespace {
 
@@ -300,7 +299,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
         request.url, cookie_string, base::Time::Now(),
         absl::make_optional(response_date), /*partition_key=*/absl::nullopt,
-        /*block_truncated_cookies=*/true, &returned_status);
+        /*block_truncated=*/true, &returned_status);
     if (!returned_status.IsInclude()) {
       continue;
     }
@@ -325,5 +324,4 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
   }
 }
 
-}  // namespace cookie_helper
-}  // namespace net_service
+}  // namespace net_service::cookie_helper

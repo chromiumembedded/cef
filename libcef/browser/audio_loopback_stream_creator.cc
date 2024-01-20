@@ -39,7 +39,7 @@ class StreamCreatedCallbackAdapter final
   StreamCreatedCallbackAdapter& operator=(const StreamCreatedCallbackAdapter&) =
       delete;
 
-  ~StreamCreatedCallbackAdapter() override {}
+  ~StreamCreatedCallbackAdapter() override = default;
 
   // blink::mojom::RendererAudioInputStreamFactoryClient implementation.
   void StreamCreated(

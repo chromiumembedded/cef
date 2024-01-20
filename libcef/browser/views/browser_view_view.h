@@ -46,7 +46,7 @@ class CefBrowserViewView
     virtual bool OnGestureEvent(ui::GestureEvent* event) = 0;
 
    protected:
-    virtual ~Delegate() {}
+    virtual ~Delegate() = default;
   };
 
   // |cef_delegate| may be nullptr.

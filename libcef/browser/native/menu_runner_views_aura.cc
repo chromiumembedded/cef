@@ -4,12 +4,14 @@
 
 #include "libcef/browser/native/menu_runner_views_aura.h"
 
+#include <memory>
+
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 #include "base/strings/string_util.h"
 #include "ui/gfx/geometry/point.h"
 
-CefMenuRunnerViewsAura::CefMenuRunnerViewsAura() {}
+CefMenuRunnerViewsAura::CefMenuRunnerViewsAura() = default;
 
 bool CefMenuRunnerViewsAura::RunContextMenu(
     AlloyBrowserHostImpl* browser,
@@ -27,8 +29,8 @@ bool CefMenuRunnerViewsAura::RunContextMenu(
     widget = browser->GetWindowWidget();
   }
 
-  menu_.reset(
-      new views::MenuRunner(model->model(), views::MenuRunner::CONTEXT_MENU));
+  menu_ = std::make_unique<views::MenuRunner>(model->model(),
+                                              views::MenuRunner::CONTEXT_MENU);
 
   gfx::Point screen_point = browser->GetScreenPoint(
       gfx::Point(params.x, params.y), /*want_dip_coords=*/true);

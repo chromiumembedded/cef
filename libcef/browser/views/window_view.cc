@@ -4,6 +4,8 @@
 
 #include "libcef/browser/views/window_view.h"
 
+#include <memory>
+
 #if BUILDFLAG(IS_LINUX)
 #include "ui/ozone/buildflags.h"
 #if BUILDFLAG(OZONE_PLATFORM_X11)
@@ -36,6 +38,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <dwmapi.h>
+
 #include "base/win/windows_version.h"
 #include "ui/display/win/screen_win.h"
 #include "ui/views/win/hwnd_util.h"
@@ -104,7 +107,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
 
     const DWORD style = GetWindowLong(window, GWL_STYLE);
     const DWORD ex_style = GetWindowLong(window, GWL_EXSTYLE);
-    const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != NULL);
+    const bool has_menu = !(style & WS_CHILD) && (GetMenu(window) != nullptr);
 
     // Convert from DIP to pixel coordinates using a method that can handle
     // multiple displays with different DPI.
@@ -850,7 +853,7 @@ void CefWindowView::SetDraggableRegions(
     return;
   }
 
-  draggable_region_.reset(new SkRegion);
+  draggable_region_ = std::make_unique<SkRegion>();
   for (const CefDraggableRegion& region : regions) {
     draggable_region_->op(
         {region.bounds.x, region.bounds.y,
@@ -859,8 +862,8 @@ void CefWindowView::SetDraggableRegions(
         region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
 
     if (region.draggable) {
-      draggable_rects_.push_back({region.bounds.x, region.bounds.y,
-                                  region.bounds.width, region.bounds.height});
+      draggable_rects_.emplace_back(region.bounds.x, region.bounds.y,
+                                    region.bounds.width, region.bounds.height);
     }
   }
 }

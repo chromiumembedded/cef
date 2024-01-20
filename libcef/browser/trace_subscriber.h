@@ -29,7 +29,7 @@ class CefTraceSubscriber {
   void OnTracingFileResult(CefRefPtr<CefEndTracingCallback> callback,
                            const base::FilePath& tracing_file);
 
-  bool collecting_trace_data_;
+  bool collecting_trace_data_ = false;
   base::WeakPtrFactory<CefTraceSubscriber> weak_factory_;
 };
 

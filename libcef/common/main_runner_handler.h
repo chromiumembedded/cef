@@ -18,7 +18,7 @@ class CefMainRunnerHandler {
       content::MainFunctionParams main_function_params) = 0;
 
  protected:
-  virtual ~CefMainRunnerHandler() {}
+  virtual ~CefMainRunnerHandler() = default;
 };
 
 #endif  // CEF_LIBCEF_COMMON_MAIN_RUNNER_HANDLER_H_

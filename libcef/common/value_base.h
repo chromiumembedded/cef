@@ -24,7 +24,7 @@ class CefValueController
   // Implemented by a class controlled using the access controller.
   class Object {
    public:
-    virtual ~Object() {}
+    virtual ~Object() = default;
 
     // Called when the value has been removed.
     virtual void OnControlRemoved() = 0;
@@ -128,8 +128,8 @@ class CefValueController
 
  private:
   // Owner object.
-  void* owner_value_;
-  Object* owner_object_;
+  void* owner_value_ = nullptr;
+  Object* owner_object_ = nullptr;
 
   // Map of reference objects.
   using ReferenceMap = std::map<void*, Object*>;
@@ -144,7 +144,7 @@ class CefValueController
 // Thread-safe access control implementation.
 class CefValueControllerThreadSafe : public CefValueController {
  public:
-  explicit CefValueControllerThreadSafe() : locked_thread_id_(0) {}
+  explicit CefValueControllerThreadSafe() = default;
 
   CefValueControllerThreadSafe(const CefValueControllerThreadSafe&) = delete;
   CefValueControllerThreadSafe& operator=(const CefValueControllerThreadSafe&) =
@@ -168,7 +168,7 @@ class CefValueControllerThreadSafe : public CefValueController {
 
  private:
   base::Lock lock_;
-  base::PlatformThreadId locked_thread_id_;
+  base::PlatformThreadId locked_thread_id_ = 0;
 };
 
 // Non-thread-safe access control implementation.

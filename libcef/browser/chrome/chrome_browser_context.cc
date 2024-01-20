@@ -4,6 +4,8 @@
 
 #include "libcef/browser/chrome/chrome_browser_context.h"
 
+#include <memory>
+
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/thread_util.h"
 
@@ -144,8 +146,8 @@ void ChromeBrowserContext::ProfileCreated(Profile::CreateStatus status,
     // exists.
     profile_ = profile;
     profile_->AddObserver(this);
-    profile_keep_alive_.reset(new ScopedProfileKeepAlive(
-        profile_, ProfileKeepAliveOrigin::kAppWindow));
+    profile_keep_alive_ = std::make_unique<ScopedProfileKeepAlive>(
+        profile_, ProfileKeepAliveOrigin::kAppWindow);
   }
 
   if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {

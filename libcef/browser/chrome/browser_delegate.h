@@ -30,7 +30,7 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // instances.
   class CreateParams : public base::RefCounted<CreateParams> {
    public:
-    virtual ~CreateParams() {}
+    virtual ~CreateParams() = default;
   };
 
   // Called from the Browser constructor to create a new delegate.
@@ -39,7 +39,7 @@ class BrowserDelegate : public content::WebContentsDelegate {
       scoped_refptr<CreateParams> cef_params,
       const Browser* opener);
 
-  ~BrowserDelegate() override {}
+  ~BrowserDelegate() override = default;
 
   // Optionally override Browser creation in
   // DevToolsWindow::CreateDevToolsBrowser. The returned Browser, if any, will

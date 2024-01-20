@@ -14,7 +14,7 @@ class CefBrowserPlatformDelegateBackground
       public CefBrowserPlatformDelegateNative::WindowlessHandler {
  public:
   // Platform-specific behaviors will be delegated to |native_delegate|.
-  CefBrowserPlatformDelegateBackground(
+  explicit CefBrowserPlatformDelegateBackground(
       std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
 
   // CefBrowserPlatformDelegate methods:

@@ -43,7 +43,7 @@ class CefScrollViewImpl
   // Create a new implementation object.
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
-  CefScrollViewImpl(CefRefPtr<CefViewDelegate> delegate);
+  explicit CefScrollViewImpl(CefRefPtr<CefViewDelegate> delegate);
 
   // CefViewImpl methods:
   CefScrollViewView* CreateRootView() override;

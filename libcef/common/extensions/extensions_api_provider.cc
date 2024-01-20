@@ -18,7 +18,7 @@
 
 namespace extensions {
 
-CefExtensionsAPIProvider::CefExtensionsAPIProvider() {}
+CefExtensionsAPIProvider::CefExtensionsAPIProvider() = default;
 
 void CefExtensionsAPIProvider::AddAPIFeatures(FeatureProvider* provider) {
   AddCEFAPIFeatures(provider);

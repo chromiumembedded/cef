@@ -206,9 +206,9 @@ struct PopulateAxNodeAttributes {
         CefRefPtr<CefListValue> list = CefListValue::Create();
         int index = 0;
         // Iterate and find which states are set.
-        for (unsigned i = 0; i < std::size(textStyleArr); i++) {
-          if (attr.second & static_cast<int>(textStyleArr[i])) {
-            list->SetString(index++, ToString(textStyleArr[i]));
+        for (auto& i : textStyleArr) {
+          if (attr.second & static_cast<int>(i)) {
+            list->SetString(index++, ToString(i));
           }
         }
         attributes->SetList(ToString(attr.first), list);
@@ -259,8 +259,8 @@ struct PopulateAxNodeAttributes {
       if (ax::mojom::IntListAttribute::kMarkerTypes == attr.first) {
         list = CefListValue::Create();
         int index = 0;
-        for (size_t i = 0; i < attr.second.size(); ++i) {
-          auto type = static_cast<ax::mojom::MarkerType>(attr.second[i]);
+        for (int i : attr.second) {
+          auto type = static_cast<ax::mojom::MarkerType>(i);
 
           if (type == ax::mojom::MarkerType::kNone) {
             continue;
@@ -271,9 +271,9 @@ struct PopulateAxNodeAttributes {
               ax::mojom::MarkerType::kTextMatch};
 
           // Iterate and find which markers are set.
-          for (unsigned j = 0; j < std::size(marktypeArr); j++) {
-            if (attr.second[i] & static_cast<int>(marktypeArr[j])) {
-              list->SetString(index++, ToString(marktypeArr[j]));
+          for (auto& j : marktypeArr) {
+            if (i & static_cast<int>(j)) {
+              list->SetString(index++, ToString(j));
             }
           }
         }

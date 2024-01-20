@@ -6,8 +6,7 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
-namespace extensions {
-namespace alloy {
+namespace extensions::alloy {
 
 int GetTabIdForWebContents(content::WebContents* web_contents) {
   auto browser = AlloyBrowserHostImpl::GetBrowserForContents(web_contents);
@@ -17,5 +16,4 @@ int GetTabIdForWebContents(content::WebContents* web_contents) {
   return browser->GetIdentifier();
 }
 
-}  // namespace alloy
-}  // namespace extensions
+}  // namespace extensions::alloy

@@ -209,7 +209,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
 
 }  // namespace
 
-InternalHandlerDelegate::Action::Action() : stream_size(-1), resource_id(-1) {}
+InternalHandlerDelegate::Action::Action() = default;
 
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
     std::unique_ptr<InternalHandlerDelegate> delegate) {
