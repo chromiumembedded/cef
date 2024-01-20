@@ -4,6 +4,7 @@
 
 #include "tests/ceftests/test_handler.h"
 
+#include <memory>
 #include <sstream>
 
 #include "include/base/cef_callback.h"
@@ -150,8 +151,7 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 
 // TestHandler::CompletionState
 
-TestHandler::CompletionState::CompletionState(int total)
-    : total_(total), count_(0) {
+TestHandler::CompletionState::CompletionState(int total) : total_(total) {
   event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
 }
 
@@ -720,7 +720,7 @@ TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
   CHECK(!destroy_test_called_);
 
   if (!ui_thread_helper_.get()) {
-    ui_thread_helper_.reset(new UIThreadHelper());
+    ui_thread_helper_ = std::make_unique<UIThreadHelper>();
   }
   return ui_thread_helper_.get();
 }

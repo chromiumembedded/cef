@@ -17,7 +17,7 @@ void SetRouterConfig(CefMessageRouterConfig& config) {
 // Handle the renderer side of the routing implementation.
 class RoutingRenderDelegate : public ClientAppRenderer::Delegate {
  public:
-  RoutingRenderDelegate() {}
+  RoutingRenderDelegate() = default;
 
   void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     // Create the renderer-side router for query handling.

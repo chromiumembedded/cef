@@ -30,7 +30,7 @@ constexpr char kMediaNavUrl[] = "https://media-access-test/nav.html";
 class MediaAccessBrowserTest : public client::ClientAppBrowser::Delegate,
                                public CefPermissionHandler {
  public:
-  MediaAccessBrowserTest() {}
+  MediaAccessBrowserTest() = default;
 
   void OnBeforeCommandLineProcessing(
       CefRefPtr<client::ClientAppBrowser> app,
@@ -46,7 +46,7 @@ class MediaAccessBrowserTest : public client::ClientAppBrowser::Delegate,
 
 class TestSetup {
  public:
-  TestSetup() {}
+  TestSetup() = default;
 
   // CONFIGURATION
 

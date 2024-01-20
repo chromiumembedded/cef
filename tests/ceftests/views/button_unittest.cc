@@ -97,7 +97,7 @@ void VerifyMenuButtonStyle(CefRefPtr<CefMenuButton> button) {
 
 class EmptyMenuButtonDelegate : public CefMenuButtonDelegate {
  public:
-  EmptyMenuButtonDelegate() {}
+  EmptyMenuButtonDelegate() = default;
 
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,
@@ -166,7 +166,7 @@ const int kButtonID = 1;
 
 class TestButtonDelegate : public CefButtonDelegate {
  public:
-  TestButtonDelegate() {}
+  TestButtonDelegate() = default;
 
   void OnButtonPressed(CefRefPtr<CefButton> button) override {
     EXPECT_TRUE(button.get());
@@ -326,7 +326,7 @@ void ClickMenuItem(CefRefPtr<CefMenuButton> menu_button) {
 class TestMenuButtonDelegate : public CefMenuButtonDelegate,
                                public CefMenuModelDelegate {
  public:
-  TestMenuButtonDelegate() {}
+  TestMenuButtonDelegate() = default;
 
   void OnMenuButtonPressed(
       CefRefPtr<CefMenuButton> menu_button,

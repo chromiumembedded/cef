@@ -31,8 +31,8 @@ TEST(PrintTest, SettingsSetGet) {
   EXPECT_EQ(dpi, settings->GetDPI());
 
   CefPrintSettings::PageRangeList page_ranges;
-  page_ranges.push_back(CefRange(1, 3));
-  page_ranges.push_back(CefRange(5, 6));
+  page_ranges.emplace_back(1, 3);
+  page_ranges.emplace_back(5, 6);
   settings->SetPageRanges(page_ranges);
   EXPECT_EQ(page_ranges.size(), settings->GetPageRangesCount());
   CefPrintSettings::PageRangeList page_ranges2;

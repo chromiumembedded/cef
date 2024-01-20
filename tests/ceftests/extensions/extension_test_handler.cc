@@ -10,7 +10,7 @@
 
 ExtensionTestHandler::ExtensionTestHandler(
     RequestContextType request_context_type)
-    : request_context_type_(request_context_type), create_main_browser_(true) {
+    : request_context_type_(request_context_type) {
   // Verify supported flag combinations.
   if (request_context_on_disk()) {
     EXPECT_TRUE(request_context_is_custom());
@@ -79,7 +79,7 @@ void ExtensionTestHandler::RunTest() {
   if (request_context_load_with_handler()) {
     class Handler : public CefRequestContextHandler {
      public:
-      Handler() {}
+      Handler() = default;
 
      private:
       IMPLEMENT_REFCOUNTING(Handler);
@@ -207,8 +207,8 @@ void ExtensionTestHandler::VerifyExtensionInContext(
   // has finished loading (our extension may load first if the call to
   // LoadExtension initializes the request context).
   bool has_extension = false;
-  for (size_t i = 0; i < extension_ids.size(); ++i) {
-    if (extension_ids[i] == extension_id) {
+  for (const auto& i : extension_ids) {
+    if (i == extension_id) {
       has_extension = true;
       break;
     }

@@ -75,7 +75,7 @@ CefRefPtr<CefValue> CreateDictionaryValue(CefRefPtr<CefDictionaryValue> value) {
 // Browser-side app delegate.
 class PreferenceBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
-  PreferenceBrowserTest() {}
+  PreferenceBrowserTest() = default;
 
   void OnRegisterCustomPreferences(
       CefRefPtr<client::ClientAppBrowser> app,
@@ -416,7 +416,7 @@ void ValidateGet(CefRefPtr<CefPreferenceManager> context,
 // No-op implementation.
 class TestRequestContextHandler : public CefRequestContextHandler {
  public:
-  TestRequestContextHandler() {}
+  TestRequestContextHandler() = default;
   explicit TestRequestContextHandler(CefRefPtr<CefWaitableEvent> event)
       : event_(event) {}
 

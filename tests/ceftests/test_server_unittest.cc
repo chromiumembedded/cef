@@ -30,7 +30,7 @@ class TestServerHandler : public CefTestServerHandler {
   // The methods of this class are always executed on the server thread.
   class HttpRequestHandler {
    public:
-    virtual ~HttpRequestHandler() {}
+    virtual ~HttpRequestHandler() = default;
     virtual bool HandleRequest(
         CefRefPtr<CefTestServer> server,
         CefRefPtr<CefRequest> request,
@@ -48,15 +48,12 @@ class TestServerHandler : public CefTestServerHandler {
   // object is destroyed.
   TestServerHandler(StartCallback start_callback,
                     base::OnceClosure destroy_callback)
-      : initialized_(false),
-        start_callback_(std::move(start_callback)),
-        destroy_callback_(std::move(destroy_callback)),
-        expected_http_request_ct_(0),
-        actual_http_request_ct_(0) {
+      : start_callback_(std::move(start_callback)),
+        destroy_callback_(std::move(destroy_callback)) {
     EXPECT_FALSE(destroy_callback_.is_null());
   }
 
-  virtual ~TestServerHandler() {
+  ~TestServerHandler() override {
     EXPECT_UI_THREAD();
     std::move(destroy_callback_).Run();
   }
@@ -176,7 +173,7 @@ class TestServerHandler : public CefTestServerHandler {
   }
 
   CefRefPtr<CefTestServer> server_;
-  bool initialized_;
+  bool initialized_ = false;
 
   // After initialization only accessed on the UI thread.
   StartCallback start_callback_;
@@ -190,8 +187,8 @@ class TestServerHandler : public CefTestServerHandler {
 
   std::list<std::unique_ptr<HttpRequestHandler>> http_request_handler_list_;
 
-  int expected_http_request_ct_;
-  int actual_http_request_ct_;
+  int expected_http_request_ct_ = 0;
+  int actual_http_request_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestServerHandler);
   DISALLOW_COPY_AND_ASSIGN(TestServerHandler);
@@ -206,7 +203,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   // The methods of this class are always executed on the UI thread.
   class RequestRunner {
    public:
-    virtual ~RequestRunner() {}
+    virtual ~RequestRunner() = default;
 
     // Create the server-side handler for the request.
     virtual std::unique_ptr<TestServerHandler::HttpRequestHandler>
@@ -366,7 +363,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   TestHandler::UIThreadHelper* GetUIThreadHelper() {
     EXPECT_UI_THREAD();
     if (!ui_thread_helper_) {
-      ui_thread_helper_.reset(new TestHandler::UIThreadHelper());
+      ui_thread_helper_ = std::make_unique<TestHandler::UIThreadHelper>();
     }
     return ui_thread_helper_.get();
   }
@@ -543,7 +540,7 @@ class StaticHttpServerRequestHandler
                                  const HttpServerResponse& response)
       : expected_request_(expected_request),
         expected_request_ct_(expected_request_ct),
-        actual_request_ct_(0),
+
         response_(response) {}
 
   bool HandleRequest(CefRefPtr<CefTestServer> server,
@@ -571,7 +568,7 @@ class StaticHttpServerRequestHandler
  private:
   CefRefPtr<CefRequest> expected_request_;
   int expected_request_ct_;
-  int actual_request_ct_;
+  int actual_request_ct_ = 0;
   HttpServerResponse response_;
 
   DISALLOW_COPY_AND_ASSIGN(StaticHttpServerRequestHandler);

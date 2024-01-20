@@ -89,7 +89,7 @@ void RouteStdioToConsole(bool create_console_if_not_found) {
 }  // namespace
 
 CefTestSuite::CefTestSuite(int argc, char** argv)
-    : argc_(argc), argv_(argc, argv), retval_(0) {
+    : argc_(argc), argv_(argc, argv) {
   g_test_suite = this;
 
   // Keep a representation of the original command-line.
@@ -179,8 +179,8 @@ void CefTestSuite::RegisterTempDirectory(const CefString& directory) {
 
 void CefTestSuite::DeleteTempDirectories() {
   base::AutoLock lock_scope(temp_directories_lock_);
-  for (size_t i = 0U; i < temp_directories_.size(); ++i) {
-    CefDeleteFile(temp_directories_[i], true);
+  for (const auto& temp_directory : temp_directories_) {
+    CefDeleteFile(temp_directory, true);
   }
   temp_directories_.clear();
 }

@@ -323,14 +323,14 @@ namespace {
 
 class DirectMismatchedTest : public CertificateErrorTest {
  public:
-  DirectMismatchedTest(bool continue_invalid_certificate)
+  explicit DirectMismatchedTest(bool continue_invalid_certificate)
       : CertificateErrorTest(
             /*cert_type=*/CEF_TEST_CERT_OK_DOMAIN,
             /*expect_load_success=*/continue_invalid_certificate,
             /*expect_certificate_error=*/true) {}
 
  protected:
-  std::string GetStartURL() const {
+  std::string GetStartURL() const override {
     // Load by IP address when the certificate expects a domain.
     return client::AsciiStrReplace(server_origin(), "localhost", "127.0.0.1") +
            "/index.html";

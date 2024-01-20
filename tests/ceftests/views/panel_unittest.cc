@@ -17,7 +17,7 @@ namespace {
 
 class EmptyPanelDelegate : public CefPanelDelegate {
  public:
-  EmptyPanelDelegate() {}
+  EmptyPanelDelegate() = default;
 
  private:
   IMPLEMENT_REFCOUNTING(EmptyPanelDelegate);
@@ -89,7 +89,7 @@ namespace {
 
 class ParentPanelDelegate : public CefPanelDelegate {
  public:
-  ParentPanelDelegate() {}
+  ParentPanelDelegate() = default;
 
   void OnParentViewChanged(CefRefPtr<CefView> view,
                            bool added,
@@ -138,7 +138,7 @@ class ParentPanelDelegate : public CefPanelDelegate {
 
 class ChildPanelDelegate : public CefPanelDelegate {
  public:
-  ChildPanelDelegate() {}
+  ChildPanelDelegate() = default;
 
   void OnParentViewChanged(CefRefPtr<CefView> view,
                            bool added,
@@ -592,7 +592,7 @@ namespace {
 
 class SizingPanelDelegate : public CefPanelDelegate {
  public:
-  SizingPanelDelegate() {}
+  SizingPanelDelegate() = default;
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     got_get_preferred_size_ = true;

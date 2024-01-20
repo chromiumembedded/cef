@@ -223,7 +223,7 @@ class TracingTestHandler : public CefEndTracingCallback,
   }
 
  private:
-  ~TracingTestHandler() override {}
+  ~TracingTestHandler() override = default;
 
   // Handle used to notify when the test is complete.
   CefRefPtr<CefWaitableEvent> completion_event_;

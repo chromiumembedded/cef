@@ -403,7 +403,7 @@ class NetNotifyTestHandler : public TestHandler {
 class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
                               public CefLoadHandler {
  public:
-  NetNotifyRendererTest() : run_test_(false) {}
+  NetNotifyRendererTest() = default;
 
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
@@ -461,7 +461,7 @@ class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
   }
 
  private:
-  bool run_test_;
+  bool run_test_ = false;
 
   IMPLEMENT_REFCOUNTING(NetNotifyRendererTest);
 };

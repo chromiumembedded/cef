@@ -57,7 +57,7 @@ const char kNotHandled[] = "NotHandled";
 class ResourceManagerTestHandler : public RoutingTestHandler {
  public:
   struct State {
-    State() : manager_(new CefResourceManager()), expected_message_ct_(0) {}
+    State() : manager_(new CefResourceManager()) {}
 
     CefRefPtr<CefResourceManager> manager_;
 
@@ -69,11 +69,10 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
 
     // If non-zero the test will not complete until the expected number of
     // messages have been received.
-    size_t expected_message_ct_;
+    size_t expected_message_ct_ = 0;
   };
 
-  explicit ResourceManagerTestHandler(State* state)
-      : state_(state), current_url_(0) {
+  explicit ResourceManagerTestHandler(State* state) : state_(state) {
     EXPECT_TRUE(state_);
     EXPECT_TRUE(state_->manager_.get());
     EXPECT_TRUE(!state_->urls_.empty());
@@ -162,7 +161,7 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
   }
 
   State* state_;
-  size_t current_url_;
+  size_t current_url_ = 0;
 
   IMPLEMENT_REFCOUNTING(ResourceManagerTestHandler);
 };
@@ -205,7 +204,7 @@ class TestProvider : public CefResourceManager::Provider {
 
   explicit TestProvider(State* state) : state_(state) { EXPECT_TRUE(state_); }
 
-  ~TestProvider() {
+  ~TestProvider() override {
     CEF_REQUIRE_IO_THREAD();
     state_->got_destruct_.yes();
     if (!state_->destruct_callback_.is_null()) {
@@ -894,13 +893,11 @@ class OneShotProvider : public CefResourceManager::Provider {
  public:
   OneShotProvider(const std::string& content,
                   base::OnceClosure destruct_callback)
-      : done_(false),
-        content_(content),
-        destruct_callback_(std::move(destruct_callback)) {
+      : content_(content), destruct_callback_(std::move(destruct_callback)) {
     EXPECT_FALSE(content.empty());
   }
 
-  ~OneShotProvider() {
+  ~OneShotProvider() override {
     CEF_REQUIRE_IO_THREAD();
     std::move(destruct_callback_).Run();
   }
@@ -924,7 +921,7 @@ class OneShotProvider : public CefResourceManager::Provider {
   }
 
  private:
-  bool done_;
+  bool done_ = false;
   std::string content_;
   base::OnceClosure destruct_callback_;
 
@@ -999,7 +996,7 @@ namespace {
 // Content provider that returns the path component as the result.
 class EchoProvider : public CefResourceManager::Provider {
  public:
-  EchoProvider(const std::string& base_url) : base_url_(base_url) {
+  explicit EchoProvider(const std::string& base_url) : base_url_(base_url) {
     EXPECT_TRUE(!base_url_.empty());
   }
 

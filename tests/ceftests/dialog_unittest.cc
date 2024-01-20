@@ -18,9 +18,7 @@ class DialogTestHandler : public TestHandler {
     explicit TestConfig(FileDialogMode dialog_mode)
         : mode(dialog_mode),
           title("Test Title"),
-          default_file_name("Test File Name"),
-          callback_async(false),
-          callback_cancel(false) {
+          default_file_name("Test File Name") {
       accept_types.push_back("text/*");
       accept_types.push_back(".js");
       accept_types.push_back(".css");
@@ -31,9 +29,12 @@ class DialogTestHandler : public TestHandler {
     CefString default_file_name;
     std::vector<CefString> accept_types;
 
-    bool callback_async;  // True if the callback should execute asynchronously.
-    bool callback_cancel;  // True if the callback should cancel.
-    std::vector<CefString> callback_paths;  // Resulting paths if not cancelled.
+    // True if the callback should execute asynchronously.
+    bool callback_async = false;
+    // True if the callback should cancel.
+    bool callback_cancel = false;
+    // Resulting paths if not cancelled.
+    std::vector<CefString> callback_paths;
   };
 
   class Callback : public CefRunFileDialogCallback {

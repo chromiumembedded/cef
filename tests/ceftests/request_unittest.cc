@@ -218,7 +218,7 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
 
 class RequestSendRecvTestHandler : public TestHandler {
  public:
-  RequestSendRecvTestHandler() : response_length_(0), request_id_(0U) {}
+  RequestSendRecvTestHandler() = default;
 
   void RunTest() override {
     // Create the test request.
@@ -356,8 +356,8 @@ class RequestSendRecvTestHandler : public TestHandler {
   }
 
   CefRefPtr<CefRequest> request_;
-  int64_t response_length_;
-  uint64_t request_id_;
+  int64_t response_length_ = 0;
+  uint64_t request_id_ = 0U;
 
   TrackCallback got_before_resource_load_;
   TrackCallback got_resource_handler_;
@@ -515,9 +515,7 @@ class TypeTestHandler : public TestHandler {
   TypeTestHandler()
       : browse_expectations_(true),
         load_expectations_(false),
-        get_expectations_(false),
-        completed_browser_side_(false),
-        destroyed_(false) {}
+        get_expectations_(false) {}
 
   void RunTest() override {
     AddResource(std::string(kTypeTestOrigin) + "main.html",
@@ -616,8 +614,8 @@ class TypeTestHandler : public TestHandler {
   TypeExpectations load_expectations_;
   TypeExpectations get_expectations_;
 
-  bool completed_browser_side_;
-  bool destroyed_;
+  bool completed_browser_side_ = false;
+  bool destroyed_ = false;
 
   IMPLEMENT_REFCOUNTING(TypeTestHandler);
 };

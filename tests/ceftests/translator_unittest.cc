@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <memory>
+
 #include "include/test/cef_translator_test.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
@@ -155,8 +157,8 @@ TEST(TranslatorTest, StructList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
 
   std::vector<CefPoint> list;
-  list.push_back(CefPoint(TEST_X_VAL, TEST_Y_VAL));
-  list.push_back(CefPoint(TEST_X_VAL2, TEST_Y_VAL2));
+  list.emplace_back(TEST_X_VAL, TEST_Y_VAL);
+  list.emplace_back(TEST_X_VAL2, TEST_Y_VAL2);
   EXPECT_TRUE(obj->SetPointList(list));
 
   list.clear();
@@ -274,7 +276,7 @@ class TranslatorTestRefPtrClient : public CefTranslatorTestRefPtrClient {
  public:
   explicit TranslatorTestRefPtrClient(const int val) : val_(val) {}
 
-  virtual int GetValue() override { return val_; }
+  int GetValue() override { return val_; }
 
  private:
   const int val_;
@@ -289,9 +291,9 @@ class TranslatorTestRefPtrClientChild
   TranslatorTestRefPtrClientChild(const int val, const int other_val)
       : val_(val), other_val_(other_val) {}
 
-  virtual int GetValue() override { return val_; }
+  int GetValue() override { return val_; }
 
-  virtual int GetOtherValue() override { return other_val_; }
+  int GetOtherValue() override { return other_val_; }
 
  private:
   const int val_;
@@ -477,7 +479,7 @@ class TranslatorTestScopedClient : public CefTranslatorTestScopedClient {
       : val_(val), got_delete_(got_delete) {}
   ~TranslatorTestScopedClient() override { got_delete_->yes(); }
 
-  virtual int GetValue() override { return val_; }
+  int GetValue() override { return val_; }
 
  private:
   const int val_;
@@ -495,9 +497,9 @@ class TranslatorTestScopedClientChild
       : val_(val), other_val_(other_val), got_delete_(got_delete) {}
   ~TranslatorTestScopedClientChild() override { got_delete_->yes(); }
 
-  virtual int GetValue() override { return val_; }
+  int GetValue() override { return val_; }
 
-  virtual int GetOtherValue() override { return other_val_; }
+  int GetOtherValue() override { return other_val_; }
 
  private:
   const int val_;
@@ -524,7 +526,8 @@ TEST(TranslatorTest, OwnPtrClient) {
   EXPECT_TRUE(got_delete);
 
   got_delete.reset();
-  test_obj.reset(new TranslatorTestScopedClient(kTestVal, &got_delete));
+  test_obj =
+      std::make_unique<TranslatorTestScopedClient>(kTestVal, &got_delete);
   CefOwnPtr<CefTranslatorTestScopedClient> handler =
       obj->SetOwnPtrClientAndReturn(std::move(test_obj));
   EXPECT_FALSE(test_obj.get());
@@ -555,15 +558,15 @@ TEST(TranslatorTest, OwnPtrClientInherit) {
   EXPECT_TRUE(got_delete);
 
   got_delete.reset();
-  test_obj.reset(
-      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  test_obj = std::make_unique<TranslatorTestScopedClientChild>(
+      kTestVal, kTestVal2, &got_delete);
   EXPECT_EQ(kTestVal, obj->SetChildOwnPtrClient(std::move(test_obj)));
   EXPECT_FALSE(test_obj.get());
   EXPECT_TRUE(got_delete);
 
   got_delete.reset();
-  test_obj.reset(
-      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  test_obj = std::make_unique<TranslatorTestScopedClientChild>(
+      kTestVal, kTestVal2, &got_delete);
   CefOwnPtr<CefTranslatorTestScopedClient> handler(
       obj->SetChildOwnPtrClientAndReturnParent(std::move(test_obj)));
   EXPECT_EQ(kTestVal, handler->GetValue());

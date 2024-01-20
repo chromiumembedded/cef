@@ -28,8 +28,7 @@ const char kTitleStr3[] = "Title 3";
 // Browser side.
 class TitleTestHandler : public TestHandler {
  public:
-  TitleTestHandler()
-      : step_(0), got_title_change_(false), got_loading_state_change_(false) {}
+  TitleTestHandler() = default;
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -130,10 +129,10 @@ class TitleTestHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  int step_;
+  int step_ = 0;
 
-  bool got_title_change_;
-  bool got_loading_state_change_;
+  bool got_title_change_ = false;
+  bool got_loading_state_change_ = false;
 
   TrackCallback got_title_[5];
 
@@ -155,7 +154,7 @@ const char kAutoResizeUrl[] = "https://tests-display/auto-resize.html";
 
 class AutoResizeTestHandler : public RoutingTestHandler {
  public:
-  AutoResizeTestHandler() {}
+  AutoResizeTestHandler() = default;
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -260,18 +259,17 @@ class ConsoleTestHandler : public TestHandler {
         : level(message_level),
           message("'Test Message'"),
           expected_message("Test Message"),
-          source("https://tests-console-message/level.html"),
-          line(42) {}
+          source("https://tests-console-message/level.html") {}
 
     cef_log_severity_t level;
     std::string message;
     std::string expected_message;
     std::string source;
-    int line;
+    int line = 42;
     std::string function;
   };
 
-  ConsoleTestHandler(const TestConfig& config) : config_(config) {}
+  explicit ConsoleTestHandler(const TestConfig& config) : config_(config) {}
 
   void RunTest() override {
     // Add the resources that will be used to print to console.
@@ -469,7 +467,7 @@ const char kLoadinProgressUrl[] = "https://tests-display/loading-progress.html";
 // Browser side.
 class LoadingProgressTestHandler : public TestHandler {
  public:
-  LoadingProgressTestHandler() {}
+  LoadingProgressTestHandler() = default;
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.

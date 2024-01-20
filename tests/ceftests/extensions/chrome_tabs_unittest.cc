@@ -27,13 +27,7 @@ const char kSuccessMessage[] = "success";
 class TabsTestHandler : public ExtensionTestHandler {
  public:
   explicit TabsTestHandler(RequestContextType request_context_type)
-      : ExtensionTestHandler(request_context_type),
-        create_main_browser_first_(false),
-        expect_get_active_browser_(true),
-        expect_success_in_main_browser_(true),
-        expected_api_call_count_(1),
-        got_get_active_browser_count_(0),
-        got_can_access_browser_count_(0) {}
+      : ExtensionTestHandler(request_context_type) {}
 
   // CefExtensionHandler methods:
   void OnExtensionLoaded(CefRefPtr<CefExtension> extension) override {
@@ -335,20 +329,20 @@ class TabsTestHandler : public ExtensionTestHandler {
 
   // If true the main browser will be created before the extension browser.
   // Otherwise the creation order is undefined.
-  bool create_main_browser_first_;
+  bool create_main_browser_first_ = false;
 
   // If true we expect GetActiveBrowser() but not CanAccessBrowser() to be
   // called. Else visa-versa.
-  bool expect_get_active_browser_;
+  bool expect_get_active_browser_ = true;
 
   // If true we expect the success message to be delivered in the main browser.
   // Else expect it in the extension browser.
-  bool expect_success_in_main_browser_;
+  bool expect_success_in_main_browser_ = true;
 
   // Number of expected calls to GetActiveBrowser or CanAccessBrowser. This
   // should match the number of calls to chrome.tabs.* API functions in the
   // test.
-  int expected_api_call_count_;
+  int expected_api_call_count_ = 1;
 
   CefRefPtr<CefExtension> extension_;
   std::string extension_url_;
@@ -364,8 +358,8 @@ class TabsTestHandler : public ExtensionTestHandler {
   TrackCallback got_success_message_;
   TrackCallback got_extension_unloaded_;
 
-  int got_get_active_browser_count_;
-  int got_can_access_browser_count_;
+  int got_get_active_browser_count_ = 0;
+  int got_can_access_browser_count_ = 0;
 };
 
 //

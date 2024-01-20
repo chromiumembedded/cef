@@ -108,7 +108,7 @@ class FrameNavExpectations {
 
   FrameNavExpectations(int nav, bool renderer)
       : nav_(nav), renderer_(renderer) {}
-  virtual ~FrameNavExpectations() {}
+  virtual ~FrameNavExpectations() = default;
 
   // Browser and renderer notifications.
   virtual bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -207,8 +207,8 @@ class FrameNavExpectationsRenderer : public FrameNavExpectations {
 // Abstract base class for the factory that creates expectations objects.
 class FrameNavExpectationsFactory {
  public:
-  FrameNavExpectationsFactory() {}
-  virtual ~FrameNavExpectationsFactory() {}
+  FrameNavExpectationsFactory() = default;
+  virtual ~FrameNavExpectationsFactory() = default;
 
   // Returns the unique ID for this factory type.
   virtual FrameNavFactoryId GetID() const = 0;
@@ -217,7 +217,7 @@ class FrameNavExpectationsFactory {
 // Browser process expectations factory abstact base class.
 class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
  public:
-  FrameNavExpectationsFactoryBrowser() {}
+  FrameNavExpectationsFactoryBrowser() = default;
 
   // Create a new factory instance of the specified type.
   static std::unique_ptr<FrameNavExpectationsFactoryBrowser> FromID(
@@ -246,7 +246,7 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
 // Renderer process expectations factory abstact base class.
 class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
  public:
-  FrameNavExpectationsFactoryRenderer() {}
+  FrameNavExpectationsFactoryRenderer() = default;
 
   // Create a new factory instance of the specified type.
   static std::unique_ptr<FrameNavExpectationsFactoryRenderer> FromID(
@@ -269,7 +269,7 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
 class FrameNavRendererTest : public ClientAppRenderer::Delegate,
                              public CefLoadHandler {
  public:
-  FrameNavRendererTest() : run_test_(false), nav_(0) {}
+  FrameNavRendererTest() = default;
 
   void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
@@ -359,8 +359,8 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     nav_++;
   }
 
-  bool run_test_;
-  int nav_;
+  bool run_test_ = false;
+  int nav_ = 0;
   std::unique_ptr<FrameNavExpectationsFactoryRenderer> factory_;
   std::unique_ptr<FrameNavExpectationsRenderer> expectations_;
 
@@ -371,8 +371,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
 class FrameNavTestHandler : public TestHandler {
  public:
   explicit FrameNavTestHandler(FrameNavFactoryId factory_id)
-      : nav_(0),
-        factory_(FrameNavExpectationsFactoryBrowser::FromID(factory_id)) {}
+      : factory_(FrameNavExpectationsFactoryBrowser::FromID(factory_id)) {}
 
   ~FrameNavTestHandler() override { EXPECT_TRUE(got_destroyed_); }
 
@@ -514,7 +513,7 @@ class FrameNavTestHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  int nav_;
+  int nav_ = 0;
   TrackCallback got_destroyed_;
   std::unique_ptr<FrameNavExpectationsFactoryBrowser> factory_;
   std::unique_ptr<FrameNavExpectationsBrowser> expectations_;
@@ -774,7 +773,7 @@ class FrameNavExpectationsRendererTestSingleNavHarness
 class FrameNavExpectationsFactoryBrowserTestSingleNavHarness
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestSingleNavHarness() {}
+  FrameNavExpectationsFactoryBrowserTestSingleNavHarness() = default;
 
   ~FrameNavExpectationsFactoryBrowserTestSingleNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -815,7 +814,7 @@ class FrameNavExpectationsFactoryBrowserTestSingleNavHarness
 class FrameNavExpectationsFactoryRendererTestSingleNavHarness
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestSingleNavHarness() {}
+  FrameNavExpectationsFactoryRendererTestSingleNavHarness() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV_HARNESS; }
 
@@ -1009,7 +1008,7 @@ class FrameNavExpectationsRendererTestSingleNav
 class FrameNavExpectationsFactoryBrowserTestSingleNav
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestSingleNav() {}
+  FrameNavExpectationsFactoryBrowserTestSingleNav() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV; }
 
@@ -1026,7 +1025,7 @@ class FrameNavExpectationsFactoryBrowserTestSingleNav
 class FrameNavExpectationsFactoryRendererTestSingleNav
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestSingleNav() {}
+  FrameNavExpectationsFactoryRendererTestSingleNav() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_SINGLE_NAV; }
 
@@ -1177,7 +1176,7 @@ class FrameNavExpectationsBrowserTestMultiNavHarness
   typedef FrameNavExpectationsBrowserMultiNav parent;
 
   explicit FrameNavExpectationsBrowserTestMultiNavHarness(int nav)
-      : parent(nav), navigation_done_count_(0) {}
+      : parent(nav) {}
 
   ~FrameNavExpectationsBrowserTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -1262,7 +1261,7 @@ class FrameNavExpectationsBrowserTestMultiNavHarness
   TrackCallback got_load_end_;
   TrackCallback got_on_after_created_;
   TrackCallback got_renderer_complete_;
-  mutable int navigation_done_count_;
+  mutable int navigation_done_count_ = 0;
   TrackCallback got_finalize_;
 };
 
@@ -1272,7 +1271,7 @@ class FrameNavExpectationsRendererTestMultiNavHarness
   typedef FrameNavExpectationsRendererMultiNav parent;
 
   explicit FrameNavExpectationsRendererTestMultiNavHarness(int nav)
-      : parent(nav), navigation_done_count_(0) {}
+      : parent(nav) {}
 
   ~FrameNavExpectationsRendererTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -1314,15 +1313,14 @@ class FrameNavExpectationsRendererTestMultiNavHarness
  private:
   TrackCallback got_load_state_change_done_;
   TrackCallback got_load_end_;
-  mutable int navigation_done_count_;
+  mutable int navigation_done_count_ = 0;
   TrackCallback got_finalize_;
 };
 
 class FrameNavExpectationsFactoryBrowserTestMultiNavHarness
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestMultiNavHarness()
-      : get_browser_navigation_count_(0), create_count_(0) {}
+  FrameNavExpectationsFactoryBrowserTestMultiNavHarness() = default;
 
   ~FrameNavExpectationsFactoryBrowserTestMultiNavHarness() override {
     EXPECT_TRUE(got_finalize_);
@@ -1353,15 +1351,15 @@ class FrameNavExpectationsFactoryBrowserTestMultiNavHarness
   }
 
  private:
-  mutable int get_browser_navigation_count_;
-  int create_count_;
+  mutable int get_browser_navigation_count_ = 0;
+  int create_count_ = 0;
   TrackCallback got_finalize_;
 };
 
 class FrameNavExpectationsFactoryRendererTestMultiNavHarness
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestMultiNavHarness() {}
+  FrameNavExpectationsFactoryRendererTestMultiNavHarness() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV_HARNESS; }
 
@@ -1565,7 +1563,7 @@ class FrameNavExpectationsRendererTestMultiNav
 class FrameNavExpectationsFactoryBrowserTestMultiNav
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestMultiNav() : nav_count_(0) {}
+  FrameNavExpectationsFactoryBrowserTestMultiNav() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV; }
 
@@ -1586,13 +1584,13 @@ class FrameNavExpectationsFactoryBrowserTestMultiNav
   }
 
  private:
-  int nav_count_;
+  int nav_count_ = 0;
 };
 
 class FrameNavExpectationsFactoryRendererTestMultiNav
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestMultiNav() {}
+  FrameNavExpectationsFactoryRendererTestMultiNav() = default;
 
   FrameNavFactoryId GetID() const override { return FNF_ID_MULTI_NAV; }
 
@@ -1834,6 +1832,7 @@ class FrameNavExpectationsBrowserTestNestedIframes
       case 2: {
         // Frame 2. Contains an named iframe created via javascript.
         std::stringstream ss;
+        // clang-format off
         ss << "<html><script>"
            << "  function createFrame() {"
            << "    var f = document.createElement('iframe');"
@@ -1841,6 +1840,7 @@ class FrameNavExpectationsBrowserTestNestedIframes
            << "    f.src = '" << GetMultiNavURL(origin_, 3) << "';"
            << "    document.body.appendChild(f);"
            << "  }</script><body onload=\"createFrame()\">Nav3</body></html>";
+        // clang-format on
         return ss.str();
       }
       case 3:
@@ -2139,8 +2139,7 @@ class FrameNavExpectationsRendererTestNestedIframes
 class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin()
-      : create_count_(0) {}
+  FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin() = default;
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_SAME_ORIGIN;
@@ -2164,13 +2163,13 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin
   }
 
  private:
-  int create_count_;
+  int create_count_ = 0;
 };
 
 class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin() {}
+  FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin() = default;
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_SAME_ORIGIN;
@@ -2193,8 +2192,7 @@ namespace {
 class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin
     : public FrameNavExpectationsFactoryBrowser {
  public:
-  FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin()
-      : create_count_(0) {}
+  FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin() = default;
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN;
@@ -2218,13 +2216,13 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin
   }
 
  private:
-  int create_count_;
+  int create_count_ = 0;
 };
 
 class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin
     : public FrameNavExpectationsFactoryRenderer {
  public:
-  FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin() {}
+  FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin() = default;
 
   FrameNavFactoryId GetID() const override {
     return FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN;
@@ -2253,24 +2251,28 @@ FrameNavExpectationsFactoryBrowser::FromID(FrameNavFactoryId id) {
   std::unique_ptr<FrameNavExpectationsFactoryBrowser> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
-      factory.reset(new FrameNavExpectationsFactoryBrowserTestSingleNavHarness);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryBrowserTestSingleNavHarness>();
       break;
     case FNF_ID_SINGLE_NAV:
-      factory.reset(new FrameNavExpectationsFactoryBrowserTestSingleNav);
+      factory =
+          std::make_unique<FrameNavExpectationsFactoryBrowserTestSingleNav>();
       break;
     case FNF_ID_MULTI_NAV_HARNESS:
-      factory.reset(new FrameNavExpectationsFactoryBrowserTestMultiNavHarness);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryBrowserTestMultiNavHarness>();
       break;
     case FNF_ID_MULTI_NAV:
-      factory.reset(new FrameNavExpectationsFactoryBrowserTestMultiNav);
+      factory =
+          std::make_unique<FrameNavExpectationsFactoryBrowserTestMultiNav>();
       break;
     case FNF_ID_NESTED_IFRAMES_SAME_ORIGIN:
-      factory.reset(
-          new FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin>();
       break;
     case FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN:
-      factory.reset(
-          new FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin>();
       break;
     default:
       break;
@@ -2286,25 +2288,28 @@ FrameNavExpectationsFactoryRenderer::FromID(FrameNavFactoryId id) {
   std::unique_ptr<FrameNavExpectationsFactoryRenderer> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
-      factory.reset(
-          new FrameNavExpectationsFactoryRendererTestSingleNavHarness);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryRendererTestSingleNavHarness>();
       break;
     case FNF_ID_SINGLE_NAV:
-      factory.reset(new FrameNavExpectationsFactoryRendererTestSingleNav);
+      factory =
+          std::make_unique<FrameNavExpectationsFactoryRendererTestSingleNav>();
       break;
     case FNF_ID_MULTI_NAV_HARNESS:
-      factory.reset(new FrameNavExpectationsFactoryRendererTestMultiNavHarness);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryRendererTestMultiNavHarness>();
       break;
     case FNF_ID_MULTI_NAV:
-      factory.reset(new FrameNavExpectationsFactoryRendererTestMultiNav);
+      factory =
+          std::make_unique<FrameNavExpectationsFactoryRendererTestMultiNav>();
       break;
     case FNF_ID_NESTED_IFRAMES_SAME_ORIGIN:
-      factory.reset(
-          new FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin>();
       break;
     case FNF_ID_NESTED_IFRAMES_DIFF_ORIGIN:
-      factory.reset(
-          new FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin);
+      factory = std::make_unique<
+          FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin>();
       break;
     default:
       break;

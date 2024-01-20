@@ -161,16 +161,7 @@ bool g_ReadHandlerTesterDeleted = false;
 
 class ReadHandlerTester : public CefReadHandler {
  public:
-  ReadHandlerTester()
-      : read_called_(false),
-        read_ptr_(nullptr),
-        read_size_(0),
-        read_n_(0),
-        seek_called_(false),
-        seek_offset_(0),
-        seek_whence_(0),
-        tell_called_(false),
-        eof_called_(false) {}
+  ReadHandlerTester() = default;
   ~ReadHandlerTester() override { g_ReadHandlerTesterDeleted = true; }
 
   size_t Read(void* ptr, size_t size, size_t n) override {
@@ -200,18 +191,18 @@ class ReadHandlerTester : public CefReadHandler {
 
   bool MayBlock() override { return false; }
 
-  bool read_called_;
-  const void* read_ptr_;
-  size_t read_size_;
-  size_t read_n_;
+  bool read_called_ = false;
+  const void* read_ptr_ = nullptr;
+  size_t read_size_ = 0;
+  size_t read_n_ = 0;
 
-  bool seek_called_;
-  int64_t seek_offset_;
-  int seek_whence_;
+  bool seek_called_ = false;
+  int64_t seek_offset_ = 0;
+  int seek_whence_ = 0;
 
-  bool tell_called_;
+  bool tell_called_ = false;
 
-  bool eof_called_;
+  bool eof_called_ = false;
 
   IMPLEMENT_REFCOUNTING(ReadHandlerTester);
 };
@@ -266,16 +257,7 @@ bool g_WriteHandlerTesterDeleted = false;
 
 class WriteHandlerTester : public CefWriteHandler {
  public:
-  WriteHandlerTester()
-      : write_called_(false),
-        write_ptr_(nullptr),
-        write_size_(0),
-        write_n_(0),
-        seek_called_(false),
-        seek_offset_(0),
-        seek_whence_(0),
-        tell_called_(false),
-        flush_called_(false) {}
+  WriteHandlerTester() = default;
   ~WriteHandlerTester() override { g_WriteHandlerTesterDeleted = true; }
 
   size_t Write(const void* ptr, size_t size, size_t n) override {
@@ -305,18 +287,18 @@ class WriteHandlerTester : public CefWriteHandler {
 
   bool MayBlock() override { return false; }
 
-  bool write_called_;
-  const void* write_ptr_;
-  size_t write_size_;
-  size_t write_n_;
+  bool write_called_ = false;
+  const void* write_ptr_ = nullptr;
+  size_t write_size_ = 0;
+  size_t write_n_ = 0;
 
-  bool seek_called_;
-  int64_t seek_offset_;
-  int seek_whence_;
+  bool seek_called_ = false;
+  int64_t seek_offset_ = 0;
+  int seek_whence_ = 0;
 
-  bool tell_called_;
+  bool tell_called_ = false;
 
-  bool flush_called_;
+  bool flush_called_ = false;
 
   IMPLEMENT_REFCOUNTING(WriteHandlerTester);
 };

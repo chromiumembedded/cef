@@ -21,9 +21,9 @@ int GetResourceId(const char* resource_name) {
       {"window_icon.2x.png", IDS_WINDOW_ICON_2X_PNG},
   };
 
-  for (size_t i = 0; i < sizeof(resource_map) / sizeof(_resource_map); ++i) {
-    if (!strcmp(resource_map[i].name, resource_name)) {
-      return resource_map[i].id;
+  for (auto& i : resource_map) {
+    if (!strcmp(i.name, resource_name)) {
+      return i.id;
     }
   }
 

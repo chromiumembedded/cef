@@ -37,8 +37,8 @@ class AccessibilityTestHandler : public TestHandler,
                                  public CefRenderHandler,
                                  public CefAccessibilityHandler {
  public:
-  AccessibilityTestHandler(const AccessibilityTestType& type)
-      : test_type_(type), edit_box_id_(-1), accessibility_disabled_(false) {}
+  explicit AccessibilityTestHandler(const AccessibilityTestType& type)
+      : test_type_(type) {}
 
   CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override {
     return this;
@@ -424,8 +424,8 @@ class AccessibilityTestHandler : public TestHandler,
   }
 
   AccessibilityTestType test_type_;
-  int edit_box_id_;
-  bool accessibility_disabled_;
+  int edit_box_id_ = -1;
+  bool accessibility_disabled_ = false;
   TrackCallback got_hide_edit_box_;
   TrackCallback got_accessibility_location_change_;
 

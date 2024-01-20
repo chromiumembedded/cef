@@ -231,8 +231,7 @@ class TestSchemeHandler : public TestHandler {
 
 class ClientSchemeHandlerOld : public CefResourceHandler {
  public:
-  explicit ClientSchemeHandlerOld(TestResults* tr)
-      : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
+  explicit ClientSchemeHandlerOld(TestResults* tr) : test_results_(tr) {}
 
   bool ProcessRequest(CefRefPtr<CefRequest> request,
                       CefRefPtr<CefCallback> callback) override {
@@ -404,9 +403,9 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
   }
 
   TestResults* const test_results_;
-  size_t offset_;
-  bool is_sub_;
-  bool has_delayed_;
+  size_t offset_ = 0;
+  bool is_sub_ = false;
+  bool has_delayed_ = false;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandlerOld);
   DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandlerOld);
@@ -414,8 +413,7 @@ class ClientSchemeHandlerOld : public CefResourceHandler {
 
 class ClientSchemeHandler : public CefResourceHandler {
  public:
-  explicit ClientSchemeHandler(TestResults* tr)
-      : test_results_(tr), offset_(0), is_sub_(false), has_delayed_(false) {}
+  explicit ClientSchemeHandler(TestResults* tr) : test_results_(tr) {}
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -626,9 +624,9 @@ class ClientSchemeHandler : public CefResourceHandler {
   }
 
   TestResults* const test_results_;
-  size_t offset_;
-  bool is_sub_;
-  bool has_delayed_;
+  size_t offset_ = 0;
+  bool is_sub_ = false;
+  bool has_delayed_ = false;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
   DISALLOW_COPY_AND_ASSIGN(ClientSchemeHandler);

@@ -40,7 +40,7 @@ class TestServerHandler : public CefServerHandler {
   // The methods of this class are always executed on the server thread.
   class HttpRequestHandler {
    public:
-    virtual ~HttpRequestHandler() {}
+    virtual ~HttpRequestHandler() = default;
     virtual bool HandleRequest(CefRefPtr<CefServer> server,
                                int connection_id,
                                const CefString& client_address,
@@ -53,7 +53,7 @@ class TestServerHandler : public CefServerHandler {
   // The methods of this class are always executed on the server thread.
   class WsRequestHandler {
    public:
-    virtual ~WsRequestHandler() {}
+    virtual ~WsRequestHandler() = default;
     virtual bool HandleRequest(CefRefPtr<CefServer> server,
                                int connection_id,
                                const CefString& client_address,
@@ -75,23 +75,12 @@ class TestServerHandler : public CefServerHandler {
   // object is destroyed.
   TestServerHandler(base::OnceClosure start_callback,
                     base::OnceClosure destroy_callback)
-      : initialized_(false),
-        start_callback_(std::move(start_callback)),
-        destroy_callback_(std::move(destroy_callback)),
-        expected_connection_ct_(0),
-        actual_connection_ct_(0),
-        expected_http_request_ct_(0),
-        actual_http_request_ct_(0),
-        expected_ws_request_ct_(0),
-        actual_ws_request_ct_(0),
-        expected_ws_connected_ct_(0),
-        actual_ws_connected_ct_(0),
-        expected_ws_message_ct_(0),
-        actual_ws_message_ct_(0) {
+      : start_callback_(std::move(start_callback)),
+        destroy_callback_(std::move(destroy_callback)) {
     EXPECT_FALSE(destroy_callback_.is_null());
   }
 
-  virtual ~TestServerHandler() {
+  ~TestServerHandler() override {
     EXPECT_UI_THREAD();
 
     if (!http_request_handler_list_.empty()) {
@@ -430,7 +419,7 @@ class TestServerHandler : public CefServerHandler {
 
   CefRefPtr<CefServer> server_;
   CefRefPtr<CefTaskRunner> server_runner_;
-  bool initialized_;
+  bool initialized_ = false;
 
   // After initialization only accessed on the UI thread.
   base::OnceClosure start_callback_;
@@ -445,16 +434,16 @@ class TestServerHandler : public CefServerHandler {
   typedef std::set<int> ConnectionIdSet;
   ConnectionIdSet connection_id_set_;
 
-  int expected_connection_ct_;
-  int actual_connection_ct_;
+  int expected_connection_ct_ = 0;
+  int actual_connection_ct_ = 0;
 
   // HTTP
 
   typedef std::list<HttpRequestHandler*> HttpRequestHandlerList;
   HttpRequestHandlerList http_request_handler_list_;
 
-  int expected_http_request_ct_;
-  int actual_http_request_ct_;
+  int expected_http_request_ct_ = 0;
+  int actual_http_request_ct_ = 0;
 
   // WebSocket
 
@@ -463,14 +452,14 @@ class TestServerHandler : public CefServerHandler {
 
   ConnectionIdSet ws_connection_id_set_;
 
-  int expected_ws_request_ct_;
-  int actual_ws_request_ct_;
+  int expected_ws_request_ct_ = 0;
+  int actual_ws_request_ct_ = 0;
 
-  int expected_ws_connected_ct_;
-  int actual_ws_connected_ct_;
+  int expected_ws_connected_ct_ = 0;
+  int actual_ws_connected_ct_ = 0;
 
-  int expected_ws_message_ct_;
-  int actual_ws_message_ct_;
+  int expected_ws_message_ct_ = 0;
+  int actual_ws_message_ct_ = 0;
 
   IMPLEMENT_REFCOUNTING(TestServerHandler);
   DISALLOW_COPY_AND_ASSIGN(TestServerHandler);
@@ -485,7 +474,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   // The methods of this class are always executed on the UI thread.
   class RequestRunner {
    public:
-    virtual ~RequestRunner() {}
+    virtual ~RequestRunner() = default;
 
     // Create the server-side handler for the request.
     virtual std::unique_ptr<TestServerHandler::HttpRequestHandler>
@@ -500,10 +489,8 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
 
   // If |parallel_requests| is true all requests will be run at the same time,
   // otherwise one request will be run at a time.
-  HttpTestRunner(bool parallel_requests)
-      : parallel_requests_(parallel_requests),
-        initialized_(false),
-        next_request_id_(0) {}
+  explicit HttpTestRunner(bool parallel_requests)
+      : parallel_requests_(parallel_requests) {}
 
   virtual ~HttpTestRunner() {
     if (destroy_event_) {
@@ -645,7 +632,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   TestHandler::UIThreadHelper* GetUIThreadHelper() {
     EXPECT_UI_THREAD();
     if (!ui_thread_helper_) {
-      ui_thread_helper_.reset(new TestHandler::UIThreadHelper());
+      ui_thread_helper_ = std::make_unique<TestHandler::UIThreadHelper>();
     }
     return ui_thread_helper_.get();
   }
@@ -675,11 +662,11 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
   CefRefPtr<CefWaitableEvent> run_event_;
   CefRefPtr<CefWaitableEvent> destroy_event_;
   CefRefPtr<TestServerHandler> handler_;
-  bool initialized_;
+  bool initialized_ = false;
 
   // After initialization the below members are only accessed on the UI thread.
 
-  int next_request_id_;
+  int next_request_id_ = 0;
 
   // Map of request ID to RequestRunner.
   typedef std::map<int, RequestRunner*> RequestRunnerMap;
@@ -698,8 +685,7 @@ class HttpTestRunner : public base::RefCountedThreadSafe<HttpTestRunner> {
 struct HttpServerResponse {
   enum Type { TYPE_200, TYPE_404, TYPE_500, TYPE_CUSTOM };
 
-  explicit HttpServerResponse(Type response_type)
-      : type(response_type), no_content_length(false) {}
+  explicit HttpServerResponse(Type response_type) : type(response_type) {}
 
   Type type;
 
@@ -713,7 +699,7 @@ struct HttpServerResponse {
   // Used with CUSTOM response type.
   int response_code;
   CefServer::HeaderMap extra_headers;
-  bool no_content_length;
+  bool no_content_length = false;
 };
 
 void SendHttpServerResponse(CefRefPtr<CefServer> server,
@@ -841,7 +827,7 @@ class StaticHttpServerRequestHandler
                                  const HttpServerResponse& response)
       : expected_request_(expected_request),
         expected_request_ct_(expected_request_ct),
-        actual_request_ct_(0),
+
         response_(response) {}
 
   bool HandleRequest(CefRefPtr<CefServer> server,
@@ -870,7 +856,7 @@ class StaticHttpServerRequestHandler
  private:
   CefRefPtr<CefRequest> expected_request_;
   int expected_request_ct_;
-  int actual_request_ct_;
+  int actual_request_ct_ = 0;
   HttpServerResponse response_;
 
   DISALLOW_COPY_AND_ASSIGN(StaticHttpServerRequestHandler);
@@ -1188,7 +1174,7 @@ const char kDoneMsgPrefix[] = "done:";
 
 class WebSocketTestHandler : public RoutingTestHandler {
  public:
-  WebSocketTestHandler() {}
+  WebSocketTestHandler() = default;
 
   void RunTest() override {
     handler_ = new TestServerHandler(
@@ -1290,7 +1276,7 @@ class WebSocketTestHandler : public RoutingTestHandler {
 class EchoWebSocketRequestHandler : public TestServerHandler::WsRequestHandler {
  public:
   explicit EchoWebSocketRequestHandler(int expected_message_ct)
-      : expected_message_ct_(expected_message_ct), actual_message_ct_(0) {}
+      : expected_message_ct_(expected_message_ct) {}
 
   std::string GetWebSocketUrl() { return GetTestServerOrigin(true) + "/echo"; }
 
@@ -1332,7 +1318,7 @@ class EchoWebSocketRequestHandler : public TestServerHandler::WsRequestHandler {
 
  private:
   int expected_message_ct_;
-  int actual_message_ct_;
+  int actual_message_ct_ = 0;
 
   DISALLOW_COPY_AND_ASSIGN(EchoWebSocketRequestHandler);
 };

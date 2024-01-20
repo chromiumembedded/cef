@@ -854,7 +854,7 @@ const char kToggleTestHtml[] =
 
 class AudioOutputTest : public ClientAppBrowser::Delegate {
  public:
-  AudioOutputTest() {}
+  AudioOutputTest() = default;
 
   void OnBeforeCommandLineProcessing(
       CefRefPtr<ClientAppBrowser> app,
@@ -870,7 +870,7 @@ class AudioOutputTest : public ClientAppBrowser::Delegate {
 
 class AudioTestHandler : public TestHandler, public CefAudioHandler {
  public:
-  AudioTestHandler() {}
+  AudioTestHandler() = default;
 
   void SetupAudioTest(const std::string& testUrl) {
     // Add the resource.
@@ -961,7 +961,7 @@ class AudioTestHandler : public TestHandler, public CefAudioHandler {
 // A common base class for audio output tests.
 class AudioOutputTestHandler : public AudioTestHandler {
  public:
-  AudioOutputTestHandler() {}
+  AudioOutputTestHandler() = default;
 
   void RunTest() override {
     // Setup the resource.
@@ -987,7 +987,7 @@ class AudioOutputTestHandler : public AudioTestHandler {
 
 class AudioCloseBrowserTest : public AudioTestHandler {
  public:
-  AudioCloseBrowserTest() {}
+  AudioCloseBrowserTest() = default;
 
   void RunTest() override {
     // Setup the resource.
@@ -1028,7 +1028,7 @@ class AudioCloseBrowserTest : public AudioTestHandler {
 // this nearly 15 seconds test run.
 class AudioTogglePlaybackTest : public AudioTestHandler {
  public:
-  AudioTogglePlaybackTest() {}
+  AudioTogglePlaybackTest() = default;
 
   void RunTest() override {
     // Add the resource.

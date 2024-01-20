@@ -95,7 +95,7 @@ struct FrameStatus {
     return ss.str();
   }
 
-  FrameStatus(CefRefPtr<CefFrame> frame)
+  explicit FrameStatus(CefRefPtr<CefFrame> frame)
       : frame_id_(frame->GetIdentifier()),
         is_main_(frame->IsMain()),
         ident_str_(GetFrameDebugString(frame)) {}
@@ -510,7 +510,7 @@ const char kOrderMainUrl[] = "https://tests-frame-handler/main-order.html";
 
 class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
  public:
-  OrderMainTestHandler(CompletionState* completion_state = nullptr)
+  explicit OrderMainTestHandler(CompletionState* completion_state = nullptr)
       : RoutingTestHandler(completion_state) {}
 
   CefRefPtr<CefFrameHandler> GetFrameHandler() override {
@@ -801,7 +801,8 @@ const char kOrderMainUrlPrefix[] = "https://tests-frame-handler";
 
 class NavigateOrderMainTestHandler : public OrderMainTestHandler {
  public:
-  NavigateOrderMainTestHandler(bool cross_origin, int additional_nav_ct = 2)
+  explicit NavigateOrderMainTestHandler(bool cross_origin,
+                                        int additional_nav_ct = 2)
       : cross_origin_(cross_origin), additional_nav_ct_(additional_nav_ct) {}
 
   void RunTest() override {

@@ -9,7 +9,8 @@ namespace {
 // Used to verify that the test harness (bound functions) behave correctly.
 class HarnessTestHandler : public SingleLoadTestHandler {
  public:
-  HarnessTestHandler(bool test_success) : test_success_(test_success) {}
+  explicit HarnessTestHandler(bool test_success)
+      : test_success_(test_success) {}
 
   std::string GetMainHTML() override {
     std::string html;

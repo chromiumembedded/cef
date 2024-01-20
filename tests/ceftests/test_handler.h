@@ -73,7 +73,7 @@ class TestHandler : public CefClient,
 
    private:
     int total_;
-    int count_;
+    int count_ = 0;
 
     // Handle used to notify when the test is complete
     CefRefPtr<CefWaitableEvent> event_;

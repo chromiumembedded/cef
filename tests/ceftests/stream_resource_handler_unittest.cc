@@ -23,8 +23,7 @@ const size_t kReadDesiredSize = 100U * 1024U;  // 100k
 
 class ReadHandler : public CefReadHandler {
  public:
-  explicit ReadHandler(bool may_block)
-      : may_block_(may_block), offset_(0), expected_result_(0) {}
+  explicit ReadHandler(bool may_block) : may_block_(may_block) {}
 
   void CreateContent() {
     // To verify that the data transers successfully we're going to make a big
@@ -78,16 +77,15 @@ class ReadHandler : public CefReadHandler {
  private:
   const bool may_block_;
   std::string content_;
-  size_t offset_;
-  int expected_result_;
+  size_t offset_ = 0;
+  int expected_result_ = 0;
 
   IMPLEMENT_REFCOUNTING(ReadHandler);
 };
 
 class ReadTestHandler : public RoutingTestHandler {
  public:
-  explicit ReadTestHandler(bool may_block)
-      : may_block_(may_block), expected_result_(0) {}
+  explicit ReadTestHandler(bool may_block) : may_block_(may_block) {}
 
   void RunTest() override {
     // Create the browser.
@@ -157,7 +155,7 @@ class ReadTestHandler : public RoutingTestHandler {
 
   const bool may_block_;
 
-  int expected_result_;
+  int expected_result_ = 0;
   TrackCallback got_resource_handler_;
   TrackCallback got_on_query_;
   TrackCallback got_on_loading_state_change_done_;

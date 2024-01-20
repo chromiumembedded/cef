@@ -33,7 +33,7 @@ TEST(RequestContextTest, BasicGetGlobal) {
 TEST(RequestContextTest, BasicCreate) {
   class Handler : public CefRequestContextHandler {
    public:
-    Handler() {}
+    Handler() = default;
 
    private:
     IMPLEMENT_REFCOUNTING(Handler);

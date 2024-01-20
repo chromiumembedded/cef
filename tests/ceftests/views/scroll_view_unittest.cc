@@ -25,7 +25,7 @@ const int kContentPanelSize = TestWindowDelegate::kWSize + 200;
 
 class TestScrollViewDelegate : public CefViewDelegate {
  public:
-  TestScrollViewDelegate() {}
+  TestScrollViewDelegate() = default;
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kScrollViewID, view->GetID());
@@ -42,7 +42,7 @@ class TestScrollViewDelegate : public CefViewDelegate {
 
 class TestPanelDelegate : public CefPanelDelegate {
  public:
-  TestPanelDelegate() {}
+  TestPanelDelegate() = default;
 
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override {
     EXPECT_EQ(kContentPanelID, view->GetID());

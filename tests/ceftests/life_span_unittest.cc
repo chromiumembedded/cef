@@ -18,20 +18,15 @@ const char kUnloadMsg[] = "LifeSpanTestHandler.Unload";
 class LifeSpanTestHandler : public RoutingTestHandler {
  public:
   struct Settings {
-    Settings()
-        : force_close(false),
-          add_onunload_handler(false),
-          allow_do_close(true),
-          accept_before_unload_dialog(true) {}
+    Settings() = default;
 
-    bool force_close;
-    bool add_onunload_handler;
-    bool allow_do_close;
-    bool accept_before_unload_dialog;
+    bool force_close = false;
+    bool add_onunload_handler = false;
+    bool allow_do_close = true;
+    bool accept_before_unload_dialog = true;
   };
 
-  explicit LifeSpanTestHandler(const Settings& settings)
-      : settings_(settings), executing_delay_close_(false) {
+  explicit LifeSpanTestHandler(const Settings& settings) : settings_(settings) {
     // By default no LifeSpan tests call DestroyTest().
     SetDestroyTestExpected(false);
   }
@@ -176,7 +171,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   Settings settings_;
 
   // Forces the window to close (bypasses test conditions).
-  bool executing_delay_close_;
+  bool executing_delay_close_ = false;
 
   IMPLEMENT_REFCOUNTING(LifeSpanTestHandler);
 };

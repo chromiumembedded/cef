@@ -43,7 +43,7 @@ class ExtensionTestHandler : public RoutingTestHandler,
   };
 
   explicit ExtensionTestHandler(RequestContextType request_context_type);
-  virtual ~ExtensionTestHandler();
+  ~ExtensionTestHandler() override;
 
   // TestHandler methods:
   void RunTest() override;
@@ -146,7 +146,7 @@ class ExtensionTestHandler : public RoutingTestHandler,
   CefRefPtr<CefRequestContext> loader_request_context_;
 
   // If true expect creation of a main browser. Default is true.
-  bool create_main_browser_;
+  bool create_main_browser_ = true;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionTestHandler);
 };

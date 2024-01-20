@@ -23,7 +23,7 @@ namespace {
 // Browser-side app delegate.
 class CorsBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
-  CorsBrowserTest() {}
+  CorsBrowserTest() = default;
 
   void OnContextInitialized(CefRefPtr<client::ClientAppBrowser> app) override {
     if (IsChromeRuntimeEnabled()) {
@@ -156,7 +156,7 @@ struct Resource {
   int success_query_ct = 0;
   int failure_query_ct = 0;
 
-  Resource() {}
+  Resource() = default;
   Resource(HandlerType request_handler,
            const std::string& request_path,
            const std::string& mime_type = kMimeTypeHtml,
@@ -587,7 +587,7 @@ class CorsTestHandler : public RoutingTestHandler {
     CEF_REQUIRE_UI_THREAD();
     DCHECK(setup_->clear_cookies);
     test_request::GetAllCookies(
-        CefCookieManager::GetGlobalManager(nullptr), /*delete_cookies=*/true,
+        CefCookieManager::GetGlobalManager(nullptr), /*deleteCookies=*/true,
         base::BindOnce(&CorsTestHandler::ClearedCookies, this));
   }
 
@@ -713,7 +713,7 @@ TEST(CorsTest, BasicCustomStandardSchemeWithQuery) {
 namespace {
 
 struct CookieTestSetup : TestSetup {
-  CookieTestSetup() {}
+  CookieTestSetup() = default;
 
   bool expect_cookie = false;
 
@@ -733,13 +733,13 @@ struct CookieTestSetup : TestSetup {
 };
 
 struct CookieResource : Resource {
-  CookieResource() {}
+  CookieResource() = default;
 
   bool expect_cookie = false;
 
   void InitSetCookie() {
     response->SetHeaderByName("Set-Cookie", kDefaultCookie,
-                              /*override=*/true);
+                              /*overwrite=*/true);
   }
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
@@ -976,7 +976,7 @@ const char kSubUnsafeHeaderName[] = "x-unsafe-header";
 const char kSubUnsafeHeaderValue[] = "not-safe";
 
 struct SubResource : CookieResource {
-  SubResource() {}
+  SubResource() = default;
 
   std::string main_origin;
   bool supports_cors = false;
@@ -1525,7 +1525,7 @@ enum class RedirectMode {
 };
 
 struct RedirectGetResource : CookieResource {
-  RedirectGetResource() {}
+  RedirectGetResource() = default;
 
   bool VerifyRequest(CefRefPtr<CefRequest> request) const override {
     if (!CookieResource::VerifyRequest(request)) {
@@ -1551,7 +1551,7 @@ void SetupRedirectResponse(RedirectMode mode,
   }
 
   response->SetHeaderByName("Location", redirect_url,
-                            /*override=*/false);
+                            /*overwrite=*/false);
 }
 
 // Test redirect requests.
@@ -1663,7 +1663,7 @@ CORS_TEST_REDIRECT_GET_ALL(307, MODE_307)
 namespace {
 
 struct PostResource : CookieResource {
-  PostResource() {}
+  PostResource() = default;
 
   bool expect_downgrade_to_get = false;
   bool was_redirected = false;

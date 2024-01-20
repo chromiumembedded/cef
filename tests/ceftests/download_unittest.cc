@@ -34,9 +34,7 @@ class DownloadSchemeHandler : public CefResourceHandler {
   DownloadSchemeHandler(DelayCallback delay_callback,
                         TrackCallback* got_download_request)
       : delay_callback_(std::move(delay_callback)),
-        got_download_request_(got_download_request),
-        should_delay_(false),
-        offset_(0) {}
+        got_download_request_(got_download_request) {}
 
   bool Open(CefRefPtr<CefRequest> request,
             bool& handle_request,
@@ -128,11 +126,11 @@ class DownloadSchemeHandler : public CefResourceHandler {
 
   DelayCallback delay_callback_;
   TrackCallback* got_download_request_;
-  bool should_delay_;
+  bool should_delay_ = false;
   std::string content_;
   std::string mime_type_;
   std::string content_disposition_;
-  size_t offset_;
+  size_t offset_ = 0;
   CefRefPtr<CefResourceReadCallback> read_callback_;
 
   IMPLEMENT_REFCOUNTING(DownloadSchemeHandler);
@@ -182,9 +180,7 @@ class DownloadTestHandler : public TestHandler {
                       const std::string& rc_cache_path)
       : test_mode_(test_mode),
         rc_mode_(rc_mode),
-        rc_cache_path_(rc_cache_path),
-        download_id_(0),
-        verified_results_(false) {}
+        rc_cache_path_(rc_cache_path) {}
 
   bool is_clicked() const {
     return test_mode_ == CLICKED || test_mode_ == CLICKED_INVALID ||
@@ -569,8 +565,8 @@ class DownloadTestHandler : public TestHandler {
   std::string download_url_;
   CefScopedTempDir temp_dir_;
   std::string test_path_;
-  uint32_t download_id_;
-  bool verified_results_;
+  uint32_t download_id_ = 0;
+  bool verified_results_ = false;
   bool destroyed_ = false;
 
   TrackCallback got_download_request_;

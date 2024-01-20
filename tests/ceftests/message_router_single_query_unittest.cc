@@ -21,7 +21,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
   };
 
   SingleQueryTestHandler(TestType type, bool sync_callback)
-      : test_type_(type), sync_callback_(sync_callback), query_id_(0) {}
+      : test_type_(type), sync_callback_(sync_callback) {}
 
   std::string GetMainHTML() override {
     std::string html;
@@ -210,7 +210,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
   const TestType test_type_;
   const bool sync_callback_;
 
-  int64_t query_id_;
+  int64_t query_id_ = 0;
   CefRefPtr<Callback> callback_;
 
   TrackCallback got_on_query_;
@@ -273,7 +273,7 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   };
 
   SinglePersistentQueryTestHandler(TestType test_type, bool sync_callback)
-      : test_type_(test_type), sync_callback_(sync_callback), query_id_(0) {}
+      : test_type_(test_type), sync_callback_(sync_callback) {}
 
   std::string GetMainHTML() override {
     std::string html;
@@ -468,7 +468,7 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   const TestType test_type_;
   const bool sync_callback_;
 
-  int64_t query_id_;
+  int64_t query_id_ = 0;
   CefRefPtr<Callback> callback_;
 
   TrackCallback got_on_query_;
@@ -519,7 +519,7 @@ namespace {
 // Test a single unhandled query in a single page load.
 class SingleUnhandledQueryTestHandler : public SingleLoadTestHandler {
  public:
-  SingleUnhandledQueryTestHandler() {}
+  SingleUnhandledQueryTestHandler() = default;
 
   std::string GetMainHTML() override {
     std::string html;

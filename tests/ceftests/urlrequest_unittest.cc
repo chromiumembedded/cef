@@ -39,7 +39,7 @@ namespace {
 // Browser-side app delegate.
 class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
-  URLRequestBrowserTest() {}
+  URLRequestBrowserTest() = default;
 
   void OnBeforeCommandLineProcessing(
       CefRefPtr<client::ClientAppBrowser> app,
@@ -111,7 +111,7 @@ enum ContextTestMode {
 
 // Defines test expectations for a request.
 struct RequestRunSettings {
-  RequestRunSettings() {}
+  RequestRunSettings() = default;
 
   // Set expectations for request failure.
   void SetRequestFailureExpected(cef_errorcode_t error_code) {
@@ -212,13 +212,13 @@ class RequestDataMap {
       TYPE_REDIRECT,
     };
 
-    Entry(Type entry_type) : type(entry_type), settings(nullptr) {}
+    explicit Entry(Type entry_type) : type(entry_type) {}
 
     Type type;
 
     // Used with TYPE_NORMAL.
     // |settings| is not owned by this object.
-    RequestRunSettings* settings;
+    RequestRunSettings* settings = nullptr;
 
     // Used with TYPE_REDIRECT.
     CefRefPtr<CefRequest> redirect_request;
@@ -411,7 +411,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
   class Visitor : public CefCookieVisitor {
    public:
     explicit Visitor(GetTestCookieCallback callback)
-        : callback_(std::move(callback)), cookie_exists_(false) {
+        : callback_(std::move(callback)) {
       EXPECT_FALSE(callback_.is_null());
     }
     ~Visitor() override { std::move(callback_).Run(cookie_exists_); }
@@ -431,7 +431,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
 
    private:
     GetTestCookieCallback callback_;
-    bool cookie_exists_;
+    bool cookie_exists_ = false;
 
     IMPLEMENT_REFCOUNTING(Visitor);
   };
@@ -510,8 +510,7 @@ void GetNormalResponse(const RequestRunSettings* settings,
 
   if (settings->expect_save_cookie) {
     std::stringstream ss;
-    ss << kRequestSaveCookieName << "="
-       << "save-cookie-value";
+    ss << kRequestSaveCookieName << "=" << "save-cookie-value";
     headerMap.insert(std::make_pair("Set-Cookie", ss.str()));
   }
 
@@ -1114,7 +1113,7 @@ class IncompleteSchemeHandler : public CefResourceHandler {
 
 class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
-  RequestSchemeHandlerFactory() {}
+  RequestSchemeHandlerFactory() = default;
 
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
                                        CefRefPtr<CefFrame> frame,
@@ -1231,12 +1230,9 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
 // HTTP server handler.
 class RequestServerHandler : public test_server::ObserverHelper {
  public:
-  RequestServerHandler()
-      : initialized_(false),
-        expected_http_request_ct_(-1),
-        actual_http_request_ct_(0) {}
+  RequestServerHandler() = default;
 
-  virtual ~RequestServerHandler() { RunCompleteCallback(false); }
+  ~RequestServerHandler() override { RunCompleteCallback(false); }
 
   // Must be called before CreateServer().
   void AddSchemeHandler(RequestRunSettings* settings) {
@@ -1410,7 +1406,7 @@ class RequestServerHandler : public test_server::ObserverHelper {
 
   RequestDataMap data_map_;
 
-  bool initialized_;
+  bool initialized_ = false;
 
   // Only accessed on the UI thread.
   base::OnceClosure complete_callback_;
@@ -1421,8 +1417,8 @@ class RequestServerHandler : public test_server::ObserverHelper {
   TrackCallback got_initialized_;
   TrackCallback got_shutdown_;
 
-  int expected_http_request_ct_;
-  int actual_http_request_ct_;
+  int expected_http_request_ct_ = -1;
+  int actual_http_request_ct_ = 0;
 
   std::string request_log_;
 };

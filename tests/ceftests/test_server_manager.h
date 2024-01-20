@@ -59,7 +59,7 @@ class Manager : public Runner::Delegate {
   friend class ObserverRegistration;
 
   explicit Manager(bool https_server);
-  ~Manager();
+  ~Manager() override;
 
   static Manager* GetInstance(bool https_server);
   static Manager* GetOrCreateInstance(bool https_server);

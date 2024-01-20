@@ -27,7 +27,7 @@ constexpr char kPromptNavUrl[] = "https://permission-prompt-test/nav.html";
 
 class TestSetup {
  public:
-  TestSetup() {}
+  TestSetup() = default;
 
   // CONFIGURATION
 

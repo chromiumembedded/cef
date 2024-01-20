@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <memory>
+
 #include "include/base/cef_build.h"
 #include "include/cef_config.h"
 
@@ -92,13 +94,11 @@ void ContinueOnUIThread(CefRefPtr<CefTaskRunner> test_task_runner) {
 
 #if defined(OS_LINUX) && defined(CEF_X11)
 int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
-  LOG(WARNING) << "X error received: "
-               << "type " << event->type << ", "
-               << "serial " << event->serial << ", "
-               << "error_code " << static_cast<int>(event->error_code) << ", "
-               << "request_code " << static_cast<int>(event->request_code)
-               << ", "
-               << "minor_code " << static_cast<int>(event->minor_code);
+  LOG(WARNING) << "X error received: " << "type " << event->type << ", "
+               << "serial " << event->serial << ", " << "error_code "
+               << static_cast<int>(event->error_code) << ", " << "request_code "
+               << static_cast<int>(event->request_code) << ", " << "minor_code "
+               << static_cast<int>(event->minor_code);
   return 0;
 }
 
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
     if (settings.external_message_pump) {
       message_loop = client::MainMessageLoopExternalPump::Create();
     } else {
-      message_loop.reset(new client::MainMessageLoopStd);
+      message_loop = std::make_unique<client::MainMessageLoopStd>();
     }
   }
 

@@ -264,7 +264,7 @@ class TestDOMVisitor : public CefDOMVisitor {
 // Used in the render process.
 class DOMRendererTest : public ClientAppRenderer::Delegate {
  public:
-  DOMRendererTest() {}
+  DOMRendererTest() = default;
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,

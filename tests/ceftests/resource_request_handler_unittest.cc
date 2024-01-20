@@ -2695,11 +2695,11 @@ class RedirectResponseTest : public TestHandler {
   RedirectResponseTest(TestMode mode, bool via_request_context_handler)
       : via_request_context_handler_(via_request_context_handler) {
     if (mode == URL) {
-      resource_test_.reset(new UrlResourceTest);
+      resource_test_ = std::make_unique<UrlResourceTest>();
     } else if (mode == HEADER) {
-      resource_test_.reset(new HeaderResourceTest);
+      resource_test_ = std::make_unique<HeaderResourceTest>();
     } else {
-      resource_test_.reset(new PostResourceTest);
+      resource_test_ = std::make_unique<PostResourceTest>();
     }
   }
 
@@ -2787,18 +2787,18 @@ class RedirectResponseTest : public TestHandler {
 
   class ResourceTest {
    public:
-    ResourceTest(const std::string& start_url,
-                 size_t expected_resource_response_ct = 2U,
-                 size_t expected_before_resource_load_ct = 1U,
-                 size_t expected_resource_redirect_ct = 0U,
-                 size_t expected_resource_load_complete_ct = 1U)
+    explicit ResourceTest(const std::string& start_url,
+                          size_t expected_resource_response_ct = 2U,
+                          size_t expected_before_resource_load_ct = 1U,
+                          size_t expected_resource_redirect_ct = 0U,
+                          size_t expected_resource_load_complete_ct = 1U)
         : start_url_(start_url),
           expected_resource_response_ct_(expected_resource_response_ct),
           expected_before_resource_load_ct_(expected_before_resource_load_ct),
           expected_resource_redirect_ct_(expected_resource_redirect_ct),
           expected_resource_load_complete_ct_(
               expected_resource_load_complete_ct) {}
-    virtual ~ResourceTest() {}
+    virtual ~ResourceTest() = default;
 
     const std::string& start_url() const { return start_url_; }
 
@@ -3526,7 +3526,7 @@ std::string CreateOutput(const std::string& content, size_t repeat_ct) {
 // Base class for test filters.
 class ResponseFilterTestBase : public CefResponseFilter {
  public:
-  ResponseFilterTestBase() : filter_count_(0U) {}
+  ResponseFilterTestBase() = default;
 
   bool InitFilter() override {
     EXPECT_FALSE(got_init_filter_);
@@ -3570,7 +3570,7 @@ class ResponseFilterTestBase : public CefResponseFilter {
 
  protected:
   TrackCallback got_init_filter_;
-  size_t filter_count_;
+  size_t filter_count_ = 0U;
 
   IMPLEMENT_REFCOUNTING(ResponseFilterTestBase);
 };
@@ -3646,11 +3646,7 @@ const char kReplaceString[] = "This is the replaced string!";
 // tests/shared/response_filter_test.cc.
 class ResponseFilterNeedMore : public ResponseFilterTestBase {
  public:
-  ResponseFilterNeedMore()
-      : find_match_offset_(0U),
-        replace_overflow_size_(0U),
-        input_size_(0U),
-        repeat_ct_(0U) {}
+  ResponseFilterNeedMore() = default;
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,
@@ -3793,25 +3789,25 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
   }
 
   // The portion of the find string that is currently matching.
-  size_t find_match_offset_;
+  size_t find_match_offset_ = 0U;
 
   // The likely amount of overflow.
-  size_t replace_overflow_size_;
+  size_t replace_overflow_size_ = 0U;
 
   // Overflow from the output buffer.
   std::string overflow_;
 
   // The original input size.
-  size_t input_size_;
+  size_t input_size_ = 0U;
 
   // The number of times the find string was repeated.
-  size_t repeat_ct_;
+  size_t repeat_ct_ = 0U;
 };
 
 // Return a filter error.
 class ResponseFilterError : public ResponseFilterTestBase {
  public:
-  ResponseFilterError() {}
+  ResponseFilterError() = default;
 
   FilterStatus Filter(void* data_in,
                       size_t data_in_size,

@@ -47,7 +47,7 @@ CefRefPtr<CefProcessMessage> CreateTestMessage() {
 // Renderer side.
 class SendRecvRendererTest : public ClientAppRenderer::Delegate {
  public:
-  SendRecvRendererTest() {}
+  SendRecvRendererTest() = default;
 
   bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,

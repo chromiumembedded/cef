@@ -211,7 +211,7 @@ void TranslateKey(int c, int* keycode, uint32_t* modifiers) {
 
 class TestTextfieldDelegate : public CefTextfieldDelegate {
  public:
-  TestTextfieldDelegate() {}
+  TestTextfieldDelegate() = default;
 
   bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
                   const CefKeyEvent& event) override {

@@ -75,7 +75,7 @@ class MultiQueryManager {
     virtual void OnAllQueriesCompleted(MultiQueryManager* manager) {}
 
    protected:
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
   };
 
   MultiQueryManager(const std::string& label,
@@ -86,13 +86,7 @@ class MultiQueryManager {
         synchronous_(synchronous),
         id_offset_(id_offset),
         transfer_type_(transfer_type),
-        finalized_(false),
-        running_(false),
-        manual_total_(0),
-        received_count_(0),
-        manual_complete_count_(0),
-        auto_complete_count_(0),
-        will_cancel_by_removing_handler_(false),
+
         weak_ptr_factory_(this) {}
 
   std::string label() const { return label_; }
@@ -111,7 +105,7 @@ class MultiQueryManager {
   // thread.
   void AddTestQuery(TestType type) {
     EXPECT_FALSE(finalized_);
-    test_query_vector_.push_back(TestQuery(type));
+    test_query_vector_.emplace_back(type);
     if (!IsAuto(type)) {
       manual_total_++;
     }
@@ -503,22 +497,17 @@ class MultiQueryManager {
 
  private:
   struct TestQuery {
-    explicit TestQuery(TestType test_type)
-        : type(test_type),
-          browser_id(0),
-          frame_id(0),
-          is_main_frame(false),
-          query_id(0) {}
+    explicit TestQuery(TestType test_type) : type(test_type) {}
 
     TestType type;
 
     // Set in OnQuery and verified in OnNotify or OnQueryCanceled.
-    int browser_id;
-    int64_t frame_id;
-    bool is_main_frame;
+    int browser_id = 0;
+    int64_t frame_id = 0;
+    bool is_main_frame = false;
 
     // Used when a query is canceled.
-    int64_t query_id;
+    int64_t query_id = 0;
     CefRefPtr<CefMessageRouterBrowserSide::Callback> callback;
 
     TrackCallback got_query;
@@ -858,23 +847,23 @@ class MultiQueryManager {
   ObserverSet observer_set_;
 
   // Set to true after all queries have been added.
-  bool finalized_;
+  bool finalized_ = false;
   // Set to true while queries are pending.
-  bool running_;
+  bool running_ = false;
 
   // Total number of queries that will manually complete.
-  int manual_total_;
+  int manual_total_ = 0;
 
   // Number of queries that have been received.
-  int received_count_;
+  int received_count_ = 0;
 
   // Number of queries that have completed successfully.
-  int manual_complete_count_;
-  int auto_complete_count_;
+  int manual_complete_count_ = 0;
+  int auto_complete_count_ = 0;
 
   // If true any pending queries will receive an onFailure callback in addition
   // to be canceled.
-  bool will_cancel_by_removing_handler_;
+  bool will_cancel_by_removing_handler_ = false;
 
   // Should always be the last member.
   base::WeakPtrFactory<MultiQueryManager> weak_ptr_factory_;
@@ -902,8 +891,8 @@ void MakeTestQueries(MultiQueryManager* manager,
         MultiQueryManager::PERSISTENT_SUCCESS,
         MultiQueryManager::FAILURE,
     };
-    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
-      manager->AddTestQuery(types[i]);
+    for (auto& type : types) {
+      manager->AddTestQuery(type);
     }
   } else {
     // Test every type of query.
@@ -1163,7 +1152,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
   class Handler : public CefMessageRouterBrowserSide::Handler {
    public:
     Handler(MultiQueryMultiHandlerTestHandler* test_handler, int index)
-        : test_handler_(test_handler), index_(index), query_id_(0) {}
+        : test_handler_(test_handler), index_(index) {}
 
     bool OnQuery(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
@@ -1228,7 +1217,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
    private:
     MultiQueryMultiHandlerTestHandler* test_handler_;
     const int index_;
-    int64_t query_id_;
+    int64_t query_id_ = 0;
   };
 
   MultiQueryMultiHandlerTestHandler(bool synchronous,
@@ -1414,16 +1403,12 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
     virtual void OnMapAllQueriesCompleted(MultiQueryManagerMap* map) {}
 
    protected:
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
   };
 
-  MultiQueryManagerMap()
-      : finalized_(false),
-        running_(false),
-        manual_complete_count_(0),
-        total_complete_count_(0) {}
+  MultiQueryManagerMap() = default;
 
-  virtual ~MultiQueryManagerMap() { RemoveAllManagers(); }
+  ~MultiQueryManagerMap() override { RemoveAllManagers(); }
 
   void AddObserver(Observer* observer) {
     EXPECT_FALSE(running_);
@@ -1461,8 +1446,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
 
     std::string html = "<html><body>\n";
 
-    for (size_t i = 0; i < all_managers_.size(); ++i) {
-      const std::string& url = all_managers_[i]->label();
+    for (auto all_manager : all_managers_) {
+      const std::string& url = all_manager->label();
       const std::string& name = GetNameForURL(url);
       html += "<iframe id=\"" + name + "\" src=\"" + url + "\"></iframe>\n";
     }
@@ -1555,8 +1540,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
   bool AllComplete() const {
     EXPECT_TRUE(finalized_);
 
-    for (size_t i = 0; i < all_managers_.size(); ++i) {
-      if (!all_managers_[i]->IsAllComplete()) {
+    for (auto all_manager : all_managers_) {
+      if (!all_manager->IsAllComplete()) {
         return false;
       }
     }
@@ -1568,14 +1553,14 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
     EXPECT_TRUE(pending_managers_.empty());
     EXPECT_FALSE(running_);
 
-    for (size_t i = 0; i < all_managers_.size(); ++i) {
-      all_managers_[i]->AssertAllComplete();
+    for (auto all_manager : all_managers_) {
+      all_manager->AssertAllComplete();
     }
   }
 
   bool HasAutoQueries() const {
-    for (size_t i = 0; i < all_managers_.size(); ++i) {
-      if (all_managers_[i]->HasAutoQueries()) {
+    for (auto all_manager : all_managers_) {
+      if (all_manager->HasAutoQueries()) {
         return true;
       }
     }
@@ -1639,8 +1624,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
       return;
     }
 
-    for (size_t i = 0; i < all_managers_.size(); ++i) {
-      delete all_managers_[i];
+    for (auto& all_manager : all_managers_) {
+      delete all_manager;
     }
     all_managers_.clear();
     manager_map_.clear();
@@ -1670,13 +1655,13 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
   ObserverSet observer_set_;
 
   // Set to true after all query managers have been added.
-  bool finalized_;
+  bool finalized_ = false;
   // Set to true while queries are pending.
-  bool running_;
+  bool running_ = false;
 
   // Number of managers that have completed.
-  int manual_complete_count_;
-  int total_complete_count_;
+  int manual_complete_count_ = 0;
+  int total_complete_count_ = 0;
 };
 
 // Test multiple queries in a single page load with multiple frames.
