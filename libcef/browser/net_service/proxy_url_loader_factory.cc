@@ -824,6 +824,7 @@ void InterceptedRequest::InterceptResponseReceived(
 
     current_response_->encoded_data_length = headers->raw_headers().length();
     current_response_->content_length = 0;
+    // Avoid incorrect replacement of 0 with nullptr. NOLINTNEXTLINE
     current_response_->encoded_body_length = 0;
 
     std::string origin;
@@ -981,6 +982,7 @@ net::RedirectInfo InterceptedRequest::MakeRedirectResponseAndInfo(
 
   // Clear the Content-Length values.
   current_response_->content_length = 0;
+  // Avoid incorrect replacement of 0 with nullptr. NOLINTNEXTLINE
   current_response_->encoded_body_length = 0;
   current_response_->headers->RemoveHeader(
       net::HttpRequestHeaders::kContentLength);

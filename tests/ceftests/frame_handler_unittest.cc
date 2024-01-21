@@ -1694,7 +1694,7 @@ class ParentOrderMainTestHandler : public OrderMainTestHandler {
 };
 
 void RunOrderMainPopupTest(bool cross_origin) {
-  TestHandler::CompletionState completion_state(/*count=*/2);
+  TestHandler::CompletionState completion_state(/*total=*/2);
   TestHandler::Collection collection(&completion_state);
 
   CefRefPtr<PopupOrderMainTestHandler> popup_handler =

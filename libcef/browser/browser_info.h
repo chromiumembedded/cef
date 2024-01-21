@@ -130,7 +130,9 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     friend class CefBrowserInfo;
     friend class base::RefCounted<NavigationLock>;
 
+    // All usage is via friend declaration. NOLINTNEXTLINE
     NavigationLock();
+    // All usage is via friend declaration. NOLINTNEXTLINE
     ~NavigationLock();
 
     base::OnceClosure pending_action_;

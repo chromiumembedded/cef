@@ -33,7 +33,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
         const_cast<content::ContextMenuParams*>(&context_menu_->params()));
     model_ = new CefSimpleMenuModelImpl(
         const_cast<ui::SimpleMenuModel*>(&context_menu_->menu_model()),
-        context_menu_, this, /*is_owned=*/false, /*is_popup=*/false);
+        context_menu_, this, /*is_owned=*/false, /*is_submenu=*/false);
 
     handler_->OnBeforeContextMenu(browser_, GetFrame(), params_, model_);
   }
