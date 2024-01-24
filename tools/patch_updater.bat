@@ -1,2 +1,2 @@
 @echo off
-python.bat %~dp0\patch_updater.py %*
+python3.bat %~dp0\patch_updater.py %*

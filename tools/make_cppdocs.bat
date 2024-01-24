@@ -19,7 +19,7 @@ goto end
 :found_exe
 
 :: Environment variables inserted into the Doxyfile via `$(VAR_NAME)` syntax.
-for /F %%i in ('python.bat %~dp0\cef_version.py current') do set PROJECT_NUMBER=%%i
+for /F %%i in ('python3.bat %~dp0\cef_version.py current') do set PROJECT_NUMBER=%%i
 
 :: Run from the top-level CEF directory so that relative paths resolve correctly.
 set CURRENT_PATH="%CD%"
