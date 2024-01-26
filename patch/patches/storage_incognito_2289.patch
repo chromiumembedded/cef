@@ -13,7 +13,7 @@ index 01d2a426e2c17..c239a2f6fc786 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index ba0387d5e3c5e..cc8f21ede9967 100644
+index 9f955ab67a071..80f911e8157dd 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
 @@ -130,7 +130,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
@@ -25,7 +25,7 @@ index ba0387d5e3c5e..cc8f21ede9967 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -356,7 +356,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -364,7 +364,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,
@@ -36,7 +36,7 @@ index ba0387d5e3c5e..cc8f21ede9967 100644
    std::unique_ptr<media::VideoDecodeStatsDB> stats_db;
    if (use_in_memory_db) {
 diff --git content/public/browser/storage_partition_config.cc content/public/browser/storage_partition_config.cc
-index 81013d6eb993a..89abfbe7fec6c 100644
+index e82cdd66a2d5c..1816b2fe54ff5 100644
 --- content/public/browser/storage_partition_config.cc
 +++ content/public/browser/storage_partition_config.cc
 @@ -7,6 +7,7 @@

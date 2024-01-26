@@ -2718,7 +2718,8 @@ class RequestTestHandler : public TestHandler {
                                    CefRefPtr<CefCallback> callback) override {
     if (test_running_ && test_frame_method_) {
       EXPECT_TRUE(frame);
-      EXPECT_EQ(test_frame_->GetIdentifier(), frame->GetIdentifier());
+      EXPECT_STREQ(test_frame_->GetIdentifier().ToString().c_str(),
+                   frame->GetIdentifier().ToString().c_str());
       test_frame_resource_load_ct_++;
     }
 

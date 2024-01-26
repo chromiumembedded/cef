@@ -350,9 +350,7 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(args->SetInt(0, nav_));
     EXPECT_TRUE(args->SetBool(1, result));
 
-    const int64_t frame_id = frame->GetIdentifier();
-    EXPECT_TRUE(args->SetInt(2, CefInt64GetLow(frame_id)));
-    EXPECT_TRUE(args->SetInt(3, CefInt64GetHigh(frame_id)));
+    EXPECT_TRUE(args->SetString(2, frame->GetIdentifier()));
 
     frame->SendProcessMessage(PID_BROWSER, return_msg);
 
@@ -487,8 +485,8 @@ class FrameNavTestHandler : public TestHandler {
           << "nav = " << nav_;
 
       // Test that browser and render process frame IDs match.
-      const int64_t frame_id = CefInt64Set(args->GetInt(2), args->GetInt(3));
-      EXPECT_EQ(frame->GetIdentifier(), frame_id);
+      const std::string& frame_id = args->GetString(2);
+      EXPECT_STREQ(frame->GetIdentifier().ToString().c_str(), frame_id.c_str());
 
       return true;
     }
@@ -838,8 +836,8 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
   V_DECLARE();
   V_EXPECT_TRUE(frame.get());
   V_EXPECT_TRUE(frame->IsValid());
-  const int64_t frame_id = frame->GetIdentifier();
-  V_EXPECT_TRUE(frame_id > 0) << frame_id;
+  const std::string& frame_id = frame->GetIdentifier();
+  V_EXPECT_TRUE(!frame_id.empty()) << frame_id;
   V_EXPECT_TRUE(frame->IsValid());
   V_EXPECT_TRUE(frame->IsMain());
   V_EXPECT_TRUE(frame->IsFocused());
@@ -875,7 +873,7 @@ bool VerifySingleBrowserFrames(CefRefPtr<CefBrowser> browser,
   size_t frame_count = browser->GetFrameCount();
   V_EXPECT_TRUE(frame_count == 1U);
 
-  std::vector<int64_t> identifiers;
+  std::vector<CefString> identifiers;
   browser->GetFrameIdentifiers(identifiers);
   V_EXPECT_TRUE(identifiers.size() == 1U);
   if (identifiers.size() == 1U) {
@@ -1621,7 +1619,7 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   // frame0 contains frame1 contains frame2, contains frame3.
   CefRefPtr<CefFrame> frame0, frame1, frame2, frame3;
   CefRefPtr<CefFrame> frame0b, frame1b, frame2b, frame3b;
-  int64_t frame0id, frame1id, frame2id, frame3id;
+  std::string frame0id, frame1id, frame2id, frame3id;
   std::string frame0url, frame1url, frame2url, frame3url;
 
   // Verify the GetFrameNames result.
@@ -1648,13 +1646,13 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   }
 
   // Find frames by name.
-  frame0 = browser->GetFrame(kFrame0Name);
+  frame0 = browser->GetFrameByName(kFrame0Name);
   V_EXPECT_TRUE(frame0.get());
-  frame1 = browser->GetFrame(kFrame1Name);
+  frame1 = browser->GetFrameByName(kFrame1Name);
   V_EXPECT_TRUE(frame1.get());
-  frame2 = browser->GetFrame(kFrame2Name);
+  frame2 = browser->GetFrameByName(kFrame2Name);
   V_EXPECT_TRUE(frame2.get());
-  frame3 = browser->GetFrame(kFrame3Name);
+  frame3 = browser->GetFrameByName(kFrame3Name);
   V_EXPECT_TRUE(frame3.get());
 
   if (!frame0 || !frame1 || !frame2 || !frame3) {
@@ -1695,13 +1693,13 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
 
   // Verify that the frame id is valid.
   frame0id = frame0->GetIdentifier();
-  V_EXPECT_TRUE(frame0id > 0) << "actual: " << frame0id;
+  V_EXPECT_TRUE(!frame0id.empty()) << "actual: " << frame0id;
   frame1id = frame1->GetIdentifier();
-  V_EXPECT_TRUE(frame1id > 0) << "actual: " << frame1id;
+  V_EXPECT_TRUE(!frame1id.empty()) << "actual: " << frame1id;
   frame2id = frame2->GetIdentifier();
-  V_EXPECT_TRUE(frame2id > 0) << "actual: " << frame2id;
+  V_EXPECT_TRUE(!frame2id.empty()) << "actual: " << frame2id;
   frame3id = frame3->GetIdentifier();
-  V_EXPECT_TRUE(frame3id > 0) << "actual: " << frame3id;
+  V_EXPECT_TRUE(!frame3id.empty()) << "actual: " << frame3id;
 
   // Verify that the current frame has the correct id.
   if (frame_number == 0) {
@@ -1719,14 +1717,14 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   }
 
   // Find frames by id.
-  frame0b = browser->GetFrame(frame0->GetIdentifier());
-  V_EXPECT_TRUE(frame0b.get());
-  frame1b = browser->GetFrame(frame1->GetIdentifier());
-  V_EXPECT_TRUE(frame1b.get());
-  frame2b = browser->GetFrame(frame2->GetIdentifier());
-  V_EXPECT_TRUE(frame2b.get());
-  frame3b = browser->GetFrame(frame3->GetIdentifier());
-  V_EXPECT_TRUE(frame3b.get());
+  frame0b = browser->GetFrameByIdentifier(frame0id);
+  V_EXPECT_TRUE(frame0b.get()) << "expected: " << frame0id;
+  frame1b = browser->GetFrameByIdentifier(frame1id);
+  V_EXPECT_TRUE(frame1b.get()) << "expected: " << frame1id;
+  frame2b = browser->GetFrameByIdentifier(frame2id);
+  V_EXPECT_TRUE(frame2b.get()) << "expected: " << frame2id;
+  frame3b = browser->GetFrameByIdentifier(frame3id);
+  V_EXPECT_TRUE(frame3b.get()) << "expected: " << frame3id;
 
   if (!frame0b || !frame1b || !frame2b || !frame3b) {
     V_RETURN();
@@ -1746,9 +1744,10 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame_count == 4U) << " actual: " << frame_count;
 
   // Verify the GetFrameIdentifiers result.
-  std::set<int64_t> expected_idents = {frame0id, frame1id, frame2id, frame3id};
+  std::set<std::string> expected_idents = {frame0id, frame1id, frame2id,
+                                           frame3id};
 
-  std::vector<int64_t> idents;
+  std::vector<CefString> idents;
   browser->GetFrameIdentifiers(idents);
   V_EXPECT_TRUE(idents.size() == expected_idents.size())
       << "expected: " << expected_idents.size() << " actual: " << idents.size();
@@ -1769,13 +1768,13 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_FALSE(frame0->GetParent().get());
   V_EXPECT_TRUE(frame1->GetParent()->GetIdentifier() == frame0id)
       << "expected: " << frame0id
-      << " actual: " << frame1->GetParent()->GetIdentifier();
+      << " actual: " << frame1->GetParent()->GetIdentifier().ToString();
   V_EXPECT_TRUE(frame2->GetParent()->GetIdentifier() == frame1id)
       << "expected: " << frame1id
-      << " actual: " << frame2->GetParent()->GetIdentifier();
+      << " actual: " << frame2->GetParent()->GetIdentifier().ToString();
   V_EXPECT_TRUE(frame3->GetParent()->GetIdentifier() == frame2id)
       << "expected: " << frame2id
-      << " actual: " << frame3->GetParent()->GetIdentifier();
+      << " actual: " << frame3->GetParent()->GetIdentifier().ToString();
 
   V_RETURN();
 }

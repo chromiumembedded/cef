@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 1d30371b0131c..1ba3d15a3c0af 100644
+index dc474d9ca5c3a..764ae7c3ddce2 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
@@ -11,7 +11,7 @@ index 1d30371b0131c..1ba3d15a3c0af 100644
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
 @@ -63,6 +64,10 @@
- #include "chrome/browser/download/bubble/download_bubble_prefs.h"
+ #include "chrome/browser/flags/android/chrome_feature_list.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -84,7 +84,7 @@ index c85248ab0d0a0..05b3454c0356d 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index e13101506295d..4acd84f6c150f 100644
+index ef26355bd31b8..6b00ae03e6ac8 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -25,6 +25,7 @@
@@ -109,7 +109,7 @@ index e13101506295d..4acd84f6c150f 100644
  constexpr char kInvalidArgsForDidStartPreview[] =
      "Invalid arguments for DidStartPreview";
  constexpr char kInvalidPageIndexForDidPreviewPage[] =
-@@ -301,7 +309,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
+@@ -309,7 +317,7 @@ void AddPrintPreviewStrings(content::WebUIDataSource* source) {
    source->AddLocalizedStrings(kLocalizedStrings);
  
  #if !BUILDFLAG(IS_CHROMEOS)

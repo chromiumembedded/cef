@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 6f842a7535a56..faaee032e82bd 100644
+index 36335ba63ee83..e14005d6a4e86 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -9,6 +9,7 @@
@@ -10,7 +10,7 @@ index 6f842a7535a56..faaee032e82bd 100644
  #include "chrome/browser/content_settings/one_time_permission_provider.h"
  #include "chrome/browser/permissions/one_time_permissions_tracker_factory.h"
  #include "chrome/browser/profiles/off_the_record_profile_impl.h"
-@@ -23,6 +24,10 @@
+@@ -24,6 +25,10 @@
  #include "extensions/buildflags/buildflags.h"
  #include "ui/webui/webui_allowlist_provider.h"
  
@@ -21,9 +21,9 @@ index 6f842a7535a56..faaee032e82bd 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "base/trace_event/trace_event.h"
  #include "extensions/browser/api/content_settings/content_settings_custom_extension_provider.h"
-@@ -68,7 +73,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
-   DependsOn(OneTimePermissionsTrackerFactory::GetInstance());
+@@ -64,7 +69,13 @@ HostContentSettingsMapFactory::HostContentSettingsMapFactory()
  #endif
+   DependsOn(OneTimePermissionsTrackerFactory::GetInstance());
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
@@ -35,7 +35,7 @@ index 6f842a7535a56..faaee032e82bd 100644
  #endif
    // Used by way of ShouldRestoreOldSessionCookies().
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
-@@ -132,6 +143,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -118,6 +129,9 @@ scoped_refptr<RefcountedKeyedService>
        std::move(allowlist_provider));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -45,7 +45,7 @@ index 6f842a7535a56..faaee032e82bd 100644
    // These must be registered before before the HostSettings are passed over to
    // the IOThread.  Simplest to do this on construction.
    settings_map->RegisterProvider(
-@@ -144,6 +158,9 @@ scoped_refptr<RefcountedKeyedService>
+@@ -130,6 +144,9 @@ scoped_refptr<RefcountedKeyedService>
            // the case where profile->IsOffTheRecord() is true? And what is the
            // interaction with profile->IsGuestSession()?
            false));
@@ -56,10 +56,10 @@ index 6f842a7535a56..faaee032e82bd 100644
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
    supervised_user::SupervisedUserSettingsService* supervised_service =
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index c62382c00a48b..a560eafc3ec80 100644
+index 54c18d58aea64..66d3721a392ec 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
-@@ -145,7 +145,7 @@ ContentSetting GetContentSettingFromRules(
+@@ -143,7 +143,7 @@ ContentSetting GetContentSettingFromRules(
        return rule.GetContentSetting();
      }
    }

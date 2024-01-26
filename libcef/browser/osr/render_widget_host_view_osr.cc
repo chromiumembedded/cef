@@ -49,7 +49,7 @@
 #include "ui/compositor/compositor.h"
 #include "ui/events/blink/blink_event_util.h"
 #include "ui/events/gesture_detection/gesture_provider_config_helper.h"
-#include "ui/events/gesture_detection/motion_event.h"
+#include "ui/events/velocity_tracker/motion_event.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 #include "ui/touch_selection/touch_selection_controller.h"
@@ -446,7 +446,7 @@ bool CefRenderWidgetHostViewOSR::IsShowing() {
 void CefRenderWidgetHostViewOSR::EnsureSurfaceSynchronizedForWebTest() {
   ++latest_capture_sequence_number_;
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseInfiniteDeadline(),
-                              absl::nullopt);
+                              std::nullopt);
 }
 
 content::TouchSelectionControllerClientManager*
@@ -472,15 +472,15 @@ void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
   content::RenderWidgetHostViewBase::SetBackgroundColor(color);
 }
 
-absl::optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
+std::optional<SkColor> CefRenderWidgetHostViewOSR::GetBackgroundColor() {
   return background_color_;
 }
 
 void CefRenderWidgetHostViewOSR::UpdateBackgroundColor() {}
 
-absl::optional<content::DisplayFeature>
+std::optional<content::DisplayFeature>
 CefRenderWidgetHostViewOSR::GetDisplayFeature() {
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
@@ -543,7 +543,7 @@ CefRenderWidgetHostViewOSR::GetCurrentLocalSurfaceId() const {
 }
 
 void CefRenderWidgetHostViewOSR::UpdateLocalSurfaceIdFromEmbeddedClient(
-    const absl::optional<viz::LocalSurfaceId>&
+    const std::optional<viz::LocalSurfaceId>&
         embedded_client_local_surface_id) {
   if (embedded_client_local_surface_id) {
     parent_local_surface_id_allocator_->UpdateFromChild(
@@ -969,7 +969,7 @@ void CefRenderWidgetHostViewOSR::DidNavigate() {
                                   GetLocalSurfaceId());
     } else {
       SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
-                                  absl::nullopt);
+                                  std::nullopt);
     }
   }
   if (delegated_frame_host_) {
@@ -1053,12 +1053,12 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   }
 
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseExistingDeadline(),
-                              absl::nullopt);
+                              std::nullopt);
 }
 
 void CefRenderWidgetHostViewOSR::SynchronizeVisualProperties(
     const cc::DeadlinePolicy& deadline_policy,
-    const absl::optional<viz::LocalSurfaceId>& child_local_surface_id) {
+    const std::optional<viz::LocalSurfaceId>& child_local_surface_id) {
   SetFrameRate();
 
   const bool resized = ResizeRootLayer();
@@ -1099,7 +1099,7 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   }
 
   SynchronizeVisualProperties(cc::DeadlinePolicy::UseDefaultDeadline(),
-                              absl::nullopt);
+                              std::nullopt);
 
   if (render_widget_host_->delegate()) {
     render_widget_host_->delegate()->SendScreenRects();
@@ -1810,8 +1810,8 @@ void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
-    const absl::optional<std::vector<gfx::Rect>>& character_bounds,
-    const absl::optional<std::vector<gfx::Rect>>& line_bounds) {
+    const std::optional<std::vector<gfx::Rect>>& character_bounds,
+    const std::optional<std::vector<gfx::Rect>>& line_bounds) {
   if (browser_impl_.get()) {
     CefRange cef_range(range.start(), range.end());
     CefRenderHandler::RectList rcList;

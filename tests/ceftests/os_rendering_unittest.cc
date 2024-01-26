@@ -1263,8 +1263,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
     auto current_browser = GetBrowser();
     EXPECT_TRUE(current_browser->IsSame(browser));
-    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
-              frame->GetIdentifier());
+    EXPECT_STREQ(
+        current_browser->GetFocusedFrame()->GetIdentifier().ToString().c_str(),
+        frame->GetIdentifier().ToString().c_str());
 
     if (test_type_ == OSR_TEST_QUICK_MENU) {
       EXPECT_EQ(2U, got_touch_handle_enabled_ct_);
@@ -1302,8 +1303,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
     auto current_browser = GetBrowser();
     EXPECT_TRUE(current_browser->IsSame(browser));
-    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
-              frame->GetIdentifier());
+    EXPECT_STREQ(
+        current_browser->GetFocusedFrame()->GetIdentifier().ToString().c_str(),
+        frame->GetIdentifier().ToString().c_str());
 
     EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
 
@@ -1340,8 +1342,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
     auto current_browser = GetBrowser();
     EXPECT_TRUE(current_browser->IsSame(browser));
-    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
-              frame->GetIdentifier());
+    EXPECT_STREQ(
+        current_browser->GetFocusedFrame()->GetIdentifier().ToString().c_str(),
+        frame->GetIdentifier().ToString().c_str());
 
     EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
 
@@ -1369,8 +1372,9 @@ class OSRTestHandler : public RoutingTestHandler,
 
     auto current_browser = GetBrowser();
     EXPECT_TRUE(current_browser->IsSame(browser));
-    EXPECT_EQ(current_browser->GetFocusedFrame()->GetIdentifier(),
-              frame->GetIdentifier());
+    EXPECT_STREQ(
+        current_browser->GetFocusedFrame()->GetIdentifier().ToString().c_str(),
+        frame->GetIdentifier().ToString().c_str());
 
     EXPECT_EQ(OSR_TEST_QUICK_MENU, test_type_);
 

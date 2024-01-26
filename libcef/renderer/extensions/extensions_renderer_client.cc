@@ -19,6 +19,7 @@
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
+#include "extensions/renderer/extensions_renderer_api_provider.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "extensions/renderer/script_context.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -82,7 +83,9 @@ void CefExtensionsRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
 
   extension_dispatcher_ = std::make_unique<extensions::Dispatcher>(
-      std::make_unique<extensions::CefExtensionsDispatcherDelegate>());
+      std::make_unique<extensions::CefExtensionsDispatcherDelegate>(),
+      std::vector<
+          std::unique_ptr<extensions::ExtensionsRendererAPIProvider>>());
   extension_dispatcher_->OnRenderThreadStarted(thread);
   resource_request_policy_ =
       std::make_unique<extensions::ResourceRequestPolicy>(

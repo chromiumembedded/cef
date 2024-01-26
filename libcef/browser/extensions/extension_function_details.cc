@@ -409,8 +409,7 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   auto web_contents = new_browser->web_contents();
   auto result = CreateTabObject(new_browser, opener_browser_id, active, index);
   auto scrub_tab_behavior = ExtensionTabUtil::GetScrubTabBehavior(
-      extension, extensions::Feature::Context::UNSPECIFIED_CONTEXT,
-      web_contents);
+      extension, extensions::mojom::ContextType::kUnspecified, web_contents);
   ExtensionTabUtil::ScrubTabForExtension(extension, web_contents, &result,
                                          scrub_tab_behavior);
   return base::WrapUnique(new api::tabs::Tab(std::move(result)));

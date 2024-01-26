@@ -181,13 +181,14 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame() {
   return nullptr;
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64_t identifier) {
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrameByIdentifier(
+    const CefString& identifier) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   return GetWebFrameImpl(identifier).get();
 }
 
-CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
+CefRefPtr<CefFrame> CefBrowserImpl::GetFrameByName(const CefString& name) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   blink::WebView* web_view = GetWebView();
@@ -235,7 +236,7 @@ size_t CefBrowserImpl::GetFrameCount() {
   return count;
 }
 
-void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64_t>& identifiers) {
+void CefBrowserImpl::GetFrameIdentifiers(std::vector<CefString>& identifiers) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (identifiers.size() > 0) {
@@ -287,69 +288,43 @@ CefBrowserImpl::~CefBrowserImpl() = default;
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebLocalFrame* frame) {
   DCHECK(frame);
-  int64_t frame_id = render_frame_util::GetIdentifier(frame);
+  const auto& frame_token = frame->GetLocalFrameToken();
 
   // Frames are re-used between page loads. Only add the frame to the map once.
-  FrameMap::const_iterator it = frames_.find(frame_id);
+  FrameMap::const_iterator it = frames_.find(frame_token);
   if (it != frames_.end()) {
     return it->second;
   }
 
-  CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame, frame_id));
-  frames_.insert(std::make_pair(frame_id, framePtr));
+  CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame));
+  frames_.insert(std::make_pair(frame_token, framePtr));
 
   return framePtr;
 }
 
-CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
-  if (frame_id == blink_glue::kInvalidFrameId) {
-    if (GetWebView()) {
-      blink::WebFrame* main_frame = GetWebView()->MainFrame();
-      if (main_frame && main_frame->IsWebLocalFrame()) {
-        return GetWebFrameImpl(main_frame->ToWebLocalFrame());
-      }
-    }
+CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
+    const std::string& identifier) {
+  const auto& frame_token =
+      render_frame_util::ParseFrameTokenFromIdentifier(identifier);
+  if (!frame_token) {
     return nullptr;
   }
 
   // Check if we already know about the frame.
-  FrameMap::const_iterator it = frames_.find(frame_id);
+  FrameMap::const_iterator it = frames_.find(*frame_token);
   if (it != frames_.end()) {
     return it->second;
   }
 
   if (GetWebView()) {
     // Check if the frame exists but we don't know about it yet.
-    for (blink::WebFrame* frame = GetWebView()->MainFrame(); frame;
-         frame = frame->TraverseNext()) {
-      if (frame->IsWebLocalFrame() &&
-          render_frame_util::GetIdentifier(frame->ToWebLocalFrame()) ==
-              frame_id) {
-        return GetWebFrameImpl(frame->ToWebLocalFrame());
-      }
+    if (auto* local_frame =
+            blink::WebLocalFrame::FromFrameToken(*frame_token)) {
+      return GetWebFrameImpl(local_frame);
     }
   }
 
   return nullptr;
-}
-
-void CefBrowserImpl::AddFrameObject(int64_t frame_id,
-                                    CefTrackNode* tracked_object) {
-  CefRefPtr<CefTrackManager> manager;
-
-  if (!frame_objects_.empty()) {
-    FrameObjectMap::const_iterator it = frame_objects_.find(frame_id);
-    if (it != frame_objects_.end()) {
-      manager = it->second;
-    }
-  }
-
-  if (!manager.get()) {
-    manager = new CefTrackManager();
-    frame_objects_.insert(std::make_pair(frame_id, manager));
-  }
-
-  manager->Add(tracked_object);
 }
 
 // RenderViewObserver methods.
@@ -368,22 +343,8 @@ void CefBrowserImpl::OnDestruct() {
   CefRenderManager::Get()->OnBrowserDestroyed(this);
 }
 
-void CefBrowserImpl::FrameDetached(int64_t frame_id) {
-  if (!frames_.empty()) {
-    // Remove the frame from the map.
-    FrameMap::iterator it = frames_.find(frame_id);
-    if (it != frames_.end()) {
-      frames_.erase(it);
-    }
-  }
-
-  if (!frame_objects_.empty()) {
-    // Remove any tracked objects associated with the frame.
-    FrameObjectMap::iterator it = frame_objects_.find(frame_id);
-    if (it != frame_objects_.end()) {
-      frame_objects_.erase(it);
-    }
-  }
+void CefBrowserImpl::FrameDetached(blink::WebLocalFrame* frame) {
+  frames_.erase(frame->GetLocalFrameToken());
 }
 
 void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {

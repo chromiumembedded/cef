@@ -46,7 +46,7 @@ class CefBrowserManager : public cef::mojom::BrowserManager {
       cef::mojom::BrowserManager::GetNewRenderThreadInfoCallback callback)
       override;
   void GetNewBrowserInfo(
-      int32_t render_frame_routing_id,
+      const blink::LocalFrameToken& render_frame_token,
       cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) override;
 
   // The process ID of the renderer.

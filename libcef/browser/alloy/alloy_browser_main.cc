@@ -50,8 +50,8 @@
 #include "ui/native_theme/native_theme.h"
 
 #if BUILDFLAG(IS_LINUX)
-#include "ui/ozone/buildflags.h"
-#if defined(USE_AURA) && BUILDFLAG(OZONE_PLATFORM_X11)
+#include "ui/base/ozone_buildflags.h"
+#if defined(USE_AURA) && BUILDFLAG(IS_OZONE_X11)
 #include "ui/events/devices/x11/touch_factory_x11.h"
 #endif
 #endif
@@ -252,7 +252,7 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 
 void AlloyBrowserMainParts::PreCreateMainMessageLoop() {
 #if BUILDFLAG(IS_LINUX)
-#if defined(USE_AURA) && BUILDFLAG(OZONE_PLATFORM_X11)
+#if defined(USE_AURA) && BUILDFLAG(IS_OZONE_X11)
   ui::TouchFactory::SetTouchDeviceListFromCommandLine();
 #endif
 #endif

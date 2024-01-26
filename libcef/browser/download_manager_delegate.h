@@ -12,6 +12,7 @@
 
 #include "base/memory/weak_ptr.h"
 #include "components/download/public/common/download_item.h"
+#include "components/download/public/common/download_target_info.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_manager_delegate.h"
 
@@ -43,7 +44,7 @@ class CefDownloadManagerDelegate : public download::DownloadItem::Observer,
   // DownloadManagerDelegate methods.
   bool DetermineDownloadTarget(
       download::DownloadItem* item,
-      content::DownloadTargetCallback* callback) override;
+      download::DownloadTargetCallback* callback) override;
   void GetNextId(content::DownloadIdCallback callback) override;
   std::string ApplicationClientIdForFileScanning() override;
 

@@ -50,9 +50,10 @@ void CefBrowserManager::GetNewRenderThreadInfo(
 }
 
 void CefBrowserManager::GetNewBrowserInfo(
-    int32_t render_frame_routing_id,
+    const blink::LocalFrameToken& render_frame_token,
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) {
   CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
-      frame_util::MakeGlobalId(render_process_id_, render_frame_routing_id),
+      content::GlobalRenderFrameHostToken(render_process_id_,
+                                          render_frame_token),
       std::move(callback));
 }

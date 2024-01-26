@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index 321877844bd21..f7f00a99d6244 100644
+index afe0b3e90fafb..daae3b0e0e8d3 100644
 --- .gn
 +++ .gn
 @@ -153,6 +153,8 @@ exec_script_whitelist =
@@ -12,7 +12,7 @@ index 321877844bd21..f7f00a99d6244 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 678989ac85db1..b05b5aac2fc64 100644
+index 067b08552d5fc..bbb280ef9e307 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -21,9 +21,9 @@ index 678989ac85db1..b05b5aac2fc64 100644
  import("//build/util/generate_wrapper.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
+ import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
- import("//device/vr/buildflags/buildflags.gni")
-@@ -273,6 +274,10 @@ group("gn_all") {
+@@ -277,6 +278,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,18 +76,18 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 5a4ddf12a9db3..6c255f9db2433 100644
+index 95d82be2f9050..191232294b59f 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
- import("//build/config/chromebox_for_meetings/buildflags.gni")
+@@ -5,6 +5,7 @@
+ import("//ash/ambient/resources/resources.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/locales.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -82,6 +83,10 @@ template("chrome_repack_percent") {
+@@ -80,6 +81,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }

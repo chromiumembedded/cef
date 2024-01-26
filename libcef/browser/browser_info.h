@@ -109,13 +109,17 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
 
-  // Returns the frame object matching the specified ID or nullptr if no match
-  // is found. Nullptr will also be returned if a guest view match is found
-  // because we don't create frame objects for guest views. If |is_guest_view|
-  // is non-nullptr it will be set to true in this case. Safe to call from any
-  // thread.
+  // Returns the frame object matching the specified ID/token or nullptr if no
+  // match is found. Nullptr will also be returned if a guest view match is
+  // found because we don't create frame objects for guest views. If
+  // |is_guest_view| is non-nullptr it will be set to true in this case. Safe to
+  // call from any thread.
   CefRefPtr<CefFrameHostImpl> GetFrameForGlobalId(
       const content::GlobalRenderFrameHostId& global_id,
+      bool* is_guest_view = nullptr,
+      bool prefer_speculative = false) const;
+  CefRefPtr<CefFrameHostImpl> GetFrameForGlobalToken(
+      const content::GlobalRenderFrameHostToken& global_token,
       bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
 
@@ -247,6 +251,11 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
                                         FrameInfo*,
                                         content::GlobalRenderFrameHostIdHasher>;
   FrameIDMap frame_id_map_;
+
+  // Map of global token to global ID.
+  using FrameTokenToIdMap = std::map<content::GlobalRenderFrameHostToken,
+                                     content::GlobalRenderFrameHostId>;
+  FrameTokenToIdMap frame_token_to_id_map_;
 
   // The current main frame.
   CefRefPtr<CefFrameHostImpl> main_frame_;

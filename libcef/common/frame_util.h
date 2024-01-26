@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_COMMON_FRAME_UTIL_H_
 
 #include <stdint.h>
+#include <optional>
 #include <string>
 
 #include "base/logging.h"
@@ -17,17 +18,6 @@ class NavigationHandle;
 }
 
 namespace frame_util {
-
-// Create a frame ID in the format exposed by the CEF API.
-inline int64_t MakeFrameId(int child_id, int frame_routing_id) {
-  return (static_cast<uint64_t>(child_id) << 32) |
-         static_cast<uint64_t>(frame_routing_id);
-}
-
-// Create a frame ID in the format exposed by the CEF API.
-inline int64_t MakeFrameId(const content::GlobalRenderFrameHostId& global_id) {
-  return MakeFrameId(global_id.child_id, global_id.frame_routing_id);
-}
 
 // Returns true if |child_id| is valid.
 inline bool IsValidChildId(int child_id) {
@@ -57,13 +47,6 @@ inline content::GlobalRenderFrameHostId MakeGlobalId(
   return content::GlobalRenderFrameHostId(child_id, frame_routing_id);
 }
 
-// Create a global ID from a frame ID.
-inline content::GlobalRenderFrameHostId MakeGlobalId(int64_t frame_id) {
-  uint32_t child_id = frame_id >> 32;
-  uint32_t frame_routing_id = std::numeric_limits<uint32_t>::max() & frame_id;
-  return MakeGlobalId(child_id, frame_routing_id);
-}
-
 // Returns an invalid global ID value.
 inline content::GlobalRenderFrameHostId InvalidGlobalId() {
   return content::GlobalRenderFrameHostId();
@@ -74,10 +57,33 @@ inline content::GlobalRenderFrameHostId InvalidGlobalId() {
 content::GlobalRenderFrameHostId GetGlobalId(
     content::NavigationHandle* navigation_handle);
 
-// Returns a human-readable version of the ID.
-std::string GetFrameDebugString(int64_t frame_id);
+// Returns true if |frame_token| is valid.
+inline bool IsValidFrameToken(const blink::LocalFrameToken& frame_token) {
+  return !frame_token->is_empty();
+}
+
+// Returns true if |global_token| is valid.
+inline bool IsValidGlobalToken(
+    const content::GlobalRenderFrameHostToken& global_token) {
+  return IsValidChildId(global_token.child_id) &&
+         IsValidFrameToken(global_token.frame_token);
+}
+
+// Create a global token from a frame identifier. Returns std::nullopt if
+// |identifier| is invalid.
+std::optional<content::GlobalRenderFrameHostToken> ParseFrameIdentifier(
+    const std::string& identifier);
+
+// Return the frame identifier for a global token. Returns empty if
+// |global_token| is invalid.
+std::string MakeFrameIdentifier(
+    const content::GlobalRenderFrameHostToken& global_token);
+
+// Returns a human-readable version of the ID/token.
 std::string GetFrameDebugString(
     const content::GlobalRenderFrameHostId& global_id);
+std::string GetFrameDebugString(
+    const content::GlobalRenderFrameHostToken& global_token);
 
 }  // namespace frame_util
 

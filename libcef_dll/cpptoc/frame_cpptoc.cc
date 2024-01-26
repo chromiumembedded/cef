@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2ae26d9398bc7ed5b997aa5dae4811c74395808e$
+// $hash=1edf2a7d9f2dc18f4422c9651554577735b83b66$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -311,21 +311,22 @@ cef_string_userfree_t CEF_CALLBACK frame_get_name(struct _cef_frame_t* self) {
   return _retval.DetachToUserFree();
 }
 
-int64_t CEF_CALLBACK frame_get_identifier(struct _cef_frame_t* self) {
+cef_string_userfree_t CEF_CALLBACK
+frame_get_identifier(struct _cef_frame_t* self) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self) {
-    return 0;
+    return NULL;
   }
 
   // Execute
-  int64_t _retval = CefFrameCppToC::Get(self)->GetIdentifier();
+  CefString _retval = CefFrameCppToC::Get(self)->GetIdentifier();
 
-  // Return type: simple
-  return _retval;
+  // Return type: string
+  return _retval.DetachToUserFree();
 }
 
 struct _cef_frame_t* CEF_CALLBACK frame_get_parent(struct _cef_frame_t* self) {

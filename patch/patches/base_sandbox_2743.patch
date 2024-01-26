@@ -1,16 +1,16 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 3d538b3370caa..5a4ba79e0af64 100644
+index c00c41bc2c7fd..166b3e74fd3bd 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -40,6 +40,7 @@ import("//build/config/ui.gni")
- import("//build/nocompile.gni")
+@@ -41,6 +41,7 @@ import("//build/nocompile.gni")
  import("//build/timestamp.gni")
+ import("//build/util/process_version.gni")
  import("//build_overrides/build.gni")
 +import("//cef/libcef/features/features.gni")
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1483,7 +1484,11 @@ component("base") {
+@@ -1494,7 +1495,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 3d538b3370caa..5a4ba79e0af64 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1907,6 +1912,12 @@ component("base") {
+@@ -1918,6 +1923,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -88,11 +88,11 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index 8387bc9596ad7..c3dafe80e33b7 100644
+index 00e901a3262ca..88ce372eb0a1a 100644
 --- base/rand_util.h
 +++ base/rand_util.h
-@@ -16,8 +16,9 @@
- #include "base/compiler_specific.h"
+@@ -17,8 +17,9 @@
+ #include "base/containers/span.h"
  #include "base/gtest_prod_util.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
@@ -102,7 +102,7 @@ index 8387bc9596ad7..c3dafe80e33b7 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -122,7 +123,7 @@ class RandomBitGenerator {
+@@ -125,7 +126,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  
@@ -112,7 +112,7 @@ index 8387bc9596ad7..c3dafe80e33b7 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 549f4362af8b6..f08b1b2e7f061 100644
+index 6aae763d98715..7f55cb70e94d2 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
 @@ -15,8 +15,12 @@
@@ -150,21 +150,21 @@ index 549f4362af8b6..f08b1b2e7f061 100644
 @@ -66,6 +75,7 @@ decltype(&ProcessPrng) GetProcessPrng() {
  }
  
- void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
+ void RandBytes(span<uint8_t> output, bool avoid_allocation) {
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
    if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
      // Ensure BoringSSL is initialized so it can use things like RDRAND.
      CRYPTO_library_init();
-@@ -73,6 +83,7 @@ void RandBytes(void* output, size_t output_length, bool avoid_allocation) {
-     (void)RAND_bytes(static_cast<uint8_t*>(output), output_length);
+@@ -73,6 +83,7 @@ void RandBytes(span<uint8_t> output, bool avoid_allocation) {
+     (void)RAND_bytes(output.data(), output.size());
      return;
    }
 +#endif  // !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
  
    static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
-   BOOL success = process_prng_fn(static_cast<BYTE*>(output), output_length);
+   BOOL success =
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index 44bfc3e2624d5..cccb306a383ce 100644
+index da65502f75c3a..8b9d6eec4a1e2 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -10,8 +10,9 @@
@@ -178,7 +178,7 @@ index 44bfc3e2624d5..cccb306a383ce 100644
  #include "third_party/boringssl/src/include/openssl/mem.h"
  #endif
  
-@@ -46,7 +47,7 @@ absl::optional<UnguessableToken> UnguessableToken::Deserialize(uint64_t high,
+@@ -57,7 +58,7 @@ absl::optional<UnguessableToken> UnguessableToken::DeserializeFromString(
  }
  
  bool operator==(const UnguessableToken& lhs, const UnguessableToken& rhs) {

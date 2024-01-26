@@ -21,9 +21,6 @@
 
 namespace {
 
-// Must match CefFrameHostImpl::kInvalidFrameId.
-const int kInvalidFrameId = -4;
-
 // Tracks callback status for a single frame object.
 struct FrameStatus {
   // Callbacks in expected order. Not all callbacks are executed in all cases
@@ -84,15 +81,9 @@ struct FrameStatus {
   static std::string GetFrameDebugString(CefRefPtr<CefFrame> frame) {
     // Match the logic in frame_util::GetFrameDebugString.
     // Specific formulation of the frame ID is an implementation detail that
-    // should generally not be relied upon, but this decomposed format makes the
+    // should generally not be relied upon, but a consistent format makes the
     // debug logging easier to follow.
-    uint64_t frame_id = frame->GetIdentifier();
-    uint32_t process_id = frame_id >> 32;
-    uint32_t routing_id = std::numeric_limits<uint32_t>::max() & frame_id;
-    std::stringstream ss;
-    ss << (frame->IsMain() ? "main" : " sub") << "[" << process_id << ","
-       << routing_id << "]";
-    return ss.str();
+    return frame->GetIdentifier();
   }
 
   explicit FrameStatus(CefRefPtr<CefFrame> frame)
@@ -100,7 +91,7 @@ struct FrameStatus {
         is_main_(frame->IsMain()),
         ident_str_(GetFrameDebugString(frame)) {}
 
-  int64_t frame_id() const { return frame_id_; }
+  std::string frame_id() const { return frame_id_; }
   bool is_main() const { return is_main_; }
 
   bool AllQueriesDelivered(std::string* msg = nullptr) const {
@@ -122,7 +113,7 @@ struct FrameStatus {
   }
 
   bool IsSame(CefRefPtr<CefFrame> frame) const {
-    return frame->GetIdentifier() == frame_id();
+    return frame->GetIdentifier().ToString() == frame_id();
   }
 
   bool IsLoaded(std::string* msg = nullptr) const {
@@ -225,7 +216,8 @@ struct FrameStatus {
     bool got_match = false;
 
     if (old_frame && new_frame) {
-      EXPECT_NE(old_frame->GetIdentifier(), new_frame->GetIdentifier());
+      EXPECT_STRNE(old_frame->GetIdentifier().ToString().c_str(),
+                   new_frame->GetIdentifier().ToString().c_str());
     }
 
     if (old_frame && IsSame(old_frame)) {
@@ -486,7 +478,7 @@ struct FrameStatus {
     }
   }
 
-  const int64_t frame_id_;
+  const std::string frame_id_;
   const bool is_main_;
   const std::string ident_str_;
 
@@ -901,8 +893,8 @@ class FrameStatusMap {
 
     EXPECT_LT(size(), expected_frame_ct_);
 
-    const int64_t id = frame->GetIdentifier();
-    EXPECT_NE(kInvalidFrameId, id);
+    const std::string& id = frame->GetIdentifier();
+    EXPECT_TRUE(!id.empty());
     EXPECT_EQ(frame_map_.find(id), frame_map_.end());
 
     FrameStatus* status = new FrameStatus(frame);
@@ -913,15 +905,15 @@ class FrameStatusMap {
   FrameStatus* GetFrameStatus(CefRefPtr<CefFrame> frame) const {
     EXPECT_UI_THREAD();
 
-    const int64_t id = frame->GetIdentifier();
-    EXPECT_NE(kInvalidFrameId, id);
+    const std::string& id = frame->GetIdentifier();
+    EXPECT_TRUE(!id.empty());
     Map::const_iterator it = frame_map_.find(id);
     EXPECT_NE(it, frame_map_.end());
     return it->second;
   }
 
   void RemoveFrameStatus(CefRefPtr<CefFrame> frame) {
-    const int64_t id = frame->GetIdentifier();
+    const std::string& id = frame->GetIdentifier();
     Map::iterator it = frame_map_.find(id);
     EXPECT_NE(it, frame_map_.end());
     frame_map_.erase(it);
@@ -1018,7 +1010,8 @@ class FrameStatusMap {
   size_t size() const { return frame_map_.size(); }
 
  private:
-  using Map = std::map<int64_t, FrameStatus*>;
+  // Map of frame ID to status object.
+  using Map = std::map<std::string, FrameStatus*>;
   Map frame_map_;
 
   // The expected number of sub-frames.

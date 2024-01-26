@@ -290,7 +290,7 @@ void AlloyContentRendererClient::RenderFrameCreated(
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
-    new SpellCheckProvider(render_frame, spellcheck_.get(), this);
+    new SpellCheckProvider(render_frame, spellcheck_.get());
   }
 
   bool browser_created;
@@ -412,9 +412,9 @@ void AlloyContentRendererClient::WillSendRequest(
   }
 }
 
-uint64_t AlloyContentRendererClient::VisitedLinkHash(const char* canonical_url,
-                                                     size_t length) {
-  return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
+uint64_t AlloyContentRendererClient::VisitedLinkHash(
+    std::string_view canonical_url) {
+  return visited_link_slave_->ComputeURLFingerprint(canonical_url);
 }
 
 bool AlloyContentRendererClient::IsLinkVisited(uint64_t link_hash) {

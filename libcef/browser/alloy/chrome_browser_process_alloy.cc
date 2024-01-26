@@ -19,6 +19,7 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "chrome/browser/browser_features.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/permissions/chrome_permissions_client.h"
@@ -31,6 +32,7 @@
 #include "components/component_updater/component_updater_service.h"
 #include "components/component_updater/timer_update_scheduler.h"
 #include "components/net_log/chrome_net_log.h"
+#include "components/os_crypt/async/browser/os_crypt_async.h"
 #include "components/prefs/pref_service.h"
 #include "content/browser/startup_helper.h"
 #include "content/public/browser/network_service_instance.h"
@@ -38,6 +40,10 @@
 #include "net/log/net_log_capture_mode.h"
 #include "services/network/public/cpp/network_switches.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
+
+#if BUILDFLAG(IS_WIN)
+#include "components/os_crypt/async/browser/dpapi_key_provider.h"
+#endif
 
 ChromeBrowserProcessAlloy::ChromeBrowserProcessAlloy() : locale_("en-US") {}
 
@@ -80,6 +86,30 @@ void ChromeBrowserProcessAlloy::OnContextInitialized() {
   DCHECK(initialized_);
   DCHECK(!context_initialized_);
   DCHECK(!shutdown_);
+
+  // OSCryptAsync provider configuration. If empty, this delegates all
+  // encryption operations to OSCrypt.
+  std::vector<std::pair<size_t, std::unique_ptr<os_crypt_async::KeyProvider>>>
+      providers;
+
+#if BUILDFLAG(IS_WIN)
+  // TODO(crbug.com/1373092): For Windows, continue to add providers behind
+  // features, as support for them is added.
+  if (base::FeatureList::IsEnabled(features::kEnableDPAPIEncryptionProvider)) {
+    // The DPAPI key provider requires OSCrypt::Init to have already been called
+    // to initialize the key storage. This happens in
+    // AlloyBrowserMainParts::PreCreateMainMessageLoop.
+    providers.emplace_back(std::make_pair(
+        /*precedence=*/10u,
+        std::make_unique<os_crypt_async::DPAPIKeyProvider>(local_state())));
+  }
+#endif  // BUILDFLAG(IS_WIN)
+
+  os_crypt_async_ =
+      std::make_unique<os_crypt_async::OSCryptAsync>(std::move(providers));
+
+  // Trigger async initialization of OSCrypt key providers.
+  std::ignore = os_crypt_async_->GetInstance(base::DoNothing());
 
   // Must be created after the NotificationService.
   print_job_manager_ = std::make_unique<printing::PrintJobManager>();
@@ -270,9 +300,9 @@ printing::PrintJobManager* ChromeBrowserProcessAlloy::print_job_manager() {
 
 printing::PrintPreviewDialogController*
 ChromeBrowserProcessAlloy::print_preview_dialog_controller() {
-  if (!print_preview_dialog_controller_.get()) {
+  if (!print_preview_dialog_controller_) {
     print_preview_dialog_controller_ =
-        new printing::PrintPreviewDialogController();
+        std::make_unique<printing::PrintPreviewDialogController>();
   }
   return print_preview_dialog_controller_.get();
 }
@@ -405,8 +435,8 @@ ChromeBrowserProcessAlloy::resource_coordinator_parts() {
 }
 
 os_crypt_async::OSCryptAsync* ChromeBrowserProcessAlloy::os_crypt_async() {
-  DCHECK(false);
-  return nullptr;
+  DCHECK(os_crypt_async_);
+  return os_crypt_async_.get();
 }
 
 BuildState* ChromeBrowserProcessAlloy::GetBuildState() {

@@ -112,7 +112,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // already exist for traditional popup browsers depending on timing. See
   // comments on PendingPopup for more information.
   void OnGetNewBrowserInfo(
-      const content::GlobalRenderFrameHostId& global_id,
+      const content::GlobalRenderFrameHostToken& global_token,
       cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback);
 
   // Called from CefBrowserHostBase::DestroyBrowser() when a browser is
@@ -122,14 +122,17 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Called from CefContext::FinishShutdownOnUIThread() to destroy all browsers.
   void DestroyAllBrowsers();
 
-  // Returns the CefBrowserInfo matching the specified ID or nullptr if no
+  // Returns the CefBrowserInfo matching the specified ID/token or nullptr if no
   // match is found. It is allowed to add new callers of this method but
-  // consider using CefBrowserHostBase::GetBrowserForGlobalId() or
+  // consider using CefBrowserHostBase::GetBrowserForGlobalId/Token() or
   // extensions::GetOwnerBrowserForGlobalId() instead. If |is_guest_view| is
-  // non-nullptr it will be set to true if the ID matches a guest view
+  // non-nullptr it will be set to true if the ID/token matches a guest view
   // associated with the returned browser info instead of the browser itself.
   scoped_refptr<CefBrowserInfo> GetBrowserInfo(
       const content::GlobalRenderFrameHostId& global_id,
+      bool* is_guest_view = nullptr);
+  scoped_refptr<CefBrowserInfo> GetBrowserInfo(
+      const content::GlobalRenderFrameHostToken& global_token,
       bool* is_guest_view = nullptr);
 
   // Returns all existing CefBrowserInfo objects.
@@ -213,9 +216,12 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       PendingPopup::Step previous_step,
       content::WebContents* new_contents);
 
-  // Retrieves the BrowserInfo matching the specified ID.
+  // Retrieves the BrowserInfo matching the specified ID/token.
   scoped_refptr<CefBrowserInfo> GetBrowserInfoInternal(
       const content::GlobalRenderFrameHostId& global_id,
+      bool* is_guest_view);
+  scoped_refptr<CefBrowserInfo> GetBrowserInfoInternal(
+      const content::GlobalRenderFrameHostToken& global_token,
       bool* is_guest_view);
 
   // Send the response for a pending OnGetNewBrowserInfo request.
@@ -227,7 +233,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
-    content::GlobalRenderFrameHostId global_id;
+    content::GlobalRenderFrameHostToken global_token;
     int timeout_id;
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback;
     scoped_refptr<base::SequencedTaskRunner> callback_runner;
@@ -238,7 +244,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Time out a response if it's still pending.
   static void TimeoutNewBrowserInfoResponse(
-      const content::GlobalRenderFrameHostId& global_id,
+      const content::GlobalRenderFrameHostToken& global_token,
       int timeout_id);
 
   mutable base::Lock browser_info_lock_;
@@ -252,7 +258,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // identify a RFH for its complete lifespan. See documentation on
   // RenderFrameHost::GetFrameTreeNodeId() for background.
   using PendingNewBrowserInfoMap =
-      std::map<content::GlobalRenderFrameHostId,
+      std::map<content::GlobalRenderFrameHostToken,
                std::unique_ptr<PendingNewBrowserInfo>>;
   PendingNewBrowserInfoMap pending_new_browser_info_map_;
 

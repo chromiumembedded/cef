@@ -125,7 +125,7 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   std::unique_ptr<printing::PrintJobManager> print_job_manager_;
   std::unique_ptr<ChromeProfileManagerAlloy> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
-  scoped_refptr<printing::PrintPreviewDialogController>
+  std::unique_ptr<printing::PrintPreviewDialogController>
       print_preview_dialog_controller_;
   std::unique_ptr<printing::BackgroundPrintingManager>
       background_printing_manager_;
@@ -137,6 +137,8 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   std::unique_ptr<base::FieldTrialList> field_trial_list_;
 
   std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
+
+  std::unique_ptr<os_crypt_async::OSCryptAsync> os_crypt_async_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_CHROME_BROWSER_PROCESS_ALLOY_H_

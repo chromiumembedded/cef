@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 
@@ -14,6 +15,7 @@
 
 #include "base/synchronization/lock.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
+#include "content/public/browser/global_routing_id.h"
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote.h"
 #include "ui/base/page_transition_types.h"
@@ -33,8 +35,9 @@ class CefBrowserHostBase;
 class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
  public:
   // Create a temporary sub-frame.
-  CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
-                   int64_t parent_frame_id);
+  CefFrameHostImpl(
+      scoped_refptr<CefBrowserInfo> browser_info,
+      std::optional<content::GlobalRenderFrameHostToken> parent_frame_token);
 
   // Create a frame backed by a RFH and owned by CefBrowserInfo.
   CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
@@ -65,7 +68,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
-  int64_t GetIdentifier() override;
+  CefString GetIdentifier() override;
   CefRefPtr<CefFrame> GetParent() override;
   CefString GetURL() override;
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -76,8 +79,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
       CefRefPtr<CefURLRequestClient> client) override;
   void SendProcessMessage(CefProcessId target_process,
                           CefRefPtr<CefProcessMessage> message) override;
-
-  bool is_temporary() const { return frame_id_ == kInvalidFrameId; }
 
   void SetFocused(bool focused);
   void RefreshAttributes();
@@ -112,9 +113,20 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
   void ExecuteJavaScriptWithUserGestureForTests(const CefString& javascript);
 
-  // Returns the RFH associated with this frame. Must be called on the UI
-  // thread.
+  // Returns the RFH currently associated with this frame. May return nullptr if
+  // this frame is currenly detached. Do not directly compare RFH pointers; use
+  // IsSameFrame() instead. Must be called on the UI thread.
   content::RenderFrameHost* GetRenderFrameHost() const;
+
+  // Returns true if this frame and |frame_host| represent the same frame.
+  // Frames are considered the same if they share the same frame token value,
+  // so this method is safe to call even for detached frames. Must be called on
+  // the UI thread.
+  bool IsSameFrame(content::RenderFrameHost* frame_host) const;
+
+  // Returns true if this frame is currently detached (e.g. no associated RFH).
+  // Must be called on the UI thread.
+  bool IsDetached() const;
 
   enum class DetachReason {
     RENDER_FRAME_DELETED,
@@ -145,10 +157,10 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
       absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
-  static const int64_t kMainFrameId;
-  static const int64_t kFocusedFrameId;
-  static const int64_t kUnspecifiedFrameId;
-  static const int64_t kInvalidFrameId;
+  bool is_temporary() const { return !frame_token_.has_value(); }
+  std::optional<content::GlobalRenderFrameHostToken> frame_token() const {
+    return frame_token_;
+  }
 
   // PageTransition type for explicit navigations. This must pass the check in
   // ContentBrowserClient::IsExplicitNavigation for debug URLs (HandleDebugURL)
@@ -156,7 +168,6 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   static const ui::PageTransition kPageTransitionExplicit;
 
  private:
-  int64_t GetFrameId() const;
   scoped_refptr<CefBrowserInfo> GetBrowserInfo() const;
   CefRefPtr<CefBrowserHostBase> GetBrowserHostBase() const;
 
@@ -172,16 +183,17 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   std::string GetDebugString() const;
 
   const bool is_main_frame_;
+  const std::optional<content::GlobalRenderFrameHostToken> frame_token_;
 
-  // The following members may be read/modified from any thread. All access must
-  // be protected by |state_lock_|.
+  // The following members are only modified on the UI thread but may be read
+  // from any thread. Any modification on the UI thread, or any access from
+  // non-UI threads, must be protected by |state_lock_|.
   mutable base::Lock state_lock_;
-  int64_t frame_id_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   bool is_focused_;
   CefString url_;
   CefString name_;
-  int64_t parent_frame_id_;
+  std::optional<content::GlobalRenderFrameHostToken> parent_frame_token_;
 
   // The following members are only accessed on the UI thread.
   content::RenderFrameHost* render_frame_host_ = nullptr;

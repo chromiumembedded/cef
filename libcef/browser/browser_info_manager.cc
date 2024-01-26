@@ -89,7 +89,8 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   browser_info_list_.push_back(browser_info);
 
   // Continue any pending NewBrowserInfo request.
-  auto it = pending_new_browser_info_map_.find(frame_host->GetGlobalId());
+  auto it =
+      pending_new_browser_info_map_.find(frame_host->GetGlobalFrameToken());
   if (it != pending_new_browser_info_map_.end()) {
     SendNewBrowserInfoResponse(browser_info, /*is_guest_view=*/false,
                                std::move(it->second->callback),
@@ -289,9 +290,9 @@ bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
 }
 
 void CefBrowserInfoManager::OnGetNewBrowserInfo(
-    const content::GlobalRenderFrameHostId& global_id,
+    const content::GlobalRenderFrameHostToken& global_token,
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback) {
-  DCHECK(frame_util::IsValidGlobalId(global_id));
+  DCHECK(frame_util::IsValidGlobalToken(global_token));
   DCHECK(callback);
 
   auto callback_runner = base::SequencedTaskRunner::GetCurrentDefault();
@@ -301,7 +302,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   bool is_guest_view = false;
 
   scoped_refptr<CefBrowserInfo> browser_info =
-      GetBrowserInfoInternal(global_id, &is_guest_view);
+      GetBrowserInfoInternal(global_token, &is_guest_view);
 
   if (browser_info) {
     // Send the response immediately.
@@ -311,19 +312,19 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   }
 
   // Verify that no request for the same route is currently queued.
-  DCHECK(pending_new_browser_info_map_.find(global_id) ==
+  DCHECK(pending_new_browser_info_map_.find(global_token) ==
          pending_new_browser_info_map_.end());
 
   const int timeout_id = ++next_timeout_id_;
 
   // Queue the request.
   std::unique_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
-  pending->global_id = global_id;
+  pending->global_token = global_token;
   pending->timeout_id = timeout_id;
   pending->callback = std::move(callback);
   pending->callback_runner = callback_runner;
   pending_new_browser_info_map_.insert(
-      std::make_pair(global_id, std::move(pending)));
+      std::make_pair(global_token, std::move(pending)));
 
   // Register a timeout for the pending response so that the renderer process
   // doesn't hang forever. With the Chrome runtime, timeouts may occur in cases
@@ -334,7 +335,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
     CEF_POST_DELAYED_TASK(
         CEF_UIT,
         base::BindOnce(&CefBrowserInfoManager::TimeoutNewBrowserInfoResponse,
-                       global_id, timeout_id),
+                       global_token, timeout_id),
         kNewBrowserInfoResponseTimeoutMs);
   }
 }
@@ -389,6 +390,13 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
     bool* is_guest_view) {
   base::AutoLock lock_scope(browser_info_lock_);
   return GetBrowserInfoInternal(global_id, is_guest_view);
+}
+
+scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
+    const content::GlobalRenderFrameHostToken& global_token,
+    bool* is_guest_view) {
+  base::AutoLock lock_scope(browser_info_lock_);
+  return GetBrowserInfoInternal(global_token, is_guest_view);
 }
 
 bool CefBrowserInfoManager::MaybeAllowNavigation(
@@ -451,7 +459,7 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
         pending_new_browser_info_map_.begin();
     while (it != pending_new_browser_info_map_.end()) {
       const auto& info = it->second;
-      if (info->global_id.child_id == render_process_id) {
+      if (info->global_token.child_id == render_process_id) {
         CancelNewBrowserInfoResponse(info.get());
         it = pending_new_browser_info_map_.erase(it);
       } else {
@@ -553,6 +561,34 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
   return nullptr;
 }
 
+scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
+    const content::GlobalRenderFrameHostToken& global_token,
+    bool* is_guest_view) {
+  browser_info_lock_.AssertAcquired();
+
+  if (is_guest_view) {
+    *is_guest_view = false;
+  }
+
+  if (!frame_util::IsValidGlobalToken(global_token)) {
+    return nullptr;
+  }
+
+  for (const auto& browser_info : browser_info_list_) {
+    bool is_guest_view_tmp;
+    auto frame =
+        browser_info->GetFrameForGlobalToken(global_token, &is_guest_view_tmp);
+    if (frame || is_guest_view_tmp) {
+      if (is_guest_view) {
+        *is_guest_view = is_guest_view_tmp;
+      }
+      return browser_info;
+    }
+  }
+
+  return nullptr;
+}
+
 // static
 void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     scoped_refptr<CefBrowserInfo> browser_info,
@@ -601,7 +637,7 @@ void CefBrowserInfoManager::CancelNewBrowserInfoResponse(
 
 // static
 void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
-    const content::GlobalRenderFrameHostId& global_id,
+    const content::GlobalRenderFrameHostToken& global_token,
     int timeout_id) {
   CEF_REQUIRE_UIT();
   if (!g_info_manager) {
@@ -611,7 +647,7 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
   base::AutoLock lock_scope(g_info_manager->browser_info_lock_);
 
   // Continue the NewBrowserInfo request if it's still pending.
-  auto it = g_info_manager->pending_new_browser_info_map_.find(global_id);
+  auto it = g_info_manager->pending_new_browser_info_map_.find(global_token);
   if (it != g_info_manager->pending_new_browser_info_map_.end()) {
     const auto& pending_info = it->second;
     // Don't accidentally timeout a new request for the same frame.
@@ -622,12 +658,12 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
 #if DCHECK_IS_ON()
     // This method should never be called for a PDF renderer.
     content::RenderProcessHost* process =
-        content::RenderProcessHost::FromID(global_id.child_id);
+        content::RenderProcessHost::FromID(global_token.child_id);
     DCHECK(!process || !process->IsPdf());
 #endif
 
     LOG(ERROR) << "Timeout of new browser info response for frame "
-               << frame_util::GetFrameDebugString(global_id);
+               << frame_util::GetFrameDebugString(global_token);
 
     CancelNewBrowserInfoResponse(pending_info.get());
     g_info_manager->pending_new_browser_info_map_.erase(it);

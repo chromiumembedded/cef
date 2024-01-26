@@ -60,10 +60,10 @@ index 8cea5bf4591cd..c5fca9dd1a9e8 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 55f83aa0e801a..e111e3273796e 100644
+index 52e6a29f65a91..8e8f92a45526c 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
-@@ -62,12 +62,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -105,12 +105,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
           host_type == mojom::ViewType::kOffscreenDocument ||
           host_type == mojom::ViewType::kExtensionPopup ||
           host_type == mojom::ViewType::kExtensionSidePanel);
@@ -80,7 +80,7 @@ index 55f83aa0e801a..e111e3273796e 100644
    main_frame_host_ = host_contents_->GetPrimaryMainFrame();
  
    // Listen for when an extension is unloaded from the same profile, as it may
-@@ -83,11 +84,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -126,11 +127,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
    // Create password reuse detection manager when new extension web contents are
    // created.
    ExtensionsBrowserClient::Get()->CreatePasswordReuseDetectionManager(
@@ -132,7 +132,7 @@ index 55f83aa0e801a..e111e3273796e 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index c0398bdd68648..93fc2409ab3d7 100644
+index 94b02bca9b70b..5e3dacc34452a 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -62,6 +62,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -157,7 +157,7 @@ index c0398bdd68648..93fc2409ab3d7 100644
    content::RenderFrameHost* main_frame_host() const { return main_frame_host_; }
    content::RenderProcessHost* render_process_host() const;
    bool has_loaded_once() const { return has_loaded_once_; }
-@@ -238,7 +244,8 @@ class ExtensionHost : public DeferredStartRenderHost,
+@@ -248,7 +254,8 @@ class ExtensionHost : public DeferredStartRenderHost,
    raw_ptr<content::BrowserContext> browser_context_;
  
    // The host for our HTML content.
@@ -199,10 +199,10 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index bded50cb03354..4df474bd3c7bb 100644
+index 5da1cae2970c6..4e193c09c54b1 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -31,6 +31,7 @@
+@@ -34,6 +34,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -210,7 +210,7 @@ index bded50cb03354..4df474bd3c7bb 100644
  class PrefService;
  
  namespace base {
-@@ -79,6 +80,7 @@ class ComponentExtensionResourceManager;
+@@ -82,6 +83,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -218,7 +218,7 @@ index bded50cb03354..4df474bd3c7bb 100644
  class ExtensionHostDelegate;
  class ExtensionSet;
  class ExtensionSystem;
-@@ -264,6 +266,14 @@ class ExtensionsBrowserClient {
+@@ -272,6 +274,14 @@ class ExtensionsBrowserClient {
    virtual std::unique_ptr<ExtensionHostDelegate>
    CreateExtensionHostDelegate() = 0;
  
@@ -234,7 +234,7 @@ index bded50cb03354..4df474bd3c7bb 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index fcfb4635bfc23..619f210c7240e 100644
+index 399eba92dc627..60ad5d7dd3831 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -379,9 +379,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
@@ -257,10 +257,10 @@ index fcfb4635bfc23..619f210c7240e 100644
        base::BindOnce(&ProcessManager::HandleCloseExtensionHost,
                       weak_ptr_factory_.GetWeakPtr()));
 diff --git extensions/common/extensions_client.cc extensions/common/extensions_client.cc
-index 713e66b05abcf..de97074586d0f 100644
+index 5142f341b8392..d3242aae96ece 100644
 --- extensions/common/extensions_client.cc
 +++ extensions/common/extensions_client.cc
-@@ -23,7 +23,7 @@ ExtensionsClient* g_client = nullptr;
+@@ -25,7 +25,7 @@ ExtensionsClient* g_client = nullptr;
  }  // namespace
  
  ExtensionsClient* ExtensionsClient::Get() {

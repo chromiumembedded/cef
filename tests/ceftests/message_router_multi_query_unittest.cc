@@ -243,7 +243,9 @@ class MultiQueryManager {
 
     // Verify that browser and frame are the same.
     EXPECT_EQ(query.browser_id, browser->GetIdentifier()) << index;
-    EXPECT_EQ(query.frame_id, frame->GetIdentifier()) << index;
+    EXPECT_STREQ(query.frame_id.c_str(),
+                 frame->GetIdentifier().ToString().c_str())
+        << index;
 
     // Verify a successful/expected result.
     if (will_cancel_by_removing_handler_) {
@@ -399,7 +401,9 @@ class MultiQueryManager {
           EXPECT_TRUE(frame->IsMain()) << i;
         } else {
           EXPECT_FALSE(frame->IsMain()) << i;
-          EXPECT_EQ(query.frame_id, frame->GetIdentifier()) << i;
+          EXPECT_STREQ(query.frame_id.c_str(),
+                       frame->GetIdentifier().ToString().c_str())
+              << i;
         }
 
         // Verify a successful/expected result.
@@ -503,7 +507,7 @@ class MultiQueryManager {
 
     // Set in OnQuery and verified in OnNotify or OnQueryCanceled.
     int browser_id = 0;
-    int64_t frame_id = 0;
+    std::string frame_id;
     bool is_main_frame = false;
 
     // Used when a query is canceled.
@@ -1590,9 +1594,11 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
 
     const int browser_id = browser->GetIdentifier();
     // Always use the same ID for the main frame.
-    const int64_t frame_id = frame->IsMain() ? -1 : frame->GetIdentifier();
+    const std::string frame_id =
+        frame->IsMain() ? std::string() : frame->GetIdentifier().ToString();
 
-    const std::pair<int, int64_t>& id = std::make_pair(browser_id, frame_id);
+    const std::pair<int, std::string>& id =
+        std::make_pair(browser_id, frame_id);
 
     // Remove the currently active manager, if any.
     ManagerMap::iterator it2 = manager_map_.find(id);
@@ -1608,7 +1614,8 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
                                 CefRefPtr<CefFrame> frame) const {
     const int browser_id = browser->GetIdentifier();
     // Always use the same ID for the main frame.
-    const int64_t frame_id = frame->IsMain() ? -1 : frame->GetIdentifier();
+    const std::string frame_id =
+        frame->IsMain() ? std::string() : frame->GetIdentifier().ToString();
 
     // Find the manager in the active map.
     ManagerMap::const_iterator it =
@@ -1642,7 +1649,7 @@ class MultiQueryManagerMap : public MultiQueryManager::Observer {
  private:
   typedef std::vector<MultiQueryManager*> ManagerList;
   // Map of (browser ID, frame ID) to manager.
-  typedef std::map<std::pair<int, int64_t>, MultiQueryManager*> ManagerMap;
+  typedef std::map<std::pair<int, std::string>, MultiQueryManager*> ManagerMap;
 
   // All managers that have been created.
   ManagerList all_managers_;

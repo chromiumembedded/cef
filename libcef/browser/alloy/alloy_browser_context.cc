@@ -113,12 +113,7 @@ AlloyBrowserContext::AlloyBrowserContext(
     const CefRequestContextSettings& settings)
     : CefBrowserContext(settings) {}
 
-AlloyBrowserContext::~AlloyBrowserContext() {
-  if (resource_context_) {
-    content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
-                                       resource_context_.release());
-  }
-}
+AlloyBrowserContext::~AlloyBrowserContext() = default;
 
 bool AlloyBrowserContext::IsInitialized() const {
   CEF_REQUIRE_UIT();
@@ -309,13 +304,6 @@ bool AlloyBrowserContext::IsPrintPreviewSupported() const {
   }
 
   return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
-}
-
-content::ResourceContext* AlloyBrowserContext::GetResourceContext() {
-  if (!resource_context_) {
-    resource_context_ = std::make_unique<content::ResourceContext>();
-  }
-  return resource_context_.get();
 }
 
 content::ClientHintsControllerDelegate*

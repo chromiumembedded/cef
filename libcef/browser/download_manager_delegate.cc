@@ -41,13 +41,21 @@ CefRefPtr<CefDownloadHandler> GetDownloadHandler(
   return nullptr;
 }
 
+void RunDownloadTargetCallback(download::DownloadTargetCallback callback,
+                               const base::FilePath& path) {
+  download::DownloadTargetInfo target_info;
+  target_info.target_path = path;
+  target_info.intermediate_path = path;
+  std::move(callback).Run(std::move(target_info));
+}
+
 // CefBeforeDownloadCallback implementation.
 class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
  public:
   CefBeforeDownloadCallbackImpl(const base::WeakPtr<DownloadManager>& manager,
                                 uint32_t download_id,
                                 const base::FilePath& suggested_name,
-                                content::DownloadTargetCallback callback)
+                                download::DownloadTargetCallback callback)
       : manager_(manager),
         download_id_(download_id),
         suggested_name_(suggested_name),
@@ -85,7 +93,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
                                const base::FilePath& suggested_name,
                                const base::FilePath& download_path,
                                bool show_dialog,
-                               content::DownloadTargetCallback callback) {
+                               download::DownloadTargetCallback callback) {
     CEF_REQUIRE_BLOCKING();
 
     base::FilePath suggested_path = download_path;
@@ -120,7 +128,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
                                  uint32_t download_id,
                                  const base::FilePath& suggested_path,
                                  bool show_dialog,
-                                 content::DownloadTargetCallback callback) {
+                                 download::DownloadTargetCallback callback) {
     if (!manager) {
       return;
     }
@@ -159,17 +167,12 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     }
 
     if (!handled) {
-      std::move(callback).Run(
-          suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-          download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-          download::DownloadItem::InsecureDownloadStatus::UNKNOWN,
-          suggested_path, base::FilePath(), std::string() /*mime_type*/,
-          download::DOWNLOAD_INTERRUPT_REASON_NONE);
+      RunDownloadTargetCallback(std::move(callback), suggested_path);
     }
   }
 
   static void ChooseDownloadPathCallback(
-      content::DownloadTargetCallback callback,
+      download::DownloadTargetCallback callback,
       const std::vector<base::FilePath>& file_paths) {
     DCHECK_LE(file_paths.size(), (size_t)1);
 
@@ -179,18 +182,13 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     }
 
     // The download will be cancelled if |path| is empty.
-    std::move(callback).Run(
-        path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-        download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-        download::DownloadItem::InsecureDownloadStatus::UNKNOWN, path,
-        base::FilePath(), std::string() /*mime_type*/,
-        download::DOWNLOAD_INTERRUPT_REASON_NONE);
+    RunDownloadTargetCallback(std::move(callback), path);
   }
 
   base::WeakPtr<DownloadManager> manager_;
   uint32_t download_id_;
   base::FilePath suggested_name_;
-  content::DownloadTargetCallback callback_;
+  download::DownloadTargetCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefBeforeDownloadCallbackImpl);
 };
@@ -375,14 +373,10 @@ void CefDownloadManagerDelegate::ManagerGoingDown(DownloadManager* manager) {
 
 bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     DownloadItem* item,
-    content::DownloadTargetCallback* callback) {
-  if (!item->GetForcedFilePath().empty()) {
-    std::move(*callback).Run(
-        item->GetForcedFilePath(), DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-        download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-        download::DownloadItem::InsecureDownloadStatus::UNKNOWN,
-        item->GetForcedFilePath(), base::FilePath(),
-        std::string() /*mime_type*/, download::DOWNLOAD_INTERRUPT_REASON_NONE);
+    download::DownloadTargetCallback* callback) {
+  const auto& forced_path = item->GetForcedFilePath();
+  if (!forced_path.empty()) {
+    RunDownloadTargetCallback(std::move(*callback), forced_path);
     return true;
   }
 

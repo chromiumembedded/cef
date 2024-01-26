@@ -232,7 +232,8 @@ class CefBrowserURLRequest::Context
       url_loader_network_observer =
           static_cast<content::StoragePartitionImpl*>(
               browser_context->GetDefaultStoragePartition())
-              ->CreateAuthCertObserverForServiceWorker();
+              ->CreateAuthCertObserverForServiceWorker(
+                  content::ChildProcessHost::kInvalidUniqueID);
     }
 
     task_runner->PostTask(

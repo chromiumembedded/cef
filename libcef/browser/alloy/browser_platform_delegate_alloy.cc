@@ -69,10 +69,10 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
 
       // Extension resources will fail to load if we don't use a SiteInstance
       // associated with the extension.
-      // (AlloyContentBrowserClient::SiteInstanceGotProcess won't find the
-      // extension to register with InfoMap, and AllowExtensionResourceLoad in
-      // ExtensionProtocolHandler::MaybeCreateJob will return false resulting in
-      // ERR_BLOCKED_BY_CLIENT).
+      // (AlloyContentBrowserClient::SiteInstanceGotProcessAndSite won't find
+      // the extension to register with InfoMap, and AllowExtensionResourceLoad
+      // in ExtensionProtocolHandler::MaybeCreateJob will return false resulting
+      // in ERR_BLOCKED_BY_CLIENT).
       site_instance = extensions::ProcessManager::Get(browser_context)
                           ->GetSiteInstanceForURL(gurl);
       DCHECK(site_instance);

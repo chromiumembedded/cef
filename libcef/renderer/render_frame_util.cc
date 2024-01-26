@@ -15,13 +15,12 @@
 
 namespace render_frame_util {
 
-int64_t GetIdentifier(blink::WebLocalFrame* frame) {
+std::string GetIdentifier(blink::WebLocalFrame* frame) {
   // Each WebFrame will have an associated RenderFrame. The RenderFrame
   // routing IDs are unique within a given renderer process.
-  content::RenderFrame* render_frame =
-      content::RenderFrame::FromWebFrame(frame);
-  return frame_util::MakeFrameId(content::RenderThread::Get()->GetClientId(),
-                                 render_frame->GetRoutingID());
+  return frame_util::MakeFrameIdentifier(content::GlobalRenderFrameHostToken(
+      content::RenderThread::Get()->GetClientId(),
+      frame->GetLocalFrameToken()));
 }
 
 std::string GetName(blink::WebLocalFrame* frame) {
@@ -40,6 +39,16 @@ std::string GetName(blink::WebLocalFrame* frame) {
     return render_frame->unique_name();
   }
   return std::string();
+}
+
+std::optional<blink::LocalFrameToken> ParseFrameTokenFromIdentifier(
+    const std::string& identifier) {
+  const auto& global_token = frame_util::ParseFrameIdentifier(identifier);
+  if (!global_token ||
+      global_token->child_id != content::RenderThread::Get()->GetClientId()) {
+    return std::nullopt;
+  }
+  return global_token->frame_token;
 }
 
 }  // namespace render_frame_util

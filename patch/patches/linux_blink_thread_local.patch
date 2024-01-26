@@ -1,8 +1,8 @@
 diff --git third_party/blink/renderer/platform/heap/thread_local.h third_party/blink/renderer/platform/heap/thread_local.h
-index e0519b0982e43..40637ce5952e3 100644
+index a672ba785ac06..13d794dc15c16 100644
 --- third_party/blink/renderer/platform/heap/thread_local.h
 +++ third_party/blink/renderer/platform/heap/thread_local.h
-@@ -36,7 +36,7 @@
+@@ -37,7 +37,7 @@
  #if BLINK_HEAP_HIDE_THREAD_LOCAL_IN_LIBRARY
  #define BLINK_HEAP_THREAD_LOCAL_MODEL "local-dynamic"
  #else

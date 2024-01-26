@@ -23,7 +23,7 @@ class CefExtensionsAPIProvider : public ExtensionsAPIProvider {
   void AddBehaviorFeatures(FeatureProvider* provider) override;
   void AddAPIJSONSources(JSONFeatureProviderSource* json_source) override;
   bool IsAPISchemaGenerated(const std::string& name) override;
-  base::StringPiece GetAPISchema(const std::string& name) override;
+  std::string_view GetAPISchema(const std::string& name) override;
   void RegisterPermissions(PermissionsInfo* permissions_info) override;
   void RegisterManifestHandlers() override;
 };

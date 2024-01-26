@@ -29,8 +29,6 @@ class WebView;
 
 namespace blink_glue {
 
-BLINK_EXPORT extern const int64_t kInvalidFrameId;
-
 BLINK_EXPORT bool CanGoBack(blink::WebView* view);
 BLINK_EXPORT bool CanGoForward(blink::WebView* view);
 BLINK_EXPORT void GoBack(blink::WebView* view);

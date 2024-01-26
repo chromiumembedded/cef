@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index df350be109056..f55ab1705ecc0 100644
+index 52829e870d30a..bf87e1750cd3f 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -780,6 +780,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -781,6 +781,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    }
  #endif
  
@@ -15,7 +15,7 @@ index df350be109056..f55ab1705ecc0 100644
    static void InitializeMainThreadCommon(
        Platform* platform,
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index b9a32cced2024..39982bd04f736 100644
+index ae0907dfd95ec..63620f0aadc14 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -10,6 +10,7 @@

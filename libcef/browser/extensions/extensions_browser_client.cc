@@ -246,6 +246,13 @@ ProcessManagerDelegate* CefExtensionsBrowserClient::GetProcessManagerDelegate()
   return nullptr;
 }
 
+mojo::PendingRemote<network::mojom::URLLoaderFactory>
+CefExtensionsBrowserClient::GetControlledFrameEmbedderURLLoader(
+    int frame_tree_node_id,
+    content::BrowserContext* browser_context) {
+  return mojo::PendingRemote<network::mojom::URLLoaderFactory>();
+}
+
 std::unique_ptr<ExtensionHostDelegate>
 CefExtensionsBrowserClient::CreateExtensionHostDelegate() {
   // CEF does not use the ExtensionHost constructor that calls this method.

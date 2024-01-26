@@ -17,6 +17,7 @@
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/render_frame_host.h"
 #include "ui/shell_dialogs/select_file_policy.h"
+#include "ui/shell_dialogs/selected_file_info.h"
 
 using blink::mojom::FileChooserParams;
 
@@ -224,38 +225,20 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
  private:
   ~CefSelectFileDialogListener() override = default;
 
-  void FileSelected(const base::FilePath& path,
+  void FileSelected(const ui::SelectedFileInfo& file,
                     int index,
                     void* params) override {
     DCHECK_EQ(params, params_);
     executing_ = true;
-    listener_->FileSelected(path, index, params);
+    listener_->FileSelected(file, index, params);
     Destroy();
   }
 
-  void FileSelectedWithExtraInfo(const ui::SelectedFileInfo& file,
-                                 int index,
-                                 void* params) override {
-    DCHECK_EQ(params, params_);
-    executing_ = true;
-    listener_->FileSelectedWithExtraInfo(file, index, params);
-    Destroy();
-  }
-
-  void MultiFilesSelected(const std::vector<base::FilePath>& files,
+  void MultiFilesSelected(const std::vector<ui::SelectedFileInfo>& files,
                           void* params) override {
     DCHECK_EQ(params, params_);
     executing_ = true;
     listener_->MultiFilesSelected(files, params);
-    Destroy();
-  }
-
-  void MultiFilesSelectedWithExtraInfo(
-      const std::vector<ui::SelectedFileInfo>& files,
-      void* params) override {
-    DCHECK_EQ(params, params_);
-    executing_ = true;
-    listener_->MultiFilesSelectedWithExtraInfo(files, params);
     Destroy();
   }
 
@@ -535,9 +518,10 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
   if (paths.empty()) {
     listener->FileSelectionCanceled(params);
   } else if (paths.size() == 1) {
-    listener->FileSelected(paths[0], /*index=*/0, params);
+    listener->FileSelected(ui::SelectedFileInfo(paths[0]), /*index=*/0, params);
   } else {
-    listener->MultiFilesSelected(paths, params);
+    listener->MultiFilesSelected(ui::FilePathListToSelectedFileInfoList(paths),
+                                 params);
   }
   // |listener| is likely deleted at this point.
 }

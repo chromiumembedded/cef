@@ -59,7 +59,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   bool IsPrintPreviewSupported() const override;
 
   // content::BrowserContext overrides.
-  content::ResourceContext* GetResourceContext() override;
   content::ClientHintsControllerDelegate* GetClientHintsControllerDelegate()
       override;
   base::FilePath GetPath() override;
@@ -142,8 +141,6 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<ProfileKey> key_;
 
   std::unique_ptr<DownloadPrefs> download_prefs_;
-
-  std::unique_ptr<content::ResourceContext> resource_context_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_

@@ -428,23 +428,23 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
   log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
 
-  logging::LogSeverity log_severity = logging::LOG_INFO;
+  logging::LogSeverity log_severity = logging::LOGGING_INFO;
 
   std::string log_severity_str =
       command_line->GetSwitchValueASCII(switches::kLogSeverity);
   if (!log_severity_str.empty()) {
     if (base::EqualsCaseInsensitiveASCII(log_severity_str,
                                          switches::kLogSeverity_Verbose)) {
-      log_severity = logging::LOG_VERBOSE;
+      log_severity = logging::LOGGING_VERBOSE;
     } else if (base::EqualsCaseInsensitiveASCII(
                    log_severity_str, switches::kLogSeverity_Warning)) {
-      log_severity = logging::LOG_WARNING;
+      log_severity = logging::LOGGING_WARNING;
     } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
                                                 switches::kLogSeverity_Error)) {
-      log_severity = logging::LOG_ERROR;
+      log_severity = logging::LOGGING_ERROR;
     } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
                                                 switches::kLogSeverity_Fatal)) {
-      log_severity = logging::LOG_FATAL;
+      log_severity = logging::LOGGING_FATAL;
     } else if (base::EqualsCaseInsensitiveASCII(
                    log_severity_str, switches::kLogSeverity_Disable)) {
       log_severity = LOGSEVERITY_DISABLE;
@@ -456,7 +456,7 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
     // By default, ERROR and FATAL messages will always be output to stderr due
     // to the kAlwaysPrintErrorLevel value in base/logging.cc. We change the log
     // level here so that only FATAL messages are output.
-    logging::SetMinLogLevel(logging::LOG_FATAL);
+    logging::SetMinLogLevel(logging::LOGGING_FATAL);
   } else {
     log_settings.logging_dest = logging::LOG_TO_ALL;
     logging::SetMinLogLevel(log_severity);

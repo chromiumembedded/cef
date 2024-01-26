@@ -1,5 +1,5 @@
 diff --git base/ranges/ranges.h base/ranges/ranges.h
-index 641bbaf2c7576..afdd641e38452 100644
+index 27eac4f3a4c39..2cb63bec79e63 100644
 --- base/ranges/ranges.h
 +++ base/ranges/ranges.h
 @@ -30,12 +30,14 @@ constexpr T* begin(std::array<T, N>& array, priority_tag<2> tag) {

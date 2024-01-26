@@ -16,9 +16,9 @@
 
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
-#include "libcef/common/tracker.h"
 #include "libcef/renderer/frame_impl.h"
 
+#include "third_party/blink/public/common/tokens/tokens.h"
 #include "third_party/blink/public/web/web_view_observer.h"
 
 namespace blink {
@@ -57,10 +57,11 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   bool HasDocument() override;
   CefRefPtr<CefFrame> GetMainFrame() override;
   CefRefPtr<CefFrame> GetFocusedFrame() override;
-  CefRefPtr<CefFrame> GetFrame(int64_t identifier) override;
-  CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
+  CefRefPtr<CefFrame> GetFrameByIdentifier(
+      const CefString& identifier) override;
+  CefRefPtr<CefFrame> GetFrameByName(const CefString& name) override;
   size_t GetFrameCount() override;
-  void GetFrameIdentifiers(std::vector<int64_t>& identifiers) override;
+  void GetFrameIdentifiers(std::vector<CefString>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
 
   CefBrowserImpl(blink::WebView* web_view,
@@ -75,10 +76,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
 
   // Returns the matching CefFrameImpl reference or creates a new one.
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebLocalFrame* frame);
-  CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64_t frame_id);
-
-  // Frame objects will be deleted immediately before the frame is closed.
-  void AddFrameObject(int64_t frame_id, CefTrackNode* tracked_object);
+  CefRefPtr<CefFrameImpl> GetWebFrameImpl(const std::string& identifier);
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
@@ -86,7 +84,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
 
   // blink::WebViewObserver methods.
   void OnDestruct() override;
-  void FrameDetached(int64_t frame_id);
+  void FrameDetached(blink::WebLocalFrame* frame);
 
   void OnLoadingStateChange(bool isLoading);
   void OnEnterBFCache();
@@ -99,17 +97,12 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   bool is_popup_;
   bool is_windowless_;
 
-  // Map of unique frame ids to CefFrameImpl references.
-  using FrameMap = std::map<int64_t, CefRefPtr<CefFrameImpl>>;
+  // Map of unique frame tokens to CefFrameImpl references.
+  using FrameMap = std::map<blink::LocalFrameToken, CefRefPtr<CefFrameImpl>>;
   FrameMap frames_;
 
   // True if the browser was in the BFCache.
   bool was_in_bfcache_ = false;
-
-  // Map of unique frame ids to CefTrackManager objects that need to be cleaned
-  // up when the frame is deleted.
-  using FrameObjectMap = std::map<int64_t, CefRefPtr<CefTrackManager>>;
-  FrameObjectMap frame_objects_;
 
   struct LoadingState {
     LoadingState(bool is_loading, bool can_go_back, bool can_go_forward)

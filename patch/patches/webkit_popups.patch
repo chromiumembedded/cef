@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 6219eadefa976..ff0c649c46af1 100644
+index 2ba868f0efb2e..4ec2a9ca69cab 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -345,6 +345,7 @@ class BLINK_EXPORT WebView {
@@ -11,7 +11,7 @@ index 6219eadefa976..ff0c649c46af1 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index adb1c7ca2fcdf..4cc86141a88bf 100644
+index aafdfd4fffd0b..4215f48d15284 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -251,8 +251,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -39,7 +39,7 @@ index adb1c7ca2fcdf..4cc86141a88bf 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 5a9992141dbbf..ce030e2b02ff0 100644
+index 25566d1e5a367..6ad48660a42ee 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -139,7 +139,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -52,7 +52,7 @@ index 5a9992141dbbf..ce030e2b02ff0 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -861,6 +862,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -871,6 +872,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,10 +62,10 @@ index 5a9992141dbbf..ce030e2b02ff0 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 4d1c8dcd1fca7..f8de0cf7498aa 100644
+index e8c40f756f746..d3738d1388c96 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -928,7 +928,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+@@ -981,7 +981,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();
  

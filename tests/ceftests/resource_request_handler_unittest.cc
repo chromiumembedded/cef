@@ -1601,7 +1601,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       // Track the frame ID that we'll expect for resource callbacks.
       // Do this here instead of OnBeforeBrowse because OnBeforeBrowse may
       // return -4 (kInvalidFrameId) for the initial navigation.
-      if (frame_id_ == 0) {
+      if (frame_id_.empty()) {
         if (subframe_) {
           if (is_sub_url) {
             frame_id_ = frame->GetIdentifier();
@@ -2406,13 +2406,9 @@ class SubresourceResponseTest : public RoutingTestHandler {
   void VerifyFrame(Callback callback, CefRefPtr<CefFrame> frame) const {
     EXPECT_TRUE(frame);
 
-    if (subframe_) {
-      EXPECT_FALSE(frame->IsMain()) << callback;
-    } else {
-      EXPECT_TRUE(frame->IsMain()) << callback;
-    }
-
-    EXPECT_EQ(frame_id_, frame->GetIdentifier()) << callback;
+    EXPECT_NE(subframe_, frame->IsMain()) << callback;
+    EXPECT_STREQ(frame_id_.c_str(), frame->GetIdentifier().ToString().c_str())
+        << callback;
   }
 
   void VerifyState(Callback callback,
@@ -2591,7 +2587,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
   const bool subframe_;
 
   int browser_id_ = 0;
-  int64_t frame_id_ = 0;
+  std::string frame_id_;
   uint64_t request_id_ = 0U;
 
   int resource_handler_created_ct_ = 0;

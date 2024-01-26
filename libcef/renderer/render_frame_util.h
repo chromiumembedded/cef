@@ -6,18 +6,24 @@
 #ifndef CEF_LIBCEF_RENDERER_RENDER_FRAME_UTIL_H_
 #define CEF_LIBCEF_RENDERER_RENDER_FRAME_UTIL_H_
 
-#include <stdint.h>
-
+#include <optional>
 #include <string>
+
+#include "third_party/blink/public/common/tokens/tokens.h"
 
 namespace blink {
 class WebLocalFrame;
-}
+}  // namespace blink
 
 namespace render_frame_util {
 
-int64_t GetIdentifier(blink::WebLocalFrame* frame);
+std::string GetIdentifier(blink::WebLocalFrame* frame);
 std::string GetName(blink::WebLocalFrame* frame);
+
+// Parses |identifier| and returns a frame token appropriate to this renderer
+// process, or std::nullopt.
+std::optional<blink::LocalFrameToken> ParseFrameTokenFromIdentifier(
+    const std::string& identifier);
 
 }  // namespace render_frame_util
 

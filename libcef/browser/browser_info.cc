@@ -21,7 +21,7 @@ CefBrowserInfo::FrameInfo::~FrameInfo() {
 #if DCHECK_IS_ON()
   if (frame_ && !IsCurrentMainFrame()) {
     // Should already be Detached.
-    DCHECK(!frame_->GetRenderFrameHost());
+    DCHECK(frame_->IsDetached());
   }
 #endif
 }
@@ -154,8 +154,7 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
-    DCHECK_EQ(frame_util::MakeFrameId(global_id),
-              frame_info->frame_->GetIdentifier());
+    DCHECK(host->GetGlobalFrameToken() == *frame_info->frame_->frame_token());
     DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
 #endif
   }
@@ -165,6 +164,8 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 
   // Populate the lookup maps.
   frame_id_map_.insert(std::make_pair(global_id, frame_info));
+  frame_token_to_id_map_.insert(
+      std::make_pair(host->GetGlobalFrameToken(), global_id));
 
   // And finally set the ownership.
   frame_info_set_.insert(base::WrapUnique(frame_info));
@@ -232,6 +233,12 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   // Remove from the lookup maps.
   frame_id_map_.erase(it);
 
+  {
+    auto it2 = frame_token_to_id_map_.find(host->GetGlobalFrameToken());
+    DCHECK(it2 != frame_token_to_id_map_.end());
+    frame_token_to_id_map_.erase(it2);
+  }
+
   // And finally delete the frame info.
   {
     auto it2 = frame_info_set_.find(frame_info);
@@ -267,7 +274,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
     parent = GetMainFrame();
   }
   // Intentionally not notifying for temporary frames.
-  return new CefFrameHostImpl(this, parent->GetIdentifier());
+  return new CefFrameHostImpl(this, parent->frame_token());
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
@@ -327,6 +334,28 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
   }
 
   return nullptr;
+}
+
+CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalToken(
+    const content::GlobalRenderFrameHostToken& global_token,
+    bool* is_guest_view,
+    bool prefer_speculative) const {
+  if (!frame_util::IsValidGlobalToken(global_token)) {
+    return nullptr;
+  }
+
+  content::GlobalRenderFrameHostId global_id;
+
+  {
+    base::AutoLock lock_scope(lock_);
+    const auto it = frame_token_to_id_map_.find(global_token);
+    if (it == frame_token_to_id_map_.end()) {
+      return nullptr;
+    }
+    global_id = it->second;
+  }
+
+  return GetFrameForGlobalId(global_id, is_guest_view, prefer_speculative);
 }
 
 CefBrowserInfo::FrameHostList CefBrowserInfo::GetAllFrames() const {
@@ -510,6 +539,7 @@ void CefBrowserInfo::RemoveAllFrames(
 
   // Clear the lookup maps.
   frame_id_map_.clear();
+  frame_token_to_id_map_.clear();
 
   // Explicitly Detach everything but the current main frame.
   for (auto& info : frame_info_set_) {

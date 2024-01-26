@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ba8011bd357e466a94acfd86597f44af00f096a3$
+// $hash=dd3f6003f9a8f59c2eb4320c382651a441086aee$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
@@ -116,8 +116,8 @@ typedef struct _cef_scheme_handler_factory_t {
 /// matches the specified |scheme_name| and optional |domain_name|. Returns
 /// false (0) if an error occurs. This function may be called on any thread in
 /// the browser process. Using this function is equivalent to calling cef_reques
-/// t_context_t::cef_request_context_get_global_context()->register_scheme_handl
-/// er_factory().
+/// t_context_t::cef_request_context_get_global_context()-
+/// >register_scheme_handler_factory().
 ///
 CEF_EXPORT int cef_register_scheme_handler_factory(
     const cef_string_t* scheme_name,
@@ -128,8 +128,8 @@ CEF_EXPORT int cef_register_scheme_handler_factory(
 /// Clear all scheme handler factories registered with the global request
 /// context. Returns false (0) on error. This function may be called on any
 /// thread in the browser process. Using this function is equivalent to calling
-/// cef_request_context_t::cef_request_context_get_global_context()->clear_schem
-/// e_handler_factories().
+/// cef_request_context_t::cef_request_context_get_global_context()-
+/// >clear_scheme_handler_factories().
 ///
 CEF_EXPORT int cef_clear_scheme_handler_factories(void);
 

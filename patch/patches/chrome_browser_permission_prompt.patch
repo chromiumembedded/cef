@@ -44,7 +44,7 @@ index ea1467d09700d..5537a99500e7f 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index c26bff9382b26..8c93b7b8351c7 100644
+index 58b162e099e70..2dcfe0cda550a 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
 @@ -14,6 +14,7 @@
@@ -55,7 +55,7 @@ index c26bff9382b26..8c93b7b8351c7 100644
  #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -186,6 +187,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
+@@ -187,6 +188,9 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
  double ChromePermissionsClient::GetSiteEngagementScore(
      content::BrowserContext* browser_context,
      const GURL& origin) {
@@ -65,7 +65,7 @@ index c26bff9382b26..8c93b7b8351c7 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -350,8 +354,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -358,8 +362,10 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefBasedQuietPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
@@ -77,7 +77,7 @@ index c26bff9382b26..8c93b7b8351c7 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index b0374f3adafea..faf9e7102f571 100644
+index f020355c1969d..ff3c3e26b14bf 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -88,7 +88,7 @@ index b0374f3adafea..faf9e7102f571 100644
  #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
  #include "chrome/browser/background_sync/periodic_background_sync_permission_context.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -56,8 +57,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+@@ -61,8 +62,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
        std::make_unique<GeolocationPermissionContextDelegate>(profile);
  #endif  // BUILDFLAG(IS_ANDROID)
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
@@ -142,10 +142,10 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 3a4d21b89411f..75673d62f5738 100644
+index 3a1224da26b6c..24735fe79498d 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -173,11 +173,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -181,11 +181,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  
@@ -175,7 +175,7 @@ index 3a4d21b89411f..75673d62f5738 100644
    if (!browser) {
      DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
 diff --git components/embedder_support/permission_context_utils.cc components/embedder_support/permission_context_utils.cc
-index 07f3c7c86b22d..110e48d59a75a 100644
+index 402fe1588c459..091625f54b340 100644
 --- components/embedder_support/permission_context_utils.cc
 +++ components/embedder_support/permission_context_utils.cc
 @@ -5,6 +5,7 @@
@@ -186,7 +186,7 @@ index 07f3c7c86b22d..110e48d59a75a 100644
  #include "components/background_sync/background_sync_permission_context.h"
  #include "components/permissions/contexts/accessibility_permission_context.h"
  #include "components/permissions/contexts/camera_pan_tilt_zoom_permission_context.h"
-@@ -77,12 +78,19 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+@@ -77,10 +78,17 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
            std::move(delegates.geolocation_permission_context_delegate),
            is_regular_profile);
  #elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
@@ -196,12 +196,10 @@ index 07f3c7c86b22d..110e48d59a75a 100644
 +            browser_context,
 +            std::move(delegates.geolocation_permission_context_delegate));
 +  } else {
-   DCHECK(delegates.geolocation_manager);
    permission_contexts[ContentSettingsType::GEOLOCATION] =
        std::make_unique<permissions::GeolocationPermissionContextSystem>(
            browser_context,
-           std::move(delegates.geolocation_permission_context_delegate),
-           delegates.geolocation_manager);
+           std::move(delegates.geolocation_permission_context_delegate));
 +  }
  #else
    permission_contexts[ContentSettingsType::GEOLOCATION] =

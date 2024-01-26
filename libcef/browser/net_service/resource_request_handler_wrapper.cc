@@ -457,7 +457,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
         url_loader_network_observer =
             static_cast<content::StoragePartitionImpl*>(
                 browser_context->GetDefaultStoragePartition())
-                ->CreateAuthCertObserverForServiceWorker();
+                ->CreateAuthCertObserverForServiceWorker(
+                    content::ChildProcessHost::kInvalidUniqueID);
       }
     }
 

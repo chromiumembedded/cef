@@ -76,7 +76,7 @@ index 29db798e8b171..f8b9546b90321 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 9cc65cf571346..275b548fcc2cf 100644
+index 69f678a91012f..d518b476002b3 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -19,6 +19,10 @@

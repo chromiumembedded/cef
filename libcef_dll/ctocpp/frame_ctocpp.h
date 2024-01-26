@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=29692748ec447062f17a3cc634179fe3d3ebb4e0$
+// $hash=c70637482d64cbe5fd1bea33bf18950594a50dac$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -58,7 +58,7 @@ class CefFrameCToCpp
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
-  int64_t GetIdentifier() override;
+  CefString GetIdentifier() override;
   CefRefPtr<CefFrame> GetParent() override;
   CefString GetURL() override;
   CefRefPtr<CefBrowser> GetBrowser() override;

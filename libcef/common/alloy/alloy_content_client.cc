@@ -124,10 +124,10 @@ std::u16string AlloyContentClient::GetLocalizedString(
   return value;
 }
 
-base::StringPiece AlloyContentClient::GetDataResource(
+std::string_view AlloyContentClient::GetDataResource(
     int resource_id,
     ui::ResourceScaleFactor scale_factor) {
-  base::StringPiece value =
+  auto value =
       ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
           resource_id, scale_factor);
   if (value.empty()) {

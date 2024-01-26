@@ -13,10 +13,10 @@ index 431df5d50debe..0fcc9ea8fbb1a 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index a6c27fe9b7f71..11060758d670f 100644
+index b62442d2213a7..e7275588c01ce 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3272,6 +3272,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3305,6 +3305,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
@@ -29,17 +29,17 @@ index a6c27fe9b7f71..11060758d670f 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 28f81135df654..85125c19aaa2f 100644
+index 709246523b417..1245082f6016c 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -807,6 +807,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -808,6 +808,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
 +  void SetCompositorForFlingScheduler(ui::Compositor* compositor);
  
-   // The RenderWidgetHostImpl will keep showing the old page (for a while) after
-   // navigation until the first frame of the new page arrives. This reduces
+   RenderWidgetHostViewBase* GetRenderWidgetHostViewBase();
+ 
 diff --git content/common/input/fling_scheduler_base.h content/common/input/fling_scheduler_base.h
 index e8ee63f3abc2e..2d1717082759d 100644
 --- content/common/input/fling_scheduler_base.h

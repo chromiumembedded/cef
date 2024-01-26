@@ -9,11 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=67e150f09374ecec24e0f326e9a1705446da9e44$
+// $hash=470bf9226f66658509ba704953b84f443ed77642$
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
-#include <algorithm>
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
@@ -291,7 +290,8 @@ browser_get_focused_frame(struct _cef_browser_t* self) {
 }
 
 struct _cef_frame_t* CEF_CALLBACK
-browser_get_frame_byident(struct _cef_browser_t* self, int64_t identifier) {
+browser_get_frame_by_identifier(struct _cef_browser_t* self,
+                                const cef_string_t* identifier) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -300,17 +300,23 @@ browser_get_frame_byident(struct _cef_browser_t* self, int64_t identifier) {
   if (!self) {
     return NULL;
   }
+  // Verify param: identifier; type: string_byref_const
+  DCHECK(identifier);
+  if (!identifier) {
+    return NULL;
+  }
 
   // Execute
   CefRefPtr<CefFrame> _retval =
-      CefBrowserCppToC::Get(self)->GetFrame(identifier);
+      CefBrowserCppToC::Get(self)->GetFrameByIdentifier(CefString(identifier));
 
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
 }
 
-struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
-                                                    const cef_string_t* name) {
+struct _cef_frame_t* CEF_CALLBACK
+browser_get_frame_by_name(struct _cef_browser_t* self,
+                          const cef_string_t* name) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -323,7 +329,7 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
 
   // Execute
   CefRefPtr<CefFrame> _retval =
-      CefBrowserCppToC::Get(self)->GetFrame(CefString(name));
+      CefBrowserCppToC::Get(self)->GetFrameByName(CefString(name));
 
   // Return type: refptr_same
   return CefFrameCppToC::Wrap(_retval);
@@ -347,8 +353,7 @@ size_t CEF_CALLBACK browser_get_frame_count(struct _cef_browser_t* self) {
 }
 
 void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
-                                                size_t* identifiersCount,
-                                                int64_t* identifiers) {
+                                                cef_string_list_t identifiers) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -357,32 +362,22 @@ void CEF_CALLBACK browser_get_frame_identifiers(struct _cef_browser_t* self,
   if (!self) {
     return;
   }
-  // Verify param: identifiers; type: simple_vec_byref
-  DCHECK(identifiersCount && (*identifiersCount == 0 || identifiers));
-  if (!identifiersCount || (*identifiersCount > 0 && !identifiers)) {
+  // Verify param: identifiers; type: string_vec_byref
+  DCHECK(identifiers);
+  if (!identifiers) {
     return;
   }
 
-  // Translate param: identifiers; type: simple_vec_byref
-  std::vector<int64_t> identifiersList;
-  if (identifiersCount && *identifiersCount > 0 && identifiers) {
-    for (size_t i = 0; i < *identifiersCount; ++i) {
-      identifiersList.push_back(identifiers[i]);
-    }
-  }
+  // Translate param: identifiers; type: string_vec_byref
+  std::vector<CefString> identifiersList;
+  transfer_string_list_contents(identifiers, identifiersList);
 
   // Execute
   CefBrowserCppToC::Get(self)->GetFrameIdentifiers(identifiersList);
 
-  // Restore param: identifiers; type: simple_vec_byref
-  if (identifiersCount && identifiers) {
-    *identifiersCount = std::min(identifiersList.size(), *identifiersCount);
-    if (*identifiersCount > 0) {
-      for (size_t i = 0; i < *identifiersCount; ++i) {
-        identifiers[i] = identifiersList[i];
-      }
-    }
-  }
+  // Restore param: identifiers; type: string_vec_byref
+  cef_string_list_clear(identifiers);
+  transfer_string_list_contents(identifiersList, identifiers);
 }
 
 void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
@@ -434,8 +429,8 @@ CefBrowserCppToC::CefBrowserCppToC() {
   GetStruct()->has_document = browser_has_document;
   GetStruct()->get_main_frame = browser_get_main_frame;
   GetStruct()->get_focused_frame = browser_get_focused_frame;
-  GetStruct()->get_frame_byident = browser_get_frame_byident;
-  GetStruct()->get_frame = browser_get_frame;
+  GetStruct()->get_frame_by_identifier = browser_get_frame_by_identifier;
+  GetStruct()->get_frame_by_name = browser_get_frame_by_name;
   GetStruct()->get_frame_count = browser_get_frame_count;
   GetStruct()->get_frame_identifiers = browser_get_frame_identifiers;
   GetStruct()->get_frame_names = browser_get_frame_names;

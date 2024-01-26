@@ -149,6 +149,39 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalId(
 }
 
 // static
+CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalToken(
+    const content::GlobalRenderFrameHostToken& global_token) {
+  if (!frame_util::IsValidGlobalToken(global_token)) {
+    return nullptr;
+  }
+
+  if (CEF_CURRENTLY_ON_UIT()) {
+    // Use the non-thread-safe but potentially faster approach.
+    content::RenderFrameHost* render_frame_host =
+        content::RenderFrameHost::FromFrameToken(global_token);
+    if (!render_frame_host) {
+      return nullptr;
+    }
+    return GetBrowserForHost(render_frame_host);
+  } else {
+    // Use the thread-safe approach.
+    bool is_guest_view = false;
+    auto info = CefBrowserInfoManager::GetInstance()->GetBrowserInfo(
+        global_token, &is_guest_view);
+    if (info && !is_guest_view) {
+      auto browser = info->browser();
+      if (!browser) {
+        LOG(WARNING) << "Found browser id " << info->browser_id()
+                     << " but no browser object matching frame "
+                     << frame_util::GetFrameDebugString(global_token);
+      }
+      return browser;
+    }
+    return nullptr;
+  }
+}
+
+// static
 CefRefPtr<CefBrowserHostBase>
 CefBrowserHostBase::GetBrowserForTopLevelNativeWindow(
     gfx::NativeWindow owning_window) {
@@ -905,32 +938,32 @@ bool CefBrowserHostBase::IsPopup() {
 }
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetMainFrame() {
-  return GetFrame(CefFrameHostImpl::kMainFrameId);
+  return browser_info_->GetMainFrame();
 }
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFocusedFrame() {
-  return GetFrame(CefFrameHostImpl::kFocusedFrameId);
-}
-
-CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(int64_t identifier) {
-  if (identifier == CefFrameHostImpl::kInvalidFrameId) {
-    return nullptr;
-  } else if (identifier == CefFrameHostImpl::kMainFrameId) {
-    return browser_info_->GetMainFrame();
-  } else if (identifier == CefFrameHostImpl::kFocusedFrameId) {
+  {
     base::AutoLock lock_scope(state_lock_);
-    if (!focused_frame_) {
-      // The main frame is focused by default.
-      return browser_info_->GetMainFrame();
+    if (focused_frame_) {
+      return focused_frame_;
     }
-    return focused_frame_;
   }
 
-  return browser_info_->GetFrameForGlobalId(
-      frame_util::MakeGlobalId(identifier));
+  // The main frame is focused by default.
+  return browser_info_->GetMainFrame();
 }
 
-CefRefPtr<CefFrame> CefBrowserHostBase::GetFrame(const CefString& name) {
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameByIdentifier(
+    const CefString& identifier) {
+  const auto& global_token = frame_util::ParseFrameIdentifier(identifier);
+  if (!global_token) {
+    return nullptr;
+  }
+
+  return browser_info_->GetFrameForGlobalToken(*global_token);
+}
+
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameByName(const CefString& name) {
   for (const auto& frame : browser_info_->GetAllFrames()) {
     if (frame->GetName() == name) {
       return frame;
@@ -944,7 +977,7 @@ size_t CefBrowserHostBase::GetFrameCount() {
 }
 
 void CefBrowserHostBase::GetFrameIdentifiers(
-    std::vector<int64_t>& identifiers) {
+    std::vector<CefString>& identifiers) {
   if (identifiers.size() > 0) {
     identifiers.clear();
   }
@@ -1016,6 +1049,11 @@ CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForHost(
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForGlobalId(
     const content::GlobalRenderFrameHostId& global_id) {
   return browser_info_->GetFrameForGlobalId(global_id, nullptr);
+}
+
+CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForGlobalToken(
+    const content::GlobalRenderFrameHostToken& global_token) {
+  return browser_info_->GetFrameForGlobalToken(global_token, nullptr);
 }
 
 void CefBrowserHostBase::AddObserver(Observer* observer) {

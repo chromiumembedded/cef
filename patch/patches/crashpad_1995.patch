@@ -454,7 +454,7 @@ index eb5bcfe0234c3..8963b26806922 100644
            handler_path, *database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index 9ab5fb1c82275..740014c1119bd 100644
+index 15addd5c5e663..f30027b9b6f3c 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -36,8 +36,8 @@ void GetPlatformCrashpadAnnotations(
@@ -525,7 +525,7 @@ index 9ab5fb1c82275..740014c1119bd 100644
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
 @@ -124,9 +131,12 @@ bool PlatformCrashpadInitialization(
-       start_arguments.push_back("/prefetch:7");
+       start_arguments.push_back("/prefetch:4");
      } else {
        base::FilePath exe_dir = exe_file.DirName();
 -      exe_file = exe_dir.Append(FILE_PATH_LITERAL("crashpad_handler.exe"));

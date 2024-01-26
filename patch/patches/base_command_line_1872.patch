@@ -1,8 +1,8 @@
 diff --git base/command_line.cc base/command_line.cc
-index d762b168a9ccf..f58b4f783df16 100644
+index 69e4303165259..682e8d2bfa6ce 100644
 --- base/command_line.cc
 +++ base/command_line.cc
-@@ -346,11 +346,10 @@ void CommandLine::AppendSwitchNative(StringPiece switch_string,
+@@ -355,11 +355,10 @@ void CommandLine::AppendSwitchNative(StringPiece switch_string,
  #if BUILDFLAG(ENABLE_COMMANDLINE_SEQUENCE_CHECKS)
    sequence_checker_.Check();
  #endif

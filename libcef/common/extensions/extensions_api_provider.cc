@@ -59,7 +59,7 @@ bool CefExtensionsAPIProvider::IsAPISchemaGenerated(const std::string& name) {
   return false;
 }
 
-base::StringPiece CefExtensionsAPIProvider::GetAPISchema(
+std::string_view CefExtensionsAPIProvider::GetAPISchema(
     const std::string& name) {
   // Schema for CEF-only APIs.
   // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
@@ -72,7 +72,7 @@ base::StringPiece CefExtensionsAPIProvider::GetAPISchema(
     return api::cef::ChromeGeneratedSchemas::Get(name);
   }
 
-  return base::StringPiece();
+  return std::string_view();
 }
 
 void CefExtensionsAPIProvider::RegisterPermissions(

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7294486141b2377198e994048a768db4a7cb9cd0$
+// $hash=8f347a95168778ec0e686cdef93be3bc517e2f68$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_FRAME_CAPI_H_
@@ -178,10 +178,12 @@ typedef struct _cef_frame_t {
   cef_string_userfree_t(CEF_CALLBACK* get_name)(struct _cef_frame_t* self);
 
   ///
-  /// Returns the globally unique identifier for this frame or < 0 if the
+  /// Returns the globally unique identifier for this frame or NULL if the
   /// underlying frame does not yet exist.
   ///
-  int64_t(CEF_CALLBACK* get_identifier)(struct _cef_frame_t* self);
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t(CEF_CALLBACK* get_identifier)(
+      struct _cef_frame_t* self);
 
   ///
   /// Returns the parent of this frame or NULL if this is the main (top-level)

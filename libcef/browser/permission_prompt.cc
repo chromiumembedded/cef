@@ -191,6 +191,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_CAMERA_PAN_TILT_ZOOM;
     case permissions::RequestType::kCameraStream:
       return CEF_PERMISSION_TYPE_CAMERA_STREAM;
+    case permissions::RequestType::kCapturedSurfaceControl:
+      return CEF_PERMISSION_TYPE_CAPTURED_SURFACE_CONTROL;
     case permissions::RequestType::kClipboard:
       return CEF_PERMISSION_TYPE_CLIPBOARD;
     case permissions::RequestType::kDiskQuota:
@@ -236,7 +238,7 @@ cef_permission_request_types_t GetCefRequestType(
 uint32_t GetRequestedPermissions(
     permissions::PermissionPrompt::Delegate* delegate) {
   uint32_t permissions = CEF_PERMISSION_TYPE_NONE;
-  for (const auto* request : delegate->Requests()) {
+  for (const auto& request : delegate->Requests()) {
     permissions |= GetCefRequestType(request->request_type());
   }
   return permissions;

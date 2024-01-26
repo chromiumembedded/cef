@@ -147,6 +147,9 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the browser associated with the specified global ID.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForGlobalId(
       const content::GlobalRenderFrameHostId& global_id);
+  // Returns the browser associated with the specified global token.
+  static CefRefPtr<CefBrowserHostBase> GetBrowserForGlobalToken(
+      const content::GlobalRenderFrameHostToken& global_token);
   // Returns the browser associated with the specified top-level window.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForTopLevelNativeWindow(
       gfx::NativeWindow owning_window);
@@ -253,10 +256,11 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool IsPopup() override;
   CefRefPtr<CefFrame> GetMainFrame() override;
   CefRefPtr<CefFrame> GetFocusedFrame() override;
-  CefRefPtr<CefFrame> GetFrame(int64_t identifier) override;
-  CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
+  CefRefPtr<CefFrame> GetFrameByIdentifier(
+      const CefString& identifier) override;
+  CefRefPtr<CefFrame> GetFrameByName(const CefString& name) override;
   size_t GetFrameCount() override;
-  void GetFrameIdentifiers(std::vector<int64_t>& identifiers) override;
+  void GetFrameIdentifiers(std::vector<CefString>& identifiers) override;
   void GetFrameNames(std::vector<CefString>& names) override;
 
   // CefBrowserContentsDelegate::Observer methods:
@@ -266,11 +270,13 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the frame associated with the specified RenderFrameHost.
   CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
 
-  // Returns the frame associated with the specified global ID. See
-  // documentation on RenderFrameHost::GetFrameTreeNodeId() for why the global
-  // ID is preferred.
+  // Returns the frame associated with the specified global ID/token. See
+  // documentation on RenderFrameHost::GetFrameTreeNodeId/Token() for why the
+  // global ID/token is preferred.
   CefRefPtr<CefFrame> GetFrameForGlobalId(
       const content::GlobalRenderFrameHostId& global_id);
+  CefRefPtr<CefFrame> GetFrameForGlobalToken(
+      const content::GlobalRenderFrameHostToken& global_token);
 
   // Manage observer objects. The observer must either outlive this object or
   // be removed before destruction. Must be called on the UI thread.

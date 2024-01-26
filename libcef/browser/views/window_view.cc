@@ -7,8 +7,8 @@
 #include <memory>
 
 #if BUILDFLAG(IS_LINUX)
-#include "ui/ozone/buildflags.h"
-#if BUILDFLAG(OZONE_PLATFORM_X11)
+#include "ui/base/ozone_buildflags.h"
+#if BUILDFLAG(IS_OZONE_X11)
 // Include first due to redefinition of x11::EventMask.
 #include "ui/base/x/x11_util.h"
 #endif
@@ -26,7 +26,7 @@
 #include "ui/views/window/native_frame_view.h"
 
 #if BUILDFLAG(IS_LINUX)
-#if BUILDFLAG(OZONE_PLATFORM_X11)
+#if BUILDFLAG(IS_OZONE_X11)
 #include "ui/gfx/x/atom_cache.h"
 #include "ui/linux/linux_ui_delegate.h"
 #endif
@@ -536,7 +536,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   }
 
 #if BUILDFLAG(IS_LINUX)
-#if BUILDFLAG(OZONE_PLATFORM_X11)
+#if BUILDFLAG(IS_OZONE_X11)
   auto x11window = static_cast<x11::Window>(view_util::GetWindowHandle(widget));
   CHECK(x11window != x11::Window::None);
 
@@ -642,7 +642,7 @@ ui::ImageModel CefWindowView::GetWindowAppIcon() {
 
 void CefWindowView::WindowClosing() {
 #if BUILDFLAG(IS_LINUX)
-#if BUILDFLAG(OZONE_PLATFORM_X11)
+#if BUILDFLAG(IS_OZONE_X11)
   if (host_widget()) {
     auto parent = static_cast<gfx::AcceleratedWidget>(
         view_util::GetWindowHandle(host_widget()));

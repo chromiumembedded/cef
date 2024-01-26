@@ -985,7 +985,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
     if (browser) {
-      frame = browser->GetFrame(render_frame_util::GetIdentifier(webframe));
+      frame = browser->GetWebFrameImpl(webframe).get();
     }
   }
 

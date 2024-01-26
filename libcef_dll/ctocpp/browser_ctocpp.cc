@@ -9,11 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb5630935d8f587b6942f6fba59faecaddd05fd9$
+// $hash=e70f513f9c68725d789b0343d9484802217e60ba$
 //
 
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
-#include <algorithm>
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
@@ -287,29 +286,37 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFocusedFrame() {
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(int64_t identifier) {
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrameByIdentifier(
+    const CefString& identifier) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_frame_byident)) {
+  if (CEF_MEMBER_MISSING(_struct, get_frame_by_identifier)) {
     return nullptr;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: identifier; type: string_byref_const
+  DCHECK(!identifier.empty());
+  if (identifier.empty()) {
+    return nullptr;
+  }
+
   // Execute
-  cef_frame_t* _retval = _struct->get_frame_byident(_struct, identifier);
+  cef_frame_t* _retval =
+      _struct->get_frame_by_identifier(_struct, identifier.GetStruct());
 
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")
-CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name) {
+CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrameByName(const CefString& name) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_frame)) {
+  if (CEF_MEMBER_MISSING(_struct, get_frame_by_name)) {
     return nullptr;
   }
 
@@ -318,7 +325,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name) {
   // Unverified params: name
 
   // Execute
-  cef_frame_t* _retval = _struct->get_frame(_struct, name.GetStruct());
+  cef_frame_t* _retval = _struct->get_frame_by_name(_struct, name.GetStruct());
 
   // Return type: refptr_same
   return CefFrameCToCpp::Wrap(_retval);
@@ -342,7 +349,8 @@ NO_SANITIZE("cfi-icall") size_t CefBrowserCToCpp::GetFrameCount() {
 }
 
 NO_SANITIZE("cfi-icall")
-void CefBrowserCToCpp::GetFrameIdentifiers(std::vector<int64_t>& identifiers) {
+void CefBrowserCToCpp::GetFrameIdentifiers(
+    std::vector<CefString>& identifiers) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_t* _struct = GetStruct();
@@ -352,33 +360,21 @@ void CefBrowserCToCpp::GetFrameIdentifiers(std::vector<int64_t>& identifiers) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Translate param: identifiers; type: simple_vec_byref
-  size_t identifiersSize = identifiers.size();
-  size_t identifiersCount = std::max(GetFrameCount(), identifiersSize);
-  int64_t* identifiersList = NULL;
-  if (identifiersCount > 0) {
-    identifiersList = new int64_t[identifiersCount];
-    DCHECK(identifiersList);
-    if (identifiersList) {
-      memset(identifiersList, 0, sizeof(int64_t) * identifiersCount);
-    }
-    if (identifiersList && identifiersSize > 0) {
-      for (size_t i = 0; i < identifiersSize; ++i) {
-        identifiersList[i] = identifiers[i];
-      }
-    }
+  // Translate param: identifiers; type: string_vec_byref
+  cef_string_list_t identifiersList = cef_string_list_alloc();
+  DCHECK(identifiersList);
+  if (identifiersList) {
+    transfer_string_list_contents(identifiers, identifiersList);
   }
 
   // Execute
-  _struct->get_frame_identifiers(_struct, &identifiersCount, identifiersList);
+  _struct->get_frame_identifiers(_struct, identifiersList);
 
-  // Restore param:identifiers; type: simple_vec_byref
-  identifiers.clear();
-  if (identifiersCount > 0 && identifiersList) {
-    for (size_t i = 0; i < identifiersCount; ++i) {
-      identifiers.push_back(identifiersList[i]);
-    }
-    delete[] identifiersList;
+  // Restore param:identifiers; type: string_vec_byref
+  if (identifiersList) {
+    identifiers.clear();
+    transfer_string_list_contents(identifiersList, identifiers);
+    cef_string_list_free(identifiersList);
   }
 }
 

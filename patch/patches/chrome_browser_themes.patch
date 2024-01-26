@@ -1,8 +1,8 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index c1ff8fe7df4f4..86d9b53f39360 100644
+index ae7735b2bee81..fc3ba3599db28 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
-@@ -29,6 +29,7 @@
+@@ -30,6 +30,7 @@
  #include "base/task/thread_pool.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"

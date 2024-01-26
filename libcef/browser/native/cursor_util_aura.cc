@@ -16,8 +16,8 @@
 #include "ui/wm/core/cursor_loader.h"
 
 #if BUILDFLAG(IS_LINUX)
-#include "ui/ozone/buildflags.h"
-#if BUILDFLAG(OZONE_PLATFORM_X11)
+#include "ui/base/ozone_buildflags.h"
+#if BUILDFLAG(IS_OZONE_X11)
 #include "ui/base/x/x11_cursor.h"
 #elif BUILDFLAG(IS_OZONE)
 #include "ui/ozone/common/bitmap_cursor.h"
@@ -107,7 +107,7 @@ using CursorType = ui::WinCursor;
 inline cef_cursor_handle_t GetCursorHandleImpl(CursorType* cursor) {
   return cursor->hcursor();
 }
-#elif BUILDFLAG(OZONE_PLATFORM_X11)
+#elif BUILDFLAG(IS_OZONE_X11)
 // See https://crbug.com/1029142 for background.
 using CursorType = ui::X11Cursor;
 inline cef_cursor_handle_t GetCursorHandleImpl(CursorType* cursor) {

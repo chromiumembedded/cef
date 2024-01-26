@@ -114,7 +114,9 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
   if (auto c = client()) {
     if (auto handler = c->GetRequestHandler()) {
       // May return nullptr for omnibox navigations.
-      auto frame = browser()->GetFrame(params.frame_tree_node_id);
+      auto frame = browser_info_->browser()->GetFrameForHost(
+          content::RenderFrameHost::FromID(params.source_render_process_id,
+                                           params.source_render_frame_id));
       if (!frame) {
         frame = browser()->GetMainFrame();
       }
@@ -324,11 +326,9 @@ void CefBrowserContentsDelegate::RenderFrameHostStateChanged(
 
 void CefBrowserContentsDelegate::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
-  const auto frame_id =
-      frame_util::MakeFrameId(render_frame_host->GetGlobalId());
   browser_info_->RemoveFrame(render_frame_host);
 
-  if (focused_frame_ && focused_frame_->GetIdentifier() == frame_id) {
+  if (focused_frame_ && focused_frame_->IsSameFrame(render_frame_host)) {
     focused_frame_ = nullptr;
     OnStateChanged(State::kFocusedFrame);
   }

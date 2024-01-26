@@ -75,35 +75,31 @@ void ExecWebContentsCommand(CefFrameHostImpl* fh,
 
 }  // namespace
 
-CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
-                                   int64_t parent_frame_id)
+CefFrameHostImpl::CefFrameHostImpl(
+    scoped_refptr<CefBrowserInfo> browser_info,
+    std::optional<content::GlobalRenderFrameHostToken> parent_frame_token)
     : is_main_frame_(false),
-      frame_id_(kInvalidFrameId),
       browser_info_(browser_info),
       is_focused_(is_main_frame_),  // The main frame always starts focused.
-      parent_frame_id_(parent_frame_id) {
+      parent_frame_token_(std::move(parent_frame_token)) {
 #if DCHECK_IS_ON()
   DCHECK(browser_info_);
-  if (is_main_frame_) {
-    DCHECK_EQ(parent_frame_id_, kInvalidFrameId);
-  } else {
-    DCHECK_GT(parent_frame_id_, 0);
-  }
+  DCHECK_EQ(is_main_frame_, !parent_frame_token_.has_value());
 #endif
 }
 
 CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
                                    content::RenderFrameHost* render_frame_host)
     : is_main_frame_(render_frame_host->GetParent() == nullptr),
-      frame_id_(frame_util::MakeFrameId(render_frame_host->GetGlobalId())),
+      frame_token_(render_frame_host->GetGlobalFrameToken()),
       browser_info_(browser_info),
       is_focused_(is_main_frame_),  // The main frame always starts focused.
       url_(render_frame_host->GetLastCommittedURL().spec()),
       name_(render_frame_host->GetFrameName()),
-      parent_frame_id_(
-          is_main_frame_ ? kInvalidFrameId
-                         : frame_util::MakeFrameId(
-                               render_frame_host->GetParent()->GetGlobalId())),
+      parent_frame_token_(
+          is_main_frame_
+              ? std::optional<content::GlobalRenderFrameHostToken>()
+              : render_frame_host->GetParent()->GetGlobalFrameToken()),
       render_frame_host_(render_frame_host) {
   DCHECK(browser_info_);
 }
@@ -193,25 +189,30 @@ CefString CefFrameHostImpl::GetName() {
   return name_;
 }
 
-int64_t CefFrameHostImpl::GetIdentifier() {
-  base::AutoLock lock_scope(state_lock_);
-  return frame_id_;
+CefString CefFrameHostImpl::GetIdentifier() {
+  if (!frame_token_) {
+    return CefString();
+  }
+  return frame_util::MakeFrameIdentifier(*frame_token_);
 }
 
 CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
-  int64_t parent_frame_id;
+  if (is_main_frame_) {
+    return nullptr;
+  }
+
+  content::GlobalRenderFrameHostToken parent_frame_token;
 
   {
     base::AutoLock lock_scope(state_lock_);
-    if (is_main_frame_ || parent_frame_id_ == kInvalidFrameId) {
+    if (!parent_frame_token_) {
       return nullptr;
     }
-    parent_frame_id = parent_frame_id_;
+    parent_frame_token = *parent_frame_token_;
   }
 
-  auto browser = GetBrowserHostBase();
-  if (browser) {
-    return browser->GetFrame(parent_frame_id);
+  if (auto browser = GetBrowserHostBase()) {
+    return browser->GetFrameForGlobalToken(parent_frame_token);
   }
 
   return nullptr;
@@ -298,6 +299,7 @@ void CefFrameHostImpl::SendProcessMessage(
 }
 
 void CefFrameHostImpl::SetFocused(bool focused) {
+  CEF_REQUIRE_UIT();
   base::AutoLock lock_scope(state_lock_);
   is_focused_ = focused;
 }
@@ -324,8 +326,8 @@ void CefFrameHostImpl::RefreshAttributes() {
   }
 
   if (!is_main_frame_) {
-    parent_frame_id_ =
-        frame_util::MakeFrameId(render_frame_host_->GetParent()->GetGlobalId());
+    parent_frame_token_ =
+        render_frame_host_->GetParent()->GetGlobalFrameToken();
   }
 }
 
@@ -359,16 +361,10 @@ void CefFrameHostImpl::LoadURLWithExtras(const std::string& url,
                                          const content::Referrer& referrer,
                                          ui::PageTransition transition,
                                          const std::string& extra_headers) {
-  // Only known frame ids or kMainFrameId are supported.
-  const auto frame_id = GetFrameId();
-  if (frame_id < CefFrameHostImpl::kMainFrameId) {
-    return;
-  }
-
   // Any necessary fixup will occur in LoadRequest.
   GURL gurl = url_util::MakeGURL(url, /*fixup=*/false);
 
-  if (frame_id == CefFrameHostImpl::kMainFrameId) {
+  if (is_main_frame_) {
     // Load via the browser using NavigationController.
     auto browser = GetBrowserHostBase();
     if (browser) {
@@ -484,6 +480,22 @@ content::RenderFrameHost* CefFrameHostImpl::GetRenderFrameHost() const {
   return render_frame_host_;
 }
 
+bool CefFrameHostImpl::IsSameFrame(content::RenderFrameHost* frame_host) const {
+  CEF_REQUIRE_UIT();
+  // Shortcut in case the RFH objects match.
+  if (render_frame_host_ == frame_host) {
+    return true;
+  }
+
+  // Frame tokens should match even if we're currently detached or the RFH
+  // object has changed.
+  return frame_token_ && *frame_token_ == frame_host->GetGlobalFrameToken();
+}
+
+bool CefFrameHostImpl::IsDetached() const {
+  return !GetRenderFrameHost();
+}
+
 bool CefFrameHostImpl::Detach(DetachReason reason) {
   CEF_REQUIRE_UIT();
 
@@ -549,9 +561,8 @@ void CefFrameHostImpl::MaybeReAttach(
   CHECK(!render_frame_.is_bound());
   CHECK(!render_frame_host_);
 
-  // The RFH may change but the GlobalId should remain the same.
-  CHECK_EQ(frame_id_,
-           frame_util::MakeFrameId(render_frame_host->GetGlobalId()));
+  // The RFH may change but the frame token should remain the same.
+  CHECK(*frame_token_ == render_frame_host->GetGlobalFrameToken());
 
   {
     base::AutoLock lock_scope(state_lock_);
@@ -564,21 +575,10 @@ void CefFrameHostImpl::MaybeReAttach(
   // We expect a reconnect to be triggered via FrameAttached().
 }
 
-// kMainFrameId must be -1 to align with renderer expectations.
-const int64_t CefFrameHostImpl::kMainFrameId = -1;
-const int64_t CefFrameHostImpl::kFocusedFrameId = -2;
-const int64_t CefFrameHostImpl::kUnspecifiedFrameId = -3;
-const int64_t CefFrameHostImpl::kInvalidFrameId = -4;
-
 // This equates to (TT_EXPLICIT | TT_DIRECT_LOAD_FLAG).
 const ui::PageTransition CefFrameHostImpl::kPageTransitionExplicit =
     static_cast<ui::PageTransition>(ui::PAGE_TRANSITION_TYPED |
                                     ui::PAGE_TRANSITION_FROM_ADDRESS_BAR);
-
-int64_t CefFrameHostImpl::GetFrameId() const {
-  base::AutoLock lock_scope(state_lock_);
-  return is_main_frame_ ? kMainFrameId : frame_id_;
-}
 
 scoped_refptr<CefBrowserInfo> CefFrameHostImpl::GetBrowserInfo() const {
   base::AutoLock lock_scope(state_lock_);
@@ -711,12 +711,14 @@ void CefFrameHostImpl::UpdateDraggableRegions(
 
   // Delegate to BrowserInfo so that current state is maintained with
   // cross-origin navigation.
-  browser_info_->MaybeNotifyDraggableRegionsChanged(
+  browser->browser_info()->MaybeNotifyDraggableRegionsChanged(
       browser, this, std::move(draggable_regions));
 }
 
 std::string CefFrameHostImpl::GetDebugString() const {
-  return "frame " + frame_util::GetFrameDebugString(frame_id_) +
+  return "frame " +
+         (frame_token_ ? frame_util::GetFrameDebugString(*frame_token_)
+                       : "(null)") +
          (is_main_frame_ ? " (main)" : " (sub)");
 }
 

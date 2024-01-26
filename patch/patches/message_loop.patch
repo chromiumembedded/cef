@@ -30,10 +30,10 @@ index c30066f515f63..450c67882ea91 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 96b2fd7cad015..2fa7f4016fe5a 100644
+index 200d6692664e9..62dce72284b83 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
-@@ -48,6 +48,8 @@ void CurrentThread::AddDestructionObserver(
+@@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
  
  void CurrentThread::RemoveDestructionObserver(
      DestructionObserver* destruction_observer) {
@@ -43,12 +43,12 @@ index 96b2fd7cad015..2fa7f4016fe5a 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 33e320fd647cb..5f67ef65d4392 100644
+index f572b46819262..06b0a15e359ae 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -133,6 +133,12 @@ class BASE_EXPORT CurrentThread {
-   // with a null callback to clear any potentially pending callbacks.
-   void RegisterOnNextIdleCallback(OnceClosure on_next_idle_callback);
+@@ -163,6 +163,12 @@ class BASE_EXPORT CurrentThread {
+       RegisterOnNextIdleCallbackPasskey,
+       OnceClosure on_next_idle_callback);
  
 +#if BUILDFLAG(IS_WIN)
 +  void set_os_modal_loop(bool os_modal_loop) { os_modal_loop_ = os_modal_loop; }
@@ -59,7 +59,7 @@ index 33e320fd647cb..5f67ef65d4392 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -197,6 +203,13 @@ class BASE_EXPORT CurrentThread {
+@@ -227,6 +233,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;

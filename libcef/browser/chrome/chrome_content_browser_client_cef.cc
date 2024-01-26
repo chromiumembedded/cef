@@ -54,7 +54,7 @@ void HandleExternalProtocolHelper(
     bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
-    const absl::optional<url::Origin>& initiating_origin,
+    const std::optional<url::Origin>& initiating_origin,
     content::WeakDocumentPtr initiator_document) {
   // May return nullptr if frame has been deleted or a cross-document navigation
   // has committed in the same RenderFrameHost.
@@ -232,7 +232,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
-    absl::optional<int64_t> navigation_id,
+    std::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
     mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
@@ -325,7 +325,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     network::mojom::WebSandboxFlags sandbox_flags,
     ui::PageTransition page_transition,
     bool has_user_gesture,
-    const absl::optional<url::Origin>& initiating_origin,
+    const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // |out_factory| will be non-nullptr when this method is initially called
@@ -353,7 +353,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
-    const absl::optional<url::Origin>& initiating_origin,
+    const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
@@ -418,6 +418,7 @@ std::unique_ptr<content::LoginDelegate>
 ChromeContentBrowserClientCef::CreateLoginDelegate(
     const net::AuthChallengeInfo& auth_info,
     content::WebContents* web_contents,
+    content::BrowserContext* browser_context,
     const content::GlobalRequestID& request_id,
     bool is_request_for_main_frame,
     const GURL& url,
@@ -434,8 +435,9 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
   }
 
   return ChromeContentBrowserClient::CreateLoginDelegate(
-      auth_info, web_contents, request_id, is_request_for_main_frame, url,
-      response_headers, first_auth_attempt, std::move(auth_required_callback));
+      auth_info, web_contents, browser_context, request_id,
+      is_request_for_main_frame, url, response_headers, first_auth_attempt,
+      std::move(auth_required_callback));
 }
 
 void ChromeContentBrowserClientCef::BrowserURLHandlerCreated(

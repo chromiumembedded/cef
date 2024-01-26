@@ -41,9 +41,7 @@ class CefFrameImpl
       public cef::mojom::RenderFrame,
       public blink_glue::CefExecutionContextLifecycleStateObserver {
  public:
-  CefFrameImpl(CefBrowserImpl* browser,
-               blink::WebLocalFrame* frame,
-               int64_t frame_id);
+  CefFrameImpl(CefBrowserImpl* browser, blink::WebLocalFrame* frame);
 
   CefFrameImpl(const CefFrameImpl&) = delete;
   CefFrameImpl& operator=(const CefFrameImpl&) = delete;
@@ -70,7 +68,7 @@ class CefFrameImpl
   bool IsMain() override;
   bool IsFocused() override;
   CefString GetName() override;
-  int64_t GetIdentifier() override;
+  CefString GetIdentifier() override;
   CefRefPtr<CefFrame> GetParent() override;
   CefString GetURL() override;
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -162,11 +160,9 @@ class CefFrameImpl
   void ContextLifecycleStateChanged(
       blink::mojom::blink::FrameLifecycleState state) override;
 
-  std::string GetDebugString() const;
-
   CefBrowserImpl* browser_;
   blink::WebLocalFrame* frame_;
-  const int64_t frame_id_;
+  const std::string frame_debug_str_;
 
   bool did_commit_provisional_load_ = false;
   bool did_initialize_script_context_ = false;

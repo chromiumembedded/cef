@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 9e07412327ce9..3ac78725eba18 100644
+index 3daf40d463e32..dc3712bf6dc89 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -91,7 +91,7 @@ index 9e07412327ce9..3ac78725eba18 100644
  }
  
  }  // namespace
-@@ -224,7 +219,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
+@@ -234,7 +229,8 @@ views::Widget* CreateWebModalDialogViews(views::WidgetDelegate* dialog,
  
    views::Widget* widget = views::DialogDelegate::CreateDialogWidget(
        dialog, nullptr,
@@ -101,7 +101,7 @@ index 9e07412327ce9..3ac78725eba18 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -246,8 +242,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -256,8 +252,13 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
  
    gfx::NativeView parent_view =
        parent ? CurrentClient()->GetDialogHostView(parent) : nullptr;
@@ -116,7 +116,7 @@ index 9e07412327ce9..3ac78725eba18 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -263,8 +264,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -273,8 +274,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
    if (!requires_positioning)
      return widget;
  
@@ -170,7 +170,7 @@ index 51ed6bcf6b540..c6e1161140655 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 89942cb82dee4..ce30f3bb93fc0 100644
+index ed132b017f10e..590ab9760c36a 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -60,10 +60,12 @@ DialogDelegate::DialogDelegate() {
@@ -239,7 +239,7 @@ index 89942cb82dee4..ce30f3bb93fc0 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 083874eb3f0bc..2ccacfca7d413 100644
+index d0bd746875ed9..1643e6d841108 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -96,13 +96,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

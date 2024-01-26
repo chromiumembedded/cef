@@ -41,6 +41,7 @@
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/web/web_frame.h"
+#include "third_party/blink/public/web/web_local_frame.h"
 #include "third_party/blink/public/web/web_security_policy.h"
 #include "third_party/blink/public/web/web_view.h"
 #include "third_party/blink/public/web/web_view_observer.h"
@@ -112,6 +113,11 @@ void CefRenderManager::RenderFrameCreated(
     render_frame_observer->AttachFrame(
         browser->GetWebFrameImpl(render_frame->GetWebFrame()).get());
   }
+
+  // Enable support for draggable regions.
+  // TODO: This has performance consequences so consider making it configurable
+  // (e.g. only enabled for frameless windows). See issue #3636.
+  render_frame->GetWebView()->SetSupportsAppRegion(true);
 }
 
 void CefRenderManager::WebViewCreated(blink::WebView* web_view,
@@ -317,8 +323,8 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
   auto params = cef::mojom::NewBrowserInfo::New();
   if (!is_pdf) {
     // Retrieve browser information synchronously.
-    GetBrowserManager()->GetNewBrowserInfo(render_frame->GetRoutingID(),
-                                           &params);
+    GetBrowserManager()->GetNewBrowserInfo(
+        render_frame->GetWebFrame()->GetLocalFrameToken(), &params);
     if (params->browser_id == 0) {
       // The popup may have been canceled during creation.
       return nullptr;

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index d830d64348d63..a4a84c1214163 100644
+index ef53c8296d9af..659e077436bbe 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
 @@ -580,6 +580,14 @@ void OpenNewWindowForFirstRun(
@@ -17,7 +17,7 @@ index d830d64348d63..a4a84c1214163 100644
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1450,6 +1458,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1452,6 +1460,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -30,7 +30,7 @@ index d830d64348d63..a4a84c1214163 100644
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1459,6 +1473,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1461,6 +1475,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
