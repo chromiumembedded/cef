@@ -211,9 +211,9 @@ class TestHandler : public CefClient,
   void OnWindowCreated(int browser_id);
   void OnWindowDestroyed(int browser_id);
 
-  // Returns true if a TestHandler currently exists.
-  static bool HasTestHandler() {
-    return test_handler_count_.load(std::memory_order_relaxed) > 0U;
+  // Returns the count of TestHandlers the currently exist.
+  static size_t GetTestHandlerCount() {
+    return test_handler_count_.load(std::memory_order_relaxed);
   }
 
   std::string debug_string_prefix() const { return debug_string_prefix_; }
