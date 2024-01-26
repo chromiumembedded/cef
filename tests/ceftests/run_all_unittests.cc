@@ -77,7 +77,17 @@ void RunTestsOnTestThread() {
   CefTestSuite::GetInstance()->Run();
 
   // Wait for all TestHandlers to be destroyed.
-  while (TestHandler::HasTestHandler()) {
+  size_t loop_count = 0;
+  while (true) {
+    const size_t handler_count = TestHandler::GetTestHandlerCount();
+    if (handler_count == 0) {
+      break;
+    }
+    if (++loop_count == 20) {
+      LOG(ERROR) << "Terminating with " << handler_count
+                 << " leaked TestHandler objects";
+      break;
+    }
     sleep(100);
   }
 
