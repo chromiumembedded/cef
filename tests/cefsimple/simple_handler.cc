@@ -28,7 +28,7 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type) {
 
 }  // namespace
 
-SimpleHandler::SimpleHandler(bool use_views) : use_views_(use_views) {
+SimpleHandler::SimpleHandler() {
   DCHECK(!g_instance);
   g_instance = this;
 }
@@ -46,15 +46,11 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (use_views_) {
+  if (auto browser_view = CefBrowserView::GetForBrowser(browser)) {
     // Set the title of the window using the Views framework.
-    CefRefPtr<CefBrowserView> browser_view =
-        CefBrowserView::GetForBrowser(browser);
-    if (browser_view) {
-      CefRefPtr<CefWindow> window = browser_view->GetWindow();
-      if (window) {
-        window->SetTitle(title);
-      }
+    CefRefPtr<CefWindow> window = browser_view->GetWindow();
+    if (window) {
+      window->SetTitle(title);
     }
   } else if (!IsChromeRuntimeEnabled()) {
     // Set the title of the window using platform APIs.
@@ -130,6 +126,29 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   frame->LoadURL(GetDataURI(ss.str(), "text/html"));
 }
 
+void SimpleHandler::ShowMainWindow() {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::BindOnce(&SimpleHandler::ShowMainWindow, this));
+    return;
+  }
+
+  if (browser_list_.empty()) {
+    return;
+  }
+
+  auto main_browser = browser_list_.front();
+
+  if (auto browser_view = CefBrowserView::GetForBrowser(main_browser)) {
+    // Show the window using the Views framework.
+    if (auto window = browser_view->GetWindow()) {
+      window->Show();
+    }
+  } else if (!IsChromeRuntimeEnabled()) {
+    PlatformShowWindow(main_browser);
+  }
+}
+
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
@@ -156,3 +175,9 @@ bool SimpleHandler::IsChromeRuntimeEnabled() {
   }();
   return enabled;
 }
+
+#if !defined(OS_MAC)
+void SimpleHandler::PlatformShowWindow(CefRefPtr<CefBrowser> browser) {
+  NOTIMPLEMENTED();
+}
+#endif

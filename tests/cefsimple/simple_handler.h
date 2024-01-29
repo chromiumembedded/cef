@@ -14,7 +14,7 @@ class SimpleHandler : public CefClient,
                       public CefLifeSpanHandler,
                       public CefLoadHandler {
  public:
-  explicit SimpleHandler(bool use_views);
+  SimpleHandler();
   ~SimpleHandler() override;
 
   // Provide access to the single global instance of this object.
@@ -41,6 +41,8 @@ class SimpleHandler : public CefClient,
                    const CefString& errorText,
                    const CefString& failedUrl) override;
 
+  void ShowMainWindow();
+
   // Request that all existing browser windows close.
   void CloseAllBrowsers(bool force_close);
 
@@ -53,9 +55,7 @@ class SimpleHandler : public CefClient,
   // Platform-specific implementation.
   void PlatformTitleChange(CefRefPtr<CefBrowser> browser,
                            const CefString& title);
-
-  // True if the application is using the Views framework.
-  const bool use_views_;
+  void PlatformShowWindow(CefRefPtr<CefBrowser> browser);
 
   // List of existing browser windows. Only accessed on the CEF UI thread.
   typedef std::list<CefRefPtr<CefBrowser>> BrowserList;

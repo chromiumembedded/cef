@@ -3452,10 +3452,21 @@ typedef enum {
 /// Show states supported by CefWindowDelegate::GetInitialShowState.
 ///
 typedef enum {
+  // Show the window as normal.
   CEF_SHOW_STATE_NORMAL = 1,
+
+  // Show the window as minimized.
   CEF_SHOW_STATE_MINIMIZED,
+
+  // Show the window as maximized.
   CEF_SHOW_STATE_MAXIMIZED,
+
+  // Show the window as fullscreen.
   CEF_SHOW_STATE_FULLSCREEN,
+
+  // Show the window as hidden (no dock thumbnail).
+  // Only supported on MacOS.
+  CEF_SHOW_STATE_HIDDEN,
 } cef_show_state_t;
 
 ///
