@@ -37,6 +37,10 @@ static struct {
     {"minimized", CEF_SHOW_STATE_MINIMIZED},
     {"maximized", CEF_SHOW_STATE_MAXIMIZED},
     {"fullscreen", CEF_SHOW_STATE_FULLSCREEN},
+#if defined(OS_MAC)
+    // Hidden show state is only supported on MacOS.
+    {"hidden", CEF_SHOW_STATE_HIDDEN},
+#endif
 };
 
 std::optional<cef_show_state_t> ShowStateFromString(const std::string& str) {

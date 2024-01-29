@@ -321,13 +321,16 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
   [self testsItemSelected:ID_TESTS_OTHER_TESTS];
 }
 
+- (scoped_refptr<client::RootWindow>)getActiveRootWindow {
+  return client::MainContext::Get()
+      ->GetRootWindowManager()
+      ->GetActiveRootWindow();
+}
+
 - (CefRefPtr<CefBrowser>)getActiveBrowser {
-  auto root_window =
-      client::MainContext::Get()->GetRootWindowManager()->GetActiveRootWindow();
-  if (root_window) {
+  if (auto root_window = [self getActiveRootWindow]) {
     return root_window->GetBrowser();
   }
-
   return nullptr;
 }
 
@@ -504,6 +507,15 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
             << [sender tag];
 }
 
+// Called when the user clicks the app dock icon while the application is
+// already running.
+- (BOOL)applicationShouldHandleReopen:(NSApplication*)theApplication
+                    hasVisibleWindows:(BOOL)flag {
+  if (auto root_window = [self getActiveRootWindow]) {
+    root_window->Show(client::RootWindow::ShowNormal);
+  }
+  return NO;
+}
 @end
 
 namespace client {
@@ -580,6 +592,9 @@ int RunMain(int argc, char* argv[]) {
     // Create the application delegate and window.
     ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
         initWithOsr:settings.windowless_rendering_enabled ? true : false];
+    // Set as the delegate for application events.
+    NSApp.delegate = delegate;
+
     [delegate performSelectorOnMainThread:@selector(createApplication:)
                                withObject:nil
                             waitUntilDone:NO];

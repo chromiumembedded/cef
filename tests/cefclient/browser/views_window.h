@@ -283,6 +283,11 @@ class ViewsWindow : public CefBrowserViewDelegate,
   std::optional<float> default_titlebar_height_;
   std::optional<float> override_titlebar_height_;
 
+#if defined(OS_MAC)
+  bool hide_on_close_ = false;
+  bool hide_after_fullscreen_exit_ = false;
+#endif
+
   // Structure representing an extension.
   struct ExtensionInfo {
     ExtensionInfo(CefRefPtr<CefExtension> extension, CefRefPtr<CefImage> image)

@@ -108,6 +108,17 @@
     (NSApplication*)sender {
   return NSTerminateNow;
 }
+
+// Called when the user clicks the app dock icon while the application is
+// already running.
+- (BOOL)applicationShouldHandleReopen:(NSApplication*)theApplication
+                    hasVisibleWindows:(BOOL)flag {
+  SimpleHandler* handler = SimpleHandler::GetInstance();
+  if (handler && !handler->IsClosing()) {
+    handler->ShowMainWindow();
+  }
+  return NO;
+}
 @end
 
 // Entry point function for the browser process.
@@ -167,7 +178,10 @@ int main(int argc, char* argv[]) {
     }
 
     // Create the application delegate.
-    NSObject* delegate = [[SimpleAppDelegate alloc] init];
+    SimpleAppDelegate* delegate = [[SimpleAppDelegate alloc] init];
+    // Set as the delegate for application events.
+    NSApp.delegate = delegate;
+
     [delegate performSelectorOnMainThread:@selector(createApplication:)
                                withObject:nil
                             waitUntilDone:NO];

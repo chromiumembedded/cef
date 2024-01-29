@@ -116,6 +116,8 @@ void RunWindowShow(cef_show_state_t initial_show_state,
       EXPECT_FALSE(window->IsMinimized());
       EXPECT_TRUE(window->IsFullscreen());
       break;
+    case CEF_SHOW_STATE_HIDDEN:
+      break;
   }
 }
 

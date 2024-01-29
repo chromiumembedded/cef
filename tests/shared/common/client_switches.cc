@@ -57,6 +57,7 @@ const char kUseWindowModalDialog[] = "use-window-modal-dialog";
 const char kUseBottomControls[] = "use-bottom-controls";
 const char kHidePipFrame[] = "hide-pip-frame";
 const char kHideChromeBubbles[] = "hide-chrome-bubbles";
+const char kHideWindowOnClose[] = "hide-window-on-close";
 
 }  // namespace switches
 }  // namespace client

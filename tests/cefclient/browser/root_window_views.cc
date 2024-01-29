@@ -223,6 +223,12 @@ void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
 
 bool RootWindowViews::InitiallyHidden() {
   CEF_REQUIRE_UI_THREAD();
+#if defined(OS_MAC)
+  // Hidden show state is only supported on MacOS.
+  if (initial_show_state_ == CEF_SHOW_STATE_HIDDEN) {
+    return true;
+  }
+#endif
   return config_->initially_hidden;
 }
 

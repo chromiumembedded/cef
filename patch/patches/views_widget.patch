@@ -1,3 +1,65 @@
+diff --git chrome/browser/extensions/api/sessions/sessions_api.cc chrome/browser/extensions/api/sessions/sessions_api.cc
+index 022ae684b334d..579d4049055a0 100644
+--- chrome/browser/extensions/api/sessions/sessions_api.cc
++++ chrome/browser/extensions/api/sessions/sessions_api.cc
+@@ -331,6 +331,7 @@ SessionsGetDevicesFunction::CreateWindowModel(
+       state = api::windows::WindowState::kNormal;
+       break;
+     case ui::SHOW_STATE_MINIMIZED:
++    case ui::SHOW_STATE_HIDDEN:
+       state = api::windows::WindowState::kMinimized;
+       break;
+     case ui::SHOW_STATE_MAXIMIZED:
+diff --git chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
+index cef40af382b1e..a2cf4691edc37 100644
+--- chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
++++ chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
+@@ -43,6 +43,7 @@ ChromeNativeAppWindowViewsAura::GetRestorableState(
+ 
+     case ui::SHOW_STATE_DEFAULT:
+     case ui::SHOW_STATE_MINIMIZED:
++    case ui::SHOW_STATE_HIDDEN:
+     case ui::SHOW_STATE_INACTIVE:
+     case ui::SHOW_STATE_END:
+       return ui::SHOW_STATE_NORMAL;
+diff --git components/sessions/core/session_service_commands.cc components/sessions/core/session_service_commands.cc
+index 70781f59a7528..65f30d4ff614d 100644
+--- components/sessions/core/session_service_commands.cc
++++ components/sessions/core/session_service_commands.cc
+@@ -165,9 +165,10 @@ enum PersistedWindowShowState {
+   PERSISTED_SHOW_STATE_MAXIMIZED = 3,
+   // SHOW_STATE_INACTIVE (4) never persisted.
+   PERSISTED_SHOW_STATE_FULLSCREEN = 5,
+-  PERSISTED_SHOW_STATE_DETACHED_DEPRECATED = 6,
+-  PERSISTED_SHOW_STATE_DOCKED_DEPRECATED = 7,
+-  PERSISTED_SHOW_STATE_END = 8,
++  // SHOW_STATE_HIDDEN (6) never persisted.
++  PERSISTED_SHOW_STATE_DETACHED_DEPRECATED = 7,
++  PERSISTED_SHOW_STATE_DOCKED_DEPRECATED = 8,
++  PERSISTED_SHOW_STATE_END = 9,
+ };
+ 
+ // TODO(crbug.com/1506068): Remove this around December 2024. This is part of a
+@@ -191,6 +192,7 @@ PersistedWindowShowState ShowStateToPersistedShowState(
+     case ui::SHOW_STATE_NORMAL:
+       return PERSISTED_SHOW_STATE_NORMAL;
+     case ui::SHOW_STATE_MINIMIZED:
++    case ui::SHOW_STATE_HIDDEN:
+       return PERSISTED_SHOW_STATE_MINIMIZED;
+     case ui::SHOW_STATE_MAXIMIZED:
+       return PERSISTED_SHOW_STATE_MAXIMIZED;
+diff --git components/sessions/core/tab_restore_service_impl.cc components/sessions/core/tab_restore_service_impl.cc
+index 837fbd223fe94..0f751768e5e32 100644
+--- components/sessions/core/tab_restore_service_impl.cc
++++ components/sessions/core/tab_restore_service_impl.cc
+@@ -192,6 +192,7 @@ int SerializeWindowShowState(ui::WindowShowState show_state) {
+     case ui::SHOW_STATE_NORMAL:
+       return kSerializedShowStateNormal;
+     case ui::SHOW_STATE_MINIMIZED:
++    case ui::SHOW_STATE_HIDDEN:
+       return kSerializedShowStateMinimized;
+     case ui::SHOW_STATE_MAXIMIZED:
+       return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
 index 84105424b8682..8aa281ca9d7e2 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
@@ -151,6 +213,32 @@ index 78d3cac258f65..d87bd0b564062 100644
  #if BUILDFLAG(IS_MAC)
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
+diff --git ui/base/mojom/ui_base_types_mojom_traits.h ui/base/mojom/ui_base_types_mojom_traits.h
+index 1d79fc2dc34cc..ce5bf0ebf531f 100644
+--- ui/base/mojom/ui_base_types_mojom_traits.h
++++ ui/base/mojom/ui_base_types_mojom_traits.h
+@@ -172,6 +172,7 @@ struct EnumTraits<ui::mojom::WindowShowState, ui::WindowShowState> {
+       case ui::SHOW_STATE_INACTIVE:
+         return ui::mojom::WindowShowState::SHOW_STATE_INACTIVE;
+       case ui::SHOW_STATE_MINIMIZED:
++      case ui::SHOW_STATE_HIDDEN:
+         return ui::mojom::WindowShowState::SHOW_STATE_MINIMIZED;
+       case ui::SHOW_STATE_MAXIMIZED:
+         return ui::mojom::WindowShowState::SHOW_STATE_MAXIMIZED;
+diff --git ui/base/ui_base_types.h ui/base/ui_base_types.h
+index 73d3213322833..02778839843f2 100644
+--- ui/base/ui_base_types.h
++++ ui/base/ui_base_types.h
+@@ -29,7 +29,8 @@ enum WindowShowState {
+   SHOW_STATE_MAXIMIZED = 3,
+   SHOW_STATE_INACTIVE = 4,  // Views only, not persisted.
+   SHOW_STATE_FULLSCREEN = 5,
+-  SHOW_STATE_END = 6  // The end of show state enum.
++  SHOW_STATE_HIDDEN = 6,  // Views and MacOS only.
++  SHOW_STATE_END = 7  // The end of show state enum.
+ };
+ 
+ #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS)
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
 index f3a0e657041d8..e9c01e177ea1a 100644
 --- ui/ozone/platform/x11/x11_window.cc
@@ -359,8 +447,20 @@ index 013f571b52168..508054726fb7d 100644
    // Visibility of the cursor. On Windows we can have multiple root windows and
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
+diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
+index 1ae933137baca..572781ab5d314 100644
+--- ui/views/widget/native_widget_mac.mm
++++ ui/views/widget/native_widget_mac.mm
+@@ -640,6 +640,7 @@ void NativeWidgetMac::Show(ui::WindowShowState show_state,
+       break;
+     case ui::SHOW_STATE_MAXIMIZED:
+     case ui::SHOW_STATE_FULLSCREEN:
++    case ui::SHOW_STATE_HIDDEN:
+       NOTIMPLEMENTED();
+       break;
+     case ui::SHOW_STATE_END:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 93b17a67f9541..320f7452d3567 100644
+index 93b17a67f9541..c65cdef75c223 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -384,7 +384,8 @@ void Widget::Init(InitParams params) {
@@ -373,7 +473,7 @@ index 93b17a67f9541..320f7452d3567 100644
    is_headless_ = params.ShouldInitAsHeadless();
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
-@@ -494,14 +495,22 @@ void Widget::Init(InitParams params) {
+@@ -494,14 +495,24 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -383,6 +483,8 @@ index 93b17a67f9541..320f7452d3567 100644
        saved_show_state_ = ui::SHOW_STATE_MINIMIZED;
 +    } else if (show_state == ui::SHOW_STATE_FULLSCREEN) {
 +      SetFullscreen(true);
++    } else if (show_state == ui::SHOW_STATE_HIDDEN) {
++      Hide();
      }
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
@@ -397,7 +499,7 @@ index 93b17a67f9541..320f7452d3567 100644
      }
    }
  
-@@ -1656,10 +1665,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1656,10 +1667,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -414,6 +516,16 @@ index 93b17a67f9541..320f7452d3567 100644
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
+@@ -1910,7 +1927,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
+     return false;
+   View* v = widget_delegate_->GetInitiallyFocusedView();
+   if (!focus_on_creation_ || show_state == ui::SHOW_STATE_INACTIVE ||
+-      show_state == ui::SHOW_STATE_MINIMIZED) {
++      show_state == ui::SHOW_STATE_MINIMIZED ||
++      show_state == ui::SHOW_STATE_HIDDEN) {
+     // If not focusing the window now, tell the focus manager which view to
+     // focus when the window is restored.
+     if (v)
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
 index c7ba1a40a7e46..81a37e6ab2a87 100644
 --- ui/views/widget/widget.h

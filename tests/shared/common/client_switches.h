@@ -51,6 +51,7 @@ extern const char kUseWindowModalDialog[];
 extern const char kUseBottomControls[];
 extern const char kHidePipFrame[];
 extern const char kHideChromeBubbles[];
+extern const char kHideWindowOnClose[];
 
 }  // namespace switches
 }  // namespace client

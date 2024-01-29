@@ -238,6 +238,13 @@ void ViewsWindow::Close(bool force) {
     return;
   }
 
+#if defined(OS_MAC)
+  if (hide_on_close_) {
+    // Don't hide on close if we actually want to close.
+    hide_on_close_ = false;
+  }
+#endif
+
   CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
   if (browser) {
     // This will result in a call to CefWindow::Close() which will then call
@@ -677,6 +684,14 @@ void ViewsWindow::OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
       browser->GetHost()->ExitFullscreen(/*will_cause_resize=*/false);
     }
   }
+
+#if defined(OS_MAC)
+  // Continue hide logic from CanClose.
+  if (is_completed && hide_after_fullscreen_exit_) {
+    hide_after_fullscreen_exit_ = false;
+    window->Hide();
+  }
+#endif
 }
 
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -789,6 +804,21 @@ void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
 
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
+
+#if defined(OS_MAC)
+  // On MacOS we might hide the window instead of closing it.
+  if (hide_on_close_) {
+    if (window->IsFullscreen()) {
+      // Need to exit fullscreen mode before hiding the window.
+      // Execution continues in OnWindowFullscreenTransition.
+      hide_after_fullscreen_exit_ = true;
+      window->SetFullscreen(false);
+    } else {
+      window->Hide();
+    }
+    return false;
+  }
+#endif
 
   // Allow the window to close if the browser says it's OK.
   CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
@@ -1076,6 +1106,8 @@ ViewsWindow::ViewsWindow(WindowType type,
     default_titlebar_height_ = kTitleBarHeight;
     override_titlebar_height_ = kTitleBarHeight;
   }
+
+  hide_on_close_ = command_line->HasSwitch(switches::kHideWindowOnClose);
 #endif
 
   const std::string& toolbar_type =

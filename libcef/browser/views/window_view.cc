@@ -448,6 +448,13 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
         case CEF_SHOW_STATE_FULLSCREEN:
           params.show_state = ui::SHOW_STATE_FULLSCREEN;
           break;
+        case CEF_SHOW_STATE_HIDDEN:
+#if BUILDFLAG(IS_MAC)
+          params.show_state = ui::SHOW_STATE_HIDDEN;
+#else
+          params.show_state = ui::SHOW_STATE_MINIMIZED;
+#endif
+          break;
       }
 
       bool is_menu = false;
