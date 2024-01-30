@@ -9,6 +9,8 @@
 #define GL_GLEXT_PROTOTYPES
 #endif
 
+#include <math.h>
+
 #if defined(OS_WIN)
 #include <gl/gl.h>
 #elif defined(OS_MAC)
