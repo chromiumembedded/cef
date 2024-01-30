@@ -58,8 +58,20 @@ void RootWindowViews::Init(RootWindow::Delegate* delegate,
   CreateClientHandler(config_->url);
   initialized_ = true;
 
-  // Continue initialization on the UI thread.
-  InitOnUIThread(settings, delegate_->GetRequestContext(this));
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute GetRequestContext() on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(
+        [](scoped_refptr<RootWindowViews> self,
+           const CefBrowserSettings& settings) {
+          // Continue initialization on the UI thread.
+          self->InitOnUIThread(settings,
+                               self->delegate_->GetRequestContext(self.get()));
+        },
+        scoped_refptr<RootWindowViews>(this), settings));
+  } else {
+    // Continue initialization on the UI thread.
+    InitOnUIThread(settings, delegate_->GetRequestContext(this));
+  }
 }
 
 void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
