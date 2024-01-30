@@ -183,12 +183,20 @@ class CefUIThread : public base::PlatformThread::Delegate {
 
     runner_->RunMessageLoop();
 
-    browser_runner_->Shutdown();
-    browser_runner_.reset();
+    // Stop may be called before InitializeBrowserRunner if
+    // content::ContentMainRun was not successful (for example, due to process
+    // singleton relaunch).
+    if (browser_runner_) {
+      browser_runner_->Shutdown();
+      browser_runner_.reset();
+    }
 
+    // This will be a no-op if there is no BrowserTaskExecutor.
     content::BrowserTaskExecutor::Shutdown();
 
-    std::move(shutdown_callback_).Run();
+    if (!shutdown_callback_.is_null()) {
+      std::move(shutdown_callback_).Run();
+    }
 
     // Run exit callbacks on the UI thread to avoid sequence check failures.
     base::AtExitManager::ProcessCallbacksNow();
@@ -435,6 +443,11 @@ int CefMainRunner::ContentMainRun(bool* initialized,
                int* exit_code) {
               runner->main_delegate_->BeforeUIThreadInitialize();
               *exit_code = content::ContentMainRun(runner->main_runner_.get());
+
+              if (*exit_code != content::RESULT_CODE_NORMAL_EXIT) {
+                runner->FinishShutdownOnUIThread();
+              }
+
               event->Signal();
             },
             base::Unretained(this), base::Unretained(&uithread_startup_event),
@@ -446,6 +459,13 @@ int CefMainRunner::ContentMainRun(bool* initialized,
 
     // We need to wait until content::ContentMainRun has finished.
     uithread_startup_event.Wait();
+
+    if (exit_code != content::RESULT_CODE_NORMAL_EXIT) {
+      // content::ContentMainRun was not successful (for example, due to process
+      // singleton relaunch). Stop the UI thread and block until done.
+      ui_thread_->Stop();
+      ui_thread_.reset();
+    }
   } else {
     *initialized = true;
     main_delegate_->BeforeUIThreadInitialize();

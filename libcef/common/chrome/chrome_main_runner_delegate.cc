@@ -58,6 +58,11 @@ void ChromeMainRunnerDelegate::BeforeMainThreadRun(
 
 void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
     base::RunLoop* run_loop) {
+  // May be nullptr if content::ContentMainRun exits early.
+  if (!g_browser_process) {
+    return;
+  }
+
   // The ScopedKeepAlive instance triggers shutdown logic when released on the
   // UI thread before terminating the message loop (e.g. from CefQuitMessageLoop
   // or FinishShutdownOnUIThread when running with multi-threaded message loop).
@@ -67,12 +72,17 @@ void ChromeMainRunnerDelegate::BeforeMainMessageLoopRun(
   // The QuitClosure will be executed from BrowserProcessImpl::Unpin() via
   // KeepAliveRegistry when the last ScopedKeepAlive is released.
   // ScopedKeepAlives are also held by Browser objects.
-  DCHECK(g_browser_process);
   static_cast<BrowserProcessImpl*>(g_browser_process)
       ->SetQuitClosure(run_loop->QuitClosure());
 }
 
 bool ChromeMainRunnerDelegate::HandleMainMessageLoopQuit() {
+  // May be nullptr if content::ContentMainRun exits early.
+  if (!g_browser_process) {
+    // Proceed with direct execution of the QuitClosure().
+    return false;
+  }
+
   // May be called multiple times. See comments in RunMainMessageLoopBefore.
   keep_alive_.reset();
 
