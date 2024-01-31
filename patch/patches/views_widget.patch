@@ -240,19 +240,19 @@ index 8bfbd2d675db6..ee90ad2884db7 100644
  
  // Specifies which edges of the window are tiled.
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 449f721727fb1..ab549b482bc36 100644
+index 986611404dd69..abefa63d5c2b8 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1846,7 +1846,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1868,7 +1868,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
-   last_set_bounds_px_ = SanitizeBounds(bounds);
+   bounds_in_pixels_ = SanitizeBounds(bounds);
 -  req.parent = x_root_window_;
 +  req.parent = properties.parent_widget == gfx::kNullAcceleratedWidget ?
 +      x_root_window_ : static_cast<x11::Window>(properties.parent_widget);
-   req.x = last_set_bounds_px_.x();
-   req.y = last_set_bounds_px_.y();
-   req.width = last_set_bounds_px_.width();
+   req.x = bounds_in_pixels_.x();
+   req.y = bounds_in_pixels_.y();
+   req.width = bounds_in_pixels_.width();
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
 index e4e6d3104da9e..bb372b0cd2960 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
