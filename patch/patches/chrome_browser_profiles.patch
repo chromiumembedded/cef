@@ -14,7 +14,7 @@ index 9bba6cea235e0..9dc5b40559207 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 28b166f4f499c..5892638bb43c8 100644
+index de0a5e38ca13f..ec2f4d194afd1 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -87,6 +87,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
