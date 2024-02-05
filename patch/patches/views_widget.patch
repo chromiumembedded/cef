@@ -213,6 +213,24 @@ index b3acdceb83879..7a2de7e7d0678 100644
  #if BUILDFLAG(IS_MAC)
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
+diff --git ui/aura/native_window_occlusion_tracker_win.cc ui/aura/native_window_occlusion_tracker_win.cc
+index 41c3d067b72d4..8463204012290 100644
+--- ui/aura/native_window_occlusion_tracker_win.cc
++++ ui/aura/native_window_occlusion_tracker_win.cc
+@@ -102,6 +102,13 @@ void NativeWindowOcclusionTrackerWin::Enable(Window* window) {
+   // when it's no longer true that all windows are minimized, and when the
+   // window is destroyed.
+   HWND root_window_hwnd = window->GetHost()->GetAcceleratedWidget();
++
++  // Delay occlusion tracking for initially-minimized windows.
++  // See CEF issue #3638.
++  if (IsIconic(root_window_hwnd)) {
++    return;
++  }
++
+   window->AddObserver(this);
+   // Remember this mapping from hwnd to Window*.
+   hwnd_root_window_map_[root_window_hwnd] = window;
 diff --git ui/base/mojom/ui_base_types_mojom_traits.h ui/base/mojom/ui_base_types_mojom_traits.h
 index 1d79fc2dc34cc..ce5bf0ebf531f 100644
 --- ui/base/mojom/ui_base_types_mojom_traits.h
@@ -346,10 +364,18 @@ index f841bc5750537..aa2d4720c8152 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index d877d237b2c16..95ee3dd3253fd 100644
+index d877d237b2c16..479f3bc1ac019 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-@@ -181,16 +181,29 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -21,6 +21,7 @@
+ #include "ui/aura/client/aura_constants.h"
+ #include "ui/aura/client/cursor_client.h"
+ #include "ui/aura/client/focus_client.h"
++#include "ui/aura/native_window_occlusion_tracker.h"
+ #include "ui/aura/window_event_dispatcher.h"
+ #include "ui/base/class_property.h"
+ #include "ui/base/cursor/cursor.h"
+@@ -181,22 +182,42 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_.get());
  
    HWND parent_hwnd = nullptr;
@@ -383,7 +409,46 @@ index d877d237b2c16..95ee3dd3253fd 100644
    message_handler_->Init(parent_hwnd, pixel_bounds);
    CreateCompositor(params.force_software_compositing);
    OnAcceleratedWidgetAvailable();
-@@ -1043,11 +1056,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+   InitHost();
+   window()->Show();
+ 
++  if (params.show_state == ui::SHOW_STATE_MINIMIZED) {
++    // Delay enablement of native occlusion tracking until the
++    // initially-minimized window is restored for the first time.
++    // See CEF issue #3638.
++    initially_minimized_first_restore_pending_ = true;
++  }
++
+   if (base::FeatureList::IsEnabled(views::features::kWidgetLayering)) {
+     // Stack immedately above its parent so that it does not cover other
+     // root-level windows.
+@@ -1023,10 +1044,23 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+   if (!native_widget_delegate_->IsNativeWidgetInitialized())
+     return;
+ 
+-  if (restored)
++  if (restored) {
+     window()->Show();
+-  else
++
++    if (initially_minimized_first_restore_pending_) {
++      initially_minimized_first_restore_pending_ = false;
++
++      // Enable native occlusion tracking for initially-minimized windows here
++      // to avoid incorrect hidden state after restore. See CEF issue #3638.
++      if (aura::NativeWindowOcclusionTracker::
++              IsNativeWindowOcclusionTrackingAlwaysEnabled(this)) {
++        aura::NativeWindowOcclusionTracker::
++            EnableNativeWindowOcclusionTracking(this);
++      }
++    }
++  } else {
+     window()->Hide();
++  }
+ }
+ 
+ void DesktopWindowTreeHostWin::HandleClientSizeChanged(
+@@ -1043,11 +1077,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -401,7 +466,7 @@ index d877d237b2c16..95ee3dd3253fd 100644
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1055,6 +1072,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1055,6 +1093,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
    if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
      return true;
  
@@ -414,7 +479,7 @@ index d877d237b2c16..95ee3dd3253fd 100644
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1233,8 +1256,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1233,8 +1277,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -433,16 +498,20 @@ index d877d237b2c16..95ee3dd3253fd 100644
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index e963c861f7099..6bc0ac23db5e9 100644
+index e963c861f7099..68c6e02f2bbe5 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -322,6 +322,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -322,6 +322,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window should have the frame removed.
    bool remove_standard_frame_;
  
 +  // True if the widget has a external parent view/window outside of the
 +  // Chromium-controlled view/window hierarchy.
 +  bool has_external_parent_ = false;
++
++  // True if the first call to HandleWindowMinimizedOrRestored for an initially-
++  // minimized window is pending.
++  bool initially_minimized_first_restore_pending_ = false;
 +
    // Visibility of the cursor. On Windows we can have multiple root windows and
    // the implementation of ::ShowCursor() is based on a counter, so making this
