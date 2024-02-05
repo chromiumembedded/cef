@@ -340,6 +340,10 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalToken(
     const content::GlobalRenderFrameHostToken& global_token,
     bool* is_guest_view,
     bool prefer_speculative) const {
+  if (is_guest_view) {
+    *is_guest_view = false;
+  }
+
   if (!frame_util::IsValidGlobalToken(global_token)) {
     return nullptr;
   }
