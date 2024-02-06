@@ -426,6 +426,12 @@ void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
 #endif
 }
 
+bool ChromeBrowserDelegate::HasViewsHostedOpener() const {
+  DCHECK(browser_->is_type_picture_in_picture() ||
+         browser_->is_type_devtools());
+  return opener_host_ && opener_host_->is_views_hosted();
+}
+
 void ChromeBrowserDelegate::WebContentsCreated(
     content::WebContents* source_contents,
     int opener_render_process_id,
