@@ -81,6 +81,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   const std::optional<SkRegion> GetDraggableRegion() const override;
   void UpdateDraggableRegion(const SkRegion& region) override;
   void WindowFullscreenStateChanged() override;
+  bool HasViewsHostedOpener() const override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,
