@@ -114,8 +114,9 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
           CefString(&settings_->javascript_flags).ToString());
     }
 
-    if (settings_->remote_debugging_port >= 1024 &&
-        settings_->remote_debugging_port <= 65535) {
+    if (settings_->remote_debugging_port == 0 ||
+        (settings_->remote_debugging_port >= 1024 &&
+         settings_->remote_debugging_port <= 65535)) {
       command_line->AppendSwitchASCII(
           switches::kRemoteDebuggingPort,
           base::NumberToString(settings_->remote_debugging_port));
