@@ -23,6 +23,9 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
   ChromeBrowserContext(const ChromeBrowserContext&) = delete;
   ChromeBrowserContext& operator=(const ChromeBrowserContext&) = delete;
 
+  // Returns a ChromeBrowserContext for the specified |profile|.
+  static ChromeBrowserContext* GetOrCreateForProfile(Profile* profile);
+
   void InitializeAsync(base::OnceClosure initialized_cb);
 
   // CefBrowserContext overrides.

@@ -42,6 +42,7 @@
 #include "include/cef_client.h"
 #include "include/cef_command_line.h"
 #include "include/cef_preference.h"
+#include "include/cef_request_context_handler.h"
 #include "include/cef_values.h"
 
 ///
@@ -139,14 +140,28 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   virtual void OnScheduleMessagePumpWork(int64_t delay_ms) {}
 
   ///
-  /// Return the default client for use with a newly created browser window. If
-  /// null is returned the browser will be unmanaged (no callbacks will be
-  /// executed for that browser) and application shutdown will be blocked until
-  /// the browser window is closed manually. This method is currently only used
-  /// with the chrome runtime.
+  /// Return the default client for use with a newly created browser window
+  /// (CefBrowser object). If null is returned the CefBrowser will be unmanaged
+  /// (no callbacks will be executed for that CefBrowser) and application
+  /// shutdown will be blocked until the browser window is closed manually. This
+  /// method is currently only used with the Chrome runtime when creating new
+  /// browser windows via Chrome UI.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefClient> GetDefaultClient() { return nullptr; }
+
+  ///
+  /// Return the default handler for use with a new user or incognito profile
+  /// (CefRequestContext object). If null is returned the CefRequestContext will
+  /// be unmanaged (no callbacks will be executed for that CefRequestContext).
+  /// This method is currently only used with the Chrome runtime when creating
+  /// new browser windows via Chrome UI.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefRequestContextHandler>
+  GetDefaultRequestContextHandler() {
+    return nullptr;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_PROCESS_HANDLER_H_

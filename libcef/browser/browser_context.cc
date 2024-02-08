@@ -273,22 +273,7 @@ CefBrowserContext* CefBrowserContext::FromBrowserContext(
 
 // static
 CefBrowserContext* CefBrowserContext::FromProfile(const Profile* profile) {
-  auto* cef_context = FromBrowserContext(profile);
-  if (cef_context) {
-    return cef_context;
-  }
-
-  if (cef::IsChromeRuntimeEnabled()) {
-    auto* original_profile = profile->GetOriginalProfile();
-    if (original_profile != profile) {
-      // With the Chrome runtime if the user launches an incognito window via
-      // the UI we might be associated with the original Profile instead of the
-      // (current) incognito profile.
-      return FromBrowserContext(original_profile);
-    }
-  }
-
-  return nullptr;
+  return FromBrowserContext(profile);
 }
 
 // static
@@ -428,6 +413,24 @@ CefMediaRouterManager* CefBrowserContext::GetMediaRouterManager() {
         std::make_unique<CefMediaRouterManager>(AsBrowserContext());
   }
   return media_router_manager_.get();
+}
+
+CefRefPtr<CefRequestContextImpl> CefBrowserContext::GetAnyRequestContext(
+    bool prefer_no_handler) const {
+  CEF_REQUIRE_UIT();
+  if (request_context_set_.empty()) {
+    return nullptr;
+  }
+
+  if (prefer_no_handler) {
+    for (const auto& request_context : request_context_set_) {
+      if (!request_context->GetHandler()) {
+        return request_context;
+      }
+    }
+  }
+
+  return *request_context_set_.begin();
 }
 
 CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()

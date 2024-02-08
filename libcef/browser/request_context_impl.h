@@ -38,6 +38,16 @@ class CefRequestContextImpl : public CefRequestContext {
   static CefRefPtr<CefRequestContextImpl> GetOrCreateForRequestContext(
       CefRefPtr<CefRequestContext> request_context);
 
+  // Returns a CefRequestContextImpl for the specified |browser_context| and
+  // optional |handler|. If |handler| is nullptr, and a CefRequestContextImpl
+  // without a handler currently exists for |browser_context|, then that
+  // existing CefRequestContextImpl will be returned. Otherwise, a new
+  // CefRequestContextImpl will be created with the specified |handler|. Must be
+  // called on the UI thread.
+  static CefRefPtr<CefRequestContextImpl> GetOrCreateForBrowserContext(
+      CefBrowserContext* browser_context,
+      CefRefPtr<CefRequestContextHandler> handler);
+
   // Returns the BrowserContext for the specified |request_context|. Will return
   // the global BrowserContext if |request_context| is NULL.
   static content::BrowserContext* GetBrowserContext(
@@ -145,10 +155,12 @@ class CefRequestContextImpl : public CefRequestContext {
     // True if wrapping the global context.
     bool is_global = false;
 
+    // Wrap an existing (non-global) browser context. When specifying this value
+    // GetOrCreateRequestContext() must be called on the UI thread.
+    CefBrowserContext* browser_context = nullptr;
+
     // |settings| or |other| will be set when creating a new CefRequestContext
-    // via the API. When wrapping an existing CefBrowserContext* both will be
-    // empty and Initialize(CefBrowserContext*) will be called immediately after
-    // CefRequestContextImpl construction.
+    // via the API.
     CefRequestContextSettings settings;
     CefRefPtr<CefRequestContextImpl> other;
 
@@ -156,21 +168,18 @@ class CefRequestContextImpl : public CefRequestContext {
     CefRefPtr<CefRequestContextHandler> handler;
 
     // Used to uniquely identify CefRequestContext objects before an associated
-    // CefBrowserContext has been created. Should be set when a new
+    // CefBrowserContext has been created. Should be set when creating a new
     // CefRequestContext via the API.
     int unique_id = -1;
   };
 
   static CefRefPtr<CefRequestContextImpl> GetOrCreateRequestContext(
-      const Config& config);
+      Config&& config);
 
-  explicit CefRequestContextImpl(const Config& config);
+  explicit CefRequestContextImpl(Config&& config);
 
   void Initialize();
   void BrowserContextInitialized();
-
-  // Make sure the browser context exists. Only called on the UI thread.
-  void EnsureBrowserContext();
 
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,

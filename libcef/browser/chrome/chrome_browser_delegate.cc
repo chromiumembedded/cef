@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/chrome/chrome_browser_context.h"
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
 #include "libcef/browser/chrome/views/chrome_child_window.h"
@@ -67,9 +68,7 @@ Browser* ChromeBrowserDelegate::CreateDevToolsBrowser(
   }
 
   // We expect openers and popups to have the same Profile.
-  CHECK_EQ(
-      CefRequestContextImpl::GetProfile(opener_browser_host->request_context()),
-      profile);
+  CHECK_EQ(opener->profile(), profile);
 
   //
   // 1. Get configuration settings from the user and create the new platform
@@ -608,12 +607,25 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserDelegate::CreateBrowserHost(
     LOG(WARNING) << "Creating a chrome browser without a client";
   }
 
-  // Check if chrome and CEF are using the same browser context.
-  // TODO(chrome-runtime): Verify if/when this might occur.
+  // Get or create a ChromeBrowserContext for the browser Profile. Creation may
+  // be necessary when selecting a new or incognito Profile for the first time
+  // via the Chrome UI.
   auto chrome_browser_context =
-      CefBrowserContext::FromBrowserContext(browser_->create_params().profile);
+      ChromeBrowserContext::GetOrCreateForProfile(browser_->profile());
+
+  // If the provided CefRequestContext matches the ChromeBrowserContext then use
+  // the provided one, as it will have the preferred CefRequestContextHandler.
+  // Otherwise, get or create a CefRequestContext that matches.
   if (chrome_browser_context != request_context_impl->GetBrowserContext()) {
-    LOG(WARNING) << "Creating a chrome browser with mismatched context";
+    CefRefPtr<CefRequestContextHandler> handler;
+    if (auto app = CefAppManager::Get()->GetApplication()) {
+      if (auto bph = app->GetBrowserProcessHandler()) {
+        handler = bph->GetDefaultRequestContextHandler();
+      }
+    }
+
+    request_context_impl = CefRequestContextImpl::GetOrCreateForBrowserContext(
+        chrome_browser_context, handler);
   }
 
   // Remains alive until the associated WebContents is destroyed.

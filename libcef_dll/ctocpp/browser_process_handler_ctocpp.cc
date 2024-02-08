@@ -9,13 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d072dd56acd042383f193e1986606ebb2bb9ee1$
+// $hash=1487ab43138b7c4bee2b05064a91ed051ff2533e$
 //
 
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/preference_registrar_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -134,6 +135,24 @@ CefRefPtr<CefClient> CefBrowserProcessHandlerCToCpp::GetDefaultClient() {
 
   // Return type: refptr_same
   return CefClientCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefRequestContextHandler>
+CefBrowserProcessHandlerCToCpp::GetDefaultRequestContextHandler() {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_default_request_context_handler)) {
+    return nullptr;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_request_context_handler_t* _retval =
+      _struct->get_default_request_context_handler(_struct);
+
+  // Return type: refptr_same
+  return CefRequestContextHandlerCToCpp::Wrap(_retval);
 }
 
 // CONSTRUCTOR - Do not edit by hand.
