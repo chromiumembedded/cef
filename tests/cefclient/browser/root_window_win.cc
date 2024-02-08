@@ -1015,7 +1015,7 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
                      rect.bottom - rect.top);
     browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_, nullptr,
-                                   delegate_->GetRequestContext(this));
+                                   delegate_->GetRequestContext());
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.

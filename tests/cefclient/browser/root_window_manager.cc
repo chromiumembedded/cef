@@ -8,6 +8,7 @@
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_std.h"
 #include "tests/cefclient/browser/main_context.h"
@@ -24,36 +25,41 @@ namespace {
 class ClientRequestContextHandler : public CefRequestContextHandler,
                                     public CefExtensionHandler {
  public:
-  ClientRequestContextHandler() = default;
+  using CreateCallback = RootWindow::Delegate::RequestContextCallback;
+
+  explicit ClientRequestContextHandler(CreateCallback callback)
+      : create_callback_(std::move(callback)) {}
 
   // CefRequestContextHandler methods:
   void OnRequestContextInitialized(
       CefRefPtr<CefRequestContext> request_context) override {
     CEF_REQUIRE_UI_THREAD();
 
+    const auto main_context = MainContext::Get();
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::GetGlobalCommandLine();
-    if (command_line->HasSwitch(switches::kLoadExtension)) {
-      if (MainContext::Get()
-              ->GetRootWindowManager()
-              ->request_context_per_browser()) {
+
+    if (!main_context->UseChromeRuntime() &&
+        command_line->HasSwitch(switches::kLoadExtension)) {
+      // Alloy implementation for loading extensions. Chrome runtime handles
+      // this internally.
+      if (main_context->GetRootWindowManager()->request_context_per_browser()) {
         // The example extension loading implementation requires all browsers to
         // share the same request context.
         LOG(ERROR)
             << "Cannot mix --load-extension and --request-context-per-browser";
-        return;
-      }
-
-      // Load one or more extension paths specified on the command-line and
-      // delimited with semicolon.
-      const std::string& extension_path =
-          command_line->GetSwitchValue(switches::kLoadExtension);
-      if (!extension_path.empty()) {
-        std::string part;
-        std::istringstream f(extension_path);
-        while (getline(f, part, ';')) {
-          if (!part.empty()) {
-            extension_util::LoadExtension(request_context, part, this);
+      } else {
+        // Load one or more extension paths specified on the command-line and
+        // delimited with semicolon.
+        const std::string& extension_path =
+            command_line->GetSwitchValue(switches::kLoadExtension);
+        if (!extension_path.empty()) {
+          std::string part;
+          std::istringstream f(extension_path);
+          while (getline(f, part, ';')) {
+            if (!part.empty()) {
+              extension_util::LoadExtension(request_context, part, this);
+            }
           }
         }
       }
@@ -67,6 +73,12 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
     request_context->SetContentSetting(startup_url, startup_url,
                                        CEF_CONTENT_SETTING_TYPE_POPUPS,
                                        CEF_CONTENT_SETTING_VALUE_ALLOW);
+
+    if (!create_callback_.is_null()) {
+      // Execute the callback asynchronously.
+      CefPostTask(TID_UI,
+                  base::BindOnce(std::move(create_callback_), request_context));
+    }
   }
 
   // CefExtensionHandler methods:
@@ -95,6 +107,8 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
   }
 
  private:
+  CreateCallback create_callback_;
+
   IMPLEMENT_REFCOUNTING(ClientRequestContextHandler);
   DISALLOW_COPY_AND_ASSIGN(ClientRequestContextHandler);
 };
@@ -324,11 +338,33 @@ void RootWindowManager::NotifyExtensionsChanged() {
   }
 }
 
-CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
-    RootWindow* root_window) {
+CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext() {
+  REQUIRE_MAIN_THREAD();
+  return CreateRequestContext(RequestContextCallback());
+}
+
+void RootWindowManager::GetRequestContext(RequestContextCallback callback) {
+  DCHECK(!callback.is_null());
+
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(
+        base::IgnoreResult(&RootWindowManager::CreateRequestContext),
+        base::Unretained(this), std::move(callback)));
+  } else {
+    CreateRequestContext(std::move(callback));
+  }
+}
+
+CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
+    RequestContextCallback callback) {
   REQUIRE_MAIN_THREAD();
 
   if (request_context_per_browser_) {
+    // Synchronous use of non-global request contexts is not safe with the
+    // Chrome runtime.
+    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeRuntime());
+
     // Create a new request context for each browser.
     CefRequestContextSettings settings;
 
@@ -350,15 +386,21 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
       }
     }
 
-    return CefRequestContext::CreateContext(settings,
-                                            new ClientRequestContextHandler);
+    return CefRequestContext::CreateContext(
+        settings, new ClientRequestContextHandler(std::move(callback)));
   }
 
   // All browsers will share the global request context.
-  if (!shared_request_context_.get()) {
+  if (!shared_request_context_) {
     shared_request_context_ = CefRequestContext::CreateContext(
-        CefRequestContext::GetGlobalContext(), new ClientRequestContextHandler);
+        CefRequestContext::GetGlobalContext(),
+        new ClientRequestContextHandler(std::move(callback)));
+  } else if (!callback.is_null()) {
+    // Execute the callback on the UI thread.
+    CefPostTask(TID_UI,
+                base::BindOnce(std::move(callback), shared_request_context_));
   }
+
   return shared_request_context_;
 }
 

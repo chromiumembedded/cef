@@ -96,10 +96,21 @@ class RootWindow
   // of this class will be called on the main thread.
   class Delegate {
    public:
-    // Called to retrieve the CefRequestContext for browser. Only called for
-    // non-popup browsers. May return nullptr.
-    virtual CefRefPtr<CefRequestContext> GetRequestContext(
-        RootWindow* root_window) = 0;
+    // Called to synchronously retrieve the CefRequestContext for browser. Only
+    // called for non-popup browsers. Must be called on the main thread. With
+    // the Chrome runtime this method is only safe when using the global request
+    // context.
+    // TODO: Delete this method and use the async version instead.
+    virtual CefRefPtr<CefRequestContext> GetRequestContext() = 0;
+
+    using RequestContextCallback =
+        base::OnceCallback<void(CefRefPtr<CefRequestContext>)>;
+
+    // Called to asynchronously retrieve the CefRequestContext for browser. Only
+    // called for non-popup browsers. Save to call on any thread. |callback|
+    // will be executed on the UI thread after the request context is
+    // initialized.
+    virtual void GetRequestContext(RequestContextCallback callback) = 0;
 
     // Returns the ImageCache.
     virtual scoped_refptr<ImageCache> GetImageCache() = 0;
