@@ -104,7 +104,7 @@ class CefBrowserContext {
       const content::GlobalRenderFrameHostId& global_id,
       bool require_frame_match);
 
-  // Returns the underlying CefBrowserContext if any.
+  // Returns the underlying CefBrowserContext, if any.
   static CefBrowserContext* FromBrowserContext(
       const content::BrowserContext* context);
   static CefBrowserContext* FromProfile(const Profile* profile);
@@ -178,6 +178,14 @@ class CefBrowserContext {
   network::mojom::NetworkContext* GetNetworkContext();
 
   CefMediaRouterManager* GetMediaRouterManager();
+
+  // Returns any CefRequestContext associated with this object, or nullptr if
+  // none exist. If |prefer_no_handler| is true this method will try to return a
+  // context without an associated CefRequestContextHandler. Use
+  // CefRequestContextImpl::GetOrCreateForBrowserContext() instead of calling
+  // this method directly.
+  CefRefPtr<CefRequestContextImpl> GetAnyRequestContext(
+      bool prefer_no_handler) const;
 
   using CookieableSchemes = absl::optional<std::vector<std::string>>;
 

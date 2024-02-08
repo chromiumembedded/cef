@@ -38,6 +38,28 @@ ChromeBrowserContext::ChromeBrowserContext(
 
 ChromeBrowserContext::~ChromeBrowserContext() = default;
 
+// static
+ChromeBrowserContext* ChromeBrowserContext::GetOrCreateForProfile(
+    Profile* profile) {
+  DCHECK(profile);
+
+  if (auto existing_context = FromProfile(profile)) {
+    return static_cast<ChromeBrowserContext*>(existing_context);
+  }
+
+  CefRequestContextSettings settings;
+  if (!profile->IsOffTheRecord()) {
+    // Become the primary context associated with |cache_path|.
+    CefString(&settings.cache_path) = profile->GetPath().value();
+  }
+
+  auto* new_context = new ChromeBrowserContext(settings);
+  new_context->Initialize();
+  new_context->ProfileCreated(Profile::CreateStatus::CREATE_STATUS_INITIALIZED,
+                              profile);
+  return new_context;
+}
+
 content::BrowserContext* ChromeBrowserContext::AsBrowserContext() {
   CHECK(!destroyed_);
   return profile_;
@@ -146,8 +168,10 @@ void ChromeBrowserContext::ProfileCreated(Profile::CreateStatus status,
     // exists.
     profile_ = profile;
     profile_->AddObserver(this);
-    profile_keep_alive_ = std::make_unique<ScopedProfileKeepAlive>(
-        profile_, ProfileKeepAliveOrigin::kAppWindow);
+    if (!profile_->IsOffTheRecord()) {
+      profile_keep_alive_ = std::make_unique<ScopedProfileKeepAlive>(
+          profile_, ProfileKeepAliveOrigin::kAppWindow);
+    }
   }
 
   if (status == Profile::CreateStatus::CREATE_STATUS_INITIALIZED) {

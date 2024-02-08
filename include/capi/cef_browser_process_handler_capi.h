@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=f844d2a1e39d822129d0733f33c14d27481c36b7$
+// $hash=d958d5bed7f909f6313facef3440fb8ba07a5c01$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -44,6 +44,7 @@
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_command_line_capi.h"
 #include "include/capi/cef_preference_capi.h"
+#include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -147,13 +148,25 @@ typedef struct _cef_browser_process_handler_t {
       int64_t delay_ms);
 
   ///
-  /// Return the default client for use with a newly created browser window. If
-  /// null is returned the browser will be unmanaged (no callbacks will be
-  /// executed for that browser) and application shutdown will be blocked until
-  /// the browser window is closed manually. This function is currently only
-  /// used with the chrome runtime.
+  /// Return the default client for use with a newly created browser window
+  /// (cef_browser_t object). If null is returned the cef_browser_t will be
+  /// unmanaged (no callbacks will be executed for that cef_browser_t) and
+  /// application shutdown will be blocked until the browser window is closed
+  /// manually. This function is currently only used with the Chrome runtime
+  /// when creating new browser windows via Chrome UI.
   ///
   struct _cef_client_t*(CEF_CALLBACK* get_default_client)(
+      struct _cef_browser_process_handler_t* self);
+
+  ///
+  /// Return the default handler for use with a new user or incognito profile
+  /// (cef_request_context_t object). If null is returned the
+  /// cef_request_context_t will be unmanaged (no callbacks will be executed for
+  /// that cef_request_context_t). This function is currently only used with the
+  /// Chrome runtime when creating new browser windows via Chrome UI.
+  ///
+  struct _cef_request_context_handler_t*(
+      CEF_CALLBACK* get_default_request_context_handler)(
       struct _cef_browser_process_handler_t* self);
 } cef_browser_process_handler_t;
 

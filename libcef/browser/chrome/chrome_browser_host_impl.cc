@@ -601,6 +601,10 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   static_cast<CefBrowserPlatformDelegateChrome*>(platform_delegate_.get())
       ->set_chrome_browser(browser);
   if (browser_) {
+    // We expect the Browser and CefRequestContext to have the same Profile.
+    CHECK_EQ(browser_->profile(),
+             request_context()->GetBrowserContext()->AsProfile());
+
     host_window_handle_ = platform_delegate_->GetHostWindowHandle();
   } else {
     host_window_handle_ = kNullWindowHandle;

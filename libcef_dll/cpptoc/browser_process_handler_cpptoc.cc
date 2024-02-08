@@ -9,11 +9,12 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=11604cc40431cd047990f92e86495c9ccd7ded29$
+// $hash=5703528ee112474079bd5d04f5ca9f2f290238fa$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/client_cpptoc.h"
+#include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/preference_registrar_ctocpp.h"
 
@@ -138,6 +139,25 @@ struct _cef_client_t* CEF_CALLBACK browser_process_handler_get_default_client(
   return CefClientCppToC::Wrap(_retval);
 }
 
+struct _cef_request_context_handler_t* CEF_CALLBACK
+browser_process_handler_get_default_request_context_handler(
+    struct _cef_browser_process_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return NULL;
+  }
+
+  // Execute
+  CefRefPtr<CefRequestContextHandler> _retval =
+      CefBrowserProcessHandlerCppToC::Get(self)
+          ->GetDefaultRequestContextHandler();
+
+  // Return type: refptr_same
+  return CefRequestContextHandlerCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -154,6 +174,8 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
   GetStruct()->on_schedule_message_pump_work =
       browser_process_handler_on_schedule_message_pump_work;
   GetStruct()->get_default_client = browser_process_handler_get_default_client;
+  GetStruct()->get_default_request_context_handler =
+      browser_process_handler_get_default_request_context_handler;
 }
 
 // DESTRUCTOR - Do not edit by hand.
