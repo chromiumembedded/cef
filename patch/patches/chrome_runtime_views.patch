@@ -941,10 +941,10 @@ index c592f23b0c972..adca2e8db1cc6 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 0cf2fbd962501..ccdc0a92ccde1 100644
+index e6aca6cbb09e8..7e16d8b75fd39 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
-@@ -191,7 +191,7 @@ class TabstripLikeBackground : public views::Background {
+@@ -192,7 +192,7 @@ class TabstripLikeBackground : public views::Background {
    void Paint(gfx::Canvas* canvas, views::View* view) const override {
      bool painted = TopContainerBackground::PaintThemeCustomImage(canvas, view,
                                                                   browser_view_);
@@ -953,7 +953,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
        SkColor frame_color =
            browser_view_->frame()->GetFrameView()->GetFrameColor(
                BrowserFrameActiveState::kUseCurrent);
-@@ -220,12 +220,13 @@ END_METADATA
+@@ -221,12 +221,13 @@ END_METADATA
  ////////////////////////////////////////////////////////////////////////////////
  // ToolbarView, public:
  
@@ -969,7 +969,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
    SetID(VIEW_ID_TOOLBAR);
  
    container_view_ = AddChildView(std::make_unique<ContainerView>());
-@@ -250,6 +251,19 @@ ToolbarView::~ToolbarView() {
+@@ -251,6 +252,19 @@ ToolbarView::~ToolbarView() {
  }
  
  void ToolbarView::Init() {
@@ -989,7 +989,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
  #if defined(USE_AURA)
    // Avoid generating too many occlusion tracking calculation events before this
    // function returns. The occlusion status will be computed only once once this
-@@ -274,12 +288,12 @@ void ToolbarView::Init() {
+@@ -275,12 +289,12 @@ void ToolbarView::Init() {
  
    auto location_bar = std::make_unique<LocationBarView>(
        browser_, browser_->profile(), browser_->command_controller(), this,
@@ -1004,7 +1004,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
      download_button =
          std::make_unique<DownloadToolbarButtonView>(browser_view_);
    }
-@@ -361,8 +375,10 @@ void ToolbarView::Init() {
+@@ -362,8 +376,10 @@ void ToolbarView::Init() {
      }
    }
    std::unique_ptr<media_router::CastToolbarButton> cast;
@@ -1016,7 +1016,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
  
    std::unique_ptr<MediaToolbarButtonView> media_button;
    if (base::FeatureList::IsEnabled(media::kGlobalMediaControls)) {
-@@ -372,7 +388,8 @@ void ToolbarView::Init() {
+@@ -373,7 +389,8 @@ void ToolbarView::Init() {
  
    std::unique_ptr<send_tab_to_self::SendTabToSelfToolbarIconView>
        send_tab_to_self_button;
@@ -1026,7 +1026,7 @@ index 0cf2fbd962501..ccdc0a92ccde1 100644
      send_tab_to_self_button =
          std::make_unique<send_tab_to_self::SendTabToSelfToolbarIconView>(
              browser_view_);
-@@ -451,7 +468,7 @@ void ToolbarView::Init() {
+@@ -452,7 +469,7 @@ void ToolbarView::Init() {
      send_tab_to_self_button_ =
          container_view_->AddChildView(std::move(send_tab_to_self_button));
  
