@@ -443,7 +443,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
   if (!is_popup_) {
     // Create the browser window.
     browser_window_->CreateBrowser(parent, browser_bounds_, settings, nullptr,
-                                   delegate_->GetRequestContext(this));
+                                   delegate_->GetRequestContext());
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.

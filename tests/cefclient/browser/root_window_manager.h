@@ -94,8 +94,8 @@ class RootWindowManager : public RootWindow::Delegate {
   void NotifyExtensionsChanged();
 
   // RootWindow::Delegate methods.
-  CefRefPtr<CefRequestContext> GetRequestContext(
-      RootWindow* root_window) override;
+  CefRefPtr<CefRequestContext> GetRequestContext() override;
+  void GetRequestContext(RequestContextCallback callback) override;
   scoped_refptr<ImageCache> GetImageCache() override;
   void OnTest(RootWindow* root_window, int test_id) override;
   void OnExit(RootWindow* root_window) override;
@@ -108,6 +108,10 @@ class RootWindowManager : public RootWindow::Delegate {
                              CefRefPtr<CefWindow> parent_window,
                              base::OnceClosure close_callback,
                              bool with_osr) override;
+
+  // |callback| may be nullptr. Must be called on the main thread.
+  CefRefPtr<CefRequestContext> CreateRequestContext(
+      RequestContextCallback callback);
 
   void CleanupOnUIThread();
 
