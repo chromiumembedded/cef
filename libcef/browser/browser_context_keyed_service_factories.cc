@@ -7,6 +7,7 @@
 
 #include "base/feature_list.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
+#include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"
 #include "chrome/browser/media/webrtc/media_device_salt_service_factory.h"
 #include "chrome/browser/plugins/plugin_prefs_factory.h"
@@ -25,6 +26,7 @@ namespace cef {
 
 void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   CookieSettingsFactory::GetInstance();
+  first_party_sets::FirstPartySetsPolicyServiceFactory::GetInstance();
   MediaDeviceSaltServiceFactory::GetInstance();
   media_router::ChromeMediaRouterFactory::GetInstance();
   PluginPrefsFactory::GetInstance();
