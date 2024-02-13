@@ -20,8 +20,25 @@ index 101044d12aa89..795fb5f2d0738 100644
    auto* service = ConnectorsServiceFactory::GetForBrowserContext(profile);
    // If the corresponding Connector policy isn't set, don't perform scans.
    if (!service || !service->IsConnectorEnabled(connector))
+diff --git chrome/browser/first_party_sets/first_party_sets_policy_service.cc chrome/browser/first_party_sets/first_party_sets_policy_service.cc
+index 0509dabf8f421..35a0046a03c6c 100644
+--- chrome/browser/first_party_sets/first_party_sets_policy_service.cc
++++ chrome/browser/first_party_sets/first_party_sets_policy_service.cc
+@@ -275,6 +275,12 @@ void FirstPartySetsPolicyService::OnProfileConfigReady(
+ 
+   // Representation of the current profile to be persisted on disk.
+   const std::string browser_context_id = profile->GetBaseName().AsUTF8Unsafe();
++  if (browser_context_id.empty()) {
++    // CEF/Alloy incognito profiles have empty cache path.
++    OnReadyToNotifyDelegates(std::move(config),
++                             net::FirstPartySetsCacheFilter());
++    return;
++  }
+ 
+   base::RepeatingCallback<content::BrowserContext*()> browser_context_getter =
+       base::BindRepeating(
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 62d54608cfe39..b0c5e3970de03 100644
+index 62d54608cfe39..f6edd65789aa2 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -23,6 +23,7 @@
@@ -45,17 +62,7 @@ index 62d54608cfe39..b0c5e3970de03 100644
  
    DisableQuicIfNotAllowed();
  
-@@ -468,6 +471,9 @@ void ProfileNetworkContextService::OnTruncatedCookieBlockingChanged() {
- 
- void ProfileNetworkContextService::OnFirstPartySetsEnabledChanged(
-     bool enabled) {
-+  if (cef::IsAlloyRuntimeEnabled()) {
-+    return;
-+  }
-   // Update all FPS Access Delegates on the FPS service to be `enabled`.
-   first_party_sets::FirstPartySetsPolicyServiceFactory::GetForBrowserContext(
-       profile_)
-@@ -913,9 +919,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -913,9 +916,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -83,7 +90,7 @@ index 62d54608cfe39..b0c5e3970de03 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -924,15 +947,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -924,15 +944,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -103,24 +110,16 @@ index 62d54608cfe39..b0c5e3970de03 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
-@@ -1104,6 +1126,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-   network_context_params->block_trust_tokens =
-       anti_abuse_content_setting == CONTENT_SETTING_BLOCK;
- 
-+  if (!cef::IsAlloyRuntimeEnabled()) {
+@@ -1107,6 +1126,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->first_party_sets_access_delegate_params =
        network::mojom::FirstPartySetsAccessDelegateParams::New();
    network_context_params->first_party_sets_access_delegate_params->enabled =
-@@ -1120,6 +1143,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
-           GetForBrowserContext(profile_);
-   DCHECK(fps_service);
-   fps_service->AddRemoteAccessDelegate(std::move(fps_access_delegate_remote));
-+  }
++      cef::IsAlloyRuntimeEnabled() ? false :
+       PrivacySandboxSettingsFactory::GetForProfile(profile_)
+           ->AreRelatedWebsiteSetsEnabled();
  
-   network_context_params->acam_preflight_spec_conformant =
-       profile_->GetPrefs()->GetBoolean(
 diff --git chrome/browser/net/profile_network_context_service_factory.cc chrome/browser/net/profile_network_context_service_factory.cc
-index 14ac2ce8b90c5..99297094beea2 100644
+index 14ac2ce8b90c5..66431eface762 100644
 --- chrome/browser/net/profile_network_context_service_factory.cc
 +++ chrome/browser/net/profile_network_context_service_factory.cc
 @@ -6,6 +6,7 @@
@@ -131,18 +130,16 @@ index 14ac2ce8b90c5..99297094beea2 100644
  #include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
  #include "chrome/browser/net/profile_network_context_service.h"
  #include "chrome/browser/privacy_sandbox/privacy_sandbox_settings_factory.h"
-@@ -53,9 +54,11 @@ ProfileNetworkContextServiceFactory::ProfileNetworkContextServiceFactory()
+@@ -53,7 +54,9 @@ ProfileNetworkContextServiceFactory::ProfileNetworkContextServiceFactory()
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    DependsOn(chromeos::CertificateProviderServiceFactory::GetInstance());
  #endif
 +  if (!cef::IsAlloyRuntimeEnabled()) {
    DependsOn(PrivacySandboxSettingsFactory::GetInstance());
++  }
    DependsOn(
        first_party_sets::FirstPartySetsPolicyServiceFactory::GetInstance());
-+  }
  }
- 
- ProfileNetworkContextServiceFactory::~ProfileNetworkContextServiceFactory() =
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
 index 77522f65b7b6e..51cc2d60d4b8d 100644
 --- chrome/browser/signin/identity_manager_factory.cc
