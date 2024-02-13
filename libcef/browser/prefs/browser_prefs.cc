@@ -20,7 +20,6 @@
 #include "base/values.h"
 #include "chrome/browser/accessibility/accessibility_ui.h"
 #include "chrome/browser/download/download_prefs.h"
-#include "chrome/browser/first_party_sets/first_party_sets_pref_names.h"
 #include "chrome/browser/media/router/discovery/access_code/access_code_cast_feature.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
@@ -345,11 +344,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                     base::Value(accept_language_list));
     }
     registry->RegisterListPref(prefs::kWebRtcLocalIpsAllowedUrls);
-
-    // First party sets preferences.
-    // Based on FirstPartySetsPolicyServiceFactory::RegisterProfilePrefs.
-    registry->RegisterDictionaryPref(
-        first_party_sets::kRelatedWebsiteSetsOverrides);
 
     // Always do this after all other profile prefs.
     RegisterProfilePrefs(registry.get());
