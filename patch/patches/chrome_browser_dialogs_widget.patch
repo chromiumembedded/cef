@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 9e07412327ce9..3ac78725eba18 100644
+index 9e07412327ce9..602fa387fddb4 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -106,9 +106,9 @@ index 9e07412327ce9..3ac78725eba18 100644
    gfx::NativeView parent_view =
        parent ? CurrentClient()->GetDialogHostView(parent) : nullptr;
 +  // Use with CEF windowless rendering.
-+  gfx::AcceleratedWidget parent_widget =
-+      parent ? gfx::kNullAcceleratedWidget :
-+               CurrentClient()->GetModalDialogHost(parent)->GetAcceleratedWidget();
++  gfx::AcceleratedWidget parent_widget = parent ?
++      CurrentClient()->GetModalDialogHost(parent)->GetAcceleratedWidget() :
++      gfx::kNullAcceleratedWidget;
    views::Widget* widget =
 -      views::DialogDelegate::CreateDialogWidget(dialog, nullptr, parent_view);
 +      views::DialogDelegate::CreateDialogWidget(dialog, nullptr, parent_view,
