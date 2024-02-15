@@ -433,10 +433,14 @@ typedef struct _cef_settings_t {
   ///
   /// Set to a value between 1024 and 65535 to enable remote debugging on the
   /// specified port. Also configurable using the "remote-debugging-port"
-  /// command-line switch. Remote debugging can be accessed by loading the
-  /// chrome://inspect page in Google Chrome. Port numbers 9222 and 9229 are
-  /// discoverable by default. Other port numbers may need to be configured via
-  /// "Discover network targets" on the Devices tab.
+  /// command-line switch. Specifying 0 via the command-line switch will result
+  /// in the selection of an ephemeral port and the port number will be printed
+  /// as part of the WebSocket endpoint URL to stderr. If a cache directory path
+  /// is provided the port will also be written to the
+  /// <cache-dir>/DevToolsActivePort file. Remote debugging can be accessed by
+  /// loading the chrome://inspect page in Google Chrome. Port numbers 9222 and
+  /// 9229 are discoverable by default. Other port numbers may need to be
+  /// configured via "Discover network targets" on the Devices tab.
   ///
   int remote_debugging_port;
 
