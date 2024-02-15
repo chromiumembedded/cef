@@ -8,7 +8,9 @@
 #include <utility>
 
 #include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
@@ -62,8 +64,23 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
 javascript_dialogs::TabModalDialogManager* GetTabModalDialogManager(
     content::WebContents* web_contents) {
-  return javascript_dialogs::TabModalDialogManager::FromWebContents(
-      web_contents);
+  if (auto* manager =
+          javascript_dialogs::TabModalDialogManager::FromWebContents(
+              web_contents)) {
+    return manager;
+  }
+
+  // Try the owner WebContents if the dialog originates from a guest view such
+  // as the PDF viewer or Print Preview.
+  if (extensions::ExtensionsEnabled()) {
+    if (auto* owner_contents =
+            extensions::GetOwnerForGuestContents(web_contents)) {
+      return javascript_dialogs::TabModalDialogManager::FromWebContents(
+          owner_contents);
+    }
+  }
+
+  return nullptr;
 }
 
 }  // namespace
@@ -152,6 +169,12 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
   }
 
   auto manager = GetTabModalDialogManager(web_contents);
+  if (!manager) {
+    // Dismiss the dialog.
+    std::move(callback).Run(false, std::u16string());
+    return;
+  }
+
   manager->RunJavaScriptDialog(web_contents, render_frame_host, message_type,
                                message_text, default_prompt_text,
                                std::move(callback), did_suppress_message);
@@ -219,6 +242,12 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
   }
 
   auto manager = GetTabModalDialogManager(web_contents);
+  if (!manager) {
+    // Accept the unload without showing the prompt.
+    std::move(callback).Run(true, std::u16string());
+    return;
+  }
+
   manager->RunBeforeUnloadDialog(web_contents, render_frame_host, is_reload,
                                  std::move(callback));
 }
@@ -243,6 +272,10 @@ bool CefJavaScriptDialogManager::HandleJavaScriptDialog(
   }
 
   auto manager = GetTabModalDialogManager(web_contents);
+  if (!manager) {
+    return true;
+  }
+
   return manager->HandleJavaScriptDialog(web_contents, accept, prompt_override);
 }
 
@@ -272,6 +305,10 @@ void CefJavaScriptDialogManager::CancelDialogs(
   }
 
   auto manager = GetTabModalDialogManager(web_contents);
+  if (!manager) {
+    return;
+  }
+
   manager->CancelDialogs(web_contents, reset_state);
 }
 
