@@ -56,6 +56,12 @@ run but any related functionality may become broken or disabled.
   is recommended instead of relying on the possibly old and untested system
   installed version.
 
+* DirectX compiler support (x64 only).
+  * dxil.dll
+  * dxcompiler.dll
+  Support for DirectX rendering of WebGPU. Without these files the
+  aforementioned capabilities may fail.
+
 * ANGLE support.
   * libEGL.dll
   * libGLESv2.dll
