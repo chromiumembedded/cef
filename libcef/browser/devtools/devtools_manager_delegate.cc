@@ -70,29 +70,28 @@ class TCPServerSocketFactory : public content::DevToolsSocketFactory {
 std::unique_ptr<content::DevToolsSocketFactory> CreateSocketFactory() {
   const base::CommandLine& command_line =
       *base::CommandLine::ForCurrentProcess();
-  // See if the user specified a port on the command line. Specifying 0
-  // results in the selection of an ephemeral port, the port number will
-  // be printed as part of WebSocket endpoit URL to stderr.
-  // If the cache directory path is provided, the port will be also written
-  // into <cache-dir>/DevToolsActivePort file.
-  //
-  // It's not allowed to bind ports between 0 and 1024 exclusive because
-  // they're normally restricted to root on Posix-based systems.
+  // See if the user specified a port on the command line. Specifying 0 would
+  // result in the selection of an ephemeral port but that doesn't make sense
+  // for CEF where the URL is otherwise undiscoverable. Also, don't allow
+  // binding of ports between 0 and 1024 exclusive because they're normally
+  // restricted to root on Posix-based systems.
+  uint16_t port = 0;
   if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
-    int port = 0;
+    int temp_port;
     std::string port_str =
         command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
-
-    if (base::StringToInt(port_str, &port) &&
-        (0 == port || (port >= 1024 && port < 65535))) {
-      return std::unique_ptr<content::DevToolsSocketFactory>(
-          new TCPServerSocketFactory("127.0.0.1", port));
+    if (base::StringToInt(port_str, &temp_port) && temp_port >= 1024 &&
+        temp_port < 65535) {
+      port = static_cast<uint16_t>(temp_port);
     } else {
-      DLOG(WARNING) << "Invalid http debugger port number '" << port_str << "'";
+      DLOG(WARNING) << "Invalid http debugger port number " << temp_port;
     }
   }
-
-  return nullptr;
+  if (port == 0) {
+    return nullptr;
+  }
+  return std::unique_ptr<content::DevToolsSocketFactory>(
+      new TCPServerSocketFactory("127.0.0.1", port));
 }
 
 }  //  namespace
