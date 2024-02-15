@@ -554,6 +554,13 @@ if(OS_WINDOWS)
     vulkan-1.dll
     )
 
+  if(PROJECT_ARCH STREQUAL "x86_64")
+    list(APPEND CEF_BINARY_FILES
+      dxil.dll
+      dxcompiler.dll
+      )
+  endif()
+
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
     chrome_100_percent.pak
