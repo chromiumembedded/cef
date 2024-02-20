@@ -976,6 +976,20 @@ void CefBrowserHostBase::GetFrameNames(std::vector<CefString>& names) {
   }
 }
 
+void CefBrowserHostBase::SetAccessibilityState(
+    cef_state_t accessibility_state) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&CefBrowserHostBase::SetAccessibilityState,
+                                 this, accessibility_state));
+    return;
+  }
+
+  if (platform_delegate_) {
+    platform_delegate_->SetAccessibilityState(accessibility_state);
+  }
+}
+
 void CefBrowserHostBase::OnStateChanged(CefBrowserContentsState state_changed) {
   // Make sure that CefBrowser state is consistent before the associated
   // CefClient callback is executed.
