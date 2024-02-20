@@ -10,6 +10,7 @@
 #include "base/logging.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/shell_integration.h"
+#include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
@@ -409,7 +410,27 @@ void CefBrowserPlatformDelegate::SetAutoResizeEnabled(bool enabled,
 
 void CefBrowserPlatformDelegate::SetAccessibilityState(
     cef_state_t accessibility_state) {
-  NOTIMPLEMENTED();
+  // Do nothing if state is set to default. It'll be disabled by default and
+  // controlled by the command-line flags "force-renderer-accessibility" and
+  // "disable-renderer-accessibility".
+  if (accessibility_state == STATE_DEFAULT) {
+    return;
+  }
+
+  content::WebContentsImpl* web_contents_impl =
+      static_cast<content::WebContentsImpl*>(web_contents_);
+
+  if (!web_contents_impl) {
+    return;
+  }
+
+  ui::AXMode accMode;
+  // In windowless mode set accessibility to TreeOnly mode. Else native
+  // accessibility APIs, specific to each platform, are also created.
+  if (accessibility_state == STATE_ENABLED) {
+    accMode = IsWindowless() ? ui::kAXModeWebContentsOnly : ui::kAXModeComplete;
+  }
+  web_contents_impl->SetAccessibilityMode(accMode);
 }
 
 bool CefBrowserPlatformDelegate::IsPrintPreviewSupported() const {

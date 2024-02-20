@@ -26,7 +26,6 @@
 #include "components/permissions/permission_request_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "extensions/browser/process_manager.h"
 #include "pdf/pdf_features.h"
@@ -311,31 +310,6 @@ void CefBrowserPlatformDelegateAlloy::ConfigureAutoResize() {
   } else {
     web_contents_->GetRenderWidgetHostView()->DisableAutoResize(gfx::Size());
   }
-}
-
-void CefBrowserPlatformDelegateAlloy::SetAccessibilityState(
-    cef_state_t accessibility_state) {
-  // Do nothing if state is set to default. It'll be disabled by default and
-  // controlled by the commmand-line flags "force-renderer-accessibility" and
-  // "disable-renderer-accessibility".
-  if (accessibility_state == STATE_DEFAULT) {
-    return;
-  }
-
-  content::WebContentsImpl* web_contents_impl =
-      static_cast<content::WebContentsImpl*>(web_contents_);
-
-  if (!web_contents_impl) {
-    return;
-  }
-
-  ui::AXMode accMode;
-  // In windowless mode set accessibility to TreeOnly mode. Else native
-  // accessibility APIs, specific to each platform, are also created.
-  if (accessibility_state == STATE_ENABLED) {
-    accMode = IsWindowless() ? ui::kAXModeWebContentsOnly : ui::kAXModeComplete;
-  }
-  web_contents_impl->SetAccessibilityMode(accMode);
 }
 
 bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {

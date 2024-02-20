@@ -104,7 +104,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
-  void SetAccessibilityState(cef_state_t accessibility_state) override;
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;

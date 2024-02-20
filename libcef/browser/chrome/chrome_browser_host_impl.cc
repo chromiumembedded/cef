@@ -369,11 +369,6 @@ bool ChromeBrowserHostImpl::IsAudioMuted() {
   return false;
 }
 
-void ChromeBrowserHostImpl::SetAccessibilityState(
-    cef_state_t accessibility_state) {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
                                                  const CefSize& min_size,
                                                  const CefSize& max_size) {

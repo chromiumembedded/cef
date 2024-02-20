@@ -368,20 +368,6 @@ bool AlloyBrowserHostImpl::HasDevTools() {
   return devtools_manager_->HasDevTools();
 }
 
-void AlloyBrowserHostImpl::SetAccessibilityState(
-    cef_state_t accessibility_state) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&AlloyBrowserHostImpl::SetAccessibilityState,
-                                 this, accessibility_state));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->SetAccessibilityState(accessibility_state);
-  }
-}
-
 void AlloyBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
                                                 const CefSize& min_size,
                                                 const CefSize& max_size) {
