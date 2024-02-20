@@ -54,7 +54,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;
-  void SetAccessibilityState(cef_state_t accessibility_state) override;
   bool IsPrintPreviewSupported() const override;
   void Find(const CefString& searchText,
             bool forward,
