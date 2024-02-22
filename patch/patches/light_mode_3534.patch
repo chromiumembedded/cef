@@ -32,7 +32,7 @@ index 6b9d2c180c904..3570ef071ba07 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index be2f769afe2d1..51bcf353b8797 100644
+index b9feac1c87c51..f424127723c1a 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
 @@ -50,6 +50,13 @@ bool InvertedColors() {
@@ -49,7 +49,7 @@ index be2f769afe2d1..51bcf353b8797 100644
  }  // namespace
  
  // Helper object to respond to light mode/dark mode changeovers.
-@@ -594,11 +601,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -577,11 +584,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -68,10 +68,10 @@ index be2f769afe2d1..51bcf353b8797 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 6af4df92820d5..c2ae96510d011 100644
+index 50647269ec84f..c947bd2717d04 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -653,14 +653,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -662,14 +662,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -91,7 +91,7 @@ index 6af4df92820d5..c2ae96510d011 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1651,8 +1654,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1660,8 +1663,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

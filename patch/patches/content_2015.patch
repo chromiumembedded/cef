@@ -12,10 +12,10 @@ index b7430b7d7027f..721144dde86d8 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 5da07b9eff248..72fc63ba456c5 100644
+index ce2f6dd6cf971..f97e9f4b1acb3 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -751,6 +751,22 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
+@@ -757,6 +757,22 @@ NavigationURLLoaderImpl::PrepareForNonInterceptedRequest() {
                : nullptr,
            &loader_factory);
  
