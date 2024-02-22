@@ -145,7 +145,7 @@ void CefHostDisplayClientOSR::CreateLayeredWindowUpdater(
   layered_window_updater_->SetActive(active_);
 }
 
-#if BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(IS_OZONE_X11)
 void CefHostDisplayClientOSR::DidCompleteSwapWithNewSize(
     const gfx::Size& size) {}
 #endif

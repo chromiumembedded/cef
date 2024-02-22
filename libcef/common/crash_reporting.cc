@@ -192,13 +192,7 @@ bool SetCrashKeyValue(const base::StringPiece& key,
 #if BUILDFLAG(IS_POSIX)
 // Be aware that logging is not initialized at the time this method is called.
 void BasicStartupComplete(base::CommandLine* command_line) {
-  CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
-  if (crash_client->ReadCrashConfigFile()) {
-#if !BUILDFLAG(IS_MAC)
-    // Crashpad requires this switch on Linux.
-    command_line->AppendSwitch(switches::kEnableCrashpad);
-#endif
-  }
+  g_crash_reporter_client.Pointer()->ReadCrashConfigFile();
 }
 #endif
 
@@ -227,12 +221,6 @@ void PreSandboxStartup(const base::CommandLine& command_line,
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
 void ZygoteForked(base::CommandLine* command_line,
                   const std::string& process_type) {
-  CefCrashReporterClient* crash_client = g_crash_reporter_client.Pointer();
-  if (crash_client->HasCrashConfigFile()) {
-    // Crashpad requires this switch on Linux.
-    command_line->AppendSwitch(switches::kEnableCrashpad);
-  }
-
   InitCrashReporter(*command_line, process_type);
 
   if (g_crash_reporting_enabled) {

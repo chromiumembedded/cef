@@ -44,6 +44,8 @@ cef_dom_form_control_type_t GetCefFormControlType(FormControlType type) {
       return DOM_FORM_CONTROL_TYPE_BUTTON_RESET;
     case FormControlType::kButtonSelectList:
       return DOM_FORM_CONTROL_TYPE_BUTTON_SELECT_LIST;
+    case FormControlType::kButtonPopover:
+      return DOM_FORM_CONTROL_TYPE_BUTTON_POPOVER;
     case FormControlType::kFieldset:
       return DOM_FORM_CONTROL_TYPE_FIELDSET;
     case FormControlType::kInputButton:

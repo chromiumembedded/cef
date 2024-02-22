@@ -488,17 +488,17 @@ void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
   DCHECK(false);
 }
 
-blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockMouse(
+blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::LockPointer(
     bool request_unadjusted_movement) {
   return blink::mojom::PointerLockResult::kPermissionDenied;
 }
 
-blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::ChangeMouseLock(
+blink::mojom::PointerLockResult CefRenderWidgetHostViewOSR::ChangePointerLock(
     bool request_unadjusted_movement) {
   return blink::mojom::PointerLockResult::kPermissionDenied;
 }
 
-void CefRenderWidgetHostViewOSR::UnlockMouse() {}
+void CefRenderWidgetHostViewOSR::UnlockPointer() {}
 
 void CefRenderWidgetHostViewOSR::TakeFallbackContentFrom(
     content::RenderWidgetHostView* view) {
@@ -1548,6 +1548,10 @@ void CefRenderWidgetHostViewOSR::ShowSharePicker(
     const std::vector<std::string>& file_paths,
     blink::mojom::ShareService::ShareCallback callback) {
   std::move(callback).Run(blink::mojom::ShareError::INTERNAL_ERROR);
+}
+
+uint64_t CefRenderWidgetHostViewOSR::GetNSViewId() const {
+  return 0;
 }
 #endif  // BUILDFLAG(IS_MAC)
 

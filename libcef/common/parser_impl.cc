@@ -133,9 +133,7 @@ CefString CefBase64Encode(const void* data, size_t data_size) {
   }
 
   base::StringPiece input(static_cast<const char*>(data), data_size);
-  std::string output;
-  base::Base64Encode(input, &output);
-  return output;
+  return base::Base64Encode(input);
 }
 
 CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {

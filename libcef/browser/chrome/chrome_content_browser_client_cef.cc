@@ -226,7 +226,7 @@ void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
   web_contents->SetPageBaseBackgroundColor(base_background_color);
 }
 
-bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
+void ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     int render_process_id,
@@ -234,7 +234,7 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     const url::Origin& request_initiator,
     std::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
-    mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
+    network::URLLoaderFactoryBuilder& factory_builder,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,
     bool* bypass_redirect_checks,
@@ -246,15 +246,16 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   // profiles::CreateSystemProfileForUserManager.
   auto profile = Profile::FromBrowserContext(browser_context);
   if (!CefBrowserContext::FromProfile(profile)) {
-    return ChromeContentBrowserClient::WillCreateURLLoaderFactory(
+    ChromeContentBrowserClient::WillCreateURLLoaderFactory(
         browser_context, frame, render_process_id, type, request_initiator,
-        navigation_id, ukm_source_id, factory_receiver, header_client,
+        navigation_id, ukm_source_id, factory_builder, header_client,
         bypass_redirect_checks, disable_secure_dns, factory_override,
         navigation_response_task_runner);
+    return;
   }
 
   // Based on content/browser/devtools/devtools_instrumentation.cc
-  // WillCreateURLLoaderFactoryInternal.
+  // WillCreateURLLoaderFactoryParams::Run.
   network::mojom::URLLoaderFactoryOverridePtr cef_override(
       network::mojom::URLLoaderFactoryOverride::New());
   // If caller passed some existing overrides, use those.
@@ -276,32 +277,31 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   }
 
   // TODO(chrome): Is it necessary to proxy |header_client| callbacks?
-  bool use_proxy = ChromeContentBrowserClient::WillCreateURLLoaderFactory(
+  ChromeContentBrowserClient::WillCreateURLLoaderFactory(
       browser_context, frame, render_process_id, type, request_initiator,
-      navigation_id, ukm_source_id,
-      &(intercepting_factory->overridden_factory_receiver),
+      navigation_id, ukm_source_id, factory_builder,
       /*header_client=*/nullptr, bypass_redirect_checks, disable_secure_dns,
       handler_override, navigation_response_task_runner);
 
-  if (use_proxy) {
-    DCHECK(intercepting_factory->overriding_factory);
-    DCHECK(intercepting_factory->overridden_factory_receiver);
-    if (!factory_override) {
-      // Not a subresource navigation, so just override the target receiver.
-      mojo::FusePipes(std::move(*factory_receiver),
-                      std::move(cef_override->overriding_factory));
-      *factory_receiver = std::move(cef_override->overridden_factory_receiver);
-    } else if (!*factory_override) {
-      // No other overrides, so just returns ours as is.
-      *factory_override = network::mojom::URLLoaderFactoryOverride::New(
-          std::move(cef_override->overriding_factory),
-          std::move(cef_override->overridden_factory_receiver), false);
-    }
-    // ... else things are already taken care of, as handler_override was
-    // pointing to factory override and we've done all magic in-place.
-    DCHECK(!cef_override->overriding_factory);
-    DCHECK(!cef_override->overridden_factory_receiver);
+  DCHECK(intercepting_factory->overriding_factory);
+  DCHECK(intercepting_factory->overridden_factory_receiver);
+  if (!factory_override) {
+    // Not a subresource navigation, so just override the target receiver.
+    auto [receiver, remote] = factory_builder.Append();
+    mojo::FusePipes(std::move(receiver),
+                    std::move(cef_override->overriding_factory));
+    mojo::FusePipes(std::move(cef_override->overridden_factory_receiver),
+                    std::move(remote));
+  } else if (!*factory_override) {
+    // No other overrides, so just returns ours as is.
+    *factory_override = network::mojom::URLLoaderFactoryOverride::New(
+        std::move(cef_override->overriding_factory),
+        std::move(cef_override->overridden_factory_receiver), false);
   }
+  // ... else things are already taken care of, as handler_override was
+  // pointing to factory override and we've done all magic in-place.
+  DCHECK(!cef_override->overriding_factory);
+  DCHECK(!cef_override->overridden_factory_receiver);
 
   auto request_handler = net_service::CreateInterceptedRequestHandler(
       browser_context, frame, render_process_id,
@@ -309,10 +309,8 @@ bool ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
       type == URLLoaderFactoryType::kDownload, request_initiator);
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
-      browser_context, factory_receiver, header_client,
+      browser_context, factory_builder, header_client,
       std::move(request_handler));
-
-  return true;
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(

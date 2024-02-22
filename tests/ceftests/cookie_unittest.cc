@@ -2022,6 +2022,11 @@ class CookieRestartTestHandler : public RoutingTestHandler,
                      CefRefPtr<CefRequest> request,
                      const CefCookie& cookie) override {
     EXPECT_IO_THREAD();
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url)) {
+      return true;
+    }
+
     can_send_cookie_ct_++;
 
     // Called before the URL2 network requests.
@@ -2036,6 +2041,11 @@ class CookieRestartTestHandler : public RoutingTestHandler,
                      CefRefPtr<CefResponse> response,
                      const CefCookie& cookie) override {
     EXPECT_IO_THREAD();
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url)) {
+      return true;
+    }
+
     can_save_cookie_ct_++;
 
     // Called after the successful URL1 network request.
@@ -2054,9 +2064,12 @@ class CookieRestartTestHandler : public RoutingTestHandler,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
-    before_resource_load_ct_++;
-
     const std::string& url = request->GetURL();
+    if (IgnoreURL(url)) {
+      return RV_CONTINUE;
+    }
+
+    before_resource_load_ct_++;
 
     if (before_resource_load_ct_ <= 2) {
       EXPECT_STREQ(GetCookieAccessUrl1(scheme_, true).c_str(), url.c_str());
@@ -2086,9 +2099,13 @@ class CookieRestartTestHandler : public RoutingTestHandler,
                           CefRefPtr<CefRequest> request,
                           CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url)) {
+      return false;
+    }
+
     resource_response_ct_++;
 
-    const std::string& url = request->GetURL();
     const std::string& set_cookie_str = response->GetHeaderByName("Set-Cookie");
 
     // Expect the network cookie with URL1 requests only.

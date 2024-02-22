@@ -1,8 +1,8 @@
 diff --git sandbox/win/src/sandbox_policy.h sandbox/win/src/sandbox_policy.h
-index 57409176ff044..58bb027580bbb 100644
+index a2d801b370b01..b56de03637fec 100644
 --- sandbox/win/src/sandbox_policy.h
 +++ sandbox/win/src/sandbox_policy.h
-@@ -275,7 +275,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
+@@ -285,7 +285,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
    // Adds a blob of data that will be made available in the child early in
    // startup via sandbox::GetDelegateData(). The contents of this data should
    // not vary between children with the same TargetConfig().
@@ -12,10 +12,10 @@ index 57409176ff044..58bb027580bbb 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 1d5c93a0792b1..46600d1ae70cc 100644
+index 58f55c1398047..f980f67de4f9b 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
-@@ -189,12 +189,12 @@ PolicyGlobal* ConfigBase::policy() {
+@@ -190,12 +190,12 @@ PolicyGlobal* ConfigBase::policy() {
    return policy_;
  }
  
@@ -31,8 +31,8 @@ index 1d5c93a0792b1..46600d1ae70cc 100644
    }
    return std::nullopt;
  }
-@@ -756,19 +756,19 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
-   return handle_closer->InitializeTargetHandles(target);
+@@ -774,14 +774,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
+   return (SBOX_ALL_OK == rc);
  }
  
 -std::optional<base::span<const uint8_t>> PolicyBase::delegate_data_span() {
@@ -48,17 +48,11 @@ index 1d5c93a0792b1..46600d1ae70cc 100644
    CHECK(data.size() > 0u);
    // Can only set this once - as there is only one region sent to the child.
    CHECK(!delegate_data_);
-   delegate_data_ =
--      std::make_unique<std::vector<const uint8_t>>(data.begin(), data.end());
-+      std::make_unique<std::vector<uint8_t>>(data.begin(), data.end());
- }
- 
- }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index 090d51f701614..fb2aedd4aa0ec 100644
+index 6b4a9ec20f348..058bca8674177 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
-@@ -116,7 +116,7 @@ class ConfigBase final : public TargetConfig {
+@@ -115,7 +115,7 @@ class ConfigBase final : public TargetConfig {
  
    // Should only be called once the object is configured.
    PolicyGlobal* policy();
@@ -67,7 +61,7 @@ index 090d51f701614..fb2aedd4aa0ec 100644
    std::vector<std::wstring>& blocklisted_dlls();
    AppContainerBase* app_container();
    IntegrityLevel integrity_level() { return integrity_level_; }
-@@ -176,7 +176,7 @@ class PolicyBase final : public TargetPolicy {
+@@ -170,7 +170,7 @@ class PolicyBase final : public TargetPolicy {
    ResultCode SetStdoutHandle(HANDLE handle) override;
    ResultCode SetStderrHandle(HANDLE handle) override;
    void AddHandleToShare(HANDLE handle) override;
@@ -76,7 +70,7 @@ index 090d51f701614..fb2aedd4aa0ec 100644
  
    // Creates a Job object with the level specified in a previous call to
    // SetJobLevel().
-@@ -238,13 +238,13 @@ class PolicyBase final : public TargetPolicy {
+@@ -232,13 +232,13 @@ class PolicyBase final : public TargetPolicy {
    // time.
  
    // Returns nullopt if no data has been set, or a view into the data.
@@ -87,7 +81,7 @@ index 090d51f701614..fb2aedd4aa0ec 100644
    HANDLE stdout_handle_;
    HANDLE stderr_handle_;
    // An opaque blob of data the delegate uses to prime any pre-sandbox hooks.
--  std::unique_ptr<std::vector<const uint8_t>> delegate_data_;
+-  std::unique_ptr<const std::vector<uint8_t>> delegate_data_;
 +  std::unique_ptr<std::vector<uint8_t>> delegate_data_;
  
    std::unique_ptr<Dispatcher> dispatcher_;

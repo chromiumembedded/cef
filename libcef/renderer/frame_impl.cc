@@ -37,6 +37,7 @@
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
 #include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink.h"
+#include "third_party/blink/public/platform/scheduler/web_agent_group_scheduler.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
@@ -63,6 +64,10 @@ constexpr auto kConnectionTimeout = base::Seconds(10);
 
 std::string GetDebugString(blink::WebLocalFrame* frame) {
   return "frame " + render_frame_util::GetIdentifier(frame);
+}
+
+v8::Isolate* GetFrameIsolate(blink::WebLocalFrame* frame) {
+  return frame->GetAgentGroupScheduler()->Isolate();
 }
 
 }  // namespace
@@ -233,7 +238,7 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (frame_) {
-    v8::Isolate* isolate = blink::MainThreadIsolate();
+    v8::Isolate* isolate = GetFrameIsolate(frame_);
     v8::HandleScope handle_scope(isolate);
     return new CefV8ContextImpl(isolate, frame_->MainWorldScriptContext());
   } else {
@@ -661,7 +666,7 @@ void CefFrameImpl::MaybeInitializeScriptContext() {
   // via DidCommitProvisionalLoad prior to https://crrev.com/5150754880a.
   // Otherwise, a script context may never be created for a frame that doesn't
   // contain JS code.
-  v8::HandleScope handle_scope(blink::MainThreadIsolate());
+  v8::HandleScope handle_scope(GetFrameIsolate(frame_));
   frame_->MainWorldScriptContext();
 }
 

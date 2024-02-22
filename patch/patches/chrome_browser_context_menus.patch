@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 5ebec17f77393..f94c18f8de78e 100644
+index 25f2e8f6c4f09..25c21e4552f8a 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -360,6 +360,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -27,7 +27,7 @@ index 5ebec17f77393..f94c18f8de78e 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -857,6 +868,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -863,6 +874,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
  
@@ -42,7 +42,7 @@ index 5ebec17f77393..f94c18f8de78e 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1331,6 +1350,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1337,6 +1356,12 @@ void RenderViewContextMenu::InitMenu() {
            autofill::PopupHidingReason::kContextMenuOpened);
      }
    }
@@ -55,7 +55,7 @@ index 5ebec17f77393..f94c18f8de78e 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3515,6 +3540,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3556,6 +3581,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -69,7 +69,7 @@ index 5ebec17f77393..f94c18f8de78e 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index d8f1b10c18771..00702b672353d 100644
+index e4041eee0e29e..7d5e3aa1d8cfb 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -159,6 +159,12 @@ class RenderViewContextMenu
@@ -110,7 +110,7 @@ index c88a77a0b49e2..785ded198741e 100644
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index ad4f00959e98b..54368373a6a99 100644
+index c49b49d76d7cc..842a6fae5d8e4 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
 @@ -374,6 +374,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
@@ -132,7 +132,7 @@ index ad4f00959e98b..54368373a6a99 100644
    command_executed_ = true;
    RecordUsedItem(id);
 diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
-index 6249528399f44..9c4dd0d8f0100 100644
+index 33de73c75ef8c..c0ef8b7f8ba07 100644
 --- components/renderer_context_menu/render_view_context_menu_base.h
 +++ components/renderer_context_menu/render_view_context_menu_base.h
 @@ -87,6 +87,9 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,

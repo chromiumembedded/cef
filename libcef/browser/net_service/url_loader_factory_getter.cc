@@ -35,54 +35,34 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   auto loader_factory = browser_context->GetDefaultStoragePartition()
                             ->GetURLLoaderFactoryForBrowserProcess();
 
-  mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote;
-  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-      proxy_factory_receiver;
+  network::URLLoaderFactoryBuilder factory_builder;
 
-  // Create an intermediate pipe that can be used to proxy the request's
-  // URLLoaderFactory.
-  mojo::PendingRemote<network::mojom::URLLoaderFactory>
-      maybe_proxy_factory_remote;
-  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-      maybe_proxy_factory_receiver =
-          maybe_proxy_factory_remote.InitWithNewPipeAndPassReceiver();
-
-  bool should_proxy = false;
   int render_process_id = -1;
 
   if (render_frame_host) {
     render_process_id = render_frame_host->GetProcess()->GetID();
 
     // Allow DevTools to potentially inject itself into the proxy pipe.
-    should_proxy =
-        content::devtools_instrumentation::WillCreateURLLoaderFactory(
-            static_cast<content::RenderFrameHostImpl*>(render_frame_host),
-            false /* is_navigation */, false /* is_download */,
-            &maybe_proxy_factory_receiver, nullptr /* factory_override */);
+    content::devtools_instrumentation::WillCreateURLLoaderFactoryParams::
+        ForFrame(static_cast<content::RenderFrameHostImpl*>(render_frame_host))
+            .Run(false /* is_navigation */, false /* is_download */,
+                 factory_builder, nullptr /* factory_override */);
   }
 
   auto browser_client = CefAppManager::Get()->GetContentClient()->browser();
 
   // Allow the Content embedder to inject itself if it wants to.
-  should_proxy |= browser_client->WillCreateURLLoaderFactory(
+  browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
       url::Origin(), absl::nullopt /* navigation_id */, ukm::SourceIdObj(),
-      &maybe_proxy_factory_receiver, nullptr /* header_client */,
+      factory_builder, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */,
       nullptr /* navigation_response_task_runner */);
 
-  // If anyone above indicated that they care about proxying, pass the
-  // intermediate pipe along to the URLLoaderFactoryGetter.
-  if (should_proxy) {
-    proxy_factory_remote = std::move(maybe_proxy_factory_remote);
-    proxy_factory_receiver = std::move(maybe_proxy_factory_receiver);
-  }
-
   return base::WrapRefCounted(new URLLoaderFactoryGetter(
-      loader_factory->Clone(), std::move(proxy_factory_remote),
-      std::move(proxy_factory_receiver)));
+      loader_factory->Clone(), std::move(factory_builder)));
 }
 
 // Based on CreateFactory from
@@ -104,25 +84,15 @@ URLLoaderFactoryGetter::GetURLLoaderFactory() {
   auto loader_factory =
       network::SharedURLLoaderFactory::Create(std::move(loader_factory_info_));
 
-  if (proxy_factory_receiver_.is_valid()) {
-    loader_factory->Clone(std::move(proxy_factory_receiver_));
-    lazy_factory_ =
-        base::MakeRefCounted<network::WrapperSharedURLLoaderFactory>(
-            std::move(proxy_factory_remote_));
-  } else {
-    lazy_factory_ = loader_factory;
-  }
+  lazy_factory_ = std::move(factory_builder_).Finish(loader_factory);
   return lazy_factory_;
 }
 
 URLLoaderFactoryGetter::URLLoaderFactoryGetter(
     std::unique_ptr<network::PendingSharedURLLoaderFactory> loader_factory_info,
-    mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote,
-    mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-        proxy_factory_receiver)
+    network::URLLoaderFactoryBuilder factory_builder)
     : loader_factory_info_(std::move(loader_factory_info)),
-      proxy_factory_remote_(std::move(proxy_factory_remote)),
-      proxy_factory_receiver_(std::move(proxy_factory_receiver)) {}
+      factory_builder_(std::move(factory_builder)) {}
 
 URLLoaderFactoryGetter::~URLLoaderFactoryGetter() = default;
 

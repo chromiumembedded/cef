@@ -133,11 +133,11 @@ class CefRenderWidgetHostViewOSR
   std::optional<content::DisplayFeature> GetDisplayFeature() override;
   void SetDisplayFeatureForTesting(
       const content::DisplayFeature* display_feature) override;
-  blink::mojom::PointerLockResult LockMouse(
+  blink::mojom::PointerLockResult LockPointer(
       bool request_unadjusted_movement) override;
-  blink::mojom::PointerLockResult ChangeMouseLock(
+  blink::mojom::PointerLockResult ChangePointerLock(
       bool request_unadjusted_movement) override;
-  void UnlockMouse() override;
+  void UnlockPointer() override;
   void TakeFallbackContentFrom(content::RenderWidgetHostView* view) override;
 
 #if BUILDFLAG(IS_MAC)
@@ -151,6 +151,7 @@ class CefRenderWidgetHostViewOSR
       const std::string& url,
       const std::vector<std::string>& file_paths,
       blink::mojom::ShareService::ShareCallback callback) override;
+  uint64_t GetNSViewId() const override;
 #endif  // BUILDFLAG(IS_MAC)
 
   // RenderWidgetHostViewBase implementation.

@@ -73,7 +73,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   gfx::Size GetMinimumSize() const override;
   gfx::Size GetMaximumSize() const override;
   int GetHeightForWidth(int w) const override;
-  void Layout() override;
+  void Layout(views::View::PassKey) override;
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
   void AddedToWidget() override;
@@ -163,8 +163,8 @@ CEF_VIEW_VIEW_T int CEF_VIEW_VIEW_D::GetHeightForWidth(int w) const {
   return result;
 }
 
-CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::Layout() {
-  ParentClass::Layout();
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::Layout(views::View::PassKey) {
+  ParentClass::template LayoutSuperclass<ParentClass>(this);
 
   // If Layout() did not provide a size then use the preferred size.
   if (ParentClass::size().IsEmpty()) {

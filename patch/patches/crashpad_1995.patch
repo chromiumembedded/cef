@@ -262,7 +262,7 @@ index a604df7a5ea6a..618fbde10a65c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 9ea9021f16006..cf187495ff3f0 100644
+index a18afed5b55c1..fabb36a299cd9 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -129,7 +129,8 @@ bool InitializeCrashpadImpl(bool initial_client,
@@ -276,7 +276,7 @@ index 9ea9021f16006..cf187495ff3f0 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index 99efa6b245b99..008eb397332c2 100644
+index dbe46081ebf43..8182c133e2934 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -287,7 +287,7 @@ index 99efa6b245b99..008eb397332c2 100644
  #include "sandbox/linux/services/namespace_sandbox.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -107,11 +108,10 @@ bool PlatformCrashpadInitialization(
+@@ -168,11 +169,10 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetCrashDumpLocation(database_path);
      crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
  
@@ -302,7 +302,7 @@ index 99efa6b245b99..008eb397332c2 100644
  
      // When --use-cros-crash-reporter is set (below), the handler passes dumps
      // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
-@@ -128,8 +128,8 @@ bool PlatformCrashpadInitialization(
+@@ -189,8 +189,8 @@ bool PlatformCrashpadInitialization(
                                                      &product_version, &channel);
  
      std::map<std::string, std::string> annotations;
@@ -313,7 +313,7 @@ index 99efa6b245b99..008eb397332c2 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
      // Empty means stable.
-@@ -146,7 +146,20 @@ bool PlatformCrashpadInitialization(
+@@ -207,7 +207,20 @@ bool PlatformCrashpadInitialization(
        annotations["channel"] = channel;
      }
  
@@ -335,7 +335,7 @@ index 99efa6b245b99..008eb397332c2 100644
  
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
      // "build_time_millis" is used on LaCros chrome to determine when to stop
-@@ -191,6 +204,12 @@ bool PlatformCrashpadInitialization(
+@@ -252,6 +265,12 @@ bool PlatformCrashpadInitialization(
      }
  #endif
  

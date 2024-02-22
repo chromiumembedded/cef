@@ -104,7 +104,7 @@ CEF_PANEL_IMPL_T CefRefPtr<CefLayout> CEF_PANEL_IMPL_D::GetLayout() {
 
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::Layout() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  return ParentClass::root_view()->Layout();
+  ParentClass::root_view()->DeprecatedLayoutImmediately();
 }
 
 CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(CefRefPtr<CefView> view) {

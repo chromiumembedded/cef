@@ -1,5 +1,5 @@
 diff --git chrome/browser/themes/theme_service.cc chrome/browser/themes/theme_service.cc
-index ae7735b2bee81..fc3ba3599db28 100644
+index 0b39e73c2a394..23b0bdcb7b7db 100644
 --- chrome/browser/themes/theme_service.cc
 +++ chrome/browser/themes/theme_service.cc
 @@ -30,6 +30,7 @@

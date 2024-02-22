@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index c00c41bc2c7fd..166b3e74fd3bd 100644
+index a989a351a8765..3f7af447dd187 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index c00c41bc2c7fd..166b3e74fd3bd 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1494,7 +1495,11 @@ component("base") {
+@@ -1507,7 +1508,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index c00c41bc2c7fd..166b3e74fd3bd 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1918,6 +1923,12 @@ component("base") {
+@@ -1936,6 +1941,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -58,12 +58,12 @@ index 4595034abae30..da29453cf7d71 100644
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
-index aa889f350e8f7..50acac8a69225 100644
+index b49701893a182..acefcbc5bc439 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
-@@ -10,8 +10,9 @@
+@@ -11,8 +11,9 @@
  #include "base/base_export.h"
- #include "base/strings/string_piece.h"
+ #include "base/containers/span.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  
@@ -73,12 +73,12 @@ index aa889f350e8f7..50acac8a69225 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 29626e5853c6e..2fb1c61504c5d 100644
+index 1891e95fa387d..fc190dc39ae7d 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
 @@ -14,7 +14,9 @@
+ #include "base/base_export.h"
  #include "base/containers/span.h"
- #include "base/strings/string_piece.h"
  #include "build/build_config.h"
 -#if BUILDFLAG(IS_NACL)
 +#include "cef/libcef/features/features.h"
@@ -88,7 +88,7 @@ index 29626e5853c6e..2fb1c61504c5d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index 00e901a3262ca..88ce372eb0a1a 100644
+index a24e93122172e..5084668cb93a7 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -17,8 +17,9 @@
@@ -112,7 +112,7 @@ index 00e901a3262ca..88ce372eb0a1a 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 6aae763d98715..7f55cb70e94d2 100644
+index 299e54300a09d..cdc43cc48dce6 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
 @@ -15,8 +15,12 @@
@@ -188,10 +188,10 @@ index da65502f75c3a..8b9d6eec4a1e2 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 0f1a2ec79aa4b..7f92778a4a776 100644
+index 3323cc7cbfee1..778b86dcd4154 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
-@@ -15,6 +15,7 @@
+@@ -17,6 +17,7 @@
  #include <utility>
  
  #include "base/check.h"
@@ -199,7 +199,7 @@ index 0f1a2ec79aa4b..7f92778a4a776 100644
  #include "base/no_destructor.h"
  #include "base/rand_util.h"
  #include "base/ranges/algorithm.h"
-@@ -22,8 +23,12 @@
+@@ -24,8 +25,12 @@
  #include "base/win/scoped_handle.h"
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
@@ -212,7 +212,7 @@ index 0f1a2ec79aa4b..7f92778a4a776 100644
  
  namespace base::win {
  
-@@ -124,6 +129,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -126,6 +131,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
    if (known_cap != known_capabilities->end()) {
      return FromKnownCapability(known_cap->second);
    }
@@ -220,7 +220,7 @@ index 0f1a2ec79aa4b..7f92778a4a776 100644
    CRYPTO_library_init();
    static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
                  SECURITY_APP_PACKAGE_RID_COUNT);
-@@ -136,6 +142,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -138,6 +144,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
           reinterpret_cast<uint8_t*>(&rids[2]));
    return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
                              rids);

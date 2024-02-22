@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 9bba6cea235e0..9dc5b40559207 100644
+index 2e67f8c97fab8..a3367979977c9 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -650,7 +650,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -666,7 +666,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,10 +14,10 @@ index 9bba6cea235e0..9dc5b40559207 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 28b166f4f499c..5892638bb43c8 100644
+index 2ec2a791c4943..8573cac4111d6 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -87,6 +87,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
+@@ -91,6 +91,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
  
  namespace {
  
@@ -25,7 +25,7 @@ index 28b166f4f499c..5892638bb43c8 100644
  const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
  const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
  const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -107,6 +108,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -111,6 +112,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
    if (*this == PrimaryID() ||
@@ -34,7 +34,7 @@ index 28b166f4f499c..5892638bb43c8 100644
        base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
                         base::CompareCase::SENSITIVE) ||
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
-@@ -144,6 +147,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -148,6 +151,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -84,10 +84,10 @@ index 4bf4b36f01890..b8a966db377db 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index c70593cc14b9d..df5ba6a9432da 100644
+index 669c8ab31a549..eff71491eacfd 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1020,7 +1020,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1036,7 +1036,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -99,10 +99,10 @@ index c70593cc14b9d..df5ba6a9432da 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index 2b7782afe7506..ed52e68ebdc91 100644
+index d6c0c3c9d5ad9..22bc9a7cf65f7 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -439,7 +439,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -438,7 +438,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    profile_manager_android_ = std::make_unique<ProfileManagerAndroid>(this);
  #endif
  

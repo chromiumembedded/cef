@@ -1,16 +1,16 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 67b7e7ca509e1..de84b8f7ecde9 100644
+index 7c7589a393254..573c11adc21c7 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -110,7 +110,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -115,7 +115,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      std::optional<blink::UserAgentMetadata>* override_out);
  
--bool WillCreateURLLoaderFactory(
-+CONTENT_EXPORT bool WillCreateURLLoaderFactory(
-     RenderFrameHostImpl* rfh,
-     bool is_navigation,
-     bool is_download,
+-class WillCreateURLLoaderFactoryParams final {
++class CONTENT_EXPORT WillCreateURLLoaderFactoryParams final {
+   STACK_ALLOCATED();
+ 
+  public:
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 index d69f9d4641613..e88aaf8617c52 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h

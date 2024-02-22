@@ -147,7 +147,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
   if (handler) {
-    v8::Isolate* isolate = blink::MainThreadIsolate();
+    v8::Isolate* isolate = context->GetIsolate();
     v8::HandleScope handle_scope(isolate);
     v8::Context::Scope scope(context);
     v8::MicrotasksScope microtasks_scope(isolate,
@@ -181,7 +181,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
   if (handler) {
-    v8::Isolate* isolate = blink::MainThreadIsolate();
+    v8::Isolate* isolate = context->GetIsolate();
     v8::HandleScope handle_scope(isolate);
 
     // The released context should not be used for script execution.

@@ -407,6 +407,17 @@ typedef enum {
   /// Content settings for access to printers for the Web Printing API.
   CEF_CONTENT_SETTING_TYPE_WEB_PRINTING,
 
+  /// Content setting used to indicate whether entering HTML Fullscreen
+  /// automatically (i.e. without transient activation) should be enabled.
+  CEF_CONTENT_SETTING_TYPE_AUTOMATIC_FULLSCREEN,
+
+  /// Content settings used to indicate that a web app is allowed to prompt the
+  /// user for the installation of sub apps.
+  CEF_CONTENT_SETTING_TYPE_SUB_APP_INSTALLATION_PROMPTS,
+
+  /// Whether an application can enumerate audio output device.
+  CEF_CONTENT_SETTING_TYPE_SPEAKER_SELECTION,
+
   CEF_CONTENT_SETTING_TYPE_NUM_TYPES,
 } cef_content_setting_types_t;
 

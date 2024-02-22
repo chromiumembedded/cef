@@ -205,9 +205,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
 
     bool encoded = !base::IsStringUTF8(chunk);
     if (encoded) {
-      std::string encoded_string;
-      base::Base64Encode(chunk, &encoded_string);
-      chunkValue = base::Value(std::move(encoded_string));
+      chunkValue = base::Value(base::Base64Encode(chunk));
     } else {
       chunkValue = base::Value(chunk);
     }

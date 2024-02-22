@@ -105,7 +105,7 @@ index 27af6ec08f593..6dfab7c74e8da 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index c2ecd1b63f0d7..c83704788a803 100644
+index 8824abb401188..687e667e4b942 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,11 +13,14 @@
@@ -123,7 +123,7 @@ index c2ecd1b63f0d7..c83704788a803 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
  #include "chrome/browser/policy/configuration_policy_handler_list_factory.h"
-@@ -79,6 +82,11 @@
+@@ -82,6 +85,11 @@
  namespace policy {
  namespace {
  bool g_command_line_enabled_for_testing = false;
@@ -135,7 +135,7 @@ index c2ecd1b63f0d7..c83704788a803 100644
  }  // namespace
  
  ChromeBrowserPolicyConnector::ChromeBrowserPolicyConnector()
-@@ -270,6 +278,73 @@ void ChromeBrowserPolicyConnector::EnableCommandLineSupportForTesting() {
+@@ -278,6 +286,73 @@ void ChromeBrowserPolicyConnector::EnableCommandLineSupportForTesting() {
    g_command_line_enabled_for_testing = true;
  }
  
@@ -209,7 +209,7 @@ index c2ecd1b63f0d7..c83704788a803 100644
  base::flat_set<std::string>
  ChromeBrowserPolicyConnector::device_affiliation_ids() const {
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -341,23 +416,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
+@@ -349,23 +424,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
  std::unique_ptr<ConfigurationPolicyProvider>
  ChromeBrowserPolicyConnector::CreatePlatformProvider() {
  #if BUILDFLAG(IS_WIN)
@@ -242,7 +242,7 @@ index c2ecd1b63f0d7..c83704788a803 100644
    auto loader = std::make_unique<PolicyLoaderMac>(
        base::ThreadPool::CreateSequencedTaskRunner(
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
-@@ -367,7 +441,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
+@@ -375,7 +449,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
                                                 std::move(loader));
  #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
    base::FilePath config_dir_path;
@@ -252,7 +252,7 @@ index c2ecd1b63f0d7..c83704788a803 100644
      // If the folder containing the policy files doesn't exist, there's no need
      // to have a provider for them. Note that in verified boot, the folder
 diff --git chrome/browser/policy/chrome_browser_policy_connector.h chrome/browser/policy/chrome_browser_policy_connector.h
-index f6147bc3c59a6..78b1170dd52bb 100644
+index 7d08b9b3a548e..c1acd530587a3 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.h
 +++ chrome/browser/policy/chrome_browser_policy_connector.h
 @@ -28,6 +28,10 @@
@@ -266,7 +266,7 @@ index f6147bc3c59a6..78b1170dd52bb 100644
  class PrefService;
  
  namespace policy {
-@@ -125,6 +129,25 @@ class ChromeBrowserPolicyConnector : public BrowserPolicyConnector {
+@@ -135,6 +139,25 @@ class ChromeBrowserPolicyConnector : public BrowserPolicyConnector {
  
    static void EnableCommandLineSupportForTesting();
  
@@ -355,10 +355,10 @@ index 8dbf958c189dd..6eaccc6688eca 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 94843ce782e80..0e3cc5bdb0bd5 100644
+index 54aca1f19f909..f93197a133dc2 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -539,7 +539,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -544,7 +544,8 @@ bool PathProvider(int key, base::FilePath* result) {
          return false;
        }
        break;

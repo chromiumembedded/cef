@@ -264,9 +264,9 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     // Nothing to do here.
   }
 
-  void Layout() override {
+  void Layout(views::View::PassKey) override {
     client_view_bounds_.SetRect(0, 0, width(), height());
-    views::NonClientFrameView::Layout();
+    LayoutSuperclass<views::NonClientFrameView>(this);
   }
 
   gfx::Size CalculatePreferredSize() const override {

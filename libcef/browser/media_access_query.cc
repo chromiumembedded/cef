@@ -131,18 +131,24 @@ class CefMediaAccessQuery {
     blink::MediaStreamDevices audio_devices;
     blink::MediaStreamDevices video_devices;
 
-    if (device_audio_requested()) {
+    if (device_audio_requested() &&
+        !request_.requested_audio_device_ids.empty() &&
+        !request_.requested_audio_device_ids.front().empty()) {
       // Pick the desired device or fall back to the first available of the
       // given type.
       CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request_.requested_audio_device_id, true, false, &audio_devices);
+          request_.requested_audio_device_ids.front(), true, false,
+          &audio_devices);
     }
 
-    if (device_video_requested()) {
+    if (device_video_requested() &&
+        !request_.requested_video_device_ids.empty() &&
+        !request_.requested_video_device_ids.front().empty()) {
       // Pick the desired device or fall back to the first available of the
       // given type.
       CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request_.requested_video_device_id, false, true, &video_devices);
+          request_.requested_video_device_ids.front(), false, true,
+          &video_devices);
     }
 
     if (desktop_audio_requested()) {
@@ -152,13 +158,14 @@ class CefMediaAccessQuery {
 
     if (desktop_video_requested()) {
       content::DesktopMediaID media_id;
-      if (request_.requested_video_device_id.empty()) {
+      if (!request_.requested_video_device_ids.empty() &&
+          !request_.requested_video_device_ids.front().empty()) {
+        media_id = content::DesktopMediaID::Parse(
+            request_.requested_video_device_ids.front());
+      } else {
         media_id =
             content::DesktopMediaID(content::DesktopMediaID::TYPE_SCREEN,
                                     -1 /* webrtc::kFullDesktopScreenId */);
-      } else {
-        media_id =
-            content::DesktopMediaID::Parse(request_.requested_video_device_id);
       }
       video_devices.emplace_back(request_.video_type, media_id.ToString(),
                                  "Screen");

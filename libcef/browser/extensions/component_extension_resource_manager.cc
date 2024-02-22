@@ -61,7 +61,7 @@ bool CefComponentExtensionResourceManager::IsComponentExtensionResource(
 
 const ui::TemplateReplacements*
 CefComponentExtensionResourceManager::GetTemplateReplacementsForExtension(
-    const std::string& extension_id) const {
+    const ExtensionId& extension_id) const {
   auto it = template_replacements_.find(extension_id);
   return it != template_replacements_.end() ? &it->second : nullptr;
 }

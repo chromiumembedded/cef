@@ -9,6 +9,7 @@
 
 #include "base/files/file_path.h"
 #include "extensions/browser/component_extension_resource_manager.h"
+#include "extensions/common/extension_id.h"
 
 namespace webui {
 struct ResourcePath;
@@ -33,7 +34,7 @@ class CefComponentExtensionResourceManager
                                     const base::FilePath& resource_path,
                                     int* resource_id) const override;
   const ui::TemplateReplacements* GetTemplateReplacementsForExtension(
-      const std::string& extension_id) const override;
+      const ExtensionId& extension_id) const override;
 
  private:
   void AddComponentResourceEntries(const webui::ResourcePath* entries,
@@ -45,7 +46,7 @@ class CefComponentExtensionResourceManager
 
   // A map from an extension ID to its i18n template replacements.
   using TemplateReplacementMap =
-      std::map<std::string, ui::TemplateReplacements>;
+      std::map<ExtensionId, ui::TemplateReplacements>;
   TemplateReplacementMap template_replacements_;
 };
 

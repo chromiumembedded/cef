@@ -90,7 +90,7 @@ index aebbccad2a503..2537281b0e872 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 0e6cd686e0b05..a26433ccb9307 100644
+index f39a56eefbaa7..cb5f7370f1510 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -46,6 +46,7 @@
@@ -101,7 +101,7 @@ index 0e6cd686e0b05..a26433ccb9307 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1335,6 +1336,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1339,6 +1340,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

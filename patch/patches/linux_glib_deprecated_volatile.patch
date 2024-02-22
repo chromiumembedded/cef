@@ -1,5 +1,5 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 181b77f7ca411..79461dc7690ae 100644
+index fc99800e70eb2..23d38bf15155f 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
 @@ -290,6 +290,10 @@ component("platform") {

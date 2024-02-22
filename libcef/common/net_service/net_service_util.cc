@@ -228,7 +228,7 @@ bool MakeCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie) {
   CefString(&cookie.value).FromString(cc.Value());
   CefString(&cookie.domain).FromString(cc.Domain());
   CefString(&cookie.path).FromString(cc.Path());
-  cookie.secure = cc.IsSecure();
+  cookie.secure = cc.SecureAttribute();
   cookie.httponly = cc.IsHttpOnly();
   cookie.creation = CefBaseTime(cc.CreationDate());
   cookie.last_access = CefBaseTime(cc.LastAccessDate());

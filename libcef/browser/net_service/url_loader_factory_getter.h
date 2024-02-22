@@ -9,6 +9,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/sequenced_task_runner_helpers.h"
+#include "services/network/public/cpp/url_loader_factory_builder.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
 namespace content {
@@ -52,19 +53,14 @@ class URLLoaderFactoryGetter
 
   URLLoaderFactoryGetter(std::unique_ptr<network::PendingSharedURLLoaderFactory>
                              loader_factory_info,
-                         mojo::PendingRemote<network::mojom::URLLoaderFactory>
-                             proxy_factory_remote,
-                         mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-                             proxy_factory_receiver);
+                         network::URLLoaderFactoryBuilder factory_builder);
   ~URLLoaderFactoryGetter();
 
   void DeleteOnCorrectThread() const;
 
   std::unique_ptr<network::PendingSharedURLLoaderFactory> loader_factory_info_;
   scoped_refptr<network::SharedURLLoaderFactory> lazy_factory_;
-  mojo::PendingRemote<network::mojom::URLLoaderFactory> proxy_factory_remote_;
-  mojo::PendingReceiver<network::mojom::URLLoaderFactory>
-      proxy_factory_receiver_;
+  network::URLLoaderFactoryBuilder factory_builder_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 };
 

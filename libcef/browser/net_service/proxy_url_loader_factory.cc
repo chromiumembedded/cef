@@ -1349,16 +1349,14 @@ void ProxyURLLoaderFactory::SetDisconnectCallback(
 // static
 void ProxyURLLoaderFactory::CreateProxy(
     content::BrowserContext* browser_context,
-    mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
+    network::URLLoaderFactoryBuilder& factory_builder,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,
     std::unique_ptr<InterceptedRequestHandler> request_handler) {
   CEF_REQUIRE_UIT();
   DCHECK(request_handler);
 
-  auto proxied_receiver = std::move(*factory_receiver);
-  mojo::PendingRemote<network::mojom::URLLoaderFactory> target_factory_remote;
-  *factory_receiver = target_factory_remote.InitWithNewPipeAndPassReceiver();
+  auto [factory_receiver, target_factory_remote] = factory_builder.Append();
 
   mojo::PendingReceiver<network::mojom::TrustedURLLoaderHeaderClient>
       header_client_receiver;
@@ -1373,7 +1371,7 @@ void ProxyURLLoaderFactory::CreateProxy(
   CEF_POST_TASK(
       CEF_IOT,
       base::BindOnce(
-          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(proxied_receiver),
+          &ProxyURLLoaderFactory::CreateOnIOThread, std::move(factory_receiver),
           std::move(target_factory_remote), std::move(header_client_receiver),
           base::Unretained(resource_context), std::move(request_handler)));
 }

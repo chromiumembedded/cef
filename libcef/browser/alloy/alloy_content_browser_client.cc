@@ -91,7 +91,7 @@
 #include "components/pdf/browser/pdf_document_helper.h"
 #include "components/pdf/browser/pdf_navigation_throttle.h"
 #include "components/pdf/browser/pdf_url_loader_request_interceptor.h"
-#include "components/pdf/common/internal_plugin_helpers.h"
+#include "components/pdf/common/constants.h"
 #include "components/policy/core/common/policy_pref_names.h"
 #include "components/spellcheck/common/spellcheck.mojom.h"
 #include "components/version_info/version_info.h"
@@ -118,7 +118,6 @@
 #include "extensions/browser/api/automation_internal/automation_event_router.h"
 #include "extensions/browser/api/mime_handler_private/mime_handler_private.h"
 #include "extensions/browser/event_router.h"
-#include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extension_web_contents_observer.h"
@@ -396,13 +395,6 @@ AlloyContentBrowserClient::CreateBrowserMainParts(
 void AlloyContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
-
-#if BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
-  if (extensions::ExtensionsEnabled()) {
-    host->AddFilter(
-        new extensions::ExtensionMessageFilter(host->GetID(), profile));
-  }
-#endif
 
   // If the renderer process crashes then the host may already have
   // CefBrowserInfoManager as an observer. Try to remove it first before adding
@@ -881,19 +873,6 @@ void AlloyContentBrowserClient::ExposeInterfacesToRenderer(
     associated_registry->AddInterface<extensions::mojom::RendererHost>(
         base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
                             render_process_host->GetID()));
-#if BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
-    associated_registry->AddInterface<extensions::mojom::EventRouter>(
-        base::BindRepeating(&extensions::EventRouter::BindForRenderer,
-                            host->GetID()));
-    associated_registry->AddInterface<extensions::mojom::ServiceWorkerHost>(
-        base::BindRepeating(&extensions::ServiceWorkerHost::BindReceiver,
-                            host->GetID()));
-    associated_registry
-        ->AddInterface<extensions::mojom::RendererAutomationRegistry>(
-            base::BindRepeating(
-                &extensions::AutomationEventRouter::BindForRenderer,
-                host->GetID()));
-#endif
   }
 }
 
@@ -910,7 +889,6 @@ void AlloyContentBrowserClient::
     associated_registry.AddInterface<extensions::mojom::RendererHost>(
         base::BindRepeating(&extensions::RendererStartupHelper::BindForRenderer,
                             service_worker_version_info.process_id));
-#if !BUILDFLAG(ENABLE_EXTENSIONS_LEGACY_IPC)
     associated_registry.AddInterface<extensions::mojom::ServiceWorkerHost>(
         base::BindRepeating(&extensions::ServiceWorkerHost::BindReceiver,
                             service_worker_version_info.process_id));
@@ -922,7 +900,6 @@ void AlloyContentBrowserClient::
     associated_registry.AddInterface<extensions::mojom::EventRouter>(
         base::BindRepeating(&extensions::EventRouter::BindForRenderer,
                             service_worker_version_info.process_id));
-#endif
   }
 }
 
@@ -1196,7 +1173,7 @@ void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
   }
 }
 
-bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
+void AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     content::BrowserContext* browser_context,
     content::RenderFrameHost* frame,
     int render_process_id,
@@ -1204,7 +1181,7 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
     const url::Origin& request_initiator,
     std::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
-    mojo::PendingReceiver<network::mojom::URLLoaderFactory>* factory_receiver,
+    network::URLLoaderFactoryBuilder& factory_builder,
     mojo::PendingRemote<network::mojom::TrustedURLLoaderHeaderClient>*
         header_client,
     bool* bypass_redirect_checks,
@@ -1217,9 +1194,8 @@ bool AlloyContentBrowserClient::WillCreateURLLoaderFactory(
       type == URLLoaderFactoryType::kDownload, request_initiator);
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
-      browser_context, factory_receiver, header_client,
+      browser_context, factory_builder, header_client,
       std::move(request_handler));
-  return true;
 }
 
 void AlloyContentBrowserClient::OnNetworkServiceCreated(

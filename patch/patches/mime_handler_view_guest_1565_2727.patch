@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 66c632b1818a6..fca4dcbb4a38b 100644
+index e0887cdb49c7c..d2bf0571793cf 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
-@@ -25,7 +25,7 @@ struct DropData;
+@@ -26,7 +26,7 @@ struct DropData;
  // The `WebContentsView` is an interface that is implemented by the platform-
  // dependent web contents views. The `WebContents` uses this interface to talk
  // to them.
@@ -12,10 +12,10 @@ index 66c632b1818a6..fca4dcbb4a38b 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 02f204564a67e..2500ebbc92cb3 100644
+index 39def4c0d8ad5..6e856ae9bcd96 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -202,6 +202,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -203,6 +203,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index 02f204564a67e..2500ebbc92cb3 100644
    std::move(callback).Run(std::move(owned_this),
                            WebContents::CreateWithSessionStorage(
                                params, owner_web_contents()
-@@ -210,6 +212,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -211,6 +213,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index 02f204564a67e..2500ebbc92cb3 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    GetController().LoadURL(stream_->handler_url(), content::Referrer(),
                            ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
-@@ -480,6 +486,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+@@ -481,6 +487,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
    }
  }
  
@@ -51,7 +51,7 @@ index 02f204564a67e..2500ebbc92cb3 100644
      mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
    if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index a5066da1a593c..880fc3c87e48f 100644
+index 5709e978f2d8e..c1f1720a31e1a 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 @@ -195,10 +195,12 @@ class MimeHandlerViewGuest

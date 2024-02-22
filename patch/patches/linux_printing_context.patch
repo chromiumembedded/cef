@@ -42,7 +42,7 @@ index 49f0ddab8318e..a3a9cd189fc2f 100644
    if (print_dialog_) {
      // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index 29db798e8b171..f8b9546b90321 100644
+index 3408b6200d17a..5d91e65a2b40f 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
 @@ -18,11 +18,29 @@ namespace ui {
@@ -76,12 +76,12 @@ index 29db798e8b171..f8b9546b90321 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 69f678a91012f..d518b476002b3 100644
+index b940382678ba7..c2fa9b7303e87 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
-@@ -19,6 +19,10 @@
+@@ -20,6 +20,10 @@
  #include "printing/buildflags/buildflags.h"
- #include "ui/gfx/geometry/rect.h"
+ #include "ui/display/types/display_config.h"
  
 +#if BUILDFLAG(ENABLE_PRINTING)
 +#include "printing/printing_context_linux.h"  // nogncheck
@@ -90,9 +90,9 @@ index 69f678a91012f..d518b476002b3 100644
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -92,9 +96,27 @@ inline DisplayConfig::DisplayConfig(DisplayConfig&& other) = default;
- inline DisplayConfig& DisplayConfig::operator=(DisplayConfig&& other) = default;
- inline DisplayConfig::~DisplayConfig() = default;
+@@ -62,9 +66,27 @@ class TextEditCommandAuraLinux;
+ class WindowButtonOrderObserver;
+ class WindowFrameProvider;
  
 +class COMPONENT_EXPORT(LINUX_UI) PrintingContextLinuxDelegate {
 + public:
@@ -119,7 +119,7 @@ index 69f678a91012f..d518b476002b3 100644
   public:
    // Describes the window management actions that could be taken in response to
    // a middle click in the non client area.
-@@ -161,14 +183,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+@@ -150,14 +172,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  
