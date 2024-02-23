@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=23302ef6e4458aa3e7065aeaca3421a6f0b58361$
+// $hash=018c4bb091afe852eb8f7b0dca9f67c5a614d322$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -184,6 +184,14 @@ typedef struct _cef_request_context_t {
   /// on the UI thread after completion.
   ///
   void(CEF_CALLBACK* clear_http_auth_credentials)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
+
+  ///
+  /// Clear all HTTP cache. If |callback| is non-NULL it will be executed on the
+  /// UI thread after completion.
+  ///
+  void(CEF_CALLBACK* clear_http_cache)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
 

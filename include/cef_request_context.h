@@ -202,6 +202,13 @@ class CefRequestContext : public CefPreferenceManager {
       CefRefPtr<CefCompletionCallback> callback) = 0;
 
   ///
+  /// Clear all HTTP cache. If |callback| is non-NULL it will be executed
+  /// on the UI thread after completion.
+  ///
+  /*--cef(optional_param=callback)--*/
+  virtual void ClearHttpCache(CefRefPtr<CefCompletionCallback> callback) = 0;
+
+  ///
   /// Clears all active and idle connections that Chromium currently has.
   /// This is only recommended if you have released all other CEF objects but
   /// don't yet want to call CefShutdown(). If |callback| is non-NULL it will be

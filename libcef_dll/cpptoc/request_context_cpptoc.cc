@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=713287303ab9bbb6db24d8aabb340766f5e69461$
+// $hash=11493fd5de7a41cf445b4b097aed089976f95c4a$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -281,6 +281,22 @@ void CEF_CALLBACK request_context_clear_http_auth_credentials(
 
   // Execute
   CefRequestContextCppToC::Get(self)->ClearHttpAuthCredentials(
+      CefCompletionCallbackCToCpp::Wrap(callback));
+}
+
+void CEF_CALLBACK
+request_context_clear_http_cache(struct _cef_request_context_t* self,
+                                 cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Unverified params: callback
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->ClearHttpCache(
       CefCompletionCallbackCToCpp::Wrap(callback));
 }
 
@@ -701,6 +717,7 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
       request_context_clear_certificate_exceptions;
   GetStruct()->clear_http_auth_credentials =
       request_context_clear_http_auth_credentials;
+  GetStruct()->clear_http_cache = request_context_clear_http_cache;
   GetStruct()->close_all_connections = request_context_close_all_connections;
   GetStruct()->resolve_host = request_context_resolve_host;
   GetStruct()->load_extension = request_context_load_extension;
