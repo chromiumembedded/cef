@@ -670,7 +670,7 @@ diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/me
 index c585f056973e2..02af08d23a9b9 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
-@@ -70,6 +70,7 @@
+@@ -70,6 +70,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
      MenuAnchorPosition anchor,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
@@ -707,7 +707,7 @@ diff --git ui/views/controls/menu/menu_runner_impl_mac.mm ui/views/controls/menu
 index 0fb98f56e84c8..1e332dc57b62f 100644
 --- ui/views/controls/menu/menu_runner_impl_mac.mm
 +++ ui/views/controls/menu/menu_runner_impl_mac.mm
-@@ -47,6 +47,7 @@
+@@ -47,6 +47,7 @@ void MenuRunnerImplMac::RunMenuAt(
      MenuAnchorPosition anchor,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
@@ -715,7 +715,7 @@ index 0fb98f56e84c8..1e332dc57b62f 100644
      absl::optional<gfx::RoundedCornersF> corners,
      absl::optional<std::string> show_menu_host_duration_histogram) {
    if (!implementation_) {
-@@ -59,8 +60,8 @@
+@@ -59,8 +60,8 @@ void MenuRunnerImplMac::RunMenuAt(
      }
    }
    implementation_->RunMenuAt(parent, button_controller, bounds, anchor,
@@ -742,7 +742,7 @@ diff --git ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm ui/views/cont
 index 92e105c78dec5..5a46ea93c5322 100644
 --- ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
-@@ -70,6 +70,7 @@
+@@ -70,6 +70,7 @@ void MenuRunnerImplRemoteCocoa::RunMenuAt(
      MenuAnchorPosition anchor,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
