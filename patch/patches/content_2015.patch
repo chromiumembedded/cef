@@ -39,10 +39,10 @@ index 6e7e22ee886fa..97d0184ceae99 100644
        factory = std::move(factory_builder).Finish(std::move(loader_factory));
      } else {
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 737dcbdee639d..1344e564a9d1f 100644
+index 6533ed7f83572..2b7e8791fc7ab 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -1071,7 +1071,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -1075,7 +1075,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -51,7 +51,7 @@ index 737dcbdee639d..1344e564a9d1f 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -1080,6 +1080,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -1084,6 +1084,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -60,7 +60,7 @@ index 737dcbdee639d..1344e564a9d1f 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 26999a1fa55c7..1c5fbd03212f1 100644
+index dd7ec4f73bd37..b059c32564b31 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -43,6 +43,7 @@
@@ -71,7 +71,7 @@ index 26999a1fa55c7..1c5fbd03212f1 100644
  #include "content/public/common/alternative_error_page_override_info.mojom-forward.h"
  #include "content/public/common/page_visibility_state.h"
  #include "content/public/common/window_container_type.mojom-forward.h"
-@@ -2018,7 +2019,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2024,7 +2025,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -80,7 +80,7 @@ index 26999a1fa55c7..1c5fbd03212f1 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2238,6 +2239,19 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2244,6 +2245,19 @@ class CONTENT_EXPORT ContentBrowserClient {
        RenderFrameHost* initiator_document,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -100,7 +100,7 @@ index 26999a1fa55c7..1c5fbd03212f1 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2295,6 +2309,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2301,6 +2315,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

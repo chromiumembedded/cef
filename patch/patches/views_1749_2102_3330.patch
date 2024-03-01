@@ -134,7 +134,7 @@ index cbc1a0e7833fe..da451800b1a56 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 30555a9c9c2a6..399eabb548184 100644
+index 1769fd6c47586..a30229e71e818 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -578,6 +578,12 @@ void LabelButton::OnThemeChanged() {
@@ -791,7 +791,7 @@ index 9228af7f0b02e..a6957017fef5c 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 90905a70c39f1..59e1959efe352 100644
+index 04ece3c06453f..7d03bcf7e6a5e 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@

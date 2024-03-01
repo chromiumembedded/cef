@@ -529,7 +529,7 @@ index cbe655d5879d6..a72c3450d1fa7 100644
        break;
      case ui::SHOW_STATE_END:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 257e4c1059db7..9a080524825c7 100644
+index 02a88fb4174c7..3b4ae49f9ca93 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -399,7 +399,8 @@ void Widget::Init(InitParams params) {
@@ -571,7 +571,7 @@ index 257e4c1059db7..9a080524825c7 100644
      }
    }
  
-@@ -1655,10 +1666,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1659,10 +1670,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -588,7 +588,7 @@ index 257e4c1059db7..9a080524825c7 100644
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -1909,7 +1926,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
+@@ -1913,7 +1930,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
      return false;
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ || show_state == ui::SHOW_STATE_INACTIVE ||
@@ -599,7 +599,7 @@ index 257e4c1059db7..9a080524825c7 100644
      // focus when the window is restored.
      if (v)
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 5d190896a1308..36322410b8373 100644
+index d47c52cc154ce..97bd67e923168 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -356,6 +356,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

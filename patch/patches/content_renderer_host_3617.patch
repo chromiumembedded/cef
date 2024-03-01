@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index fd63bad192e9b..262a286478b67 100644
+index beb0522f59f96..baed58b1fddd3 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -1623,7 +1623,8 @@ bool RenderProcessHostImpl::Init() {
