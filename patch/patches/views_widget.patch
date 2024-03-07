@@ -529,10 +529,10 @@ index cbe655d5879d6..a72c3450d1fa7 100644
        break;
      case ui::SHOW_STATE_END:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 02a88fb4174c7..3b4ae49f9ca93 100644
+index 0a60563a52cb4..5a2cbcd8aa331 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -399,7 +399,8 @@ void Widget::Init(InitParams params) {
+@@ -400,7 +400,8 @@ void Widget::Init(InitParams params) {
    }
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -542,7 +542,7 @@ index 02a88fb4174c7..3b4ae49f9ca93 100644
    is_headless_ = params.ShouldInitAsHeadless();
  
    if (params.opacity == views::Widget::InitParams::WindowOpacity::kInferred &&
-@@ -497,9 +498,14 @@ void Widget::Init(InitParams params) {
+@@ -498,9 +499,14 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -557,7 +557,7 @@ index 02a88fb4174c7..3b4ae49f9ca93 100644
      }
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
-@@ -513,7 +519,12 @@ void Widget::Init(InitParams params) {
+@@ -514,7 +520,12 @@ void Widget::Init(InitParams params) {
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
      if (should_set_initial_bounds) {
@@ -571,7 +571,7 @@ index 02a88fb4174c7..3b4ae49f9ca93 100644
      }
    }
  
-@@ -1659,10 +1670,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1660,10 +1671,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -588,7 +588,7 @@ index 02a88fb4174c7..3b4ae49f9ca93 100644
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -1913,7 +1930,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
+@@ -1914,7 +1931,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
      return false;
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ || show_state == ui::SHOW_STATE_INACTIVE ||

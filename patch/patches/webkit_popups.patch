@@ -62,7 +62,7 @@ index db7f1cb1b0f68..4c70aa22d0a34 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 59f54f7f98dd6..481e1991a77ac 100644
+index bc0a65ed90b64..f346c3b050fae 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
 @@ -981,7 +981,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
