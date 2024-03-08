@@ -202,6 +202,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     CefRenderWidgetHostViewOSR* parent_host_view)
     : content::RenderWidgetHostViewBase(widget),
       background_color_(background_color),
+      use_shared_texture_(use_shared_texture),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
       has_parent_(parent_host_view != nullptr),
       parent_host_view_(parent_host_view),
@@ -397,7 +398,8 @@ void CefRenderWidgetHostViewOSR::ShowWithVisibility(
   if (!content::GpuDataManagerImpl::GetInstance()->IsGpuCompositingDisabled()) {
     // Start generating frames when we're visible and at the correct size.
     if (!video_consumer_) {
-      video_consumer_ = std::make_unique<CefVideoConsumerOSR>(this);
+      video_consumer_ =
+          std::make_unique<CefVideoConsumerOSR>(this, use_shared_texture_);
       UpdateFrameRate();
     } else {
       video_consumer_->SetActive(true);
@@ -1560,7 +1562,7 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
                                          const void* pixels) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnPaint");
 
-  // Workaround for https://github.com/chromiumembedded/cef/issues/2817
+  // Workaround for issue #2817.
   if (!is_showing_) {
     return;
   }
@@ -1582,6 +1584,43 @@ void CefRenderWidgetHostViewOSR::OnPaint(const gfx::Rect& damage_rect,
 
   handler->OnPaint(browser_impl_.get(), IsPopupWidget() ? PET_POPUP : PET_VIEW,
                    rcList, pixels, pixel_size.width(), pixel_size.height());
+
+  // Release the resize hold when we reach the desired size.
+  if (hold_resize_) {
+    DCHECK_GT(cached_scale_factor_, 0);
+    gfx::Size expected_size =
+        gfx::ScaleToCeiledSize(GetViewBounds().size(), cached_scale_factor_);
+    if (pixel_size == expected_size) {
+      ReleaseResizeHold();
+    }
+  }
+}
+
+void CefRenderWidgetHostViewOSR::OnAcceleratedPaint(
+    const gfx::Rect& damage_rect,
+    const gfx::Size& pixel_size,
+    const CefAcceleratedPaintInfo& info) {
+  TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::OnAcceleratedPaint");
+
+  // Workaround for https://github.com/chromiumembedded/cef/issues/2817
+  if (!is_showing_) {
+    return;
+  }
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  CHECK(handler);
+
+  gfx::Rect rect_in_pixels(0, 0, pixel_size.width(), pixel_size.height());
+  rect_in_pixels.Intersect(damage_rect);
+
+  CefRenderHandler::RectList rcList;
+  rcList.emplace_back(rect_in_pixels.x(), rect_in_pixels.y(),
+                      rect_in_pixels.width(), rect_in_pixels.height());
+
+  handler->OnAcceleratedPaint(browser_impl_.get(),
+                              IsPopupWidget() ? PET_POPUP : PET_VIEW, rcList,
+                              info);
 
   // Release the resize hold when we reach the desired size.
   if (hold_resize_) {

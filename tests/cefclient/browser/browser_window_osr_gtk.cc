@@ -987,6 +987,11 @@ void BrowserWindowOsrGtk::CreateBrowser(
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
 
+  window_info.shared_texture_enabled =
+      renderer_.settings().shared_texture_enabled;
+  window_info.external_begin_frame_enabled =
+      renderer_.settings().external_begin_frame_enabled;
+
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(), settings,
@@ -1000,6 +1005,12 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
   CEF_REQUIRE_UI_THREAD();
 
   windowInfo.SetAsWindowless(temp_handle);
+
+  windowInfo.shared_texture_enabled =
+      renderer_.settings().shared_texture_enabled;
+  windowInfo.external_begin_frame_enabled =
+      renderer_.settings().external_begin_frame_enabled;
+
   client = client_handler_;
 }
 

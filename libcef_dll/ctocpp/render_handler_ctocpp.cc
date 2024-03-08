@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0a40603ce9d3cb6ee7758c4d8ebad8c2299256cf$
+// $hash=2ef28289570e9eba45c5e2bb87c94e7e8e51ed0e$
 //
 
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -239,10 +239,11 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 NO_SANITIZE("cfi-icall")
-void CefRenderHandlerCToCpp::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
-                                                PaintElementType type,
-                                                const RectList& dirtyRects,
-                                                void* shared_handle) {
+void CefRenderHandlerCToCpp::OnAcceleratedPaint(
+    CefRefPtr<CefBrowser> browser,
+    PaintElementType type,
+    const RectList& dirtyRects,
+    const CefAcceleratedPaintInfo& info) {
   shutdown_checker::AssertNotShutdown();
 
   cef_render_handler_t* _struct = GetStruct();
@@ -255,11 +256,6 @@ void CefRenderHandlerCToCpp::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get()) {
-    return;
-  }
-  // Verify param: shared_handle; type: simple_byaddr
-  DCHECK(shared_handle);
-  if (!shared_handle) {
     return;
   }
 
@@ -278,7 +274,7 @@ void CefRenderHandlerCToCpp::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
 
   // Execute
   _struct->on_accelerated_paint(_struct, CefBrowserCppToC::Wrap(browser), type,
-                                dirtyRectsCount, dirtyRectsList, shared_handle);
+                                dirtyRectsCount, dirtyRectsList, &info);
 
   // Restore param:dirtyRects; type: simple_vec_byref_const
   if (dirtyRectsList) {

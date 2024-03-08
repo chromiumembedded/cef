@@ -54,6 +54,7 @@
       'include/internal/cef_time.h',
       'include/internal/cef_trace_event_internal.h',
       'include/internal/cef_types.h',
+      'include/internal/cef_types_color.h',
       'include/internal/cef_types_content_settings.h',
       'include/internal/cef_types_geometry.h',
     ],

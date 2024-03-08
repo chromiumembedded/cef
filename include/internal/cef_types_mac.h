@@ -35,6 +35,7 @@
 
 #if defined(OS_MAC)
 #include "include/internal/cef_string.h"
+#include "include/internal/cef_types_color.h"
 #include "include/internal/cef_types_geometry.h"
 
 // Handle types.
@@ -44,6 +45,8 @@
 #define cef_event_handle_t void*
 // Actually NSView*
 #define cef_window_handle_t void*
+// Actually IOSurface*
+#define cef_shared_texture_handle_t void*
 
 #define kNullCursorHandle NULL
 #define kNullEventHandle NULL
@@ -135,6 +138,23 @@ typedef struct _cef_window_info_t {
   ///
   cef_window_handle_t view;
 } cef_window_info_t;
+
+///
+/// Structure containing shared texture information for the OnAcceleratedPaint
+/// callback. Resources will be released to the underlying pool for reuse when
+/// the callback returns from client code.
+///
+typedef struct _cef_accelerated_paint_info_t {
+  ///
+  /// Handle for the shared texture IOSurface.
+  ///
+  cef_shared_texture_handle_t shared_texture_io_surface;
+
+  ///
+  /// The pixel format of the texture.
+  ///
+  cef_color_type_t format;
+} cef_accelerated_paint_info_t;
 
 #ifdef __cplusplus
 }

@@ -2926,21 +2926,6 @@ typedef enum {
 } cef_response_filter_status_t;
 
 ///
-/// Describes how to interpret the components of a pixel.
-///
-typedef enum {
-  ///
-  /// RGBA with 8 bits per pixel (32bits total).
-  ///
-  CEF_COLOR_TYPE_RGBA_8888,
-
-  ///
-  /// BGRA with 8 bits per pixel (32bits total).
-  ///
-  CEF_COLOR_TYPE_BGRA_8888,
-} cef_color_type_t;
-
-///
 /// Describes how to interpret the alpha component of a pixel.
 ///
 typedef enum {

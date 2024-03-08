@@ -80,9 +80,7 @@ class MainContextImpl : public MainContext {
 
   std::unique_ptr<RootWindowManager> root_window_manager_;
 
-#if defined(OS_WIN)
   bool shared_texture_enabled_;
-#endif
 
   bool external_begin_frame_enabled_;
 

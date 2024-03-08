@@ -1986,6 +1986,7 @@ if (is_mac) {
     ]
     frameworks = [
       "AppKit.framework",
+      "IOSurface.framework",
       "OpenGL.framework",
     ]
     defines = [

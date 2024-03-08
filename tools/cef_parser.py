@@ -24,13 +24,16 @@ def wrap_text(text, indent='', maxchars=80, listitem=False):
     necessary a line will be broken and wrapped after a word.
     """
   if listitem:
-    initial_indent=indent + '- '
-    subsequent_indent=indent+'  '
+    initial_indent = indent + '- '
+    subsequent_indent = indent + '  '
   else:
-    initial_indent=indent
-    subsequent_indent=indent
-  lines = textwrap.wrap(text, maxchars, initial_indent=initial_indent,
-                        subsequent_indent=subsequent_indent)
+    initial_indent = indent
+    subsequent_indent = indent
+  lines = textwrap.wrap(
+      text,
+      maxchars,
+      initial_indent=initial_indent,
+      subsequent_indent=subsequent_indent)
   return '\n'.join(lines) + '\n'
 
 
@@ -187,7 +190,7 @@ def format_comment(comment, indent, translate_map=None, maxchars=80):
           else:
             result += line
         result += '\n'
-        listitem = False;
+        listitem = False
       else:
         if not listitem:
           # add to the current paragraph
@@ -395,6 +398,9 @@ _simpletypes = {
     'char* const': ['char* const', 'NULL'],
     'cef_color_t': ['cef_color_t', '0'],
     'cef_json_parser_error_t': ['cef_json_parser_error_t', 'JSON_NO_ERROR'],
+    'CefAcceleratedPaintInfo': [
+        'cef_accelerated_paint_info_t', 'CefAcceleratedPaintInfo()'
+    ],
     'CefAudioParameters': ['cef_audio_parameters_t', 'CefAudioParameters()'],
     'CefBaseTime': ['cef_basetime_t', 'CefBaseTime()'],
     'CefBoxLayoutSettings': [

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1028055c90d484e6548009d8bb6e69e06ac1d17$
+// $hash=ae20df54c0accee56380672fa4c7e501a0037348$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
@@ -56,7 +56,7 @@ class CefRenderHandlerCToCpp
   void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                           PaintElementType type,
                           const RectList& dirtyRects,
-                          void* shared_handle) override;
+                          const CefAcceleratedPaintInfo& info) override;
   void GetTouchHandleSize(CefRefPtr<CefBrowser> browser,
                           cef_horizontal_alignment_t orientation,
                           CefSize& size) override;

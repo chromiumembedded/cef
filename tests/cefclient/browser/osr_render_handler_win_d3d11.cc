@@ -12,7 +12,7 @@
 namespace client {
 
 BrowserLayer::BrowserLayer(const std::shared_ptr<d3d11::Device>& device)
-    : d3d11::Layer(device, true /* flip */) {
+    : d3d11::Layer(device, false /* flip */) {
   frame_buffer_ = std::make_shared<d3d11::FrameBuffer>(device_);
 }
 
@@ -189,13 +189,13 @@ void OsrRenderHandlerWinD3D11::OnAcceleratedPaint(
     CefRefPtr<CefBrowser> browser,
     CefRenderHandler::PaintElementType type,
     const CefRenderHandler::RectList& dirtyRects,
-    void* share_handle) {
+    const CefAcceleratedPaintInfo& info) {
   CEF_REQUIRE_UI_THREAD();
 
   if (type == PET_POPUP) {
-    popup_layer_->on_paint(share_handle);
+    popup_layer_->on_paint(info.shared_texture_handle);
   } else {
-    browser_layer_->on_paint(share_handle);
+    browser_layer_->on_paint(info.shared_texture_handle);
   }
 
   Render();

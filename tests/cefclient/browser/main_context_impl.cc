@@ -64,24 +64,16 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       use_windowless_rendering_ &&
       command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
 
-#if defined(OS_WIN)
-  // Shared texture is only supported on Windows.
   shared_texture_enabled_ =
       use_windowless_rendering_ &&
       command_line_->HasSwitch(switches::kSharedTextureEnabled);
-#endif
 
   external_begin_frame_enabled_ =
       use_windowless_rendering_ &&
       command_line_->HasSwitch(switches::kExternalBeginFrameEnabled);
 
   if (windowless_frame_rate_ <= 0) {
-// Choose a reasonable default rate based on the OSR mode.
-#if defined(OS_WIN)
     windowless_frame_rate_ = shared_texture_enabled_ ? 60 : 30;
-#else
-    windowless_frame_rate_ = 30;
-#endif
   }
 
   // Enable experimental Chrome runtime. See issue #2969 for details.
@@ -256,9 +248,7 @@ void MainContextImpl::PopulateOsrSettings(OsrRendererSettings* settings) {
   settings->show_update_rect =
       command_line_->HasSwitch(switches::kShowUpdateRect);
 
-#if defined(OS_WIN)
   settings->shared_texture_enabled = shared_texture_enabled_;
-#endif
   settings->external_begin_frame_enabled = external_begin_frame_enabled_;
   settings->begin_frame_rate = windowless_frame_rate_;
 
