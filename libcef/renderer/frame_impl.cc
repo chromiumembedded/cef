@@ -422,7 +422,7 @@ void CefFrameImpl::OnDetached() {
   browser_->FrameDetached(frame_);
   frame_ = nullptr;
 
-  OnDisconnect(DisconnectReason::DETACHED);
+  OnDisconnect(DisconnectReason::DETACHED, std::string());
 
   browser_ = nullptr;
 
@@ -511,9 +511,8 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
   // connection.
   browser_frame->FrameAttached(receiver_.BindNewPipeAndPassRemote(),
                                reattached);
-  receiver_.set_disconnect_handler(
-      base::BindOnce(&CefFrameImpl::OnDisconnect, this,
-                     DisconnectReason::RENDER_FRAME_DISCONNECT));
+  receiver_.set_disconnect_with_reason_handler(
+      base::BindOnce(&CefFrameImpl::OnRenderFrameDisconnect, this));
 }
 
 const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame(
@@ -527,9 +526,8 @@ const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame(
       // Triggers creation of a CefBrowserFrame in the browser process.
       render_frame->GetBrowserInterfaceBroker()->GetInterface(
           browser_frame_.BindNewPipeAndPassReceiver());
-      browser_frame_.set_disconnect_handler(
-          base::BindOnce(&CefFrameImpl::OnDisconnect, this,
-                         DisconnectReason::BROWSER_FRAME_DISCONNECT));
+      browser_frame_.set_disconnect_with_reason_handler(
+          base::BindOnce(&CefFrameImpl::OnBrowserFrameDisconnect, this));
     }
   }
   return browser_frame_;
@@ -537,10 +535,73 @@ const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame(
 
 void CefFrameImpl::OnBrowserFrameTimeout() {
   LOG(ERROR) << frame_debug_str_ << " connection timeout";
-  OnDisconnect(DisconnectReason::CONNECT_TIMEOUT);
+  OnDisconnect(DisconnectReason::CONNECT_TIMEOUT, std::string());
 }
 
-void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
+void CefFrameImpl::OnBrowserFrameDisconnect(uint32_t custom_reason,
+                                            const std::string& description) {
+  OnDisconnect(DisconnectReason::BROWSER_FRAME_DISCONNECT, description);
+}
+
+void CefFrameImpl::OnRenderFrameDisconnect(uint32_t custom_reason,
+                                           const std::string& description) {
+  OnDisconnect(DisconnectReason::RENDER_FRAME_DISCONNECT, description);
+}
+
+// static
+std::string CefFrameImpl::GetDisconnectDebugString(
+    ConnectionState connection_state,
+    bool frame_is_valid,
+    DisconnectReason reason,
+    const std::string& description) {
+  std::string reason_str;
+  switch (reason) {
+    case DisconnectReason::DETACHED:
+      reason_str = "DETACHED";
+      break;
+    case DisconnectReason::BROWSER_FRAME_DETACHED:
+      reason_str = "BROWSER_FRAME_DETACHED";
+      break;
+    case DisconnectReason::CONNECT_TIMEOUT:
+      reason_str = "CONNECT_TIMEOUT";
+      break;
+    case DisconnectReason::RENDER_FRAME_DISCONNECT:
+      reason_str = "RENDER_FRAME_DISCONNECT";
+      break;
+    case DisconnectReason::BROWSER_FRAME_DISCONNECT:
+      reason_str = "BROWSER_FRAME_DISCONNECT";
+      break;
+  };
+
+  std::string state_str;
+  switch (connection_state) {
+    case ConnectionState::DISCONNECTED:
+      state_str = "DISCONNECTED";
+      break;
+    case ConnectionState::CONNECTION_PENDING:
+      state_str = "CONNECTION_PENDING";
+      break;
+    case ConnectionState::CONNECTION_ACKED:
+      state_str = "CONNECTION_ACKED";
+      break;
+    case ConnectionState::RECONNECT_PENDING:
+      state_str = "RECONNECT_PENDING";
+      break;
+  }
+
+  if (!frame_is_valid) {
+    state_str += ", FRAME_INVALID";
+  }
+
+  if (!description.empty()) {
+    state_str += ", " + description;
+  }
+
+  return "(reason=" + reason_str + ", current_state=" + state_str + ")";
+}
+
+void CefFrameImpl::OnDisconnect(DisconnectReason reason,
+                                const std::string& description) {
   // Ignore multiple calls in close proximity (which may occur if both
   // |browser_frame_| and |receiver_| disconnect). |frame_| will be nullptr
   // when called from/after OnDetached().
@@ -549,49 +610,11 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
     return;
   }
 
-  if (VLOG_IS_ON(1)) {
-    std::string reason_str;
-    switch (reason) {
-      case DisconnectReason::DETACHED:
-        reason_str = "DETACHED";
-        break;
-      case DisconnectReason::BROWSER_FRAME_DETACHED:
-        reason_str = "BROWSER_FRAME_DETACHED";
-        break;
-      case DisconnectReason::CONNECT_TIMEOUT:
-        reason_str = "CONNECT_TIMEOUT";
-        break;
-      case DisconnectReason::RENDER_FRAME_DISCONNECT:
-        reason_str = "RENDER_FRAME_DISCONNECT";
-        break;
-      case DisconnectReason::BROWSER_FRAME_DISCONNECT:
-        reason_str = "BROWSER_FRAME_DISCONNECT";
-        break;
-    };
-
-    std::string state_str;
-    switch (browser_connection_state_) {
-      case ConnectionState::DISCONNECTED:
-        state_str = "DISCONNECTED";
-        break;
-      case ConnectionState::CONNECTION_PENDING:
-        state_str = "CONNECTION_PENDING";
-        break;
-      case ConnectionState::CONNECTION_ACKED:
-        state_str = "CONNECTION_ACKED";
-        break;
-      case ConnectionState::RECONNECT_PENDING:
-        state_str = "RECONNECT_PENDING";
-        break;
-    }
-
-    if (!frame_) {
-      state_str += ", FRAME_INVALID";
-    }
-
-    VLOG(1) << frame_debug_str_ << " disconnected (reason=" << reason_str
-            << ", current_state=" << state_str << ")";
-  }
+  const auto connection_state = browser_connection_state_;
+  const bool frame_is_valid = !!frame_;
+  VLOG(1) << frame_debug_str_ << " disconnected "
+          << GetDisconnectDebugString(connection_state, frame_is_valid,
+                                      reason, description);
 
   browser_frame_.reset();
   receiver_.reset();
@@ -617,7 +640,9 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason) {
                          ConnectReason::RETRY));
     } else {
       // Trigger a crash in official builds.
-      LOG(FATAL) << frame_debug_str_ << " connection retry failed";
+      LOG(FATAL) << frame_debug_str_ << " connection retry failed "
+                 << GetDisconnectDebugString(connection_state, frame_is_valid,
+                                             reason, description);
     }
   }
 }
@@ -690,7 +715,7 @@ void CefFrameImpl::FrameAttachedAck() {
 void CefFrameImpl::FrameDetached() {
   // Sent from the browser process in response to CefFrameHostImpl::Detach().
   CHECK_EQ(ConnectionState::CONNECTION_ACKED, browser_connection_state_);
-  OnDisconnect(DisconnectReason::BROWSER_FRAME_DETACHED);
+  OnDisconnect(DisconnectReason::BROWSER_FRAME_DETACHED, std::string());
 }
 
 void CefFrameImpl::SendMessage(const std::string& name,
