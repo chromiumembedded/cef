@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0b4a5f175a85d506a4ba6da1bbdb6bad2306d898$
+// $hash=fb10148445f36dc1712cf760b9754911bbbcdf13$
 //
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
@@ -315,7 +315,7 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
                                     cef_paint_element_type_t type,
                                     size_t dirtyRectsCount,
                                     cef_rect_t const* dirtyRects,
-                                    void* shared_handle) {
+                                    const cef_accelerated_paint_info_t* info) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -334,9 +334,9 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
   if (dirtyRectsCount > 0 && !dirtyRects) {
     return;
   }
-  // Verify param: shared_handle; type: simple_byaddr
-  DCHECK(shared_handle);
-  if (!shared_handle) {
+  // Verify param: info; type: simple_byref_const
+  DCHECK(info);
+  if (!info) {
     return;
   }
 
@@ -348,10 +348,12 @@ render_handler_on_accelerated_paint(struct _cef_render_handler_t* self,
       dirtyRectsList.push_back(dirtyRectsVal);
     }
   }
+  // Translate param: info; type: simple_byref_const
+  CefAcceleratedPaintInfo infoVal = info ? *info : CefAcceleratedPaintInfo();
 
   // Execute
   CefRenderHandlerCppToC::Get(self)->OnAcceleratedPaint(
-      CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, shared_handle);
+      CefBrowserCToCpp::Wrap(browser), type, dirtyRectsList, infoVal);
 }
 
 void CEF_CALLBACK

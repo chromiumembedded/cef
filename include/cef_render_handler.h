@@ -152,16 +152,25 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   /// Called when an element has been rendered to the shared texture handle.
   /// |type| indicates whether the element is the view or the popup widget.
   /// |dirtyRects| contains the set of rectangles in pixel coordinates that need
-  /// to be repainted. |shared_handle| is the handle for a D3D11 Texture2D that
-  /// can be accessed via ID3D11Device using the OpenSharedResource method. This
-  /// method is only called when CefWindowInfo::shared_texture_enabled is set to
-  /// true, and is currently only supported on Windows.
+  /// to be repainted. |info| contains the shared handle; on Windows it is a
+  /// HANDLE to a texture that can be opened with D3D11 OpenSharedResource, on
+  /// macOS it is an IOSurface pointer that can be opened with Metal or OpenGL,
+  /// and on Linux it contains several planes, each with an fd to the underlying
+  /// system native buffer.
+  ///
+  /// The underlying implementation uses a pool to deliver frames. As a result,
+  /// the handle may differ every frame depending on how many frames are
+  /// in-progress. The handle's resource cannot be cached and cannot be accessed
+  /// outside of this callback. It should be reopened each time this callback is
+  /// executed and the contents should be copied to a texture owned by the
+  /// client application. The contents of |info| will be released back to the
+  /// pool after this callback returns.
   ///
   /*--cef()--*/
   virtual void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                                   PaintElementType type,
                                   const RectList& dirtyRects,
-                                  void* shared_handle) {}
+                                  const CefAcceleratedPaintInfo& info) {}
 
   ///
   /// Called to retrieve the size of the touch handle for the specified

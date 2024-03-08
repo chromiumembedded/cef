@@ -57,6 +57,7 @@
       'include/internal/cef_types_content_settings.h',
       'include/internal/cef_types_geometry.h',
       'include/internal/cef_types_runtime.h',
+      'include/internal/cef_types_color.h',
     ],
     'includes_capi': [
       'include/capi/cef_base_capi.h',

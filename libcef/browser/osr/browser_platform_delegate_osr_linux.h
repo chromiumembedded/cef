@@ -13,6 +13,7 @@ class CefBrowserPlatformDelegateOsrLinux
  public:
   CefBrowserPlatformDelegateOsrLinux(
       std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+      bool use_shared_texture,
       bool use_external_begin_frame);
 
   // CefBrowserPlatformDelegate methods:

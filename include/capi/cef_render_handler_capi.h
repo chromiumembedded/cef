@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5309b2f6da62526ed92c928c0918bc27898cf03b$
+// $hash=5151b6ea3c06e46a75f2cd7679044a2891063d29$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
@@ -149,17 +149,27 @@ typedef struct _cef_render_handler_t {
   /// Called when an element has been rendered to the shared texture handle.
   /// |type| indicates whether the element is the view or the popup widget.
   /// |dirtyRects| contains the set of rectangles in pixel coordinates that need
-  /// to be repainted. |shared_handle| is the handle for a D3D11 Texture2D that
-  /// can be accessed via ID3D11Device using the OpenSharedResource function.
-  /// This function is only called when cef_window_tInfo::shared_texture_enabled
-  /// is set to true (1), and is currently only supported on Windows.
+  /// to be repainted. |info| contains the shared handle; on Windows it is a
+  /// HANDLE to a texture that can be opened with D3D11 OpenSharedResource, on
+  /// macOS it is an IOSurface pointer that can be opened with Metal or OpenGL,
+  /// and on Linux it contains several planes, each with an fd to the underlying
+  /// system native buffer.
   ///
-  void(CEF_CALLBACK* on_accelerated_paint)(struct _cef_render_handler_t* self,
-                                           struct _cef_browser_t* browser,
-                                           cef_paint_element_type_t type,
-                                           size_t dirtyRectsCount,
-                                           cef_rect_t const* dirtyRects,
-                                           void* shared_handle);
+  /// The underlying implementation uses a pool to deliver frames. As a result,
+  /// the handle may differ every frame depending on how many frames are in-
+  /// progress. The handle's resource cannot be cached and cannot be accessed
+  /// outside of this callback. It should be reopened each time this callback is
+  /// executed and the contents should be copied to a texture owned by the
+  /// client application. The contents of |info| will be released back to the
+  /// pool after this callback returns.
+  ///
+  void(CEF_CALLBACK* on_accelerated_paint)(
+      struct _cef_render_handler_t* self,
+      struct _cef_browser_t* browser,
+      cef_paint_element_type_t type,
+      size_t dirtyRectsCount,
+      cef_rect_t const* dirtyRects,
+      const cef_accelerated_paint_info_t* info);
 
   ///
   /// Called to retrieve the size of the touch handle for the specified

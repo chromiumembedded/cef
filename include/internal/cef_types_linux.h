@@ -43,6 +43,7 @@ typedef struct _XDisplay XDisplay;
 
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
+#include "include/internal/cef_types_color.h"
 #include "include/internal/cef_types_geometry.h"
 #include "include/internal/cef_types_runtime.h"
 
@@ -144,6 +145,56 @@ typedef struct _cef_window_info_t {
   ///
   cef_runtime_style_t runtime_style;
 } cef_window_info_t;
+
+///
+/// Structure containing the plane information of the shared texture.
+/// Sync with native_pixmap_handle.h
+///
+typedef struct _cef_accelerated_paint_native_pixmap_plane_info_t {
+  ///
+  /// The strides and offsets in bytes to be used when accessing the buffers via
+  /// a memory mapping. One per plane per entry. Size in bytes of the plane is
+  /// necessary to map the buffers.
+  ///
+  uint32_t stride;
+  uint64_t offset;
+  uint64_t size;
+
+  ///
+  /// File descriptor for the underlying memory object (usually dmabuf).
+  ///
+  int fd;
+} cef_accelerated_paint_native_pixmap_plane_t;
+
+#define kAcceleratedPaintMaxPlanes 4
+
+///
+/// Structure containing shared texture information for the OnAcceleratedPaint
+/// callback. Resources will be released to the underlying pool for reuse when
+/// the callback returns from client code.
+///
+typedef struct _cef_accelerated_paint_info_t {
+  ///
+  /// Planes of the shared texture, usually file descriptors of dmabufs.
+  ///
+  cef_accelerated_paint_native_pixmap_plane_t
+      planes[kAcceleratedPaintMaxPlanes];
+
+  ///
+  /// Plane count.
+  ///
+  int plane_count;
+
+  ///
+  /// Modifier could be used with EGL driver.
+  ///
+  uint64_t modifier;
+
+  ///
+  /// The pixel format of the texture.
+  ///
+  cef_color_type_t format;
+} cef_accelerated_paint_info_t;
 
 #ifdef __cplusplus
 }

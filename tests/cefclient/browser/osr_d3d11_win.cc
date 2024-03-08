@@ -23,6 +23,7 @@
 #endif
 #include <d3dcompiler.h>
 #include <directxmath.h>
+#include <wrl/client.h>
 
 #include "include/base/cef_logging.h"
 #include "include/internal/cef_string.h"
@@ -568,10 +569,18 @@ std::shared_ptr<Geometry> Device::create_quad(float x,
 }
 
 std::shared_ptr<Texture2D> Device::open_shared_texture(void* handle) {
-  ID3D11Texture2D* tex = nullptr;
-  auto hr = device_->OpenSharedResource(handle, __uuidof(ID3D11Texture2D),
-                                        (void**)(&tex));
+  Microsoft::WRL::ComPtr<ID3D11Device1> device1;
+  HRESULT hr = device_->QueryInterface(IID_PPV_ARGS(&device1));
   if (FAILED(hr)) {
+    LOG(FATAL) << "Failed to open D3D11_1 device. hr=" << std::hex << hr;
+    return nullptr;
+  }
+
+  // Open texture on device using shared handle
+  ID3D11Texture2D* tex = nullptr;
+  hr = device1->OpenSharedResource1(handle, IID_PPV_ARGS(&tex));
+  if (FAILED(hr)) {
+    LOG(FATAL) << "Failed to open shared texture. hr=" << std::hex << hr;
     return nullptr;
   }
 

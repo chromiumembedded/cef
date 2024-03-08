@@ -8,9 +8,10 @@
 
 CefBrowserPlatformDelegateOsrLinux::CefBrowserPlatformDelegateOsrLinux(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+    bool use_shared_texture,
     bool use_external_begin_frame)
     : CefBrowserPlatformDelegateOsr(std::move(native_delegate),
-                                    /*use_shared_texture=*/false,
+                                    use_shared_texture,
                                     use_external_begin_frame) {}
 
 CefWindowHandle CefBrowserPlatformDelegateOsrLinux::GetHostWindowHandle()

@@ -990,6 +990,11 @@ void BrowserWindowOsrGtk::CreateBrowser(
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
 
+  window_info.shared_texture_enabled =
+      renderer_.settings().shared_texture_enabled;
+  window_info.external_begin_frame_enabled =
+      renderer_.settings().external_begin_frame_enabled;
+
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, window_info.runtime_style);
 
@@ -1009,6 +1014,11 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
 
   // Windowless rendering requires Alloy style.
   DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
+
+  windowInfo.shared_texture_enabled =
+      renderer_.settings().shared_texture_enabled;
+  windowInfo.external_begin_frame_enabled =
+      renderer_.settings().external_begin_frame_enabled;
 
   client = client_handler_;
 }

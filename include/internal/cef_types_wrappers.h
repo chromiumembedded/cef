@@ -750,4 +750,14 @@ struct CefMediaSinkDeviceInfoTraits {
 ///
 using CefMediaSinkDeviceInfo = CefStructBase<CefMediaSinkDeviceInfoTraits>;
 
+///
+/// Class representing accelerated paint info.
+///
+class CefAcceleratedPaintInfo : public cef_accelerated_paint_info_t {
+ public:
+  CefAcceleratedPaintInfo() : cef_accelerated_paint_info_t{} {}
+  CefAcceleratedPaintInfo(const cef_accelerated_paint_info_t& r)
+      : cef_accelerated_paint_info_t(r) {}
+};
+
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

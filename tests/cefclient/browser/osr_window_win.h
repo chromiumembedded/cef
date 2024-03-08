@@ -130,7 +130,7 @@ class OsrWindowWin
   void OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
                           CefRenderHandler::PaintElementType type,
                           const CefRenderHandler::RectList& dirtyRects,
-                          void* share_handle) override;
+                          const CefAcceleratedPaintInfo& info) override;
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,

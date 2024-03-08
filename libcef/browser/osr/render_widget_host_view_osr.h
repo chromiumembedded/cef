@@ -254,6 +254,9 @@ class CefRenderWidgetHostViewOSR
   void OnPaint(const gfx::Rect& damage_rect,
                const gfx::Size& pixel_size,
                const void* pixels);
+  void OnAcceleratedPaint(const gfx::Rect& damage_rect,
+                          const gfx::Size& pixel_size,
+                          const CefAcceleratedPaintInfo& info);
 
   void OnBeginFame(base::TimeTicks frame_time);
 
@@ -401,6 +404,7 @@ class CefRenderWidgetHostViewOSR
   uint64_t begin_frame_number_ = viz::BeginFrameArgs::kStartingFrameNumber;
   bool begin_frame_pending_ = false;
 
+  bool use_shared_texture_ = false;
   bool sync_frame_rate_ = false;
   bool external_begin_frame_enabled_ = false;
   bool needs_external_begin_frames_ = false;
