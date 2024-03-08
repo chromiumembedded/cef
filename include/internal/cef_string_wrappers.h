@@ -31,7 +31,7 @@
 #define CEF_INCLUDE_INTERNAL_CEF_STRING_WRAPPERS_H_
 #pragma once
 
-#include <memory.h>
+#include <cstring>
 #include <string>
 
 #include "include/internal/cef_string_types.h"
