@@ -259,13 +259,16 @@ class NetNotifyTestHandler : public TestHandler {
   }
 
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                 TerminationStatus status) override {
+                                 TerminationStatus status,
+                                 int error_code,
+                                 const CefString& error_string) override {
     got_process_terminated_ct_++;
 
     // Termination is expected for cross-origin requests initiated from the
     // renderer process.
     if (!(test_type_ == NNTT_DELAYED_RENDERER && !same_origin_)) {
-      TestHandler::OnRenderProcessTerminated(browser, status);
+      TestHandler::OnRenderProcessTerminated(browser, status, error_code,
+                                             error_string);
     }
 
     FinishTest();

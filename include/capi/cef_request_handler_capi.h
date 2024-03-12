@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3b59c0bc014d773dedc24649071141ee2dd2125c$
+// $hash=2e8b5c5107f61e3d4c333dc02c76a9f30cd0cf83$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -48,6 +48,7 @@
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_request_handler_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
+#include "include/capi/cef_unresponsive_process_callback_capi.h"
 #include "include/capi/cef_x509_certificate_capi.h"
 
 #ifdef __cplusplus
@@ -223,13 +224,52 @@ typedef struct _cef_request_handler_t {
                                            struct _cef_browser_t* browser);
 
   ///
+  /// Called on the browser process UI thread when the render process is
+  /// unresponsive as indicated by a lack of input event processing for at least
+  /// 15 seconds. Return false (0) for the default behavior which is an
+  /// indefinite wait with the Alloy runtime or display of the "Page
+  /// unresponsive" dialog with the Chrome runtime. Return true (1) and don't
+  /// execute the callback for an indefinite wait without display of the Chrome
+  /// runtime dialog. Return true (1) and call
+  /// cef_unresponsive_process_callback_t::Wait either in this function or at a
+  /// later time to reset the wait timer, potentially triggering another call to
+  /// this function if the process remains unresponsive. Return true (1) and
+  /// call cef_unresponsive_process_callback_t:: Terminate either in this
+  /// function or at a later time to terminate the unresponsive process,
+  /// resulting in a call to OnRenderProcessTerminated.
+  /// OnRenderProcessResponsive will be called if the process becomes responsive
+  /// after this function is called. This functionality depends on the hang
+  /// monitor which can be disabled by passing the `--disable-hang-monitor`
+  /// command-line flag.
+  ///
+  int(CEF_CALLBACK* on_render_process_unresponsive)(
+      struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser,
+      struct _cef_unresponsive_process_callback_t* callback);
+
+  ///
+  /// Called on the browser process UI thread when the render process becomes
+  /// responsive after previously being unresponsive. See documentation on
+  /// OnRenderProcessUnresponsive.
+  ///
+  void(CEF_CALLBACK* on_render_process_responsive)(
+      struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser);
+
+  ///
   /// Called on the browser process UI thread when the render process terminates
-  /// unexpectedly. |status| indicates how the process terminated.
+  /// unexpectedly. |status| indicates how the process terminated. |error_code|
+  /// and |error_string| represent the error that would be displayed in Chrome's
+  /// "Aw, Snap!" view. Possible |error_code| values include cef_resultcode_t
+  /// non-normal exit values and platform-specific crash values (for example, a
+  /// Posix signal or Windows hardware exception).
   ///
   void(CEF_CALLBACK* on_render_process_terminated)(
       struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser,
-      cef_termination_status_t status);
+      cef_termination_status_t status,
+      int error_code,
+      const cef_string_t* error_string);
 
   ///
   /// Called on the browser process UI thread when the window.document object of

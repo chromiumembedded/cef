@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=613fb0a830ebbd0ad913f60a482b8ba9d6f01ff4$
+// $hash=f250db632dc9f127b3aaff303d6105ca235ff462$
 //
 
 #ifndef CEF_LIBCEF_DLL_WRAPPER_TYPES_H_
@@ -162,6 +162,7 @@ enum CefWrapperType {
   WT_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CHILD,
   WT_URLREQUEST,
   WT_URLREQUEST_CLIENT,
+  WT_UNRESPONSIVE_PROCESS_CALLBACK,
   WT_V8ACCESSOR,
   WT_V8ARRAY_BUFFER_RELEASE_CALLBACK,
   WT_V8CONTEXT,

@@ -33,8 +33,9 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type);
 
 // Returns the string representation of the specified error code.
 std::string GetErrorString(cef_errorcode_t code);
+std::string GetErrorString(cef_termination_status_t status);
 
-typedef std::map<std::string, std::string> StringResourceMap;
+using StringResourceMap = std::map<std::string, std::string>;
 
 // Set up the resource manager for tests.
 void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
@@ -52,7 +53,7 @@ bool IsTestURL(const std::string& url, const std::string& path);
 
 // Create all CefMessageRouterBrowserSide::Handler objects. They will be
 // deleted when the ClientHandler is destroyed.
-typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
+using MessageHandlerSet = std::set<CefMessageRouterBrowserSide::Handler*>;
 void CreateMessageHandlers(MessageHandlerSet& handlers);
 
 // Register scheme handlers for tests.

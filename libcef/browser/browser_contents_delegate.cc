@@ -10,6 +10,8 @@
 #include "libcef/browser/native/cursor_util.h"
 #include "libcef/common/frame_util.h"
 
+#include "chrome/browser/ui/views/sad_tab_view.h"
+#include "chrome/common/chrome_result_codes.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/focused_node_details.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
@@ -24,6 +26,10 @@
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
 #include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
+
+#if defined(OS_WIN)
+#include "sandbox/win/src/sandbox_types.h"
+#endif
 
 using content::KeyboardEventProcessingResult;
 
@@ -351,6 +357,22 @@ void CefBrowserContentsDelegate::RenderViewReady() {
 
 void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     base::TerminationStatus status) {
+  static_assert(static_cast<int>(CEF_RESULT_CODE_CHROME_FIRST) ==
+                    static_cast<int>(chrome::RESULT_CODE_CHROME_START),
+                "enum mismatch");
+  static_assert(static_cast<int>(CEF_RESULT_CODE_CHROME_LAST) ==
+                    static_cast<int>(chrome::RESULT_CODE_CHROME_LAST_CODE),
+                "enum mismatch");
+
+#if defined(OS_WIN)
+  static_assert(static_cast<int>(CEF_RESULT_CODE_SANDBOX_FATAL_FIRST) ==
+                    static_cast<int>(sandbox::SBOX_FATAL_INTEGRITY),
+                "enum mismatch");
+  static_assert(static_cast<int>(CEF_RESULT_CODE_SANDBOX_FATAL_LAST) ==
+                    static_cast<int>(sandbox::SBOX_FATAL_LAST),
+                "enum mismatch");
+#endif
+
   cef_termination_status_t ts = TS_ABNORMAL_TERMINATION;
   if (status == base::TERMINATION_STATUS_PROCESS_WAS_KILLED) {
     ts = TS_PROCESS_WAS_KILLED;
@@ -358,14 +380,22 @@ void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     ts = TS_PROCESS_CRASHED;
   } else if (status == base::TERMINATION_STATUS_OOM) {
     ts = TS_PROCESS_OOM;
+  } else if (status == base::TERMINATION_STATUS_LAUNCH_FAILED) {
+    ts = TS_LAUNCH_FAILED;
+#if BUILDFLAG(IS_WIN)
+  } else if (status == base::TERMINATION_STATUS_INTEGRITY_FAILURE) {
+    ts = TS_INTEGRITY_FAILURE;
+#endif
   } else if (status != base::TERMINATION_STATUS_ABNORMAL_TERMINATION) {
     return;
   }
 
   if (auto c = client()) {
     if (auto handler = c->GetRequestHandler()) {
+      int error_code = web_contents()->GetCrashedErrorCode();
       auto navigation_lock = browser_info_->CreateNavigationLock();
-      handler->OnRenderProcessTerminated(browser(), ts);
+      handler->OnRenderProcessTerminated(browser(), ts, error_code,
+                                         SadTabView::ErrorToString(error_code));
     }
   }
 }

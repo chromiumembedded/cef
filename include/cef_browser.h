@@ -1007,6 +1007,17 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void ExecuteChromeCommand(
       int command_id,
       cef_window_open_disposition_t disposition) = 0;
+
+  ///
+  /// Returns true if the render process associated with this browser is
+  /// currently unresponsive as indicated by a lack of input event processing
+  /// for at least 15 seconds. To receive associated state change notifications
+  /// and optionally handle an unresponsive render process implement
+  /// CefRequestHandler::OnRenderProcessUnresponsive. This method can only be
+  /// called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool IsRenderProcessUnresponsive() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

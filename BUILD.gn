@@ -620,6 +620,8 @@ source_set("libcef_static") {
     "libcef/browser/frame_service_base.h",
     "libcef/browser/global_preference_manager_impl.cc",
     "libcef/browser/global_preference_manager_impl.h",
+    "libcef/browser/hang_monitor.cc",
+    "libcef/browser/hang_monitor.h",
     "libcef/browser/image_impl.cc",
     "libcef/browser/image_impl.h",
     "libcef/browser/iothread_state.cc",

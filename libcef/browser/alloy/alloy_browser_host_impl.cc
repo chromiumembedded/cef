@@ -18,6 +18,7 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools/devtools_manager.h"
+#include "libcef/browser/hang_monitor.h"
 #include "libcef/browser/media_access_query.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/request_context_impl.h"
@@ -1194,6 +1195,20 @@ void AlloyBrowserHostImpl::WebContentsCreated(
       CreateInternal(settings, client, new_contents, /*own_web_contents=*/false,
                      info, opener, /*is_devtools_popup=*/false, request_context,
                      std::move(platform_delegate), /*extension=*/nullptr);
+}
+
+void AlloyBrowserHostImpl::RendererUnresponsive(
+    content::WebContents* source,
+    content::RenderWidgetHost* render_widget_host,
+    base::RepeatingClosure hang_monitor_restarter) {
+  hang_monitor::RendererUnresponsive(this, render_widget_host,
+                                     hang_monitor_restarter);
+}
+
+void AlloyBrowserHostImpl::RendererResponsive(
+    content::WebContents* source,
+    content::RenderWidgetHost* render_widget_host) {
+  hang_monitor::RendererResponsive(this, render_widget_host);
 }
 
 content::JavaScriptDialogManager*

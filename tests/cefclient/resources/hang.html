@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>Render Process Hang Test</title>
+<style>
+#loading {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 3px solid rgba(0,0,0,.3);
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+
+#hangtime {
+  width: 40px;
+}
+</style>
+<script language="JavaScript">
+
+function setFormEnabled(enabled) {
+  var elements = document.getElementById("form").elements;
+  for (var i = 0, element; element = elements[i++]; ) {
+    element.disabled = !enabled;
+  }
+}
+
+function updateTime() {
+  document.getElementById('time').innerText = new Date().toLocaleString();
+}
+
+function setupTest() {
+  // Retrieve the currently configured command.
+  // Results in a call to the OnQuery method in hang_test.cc
+  window.cefQuery({
+    request: 'HangTest:getcommand',
+    onSuccess: function(response) {
+      document.getElementById(response).checked = true;
+      setFormEnabled(true);
+    },
+  });
+}
+
+function setup() {
+  // Disable all elements.
+  setFormEnabled(false);
+
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  if (location.hostname == 'tests' || location.hostname == 'localhost') {
+    setupTest();
+    return;
+  }
+
+  alert('This page can only be run from tests or localhost.');
+}
+
+// Send a query to the browser process.
+function sendCommand(command) {
+  // Set the configured command.
+  // Results in a call to the OnQuery method in hang_test.cc
+  window.cefQuery({
+    request: 'HangTest:' + command
+  });
+}
+
+// Hang the render process for the specified number of seconds.
+function triggerHang() {
+  const delayMs = parseInt(document.getElementById('hangtime').value) * 1000;
+  const startTime = performance.now();
+  while(performance.now() - startTime < delayMs) {}
+}
+
+</script>
+
+</head>
+<form id="form">
+<body bgcolor="white" onload="setup()">
+<div>Use the below controls to trigger a render process hang.</div>
+<br/>
+<div>Hang for <input type="number" id="hangtime" min="1" max="99" step="1" value="20"/> seconds.</div>
+<br/>
+<div>Action after hanging for at least 15 seconds:</div>
+<br/>
+<div><input type="radio" name="command" id="default" value="default" onclick="sendCommand('setdefault')"/>
+<label for="default">Default behavior (Alloy runtime: Wait; Chrome runtime: show "Page unresponsive" dialog [1])</label></div>
+<div><input type="radio" name="command" id="wait" value="wait" onclick="sendCommand('setwait')"/>
+<label for="wait">Wait</label></div>
+<div><input type="radio" name="command" id="terminate" value="terminate" onclick="sendCommand('setterminate')"/>
+<label for="terminate">Terminate the render process [2]</label></div>
+<br/>
+<div>[1] The "Page unresponsive" dialog will be auto-dismissed when the hang ends.</div>
+<div>[2] After termination the browser navigates to the startup URL or shows an error page.</div>
+<br/>
+<div><input type="button" value="Trigger Hang" onclick="triggerHang()"/></div>
+</form>
+Observe page responsiveness:
+<br/><br/>
+<table><tr>
+<td valign="top">
+CSS:<br/><div id="loading"></div>
+</td>
+<td>&nbsp;</td>
+<td valign="top">
+JavaScript:<br/><div id="time"></div>
+</td>
+</tr></table>
+(JavaScript will stop updating during the hang)
+</body>
+</html>

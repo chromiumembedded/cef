@@ -168,19 +168,22 @@ std::string GetContentStatusString(cef_ssl_content_status_t status) {
 
 // Load a data: URI containing the error message.
 void LoadErrorPage(CefRefPtr<CefFrame> frame,
+                   const std::string& title,
                    const std::string& failed_url,
-                   cef_errorcode_t error_code,
+                   const std::string& error_string,
                    const std::string& other_info) {
-  std::stringstream ss;
-  ss << "<html><head><title>Page failed to load</title></head>"
-        "<body bgcolor=\"white\">"
-        "<h3>Page failed to load.</h3>"
-        "URL: <a href=\""
-     << failed_url << "\">" << failed_url
-     << "</a><br/>Error: " << test_runner::GetErrorString(error_code) << " ("
-     << error_code << ")";
+  if (MainContext::Get()->UseChromeRuntime()) {
+    // Use default error pages with Chrome runtime.
+    return;
+  }
 
-  if (!other_info.empty()) {
+  std::stringstream ss;
+  ss << "<html><head><title>" << title
+     << "</title></head><body bgcolor=\"white\"><h3>" << title
+     << "</h3>URL: <a href=\"" << failed_url << "\">" << failed_url
+     << "</a><br/>Error: " << error_string;
+
+  if (!other_info.empty() && other_info != error_string) {
     ss << "<br/>" << other_info;
   }
 
@@ -463,9 +466,6 @@ ClientHandler::ClientHandler(Delegate* delegate,
       console_log_file_(MainContext::Get()->GetConsoleLogPath()) {
   DCHECK(!console_log_file_.empty());
 
-  resource_manager_ = new CefResourceManager();
-  test_runner::SetupResourceManager(resource_manager_, &string_resource_map_);
-
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
@@ -538,8 +538,8 @@ bool ClientHandler::OnProcessMessageReceived(
 
   const auto finish_time = bv_utils::Now();
 
-  if (message_router_->OnProcessMessageReceived(browser, frame, source_process,
-                                                message)) {
+  if (BaseClientHandler::OnProcessMessageReceived(browser, frame,
+                                                  source_process, message)) {
     return true;
   }
 
@@ -973,21 +973,7 @@ void ClientHandler::OnBeforeDevToolsPopup(
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
-
-  browser_count_++;
-
-  if (!message_router_) {
-    // Create the browser-side router for query handling.
-    CefMessageRouterConfig config;
-    message_router_ = CefMessageRouterBrowserSide::Create(config);
-
-    // Register handlers with the router.
-    test_runner::CreateMessageHandlers(message_handler_set_);
-    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
-    for (; it != message_handler_set_.end(); ++it) {
-      message_router_->AddHandler(*(it), false);
-    }
-  }
+  BaseClientHandler::OnAfterCreated(browser);
 
   // Set offline mode if requested via the command-line flag.
   if (offline_) {
@@ -1002,8 +988,8 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     CefRefPtr<CefExtension> extension = browser->GetHost()->GetExtension();
     if (extension_util::IsInternalExtension(extension->GetPath())) {
       // Register the internal handler for extension resources.
-      extension_util::AddInternalExtensionToResourceManager(extension,
-                                                            resource_manager_);
+      extension_util::AddInternalExtensionToResourceManager(
+          extension, GetResourceManager());
     }
   }
 
@@ -1022,18 +1008,7 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
-
-  if (--browser_count_ == 0) {
-    // Remove and delete message router handlers.
-    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
-    for (; it != message_handler_set_.end(); ++it) {
-      message_router_->RemoveHandler(*(it));
-      delete *(it);
-    }
-    message_handler_set_.clear();
-    message_router_ = nullptr;
-  }
-
+  BaseClientHandler::OnBeforeClose(browser);
   NotifyBrowserClosed(browser);
 }
 
@@ -1072,7 +1047,8 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   }
 
   // Load the error page.
-  LoadErrorPage(frame, failedUrl, errorCode, errorText);
+  LoadErrorPage(frame, "Page failed to load", failedUrl,
+                test_runner::GetErrorString(errorCode), errorText);
 }
 
 bool ClientHandler::OnRequestMediaAccessPermission(
@@ -1084,17 +1060,6 @@ bool ClientHandler::OnRequestMediaAccessPermission(
   callback->Continue(media_handling_disabled_ ? CEF_MEDIA_PERMISSION_NONE
                                               : requested_permissions);
   return true;
-}
-
-bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefRequest> request,
-                                   bool user_gesture,
-                                   bool is_redirect) {
-  CEF_REQUIRE_UI_THREAD();
-
-  message_router_->OnBeforeBrowse(browser, frame);
-  return false;
 }
 
 bool ClientHandler::OnOpenURLFromTab(
@@ -1176,7 +1141,8 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
   CefRefPtr<CefX509Certificate> cert = ssl_info->GetX509Certificate();
   if (cert.get()) {
     // Load the error page.
-    LoadErrorPage(browser->GetMainFrame(), request_url, cert_error,
+    LoadErrorPage(browser->GetMainFrame(), "SSL certificate error", request_url,
+                  test_runner::GetErrorString(cert_error),
                   GetCertificateInformation(cert, ssl_info->GetCertStatus()));
   }
 
@@ -1220,10 +1186,12 @@ bool ClientHandler::OnSelectClientCertificate(
 }
 
 void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                              TerminationStatus status) {
+                                              TerminationStatus status,
+                                              int error_code,
+                                              const CefString& error_string) {
   CEF_REQUIRE_UI_THREAD();
-
-  message_router_->OnRenderProcessTerminated(browser);
+  BaseClientHandler::OnRenderProcessTerminated(browser, status, error_code,
+                                               error_string);
 
   // Don't reload if there's no start URL, or if the crash URL was specified.
   if (startup_url_.empty() || startup_url_ == "chrome://crash") {
@@ -1245,6 +1213,10 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
 
   // Don't reload the URL that just resulted in termination.
   if (url.find(start_url) == 0) {
+    LoadErrorPage(frame, "Render process terminated", frame->GetURL(),
+                  test_runner::GetErrorString(status) + " (" +
+                      error_string.ToString() + ")",
+                  std::string());
     return;
   }
 
@@ -1262,37 +1234,6 @@ void ClientHandler::OnDocumentAvailableInMainFrame(
   }
 }
 
-cef_return_value_t ClientHandler::OnBeforeResourceLoad(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefCallback> callback) {
-  CEF_REQUIRE_IO_THREAD();
-
-  return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
-                                                 callback);
-}
-
-CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request) {
-  CEF_REQUIRE_IO_THREAD();
-
-  return resource_manager_->GetResourceHandler(browser, frame, request);
-}
-
-CefRefPtr<CefResponseFilter> ClientHandler::GetResourceResponseFilter(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response) {
-  CEF_REQUIRE_IO_THREAD();
-
-  return test_runner::GetResourceResponseFilter(browser, frame, request,
-                                                response);
-}
-
 void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                         CefRefPtr<CefFrame> frame,
                                         CefRefPtr<CefRequest> request,
@@ -1305,11 +1246,6 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   if (urlStr.find("spotify:") == 0) {
     allow_os_execution = true;
   }
-}
-
-int ClientHandler::GetBrowserCount() const {
-  CEF_REQUIRE_UI_THREAD();
-  return browser_count_;
 }
 
 void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
@@ -1402,17 +1338,6 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   config->url = test_runner::GetDataURI(ss.str(), "text/html");
   MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
       std::move(config));
-}
-
-void ClientHandler::SetStringResource(const std::string& page,
-                                      const std::string& data) {
-  if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::BindOnce(&ClientHandler::SetStringResource, this,
-                                       page, data));
-    return;
-  }
-
-  string_resource_map_[page] = data;
 }
 
 bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,

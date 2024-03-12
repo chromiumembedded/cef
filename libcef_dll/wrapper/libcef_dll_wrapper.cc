@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f2b284f21cdb59e621ecddbe2f07392d24d48ddd$
+// $hash=23f943f8e59a48f29ba3095642bc05d7f987a2f2$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -104,6 +104,16 @@ CEF_GLOBAL bool CefInitialize(const CefMainArgs& args,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") CEF_GLOBAL int CefGetExitCode() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_get_exit_code();
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefShutdown() {

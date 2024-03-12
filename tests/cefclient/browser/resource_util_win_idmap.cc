@@ -25,6 +25,7 @@ int GetResourceId(const char* resource_name) {
                        IDS_EXTENSIONS_SET_PAGE_COLOR_POPUP_HTML},
                       {"extensions/set_page_color/popup.js",
                        IDS_EXTENSIONS_SET_PAGE_COLOR_POPUP_JS},
+                      {"hang.html", IDS_HANG_HTML},
                       {"ipc_performance.html", IDS_IPC_PERFORMANCE_HTML},
                       {"localstorage.html", IDS_LOCALSTORAGE_HTML},
                       {"logo.png", IDS_LOGO_PNG},

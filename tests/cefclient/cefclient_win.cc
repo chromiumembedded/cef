@@ -99,7 +99,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   // fails or if early exit is desired (for example, due to process singleton
   // relaunch behavior).
   if (!context->Initialize(main_args, settings, app, sandbox_info)) {
-    return 1;
+    return CefGetExitCode();
   }
 
   // Register scheme handlers.

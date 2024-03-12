@@ -14,6 +14,7 @@
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/views/chrome_browser_view.h"
 #include "libcef/browser/chrome/views/chrome_child_window.h"
+#include "libcef/browser/hang_monitor.h"
 #include "libcef/browser/media_access_query.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/views/browser_view_impl.h"
@@ -359,6 +360,26 @@ ChromeBrowserDelegate::RequestMediaAccessPermissionEx(
         /*default_disallow=*/false);
   }
   return callback;
+}
+
+bool ChromeBrowserDelegate::RendererUnresponsiveEx(
+    content::WebContents* source,
+    content::RenderWidgetHost* render_widget_host,
+    base::RepeatingClosure hang_monitor_restarter) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    return hang_monitor::RendererUnresponsive(browser.get(), render_widget_host,
+                                              hang_monitor_restarter);
+  }
+  return false;
+}
+
+bool ChromeBrowserDelegate::RendererResponsiveEx(
+    content::WebContents* source,
+    content::RenderWidgetHost* render_widget_host) {
+  if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
+    return hang_monitor::RendererResponsive(browser.get(), render_widget_host);
+  }
+  return false;
 }
 
 bool ChromeBrowserDelegate::SupportsFramelessPictureInPicture() const {

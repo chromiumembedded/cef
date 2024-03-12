@@ -110,7 +110,7 @@ int RunMain(int argc, char* argv[]) {
   // fails or if early exit is desired (for example, due to process singleton
   // relaunch behavior).
   if (!context->Initialize(main_args, settings, app, nullptr)) {
-    return 1;
+    return CefGetExitCode();
   }
 
   // Force Gtk to use Xwayland (in case a Wayland compositor is being used).

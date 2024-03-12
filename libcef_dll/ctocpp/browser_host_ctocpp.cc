@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=736aa196beae8c3c35ef330eb78fb0908fccf70b$
+// $hash=da0fdd0a724301aa3ca12055bce970b9d3d0f708$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -1294,6 +1294,24 @@ void CefBrowserHostCToCpp::ExecuteChromeCommand(
 
   // Execute
   _struct->execute_chrome_command(_struct, command_id, disposition);
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefBrowserHostCToCpp::IsRenderProcessUnresponsive() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_render_process_unresponsive)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_render_process_unresponsive(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

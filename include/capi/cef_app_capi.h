@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b9a2bad4a30bcb99384197c9f7409116dc5b376e$
+// $hash=dfa0d4d2da319b2fd5e92324fd14301b500ceb5c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -137,14 +137,25 @@ CEF_EXPORT int cef_execute_process(const cef_main_args_t* args,
 /// true (1) if initialization succeeds. Returns false (0) if initialization
 /// fails or if early exit is desired (for example, due to process singleton
 /// relaunch behavior). If this function returns false (0) then the application
-/// should exit immediately without calling any other CEF functions. The
-/// |windows_sandbox_info| parameter is only used on Windows and may be NULL
-/// (see cef_sandbox_win.h for details).
+/// should exit immediately without calling any other CEF functions except,
+/// optionally, CefGetErrorCode. The |windows_sandbox_info| parameter is only
+/// used on Windows and may be NULL (see cef_sandbox_win.h for details).
 ///
 CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
                               const struct _cef_settings_t* settings,
                               cef_app_t* application,
                               void* windows_sandbox_info);
+
+///
+/// This function can optionally be called on the main application thread after
+/// CefInitialize to retrieve the initialization exit code. When CefInitialize
+/// returns true (1) the exit code will be 0 (CEF_RESULT_CODE_NORMAL_EXIT).
+/// Otherwise, see cef_resultcode_t for possible exit code values including
+/// browser process initialization errors and normal early exit conditions (such
+/// as CEF_RESULT_CODE_NORMAL_EXIT_PROCESS_NOTIFIED for process singleton
+/// relaunch behavior).
+///
+CEF_EXPORT int cef_get_exit_code(void);
 
 ///
 /// This function should be called on the main application thread to shut down

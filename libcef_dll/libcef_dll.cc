@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=215fc5a9025e8b0cd3d1bc7259ad6e6ac53b2125$
+// $hash=716d8a4bb86c9ee9ebe8dfe28ec2c37411507830$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -115,6 +115,16 @@ CEF_EXPORT int cef_initialize(const cef_main_args_t* args,
                     windows_sandbox_info);
 
   // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_get_exit_code() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = CefGetExitCode();
+
+  // Return type: simple
   return _retval;
 }
 

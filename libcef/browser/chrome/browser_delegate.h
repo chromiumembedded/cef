@@ -119,6 +119,21 @@ class BrowserDelegate : public content::WebContentsDelegate {
     return callback;
   }
 
+  // Same as RendererUnresponsive but returning false if unhandled.
+  virtual bool RendererUnresponsiveEx(
+      content::WebContents* source,
+      content::RenderWidgetHost* render_widget_host,
+      base::RepeatingClosure hang_monitor_restarter) {
+    return false;
+  }
+
+  // Same as RendererResponsive but returning false if unhandled.
+  virtual bool RendererResponsiveEx(
+      content::WebContents* source,
+      content::RenderWidgetHost* render_widget_host) {
+    return false;
+  }
+
   // Optionally override support for the specified window feature of type
   // Browser::WindowFeature.
   virtual std::optional<bool> SupportsWindowFeature(int feature) const {

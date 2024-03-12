@@ -42,6 +42,9 @@ class CefMainRunner : public CefMainRunnerHandler {
                   bool* initialized,
                   base::OnceClosure context_initialized);
 
+  // Only valid after Initialize is called.
+  int exit_code() const { return exit_code_; }
+
   // Called from CefContext::Shutdown.
   void Shutdown(base::OnceClosure shutdown_on_ui_thread,
                 base::OnceClosure finalize_shutdown);
@@ -90,6 +93,8 @@ class CefMainRunner : public CefMainRunnerHandler {
 
   // Used to quit the current base::RunLoop.
   base::OnceClosure quit_callback_;
+
+  int exit_code_ = -1;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MAIN_RUNNER_H_

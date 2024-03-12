@@ -184,7 +184,9 @@ void MRTestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 }
 
 void MRTestHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                              TerminationStatus status) {
+                                              TerminationStatus status,
+                                              int error_code,
+                                              const CefString& error_string) {
   message_router_->OnRenderProcessTerminated(browser);
 }
 

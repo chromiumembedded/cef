@@ -8,6 +8,7 @@
 
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
+#include "include/cef_unresponsive_process_callback.h"
 #include "include/views/cef_browser_view.h"
 #include "libcef/browser/browser_contents_delegate.h"
 #include "libcef/browser/browser_info.h"
@@ -238,6 +239,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void NotifyMoveOrResizeStarted() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
+  bool IsRenderProcessUnresponsive() override;
 
   // CefBrowser methods:
   bool IsValid() override;
@@ -341,6 +343,15 @@ class CefBrowserHostBase : public CefBrowserHost,
   }
   CefMediaStreamRegistrar* GetMediaStreamRegistrar();
 
+  CefRefPtr<CefUnresponsiveProcessCallback> unresponsive_process_callback()
+      const {
+    return unresponsive_process_callback_;
+  }
+  void set_unresponsive_process_callback(
+      CefRefPtr<CefUnresponsiveProcessCallback> callback) {
+    unresponsive_process_callback_ = callback;
+  }
+
   // Returns the Widget owner for the browser window. Only used with windowed
   // browsers.
   views::Widget* GetWindowWidget() const;
@@ -391,6 +402,7 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Only accessed on the UI thread.
   std::unique_ptr<CefBrowserContentsDelegate> contents_delegate_;
+  CefRefPtr<CefUnresponsiveProcessCallback> unresponsive_process_callback_;
 
   // Observers that want to be notified of changes to this object.
   // Only accessed on the UI thread.

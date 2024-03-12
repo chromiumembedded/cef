@@ -52,10 +52,13 @@ class CefContext {
   bool OnInitThread();
 
   // Returns true if the context is initialized.
-  bool initialized() { return initialized_; }
+  bool initialized() const { return initialized_; }
 
   // Returns true if the context is shutting down.
-  bool shutting_down() { return shutting_down_; }
+  bool shutting_down() const { return shutting_down_; }
+
+  // Only valid after Initialize is called.
+  int exit_code() const { return exit_code_; }
 
   const CefSettings& settings() const { return settings_; }
 
@@ -100,6 +103,7 @@ class CefContext {
   // Track context state.
   bool initialized_ = false;
   bool shutting_down_ = false;
+  int exit_code_ = -1;
 
   // The thread on which the context was initialized.
   base::PlatformThreadId init_thread_id_ = 0;

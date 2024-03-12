@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a93a6c9d3656f1c7fd70795abb89d608e996f834$
+// $hash=19b44051658f9e6419dc37d33ed9a70239b5f857$
 //
 
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -20,6 +20,7 @@
 #include "libcef_dll/cpptoc/request_cpptoc.h"
 #include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
+#include "libcef_dll/cpptoc/unresponsive_process_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include "libcef_dll/ctocpp/resource_request_handler_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
@@ -341,9 +342,67 @@ void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
 }
 
 NO_SANITIZE("cfi-icall")
+bool CefRequestHandlerCToCpp::OnRenderProcessUnresponsive(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefUnresponsiveProcessCallback> callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_render_process_unresponsive)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return false;
+  }
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->on_render_process_unresponsive(
+      _struct, CefBrowserCppToC::Wrap(browser),
+      CefUnresponsiveProcessCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestHandlerCToCpp::OnRenderProcessResponsive(
+    CefRefPtr<CefBrowser> browser) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_render_process_responsive)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_render_process_responsive(_struct,
+                                        CefBrowserCppToC::Wrap(browser));
+}
+
+NO_SANITIZE("cfi-icall")
 void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     CefRefPtr<CefBrowser> browser,
-    TerminationStatus status) {
+    TerminationStatus status,
+    int error_code,
+    const CefString& error_string) {
   shutdown_checker::AssertNotShutdown();
 
   cef_request_handler_t* _struct = GetStruct();
@@ -358,10 +417,16 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
   if (!browser.get()) {
     return;
   }
+  // Verify param: error_string; type: string_byref_const
+  DCHECK(!error_string.empty());
+  if (error_string.empty()) {
+    return;
+  }
 
   // Execute
-  _struct->on_render_process_terminated(
-      _struct, CefBrowserCppToC::Wrap(browser), status);
+  _struct->on_render_process_terminated(_struct,
+                                        CefBrowserCppToC::Wrap(browser), status,
+                                        error_code, error_string.GetStruct());
 }
 
 NO_SANITIZE("cfi-icall")

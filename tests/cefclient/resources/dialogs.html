@@ -1,6 +1,25 @@
 <html>
 <head>
 <title>Dialog Test</title>
+<style>
+#loading {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 3px solid rgba(0,0,0,.3);
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
+}
+</style>
 <script>
 function show_alert() {
   alert("I am an alert box!");
@@ -74,7 +93,19 @@ Click a button to show the associated dialog type.
 <br/><input type="button" onclick="show_file_dialog('fom', 'FileOpenMultiple');" value="Show File Open (multiple types/files)" disabled="true"> <span id="fom"></span>
 <br/><input type="button" onclick="show_file_dialog('fof', 'FileOpenFolder');" value="Show File Open Folder" disabled="true"> <span id="fof"></span>
 <br/><input type="button" onclick="show_file_dialog('fs', 'FileSave');" value="Show File Save" disabled="true"> <span id="fs"></span>
-<p id="time"></p>
 </form>
+
+Observe page responsiveness:
+<br/><br/>
+<table><tr>
+<td valign="top">
+CSS:<br/><div id="loading"></div>
+</td>
+<td>&nbsp;</td>
+<td valign="top">
+JavaScript:<br/><div id="time"></div>
+</td>
+</tr></table>
+(JavaScript will stop updating while alert/confirm/prompt is displayed)
 </body>
 </html>

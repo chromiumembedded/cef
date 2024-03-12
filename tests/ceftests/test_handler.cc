@@ -437,8 +437,11 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
 }
 
 void TestHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                            TerminationStatus status) {
-  LOG(WARNING) << "OnRenderProcessTerminated: status = " << status << ".";
+                                            TerminationStatus status,
+                                            int error_code,
+                                            const CefString& error_string) {
+  LOG(WARNING) << "OnRenderProcessTerminated: status = " << status
+               << ", error = " << error_string.ToString() << ".";
 }
 
 CefRefPtr<CefBrowser> TestHandler::GetBrowser() const {

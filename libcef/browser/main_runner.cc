@@ -245,20 +245,20 @@ bool CefMainRunner::Initialize(CefSettings* settings,
       settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::ALLOY, this,
       settings, application);
 
-  int exit_code =
+  exit_code_ =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
-  if (exit_code >= 0) {
-    LOG(ERROR) << "ContentMainInitialize failed with exit code " << exit_code;
+  if (exit_code_ >= 0) {
+    LOG(ERROR) << "ContentMainInitialize failed with exit code " << exit_code_;
     return false;
   }
 
-  exit_code = ContentMainRun(initialized, std::move(context_initialized));
-  if (exit_code != content::RESULT_CODE_NORMAL_EXIT) {
+  exit_code_ = ContentMainRun(initialized, std::move(context_initialized));
+  if (exit_code_ != content::RESULT_CODE_NORMAL_EXIT) {
     // Some exit codes are used to exit early, but are otherwise a normal
     // result. Don't log for those codes.
     if (!chrome::IsNormalResultCode(
-            static_cast<chrome::ResultCode>(exit_code))) {
-      LOG(ERROR) << "ContentMainRun failed with exit code " << exit_code;
+            static_cast<chrome::ResultCode>(exit_code_))) {
+      LOG(ERROR) << "ContentMainRun failed with exit code " << exit_code_;
     }
     return false;
   }

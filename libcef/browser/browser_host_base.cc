@@ -9,6 +9,7 @@
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/hang_monitor.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/navigation_entry_impl.h"
 #include "libcef/browser/printing/print_util.h"
@@ -31,6 +32,8 @@
 #include "content/public/browser/download_request_utils.h"
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
 #include "ui/base/resource/resource_scale_factor.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/shell_dialogs/select_file_policy.h"
@@ -255,6 +258,11 @@ void CefBrowserHostBase::DestroyBrowser() {
 
   contents_delegate_->RemoveObserver(this);
   contents_delegate_->ObserveWebContents(nullptr);
+
+  if (unresponsive_process_callback_) {
+    hang_monitor::Detach(unresponsive_process_callback_);
+    unresponsive_process_callback_.reset();
+  }
 
   CefBrowserInfoManager::GetInstance()->RemoveBrowserInfo(browser_info_);
   browser_info_->SetBrowser(nullptr);
@@ -705,6 +713,22 @@ void CefBrowserHostBase::ExitFullscreen(bool will_cause_resize) {
   if (web_contents && web_contents->IsFullscreen()) {
     web_contents->ExitFullscreen(will_cause_resize);
   }
+}
+
+bool CefBrowserHostBase::IsRenderProcessUnresponsive() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+
+  if (auto* web_contents = GetWebContents()) {
+    if (auto* rvh = web_contents->GetRenderViewHost()) {
+      if (auto* rwh = rvh->GetWidget()) {
+        return rwh->IsCurrentlyUnresponsive();
+      }
+    }
+  }
+  return false;
 }
 
 void CefBrowserHostBase::ReplaceMisspelling(const CefString& word) {

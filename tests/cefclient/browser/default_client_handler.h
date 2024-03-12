@@ -6,52 +6,17 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_DEFAULT_CLIENT_HANDLER_H_
 #pragma once
 
-#include "include/cef_client.h"
-#include "include/wrapper/cef_resource_manager.h"
+#include "tests/cefclient/browser/base_client_handler.h"
 
 namespace client {
 
 // Default client handler for unmanaged browser windows. Used with the Chrome
 // runtime only.
-class DefaultClientHandler : public CefClient,
-                             public CefRequestHandler,
-                             public CefResourceRequestHandler {
+class DefaultClientHandler : public BaseClientHandler {
  public:
-  DefaultClientHandler();
-
-  // CefClient methods
-  CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
-
-  // CefRequestHandler methods
-  CefRefPtr<CefResourceRequestHandler> GetResourceRequestHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      bool is_navigation,
-      bool is_download,
-      const CefString& request_initiator,
-      bool& disable_default_handling) override;
-
-  // CefResourceRequestHandler methods
-  cef_return_value_t OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefCallback> callback) override;
-  CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) override;
-  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) override;
+  DefaultClientHandler() = default;
 
  private:
-  // Manages the registration and delivery of resources.
-  CefRefPtr<CefResourceManager> resource_manager_;
-
   IMPLEMENT_REFCOUNTING(DefaultClientHandler);
   DISALLOW_COPY_AND_ASSIGN(DefaultClientHandler);
 };

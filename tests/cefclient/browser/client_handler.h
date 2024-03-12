@@ -11,8 +11,7 @@
 
 #include "include/cef_client.h"
 #include "include/wrapper/cef_helpers.h"
-#include "include/wrapper/cef_message_router.h"
-#include "include/wrapper/cef_resource_manager.h"
+#include "tests/cefclient/browser/base_client_handler.h"
 #include "tests/cefclient/browser/client_types.h"
 #include "tests/cefclient/browser/test_runner.h"
 
@@ -27,7 +26,7 @@ class ClientDownloadImageCallback;
 
 // Client handler abstract base class. Provides common functionality shared by
 // all concrete client handler implementations.
-class ClientHandler : public CefClient,
+class ClientHandler : public BaseClientHandler,
                       public CefCommandHandler,
                       public CefContextMenuHandler,
                       public CefDisplayHandler,
@@ -35,11 +34,8 @@ class ClientHandler : public CefClient,
                       public CefDragHandler,
                       public CefFocusHandler,
                       public CefKeyboardHandler,
-                      public CefLifeSpanHandler,
                       public CefLoadHandler,
-                      public CefPermissionHandler,
-                      public CefRequestHandler,
-                      public CefResourceRequestHandler {
+                      public CefPermissionHandler {
  public:
   // Implement this interface to receive notification of ClientHandler
   // events. The methods of this class will be called on the main thread unless
@@ -89,8 +85,6 @@ class ClientHandler : public CefClient,
     virtual ~Delegate() = default;
   };
 
-  typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
-
   // Constructor may be called on any thread.
   // |delegate| must outlive this object or DetachDelegate() must be called.
   ClientHandler(Delegate* delegate,
@@ -112,9 +106,7 @@ class ClientHandler : public CefClient,
   CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
   CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
-  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
-  CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
   CefRefPtr<CefPermissionHandler> GetPermissionHandler() override {
     return this;
   }
@@ -254,11 +246,6 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefMediaAccessCallback> callback) override;
 
   // CefRequestHandler methods
-  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame,
-                      CefRefPtr<CefRequest> request,
-                      bool user_gesture,
-                      bool is_redirect) override;
   bool OnOpenURLFromTab(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -294,32 +281,16 @@ class ClientHandler : public CefClient,
       const X509CertificateList& certificates,
       CefRefPtr<CefSelectClientCertificateCallback> callback) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                 TerminationStatus status) override;
+                                 TerminationStatus status,
+                                 int error_code,
+                                 const CefString& error_string) override;
   void OnDocumentAvailableInMainFrame(CefRefPtr<CefBrowser> browser) override;
 
   // CefResourceRequestHandler methods
-  cef_return_value_t OnBeforeResourceLoad(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefCallback> callback) override;
-  CefRefPtr<CefResourceHandler> GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) override;
-  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request,
-      CefRefPtr<CefResponse> response) override;
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefRequest> request,
                            bool& allow_os_execution) override;
-
-  // Returns the number of browsers currently using this handler. Can only be
-  // called on the CEF UI thread.
-  int GetBrowserCount() const;
 
   // Show a new DevTools popup window.
   void ShowDevTools(CefRefPtr<CefBrowser> browser,
@@ -333,9 +304,6 @@ class ClientHandler : public CefClient,
 
   // Show SSL information for the current site.
   void ShowSSLInformation(CefRefPtr<CefBrowser> browser);
-
-  // Set a string resource for loading via StringResourceProvider.
-  void SetStringResource(const std::string& page, const std::string& data);
 
   // Returns the Delegate.
   Delegate* delegate() const { return delegate_; }
@@ -416,17 +384,6 @@ class ClientHandler : public CefClient,
   CefRefPtr<ClientPrintHandlerGtk> print_handler_;
 #endif
 
-  // Handles the browser side of query routing. The renderer side is handled
-  // in client_renderer.cc.
-  CefRefPtr<CefMessageRouterBrowserSide> message_router_;
-
-  // Manages the registration and delivery of resources.
-  CefRefPtr<CefResourceManager> resource_manager_;
-
-  // Used to manage string resources in combination with StringResourceProvider.
-  // Only accessed on the IO thread.
-  test_runner::StringResourceMap string_resource_map_;
-
   // MAIN THREAD MEMBERS
   // The following members will only be accessed on the main thread. This will
   // be the same as the CEF UI thread except when using multi-threaded message
@@ -444,9 +401,6 @@ class ClientHandler : public CefClient,
     int radio_item = 0;
   } test_menu_state_;
 
-  // The current number of browsers using this handler.
-  int browser_count_ = 0;
-
   // Console logging state.
   const std::string console_log_file_;
 
@@ -455,9 +409,6 @@ class ClientHandler : public CefClient,
 
   // True for the initial navigation after browser creation.
   bool initial_navigation_ = true;
-
-  // Set of Handlers registered with the message router.
-  MessageHandlerSet message_handler_set_;
 
   DISALLOW_COPY_AND_ASSIGN(ClientHandler);
 };

@@ -76,7 +76,9 @@ class MRTestHandler : public TestHandler {
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                 TerminationStatus status) override;
+                                 TerminationStatus status,
+                                 int error_code,
+                                 const CefString& error_string) override;
 
   // Only call this method if the navigation isn't canceled.
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

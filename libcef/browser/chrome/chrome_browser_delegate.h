@@ -76,6 +76,13 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       content::MediaResponseCallback callback) override;
+  bool RendererUnresponsiveEx(
+      content::WebContents* source,
+      content::RenderWidgetHost* render_widget_host,
+      base::RepeatingClosure hang_monitor_restarter) override;
+  bool RendererResponsiveEx(
+      content::WebContents* source,
+      content::RenderWidgetHost* render_widget_host) override;
   std::optional<bool> SupportsWindowFeature(int feature) const override;
   bool SupportsDraggableRegion() const override;
   const std::optional<SkRegion> GetDraggableRegion() const override;

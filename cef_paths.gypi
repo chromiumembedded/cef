@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=25599539f43226aac01bfcb74f19ac74217aee9a$
+# $hash=3b28f3236c16d2b776a44674ae3bae0a070e9f27$
 #
 
 {
@@ -85,6 +85,7 @@
       'include/cef_task.h',
       'include/cef_thread.h',
       'include/cef_trace.h',
+      'include/cef_unresponsive_process_callback.h',
       'include/cef_urlrequest.h',
       'include/cef_v8.h',
       'include/cef_values.h',
@@ -189,6 +190,7 @@
       'include/capi/cef_task_capi.h',
       'include/capi/cef_thread_capi.h',
       'include/capi/cef_trace_capi.h',
+      'include/capi/cef_unresponsive_process_callback_capi.h',
       'include/capi/cef_urlrequest_capi.h',
       'include/capi/cef_v8_capi.h',
       'include/capi/cef_values_capi.h',
@@ -508,6 +510,8 @@
       'libcef_dll/cpptoc/urlrequest_cpptoc.h',
       'libcef_dll/ctocpp/urlrequest_client_ctocpp.cc',
       'libcef_dll/ctocpp/urlrequest_client_ctocpp.h',
+      'libcef_dll/cpptoc/unresponsive_process_callback_cpptoc.cc',
+      'libcef_dll/cpptoc/unresponsive_process_callback_cpptoc.h',
       'libcef_dll/ctocpp/v8accessor_ctocpp.cc',
       'libcef_dll/ctocpp/v8accessor_ctocpp.h',
       'libcef_dll/ctocpp/v8array_buffer_release_callback_ctocpp.cc',
@@ -836,6 +840,8 @@
       'libcef_dll/ctocpp/urlrequest_ctocpp.h',
       'libcef_dll/cpptoc/urlrequest_client_cpptoc.cc',
       'libcef_dll/cpptoc/urlrequest_client_cpptoc.h',
+      'libcef_dll/ctocpp/unresponsive_process_callback_ctocpp.cc',
+      'libcef_dll/ctocpp/unresponsive_process_callback_ctocpp.h',
       'libcef_dll/cpptoc/v8accessor_cpptoc.cc',
       'libcef_dll/cpptoc/v8accessor_cpptoc.h',
       'libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.cc',

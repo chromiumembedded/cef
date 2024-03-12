@@ -34,6 +34,9 @@ namespace {
 
 CefContext* g_context = nullptr;
 
+// Invalid value before CefInitialize is called.
+int g_exit_code = -1;
+
 #if DCHECK_IS_ON()
 // When the process terminates check if CefShutdown() has been called.
 class CefShutdownChecker {
@@ -309,8 +312,11 @@ bool CefInitialize(const CefMainArgs& args,
   g_context = new CefContext();
 
   // Initialize the global context.
-  if (!g_context->Initialize(args, settings, application,
-                             windows_sandbox_info)) {
+  const bool initialized =
+      g_context->Initialize(args, settings, application, windows_sandbox_info);
+  g_exit_code = g_context->exit_code();
+
+  if (!initialized) {
     // Initialization failed. Delete the global context object.
     delete g_context;
     g_context = nullptr;
@@ -318,6 +324,11 @@ bool CefInitialize(const CefMainArgs& args,
   }
 
   return true;
+}
+
+int CefGetExitCode() {
+  DCHECK_NE(g_exit_code, -1) << "invalid call to CefGetExitCode";
+  return g_exit_code;
 }
 
 void CefShutdown() {
@@ -477,10 +488,14 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   main_runner_ = std::make_unique<CefMainRunner>(
       settings_.multi_threaded_message_loop, settings_.external_message_pump);
-  if (!main_runner_->Initialize(
-          &settings_, application, args, windows_sandbox_info, &initialized_,
-          base::BindOnce(&CefContext::OnContextInitialized,
-                         base::Unretained(this)))) {
+
+  const bool initialized = main_runner_->Initialize(
+      &settings_, application, args, windows_sandbox_info, &initialized_,
+      base::BindOnce(&CefContext::OnContextInitialized,
+                     base::Unretained(this)));
+  exit_code_ = main_runner_->exit_code();
+
+  if (!initialized) {
     shutting_down_ = true;
     FinalizeShutdown();
     return false;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c1afe37bef47447905f9dc6b6ba56f550e24021f$
+// $hash=790f88d9d22bbef9882470f0980f5e7e446d30c5$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1506,6 +1506,24 @@ browser_host_execute_chrome_command(struct _cef_browser_host_t* self,
                                                         disposition);
 }
 
+int CEF_CALLBACK
+browser_host_is_render_process_unresponsive(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsRenderProcessUnresponsive();
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1588,6 +1606,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->can_execute_chrome_command =
       browser_host_can_execute_chrome_command;
   GetStruct()->execute_chrome_command = browser_host_execute_chrome_command;
+  GetStruct()->is_render_process_unresponsive =
+      browser_host_is_render_process_unresponsive;
 }
 
 // DESTRUCTOR - Do not edit by hand.

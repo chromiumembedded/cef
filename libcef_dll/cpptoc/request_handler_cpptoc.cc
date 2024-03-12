@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a0c9cb5d77d315e067d07ed633b623a8e12a1fc$
+// $hash=436eb7d254d6edc452b8b529758967d274fa2f85$
 //
 
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -21,6 +21,7 @@
 #include "libcef_dll/ctocpp/request_ctocpp.h"
 #include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
+#include "libcef_dll/ctocpp/unresponsive_process_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 
@@ -345,10 +346,42 @@ request_handler_on_render_view_ready(struct _cef_request_handler_t* self,
       CefBrowserCToCpp::Wrap(browser));
 }
 
-void CEF_CALLBACK request_handler_on_render_process_terminated(
+int CEF_CALLBACK request_handler_on_render_process_unresponsive(
     struct _cef_request_handler_t* self,
     cef_browser_t* browser,
-    cef_termination_status_t status) {
+    struct _cef_unresponsive_process_callback_t* callback) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return 0;
+  }
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefRequestHandlerCppToC::Get(self)->OnRenderProcessUnresponsive(
+          CefBrowserCToCpp::Wrap(browser),
+          CefUnresponsiveProcessCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK request_handler_on_render_process_responsive(
+    struct _cef_request_handler_t* self,
+    cef_browser_t* browser) {
   shutdown_checker::AssertNotShutdown();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -364,8 +397,39 @@ void CEF_CALLBACK request_handler_on_render_process_terminated(
   }
 
   // Execute
+  CefRequestHandlerCppToC::Get(self)->OnRenderProcessResponsive(
+      CefBrowserCToCpp::Wrap(browser));
+}
+
+void CEF_CALLBACK request_handler_on_render_process_terminated(
+    struct _cef_request_handler_t* self,
+    cef_browser_t* browser,
+    cef_termination_status_t status,
+    int error_code,
+    const cef_string_t* error_string) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return;
+  }
+  // Verify param: error_string; type: string_byref_const
+  DCHECK(error_string);
+  if (!error_string) {
+    return;
+  }
+
+  // Execute
   CefRequestHandlerCppToC::Get(self)->OnRenderProcessTerminated(
-      CefBrowserCToCpp::Wrap(browser), status);
+      CefBrowserCToCpp::Wrap(browser), status, error_code,
+      CefString(error_string));
 }
 
 void CEF_CALLBACK request_handler_on_document_available_in_main_frame(
@@ -404,6 +468,10 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC() {
   GetStruct()->on_select_client_certificate =
       request_handler_on_select_client_certificate;
   GetStruct()->on_render_view_ready = request_handler_on_render_view_ready;
+  GetStruct()->on_render_process_unresponsive =
+      request_handler_on_render_process_unresponsive;
+  GetStruct()->on_render_process_responsive =
+      request_handler_on_render_process_responsive;
   GetStruct()->on_render_process_terminated =
       request_handler_on_render_process_terminated;
   GetStruct()->on_document_available_in_main_frame =

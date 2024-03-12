@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
     // fails or if early exit is desired (for example, due to process singleton
     // relaunch behavior).
     if (!CefInitialize(main_args, settings, app.get(), nullptr)) {
-      return 1;
+      return CefGetExitCode();
     }
 
     // Create the application delegate.

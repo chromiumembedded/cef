@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f882e920463e6681b19a06c9d897b09b17e27bd3$
+// $hash=fd77a51eeea378bb56d43ba2995a0417d905c247$
 //
 
 #include <dlfcn.h>
@@ -92,6 +92,7 @@ void* libcef_get_ptr(const char* path, const char* name) {
 struct libcef_pointers {
   decltype(&cef_execute_process) cef_execute_process;
   decltype(&cef_initialize) cef_initialize;
+  decltype(&cef_get_exit_code) cef_get_exit_code;
   decltype(&cef_shutdown) cef_shutdown;
   decltype(&cef_do_message_loop_work) cef_do_message_loop_work;
   decltype(&cef_run_message_loop) cef_run_message_loop;
@@ -337,6 +338,7 @@ struct libcef_pointers {
 int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_execute_process);
   INIT_ENTRY(cef_initialize);
+  INIT_ENTRY(cef_get_exit_code);
   INIT_ENTRY(cef_shutdown);
   INIT_ENTRY(cef_do_message_loop_work);
   INIT_ENTRY(cef_run_message_loop);
@@ -588,6 +590,10 @@ int cef_initialize(const cef_main_args_t* args,
                    void* windows_sandbox_info) {
   return g_libcef_pointers.cef_initialize(args, settings, application,
                                           windows_sandbox_info);
+}
+
+NO_SANITIZE("cfi-icall") int cef_get_exit_code() {
+  return g_libcef_pointers.cef_get_exit_code();
 }
 
 NO_SANITIZE("cfi-icall") void cef_shutdown() {
