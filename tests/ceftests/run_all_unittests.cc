@@ -49,6 +49,12 @@
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
 
+#if defined(OS_MAC)
+// Platform-specific initialization and cleanup.
+extern void PlatformInit();
+extern void PlatformCleanup();
+#endif
+
 namespace {
 
 void QuitMessageLoop() {
@@ -117,12 +123,18 @@ int XIOErrorHandlerImpl(Display* display) {
 }
 #endif  // defined(OS_LINUX) && defined(CEF_X11)
 
+#if defined(OS_MAC)
+class ScopedPlatformSetup final {
+ public:
+  ScopedPlatformSetup() { PlatformInit(); }
+  ~ScopedPlatformSetup() { PlatformCleanup(); }
+};
+#endif  // defined(OS_MAC)
+
 }  // namespace
 
 int main(int argc, char* argv[]) {
-#if !defined(OS_MAC)
   int exit_code;
-#endif
 
 #if defined(OS_WIN) && defined(ARCH_CPU_32_BITS)
   // Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB
@@ -186,7 +198,7 @@ int main(int argc, char* argv[]) {
   }
 #else
   } else {
-    // On OS X this executable is only used for the main process.
+    // On MacOS this executable is only used for the main process.
     NOTREACHED();
   }
 #endif
@@ -202,9 +214,7 @@ int main(int argc, char* argv[]) {
   test_suite.GetSettings(settings);
 
 #if defined(OS_MAC)
-  // Platform-specific initialization.
-  extern void PlatformInit();
-  PlatformInit();
+  ScopedPlatformSetup scoped_platform_setup;
 #endif
 
 #if defined(OS_LINUX) && defined(CEF_X11)
@@ -214,18 +224,14 @@ int main(int argc, char* argv[]) {
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 #endif
 
-  // Create the MessageLoop.
-  std::unique_ptr<client::MainMessageLoop> message_loop;
-  if (!settings.multi_threaded_message_loop) {
-    if (settings.external_message_pump) {
-      message_loop = client::MainMessageLoopExternalPump::Create();
-    } else {
-      message_loop = std::make_unique<client::MainMessageLoopStd>();
-    }
+  // Initialize CEF.
+  if (!CefInitialize(main_args, settings, app, windows_sandbox_info)) {
+    exit_code = CefGetExitCode();
+    LOG(ERROR) << "CefInitialize exited with code " << exit_code;
+    return exit_code;
   }
 
-  // Initialize CEF.
-  CefInitialize(main_args, settings, app, windows_sandbox_info);
+  std::unique_ptr<client::MainMessageLoop> message_loop;
 
   // Initialize the testing framework.
   test_suite.InitMainProcess();
@@ -245,6 +251,7 @@ int main(int argc, char* argv[]) {
     // Create and start the test thread.
     CefRefPtr<CefThread> thread = CefThread::CreateThread("test_thread");
     if (!thread) {
+      LOG(ERROR) << "test_thread creation failed";
       return 1;
     }
 
@@ -252,6 +259,13 @@ int main(int argc, char* argv[]) {
     // chance to execute first.
     CefPostTask(TID_UI,
                 base::BindOnce(&ContinueOnUIThread, thread->GetTaskRunner()));
+
+    // Create the CEF message loop.
+    if (settings.external_message_pump) {
+      message_loop = client::MainMessageLoopExternalPump::Create();
+    } else {
+      message_loop = std::make_unique<client::MainMessageLoopStd>();
+    }
 
     // Run the CEF message loop.
     message_loop->Run();
@@ -269,14 +283,8 @@ int main(int argc, char* argv[]) {
 
   test_suite.DeleteTempDirectories();
 
-  // Destroy the MessageLoop.
+  // Destroy the CEF message loop, if any.
   message_loop.reset(nullptr);
-
-#if defined(OS_MAC)
-  // Platform-specific cleanup.
-  extern void PlatformCleanup();
-  PlatformCleanup();
-#endif
 
   return retval;
 }
