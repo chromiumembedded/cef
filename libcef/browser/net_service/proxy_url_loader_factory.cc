@@ -40,12 +40,12 @@ namespace {
 // User data key for ResourceContextData.
 const void* const kResourceContextUserDataKey = &kResourceContextUserDataKey;
 
-absl::optional<std::string> GetHeaderString(
+std::optional<std::string> GetHeaderString(
     const net::HttpResponseHeaders* headers,
     const std::string& header_name) {
   std::string header_value;
   if (!headers || !headers->GetNormalizedHeader(header_name, &header_value)) {
-    return absl::nullopt;
+    return std::nullopt;
   }
   return header_value;
 }
@@ -247,7 +247,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   void OnReceiveResponse(
       network::mojom::URLResponseHeadPtr head,
       mojo::ScopedDataPipeConsumerHandle body,
-      absl::optional<mojo_base::BigBuffer> cached_metadata) override;
+      std::optional<mojo_base::BigBuffer> cached_metadata) override;
   void OnReceiveRedirect(const net::RedirectInfo& redirect_info,
                          network::mojom::URLResponseHeadPtr head) override;
   void OnUploadProgress(int64_t current_position,
@@ -261,7 +261,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
       const std::vector<std::string>& removed_headers,
       const net::HttpRequestHeaders& modified_headers,
       const net::HttpRequestHeaders& modified_cors_exempt_headers,
-      const absl::optional<GURL>& new_url) override;
+      const std::optional<GURL>& new_url) override;
   void SetPriority(net::RequestPriority priority,
                    int32_t intra_priority_value) override;
   void PauseReadingBodyFromNet() override;
@@ -282,7 +282,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   // Helpers for optionally overriding headers.
   void HandleResponseOrRedirectHeaders(
-      absl::optional<net::RedirectInfo> redirect_info,
+      std::optional<net::RedirectInfo> redirect_info,
       net::CompletionOnceCallback continuation);
   void ContinueResponseOrRedirect(
       net::CompletionOnceCallback continuation,
@@ -352,7 +352,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   network::ResourceRequest request_;
   network::mojom::URLResponseHeadPtr current_response_;
   mojo::ScopedDataPipeConsumerHandle current_body_;
-  absl::optional<mojo_base::BigBuffer> current_cached_metadata_;
+  std::optional<mojo_base::BigBuffer> current_cached_metadata_;
   scoped_refptr<net::HttpResponseHeaders> current_headers_;
   scoped_refptr<net::HttpResponseHeaders> override_headers_;
   GURL original_url_;
@@ -450,7 +450,7 @@ InterceptedRequest::~InterceptedRequest() {
   }
   if (on_headers_received_callback_) {
     std::move(on_headers_received_callback_)
-        .Run(net::ERR_ABORTED, absl::nullopt, GURL());
+        .Run(net::ERR_ABORTED, std::nullopt, GURL());
   }
 }
 
@@ -579,12 +579,12 @@ void InterceptedRequest::OnBeforeSendHeaders(
     const net::HttpRequestHeaders& headers,
     OnBeforeSendHeadersCallback callback) {
   if (!current_request_uses_header_client_) {
-    std::move(callback).Run(net::OK, absl::nullopt);
+    std::move(callback).Run(net::OK, std::nullopt);
     return;
   }
 
   request_.headers = headers;
-  std::move(callback).Run(net::OK, absl::nullopt);
+  std::move(callback).Run(net::OK, std::nullopt);
 
   // Resume handling of client messages after continuing from an async callback.
   if (proxied_client_receiver_.is_bound()) {
@@ -597,14 +597,14 @@ void InterceptedRequest::OnHeadersReceived(
     const net::IPEndPoint& remote_endpoint,
     OnHeadersReceivedCallback callback) {
   if (!current_request_uses_header_client_) {
-    std::move(callback).Run(net::OK, absl::nullopt, GURL());
+    std::move(callback).Run(net::OK, std::nullopt, GURL());
     return;
   }
 
   current_headers_ = base::MakeRefCounted<net::HttpResponseHeaders>(headers);
   on_headers_received_callback_ = std::move(callback);
 
-  absl::optional<net::RedirectInfo> redirect_info;
+  std::optional<net::RedirectInfo> redirect_info;
   std::string location;
   if (current_headers_->IsRedirect(&location)) {
     const GURL new_url = request_.url.Resolve(location);
@@ -628,7 +628,7 @@ void InterceptedRequest::OnReceiveEarlyHints(
 void InterceptedRequest::OnReceiveResponse(
     network::mojom::URLResponseHeadPtr head,
     mojo::ScopedDataPipeConsumerHandle body,
-    absl::optional<mojo_base::BigBuffer> cached_metadata) {
+    std::optional<mojo_base::BigBuffer> cached_metadata) {
   current_response_ = std::move(head);
   current_body_ = std::move(body);
   current_cached_metadata_ = std::move(cached_metadata);
@@ -643,7 +643,7 @@ void InterceptedRequest::OnReceiveResponse(
     ContinueToResponseStarted(net::OK);
   } else {
     HandleResponseOrRedirectHeaders(
-        absl::nullopt,
+        std::nullopt,
         base::BindOnce(&InterceptedRequest::ContinueToResponseStarted,
                        weak_factory_.GetWeakPtr()));
   }
@@ -743,7 +743,7 @@ void InterceptedRequest::FollowRedirect(
     const std::vector<std::string>& removed_headers_ext,
     const net::HttpRequestHeaders& modified_headers_ext,
     const net::HttpRequestHeaders& modified_cors_exempt_headers,
-    const absl::optional<GURL>& new_url) {
+    const std::optional<GURL>& new_url) {
   std::vector<std::string> removed_headers = removed_headers_ext;
   net::HttpRequestHeaders modified_headers = modified_headers_ext;
   OnProcessRequestHeaders(new_url.value_or(GURL()), &modified_headers,
@@ -894,7 +894,7 @@ void InterceptedRequest::ContinueAfterInterceptWithOverride(
 }
 
 void InterceptedRequest::HandleResponseOrRedirectHeaders(
-    absl::optional<net::RedirectInfo> redirect_info,
+    std::optional<net::RedirectInfo> redirect_info,
     net::CompletionOnceCallback continuation) {
   override_headers_ = nullptr;
   redirect_url_ = redirect_info.has_value() ? redirect_info->new_url : GURL();
@@ -957,7 +957,7 @@ void InterceptedRequest::ContinueToHandleOverrideHeaders(int error_code) {
   }
 
   DCHECK(on_headers_received_callback_);
-  absl::optional<std::string> headers;
+  std::optional<std::string> headers;
   if (override_headers_) {
     headers = override_headers_->raw_headers();
   }
@@ -1056,8 +1056,8 @@ void InterceptedRequest::ContinueToBeforeRedirect(
   bool should_clear_upload;
   net::RedirectUtil::UpdateHttpRequest(original_url, original_method,
                                        new_redirect_info,
-                                       absl::make_optional(remove_headers),
-                                       /*modified_headers=*/absl::nullopt,
+                                       std::make_optional(remove_headers),
+                                       /*modified_headers=*/std::nullopt,
                                        &request_.headers, &should_clear_upload);
 
   if (should_clear_upload) {
@@ -1275,7 +1275,7 @@ void InterceptedRequestHandler::OnRequestResponse(
     int32_t request_id,
     network::ResourceRequest* request,
     net::HttpResponseHeaders* headers,
-    absl::optional<net::RedirectInfo> redirect_info,
+    std::optional<net::RedirectInfo> redirect_info,
     OnRequestResponseResultCallback callback) {
   std::move(callback).Run(
       ResponseMode::CONTINUE, nullptr,

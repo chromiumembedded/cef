@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_CONTEXT_IMPL_H_
 #pragma once
 
+#include <optional>
 #include <set>
 #include <vector>
 
@@ -19,7 +20,6 @@
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "url/origin.h"
 
 /*
@@ -187,7 +187,7 @@ class CefBrowserContext {
   CefRefPtr<CefRequestContextImpl> GetAnyRequestContext(
       bool prefer_no_handler) const;
 
-  using CookieableSchemes = absl::optional<std::vector<std::string>>;
+  using CookieableSchemes = std::optional<std::vector<std::string>>;
 
   // Returns the schemes associated with this context specifically, or the
   // global configuration if unset.

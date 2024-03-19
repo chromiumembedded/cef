@@ -418,7 +418,16 @@ typedef enum {
   /// Whether an application can enumerate audio output device.
   CEF_CONTENT_SETTING_TYPE_SPEAKER_SELECTION,
 
-  CEF_CONTENT_SETTING_TYPE_NUM_TYPES,
+  /// Content settings for access to the Direct Sockets API.
+  CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS,
+
+  /// Keyboard Lock API allows a site to capture keyboard inputs that would
+  /// otherwise be handled by the OS or the browser.
+  CEF_CONTENT_SETTING_TYPE_KEYBOARD_LOCK,
+
+  /// Pointer Lock API allows a site to hide the cursor and have exclusive
+  /// access to mouse inputs.
+  CEF_CONTENT_SETTING_TYPE_POINTER_LOCK,
 } cef_content_setting_types_t;
 
 ///

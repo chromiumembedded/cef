@@ -697,7 +697,9 @@ using CefPdfPrintSettings = CefStructBase<CefPdfPrintSettingsTraits>;
 ///
 class CefBoxLayoutSettings : public cef_box_layout_settings_t {
  public:
-  CefBoxLayoutSettings() : cef_box_layout_settings_t{} {}
+  CefBoxLayoutSettings() : cef_box_layout_settings_t{} {
+    cross_axis_alignment = CEF_AXIS_ALIGNMENT_STRETCH;
+  }
   CefBoxLayoutSettings(const cef_box_layout_settings_t& r)
       : cef_box_layout_settings_t(r) {}
 };

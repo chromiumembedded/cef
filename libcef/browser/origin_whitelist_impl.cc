@@ -107,7 +107,7 @@ class CefOriginWhitelistManager {
   }
 
   void GetCrossOriginWhitelistEntries(
-      absl::optional<CrossOriginWhiteList>* entries) const {
+      std::optional<CrossOriginWhiteList>* entries) const {
     base::AutoLock lock_scope(lock_);
 
     if (!origin_list_.empty()) {
@@ -289,7 +289,7 @@ bool CefClearCrossOriginWhitelist() {
 }
 
 void GetCrossOriginWhitelistEntries(
-    absl::optional<CrossOriginWhiteList>* entries) {
+    std::optional<CrossOriginWhiteList>* entries) {
   CefOriginWhitelistManager::GetInstance()->GetCrossOriginWhitelistEntries(
       entries);
 }

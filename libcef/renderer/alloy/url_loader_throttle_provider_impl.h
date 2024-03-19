@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include "base/threading/thread_checker.h"
+#include "base/sequence_checker.h"
 #include "third_party/blink/public/platform/url_loader_throttle_provider.h"
 
 class AlloyContentRendererClient;
@@ -43,7 +43,7 @@ class CefURLLoaderThrottleProviderImpl
   blink::URLLoaderThrottleProviderType type_;
   AlloyContentRendererClient* const alloy_content_renderer_client_;
 
-  THREAD_CHECKER(thread_checker_);
+  SEQUENCE_CHECKER(sequence_checker_);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_ALLOY_URL_LOADER_THROTTLE_PROVIDER_IMPL_H_

@@ -125,8 +125,8 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
       const override {
     return permissions::PermissionPromptDisposition::CUSTOM_MODAL_DIALOG;
   }
-  absl::optional<gfx::Rect> GetViewBoundsInScreen() const override {
-    return absl::nullopt;
+  std::optional<gfx::Rect> GetViewBoundsInScreen() const override {
+    return std::nullopt;
   }
   bool ShouldFinalizeRequestAfterDecided() const override { return true; }
 
@@ -201,12 +201,12 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_LOCAL_FONTS;
     case permissions::RequestType::kGeolocation:
       return CEF_PERMISSION_TYPE_GEOLOCATION;
+    case permissions::RequestType::kIdentityProvider:
+      return CEF_PERMISSION_TYPE_IDENTITY_PROVIDER;
     case permissions::RequestType::kIdleDetection:
       return CEF_PERMISSION_TYPE_IDLE_DETECTION;
     case permissions::RequestType::kMicStream:
       return CEF_PERMISSION_TYPE_MIC_STREAM;
-    case permissions::RequestType::kMidi:
-      return CEF_PERMISSION_TYPE_MIDI;
     case permissions::RequestType::kMidiSysex:
       return CEF_PERMISSION_TYPE_MIDI_SYSEX;
     case permissions::RequestType::kMultipleDownloads:

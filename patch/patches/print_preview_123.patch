@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index dc474d9ca5c3a..764ae7c3ddce2 100644
+index 773f72da82f90..6d0307988406f 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
@@ -10,7 +10,7 @@ index dc474d9ca5c3a..764ae7c3ddce2 100644
  #include "chrome/browser/download/chrome_download_manager_delegate.h"
  #include "chrome/browser/download/download_core_service_factory.h"
  #include "chrome/browser/download/download_core_service_impl.h"
-@@ -63,6 +64,10 @@
+@@ -64,6 +65,10 @@
  #include "chrome/browser/flags/android/chrome_feature_list.h"
  #endif
  
@@ -21,7 +21,7 @@ index dc474d9ca5c3a..764ae7c3ddce2 100644
  using content::BrowserContext;
  using content::BrowserThread;
  using content::DownloadManager;
-@@ -354,6 +359,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
+@@ -355,6 +360,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
@@ -84,7 +84,7 @@ index c85248ab0d0a0..05b3454c0356d 100644
  }
  
 diff --git chrome/browser/ui/webui/print_preview/print_preview_ui.cc chrome/browser/ui/webui/print_preview/print_preview_ui.cc
-index b02c2e2e9b050..de501fd2a07f9 100644
+index e01439541b904..a369dcbb31c27 100644
 --- chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 +++ chrome/browser/ui/webui/print_preview/print_preview_ui.cc
 @@ -25,6 +25,7 @@

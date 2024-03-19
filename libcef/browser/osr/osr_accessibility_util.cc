@@ -184,6 +184,20 @@ struct PopulateAxNodeAttributes {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
       } break;
+      case ax::mojom::IntAttribute::kAriaNotificationInterruptDeprecated: {
+        auto state =
+            static_cast<ax::mojom::AriaNotificationInterrupt>(attr.second);
+        if (ax::mojom::AriaNotificationInterrupt::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
+      } break;
+      case ax::mojom::IntAttribute::kAriaNotificationPriorityDeprecated: {
+        auto state =
+            static_cast<ax::mojom::AriaNotificationPriority>(attr.second);
+        if (ax::mojom::AriaNotificationPriority::kNone != state) {
+          attributes->SetString(ToString(attr.first), ToString(state));
+        }
+      } break;
       case ax::mojom::IntAttribute::kTextDirection: {
         auto state = static_cast<ax::mojom::WritingDirection>(attr.second);
         if (ax::mojom::WritingDirection::kNone != state) {

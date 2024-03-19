@@ -42,7 +42,7 @@ class CefBrowserFrame
   void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
                      bool reattached) override;
   void UpdateDraggableRegions(
-      absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
+      std::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
   // FrameServiceBase methods:

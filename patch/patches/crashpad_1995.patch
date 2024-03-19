@@ -276,7 +276,7 @@ index a18afed5b55c1..fabb36a299cd9 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index dbe46081ebf43..8182c133e2934 100644
+index 171095381e8ac..13407a7809844 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@

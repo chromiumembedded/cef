@@ -58,10 +58,10 @@ index e82cdd66a2d5c..1816b2fe54ff5 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 348245d4da651..81bb4b0671f8c 100644
+index ad1fa4396cd65..1c5027cc0c922 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -568,7 +568,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -569,7 +569,7 @@ bool DatabaseTracker::LazyInit() {
      databases_table_ = std::make_unique<DatabasesTable>(db_.get());
      meta_table_ = std::make_unique<sql::MetaTable>();
  

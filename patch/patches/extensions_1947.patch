@@ -199,7 +199,7 @@ index c3197eb4790fa..1e7ae767b0582 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 1be758c66fe70..62f72c7c119d0 100644
+index 7e5c2918e273f..f00799f9e0dad 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
 @@ -34,6 +34,7 @@
@@ -234,7 +234,7 @@ index 1be758c66fe70..62f72c7c119d0 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index 3363f44f7c4fc..3eec0356c0c58 100644
+index b86a71429eb33..9f7d190975605 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -353,9 +353,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

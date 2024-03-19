@@ -158,7 +158,7 @@ CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
     bool include_defaults) {
   if (schemes_list.empty() && include_defaults) {
     // No explicit registration of schemes.
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   std::vector<std::string> all_schemes;
@@ -177,7 +177,7 @@ CefBrowserContext::CookieableSchemes MakeSupportedSchemes(
     all_schemes.push_back("wss");
   }
 
-  return absl::make_optional(all_schemes);
+  return std::make_optional(all_schemes);
 }
 
 template <typename T>

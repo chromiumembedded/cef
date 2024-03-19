@@ -27,7 +27,7 @@ class CefToolbarViewImpl
       CefRefPtr<CefViewDelegate> delegate,
       Browser* browser,
       BrowserView* browser_view,
-      absl::optional<ToolbarView::DisplayMode> display_mode);
+      std::optional<ToolbarView::DisplayMode> display_mode);
 
   static const char* const kTypeString;
 
@@ -41,7 +41,7 @@ class CefToolbarViewImpl
   CefToolbarViewImpl(CefRefPtr<CefViewDelegate> delegate,
                      Browser* browser,
                      BrowserView* browser_view,
-                     absl::optional<ToolbarView::DisplayMode> display_mode);
+                     std::optional<ToolbarView::DisplayMode> display_mode);
 
   // CefViewImpl methods:
   CefToolbarViewView* CreateRootView() override;
@@ -49,7 +49,7 @@ class CefToolbarViewImpl
 
   Browser* const browser_;
   BrowserView* const browser_view_;
-  absl::optional<ToolbarView::DisplayMode> const display_mode_;
+  std::optional<ToolbarView::DisplayMode> const display_mode_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefToolbarViewImpl);
 };

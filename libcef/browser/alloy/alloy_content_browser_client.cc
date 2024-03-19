@@ -980,11 +980,8 @@ AlloyContentBrowserClient::CreateThrottlesForNavigation(
       throttles.push_back(std::move(pdf_iframe_throttle));
     }
 
-    auto pdf_throttle = pdf::PdfNavigationThrottle::MaybeCreateThrottleFor(
-        navigation_handle, std::make_unique<ChromePdfStreamDelegate>());
-    if (pdf_throttle) {
-      throttles.push_back(std::move(pdf_throttle));
-    }
+    throttles.push_back(std::make_unique<pdf::PdfNavigationThrottle>(
+        navigation_handle, std::make_unique<ChromePdfStreamDelegate>()));
   }
 
   throttle::CreateThrottlesForNavigation(navigation_handle, throttles);
@@ -999,7 +996,7 @@ AlloyContentBrowserClient::CreateURLLoaderThrottles(
     const base::RepeatingCallback<content::WebContents*()>& wc_getter,
     content::NavigationUIData* navigation_ui_data,
     int frame_tree_node_id,
-    absl::optional<int64_t> navigation_id) {
+    std::optional<int64_t> navigation_id) {
   std::vector<std::unique_ptr<blink::URLLoaderThrottle>> result;
 
   // Used to substitute View ID for PDF contents when using the PDF plugin.
@@ -1100,20 +1097,27 @@ AlloyContentBrowserClient::CreateLoginDelegate(
       std::move(auth_required_callback));
 }
 
-void AlloyContentBrowserClient::RegisterNonNetworkNavigationURLLoaderFactories(
-    int frame_tree_node_id,
-    NonNetworkURLLoaderFactoryMap* factories) {
+mojo::PendingRemote<network::mojom::URLLoaderFactory>
+AlloyContentBrowserClient::CreateNonNetworkNavigationURLLoaderFactory(
+    const std::string& scheme,
+    int frame_tree_node_id) {
   if (!extensions::ExtensionsEnabled()) {
-    return;
+    return {};
   }
 
   content::WebContents* web_contents =
       content::WebContents::FromFrameTreeNodeId(frame_tree_node_id);
-  factories->emplace(
-      extensions::kExtensionScheme,
-      extensions::CreateExtensionNavigationURLLoaderFactory(
-          web_contents->GetBrowserContext(),
-          !!extensions::WebViewGuest::FromWebContents(web_contents)));
+  content::BrowserContext* browser_context = web_contents->GetBrowserContext();
+
+  if (scheme == extensions::kExtensionScheme &&
+      !extensions::ChromeContentBrowserClientExtensionsPart::
+          AreExtensionsDisabledForProfile(browser_context)) {
+    return extensions::CreateExtensionNavigationURLLoaderFactory(
+        browser_context,
+        !!extensions::WebViewGuest::FromWebContents(web_contents));
+  }
+
+  return {};
 }
 
 void AlloyContentBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(

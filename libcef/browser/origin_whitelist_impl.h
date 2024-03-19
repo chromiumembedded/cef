@@ -5,9 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 #define CEF_LIBCEF_BROWSER_ORIGIN_WHITELIST_IMPL_H_
 
+#include <optional>
 #include <vector>
-
-#include "third_party/abseil-cpp/absl/types/optional.h"
 
 #include "cef/libcef/common/mojom/cef.mojom-forward.h"
 
@@ -25,7 +24,7 @@ using CrossOriginWhiteList =
 // Called to retrieve the current list of cross-origin white list entries. This
 // method is thread safe.
 void GetCrossOriginWhitelistEntries(
-    absl::optional<CrossOriginWhiteList>* entries);
+    std::optional<CrossOriginWhiteList>* entries);
 
 // Returns true if |source| can access |target| based on the cross-origin white
 // list settings.

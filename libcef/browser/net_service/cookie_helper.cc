@@ -212,7 +212,7 @@ void SaveCookiesOnUIThread(
 
 bool IsCookieableScheme(
     const GURL& url,
-    const absl::optional<std::vector<std::string>>& cookieable_schemes) {
+    const std::optional<std::vector<std::string>>& cookieable_schemes) {
   if (!url.has_scheme()) {
     return false;
   }
@@ -298,8 +298,8 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
     net::CookieInclusionStatus returned_status;
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
         request.url, cookie_string, base::Time::Now(),
-        absl::make_optional(response_date),
-        /*cookie_partition_key=*/absl::nullopt,
+        std::make_optional(response_date),
+        /*cookie_partition_key=*/std::nullopt,
         /*block_truncated=*/true, &returned_status);
     if (!returned_status.IsInclude()) {
       continue;

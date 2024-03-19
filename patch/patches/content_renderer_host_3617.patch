@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index fd63bad192e9b..262a286478b67 100644
+index ddeef4098ed42..efffb37ee704a 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -1623,7 +1623,8 @@ bool RenderProcessHostImpl::Init() {
+@@ -1624,7 +1624,8 @@ bool RenderProcessHostImpl::Init() {
    // initialized because in tests the factory may never have been initialized.
    if (!GetBrowserContext()->IsOffTheRecord() &&
        !base::CommandLine::ForCurrentProcess()->HasSwitch(

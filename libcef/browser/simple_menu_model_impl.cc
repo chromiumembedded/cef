@@ -460,7 +460,7 @@ bool CefSimpleMenuModelImpl::RemoveAccelerator(int command_id) {
   if (!VerifyContext() || command_id == kInvalidIndex) {
     return false;
   }
-  state_delegate_->SetAccelerator(command_id, absl::nullopt);
+  state_delegate_->SetAccelerator(command_id, std::nullopt);
   return true;
 }
 

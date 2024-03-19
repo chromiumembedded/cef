@@ -24,23 +24,23 @@ CefURLLoaderThrottleProviderImpl::CefURLLoaderThrottleProviderImpl(
     AlloyContentRendererClient* alloy_content_renderer_client)
     : type_(type),
       alloy_content_renderer_client_(alloy_content_renderer_client) {
-  DETACH_FROM_THREAD(thread_checker_);
+  DETACH_FROM_SEQUENCE(sequence_checker_);
 }
 
 CefURLLoaderThrottleProviderImpl::~CefURLLoaderThrottleProviderImpl() {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 }
 
 CefURLLoaderThrottleProviderImpl::CefURLLoaderThrottleProviderImpl(
     const CefURLLoaderThrottleProviderImpl& other)
     : type_(other.type_),
       alloy_content_renderer_client_(other.alloy_content_renderer_client_) {
-  DETACH_FROM_THREAD(thread_checker_);
+  DETACH_FROM_SEQUENCE(sequence_checker_);
 }
 
 std::unique_ptr<blink::URLLoaderThrottleProvider>
 CefURLLoaderThrottleProviderImpl::Clone() {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   return base::WrapUnique(new CefURLLoaderThrottleProviderImpl(*this));
 }
 
@@ -48,7 +48,7 @@ blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>>
 CefURLLoaderThrottleProviderImpl::CreateThrottles(
     base::optional_ref<const blink::LocalFrameToken> local_frame_token,
     const network::ResourceRequest& request) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
   blink::WebVector<std::unique_ptr<blink::URLLoaderThrottle>> throttles;
 

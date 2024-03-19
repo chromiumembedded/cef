@@ -45,9 +45,9 @@ CefMediaCaptureDevicesDispatcher::~CefMediaCaptureDevicesDispatcher() = default;
 
 void CefMediaCaptureDevicesDispatcher::RegisterPrefs(
     PrefRegistrySimple* registry) {
-  registry->RegisterStringPref(prefs::kDefaultAudioCaptureDevice,
+  registry->RegisterStringPref(prefs::kDefaultAudioCaptureDeviceDeprecated,
                                std::string());
-  registry->RegisterStringPref(prefs::kDefaultVideoCaptureDevice,
+  registry->RegisterStringPref(prefs::kDefaultVideoCaptureDeviceDeprecated,
                                std::string());
 }
 
@@ -61,12 +61,14 @@ void CefMediaCaptureDevicesDispatcher::GetDefaultDevices(
 
   std::string default_device;
   if (audio) {
-    default_device = prefs->GetString(prefs::kDefaultAudioCaptureDevice);
+    default_device =
+        prefs->GetString(prefs::kDefaultAudioCaptureDeviceDeprecated);
     GetRequestedDevice(default_device, true, false, devices);
   }
 
   if (video) {
-    default_device = prefs->GetString(prefs::kDefaultVideoCaptureDevice);
+    default_device =
+        prefs->GetString(prefs::kDefaultVideoCaptureDeviceDeprecated);
     GetRequestedDevice(default_device, false, true, devices);
   }
 }

@@ -381,9 +381,9 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
   }
 
   using RegionsArg =
-      absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>>;
+      std::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>>;
   RegionsArg regions_arg =
-      regions.empty() ? absl::nullopt : absl::make_optional(std::move(regions));
+      regions.empty() ? std::nullopt : std::make_optional(std::move(regions));
 
   SendToBrowserFrame(
       __FUNCTION__,
@@ -613,8 +613,8 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason,
   const auto connection_state = browser_connection_state_;
   const bool frame_is_valid = !!frame_;
   VLOG(1) << frame_debug_str_ << " disconnected "
-          << GetDisconnectDebugString(connection_state, frame_is_valid,
-                                      reason, description);
+          << GetDisconnectDebugString(connection_state, frame_is_valid, reason,
+                                      description);
 
   browser_frame_.reset();
   receiver_.reset();

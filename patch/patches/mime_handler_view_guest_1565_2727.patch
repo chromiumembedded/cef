@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index e0887cdb49c7c..d2bf0571793cf 100644
+index 285dc38950991..326646bb585da 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -26,7 +26,7 @@ struct DropData;
@@ -12,10 +12,10 @@ index e0887cdb49c7c..d2bf0571793cf 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 39def4c0d8ad5..6e856ae9bcd96 100644
+index cb8f896ebe8a2..382394fb821a3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -203,6 +203,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -205,6 +205,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -24,7 +24,7 @@ index 39def4c0d8ad5..6e856ae9bcd96 100644
    std::move(callback).Run(std::move(owned_this),
                            WebContents::CreateWithSessionStorage(
                                params, owner_web_contents()
-@@ -211,6 +213,10 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -213,6 +215,10 @@ void MimeHandlerViewGuest::CreateWebContents(
  }
  
  void MimeHandlerViewGuest::DidAttachToEmbedder() {
@@ -35,7 +35,7 @@ index 39def4c0d8ad5..6e856ae9bcd96 100644
    DCHECK(stream_->handler_url().SchemeIs(extensions::kExtensionScheme));
    GetController().LoadURL(stream_->handler_url(), content::Referrer(),
                            ui::PAGE_TRANSITION_AUTO_TOPLEVEL, std::string());
-@@ -481,6 +487,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
+@@ -483,6 +489,14 @@ void MimeHandlerViewGuest::DidFinishNavigation(
    }
  }
  
@@ -51,10 +51,10 @@ index 39def4c0d8ad5..6e856ae9bcd96 100644
      mojo::PendingReceiver<mime_handler::BeforeUnloadControl> receiver) {
    if (!pending_before_unload_control_)
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-index 5709e978f2d8e..c1f1720a31e1a 100644
+index 1cf22ee486d41..0d173bdb7af72 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h
-@@ -195,10 +195,12 @@ class MimeHandlerViewGuest
+@@ -196,10 +196,12 @@ class MimeHandlerViewGuest
    void ReadyToCommitNavigation(
        content::NavigationHandle* navigation_handle) final;
    void DidFinishNavigation(content::NavigationHandle* navigation_handle) final;

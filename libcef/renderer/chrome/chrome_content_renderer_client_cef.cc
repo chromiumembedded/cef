@@ -46,7 +46,7 @@ void ChromeContentRendererClientCef::RenderFrameCreated(
       new CefRenderFrameObserver(render_frame);
 
   bool browser_created;
-  absl::optional<bool> is_windowless;
+  std::optional<bool> is_windowless;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
                                       browser_created, is_windowless);
   if (is_windowless.has_value() && *is_windowless) {
@@ -62,7 +62,7 @@ void ChromeContentRendererClientCef::WebViewCreated(
                                               outermost_origin);
 
   bool browser_created;
-  absl::optional<bool> is_windowless;
+  std::optional<bool> is_windowless;
   render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
   if (is_windowless.has_value() && *is_windowless) {
     LOG(ERROR) << "The chrome runtime does not support windowless browsers";

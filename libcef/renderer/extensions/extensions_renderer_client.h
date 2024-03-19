@@ -39,7 +39,6 @@ class Origin;
 namespace extensions {
 
 class Dispatcher;
-class DispatcherDelegate;
 class ResourceRequestPolicy;
 
 class CefExtensionsRendererClient : public ExtensionsRendererClient {
@@ -54,6 +53,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
   ~CefExtensionsRendererClient() override;
 
   // ExtensionsRendererClient implementation.
+  void RenderThreadStarted() override;
   bool IsIncognitoProcess() const override;
   int GetLowestIsolatedWorldId() const override;
   extensions::Dispatcher* GetDispatcher() override;
@@ -65,7 +65,6 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
       const GURL& script_url) const override;
 
   // See AlloyContentRendererClient methods with the same names.
-  void RenderThreadStarted();
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           service_manager::BinderRegistry* registry);
   bool OverrideCreatePlugin(content::RenderFrame* render_frame,

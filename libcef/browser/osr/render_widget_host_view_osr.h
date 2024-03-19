@@ -28,7 +28,6 @@
 #include "content/browser/renderer_host/text_input_manager.h"
 #include "content/public/browser/render_frame_metadata_provider.h"
 #include "content/public/common/widget_type.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "third_party/blink/public/mojom/widget/record_content_to_visible_time_request.mojom-forward.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-shared.h"

@@ -25,7 +25,7 @@ namespace net_service::cookie_helper {
 // cookieable, which may intentionally exclude standard schemes.
 bool IsCookieableScheme(
     const GURL& url,
-    const absl::optional<std::vector<std::string>>& cookieable_schemes);
+    const std::optional<std::vector<std::string>>& cookieable_schemes);
 
 using AllowCookieCallback =
     base::RepeatingCallback<void(const net::CanonicalCookie&,

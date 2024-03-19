@@ -2972,51 +2972,22 @@ typedef enum {
 } cef_text_style_t;
 
 ///
-/// Specifies where along the main axis the CefBoxLayout child views should be
-/// laid out.
+/// Specifies where along the axis the CefBoxLayout child views should be laid
+/// out. Should be kept in sync with Chromium's views::LayoutAlignment type.
 ///
 typedef enum {
-  ///
-  /// Child views will be left-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_START,
+  /// Child views will be left/top-aligned.
+  CEF_AXIS_ALIGNMENT_START,
 
-  ///
   /// Child views will be center-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_CENTER,
+  CEF_AXIS_ALIGNMENT_CENTER,
 
-  ///
-  /// Child views will be right-aligned.
-  ///
-  CEF_MAIN_AXIS_ALIGNMENT_END,
-} cef_main_axis_alignment_t;
+  /// Child views will be right/bottom-aligned.
+  CEF_AXIS_ALIGNMENT_END,
 
-///
-/// Specifies where along the cross axis the CefBoxLayout child views should be
-/// laid out.
-///
-typedef enum {
-  ///
   /// Child views will be stretched to fit.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_STRETCH,
-
-  ///
-  /// Child views will be left-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_START,
-
-  ///
-  /// Child views will be center-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_CENTER,
-
-  ///
-  /// Child views will be right-aligned.
-  ///
-  CEF_CROSS_AXIS_ALIGNMENT_END,
-} cef_cross_axis_alignment_t;
+  CEF_AXIS_ALIGNMENT_STRETCH,
+} cef_axis_alignment_t;
 
 ///
 /// Settings used when initializing a CefBoxLayout.
@@ -3053,12 +3024,12 @@ typedef struct _cef_box_layout_settings_t {
   ///
   /// Specifies where along the main axis the child views should be laid out.
   ///
-  cef_main_axis_alignment_t main_axis_alignment;
+  cef_axis_alignment_t main_axis_alignment;
 
   ///
   /// Specifies where along the cross axis the child views should be laid out.
   ///
-  cef_cross_axis_alignment_t cross_axis_alignment;
+  cef_axis_alignment_t cross_axis_alignment;
 
   ///
   /// Minimum cross axis size.
@@ -3327,64 +3298,65 @@ typedef enum {
   /// Front L, Front R, Front C, LFE, Back L, Back R
   CEF_CHANNEL_LAYOUT_5_1_BACK = 12,
 
-  /// Front L, Front R, Front C, Side L, Side R, Back L, Back R
+  /// Front L, Front R, Front C, Back L, Back R, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_0 = 13,
 
-  /// Front L, Front R, Front C, LFE, Side L, Side R, Back L, Back R
+  /// Front L, Front R, Front C, LFE, Back L, Back R, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_1 = 14,
 
-  /// Front L, Front R, Front C, LFE, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front C, LFE, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_1_WIDE = 15,
 
-  /// Stereo L, Stereo R
+  /// Front L, Front R
   CEF_CHANNEL_LAYOUT_STEREO_DOWNMIX = 16,
 
-  /// Stereo L, Stereo R, LFE
+  /// Front L, Front R, LFE
   CEF_CHANNEL_LAYOUT_2POINT1 = 17,
 
-  /// Stereo L, Stereo R, Front C, LFE
+  /// Front L, Front R, Front C, LFE
   CEF_CHANNEL_LAYOUT_3_1 = 18,
 
-  /// Stereo L, Stereo R, Front C, Rear C, LFE
+  /// Front L, Front R, Front C, LFE, Back C
   CEF_CHANNEL_LAYOUT_4_1 = 19,
 
-  /// Stereo L, Stereo R, Front C, Side L, Side R, Back C
+  /// Front L, Front R, Front C, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_0 = 20,
 
-  /// Stereo L, Stereo R, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_0_FRONT = 21,
 
-  /// Stereo L, Stereo R, Front C, Rear L, Rear R, Rear C
+  /// Front L, Front R, Front C, Back L, Back R, Back C
   CEF_CHANNEL_LAYOUT_HEXAGONAL = 22,
 
-  /// Stereo L, Stereo R, Front C, LFE, Side L, Side R, Rear Center
+  /// Front L, Front R, Front C, LFE, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_1 = 23,
 
-  /// Stereo L, Stereo R, Front C, LFE, Back L, Back R, Rear Center
+  /// Front L, Front R, Front C, LFE, Back L, Back R, Back C
   CEF_CHANNEL_LAYOUT_6_1_BACK = 24,
 
-  /// Stereo L, Stereo R, Side L, Side R, Front LofC, Front RofC, LFE
+  /// Front L, Front R, LFE, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_6_1_FRONT = 25,
 
-  /// Front L, Front R, Front C, Side L, Side R, Front LofC, Front RofC
+  /// Front L, Front R, Front C, Front LofC, Front RofC, Side L, Side R
   CEF_CHANNEL_LAYOUT_7_0_FRONT = 26,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R, Front LofC, Front RofC
   CEF_CHANNEL_LAYOUT_7_1_WIDE_BACK = 27,
 
-  /// Front L, Front R, Front C, Side L, Side R, Rear L, Back R, Back C.
+  /// Front L, Front R, Front C, Back L, Back R, Back C, Side L, Side R
   CEF_CHANNEL_LAYOUT_OCTAGONAL = 28,
 
   /// Channels are not explicitly mapped to speakers.
   CEF_CHANNEL_LAYOUT_DISCRETE = 29,
 
+  /// Deprecated, but keeping the enum value for UMA consistency.
   /// Front L, Front R, Front C. Front C contains the keyboard mic audio. This
   /// layout is only intended for input for WebRTC. The Front C channel
   /// is stripped away in the WebRTC audio input pipeline and never seen outside
   /// of that.
   CEF_CHANNEL_LAYOUT_STEREO_AND_KEYBOARD_MIC = 30,
 
-  /// Front L, Front R, Side L, Side R, LFE
+  /// Front L, Front R, LFE, Side L, Side R
   CEF_CHANNEL_LAYOUT_4_1_QUAD_SIDE = 31,
 
   /// Actual channel layout is specified in the bitstream and the actual channel
@@ -3398,8 +3370,14 @@ typedef enum {
   /// kMaxConcurrentChannels
   CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX = 33,
 
+  /// Front C, LFE
+  CEF_CHANNEL_LAYOUT_1_1 = 34,
+
+  /// Front L, Front R, LFE, Back C
+  CEF_CHANNEL_LAYOUT_3_1_BACK = 35,
+
   /// Max value, must always equal the largest entry ever logged.
-  CEF_CHANNEL_LAYOUT_MAX = CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX
+  CEF_CHANNEL_LAYOUT_MAX = CEF_CHANNEL_LAYOUT_3_1_BACK
 } cef_channel_layout_t;
 
 ///
@@ -3671,9 +3649,9 @@ typedef enum {
   CEF_PERMISSION_TYPE_DISK_QUOTA = 1 << 7,
   CEF_PERMISSION_TYPE_LOCAL_FONTS = 1 << 8,
   CEF_PERMISSION_TYPE_GEOLOCATION = 1 << 9,
-  CEF_PERMISSION_TYPE_IDLE_DETECTION = 1 << 10,
-  CEF_PERMISSION_TYPE_MIC_STREAM = 1 << 11,
-  CEF_PERMISSION_TYPE_MIDI = 1 << 12,
+  CEF_PERMISSION_TYPE_IDENTITY_PROVIDER = 1 << 10,
+  CEF_PERMISSION_TYPE_IDLE_DETECTION = 1 << 11,
+  CEF_PERMISSION_TYPE_MIC_STREAM = 1 << 12,
   CEF_PERMISSION_TYPE_MIDI_SYSEX = 1 << 13,
   CEF_PERMISSION_TYPE_MULTIPLE_DOWNLOADS = 1 << 14,
   CEF_PERMISSION_TYPE_NOTIFICATIONS = 1 << 15,

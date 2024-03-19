@@ -7,12 +7,12 @@
 #define CEF_LIBCEF_BROWSER_SIMPLE_MENU_MODEL_IMPL_H_
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "include/cef_menu_model.h"
 
 #include "base/threading/platform_thread.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/base/models/simple_menu_model.h"
 
 // Implementation of CefMenuModel that wraps an existing ui::SimpleMenuModel.
@@ -24,7 +24,7 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
    public:
     virtual void SetChecked(int command_id, bool checked) = 0;
     virtual void SetAccelerator(int command_id,
-                                absl::optional<ui::Accelerator> accel) = 0;
+                                std::optional<ui::Accelerator> accel) = 0;
 
    protected:
     virtual ~StateDelegate() = default;

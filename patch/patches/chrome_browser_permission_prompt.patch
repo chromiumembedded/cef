@@ -77,7 +77,7 @@ index b6afdced9d0af..e189d08ecdd46 100644
  }
  
 diff --git chrome/browser/permissions/permission_manager_factory.cc chrome/browser/permissions/permission_manager_factory.cc
-index d6485540139e0..a77c888b2e147 100644
+index c75f396997e17..b219e122ffb5c 100644
 --- chrome/browser/permissions/permission_manager_factory.cc
 +++ chrome/browser/permissions/permission_manager_factory.cc
 @@ -6,6 +6,7 @@
@@ -88,13 +88,14 @@ index d6485540139e0..a77c888b2e147 100644
  #include "chrome/browser/background_fetch/background_fetch_permission_context.h"
  #include "chrome/browser/background_sync/periodic_background_sync_permission_context.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-@@ -62,8 +63,10 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
+@@ -62,9 +63,11 @@ permissions::PermissionManager::PermissionContextMap CreatePermissionContexts(
        std::make_unique<GeolocationPermissionContextDelegate>(profile);
  #endif  // BUILDFLAG(IS_ANDROID)
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
-   delegates.geolocation_manager = device::GeolocationManager::GetInstance();
-   DCHECK(delegates.geolocation_manager);
+   delegates.geolocation_system_permission_manager =
+       device::GeolocationSystemPermissionManager::GetInstance();
+   DCHECK(delegates.geolocation_system_permission_manager);
 +  }
  #endif
    delegates.media_stream_device_enumerator =
@@ -175,7 +176,7 @@ index 07720bc3faccb..546325f2b5558 100644
    if (!browser) {
      DLOG(WARNING) << "Permission prompt suppressed because the WebContents is "
 diff --git components/embedder_support/permission_context_utils.cc components/embedder_support/permission_context_utils.cc
-index 402fe1588c459..091625f54b340 100644
+index 9c0ec651d494f..e5c6126adeea7 100644
 --- components/embedder_support/permission_context_utils.cc
 +++ components/embedder_support/permission_context_utils.cc
 @@ -5,6 +5,7 @@
@@ -186,7 +187,7 @@ index 402fe1588c459..091625f54b340 100644
  #include "components/background_sync/background_sync_permission_context.h"
  #include "components/permissions/contexts/accessibility_permission_context.h"
  #include "components/permissions/contexts/camera_pan_tilt_zoom_permission_context.h"
-@@ -77,10 +78,17 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
+@@ -79,10 +80,17 @@ CreateDefaultPermissionContexts(content::BrowserContext* browser_context,
            std::move(delegates.geolocation_permission_context_delegate),
            is_regular_profile);
  #elif BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)

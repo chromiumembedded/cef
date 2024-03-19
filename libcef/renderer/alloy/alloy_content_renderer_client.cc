@@ -294,7 +294,7 @@ void AlloyContentRendererClient::RenderFrameCreated(
   }
 
   bool browser_created;
-  absl::optional<bool> is_windowless;
+  std::optional<bool> is_windowless;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
                                       browser_created, is_windowless);
   if (browser_created) {
@@ -314,7 +314,7 @@ void AlloyContentRendererClient::WebViewCreated(
     bool was_created_by_renderer,
     const url::Origin* outermost_origin) {
   bool browser_created;
-  absl::optional<bool> is_windowless;
+  std::optional<bool> is_windowless;
   render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
   if (browser_created) {
     OnBrowserCreated(web_view, is_windowless);
@@ -427,9 +427,10 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
   return true;
 }
 
-void AlloyContentRendererClient::GetSupportedKeySystems(
+std::unique_ptr<media::KeySystemSupportObserver>
+AlloyContentRendererClient::GetSupportedKeySystems(
     media::GetSupportedKeySystemsCB cb) {
-  GetChromeKeySystems(std::move(cb));
+  return GetChromeKeySystems(std::move(cb));
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentStart(
@@ -542,7 +543,7 @@ void AlloyContentRendererClient::WillDestroyCurrentMessageLoop() {
 
 void AlloyContentRendererClient::OnBrowserCreated(
     blink::WebView* web_view,
-    absl::optional<bool> is_windowless) {
+    std::optional<bool> is_windowless) {
 #if BUILDFLAG(IS_MAC)
   const bool windowless = is_windowless.has_value() && *is_windowless;
 

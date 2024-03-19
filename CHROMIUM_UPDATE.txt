@@ -39,6 +39,7 @@
     'chrome/renderer/chrome_content_renderer_client.*',
     'chrome/renderer/extensions/chrome_extensions_renderer_client.*',
     'components/content_settings/core/common/content_settings_types.mojom',
+    'components/permissions/request_type.h',
     'content/browser/renderer_host/render_widget_host_view_base.*',
     'content/public/browser/content_browser_client.*',
     'content/public/browser/render_widget_host_view.h',

@@ -55,7 +55,7 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
   browser_client->WillCreateURLLoaderFactory(
       browser_context, render_frame_host, render_process_id,
       content::ContentBrowserClient::URLLoaderFactoryType::kDocumentSubResource,
-      url::Origin(), absl::nullopt /* navigation_id */, ukm::SourceIdObj(),
+      url::Origin(), std::nullopt /* navigation_id */, ukm::SourceIdObj(),
       factory_builder, nullptr /* header_client */,
       nullptr /* bypass_redirect_checks */, nullptr /* disable_secure_dns */,
       nullptr /* factory_override */,

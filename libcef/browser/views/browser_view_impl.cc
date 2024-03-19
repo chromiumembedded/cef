@@ -5,6 +5,7 @@
 #include "libcef/browser/views/browser_view_impl.h"
 
 #include <memory>
+#include <optional>
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_util.h"
@@ -15,12 +16,11 @@
 #include "libcef/browser/views/window_impl.h"
 
 #include "content/public/common/input/native_web_keyboard_event.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 #include "ui/content_accelerators/accelerator_util.h"
 
 namespace {
 
-absl::optional<cef_gesture_command_t> GetGestureCommand(
+std::optional<cef_gesture_command_t> GetGestureCommand(
     ui::GestureEvent* event) {
 #if BUILDFLAG(IS_MAC)
   if (event->details().type() == ui::ET_GESTURE_SWIPE) {
@@ -31,7 +31,7 @@ absl::optional<cef_gesture_command_t> GetGestureCommand(
     }
   }
 #endif
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace

@@ -88,9 +88,9 @@ class RequestManager {
     map_.erase(it);
   }
 
-  absl::optional<CefBrowserURLRequest::RequestInfo> Get(int32_t request_id) {
+  std::optional<CefBrowserURLRequest::RequestInfo> Get(int32_t request_id) {
     if (request_id > kInitialRequestID) {
-      return absl::nullopt;
+      return std::nullopt;
     }
 
     base::AutoLock lock_scope(lock_);
@@ -98,7 +98,7 @@ class RequestManager {
     if (it != map_.end()) {
       return it->second;
     }
-    return absl::nullopt;
+    return std::nullopt;
   }
 
  private:
@@ -608,16 +608,16 @@ class CefBrowserURLRequest::Context
 // CefBrowserURLRequest -------------------------------------------------------
 
 // static
-absl::optional<CefBrowserURLRequest::RequestInfo>
+std::optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(int32_t request_id) {
   if (IsValidRequestID(request_id)) {
     return g_manager.Get().Get(request_id);
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 // static
-absl::optional<CefBrowserURLRequest::RequestInfo>
+std::optional<CefBrowserURLRequest::RequestInfo>
 CefBrowserURLRequest::FromRequestID(
     const content::GlobalRequestID& request_id) {
   return FromRequestID(request_id.request_id);

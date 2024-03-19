@@ -106,7 +106,7 @@ class CefValueImpl : public CefValue {
   };
 
  private:
-  void SetValueInternal(absl::optional<base::Value> value);
+  void SetValueInternal(std::optional<base::Value> value);
 
   // Returns the controller for the current value, if any.
   CefValueController* GetValueController() const;

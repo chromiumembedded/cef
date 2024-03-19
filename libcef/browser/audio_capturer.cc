@@ -98,6 +98,7 @@ void CefAudioCapturer::OnCaptureStarted() {
 
 void CefAudioCapturer::Capture(const media::AudioBus* source,
                                base::TimeTicks audio_capture_time,
+                               const media::AudioGlitchInfo& /*glitch_info*/,
                                double /*volume*/,
                                bool /*key_pressed*/) {
   const int channels = source->channels();

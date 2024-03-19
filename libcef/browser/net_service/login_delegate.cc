@@ -70,7 +70,7 @@ class AuthCallbackImpl : public CefAuthCallback {
 
 void RunCallbackOnIOThread(
     CefRefPtr<CefBrowserHostBase> browser,
-    absl::optional<CefBrowserURLRequest::RequestInfo> url_request_info,
+    std::optional<CefBrowserURLRequest::RequestInfo> url_request_info,
     const net::AuthChallengeInfo& auth_info,
     const GURL& origin_url,
     CefRefPtr<AuthCallbackImpl> callback_impl) {
@@ -144,7 +144,7 @@ void LoginDelegate::Continue(const CefString& username,
 void LoginDelegate::Cancel() {
   CEF_REQUIRE_UIT();
   if (!callback_.is_null()) {
-    std::move(callback_).Run(absl::nullopt);
+    std::move(callback_).Run(std::nullopt);
   }
 }
 

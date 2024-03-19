@@ -692,7 +692,7 @@ void CefFrameHostImpl::FrameAttached(
 }
 
 void CefFrameHostImpl::UpdateDraggableRegions(
-    absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
+    std::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions) {
   auto browser = GetBrowserHostBase();
   if (!browser) {
     return;

@@ -81,7 +81,7 @@ void GoBack(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(-1, /*has_user_gesture=*/true, absl::nullopt);
+          .GoToEntryAtOffset(-1, /*has_user_gesture=*/true, std::nullopt);
     }
   }
 }
@@ -97,7 +97,7 @@ void GoForward(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(1, /*has_user_gesture=*/true, absl::nullopt);
+          .GoToEntryAtOffset(1, /*has_user_gesture=*/true, std::nullopt);
     }
   }
 }

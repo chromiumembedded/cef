@@ -20,13 +20,13 @@
 #include "chrome/common/plugin.mojom.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "content/public/renderer/render_thread.h"
+#include "media/base/key_systems_support_observer.h"
 #include "mojo/public/cpp/bindings/generic_pending_receiver.h"
 #include "services/service_manager/public/cpp/local_interface_provider.h"
 
 namespace extensions {
 class CefExtensionsRendererClient;
 class Dispatcher;
-class DispatcherDelegate;
 class ExtensionsClient;
 class ExtensionsRendererClient;
 class ResourceRequestPolicy;
@@ -100,7 +100,8 @@ class AlloyContentRendererClient
   uint64_t VisitedLinkHash(std::string_view canonical_url) override;
   bool IsLinkVisited(uint64_t link_hash) override;
   bool IsOriginIsolatedPepperPlugin(const base::FilePath& plugin_path) override;
-  void GetSupportedKeySystems(media::GetSupportedKeySystemsCB cb) override;
+  std::unique_ptr<media::KeySystemSupportObserver> GetSupportedKeySystems(
+      media::GetSupportedKeySystemsCB cb) override;
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
@@ -126,7 +127,7 @@ class AlloyContentRendererClient
 
  private:
   void OnBrowserCreated(blink::WebView* web_view,
-                        absl::optional<bool> is_windowless);
+                        std::optional<bool> is_windowless);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();

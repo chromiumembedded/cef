@@ -841,7 +841,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   void OnRequestResponse(int32_t request_id,
                          network::ResourceRequest* request,
                          net::HttpResponseHeaders* headers,
-                         absl::optional<net::RedirectInfo> redirect_info,
+                         std::optional<net::RedirectInfo> redirect_info,
                          OnRequestResponseResultCallback callback) override {
     CEF_REQUIRE_IOT();
 

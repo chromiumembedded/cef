@@ -6,7 +6,7 @@
 
 #include "libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "libcef/renderer/alloy/alloy_render_thread_observer.h"
-#include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
+#include "libcef/renderer/extensions/extensions_renderer_api_provider.h"
 
 #include "base/stl_util.h"
 #include "chrome/common/url_constants.h"
@@ -16,7 +16,9 @@
 #include "content/public/renderer/render_thread.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/permissions/permissions_data.h"
+#include "extensions/renderer/api/core_extensions_renderer_api_provider.h"
 #include "extensions/renderer/dispatcher.h"
+#include "extensions/renderer/dispatcher_delegate.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
 #include "extensions/renderer/extensions_renderer_api_provider.h"
@@ -42,7 +44,10 @@ void IsGuestViewApiAvailableToScriptContext(
 
 CefExtensionsRendererClient::CefExtensionsRendererClient(
     AlloyContentRendererClient* alloy_content_renderer_client)
-    : alloy_content_renderer_client_(alloy_content_renderer_client) {}
+    : alloy_content_renderer_client_(alloy_content_renderer_client) {
+  AddAPIProvider(std::make_unique<CoreExtensionsRendererAPIProvider>());
+  AddAPIProvider(std::make_unique<CefExtensionsRendererAPIProvider>());
+}
 
 CefExtensionsRendererClient::~CefExtensionsRendererClient() = default;
 
@@ -83,9 +88,8 @@ void CefExtensionsRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
 
   extension_dispatcher_ = std::make_unique<extensions::Dispatcher>(
-      std::make_unique<extensions::CefExtensionsDispatcherDelegate>(),
-      std::vector<
-          std::unique_ptr<extensions::ExtensionsRendererAPIProvider>>());
+      std::make_unique<extensions::DispatcherDelegate>(),
+      std::move(api_providers_));
   extension_dispatcher_->OnRenderThreadStarted(thread);
   resource_request_policy_ =
       std::make_unique<extensions::ResourceRequestPolicy>(

@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index a989a351a8765..3f7af447dd187 100644
+index 25356ec40cdbf..250bac82d893a 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index a989a351a8765..3f7af447dd187 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1507,7 +1508,11 @@ component("base") {
+@@ -1515,7 +1516,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index a989a351a8765..3f7af447dd187 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1936,6 +1941,12 @@ component("base") {
+@@ -1944,6 +1949,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,17 +37,17 @@ index a989a351a8765..3f7af447dd187 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 4595034abae30..da29453cf7d71 100644
+index 78f706cd6bef8..87eafa7a762f6 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
-@@ -10,6 +10,7 @@
+@@ -8,6 +8,7 @@
  #include "base/check.h"
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
 +#include "cef/libcef/features/features.h"
+ #include "partition_alloc/partition_alloc_buildflags.h"
+ #include "partition_alloc/shim/allocator_shim.h"
  
- #if DCHECK_IS_ON()
- #include <atomic>
 @@ -33,7 +34,7 @@ struct Dispatcher::Impl {
    }
  
@@ -58,7 +58,7 @@ index 4595034abae30..da29453cf7d71 100644
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
-index b49701893a182..acefcbc5bc439 100644
+index 215d636fec275..922e88f31b999 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -11,8 +11,9 @@
@@ -164,7 +164,7 @@ index 299e54300a09d..cdc43cc48dce6 100644
    static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
    BOOL success =
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index da65502f75c3a..8b9d6eec4a1e2 100644
+index 1f91a938caf55..e7b383ebe3986 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -10,8 +10,9 @@
@@ -178,7 +178,7 @@ index da65502f75c3a..8b9d6eec4a1e2 100644
  #include "third_party/boringssl/src/include/openssl/mem.h"
  #endif
  
-@@ -57,7 +58,7 @@ absl::optional<UnguessableToken> UnguessableToken::DeserializeFromString(
+@@ -57,7 +58,7 @@ std::optional<UnguessableToken> UnguessableToken::DeserializeFromString(
  }
  
  bool operator==(const UnguessableToken& lhs, const UnguessableToken& rhs) {
@@ -188,7 +188,7 @@ index da65502f75c3a..8b9d6eec4a1e2 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 3323cc7cbfee1..778b86dcd4154 100644
+index ccaf03323d60f..3d7a7513d1843 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
 @@ -17,6 +17,7 @@

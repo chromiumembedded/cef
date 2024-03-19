@@ -475,7 +475,7 @@ StreamReaderURLLoader::StreamReaderURLLoader(
     mojo::PendingRemote<network::mojom::URLLoaderClient> client,
     mojo::PendingRemote<network::mojom::TrustedHeaderClient> header_client,
     const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
-    absl::optional<mojo_base::BigBuffer> cached_metadata,
+    std::optional<mojo_base::BigBuffer> cached_metadata,
     std::unique_ptr<Delegate> response_delegate)
     : request_id_(request_id),
       request_(request),
@@ -520,13 +520,13 @@ void StreamReaderURLLoader::Start() {
         base::BindOnce(&StreamReaderURLLoader::ContinueWithRequestHeaders,
                        weak_factory_.GetWeakPtr()));
   } else {
-    ContinueWithRequestHeaders(net::OK, absl::nullopt);
+    ContinueWithRequestHeaders(net::OK, std::nullopt);
   }
 }
 
 void StreamReaderURLLoader::ContinueWithRequestHeaders(
     int32_t result,
-    const absl::optional<net::HttpRequestHeaders>& headers) {
+    const std::optional<net::HttpRequestHeaders>& headers) {
   if (result != net::OK) {
     RequestComplete(result);
     return;
@@ -552,7 +552,7 @@ void StreamReaderURLLoader::FollowRedirect(
     const std::vector<std::string>& removed_headers,
     const net::HttpRequestHeaders& modified_headers,
     const net::HttpRequestHeaders& modified_cors_exempt_headers,
-    const absl::optional<GURL>& new_url) {
+    const std::optional<GURL>& new_url) {
   DCHECK(false);
 }
 
@@ -665,15 +665,15 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
                        std::move(pending_response)));
   } else {
     ContinueWithResponseHeaders(std::move(pending_response), net::OK,
-                                absl::nullopt, absl::nullopt);
+                                std::nullopt, std::nullopt);
   }
 }
 
 void StreamReaderURLLoader::ContinueWithResponseHeaders(
     network::mojom::URLResponseHeadPtr pending_response,
     int32_t result,
-    const absl::optional<std::string>& headers,
-    const absl::optional<GURL>& redirect_url) {
+    const std::optional<std::string>& headers,
+    const std::optional<GURL>& redirect_url) {
   if (result != net::OK) {
     RequestComplete(result);
     return;

@@ -18,7 +18,7 @@ class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {
   explicit CefToolbarViewView(CefViewDelegate* cef_delegate,
                               Browser* browser,
                               BrowserView* browser_view,
-                              absl::optional<DisplayMode> display_mode);
+                              std::optional<DisplayMode> display_mode);
 
   CefToolbarViewView(const CefToolbarViewView&) = delete;
   CefToolbarViewView& operator=(const CefToolbarViewView&) = delete;

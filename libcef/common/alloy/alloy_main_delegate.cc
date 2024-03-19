@@ -67,6 +67,8 @@
 #endif
 
 #if BUILDFLAG(IS_WIN)
+#include "base/win/scoped_handle.h"
+#include "base/win/win_util.h"
 #include "ui/base/resource/resource_bundle_win.h"
 #endif
 
@@ -420,10 +422,60 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
   // Initialize logging.
   logging::LoggingSettings log_settings;
 
-  const base::FilePath& log_file =
-      command_line->GetSwitchValuePath(switches::kLogFile);
-  DCHECK(!log_file.empty());
-  log_settings.log_file_path = log_file.value().c_str();
+  enum class LoggingDest {
+    kFile,
+    kStderr,
+#if BUILDFLAG(IS_WIN)
+    kHandle,
+#endif
+  };
+  LoggingDest dest = LoggingDest::kFile;
+
+  if (command_line->GetSwitchValueASCII(switches::kEnableLogging) == "stderr") {
+    dest = LoggingDest::kStderr;
+  }
+
+#if BUILDFLAG(IS_WIN)
+  // On Windows child process may be given a handle in the --log-file switch.
+  base::win::ScopedHandle log_handle;
+  if (command_line->GetSwitchValueASCII(switches::kEnableLogging) == "handle") {
+    auto handle_str = command_line->GetSwitchValueNative(switches::kLogFile);
+    uint32_t handle_value = 0;
+    if (base::StringToUint(handle_str, &handle_value)) {
+      // This handle is owned by the logging framework and is closed when the
+      // process exits.
+      HANDLE duplicate = nullptr;
+      if (::DuplicateHandle(GetCurrentProcess(),
+                            base::win::Uint32ToHandle(handle_value),
+                            GetCurrentProcess(), &duplicate, 0, FALSE,
+                            DUPLICATE_SAME_ACCESS)) {
+        log_handle.Set(duplicate);
+        dest = LoggingDest::kHandle;
+      }
+    }
+  }
+#endif  // BUILDFLAG(IS_WIN)
+
+  base::FilePath log_file;
+  if (dest == LoggingDest::kFile) {
+    log_file = command_line->GetSwitchValuePath(switches::kLogFile);
+    DCHECK(!log_file.empty());
+  }
+
+#if BUILDFLAG(IS_WIN)
+  if (dest == LoggingDest::kHandle) {
+    // TODO(crbug.com/328285906) Use a ScopedHandle in logging settings.
+    log_settings.log_file = log_handle.release();
+  } else {
+    log_settings.log_file = nullptr;
+  }
+#endif  // BUILDFLAG(IS_WIN)
+
+  if (dest == LoggingDest::kFile) {
+    log_settings.log_file_path = log_file.value().c_str();
+  } else {
+    log_settings.log_file_path = nullptr;
+  }
 
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
   log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
@@ -458,7 +510,13 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
     // level here so that only FATAL messages are output.
     logging::SetMinLogLevel(logging::LOGGING_FATAL);
   } else {
-    log_settings.logging_dest = logging::LOG_TO_ALL;
+    if (dest == LoggingDest::kStderr) {
+      log_settings.logging_dest =
+          logging::LOG_TO_STDERR | logging::LOG_TO_SYSTEM_DEBUG_LOG;
+    } else {
+      // Includes both handle or provided filename on Windows.
+      log_settings.logging_dest = logging::LOG_TO_ALL;
+    }
     logging::SetMinLogLevel(log_severity);
   }
 

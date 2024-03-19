@@ -51,7 +51,7 @@ index 95b2dd4972892..72e1b984ba689 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 73f5816dd06ae..33255343d351e 100644
+index 58fe3bd8f62ae..41b5e35b09a80 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -298,9 +298,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {

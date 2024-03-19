@@ -58,7 +58,7 @@ namespace extensions {
 namespace {
 
 // Implementation based on ComponentLoader::ParseManifest.
-absl::optional<base::Value::Dict> ParseManifest(
+std::optional<base::Value::Dict> ParseManifest(
     base::StringPiece manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest =
@@ -66,7 +66,7 @@ absl::optional<base::Value::Dict> ParseManifest(
 
   if (!manifest.get() || !manifest->is_dict()) {
     LOG(ERROR) << "Failed to parse extension manifest.";
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return std::move(*manifest).TakeDict();

@@ -8,6 +8,8 @@
 
 #include "libcef/browser/net_service/stream_reader_url_loader.h"
 
+#include <optional>
+
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/functional/callback.h"
 #include "base/hash/hash.h"
@@ -19,7 +21,6 @@
 #include "services/network/public/cpp/url_loader_factory_builder.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
-#include "third_party/abseil-cpp/absl/types/optional.h"
 
 namespace content {
 class ResourceContext;
@@ -105,12 +106,11 @@ class InterceptedRequestHandler {
       ResponseMode /* response_mode */,
       scoped_refptr<net::HttpResponseHeaders> /* override_headers */,
       const GURL& /* redirect_url */)>;
-  virtual void OnRequestResponse(
-      int32_t request_id,
-      network::ResourceRequest* request,
-      net::HttpResponseHeaders* headers,
-      absl::optional<net::RedirectInfo> redirect_info,
-      OnRequestResponseResultCallback callback);
+  virtual void OnRequestResponse(int32_t request_id,
+                                 network::ResourceRequest* request,
+                                 net::HttpResponseHeaders* headers,
+                                 std::optional<net::RedirectInfo> redirect_info,
+                                 OnRequestResponseResultCallback callback);
 
   // Called to optionally filter the response body.
   virtual mojo::ScopedDataPipeConsumerHandle OnFilterResponseBody(

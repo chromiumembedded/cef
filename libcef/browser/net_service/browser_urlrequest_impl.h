@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_BROWSER_URLREQUEST_IMPL_H_
 
 #include <memory>
+#include <optional>
 
 #include "include/cef_urlrequest.h"
-
-#include "third_party/abseil-cpp/absl/types/optional.h"
 
 namespace content {
 struct GlobalRequestID;
@@ -27,8 +26,8 @@ class CefBrowserURLRequest : public CefURLRequest {
                                 CefRefPtr<CefURLRequestClient>>;
 
   // Retrieve the request objects, if any, associated with |request_id|.
-  static absl::optional<RequestInfo> FromRequestID(int32_t request_id);
-  static absl::optional<RequestInfo> FromRequestID(
+  static std::optional<RequestInfo> FromRequestID(int32_t request_id);
+  static std::optional<RequestInfo> FromRequestID(
       const content::GlobalRequestID& request_id);
 
   // If |frame| is nullptr requests can still be intercepted but no

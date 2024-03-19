@@ -118,7 +118,7 @@ FileChooserParams SelectFileToFileChooserParams(
     const ui::SelectFileDialog::FileTypeInfo* file_types) {
   FileChooserParams params;
 
-  absl::optional<FileChooserParams::Mode> mode;
+  std::optional<FileChooserParams::Mode> mode;
   switch (type) {
     case ui::SelectFileDialog::Type::SELECT_UPLOAD_FOLDER:
       mode = FileChooserParams::Mode::kUploadFolder;

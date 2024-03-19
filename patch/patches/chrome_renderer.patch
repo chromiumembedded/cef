@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index ddfdfd49ad2b2..1b53c56bb677f 100644
+index fd99154d7744e..ef2ba8773d116 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -5,6 +5,7 @@
@@ -10,7 +10,7 @@ index ddfdfd49ad2b2..1b53c56bb677f 100644
  import("//chrome/common/features.gni")
  import("//components/nacl/features.gni")
  import("//components/offline_pages/buildflags/features.gni")
-@@ -136,6 +137,7 @@ static_library("renderer") {
+@@ -139,6 +140,7 @@ static_library("renderer") {
    deps = [
      "//base/allocator:buildflags",
      "//build:chromeos_buildflags",
@@ -18,7 +18,7 @@ index ddfdfd49ad2b2..1b53c56bb677f 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -243,6 +245,10 @@ static_library("renderer") {
+@@ -247,6 +249,10 @@ static_library("renderer") {
  
    configs += [ "//build/config/compiler:wexit_time_destructors" ]
  

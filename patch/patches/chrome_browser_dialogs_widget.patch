@@ -247,7 +247,7 @@ index 992dbc606ab78..2361727757696 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 6a2aace29d60d..d6d6292c10487 100644
+index bfeb88bc9b666..6dd74a72e20cc 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -96,13 +96,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

@@ -85,7 +85,7 @@ CefValueImpl::~CefValueImpl() = default;
 
 void CefValueImpl::SetValue(base::Value value) {
   base::AutoLock lock_scope(lock_);
-  SetValueInternal(absl::make_optional(std::move(value)));
+  SetValueInternal(std::make_optional(std::move(value)));
 }
 
 base::Value CefValueImpl::CopyValue() {
@@ -386,26 +386,26 @@ bool CefValueImpl::SetString(const CefString& value) {
 
 bool CefValueImpl::SetBinary(CefRefPtr<CefBinaryValue> value) {
   base::AutoLock lock_scope(lock_);
-  SetValueInternal(absl::nullopt);
+  SetValueInternal(std::nullopt);
   binary_value_ = value;
   return true;
 }
 
 bool CefValueImpl::SetDictionary(CefRefPtr<CefDictionaryValue> value) {
   base::AutoLock lock_scope(lock_);
-  SetValueInternal(absl::nullopt);
+  SetValueInternal(std::nullopt);
   dictionary_value_ = value;
   return true;
 }
 
 bool CefValueImpl::SetList(CefRefPtr<CefListValue> value) {
   base::AutoLock lock_scope(lock_);
-  SetValueInternal(absl::nullopt);
+  SetValueInternal(std::nullopt);
   list_value_ = value;
   return true;
 }
 
-void CefValueImpl::SetValueInternal(absl::optional<base::Value> value) {
+void CefValueImpl::SetValueInternal(std::optional<base::Value> value) {
   lock_.AssertAcquired();
 
   value_.reset(nullptr);
@@ -1048,7 +1048,7 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
   }
 
   // |actual_value| is no longer valid after this call.
-  absl::optional<base::Value> out_value =
+  std::optional<base::Value> out_value =
       mutable_value()->GetDict().Extract(base::StringPiece(key.ToString()));
   if (!out_value.has_value()) {
     return false;

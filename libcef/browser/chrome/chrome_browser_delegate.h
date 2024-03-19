@@ -7,12 +7,11 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/chrome/browser_delegate.h"
-
-#include "third_party/abseil-cpp/absl/types/optional.h"
 
 class CefBrowserContentsDelegate;
 class CefRequestContextImpl;

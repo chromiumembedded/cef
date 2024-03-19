@@ -117,7 +117,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   }
 
   void SetAccelerator(int command_id,
-                      absl::optional<ui::Accelerator> accel) override {
+                      std::optional<ui::Accelerator> accel) override {
     // No-op if already at the default state.
     if (!accel && !GetItemInfo(command_id)) {
       return;
@@ -135,7 +135,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
     ItemInfo() = default;
 
     bool checked = false;
-    absl::optional<ui::Accelerator> accel;
+    std::optional<ui::Accelerator> accel;
   };
 
   ItemInfo* GetItemInfo(int command_id) {

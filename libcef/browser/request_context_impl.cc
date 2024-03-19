@@ -50,7 +50,7 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
     host_resolver_.set_disconnect_handler(base::BindOnce(
         &ResolveHostHelper::OnComplete, base::Unretained(this), net::ERR_FAILED,
-        net::ResolveErrorInfo(net::ERR_FAILED), absl::nullopt, absl::nullopt));
+        net::ResolveErrorInfo(net::ERR_FAILED), std::nullopt, std::nullopt));
 
     host_resolver_->ResolveHost(
         network::mojom::HostResolverHost::NewHostPortPair(
@@ -62,8 +62,8 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
  private:
   void OnComplete(int result,
                   const net::ResolveErrorInfo& resolve_error_info,
-                  const absl::optional<net::AddressList>& resolved_addresses,
-                  const absl::optional<net::HostResolverEndpointResults>&
+                  const std::optional<net::AddressList>& resolved_addresses,
+                  const std::optional<net::HostResolverEndpointResults>&
                       endpoint_results_with_metadat) override {
     CEF_REQUIRE_UIT();
 
@@ -586,9 +586,6 @@ cef_content_setting_values_t CefRequestContextImpl::GetContentSetting(
     const CefString& top_level_url,
     cef_content_setting_types_t content_type) {
   // Verify that our enums match Chromium's values.
-  static_assert(static_cast<int>(CEF_CONTENT_SETTING_TYPE_NUM_TYPES) ==
-                    static_cast<int>(ContentSettingsType::NUM_TYPES),
-                "Mismatched enum found for CEF_CONTENT_SETTING_TYPE_NUM_TYPES");
   static_assert(
       static_cast<int>(CEF_CONTENT_SETTING_VALUE_NUM_VALUES) ==
           static_cast<int>(CONTENT_SETTING_NUM_SETTINGS),

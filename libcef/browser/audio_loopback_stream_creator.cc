@@ -48,7 +48,7 @@ class StreamCreatedCallbackAdapter final
           client_receiver,
       media::mojom::ReadOnlyAudioDataPipePtr data_pipe,
       bool initially_muted,
-      const absl::optional<base::UnguessableToken>& stream_id) override {
+      const std::optional<base::UnguessableToken>& stream_id) override {
     DCHECK(!initially_muted);  // Loopback streams shouldn't be started muted.
     callback_.Run(std::move(stream), std::move(client_receiver),
                   std::move(data_pipe));

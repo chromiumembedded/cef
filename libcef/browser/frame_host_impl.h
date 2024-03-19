@@ -154,7 +154,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   void FrameAttached(mojo::PendingRemote<cef::mojom::RenderFrame> render_frame,
                      bool reattached) override;
   void UpdateDraggableRegions(
-      absl::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
+      std::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
 
   bool is_temporary() const { return !frame_token_.has_value(); }

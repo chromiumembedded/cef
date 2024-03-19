@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
-index 10085136f52ce..ec1be9babecc2 100644
+index 9fef3079833f4..43576d91d53f1 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
 +++ chrome/browser/policy/browser_dm_token_storage_linux.cc
 @@ -22,6 +22,7 @@
@@ -33,7 +33,7 @@ index 10085136f52ce..ec1be9babecc2 100644
    }
  
 diff --git chrome/browser/policy/browser_dm_token_storage_mac.mm chrome/browser/policy/browser_dm_token_storage_mac.mm
-index 27af6ec08f593..6dfab7c74e8da 100644
+index 27af6ec08f593..156689eec644d 100644
 --- chrome/browser/policy/browser_dm_token_storage_mac.mm
 +++ chrome/browser/policy/browser_dm_token_storage_mac.mm
 @@ -27,6 +27,7 @@
@@ -44,7 +44,7 @@ index 27af6ec08f593..6dfab7c74e8da 100644
  #include "chrome/common/chrome_paths.h"
  
  namespace policy {
-@@ -47,11 +48,6 @@ const char kEnrollmentOptionsFilePath[] = FILE_PATH_LITERAL(
+@@ -47,11 +48,6 @@
      "/Library/Google/Chrome/CloudManagementEnrollmentOptions");
  const char kEnrollmentMandatoryOption[] = "Mandatory";
  
@@ -90,7 +90,7 @@ index 27af6ec08f593..6dfab7c74e8da 100644
 +      ChromeBrowserPolicyConnector::GetBundleId());
 +  CFStringRef bundle_id = bundle_id_scoper.get();
 +  if (!bundle_id) {
-+    return absl::nullopt;
++    return std::optional<bool>();
 +  }
 +
    base::apple::ScopedCFTypeRef<CFPropertyListRef> value(
@@ -105,7 +105,7 @@ index 27af6ec08f593..6dfab7c74e8da 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index 8824abb401188..687e667e4b942 100644
+index 50f1b5313ce45..687e667e4b942 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,11 +13,14 @@
@@ -209,7 +209,7 @@ index 8824abb401188..687e667e4b942 100644
  base::flat_set<std::string>
  ChromeBrowserPolicyConnector::device_affiliation_ids() const {
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -349,23 +424,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
+@@ -349,25 +424,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
  std::unique_ptr<ConfigurationPolicyProvider>
  ChromeBrowserPolicyConnector::CreatePlatformProvider() {
  #if BUILDFLAG(IS_WIN)
@@ -230,6 +230,8 @@ index 8824abb401188..687e667e4b942 100644
 -  // app's bundle ID actually is. All channels of Chrome should obey the same
 -  // policies.
 -  CFStringRef bundle_id = CFSTR("com.google.Chrome");
+-#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)
+-  CFStringRef bundle_id = CFSTR("com.google.ChromeForTesting");
 -#else
 -  base::apple::ScopedCFTypeRef<CFStringRef> bundle_id_scoper =
 -      base::SysUTF8ToCFStringRef(base::apple::BaseBundleID());
@@ -242,7 +244,7 @@ index 8824abb401188..687e667e4b942 100644
    auto loader = std::make_unique<PolicyLoaderMac>(
        base::ThreadPool::CreateSequencedTaskRunner(
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
-@@ -375,7 +449,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
+@@ -377,7 +449,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
                                                 std::move(loader));
  #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
    base::FilePath config_dir_path;
@@ -304,7 +306,7 @@ index 1a2e78c3472ec..5d1bd95a15113 100644
  #include "components/policy/policy_constants.h"
  
  namespace policy::path_parser {
-@@ -97,16 +98,12 @@ base::FilePath::StringType ExpandPathVariables(
+@@ -97,16 +98,12 @@
  void CheckUserDataDirPolicy(base::FilePath* user_data_dir) {
    // Since the configuration management infrastructure is not initialized when
    // this code runs, read the policy preference directly.
@@ -390,10 +392,10 @@ index 4cde94111918e..aaf8245abd9a6 100644
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/tools/generate_policy_source.py components/policy/tools/generate_policy_source.py
-index d225da88a04fb..191bb6b56df40 100755
+index e5efa52a8467f..37253ef517bfa 100755
 --- components/policy/tools/generate_policy_source.py
 +++ components/policy/tools/generate_policy_source.py
-@@ -448,6 +448,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,
+@@ -449,6 +449,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,
  #include <cstdint>
  #include <string>
  
@@ -401,7 +403,7 @@ index d225da88a04fb..191bb6b56df40 100755
  #include "components/policy/core/common/policy_details.h"
  #include "components/policy/core/common/policy_map.h"
  
-@@ -470,9 +471,11 @@ struct SchemaData;
+@@ -471,9 +472,11 @@ struct SchemaData;
  ''')
  
    if target_platform == 'win':
@@ -415,7 +417,7 @@ index d225da88a04fb..191bb6b56df40 100755
  
    f.write('''#if BUILDFLAG(IS_CHROMEOS)
  // Sets default profile policies values for enterprise users.
-@@ -1115,12 +1118,14 @@ namespace policy {
+@@ -1116,7 +1119,8 @@ namespace policy {
      f.write('}  // namespace\n\n')
  
    if target_platform == 'win':
@@ -424,6 +426,8 @@ index d225da88a04fb..191bb6b56df40 100755
 +            '#if BUILDFLAG(GOOGLE_CHROME_BRANDING)\n'
              'const wchar_t kRegistryChromePolicyKey[] = '
              'L"' + CHROME_POLICY_KEY + '";\n'
+             '#elif BUILDFLAG(GOOGLE_CHROME_FOR_TESTING_BRANDING)\n'
+@@ -1125,6 +1129,7 @@ namespace policy {
              '#else\n'
              'const wchar_t kRegistryChromePolicyKey[] = '
              'L"' + CHROMIUM_POLICY_KEY + '";\n'

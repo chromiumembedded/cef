@@ -13,26 +13,26 @@ index 431df5d50debe..0fcc9ea8fbb1a 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index d07266a32e786..5a0baf4aa9c6d 100644
+index 7f63e954dc68a..c916d68d3fbde 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3313,6 +3313,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3234,6 +3234,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
-+void RenderWidgetHostImpl::SetCompositorForFlingScheduler(ui::Compositor* compositor)
-+{
-+  fling_scheduler_->SetCompositor(compositor);
++void RenderWidgetHostImpl::SetCompositorForFlingScheduler(
++    ui::Compositor* compositor) {
++  GetRenderInputRouter()->fling_scheduler()->SetCompositor(compositor);
 +}
 +
  void RenderWidgetHostImpl::AddPendingUserActivation(
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 8e48429dbce98..daf8386513031 100644
+index fb89c4500eeae..5e8f8d258dde2 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -811,6 +811,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -814,6 +814,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
@@ -68,3 +68,15 @@ index e8ee63f3abc2e..2d1717082759d 100644
  };
  
  }  // namespace content
+diff --git content/common/input/render_input_router.h content/common/input/render_input_router.h
+index 9d664e43a3f94..584a4fa7d6d99 100644
+--- content/common/input/render_input_router.h
++++ content/common/input/render_input_router.h
+@@ -56,6 +56,7 @@ class CONTENT_EXPORT RenderInputRouter : public InputRouterImplClient {
+   void RendererWidgetCreated(bool for_frame_widget);
+ 
+   InputRouter* input_router() { return input_router_.get(); }
++  FlingSchedulerBase* fling_scheduler() { return fling_scheduler_.get(); }
+ 
+   void SetForceEnableZoom(bool);
+   void SetDeviceScaleFactor(float device_scale_factor);

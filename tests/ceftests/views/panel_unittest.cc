@@ -1123,7 +1123,7 @@ void BoxLayoutSizeHierarchyVerticalCenter(bool with_delegate) {
   // -----------
   //
   CefBoxLayoutSettings settings;
-  settings.cross_axis_alignment = CEF_CROSS_AXIS_ALIGNMENT_CENTER;
+  settings.cross_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
 
   int xoffset = (kBLParentSize - kBLChildSize) / 2;
   CefRect expected_child1_bounds(xoffset, 0, kBLChildSize, kBLChildSize);
@@ -1155,7 +1155,7 @@ void BoxLayoutSizeHierarchyHorizontalCenter(bool with_delegate) {
   //
   CefBoxLayoutSettings settings;
   settings.horizontal = true;
-  settings.cross_axis_alignment = CEF_CROSS_AXIS_ALIGNMENT_CENTER;
+  settings.cross_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
 
   int yoffset = (kBLParentSize - kBLChildSize) / 2;
   CefRect expected_child1_bounds(0, yoffset, kBLChildSize, kBLChildSize);
@@ -1186,8 +1186,8 @@ void BoxLayoutSizeHierarchyVerticalCenterCenter(bool with_delegate) {
   // -----------
   //
   CefBoxLayoutSettings settings;
-  settings.main_axis_alignment = CEF_MAIN_AXIS_ALIGNMENT_CENTER;
-  settings.cross_axis_alignment = CEF_CROSS_AXIS_ALIGNMENT_CENTER;
+  settings.main_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
+  settings.cross_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
 
   int xoffset = (kBLParentSize - kBLChildSize) / 2;
   int yoffset = (kBLParentSize - (kBLChildSize * 2)) / 2;
@@ -1221,8 +1221,8 @@ void BoxLayoutSizeHierarchyHorizontalCenterCenter(bool with_delegate) {
   //
   CefBoxLayoutSettings settings;
   settings.horizontal = true;
-  settings.main_axis_alignment = CEF_MAIN_AXIS_ALIGNMENT_CENTER;
-  settings.cross_axis_alignment = CEF_CROSS_AXIS_ALIGNMENT_CENTER;
+  settings.main_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
+  settings.cross_axis_alignment = CEF_AXIS_ALIGNMENT_CENTER;
 
   int xoffset = (kBLParentSize - (kBLChildSize * 2)) / 2;
   int yoffset = (kBLParentSize - kBLChildSize) / 2;

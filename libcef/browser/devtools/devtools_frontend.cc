@@ -414,7 +414,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     // TODO(pfeldman): handle some of the embedder messages in content.
     const std::string* url = params[0].GetIfString();
     const std::string* headers = params[1].GetIfString();
-    absl::optional<const int> stream_id = params[2].GetIfInt();
+    std::optional<const int> stream_id = params[2].GetIfInt();
     if (!url || !headers || !stream_id.has_value()) {
       return;
     }
@@ -540,7 +540,7 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     }
     const std::string* url = params[0].GetIfString();
     const std::string* content = params[1].GetIfString();
-    absl::optional<bool> save_as = params[2].GetIfBool();
+    std::optional<bool> save_as = params[2].GetIfBool();
     if (!url || !content || !save_as.has_value()) {
       return;
     }

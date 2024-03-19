@@ -24,10 +24,10 @@ index d007b8623e02c..258f077803edd 100644
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 435ded6852c97..9a430ec4c5695 100644
+index 5c9cb57298e29..8a526f8024913 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
-@@ -312,7 +312,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
+@@ -316,7 +316,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {
  }
  
  bool ResourceRequest::SendsCookies() const {

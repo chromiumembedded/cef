@@ -44,7 +44,7 @@ index caa20ec03434a..2a3ca921445c1 100644
        avatar_toolbar_button, GetBrowser().profile(), type);
    DCHECK_EQ(nullptr, bubble_tracker_.view());
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index e2dc163557bca..3c56bbc2881cc 100644
+index 791ab794c8750..ca9e0851e2689 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -36,7 +36,9 @@
@@ -55,9 +55,9 @@ index e2dc163557bca..3c56bbc2881cc 100644
 +  DCHECK(browser->profile()->IsIncognitoProfile() ||
 +         (browser->profile()->IsOffTheRecord() &&
 +          browser->profile()->GetOTRProfileID().IsUniqueForCEF()));
-   GetViewAccessibility().OverrideName(GetAccessibleWindowTitle());
+   GetViewAccessibility().SetName(GetAccessibleWindowTitle(),
+                                  ax::mojom::NameFrom::kAttribute);
  
-   base::RecordAction(base::UserMetricsAction("IncognitoMenu_Show"));
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 index 38e38d6eabc85..0856ae8d5f5ff 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc

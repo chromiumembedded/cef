@@ -41,7 +41,16 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
  private:
   ~ChromeBrowserContext() override;
 
-  void ProfileCreated(Profile::CreateStatus status, Profile* profile);
+  enum class CreateStatus {
+    // Default to creating a new/unique OffTheRecord profile.
+    kDefault,
+    // Profile created but before initializing extensions and promo resources.
+    kCreated,
+    // Profile is created, extensions and promo resources are initialized.
+    kInitialized,
+  };
+
+  void ProfileCreated(CreateStatus status, Profile* profile);
 
   base::OnceClosure initialized_cb_;
   Profile* profile_ = nullptr;

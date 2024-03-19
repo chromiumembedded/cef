@@ -68,7 +68,7 @@ ExtensionFunction::ResponseAction TabsGetFunction::Run() {
 TabsCreateFunction::TabsCreateFunction() : cef_details_(this) {}
 
 ExtensionFunction::ResponseAction TabsCreateFunction::Run() {
-  absl::optional<tabs::Create::Params> params =
+  std::optional<tabs::Create::Params> params =
       tabs::Create::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
@@ -108,7 +108,7 @@ content::WebContents* BaseAPIFunction::GetWebContents(int tab_id) {
 }
 
 ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-  absl::optional<tabs::Update::Params> params =
+  std::optional<tabs::Update::Params> params =
       tabs::Update::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
@@ -391,7 +391,7 @@ void ExecuteCodeInTabFunction::LoadFileComplete(
     const std::string& file,
     std::unique_ptr<std::string> data) {
   std::vector<std::unique_ptr<std::string>> data_list;
-  absl::optional<std::string> error;
+  std::optional<std::string> error;
   const bool success = !!data.get();
   if (success) {
     DCHECK(data);
@@ -411,7 +411,7 @@ bool TabsRemoveCSSFunction::ShouldRemoveCSS() const {
 }
 
 ExtensionFunction::ResponseAction TabsSetZoomFunction::Run() {
-  absl::optional<tabs::SetZoom::Params> params =
+  std::optional<tabs::SetZoom::Params> params =
       tabs::SetZoom::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
@@ -443,7 +443,7 @@ ExtensionFunction::ResponseAction TabsSetZoomFunction::Run() {
 }
 
 ExtensionFunction::ResponseAction TabsGetZoomFunction::Run() {
-  absl::optional<tabs::GetZoom::Params> params =
+  std::optional<tabs::GetZoom::Params> params =
       tabs::GetZoom::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
@@ -463,7 +463,7 @@ ExtensionFunction::ResponseAction TabsGetZoomFunction::Run() {
 ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
   using tabs::ZoomSettings;
 
-  absl::optional<tabs::SetZoomSettings::Params> params =
+  std::optional<tabs::SetZoomSettings::Params> params =
       tabs::SetZoomSettings::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
@@ -514,7 +514,7 @@ ExtensionFunction::ResponseAction TabsSetZoomSettingsFunction::Run() {
 }
 
 ExtensionFunction::ResponseAction TabsGetZoomSettingsFunction::Run() {
-  absl::optional<tabs::GetZoomSettings::Params> params =
+  std::optional<tabs::GetZoomSettings::Params> params =
       tabs::GetZoomSettings::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 

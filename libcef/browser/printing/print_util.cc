@@ -65,7 +65,7 @@ void PrintToPDF(content::WebContents* web_contents,
   const bool display_header_footer = !!settings.display_header_footer;
 
   // Defaults to no header/footer.
-  absl::optional<std::string> header_template, footer_template;
+  std::optional<std::string> header_template, footer_template;
   if (display_header_footer) {
     if (settings.header_template.length > 0) {
       header_template = CefString(&settings.header_template);
@@ -76,20 +76,20 @@ void PrintToPDF(content::WebContents* web_contents,
   }
 
   // Defaults to 1.0.
-  absl::optional<double> scale;
+  std::optional<double> scale;
   if (settings.scale > 0) {
     scale = settings.scale;
   }
 
   // Defaults to letter size.
-  absl::optional<double> paper_width, paper_height;
+  std::optional<double> paper_width, paper_height;
   if (settings.paper_width > 0 && settings.paper_height > 0) {
     paper_width = settings.paper_width;
     paper_height = settings.paper_height;
   }
 
   // Defaults to kDefaultMarginInInches.
-  absl::optional<double> margin_top, margin_bottom, margin_left, margin_right;
+  std::optional<double> margin_top, margin_bottom, margin_left, margin_right;
   if (settings.margin_type == PDF_PRINT_MARGIN_NONE) {
     margin_top = 0;
     margin_bottom = 0;

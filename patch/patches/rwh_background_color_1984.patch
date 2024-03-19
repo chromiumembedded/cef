@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index a1192dc007ae5..245b62a91f315 100644
+index e065ce0700764..9c68e224c050f 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -10,7 +10,15 @@ index a1192dc007ae5..245b62a91f315 100644
  #include <set>
  #include <utility>
  
-@@ -718,10 +719,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -53,6 +54,7 @@
+ #include "content/public/browser/content_browser_client.h"
+ #include "content/public/browser/device_service.h"
+ #include "content/public/browser/render_view_host.h"
++#include "content/public/browser/web_contents.h"
+ #include "content/public/common/page_visibility_state.h"
+ #include "services/service_manager/public/cpp/interface_provider.h"
+ #include "third_party/blink/public/common/input/web_input_event.h"
+@@ -724,10 +726,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    DCHECK(GetBackgroundColor());
  
@@ -27,15 +35,15 @@ index a1192dc007ae5..245b62a91f315 100644
  }
  
  #if BUILDFLAG(IS_WIN)
-@@ -2339,6 +2342,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2352,6 +2356,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();
 +
 +  // Do this after |window_| is created to avoid crashes on Win10.
 +  // See https://crbug.com/761389.
-+  auto web_contents =
-+      WebContents::FromRenderViewHost(RenderViewHost::From(host_));
++  auto* web_contents =
++      WebContents::FromRenderViewHost(RenderViewHost::From(host()));
 +  if (web_contents) {
 +    // TODO(mostynb): actually use prefs.  Landing this as a separate CL
 +    // first to rebaseline some unreliable layout tests.
