@@ -941,7 +941,7 @@ index e864e22e920c8..0b82bf831be8f 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index 8ee63a3430928..5a296e7dfe09c 100644
+index 8ee63a3430928..bb0f09b960677 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -191,7 +191,7 @@ class TabstripLikeBackground : public views::Background {
@@ -1035,6 +1035,15 @@ index 8ee63a3430928..5a296e7dfe09c 100644
      if (companion::IsCompanionFeatureEnabled()) {
        side_panel_container_ = container_view_->AddChildView(
            std::make_unique<SidePanelToolbarContainer>(browser_view_));
+@@ -811,7 +828,7 @@ void ToolbarView::Layout(PassKey) {
+   if (display_mode_ == DisplayMode::NORMAL) {
+     LayoutCommon();
+ 
+-    if (features::IsChromeRefresh2023()) {
++    if (features::IsChromeRefresh2023() && !browser_->toolbar_overridden()) {
+       UpdateClipPath();
+     }
+   }
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
 index 53f8ff18e0119..05d005f026d33 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
