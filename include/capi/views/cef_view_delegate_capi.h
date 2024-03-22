@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=4e421d2d1e24df6e58f7a7c0c074056bc5284df4$
+// $hash=d3624baa94bb722c48880b4319f5d5e8035eaa46$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_DELEGATE_CAPI_H_
@@ -140,6 +140,17 @@ typedef struct _cef_view_delegate_t {
   ///
   void(CEF_CALLBACK* on_blur)(struct _cef_view_delegate_t* self,
                               struct _cef_view_t* view);
+
+  ///
+  /// Called when the theme for |view| has changed, after the new theme colors
+  /// have already been applied. This will be called at least one time when
+  /// |view| is added to a parent View. Further theme changes can be disabled by
+  /// passing the `--force-dark-mode` or `--force-light-mode` command-line flag.
+  /// Optionally use this callback to override the new theme colors by calling
+  /// the appropriate cef_view_t functions (SetBackgroundColor, etc).
+  ///
+  void(CEF_CALLBACK* on_theme_changed)(struct _cef_view_delegate_t* self,
+                                       struct _cef_view_t* view);
 } cef_view_delegate_t;
 
 #ifdef __cplusplus

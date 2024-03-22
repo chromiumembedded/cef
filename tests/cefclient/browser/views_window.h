@@ -202,6 +202,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnWindowChanged(CefRefPtr<CefView> view, bool added) override;
   void OnLayoutChanged(CefRefPtr<CefView> view,
                        const CefRect& new_bounds) override;
+  void OnThemeChanged(CefRefPtr<CefView> view) override;
 
   // ViewsMenuBar::Delegate methods:
   void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,

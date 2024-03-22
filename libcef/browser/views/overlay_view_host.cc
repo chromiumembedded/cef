@@ -193,8 +193,6 @@ void CefOverlayViewHost::Init(views::View* host_view,
                            : views::Widget::InitParams::Activatable::kNo;
   widget_->Init(std::move(params));
 
-  view_ = widget_->GetContentsView()->AddChildView(std::move(controls_view));
-
   // Make the Widget background transparent. The View might still be opaque.
   if (widget_->GetCompositor()) {
     widget_->GetCompositor()->SetBackgroundColor(SK_ColorTRANSPARENT);
@@ -212,6 +210,11 @@ void CefOverlayViewHost::Init(views::View* host_view,
                                        browser_view);
     }
   }
+
+  // Call AddChildView after the Widget properties have been configured.
+  // Notifications resulting from this call may attempt to access those
+  // properties (OnThemeChanged calling GetHostView, for example).
+  view_ = widget_->GetContentsView()->AddChildView(std::move(controls_view));
 
   // Set the initial bounds after the View has been added to the Widget.
   // Otherwise, preferred size won't calculate correctly.

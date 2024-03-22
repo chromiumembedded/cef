@@ -21,7 +21,9 @@ namespace client {
 // Implements a menu bar which is composed of CefMenuButtons positioned in a
 // row with automatic switching between them via mouse/keyboard. All methods
 // must be called on the browser process UI thread.
-class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
+class ViewsMenuBar : public CefMenuButtonDelegate,
+                     public CefMenuModelDelegate,
+                     public CefPanelDelegate {
  public:
   // Delegate methods will be called on the browser process UI thread.
   class Delegate {
@@ -89,6 +91,9 @@ class ViewsMenuBar : public CefMenuButtonDelegate, public CefMenuModelDelegate {
   void UnhandledCloseSubmenu(CefRefPtr<CefMenuModel> menu_model,
                              bool is_rtl) override;
   void MenuClosed(CefRefPtr<CefMenuModel> menu_model) override;
+
+  // CefViewDelegate methods:
+  void OnThemeChanged(CefRefPtr<CefView> view) override;
 
  private:
   // Creates the menu panel if it doesn't already exist.

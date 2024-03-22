@@ -96,8 +96,7 @@ void ViewsOverlayControls::Initialize(CefRefPtr<CefWindow> window,
     // that we can't use a transparent background because subpixel text
     // rendering will break.
     // See comments on the related DCHECK in Label::PaintText.
-    panel_ = CefPanel::CreatePanel(nullptr);
-    views_style::ApplyTo(panel_);
+    panel_ = CefPanel::CreatePanel(this);
 
     // Use a horizontal box layout.
     CefBoxLayoutSettings panel_layout_settings;
@@ -226,11 +225,15 @@ void ViewsOverlayControls::OnButtonPressed(CefRefPtr<CefButton> button) {
   }
 }
 
+void ViewsOverlayControls::OnThemeChanged(CefRefPtr<CefView> view) {
+  // Apply colors when the theme changes.
+  views_style::ApplyTo(view);
+}
+
 CefRefPtr<CefLabelButton> ViewsOverlayControls::CreateButton(Command command) {
   CefRefPtr<CefLabelButton> button = CefLabelButton::CreateLabelButton(
       this, GetLabel(command, window_maximized_));
   button->SetID(static_cast<int>(command));
-  views_style::ApplyTo(button);
   button->SetInkDropEnabled(true);
   button->SetFocusable(false);  // Don't give focus to the button.
   return button;

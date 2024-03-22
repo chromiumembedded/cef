@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=cb28c29eeb68707fb9b164f539804a6d8a7e61be$
+// $hash=cb2d1231eb279cea9a132af8bded03032307cb45$
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
@@ -282,6 +282,28 @@ void CEF_CALLBACK panel_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+panel_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefPanelDelegateCppToC::Get(reinterpret_cast<cef_panel_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -299,6 +321,7 @@ CefPanelDelegateCppToC::CefPanelDelegateCppToC() {
   GetStruct()->base.on_layout_changed = panel_delegate_on_layout_changed;
   GetStruct()->base.on_focus = panel_delegate_on_focus;
   GetStruct()->base.on_blur = panel_delegate_on_blur;
+  GetStruct()->base.on_theme_changed = panel_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.

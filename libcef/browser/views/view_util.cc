@@ -8,10 +8,13 @@
 
 #include "libcef/browser/views/view_adapter.h"
 
+#include "ui/color/color_provider.h"
+#include "ui/color/color_provider_manager.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
 #include "ui/gfx/geometry/point_conversions.h"
+#include "ui/native_theme/native_theme.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/non_client_view.h"
@@ -118,9 +121,24 @@ class UserData : public base::SupportsUserData::Data {
   CefView* view_ref_;
 };
 
+// Based on Widget::GetNativeTheme.
+const ui::NativeTheme* GetDefaultNativeTheme() {
+  return ui::NativeTheme::GetInstanceForNativeUi();
+}
+
+// Based on Widget::GetColorProviderKey.
+ui::ColorProviderKey GetDefaultColorProviderKey() {
+  return GetDefaultNativeTheme()->GetColorProviderKey(/*custom_theme=*/nullptr);
+}
+
+// Based on Widget::GetColorProvider.
+ui::ColorProvider* GetDefaultColorProvider() {
+  return ui::ColorProviderManager::Get().GetColorProviderFor(
+      GetDefaultColorProviderKey());
+}
+
 }  // namespace
 
-const SkColor kDefaultBackgroundColor = SkColorSetARGB(255, 255, 255, 255);
 const char kDefaultFontList[] = "Arial, Helvetica, 14px";
 
 void Register(CefRefPtr<CefView> view) {
@@ -321,6 +339,16 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   views::View::ConvertPointFromWidget(view, point);
 
   return true;
+}
+
+SkColor GetColor(views::View* view, ui::ColorId id) {
+  // |color_provider| will be nullptr if |view| has not yet been added to a
+  // Widget.
+  if (auto color_provider = view->GetColorProvider()) {
+    return color_provider->GetColor(id);
+  }
+
+  return GetDefaultColorProvider()->GetColor(id);
 }
 
 }  // namespace view_util

@@ -56,7 +56,6 @@ void CreatePanel(CefRefPtr<CefPanelDelegate> delegate) {
   EXPECT_TRUE(panel->IsEnabled());
   EXPECT_FALSE(panel->IsFocusable());
   EXPECT_FALSE(panel->IsAccessibilityFocusable());
-  EXPECT_EQ(CefColorSetARGB(255, 255, 255, 255), panel->GetBackgroundColor());
 
   // Verify default Panel state.
   EXPECT_TRUE(panel->GetLayout().get());

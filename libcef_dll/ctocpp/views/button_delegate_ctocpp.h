@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=53e751a5b54ab964ee2aef1a8232a9647f47db00$
+// $hash=0e50e8cd82200398ce91a03a6c0ef51da5ac956b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_DELEGATE_CTOCPP_H_
@@ -56,6 +56,7 @@ class CefButtonDelegateCToCpp
                        const CefRect& new_bounds) override;
   void OnFocus(CefRefPtr<CefView> view) override;
   void OnBlur(CefRefPtr<CefView> view) override;
+  void OnThemeChanged(CefRefPtr<CefView> view) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_DELEGATE_CTOCPP_H_

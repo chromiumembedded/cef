@@ -83,7 +83,6 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
   CefRefPtr<CefMenuButton> button =
       CefMenuButton::CreateMenuButton(this, label);
   button->SetID(new_menu_id);
-  views_style::ApplyTo(button.get());
   button->SetInkDropEnabled(true);
 
   // Assign a group ID to allow focus traversal between MenuButtons using the
@@ -283,13 +282,17 @@ void ViewsMenuBar::MenuClosed(CefRefPtr<CefMenuModel> menu_model) {
   }
 }
 
+void ViewsMenuBar::OnThemeChanged(CefRefPtr<CefView> view) {
+  // Apply colors when the theme changes.
+  views_style::ApplyTo(view);
+}
+
 void ViewsMenuBar::EnsureMenuPanel() {
   if (panel_) {
     return;
   }
 
-  panel_ = CefPanel::CreatePanel(nullptr);
-  views_style::ApplyTo(panel_);
+  panel_ = CefPanel::CreatePanel(this);
 
   // Use a horizontal box layout.
   CefBoxLayoutSettings top_panel_layout_settings;

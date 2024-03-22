@@ -357,13 +357,16 @@ class CefView : public CefBaseRefCounted {
   virtual void RequestFocus() = 0;
 
   ///
-  /// Sets the background color for this View.
+  /// Sets the background color for this View. The background color will be
+  /// automatically reset if the current theme changes. See
+  /// CefViewDelegate::OnThemeChanged for related documentation.
   ///
   /*--cef()--*/
   virtual void SetBackgroundColor(cef_color_t color) = 0;
 
   ///
-  /// Returns the background color for this View.
+  /// Returns the background color for this View. If the background color has
+  /// not been explicitly set then the current theme color will be returned.
   ///
   /*--cef()--*/
   virtual cef_color_t GetBackgroundColor() = 0;

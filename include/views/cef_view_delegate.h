@@ -131,6 +131,17 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual void OnBlur(CefRefPtr<CefView> view) {}
+
+  ///
+  /// Called when the theme for |view| has changed, after the new theme colors
+  /// have already been applied. This will be called at least one time when
+  /// |view| is added to a parent View. Further theme changes can be disabled by
+  /// passing the `--force-dark-mode` or `--force-light-mode` command-line flag.
+  /// Optionally use this callback to override the new theme colors by calling
+  /// the appropriate CefView methods (SetBackgroundColor, etc).
+  ///
+  /*--cef()--*/
+  virtual void OnThemeChanged(CefRefPtr<CefView> view) {}
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

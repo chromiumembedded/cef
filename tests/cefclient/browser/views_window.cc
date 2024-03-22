@@ -1060,6 +1060,11 @@ void ViewsWindow::OnLayoutChanged(CefRefPtr<CefView> view,
   }
 }
 
+void ViewsWindow::OnThemeChanged(CefRefPtr<CefView> view) {
+  // Apply colors when the theme changes.
+  views_style::ApplyTo(view);
+}
+
 void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
                                         int command_id,
                                         cef_event_flags_t event_flags) {
@@ -1157,7 +1162,6 @@ CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
   CefRefPtr<CefLabelButton> button =
       CefLabelButton::CreateLabelButton(this, label);
   button->SetID(id);
-  views_style::ApplyTo(button.get());
   button->SetInkDropEnabled(true);
   button->SetEnabled(false);    // Disabled by default.
   button->SetFocusable(false);  // Don't give focus to the button.
@@ -1173,7 +1177,6 @@ CefRefPtr<CefMenuButton> ViewsWindow::CreateMenuButton() {
   menu_button_->SetImage(
       CEF_BUTTON_STATE_NORMAL,
       delegate_->GetImageCache()->GetCachedImage("menu_icon"));
-  views_style::ApplyTo(menu_button_.get());
   menu_button_->SetInkDropEnabled(true);
   // Override the default minimum size.
   menu_button_->SetMinimumSize(CefSize(0, 0));
@@ -1186,14 +1189,12 @@ CefRefPtr<CefView> ViewsWindow::CreateLocationBar() {
     // Chrome will provide a minimal location bar.
     location_bar_ = browser_view_->GetChromeToolbar();
     DCHECK(location_bar_);
-    views_style::ApplyBackgroundTo(location_bar_);
   }
   if (!location_bar_) {
     // Create the URL textfield.
     CefRefPtr<CefTextfield> url_textfield = CefTextfield::CreateTextfield(this);
     url_textfield->SetID(ID_URL_TEXTFIELD);
     url_textfield->SetEnabled(false);  // Disabled by default.
-    views_style::ApplyTo(url_textfield);
     location_bar_ = url_textfield;
   }
   return location_bar_;
@@ -1264,7 +1265,6 @@ void ViewsWindow::AddControls() {
     panel->AddChildView(extensions_panel_);
 
     panel->AddChildView(menu_button_);
-    views_style::ApplyTo(panel);
 
     // Allow |location| to grow and fill any remaining space.
     panel_layout->SetFlexForView(location_bar_, 1);
@@ -1405,7 +1405,6 @@ void ViewsWindow::UpdateExtensionControls() {
         CefMenuButton::CreateMenuButton(this, CefString());
     button->SetID(id);
     button->SetImage(CEF_BUTTON_STATE_NORMAL, (*it).image_);
-    views_style::ApplyTo(button.get());
     button->SetInkDropEnabled(true);
     // Override the default minimum size.
     button->SetMinimumSize(CefSize(0, 0));

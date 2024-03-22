@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=eeb999ed9ff1b98afba6cc6d0c4c7917c4d28230$
+// $hash=96114a38e7bbf499fcb245d029164975b8d10ebe$
 //
 
 #include "libcef_dll/ctocpp/views/panel_delegate_ctocpp.h"
@@ -272,6 +272,28 @@ void CefPanelDelegateCToCpp::OnBlur(CefRefPtr<CefView> view) {
 
   // Execute
   _struct->on_blur(_struct, CefViewCppToC::Wrap(view));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefPanelDelegateCToCpp::OnThemeChanged(CefRefPtr<CefView> view) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_delegate_t* _struct =
+      reinterpret_cast<cef_view_delegate_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, on_theme_changed)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: view; type: refptr_diff
+  DCHECK(view.get());
+  if (!view.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_theme_changed(_struct, CefViewCppToC::Wrap(view));
 }
 
 // CONSTRUCTOR - Do not edit by hand.

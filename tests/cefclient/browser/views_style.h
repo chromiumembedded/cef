@@ -17,11 +17,8 @@ namespace client::views_style {
 bool IsSet();
 
 // Apply style to views objects.
-void ApplyBackgroundTo(CefRefPtr<CefView> view);
-void ApplyTo(CefRefPtr<CefPanel> panel);
-void ApplyTo(CefRefPtr<CefLabelButton> label_button);
-void ApplyTo(CefRefPtr<CefTextfield> textfield);
 void ApplyTo(CefRefPtr<CefMenuModel> menu_model);
+void ApplyTo(CefRefPtr<CefView> view);
 
 }  // namespace client::views_style
 

@@ -48,44 +48,6 @@ bool IsSet() {
   return g_background_color != 0;
 }
 
-void ApplyBackgroundTo(CefRefPtr<CefView> view) {
-  if (!IsSet()) {
-    return;
-  }
-
-  view->SetBackgroundColor(g_background_color);
-}
-
-void ApplyTo(CefRefPtr<CefPanel> panel) {
-  if (!IsSet()) {
-    return;
-  }
-
-  panel->SetBackgroundColor(g_background_color);
-}
-
-void ApplyTo(CefRefPtr<CefLabelButton> label_button) {
-  if (!IsSet()) {
-    return;
-  }
-
-  // All text except disabled gets the same color.
-  label_button->SetEnabledTextColors(g_text_color);
-  label_button->SetTextColor(CEF_BUTTON_STATE_DISABLED,
-                             g_background_hover_color);
-
-  label_button->SetBackgroundColor(g_background_color);
-}
-
-void ApplyTo(CefRefPtr<CefTextfield> textfield) {
-  if (!IsSet()) {
-    return;
-  }
-
-  textfield->SetBackgroundColor(g_background_color);
-  textfield->SetTextColor(g_text_color);
-}
-
 void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
   if (!IsSet()) {
     return;
@@ -109,6 +71,25 @@ void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
       ApplyTo(menu_model->GetSubMenuAt(i));
     }
   }
+}
+
+void ApplyTo(CefRefPtr<CefView> view) {
+  if (!IsSet()) {
+    return;
+  }
+
+  if (auto button = view->AsButton()) {
+    if (auto label_button = button->AsLabelButton()) {
+      // All text except disabled gets the same color.
+      label_button->SetEnabledTextColors(g_text_color);
+      label_button->SetTextColor(CEF_BUTTON_STATE_DISABLED,
+                                 g_background_hover_color);
+    }
+  } else if (auto textfield = view->AsTextfield()) {
+    textfield->SetTextColor(g_text_color);
+  }
+
+  view->SetBackgroundColor(g_background_color);
 }
 
 }  // namespace client::views_style

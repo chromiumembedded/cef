@@ -9,6 +9,7 @@
 #include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 
+#include "ui/color/color_id.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/views/view.h"
 
@@ -45,7 +46,6 @@ class CefWindowDelegate;
 namespace view_util {
 
 // Default values.
-extern const SkColor kDefaultBackgroundColor;
 extern const char kDefaultFontList[];
 
 // Called when a CefView is initialized to create the initial association
@@ -164,6 +164,11 @@ views::View* GetHostView(views::Widget* widget);
 #if BUILDFLAG(IS_MAC)
 float GetNSWindowTitleBarHeight(views::Widget* widget);
 #endif
+
+// Returns the mixer color for |id|. If |view| has been added to a Widget it
+// will use the Widget's ColorProvider, otherwise it will use the default theme
+// ColorProvider. Returns gfx::kPlaceholderColor if |id| cannot be constructed.
+SkColor GetColor(views::View* view, ui::ColorId id);
 
 }  // namespace view_util
 

@@ -675,12 +675,15 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::RequestFocus() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  content_view()->SetBackground(views::CreateSolidBackground(color));
+  root_view()->SetBackground(views::CreateSolidBackground(color));
 }
 
 CEF_VIEW_IMPL_T cef_color_t CEF_VIEW_IMPL_D::GetBackgroundColor() {
   CEF_REQUIRE_VALID_RETURN(0U);
-  return content_view()->background()->get_color();
+  if (root_view()->background()) {
+    return root_view()->background()->get_color();
+  }
+  return view_util::GetColor(root_view(), ui::kColorPrimaryBackground);
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToScreen(CefPoint& point) {

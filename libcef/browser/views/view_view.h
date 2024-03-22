@@ -44,10 +44,6 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   // CefViewImpl registration has completed so it is safe to call complex
   // views::View-derived methods here.
   virtual void Initialize() {
-    // Use our defaults instead of the Views framework defaults.
-    ParentClass::SetBackground(
-        views::CreateSolidBackground(view_util::kDefaultBackgroundColor));
-
     // TODO(crbug.com/1218186): Remove this, if this view is focusable then it
     // needs to add a name so that the screen reader knows what to announce.
     ParentClass::SetProperty(views::kSkipAccessibilityPaintChecks, true);
@@ -80,6 +76,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   void RemovedFromWidget() override;
   void OnFocus() override;
   void OnBlur() override;
+  void OnThemeChanged() override;
 
   // Return true if this View is expected to have a minimum size (for example,
   // a button where the minimum size is based on the label).
@@ -212,6 +209,35 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnBlur() {
     cef_delegate()->OnBlur(GetCefView());
   }
   ParentClass::OnBlur();
+}
+
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnThemeChanged() {
+  // Clear the background, if set.
+  if (ParentClass::background()) {
+    ParentClass::SetBackground(nullptr);
+  }
+
+  // Apply default theme colors.
+  ParentClass::OnThemeChanged();
+
+  // Allow the client to override the default colors.
+  if (cef_delegate()) {
+    cef_delegate()->OnThemeChanged(GetCefView());
+  }
+
+  // If the background is still unset, and the containing Widget is not an
+  // overlay (which has transparent background), then set the background based
+  // on the current theme.
+  if (!ParentClass::background()) {
+    const bool is_overlay_hosted =
+        ParentClass::GetWidget() &&
+        view_util::GetHostView(ParentClass::GetWidget()) != nullptr;
+    if (!is_overlay_hosted) {
+      const SkColor color =
+          view_util::GetColor(this, ui::kColorPrimaryBackground);
+      ParentClass::SetBackground(views::CreateSolidBackground(color));
+    }
+  }
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(

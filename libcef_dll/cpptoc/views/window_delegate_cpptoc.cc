@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1f438b082c8c499084a3e494e1bb83adaecf91d1$
+// $hash=1829e6ed7282ca9a0b34e825a11c229ddd48590d$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -793,6 +793,28 @@ void CEF_CALLBACK window_delegate_on_blur(struct _cef_view_delegate_t* self,
       ->OnBlur(CefViewCToCpp::Wrap(view));
 }
 
+void CEF_CALLBACK
+window_delegate_on_theme_changed(struct _cef_view_delegate_t* self,
+                                 cef_view_t* view) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view) {
+    return;
+  }
+
+  // Execute
+  CefWindowDelegateCppToC::Get(reinterpret_cast<cef_window_delegate_t*>(self))
+      ->OnThemeChanged(CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -835,6 +857,7 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->base.base.on_layout_changed = window_delegate_on_layout_changed;
   GetStruct()->base.base.on_focus = window_delegate_on_focus;
   GetStruct()->base.base.on_blur = window_delegate_on_blur;
+  GetStruct()->base.base.on_theme_changed = window_delegate_on_theme_changed;
 }
 
 // DESTRUCTOR - Do not edit by hand.

@@ -85,7 +85,7 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
   if (enabled) {
     views::InkDrop::Get(ParentClass::root_view())
         ->SetBaseColor(color_utils::BlendTowardMaxContrast(
-            ParentClass::root_view()->background()->get_color(), 0x61));
+            ParentClass::GetBackgroundColor(), 0x61));
   }
 }
 

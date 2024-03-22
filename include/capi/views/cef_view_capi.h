@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=48df6ccac2c68f32c7024ae68c8a6b6a5f8ed914$
+// $hash=0ea5c2c5c1a8e8349f199a46642631be0c1bfb6b$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
@@ -338,13 +338,16 @@ typedef struct _cef_view_t {
   void(CEF_CALLBACK* request_focus)(struct _cef_view_t* self);
 
   ///
-  /// Sets the background color for this View.
+  /// Sets the background color for this View. The background color will be
+  /// automatically reset if the current theme changes. See
+  /// cef_view_delegate_t::OnThemeChanged for related documentation.
   ///
   void(CEF_CALLBACK* set_background_color)(struct _cef_view_t* self,
                                            cef_color_t color);
 
   ///
-  /// Returns the background color for this View.
+  /// Returns the background color for this View. If the background color has
+  /// not been explicitly set then the current theme color will be returned.
   ///
   cef_color_t(CEF_CALLBACK* get_background_color)(struct _cef_view_t* self);
 
