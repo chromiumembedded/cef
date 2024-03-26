@@ -128,6 +128,12 @@ CefBrowserViewDelegate::ChromeToolbarType CalculateChromeToolbarType(
   return with_overlay_controls ? CEF_CTT_LOCATION : CEF_CTT_NORMAL;
 }
 
+void SetViewEnabled(CefRefPtr<CefWindow> window, int id, bool enable) {
+  if (auto view = window->GetViewForID(id)) {
+    view->SetEnabled(enable);
+  }
+}
+
 }  // namespace
 
 // static
@@ -312,18 +318,19 @@ void ViewsWindow::SetLoadingState(bool isLoading,
                                   bool canGoBack,
                                   bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
+
+  is_loading_ = isLoading;
+  can_go_back_ = canGoBack;
+  can_go_forward_ = canGoForward;
+
   if (!window_ || chrome_toolbar_type_ == CEF_CTT_NORMAL) {
     return;
   }
 
-  if (with_controls_) {
-    EnableView(ID_BACK_BUTTON, canGoBack);
-    EnableView(ID_FORWARD_BUTTON, canGoForward);
-    EnableView(ID_RELOAD_BUTTON, !isLoading);
-    EnableView(ID_STOP_BUTTON, isLoading);
-  }
-  if (location_bar_) {
-    EnableView(ID_URL_TEXTFIELD, true);
+  // |toolbar_| may be nullptr for the initial notification after CefBrowser
+  // creation, in which case the initial state will be appled in AddControls.
+  if (with_controls_ && toolbar_) {
+    UpdateToolbarButtonState();
   }
 }
 
@@ -726,7 +733,8 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
   }
 
   if (with_controls_) {
-    // Add the BrowserView and other controls to the Window.
+    // Add the BrowserView to the Window. Other controls will be added after the
+    // BrowserView is added.
     AddBrowserView();
 
     // Add keyboard accelerators to the Window.
@@ -1194,7 +1202,6 @@ CefRefPtr<CefView> ViewsWindow::CreateLocationBar() {
     // Create the URL textfield.
     CefRefPtr<CefTextfield> url_textfield = CefTextfield::CreateTextfield(this);
     url_textfield->SetID(ID_URL_TEXTFIELD);
-    url_textfield->SetEnabled(false);  // Disabled by default.
     location_bar_ = url_textfield;
   }
   return location_bar_;
@@ -1320,6 +1327,10 @@ void ViewsWindow::AddControls() {
   }
 
   minimum_window_size_ = CefSize(min_width, min_height);
+
+  // Apply the state that we may have missed when SetLoadingState was called
+  // initially.
+  UpdateToolbarButtonState();
 }
 
 void ViewsWindow::AddAccelerators() {
@@ -1349,17 +1360,11 @@ void ViewsWindow::SetMenuFocusable(bool focusable) {
   menu_has_focus_ = focusable;
 }
 
-void ViewsWindow::EnableView(int id, bool enable) {
-  if (!window_) {
-    return;
-  }
-  // Special handling for |location_bar_| which may be an overlay (e.g. not a
-  // child of this view).
-  CefRefPtr<CefView> view =
-      id == ID_URL_TEXTFIELD ? location_bar_ : window_->GetViewForID(id);
-  if (view) {
-    view->SetEnabled(enable);
-  }
+void ViewsWindow::UpdateToolbarButtonState() {
+  SetViewEnabled(window_, ID_BACK_BUTTON, can_go_back_);
+  SetViewEnabled(window_, ID_FORWARD_BUTTON, can_go_forward_);
+  SetViewEnabled(window_, ID_RELOAD_BUTTON, !is_loading_);
+  SetViewEnabled(window_, ID_STOP_BUTTON, is_loading_);
 }
 
 void ViewsWindow::ShowTopControls(bool show) {

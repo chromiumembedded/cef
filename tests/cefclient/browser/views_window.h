@@ -239,8 +239,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // Control whether the top menu butons are focusable.
   void SetMenuFocusable(bool focusable);
 
-  // Enable or disable a view by |id|.
-  void EnableView(int id, bool enable);
+  // Update the toolbar button state.
+  void UpdateToolbarButtonState();
 
   // Show/hide top controls on the Window.
   void ShowTopControls(bool show);
@@ -288,6 +288,11 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool hide_on_close_ = false;
   bool hide_after_fullscreen_exit_ = false;
 #endif
+
+  // Current loading state.
+  bool is_loading_ = false;
+  bool can_go_back_ = false;
+  bool can_go_forward_ = false;
 
   // Structure representing an extension.
   struct ExtensionInfo {
