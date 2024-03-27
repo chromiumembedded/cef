@@ -1,13 +1,28 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index bd7dd25175f1e..34f5263fee4fa 100644
+index bd7dd25175f1e..de5b560a8bb3e 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
-@@ -2182,8 +2182,6 @@ config("thin_archive") {
+@@ -138,6 +138,9 @@ declare_args() {
+   # The cache can lead to non-determinism: https://crbug.com/1486045
+   thin_lto_enable_cache = true
+ 
++  # Whether to use thin archives in combination with lld.
++  use_thin_archives = use_lld
++
+   # Initialize all local variables with a pattern. This flag will fill
+   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
+   # rest with 0xAA. This makes behavior of uninitialized memory bugs consistent,
+@@ -2180,11 +2183,13 @@ config("export_dynamic") {
+ config("thin_archive") {
+   # The macOS and iOS default linker ld64 does not support reading thin
    # archives.
++  if (use_thin_archives) {
    if ((is_posix && !is_nacl && (!is_apple || use_lld)) || is_fuchsia) {
      arflags = [ "-T" ]
--  } else if (is_win && use_lld) {
--    arflags = [ "/llvmlibthin" ]
+   } else if (is_win && use_lld) {
+     arflags = [ "/llvmlibthin" ]
    }
++  }
  }
  
+ # exceptions -------------------------------------------------------------------
