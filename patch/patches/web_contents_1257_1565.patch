@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index bfb696d17099c..e1213ba481460 100644
+index a3074afab8867..d3cfac7d2cad0 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3521,6 +3521,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -33,7 +33,7 @@ index bfb696d17099c..e1213ba481460 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -4549,6 +4559,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -4550,6 +4560,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index bfb696d17099c..e1213ba481460 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -8820,6 +8839,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -8821,6 +8840,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -119,7 +119,7 @@ index c44ef9991cbb0..316fe9f68a9d2 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index ede7dc0581064..d434670d4cb4c 100644
+index 2176bcc3adc34..d2d893d7481c0 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -227,6 +227,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {

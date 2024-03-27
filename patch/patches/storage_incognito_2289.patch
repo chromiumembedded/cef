@@ -13,10 +13,10 @@ index 01d2a426e2c17..c239a2f6fc786 100644
            {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
             base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN});
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 9f955ab67a071..80f911e8157dd 100644
+index 147a2bd8f36ab..041289eda7b09 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -130,7 +130,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
+@@ -129,7 +129,7 @@ StoragePartition* BrowserContext::GetStoragePartition(
  StoragePartition* BrowserContext::GetStoragePartition(
      const StoragePartitionConfig& storage_partition_config,
      bool can_create) {
@@ -25,7 +25,7 @@ index 9f955ab67a071..80f911e8157dd 100644
      // An off the record profile MUST only use in memory storage partitions.
      CHECK(storage_partition_config.in_memory());
    }
-@@ -364,7 +364,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
+@@ -356,7 +356,8 @@ BrowserContext::CreateVideoDecodePerfHistory() {
    const bool kUseInMemoryDBDefault = false;
    bool use_in_memory_db = base::GetFieldTrialParamByFeatureAsBool(
        media::kMediaCapabilitiesWithParameters, kUseInMemoryDBParamName,
@@ -58,10 +58,10 @@ index e82cdd66a2d5c..1816b2fe54ff5 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index ad1fa4396cd65..1c5027cc0c922 100644
+index 872bf7d1671bb..b87bb299316f2 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
-@@ -569,7 +569,7 @@ bool DatabaseTracker::LazyInit() {
+@@ -559,7 +559,7 @@ bool DatabaseTracker::LazyInit() {
      databases_table_ = std::make_unique<DatabasesTable>(db_.get());
      meta_table_ = std::make_unique<sql::MetaTable>();
  

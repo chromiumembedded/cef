@@ -12,7 +12,7 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index ffbb5986ca997..9f77c4603bf55 100644
+index ffbb5986ca997..3c24cb27d3c12 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -175,11 +175,8 @@ ContentMainParams::~ContentMainParams() = default;

@@ -41,10 +41,10 @@ index 3bf48f1897c93..a9b219500beac 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 8cdbf6a389727..715078e9d0a2c 100644
+index fe66065976b50..7f8c52acab103 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -709,6 +709,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
+@@ -723,6 +723,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
    }
  }
  
@@ -102,7 +102,7 @@ index 8cdbf6a389727..715078e9d0a2c 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1571,7 +1622,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1585,7 +1636,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -111,7 +111,7 @@ index 8cdbf6a389727..715078e9d0a2c 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1586,6 +1637,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1600,6 +1651,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -142,7 +142,7 @@ index 8cdbf6a389727..715078e9d0a2c 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1753,11 +1828,15 @@ void AppMenuModel::Build() {
+@@ -1767,11 +1842,15 @@ void AppMenuModel::Build() {
                                         kDefaultIconSize));
    }
  
@@ -163,7 +163,7 @@ index 8cdbf6a389727..715078e9d0a2c 100644
  
    AddItemWithStringId(IDC_PRINT, IDS_PRINT);
  
-@@ -1870,9 +1949,13 @@ void AppMenuModel::Build() {
+@@ -1884,9 +1963,13 @@ void AppMenuModel::Build() {
                           kMoreToolsMenuItem);
  
    if (!features::IsChromeRefresh2023()) {
@@ -180,7 +180,7 @@ index 8cdbf6a389727..715078e9d0a2c 100644
    }
  
    if (!features::IsChromeRefresh2023()) {
-@@ -1961,6 +2044,11 @@ void AppMenuModel::Build() {
+@@ -1975,6 +2058,11 @@ void AppMenuModel::Build() {
      SetCommandIcon(this, IDC_EXIT, kExitMenuIcon);
    }
  

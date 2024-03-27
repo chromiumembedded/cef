@@ -44,7 +44,7 @@ index 27af6ec08f593..156689eec644d 100644
  #include "chrome/common/chrome_paths.h"
  
  namespace policy {
-@@ -47,11 +48,6 @@
+@@ -47,11 +48,6 @@ const char kEnrollmentOptionsFilePath[] = FILE_PATH_LITERAL(
      "/Library/Google/Chrome/CloudManagementEnrollmentOptions");
  const char kEnrollmentMandatoryOption[] = "Mandatory";
  
@@ -306,7 +306,7 @@ index 1a2e78c3472ec..5d1bd95a15113 100644
  #include "components/policy/policy_constants.h"
  
  namespace policy::path_parser {
-@@ -97,16 +98,12 @@
+@@ -97,16 +98,12 @@ base::FilePath::StringType ExpandPathVariables(
  void CheckUserDataDirPolicy(base::FilePath* user_data_dir) {
    // Since the configuration management infrastructure is not initialized when
    // this code runs, read the policy preference directly.
