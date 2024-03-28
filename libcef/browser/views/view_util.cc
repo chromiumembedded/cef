@@ -6,8 +6,10 @@
 
 #include <utility>
 
+#include "include/cef_color_ids.h"
 #include "libcef/browser/views/view_adapter.h"
 
+#include "chrome/browser/ui/color/chrome_color_id.h"
 #include "ui/color/color_provider.h"
 #include "ui/color/color_provider_manager.h"
 #include "ui/display/display.h"
@@ -342,6 +344,11 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
 }
 
 SkColor GetColor(views::View* view, ui::ColorId id) {
+  // Verify that our enum matches Chromium's values.
+  static_assert(static_cast<int>(CEF_ChromeColorsEnd) ==
+                    static_cast<int>(kChromeColorsEnd),
+                "enum mismatch");
+
   // |color_provider| will be nullptr if |view| has not yet been added to a
   // Widget.
   if (auto color_provider = view->GetColorProvider()) {
