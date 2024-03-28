@@ -1478,6 +1478,20 @@ action("make_config_header") {
   args = rebase_path(outputs + [ "$root_out_dir/args.gn" ], root_build_dir)
 }
 
+# Generate cef_color_ids.h.
+action("make_colorids_header") {
+  script = "tools/make_colorids_header.py"
+
+  inputs = [
+    "//ui/color/color_id.h",
+    "//components/color/color_id.h",
+    "//chrome/browser/ui/color/chrome_color_id.h",
+  ]
+  outputs = [ "$root_out_dir/includes/include/cef_color_ids.h" ]
+
+  args = rebase_path(outputs + inputs, root_build_dir)
+}
+
 # Generate pack files and associated CEF header files.
 group("cef_make_headers") {
   deps = [
@@ -1486,6 +1500,7 @@ group("cef_make_headers") {
     ":make_pack_header_command_ids",
     ":make_api_hash_header",
     ":make_config_header",
+    ":make_colorids_header",
   ]
 }
 

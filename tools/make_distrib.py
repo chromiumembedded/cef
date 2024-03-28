@@ -732,6 +732,7 @@ if mode == 'standard' or mode == 'minimal':
 
   # Transfer generated include files.
   generated_includes = [
+      'cef_color_ids.h',
       'cef_command_ids.h',
       'cef_config.h',
       'cef_pack_resources.h',
