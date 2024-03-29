@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "libcef/browser/views/window_view.h"
 
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/browser.h"
@@ -16,6 +17,9 @@
 #include "libcef/browser/views/view_util.h"
 #include "ui/views/widget/native_widget_private.h"
 #endif
+
+ChromeBrowserFrame::ChromeBrowserFrame(CefWindowView* window_view)
+    : window_view_(window_view) {}
 
 void ChromeBrowserFrame::Init(BrowserView* browser_view,
                               std::unique_ptr<Browser> browser) {
@@ -45,8 +49,54 @@ void ChromeBrowserFrame::Init(BrowserView* browser_view,
 #endif  // BUILDFLAG(IS_MAC)
 }
 
-void ChromeBrowserFrame::ToggleFullscreenMode() {
-  chrome::ToggleFullscreenMode(browser_view_->browser());
+void ChromeBrowserFrame::Initialized() {
+  initialized_ = true;
+
+  // Based on BrowserFrame::InitBrowserFrame.
+  // This is the first call that will trigger theme-related client callbacks.
+#if BUILDFLAG(IS_LINUX)
+  // Calls ThemeChanged() or OnNativeThemeUpdated().
+  SelectNativeTheme();
+#else
+  // Calls ThemeChanged().
+  SetNativeTheme(ui::NativeTheme::GetInstanceForNativeUi());
+#endif
+}
+
+void ChromeBrowserFrame::AddAssociatedProfile(Profile* /*profile*/) {
+  // Calls ThemeChanged().
+  UserChangedTheme(BrowserThemeChangeType::kBrowserTheme);
+}
+
+void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* /*profile*/) {}
+
+Profile* ChromeBrowserFrame::GetThemeProfile() const {
+  if (browser_view_) {
+    return browser_view_->GetProfile();
+  }
+  return nullptr;
+}
+
+bool ChromeBrowserFrame::ToggleFullscreenMode() {
+  if (browser_view_) {
+    // Toggle fullscreen mode via the Chrome command for consistent behavior.
+    chrome::ToggleFullscreenMode(browser_view_->browser());
+    return true;
+  }
+  return false;
+}
+
+void ChromeBrowserFrame::UserChangedTheme(
+    BrowserThemeChangeType theme_change_type) {
+  // Callback from Browser::OnThemeChanged() and OnNativeThemeUpdated().
+
+  // Calls ThemeChanged() and possibly SelectNativeTheme().
+  BrowserFrame::UserChangedTheme(theme_change_type);
+
+  if (window_view_) {
+    window_view_->OnThemeColorsChanged(/*chrome_theme=*/!native_theme_change_);
+    ThemeChanged();
+  }
 }
 
 views::internal::RootView* ChromeBrowserFrame::CreateRootView() {
@@ -79,4 +129,35 @@ void ChromeBrowserFrame::Activate() {
 
   // Proceed with default handling.
   BrowserFrame::Activate();
+}
+
+void ChromeBrowserFrame::OnNativeWidgetDestroyed() {
+  window_view_ = nullptr;
+  BrowserFrame::OnNativeWidgetDestroyed();
+}
+
+void ChromeBrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
+  // TODO: Reduce the frequency of this callback on Windows/Linux.
+  // See https://issues.chromium.org/issues/40280130#comment7
+
+  color_provider_tracker_.OnNativeThemeUpdated();
+
+  native_theme_change_ = true;
+
+  // Calls UserChangedTheme().
+  BrowserFrame::OnNativeThemeUpdated(observed_theme);
+
+  native_theme_change_ = false;
+}
+
+void ChromeBrowserFrame::OnColorProviderCacheResetMissed() {
+  // Ignore calls during Widget::Init().
+  if (!initialized_) {
+    return;
+  }
+
+  if (window_view_) {
+    window_view_->OnThemeColorsChanged(/*chrome_theme=*/false);
+    ThemeChanged();
+  }
 }

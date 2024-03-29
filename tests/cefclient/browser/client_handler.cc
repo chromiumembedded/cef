@@ -52,7 +52,28 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM1,
   CLIENT_ID_TESTMENU_RADIOITEM2,
   CLIENT_ID_TESTMENU_RADIOITEM3,
+
+  // Chrome theme selection.
+  CLIENT_ID_TESTMENU_THEME,
+  CLIENT_ID_TESTMENU_THEME_MODE_SYSTEM,
+  CLIENT_ID_TESTMENU_THEME_MODE_LIGHT,
+  CLIENT_ID_TESTMENU_THEME_MODE_DARK,
+  CLIENT_ID_TESTMENU_THEME_MODE_FIRST = CLIENT_ID_TESTMENU_THEME_MODE_SYSTEM,
+  CLIENT_ID_TESTMENU_THEME_MODE_LAST = CLIENT_ID_TESTMENU_THEME_MODE_DARK,
+  CLIENT_ID_TESTMENU_THEME_COLOR_DEFAULT,
+  CLIENT_ID_TESTMENU_THEME_COLOR_RED,
+  CLIENT_ID_TESTMENU_THEME_COLOR_GREEN,
+  CLIENT_ID_TESTMENU_THEME_COLOR_BLUE,
+  CLIENT_ID_TESTMENU_THEME_COLOR_FIRST = CLIENT_ID_TESTMENU_THEME_COLOR_DEFAULT,
+  CLIENT_ID_TESTMENU_THEME_COLOR_LAST = CLIENT_ID_TESTMENU_THEME_COLOR_BLUE,
+  CLIENT_ID_TESTMENU_THEME_CUSTOM,
 };
+
+// Constants for Chrome theme colors.
+constexpr cef_color_t kColorTransparent = 0;
+constexpr cef_color_t kColorRed = CefColorSetARGB(255, 255, 0, 0);
+constexpr cef_color_t kColorGreen = CefColorSetARGB(255, 0, 255, 0);
+constexpr cef_color_t kColorBlue = CefColorSetARGB(255, 0, 0, 255);
 
 // Must match the value in client_renderer.cc.
 const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
@@ -683,7 +704,7 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
     }
 
     // Test context menu features.
-    BuildTestMenu(model);
+    BuildTestMenu(browser, model);
   }
 
   if (delegate_) {
@@ -722,7 +743,7 @@ bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       SetOfflineState(browser, offline_);
       return true;
     default:  // Allow default handling, if any.
-      return ExecuteTestMenu(command_id);
+      return ExecuteTestMenu(browser, command_id);
   }
 }
 
@@ -1503,7 +1524,8 @@ void ClientHandler::NotifyTakeFocus(bool next) {
   }
 }
 
-void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
+void ClientHandler::BuildTestMenu(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefMenuModel> model) {
   if (model->GetCount() > 0) {
     model->AddSeparator();
   }
@@ -1524,9 +1546,74 @@ void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
   // Check the selected radio item.
   submenu->SetChecked(
       CLIENT_ID_TESTMENU_RADIOITEM1 + test_menu_state_.radio_item, true);
+
+  // Build the theme sub menu.
+  CefRefPtr<CefMenuModel> theme_menu =
+      model->AddSubMenu(CLIENT_ID_TESTMENU_THEME, "Theme");
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_MODE_SYSTEM, "System", 1);
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_MODE_LIGHT, "Light", 1);
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_MODE_DARK, "Dark", 1);
+  theme_menu->AddSeparator();
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_DEFAULT, "Default",
+                           2);
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_RED, "Red", 2);
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_GREEN, "Green", 2);
+  theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_BLUE, "Blue", 2);
+
+  if (MainContext::Get()->UseChromeRuntime()) {
+    theme_menu->AddSeparator();
+    theme_menu->AddItem(CLIENT_ID_TESTMENU_THEME_CUSTOM, "Custom...");
+  }
+
+  auto request_context = browser->GetHost()->GetRequestContext();
+
+  int checked_mode_item = -1;
+  switch (request_context->GetChromeColorSchemeMode()) {
+    case CEF_COLOR_VARIANT_SYSTEM:
+      checked_mode_item = CLIENT_ID_TESTMENU_THEME_MODE_SYSTEM;
+      break;
+    case CEF_COLOR_VARIANT_LIGHT:
+      checked_mode_item = CLIENT_ID_TESTMENU_THEME_MODE_LIGHT;
+      break;
+    case CEF_COLOR_VARIANT_DARK:
+      checked_mode_item = CLIENT_ID_TESTMENU_THEME_MODE_DARK;
+      break;
+    default:
+      NOTREACHED();
+      break;
+  }
+
+  int checked_color_item = -1;
+  const cef_color_t color = request_context->GetChromeColorSchemeColor();
+  if (color == kColorTransparent) {
+    checked_color_item = CLIENT_ID_TESTMENU_THEME_COLOR_DEFAULT;
+  } else if (color == kColorRed) {
+    checked_color_item = CLIENT_ID_TESTMENU_THEME_COLOR_RED;
+  } else if (color == kColorGreen) {
+    checked_color_item = CLIENT_ID_TESTMENU_THEME_COLOR_GREEN;
+  } else if (color == kColorBlue) {
+    checked_color_item = CLIENT_ID_TESTMENU_THEME_COLOR_BLUE;
+  }
+
+  // Check the selected radio item, if any.
+  if (checked_mode_item != -1) {
+    theme_menu->SetChecked(checked_mode_item, true);
+
+    // Update the selected item.
+    test_menu_state_.chrome_theme_mode_item =
+        checked_mode_item - CLIENT_ID_TESTMENU_THEME_MODE_FIRST;
+  }
+  if (checked_color_item != -1) {
+    theme_menu->SetChecked(checked_color_item, true);
+
+    // Update the selected item.
+    test_menu_state_.chrome_theme_color_item =
+        checked_color_item - CLIENT_ID_TESTMENU_THEME_COLOR_FIRST;
+  }
 }
 
-bool ClientHandler::ExecuteTestMenu(int command_id) {
+bool ClientHandler::ExecuteTestMenu(CefRefPtr<CefBrowser> browser,
+                                    int command_id) {
   if (command_id == CLIENT_ID_TESTMENU_CHECKITEM) {
     // Toggle the check item.
     test_menu_state_.check_item ^= 1;
@@ -1535,6 +1622,70 @@ bool ClientHandler::ExecuteTestMenu(int command_id) {
              command_id <= CLIENT_ID_TESTMENU_RADIOITEM3) {
     // Store the selected radio item.
     test_menu_state_.radio_item = (command_id - CLIENT_ID_TESTMENU_RADIOITEM1);
+    return true;
+  } else if (command_id >= CLIENT_ID_TESTMENU_THEME_MODE_FIRST &&
+             command_id <= CLIENT_ID_TESTMENU_THEME_COLOR_LAST) {
+    int selected_mode_item = test_menu_state_.chrome_theme_mode_item;
+    if (command_id >= CLIENT_ID_TESTMENU_THEME_MODE_FIRST &&
+        command_id <= CLIENT_ID_TESTMENU_THEME_MODE_LAST) {
+      selected_mode_item = command_id - CLIENT_ID_TESTMENU_THEME_MODE_FIRST;
+      if (selected_mode_item != test_menu_state_.chrome_theme_mode_item) {
+        // Update the selected item.
+        test_menu_state_.chrome_theme_mode_item = selected_mode_item;
+      }
+    }
+
+    int selected_color_item = test_menu_state_.chrome_theme_color_item;
+    if (command_id >= CLIENT_ID_TESTMENU_THEME_COLOR_FIRST &&
+        command_id <= CLIENT_ID_TESTMENU_THEME_COLOR_LAST) {
+      selected_color_item = command_id - CLIENT_ID_TESTMENU_THEME_COLOR_FIRST;
+      if (selected_color_item != test_menu_state_.chrome_theme_color_item) {
+        // Udpate the selected item.
+        test_menu_state_.chrome_theme_color_item = selected_color_item;
+      }
+    }
+
+    // Don't change the color mode unless a selection has been made.
+    cef_color_variant_t variant = CEF_COLOR_VARIANT_TONAL_SPOT;
+    if (selected_mode_item != -1) {
+      switch (CLIENT_ID_TESTMENU_THEME_MODE_FIRST + selected_mode_item) {
+        case CLIENT_ID_TESTMENU_THEME_MODE_SYSTEM:
+          variant = CEF_COLOR_VARIANT_SYSTEM;
+          break;
+        case CLIENT_ID_TESTMENU_THEME_MODE_LIGHT:
+          variant = CEF_COLOR_VARIANT_LIGHT;
+          break;
+        case CLIENT_ID_TESTMENU_THEME_MODE_DARK:
+          variant = CEF_COLOR_VARIANT_DARK;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Don't change the user color unless a selection has been made.
+    cef_color_t color = kColorTransparent;
+    if (selected_color_item != -1) {
+      switch (CLIENT_ID_TESTMENU_THEME_COLOR_FIRST + selected_color_item) {
+        case CLIENT_ID_TESTMENU_THEME_COLOR_RED:
+          color = kColorRed;
+          break;
+        case CLIENT_ID_TESTMENU_THEME_COLOR_GREEN:
+          color = kColorGreen;
+          break;
+        case CLIENT_ID_TESTMENU_THEME_COLOR_BLUE:
+          color = kColorBlue;
+          break;
+        default:
+          break;
+      }
+    }
+
+    browser->GetHost()->GetRequestContext()->SetChromeColorScheme(variant,
+                                                                  color);
+    return true;
+  } else if (command_id == CLIENT_ID_TESTMENU_THEME_CUSTOM) {
+    browser->GetMainFrame()->LoadURL("chrome://settings/manageProfile");
     return true;
   }
 

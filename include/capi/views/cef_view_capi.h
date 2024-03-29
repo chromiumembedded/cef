@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0ea5c2c5c1a8e8349f199a46642631be0c1bfb6b$
+// $hash=08f13de764f30261616372dfffb7f97c57957f73$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
@@ -339,17 +339,28 @@ typedef struct _cef_view_t {
 
   ///
   /// Sets the background color for this View. The background color will be
-  /// automatically reset if the current theme changes. See
-  /// cef_view_delegate_t::OnThemeChanged for related documentation.
+  /// automatically reset when cef_view_delegate_t::OnThemeChanged is called.
   ///
   void(CEF_CALLBACK* set_background_color)(struct _cef_view_t* self,
                                            cef_color_t color);
 
   ///
-  /// Returns the background color for this View. If the background color has
-  /// not been explicitly set then the current theme color will be returned.
+  /// Returns the background color for this View. If the background color is
+  /// unset then the current `GetThemeColor(CEF_ColorPrimaryBackground)` value
+  /// will be returned. If this View belongs to an overlay (created with
+  /// cef_window_t::AddOverlayView), and the background color is unset, then a
+  /// value of transparent (0) will be returned.
   ///
   cef_color_t(CEF_CALLBACK* get_background_color)(struct _cef_view_t* self);
+
+  ///
+  /// Returns the current theme color associated with |color_id|, or the
+  /// placeholder color (red) if unset. See cef_color_ids.h for standard ID
+  /// values. Standard colors can be overridden and custom colors can be added
+  /// using cef_window_t::SetThemeColor.
+  ///
+  cef_color_t(CEF_CALLBACK* get_theme_color)(struct _cef_view_t* self,
+                                             int color_id);
 
   ///
   /// Convert |point| from this View's coordinate system to DIP screen

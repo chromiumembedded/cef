@@ -30,6 +30,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
 #include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/ui/browser_view_prefs.h"
 #include "chrome/browser/ui/webui/accessibility/accessibility_ui.h"
 #include "chrome/browser/ui/webui/print_preview/policy_settings.h"
 #include "chrome/common/buildflags.h"
@@ -271,6 +272,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
+    RegisterBrowserViewProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());
 

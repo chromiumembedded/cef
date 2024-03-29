@@ -31,25 +31,86 @@ index 73d6ad5e9bb36..6c450e79c0f94 100644
    auto& dark_mode_support = GetDarkModeSupport();
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
-diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index d8ff86972911d..0fbafdef0fc26 100644
---- ui/native_theme/native_theme_mac.mm
-+++ ui/native_theme/native_theme_mac.mm
-@@ -51,6 +51,13 @@ bool InvertedColors() {
-   return NSWorkspace.sharedWorkspace.accessibilityDisplayShouldInvertColors;
+diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
+index 23d0611fdb2b5..81fd1055e926e 100644
+--- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
++++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
+@@ -61,7 +61,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+                               linux_ui_theme->GetNativeTheme()->system_theme());
+   }
+ #if defined(USE_DBUS)
+-  dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
++  if (!ui::NativeTheme::IsForcedDarkMode() &&
++      !ui::NativeTheme::IsForcedLightMode()) {
++    dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
++  }
+ #endif
  }
  
-+bool IsForcedLightMode() {
+diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
+index d69b17b004120..5175ea3a785a3 100644
+--- ui/gtk/native_theme_gtk.cc
++++ ui/gtk/native_theme_gtk.cc
+@@ -164,9 +164,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
+   // have a light variant and aren't affected by the setting.  Because of this,
+   // experimentally check if the theme is dark by checking if the window
+   // background color is dark.
+-  const SkColor window_bg_color = GetBgColor("");
+-  set_use_dark_colors(IsForcedDarkMode() ||
+-                      color_utils::IsDark(window_bg_color));
++  if (!IsForcedLightMode()) {
++    const SkColor window_bg_color = GetBgColor("");
++    set_use_dark_colors(IsForcedDarkMode() ||
++                        color_utils::IsDark(window_bg_color));
++  }
+   set_preferred_color_scheme(CalculatePreferredColorScheme());
+ 
+   // GTK doesn't have a native high contrast setting.  Rather, it's implied by
+diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
+index d466e72df7e2c..d0a58289ca291 100644
+--- ui/native_theme/native_theme.cc
++++ ui/native_theme/native_theme.cc
+@@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
+   color_provider_manager.ResetColorProviderCache();
+   for (NativeThemeObserver& observer : native_theme_observers_)
+     observer.OnNativeThemeUpdated(this);
++  color_provider_manager.AfterNativeThemeUpdated();
+ 
+   RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
+       color_provider_manager.num_providers_initialized() -
+@@ -276,6 +277,13 @@ bool NativeTheme::IsForcedDarkMode() {
+   return kIsForcedDarkMode;
+ }
+ 
++bool NativeTheme::IsForcedLightMode() {
 +  static bool kIsForcedLightMode =
 +      base::CommandLine::ForCurrentProcess()->HasSwitch(
 +          "force-light-mode");
 +  return kIsForcedLightMode;
 +}
 +
- }  // namespace
+ bool NativeTheme::IsForcedHighContrast() {
+   static bool kIsForcedHighContrast =
+       base::CommandLine::ForCurrentProcess()->HasSwitch(
+diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
+index 3385e9e9d5690..54b69691383bf 100644
+--- ui/native_theme/native_theme.h
++++ ui/native_theme/native_theme.h
+@@ -603,6 +603,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+   // Whether dark mode is forced via command-line flag.
+   static bool IsForcedDarkMode();
  
- // Helper object to respond to light mode/dark mode changeovers.
-@@ -585,11 +592,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
++  // Whether light mode is forced via command-line flag.
++  static bool IsForcedLightMode();
++
+  protected:
+   explicit NativeTheme(
+       bool should_only_use_dark_colors,
+diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
+index d8ff86972911d..c6cc9c70741c9 100644
+--- ui/native_theme/native_theme_mac.mm
++++ ui/native_theme/native_theme_mac.mm
+@@ -585,11 +585,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;

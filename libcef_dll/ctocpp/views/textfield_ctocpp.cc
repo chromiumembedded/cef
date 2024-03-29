@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d904dc9bf2d32baf0841fb55b4ba2d905d0bf83$
+// $hash=77c2df71313e5075c9a25bde8a4cd7ee13ec5ac2$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
@@ -1304,6 +1304,24 @@ NO_SANITIZE("cfi-icall") cef_color_t CefTextfieldCToCpp::GetBackgroundColor() {
 
   // Execute
   cef_color_t _retval = _struct->get_background_color(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_color_t CefTextfieldCToCpp::GetThemeColor(int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, get_theme_color)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_t _retval = _struct->get_theme_color(_struct, color_id);
 
   // Return type: simple
   return _retval;

@@ -225,17 +225,13 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnThemeChanged() {
     cef_delegate()->OnThemeChanged(GetCefView());
   }
 
-  // If the background is still unset, and the containing Widget is not an
-  // overlay (which has transparent background), then set the background based
-  // on the current theme.
+  // If the background is still unset then possibly set it to the desired value.
   if (!ParentClass::background()) {
-    const bool is_overlay_hosted =
-        ParentClass::GetWidget() &&
-        view_util::GetHostView(ParentClass::GetWidget()) != nullptr;
-    if (!is_overlay_hosted) {
-      const SkColor color =
-          view_util::GetColor(this, ui::kColorPrimaryBackground);
-      ParentClass::SetBackground(views::CreateSolidBackground(color));
+    // May return an empty value.
+    const auto& color =
+        view_util::GetBackgroundColor(this, /*allow_transparent=*/true);
+    if (color) {
+      ParentClass::SetBackground(views::CreateSolidBackground(*color));
     }
   }
 }

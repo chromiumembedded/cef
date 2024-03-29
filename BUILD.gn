@@ -774,6 +774,8 @@ source_set("libcef_static") {
     "libcef/browser/views/browser_view_view.h",
     "libcef/browser/views/button_impl.h",
     "libcef/browser/views/button_view.h",
+    "libcef/browser/views/color_provider_tracker.cc",
+    "libcef/browser/views/color_provider_tracker.h",
     "libcef/browser/views/display_impl.cc",
     "libcef/browser/views/display_impl.h",
     "libcef/browser/views/fill_layout_impl.cc",
@@ -809,7 +811,11 @@ source_set("libcef_static") {
     "libcef/browser/views/view_util.cc",
     "libcef/browser/views/view_util.h",
     "libcef/browser/views/view_view.h",
+    "libcef/browser/views/widget.cc",
+    "libcef/browser/views/widget.h",
     "libcef/browser/views/widget_destruction_observer.h",
+    "libcef/browser/views/widget_impl.cc",
+    "libcef/browser/views/widget_impl.h",
     "libcef/browser/views/window_impl.cc",
     "libcef/browser/views/window_impl.h",
     "libcef/browser/views/window_view.cc",
@@ -1123,22 +1129,23 @@ source_set("libcef_static") {
       "libcef/common/util_linux.cc",
     ]
 
-    if (ozone_platform_x11) {
-      sources += [
-        "libcef/browser/native/window_x11.cc",
-        "libcef/browser/native/window_x11.h",
-      ]
-    }
-
     deps += [
       "//build/config/freetype",
       "//third_party/fontconfig",
     ]
 
-    if (is_linux && !ozone_platform_x11) {
-      deps += [
-        "//third_party/angle:libEGL",
+    if (ozone_platform_x11) {
+      sources += [
+        "libcef/browser/native/window_x11.cc",
+        "libcef/browser/native/window_x11.h",
       ]
+    } else {
+      deps += [ "//third_party/angle:libEGL" ]
+    }
+
+    if (use_dbus) {
+      deps += [ "//dbus" ]
+      defines = [ "USE_DBUS" ]
     }
   }
 

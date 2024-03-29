@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=64a3528952ccef311d43064975e3447e7806ec25$
+// $hash=fadeb722e5e853c5747bb18b1508e4e0221c7019$
 //
 
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
@@ -544,6 +544,69 @@ void CefRequestContextCToCpp::SetContentSetting(
   // Execute
   _struct->set_content_setting(_struct, requesting_url.GetStruct(),
                                top_level_url.GetStruct(), content_type, value);
+}
+
+NO_SANITIZE("cfi-icall")
+void CefRequestContextCToCpp::SetChromeColorScheme(cef_color_variant_t variant,
+                                                   cef_color_t user_color) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_chrome_color_scheme)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_chrome_color_scheme(_struct, variant, user_color);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_color_variant_t CefRequestContextCToCpp::GetChromeColorSchemeMode() {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_chrome_color_scheme_mode)) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_variant_t _retval = _struct->get_chrome_color_scheme_mode(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_color_t CefRequestContextCToCpp::GetChromeColorSchemeColor() {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_chrome_color_scheme_color)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_t _retval = _struct->get_chrome_color_scheme_color(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_color_variant_t CefRequestContextCToCpp::GetChromeColorSchemeVariant() {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_chrome_color_scheme_variant)) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_color_variant_t _retval =
+      _struct->get_chrome_color_scheme_variant(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

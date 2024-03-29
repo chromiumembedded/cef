@@ -701,6 +701,12 @@ void ViewsWindow::OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
 #endif
 }
 
+void ViewsWindow::OnThemeColorsChanged(CefRefPtr<CefWindow> window,
+                                       bool chrome_theme) {
+  // Apply color overrides to the current theme.
+  views_style::ApplyTo(window);
+}
+
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(browser_view_);
@@ -709,6 +715,13 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
 
   window_ = window;
   window_->SetID(ID_WINDOW);
+
+  // Apply color overrides to the current native/OS theme. This is only
+  // necessary until the CefBrowserView is added to the CefWindow, at which time
+  // the Chrome theme will be applied (triggering a call to OnThemeColorsChanged
+  // with |chrome_theme=true|).
+  views_style::ApplyTo(window_);
+  window_->ThemeChanged();
 
   delegate_->OnViewsWindowCreated(this);
 
@@ -723,9 +736,6 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
       last_visible_bounds_ = bounds;
     }
   }
-
-  // Set the background color for regions that are not obscured by other Views.
-  views_style::ApplyTo(window_.get());
 
   if (with_controls_ || with_overlay_controls_) {
     // Create the MenuModel that will be displayed via the menu button.
@@ -1070,7 +1080,7 @@ void ViewsWindow::OnLayoutChanged(CefRefPtr<CefView> view,
 
 void ViewsWindow::OnThemeChanged(CefRefPtr<CefView> view) {
   // Apply colors when the theme changes.
-  views_style::ApplyTo(view);
+  views_style::OnThemeChanged(view);
 }
 
 void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -1253,7 +1263,7 @@ void ViewsWindow::AddControls() {
     CreateMenuButton();
 
     // Create the toolbar panel.
-    CefRefPtr<CefPanel> panel = CefPanel::CreatePanel(nullptr);
+    CefRefPtr<CefPanel> panel = CefPanel::CreatePanel(this);
 
     // Use a horizontal box layout for |panel|.
     CefBoxLayoutSettings panel_layout_settings;
@@ -1387,7 +1397,7 @@ void ViewsWindow::UpdateExtensionControls() {
   }
 
   if (!extensions_panel_) {
-    extensions_panel_ = CefPanel::CreatePanel(nullptr);
+    extensions_panel_ = CefPanel::CreatePanel(this);
 
     // Use a horizontal box layout for |panel|.
     CefBoxLayoutSettings panel_layout_settings;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3c4cb278397e9a07c8e5754650fe6944dd2a20ed$
+// $hash=4e2f75d68d804ad2414eb34b9f273b8f558c3dab$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -950,6 +950,26 @@ cef_color_t CEF_CALLBACK button_get_background_color(struct _cef_view_t* self) {
   return _retval;
 }
 
+cef_color_t CEF_CALLBACK button_get_theme_color(struct _cef_view_t* self,
+                                                int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  cef_color_t _retval =
+      CefButtonCppToC::Get(reinterpret_cast<cef_button_t*>(self))
+          ->GetThemeColor(color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK button_convert_point_to_screen(struct _cef_view_t* self,
                                                 cef_point_t* point) {
   shutdown_checker::AssertNotShutdown();
@@ -1212,6 +1232,7 @@ CefButtonCppToC::CefButtonCppToC() {
   GetStruct()->base.request_focus = button_request_focus;
   GetStruct()->base.set_background_color = button_set_background_color;
   GetStruct()->base.get_background_color = button_get_background_color;
+  GetStruct()->base.get_theme_color = button_get_theme_color;
   GetStruct()->base.convert_point_to_screen = button_convert_point_to_screen;
   GetStruct()->base.convert_point_from_screen =
       button_convert_point_from_screen;

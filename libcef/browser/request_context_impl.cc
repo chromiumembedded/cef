@@ -10,12 +10,15 @@
 #include "libcef/common/app_manager.h"
 #include "libcef/common/task_runner_impl.h"
 #include "libcef/common/values_impl.h"
+#include "libcef/features/runtime.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/themes/theme_service_factory.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -27,6 +30,7 @@
 #include "services/network/public/cpp/resolve_host_client_base.h"
 #include "services/network/public/mojom/clear_data_filter.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
+#include "ui/base/ui_base_features.h"
 
 using content::BrowserThread;
 
@@ -631,6 +635,72 @@ void CefRequestContextImpl::SetContentSetting(
                      requesting_url, top_level_url, content_type, value));
 }
 
+void CefRequestContextImpl::SetChromeColorScheme(cef_color_variant_t variant,
+                                                 cef_color_t user_color) {
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(&CefRequestContextImpl::SetChromeColorSchemeInternal, this,
+                     variant, user_color));
+}
+
+cef_color_variant_t CefRequestContextImpl::GetChromeColorSchemeMode() {
+  if (!VerifyBrowserContext()) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  const auto* theme_service =
+      ThemeServiceFactory::GetForProfile(browser_context()->AsProfile());
+  switch (theme_service->GetBrowserColorScheme()) {
+    case ThemeService::BrowserColorScheme::kSystem:
+      return CEF_COLOR_VARIANT_SYSTEM;
+    case ThemeService::BrowserColorScheme::kLight:
+      return CEF_COLOR_VARIANT_LIGHT;
+    case ThemeService::BrowserColorScheme::kDark:
+      return CEF_COLOR_VARIANT_DARK;
+  }
+
+  DCHECK(false);  // Not reached.
+  return CEF_COLOR_VARIANT_SYSTEM;
+}
+
+cef_color_t CefRequestContextImpl::GetChromeColorSchemeColor() {
+  if (!VerifyBrowserContext()) {
+    return 0;
+  }
+
+  const auto* theme_service =
+      ThemeServiceFactory::GetForProfile(browser_context()->AsProfile());
+  if (const auto& user_color = theme_service->GetUserColor()) {
+    return *user_color;
+  }
+
+  return 0;
+}
+
+cef_color_variant_t CefRequestContextImpl::GetChromeColorSchemeVariant() {
+  if (!VerifyBrowserContext()) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  const auto* theme_service =
+      ThemeServiceFactory::GetForProfile(browser_context()->AsProfile());
+  switch (theme_service->GetBrowserColorVariant()) {
+    case ui::mojom::BrowserColorVariant::kSystem:
+      return CEF_COLOR_VARIANT_SYSTEM;
+    case ui::mojom::BrowserColorVariant::kTonalSpot:
+      return CEF_COLOR_VARIANT_TONAL_SPOT;
+    case ui::mojom::BrowserColorVariant::kNeutral:
+      return CEF_COLOR_VARIANT_NEUTRAL;
+    case ui::mojom::BrowserColorVariant::kVibrant:
+      return CEF_COLOR_VARIANT_VIBRANT;
+    case ui::mojom::BrowserColorVariant::kExpressive:
+      return CEF_COLOR_VARIANT_EXPRESSIVE;
+  }
+
+  DCHECK(false);  // Not reached.
+  return CEF_COLOR_VARIANT_SYSTEM;
+}
+
 void CefRequestContextImpl::OnRenderFrameCreated(
     const content::GlobalRenderFrameHostId& global_id,
     bool is_main_frame,
@@ -894,6 +964,90 @@ void CefRequestContextImpl::SetContentSettingInternal(
           requesting_gurl, top_level_gurl,
           static_cast<ContentSettingsType>(content_type),
           static_cast<ContentSetting>(value));
+    }
+  }
+}
+
+void CefRequestContextImpl::SetChromeColorSchemeInternal(
+    cef_color_variant_t variant,
+    cef_color_t user_color,
+    CefBrowserContext::Getter browser_context_getter) {
+  auto* browser_context = browser_context_getter.Run();
+  if (!browser_context) {
+    return;
+  }
+
+  auto* theme_service =
+      ThemeServiceFactory::GetForProfile(browser_context->AsProfile());
+
+  // Possibly set the color scheme.
+  std::optional<ThemeService::BrowserColorScheme> color_scheme;
+  switch (variant) {
+    case CEF_COLOR_VARIANT_SYSTEM:
+      color_scheme = ThemeService::BrowserColorScheme::kSystem;
+      break;
+    case CEF_COLOR_VARIANT_LIGHT:
+      color_scheme = ThemeService::BrowserColorScheme::kLight;
+      break;
+    case CEF_COLOR_VARIANT_DARK:
+      color_scheme = ThemeService::BrowserColorScheme::kDark;
+      break;
+    default:
+      break;
+  }
+
+  if (color_scheme && *color_scheme != theme_service->GetBrowserColorScheme()) {
+    // Color scheme has changed.
+    // Based on CustomizeColorSchemeModeHandler::SetColorSchemeMode.
+    theme_service->SetBrowserColorScheme(*color_scheme);
+  }
+
+  // Returns nullopt if the current color is SK_ColorTRANSPARENT.
+  const auto& current_color = theme_service->GetUserColor();
+
+  // Possibly set the user color.
+  if (user_color == 0) {
+    if (current_color) {
+      // User color is not currently transparent.
+      // Based on ThemeColorPickerHandler::SetDefaultColor.
+      if (features::IsChromeWebuiRefresh2023()) {
+        theme_service->SetUserColor(SK_ColorTRANSPARENT);
+        theme_service->UseDeviceTheme(false);
+      } else {
+        theme_service->UseDefaultTheme();
+      }
+    }
+  } else {
+    ui::mojom::BrowserColorVariant ui_variant;
+    switch (variant) {
+      case CEF_COLOR_VARIANT_NEUTRAL:
+        ui_variant = ui::mojom::BrowserColorVariant::kNeutral;
+        break;
+      case CEF_COLOR_VARIANT_VIBRANT:
+        ui_variant = ui::mojom::BrowserColorVariant::kVibrant;
+        break;
+      case CEF_COLOR_VARIANT_EXPRESSIVE:
+        ui_variant = ui::mojom::BrowserColorVariant::kExpressive;
+        break;
+      case CEF_COLOR_VARIANT_SYSTEM:
+        ui_variant = ui::mojom::BrowserColorVariant::kSystem;
+        break;
+      default:
+        ui_variant = ui::mojom::BrowserColorVariant::kTonalSpot;
+        break;
+    }
+
+    if (!current_color || *current_color != user_color ||
+        ui_variant != theme_service->GetBrowserColorVariant()) {
+      // User color and/or variant has changed.
+      // Based on ThemeColorPickerHandler::SetSeedColor.
+      if (features::IsChromeWebuiRefresh2023()) {
+        theme_service->SetUserColorAndBrowserColorVariant(user_color,
+                                                          ui_variant);
+        theme_service->UseDeviceTheme(false);
+      } else {
+        theme_service->BuildAutogeneratedThemeFromColor(user_color);
+      }
     }
   }
 }

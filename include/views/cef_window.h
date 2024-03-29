@@ -377,6 +377,43 @@ class CefWindow : public CefPanel {
   ///
   /*--cef()--*/
   virtual void RemoveAllAccelerators() = 0;
+
+  ///
+  /// Override a standard theme color or add a custom color associated with
+  /// |color_id|. See cef_color_ids.h for standard ID values. Recommended usage
+  /// is as follows:
+  ///
+  /// 1. Customize the default native/OS theme by calling SetThemeColor before
+  ///    showing the first Window. When done setting colors call
+  ///    CefWindow::ThemeChanged to trigger CefViewDelegate::OnThemeChanged
+  ///    notifications.
+  /// 2. Customize the current native/OS or Chrome theme after it changes by
+  ///    calling SetThemeColor from the CefWindowDelegate::OnThemeColorsChanged
+  ///    callback. CefViewDelegate::OnThemeChanged notifications will then be
+  ///    triggered automatically.
+  ///
+  /// The configured color will be available immediately via
+  /// CefView::GetThemeColor and will be applied to each View in this Window's
+  /// component hierarchy when CefViewDelegate::OnThemeChanged is called. See
+  /// OnThemeColorsChanged documentation for additional details.
+  ///
+  /// Clients wishing to add custom colors should use |color_id| values >=
+  /// CEF_ChromeColorsEnd.
+  ///
+  /*--cef()--*/
+  virtual void SetThemeColor(int color_id, cef_color_t color) = 0;
+
+  ///
+  /// Trigger CefViewDelegate::OnThemeChanged callbacks for each View in this
+  /// Window's component hierarchy. Unlike a native/OS or Chrome theme change
+  /// this method does not reset theme colors to standard values and does not
+  /// result in a call to CefWindowDelegate::OnThemeColorsChanged.
+  ///
+  /// Do not call this method from CefWindowDelegate::OnThemeColorsChanged or
+  /// CefViewDelegate::OnThemeChanged.
+  ///
+  /*--cef()--*/
+  virtual void ThemeChanged() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_H_

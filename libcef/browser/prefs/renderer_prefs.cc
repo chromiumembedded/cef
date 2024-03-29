@@ -22,6 +22,8 @@
 #include "chrome/browser/extensions/extension_webkit_preferences.h"
 #include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_switches.h"
@@ -211,9 +213,25 @@ bool UpdatePreferredColorScheme(blink::web_pref::WebPreferences* web_prefs,
                                 const ui::NativeTheme* native_theme) {
   auto old_preferred_color_scheme = web_prefs->preferred_color_scheme;
 
+  auto preferred_color_scheme = native_theme->GetPreferredColorScheme();
+
+  // Based on https://issues.chromium.org/issues/332328864#comment3
+  auto* profile =
+      Profile::FromBrowserContext(web_contents->GetBrowserContext());
+  const auto* theme_service = ThemeServiceFactory::GetForProfile(profile);
+
+  const auto browser_color_scheme = theme_service->GetBrowserColorScheme();
+  if (browser_color_scheme != ThemeService::BrowserColorScheme::kSystem) {
+    // Override the native theme.
+    preferred_color_scheme =
+        browser_color_scheme == ThemeService::BrowserColorScheme::kLight
+            ? ui::NativeTheme::PreferredColorScheme::kLight
+            : ui::NativeTheme::PreferredColorScheme::kDark;
+  }
+
   // Update based on native theme scheme.
   web_prefs->preferred_color_scheme =
-      ToBlinkPreferredColorScheme(native_theme->GetPreferredColorScheme());
+      ToBlinkPreferredColorScheme(preferred_color_scheme);
 
   if (url.SchemeIs(content::kChromeUIScheme)) {
     // WebUI should track the color mode of the ColorProvider associated with

@@ -91,6 +91,8 @@ class CefWindowImpl
                       bool high_priority) override;
   void RemoveAccelerator(int command_id) override;
   void RemoveAllAccelerators() override;
+  void SetThemeColor(int color_id, cef_color_t color) override;
+  void ThemeChanged() override;
 
   // CefViewAdapter methods:
   void Detach() override;

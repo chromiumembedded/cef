@@ -227,7 +227,7 @@ void ViewsOverlayControls::OnButtonPressed(CefRefPtr<CefButton> button) {
 
 void ViewsOverlayControls::OnThemeChanged(CefRefPtr<CefView> view) {
   // Apply colors when the theme changes.
-  views_style::ApplyTo(view);
+  views_style::OnThemeChanged(view);
 }
 
 CefRefPtr<CefLabelButton> ViewsOverlayControls::CreateButton(Command command) {

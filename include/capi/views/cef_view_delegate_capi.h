@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d3624baa94bb722c48880b4319f5d5e8035eaa46$
+// $hash=0f562c026f64ca19a32834dcc1e1cd3a98be2f1f$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_DELEGATE_CAPI_H_
@@ -143,11 +143,22 @@ typedef struct _cef_view_delegate_t {
 
   ///
   /// Called when the theme for |view| has changed, after the new theme colors
-  /// have already been applied. This will be called at least one time when
-  /// |view| is added to a parent View. Further theme changes can be disabled by
-  /// passing the `--force-dark-mode` or `--force-light-mode` command-line flag.
-  /// Optionally use this callback to override the new theme colors by calling
-  /// the appropriate cef_view_t functions (SetBackgroundColor, etc).
+  /// have already been applied. Views are notified via the component hierarchy
+  /// in depth-first reverse order (children before parents).
+  ///
+  /// This will be called in the following cases:
+  ///
+  /// 1. When |view|, or a parent of |view|, is added to a Window. 2. When the
+  /// native/OS or Chrome theme changes for the Window that contains
+  ///    |view|. See CefWindowDelegate::OnThemeColorsChanged documentation.
+  /// 3. When the client explicitly calls cef_window_t::ThemeChanged on the
+  /// Window
+  ///    that contains |view|.
+  ///
+  /// Optionally use this callback to override the new per-View theme colors by
+  /// calling cef_view_t::SetBackgroundColor or the appropriate component-
+  /// specific function. See cef_window_t::SetThemeColor documentation for how
+  /// to customize additional Window theme colors.
   ///
   void(CEF_CALLBACK* on_theme_changed)(struct _cef_view_delegate_t* self,
                                        struct _cef_view_t* view);

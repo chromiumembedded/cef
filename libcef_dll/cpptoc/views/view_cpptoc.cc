@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a543a7ac4053e15e97e84a87f4275c23e9a35477$
+// $hash=ae22b240b761b1bd2e9f168de2859ae0085191f6$
 //
 
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
@@ -788,6 +788,24 @@ cef_color_t CEF_CALLBACK view_get_background_color(struct _cef_view_t* self) {
   return _retval;
 }
 
+cef_color_t CEF_CALLBACK view_get_theme_color(struct _cef_view_t* self,
+                                              int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  cef_color_t _retval = CefViewCppToC::Get(self)->GetThemeColor(color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK view_convert_point_to_screen(struct _cef_view_t* self,
                                               cef_point_t* point) {
   shutdown_checker::AssertNotShutdown();
@@ -1037,6 +1055,7 @@ CefViewCppToC::CefViewCppToC() {
   GetStruct()->request_focus = view_request_focus;
   GetStruct()->set_background_color = view_set_background_color;
   GetStruct()->get_background_color = view_get_background_color;
+  GetStruct()->get_theme_color = view_get_theme_color;
   GetStruct()->convert_point_to_screen = view_convert_point_to_screen;
   GetStruct()->convert_point_from_screen = view_convert_point_from_screen;
   GetStruct()->convert_point_to_window = view_convert_point_to_window;

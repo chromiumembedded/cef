@@ -38,6 +38,10 @@ class CefBrowserViewView
     // Called when the BrowserView has been added to a parent view.
     virtual void OnBrowserViewAdded() = 0;
 
+    // Called when the BrowserView is added or removed from a Widget.
+    virtual void AddedToWidget() = 0;
+    virtual void RemovedFromWidget() = 0;
+
     // Called when the BrowserView bounds have changed.
     virtual void OnBoundsChanged() = 0;
 
@@ -59,6 +63,8 @@ class CefBrowserViewView
       const views::ViewHierarchyChangedDetails& details) override;
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
   void OnGestureEvent(ui::GestureEvent* event) override;
+  void AddedToWidget() override;
+  void RemovedFromWidget() override;
 
  private:
   // Not owned by this object.

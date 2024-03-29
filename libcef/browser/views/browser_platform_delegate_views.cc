@@ -80,6 +80,7 @@ void CefBrowserPlatformDelegateViews::WebContentsCreated(
 void CefBrowserPlatformDelegateViews::WebContentsDestroyed(
     content::WebContents* web_contents) {
   CefBrowserPlatformDelegateAlloy::WebContentsDestroyed(web_contents);
+  browser_view_->WebContentsCreated(web_contents);
   native_delegate_->WebContentsDestroyed(web_contents);
 }
 

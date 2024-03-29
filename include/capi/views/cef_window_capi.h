@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=dbe89dfdd14eb114e3f2d16fbfc55624bb91e7ce$
+// $hash=2abb3759a22a95ffc0207f0538c645a74a5030c6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -364,6 +364,43 @@ typedef struct _cef_window_t {
   /// Remove all keyboard accelerators.
   ///
   void(CEF_CALLBACK* remove_all_accelerators)(struct _cef_window_t* self);
+
+  ///
+  /// Override a standard theme color or add a custom color associated with
+  /// |color_id|. See cef_color_ids.h for standard ID values. Recommended usage
+  /// is as follows:
+  ///
+  /// 1. Customize the default native/OS theme by calling SetThemeColor before
+  ///    showing the first Window. When done setting colors call
+  ///    CefWindow::ThemeChanged to trigger CefViewDelegate::OnThemeChanged
+  ///    notifications.
+  /// 2. Customize the current native/OS or Chrome theme after it changes by
+  ///    calling SetThemeColor from the CefWindowDelegate::OnThemeColorsChanged
+  ///    callback. CefViewDelegate::OnThemeChanged notifications will then be
+  ///    triggered automatically.
+  ///
+  /// The configured color will be available immediately via
+  /// cef_view_t::GetThemeColor and will be applied to each View in this
+  /// Window's component hierarchy when cef_view_delegate_t::OnThemeChanged is
+  /// called. See OnThemeColorsChanged documentation for additional details.
+  ///
+  /// Clients wishing to add custom colors should use |color_id| values >=
+  /// CEF_ChromeColorsEnd.
+  ///
+  void(CEF_CALLBACK* set_theme_color)(struct _cef_window_t* self,
+                                      int color_id,
+                                      cef_color_t color);
+
+  ///
+  /// Trigger cef_view_delegate_t::OnThemeChanged callbacks for each View in
+  /// this Window's component hierarchy. Unlike a native/OS or Chrome theme
+  /// change this function does not reset theme colors to standard values and
+  /// does not result in a call to cef_window_delegate_t::OnThemeColorsChanged.
+  ///
+  /// Do not call this function from cef_window_delegate_t::OnThemeColorsChanged
+  /// or cef_view_delegate_t::OnThemeChanged.
+  ///
+  void(CEF_CALLBACK* theme_changed)(struct _cef_window_t* self);
 } cef_window_t;
 
 ///

@@ -384,7 +384,7 @@ index 2f0fe9d22667c..f50fe7bf75df3 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 011ffe3477b67..7bc473463374c 100644
+index 011ffe3477b67..e56c0581ab844 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -47,6 +47,7 @@
@@ -416,7 +416,33 @@ index 011ffe3477b67..7bc473463374c 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4360,9 +4368,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -3612,9 +3620,24 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
+             : blink::mojom::PreferredColorScheme::kLight;
+   }
+ #else
++  auto preferred_color_scheme = native_theme->GetPreferredColorScheme();
++
++  auto* profile = Profile::FromBrowserContext(
++      web_contents->GetBrowserContext());
++  const auto* theme_service = ThemeServiceFactory::GetForProfile(profile);
++
++  const auto browser_color_scheme = theme_service->GetBrowserColorScheme();
++  if (browser_color_scheme != ThemeService::BrowserColorScheme::kSystem) {
++    // Override the native theme.
++    preferred_color_scheme =
++        browser_color_scheme == ThemeService::BrowserColorScheme::kLight
++            ? ui::NativeTheme::PreferredColorScheme::kLight
++            : ui::NativeTheme::PreferredColorScheme::kDark;
++  }
++
+   // Update based on native theme scheme.
+   web_prefs->preferred_color_scheme =
+-      ToBlinkPreferredColorScheme(native_theme->GetPreferredColorScheme());
++      ToBlinkPreferredColorScheme(preferred_color_scheme);
+ #endif  // BUILDFLAG(IS_ANDROID)
+ 
+   // Reauth WebUI doesn't support dark mode yet because it shares the dialog
+@@ -4360,9 +4383,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -428,7 +454,7 @@ index 011ffe3477b67..7bc473463374c 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6469,7 +6479,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6469,7 +6494,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -437,7 +463,7 @@ index 011ffe3477b67..7bc473463374c 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6487,6 +6497,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6487,6 +6512,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -446,7 +472,7 @@ index 011ffe3477b67..7bc473463374c 100644
  }
  
  std::vector<base::FilePath>
-@@ -7612,10 +7624,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7612,10 +7639,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -459,7 +485,7 @@ index 011ffe3477b67..7bc473463374c 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7634,7 +7646,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7634,7 +7661,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -469,7 +495,7 @@ index 011ffe3477b67..7bc473463374c 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7774,7 +7787,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7774,7 +7802,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {

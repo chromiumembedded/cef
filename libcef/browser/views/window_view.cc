@@ -14,11 +14,10 @@
 #endif
 #endif
 
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/geometry_util.h"
 #include "libcef/browser/image_impl.h"
+#include "libcef/browser/views/widget.h"
 #include "libcef/browser/views/window_impl.h"
-#include "libcef/features/runtime.h"
 
 #include "ui/base/hit_test.h"
 #include "ui/display/screen.h"
@@ -37,9 +36,6 @@
 #endif
 
 #if BUILDFLAG(IS_WIN)
-#include <dwmapi.h>
-
-#include "base/win/windows_version.h"
 #include "ui/display/win/screen_win.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
@@ -147,24 +143,10 @@ class NativeFrameViewEx : public views::NativeFrameView {
     return views::NativeFrameView::NonClientHitTest(point);
   }
 
-#if BUILDFLAG(IS_WIN)
   void OnThemeChanged() override {
     views::NativeFrameView::OnThemeChanged();
-
-    // Value was 19 prior to Windows 10 20H1, according to
-    // https://stackoverflow.com/a/70693198
-    const DWORD dwAttribute =
-        base::win::GetVersion() >= base::win::Version::WIN10_20H1
-            ? DWMWA_USE_IMMERSIVE_DARK_MODE
-            : 19;
-
-    // From BrowserFrameViewWin::SetSystemMicaTitlebarAttributes:
-    const BOOL dark_titlebar_enabled = GetNativeTheme()->ShouldUseDarkColors();
-    DwmSetWindowAttribute(views::HWNDForWidget(widget_), dwAttribute,
-                          &dark_titlebar_enabled,
-                          sizeof(dark_titlebar_enabled));
+    view_util::UpdateTitlebarTheme(widget_);
   }
-#endif
 
  private:
   // Not owned by this object.
@@ -384,8 +366,8 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
   // |widget| is owned by the NativeWidget and will be destroyed in response to
   // a native destruction message.
-  views::Widget* widget = cef::IsChromeRuntimeEnabled() ? new ChromeBrowserFrame
-                                                        : new views::Widget;
+  CefWidget* cef_widget = CefWidget::Create(this);
+  views::Widget* widget = cef_widget->GetWidget();
 
   views::Widget::InitParams params;
   params.delegate = this;
@@ -541,6 +523,8 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     // |widget| must be activatable for focus handling to work correctly.
     DCHECK(widget->widget_delegate()->CanActivate());
   }
+
+  cef_widget->Initialized();
 
 #if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(IS_OZONE_X11)
@@ -745,6 +729,20 @@ void CefWindowView::ViewHierarchyChanged(
   }
 
   ParentClass::ViewHierarchyChanged(details);
+}
+
+void CefWindowView::OnThemeChanged() {
+  bool initialized = false;
+  if (auto* cef_widget = CefWidget::GetForWidget(GetWidget())) {
+    initialized = cef_widget->IsInitialized();
+  }
+
+  if (!initialized) {
+    // Skip the CefViewView logic.
+    views::WidgetDelegateView::OnThemeChanged();
+  } else {
+    ParentClass::OnThemeChanged();
+  }
 }
 
 void CefWindowView::OnWidgetActivationChanged(views::Widget* widget,
@@ -985,4 +983,10 @@ std::optional<float> CefWindowView::GetTitlebarHeight(bool required) const {
 #endif
 
   return std::nullopt;
+}
+
+void CefWindowView::OnThemeColorsChanged(bool chrome_theme) {
+  if (cef_delegate()) {
+    cef_delegate()->OnThemeColorsChanged(GetCefWindow(), chrome_theme);
+  }
 }

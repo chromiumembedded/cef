@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5b562d0924fd4a825f43ae7735c1fc98c474de6a$
+// $hash=3998ef7a4585ef19268482df51611d0283daf275$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -88,6 +88,8 @@ class CefWindowCToCpp
                       bool high_priority) override;
   void RemoveAccelerator(int command_id) override;
   void RemoveAllAccelerators() override;
+  void SetThemeColor(int color_id, cef_color_t color) override;
+  void ThemeChanged() override;
 
   // CefPanel methods.
   CefRefPtr<CefWindow> AsWindow() override;
@@ -149,6 +151,7 @@ class CefWindowCToCpp
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
+  cef_color_t GetThemeColor(int color_id) override;
   bool ConvertPointToScreen(CefPoint& point) override;
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;

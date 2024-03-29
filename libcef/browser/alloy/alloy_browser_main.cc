@@ -55,6 +55,9 @@
 #if defined(USE_AURA) && BUILDFLAG(IS_OZONE_X11)
 #include "ui/events/devices/x11/touch_factory_x11.h"
 #endif
+#if defined(USE_DBUS)
+#include "chrome/browser/ui/views/dark_mode_manager_linux.h"
+#endif
 #endif
 
 #if defined(USE_AURA)
@@ -126,22 +129,6 @@ class LinuxUiGetterImpl : public ui::LinuxUiGetter {
         ThemeServiceAuraLinux::GetSystemThemeForProfile(profile));
   }
 };
-
-ui::LinuxUi* GetLinuxUI() {
-  // We can't use GtkUi in combination with multi-threaded-message-loop because
-  // Chromium's GTK implementation doesn't use GDK threads.
-  if (!!CefContext::Get()->settings().multi_threaded_message_loop) {
-    return nullptr;
-  }
-
-  // If the ozone backend hasn't provided a LinuxUiDelegate, don't try to create
-  // a LinuxUi instance as this may result in a crash in toolkit initialization.
-  if (!ui::LinuxUiDelegate::GetInstance()) {
-    return nullptr;
-  }
-
-  return ui::GetDefaultLinuxUi();
-}
 
 #endif  // BUILDFLAG(IS_LINUX)
 
@@ -220,7 +207,9 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
 
 #if BUILDFLAG(IS_LINUX)
   // Based on chrome_browser_main_extra_parts_views_linux.cc
-  if (auto linux_ui = GetLinuxUI()) {
+  // |linux_ui| will be nullptr with multi-threaded-message-loop. See
+  // CefUiThread::InitializeBrowserRunner.
+  if (auto linux_ui = ui::GetDefaultLinuxUi()) {
     linux_ui_getter_ = std::make_unique<LinuxUiGetterImpl>();
     ui::LinuxUi::SetInstance(linux_ui);
 
@@ -228,6 +217,13 @@ void AlloyBrowserMainParts::ToolkitInitialized() {
     // implementation). Start observing them once it's initialized.
     ui::CursorFactory::GetInstance()->ObserveThemeChanges();
   }
+
+#if defined(USE_DBUS)
+  if (!ui::NativeTheme::IsForcedDarkMode() &&
+      !ui::NativeTheme::IsForcedLightMode()) {
+    dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
+  }
+#endif
 
   auto printing_delegate = new CefPrintingContextLinuxDelegate();
   auto default_delegate =

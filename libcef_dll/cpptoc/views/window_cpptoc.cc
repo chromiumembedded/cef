@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a5f9a7de12728e82f8dee6d8dde3b9275a3e4ee4$
+// $hash=b9df5830c3e1b042aeced2a2b5fd97d00e702869$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -719,6 +719,36 @@ void CEF_CALLBACK window_remove_all_accelerators(struct _cef_window_t* self) {
 
   // Execute
   CefWindowCppToC::Get(self)->RemoveAllAccelerators();
+}
+
+void CEF_CALLBACK window_set_theme_color(struct _cef_window_t* self,
+                                         int color_id,
+                                         cef_color_t color) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefWindowCppToC::Get(self)->SetThemeColor(color_id, color);
+}
+
+void CEF_CALLBACK window_theme_changed(struct _cef_window_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefWindowCppToC::Get(self)->ThemeChanged();
 }
 
 struct _cef_window_t* CEF_CALLBACK window_as_window(struct _cef_panel_t* self) {
@@ -1784,6 +1814,26 @@ cef_color_t CEF_CALLBACK window_get_background_color(struct _cef_view_t* self) {
   return _retval;
 }
 
+cef_color_t CEF_CALLBACK window_get_theme_color(struct _cef_view_t* self,
+                                                int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  cef_color_t _retval =
+      CefWindowCppToC::Get(reinterpret_cast<cef_window_t*>(self))
+          ->GetThemeColor(color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK window_convert_point_to_screen(struct _cef_view_t* self,
                                                 cef_point_t* point) {
   shutdown_checker::AssertNotShutdown();
@@ -2035,6 +2085,8 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->set_accelerator = window_set_accelerator;
   GetStruct()->remove_accelerator = window_remove_accelerator;
   GetStruct()->remove_all_accelerators = window_remove_all_accelerators;
+  GetStruct()->set_theme_color = window_set_theme_color;
+  GetStruct()->theme_changed = window_theme_changed;
   GetStruct()->base.as_window = window_as_window;
   GetStruct()->base.set_to_fill_layout = window_set_to_fill_layout;
   GetStruct()->base.set_to_box_layout = window_set_to_box_layout;
@@ -2092,6 +2144,7 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->base.base.request_focus = window_request_focus;
   GetStruct()->base.base.set_background_color = window_set_background_color;
   GetStruct()->base.base.get_background_color = window_get_background_color;
+  GetStruct()->base.base.get_theme_color = window_get_theme_color;
   GetStruct()->base.base.convert_point_to_screen =
       window_convert_point_to_screen;
   GetStruct()->base.base.convert_point_from_screen =

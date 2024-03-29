@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1829e6ed7282ca9a0b34e825a11c229ddd48590d$
+// $hash=4350cb3f26c9b2a56bac5a0368eab19dff8659ae$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -532,6 +532,29 @@ window_delegate_on_key_event(struct _cef_window_delegate_t* self,
   return _retval;
 }
 
+void CEF_CALLBACK
+window_delegate_on_theme_colors_changed(struct _cef_window_delegate_t* self,
+                                        cef_window_t* window,
+                                        int chrome_theme) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return;
+  }
+
+  // Execute
+  CefWindowDelegateCppToC::Get(self)->OnThemeColorsChanged(
+      CefWindowCToCpp::Wrap(window), chrome_theme ? true : false);
+}
+
 cef_size_t CEF_CALLBACK
 window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
@@ -843,6 +866,8 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->can_close = window_delegate_can_close;
   GetStruct()->on_accelerator = window_delegate_on_accelerator;
   GetStruct()->on_key_event = window_delegate_on_key_event;
+  GetStruct()->on_theme_colors_changed =
+      window_delegate_on_theme_colors_changed;
   GetStruct()->base.base.get_preferred_size =
       window_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_delegate_get_minimum_size;

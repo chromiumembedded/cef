@@ -72,6 +72,12 @@ void CefBrowserPlatformDelegateChromeViews::WebContentsCreated(
   browser_view_->WebContentsCreated(web_contents);
 }
 
+void CefBrowserPlatformDelegateChromeViews::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  CefBrowserPlatformDelegateChrome::WebContentsDestroyed(web_contents);
+  browser_view_->WebContentsDestroyed(web_contents);
+}
+
 void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
     CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateChrome::BrowserCreated(browser);

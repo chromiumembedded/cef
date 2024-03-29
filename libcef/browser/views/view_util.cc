@@ -8,7 +8,10 @@
 
 #include "include/cef_color_ids.h"
 #include "libcef/browser/views/view_adapter.h"
+#include "libcef/browser/views/widget.h"
 
+#include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "ui/color/color_provider.h"
 #include "ui/color/color_provider_manager.h"
@@ -17,6 +20,7 @@
 #include "ui/gfx/geometry/point.h"
 #include "ui/gfx/geometry/point_conversions.h"
 #include "ui/native_theme/native_theme.h"
+#include "ui/views/background.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/non_client_view.h"
@@ -343,7 +347,7 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   return true;
 }
 
-SkColor GetColor(views::View* view, ui::ColorId id) {
+SkColor GetColor(const views::View* view, ui::ColorId id) {
   // Verify that our enum matches Chromium's values.
   static_assert(static_cast<int>(CEF_ChromeColorsEnd) ==
                     static_cast<int>(kChromeColorsEnd),
@@ -351,11 +355,64 @@ SkColor GetColor(views::View* view, ui::ColorId id) {
 
   // |color_provider| will be nullptr if |view| has not yet been added to a
   // Widget.
-  if (auto color_provider = view->GetColorProvider()) {
+  if (const auto* color_provider = view->GetColorProvider()) {
     return color_provider->GetColor(id);
   }
 
   return GetDefaultColorProvider()->GetColor(id);
+}
+
+void SetColor(views::View* view, ui::ColorId id, SkColor color) {
+  auto* color_provider = view->GetColorProvider();
+  if (!color_provider) {
+    color_provider = GetDefaultColorProvider();
+  }
+
+  if (color_provider) {
+    color_provider->SetColorForTesting(id, color);
+  }
+}
+
+std::optional<SkColor> GetBackgroundColor(const views::View* view,
+                                          bool allow_transparent) {
+  // Return the configured background color, if any.
+  if (view->background()) {
+    return view->background()->get_color();
+  }
+
+  // If the containing Widget is an overlay then it has a transparent background
+  // by default.
+  if (allow_transparent) {
+    const bool is_overlay_hosted =
+        view->GetWidget() && GetHostView(view->GetWidget()) != nullptr;
+    if (is_overlay_hosted) {
+      return std::nullopt;
+    }
+  }
+
+  // Return the default background color.
+  return GetColor(view, ui::kColorPrimaryBackground);
+}
+
+bool ShouldUseDarkTheme(views::Widget* widget) {
+  DCHECK(widget);
+
+  Profile* profile = nullptr;
+  if (auto* cef_widget = CefWidget::GetForWidget(widget)) {
+    profile = cef_widget->GetThemeProfile();
+  }
+
+  if (profile) {
+    const auto* theme_service = ThemeServiceFactory::GetForProfile(profile);
+    const auto browser_color_scheme = theme_service->GetBrowserColorScheme();
+    if (browser_color_scheme != ThemeService::BrowserColorScheme::kSystem) {
+      // Override the native theme value.
+      return browser_color_scheme == ThemeService::BrowserColorScheme::kDark;
+    }
+  }
+
+  // Use the native theme value.
+  return widget->GetNativeTheme()->ShouldUseDarkColors();
 }
 
 }  // namespace view_util

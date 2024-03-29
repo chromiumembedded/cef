@@ -79,13 +79,14 @@ CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  views::InkDrop::Get(ParentClass::root_view())
-      ->SetMode(enabled ? views::InkDropHost::InkDropMode::ON
-                        : views::InkDropHost::InkDropMode::OFF);
+  auto* inkdrop = views::InkDrop::Get(ParentClass::root_view());
+  inkdrop->SetMode(enabled ? views::InkDropHost::InkDropMode::ON
+                           : views::InkDropHost::InkDropMode::OFF);
   if (enabled) {
-    views::InkDrop::Get(ParentClass::root_view())
-        ->SetBaseColor(color_utils::BlendTowardMaxContrast(
-            ParentClass::GetBackgroundColor(), 0x61));
+    // Never returns an empty value.
+    const auto& color = view_util::GetBackgroundColor(
+        ParentClass::root_view(), /*allow_transparent=*/false);
+    inkdrop->SetBaseColor(color_utils::BlendTowardMaxContrast(*color, 0x61));
   }
 }
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1d798c20b6e7325b2e769185739288682b037960$
+// $hash=18fd259f012c67956bda267a62d0e30971c696ca$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -509,6 +509,29 @@ bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefWindowDelegateCToCpp::OnThemeColorsChanged(CefRefPtr<CefWindow> window,
+                                                   bool chrome_theme) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_theme_colors_changed)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_theme_colors_changed(_struct, CefWindowCppToC::Wrap(window),
+                                   chrome_theme);
 }
 
 NO_SANITIZE("cfi-icall")

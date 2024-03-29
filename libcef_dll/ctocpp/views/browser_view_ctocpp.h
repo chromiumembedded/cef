@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=47b5f2dd231632b2ed2ca843ff1925cabac6d2a8$
+// $hash=d407851a21f82fc67289bd6314f31f46e07870df$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -83,6 +83,7 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
+  cef_color_t GetThemeColor(int color_id) override;
   bool ConvertPointToScreen(CefPoint& point) override;
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;
