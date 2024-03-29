@@ -2,6 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <optional>
+
+#include "include/cef_color_ids.h"
 #include "include/views/cef_box_layout.h"
 #include "include/views/cef_fill_layout.h"
 #include "include/views/cef_layout.h"
@@ -56,6 +59,15 @@ void CreatePanel(CefRefPtr<CefPanelDelegate> delegate) {
   EXPECT_TRUE(panel->IsEnabled());
   EXPECT_FALSE(panel->IsFocusable());
   EXPECT_FALSE(panel->IsAccessibilityFocusable());
+
+  // Background color can be configured without a Window.
+  const cef_color_t default_color =
+      panel->GetThemeColor(CEF_ColorPrimaryBackground);
+  const cef_color_t new_color = CefColorSetARGB(255, 0, 0, 255);
+  EXPECT_NE(default_color, new_color);
+  EXPECT_EQ(default_color, panel->GetBackgroundColor());
+  panel->SetBackgroundColor(new_color);
+  EXPECT_EQ(new_color, panel->GetBackgroundColor());
 
   // Verify default Panel state.
   EXPECT_TRUE(panel->GetLayout().get());
@@ -578,6 +590,175 @@ void ChildDrawnImpl() {
   window->Close();
 }
 
+class ThemePanelDelegate : public CefPanelDelegate {
+ public:
+  ThemePanelDelegate() = default;
+
+  void OnThemeChanged(CefRefPtr<CefView> view) override {
+    theme_changed_ct_++;
+
+    if (override_color_) {
+      view->SetBackgroundColor(*override_color_);
+    }
+  }
+
+  size_t theme_changed_ct_ = 0;
+  std::optional<cef_color_t> override_color_;
+
+ private:
+  IMPLEMENT_REFCOUNTING(ThemePanelDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ThemePanelDelegate);
+};
+
+class ThemeWindowDelegate : public CefWindowDelegate {
+ public:
+  ThemeWindowDelegate() = default;
+
+  void OnThemeChanged(CefRefPtr<CefView> view) override { theme_changed_ct_++; }
+
+  void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
+                            bool chrome_theme) override {
+    native_theme_changed_ct_++;
+  }
+
+  size_t theme_changed_ct_ = 0;
+  size_t native_theme_changed_ct_ = 0;
+
+ private:
+  IMPLEMENT_REFCOUNTING(ThemeWindowDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ThemeWindowDelegate);
+};
+
+void ChildThemeImpl() {
+  CefRefPtr<ThemePanelDelegate> parent_panel_delegate =
+      new ThemePanelDelegate();
+  CefRefPtr<CefPanel> parent_panel =
+      CefPanel::CreatePanel(parent_panel_delegate.get());
+
+  CefRefPtr<ThemePanelDelegate> child_panel_delegate = new ThemePanelDelegate();
+  CefRefPtr<CefPanel> child_panel =
+      CefPanel::CreatePanel(child_panel_delegate.get());
+
+  // No calls to OnThemeChanged (no Window yet).
+  EXPECT_EQ(0U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, child_panel_delegate->theme_changed_ct_);
+
+  parent_panel->AddChildView(child_panel);
+
+  // No calls to OnThemeChanged (no Window yet).
+  EXPECT_EQ(0U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, child_panel_delegate->theme_changed_ct_);
+
+  // Create a Window. Triggers OnThemeChanged for the Window because it's also
+  // a View in the initial Window component hierarchy.
+  CefRefPtr<ThemeWindowDelegate> window_delegate = new ThemeWindowDelegate();
+  CefRefPtr<CefWindow> window =
+      CefWindow::CreateTopLevelWindow(window_delegate.get());
+
+  // OnThemeChanged called for |window_delegate|. No calls to
+  // OnThemeColorsChanged.
+  EXPECT_EQ(0U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, child_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, window_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->native_theme_changed_ct_);
+  window_delegate->theme_changed_ct_ = 0;
+
+  // Add |parent_panel| to the Window. Triggers OnThemeChanged for the component
+  // hierarchy starting with |parent_panel|.
+  window->AddChildView(parent_panel);
+
+  // OnThemeChanged called for |parent_panel| and |child_panel|. No calls to
+  // OnThemeColorsChanged.
+  EXPECT_EQ(1U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, child_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->native_theme_changed_ct_);
+  parent_panel_delegate->theme_changed_ct_ = 0;
+  child_panel_delegate->theme_changed_ct_ = 0;
+
+  // Verify that all components have the default background color.
+  const cef_color_t default_color =
+      window->GetThemeColor(CEF_ColorPrimaryBackground);
+  EXPECT_EQ(default_color, window->GetBackgroundColor());
+  EXPECT_EQ(default_color, parent_panel->GetBackgroundColor());
+  EXPECT_EQ(default_color,
+            parent_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+  EXPECT_EQ(default_color, child_panel->GetBackgroundColor());
+  EXPECT_EQ(default_color,
+            child_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+
+  // Change the default background color for the global theme.
+  const cef_color_t new_color = CefColorSetARGB(255, 0, 0, 255);
+  EXPECT_NE(default_color, new_color);
+  window->SetThemeColor(CEF_ColorPrimaryBackground, new_color);
+  EXPECT_EQ(new_color, window->GetThemeColor(CEF_ColorPrimaryBackground));
+
+  // Components don't get the change immediately.
+  EXPECT_EQ(default_color, window->GetBackgroundColor());
+  EXPECT_EQ(default_color, parent_panel->GetBackgroundColor());
+  EXPECT_EQ(default_color, child_panel->GetBackgroundColor());
+
+  // No calls to OnThemeChanged or OnThemeColorsChanged (pending ThemeChanged
+  // call).
+  EXPECT_EQ(0U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, child_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->native_theme_changed_ct_);
+
+  // Trigger OnThemeChanged calls.
+  window->ThemeChanged();
+
+  // OnThemeChanged called for the complete component hierarchy. No calls to
+  // OnThemeColorsChanged.
+  EXPECT_EQ(1U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, child_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, window_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->native_theme_changed_ct_);
+  parent_panel_delegate->theme_changed_ct_ = 0;
+  child_panel_delegate->theme_changed_ct_ = 0;
+  window_delegate->theme_changed_ct_ = 0;
+
+  // Verify that all components have the new background color.
+  EXPECT_EQ(new_color, window->GetBackgroundColor());
+  EXPECT_EQ(new_color, parent_panel->GetBackgroundColor());
+  EXPECT_EQ(new_color, parent_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+  EXPECT_EQ(new_color, child_panel->GetBackgroundColor());
+  EXPECT_EQ(new_color, child_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+
+  // Customize the background color for |child_panel| when OnThemeChanged is
+  // called next.
+  const cef_color_t child_color = CefColorSetARGB(255, 0, 255, 0);
+  child_panel_delegate->override_color_ = child_color;
+
+  // Trigger OnThemeChanged calls.
+  window->ThemeChanged();
+
+  // OnThemeChanged called for the complete component hierarchy. No calls to
+  // OnThemeColorsChanged.
+  EXPECT_EQ(1U, parent_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, child_panel_delegate->theme_changed_ct_);
+  EXPECT_EQ(1U, window_delegate->theme_changed_ct_);
+  EXPECT_EQ(0U, window_delegate->native_theme_changed_ct_);
+  parent_panel_delegate->theme_changed_ct_ = 0;
+  child_panel_delegate->theme_changed_ct_ = 0;
+  window_delegate->theme_changed_ct_ = 0;
+
+  // Verify that all components have the expected background color.
+  EXPECT_EQ(new_color, window->GetBackgroundColor());
+  EXPECT_EQ(new_color, parent_panel->GetBackgroundColor());
+  EXPECT_EQ(new_color, parent_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+  EXPECT_EQ(child_color, child_panel->GetBackgroundColor());
+  EXPECT_EQ(new_color, child_panel->GetThemeColor(CEF_ColorPrimaryBackground));
+
+  // New Window gets the same (new) background color.
+  CefRefPtr<CefWindow> new_window = CefWindow::CreateTopLevelWindow(nullptr);
+  EXPECT_EQ(new_color, new_window->GetBackgroundColor());
+
+  // Restore the default background color for the global theme.
+  window->SetThemeColor(CEF_ColorPrimaryBackground, default_color);
+  EXPECT_EQ(default_color, window->GetThemeColor(CEF_ColorPrimaryBackground));
+}
+
 }  // namespace
 
 // Test child behaviors.
@@ -586,6 +767,7 @@ PANEL_TEST(ChildAddRemoveMultiple)
 PANEL_TEST(ChildOrder)
 PANEL_TEST(ChildVisible)
 PANEL_TEST(ChildDrawn)
+PANEL_TEST(ChildTheme)
 
 namespace {
 

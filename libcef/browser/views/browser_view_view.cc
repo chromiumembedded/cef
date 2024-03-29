@@ -45,3 +45,13 @@ void CefBrowserViewView::OnGestureEvent(ui::GestureEvent* event) {
   }
   ParentClass::OnGestureEvent(event);
 }
+
+void CefBrowserViewView::AddedToWidget() {
+  ParentClass::AddedToWidget();
+  browser_view_delegate_->AddedToWidget();
+}
+
+void CefBrowserViewView::RemovedFromWidget() {
+  ParentClass::RemovedFromWidget();
+  browser_view_delegate_->RemovedFromWidget();
+}

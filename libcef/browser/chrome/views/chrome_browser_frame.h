@@ -6,6 +6,9 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_
 #pragma once
 
+#include "libcef/browser/views/color_provider_tracker.h"
+#include "libcef/browser/views/widget.h"
+
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_frame.h"
 
@@ -86,18 +89,34 @@
 // modifications.
 
 class BrowserView;
+class CefWindowView;
 
 // Widget for a Views-hosted Chrome browser. Created in
 // CefWindowView::CreateWidget() when the Chrome runtime is enabled.
-class ChromeBrowserFrame : public BrowserFrame {
+class ChromeBrowserFrame : public BrowserFrame,
+                           public CefWidget,
+                           public CefColorProviderTracker::Observer {
  public:
-  ChromeBrowserFrame() = default;
+  explicit ChromeBrowserFrame(CefWindowView* window_view);
+
   ChromeBrowserFrame(const ChromeBrowserFrame&) = delete;
   ChromeBrowserFrame& operator=(const ChromeBrowserFrame&) = delete;
 
+  // Called from ChromeBrowserView::InitBrowser after |browser| creation.
   void Init(BrowserView* browser_view, std::unique_ptr<Browser> browser);
 
-  void ToggleFullscreenMode();
+  // CefWidget methods:
+  views::Widget* GetWidget() override { return this; }
+  const views::Widget* GetWidget() const override { return this; }
+  void Initialized() override;
+  bool IsInitialized() const override { return initialized_; }
+  void AddAssociatedProfile(Profile* profile) override;
+  void RemoveAssociatedProfile(Profile* profile) override;
+  Profile* GetThemeProfile() const override;
+  bool ToggleFullscreenMode() override;
+
+  // BrowserFrame methods:
+  void UserChangedTheme(BrowserThemeChangeType theme_change_type) override;
 
   // views::Widget methods:
   views::internal::RootView* CreateRootView() override;
@@ -105,10 +124,25 @@ class ChromeBrowserFrame : public BrowserFrame {
       override;
   void Activate() override;
 
+  // NativeWidgetDelegate methods:
+  void OnNativeWidgetDestroyed() override;
+
+  // ui::NativeThemeObserver methods:
+  void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
+
   BrowserView* browser_view() const { return browser_view_; }
 
  private:
+  // CefColorProviderTracker::Observer methods:
+  void OnColorProviderCacheResetMissed() override;
+
+  CefWindowView* window_view_;
   BrowserView* browser_view_ = nullptr;
+
+  bool initialized_ = false;
+  bool native_theme_change_ = false;
+
+  CefColorProviderTracker color_provider_tracker_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_

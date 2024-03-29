@@ -345,8 +345,9 @@ class ClientHandler : public BaseClientHandler,
   void NotifyTakeFocus(bool next);
 
   // Test context menu creation.
-  void BuildTestMenu(CefRefPtr<CefMenuModel> model);
-  bool ExecuteTestMenu(int command_id);
+  void BuildTestMenu(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefMenuModel> model);
+  bool ExecuteTestMenu(CefRefPtr<CefBrowser> browser, int command_id);
 
   void SetOfflineState(CefRefPtr<CefBrowser> browser, bool offline);
 
@@ -394,11 +395,13 @@ class ClientHandler : public BaseClientHandler,
   // UI THREAD MEMBERS
   // The following members will only be accessed on the CEF UI thread.
 
-  // Track state information for the text context menu.
+  // Track state information for the test context menu.
   struct TestMenuState {
     TestMenuState() = default;
     bool check_item = true;
     int radio_item = 0;
+    int chrome_theme_mode_item = -1;
+    int chrome_theme_color_item = -1;
   } test_menu_state_;
 
   // Console logging state.

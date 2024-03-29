@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=23302ef6e4458aa3e7065aeaca3421a6f0b58361$
+// $hash=7df03921b2ee743fb059f13e545ccf89904eb060$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -368,6 +368,39 @@ typedef struct _cef_request_context_t {
       const cef_string_t* top_level_url,
       cef_content_setting_types_t content_type,
       cef_content_setting_values_t value);
+
+  ///
+  /// Sets the Chrome color scheme for all browsers that share this request
+  /// context. |variant| values of SYSTEM, LIGHT and DARK change the underlying
+  /// color mode (e.g. light vs dark). Other |variant| values determine how
+  /// |user_color| will be applied in the current color mode. If |user_color| is
+  /// transparent (0) the default color will be used.
+  ///
+  void(CEF_CALLBACK* set_chrome_color_scheme)(
+      struct _cef_request_context_t* self,
+      cef_color_variant_t variant,
+      cef_color_t user_color);
+
+  ///
+  /// Returns the current Chrome color scheme mode (SYSTEM, LIGHT or DARK). Must
+  /// be called on the browser process UI thread.
+  ///
+  cef_color_variant_t(CEF_CALLBACK* get_chrome_color_scheme_mode)(
+      struct _cef_request_context_t* self);
+
+  ///
+  /// Returns the current Chrome color scheme color, or transparent (0) for the
+  /// default color. Must be called on the browser process UI thread.
+  ///
+  cef_color_t(CEF_CALLBACK* get_chrome_color_scheme_color)(
+      struct _cef_request_context_t* self);
+
+  ///
+  /// Returns the current Chrome color scheme variant. Must be called on the
+  /// browser process UI thread.
+  ///
+  cef_color_variant_t(CEF_CALLBACK* get_chrome_color_scheme_variant)(
+      struct _cef_request_context_t* self);
 } cef_request_context_t;
 
 ///

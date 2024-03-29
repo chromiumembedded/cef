@@ -42,6 +42,7 @@ class ChromeBrowserView
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
   void AddedToWidget() override;
+  void RemovedFromWidget() override;
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
   void OnGestureEvent(ui::GestureEvent* event) override;
 

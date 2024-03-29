@@ -18,8 +18,10 @@
 #include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
 
 class CefBrowserHostBase;
+class CefWidget;
 class CefWindowImpl;
 class ChromeBrowserView;
+class Profile;
 
 class CefBrowserViewImpl
     : public CefViewImpl<views::View, CefBrowserView, CefBrowserViewDelegate>,
@@ -48,8 +50,9 @@ class CefBrowserViewImpl
       const CefBrowserSettings& settings,
       CefRefPtr<CefBrowserViewDelegate> delegate);
 
-  // Called from CefBrowserPlatformDelegateViews.
+  // Called from CefBrowserPlatformDelegate[Chrome]Views.
   void WebContentsCreated(content::WebContents* web_contents);
+  void WebContentsDestroyed(content::WebContents* web_contents);
   void BrowserCreated(CefBrowserHostBase* browser,
                       base::RepeatingClosure on_bounds_changed);
   void BrowserDestroyed(CefBrowserHostBase* browser);
@@ -75,6 +78,8 @@ class CefBrowserViewImpl
 
   // CefBrowserViewView::Delegate methods:
   void OnBrowserViewAdded() override;
+  void AddedToWidget() override;
+  void RemovedFromWidget() override;
   void OnBoundsChanged() override;
   bool OnGestureEvent(ui::GestureEvent* event) override;
 
@@ -115,6 +120,8 @@ class CefBrowserViewImpl
 
   void RequestFocusInternal();
 
+  void DisassociateFromWidget();
+
   std::unique_ptr<CefBrowserCreateParams> pending_browser_create_params_;
 
   CefRefPtr<CefBrowserHostBase> browser_;
@@ -123,6 +130,9 @@ class CefBrowserViewImpl
   bool ignore_next_char_event_ = false;
 
   base::RepeatingClosure on_bounds_changed_;
+
+  CefWidget* cef_widget_ = nullptr;
+  Profile* profile_ = nullptr;
 
   base::WeakPtrFactory<CefBrowserViewImpl> weak_ptr_factory_;
 

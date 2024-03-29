@@ -31,7 +31,10 @@ class LayoutProvider;
 #if BUILDFLAG(IS_LINUX)
 namespace ui {
 class LinuxUiGetter;
-}
+#if defined(USE_DBUS)
+class DarkModeManagerLinux;
+#endif
+}  // namespace ui
 #endif
 
 class CefDevToolsDelegate;
@@ -99,6 +102,9 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 
 #if BUILDFLAG(IS_LINUX)
   std::unique_ptr<ui::LinuxUiGetter> linux_ui_getter_;
+#if defined(USE_DBUS)
+  std::unique_ptr<ui::DarkModeManagerLinux> dark_mode_manager_;
+#endif
 #endif
 };
 

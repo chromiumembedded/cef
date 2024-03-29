@@ -7,15 +7,14 @@
 #include <memory>
 
 #include "libcef/browser/browser_util.h"
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/browser/views/display_impl.h"
 #include "libcef/browser/views/fill_layout_impl.h"
 #include "libcef/browser/views/layout_util.h"
 #include "libcef/browser/views/view_util.h"
+#include "libcef/browser/views/widget.h"
 #include "libcef/browser/views/window_view.h"
-#include "libcef/features/runtime.h"
 
 #include "base/i18n/rtl.h"
 #include "components/constrained_window/constrained_window_views.h"
@@ -254,14 +253,9 @@ void CefWindowImpl::Restore() {
 void CefWindowImpl::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (widget_ && fullscreen != widget_->IsFullscreen()) {
-    if (cef::IsChromeRuntimeEnabled()) {
-      // If a BrowserView exists, toggle fullscreen mode via the Chrome command
-      // for consistent behavior.
-      auto* browser_frame = static_cast<ChromeBrowserFrame*>(widget_);
-      if (browser_frame->browser_view()) {
-        browser_frame->ToggleFullscreenMode();
-        return;
-      }
+    if (CefWidget::GetForWidget(widget_)->ToggleFullscreenMode()) {
+      // Received special handling.
+      return;
     }
 
     // Call the Widget method directly with Alloy runtime, or Chrome runtime
@@ -739,6 +733,20 @@ void CefWindowImpl::RemoveAllAccelerators() {
   views::FocusManager* focus_manager = widget_->GetFocusManager();
   DCHECK(focus_manager);
   focus_manager->UnregisterAccelerators(this);
+}
+
+void CefWindowImpl::SetThemeColor(int color_id, cef_color_t color) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (root_view()) {
+    view_util::SetColor(root_view(), color_id, color);
+  }
+}
+
+void CefWindowImpl::ThemeChanged() {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (widget_) {
+    widget_->ThemeChanged();
+  }
 }
 
 CefWindowView* CefWindowImpl::cef_window_view() const {

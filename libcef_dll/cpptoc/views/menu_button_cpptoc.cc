@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=82aaa681d0ed57446e54a2c04a62adf18c284677$
+// $hash=02040c0851514ead9307d3901c117d94d4fffb41$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -1281,6 +1281,26 @@ menu_button_get_background_color(struct _cef_view_t* self) {
   return _retval;
 }
 
+cef_color_t CEF_CALLBACK menu_button_get_theme_color(struct _cef_view_t* self,
+                                                     int color_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  cef_color_t _retval =
+      CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
+          ->GetThemeColor(color_id);
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK menu_button_convert_point_to_screen(struct _cef_view_t* self,
                                                      cef_point_t* point) {
   shutdown_checker::AssertNotShutdown();
@@ -1569,6 +1589,7 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
       menu_button_set_background_color;
   GetStruct()->base.base.base.get_background_color =
       menu_button_get_background_color;
+  GetStruct()->base.base.base.get_theme_color = menu_button_get_theme_color;
   GetStruct()->base.base.base.convert_point_to_screen =
       menu_button_convert_point_to_screen;
   GetStruct()->base.base.base.convert_point_from_screen =

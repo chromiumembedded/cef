@@ -18,7 +18,8 @@ bool IsSet();
 
 // Apply style to views objects.
 void ApplyTo(CefRefPtr<CefMenuModel> menu_model);
-void ApplyTo(CefRefPtr<CefView> view);
+void ApplyTo(CefRefPtr<CefWindow> window);
+void OnThemeChanged(CefRefPtr<CefView> view);
 
 }  // namespace client::views_style
 

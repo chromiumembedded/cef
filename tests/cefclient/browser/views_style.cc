@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/browser/views_style.h"
 
+#include "include/cef_color_ids.h"
+#include "include/views/cef_window.h"
 #include "tests/cefclient/browser/main_context.h"
 
 namespace client::views_style {
@@ -73,7 +75,41 @@ void ApplyTo(CefRefPtr<CefMenuModel> menu_model) {
   }
 }
 
-void ApplyTo(CefRefPtr<CefView> view) {
+void ApplyTo(CefRefPtr<CefWindow> window) {
+  if (!IsSet()) {
+    return;
+  }
+
+  // Customize default background color.
+  window->SetThemeColor(CEF_ColorPrimaryBackground, g_background_color);
+
+  // Customize default menu colors.
+  window->SetThemeColor(CEF_ColorMenuBackground, g_background_color);
+  window->SetThemeColor(CEF_ColorMenuItemBackgroundHighlighted,
+                        g_background_hover_color);
+  window->SetThemeColor(CEF_ColorMenuItemBackgroundSelected,
+                        g_background_hover_color);
+  window->SetThemeColor(CEF_ColorMenuSeparator, g_text_color);
+  window->SetThemeColor(CEF_ColorMenuItemForeground, g_text_color);
+  window->SetThemeColor(CEF_ColorMenuItemForegroundHighlighted, g_text_color);
+  window->SetThemeColor(CEF_ColorMenuItemForegroundSelected, g_text_color);
+
+  // Customize default textfield colors.
+  window->SetThemeColor(CEF_ColorTextfieldBackground, g_background_color);
+  window->SetThemeColor(CEF_ColorTextfieldOutline, g_text_color);
+
+  // Customize default Chrome toolbar colors.
+  window->SetThemeColor(CEF_ColorToolbar, g_background_color);
+  window->SetThemeColor(CEF_ColorToolbarText, g_text_color);
+  window->SetThemeColor(CEF_ColorToolbarButtonIcon, g_text_color);
+  window->SetThemeColor(CEF_ColorToolbarButtonText, g_text_color);
+  window->SetThemeColor(CEF_ColorLocationBarBackground, g_background_color);
+  window->SetThemeColor(CEF_ColorLocationBarBackgroundHovered,
+                        g_background_hover_color);
+  window->SetThemeColor(CEF_ColorOmniboxText, g_text_color);
+}
+
+void OnThemeChanged(CefRefPtr<CefView> view) {
   if (!IsSet()) {
     return;
   }
@@ -88,8 +124,6 @@ void ApplyTo(CefRefPtr<CefView> view) {
   } else if (auto textfield = view->AsTextfield()) {
     textfield->SetTextColor(g_text_color);
   }
-
-  view->SetBackgroundColor(g_background_color);
 }
 
 }  // namespace client::views_style

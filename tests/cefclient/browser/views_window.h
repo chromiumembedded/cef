@@ -193,6 +193,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
                   const CefKeyEvent& event) override;
   void OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
                                     bool is_completed) override;
+  void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
+                            bool chrome_theme) override;
 
   // CefViewDelegate methods:
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;

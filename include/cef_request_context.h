@@ -381,6 +381,38 @@ class CefRequestContext : public CefPreferenceManager {
                                  const CefString& top_level_url,
                                  cef_content_setting_types_t content_type,
                                  cef_content_setting_values_t value) = 0;
+
+  ///
+  /// Sets the Chrome color scheme for all browsers that share this request
+  /// context. |variant| values of SYSTEM, LIGHT and DARK change the underlying
+  /// color mode (e.g. light vs dark). Other |variant| values determine how
+  /// |user_color| will be applied in the current color mode. If |user_color| is
+  /// transparent (0) the default color will be used.
+  ///
+  /*--cef()--*/
+  virtual void SetChromeColorScheme(cef_color_variant_t variant,
+                                    cef_color_t user_color) = 0;
+
+  ///
+  /// Returns the current Chrome color scheme mode (SYSTEM, LIGHT or DARK). Must
+  /// be called on the browser process UI thread.
+  ///
+  /*--cef(default_retval=CEF_COLOR_VARIANT_SYSTEM)--*/
+  virtual cef_color_variant_t GetChromeColorSchemeMode() = 0;
+
+  ///
+  /// Returns the current Chrome color scheme color, or transparent (0) for the
+  /// default color. Must be called on the browser process UI thread.
+  ///
+  /*--cef(default_retval=0)--*/
+  virtual cef_color_t GetChromeColorSchemeColor() = 0;
+
+  ///
+  /// Returns the current Chrome color scheme variant. Must be called on the
+  /// browser process UI thread.
+  ///
+  /*--cef(default_retval=CEF_COLOR_VARIANT_SYSTEM)--*/
+  virtual cef_color_variant_t GetChromeColorSchemeVariant() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=713287303ab9bbb6db24d8aabb340766f5e69461$
+// $hash=48bce7be945d4e74682ffa41e8b45eb46a4f7589$
 //
 
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -553,6 +553,73 @@ request_context_set_content_setting(struct _cef_request_context_t* self,
       CefString(requesting_url), CefString(top_level_url), content_type, value);
 }
 
+void CEF_CALLBACK
+request_context_set_chrome_color_scheme(struct _cef_request_context_t* self,
+                                        cef_color_variant_t variant,
+                                        cef_color_t user_color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->SetChromeColorScheme(variant, user_color);
+}
+
+cef_color_variant_t CEF_CALLBACK request_context_get_chrome_color_scheme_mode(
+    struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  // Execute
+  cef_color_variant_t _retval =
+      CefRequestContextCppToC::Get(self)->GetChromeColorSchemeMode();
+
+  // Return type: simple
+  return _retval;
+}
+
+cef_color_t CEF_CALLBACK request_context_get_chrome_color_scheme_color(
+    struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  cef_color_t _retval =
+      CefRequestContextCppToC::Get(self)->GetChromeColorSchemeColor();
+
+  // Return type: simple
+  return _retval;
+}
+
+cef_color_variant_t CEF_CALLBACK
+request_context_get_chrome_color_scheme_variant(
+    struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_COLOR_VARIANT_SYSTEM;
+  }
+
+  // Execute
+  cef_color_variant_t _retval =
+      CefRequestContextCppToC::Get(self)->GetChromeColorSchemeVariant();
+
+  // Return type: simple
+  return _retval;
+}
+
 int CEF_CALLBACK
 request_context_has_preference(struct _cef_preference_manager_t* self,
                                const cef_string_t* name) {
@@ -713,6 +780,14 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->set_website_setting = request_context_set_website_setting;
   GetStruct()->get_content_setting = request_context_get_content_setting;
   GetStruct()->set_content_setting = request_context_set_content_setting;
+  GetStruct()->set_chrome_color_scheme =
+      request_context_set_chrome_color_scheme;
+  GetStruct()->get_chrome_color_scheme_mode =
+      request_context_get_chrome_color_scheme_mode;
+  GetStruct()->get_chrome_color_scheme_color =
+      request_context_get_chrome_color_scheme_color;
+  GetStruct()->get_chrome_color_scheme_variant =
+      request_context_get_chrome_color_scheme_variant;
   GetStruct()->base.has_preference = request_context_has_preference;
   GetStruct()->base.get_preference = request_context_get_preference;
   GetStruct()->base.get_all_preferences = request_context_get_all_preferences;

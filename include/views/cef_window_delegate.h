@@ -164,12 +164,11 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
-  /// Return whether the titlebar height should be overridden,
-  /// and sets the height of the titlebar in |titlebar_height|.
-  /// On macOS, it can also be used to adjust the vertical position
-  /// of the traffic light buttons in frameless windows.
-  /// The buttons will be positioned halfway down the titlebar
-  /// at a height of |titlebar_height| / 2.
+  /// Return whether the titlebar height should be overridden, and sets the
+  /// height of the titlebar in |titlebar_height|. On macOS, it can also be used
+  /// to adjust the vertical position of the traffic light buttons in frameless
+  /// windows. The buttons will be positioned halfway down the titlebar at a
+  /// height of |titlebar_height| / 2.
   ///
   /*--cef()--*/
   virtual bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
@@ -222,6 +221,41 @@ class CefWindowDelegate : public CefPanelDelegate {
                           const CefKeyEvent& event) {
     return false;
   }
+
+  ///
+  /// Called after the native/OS or Chrome theme for |window| has changed.
+  /// |chrome_theme| will be true if the notification is for a Chrome theme.
+  ///
+  /// Native/OS theme colors are configured globally and do not need to be
+  /// customized for each Window individually. An example of a native/OS theme
+  /// change that triggers this callback is when the user switches between dark
+  /// and light mode during application lifespan. Native/OS theme changes can be
+  /// disabled by passing the `--force-dark-mode` or `--force-light-mode`
+  /// command-line flag.
+  ///
+  /// Chrome theme colors will be applied and this callback will be triggered
+  /// if/when a BrowserView is added to the Window's component hierarchy. Chrome
+  /// theme colors can be configured on a per-RequestContext basis using
+  /// CefRequestContext::SetChromeColorScheme or (Chrome runtime only) by
+  /// visiting chrome://settings/manageProfile. Any theme changes using those
+  /// mechanisms will also trigger this callback. Chrome theme colors will be
+  /// persisted and restored from disk cache with the Chrome runtime, and with
+  /// the Alloy runtime if persist_user_preferences is set to true via
+  /// CefSettings or CefRequestContextSettings.
+  ///
+  /// This callback is not triggered on Window creation so clients that wish to
+  /// customize the initial native/OS theme must call CefWindow::SetThemeColor
+  /// and CefWindow::ThemeChanged before showing the first Window.
+  ///
+  /// Theme colors will be reset to standard values before this callback is
+  /// called for the first affected Window. Call CefWindow::SetThemeColor from
+  /// inside this callback to override a standard color or add a custom color.
+  /// CefViewDelegate::OnThemeChanged will be called after this callback for the
+  /// complete |window| component hierarchy.
+  ///
+  /*--cef()--*/
+  virtual void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
+                                    bool chrome_theme) {}
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

@@ -358,18 +358,29 @@ class CefView : public CefBaseRefCounted {
 
   ///
   /// Sets the background color for this View. The background color will be
-  /// automatically reset if the current theme changes. See
-  /// CefViewDelegate::OnThemeChanged for related documentation.
+  /// automatically reset when CefViewDelegate::OnThemeChanged is called.
   ///
   /*--cef()--*/
   virtual void SetBackgroundColor(cef_color_t color) = 0;
 
   ///
-  /// Returns the background color for this View. If the background color has
-  /// not been explicitly set then the current theme color will be returned.
+  /// Returns the background color for this View. If the background color is
+  /// unset then the current `GetThemeColor(CEF_ColorPrimaryBackground)` value
+  /// will be returned. If this View belongs to an overlay (created with
+  /// CefWindow::AddOverlayView), and the background color is unset, then a
+  /// value of transparent (0) will be returned.
   ///
   /*--cef()--*/
   virtual cef_color_t GetBackgroundColor() = 0;
+
+  ///
+  /// Returns the current theme color associated with |color_id|, or the
+  /// placeholder color (red) if unset. See cef_color_ids.h for standard ID
+  /// values. Standard colors can be overridden and custom colors can be added
+  /// using CefWindow::SetThemeColor.
+  ///
+  /*--cef()--*/
+  virtual cef_color_t GetThemeColor(int color_id) = 0;
 
   ///
   /// Convert |point| from this View's coordinate system to DIP screen

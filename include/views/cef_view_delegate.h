@@ -134,11 +134,21 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
 
   ///
   /// Called when the theme for |view| has changed, after the new theme colors
-  /// have already been applied. This will be called at least one time when
-  /// |view| is added to a parent View. Further theme changes can be disabled by
-  /// passing the `--force-dark-mode` or `--force-light-mode` command-line flag.
-  /// Optionally use this callback to override the new theme colors by calling
-  /// the appropriate CefView methods (SetBackgroundColor, etc).
+  /// have already been applied. Views are notified via the component hierarchy
+  /// in depth-first reverse order (children before parents).
+  ///
+  /// This will be called in the following cases:
+  ///
+  /// 1. When |view|, or a parent of |view|, is added to a Window.
+  /// 2. When the native/OS or Chrome theme changes for the Window that contains
+  ///    |view|. See CefWindowDelegate::OnThemeColorsChanged documentation.
+  /// 3. When the client explicitly calls CefWindow::ThemeChanged on the Window
+  ///    that contains |view|.
+  ///
+  /// Optionally use this callback to override the new per-View theme colors by
+  /// calling CefView::SetBackgroundColor or the appropriate component-specific
+  /// method. See CefWindow::SetThemeColor documentation for how to customize
+  /// additional Window theme colors.
   ///
   /*--cef()--*/
   virtual void OnThemeChanged(CefRefPtr<CefView> view) {}

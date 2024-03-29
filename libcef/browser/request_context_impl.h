@@ -131,6 +131,11 @@ class CefRequestContextImpl : public CefRequestContext {
                          const CefString& top_level_url,
                          cef_content_setting_types_t content_type,
                          cef_content_setting_values_t value) override;
+  void SetChromeColorScheme(cef_color_variant_t variant,
+                            cef_color_t user_color) override;
+  cef_color_variant_t GetChromeColorSchemeMode() override;
+  cef_color_t GetChromeColorSchemeColor() override;
+  cef_color_variant_t GetChromeColorSchemeVariant() override;
 
   const CefRequestContextSettings& settings() const { return config_.settings; }
 
@@ -204,6 +209,10 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& top_level_url,
       cef_content_setting_types_t content_type,
       cef_content_setting_values_t value,
+      CefBrowserContext::Getter browser_context_getter);
+  void SetChromeColorSchemeInternal(
+      cef_color_variant_t variant,
+      cef_color_t user_color,
       CefBrowserContext::Getter browser_context_getter);
 
   void InitializeCookieManagerInternal(

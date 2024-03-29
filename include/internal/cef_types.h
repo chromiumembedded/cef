@@ -3854,6 +3854,20 @@ typedef enum {
   CEF_ZOOM_COMMAND_IN,
 } cef_zoom_command_t;
 
+///
+/// Specifies the color variants supported by
+/// CefRequestContext::SetChromeThemeColor.
+///
+typedef enum {
+  CEF_COLOR_VARIANT_SYSTEM,
+  CEF_COLOR_VARIANT_LIGHT,
+  CEF_COLOR_VARIANT_DARK,
+  CEF_COLOR_VARIANT_TONAL_SPOT,
+  CEF_COLOR_VARIANT_NEUTRAL,
+  CEF_COLOR_VARIANT_VIBRANT,
+  CEF_COLOR_VARIANT_EXPRESSIVE,
+} cef_color_variant_t;
+
 #ifdef __cplusplus
 }
 #endif

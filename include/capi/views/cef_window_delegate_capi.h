@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c1c2705cdef7d9189557b57531dc2d53e9f68d0c$
+// $hash=b292cdf6e293dfd42c30ea9189b2a8a2ed77ba7a$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -224,6 +224,43 @@ typedef struct _cef_window_delegate_t {
   int(CEF_CALLBACK* on_key_event)(struct _cef_window_delegate_t* self,
                                   struct _cef_window_t* window,
                                   const cef_key_event_t* event);
+
+  ///
+  /// Called after the native/OS or Chrome theme for |window| has changed.
+  /// |chrome_theme| will be true (1) if the notification is for a Chrome theme.
+  ///
+  /// Native/OS theme colors are configured globally and do not need to be
+  /// customized for each Window individually. An example of a native/OS theme
+  /// change that triggers this callback is when the user switches between dark
+  /// and light mode during application lifespan. Native/OS theme changes can be
+  /// disabled by passing the `--force-dark-mode` or `--force-light-mode`
+  /// command-line flag.
+  ///
+  /// Chrome theme colors will be applied and this callback will be triggered
+  /// if/when a BrowserView is added to the Window's component hierarchy. Chrome
+  /// theme colors can be configured on a per-RequestContext basis using
+  /// cef_request_context_t::SetChromeColorScheme or (Chrome runtime only) by
+  /// visiting chrome://settings/manageProfile. Any theme changes using those
+  /// mechanisms will also trigger this callback. Chrome theme colors will be
+  /// persisted and restored from disk cache with the Chrome runtime, and with
+  /// the Alloy runtime if persist_user_preferences is set to true (1) via
+  /// CefSettings or cef_request_context_tSettings.
+  ///
+  /// This callback is not triggered on Window creation so clients that wish to
+  /// customize the initial native/OS theme must call
+  /// cef_window_t::SetThemeColor and cef_window_t::ThemeChanged before showing
+  /// the first Window.
+  ///
+  /// Theme colors will be reset to standard values before this callback is
+  /// called for the first affected Window. Call cef_window_t::SetThemeColor
+  /// from inside this callback to override a standard color or add a custom
+  /// color. cef_view_delegate_t::OnThemeChanged will be called after this
+  /// callback for the complete |window| component hierarchy.
+  ///
+  void(CEF_CALLBACK* on_theme_colors_changed)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      int chrome_theme);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=34b4d674c378da826baafd00b0ed352441d17482$
+// $hash=daa5d7e0fa0e6b882ca98d9b4be5e6f5c81ddbde$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -84,6 +84,11 @@ class CefRequestContextCToCpp
                          const CefString& top_level_url,
                          cef_content_setting_types_t content_type,
                          cef_content_setting_values_t value) override;
+  void SetChromeColorScheme(cef_color_variant_t variant,
+                            cef_color_t user_color) override;
+  cef_color_variant_t GetChromeColorSchemeMode() override;
+  cef_color_t GetChromeColorSchemeColor() override;
+  cef_color_variant_t GetChromeColorSchemeVariant() override;
 
   // CefPreferenceManager methods.
   bool HasPreference(const CefString& name) override;

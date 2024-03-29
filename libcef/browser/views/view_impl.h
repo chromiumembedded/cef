@@ -298,6 +298,7 @@
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/values.h"
+#include "ui/gfx/color_palette.h"
 #include "ui/views/background.h"
 #include "ui/views/border.h"
 #include "ui/views/view.h"
@@ -403,6 +404,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
+  cef_color_t GetThemeColor(int color_id) override;
   bool ConvertPointToScreen(CefPoint& point) override;
   bool ConvertPointFromScreen(CefPoint& point) override;
   bool ConvertPointToWindow(CefPoint& point) override;
@@ -679,11 +681,19 @@ CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetBackgroundColor(cef_color_t color) {
 }
 
 CEF_VIEW_IMPL_T cef_color_t CEF_VIEW_IMPL_D::GetBackgroundColor() {
-  CEF_REQUIRE_VALID_RETURN(0U);
-  if (root_view()->background()) {
-    return root_view()->background()->get_color();
+  CEF_REQUIRE_VALID_RETURN(gfx::kPlaceholderColor);
+  // May return an empty value.
+  const auto& color =
+      view_util::GetBackgroundColor(root_view(), /*allow_transparency=*/true);
+  if (color) {
+    return *color;
   }
-  return view_util::GetColor(root_view(), ui::kColorPrimaryBackground);
+  return SK_ColorTRANSPARENT;
+}
+
+CEF_VIEW_IMPL_T cef_color_t CEF_VIEW_IMPL_D::GetThemeColor(int color_id) {
+  CEF_REQUIRE_VALID_RETURN(gfx::kPlaceholderColor);
+  return view_util::GetColor(root_view(), color_id);
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::ConvertPointToScreen(CefPoint& point) {

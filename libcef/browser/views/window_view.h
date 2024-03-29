@@ -79,6 +79,7 @@ class CefWindowView
   // views::View methods:
   void ViewHierarchyChanged(
       const views::ViewHierarchyChangedDetails& details) override;
+  void OnThemeChanged() override;
 
   // views::WidgetObserver methods:
   void OnWidgetActivationChanged(views::Widget* widget, bool active) override;
@@ -127,6 +128,9 @@ class CefWindowView
 
   std::optional<float> GetTitlebarHeight(bool required) const;
   bool IsFrameless() const { return is_frameless_; }
+
+  // Called before ThemeChanged() for native or Chrome theme changes.
+  void OnThemeColorsChanged(bool chrome_theme);
 
   // The Widget that hosts us, if we're a modal dialog. May return nullptr
   // during initialization and destruction.

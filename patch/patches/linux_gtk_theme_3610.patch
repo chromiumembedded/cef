@@ -1,0 +1,90 @@
+diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
+index ab8f0d6b545b2..c4bd035f1cec4 100644
+--- ui/gtk/gtk_ui.cc
++++ ui/gtk/gtk_ui.cc
+@@ -26,6 +26,7 @@
+ #include "base/numerics/safe_conversions.h"
+ #include "base/observer_list.h"
+ #include "base/strings/string_split.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/themes/theme_properties.h"  // nogncheck
+ #include "third_party/skia/include/core/SkBitmap.h"
+ #include "third_party/skia/include/core/SkColor.h"
+@@ -238,10 +239,15 @@ bool GtkUi::Initialize() {
+   };
+ 
+   GtkSettings* settings = gtk_settings_get_default();
++  // Disable GTK theme change notifications because they are extremely slow.
++  // Light/dark theme changes will still be detected via DarkModeManagerLinux.
++  // See https://issues.chromium.org/issues/40280130#comment7
++#if !BUILDFLAG(ENABLE_CEF)
+   connect(settings, "notify::gtk-theme-name", &GtkUi::OnThemeChanged);
+   connect(settings, "notify::gtk-icon-theme-name", &GtkUi::OnThemeChanged);
+   connect(settings, "notify::gtk-application-prefer-dark-theme",
+           &GtkUi::OnThemeChanged);
++#endif
+   connect(settings, "notify::gtk-cursor-theme-name",
+           &GtkUi::OnCursorThemeNameChanged);
+   connect(settings, "notify::gtk-cursor-theme-size",
+diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
+index 94012aae5f38d..852d736136faf 100644
+--- ui/ozone/platform/x11/ozone_platform_x11.cc
++++ ui/ozone/platform/x11/ozone_platform_x11.cc
+@@ -64,6 +64,8 @@ namespace ui {
+ 
+ namespace {
+ 
++bool g_multi_threaded_message_loop = false;
++
+ // Singleton OzonePlatform implementation for X11 platform.
+ class OzonePlatformX11 : public OzonePlatform,
+                          public OSExchangeDataProviderFactoryOzone {
+@@ -260,7 +262,15 @@ class OzonePlatformX11 : public OzonePlatform,
+     TouchFactory::SetTouchDeviceListFromCommandLine();
+ 
+ #if BUILDFLAG(USE_GTK)
+-    linux_ui_delegate_ = std::make_unique<LinuxUiDelegateX11>();
++    // Not creating the LinuxUiDelegateX11 will disable creation of GtkUi
++    // (interface to GTK desktop features) and cause ui::GetDefaultLinuxUi()
++    // (and related functions) to return nullptr. We can't use GtkUi in
++    // combination with multi-threaded-message-loop because Chromium's GTK
++    // implementation doesn't use GDK threads. Light/dark theme changes will
++    // still be detected via DarkModeManagerLinux.
++    if (!g_multi_threaded_message_loop) {
++      linux_ui_delegate_ = std::make_unique<LinuxUiDelegateX11>();
++    }
+ #endif
+ 
+     menu_utils_ = std::make_unique<X11MenuUtils>();
+@@ -355,4 +365,8 @@ OzonePlatform* CreateOzonePlatformX11() {
+   return new OzonePlatformX11;
+ }
+ 
++void SetMultiThreadedMessageLoopX11() {
++  g_multi_threaded_message_loop = true;
++}
++
+ }  // namespace ui
+diff --git ui/ozone/platform/x11/ozone_platform_x11.h ui/ozone/platform/x11/ozone_platform_x11.h
+index fd71ca6c81b7a..f1b7464b71e9d 100644
+--- ui/ozone/platform/x11/ozone_platform_x11.h
++++ ui/ozone/platform/x11/ozone_platform_x11.h
+@@ -5,6 +5,8 @@
+ #ifndef UI_OZONE_PLATFORM_X11_OZONE_PLATFORM_X11_H_
+ #define UI_OZONE_PLATFORM_X11_OZONE_PLATFORM_X11_H_
+ 
++#include "base/component_export.h"
++
+ namespace ui {
+ 
+ class OzonePlatform;
+@@ -12,6 +14,9 @@ class OzonePlatform;
+ // Constructor hook for use in ozone_platform_list.cc
+ OzonePlatform* CreateOzonePlatformX11();
+ 
++// Indicate that CEF is using multi-threaded-message-loop.
++COMPONENT_EXPORT(OZONE) void SetMultiThreadedMessageLoopX11();
++
+ }  // namespace ui
+ 
+ #endif  // UI_OZONE_PLATFORM_X11_OZONE_PLATFORM_X11_H_

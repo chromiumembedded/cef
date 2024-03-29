@@ -13,8 +13,10 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/views/widget.h"
 #include "libcef/browser/views/window_impl.h"
 
+#include "chrome/browser/profiles/profile.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
 
@@ -111,6 +113,16 @@ void CefBrowserViewImpl::WebContentsCreated(
   }
 }
 
+void CefBrowserViewImpl::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  // This will always be called before BrowserDestroyed().
+  DisassociateFromWidget();
+
+  if (web_view()) {
+    web_view()->SetWebContents(nullptr);
+  }
+}
+
 void CefBrowserViewImpl::BrowserCreated(
     CefBrowserHostBase* browser,
     base::RepeatingClosure on_bounds_changed) {
@@ -122,9 +134,9 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
   DCHECK_EQ(browser, browser_);
   browser_ = nullptr;
 
-  if (web_view()) {
-    web_view()->SetWebContents(nullptr);
-  }
+  // If this BrowserView belonged to a Widget then we expect to have received a
+  // call to DisassociateFromWidget().
+  DCHECK(!cef_widget_);
 }
 
 bool CefBrowserViewImpl::HandleKeyboardEvent(
@@ -228,6 +240,28 @@ void CefBrowserViewImpl::OnBrowserViewAdded() {
 
     pending_browser_create_params_.reset(nullptr);
   }
+}
+
+void CefBrowserViewImpl::AddedToWidget() {
+  DCHECK(!cef_widget_);
+  DCHECK(browser_);
+
+  views::Widget* widget = root_view()->GetWidget();
+  DCHECK(widget);
+  cef_widget_ = CefWidget::GetForWidget(widget);
+  DCHECK(cef_widget_);
+
+  profile_ = Profile::FromBrowserContext(browser_->GetBrowserContext());
+  DCHECK(profile_);
+
+  // May call Widget::ThemeChanged().
+  cef_widget_->AddAssociatedProfile(profile_);
+}
+
+void CefBrowserViewImpl::RemovedFromWidget() {
+  // With Chrome runtime this may be called after BrowserDestroyed(), in which
+  // case the following call will be a no-op.
+  DisassociateFromWidget();
 }
 
 void CefBrowserViewImpl::OnBoundsChanged() {
@@ -368,4 +402,15 @@ bool CefBrowserViewImpl::HandleAccelerator(
 
 void CefBrowserViewImpl::RequestFocusInternal() {
   ParentClass::RequestFocus();
+}
+
+void CefBrowserViewImpl::DisassociateFromWidget() {
+  if (!cef_widget_) {
+    return;
+  }
+
+  // May call Widget::ThemeChanged().
+  cef_widget_->RemoveAssociatedProfile(profile_);
+  cef_widget_ = nullptr;
+  profile_ = nullptr;
 }

@@ -284,7 +284,7 @@ void ViewsMenuBar::MenuClosed(CefRefPtr<CefMenuModel> menu_model) {
 
 void ViewsMenuBar::OnThemeChanged(CefRefPtr<CefView> view) {
   // Apply colors when the theme changes.
-  views_style::ApplyTo(view);
+  views_style::OnThemeChanged(view);
 }
 
 void ViewsMenuBar::EnsureMenuPanel() {
