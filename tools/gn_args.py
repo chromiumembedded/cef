@@ -258,11 +258,6 @@ def GetRecommendedDefaultArgs():
     # https://groups.google.com/a/chromium.org/g/chromium-packagers/c/-2VGexQAK6w/m/5K5ppK9WBAAJ
     result['use_qt'] = False
 
-  if platform == 'mac':
-    # Disable the allocator shim. Default is True. See issue #3061.
-    result['use_allocator_shim'] = False
-
-  if platform == 'mac' or platform == 'linux':
     # Use the system allocator instead of PartitionAlloc. Default is True with
     # the allocator shim enabled. See issues #3061 and #3095.
     result['use_partition_alloc_as_malloc'] = False
