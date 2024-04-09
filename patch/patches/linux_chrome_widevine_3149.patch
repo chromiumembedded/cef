@@ -1,18 +1,18 @@
 diff --git chrome/common/media/component_widevine_cdm_hint_file_linux.cc chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-index 60033bb10af50..afb0d23c07a34 100644
+index d529ecfb270c4..2e922ef345f04 100644
 --- chrome/common/media/component_widevine_cdm_hint_file_linux.cc
 +++ chrome/common/media/component_widevine_cdm_hint_file_linux.cc
-@@ -18,6 +18,7 @@
+@@ -16,6 +16,7 @@
+ #include "base/path_service.h"
  #include "base/values.h"
- #include "base/version.h"
  #include "chrome/common/chrome_paths.h"
 +#include "third_party/widevine/cdm/widevine_cdm_common.h"
  
  namespace {
  
-@@ -25,12 +26,31 @@ namespace {
- const char kPath[] = "Path";
- const char kLastBundledVersion[] = "LastBundledVersion";
+@@ -35,14 +36,33 @@ base::FilePath GetPath(const base::Value::Dict& dict) {
+   return path;
+ }
  
 +// On Linux the Widevine CDM is loaded into the zygote at startup. When the
 +// component updater runs sometime later and finds a newer version of the
@@ -34,17 +34,9 @@ index 60033bb10af50..afb0d23c07a34 100644
 +  return true;
 +}
 +
- // Returns the hint file contents as a Value::Dict. Returned result may be an
- // empty dictionary if the hint file does not exist or is formatted incorrectly.
- base::Value::Dict GetHintFileContents() {
-   base::FilePath hint_file_path;
--  CHECK(base::PathService::Get(chrome::FILE_COMPONENT_WIDEVINE_CDM_HINT,
--                               &hint_file_path));
-+  CHECK(GetHintFilePath(&hint_file_path));
-   DVLOG(1) << __func__ << " checking " << hint_file_path;
+ }  // namespace
  
-   if (!base::PathExists(hint_file_path)) {
-@@ -65,8 +85,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path,
+ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path) {
    DCHECK(!cdm_base_path.empty());
  
    base::FilePath hint_file_path;
@@ -54,3 +46,13 @@ index 60033bb10af50..afb0d23c07a34 100644
  
    base::Value::Dict dict;
    dict.Set(kPath, cdm_base_path.value());
+@@ -60,8 +80,7 @@ bool UpdateWidevineCdmHintFile(const base::FilePath& cdm_base_path) {
+ 
+ base::FilePath GetLatestComponentUpdatedWidevineCdmDirectory() {
+   base::FilePath hint_file_path;
+-  CHECK(base::PathService::Get(chrome::FILE_COMPONENT_WIDEVINE_CDM_HINT,
+-                               &hint_file_path));
++  CHECK(GetHintFilePath(&hint_file_path));
+ 
+   if (!base::PathExists(hint_file_path)) {
+     DVLOG(2) << "CDM hint file at " << hint_file_path << " does not exist.";
