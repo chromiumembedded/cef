@@ -364,7 +364,7 @@ index e5b246b988c50..117af4ea74b16 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index f63948de2c5bf..c445451bf3d98 100644
+index 3ff20acdff374..b4f7a9bd539c1 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -20,6 +20,7 @@
@@ -375,7 +375,7 @@ index f63948de2c5bf..c445451bf3d98 100644
  #include "ui/aura/window_event_dispatcher.h"
  #include "ui/base/class_property.h"
  #include "ui/base/cursor/cursor.h"
-@@ -178,22 +179,42 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -183,22 +184,42 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_.get());
  
    HWND parent_hwnd = nullptr;
@@ -422,7 +422,7 @@ index f63948de2c5bf..c445451bf3d98 100644
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1016,10 +1037,23 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1021,10 +1042,23 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
    if (!native_widget_delegate_->IsNativeWidgetInitialized())
      return;
  
@@ -448,7 +448,7 @@ index f63948de2c5bf..c445451bf3d98 100644
  }
  
  void DesktopWindowTreeHostWin::HandleClientSizeChanged(
-@@ -1036,11 +1070,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1041,11 +1075,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -466,7 +466,7 @@ index f63948de2c5bf..c445451bf3d98 100644
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1048,6 +1086,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1053,6 +1091,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
    if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
      return true;
  
@@ -479,7 +479,7 @@ index f63948de2c5bf..c445451bf3d98 100644
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1226,8 +1270,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1231,8 +1275,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;

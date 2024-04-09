@@ -12,7 +12,7 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index ffbb5986ca997..3c24cb27d3c12 100644
+index fe6ffe9a1b9b3..83b682cc75b91 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -175,11 +175,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -63,25 +63,23 @@ index ffbb5986ca997..3c24cb27d3c12 100644
      command_line->AppendSwitch(switches::kInProcessGPU);
      command_line->AppendSwitch(switches::kEnableViewport);
      command_line->AppendSwitch(switches::kUseMobileUserAgent);
-@@ -308,19 +295,20 @@ RunContentProcess(ContentMainParams params,
+@@ -307,19 +294,20 @@ RunContentProcess(ContentMainParams params,
+     }
  
  #if BUILDFLAG(IS_WIN)
-     // Route stdio to parent console (if any) or create one.
--    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
--            switches::kEnableLogging)) {
+-    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+     if (command_line->HasSwitch(switches::kHeadless)) {
+       // When running in headless mode we want stdio routed however if
+       // console does not exist we should not create one.
+       base::RouteStdioToConsole(/*create_console_if_not_found*/ false);
+     } else if (command_line->HasSwitch(switches::kEnableLogging)) {
+-      // Route stdio to parent console (if any) or create one.
 -      base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
--    } else if (base::CommandLine::ForCurrentProcess()->HasSwitch(
--                   switches::kHeadless)) {
-+    if (command_line->HasSwitch(switches::kEnableLogging)) {
 +      // Don't route to console for "handle" type in child processes.
 +      if (command_line->GetSwitchValueASCII(switches::kEnableLogging) !=
 +              "handle") {
 +        base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
 +      }
-+    } else if (command_line->HasSwitch(switches::kHeadless)) {
-       // When running in headless mode we want stdio routed however if
-       // console does not exist we should not create one.
-       base::RouteStdioToConsole(/*create_console_if_not_found*/ false);
      }
  #endif
  
@@ -91,7 +89,7 @@ index ffbb5986ca997..3c24cb27d3c12 100644
        base::trace_event::TraceConfig trace_config =
            tracing::GetConfigForTraceToConsole();
        base::trace_event::TraceLog::GetInstance()->SetEnabled(
-@@ -330,12 +318,46 @@ RunContentProcess(ContentMainParams params,
+@@ -329,12 +317,46 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
