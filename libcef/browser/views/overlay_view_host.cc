@@ -31,7 +31,8 @@ class CefOverlayControllerImpl : public CefOverlayController {
   }
 
   bool IsSame(CefRefPtr<CefOverlayController> that) override {
-    return that && that->GetContentsView()->IsSame(view_);
+    return IsValid() && that && that->IsValid() &&
+           that->GetContentsView()->IsSame(view_);
   }
 
   CefRefPtr<CefView> GetContentsView() override { return view_; }
@@ -52,9 +53,15 @@ class CefOverlayControllerImpl : public CefOverlayController {
 
   void Destroy() override {
     if (IsValid()) {
-      host_->Destroy();
-      view_ = nullptr;
+      // Results in a call to Destroyed().
+      host_->Close();
+      host_ = nullptr;
     }
+  }
+
+  void Destroyed() {
+    DCHECK(view_);
+    view_ = nullptr;
   }
 
   void SetBounds(const CefRect& bounds) override {
@@ -155,7 +162,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
   bool IsDrawn() override { return IsVisible(); }
 
  private:
-  CefOverlayViewHost* const host_;
+  CefOverlayViewHost* host_;
   CefRefPtr<CefView> view_;
 
   IMPLEMENT_REFCOUNTING(CefOverlayControllerImpl);
@@ -180,7 +187,8 @@ void CefOverlayViewHost::Init(views::View* host_view,
 
   cef_controller_ = new CefOverlayControllerImpl(this, view);
 
-  // Initialize the Widget.
+  // Initialize the Widget. |widget_| will be deleted by the NativeWidget or
+  // when WidgetDelegate::DeleteDelegate() deletes |this|.
   widget_ = std::make_unique<ThemeCopyingWidget>(window_view_->GetWidget());
   views::Widget::InitParams params(views::Widget::InitParams::TYPE_CONTROL);
   params.delegate = this;
@@ -193,14 +201,22 @@ void CefOverlayViewHost::Init(views::View* host_view,
                            : views::Widget::InitParams::Activatable::kNo;
   widget_->Init(std::move(params));
 
-  view_ = widget_->GetContentsView()->AddChildView(std::move(controls_view));
+  // |widget_| should now be associated with |this|.
+  DCHECK_EQ(widget_.get(), GetWidget());
 
   // Make the Widget background transparent. The View might still be opaque.
   if (widget_->GetCompositor()) {
     widget_->GetCompositor()->SetBackgroundColor(SK_ColorTRANSPARENT);
   }
 
+  host_view_ = host_view;
   view_util::SetHostView(widget_.get(), host_view);
+
+  // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
+  // registered DeleteDelegate callback.
+  SetOwnedByWidget(true);
+  RegisterDeleteDelegateCallback(
+      base::BindOnce(&CefOverlayViewHost::Cleanup, base::Unretained(this)));
 
   if (cef::IsChromeRuntimeEnabled()) {
     // Some attributes associated with a Chrome toolbar are located via the
@@ -212,6 +228,11 @@ void CefOverlayViewHost::Init(views::View* host_view,
                                        browser_view);
     }
   }
+
+  // Call AddChildView after the Widget properties have been configured.
+  // Notifications resulting from this call may attempt to access those
+  // properties (OnThemeChanged calling GetHostView, for example).
+  view_ = widget_->GetContentsView()->AddChildView(std::move(controls_view));
 
   // Set the initial bounds after the View has been added to the Widget.
   // Otherwise, preferred size won't calculate correctly.
@@ -236,15 +257,12 @@ void CefOverlayViewHost::Init(views::View* host_view,
   widget_->Hide();
 }
 
-void CefOverlayViewHost::Destroy() {
+void CefOverlayViewHost::Close() {
   if (widget_ && !widget_->IsClosed()) {
-    // Remove the child View immediately. It may be reused by the client.
-    auto view = view_util::GetFor(view_, /*find_known_parent=*/false);
-    widget_->GetContentsView()->RemoveChildView(view_);
-    if (view) {
-      view_util::ResumeOwnership(view);
-    }
+    // Remove all references ASAP, before the Widget is destroyed.
+    Cleanup();
 
+    // Eventually calls DeleteDelegate().
     widget_->Close();
   }
 }
@@ -329,4 +347,38 @@ gfx::Rect CefOverlayViewHost::ComputeBounds() const {
   }
 
   return gfx::Rect(x, y, prefsize.width(), prefsize.height());
+}
+
+void CefOverlayViewHost::Cleanup() {
+  // This method may be called multiple times. For example, explicitly after the
+  // client calls CefOverlayController::Destroy or implicitly when the host
+  // Widget is being closed or destroyed. In most implicit cases
+  // CefWindowView::WindowClosing will call this before the host Widget is
+  // destroyed, allowing the client to optionally reuse the child View. However,
+  // if CefWindowView::WindowClosing is not called, DeleteDelegate will call
+  // this after the host Widget and all associated Widgets/Views have been
+  // destroyed. In the DeleteDelegate case |widget_| will return nullptr.
+  if (view_ && widget_) {
+    // Remove the child View immediately. It may be reused by the client.
+    auto view = view_util::GetFor(view_, /*find_known_parent=*/false);
+    widget_->GetContentsView()->RemoveChildView(view_);
+    if (view) {
+      view_util::ResumeOwnership(view);
+    }
+    view_->RemoveObserver(this);
+    view_ = nullptr;
+  }
+
+  if (cef_controller_) {
+    CefOverlayControllerImpl* controller_impl =
+        static_cast<CefOverlayControllerImpl*>(cef_controller_.get());
+    controller_impl->Destroyed();
+    cef_controller_ = nullptr;
+  }
+
+  if (window_view_) {
+    window_view_->RemoveOverlayView(this, host_view_);
+    window_view_ = nullptr;
+    host_view_ = nullptr;
+  }
 }

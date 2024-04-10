@@ -35,7 +35,8 @@ const int TestWindowDelegate::kWSize = 400;
 
 // static
 void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
-                                 std::unique_ptr<Config> config) {
+                                 std::unique_ptr<Config> config,
+                                 TestWindowDelegateFactory factory) {
   CefSize window_size{config->window_size, config->window_size};
 
   if (!config->frameless) {
@@ -64,8 +65,15 @@ void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
 #endif
   }
 
-  CefWindow::CreateTopLevelWindow(
-      new TestWindowDelegate(event, std::move(config), window_size));
+  TestWindowDelegate* delegate;
+  if (!factory.is_null()) {
+    delegate = std::move(factory).Run(event, std::move(config), window_size);
+    CHECK(delegate);
+  } else {
+    delegate = new TestWindowDelegate(event, std::move(config), window_size);
+  }
+
+  CefWindow::CreateTopLevelWindow(delegate);
 }
 
 void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {

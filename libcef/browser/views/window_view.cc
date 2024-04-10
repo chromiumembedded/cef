@@ -20,6 +20,7 @@
 #include "libcef/browser/views/window_impl.h"
 #include "libcef/features/runtime.h"
 
+#include "base/ranges/algorithm.h"
 #include "ui/base/hit_test.h"
 #include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"
@@ -415,8 +416,8 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
   }
 
-  // WidgetDelegate::DeleteDelegate() will delete |this| after executing the
-  // registered callback.
+  // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
+  // registered DeleteDelegate callback.
   SetOwnedByWidget(true);
   RegisterDeleteDelegateCallback(
       base::BindOnce(&CefWindowView::DeleteDelegate, base::Unretained(this)));
@@ -602,6 +603,9 @@ CefRefPtr<CefWindow> CefWindowView::GetCefWindow() const {
 }
 
 void CefWindowView::DeleteDelegate() {
+  // Any overlays should already be removed.
+  DCHECK(overlay_hosts_.empty());
+
   // Remove all child Views before deleting the Window so that notifications
   // resolve correctly.
   RemoveAllChildViews();
@@ -648,6 +652,14 @@ ui::ImageModel CefWindowView::GetWindowAppIcon() {
 }
 
 void CefWindowView::WindowClosing() {
+  // Close any overlays now, before the Widget is destroyed.
+  // Use a copy of the array because the original may be modified while
+  // iterating.
+  std::vector<CefOverlayViewHost*> overlay_hosts = overlay_hosts_;
+  for (auto* overlay_host : overlay_hosts) {
+    overlay_host->Close();
+  }
+
 #if BUILDFLAG(IS_LINUX)
 #if BUILDFLAG(IS_OZONE_X11)
   if (host_widget()) {
@@ -663,6 +675,8 @@ void CefWindowView::WindowClosing() {
 #endif
 
   window_delegate_->OnWindowClosing();
+
+  views::WidgetDelegateView::WindowClosing();
 }
 
 views::View* CefWindowView::GetContentsView() {
@@ -756,7 +770,11 @@ void CefWindowView::OnWidgetActivationChanged(views::Widget* widget,
 
 void CefWindowView::OnWidgetBoundsChanged(views::Widget* widget,
                                           const gfx::Rect& new_bounds) {
-  MoveOverlaysIfNecessary();
+  // Size is set to zero when the host Widget is hidden. We don't need to move
+  // overlays in that case.
+  if (!new_bounds.IsEmpty()) {
+    MoveOverlaysIfNecessary();
+  }
 
   if (cef_delegate()) {
     cef_delegate()->OnWindowBoundsChanged(
@@ -818,16 +836,28 @@ CefRefPtr<CefOverlayController> CefWindowView::AddOverlayView(
     // Owned by the View hierarchy. Acts as a z-order reference for the overlay.
     auto overlay_host_view = AddChildView(std::make_unique<views::View>());
 
-    overlay_hosts_.push_back(
-        std::make_unique<CefOverlayViewHost>(this, docking_mode));
+    // Owned by the resulting Widget, after calling Init().
+    auto* overlay_host = new CefOverlayViewHost(this, docking_mode);
+    overlay_hosts_.push_back(overlay_host);
 
-    auto& overlay_host = overlay_hosts_.back();
     overlay_host->Init(overlay_host_view, view, can_activate);
 
     return overlay_host->controller();
   }
 
   return nullptr;
+}
+
+void CefWindowView::RemoveOverlayView(CefOverlayViewHost* host,
+                                      views::View* host_view) {
+  DCHECK_EQ(host_view->parent(), this);
+  RemoveChildView(host_view);
+
+  const auto it = base::ranges::find_if(
+      overlay_hosts_,
+      [host](CefOverlayViewHost* current) { return current == host; });
+  DCHECK(it != overlay_hosts_.end());
+  overlay_hosts_.erase(it);
 }
 
 void CefWindowView::MoveOverlaysIfNecessary() {

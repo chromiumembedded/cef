@@ -620,3 +620,173 @@ WINDOW_TEST_ASYNC(WindowFullscreenFrameless)
 WINDOW_TEST_ASYNC(WindowIcon)
 WINDOW_TEST_ASYNC(WindowIconFrameless)
 WINDOW_TEST_ASYNC(WindowAccelerator)
+
+namespace {
+
+enum class OverlayTestMode {
+  // Destroy the overlay after the Window is destroyed.
+  kDestroyAfterWindowDestroyImplicit,
+  kDestroyAfterWindowDestroyExplicit,
+
+  // Destroy the overlay explicitly before the Window is shown.
+  kDestroyBeforeWindowShow,
+  kDestroyBeforeWindowShowAndAddAgain,
+
+  // Destroy the overlay explicitly after the Window is shown.
+  kDestroyAfterWindowShow,
+  kDestroyAfterWindowShowAndAddAgain,
+};
+
+class OverlayTestWindowDelegate : public TestWindowDelegate {
+ public:
+  static TestWindowDelegate* Factory(OverlayTestMode test_mode,
+                                     CefRefPtr<CefWaitableEvent> event,
+                                     std::unique_ptr<Config> config,
+                                     const CefSize& window_size) {
+    return new OverlayTestWindowDelegate(test_mode, event, std::move(config),
+                                         window_size);
+  }
+
+ private:
+  OverlayTestWindowDelegate(OverlayTestMode test_mode,
+                            CefRefPtr<CefWaitableEvent> event,
+                            std::unique_ptr<Config> config,
+                            const CefSize& window_size)
+      : TestWindowDelegate(event, std::move(config), window_size),
+        test_mode_(test_mode) {
+    this->config()->on_window_created = base::BindOnce(
+        &OverlayTestWindowDelegate::RunWindowCreated, base::Unretained(this));
+    this->config()->on_window_destroyed = base::BindOnce(
+        &OverlayTestWindowDelegate::RunWindowDestroyed, base::Unretained(this));
+  }
+
+  bool DestroyBeforeShow() const {
+    return test_mode_ == OverlayTestMode::kDestroyBeforeWindowShow ||
+           test_mode_ == OverlayTestMode::kDestroyBeforeWindowShowAndAddAgain;
+  }
+
+  bool DestroyAfterShow() const {
+    return test_mode_ == OverlayTestMode::kDestroyAfterWindowShow ||
+           test_mode_ == OverlayTestMode::kDestroyAfterWindowShowAndAddAgain;
+  }
+
+  bool AddAgain() const {
+    return test_mode_ == OverlayTestMode::kDestroyBeforeWindowShowAndAddAgain ||
+           test_mode_ == OverlayTestMode::kDestroyAfterWindowShowAndAddAgain;
+  }
+
+  void RunWindowCreated(CefRefPtr<CefWindow> window) {
+    CreateOverlay();
+
+    if (DestroyBeforeShow()) {
+      DestroyOverlay();
+    }
+
+    window->Show();
+
+    if (DestroyAfterShow()) {
+      DestroyOverlay();
+    }
+  }
+
+  void RunWindowDestroyed(CefRefPtr<CefWindow> window) {
+    if (test_mode_ == OverlayTestMode::kDestroyAfterWindowDestroyExplicit) {
+      DestroyOverlay();
+    }
+  }
+
+  void CreateOverlay() {
+    // |view_| may be reused.
+    if (!view_) {
+      view_ = CefPanel::CreatePanel(nullptr);
+    }
+
+    // View is visible but not drawn.
+    EXPECT_EQ(nullptr, view_->GetWindow());
+    EXPECT_TRUE(view_->IsVisible());
+    EXPECT_FALSE(view_->IsDrawn());
+
+    EXPECT_FALSE(controller_);
+    controller_ = window()->AddOverlayView(view_, CEF_DOCKING_MODE_TOP_LEFT,
+                                           /*can_activate=*/false);
+
+    // View is visible/drawn (because it belongs to the controller), but the
+    // controller itself is not.
+    EXPECT_FALSE(controller_->IsVisible());
+    EXPECT_FALSE(controller_->IsDrawn());
+    EXPECT_TRUE(window()->IsSame(view_->GetWindow()));
+    EXPECT_TRUE(view_->IsVisible());
+    EXPECT_TRUE(view_->IsDrawn());
+
+    controller_->SetVisible(true);
+
+    EXPECT_TRUE(controller_->IsValid());
+    EXPECT_TRUE(controller_->GetContentsView()->IsSame(view_));
+    EXPECT_TRUE(controller_->GetWindow()->IsSame(window()));
+    EXPECT_EQ(CEF_DOCKING_MODE_TOP_LEFT, controller_->GetDockingMode());
+
+    // Controller is visible/drawn if the host window is drawn.
+    if (window()->IsDrawn()) {
+      EXPECT_TRUE(controller_->IsVisible());
+      EXPECT_TRUE(controller_->IsDrawn());
+    } else {
+      EXPECT_FALSE(controller_->IsVisible());
+      EXPECT_FALSE(controller_->IsDrawn());
+    }
+
+    EXPECT_TRUE(view_->IsVisible());
+    EXPECT_TRUE(view_->IsDrawn());
+  }
+
+  void DestroyOverlay() {
+    // Disassociates the controller from the view and host window.
+    controller_->Destroy();
+
+    EXPECT_FALSE(controller_->IsValid());
+    EXPECT_EQ(nullptr, controller_->GetContentsView());
+    EXPECT_EQ(nullptr, controller_->GetWindow());
+    EXPECT_FALSE(controller_->IsVisible());
+    EXPECT_FALSE(controller_->IsDrawn());
+
+    // View is still visible but no longer drawn (because it no longer belongs
+    // to the controller).
+    EXPECT_EQ(nullptr, view_->GetWindow());
+    EXPECT_TRUE(view_->IsVisible());
+    EXPECT_FALSE(view_->IsDrawn());
+
+    controller_ = nullptr;
+
+    if (AddAgain()) {
+      CreateOverlay();
+    }
+  }
+
+  OverlayTestMode const test_mode_;
+  CefRefPtr<CefView> view_;
+  CefRefPtr<CefOverlayController> controller_;
+};
+
+void WindowOverlay(OverlayTestMode test_mode,
+                   CefRefPtr<CefWaitableEvent> event) {
+  auto config = std::make_unique<TestWindowDelegate::Config>();
+  TestWindowDelegate::RunTest(
+      event, std::move(config),
+      base::BindOnce(&OverlayTestWindowDelegate::Factory, test_mode));
+}
+
+}  // namespace
+
+#define WINDOW_OVERLAY_TEST(name)                                     \
+  namespace {                                                         \
+  void WindowOverlay##name##Impl(CefRefPtr<CefWaitableEvent> event) { \
+    WindowOverlay(OverlayTestMode::k##name, event);                   \
+  }                                                                   \
+  }                                                                   \
+  WINDOW_TEST_ASYNC(WindowOverlay##name)
+
+WINDOW_OVERLAY_TEST(DestroyAfterWindowDestroyImplicit)
+WINDOW_OVERLAY_TEST(DestroyAfterWindowDestroyExplicit)
+WINDOW_OVERLAY_TEST(DestroyBeforeWindowShow)
+WINDOW_OVERLAY_TEST(DestroyBeforeWindowShowAndAddAgain)
+WINDOW_OVERLAY_TEST(DestroyAfterWindowShow)
+WINDOW_OVERLAY_TEST(DestroyAfterWindowShowAndAddAgain)
