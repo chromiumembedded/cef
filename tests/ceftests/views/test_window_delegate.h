@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_callback_helpers.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_waitable_event.h"
 #include "include/views/cef_window.h"
@@ -41,6 +42,11 @@ class TestWindowDelegate : public CefWindowDelegate {
     cef_show_state_t initial_show_state = CEF_SHOW_STATE_NORMAL;
   };
 
+  using TestWindowDelegateFactory =
+      base::OnceCallback<TestWindowDelegate*(CefRefPtr<CefWaitableEvent> event,
+                                             std::unique_ptr<Config> config,
+                                             const CefSize& window_size)>;
+
   // Creates a Window with a new TestWindowDelegate instance and executes
   // |window_test| after the Window is created. |event| will be signaled once
   // the Window is closed. If |frameless| is true the Window will be created
@@ -48,7 +54,8 @@ class TestWindowDelegate : public CefWindowDelegate {
   // immediately after |window_test| returns. Otherwise, the caller is
   // responsible for closing the Window passed to |window_test|.
   static void RunTest(CefRefPtr<CefWaitableEvent> event,
-                      std::unique_ptr<Config> config);
+                      std::unique_ptr<Config> config,
+                      TestWindowDelegateFactory factory = base::NullCallback());
 
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
@@ -63,12 +70,16 @@ class TestWindowDelegate : public CefWindowDelegate {
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
 
- private:
+ protected:
   TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
                      std::unique_ptr<Config> config,
                      const CefSize& window_size);
   ~TestWindowDelegate() override;
 
+  Config* config() const { return config_.get(); }
+  CefRefPtr<CefWindow> window() const { return window_; }
+
+ private:
   void OnCloseWindow();
   void OnTimeoutWindow();
 

@@ -110,6 +110,9 @@ class CefWindowView
       cef_docking_mode_t docking_mode,
       bool can_activate);
 
+  // Called from CefOverlayViewHost::Cleanup().
+  void RemoveOverlayView(CefOverlayViewHost* host, views::View* host_view);
+
   // Set/get the draggable regions.
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   SkRegion* draggable_region() const { return draggable_region_.get(); }
@@ -137,7 +140,7 @@ class CefWindowView
   views::Widget* host_widget() const;
 
  private:
-  // Called when removed from the Widget and before |this| is deleted.
+  // Called after Widget teardown starts, before |this| is deleted.
   void DeleteDelegate();
 
   void MoveOverlaysIfNecessary();
@@ -165,7 +168,7 @@ class CefWindowView
   std::unique_ptr<WidgetDestructionObserver> host_widget_destruction_observer_;
 
   // Hosts for overlay widgets.
-  std::vector<std::unique_ptr<CefOverlayViewHost>> overlay_hosts_;
+  std::vector<CefOverlayViewHost*> overlay_hosts_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WINDOW_VIEW_H_
