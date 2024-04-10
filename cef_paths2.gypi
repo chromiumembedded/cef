@@ -315,6 +315,7 @@
       'tests/cefclient/resources/binary_transfer.html',
       'tests/cefclient/resources/binding.html',
       'tests/cefclient/resources/dialogs.html',
+      'tests/cefclient/resources/draggable.html',
       'tests/cefclient/resources/hang.html',
       'tests/cefclient/resources/ipc_performance.html',
       'tests/cefclient/resources/localstorage.html',
