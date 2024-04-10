@@ -12,6 +12,7 @@
 #include "include/views/cef_view.h"
 
 #include "ui/views/view_observer.h"
+#include "ui/views/widget/unique_widget_ptr.h"
 #include "ui/views/widget/widget_delegate.h"
 
 class CefWindowView;
@@ -34,7 +35,7 @@ class CefOverlayViewHost : public views::WidgetDelegate,
   // relative to views with layers and views with associated NativeViews.
   void Init(views::View* host_view, CefRefPtr<CefView> view, bool can_activate);
 
-  void Destroy();
+  void Close();
 
   void MoveIfNecessary();
 
@@ -55,17 +56,22 @@ class CefOverlayViewHost : public views::WidgetDelegate,
  private:
   gfx::Rect ComputeBounds() const;
 
+  void Cleanup();
+
   // The CefWindowView that created us.
-  CefWindowView* const window_view_;
+  CefWindowView* window_view_;
 
   const cef_docking_mode_t docking_mode_;
+
+  // The host view that the overlay is positioned relative to.
+  views::View* host_view_ = nullptr;
 
   // Our view, which is responsible for drawing the UI.
   views::View* view_ = nullptr;
 
   // The Widget implementation that is created and maintained by the overlay.
   // It contains |view_|.
-  std::unique_ptr<views::Widget> widget_;
+  views::UniqueWidgetPtr widget_;
 
   CefRefPtr<CefOverlayController> cef_controller_;
 
