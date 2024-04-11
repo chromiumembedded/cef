@@ -29,6 +29,7 @@
       'include/base/cef_weak_ptr.h',
       'include/base/internal/cef_bind_internal.h',
       'include/base/internal/cef_callback_internal.h',
+      'include/base/internal/cef_color_id_macros.inc',
       'include/base/internal/cef_lock_impl.h',
       'include/base/internal/cef_raw_scoped_refptr_mismatch_checker.h',
       'include/base/internal/cef_scoped_policy.h',
