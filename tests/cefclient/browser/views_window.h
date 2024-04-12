@@ -184,6 +184,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) override;
   bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
                          float* titlebar_height) override;
+  cef_state_t AcceptsFirstMouse(CefRefPtr<CefWindow> window) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanMaximize(CefRefPtr<CefWindow> window) override;
   bool CanMinimize(CefRefPtr<CefWindow> window) override;
@@ -268,6 +269,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool use_window_modal_dialog_;
   bool use_bottom_controls_;
   bool hide_pip_frame_;
+  bool accepts_first_mouse_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;

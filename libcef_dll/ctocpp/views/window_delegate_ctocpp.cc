@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=18fd259f012c67956bda267a62d0e30971c696ca$
+// $hash=e7548cf2202aa3827f45c56a706f735606db1f83$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
@@ -361,6 +361,32 @@ bool CefWindowDelegateCToCpp::GetTitlebarHeight(CefRefPtr<CefWindow> window,
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_state_t CefWindowDelegateCToCpp::AcceptsFirstMouse(
+    CefRefPtr<CefWindow> window) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, accepts_first_mouse)) {
+    return STATE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return STATE_DEFAULT;
+  }
+
+  // Execute
+  cef_state_t _retval =
+      _struct->accepts_first_mouse(_struct, CefWindowCppToC::Wrap(window));
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

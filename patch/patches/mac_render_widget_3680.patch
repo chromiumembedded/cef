@@ -1,0 +1,33 @@
+diff --git content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
+index 5649f120ccefa..c6c1a676a24cf 100644
+--- content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
++++ content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
+@@ -164,6 +164,13 @@ void ExtractUnderlines(NSAttributedString* string,
+
+ // RenderWidgetHostViewCocoa ---------------------------------------------------
+
++@interface NSWindow (CefCustomMethods)
++- (int)acceptsFirstMouse;
++@end
++
++constexpr int kStateEnabled = 1;
++constexpr int kStateDisabled = 2;
++
+ // Private methods:
+ @interface RenderWidgetHostViewCocoa ()
+
+@@ -744,6 +751,14 @@ void ExtractUnderlines(NSAttributedString* string,
+ }
+
+ - (BOOL)acceptsFirstMouse:(NSEvent*)theEvent {
++  if ([self.window respondsToSelector:@selector(acceptsFirstMouse)]) {
++    const auto mode = [self.window acceptsFirstMouse];
++    if (mode == kStateEnabled) {
++      return YES;
++    } else if (mode == kStateDisabled) {
++      return NO;
++    }
++  }
+   return [self acceptsMouseEventsWhenInactive];
+ }
+

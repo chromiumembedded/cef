@@ -905,6 +905,13 @@ bool ViewsWindow::GetTitlebarHeight(CefRefPtr<CefWindow> window,
   return false;
 }
 
+cef_state_t ViewsWindow::AcceptsFirstMouse(CefRefPtr<CefWindow> window) {
+  if (accepts_first_mouse_) {
+    return STATE_ENABLED;
+  }
+  return STATE_DEFAULT;
+}
+
 bool ViewsWindow::CanResize(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   // Only allow resize of normal and DevTools windows.
@@ -1110,6 +1117,7 @@ ViewsWindow::ViewsWindow(WindowType type,
   const bool hide_toolbar = hide_overlays && !with_controls_;
   const bool show_window_buttons =
       command_line->HasSwitch(switches::kShowWindowButtons);
+  accepts_first_mouse_ = command_line->HasSwitch(switches::kAcceptsFirstMouse);
 
   // Without a window frame.
   frameless_ = hide_frame || type_ == WindowType::EXTENSION;
