@@ -34,10 +34,10 @@ def MakeFileSegment(input, all_names):
   #   #define IDR_RESOURCE_NAME 12345
   # [1] See https://crbug.com/684788#c18
 
-  regex = '#define\s([A-Za-z0-9_]{1,})\s+'
+  regex = r'#define\s([A-Za-z0-9_]{1,})\s+'
   if contents.find('ui::WhitelistedResource') > 0:
-    regex += '.*<'
-  regex += '([0-9]{1,})'
+    regex += r'.*<'
+  regex += r'([0-9]{1,})'
 
   # identify the defines in the file
   p = re.compile(regex)
