@@ -133,11 +133,11 @@ class cef_api_hash:
   def __parse_objects(self, content):
     """ Returns array of objects in content file. """
     objects = []
-    content = re.sub("//.*\n", "", content)
+    content = re.sub(r"//.*\n", "", content)
 
     # function declarations
     for m in re.finditer(
-        "\nCEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;",
+        r"\nCEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;",
         content,
         flags=re.DOTALL):
       object = {"name": m.group(1), "text": m.group(0).strip()}
@@ -145,7 +145,7 @@ class cef_api_hash:
 
     # structs
     for m in re.finditer(
-        "\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;",
+        r"\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;",
         content,
         flags=re.DOTALL):
       object = {"name": m.group(2), "text": m.group(0).strip()}
@@ -153,12 +153,12 @@ class cef_api_hash:
 
     # enums
     for m in re.finditer(
-        "\ntypedef\s+?enum\s+?\{.*?\}\s+?(\w+)\s*?;", content, flags=re.DOTALL):
+        r"\ntypedef\s+?enum\s+?\{.*?\}\s+?(\w+)\s*?;", content, flags=re.DOTALL):
       object = {"name": m.group(1), "text": m.group(0).strip()}
       objects.append(object)
 
     # typedefs
-    for m in re.finditer("\ntypedef\s+?.*?\s+(\w+);", content, flags=0):
+    for m in re.finditer(r"\ntypedef\s+?.*?\s+(\w+);", content, flags=0):
       object = {"name": m.group(1), "text": m.group(0).strip()}
       objects.append(object)
 
@@ -168,7 +168,7 @@ class cef_api_hash:
     """ Grab defined CEF_STRING_TYPE_xxx """
     objects = []
     for m in re.finditer(
-        "\n\s*?#\s*?define\s+?(CEF_STRING_TYPE_\w+)\s+?.*?\n", content,
+        r"\n\s*?#\s*?define\s+?(CEF_STRING_TYPE_\w+)\s+?.*?\n", content,
         flags=0):
       object = {
           "name": m.group(1),
@@ -179,8 +179,8 @@ class cef_api_hash:
 
   def __prepare_text(self, text):
     text = text.strip()
-    text = re.sub("\s+", " ", text)
-    text = re.sub("\(\s+", "(", text)
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\(\s+", "(", text)
     return text
 
   def __get_final_sig(self, objects, platform):
