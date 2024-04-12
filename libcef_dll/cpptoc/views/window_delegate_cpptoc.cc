@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4350cb3f26c9b2a56bac5a0368eab19dff8659ae$
+// $hash=4d171663d78dd204b321d77248f44ed7f0d752b8$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
@@ -371,6 +371,31 @@ window_delegate_get_titlebar_height(struct _cef_window_delegate_t* self,
       CefWindowCToCpp::Wrap(window), titlebar_height);
 
   // Return type: bool
+  return _retval;
+}
+
+cef_state_t CEF_CALLBACK
+window_delegate_accepts_first_mouse(struct _cef_window_delegate_t* self,
+                                    cef_window_t* window) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return STATE_DEFAULT;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return STATE_DEFAULT;
+  }
+
+  // Execute
+  cef_state_t _retval = CefWindowDelegateCppToC::Get(self)->AcceptsFirstMouse(
+      CefWindowCToCpp::Wrap(window));
+
+  // Return type: simple
   return _retval;
 }
 
@@ -860,6 +885,7 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->with_standard_window_buttons =
       window_delegate_with_standard_window_buttons;
   GetStruct()->get_titlebar_height = window_delegate_get_titlebar_height;
+  GetStruct()->accepts_first_mouse = window_delegate_accepts_first_mouse;
   GetStruct()->can_resize = window_delegate_can_resize;
   GetStruct()->can_maximize = window_delegate_can_maximize;
   GetStruct()->can_minimize = window_delegate_can_minimize;

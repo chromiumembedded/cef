@@ -6,15 +6,22 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_NS_WINDOW_H_
 #pragma once
 
+#include "include/internal/cef_types.h"
+
 #include "components/remote_cocoa/app_shim/native_widget_mac_nswindow.h"
 
 @interface CefNSWindow : NativeWidgetMacNSWindow {
  @private
   bool is_frameless_;
+  cef_state_t accepts_first_mouse_;
 }
-- (id)initWithStyle:(NSUInteger)style_mask isFrameless:(bool)is_frameless;
+
+- (id)initWithStyle:(NSUInteger)style_mask
+          isFrameless:(bool)is_frameless
+    acceptsFirstMouse:(cef_state_t)accepts_first_mouse;
 
 - (BOOL)shouldCenterTrafficLights;
+- (int)acceptsFirstMouse;
 @end
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_NS_WINDOW_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a67a7b010e34bdda6ad0ecdf8da9bd6402689a6b$
+// $hash=c829c66e21b16f72c4af8421de518eaa89b5e8eb$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -56,6 +56,7 @@ class CefWindowDelegateCToCpp
   bool WithStandardWindowButtons(CefRefPtr<CefWindow> window) override;
   bool GetTitlebarHeight(CefRefPtr<CefWindow> window,
                          float* titlebar_height) override;
+  cef_state_t AcceptsFirstMouse(CefRefPtr<CefWindow> window) override;
   bool CanResize(CefRefPtr<CefWindow> window) override;
   bool CanMaximize(CefRefPtr<CefWindow> window) override;
   bool CanMinimize(CefRefPtr<CefWindow> window) override;

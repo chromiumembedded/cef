@@ -64,12 +64,15 @@
 
 @implementation CefNSWindow
 
-- (id)initWithStyle:(NSUInteger)style_mask isFrameless:(bool)is_frameless {
+- (id)initWithStyle:(NSUInteger)style_mask
+          isFrameless:(bool)is_frameless
+    acceptsFirstMouse:(cef_state_t)accepts_first_mouse {
   if ((self = [super initWithContentRect:ui::kWindowSizeDeterminedLater
                                styleMask:style_mask
                                  backing:NSBackingStoreBuffered
                                    defer:NO])) {
     is_frameless_ = is_frameless;
+    accepts_first_mouse_ = accepts_first_mouse;
   }
   return self;
 }
@@ -100,6 +103,10 @@
   }
 
   return [super frameViewClassForStyleMask:windowStyle];
+}
+
+- (int)acceptsFirstMouse {
+  return accepts_first_mouse_;
 }
 
 @end

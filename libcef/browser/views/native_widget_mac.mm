@@ -87,10 +87,12 @@ NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
       NSWindowStyleMaskClosable | NSWindowStyleMaskResizable |
       NSWindowStyleMaskTexturedBackground;
 
-  bool is_frameless = window_delegate_->IsFrameless(window_);
+  const bool is_frameless = window_delegate_->IsFrameless(window_);
+  const auto accepts_first_mouse = window_delegate_->AcceptsFirstMouse(window_);
 
   auto window = [[CefNSWindow alloc] initWithStyle:style_mask
-                                       isFrameless:is_frameless];
+                                       isFrameless:is_frameless
+                                 acceptsFirstMouse:accepts_first_mouse];
 
   if (is_frameless) {
     [window setTitlebarAppearsTransparent:YES];

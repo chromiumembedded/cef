@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=b292cdf6e293dfd42c30ea9189b2a8a2ed77ba7a$
+// $hash=e6bbc33db1b5ed3832982f8799e14557204f4028$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -181,6 +181,20 @@ typedef struct _cef_window_delegate_t {
   int(CEF_CALLBACK* get_titlebar_height)(struct _cef_window_delegate_t* self,
                                          struct _cef_window_t* window,
                                          float* titlebar_height);
+
+  ///
+  /// Return whether the view should accept the initial mouse-down event,
+  /// allowing it to respond to click-through behavior. If STATE_ENABLED is
+  /// returned, the view will be sent a mouseDown: message for an initial mouse-
+  /// down event, activating the view with one click, instead of clicking first
+  /// to make the window active and then clicking the view.
+  ///
+  /// This function is only supported on macOS. For more details, refer to the
+  /// documentation of acceptsFirstMouse.
+  ///
+  cef_state_t(CEF_CALLBACK* accepts_first_mouse)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window);
 
   ///
   /// Return true (1) if |window| can be resized.

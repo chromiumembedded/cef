@@ -177,6 +177,21 @@ class CefWindowDelegate : public CefPanelDelegate {
   }
 
   ///
+  /// Return whether the view should accept the initial mouse-down event,
+  /// allowing it to respond to click-through behavior. If STATE_ENABLED is
+  /// returned, the view will be sent a mouseDown: message for an initial
+  /// mouse-down event, activating the view with one click, instead of clicking
+  /// first to make the window active and then clicking the view.
+  ///
+  /// This method is only supported on macOS. For more details, refer to the
+  /// documentation of acceptsFirstMouse.
+  ///
+  /*--cef(default_retval=STATE_DEFAULT)--*/
+  virtual cef_state_t AcceptsFirstMouse(CefRefPtr<CefWindow> window) {
+    return STATE_DEFAULT;
+  }
+
+  ///
   /// Return true if |window| can be resized.
   ///
   /*--cef()--*/
