@@ -6,6 +6,7 @@
 // Otherwise there will be compile errors in wtf/MathExtras.h.
 #define _USE_MATH_DEFINES
 
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
@@ -49,6 +50,8 @@
 namespace {
 
 static const char kCefTrackObject[] = "Cef::TrackObject";
+constexpr int32_t kMaxInt32 = std::numeric_limits<int32_t>::max();
+constexpr uint32_t kMaxInt32AsUint32 = static_cast<uint32_t>(kMaxInt32);
 
 void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data);
@@ -1693,12 +1696,13 @@ bool CefV8ValueImpl::IsBool() {
 
 bool CefV8ValueImpl::IsInt() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(false);
-  return (type_ == TYPE_INT || type_ == TYPE_UINT);
+  return type_ == TYPE_INT ||
+         (type_ == TYPE_UINT && uint_value_ <= kMaxInt32AsUint32);
 }
 
 bool CefV8ValueImpl::IsUInt() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(false);
-  return (type_ == TYPE_INT || type_ == TYPE_UINT);
+  return type_ == TYPE_UINT || (type_ == TYPE_INT && int_value_ >= 0);
 }
 
 bool CefV8ValueImpl::IsDouble() {
@@ -1807,16 +1811,22 @@ bool CefV8ValueImpl::GetBoolValue() {
 
 int32_t CefV8ValueImpl::GetIntValue() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(0);
-  if (type_ == TYPE_INT || type_ == TYPE_UINT) {
+  if (type_ == TYPE_INT) {
     return int_value_;
+  }
+  if (type_ == TYPE_UINT && uint_value_ <= kMaxInt32AsUint32) {
+    return static_cast<int32_t>(uint_value_);
   }
   return 0;
 }
 
 uint32_t CefV8ValueImpl::GetUIntValue() {
   CEF_V8_REQUIRE_ISOLATE_RETURN(0);
-  if (type_ == TYPE_INT || type_ == TYPE_UINT) {
+  if (type_ == TYPE_UINT) {
     return uint_value_;
+  }
+  if (type_ == TYPE_INT && int_value_ >= 0) {
+    return static_cast<uint32_t>(int_value_);
   }
   return 0;
 }
