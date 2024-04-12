@@ -49,7 +49,9 @@ enum V8TestMode {
   V8TEST_NULL_CREATE,
   V8TEST_BOOL_CREATE,
   V8TEST_INT_CREATE,
+  V8TEST_NEGATIVE_INT_CREATE,
   V8TEST_UINT_CREATE,
+  V8TEST_BIG_UINT_CREATE,
   V8TEST_DOUBLE_CREATE,
   V8TEST_DATE_CREATE,
   V8TEST_STRING_CREATE,
@@ -120,8 +122,14 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       case V8TEST_INT_CREATE:
         RunIntCreateTest();
         break;
+      case V8TEST_NEGATIVE_INT_CREATE:
+        RunNegativeIntCreateTest();
+        break;
       case V8TEST_UINT_CREATE:
         RunUIntCreateTest();
+        break;
+      case V8TEST_BIG_UINT_CREATE:
+        RunBigUIntCreateTest();
         break;
       case V8TEST_DOUBLE_CREATE:
         RunDoubleCreateTest();
@@ -349,6 +357,29 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     DestroyTest();
   }
 
+  void RunNegativeIntCreateTest() {
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateInt(-12);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsInt());
+    EXPECT_TRUE(value->IsDouble());
+    EXPECT_EQ(-12, value->GetIntValue());
+    EXPECT_EQ(-12, value->GetDoubleValue());
+    EXPECT_EQ(0u, value->GetUIntValue());
+
+    EXPECT_FALSE(value->IsUInt());
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
   void RunUIntCreateTest() {
     CefRefPtr<CefV8Value> value = CefV8Value::CreateUInt(12);
     EXPECT_TRUE(value.get());
@@ -359,6 +390,30 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_EQ((uint32_t)12, value->GetUIntValue());
     EXPECT_EQ(12, value->GetDoubleValue());
 
+    EXPECT_FALSE(value->IsUndefined());
+    EXPECT_FALSE(value->IsArray());
+    EXPECT_FALSE(value->IsBool());
+    EXPECT_FALSE(value->IsDate());
+    EXPECT_FALSE(value->IsFunction());
+    EXPECT_FALSE(value->IsNull());
+    EXPECT_FALSE(value->IsObject());
+    EXPECT_FALSE(value->IsPromise());
+    EXPECT_FALSE(value->IsString());
+
+    DestroyTest();
+  }
+
+  void RunBigUIntCreateTest() {
+    uint32_t big_value = 2147483648u;
+    CefRefPtr<CefV8Value> value = CefV8Value::CreateUInt(big_value);
+    EXPECT_TRUE(value.get());
+    EXPECT_TRUE(value->IsUInt());
+    EXPECT_TRUE(value->IsDouble());
+    EXPECT_EQ(big_value, value->GetUIntValue());
+    EXPECT_EQ(big_value, value->GetDoubleValue());
+    EXPECT_EQ(0, value->GetIntValue());
+
+    EXPECT_FALSE(value->IsInt());
     EXPECT_FALSE(value->IsUndefined());
     EXPECT_FALSE(value->IsArray());
     EXPECT_FALSE(value->IsBool());
@@ -3355,7 +3410,9 @@ void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
 V8_TEST(NullCreate, V8TEST_NULL_CREATE)
 V8_TEST(BoolCreate, V8TEST_BOOL_CREATE)
 V8_TEST(IntCreate, V8TEST_INT_CREATE)
+V8_TEST(NegativeIntCreate, V8TEST_NEGATIVE_INT_CREATE)
 V8_TEST(UIntCreate, V8TEST_UINT_CREATE)
+V8_TEST(BigUIntCreate, V8TEST_BIG_UINT_CREATE)
 V8_TEST(DoubleCreate, V8TEST_DOUBLE_CREATE)
 V8_TEST(DateCreate, V8TEST_DATE_CREATE)
 V8_TEST(StringCreate, V8TEST_STRING_CREATE)
