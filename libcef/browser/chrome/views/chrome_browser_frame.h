@@ -9,6 +9,7 @@
 #include "libcef/browser/views/color_provider_tracker.h"
 #include "libcef/browser/views/widget.h"
 
+#include "base/memory/weak_ptr.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_frame.h"
 
@@ -136,6 +137,8 @@ class ChromeBrowserFrame : public BrowserFrame,
   // CefColorProviderTracker::Observer methods:
   void OnColorProviderCacheResetMissed() override;
 
+  void NotifyThemeColorsChanged(bool chrome_theme);
+
   CefWindowView* window_view_;
   BrowserView* browser_view_ = nullptr;
 
@@ -143,6 +146,8 @@ class ChromeBrowserFrame : public BrowserFrame,
   bool native_theme_change_ = false;
 
   CefColorProviderTracker color_provider_tracker_{this};
+
+  base::WeakPtrFactory<ChromeBrowserFrame> weak_ptr_factory_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_

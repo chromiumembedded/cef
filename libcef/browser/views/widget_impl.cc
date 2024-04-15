@@ -4,6 +4,7 @@
 
 #include "libcef/browser/views/widget_impl.h"
 
+#include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_view.h"
 #include "libcef/features/runtime.h"
 
@@ -226,7 +227,9 @@ void CefWidgetImpl::NotifyThemeColorsChanged(bool chrome_theme,
   if (window_view_) {
     window_view_->OnThemeColorsChanged(chrome_theme);
     if (call_theme_changed) {
-      ThemeChanged();
+      // Call ThemeChanged() asynchronously to avoid possible reentrancy.
+      CEF_POST_TASK(TID_UI, base::BindOnce(&CefWidgetImpl::ThemeChanged,
+                                           weak_ptr_factory_.GetWeakPtr()));
     }
   }
 }
