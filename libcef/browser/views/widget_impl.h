@@ -11,6 +11,7 @@
 #include "libcef/browser/views/color_provider_tracker.h"
 #include "libcef/browser/views/widget.h"
 
+#include "base/memory/weak_ptr.h"
 #include "chrome/browser/themes/theme_service_observer.h"
 #include "ui/views/widget/widget.h"
 
@@ -91,6 +92,8 @@ class CefWidgetImpl : public views::Widget,
   ProfileMap associated_profiles_;
 
   CefColorProviderTracker color_provider_tracker_{this};
+
+  base::WeakPtrFactory<CefWidgetImpl> weak_ptr_factory_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WIDGET_IMPL_H_

@@ -5,6 +5,7 @@
 #include "libcef/browser/chrome/views/chrome_browser_frame.h"
 
 #include "libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/window_view.h"
 
 #include "chrome/browser/themes/theme_service.h"
@@ -93,10 +94,7 @@ void ChromeBrowserFrame::UserChangedTheme(
   // Calls ThemeChanged() and possibly SelectNativeTheme().
   BrowserFrame::UserChangedTheme(theme_change_type);
 
-  if (window_view_) {
-    window_view_->OnThemeColorsChanged(/*chrome_theme=*/!native_theme_change_);
-    ThemeChanged();
-  }
+  NotifyThemeColorsChanged(/*chrome_theme=*/!native_theme_change_);
 }
 
 views::internal::RootView* ChromeBrowserFrame::CreateRootView() {
@@ -156,8 +154,15 @@ void ChromeBrowserFrame::OnColorProviderCacheResetMissed() {
     return;
   }
 
+  NotifyThemeColorsChanged(/*chrome_theme=*/false);
+}
+
+void ChromeBrowserFrame::NotifyThemeColorsChanged(bool chrome_theme) {
   if (window_view_) {
-    window_view_->OnThemeColorsChanged(/*chrome_theme=*/false);
-    ThemeChanged();
+    window_view_->OnThemeColorsChanged(chrome_theme);
+
+    // Call ThemeChanged() asynchronously to avoid possible reentrancy.
+    CEF_POST_TASK(TID_UI, base::BindOnce(&ChromeBrowserFrame::ThemeChanged,
+                                         weak_ptr_factory_.GetWeakPtr()));
   }
 }
