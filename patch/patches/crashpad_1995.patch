@@ -262,10 +262,10 @@ index a604df7a5ea6a..618fbde10a65c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index a18afed5b55c1..fabb36a299cd9 100644
+index 7378f6f7b0414..bd07125847234 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -129,7 +129,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -136,7 +136,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
