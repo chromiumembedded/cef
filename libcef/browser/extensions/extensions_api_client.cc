@@ -13,7 +13,7 @@
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 
 #include "base/memory/ptr_util.h"
-#include "chrome/browser/printing/print_view_manager.h"
+#include "chrome/browser/printing/printing_init.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/zoom/zoom_controller.h"
 #include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
@@ -47,7 +47,7 @@ CefExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
 void CefExtensionsAPIClient::AttachWebContentsHelpers(
     content::WebContents* web_contents) const {
   PrefsTabHelper::CreateForWebContents(web_contents);
-  printing::PrintViewManager::CreateForWebContents(web_contents);
+  printing::InitializePrintingForWebContents(web_contents);
 
   // Used by the tabs extension API.
   zoom::ZoomController::CreateForWebContents(web_contents);

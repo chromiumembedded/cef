@@ -38,6 +38,7 @@
 
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types_geometry.h"
+#include "include/internal/cef_types_runtime.h"
 
 // Handle types.
 #define cef_cursor_handle_t HCURSOR
@@ -102,6 +103,13 @@ typedef struct _cef_window_info_t {
   /// Handle for the new browser window. Only used with windowed rendering.
   ///
   cef_window_handle_t window;
+
+  ///
+  /// Optionally change the runtime style. Alloy style will always be used if
+  /// |windowless_rendering_enabled| is true. See cef_runtime_style_t
+  /// documentation for details.
+  ///
+  cef_runtime_style_t runtime_style;
 } cef_window_info_t;
 
 #ifdef __cplusplus

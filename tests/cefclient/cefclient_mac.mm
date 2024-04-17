@@ -221,7 +221,7 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
       RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetFPS:));
       RemoveMenuItem(tests_menu.submenu, @selector(menuTestsSetScaleFactor:));
     }
-    if (!main_context->UseViews()) {
+    if (!main_context->UseViewsGlobal()) {
       // Remove the Views-related menu items when not using Views.
       RemoveMenuItem(tests_menu.submenu, @selector(menuTestsWindowDialog:));
     }

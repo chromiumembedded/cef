@@ -1,14 +1,19 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index d182bc1b7bff2..e4f54b6d2be24 100644
+index d182bc1b7bff2..e7c0d5b03ede7 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -361,6 +361,13 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -361,6 +361,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
-+
 +RenderViewContextMenu::MenuCreatedCallback* GetMenuCreatedCallback() {
 +  static base::NoDestructor<RenderViewContextMenu::MenuCreatedCallback>
++      callback;
++  return callback.get();
++}
++
++RenderViewContextMenu::MenuShowHandlerCallback* GetMenuShowHandlerCallback() {
++  static base::NoDestructor<RenderViewContextMenu::MenuShowHandlerCallback>
 +      callback;
 +  return callback.get();
 +}
@@ -16,7 +21,7 @@ index d182bc1b7bff2..e4f54b6d2be24 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -618,6 +625,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -618,6 +630,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
    if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
      return 1;
  
@@ -27,7 +32,7 @@ index d182bc1b7bff2..e4f54b6d2be24 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -867,6 +878,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -867,6 +883,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
  
@@ -42,7 +47,7 @@ index d182bc1b7bff2..e4f54b6d2be24 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1341,6 +1360,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1341,6 +1365,12 @@ void RenderViewContextMenu::InitMenu() {
            autofill::PopupHidingReason::kContextMenuOpened);
      }
    }
@@ -55,7 +60,7 @@ index d182bc1b7bff2..e4f54b6d2be24 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3564,6 +3589,12 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3564,6 +3594,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -65,14 +70,28 @@ index d182bc1b7bff2..e4f54b6d2be24 100644
 +  *GetMenuCreatedCallback() = cb;
 +}
 +
++// static
++void RenderViewContextMenu::RegisterMenuShowHandlerCallback(
++    MenuShowHandlerCallback cb) {
++  *GetMenuShowHandlerCallback() = cb;
++}
++
++bool RenderViewContextMenu::UseShowHandler() {
++  auto* cb = GetMenuShowHandlerCallback();
++  if (!cb->is_null() && cb->Run(this)) {
++    return true;
++  }
++  return false;
++}
++
  custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 9634f1d7f3442..1187aec354b15 100644
+index 9634f1d7f3442..96dc5f252280c 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -158,6 +158,12 @@ class RenderViewContextMenu
+@@ -158,7 +158,21 @@ class RenderViewContextMenu
    }
  #endif
  
@@ -82,10 +101,19 @@ index 9634f1d7f3442..1187aec354b15 100644
 +      std::unique_ptr<RenderViewContextMenuObserver>(RenderViewContextMenu*)>;
 +  static void RegisterMenuCreatedCallback(MenuCreatedCallback cb);
 +
++  // Registers a callback that will be called each time before context menu is
++  // shown. The callback should return true if the show has handled.
++  using MenuShowHandlerCallback = base::RepeatingCallback<
++      bool(RenderViewContextMenu*)>;
++  static void RegisterMenuShowHandlerCallback(MenuShowHandlerCallback cb);
++
   protected:
++  bool UseShowHandler();
++
    Profile* GetProfile() const;
  
-@@ -470,6 +476,9 @@ class RenderViewContextMenu
+   // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
+@@ -470,6 +484,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -95,8 +123,23 @@ index 9634f1d7f3442..1187aec354b15 100644
    // An observer that handles spelling suggestions, "Add to dictionary", and
    // "Use enhanced spell check" items.
    std::unique_ptr<SpellingMenuObserver> spelling_suggestions_menu_observer_;
+diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
+index b130e9768c2d6..049c5fb235d87 100644
+--- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
++++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
+@@ -68,6 +68,10 @@ RenderViewContextMenuMacCocoa::~RenderViewContextMenuMacCocoa() {
+ }
+ 
+ void RenderViewContextMenuMacCocoa::Show() {
++  if (UseShowHandler()) {
++    return;
++  }
++
+   views::Widget* widget = views::Widget::GetTopLevelWidgetForNativeView(
+       source_web_contents_->GetNativeView());
+ 
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index c88a77a0b49e2..785ded198741e 100644
+index c88a77a0b49e2..d1af9a85c4ec6 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -149,6 +149,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
@@ -109,6 +152,17 @@ index c88a77a0b49e2..785ded198741e 100644
    // There are no formally defined accelerators we can query so we assume
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
+@@ -385,6 +388,10 @@ void RenderViewContextMenuViews::AppendPlatformEditableItems() {
+ }
+ 
+ void RenderViewContextMenuViews::Show() {
++  if (UseShowHandler()) {
++    return;
++  }
++
+   if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kKioskMode))
+     return;
+ 
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
 index c49b49d76d7cc..842a6fae5d8e4 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc

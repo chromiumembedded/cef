@@ -26,6 +26,8 @@ class ChromeMimeHandlerViewGuestDelegateCef
   // MimeHandlerViewGuestDelegate methods.
   void OnGuestAttached() override;
   void OnGuestDetached() override;
+  bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
+                         const content::ContextMenuParams& params) override;
 
  private:
   MimeHandlerViewGuest* guest_;  // Owns us.

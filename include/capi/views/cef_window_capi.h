@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2abb3759a22a95ffc0207f0538c645a74a5030c6$
+// $hash=dd32b58ec9aca0e04a1d30ccf94a741995fcc094$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -401,6 +401,13 @@ typedef struct _cef_window_t {
   /// or cef_view_delegate_t::OnThemeChanged.
   ///
   void(CEF_CALLBACK* theme_changed)(struct _cef_window_t* self);
+
+  ///
+  /// Returns the runtime style for this Window (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_runtime_style)(
+      struct _cef_window_t* self);
 } cef_window_t;
 
 ///

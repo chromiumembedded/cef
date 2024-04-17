@@ -93,6 +93,7 @@ class CefWindowImpl
   void RemoveAllAccelerators() override;
   void SetThemeColor(int color_id, cef_color_t color) override;
   void ThemeChanged() override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 
   // CefViewAdapter methods:
   void Detach() override;

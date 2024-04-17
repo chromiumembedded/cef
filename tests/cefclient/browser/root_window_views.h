@@ -25,7 +25,7 @@ class RootWindowViews : public RootWindow,
   // Constructor may be called on any thread. |parent_window| will be
   // non-nullptr for popup browsers with a RootWindow parent (called on the UI
   // thread only).
-  explicit RootWindowViews(RootWindowViews* parent_window);
+  explicit RootWindowViews(bool use_alloy_style);
   ~RootWindowViews() override;
 
   void SetTitlebarHeight(const std::optional<float>& height);
@@ -76,6 +76,8 @@ class RootWindowViews : public RootWindow,
 
  protected:
   // ClientHandler::Delegate methods:
+  bool UseViews() const override { return true; }
+  bool UseAlloyStyle() const override { return IsAlloyStyle(); }
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserClosing(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserClosed(CefRefPtr<CefBrowser> browser) override;

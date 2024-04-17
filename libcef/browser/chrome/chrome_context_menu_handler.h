@@ -6,10 +6,20 @@
 #define CEF_LIBCEF_BROWSER_CHROME_CHROME_CONTEXT_MENU_HANDLER_H_
 #pragma once
 
+#include "content/public/browser/context_menu_params.h"
+
+namespace content {
+class WebContents;
+}
+
 namespace context_menu {
 
-// Register the context menu created callback.
-void RegisterMenuCreatedCallback();
+// Register RenderViewContextMenu callbacks.
+void RegisterCallbacks();
+
+// Returns true if the menu was handled.
+bool HandleContextMenu(content::WebContents* opener,
+                       const content::ContextMenuParams& params);
 
 }  // namespace context_menu
 

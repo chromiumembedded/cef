@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b7d2905473b08d50a876b01f9e6a275316166c72$
+// $hash=2c3b8a886e7955b9eb9d36f22cdf222897c18b16$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_
@@ -57,6 +57,7 @@ class CefBrowserViewDelegateCToCpp
       CefRefPtr<CefBrowserView> browser_view) override;
   bool OnGestureCommand(CefRefPtr<CefBrowserView> browser_view,
                         cef_gesture_command_t gesture_command) override;
+  cef_runtime_style_t GetBrowserRuntimeStyle() override;
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;

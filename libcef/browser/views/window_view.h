@@ -139,6 +139,9 @@ class CefWindowView
   // during initialization and destruction.
   views::Widget* host_widget() const;
 
+  bool IsAlloyStyle() const { return is_alloy_style_; }
+  bool IsChromeStyle() const { return !is_alloy_style_; }
+
  private:
   // Called after Widget teardown starts, before |this| is deleted.
   void DeleteDelegate();
@@ -150,6 +153,9 @@ class CefWindowView
 
   // Not owned by this object.
   Delegate* window_delegate_;
+
+  // True if the window is Alloy style, otherwise Chrome style.
+  const bool is_alloy_style_;
 
   // True if the window is frameless. It might still be resizable and draggable.
   bool is_frameless_ = false;

@@ -81,8 +81,9 @@ void MaximizeWindow(GtkWindow* window) {
 
 }  // namespace
 
-RootWindowGtk::RootWindowGtk()
-    : with_controls_(false),
+RootWindowGtk::RootWindowGtk(bool use_alloy_style)
+    : RootWindow(use_alloy_style),
+      with_controls_(false),
       always_on_top_(false),
       with_osr_(false),
       with_extension_(false),

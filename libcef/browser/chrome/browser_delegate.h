@@ -39,15 +39,16 @@ class BrowserDelegate : public content::WebContentsDelegate {
       scoped_refptr<CreateParams> cef_params,
       const Browser* opener);
 
-  ~BrowserDelegate() override = default;
-
   // Optionally override Browser creation in
   // DevToolsWindow::CreateDevToolsBrowser. The returned Browser, if any, will
   // take ownership of |devtools_contents|.
-  virtual Browser* CreateDevToolsBrowser(
+  static Browser* CreateDevToolsBrowser(
       Profile* profile,
       Browser* opener,
-      std::unique_ptr<content::WebContents>& devtools_contents) = 0;
+      content::WebContents* inspected_web_contents,
+      std::unique_ptr<content::WebContents>& devtools_contents);
+
+  ~BrowserDelegate() override = default;
 
   // Optionally override chrome::AddWebContents behavior. This is most often
   // called via Browser::AddNewContents for new popup browsers and provides an

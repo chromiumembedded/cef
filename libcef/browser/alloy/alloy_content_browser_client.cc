@@ -13,6 +13,7 @@
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/alloy/alloy_browser_main.h"
 #include "libcef/browser/alloy/alloy_web_contents_view_delegate.h"
+#include "libcef/browser/alloy/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_frame.h"
 #include "libcef/browser/browser_info.h"
@@ -21,7 +22,6 @@
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/certificate_query.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
@@ -625,10 +625,6 @@ void AlloyContentBrowserClient::AppendExtraCommandLineSwitches(
           process ? CefBrowserContext::FromBrowserContext(browser_context)
                   : nullptr;
       if (cef_browser_context) {
-        if (cef_browser_context->IsPrintPreviewSupported()) {
-          command_line->AppendSwitch(switches::kEnablePrintPreview);
-        }
-
         // Based on ChromeContentBrowserClientExtensionsPart::
         // AppendExtraRendererCommandLineSwitches
         if (extensions::ProcessMap::Get(browser_context)

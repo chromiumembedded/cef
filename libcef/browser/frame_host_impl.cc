@@ -41,7 +41,7 @@ void ViewTextCallback(CefRefPtr<CefFrameHostImpl> frame,
         std::move(response),
         base::BindOnce(
             [](CefRefPtr<CefBrowser> browser, const CefString& str) {
-              static_cast<CefBrowserHostBase*>(browser.get())->ViewText(str);
+              CefBrowserHostBase::FromBrowser(browser)->ViewText(str);
             },
             browser));
   }
@@ -674,7 +674,7 @@ void CefFrameHostImpl::FrameAttached(
       base::BindOnce(&CefFrameHostImpl::OnRenderFrameDisconnect, this));
 
   // Notify the renderer process that it can start sending messages.
-  render_frame_->FrameAttachedAck();
+  render_frame_->FrameAttachedAck(/*allow=*/true);
 
   while (!queued_renderer_actions_.empty()) {
     std::move(queued_renderer_actions_.front().second).Run(render_frame_);

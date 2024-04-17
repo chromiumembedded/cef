@@ -14,7 +14,6 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/frame_util.h"
-#include "libcef/features/runtime.h"
 
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
@@ -394,10 +393,6 @@ CefRefPtr<CefExtension> CefBrowserContext::GetExtension(
 bool CefBrowserContext::UnloadExtension(const CefString& extension_id) {
   NOTIMPLEMENTED();
   return false;
-}
-
-bool CefBrowserContext::IsPrintPreviewSupported() const {
-  return true;
 }
 
 network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {

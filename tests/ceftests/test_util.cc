@@ -15,6 +15,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/common/client_switches.h"
 #include "tests/shared/common/string_util.h"
 
 void TestMapEqual(const CefRequest::HeaderMap& map1,
@@ -290,17 +291,81 @@ bool TestOldResourceAPI() {
   return state;
 }
 
-bool IsChromeRuntimeEnabled() {
+bool IsChromeBootstrap() {
   static bool state = []() {
     return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-        "enable-chrome-runtime");
+        client::switches::kEnableChromeRuntime);
   }();
   return state;
 }
 
+bool UseViewsGlobal() {
+  static bool use_views = []() {
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        client::switches::kUseViews);
+  }();
+  return use_views;
+}
+
+bool UseAlloyStyleBrowserGlobal() {
+  static bool use_alloy_style = []() {
+    if (!IsChromeBootstrap()) {
+      // Alloy runtime always uses Alloy style.
+      return true;
+    }
+    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+        client::switches::kUseAlloyStyle);
+  }();
+  return use_alloy_style;
+}
+
+bool UseAlloyStyleWindowGlobal() {
+  static bool use_alloy_style = []() {
+    if (!IsChromeBootstrap()) {
+      // Alloy runtime always uses Alloy style.
+      return true;
+    }
+    auto command_line = CefCommandLine::GetGlobalCommandLine();
+    return command_line->HasSwitch(client::switches::kUseAlloyStyle) &&
+           !command_line->HasSwitch(client::switches::kUseChromeStyleWindow);
+  }();
+  return use_alloy_style;
+}
+
+std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,
+                                    CefRefPtr<CefBrowserView> browser_view) {
+  std::string title = "CefTest - Views - ";
+  if (IsChromeBootstrap()) {
+    std::string window_style =
+        window->GetRuntimeStyle() == CEF_RUNTIME_STYLE_CHROME ? "Chrome"
+                                                              : "Alloy";
+    title += "Chrome - " + window_style + " Window";
+    if (browser_view) {
+      std::string browser_style =
+          browser_view->GetRuntimeStyle() == CEF_RUNTIME_STYLE_CHROME ? "Chrome"
+                                                                      : "Alloy";
+      title += " - " + browser_style + " BrowserView";
+    }
+  } else {
+    title += "Alloy";
+  }
+  return title;
+}
+
+std::string ComputeNativeWindowTitle(bool use_alloy_style) {
+  std::string title = "CefTest - Native - ";
+  if (IsChromeBootstrap()) {
+    title += "Chrome - ";
+    title += use_alloy_style ? "Alloy Browser" : "Chrome Browser";
+  } else {
+    title += "Alloy";
+  }
+  return title;
+}
+
 bool IsBFCacheEnabled() {
   // Supported by the Chrome runtime only, see issue #3237.
-  if (!IsChromeRuntimeEnabled()) {
+  if (!IsChromeBootstrap()) {
     return false;
   }
 
@@ -320,8 +385,7 @@ bool IsSameSiteBFCacheEnabled() {
 }
 
 bool IgnoreURL(const std::string& url) {
-  return IsChromeRuntimeEnabled() &&
-         url.find("/favicon.ico") != std::string::npos;
+  return IsChromeBootstrap() && url.find("/favicon.ico") != std::string::npos;
 }
 
 std::optional<int> GetConfiguredTestTimeout(int timeout_ms) {
@@ -337,7 +401,7 @@ std::optional<int> GetConfiguredTestTimeout(int timeout_ms) {
         return dval;
       }
     }
-    return IsChromeRuntimeEnabled() ? 2.0 : 1.0;
+    return IsChromeBootstrap() ? 2.0 : 1.0;
   }();
 
   if (!multiplier) {
@@ -365,7 +429,7 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
 
 void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
                           const std::string& parent_url) {
-  if (IsChromeRuntimeEnabled()) {
+  if (IsChromeBootstrap()) {
     static bool test_website_setting = []() {
       return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
           "test-website-setting");

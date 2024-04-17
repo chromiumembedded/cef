@@ -414,6 +414,13 @@ class CefWindow : public CefPanel {
   ///
   /*--cef()--*/
   virtual void ThemeChanged() = 0;
+
+  ///
+  /// Returns the runtime style for this Window (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  /*--cef(default_retval=CEF_RUNTIME_STYLE_DEFAULT)--*/
+  virtual cef_runtime_style_t GetRuntimeStyle() = 0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_H_

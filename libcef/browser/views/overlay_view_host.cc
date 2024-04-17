@@ -218,7 +218,7 @@ void CefOverlayViewHost::Init(views::View* host_view,
   RegisterDeleteDelegateCallback(
       base::BindOnce(&CefOverlayViewHost::Cleanup, base::Unretained(this)));
 
-  if (cef::IsChromeRuntimeEnabled()) {
+  if (window_view_->IsChromeStyle()) {
     // Some attributes associated with a Chrome toolbar are located via the
     // Widget. See matching logic in BrowserView::AddedToWidget.
     auto browser_view = BrowserView::GetBrowserViewForNativeWindow(

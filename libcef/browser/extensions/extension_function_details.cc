@@ -168,8 +168,8 @@ CefRefPtr<AlloyBrowserHostImpl> CefExtensionFunctionDetails::GetCurrentBrowser()
           handler->GetActiveBrowser(GetCefExtension(), browser.get(),
                                     function_->include_incognito_information());
       if (active_browser && active_browser != browser) {
-        CefRefPtr<AlloyBrowserHostImpl> active_browser_impl =
-            static_cast<AlloyBrowserHostImpl*>(active_browser.get());
+        auto active_browser_impl = AlloyBrowserHostImpl::FromBaseChecked(
+            CefBrowserHostBase::FromBrowser(active_browser));
 
         // Make sure we're operating in the same CefBrowserContext.
         if (CefBrowserContext::FromBrowserContext(
@@ -371,11 +371,9 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
   CefBrowserCreateParams create_params;
   create_params.url = url.spec();
   create_params.request_context = request_context;
-  create_params.window_info = std::make_unique<CefWindowInfo>();
 
-#if BUILDFLAG(IS_WIN)
-  create_params.window_info->SetAsPopup(nullptr, CefString());
-#endif
+  CefWindowInfo windowInfo;
+  CefBrowserCreateParams::InitWindowInfo(&windowInfo, active_browser.get());
 
   // Start with the active browser's settings.
   create_params.client = active_browser->GetClient();
@@ -391,10 +389,12 @@ std::unique_ptr<api::tabs::Tab> CefExtensionFunctionDetails::OpenTab(
     return nullptr;
   }
 
+  create_params.MaybeSetWindowInfo(windowInfo, /*allow_alloy_style=*/true,
+                                   /*allow_chrome_style=*/false);
+
   if (active_browser->is_views_hosted()) {
     // The new browser will also be Views hosted.
     create_params.popup_with_views_hosted_opener = true;
-    create_params.window_info.reset();
   }
 
   // Browser creation may fail under certain rare circumstances.

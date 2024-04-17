@@ -26,6 +26,9 @@ void BrowserWindowOsrWin::CreateBrowser(
     CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
+  // Windowless rendering requires Alloy style.
+  DCHECK(delegate_->UseAlloyStyle());
+
   // Create the new browser and native window on the UI thread.
   RECT wnd_rect = {rect.x, rect.y, rect.x + rect.width, rect.y + rect.height};
   osr_window_->CreateBrowser(parent_handle, wnd_rect, client_handler_, settings,
@@ -47,6 +50,9 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
 
   // Don't activate the hidden browser on creation.
   windowInfo.ex_style |= WS_EX_NOACTIVATE;
+
+  // Windowless rendering requires Alloy style.
+  DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
 
   client = client_handler_;
 }

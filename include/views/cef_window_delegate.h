@@ -271,6 +271,15 @@ class CefWindowDelegate : public CefPanelDelegate {
   /*--cef()--*/
   virtual void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
                                     bool chrome_theme) {}
+
+  ///
+  /// Optionally change the runtime style for this Window. See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  /*--cef(default_retval=CEF_RUNTIME_STYLE_DEFAULT)--*/
+  virtual cef_runtime_style_t GetWindowRuntimeStyle() {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

@@ -24,7 +24,7 @@ namespace client {
 class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
-  RootWindowWin();
+  explicit RootWindowWin(bool use_alloy_style);
   ~RootWindowWin() override;
 
   // RootWindow methods.
@@ -100,6 +100,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   void OnDestroyed();
 
   // BrowserWindow::Delegate methods.
+  bool UseAlloyStyle() const override { return IsAlloyStyle(); }
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserWindowDestroyed() override;
   void OnSetAddress(const std::string& url) override;

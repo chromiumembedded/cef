@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bf57f469c4dc266377346d8874406c437b682112$
+// $hash=c6c0fc1c3202ac8932071dcd2753b1b71b65696c$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -226,6 +226,24 @@ bool CefBrowserViewDelegateCToCpp::OnGestureCommand(
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+cef_runtime_style_t CefBrowserViewDelegateCToCpp::GetBrowserRuntimeStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_view_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_browser_runtime_style)) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_runtime_style_t _retval = _struct->get_browser_runtime_style(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

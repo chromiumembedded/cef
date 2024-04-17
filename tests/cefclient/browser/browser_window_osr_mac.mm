@@ -1453,6 +1453,9 @@ void BrowserWindowOsrMacImpl::CreateBrowser(
   window_info.SetAsWindowless(
       CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(native_browser_view_));
 
+  // Windowless rendering requires Alloy style.
+  DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, window_info.runtime_style);
+
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, browser_window_.client_handler_,
                                 browser_window_.client_handler_->startup_url(),
@@ -1466,6 +1469,10 @@ void BrowserWindowOsrMacImpl::GetPopupConfig(CefWindowHandle temp_handle,
   CEF_REQUIRE_UI_THREAD();
 
   windowInfo.SetAsWindowless(temp_handle);
+
+  // Windowless rendering requires Alloy style.
+  DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
+
   client = browser_window_.client_handler_;
 }
 

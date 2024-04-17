@@ -108,7 +108,8 @@ int GetURLBarHeight(HWND hwnd) {
 
 }  // namespace
 
-RootWindowWin::RootWindowWin() {
+RootWindowWin::RootWindowWin(bool use_alloy_style)
+    : RootWindow(use_alloy_style) {
   // Create a HRGN representing the draggable window area.
   draggable_region_ = ::CreateRectRgn(0, 0, 0, 0);
 }

@@ -973,6 +973,9 @@ void BrowserWindowOsrGtk::CreateBrowser(
     CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
+  // Windowless rendering requires Alloy style.
+  DCHECK(delegate_->UseAlloyStyle());
+
   // Create the native window.
   Create(parent_handle);
 
@@ -987,6 +990,9 @@ void BrowserWindowOsrGtk::CreateBrowser(
   CefWindowInfo window_info;
   window_info.SetAsWindowless(handle);
 
+  // Windowless rendering requires Alloy style.
+  DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, window_info.runtime_style);
+
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(), settings,
@@ -1000,6 +1006,10 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
   CEF_REQUIRE_UI_THREAD();
 
   windowInfo.SetAsWindowless(temp_handle);
+
+  // Windowless rendering requires Alloy style.
+  DCHECK_EQ(CEF_RUNTIME_STYLE_ALLOY, windowInfo.runtime_style);
+
   client = client_handler_;
 }
 

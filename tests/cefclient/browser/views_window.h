@@ -46,6 +46,10 @@ class ViewsWindow : public CefBrowserViewDelegate,
   // Delegate methods will be called on the browser process UI thread.
   class Delegate {
    public:
+    // Returns true if the window should use Alloy style, otherwise Chrome
+    // style.
+    virtual bool UseAlloyStyle() const = 0;
+
     // Return true if the window should show controls.
     virtual bool WithControls() = 0;
 
@@ -147,6 +151,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
       CefRefPtr<CefBrowserView> browser_view) override;
   bool UseFramelessWindowForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) override;
+  cef_runtime_style_t GetBrowserRuntimeStyle() override;
 
   // CefButtonDelegate methods:
   void OnButtonPressed(CefRefPtr<CefButton> button) override;
@@ -196,6 +201,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
                                     bool is_completed) override;
   void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
                             bool chrome_theme) override;
+  cef_runtime_style_t GetWindowRuntimeStyle() override;
 
   // CefViewDelegate methods:
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
@@ -259,6 +265,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   const WindowType type_;
   Delegate* delegate_;  // Not owned by this object.
+  const bool use_alloy_style_;
+  bool use_alloy_style_window_;
   CefRefPtr<CefBrowserView> browser_view_;
   CefRefPtr<CefCommandLine> command_line_;
   bool frameless_;

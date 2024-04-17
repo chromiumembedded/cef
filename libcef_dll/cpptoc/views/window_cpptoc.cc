@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b9df5830c3e1b042aeced2a2b5fd97d00e702869$
+// $hash=e0e9fa1a9ab6826b9dda799e4a1fc3b8c133eeab$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -749,6 +749,24 @@ void CEF_CALLBACK window_theme_changed(struct _cef_window_t* self) {
 
   // Execute
   CefWindowCppToC::Get(self)->ThemeChanged();
+}
+
+cef_runtime_style_t CEF_CALLBACK
+window_get_runtime_style(struct _cef_window_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // Execute
+  cef_runtime_style_t _retval = CefWindowCppToC::Get(self)->GetRuntimeStyle();
+
+  // Return type: simple
+  return _retval;
 }
 
 struct _cef_window_t* CEF_CALLBACK window_as_window(struct _cef_panel_t* self) {
@@ -2087,6 +2105,7 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->remove_all_accelerators = window_remove_all_accelerators;
   GetStruct()->set_theme_color = window_set_theme_color;
   GetStruct()->theme_changed = window_theme_changed;
+  GetStruct()->get_runtime_style = window_get_runtime_style;
   GetStruct()->base.as_window = window_as_window;
   GetStruct()->base.set_to_fill_layout = window_set_to_fill_layout;
   GetStruct()->base.set_to_box_layout = window_set_to_box_layout;

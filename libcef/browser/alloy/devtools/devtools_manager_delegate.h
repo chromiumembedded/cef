@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
-#define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
 
 #include "content/public/browser/devtools_manager_delegate.h"
 
@@ -32,4 +32,4 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   bool HasBundledFrontendResources() override;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_MANAGER_DELEGATE_H_

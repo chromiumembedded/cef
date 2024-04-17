@@ -29,8 +29,6 @@ void CefBrowserViewView::ViewHierarchyChanged(
         SetSize(size);
       }
     }
-
-    browser_view_delegate_->OnBrowserViewAdded();
   }
 }
 

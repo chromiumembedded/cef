@@ -55,6 +55,16 @@ void CefBrowserPlatformDelegateOsr::WebContentsCreated(
   view_osr_->WebContentsCreated(web_contents);
 }
 
+void CefBrowserPlatformDelegateOsr::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  DCHECK_EQ(web_contents, web_contents_);
+  if (auto* view = GetOSRHostView()) {
+    view->ReleaseCompositor();
+  }
+
+  CefBrowserPlatformDelegateAlloy::WebContentsDestroyed(web_contents);
+}
+
 void CefBrowserPlatformDelegateOsr::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   if (view_osr_) {
@@ -69,28 +79,11 @@ void CefBrowserPlatformDelegateOsr::BrowserCreated(
   if (browser->IsPopup()) {
     // Associate the RenderWidget host view with the browser now because the
     // browser wasn't known at the time that the host view was created.
-    content::RenderViewHost* host = web_contents_->GetRenderViewHost();
-    DCHECK(host);
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
     // |view| will be null if the popup is a DevTools window.
-    if (view) {
-      view->set_browser_impl(static_cast<AlloyBrowserHostImpl*>(browser));
+    if (auto* view = GetOSRHostView()) {
+      view->set_browser_impl(AlloyBrowserHostImpl::FromBaseChecked(browser));
     }
   }
-}
-
-void CefBrowserPlatformDelegateOsr::NotifyBrowserDestroyed() {
-  content::RenderViewHost* host = web_contents_->GetRenderViewHost();
-  if (host) {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
-    if (view) {
-      view->ReleaseCompositor();
-    }
-  }
-
-  CefBrowserPlatformDelegateAlloy::NotifyBrowserDestroyed();
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
@@ -661,6 +654,9 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetParentScreenPoint(
 
 CefRenderWidgetHostViewOSR* CefBrowserPlatformDelegateOsr::GetOSRHostView()
     const {
+  if (!web_contents_) {
+    return nullptr;
+  }
   content::RenderViewHost* host = web_contents_->GetRenderViewHost();
   if (host) {
     return static_cast<CefRenderWidgetHostViewOSR*>(

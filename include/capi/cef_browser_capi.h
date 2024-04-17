@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=abcb584dbf5965834f415a0f2daeda3e361696b2$
+// $hash=7733ed87ade32dfd311c24c51263d20b9b469868$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -984,6 +984,13 @@ typedef struct _cef_browser_host_t {
   /// be called on the UI thread.
   ///
   int(CEF_CALLBACK* is_render_process_unresponsive)(
+      struct _cef_browser_host_t* self);
+
+  ///
+  /// Returns the runtime style for this browser (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_runtime_style)(
       struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 

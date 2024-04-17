@@ -51,7 +51,8 @@ struct RequestParams {
 // Interface for communicating with a frame in the renderer process.
 interface RenderFrame {
   // Browser process has received the FrameAttached() message.
-  FrameAttachedAck();
+  // |allow| will be false if we don't want to attach the frame.
+  FrameAttachedAck(bool allow);
 
   // Browser process has intentionally detached.
   FrameDetached();
@@ -115,8 +116,9 @@ struct NewRenderThreadInfo {
 
 struct NewBrowserInfo {
   int32 browser_id;
-  bool is_popup;
-  bool is_windowless;
+  bool? is_popup;
+  bool? is_windowless;
+  bool? print_preview_enabled;
   bool is_guest_view;
   mojo_base.mojom.DictionaryValue? extra_info;
 };

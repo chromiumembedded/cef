@@ -44,6 +44,14 @@ struct RootWindowConfig {
   // Associated command-line.
   CefRefPtr<CefCommandLine> command_line;
 
+  // If true the Views framework will be used.
+  bool use_views;
+
+  // If true Alloy style will be used. Alloy style is always used with
+  // the Alloy runtime and optional with the Chrome runtime. Windowless
+  // rendering requires Alloy style.
+  bool use_alloy_style;
+
   // Configure the window type.
   WindowType window_type = WindowType::NORMAL;
 
@@ -53,7 +61,7 @@ struct RootWindowConfig {
   // If true the window will show controls.
   bool with_controls = true;
 
-  // If true the window will use off-screen rendering.
+  // If true the window will use windowless (off-screen) rendering.
   bool with_osr = false;
 
   // If true the window will be created initially hidden.
@@ -146,11 +154,9 @@ class RootWindow
   // Create a new RootWindow object. This method may be called on any thread.
   // Use RootWindowManager::CreateRootWindow() or CreateRootWindowAsPopup()
   // instead of calling this method directly. |use_views| will be true if the
-  // Views framework should be used. |parent_window| will be non-nullptr for
-  // popup browsers with a RootWindow parent (on the UI thread only).
-  static scoped_refptr<RootWindow> Create(
-      bool use_views,
-      scoped_refptr<RootWindow> parent_window);
+  // Views framework should be used. |use_alloy_style| will be true if Alloy
+  // style should be used.
+  static scoped_refptr<RootWindow> Create(bool use_views, bool use_alloy_style);
 
   // Returns the RootWindow associated with the specified |browser_id|. Must be
   // called on the main thread.
@@ -158,6 +164,9 @@ class RootWindow
 
   // Returns true if the RootWindow is Views-hosted.
   virtual bool IsViewsHosted() const { return false; }
+
+  // Returns true if the RootWindow is Alloy style, otherwise Chrome style.
+  bool IsAlloyStyle() const { return use_alloy_style_; }
 
   // Initialize as a normal window. This will create and show a native window
   // hosting a single browser instance. This method may be called on any thread.
@@ -231,10 +240,13 @@ class RootWindow
   friend struct DeleteOnMainThread;
   friend class base::RefCountedThreadSafe<RootWindow, DeleteOnMainThread>;
 
-  RootWindow();
+  explicit RootWindow(bool use_alloy_style);
   virtual ~RootWindow();
 
   Delegate* delegate_ = nullptr;
+
+ private:
+  const bool use_alloy_style_;
 };
 
 }  // namespace client

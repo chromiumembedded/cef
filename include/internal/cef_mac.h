@@ -71,6 +71,7 @@ struct CefWindowInfoTraits {
     target->shared_texture_enabled = src->shared_texture_enabled;
     target->external_begin_frame_enabled = src->external_begin_frame_enabled;
     target->view = src->view;
+    target->runtime_style = src->runtime_style;
   }
 };
 
@@ -112,6 +113,7 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   void SetAsWindowless(CefWindowHandle parent) {
     windowless_rendering_enabled = true;
     parent_view = parent;
+    runtime_style = CEF_RUNTIME_STYLE_ALLOY;
   }
 };
 

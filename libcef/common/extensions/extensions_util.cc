@@ -5,6 +5,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "libcef/common/cef_switches.h"
+#include "libcef/features/runtime.h"
 
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
@@ -12,8 +13,9 @@
 namespace extensions {
 
 bool ExtensionsEnabled() {
-  static bool enabled = !base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kDisableExtensions);
+  static bool enabled = cef::IsAlloyRuntimeEnabled() &&
+                        !base::CommandLine::ForCurrentProcess()->HasSwitch(
+                            switches::kDisableExtensions);
   return enabled;
 }
 
@@ -22,25 +24,6 @@ bool PdfExtensionEnabled() {
       ExtensionsEnabled() && !base::CommandLine::ForCurrentProcess()->HasSwitch(
                                  switches::kDisablePdfExtension);
   return enabled;
-}
-
-bool PrintPreviewEnabled() {
-#if BUILDFLAG(IS_MAC)
-  // Not currently supported on macOS.
-  return false;
-#else
-  if (!PdfExtensionEnabled()) {
-    return false;
-  }
-
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDisablePrintPreview)) {
-    return false;
-  }
-
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kEnablePrintPreview);
-#endif
 }
 
 }  // namespace extensions

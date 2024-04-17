@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "libcef/browser/extensions/browser_extensions_util.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/print_settings_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
@@ -39,10 +39,8 @@ CefRefPtr<CefBrowserHostBase> GetBrowserForContext(
     return nullptr;
   }
 
-  return extensions::GetOwnerBrowserForGlobalId(
-      frame_util::MakeGlobalId(context->render_process_id(),
-                               context->render_frame_id()),
-      nullptr);
+  return CefBrowserHostBase::GetBrowserForGlobalId(frame_util::MakeGlobalId(
+      context->render_process_id(), context->render_frame_id()));
 }
 
 CefRefPtr<CefPrintHandler> GetPrintHandlerForBrowser(

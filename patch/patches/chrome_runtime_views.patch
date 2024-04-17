@@ -1107,16 +1107,20 @@ index 325b73a399d3f..9242aed24ef35 100644
    ToolbarView& operator=(const ToolbarView&) = delete;
    ~ToolbarView() override;
 diff --git chrome/browser/ui/web_applications/draggable_region_host_impl.cc chrome/browser/ui/web_applications/draggable_region_host_impl.cc
-index 8980b03f2c945..6e719e0abced7 100644
+index 8980b03f2c945..831f6dd681cb9 100644
 --- chrome/browser/ui/web_applications/draggable_region_host_impl.cc
 +++ chrome/browser/ui/web_applications/draggable_region_host_impl.cc
-@@ -11,6 +11,24 @@
+@@ -11,6 +11,28 @@
  #include "chrome/common/chrome_features.h"
  #include "mojo/public/cpp/bindings/self_owned_receiver.h"
  
 +namespace {
 +
 +bool IsSupported(Browser* browser) {
++  // May be nullptr when running with Alloy style.
++  if (!browser)
++    return false;
++
 +  if (web_app::AppBrowserController::IsWebApp(browser))
 +    return true;
 +
@@ -1135,7 +1139,7 @@ index 8980b03f2c945..6e719e0abced7 100644
  DraggableRegionsHostImpl::DraggableRegionsHostImpl(
      content::RenderFrameHost& render_frame_host,
      mojo::PendingReceiver<chrome::mojom::DraggableRegions> receiver)
-@@ -28,7 +46,7 @@ void DraggableRegionsHostImpl::CreateIfAllowed(
+@@ -28,7 +50,7 @@ void DraggableRegionsHostImpl::CreateIfAllowed(
    auto* browser = chrome::FindBrowserWithTab(web_contents);
  
    // We only want to bind the receiver for PWAs.
@@ -1144,7 +1148,7 @@ index 8980b03f2c945..6e719e0abced7 100644
      return;
  
    // The object is bound to the lifetime of |render_frame_host| and the mojo
-@@ -43,7 +61,7 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
+@@ -43,7 +65,7 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
    auto* browser = chrome::FindBrowserWithTab(web_contents);
    // When a WebApp browser's WebContents is reparented to a tabbed browser, a
    // draggable regions update may race with the reparenting logic.
@@ -1153,7 +1157,7 @@ index 8980b03f2c945..6e719e0abced7 100644
      return;
  
    SkRegion sk_region;
-@@ -56,5 +74,12 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
+@@ -56,5 +78,12 @@ void DraggableRegionsHostImpl::UpdateDraggableRegions(
    }
  
    auto* app_browser_controller = browser->app_controller();

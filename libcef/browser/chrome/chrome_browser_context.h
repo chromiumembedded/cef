@@ -34,6 +34,9 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
   bool IsInitialized() const override;
   void StoreOrTriggerInitCallback(base::OnceClosure callback) override;
   void Shutdown() override;
+  void AddVisitedURLs(const GURL& url,
+                      const std::vector<GURL>& redirect_chain,
+                      ui::PageTransition transition) override;
 
   // ProfileObserver overrides.
   void OnProfileWillBeDestroyed(Profile* profile) override;

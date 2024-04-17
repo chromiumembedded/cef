@@ -10,7 +10,6 @@
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
@@ -72,12 +71,11 @@ javascript_dialogs::TabModalDialogManager* GetTabModalDialogManager(
 
   // Try the owner WebContents if the dialog originates from a guest view such
   // as the PDF viewer or Print Preview.
-  if (extensions::ExtensionsEnabled()) {
-    if (auto* owner_contents =
-            extensions::GetOwnerForGuestContents(web_contents)) {
-      return javascript_dialogs::TabModalDialogManager::FromWebContents(
-          owner_contents);
-    }
+  // This is safe to call even if Alloy extensions are disabled.
+  if (auto* owner_contents =
+          extensions::GetOwnerForGuestContents(web_contents)) {
+    return javascript_dialogs::TabModalDialogManager::FromWebContents(
+        owner_contents);
   }
 
   return nullptr;

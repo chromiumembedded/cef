@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=07903b210017d0e545a381bb700088c689187b0e$
+// $hash=34539b590718fa83d794a6cfcb34876da8a03d26$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -145,6 +145,25 @@ browser_view_set_prefer_accelerators(struct _cef_browser_view_t* self,
   // Execute
   CefBrowserViewCppToC::Get(self)->SetPreferAccelerators(
       prefer_accelerators ? true : false);
+}
+
+cef_runtime_style_t CEF_CALLBACK
+browser_view_get_runtime_style(struct _cef_browser_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // Execute
+  cef_runtime_style_t _retval =
+      CefBrowserViewCppToC::Get(self)->GetRuntimeStyle();
+
+  // Return type: simple
+  return _retval;
 }
 
 cef_browser_view_t* CEF_CALLBACK
@@ -1235,6 +1254,7 @@ CefBrowserViewCppToC::CefBrowserViewCppToC() {
   GetStruct()->get_browser = browser_view_get_browser;
   GetStruct()->get_chrome_toolbar = browser_view_get_chrome_toolbar;
   GetStruct()->set_prefer_accelerators = browser_view_set_prefer_accelerators;
+  GetStruct()->get_runtime_style = browser_view_get_runtime_style;
   GetStruct()->base.as_browser_view = browser_view_as_browser_view;
   GetStruct()->base.as_button = browser_view_as_button;
   GetStruct()->base.as_panel = browser_view_as_panel;

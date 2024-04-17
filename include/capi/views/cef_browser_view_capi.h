@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2e5a3b3b1f427a7eb1e6a447fe0d31c5ace49469$
+// $hash=1c2fbbffaf51e90a2d55bfa7eb3fa3a4e315f4ac$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
@@ -93,6 +93,13 @@ typedef struct _cef_browser_view_t {
   ///
   void(CEF_CALLBACK* set_prefer_accelerators)(struct _cef_browser_view_t* self,
                                               int prefer_accelerators);
+
+  ///
+  /// Returns the runtime style for this BrowserView (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_runtime_style)(
+      struct _cef_browser_view_t* self);
 } cef_browser_view_t;
 
 ///

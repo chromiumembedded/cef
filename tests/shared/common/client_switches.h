@@ -52,6 +52,8 @@ extern const char kHidePipFrame[];
 extern const char kHideChromeBubbles[];
 extern const char kHideWindowOnClose[];
 extern const char kAcceptsFirstMouse[];
+extern const char kUseAlloyStyle[];
+extern const char kUseChromeStyleWindow[];
 
 }  // namespace client::switches
 

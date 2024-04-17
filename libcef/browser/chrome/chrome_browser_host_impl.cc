@@ -6,7 +6,6 @@
 
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
-#include "libcef/browser/chrome/chrome_browser_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/browser_view_impl.h"
 #include "libcef/common/net/url_util.h"
@@ -14,7 +13,6 @@
 
 #include "base/logging.h"
 #include "base/notreached.h"
-#include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_navigator.h"
@@ -58,35 +56,41 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
 }
 
 // static
+CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::FromBaseChecked(
+    CefRefPtr<CefBrowserHostBase> host_base) {
+  if (!host_base) {
+    return nullptr;
+  }
+  CHECK(host_base->IsChromeStyle());
+  return static_cast<ChromeBrowserHostImpl*>(host_base.get());
+}
+
+// static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
   REQUIRE_CHROME_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForHost(host);
-  return static_cast<ChromeBrowserHostImpl*>(browser.get());
+  return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderFrameHost* host) {
   REQUIRE_CHROME_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForHost(host);
-  return static_cast<ChromeBrowserHostImpl*>(browser.get());
+  return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForContents(
     const content::WebContents* contents) {
   REQUIRE_CHROME_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForContents(contents);
-  return static_cast<ChromeBrowserHostImpl*>(browser.get());
+  return FromBaseChecked(CefBrowserHostBase::GetBrowserForContents(contents));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
     const content::GlobalRenderFrameHostId& global_id) {
   REQUIRE_CHROME_RUNTIME();
-  auto browser = CefBrowserHostBase::GetBrowserForGlobalId(global_id);
-  return static_cast<ChromeBrowserHostImpl*>(browser.get());
+  return FromBaseChecked(CefBrowserHostBase::GetBrowserForGlobalId(global_id));
 }
 
 // static
@@ -206,73 +210,6 @@ void ChromeBrowserHostImpl::Find(const CefString& searchText,
 
 void ChromeBrowserHostImpl::StopFinding(bool clearSelection) {
   NOTIMPLEMENTED();
-}
-
-void ChromeBrowserHostImpl::ShowDevToolsOnUIThread(
-    std::unique_ptr<CefShowDevToolsParams> params) {
-  CEF_REQUIRE_UIT();
-
-  if (!browser_) {
-    return;
-  }
-
-  auto* web_contents = GetWebContents();
-  if (!web_contents) {
-    return;
-  }
-
-  auto* profile = CefRequestContextImpl::GetProfile(request_context());
-  if (!DevToolsWindow::AllowDevToolsFor(profile, web_contents)) {
-    LOG(WARNING) << "DevTools is not allowed for this browser";
-    return;
-  }
-
-  auto inspect_element_at = params->inspect_element_at_;
-
-  if (!devtools_browser_host_) {
-    // Configure parameters for ChromeBrowserDelegate::CreateDevToolsBrowser
-    // which will be called indirectly to create the DevTools window.
-    auto chrome_browser_delegate =
-        static_cast<ChromeBrowserDelegate*>(browser_->cef_delegate());
-    chrome_browser_delegate->SetPendingShowDevToolsParams(std::move(params));
-  }
-
-  // Focus the existing DevTools window or create a new one.
-  if (!inspect_element_at.IsEmpty()) {
-    DevToolsWindow::InspectElement(web_contents->GetPrimaryMainFrame(),
-                                   inspect_element_at.x, inspect_element_at.y);
-  } else {
-    DevToolsWindow::OpenDevToolsWindow(web_contents, profile,
-                                       DevToolsOpenedByAction::kUnknown);
-  }
-
-  // The DevTools browser host should now exist.
-  DCHECK(devtools_browser_host_);
-}
-
-void ChromeBrowserHostImpl::CloseDevTools() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-                  base::BindOnce(&ChromeBrowserHostImpl::CloseDevTools, this));
-    return;
-  }
-
-  if (devtools_browser_host_) {
-    devtools_browser_host_->TryCloseBrowser();
-  }
-}
-
-bool ChromeBrowserHostImpl::HasDevTools() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    DCHECK(false) << "called on invalid thread";
-    return false;
-  }
-
-  return !!devtools_browser_host_;
-}
-
-bool ChromeBrowserHostImpl::IsWindowRenderingDisabled() {
-  return false;
 }
 
 void ChromeBrowserHostImpl::WasResized() {
@@ -537,13 +474,13 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
 
 void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
                                    bool is_devtools_popup,
-                                   CefRefPtr<ChromeBrowserHostImpl> opener) {
+                                   CefRefPtr<CefBrowserHostBase> opener) {
   DCHECK(web_contents);
 
   if (opener) {
     // Give the opener browser's platform delegate an opportunity to modify the
     // new browser's platform delegate.
-    opener->platform_delegate_->PopupWebContentsCreated(
+    opener->platform_delegate()->PopupWebContentsCreated(
         settings_, client_, web_contents, platform_delegate_.get(),
         is_devtools_popup);
   }
@@ -569,7 +506,8 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
     // CefBrowserHost::GetWindowHandle() will return kNullWindowHandle in
     // OnAfterCreated(), which breaks client expectations (e.g. clients expect
     // everything about the browser to be valid at that time).
-    opener->platform_delegate_->PopupBrowserCreated(this, is_devtools_popup);
+    opener->platform_delegate()->PopupBrowserCreated(platform_delegate_.get(),
+                                                     this, is_devtools_popup);
   }
 
   // 2. Notify the browser's LifeSpanHandler. This must always be the first
@@ -604,13 +542,6 @@ void ChromeBrowserHostImpl::SetBrowser(Browser* browser) {
   } else {
     host_window_handle_ = kNullWindowHandle;
   }
-}
-
-void ChromeBrowserHostImpl::SetDevToolsBrowserHost(
-    base::WeakPtr<ChromeBrowserHostImpl> devtools_browser_host) {
-  CEF_REQUIRE_UIT();
-  DCHECK(!devtools_browser_host_);
-  devtools_browser_host_ = devtools_browser_host;
 }
 
 void ChromeBrowserHostImpl::WindowDestroyed() {

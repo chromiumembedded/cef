@@ -471,6 +471,14 @@ source_set("libcef_static") {
     "libcef/browser/alloy/alloy_web_contents_view_delegate.h",
     "libcef/browser/alloy/browser_platform_delegate_alloy.cc",
     "libcef/browser/alloy/browser_platform_delegate_alloy.h",
+    "libcef/browser/alloy/devtools/alloy_devtools_window_runner.cc",
+    "libcef/browser/alloy/devtools/alloy_devtools_window_runner.h",
+    "libcef/browser/alloy/devtools/devtools_file_manager.cc",
+    "libcef/browser/alloy/devtools/devtools_file_manager.h",
+    "libcef/browser/alloy/devtools/devtools_frontend.cc",
+    "libcef/browser/alloy/devtools/devtools_frontend.h",
+    "libcef/browser/alloy/devtools/devtools_manager_delegate.cc",
+    "libcef/browser/alloy/devtools/devtools_manager_delegate.h",
     "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.cc",
     "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h",
     "libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.cc",
@@ -528,8 +536,11 @@ source_set("libcef_static") {
     "libcef/browser/chrome/chrome_content_browser_client_cef.h",
     "libcef/browser/chrome/chrome_context_menu_handler.cc",
     "libcef/browser/chrome/chrome_context_menu_handler.h",
+    "libcef/browser/chrome/chrome_devtools_window_runner.cc",
+    "libcef/browser/chrome/chrome_devtools_window_runner.h",
     "libcef/browser/chrome/chrome_startup_browser_creator.cc",
     "libcef/browser/chrome/chrome_startup_browser_creator.h",
+    "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h",
     "libcef/browser/chrome_crash_reporter_client_stub.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.cc",
     "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h",
@@ -555,14 +566,10 @@ source_set("libcef_static") {
     "libcef/browser/context_menu_params_impl.h",
     "libcef/browser/devtools/devtools_controller.cc",
     "libcef/browser/devtools/devtools_controller.h",
-    "libcef/browser/devtools/devtools_file_manager.cc",
-    "libcef/browser/devtools/devtools_file_manager.h",
-    "libcef/browser/devtools/devtools_frontend.cc",
-    "libcef/browser/devtools/devtools_frontend.h",
-    "libcef/browser/devtools/devtools_manager.cc",
-    "libcef/browser/devtools/devtools_manager.h",
-    "libcef/browser/devtools/devtools_manager_delegate.cc",
-    "libcef/browser/devtools/devtools_manager_delegate.h",
+    "libcef/browser/devtools/devtools_protocol_manager.cc",
+    "libcef/browser/devtools/devtools_protocol_manager.h",
+    "libcef/browser/devtools/devtools_window_runner.h",
+    "libcef/browser/devtools/devtools_window_runner_create.cc",
     "libcef/browser/download_item_impl.cc",
     "libcef/browser/download_item_impl.h",
     "libcef/browser/download_manager_delegate.cc",
@@ -939,8 +946,6 @@ source_set("libcef_static") {
     "libcef/renderer/extensions/extensions_renderer_api_provider.h",
     "libcef/renderer/extensions/extensions_renderer_client.cc",
     "libcef/renderer/extensions/extensions_renderer_client.h",
-    "libcef/renderer/extensions/print_render_frame_helper_delegate.cc",
-    "libcef/renderer/extensions/print_render_frame_helper_delegate.h",
     "libcef/renderer/frame_impl.cc",
     "libcef/renderer/frame_impl.h",
     "libcef/renderer/render_frame_observer.cc",
@@ -1151,6 +1156,8 @@ source_set("libcef_static") {
 
   if (is_mac) {
     sources += includes_mac + [
+      "libcef/browser/chrome/chrome_content_browser_client_cef_mac.mm",
+      "libcef/browser/chrome/chrome_web_contents_view_delegate_cef_mac.mm",
       "libcef/browser/native/browser_platform_delegate_native_mac.h",
       "libcef/browser/native/browser_platform_delegate_native_mac.mm",
       "libcef/browser/native/cursor_util_mac.mm",
@@ -1171,6 +1178,10 @@ source_set("libcef_static") {
       # For Chrome runtime support.
       "//chrome/app/chrome_main_mac.h",
       "//chrome/app/chrome_main_mac.mm",
+    ]
+  } else {
+    sources += [
+      "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.cc",
     ]
   }
 

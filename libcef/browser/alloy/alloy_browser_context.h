@@ -56,7 +56,9 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   bool GetExtensions(std::vector<CefString>& extension_ids) override;
   CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   bool UnloadExtension(const CefString& extension_id) override;
-  bool IsPrintPreviewSupported() const override;
+  void AddVisitedURLs(const GURL& url,
+                      const std::vector<GURL>& redirect_chain,
+                      ui::PageTransition transition) override;
 
   // content::BrowserContext overrides.
   content::ClientHintsControllerDelegate* GetClientHintsControllerDelegate()
@@ -114,11 +116,8 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
     return extension_system_;
   }
 
-  // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
-  // of visited links.
-  void AddVisitedURLs(const std::vector<GURL>& urls);
-
-  // Called from DownloadPrefs::FromBrowserContext.
+  // Called from DownloadPrefs::FromBrowserContext via
+  // alloy::GetDownloadPrefsFromBrowserContext.
   DownloadPrefs* GetDownloadPrefs();
 
  private:

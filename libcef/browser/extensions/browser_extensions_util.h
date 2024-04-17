@@ -13,45 +13,22 @@
 
 namespace content {
 class BrowserContext;
-struct GlobalRenderFrameHostId;
-class RenderFrameHost;
-class RenderViewHost;
 class WebContents;
 }  // namespace content
 
-class CefBrowserHostBase;
 class AlloyBrowserHostImpl;
 
 namespace extensions {
 
 class Extension;
 
-// Populates |guests| with all guest WebContents with the specified |owner|.
-void GetAllGuestsForOwnerContents(content::WebContents* owner,
-                                  std::vector<content::WebContents*>* guests);
-
 // Returns the WebContents that owns the specified |guest|, if any.
-content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
+content::WebContents* GetOwnerForGuestContents(
+    const content::WebContents* guest);
 
-// Returns the CefBrowserHostBase that owns the host identified by the specified
-// global ID, if any. |is_guest_view| will be set to true if the ID
-// matches a guest view associated with the returned browser instead of the
-// browser itself.
-CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForGlobalId(
-    const content::GlobalRenderFrameHostId& global_id,
-    bool* is_guest_view);
-
-// Returns the CefBrowserHostBase that owns the specified |host|, if any.
-// |is_guest_view| will be set to true if the host matches a guest view
-// associated with the returned browser instead of the browser itself.
-// TODO(cef): Delete the RVH variant once the remaining use case
-// (via AlloyContentBrowserClient::OverrideWebkitPrefs) has been removed.
-CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
-    content::RenderViewHost* host,
-    bool* is_guest_view);
-CefRefPtr<CefBrowserHostBase> GetOwnerBrowserForHost(
-    content::RenderFrameHost* host,
-    bool* is_guest_view);
+// Test for different types of guest contents.
+bool IsBrowserPluginGuest(const content::WebContents* web_contents);
+bool IsPrintPreviewDialog(const content::WebContents* web_contents);
 
 // Returns the browser matching |tab_id| and |browser_context|. Returns false if
 // |tab_id| is < 0 or a matching browser cannot be found within

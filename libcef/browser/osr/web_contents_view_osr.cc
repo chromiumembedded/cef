@@ -33,14 +33,27 @@ void CefWebContentsViewOSR::WebContentsCreated(
 }
 
 void CefWebContentsViewOSR::RenderViewCreated() {
-  if (web_contents_) {
-    auto host = web_contents_->GetRenderViewHost();
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetWidget()->GetView());
-    if (view) {
-      view->InstallTransparency();
-    }
+  if (auto* view = GetView()) {
+    view->InstallTransparency();
   }
+}
+
+gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
+  // TODO(osr): Fix all calling code paths and convert to DCHECK.
+  NOTIMPLEMENTED();
+  return gfx::NativeView();
+}
+
+gfx::NativeView CefWebContentsViewOSR::GetContentNativeView() const {
+  // TODO(osr): Fix all calling code paths and convert to DCHECK.
+  NOTIMPLEMENTED();
+  return gfx::NativeView();
+}
+
+gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
+  // TODO(osr): Fix all calling code paths and convert to DCHECK.
+  NOTIMPLEMENTED();
+  return gfx::NativeWindow();
 }
 
 gfx::Rect CefWebContentsViewOSR::GetContainerBounds() const {

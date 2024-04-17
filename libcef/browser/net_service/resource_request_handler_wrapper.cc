@@ -1334,11 +1334,13 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
   // |frame| may be nullptr for service worker requests.
   if (frame) {
-    // May return nullptr for requests originating from guest views.
     browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
     if (browserPtr) {
+      // May return nullptr for guest view requests.
       framePtr = browserPtr->GetFrameForHost(frame);
-      CHECK(framePtr);
+      if (!framePtr) {
+        framePtr = browserPtr->GetMainFrame();
+      }
       global_id = frame->GetGlobalId();
     }
   }
@@ -1403,11 +1405,13 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   content::GlobalRenderFrameHostId global_id(frame->GetProcess()->GetID(),
                                              MSG_ROUTING_NONE);
 
-  // May return nullptr for requests originating from guest views.
   browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
   if (browserPtr) {
+    // May return nullptr for guest view requests.
     framePtr = browserPtr->GetFrameForHost(frame);
-    DCHECK(framePtr);
+    if (!framePtr) {
+      framePtr = browserPtr->GetMainFrame();
+    }
     global_id = frame->GetGlobalId();
   }
 

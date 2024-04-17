@@ -1018,6 +1018,13 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool IsRenderProcessUnresponsive() = 0;
+
+  ///
+  /// Returns the runtime style for this browser (ALLOY or CHROME). See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  /*--cef(default_retval=CEF_RUNTIME_STYLE_DEFAULT)--*/
+  virtual cef_runtime_style_t GetRuntimeStyle() = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

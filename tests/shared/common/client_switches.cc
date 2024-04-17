@@ -58,5 +58,7 @@ const char kHidePipFrame[] = "hide-pip-frame";
 const char kHideChromeBubbles[] = "hide-chrome-bubbles";
 const char kHideWindowOnClose[] = "hide-window-on-close";
 const char kAcceptsFirstMouse[] = "accepts-first-mouse";
+const char kUseAlloyStyle[] = "use-alloy-style";
+const char kUseChromeStyleWindow[] = "use-chrome-style-window";
 
 }  // namespace client::switches

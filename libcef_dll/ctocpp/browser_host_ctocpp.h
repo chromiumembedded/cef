@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ec03d4b0c8e59ba8f8eb3060e374b4d76e22669b$
+// $hash=4b9914613aed142228d0cfe181a6ac65e9b6e494$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -140,6 +140,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void ExecuteChromeCommand(int command_id,
                             cef_window_open_disposition_t disposition) override;
   bool IsRenderProcessUnresponsive() override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_

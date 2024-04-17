@@ -29,6 +29,10 @@ bool BrowserWindow::IsClosing() const {
   return is_closing_;
 }
 
+bool BrowserWindow::UseAlloyStyle() const {
+  return delegate_->UseAlloyStyle();
+}
+
 void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!browser_);

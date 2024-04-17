@@ -8,7 +8,6 @@
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/features/runtime_checks.h"
@@ -388,8 +387,7 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
                             blink::web_pref::WebPreferences& web,
                             SkColor& base_background_color) {
   REQUIRE_ALLOY_RUNTIME();
-  CefRefPtr<AlloyBrowserHostImpl> browser = static_cast<AlloyBrowserHostImpl*>(
-      extensions::GetOwnerBrowserForHost(rvh, nullptr).get());
+  auto browser = AlloyBrowserHostImpl::GetBrowserForHost(rvh);
 
   // Set defaults for preferences that are not handled by PrefService.
   SetDefaultPrefs(web);

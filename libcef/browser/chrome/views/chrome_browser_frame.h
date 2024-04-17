@@ -107,6 +107,7 @@ class ChromeBrowserFrame : public BrowserFrame,
   void Init(BrowserView* browser_view, std::unique_ptr<Browser> browser);
 
   // CefWidget methods:
+  bool IsAlloyStyle() const override { return false; }
   views::Widget* GetWidget() override { return this; }
   const views::Widget* GetWidget() const override { return this; }
   void Initialized() override;

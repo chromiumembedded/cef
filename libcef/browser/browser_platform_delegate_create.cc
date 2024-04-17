@@ -18,7 +18,6 @@
 #include "libcef/browser/chrome/views/chrome_child_window.h"
 #include "libcef/browser/extensions/browser_platform_delegate_background.h"
 #include "libcef/browser/views/browser_platform_delegate_views.h"
-#include "libcef/features/runtime_checks.h"
 
 #if BUILDFLAG(IS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
@@ -71,14 +70,11 @@ std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 // static
 std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     const CefBrowserCreateParams& create_params) {
-  const bool is_windowless =
-      create_params.window_info &&
-      create_params.window_info->windowless_rendering_enabled &&
-      create_params.client && create_params.client->GetRenderHandler().get();
+  const bool is_windowless = create_params.IsWindowless();
   const SkColor background_color = CefContext::Get()->GetBackgroundColor(
       &create_params.settings, is_windowless ? STATE_ENABLED : STATE_DISABLED);
 
-  if (cef::IsChromeRuntimeEnabled()) {
+  if (create_params.IsChromeStyle()) {
     CefWindowInfo window_info;
     if (create_params.window_info) {
       window_info = *create_params.window_info;
@@ -124,8 +120,6 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(*create_params.window_info, background_color);
     if (is_windowless) {
-      REQUIRE_ALLOY_RUNTIME();
-
       const bool use_shared_texture =
           create_params.window_info->shared_texture_enabled;
 

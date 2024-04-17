@@ -8,13 +8,12 @@
 namespace extensions {
 
 // Returns true if extensions have not been disabled via the command-line.
+// Always returns false with Chrome runtime even if Alloy style is used.
 bool ExtensionsEnabled();
 
 // Returns true if the PDF extension has not been disabled via the command-line.
+// Always returns false with Chrome runtime even if Alloy style is used.
 bool PdfExtensionEnabled();
-
-// Returns true if Print Preview has been enabled via the command-line.
-bool PrintPreviewEnabled();
 
 }  // namespace extensions
 

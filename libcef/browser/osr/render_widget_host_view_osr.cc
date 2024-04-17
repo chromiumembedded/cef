@@ -334,11 +334,14 @@ void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {}
 void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {}
 
 gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() {
+  // TODO(osr): Fix all calling code paths and convert to DCHECK.
+  NOTIMPLEMENTED();
   return gfx::NativeView();
 }
 
 gfx::NativeViewAccessible
 CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
+  NOTIMPLEMENTED();
   return gfx::NativeViewAccessible();
 }
 
@@ -1551,6 +1554,8 @@ void CefRenderWidgetHostViewOSR::ShowSharePicker(
 }
 
 uint64_t CefRenderWidgetHostViewOSR::GetNSViewId() const {
+  // TODO(osr): Fix all calling code paths and convert to DCHECK.
+  NOTIMPLEMENTED();
   return 0;
 }
 #endif  // BUILDFLAG(IS_MAC)

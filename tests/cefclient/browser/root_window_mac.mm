@@ -769,7 +769,8 @@ void RootWindowMacImpl::NotifyDestroyedIfDone() {
   }
 }
 
-RootWindowMac::RootWindowMac() {
+RootWindowMac::RootWindowMac(bool use_alloy_style)
+    : RootWindow(use_alloy_style) {
   impl_ = new RootWindowMacImpl(*this);
 }
 

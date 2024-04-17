@@ -13,7 +13,7 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
    return false;
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index c5eea1036e1eb..d102fff3e9de8 100644
+index c5eea1036e1eb..034b325c95f6b 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
 @@ -35,6 +35,7 @@
@@ -38,7 +38,7 @@ index c5eea1036e1eb..d102fff3e9de8 100644
    }
  
    // Create WebContents with devtools.
-@@ -1845,12 +1853,29 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -1845,12 +1853,28 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
@@ -49,16 +49,15 @@ index c5eea1036e1eb..d102fff3e9de8 100644
 -          std::move(owned_main_web_contents_)),
 -      -1, ui::PAGE_TRANSITION_AUTO_TOPLEVEL, AddTabTypes::ADD_ACTIVE);
 +
-+  auto opener = chrome::FindBrowserWithTab(GetInspectedWebContents());
++  auto* inspected_web_contents = GetInspectedWebContents();
++  auto* opener = chrome::FindBrowserWithTab(inspected_web_contents);
 +  auto devtools_contents = OwnedMainWebContents::TakeWebContents(
 +      std::move(owned_main_web_contents_));
 +
 +#if BUILDFLAG(ENABLE_CEF)
-+  if (opener && opener->cef_delegate()) {
-+    // If a Browser is created, it will take ownership of |devtools_contents|.
-+    browser_ = opener->cef_delegate()->CreateDevToolsBrowser(
-+        profile_, opener, devtools_contents);
-+  }
++  // If a Browser is created, it will take ownership of |devtools_contents|.
++  browser_ = cef::BrowserDelegate::CreateDevToolsBrowser(
++      profile_, opener, inspected_web_contents, devtools_contents);
 +#endif
 +
 +  if (!browser_) {

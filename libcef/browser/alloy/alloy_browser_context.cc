@@ -297,15 +297,6 @@ bool AlloyBrowserContext::UnloadExtension(const CefString& extension_id) {
   return extension_system()->UnloadExtension(extension_id);
 }
 
-bool AlloyBrowserContext::IsPrintPreviewSupported() const {
-  CEF_REQUIRE_UIT();
-  if (!extensions::PrintPreviewEnabled()) {
-    return false;
-  }
-
-  return !GetPrefs()->GetBoolean(prefs::kPrintPreviewDisabled);
-}
-
 content::ClientHintsControllerDelegate*
 AlloyBrowserContext::GetClientHintsControllerDelegate() {
   return nullptr;
@@ -469,6 +460,13 @@ DownloadPrefs* AlloyBrowserContext::GetDownloadPrefs() {
   return download_prefs_.get();
 }
 
-void AlloyBrowserContext::AddVisitedURLs(const std::vector<GURL>& urls) {
-  visitedlink_master_->AddURLs(urls);
+void AlloyBrowserContext::AddVisitedURLs(
+    const GURL& url,
+    const std::vector<GURL>& redirect_chain,
+    ui::PageTransition /*transition*/) {
+  if (!redirect_chain.empty()) {
+    visitedlink_master_->AddURLs(redirect_chain);
+  } else {
+    visitedlink_master_->AddURL(url);
+  }
 }

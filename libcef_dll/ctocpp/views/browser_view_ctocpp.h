@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d407851a21f82fc67289bd6314f31f46e07870df$
+// $hash=a61b633e9b8e4156fd4cdcb778ad54e38106dc0d$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -37,6 +37,7 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefView> GetChromeToolbar() override;
   void SetPreferAccelerators(bool prefer_accelerators) override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 
   // CefView methods.
   CefRefPtr<CefBrowserView> AsBrowserView() override;

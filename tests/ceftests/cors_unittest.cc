@@ -26,7 +26,7 @@ class CorsBrowserTest : public client::ClientAppBrowser::Delegate {
   CorsBrowserTest() = default;
 
   void OnContextInitialized(CefRefPtr<client::ClientAppBrowser> app) override {
-    if (IsChromeRuntimeEnabled()) {
+    if (IsChromeBootstrap()) {
       // Disable InsecureFormNavigationThrottle which blocks 307 redirect of
       // POST requests from HTTPS to custom non-standard scheme causing the
       // CorsTest.RedirectPost307HttpSchemeToCustomNonStandardScheme test to

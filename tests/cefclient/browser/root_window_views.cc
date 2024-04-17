@@ -22,17 +22,8 @@ static const char* kDefaultImageCache[] = {"menu_icon", "window_icon"};
 
 }  // namespace
 
-RootWindowViews::RootWindowViews(RootWindowViews* parent_window) {
-  // |parent_window| will be non-nullptr for popups only.
-  if (parent_window) {
-    CEF_REQUIRE_UI_THREAD();
-
-    // Initialize |config_| for values that are not passed to InitAsPopup().
-    config_ = std::make_unique<RootWindowConfig>(
-        parent_window->config_->command_line);
-    DCHECK(config_->command_line);
-  }
-}
+RootWindowViews::RootWindowViews(bool use_alloy_style)
+    : RootWindow(use_alloy_style) {}
 
 RootWindowViews::~RootWindowViews() {
   REQUIRE_MAIN_THREAD();
@@ -83,8 +74,10 @@ void RootWindowViews::InitAsPopup(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
 
-  // |config_| should be created in the constructor.
-  DCHECK(config_);
+  DCHECK(!config_);
+  config_ = std::make_unique<RootWindowConfig>();
+  config_->use_views = true;
+  config_->use_alloy_style = IsAlloyStyle();
   config_->with_controls = with_controls;
 
   if (popupFeatures.xSet) {

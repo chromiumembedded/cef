@@ -25,6 +25,10 @@ class CefWidget {
   // Returns the CefWidget for |widget|, which must be Views-hosted.
   static CefWidget* GetForWidget(views::Widget* widget);
 
+  // Returns the Widget runtime style.
+  virtual bool IsAlloyStyle() const = 0;
+  bool IsChromeStyle() const { return !IsAlloyStyle(); }
+
   // Returns the Widget associated with this object.
   virtual views::Widget* GetWidget() = 0;
   virtual const views::Widget* GetWidget() const = 0;

@@ -38,6 +38,11 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   static CefRefPtr<ChromeBrowserHostImpl> Create(
       const CefBrowserCreateParams& params);
 
+  // Safe (checked) conversion from CefBrowserHostBase to ChromeBrowserHostImpl.
+  // Use this method instead of static_cast.
+  static CefRefPtr<ChromeBrowserHostImpl> FromBaseChecked(
+      CefRefPtr<CefBrowserHostBase> host_base);
+
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<ChromeBrowserHostImpl> GetBrowserForHost(
       const content::RenderViewHost* host);
@@ -62,6 +67,10 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // CefBrowserHostBase methods called from CefFrameHostImpl:
   void OnSetFocus(cef_focus_source_t source) override;
 
+  // CefBrowserHostBase methods:
+  bool IsWindowless() const override { return false; }
+  bool IsAlloyStyle() const override { return false; }
+
   // CefBrowserHost methods:
   void CloseBrowser(bool force_close) override;
   bool TryCloseBrowser() override;
@@ -72,9 +81,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
             bool matchCase,
             bool findNext) override;
   void StopFinding(bool clearSelection) override;
-  void CloseDevTools() override;
-  bool HasDevTools() override;
-  bool IsWindowRenderingDisabled() override;
+  bool IsWindowRenderingDisabled() override { return false; }
   void WasResized() override;
   void WasHidden(bool hidden) override;
   void NotifyScreenInfoChanged() override;
@@ -124,8 +131,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
  protected:
   bool Navigate(const content::OpenURLParams& params) override;
-  void ShowDevToolsOnUIThread(
-      std::unique_ptr<CefShowDevToolsParams> params) override;
 
  private:
   friend class ChromeBrowserDelegate;
@@ -147,7 +152,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // created. Must be called on the UI thread.
   void Attach(content::WebContents* web_contents,
               bool is_devtools_popup,
-              CefRefPtr<ChromeBrowserHostImpl> opener);
+              CefRefPtr<CefBrowserHostBase> opener);
 
   // Called from ChromeBrowserDelegate::AddNewContents to take ownership of a
   // popup WebContents. |browser_create_params| may be empty for default Browser
@@ -160,9 +165,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // dragging between windows, etc). The old Browser, if any, will be cleared
   // before the new Browser is added. Must be called on the UI thread.
   void SetBrowser(Browser* browser);
-
-  void SetDevToolsBrowserHost(
-      base::WeakPtr<ChromeBrowserHostImpl> devtools_browser_host);
 
   // CefBrowserHostBase methods:
   void WindowDestroyed() override;
@@ -177,8 +179,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   Browser* browser_ = nullptr;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
-
-  base::WeakPtr<ChromeBrowserHostImpl> devtools_browser_host_;
 
   base::WeakPtrFactory<ChromeBrowserHostImpl> weak_ptr_factory_{this};
 };

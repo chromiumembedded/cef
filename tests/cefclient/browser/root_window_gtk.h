@@ -21,7 +21,7 @@ namespace client {
 class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
-  RootWindowGtk();
+  explicit RootWindowGtk(bool use_alloy_style);
   ~RootWindowGtk();
 
   // RootWindow methods.
@@ -52,6 +52,7 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
                         bool initially_hidden);
 
   // BrowserWindow::Delegate methods.
+  bool UseAlloyStyle() const override { return IsAlloyStyle(); }
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserWindowClosing() override;
   void OnBrowserWindowDestroyed() override;

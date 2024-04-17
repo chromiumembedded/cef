@@ -50,6 +50,7 @@ class CefBrowserPlatformDelegateNativeMac
   std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner()
       override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
+  bool IsPrintPreviewSupported() const override;
 
   // CefBrowserPlatformDelegateNative methods:
   content::NativeWebKeyboardEvent TranslateWebKeyEvent(

@@ -35,9 +35,6 @@ class CefBrowserViewView
 
   class Delegate {
    public:
-    // Called when the BrowserView has been added to a parent view.
-    virtual void OnBrowserViewAdded() = 0;
-
     // Called when the BrowserView is added or removed from a Widget.
     virtual void AddedToWidget() = 0;
     virtual void RemovedFromWidget() = 0;

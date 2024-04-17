@@ -9,11 +9,11 @@
 #include <memory>
 #include <string>
 
+#include "libcef/browser/alloy/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_keyed_service_factories.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/file_dialog_runner.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
@@ -191,7 +191,8 @@ AlloyBrowserMainParts::~AlloyBrowserMainParts() {
 }
 
 void AlloyBrowserMainParts::ToolkitInitialized() {
-  SetConstrainedWindowViewsClient(CreateAlloyConstrainedWindowViewsClient());
+  SetConstrainedWindowViewsClient(
+      CreateAlloyConstrainedWindowViewsClient(nullptr));
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 

@@ -48,7 +48,8 @@ class CefBrowserViewImpl
   // nullptr.
   static CefRefPtr<CefBrowserViewImpl> CreateForPopup(
       const CefBrowserSettings& settings,
-      CefRefPtr<CefBrowserViewDelegate> delegate);
+      CefRefPtr<CefBrowserViewDelegate> delegate,
+      bool is_devtools);
 
   // Called from CefBrowserPlatformDelegate[Chrome]Views.
   void WebContentsCreated(content::WebContents* web_contents);
@@ -65,6 +66,7 @@ class CefBrowserViewImpl
   CefRefPtr<CefBrowser> GetBrowser() override;
   CefRefPtr<CefView> GetChromeToolbar() override;
   void SetPreferAccelerators(bool prefer_accelerators) override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 
   // CefView methods:
   CefRefPtr<CefBrowserView> AsBrowserView() override { return this; }
@@ -77,7 +79,6 @@ class CefBrowserViewImpl
   void GetDebugInfo(base::Value::Dict* info, bool include_children) override;
 
   // CefBrowserViewView::Delegate methods:
-  void OnBrowserViewAdded() override;
   void AddedToWidget() override;
   void RemovedFromWidget() override;
   void OnBoundsChanged() override;
@@ -92,11 +93,15 @@ class CefBrowserViewImpl
   // Return the CefWindowImpl hosting this object.
   CefWindowImpl* cef_window_impl() const;
 
+  bool IsAlloyStyle() const { return is_alloy_style_; }
+  bool IsChromeStyle() const { return !is_alloy_style_; }
+
  private:
   // Create a new implementation object.
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
-  explicit CefBrowserViewImpl(CefRefPtr<CefBrowserViewDelegate> delegate);
+  CefBrowserViewImpl(CefRefPtr<CefBrowserViewDelegate> delegate,
+                     bool is_devtools_popup);
 
   void SetPendingBrowserCreateParams(
       const CefWindowInfo& window_info,
@@ -121,6 +126,9 @@ class CefBrowserViewImpl
   void RequestFocusInternal();
 
   void DisassociateFromWidget();
+
+  // True if the browser is Alloy style, otherwise Chrome style.
+  const bool is_alloy_style_;
 
   std::unique_ptr<CefBrowserCreateParams> pending_browser_create_params_;
 

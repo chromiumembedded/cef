@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fce37150f543768b0e9df8c5b8163d0ac4829a52$
+// $hash=88f55766622ea99679e1b4c2748103d397e32117$
 //
 
 #include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
@@ -126,6 +126,24 @@ void CefBrowserViewCToCpp::SetPreferAccelerators(bool prefer_accelerators) {
 
   // Execute
   _struct->set_prefer_accelerators(_struct, prefer_accelerators);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_runtime_style_t CefBrowserViewCToCpp::GetRuntimeStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_view_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_runtime_style)) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_runtime_style_t _retval = _struct->get_runtime_style(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall")

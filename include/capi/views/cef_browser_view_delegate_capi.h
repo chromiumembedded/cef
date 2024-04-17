@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=1f2a6e206b86945386bef57167b80e2fb6067c59$
+// $hash=a0a9f2bfcdf8e05d3d1114fcd8860caaa726ec98$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -141,6 +141,13 @@ typedef struct _cef_browser_view_delegate_t {
       struct _cef_browser_view_delegate_t* self,
       struct _cef_browser_view_t* browser_view,
       cef_gesture_command_t gesture_command);
+
+  ///
+  /// Optionally change the runtime style for this BrowserView. See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_browser_runtime_style)(
+      struct _cef_browser_view_delegate_t* self);
 } cef_browser_view_delegate_t;
 
 #ifdef __cplusplus

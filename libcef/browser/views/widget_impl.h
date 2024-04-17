@@ -49,6 +49,7 @@ class CefWidgetImpl : public views::Widget,
   CefWidgetImpl& operator=(const CefWidgetImpl&) = delete;
 
   // CefWidget methods:
+  bool IsAlloyStyle() const override { return true; }
   views::Widget* GetWidget() override { return this; }
   const views::Widget* GetWidget() const override { return this; }
   void Initialized() override;

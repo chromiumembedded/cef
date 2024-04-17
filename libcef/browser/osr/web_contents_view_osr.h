@@ -39,13 +39,9 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void RenderViewCreated();
 
   // WebContentsView methods.
-  gfx::NativeView GetNativeView() const override { return gfx::NativeView(); }
-  gfx::NativeView GetContentNativeView() const override {
-    return gfx::NativeView();
-  }
-  gfx::NativeWindow GetTopLevelNativeWindow() const override {
-    return gfx::NativeWindow();
-  }
+  gfx::NativeView GetNativeView() const override;
+  gfx::NativeView GetContentNativeView() const override;
+  gfx::NativeWindow GetTopLevelNativeWindow() const override;
   gfx::Rect GetContainerBounds() const override;
   void Focus() override {}
   void SetInitialFocus() override {}

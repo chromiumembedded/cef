@@ -44,14 +44,20 @@ AlloyWebContentsDialogHelper::GetWebContentsModalDialogHost() {
 
 gfx::NativeView AlloyWebContentsDialogHelper::GetHostView() const {
   // Windowless rendering uses GetAcceleratedWidget() instead.
-  if (browser_delegate_->IsWindowless()) {
-    return gfx::NativeView();
+  if (!browser_delegate_->IsWindowless()) {
+#if BUILDFLAG(IS_MAC)
+    // This is supported with all configurations except MacOS with external
+    // parent because we can't provide a gfx::NativeView or a
+    // gfx::AcceleratedWidget on that platform (it's an arbitrary internal
+    // Chromium type). This code should not be reached in that case because
+    // print preview is disabled.
+    DCHECK(!browser_delegate_->HasExternalParent());
+#endif
+    if (auto widget = browser_delegate_->GetWindowWidget()) {
+      return widget->GetNativeView();
+    }
   }
-
-  if (auto widget = browser_delegate_->GetWindowWidget()) {
-    return widget->GetNativeView();
-  }
-  DCHECK(false);
+  NOTIMPLEMENTED();
   return gfx::NativeView();
 }
 
@@ -59,15 +65,13 @@ gfx::AcceleratedWidget AlloyWebContentsDialogHelper::GetAcceleratedWidget()
     const {
 #if defined(USE_AURA)
   // Windowed rendering uses GetHostView() instead.
-  if (!browser_delegate_->IsWindowless()) {
-    return gfx::kNullAcceleratedWidget;
-  }
-
-  if (auto parent_widget = browser_delegate_->GetHostWindowHandle()) {
-    return parent_widget;
+  if (browser_delegate_->IsWindowless()) {
+    if (auto parent_widget = browser_delegate_->GetHostWindowHandle()) {
+      return parent_widget;
+    }
   }
 #endif  // defined(USE_AURA)
-  DCHECK(false);
+  NOTIMPLEMENTED();
   return gfx::kNullAcceleratedWidget;
 }
 

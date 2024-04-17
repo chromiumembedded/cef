@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_
-#define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FRONTEND_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FRONTEND_H_
 
 #include <memory>
 
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/devtools/devtools_file_manager.h"
+#include "libcef/browser/alloy/devtools/devtools_file_manager.h"
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -111,4 +111,4 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FRONTEND_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FRONTEND_H_

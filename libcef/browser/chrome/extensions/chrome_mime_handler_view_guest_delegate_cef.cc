@@ -7,6 +7,7 @@
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/chrome/chrome_context_menu_handler.h"
 
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
@@ -43,6 +44,17 @@ void ChromeMimeHandlerViewGuestDelegateCef::OnGuestDetached() {
   // Disassociate guest state information with the owner browser.
   owner_browser->browser_info()->RemoveFrame(
       web_contents->GetPrimaryMainFrame());
+}
+
+bool ChromeMimeHandlerViewGuestDelegateCef::HandleContextMenu(
+    content::RenderFrameHost& render_frame_host,
+    const content::ContextMenuParams& params) {
+  if (context_menu::HandleContextMenu(owner_web_contents_, params)) {
+    return true;
+  }
+
+  return ChromeMimeHandlerViewGuestDelegate::HandleContextMenu(
+      render_frame_host, params);
 }
 
 }  // namespace extensions

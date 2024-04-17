@@ -18,6 +18,7 @@
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/views/widget.h"
 #include "libcef/browser/views/window_impl.h"
+#include "libcef/features/runtime.h"
 
 #include "base/ranges/algorithm.h"
 #include "ui/base/hit_test.h"
@@ -354,11 +355,39 @@ void UpdateModalDialogPosition(views::Widget* widget,
   widget->SetBounds(gfx::Rect(position, size));
 }
 
+bool ComputeAlloyStyle(CefWindowDelegate* cef_delegate) {
+  const bool supports_chrome_style = cef::IsChromeRuntimeEnabled();
+  const auto default_style = cef::IsAlloyRuntimeEnabled()
+                                 ? CEF_RUNTIME_STYLE_ALLOY
+                                 : CEF_RUNTIME_STYLE_CHROME;
+
+  auto result_style = default_style;
+
+  if (cef_delegate) {
+    auto requested_style = cef_delegate->GetWindowRuntimeStyle();
+    if (requested_style == CEF_RUNTIME_STYLE_ALLOY) {
+      // Alloy style is always supported.
+      result_style = requested_style;
+    } else if (requested_style == CEF_RUNTIME_STYLE_CHROME) {
+      if (supports_chrome_style) {
+        result_style = requested_style;
+      } else {
+        LOG(ERROR) << "GetWindowRuntimeStyle() requested Chrome style; only "
+                      "Alloy style is supported";
+      }
+    }
+  }
+
+  return result_style == CEF_RUNTIME_STYLE_ALLOY;
+}
+
 }  // namespace
 
 CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
                              Delegate* window_delegate)
-    : ParentClass(cef_delegate), window_delegate_(window_delegate) {
+    : ParentClass(cef_delegate),
+      window_delegate_(window_delegate),
+      is_alloy_style_(ComputeAlloyStyle(cef_delegate)) {
   DCHECK(window_delegate_);
 }
 

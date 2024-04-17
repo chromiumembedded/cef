@@ -17,19 +17,28 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/ceftests/test_request.h"
 #include "tests/ceftests/test_util.h"
-#include "tests/shared/common/client_switches.h"
 
 // Set to 1 to enable verbose debugging info logging.
 #define VERBOSE_DEBUGGING 0
 
 namespace {
 
-bool UseViewsGlobal() {
-  static bool use_views = []() {
-    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-        client::switches::kUseViews);
-  }();
-  return use_views;
+cef_runtime_style_t GetExpectedRuntimeStyle(TestHandler* handler,
+                                            bool is_devtools_popup,
+                                            bool is_window) {
+  if (!IsChromeBootstrap()) {
+    // Alloy runtime always uses Alloy style.
+    return CEF_RUNTIME_STYLE_ALLOY;
+  }
+
+  const bool alloy_requested = is_window ? handler->use_alloy_style_window()
+                                         : handler->use_alloy_style_browser();
+
+  // Alloy style is not supported with Chrome DevTools popups.
+  if (alloy_requested && !is_devtools_popup) {
+    return CEF_RUNTIME_STYLE_ALLOY;
+  }
+  return CEF_RUNTIME_STYLE_CHROME;
 }
 
 // Delegate implementation for the CefWindow that will host the Views-based
@@ -39,9 +48,12 @@ class TestWindowDelegate : public CefWindowDelegate {
   // Create a new top-level Window hosting |browser_view|.
   static void CreateBrowserWindow(TestHandler* handler,
                                   CefRefPtr<CefBrowserView> browser_view,
-                                  const std::string& title) {
-    CefWindow::CreateTopLevelWindow(new TestWindowDelegate(
-        handler, browser_view, "CefUnitTestViews " + title));
+                                  bool is_devtools_popup) {
+    auto window = CefWindow::CreateTopLevelWindow(
+        new TestWindowDelegate(handler, browser_view, is_devtools_popup));
+    EXPECT_EQ(
+        GetExpectedRuntimeStyle(handler, is_devtools_popup, /*is_window=*/true),
+        window->GetRuntimeStyle());
   }
 
   // CefWindowDelegate methods:
@@ -49,7 +61,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     // Add the browser view and show the window.
     window->CenterWindow(CefSize(800, 600));
-    window->SetTitle(title_);
+    window->SetTitle(ComputeViewsWindowTitle(window, browser_view_));
     window->AddChildView(browser_view_);
     window->Show();
 
@@ -74,16 +86,26 @@ class TestWindowDelegate : public CefWindowDelegate {
     return true;
   }
 
+  cef_runtime_style_t GetWindowRuntimeStyle() override {
+    // Alloy style is not supported with Chrome DevTools popups.
+    if (handler_->use_alloy_style_window() && !is_devtools_popup_) {
+      return CEF_RUNTIME_STYLE_ALLOY;
+    }
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
  private:
   TestWindowDelegate(TestHandler* handler,
                      CefRefPtr<CefBrowserView> browser_view,
-                     const CefString& title)
-      : handler_(handler), browser_view_(browser_view), title_(title) {}
+                     bool is_devtools_popup)
+      : handler_(handler),
+        browser_view_(browser_view),
+        is_devtools_popup_(is_devtools_popup) {}
 
   TestHandler* const handler_;
   CefRefPtr<CefBrowserView> browser_view_;
+  const bool is_devtools_popup_;
   int browser_id_ = 0;
-  CefString title_;
 
   IMPLEMENT_REFCOUNTING(TestWindowDelegate);
   DISALLOW_COPY_AND_ASSIGN(TestWindowDelegate);
@@ -92,7 +114,8 @@ class TestWindowDelegate : public CefWindowDelegate {
 // Delegate implementation for the CefBrowserView.
 class TestBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
-  explicit TestBrowserViewDelegate(TestHandler* handler) : handler_(handler) {}
+  TestBrowserViewDelegate(TestHandler* handler, bool is_devtools_popup)
+      : handler_(handler), is_devtools_popup_(is_devtools_popup) {}
 
   // CefBrowserViewDelegate methods:
 
@@ -117,14 +140,18 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       bool is_devtools) override {
-    if (client.get() == handler_) {
-      // Use the same Delegate when using the same TestHandler instance.
-      return this;
+    auto* handler = static_cast<TestHandler*>(client.get());
+    if (handler == handler_) {
+      // Use the same Delegate when using the same TestHandler instance if
+      // allowed (e.g. runtime style is also the same).
+      if (GetExpectedRuntimeStyle(handler_, is_devtools, /*is_window=*/false) ==
+          browser_view->GetRuntimeStyle()) {
+        return this;
+      }
     }
 
-    // Return a new Delegate when using a different TestHandler instance.
-    auto* handler = static_cast<TestHandler*>(client.get());
-    return new TestBrowserViewDelegate(handler);
+    // Otherwise return a new Delegate instance.
+    return new TestBrowserViewDelegate(handler, is_devtools);
   }
 
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
@@ -136,12 +163,21 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 
     // Create our own Window for popups. It will show itself after creation.
     TestWindowDelegate::CreateBrowserWindow(handler, popup_browser_view,
-                                            is_devtools ? "DevTools" : "Popup");
+                                            is_devtools);
     return true;
+  }
+
+  cef_runtime_style_t GetBrowserRuntimeStyle() override {
+    // Alloy style is not supported with Chrome DevTools popups.
+    if (handler_->use_alloy_style_browser() && !is_devtools_popup_) {
+      return CEF_RUNTIME_STYLE_ALLOY;
+    }
+    return CEF_RUNTIME_STYLE_DEFAULT;
   }
 
  private:
   TestHandler* const handler_;
+  const bool is_devtools_popup_;
 
   IMPLEMENT_REFCOUNTING(TestBrowserViewDelegate);
   DISALLOW_COPY_AND_ASSIGN(TestBrowserViewDelegate);
@@ -238,7 +274,9 @@ std::atomic<size_t> TestHandler::test_handler_count_{0U};
 
 TestHandler::TestHandler(CompletionState* completion_state)
     : debug_string_prefix_(MakeDebugStringPrefix()),
-      use_views_(UseViewsGlobal()) {
+      use_views_(UseViewsGlobal()),
+      use_alloy_style_browser_(UseAlloyStyleBrowserGlobal()),
+      use_alloy_style_window_(UseAlloyStyleWindowGlobal()) {
   test_handler_count_++;
 
   if (completion_state) {
@@ -548,15 +586,23 @@ void TestHandler::CreateBrowser(const CefString& url,
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         this, url, settings, extra_info, request_context,
-        new TestBrowserViewDelegate(this));
+        new TestBrowserViewDelegate(this, /*is_devtools_popup=*/false));
+    EXPECT_EQ(GetExpectedRuntimeStyle(this, /*is_devtools_popup=*/false,
+                                      /*is_window=*/false),
+              browser_view->GetRuntimeStyle());
 
     // Create the Window. It will show itself after creation.
-    TestWindowDelegate::CreateBrowserWindow(this, browser_view, std::string());
+    TestWindowDelegate::CreateBrowserWindow(this, browser_view,
+                                            /*is_devtools_popup=*/false);
   } else {
 #if defined(OS_WIN)
-    windowInfo.SetAsPopup(nullptr, "CefUnitTest");
+    windowInfo.SetAsPopup(nullptr,
+                          ComputeNativeWindowTitle(use_alloy_style_browser_));
     windowInfo.style |= WS_VISIBLE;
 #endif
+    if (use_alloy_style_browser_) {
+      windowInfo.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+    }
     CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, extra_info,
                                   request_context);
   }
@@ -640,6 +686,24 @@ void TestHandler::SetUseViews(bool use_views) {
   }
 
   use_views_ = use_views;
+}
+
+void TestHandler::SetUseAlloyStyle(bool use_alloy_style_browser,
+                                   bool use_alloy_style_window) {
+  if (!IsChromeBootstrap()) {
+    LOG(WARNING) << "SetUseAlloyStyle is ignored with the Alloy runtime";
+    return;
+  }
+
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&TestHandler::SetUseAlloyStyle, this,
+                                       use_alloy_style_browser,
+                                       use_alloy_style_window));
+    return;
+  }
+
+  use_alloy_style_browser_ = use_alloy_style_browser;
+  use_alloy_style_window_ = use_alloy_style_window;
 }
 
 void TestHandler::SetSignalTestCompletionCount(size_t count) {

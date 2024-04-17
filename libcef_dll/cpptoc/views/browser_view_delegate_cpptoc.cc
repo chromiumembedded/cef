@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c8365b492a81de537ee4d337ca18dae8b3f20e0d$
+// $hash=7b29181006cb13ebca1ba7319e778400f75bab31$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -241,6 +241,26 @@ int CEF_CALLBACK browser_view_delegate_on_gesture_command(
       CefBrowserViewCToCpp::Wrap(browser_view), gesture_command);
 
   // Return type: bool
+  return _retval;
+}
+
+cef_runtime_style_t CEF_CALLBACK
+browser_view_delegate_get_browser_runtime_style(
+    struct _cef_browser_view_delegate_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // Execute
+  cef_runtime_style_t _retval =
+      CefBrowserViewDelegateCppToC::Get(self)->GetBrowserRuntimeStyle();
+
+  // Return type: simple
   return _retval;
 }
 
@@ -553,6 +573,8 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
   GetStruct()->use_frameless_window_for_picture_in_picture =
       browser_view_delegate_use_frameless_window_for_picture_in_picture;
   GetStruct()->on_gesture_command = browser_view_delegate_on_gesture_command;
+  GetStruct()->get_browser_runtime_style =
+      browser_view_delegate_get_browser_runtime_style;
   GetStruct()->base.get_preferred_size =
       browser_view_delegate_get_preferred_size;
   GetStruct()->base.get_minimum_size = browser_view_delegate_get_minimum_size;

@@ -158,7 +158,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "});"
         "}";
 
-    if (test_setup_->deny_implicitly && IsChromeRuntimeEnabled()) {
+    if (test_setup_->deny_implicitly && !use_alloy_style_browser()) {
       // Default behavior with the Chrome runtime is to show a UI prompt, so add
       // a timeout.
       page += "setTimeout(() => { onResult(`TIMEOUT`); }, 1000);";
@@ -334,11 +334,12 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningFalse) {
                                  CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE |
                                      CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE,
                                  CEF_MEDIA_PERMISSION_NONE);
+  const bool use_alloy_style_browser = handler->use_alloy_style_browser();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(test_setup.got_request);
-  if (IsChromeRuntimeEnabled()) {
+  if (!use_alloy_style_browser) {
     // Chrome shows a UI prompt, so we time out.
     EXPECT_TRUE(test_setup.got_js_timeout);
   } else {

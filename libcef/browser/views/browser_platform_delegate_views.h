@@ -33,14 +33,7 @@ class CefBrowserPlatformDelegateViews
   CefWindowHandle GetHostWindowHandle() const override;
   views::Widget* GetWindowWidget() const override;
   CefRefPtr<CefBrowserView> GetBrowserView() const override;
-  void PopupWebContentsCreated(
-      const CefBrowserSettings& settings,
-      CefRefPtr<CefClient> client,
-      content::WebContents* new_web_contents,
-      CefBrowserPlatformDelegate* new_platform_delegate,
-      bool is_devtools) override;
-  void PopupBrowserCreated(CefBrowserHostBase* new_browser,
-                           bool is_devtools) override;
+  void SetBrowserView(CefRefPtr<CefBrowserView> browser_view) override;
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const CefKeyEvent& event) override;
@@ -72,8 +65,6 @@ class CefBrowserPlatformDelegateViews
                                   bool want_dip_coords) const override;
 
  private:
-  void SetBrowserView(CefRefPtr<CefBrowserViewImpl> browser_view);
-
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
   CefRefPtr<CefBrowserViewImpl> browser_view_;
 };

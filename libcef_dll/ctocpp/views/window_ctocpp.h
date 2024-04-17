@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3998ef7a4585ef19268482df51611d0283daf275$
+// $hash=d0c83991173ca5acb77c4bb8525cca3b645a2b19$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -90,6 +90,7 @@ class CefWindowCToCpp
   void RemoveAllAccelerators() override;
   void SetThemeColor(int color_id, cef_color_t color) override;
   void ThemeChanged() override;
+  cef_runtime_style_t GetRuntimeStyle() override;
 
   // CefPanel methods.
   CefRefPtr<CefWindow> AsWindow() override;

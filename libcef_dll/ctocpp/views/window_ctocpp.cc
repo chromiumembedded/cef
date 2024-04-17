@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8b955eda81961599ffef6767305992dbbcd5b12c$
+// $hash=6ebaa8a85615b3a4ea46cf32893e4297667f81a4$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -736,6 +736,24 @@ NO_SANITIZE("cfi-icall") void CefWindowCToCpp::ThemeChanged() {
 
   // Execute
   _struct->theme_changed(_struct);
+}
+
+NO_SANITIZE("cfi-icall")
+cef_runtime_style_t CefWindowCToCpp::GetRuntimeStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_runtime_style)) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_runtime_style_t _retval = _struct->get_runtime_style(_struct);
+
+  // Return type: simple
+  return _retval;
 }
 
 NO_SANITIZE("cfi-icall") CefRefPtr<CefWindow> CefWindowCToCpp::AsWindow() {

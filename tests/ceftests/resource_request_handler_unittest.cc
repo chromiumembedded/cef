@@ -529,7 +529,7 @@ class BasicResponseTest : public TestHandler {
     }
     EXPECT_TRUE(frame->IsMain());
 
-    if (IsChromeRuntimeEnabled()) {
+    if (!use_alloy_style_browser()) {
       // With the Chrome runtime this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
@@ -615,7 +615,8 @@ class BasicResponseTest : public TestHandler {
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return RV_CANCEL;
     }
@@ -795,7 +796,8 @@ class BasicResponseTest : public TestHandler {
                               int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return;
     }
@@ -1557,7 +1559,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
       EXPECT_FALSE(true);  // Not reached.
     }
 
-    if (IsChromeRuntimeEnabled() && IsMainURL(url)) {
+    if (!use_alloy_style_browser() && IsMainURL(url)) {
       // With the Chrome runtime this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
@@ -1680,7 +1682,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return RV_CANCEL;
     }
@@ -1906,7 +1909,8 @@ class SubresourceResponseTest : public RoutingTestHandler {
                               int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return;
     }
@@ -3076,8 +3080,7 @@ class RedirectResponseTest : public TestHandler {
         CefRefPtr<CefCallback> callback) override {
       EXPECT_IO_THREAD();
 
-      if (IsChromeRuntimeEnabled() &&
-          request->GetResourceType() == RT_FAVICON) {
+      if (IsChromeBootstrap() && request->GetResourceType() == RT_FAVICON) {
         // Ignore favicon requests.
         return RV_CANCEL;
       }
@@ -3185,8 +3188,7 @@ class RedirectResponseTest : public TestHandler {
                                 int64_t received_content_length) override {
       EXPECT_IO_THREAD();
 
-      if (IsChromeRuntimeEnabled() &&
-          request->GetResourceType() == RT_FAVICON) {
+      if (IsChromeBootstrap() && request->GetResourceType() == RT_FAVICON) {
         // Ignore favicon requests.
         return;
       }
@@ -3308,7 +3310,8 @@ class BeforeResourceLoadTest : public TestHandler {
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return RV_CANCEL;
     }
@@ -3879,7 +3882,8 @@ class ResponseFilterTestHandler : public TestHandler {
                               int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return;
     }

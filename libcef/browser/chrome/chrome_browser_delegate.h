@@ -52,11 +52,13 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
 
   ~ChromeBrowserDelegate() override;
 
-  // cef::BrowserDelegate methods:
-  Browser* CreateDevToolsBrowser(
+  static Browser* CreateDevToolsBrowser(
       Profile* profile,
       Browser* opener,
-      std::unique_ptr<content::WebContents>& devtools_contents) override;
+      content::WebContents* inspected_web_contents,
+      std::unique_ptr<content::WebContents>& devtools_contents);
+
+  // cef::BrowserDelegate methods:
   std::unique_ptr<content::WebContents> AddWebContents(
       std::unique_ptr<content::WebContents> new_contents) override;
   void OnWebContentsCreated(content::WebContents* new_contents) override;
@@ -121,30 +123,28 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
 
-  void SetPendingShowDevToolsParams(
-      std::unique_ptr<CefShowDevToolsParams> params);
-
   Browser* browser() const { return browser_; }
 
  private:
-  CefRefPtr<ChromeBrowserHostImpl> CreateBrowserHost(
+  static CefRefPtr<ChromeBrowserHostImpl> CreateBrowserHost(
+      Browser* browser,
       content::WebContents* web_contents,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       scoped_refptr<CefBrowserInfo> browser_info,
       bool is_devtools_popup,
-      CefRefPtr<ChromeBrowserHostImpl> opener,
+      CefRefPtr<CefBrowserHostBase> opener,
       CefRefPtr<CefRequestContextImpl> request_context_impl);
 
-  CefRefPtr<ChromeBrowserHostImpl> CreateBrowserHostForPopup(
+  static CefRefPtr<ChromeBrowserHostImpl> CreateBrowserHostForPopup(
       content::WebContents* web_contents,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       CefRefPtr<CefDictionaryValue> extra_info,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate,
       bool is_devtools_popup,
-      CefRefPtr<ChromeBrowserHostImpl> opener);
+      CefRefPtr<CefBrowserHostBase> opener);
 
   CefBrowserContentsDelegate* GetDelegateForWebContents(
       content::WebContents* web_contents) const;
@@ -166,8 +166,6 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   std::optional<bool> show_status_bubble_;
   std::optional<SkRegion> draggable_region_;
   mutable std::optional<bool> frameless_pip_;
-
-  std::unique_ptr<CefShowDevToolsParams> pending_show_devtools_params_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_DELEGATE_H_

@@ -140,6 +140,15 @@ class CefBrowserViewDelegate : public CefViewDelegate {
                                 cef_gesture_command_t gesture_command) {
     return false;
   }
+
+  ///
+  /// Optionally change the runtime style for this BrowserView. See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  /*--cef(default_retval=CEF_RUNTIME_STYLE_DEFAULT)--*/
+  virtual cef_runtime_style_t GetBrowserRuntimeStyle() {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BROWSER_VIEW_DELEGATE_H_

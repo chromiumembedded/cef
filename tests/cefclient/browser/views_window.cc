@@ -113,11 +113,11 @@ void AddFileMenuItems(CefRefPtr<CefMenuModel> file_menu) {
 }
 
 CefBrowserViewDelegate::ChromeToolbarType CalculateChromeToolbarType(
+    bool use_alloy_style,
     const std::string& toolbar_type,
     bool hide_toolbar,
     bool with_overlay_controls) {
-  if (!MainContext::Get()->UseChromeRuntime() || toolbar_type == "none" ||
-      hide_toolbar) {
+  if (use_alloy_style || toolbar_type == "none" || hide_toolbar) {
     return CEF_CTT_NONE;
   }
 
@@ -152,15 +152,24 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
   CefRefPtr<ViewsWindow> views_window =
       new ViewsWindow(type, delegate, nullptr, command_line);
 
+  const auto expected_browser_runtime_style = views_window->use_alloy_style_
+                                                  ? CEF_RUNTIME_STYLE_ALLOY
+                                                  : CEF_RUNTIME_STYLE_CHROME;
+  const auto expected_window_runtime_style =
+      views_window->use_alloy_style_window_ ? CEF_RUNTIME_STYLE_ALLOY
+                                            : CEF_RUNTIME_STYLE_CHROME;
+
   // Create a new BrowserView.
   CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
       client, url, settings, nullptr, request_context, views_window);
+  CHECK_EQ(expected_browser_runtime_style, browser_view->GetRuntimeStyle());
 
   // Associate the BrowserView with the ViewsWindow.
   views_window->SetBrowserView(browser_view);
 
   // Create a new top-level Window. It will show itself after creation.
-  CefWindow::CreateTopLevelWindow(views_window);
+  auto window = CefWindow::CreateTopLevelWindow(views_window);
+  CHECK_EQ(expected_window_runtime_style, window->GetRuntimeStyle());
 
   return views_window;
 }
@@ -292,15 +301,15 @@ void ViewsWindow::SetFavicon(CefRefPtr<CefImage> image) {
 void ViewsWindow::SetFullscreen(bool fullscreen) {
   CEF_REQUIRE_UI_THREAD();
 
-  // For Chrome runtime we ignore this notification from
-  // ClientHandler::OnFullscreenModeChange(). Chrome runtime will trigger
+  // For Chrome style we ignore this notification from
+  // ClientHandler::OnFullscreenModeChange(). Chrome style will trigger
   // the fullscreen change internally and then call
   // OnWindowFullscreenTransition().
-  if (MainContext::Get()->UseChromeRuntime()) {
+  if (!use_alloy_style_) {
     return;
   }
 
-  // For Alloy runtime we need to explicitly trigger the fullscreen change.
+  // For Alloy style we need to explicitly trigger the fullscreen change.
   if (window_) {
     // Results in a call to OnWindowFullscreenTransition().
     window_->SetFullscreen(fullscreen);
@@ -531,6 +540,13 @@ bool ViewsWindow::UseFramelessWindowForPictureInPicture(
   return hide_pip_frame_;
 }
 
+cef_runtime_style_t ViewsWindow::GetBrowserRuntimeStyle() {
+  if (use_alloy_style_) {
+    return CEF_RUNTIME_STYLE_ALLOY;
+  }
+  return CEF_RUNTIME_STYLE_DEFAULT;
+}
+
 void ViewsWindow::OnButtonPressed(CefRefPtr<CefButton> button) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(with_controls_);
@@ -680,10 +696,9 @@ void ViewsWindow::OnWindowFullscreenTransition(CefRefPtr<CefWindow> window,
     ShowTopControls(!window->IsFullscreen());
   }
 
-  // With Alloy runtime we need to explicitly exit browser fullscreen when
-  // exiting window fullscreen. Chrome runtime handles this internally.
-  if (!MainContext::Get()->UseChromeRuntime() && should_change &&
-      !window->IsFullscreen()) {
+  // With Alloy style we need to explicitly exit browser fullscreen when
+  // exiting window fullscreen. Chrome style handles this internally.
+  if (use_alloy_style_ && should_change && !window->IsFullscreen()) {
     CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
     if (browser && browser->GetHost()->IsFullscreen()) {
       // Will not cause a resize because the fullscreen transition has already
@@ -705,6 +720,13 @@ void ViewsWindow::OnThemeColorsChanged(CefRefPtr<CefWindow> window,
                                        bool chrome_theme) {
   // Apply color overrides to the current theme.
   views_style::ApplyTo(window);
+}
+
+cef_runtime_style_t ViewsWindow::GetWindowRuntimeStyle() {
+  if (use_alloy_style_window_) {
+    return CEF_RUNTIME_STYLE_ALLOY;
+  }
+  return CEF_RUNTIME_STYLE_DEFAULT;
 }
 
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -1100,11 +1122,24 @@ ViewsWindow::ViewsWindow(WindowType type,
                          Delegate* delegate,
                          CefRefPtr<CefBrowserView> browser_view,
                          CefRefPtr<CefCommandLine> command_line)
-    : type_(type), delegate_(delegate), command_line_(command_line) {
+    : type_(type),
+      delegate_(delegate),
+      use_alloy_style_(delegate->UseAlloyStyle()),
+      command_line_(command_line) {
   DCHECK(delegate_);
 
   if (browser_view) {
     SetBrowserView(browser_view);
+  }
+
+  if (MainContext::Get()->UseChromeBootstrap()) {
+    use_alloy_style_window_ =
+        use_alloy_style_ &&
+        !command_line_->HasSwitch(switches::kUseChromeStyleWindow);
+  } else {
+    // Alloy bootstrap requires Alloy style.
+    DCHECK(use_alloy_style_);
+    use_alloy_style_window_ = true;
   }
 
   const bool is_normal_type = type_ == WindowType::NORMAL;
@@ -1139,8 +1174,8 @@ ViewsWindow::ViewsWindow(WindowType type,
 
   const std::string& toolbar_type =
       command_line->GetSwitchValue(switches::kShowChromeToolbar);
-  chrome_toolbar_type_ = CalculateChromeToolbarType(toolbar_type, hide_toolbar,
-                                                    with_overlay_controls_);
+  chrome_toolbar_type_ = CalculateChromeToolbarType(
+      use_alloy_style_, toolbar_type, hide_toolbar, with_overlay_controls_);
 
   use_bottom_controls_ = command_line->HasSwitch(switches::kUseBottomControls);
 

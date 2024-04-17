@@ -20,8 +20,11 @@ namespace {
 class SimpleWindowDelegate : public CefWindowDelegate {
  public:
   SimpleWindowDelegate(CefRefPtr<CefBrowserView> browser_view,
+                       cef_runtime_style_t runtime_style,
                        cef_show_state_t initial_show_state)
-      : browser_view_(browser_view), initial_show_state_(initial_show_state) {}
+      : browser_view_(browser_view),
+        runtime_style_(runtime_style),
+        initial_show_state_(initial_show_state) {}
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     // Add the browser view and show the window.
@@ -59,8 +62,13 @@ class SimpleWindowDelegate : public CefWindowDelegate {
     return initial_show_state_;
   }
 
+  cef_runtime_style_t GetWindowRuntimeStyle() override {
+    return runtime_style_;
+  }
+
  private:
   CefRefPtr<CefBrowserView> browser_view_;
+  const cef_runtime_style_t runtime_style_;
   const cef_show_state_t initial_show_state_;
 
   IMPLEMENT_REFCOUNTING(SimpleWindowDelegate);
@@ -69,21 +77,28 @@ class SimpleWindowDelegate : public CefWindowDelegate {
 
 class SimpleBrowserViewDelegate : public CefBrowserViewDelegate {
  public:
-  SimpleBrowserViewDelegate() = default;
+  explicit SimpleBrowserViewDelegate(cef_runtime_style_t runtime_style)
+      : runtime_style_(runtime_style) {}
 
   bool OnPopupBrowserViewCreated(CefRefPtr<CefBrowserView> browser_view,
                                  CefRefPtr<CefBrowserView> popup_browser_view,
                                  bool is_devtools) override {
     // Create a new top-level Window for the popup. It will show itself after
     // creation.
-    CefWindow::CreateTopLevelWindow(
-        new SimpleWindowDelegate(popup_browser_view, CEF_SHOW_STATE_NORMAL));
+    CefWindow::CreateTopLevelWindow(new SimpleWindowDelegate(
+        popup_browser_view, runtime_style_, CEF_SHOW_STATE_NORMAL));
 
     // We created the Window.
     return true;
   }
 
+  cef_runtime_style_t GetBrowserRuntimeStyle() override {
+    return runtime_style_;
+  }
+
  private:
+  const cef_runtime_style_t runtime_style_;
+
   IMPLEMENT_REFCOUNTING(SimpleBrowserViewDelegate);
   DISALLOW_COPY_AND_ASSIGN(SimpleBrowserViewDelegate);
 };
@@ -98,8 +113,19 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
+  // Check if Alloy style will be used. Alloy style is always used with the
+  // Alloy runtime bootstrap and optional with the Chrome runtime bootstrap.
+  bool use_alloy_style = true;
+  cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
+  if (command_line->HasSwitch("enable-chrome-runtime")) {
+    use_alloy_style = command_line->HasSwitch("use-alloy-style");
+    if (use_alloy_style) {
+      runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+    }
+  }
+
   // SimpleHandler implements browser-level callbacks.
-  CefRefPtr<SimpleHandler> handler(new SimpleHandler());
+  CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_alloy_style));
 
   // Specify CEF browser settings here.
   CefBrowserSettings browser_settings;
@@ -120,7 +146,7 @@ void SimpleApp::OnContextInitialized() {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         handler, url, browser_settings, nullptr, nullptr,
-        new SimpleBrowserViewDelegate());
+        new SimpleBrowserViewDelegate(runtime_style));
 
     // Optionally configure the initial show state.
     cef_show_state_t initial_show_state = CEF_SHOW_STATE_NORMAL;
@@ -139,8 +165,8 @@ void SimpleApp::OnContextInitialized() {
 #endif
 
     // Create the Window. It will show itself after creation.
-    CefWindow::CreateTopLevelWindow(
-        new SimpleWindowDelegate(browser_view, initial_show_state));
+    CefWindow::CreateTopLevelWindow(new SimpleWindowDelegate(
+        browser_view, runtime_style, initial_show_state));
   } else {
     // Information used when creating the native window.
     CefWindowInfo window_info;
@@ -150,6 +176,10 @@ void SimpleApp::OnContextInitialized() {
     // CreateWindowEx().
     window_info.SetAsPopup(nullptr, "cefsimple");
 #endif
+
+    // Alloy runtime style will create a basic native window. Chrome runtime
+    // style will create a fully styled Chrome UI window.
+    window_info.runtime_style = runtime_style;
 
     // Create the first browser window.
     CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,

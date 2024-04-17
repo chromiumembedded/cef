@@ -188,12 +188,13 @@ std::string GetContentStatusString(cef_ssl_content_status_t status) {
 }
 
 // Load a data: URI containing the error message.
+// Only used with Alloy style.
 void LoadErrorPage(CefRefPtr<CefFrame> frame,
                    const std::string& title,
                    const std::string& failed_url,
                    const std::string& error_string,
                    const std::string& other_info) {
-  if (MainContext::Get()->UseChromeRuntime()) {
+  if (MainContext::Get()->UseChromeBootstrap()) {
     // Use default error pages with Chrome runtime.
     return;
   }
@@ -480,7 +481,11 @@ ClientHandler::ClientHandler(Delegate* delegate,
                              bool is_osr,
                              bool with_controls,
                              const std::string& startup_url)
-    : is_osr_(is_osr),
+    : use_views_(delegate ? delegate->UseViews()
+                          : MainContext::Get()->UseViewsGlobal()),
+      use_alloy_style_(delegate ? delegate->UseAlloyStyle()
+                                : MainContext::Get()->UseAlloyStyleGlobal()),
+      is_osr_(is_osr),
       with_controls_(with_controls),
       startup_url_(startup_url),
       delegate_(delegate),
@@ -516,7 +521,7 @@ ClientHandler::ClientHandler(Delegate* delegate,
     require_client_dialogs = true;
   }
 
-  if (MainContext::Get()->UseViews()) {
+  if (use_views_) {
     // Client-provided GTK dialogs cannot be used in combination with Views
     // because the implementation of ClientDialogHandlerGtk requires a top-level
     // GtkWindow.
@@ -592,7 +597,7 @@ bool ClientHandler::OnChromeCommand(CefRefPtr<CefBrowser> browser,
                                     int command_id,
                                     cef_window_open_disposition_t disposition) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(MainContext::Get()->UseChromeRuntime());
+  DCHECK(!use_alloy_style_);
 
   const bool allowed = IsAllowedAppMenuCommandId(command_id) ||
                        IsAllowedContextMenuCommandId(command_id);
@@ -620,7 +625,7 @@ bool ClientHandler::OnChromeCommand(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
                                                int command_id) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(MainContext::Get()->UseChromeRuntime());
+  DCHECK(!use_alloy_style_);
   if (!filter_chrome_commands_) {
     return true;
   }
@@ -630,7 +635,7 @@ bool ClientHandler::IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::IsChromePageActionIconVisible(
     cef_chrome_page_action_icon_type_t icon_type) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(MainContext::Get()->UseChromeRuntime());
+  DCHECK(!use_alloy_style_);
   if (!filter_chrome_commands_) {
     return true;
   }
@@ -640,7 +645,7 @@ bool ClientHandler::IsChromePageActionIconVisible(
 bool ClientHandler::IsChromeToolbarButtonVisible(
     cef_chrome_toolbar_button_type_t button_type) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(MainContext::Get()->UseChromeRuntime());
+  DCHECK(!use_alloy_style_);
   if (!filter_chrome_commands_) {
     return true;
   }
@@ -653,8 +658,7 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
                                         CefRefPtr<CefMenuModel> model) {
   CEF_REQUIRE_UI_THREAD();
 
-  const bool use_chrome_runtime = MainContext::Get()->UseChromeRuntime();
-  if (use_chrome_runtime && (!with_controls_ || filter_chrome_commands_)) {
+  if (!use_alloy_style_ && (!with_controls_ || filter_chrome_commands_)) {
     // Remove all disallowed menu items.
     FilterContextMenuModel(model);
   }
@@ -669,8 +673,8 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
     model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
 
-    if (!use_chrome_runtime) {
-      // Chrome runtime already gives us an "Inspect" menu item.
+    if (use_alloy_style_) {
+      // Chrome style already gives us an "Inspect" menu item.
       model->AddSeparator();
       model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
     }
@@ -680,7 +684,7 @@ void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       model->AddItem(CLIENT_ID_SHOW_SSL_INFO, "Show SSL information");
     }
 
-    if (!use_chrome_runtime) {
+    if (use_alloy_style_) {
       // TODO(chrome-runtime): Add support for this.
       model->AddSeparator();
       model->AddCheckItem(CLIENT_ID_CURSOR_CHANGE_DISABLED,
@@ -994,6 +998,12 @@ void ClientHandler::OnBeforeDevToolsPopup(
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  // Sanity-check the configured runtime style.
+  CHECK_EQ(
+      use_alloy_style_ ? CEF_RUNTIME_STYLE_ALLOY : CEF_RUNTIME_STYLE_CHROME,
+      browser->GetHost()->GetRuntimeStyle());
+
   BaseClientHandler::OnAfterCreated(browser);
 
   // Set offline mode if requested via the command-line flag.
@@ -1067,9 +1077,11 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
     }
   }
 
-  // Load the error page.
-  LoadErrorPage(frame, "Page failed to load", failedUrl,
-                test_runner::GetErrorString(errorCode), errorText);
+  if (use_alloy_style_) {
+    // Load the error page.
+    LoadErrorPage(frame, "Page failed to load", failedUrl,
+                  test_runner::GetErrorString(errorCode), errorText);
+  }
 }
 
 bool ClientHandler::OnRequestMediaAccessPermission(
@@ -1159,12 +1171,13 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
     return true;
   }
 
-  CefRefPtr<CefX509Certificate> cert = ssl_info->GetX509Certificate();
-  if (cert.get()) {
-    // Load the error page.
-    LoadErrorPage(browser->GetMainFrame(), "SSL certificate error", request_url,
-                  test_runner::GetErrorString(cert_error),
-                  GetCertificateInformation(cert, ssl_info->GetCertStatus()));
+  if (use_alloy_style_) {
+    if (auto cert = ssl_info->GetX509Certificate()) {
+      // Load the error page.
+      LoadErrorPage(browser->GetMainFrame(), "SSL certificate error",
+                    request_url, test_runner::GetErrorString(cert_error),
+                    GetCertificateInformation(cert, ssl_info->GetCertStatus()));
+    }
   }
 
   return false;  // Cancel the request.
@@ -1234,10 +1247,12 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
 
   // Don't reload the URL that just resulted in termination.
   if (url.find(start_url) == 0) {
-    LoadErrorPage(frame, "Render process terminated", frame->GetURL(),
-                  test_runner::GetErrorString(status) + " (" +
-                      error_string.ToString() + ")",
-                  std::string());
+    if (use_alloy_style_) {
+      LoadErrorPage(frame, "Render process terminated", frame->GetURL(),
+                    test_runner::GetErrorString(status) + " (" +
+                        error_string.ToString() + ")",
+                    std::string());
+    }
     return;
   }
 
@@ -1285,7 +1300,8 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
   CefRefPtr<CefBrowserHost> host = browser->GetHost();
 
   // Test if the DevTools browser already exists.
-  if (!MainContext::Get()->UseChromeRuntime() && !host->HasDevTools()) {
+  if (use_alloy_style_ && !host->HasDevTools() &&
+      !MainContext::Get()->UseChromeBootstrap()) {
     // Potentially create a new RootWindow for the DevTools browser that will be
     // created by ShowDevTools(). For Chrome runtime this occurs in
     // OnBeforeDevToolsPopup instead.
@@ -1369,15 +1385,12 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
                                       CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
-  auto parent_window = RootWindow::GetForBrowser(browser->GetIdentifier());
-  CHECK(parent_window);
-
   // The popup browser will be parented to a new native window.
   // Don't show URL bar and navigation buttons on DevTools windows.
   // May return nullptr if UseDefaultPopup() returns true.
   return !!MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
-      parent_window, with_controls_ && !is_devtools, is_osr_, popupFeatures,
-      windowInfo, client, settings);
+      use_views_, use_alloy_style_, with_controls_ && !is_devtools, is_osr_,
+      is_devtools, popupFeatures, windowInfo, client, settings);
 }
 
 void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {
@@ -1560,7 +1573,7 @@ void ClientHandler::BuildTestMenu(CefRefPtr<CefBrowser> browser,
   theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_GREEN, "Green", 2);
   theme_menu->AddRadioItem(CLIENT_ID_TESTMENU_THEME_COLOR_BLUE, "Blue", 2);
 
-  if (MainContext::Get()->UseChromeRuntime()) {
+  if (!use_alloy_style_) {
     theme_menu->AddSeparator();
     theme_menu->AddItem(CLIENT_ID_TESTMENU_THEME_CUSTOM, "Custom...");
   }

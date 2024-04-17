@@ -10,7 +10,7 @@
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
-#include "tests/cefclient/browser/client_handler_std.h"
+#include "tests/cefclient/browser/default_client_handler.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/shared/browser/extension_util.h"
@@ -39,7 +39,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::GetGlobalCommandLine();
 
-    if (!main_context->UseChromeRuntime() &&
+    if (!main_context->UseChromeBootstrap() &&
         command_line->HasSwitch(switches::kLoadExtension)) {
       // Alloy implementation for loading extensions. Chrome runtime handles
       // this internally.
@@ -113,6 +113,40 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
   DISALLOW_COPY_AND_ASSIGN(ClientRequestContextHandler);
 };
 
+// Ensure a compatible set of window creation attributes.
+void SanityCheckWindowConfig(const bool is_devtools,
+                             bool& use_views,
+                             bool& use_alloy_style,
+                             bool& with_osr) {
+  if (MainContext::Get()->UseChromeBootstrap()) {
+    if (is_devtools && use_alloy_style) {
+      LOG(WARNING)
+          << "Alloy style is not supported with Chrome runtime DevTools;"
+             " using Chrome style.";
+      use_alloy_style = false;
+    }
+
+    if (is_devtools && !use_views) {
+      LOG(WARNING)
+          << "Native parent is not supported with Chrome runtime DevTools;"
+             " using Views.";
+      use_views = true;
+    }
+  }
+
+  if (!use_alloy_style && with_osr) {
+    LOG(WARNING) << "Windowless rendering is not supported with Chrome style;"
+                    " using windowed rendering.";
+    with_osr = false;
+  }
+
+  if (use_views && with_osr) {
+    LOG(WARNING) << "Windowless rendering is not supported with Views;"
+                    " using windowed rendering.";
+    with_osr = false;
+  }
+}
+
 }  // namespace
 
 RootWindowManager::RootWindowManager(bool terminate_when_all_windows_closed)
@@ -136,8 +170,11 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
   CefBrowserSettings settings;
   MainContext::Get()->PopulateBrowserSettings(&settings);
 
+  SanityCheckWindowConfig(/*is_devtools=*/false, config->use_views,
+                          config->use_alloy_style, config->with_osr);
+
   scoped_refptr<RootWindow> root_window = RootWindow::Create(
-      MainContext::Get()->UseViews(), /*parent_window=*/nullptr);
+      config->use_views, config->use_alloy_style);
   root_window->Init(this, std::move(config), settings);
 
   // Store a reference to the root window on the main thread.
@@ -147,22 +184,23 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
 }
 
 scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
-    scoped_refptr<RootWindow> parent_window,
+    bool use_views,
+    bool use_alloy_style,
     bool with_controls,
     bool with_osr,
+    bool is_devtools,
     const CefPopupFeatures& popupFeatures,
     CefWindowInfo& windowInfo,
     CefRefPtr<CefClient>& client,
     CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
-  MainContext::Get()->PopulateBrowserSettings(&settings);
+  SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
 
   if (MainContext::Get()->UseDefaultPopup()) {
     // Use default window creation for the popup. A new |client| instance is
     // still required by cefclient architecture.
-    client = new ClientHandlerStd(/*delegate=*/nullptr, with_controls,
-                                  /*startup_url=*/CefString());
+    client = new DefaultClientHandler();
     return nullptr;
   }
 
@@ -171,11 +209,10 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     temp_window_.reset(new TempWindow());
   }
 
-  const bool use_views = parent_window ? parent_window->IsViewsHosted()
-                                       : MainContext::Get()->UseViews();
+  MainContext::Get()->PopulateBrowserSettings(&settings);
 
   scoped_refptr<RootWindow> root_window =
-      RootWindow::Create(use_views, parent_window);
+      RootWindow::Create(use_views, use_alloy_style);
   root_window->InitAsPopup(this, with_controls, with_osr, popupFeatures,
                            windowInfo, client, settings);
 
@@ -363,7 +400,7 @@ CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
   if (request_context_per_browser_) {
     // Synchronous use of non-global request contexts is not safe with the
     // Chrome runtime.
-    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeRuntime());
+    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeBootstrap());
 
     // Create a new request context for each browser.
     CefRequestContextSettings settings;

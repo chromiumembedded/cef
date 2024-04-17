@@ -5,11 +5,9 @@
 
 #include "libcef/browser/file_dialog_runner.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
-
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/ui/chrome_select_file_policy.h"
+#include "libcef/browser/browser_host_base.h"
 #include "ui/shell_dialogs/select_file_dialog_factory.h"
 #include "ui/shell_dialogs/select_file_policy.h"
 
@@ -69,8 +67,7 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
           static_cast<ChromeSelectFilePolicy*>(select_file_policy_.get());
       auto web_contents = chrome_policy->source_contents();
       if (web_contents) {
-        browser_ = extensions::GetOwnerBrowserForHost(
-            web_contents->GetRenderViewHost(), nullptr);
+        browser_ = CefBrowserHostBase::GetBrowserForContents(web_contents);
       }
       if (!browser_) {
         LOG(WARNING) << "No browser associated with SelectFilePolicy";

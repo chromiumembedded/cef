@@ -573,7 +573,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // Force the browser to be destroyed. This will result in a call to
         // BrowserDestroyed() that will release the reference added in
         // CreateHostWindow().
-        static_cast<AlloyBrowserHostImpl*>(browser)->WindowDestroyed();
+        AlloyBrowserHostImpl::FromBaseChecked(browser)->WindowDestroyed();
       }
       break;
 

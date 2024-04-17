@@ -65,8 +65,9 @@ bool CefBrowserHost::CreateBrowser(
 
   // Verify windowless rendering requirements.
   if (windowInfo.windowless_rendering_enabled &&
-      !client->GetRenderHandler().get()) {
-    DCHECK(false) << "CefRenderHandler implementation is required";
+      (!client || !client->GetRenderHandler().get())) {
+    LOG(ERROR)
+        << "Windowless rendering requires a CefRenderHandler implementation";
     return false;
   }
 
@@ -133,13 +134,15 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 
   // Verify windowless rendering requirements.
   if (windowInfo.windowless_rendering_enabled &&
-      !client->GetRenderHandler().get()) {
-    DCHECK(false) << "CefRenderHandler implementation is required";
+      (!client || !client->GetRenderHandler().get())) {
+    LOG(ERROR)
+        << "Windowless rendering requires a CefRenderHandler implementation";
     return nullptr;
   }
 
   CefBrowserCreateParams create_params;
-  create_params.MaybeSetWindowInfo(windowInfo);
+  create_params.MaybeSetWindowInfo(windowInfo, /*allow_alloy_style=*/true,
+                                   /*allow_chrome_style=*/true);
   create_params.client = client;
   create_params.url = url;
   create_params.settings = settings;
@@ -149,18 +152,121 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   return CefBrowserHostBase::Create(create_params);
 }
 
+// static
+bool CefBrowserCreateParams::IsChromeStyle(const CefWindowInfo* window_info) {
+  if (!cef::IsChromeRuntimeEnabled()) {
+    return false;
+  }
+  if (!window_info) {
+    return true;
+  }
+
+  // Both CHROME and DEFAULT indicate Chrome style with Chrome bootstrap.
+  return window_info->runtime_style == CEF_RUNTIME_STYLE_CHROME ||
+         window_info->runtime_style == CEF_RUNTIME_STYLE_DEFAULT;
+}
+
+bool CefBrowserCreateParams::IsChromeStyle() const {
+  if (!cef::IsChromeRuntimeEnabled()) {
+    return false;
+  }
+
+  const bool chrome_style_via_window_info = IsChromeStyle(window_info.get());
+
+  if (popup_with_alloy_style_opener) {
+    // Creating a popup where the opener is Alloy style.
+    if (chrome_style_via_window_info &&
+        window_info->runtime_style == CEF_RUNTIME_STYLE_CHROME) {
+      // Only use Chrome style for the popup if the client explicitly sets
+      // CHROME (and not DEFAULT) via CefWindowInfo.runtime_style.
+      return true;
+    }
+    return false;
+  }
+
+  if (browser_view) {
+    // Must match the BrowserView style. GetRuntimeStyle() will not return
+    // DEFAULT.
+    return browser_view->GetRuntimeStyle() == CEF_RUNTIME_STYLE_CHROME;
+  }
+
+  // Chrome style does not support windowless rendering.
+  return chrome_style_via_window_info && !IsWindowless();
+}
+
+bool CefBrowserCreateParams::IsWindowless() const {
+  return window_info && window_info->windowless_rendering_enabled && client &&
+         client->GetRenderHandler().get();
+}
+
+// static
+void CefBrowserCreateParams::InitWindowInfo(CefWindowInfo* window_info,
+                                            CefBrowserHostBase* opener) {
+#if BUILDFLAG(IS_WIN)
+  window_info->SetAsPopup(nullptr, CefString());
+#endif
+
+  if (cef::IsChromeRuntimeEnabled() && opener->IsAlloyStyle()) {
+    // Give the popup the same runtime style as the opener.
+    window_info->runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+  }
+}
+
 void CefBrowserCreateParams::MaybeSetWindowInfo(
-    const CefWindowInfo& new_window_info) {
-  if (!cef::IsChromeRuntimeEnabled() ||
+    const CefWindowInfo& new_window_info,
+    bool allow_alloy_style,
+    bool allow_chrome_style) {
+  if (!cef::IsChromeRuntimeEnabled()) {
+    // Chrome style is not supported wih the Alloy bootstrap.
+    allow_chrome_style = false;
+  }
+
+  if (allow_chrome_style && new_window_info.windowless_rendering_enabled) {
+    // Chrome style is not supported with windowles rendering.
+    allow_chrome_style = false;
+  }
+
+#if BUILDFLAG(IS_MAC)
+  if (allow_chrome_style &&
+      chrome_child_window::HasParentHandle(new_window_info)) {
+    // Chrome style is not supported with native parent on MacOS. See issue
+    // #3294.
+    allow_chrome_style = false;
+  }
+#endif
+
+  DCHECK(allow_alloy_style || allow_chrome_style);
+
+  bool reset_style = false;
+  if (new_window_info.runtime_style == CEF_RUNTIME_STYLE_ALLOY &&
+      !allow_alloy_style) {
+    LOG(ERROR) << "Alloy style is not supported for this browser";
+    reset_style = true;
+  } else if (new_window_info.runtime_style == CEF_RUNTIME_STYLE_CHROME &&
+             !allow_chrome_style) {
+    LOG(ERROR) << "Chrome style is not supported for this browser";
+    reset_style = true;
+  }
+
+  const bool is_chrome_style =
+      allow_chrome_style && IsChromeStyle(&new_window_info);
+  if (!is_chrome_style ||
       chrome_child_window::HasParentHandle(new_window_info)) {
     window_info = std::make_unique<CefWindowInfo>(new_window_info);
+    if (cef::IsChromeRuntimeEnabled() && !allow_chrome_style) {
+      // Only Alloy style is allowed.
+      window_info->runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+    } else if (reset_style) {
+      // Use the default style.
+      window_info->runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
+    }
   }
 }
 
 // static
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::Create(
     CefBrowserCreateParams& create_params) {
-  if (cef::IsChromeRuntimeEnabled()) {
+  if (create_params.IsChromeStyle()) {
     if (auto browser =
             chrome_child_window::MaybeCreateChildBrowser(create_params)) {
       return browser.get();

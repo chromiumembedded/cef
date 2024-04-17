@@ -53,10 +53,12 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           CefRenderFrameObserver* render_frame_observer,
                           bool& browser_created,
-                          std::optional<bool>& is_windowless);
+                          std::optional<bool>& is_windowless,
+                          std::optional<bool>& print_preview_enabled);
   void WebViewCreated(blink::WebView* web_view,
                       bool& browser_created,
-                      std::optional<bool>& is_windowless);
+                      std::optional<bool>& is_windowless,
+                      std::optional<bool>& print_preview_enabled);
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders);
@@ -72,9 +74,6 @@ class CefRenderManager : public cef::mojom::RenderManager {
 
   // Returns true if this renderer process is hosting an extension.
   static bool IsExtensionProcess();
-
-  // Returns true if this renderer process is hosting a PDF.
-  static bool IsPdfProcess();
 
  private:
   friend class CefBrowserImpl;
@@ -97,7 +96,8 @@ class CefRenderManager : public cef::mojom::RenderManager {
       blink::WebView* web_view,
       content::RenderFrame* render_frame,
       bool* browser_created,
-      std::optional<bool>* is_windowless);
+      std::optional<bool>* is_windowless,
+      std::optional<bool>* print_preview_enabled);
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);

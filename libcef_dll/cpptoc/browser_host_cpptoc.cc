@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=790f88d9d22bbef9882470f0980f5e7e446d30c5$
+// $hash=c6611682e7524936295e32a429dd92a22646a95a$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -1524,6 +1524,25 @@ browser_host_is_render_process_unresponsive(struct _cef_browser_host_t* self) {
   return _retval;
 }
 
+cef_runtime_style_t CEF_CALLBACK
+browser_host_get_runtime_style(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return CEF_RUNTIME_STYLE_DEFAULT;
+  }
+
+  // Execute
+  cef_runtime_style_t _retval =
+      CefBrowserHostCppToC::Get(self)->GetRuntimeStyle();
+
+  // Return type: simple
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -1608,6 +1627,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->execute_chrome_command = browser_host_execute_chrome_command;
   GetStruct()->is_render_process_unresponsive =
       browser_host_is_render_process_unresponsive;
+  GetStruct()->get_runtime_style = browser_host_get_runtime_style;
 }
 
 // DESTRUCTOR - Do not edit by hand.

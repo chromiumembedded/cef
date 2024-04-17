@@ -4,12 +4,21 @@
 
 #include "libcef/browser/browser_platform_delegate.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "include/views/cef_window.h"
+#include "include/views/cef_window_delegate.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/views/browser_view_impl.h"
+#include "libcef/common/cef_switches.h"
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "chrome/browser/platform_util.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/shell_integration.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/pref_names.h"
+#include "components/prefs/pref_service.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -27,6 +36,39 @@ void ExecuteExternalProtocol(const GURL& url) {
 
   CEF_POST_TASK(TID_UI, base::BindOnce(&platform_util::OpenExternal, url));
 }
+
+// Default popup window delegate implementation.
+class PopupWindowDelegate : public CefWindowDelegate {
+ public:
+  explicit PopupWindowDelegate(CefRefPtr<CefBrowserView> browser_view)
+      : browser_view_(browser_view) {}
+
+  PopupWindowDelegate(const PopupWindowDelegate&) = delete;
+  PopupWindowDelegate& operator=(const PopupWindowDelegate&) = delete;
+
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override {
+    window->AddChildView(browser_view_);
+    window->Show();
+    browser_view_->RequestFocus();
+  }
+
+  void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
+    browser_view_ = nullptr;
+  }
+
+  bool CanClose(CefRefPtr<CefWindow> window) override {
+    CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
+    if (browser) {
+      return browser->GetHost()->TryCloseBrowser();
+    }
+    return true;
+  }
+
+ private:
+  CefRefPtr<CefBrowserView> browser_view_;
+
+  IMPLEMENT_REFCOUNTING(PopupWindowDelegate);
+};
 
 }  // namespace
 
@@ -147,8 +189,12 @@ views::Widget* CefBrowserPlatformDelegate::GetWindowWidget() const {
 }
 
 CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
-  DCHECK(false);
   return nullptr;
+}
+
+void CefBrowserPlatformDelegate::SetBrowserView(
+    CefRefPtr<CefBrowserView> browser_view) {
+  DCHECK(false);
 }
 
 web_modal::WebContentsModalDialogHost*
@@ -162,11 +208,79 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
     CefRefPtr<CefClient> client,
     content::WebContents* new_web_contents,
     CefBrowserPlatformDelegate* new_platform_delegate,
-    bool is_devtools) {}
+    bool is_devtools) {
+  // Default popup handling may not be Views-hosted.
+  if (!new_platform_delegate->IsViewsHosted()) {
+    return;
+  }
+
+  CefRefPtr<CefBrowserViewDelegate> new_delegate;
+
+  CefRefPtr<CefBrowserViewDelegate> opener_delegate;
+  auto browser_view = GetBrowserView();
+  if (browser_view) {
+    // When |this| (the popup opener) is Views-hosted use the current delegate.
+    opener_delegate =
+        static_cast<CefBrowserViewImpl*>(browser_view.get())->delegate();
+  }
+  if (!opener_delegate) {
+    opener_delegate =
+        new_platform_delegate->GetDefaultBrowserViewDelegateForPopupOpener();
+  }
+  if (opener_delegate) {
+    new_delegate = opener_delegate->GetDelegateForPopupBrowserView(
+        browser_view, settings, client, is_devtools);
+  }
+
+  // Create a new BrowserView for the popup.
+  CefRefPtr<CefBrowserViewImpl> new_browser_view =
+      CefBrowserViewImpl::CreateForPopup(settings, new_delegate, is_devtools);
+
+  // Associate the PlatformDelegate with the new BrowserView.
+  new_platform_delegate->SetBrowserView(new_browser_view);
+}
 
 void CefBrowserPlatformDelegate::PopupBrowserCreated(
+    CefBrowserPlatformDelegate* new_platform_delegate,
     CefBrowserHostBase* new_browser,
-    bool is_devtools) {}
+    bool is_devtools) {
+  // Default popup handling may not be Views-hosted.
+  if (!new_platform_delegate->IsViewsHosted()) {
+    return;
+  }
+
+  CefRefPtr<CefBrowserView> new_browser_view =
+      CefBrowserView::GetForBrowser(new_browser);
+  CHECK(new_browser_view);
+
+  bool popup_handled = false;
+
+  CefRefPtr<CefBrowserViewDelegate> opener_delegate;
+  auto browser_view = GetBrowserView();
+  if (browser_view) {
+    // When |this| (the popup opener) is Views-hosted use the current delegate.
+    opener_delegate =
+        static_cast<CefBrowserViewImpl*>(browser_view.get())->delegate();
+  }
+  if (!opener_delegate) {
+    opener_delegate =
+        new_platform_delegate->GetDefaultBrowserViewDelegateForPopupOpener();
+  }
+  if (opener_delegate) {
+    popup_handled = opener_delegate->OnPopupBrowserViewCreated(
+        browser_view, new_browser_view.get(), is_devtools);
+  }
+
+  if (!popup_handled) {
+    CefWindow::CreateTopLevelWindow(
+        new PopupWindowDelegate(new_browser_view.get()));
+  }
+}
+
+CefRefPtr<CefBrowserViewDelegate>
+CefBrowserPlatformDelegate::GetDefaultBrowserViewDelegateForPopupOpener() {
+  return nullptr;
+}
 
 SkColor CefBrowserPlatformDelegate::GetBackgroundColor() const {
   DCHECK(false);
@@ -434,6 +548,34 @@ void CefBrowserPlatformDelegate::SetAccessibilityState(
 }
 
 bool CefBrowserPlatformDelegate::IsPrintPreviewSupported() const {
+  if (IsWindowless()) {
+    // Not supported with windowless rendering.
+    return false;
+  }
+
+  if (web_contents_) {
+    auto cef_browser_context = CefBrowserContext::FromBrowserContext(
+        web_contents_->GetBrowserContext());
+    if (cef_browser_context->AsProfile()->GetPrefs()->GetBoolean(
+            prefs::kPrintPreviewDisabled)) {
+      // Disabled on the Profile.
+      return false;
+    }
+  }
+
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kDisablePrintPreview)) {
+    // Disabled explicitly via the command-line.
+    return false;
+  }
+
+  const bool default_disabled = IsAlloyStyle();
+  if (default_disabled &&
+      !command_line->HasSwitch(switches::kEnablePrintPreview)) {
+    // Default disabled and not enabled explicitly via the command-line.
+    return false;
+  }
+
   return true;
 }
 

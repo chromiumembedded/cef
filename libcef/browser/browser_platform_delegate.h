@@ -88,7 +88,7 @@ class CefBrowserPlatformDelegate {
   static std::unique_ptr<CefBrowserPlatformDelegate> Create(
       const CefBrowserCreateParams& create_params);
 
-  // Called from AlloyBrowserHostImpl::Create.
+  // Called from BrowserHost::Create.
   // Wait for the call to WebContentsCreated(owned=true) before taking ownership
   // of the resulting WebContents object.
   virtual content::WebContents* CreateWebContents(
@@ -136,12 +136,12 @@ class CefBrowserPlatformDelegate {
   // See WebContentsObserver documentation.
   virtual void RenderViewReady();
 
-  // Called after the owning AlloyBrowserHostImpl is created. Will only be
+  // Called after the owning BrowserHost is created. Will only be
   // called a single time per instance. Do not send any client notifications
   // from this method.
   virtual void BrowserCreated(CefBrowserHostBase* browser);
 
-  // Called from AlloyBrowserHostImpl::Create.
+  // Called from BrowserHost::Create.
   virtual void CreateExtensionHost(const extensions::Extension* extension,
                                    const GURL& url,
                                    extensions::mojom::ViewType host_type);
@@ -157,9 +157,9 @@ class CefBrowserPlatformDelegate {
   // BrowserDestroyed().
   virtual void NotifyBrowserDestroyed();
 
-  // Called before the owning AlloyBrowserHostImpl is destroyed. Will only be
+  // Called before the owning BrowserHost is destroyed. Will only be
   // called a single time per instance. All references to the
-  // AlloyBrowserHostImpl and WebContents should be cleared when this method is
+  // BrowserHost and WebContents should be cleared when this method is
   // called. Do not send any client notifications from this method.
   virtual void BrowserDestroyed(CefBrowserHostBase* browser);
 
@@ -182,35 +182,48 @@ class CefBrowserPlatformDelegate {
   // rendering.
   virtual views::Widget* GetWindowWidget() const;
 
-  // Returns the BrowserView associated with this browser. Only used with views-
+  // Returns the BrowserView associated with this browser. Only used with Views-
   // based browsers.
   virtual CefRefPtr<CefBrowserView> GetBrowserView() const;
+
+  // Sets the BrowserView associated with this browser. Only used with
+  // Views-based browsers.
+  virtual void SetBrowserView(CefRefPtr<CefBrowserView> browser_view);
 
   // Returns the WebContentsModalDialogHost associated with this browser.
   virtual web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
       const;
 
   // Called after the WebContents have been created for a new popup browser
-  // parented to this browser but before the AlloyBrowserHostImpl is created for
-  // the popup. |is_devtools| will be true if the popup will host DevTools. This
+  // parented to this browser but before the BrowserHost is created for the
+  // popup. |is_devtools| will be true if the popup will host DevTools. This
   // method will be called before WebContentsCreated() is called on
-  // |new_platform_delegate|. Do not make the new browser visible in this
+  // |new_platform_delegate|. Does not make the new browser visible in this
   // callback.
-  virtual void PopupWebContentsCreated(
+  void PopupWebContentsCreated(
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* new_web_contents,
       CefBrowserPlatformDelegate* new_platform_delegate,
       bool is_devtools);
 
-  // Called after the AlloyBrowserHostImpl is created for a new popup browser
-  // parented to this browser. |is_devtools| will be true if the popup will host
-  // DevTools. This method will be called immediately after
+  // Called after the BrowserHost is created for a new popup browser parented to
+  // this browser. |is_devtools| will be true if the popup will host DevTools.
+  // This method will be called immediately after
   // CefLifeSpanHandler::OnAfterCreated() for the popup browser. It is safe to
   // make the new browser visible in this callback (for example, add the browser
   // to a window and show it).
-  virtual void PopupBrowserCreated(CefBrowserHostBase* new_browser,
-                                   bool is_devtools);
+  void PopupBrowserCreated(CefBrowserPlatformDelegate* new_platform_delegate,
+                           CefBrowserHostBase* new_browser,
+                           bool is_devtools);
+
+  // Called from PopupWebContentsCreated/PopupBrowserCreated to retrieve the
+  // default BrowserViewDelegate in cases where this is a new Views-based popup
+  // and the opener is either not Views-based or doesn't implement the
+  // BrowserViewDelegate. Only implemented for specific configurations where
+  // special handling of new popups is required for proper functioning.
+  virtual CefRefPtr<CefBrowserViewDelegate>
+  GetDefaultBrowserViewDelegateForPopupOpener();
 
   // Returns the background color for the browser. The alpha component will be
   // either SK_AlphaTRANSPARENT or SK_AlphaOPAQUE (e.g. fully transparent or
@@ -293,6 +306,11 @@ class CefBrowserPlatformDelegate {
   // Returns true if this delegate implements views-hosted browser handling. May
   // be called on multiple threads.
   virtual bool IsViewsHosted() const;
+
+  // Returns the runtime style implemented by this delegate. May be called on
+  // multiple threads.
+  virtual bool IsAlloyStyle() const = 0;
+  bool IsChromeStyle() const { return !IsAlloyStyle(); }
 
   // Returns true if this delegate implements a browser with external
   // (client-provided) parent window. May be called on multiple threads.

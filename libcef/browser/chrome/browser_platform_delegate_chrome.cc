@@ -119,11 +119,6 @@ CefEventHandle CefBrowserPlatformDelegateChrome::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-bool CefBrowserPlatformDelegateChrome::IsPrintPreviewSupported() const {
-  return chrome_browser_ && !chrome_browser_->profile()->GetPrefs()->GetBoolean(
-                                prefs::kPrintPreviewDisabled);
-}
-
 CefWindowHandle CefBrowserPlatformDelegateChrome::GetParentWindowHandle()
     const {
   return GetHostWindowHandle();
@@ -143,6 +138,9 @@ gfx::NativeWindow CefBrowserPlatformDelegateChrome::GetNativeWindow() const {
   if (chrome_browser_ && chrome_browser_->window()) {
     return chrome_browser_->window()->GetNativeWindow();
   }
-  DCHECK(false);
+  if (web_contents_) {
+    return web_contents_->GetTopLevelNativeWindow();
+  }
+  NOTIMPLEMENTED();
   return gfx::NativeWindow();
 }

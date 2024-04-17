@@ -219,6 +219,8 @@ class TestHandler : public CefClient,
   }
 
   std::string debug_string_prefix() const { return debug_string_prefix_; }
+  bool use_alloy_style_browser() const { return use_alloy_style_browser_; }
+  bool use_alloy_style_window() const { return use_alloy_style_window_; }
 
  protected:
   // Indicate that test setup is complete. Only used in combination with a
@@ -277,10 +279,18 @@ class TestHandler : public CefClient,
   // Call OnTestTimeout() after the specified amount of time.
   void SetTestTimeout(int timeout_ms = 5000, bool treat_as_error = true);
 
-  // Call prior to CreateBrowser() to configure whether browsers will be created
-  // as Views-hosted. Defaults to false unless the `--use-views` command-line
-  // flag is specified.
+  // Call prior to CreateBrowser() to configure whether browsers and windows
+  // will be created as Views-hosted. Defaults to false unless the `--use-views`
+  // command-line flag is specified.
   void SetUseViews(bool use_views);
+
+  // Call prior to CreateBrowser() to configure whether browsers (and windows
+  // with Views) will be created as Alloy style or Chrome style. Alloy style is
+  // always used with the Alloy runtime and optional with the Chrome runtime.
+  // Defaults to false for the Chrome runtime unless the
+  // `--use-alloy-style` command-line flag is specified.
+  void SetUseAlloyStyle(bool use_alloy_style_browser,
+                        bool use_alloy_style_window);
 
   // Returns the single UIThreadHelper instance, creating it if necessary. Must
   // be called on the UI thread.
@@ -308,6 +318,8 @@ class TestHandler : public CefClient,
   bool completion_state_owned_;
 
   bool use_views_;
+  bool use_alloy_style_browser_;
+  bool use_alloy_style_window_;
 
   // Map of browser ID to browser object. Only accessed on the UI thread.
   BrowserMap browser_map_;

@@ -67,7 +67,8 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   CefBrowserImpl(blink::WebView* web_view,
                  int browser_id,
                  bool is_popup,
-                 bool is_windowless);
+                 bool is_windowless,
+                 bool print_preview_enabled);
 
   CefBrowserImpl(const CefBrowserImpl&) = delete;
   CefBrowserImpl& operator=(const CefBrowserImpl&) = delete;
@@ -81,6 +82,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
+  bool print_preview_enabled() const { return print_preview_enabled_; }
 
   // blink::WebViewObserver methods.
   void OnDestruct() override;
@@ -93,9 +95,10 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   // ID of the browser that this RenderView is associated with. During loading
   // of cross-origin requests multiple RenderViews may be associated with the
   // same browser ID.
-  int browser_id_;
-  bool is_popup_;
-  bool is_windowless_;
+  const int browser_id_;
+  const bool is_popup_;
+  const bool is_windowless_;
+  const bool print_preview_enabled_;
 
   // Map of unique frame tokens to CefFrameImpl references.
   using FrameMap = std::map<blink::LocalFrameToken, CefRefPtr<CefFrameImpl>>;

@@ -36,6 +36,7 @@
 #if defined(OS_MAC)
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types_geometry.h"
+#include "include/internal/cef_types_runtime.h"
 
 // Handle types.
 // Actually NSCursor*
@@ -134,6 +135,13 @@ typedef struct _cef_window_info_t {
   /// rendering.
   ///
   cef_window_handle_t view;
+
+  ///
+  /// Optionally change the runtime style. Alloy style will always be used if
+  /// |windowless_rendering_enabled| is true or if |parent_view| is provided.
+  /// See cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t runtime_style;
 } cef_window_info_t;
 
 #ifdef __cplusplus

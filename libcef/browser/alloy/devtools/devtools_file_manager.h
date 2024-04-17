@@ -2,8 +2,8 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
-#define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
+#ifndef CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
+#define CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
 
 #include "base/functional/callback_forward.h"
 #include "base/memory/weak_ptr.h"
@@ -79,4 +79,4 @@ class CefDevToolsFileManager {
   base::WeakPtrFactory<CefDevToolsFileManager> weak_factory_;
 };
 
-#endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_
+#endif  // CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_DEVTOOLS_FILE_MANAGER_H_

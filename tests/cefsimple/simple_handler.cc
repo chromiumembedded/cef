@@ -28,7 +28,8 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type) {
 
 }  // namespace
 
-SimpleHandler::SimpleHandler() {
+SimpleHandler::SimpleHandler(bool is_alloy_style)
+    : is_alloy_style_(is_alloy_style) {
   DCHECK(!g_instance);
   g_instance = this;
 }
@@ -52,7 +53,7 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
     if (window) {
       window->SetTitle(title);
     }
-  } else if (!IsChromeRuntimeEnabled()) {
+  } else if (is_alloy_style_) {
     // Set the title of the window using platform APIs.
     PlatformTitleChange(browser, title);
   }
@@ -60,6 +61,10 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  // Sanity-check the configured runtime style.
+  CHECK_EQ(is_alloy_style_ ? CEF_RUNTIME_STYLE_ALLOY : CEF_RUNTIME_STYLE_CHROME,
+           browser->GetHost()->GetRuntimeStyle());
 
   // Add to the list of existing browsers.
   browser_list_.push_back(browser);
@@ -107,7 +112,7 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   // Allow Chrome to show the error page.
-  if (IsChromeRuntimeEnabled()) {
+  if (!is_alloy_style_) {
     return;
   }
 
@@ -144,7 +149,7 @@ void SimpleHandler::ShowMainWindow() {
     if (auto window = browser_view->GetWindow()) {
       window->Show();
     }
-  } else if (!IsChromeRuntimeEnabled()) {
+  } else if (is_alloy_style_) {
     PlatformShowWindow(main_browser);
   }
 }
@@ -165,15 +170,6 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
   for (; it != browser_list_.end(); ++it) {
     (*it)->GetHost()->CloseBrowser(force_close);
   }
-}
-
-// static
-bool SimpleHandler::IsChromeRuntimeEnabled() {
-  static bool enabled = []() {
-    return CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-        "enable-chrome-runtime");
-  }();
-  return enabled;
 }
 
 #if !defined(OS_MAC)

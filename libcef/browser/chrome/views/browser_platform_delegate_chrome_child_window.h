@@ -17,6 +17,8 @@ class CefBrowserPlatformDelegateChromeChildWindow
 
   // CefBrowserPlatformDelegate overrides.
   void CloseHostWindow() override;
+  CefRefPtr<CefBrowserViewDelegate>
+  GetDefaultBrowserViewDelegateForPopupOpener() override;
   void SetFocus(bool focus) override;
 
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))

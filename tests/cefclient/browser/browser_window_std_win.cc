@@ -32,6 +32,10 @@ void BrowserWindowStdWin::CreateBrowser(
     window_info.ex_style |= WS_EX_NOACTIVATE;
   }
 
+  if (delegate_->UseAlloyStyle()) {
+    window_info.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+  }
+
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(), settings,
                                 extra_info, request_context);
@@ -48,6 +52,10 @@ void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
 
   // Don't activate the hidden browser window on creation.
   windowInfo.ex_style |= WS_EX_NOACTIVATE;
+
+  if (delegate_->UseAlloyStyle()) {
+    windowInfo.runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+  }
 
   client = client_handler_;
 }

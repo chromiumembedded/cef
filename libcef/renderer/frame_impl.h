@@ -145,7 +145,7 @@ class CefFrameImpl
   void MaybeInitializeScriptContext();
 
   // cef::mojom::RenderFrame methods:
-  void FrameAttachedAck() override;
+  void FrameAttachedAck(bool allow) override;
   void FrameDetached() override;
   void SendMessage(const std::string& name,
                    base::Value::List arguments) override;
@@ -176,6 +176,8 @@ class CefFrameImpl
 
   bool context_created_ = false;
   std::queue<std::pair<std::string, LocalFrameAction>> queued_context_actions_;
+
+  bool attach_denied_ = false;
 
   // Number of times that browser reconnect has been attempted.
   size_t browser_connect_retry_ct_ = 0;

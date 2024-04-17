@@ -69,6 +69,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
   bool OnKeyEvent(CefRefPtr<CefWindow> window,
                   const CefKeyEvent& event) override;
+  cef_runtime_style_t GetWindowRuntimeStyle() override;
 
  protected:
   TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,

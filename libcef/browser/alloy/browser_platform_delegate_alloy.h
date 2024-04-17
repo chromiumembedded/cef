@@ -51,10 +51,10 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   bool PreHandleGestureEvent(content::WebContents* source,
                              const blink::WebGestureEvent& event) override;
   bool IsNeverComposited(content::WebContents* web_contents) override;
+  bool IsAlloyStyle() const override { return true; }
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;
-  bool IsPrintPreviewSupported() const override;
   void Find(const CefString& searchText,
             bool forward,
             bool matchCase,

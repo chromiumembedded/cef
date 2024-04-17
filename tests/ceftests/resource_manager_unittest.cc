@@ -91,7 +91,8 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override {
-    if (IsChromeRuntimeEnabled() && request->GetResourceType() == RT_FAVICON) {
+    if (!use_alloy_style_browser() &&
+        request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return RV_CANCEL;
     }

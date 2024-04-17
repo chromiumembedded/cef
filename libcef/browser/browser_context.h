@@ -20,6 +20,7 @@
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
+#include "ui/base/page_transition_types.h"
 #include "url/origin.h"
 
 /*
@@ -172,8 +173,11 @@ class CefBrowserContext {
   // Called from CefExtensionImpl::Unload().
   virtual bool UnloadExtension(const CefString& extension_id);
 
-  // Returns true if this context supports print preview.
-  virtual bool IsPrintPreviewSupported() const;
+  // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
+  // of visited links.
+  virtual void AddVisitedURLs(const GURL& url,
+                              const std::vector<GURL>& redirect_chain,
+                              ui::PageTransition transition) = 0;
 
   network::mojom::NetworkContext* GetNetworkContext();
 

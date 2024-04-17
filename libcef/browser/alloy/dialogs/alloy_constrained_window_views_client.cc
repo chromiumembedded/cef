@@ -15,7 +15,10 @@ namespace {
 class AlloyConstrainedWindowViewsClient
     : public constrained_window::ConstrainedWindowViewsClient {
  public:
-  AlloyConstrainedWindowViewsClient() = default;
+  explicit AlloyConstrainedWindowViewsClient(
+      std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
+          chrome_client)
+      : chrome_client_(std::move(chrome_client)) {}
 
   AlloyConstrainedWindowViewsClient(const AlloyConstrainedWindowViewsClient&) =
       delete;
@@ -26,6 +29,12 @@ class AlloyConstrainedWindowViewsClient
   // ConstrainedWindowViewsClient methods:
   web_modal::ModalDialogHost* GetModalDialogHost(
       gfx::NativeWindow parent) override {
+    if (chrome_client_) {
+      if (auto dialog_host = chrome_client_->GetModalDialogHost(parent)) {
+        return dialog_host;
+      }
+    }
+
     if (auto browser = GetPreferredBrowser(parent)) {
       return browser->platform_delegate()->GetWebContentsModalDialogHost();
     }
@@ -34,6 +43,12 @@ class AlloyConstrainedWindowViewsClient
   }
 
   gfx::NativeView GetDialogHostView(gfx::NativeWindow parent) override {
+    if (chrome_client_) {
+      if (auto host_view = chrome_client_->GetDialogHostView(parent)) {
+        return host_view;
+      }
+    }
+
     if (auto dialog_host = GetModalDialogHost(parent)) {
       return dialog_host->GetHostView();
     }
@@ -66,11 +81,17 @@ class AlloyConstrainedWindowViewsClient
 
     return browser;
   }
+
+  std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
+      chrome_client_;
 };
 
 }  // namespace
 
 std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
-CreateAlloyConstrainedWindowViewsClient() {
-  return std::make_unique<AlloyConstrainedWindowViewsClient>();
+CreateAlloyConstrainedWindowViewsClient(
+    std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
+        chrome_client) {
+  return std::make_unique<AlloyConstrainedWindowViewsClient>(
+      std::move(chrome_client));
 }

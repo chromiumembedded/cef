@@ -57,19 +57,25 @@ class CefGuestView : public blink::WebViewObserver {
  public:
   CefGuestView(CefRenderManager* manager,
                blink::WebView* web_view,
-               bool is_windowless)
+               std::optional<bool> is_windowless,
+               std::optional<bool> print_preview_enabled)
       : blink::WebViewObserver(web_view),
         manager_(manager),
-        is_windowless_(is_windowless) {}
+        is_windowless_(is_windowless),
+        print_preview_enabled_(print_preview_enabled) {}
 
-  bool is_windowless() const { return is_windowless_; }
+  std::optional<bool> is_windowless() const { return is_windowless_; }
+  std::optional<bool> print_preview_enabled() const {
+    return print_preview_enabled_;
+  }
 
  private:
   // RenderViewObserver methods.
   void OnDestruct() override { manager_->OnGuestViewDestroyed(this); }
 
   CefRenderManager* const manager_;
-  const bool is_windowless_;
+  const std::optional<bool> is_windowless_;
+  const std::optional<bool> print_preview_enabled_;
 };
 
 CefRenderManager::CefRenderManager() {
@@ -105,9 +111,11 @@ void CefRenderManager::RenderFrameCreated(
     content::RenderFrame* render_frame,
     CefRenderFrameObserver* render_frame_observer,
     bool& browser_created,
-    std::optional<bool>& is_windowless) {
+    std::optional<bool>& is_windowless,
+    std::optional<bool>& print_preview_enabled) {
   auto browser = MaybeCreateBrowser(render_frame->GetWebView(), render_frame,
-                                    &browser_created, &is_windowless);
+                                    &browser_created, &is_windowless,
+                                    &print_preview_enabled);
   if (browser) {
     // Attach the frame to the observer for message routing purposes.
     render_frame_observer->AttachFrame(
@@ -120,16 +128,19 @@ void CefRenderManager::RenderFrameCreated(
   render_frame->GetWebView()->SetSupportsAppRegion(true);
 }
 
-void CefRenderManager::WebViewCreated(blink::WebView* web_view,
-                                      bool& browser_created,
-                                      std::optional<bool>& is_windowless) {
+void CefRenderManager::WebViewCreated(
+    blink::WebView* web_view,
+    bool& browser_created,
+    std::optional<bool>& is_windowless,
+    std::optional<bool>& print_preview_enabled) {
   content::RenderFrame* render_frame = nullptr;
   if (web_view->MainFrame()->IsWebLocalFrame()) {
     render_frame = content::RenderFrame::FromWebFrame(
         web_view->MainFrame()->ToWebLocalFrame());
   }
 
-  MaybeCreateBrowser(web_view, render_frame, &browser_created, &is_windowless);
+  MaybeCreateBrowser(web_view, render_frame, &browser_created, &is_windowless,
+                     &print_preview_enabled);
 }
 
 void CefRenderManager::DevToolsAgentAttached() {
@@ -193,12 +204,6 @@ CefRenderManager::GetBrowserManager() {
 bool CefRenderManager::IsExtensionProcess() {
   return base::CommandLine::ForCurrentProcess()->HasSwitch(
       extensions::switches::kExtensionProcess);
-}
-
-// static
-bool CefRenderManager::IsPdfProcess() {
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kPdfRenderer);
 }
 
 void CefRenderManager::BindReceiver(
@@ -291,7 +296,8 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     blink::WebView* web_view,
     content::RenderFrame* render_frame,
     bool* browser_created,
-    std::optional<bool>* is_windowless) {
+    std::optional<bool>* is_windowless,
+    std::optional<bool>* print_preview_enabled) {
   if (browser_created) {
     *browser_created = false;
   }
@@ -307,6 +313,9 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     if (is_windowless) {
       *is_windowless = browser->is_windowless();
     }
+    if (print_preview_enabled) {
+      *print_preview_enabled = browser->print_preview_enabled();
+    }
     return browser;
   }
 
@@ -315,37 +324,42 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     if (is_windowless) {
       *is_windowless = guest_view->is_windowless();
     }
+    if (print_preview_enabled) {
+      *print_preview_enabled = guest_view->print_preview_enabled();
+    }
     return nullptr;
   }
 
-  const bool is_pdf = IsPdfProcess();
-
+  // Retrieve browser information synchronously.
   auto params = cef::mojom::NewBrowserInfo::New();
-  if (!is_pdf) {
-    // Retrieve browser information synchronously.
-    GetBrowserManager()->GetNewBrowserInfo(
-        render_frame->GetWebFrame()->GetLocalFrameToken(), &params);
-    if (params->browser_id == 0) {
-      // The popup may have been canceled during creation.
-      return nullptr;
-    }
+  GetBrowserManager()->GetNewBrowserInfo(
+      render_frame->GetWebFrame()->GetLocalFrameToken(), &params);
+  if (params->browser_id == 0) {
+    // The popup may have been canceled during creation.
+    return nullptr;
   }
 
   if (is_windowless) {
     *is_windowless = params->is_windowless;
   }
+  if (print_preview_enabled) {
+    *print_preview_enabled = params->print_preview_enabled;
+  }
 
-  if (is_pdf || params->is_guest_view || params->browser_id < 0) {
-    // Don't create a CefBrowser for a PDF renderer, guest view, or if the new
-    // browser info response has timed out.
+  if (params->is_guest_view || params->browser_id < 0) {
+    // Don't create a CefBrowser for a guest view (PDF renderer, PDF extension
+    // or print preview dialog), or if the new browser info response has timed
+    // out.
     guest_views_.insert(std::make_pair(
         web_view,
-        std::make_unique<CefGuestView>(this, web_view, params->is_windowless)));
+        std::make_unique<CefGuestView>(this, web_view, params->is_windowless,
+                                       params->print_preview_enabled)));
     return nullptr;
   }
 
-  browser = new CefBrowserImpl(web_view, params->browser_id, params->is_popup,
-                               params->is_windowless);
+  browser = new CefBrowserImpl(web_view, params->browser_id, *params->is_popup,
+                               *params->is_windowless,
+                               *params->print_preview_enabled);
   browsers_.insert(std::make_pair(web_view, browser));
 
   // Notify the render process handler.

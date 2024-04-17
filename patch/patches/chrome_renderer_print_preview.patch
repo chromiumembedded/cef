@@ -1,0 +1,88 @@
+diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
+index 64e7654b68578..3cd2486d3fc68 100644
+--- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
++++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
+@@ -25,12 +25,31 @@
+ #include "extensions/renderer/guest_view/mime_handler_view/post_message_support.h"
+ #endif  // BUILDFLAG(ENABLE_PDF)
+ 
+-ChromePrintRenderFrameHelperDelegate::ChromePrintRenderFrameHelperDelegate() =
+-    default;
++namespace {
++
++std::optional<bool> g_next_print_preview_enabled;
++
++} // namespace
++
++ChromePrintRenderFrameHelperDelegate::ChromePrintRenderFrameHelperDelegate(
++    std::optional<bool> print_preview_enabled)
++    : print_preview_enabled_(print_preview_enabled.has_value()
++                                 ? print_preview_enabled
++                                 : g_next_print_preview_enabled) {
++  if (g_next_print_preview_enabled.has_value()) {
++    g_next_print_preview_enabled = std::nullopt;
++  }
++}
+ 
+ ChromePrintRenderFrameHelperDelegate::~ChromePrintRenderFrameHelperDelegate() =
+     default;
+ 
++// static
++void ChromePrintRenderFrameHelperDelegate::SetNextPrintPreviewEnabled(
++    std::optional<bool> enabled) {
++  g_next_print_preview_enabled = enabled;
++}
++
+ // Return the PDF object element if `frame` is the out of process PDF extension
+ // or its child frame.
+ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
+@@ -47,6 +66,10 @@ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
+ }
+ 
+ bool ChromePrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {
++  if (print_preview_enabled_.has_value()) {
++    return *print_preview_enabled_;
++  }
++
+   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+   return !command_line->HasSwitch(switches::kDisablePrintPreview);
+ }
+diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
+index ab12b010c13d9..48850a94ae255 100644
+--- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
++++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
+@@ -5,12 +5,15 @@
+ #ifndef CHROME_RENDERER_PRINTING_CHROME_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_
+ #define CHROME_RENDERER_PRINTING_CHROME_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_
+ 
++#include <optional>
++
+ #include "components/printing/renderer/print_render_frame_helper.h"
+ 
+ class ChromePrintRenderFrameHelperDelegate
+     : public printing::PrintRenderFrameHelper::Delegate {
+  public:
+-  ChromePrintRenderFrameHelperDelegate();
++  explicit ChromePrintRenderFrameHelperDelegate(
++      std::optional<bool> print_preview_enabled = std::nullopt);
+ 
+   ChromePrintRenderFrameHelperDelegate(
+       const ChromePrintRenderFrameHelperDelegate&) = delete;
+@@ -19,12 +22,17 @@ class ChromePrintRenderFrameHelperDelegate
+ 
+   ~ChromePrintRenderFrameHelperDelegate() override;
+ 
++  // Set the value for the next instance of this object that is created.
++  static void SetNextPrintPreviewEnabled(std::optional<bool> enabled);
++
+  private:
+   // printing::PrintRenderFrameHelper::Delegate:
+   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
+   bool IsPrintPreviewEnabled() override;
+   bool OverridePrint(blink::WebLocalFrame* frame) override;
+   bool ShouldGenerateTaggedPDF() override;
++
++  const std::optional<bool> print_preview_enabled_;
+ };
+ 
+ #endif  // CHROME_RENDERER_PRINTING_CHROME_PRINT_RENDER_FRAME_HELPER_DELEGATE_H_

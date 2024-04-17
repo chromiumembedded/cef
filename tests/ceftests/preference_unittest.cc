@@ -533,7 +533,7 @@ TEST(PreferenceTest, RequestContextGlobalSetGetShared) {
 
   // Get the values from the 4th context.
   *PendingAction() = "Get the values from the 4th context.";
-  if (IsChromeRuntimeEnabled()) {
+  if (IsChromeBootstrap()) {
     // With the Chrome runtime, prefs set via an incognito profile will become
     // an overlay on top of the global (parent) profile. The incognito profile
     // shares the prefs in this case because they were set via the global

@@ -49,7 +49,7 @@
   if (browser_) {
     // Force the browser to be destroyed and release the reference added in
     // PlatformCreateWindow().
-    static_cast<AlloyBrowserHostImpl*>(browser_)->WindowDestroyed();
+    AlloyBrowserHostImpl::FromBaseChecked(browser_)->WindowDestroyed();
   }
 }
 
@@ -473,6 +473,13 @@ CefBrowserPlatformDelegateNativeMac::CreateJavaScriptDialogRunner() {
 std::unique_ptr<CefMenuRunner>
 CefBrowserPlatformDelegateNativeMac::CreateMenuRunner() {
   return base::WrapUnique(new CefMenuRunnerMac);
+}
+
+bool CefBrowserPlatformDelegateNativeMac::IsPrintPreviewSupported() const {
+  // MacOS with external parent can't support print preview because there is no
+  // gfx::NativeView or gfx::AcceleratedWidget. See related comments in
+  // AlloyWebContentsDialogHelper.
+  return false;
 }
 
 content::NativeWebKeyboardEvent

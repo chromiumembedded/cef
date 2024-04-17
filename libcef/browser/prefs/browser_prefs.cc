@@ -11,7 +11,6 @@
 #include "libcef/browser/prefs/pref_store.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
-#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -289,8 +288,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                   safe_search_api::YOUTUBE_RESTRICT_OFF);
     registry->RegisterStringPref(prefs::kAllowedDomainsForApps, std::string());
     registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
-    registry->RegisterBooleanPref(prefs::kPrintPreviewDisabled,
-                                  !extensions::PrintPreviewEnabled());
+    registry->RegisterBooleanPref(prefs::kPrintPreviewDisabled, false);
     registry->RegisterStringPref(
         prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
     registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);

@@ -6,18 +6,18 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_CHILD_WINDOW_H_
 #pragma once
 
+#include "include/views/cef_browser_view_delegate.h"
 #include "libcef/browser/browser_host_base.h"
-
-#include "ui/gfx/native_widget_types.h"
 
 namespace chrome_child_window {
 
 bool HasParentHandle(const CefWindowInfo& window_info);
-gfx::AcceleratedWidget GetParentHandle(const CefWindowInfo& window_info);
 
 // Called from CefBrowserHostBase::Create.
 CefRefPtr<CefBrowserHostBase> MaybeCreateChildBrowser(
     const CefBrowserCreateParams& create_params);
+
+CefRefPtr<CefBrowserViewDelegate> GetDefaultBrowserViewDelegateForPopupOpener();
 
 }  // namespace chrome_child_window
 

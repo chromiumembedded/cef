@@ -8,10 +8,10 @@
 #include <tuple>
 
 #include "libcef/browser/browser_frame.h"
+#include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_manager.h"
 #include "libcef/browser/certificate_query.h"
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
@@ -42,6 +42,10 @@
 #include "content/public/common/content_switches.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
+
+#if !BUILDFLAG(IS_MAC)
+#include "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
+#endif
 
 namespace {
 
@@ -210,7 +214,7 @@ void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
   ChromeContentBrowserClient::OverrideWebkitPrefs(web_contents, prefs);
 
   SkColor base_background_color;
-  auto browser = ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
+  auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents);
   if (browser) {
     renderer_prefs::SetCefPrefs(browser->settings(), *prefs);
 
@@ -471,6 +475,18 @@ void ChromeContentBrowserClientCef::RegisterBrowserInterfaceBindersForFrame(
                                                            map);
 }
 
+std::unique_ptr<content::WebContentsViewDelegate>
+ChromeContentBrowserClientCef::GetWebContentsViewDelegate(
+    content::WebContents* web_contents) {
+  // This does more work than just creating the delegate, so we call it even
+  // though the result gets discarded.
+  ChromeContentBrowserClient::GetWebContentsViewDelegate(web_contents);
+
+  // Used to customize context menu behavior for Alloy style. Called during
+  // WebContents::Create() so we don't yet have an associated BrowserHost.
+  return CreateWebContentsViewDelegate(web_contents);
+}
+
 CefRefPtr<CefRequestContextImpl>
 ChromeContentBrowserClientCef::request_context() const {
   return browser_main_parts_->request_context();
@@ -490,3 +506,15 @@ scoped_refptr<base::SingleThreadTaskRunner>
 ChromeContentBrowserClientCef::user_blocking_task_runner() const {
   return browser_main_parts_->user_blocking_task_runner();
 }
+
+#if !BUILDFLAG(IS_MAC)
+// Defined in a separate .mm file on MacOS to work around
+// ChromeWebContentsViewDelegateViewsMac containing ObjC references.
+
+// static
+std::unique_ptr<content::WebContentsViewDelegate>
+ChromeContentBrowserClientCef::CreateWebContentsViewDelegate(
+    content::WebContents* web_contents) {
+  return std::make_unique<ChromeWebContentsViewDelegateCef>(web_contents);
+}
+#endif

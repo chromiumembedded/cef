@@ -47,6 +47,9 @@ class ChromeContentRendererClientCef : public ChromeContentRendererClient {
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders) override;
 
  private:
+  void OnBrowserCreated(blink::WebView* web_view,
+                        std::optional<bool> is_windowless);
+
   std::unique_ptr<CefRenderManager> render_manager_;
 
   scoped_refptr<base::SingleThreadTaskRunner> render_task_runner_;

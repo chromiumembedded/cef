@@ -28,6 +28,7 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_server.h"
 #include "tests/ceftests/test_suite.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
 #include "tests/shared/browser/main_message_loop_std.h"
@@ -230,6 +231,17 @@ int main(int argc, char* argv[]) {
     LOG(ERROR) << "CefInitialize exited with code " << exit_code;
     return exit_code;
   }
+
+  // Log the current configuration.
+  LOG(WARNING)
+      << "Using " << (IsChromeBootstrap() ? "Chrome" : "Alloy")
+      << " bootstrap; " << (UseAlloyStyleBrowserGlobal() ? "Alloy" : "Chrome")
+      << " style browser; "
+      << (UseViewsGlobal()
+              ? (std::string(UseAlloyStyleWindowGlobal() ? "Alloy" : "Chrome") +
+                 " style window; ")
+              : "")
+      << (UseViewsGlobal() ? "Views" : "Native") << "-hosted (not a warning)";
 
   std::unique_ptr<client::MainMessageLoop> message_loop;
 

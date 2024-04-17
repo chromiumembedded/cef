@@ -749,6 +749,15 @@ void CefWindowImpl::ThemeChanged() {
   }
 }
 
+cef_runtime_style_t CefWindowImpl::GetRuntimeStyle() {
+  CEF_REQUIRE_VALID_RETURN(CEF_RUNTIME_STYLE_DEFAULT);
+  if (auto* window_view = cef_window_view()) {
+    return window_view->IsAlloyStyle() ? CEF_RUNTIME_STYLE_ALLOY
+                                       : CEF_RUNTIME_STYLE_CHROME;
+  }
+  return CEF_RUNTIME_STYLE_DEFAULT;
+}
+
 CefWindowView* CefWindowImpl::cef_window_view() const {
   return static_cast<CefWindowView*>(root_view());
 }

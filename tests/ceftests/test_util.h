@@ -14,6 +14,8 @@
 #include "include/cef_request_context.h"
 #include "include/cef_response.h"
 #include "include/cef_values.h"
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
 #include "tests/ceftests/test_suite.h"
 
 CefTime CefTimeFrom(CefBaseTime value);
@@ -86,7 +88,25 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
 bool TestOldResourceAPI();
 
 // Returns true if the Chrome runtime is enabled.
-bool IsChromeRuntimeEnabled();
+bool IsChromeBootstrap();
+
+// Returns true if Views should be used as a the global default.
+bool UseViewsGlobal();
+
+// Returns true if Alloy style browser should be used as the global default.
+bool UseAlloyStyleBrowserGlobal();
+
+// Returns true if Alloy style window should be used as the global default.
+// Only used in combination with Views.
+bool UseAlloyStyleWindowGlobal();
+
+// Determine the Views window title based on the style of |window| and
+// optionally |browser_view|.
+std::string ComputeViewsWindowTitle(CefRefPtr<CefWindow> window,
+                                    CefRefPtr<CefBrowserView> browser_view);
+
+// Determine the native window title based on |use_alloy_style|.
+std::string ComputeNativeWindowTitle(bool use_alloy_style);
 
 // Returns true if BFCache is enabled.
 bool IsBFCacheEnabled();

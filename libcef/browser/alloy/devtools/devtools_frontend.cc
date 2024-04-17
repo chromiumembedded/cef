@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/devtools/devtools_frontend.h"
+#include "libcef/browser/alloy/devtools/devtools_frontend.h"
 
 #include <stddef.h>
 
@@ -10,12 +10,13 @@
 #include <memory>
 #include <utility>
 
+#include "libcef/browser/alloy/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/browser_context.h"
-#include "libcef/browser/devtools/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/task_runner_manager.h"
+#include "libcef/features/runtime_checks.h"
 
 #include "base/base64.h"
 #include "base/command_line.h"
@@ -243,6 +244,8 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     const CefBrowserSettings& settings,
     const CefPoint& inspect_element_at,
     base::OnceClosure frontend_destroyed_callback) {
+  REQUIRE_ALLOY_RUNTIME();
+
   CefBrowserSettings new_settings = settings;
   if (!windowInfo.windowless_rendering_enabled &&
       CefColorGetA(new_settings.background_color) != SK_AlphaOPAQUE) {
@@ -252,11 +255,14 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   }
 
   CefBrowserCreateParams create_params;
+  create_params.MaybeSetWindowInfo(windowInfo, /*allow_alloy_style=*/true,
+                                   /*allow_chrome_style=*/false);
+
   if (inspected_browser->is_views_hosted()) {
     create_params.popup_with_views_hosted_opener = true;
-  } else {
-    create_params.window_info = std::make_unique<CefWindowInfo>(windowInfo);
   }
+  create_params.popup_with_alloy_style_opener = true;
+
   create_params.client = client;
   create_params.settings = new_settings;
   create_params.devtools_opener = inspected_browser;
@@ -271,8 +277,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
-      static_cast<AlloyBrowserHostImpl*>(frontend_browser.get()),
-      inspected_contents, inspect_element_at,
+      frontend_browser.get(), inspected_contents, inspect_element_at,
       std::move(frontend_destroyed_callback));
 
   // Need to load the URL after creating the DevTools objects.

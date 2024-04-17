@@ -9,7 +9,10 @@
 #include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
 
+#include "chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h"
+#include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
+#include "third_party/blink/public/web/web_view.h"
 
 ChromeContentRendererClientCef::ChromeContentRendererClientCef()
     : render_manager_(new CefRenderManager) {}
@@ -39,19 +42,28 @@ void ChromeContentRendererClientCef::RenderThreadConnected() {
 
 void ChromeContentRendererClientCef::RenderFrameCreated(
     content::RenderFrame* render_frame) {
-  ChromeContentRendererClient::RenderFrameCreated(render_frame);
-
   // Will delete itself when no longer needed.
   CefRenderFrameObserver* render_frame_observer =
       new CefRenderFrameObserver(render_frame);
 
   bool browser_created;
   std::optional<bool> is_windowless;
+  std::optional<bool> print_preview_enabled;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
-                                      browser_created, is_windowless);
-  if (is_windowless.has_value() && *is_windowless) {
-    LOG(ERROR) << "The chrome runtime does not support windowless browsers";
+                                      browser_created, is_windowless,
+                                      print_preview_enabled);
+  if (browser_created) {
+    OnBrowserCreated(render_frame->GetWebView(), is_windowless);
   }
+
+  if (print_preview_enabled.has_value()) {
+    // This value will be used when the when ChromeContentRendererClient
+    // creates the new ChromePrintRenderFrameHelperDelegate below.
+    ChromePrintRenderFrameHelperDelegate::SetNextPrintPreviewEnabled(
+        *print_preview_enabled);
+  }
+
+  ChromeContentRendererClient::RenderFrameCreated(render_frame);
 }
 
 void ChromeContentRendererClientCef::WebViewCreated(
@@ -63,9 +75,11 @@ void ChromeContentRendererClientCef::WebViewCreated(
 
   bool browser_created;
   std::optional<bool> is_windowless;
-  render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
-  if (is_windowless.has_value() && *is_windowless) {
-    LOG(ERROR) << "The chrome runtime does not support windowless browsers";
+  std::optional<bool> print_preview_enabled;
+  render_manager_->WebViewCreated(web_view, browser_created, is_windowless,
+                                  print_preview_enabled);
+  if (browser_created) {
+    OnBrowserCreated(web_view, is_windowless);
   }
 }
 
@@ -100,4 +114,18 @@ void ChromeContentRendererClientCef::ExposeInterfacesToBrowser(
   ChromeContentRendererClient::ExposeInterfacesToBrowser(binders);
 
   render_manager_->ExposeInterfacesToBrowser(binders);
+}
+
+void ChromeContentRendererClientCef::OnBrowserCreated(
+    blink::WebView* web_view,
+    std::optional<bool> is_windowless) {
+#if BUILDFLAG(IS_MAC)
+  const bool windowless = is_windowless.has_value() && *is_windowless;
+
+  // FIXME: It would be better if this API would be a callback from the
+  // WebKit layer, or if it would be exposed as an WebView instance method; the
+  // current implementation uses a static variable, and WebKit needs to be
+  // patched in order to make it work for each WebView instance
+  web_view->SetUseExternalPopupMenusThisInstance(!windowless);
+#endif
 }

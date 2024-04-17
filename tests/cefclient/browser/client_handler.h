@@ -42,6 +42,13 @@ class ClientHandler : public BaseClientHandler,
   // otherwise indicated.
   class Delegate {
    public:
+    // Returns true if the window should use Views. Safe to call on any thread.
+    virtual bool UseViews() const = 0;
+
+    // Returns true if the window should use Alloy style. Safe to call on any
+    // thread.
+    virtual bool UseAlloyStyle() const = 0;
+
     // Called when the browser is created.
     virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
 
@@ -353,6 +360,12 @@ class ClientHandler : public BaseClientHandler,
 
   // THREAD SAFE MEMBERS
   // The following members may be accessed from any thread.
+
+  // True if this handler uses Views.
+  const bool use_views_;
+
+  // True if this handler uses Alloy style.
+  const bool use_alloy_style_;
 
   // True if this handler uses off-screen rendering.
   const bool is_osr_;

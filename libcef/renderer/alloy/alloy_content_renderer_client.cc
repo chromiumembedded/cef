@@ -34,7 +34,6 @@
 #include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
-#include "libcef/renderer/extensions/print_render_frame_helper_delegate.h"
 #include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
@@ -56,6 +55,7 @@
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/media/chrome_key_systems.h"
 #include "chrome/renderer/plugins/chrome_plugin_placeholder.h"
+#include "chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/pdf/common/constants.h"
@@ -295,18 +295,19 @@ void AlloyContentRendererClient::RenderFrameCreated(
 
   bool browser_created;
   std::optional<bool> is_windowless;
+  std::optional<bool> print_preview_enabled;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
-                                      browser_created, is_windowless);
+                                      browser_created, is_windowless,
+                                      print_preview_enabled);
   if (browser_created) {
     OnBrowserCreated(render_frame->GetWebView(), is_windowless);
   }
 
-  if (is_windowless.has_value()) {
-    new printing::PrintRenderFrameHelper(
-        render_frame,
-        base::WrapUnique(
-            new extensions::CefPrintRenderFrameHelperDelegate(*is_windowless)));
-  }
+  // |print_preview_enabled| may be empty, in which case the
+  // kDisablePrintPreview command-line flag will be checked.
+  new printing::PrintRenderFrameHelper(
+      render_frame, std::make_unique<ChromePrintRenderFrameHelperDelegate>(
+                        print_preview_enabled));
 }
 
 void AlloyContentRendererClient::WebViewCreated(
@@ -315,7 +316,9 @@ void AlloyContentRendererClient::WebViewCreated(
     const url::Origin* outermost_origin) {
   bool browser_created;
   std::optional<bool> is_windowless;
-  render_manager_->WebViewCreated(web_view, browser_created, is_windowless);
+  std::optional<bool> print_preview_enabled;
+  render_manager_->WebViewCreated(web_view, browser_created, is_windowless,
+                                  print_preview_enabled);
   if (browser_created) {
     OnBrowserCreated(web_view, is_windowless);
   }

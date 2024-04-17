@@ -4,6 +4,7 @@
 
 #include "libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 
+#include "libcef/browser/alloy/dialogs/alloy_constrained_window_views_client.h"
 #include "libcef/browser/chrome/chrome_context_menu_handler.h"
 #include "libcef/browser/chrome/chrome_startup_browser_creator.h"
 #include "libcef/browser/context.h"
@@ -13,6 +14,8 @@
 
 #include "base/task/thread_pool.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/views/chrome_constrained_window_views_client.h"
+#include "components/constrained_window/constrained_window_views.h"
 
 #if BUILDFLAG(IS_LINUX)
 #include "base/linux_util.h"
@@ -67,7 +70,7 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
   scheme::RegisterWebUIControllerFactory();
-  context_menu::RegisterMenuCreatedCallback();
+  context_menu::RegisterCallbacks();
   file_dialog_runner::RegisterFactory();
   permission_prompt::RegisterCreateCallback();
 
@@ -77,4 +80,10 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
     SetExeAppIconResourceId(settings.chrome_app_icon_id);
   }
 #endif
+}
+
+void ChromeBrowserMainExtraPartsCef::ToolkitInitialized() {
+  // Override the default Chrome client.
+  SetConstrainedWindowViewsClient(CreateAlloyConstrainedWindowViewsClient(
+      CreateChromeConstrainedWindowViewsClient()));
 }

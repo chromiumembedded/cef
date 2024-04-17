@@ -4,6 +4,9 @@
 
 #include "libcef/browser/chrome/chrome_context_menu_handler.h"
 
+#include "base/memory/weak_ptr.h"
+
+#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/context_menu_params_impl.h"
 #include "libcef/browser/simple_menu_model_impl.h"
@@ -14,6 +17,64 @@ namespace context_menu {
 
 namespace {
 
+constexpr int kInvalidCommandId = -1;
+const cef_event_flags_t kEmptyEventFlags = static_cast<cef_event_flags_t>(0);
+
+class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
+ public:
+  using Callback =
+      base::OnceCallback<void(int /*command_id*/, int /*event_flags*/)>;
+
+  explicit CefRunContextMenuCallbackImpl(Callback callback)
+      : callback_(std::move(callback)) {}
+
+  CefRunContextMenuCallbackImpl(const CefRunContextMenuCallbackImpl&) = delete;
+  CefRunContextMenuCallbackImpl& operator=(
+      const CefRunContextMenuCallbackImpl&) = delete;
+
+  ~CefRunContextMenuCallbackImpl() override {
+    if (!callback_.is_null()) {
+      // The callback is still pending. Cancel it now.
+      if (CEF_CURRENTLY_ON_UIT()) {
+        RunNow(std::move(callback_), kInvalidCommandId, kEmptyEventFlags);
+      } else {
+        CEF_POST_TASK(CEF_UIT,
+                      base::BindOnce(&CefRunContextMenuCallbackImpl::RunNow,
+                                     std::move(callback_), kInvalidCommandId,
+                                     kEmptyEventFlags));
+      }
+    }
+  }
+
+  void Continue(int command_id, cef_event_flags_t event_flags) override {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      if (!callback_.is_null()) {
+        RunNow(std::move(callback_), command_id, event_flags);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+                    base::BindOnce(&CefRunContextMenuCallbackImpl::Continue,
+                                   this, command_id, event_flags));
+    }
+  }
+
+  void Cancel() override { Continue(kInvalidCommandId, kEmptyEventFlags); }
+
+  bool IsDisconnected() const { return callback_.is_null(); }
+  void Disconnect() { callback_.Reset(); }
+
+ private:
+  static void RunNow(Callback callback, int command_id, int event_flags) {
+    CEF_REQUIRE_UIT();
+    std::move(callback).Run(command_id, event_flags);
+  }
+
+  Callback callback_;
+
+  IMPLEMENT_REFCOUNTING(CefRunContextMenuCallbackImpl);
+};
+
 // Lifespan is controlled by RenderViewContextMenu.
 class CefContextMenuObserver : public RenderViewContextMenuObserver,
                                public CefSimpleMenuModelImpl::StateDelegate {
@@ -21,7 +82,10 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   CefContextMenuObserver(RenderViewContextMenu* context_menu,
                          CefRefPtr<CefBrowserHostBase> browser,
                          CefRefPtr<CefContextMenuHandler> handler)
-      : context_menu_(context_menu), browser_(browser), handler_(handler) {}
+      : context_menu_(context_menu), browser_(browser), handler_(handler) {
+    // This remains valid until the next time a context menu is created.
+    browser_->set_context_menu_observer(this);
+  }
 
   CefContextMenuObserver(const CefContextMenuObserver&) = delete;
   CefContextMenuObserver& operator=(const CefContextMenuObserver&) = delete;
@@ -130,6 +194,29 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
     }
   }
 
+  bool HandleShow() {
+    if (model_->GetCount() == 0) {
+      return false;
+    }
+
+    CefRefPtr<CefRunContextMenuCallbackImpl> callbackImpl(
+        new CefRunContextMenuCallbackImpl(
+            base::BindOnce(&CefContextMenuObserver::ExecuteCommandCallback,
+                           weak_ptr_factory_.GetWeakPtr())));
+
+    bool handled = handler_->RunContextMenu(browser_, GetFrame(), params_,
+                                            model_, callbackImpl.get());
+    if (!handled && callbackImpl->IsDisconnected()) {
+      LOG(ERROR) << "Should return true from RunContextMenu when executing the "
+                    "callback";
+      handled = true;
+    }
+    if (!handled) {
+      callbackImpl->Disconnect();
+    }
+    return handled;
+  }
+
  private:
   struct ItemInfo {
     ItemInfo() = default;
@@ -169,12 +256,21 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
     // May return nullptr if the frame is destroyed while the menu is pending.
     auto* rfh = context_menu_->GetRenderFrameHost();
     if (rfh) {
+      // May return nullptr for guest views.
       frame = browser_->GetFrameForHost(rfh);
     }
     if (!frame) {
       frame = browser_->GetMainFrame();
     }
     return frame;
+  }
+
+  void ExecuteCommandCallback(int command_id, int event_flags) {
+    if (command_id != kInvalidCommandId) {
+      context_menu_->ExecuteCommand(command_id, event_flags);
+    }
+    context_menu_->Cancel();
+    OnMenuClosed();
   }
 
   RenderViewContextMenu* const context_menu_;
@@ -186,6 +282,8 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   // Map of command_id to ItemInfo.
   using ItemInfoMap = std::map<int, ItemInfo>;
   ItemInfoMap iteminfomap_;
+
+  base::WeakPtrFactory<CefContextMenuObserver> weak_ptr_factory_{this};
 };
 
 std::unique_ptr<RenderViewContextMenuObserver> MenuCreatedCallback(
@@ -199,16 +297,44 @@ std::unique_ptr<RenderViewContextMenuObserver> MenuCreatedCallback(
                                                         handler);
       }
     }
+
+    // Don't leave the old pointer, if any.
+    browser->set_context_menu_observer(nullptr);
   }
 
   return nullptr;
 }
 
+bool MenuShowHandlerCallback(RenderViewContextMenu* context_menu) {
+  auto browser = CefBrowserHostBase::GetBrowserForContents(
+      context_menu->source_web_contents());
+  if (browser && browser->context_menu_observer()) {
+    return static_cast<CefContextMenuObserver*>(
+               browser->context_menu_observer())
+        ->HandleShow();
+  }
+  return false;
+}
+
 }  // namespace
 
-void RegisterMenuCreatedCallback() {
+void RegisterCallbacks() {
   RenderViewContextMenu::RegisterMenuCreatedCallback(
       base::BindRepeating(&MenuCreatedCallback));
+  RenderViewContextMenu::RegisterMenuShowHandlerCallback(
+      base::BindRepeating(&MenuShowHandlerCallback));
+}
+
+bool HandleContextMenu(content::WebContents* opener,
+                       const content::ContextMenuParams& params) {
+  auto browser = CefBrowserHostBase::GetBrowserForContents(opener);
+  if (browser && browser->IsAlloyStyle()) {
+    AlloyBrowserHostImpl::FromBaseChecked(browser)->ShowContextMenu(params);
+    return true;
+  }
+
+  // Continue with creating the RenderViewContextMenu.
+  return false;
 }
 
 }  // namespace context_menu

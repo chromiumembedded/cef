@@ -430,8 +430,7 @@ void CefWindowX11::ProcessXEvent(const x11::Event& event) {
           if (browser_) {
             // Force the browser to be destroyed and release the reference
             // added in PlatformCreateWindow().
-            static_cast<AlloyBrowserHostImpl*>(browser_.get())
-                ->WindowDestroyed();
+            AlloyBrowserHostImpl::FromBaseChecked(browser_)->WindowDestroyed();
           }
 
           delete this;

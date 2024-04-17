@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e6bbc33db1b5ed3832982f8799e14557204f4028$
+// $hash=e8c9e32caa8d317a7cb6ff2f0ad6be49cf1b7ad1$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -275,6 +275,13 @@ typedef struct _cef_window_delegate_t {
       struct _cef_window_delegate_t* self,
       struct _cef_window_t* window,
       int chrome_theme);
+
+  ///
+  /// Optionally change the runtime style for this Window. See
+  /// cef_runtime_style_t documentation for details.
+  ///
+  cef_runtime_style_t(CEF_CALLBACK* get_window_runtime_style)(
+      struct _cef_window_delegate_t* self);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

@@ -73,7 +73,8 @@ void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
     delegate = new TestWindowDelegate(event, std::move(config), window_size);
   }
 
-  CefWindow::CreateTopLevelWindow(delegate);
+  auto window = CefWindow::CreateTopLevelWindow(delegate);
+  EXPECT_EQ(delegate->GetWindowRuntimeStyle(), window->GetRuntimeStyle());
 }
 
 void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -86,9 +87,9 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->IsActive());
   EXPECT_FALSE(window->IsAlwaysOnTop());
 
-  const char* title = "ViewsTest";
+  const std::string& title = ComputeViewsWindowTitle(window, nullptr);
   window->SetTitle(title);
-  EXPECT_STREQ(title, window->GetTitle().ToString().c_str());
+  EXPECT_STREQ(title.c_str(), window->GetTitle().ToString().c_str());
 
   EXPECT_FALSE(window->GetWindowIcon().get());
   EXPECT_FALSE(window->GetWindowAppIcon().get());
@@ -252,6 +253,11 @@ bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
     return config_->on_key_event.Run(window_, event);
   }
   return false;
+}
+
+cef_runtime_style_t TestWindowDelegate::GetWindowRuntimeStyle() {
+  return UseAlloyStyleWindowGlobal() ? CEF_RUNTIME_STYLE_ALLOY
+                                     : CEF_RUNTIME_STYLE_CHROME;
 }
 
 TestWindowDelegate::TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,

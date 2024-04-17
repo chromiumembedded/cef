@@ -18,7 +18,7 @@
 #include "libcef/features/runtime_checks.h"
 
 #include "base/logging.h"
-#include "chrome/browser/printing/print_view_manager.h"
+#include "chrome/browser/printing/printing_init.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
@@ -37,7 +37,6 @@ CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
 content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
     CefBrowserCreateParams& create_params,
     bool& own_web_contents) {
-  REQUIRE_ALLOY_RUNTIME();
   DCHECK(primary_);
 
   if (!create_params.request_context) {
@@ -118,7 +117,6 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
     const blink::mojom::WindowFeatures& window_features,
     bool user_gesture,
     bool* was_blocked) {
-  REQUIRE_ALLOY_RUNTIME();
   DCHECK(primary_);
 
   CefRefPtr<AlloyBrowserHostImpl> owner =
@@ -162,11 +160,12 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   }
 
   DCHECK(!web_contents_->GetDelegate());
-  web_contents_->SetDelegate(static_cast<AlloyBrowserHostImpl*>(browser));
+  web_contents_->SetDelegate(
+      AlloyBrowserHostImpl::FromBaseChecked(browser).get());
 
   permissions::PermissionRequestManager::CreateForWebContents(web_contents_);
   PrefsTabHelper::CreateForWebContents(web_contents_);
-  printing::PrintViewManager::CreateForWebContents(web_contents_);
+  printing::InitializePrintingForWebContents(web_contents_);
   zoom::ZoomController::CreateForWebContents(web_contents_);
 
   javascript_dialogs::TabModalDialogManager::CreateForWebContents(
@@ -190,12 +189,12 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
   DCHECK(browser_);
   DCHECK(!extension_host_);
 
-  auto alloy_browser = static_cast<AlloyBrowserHostImpl*>(browser_);
+  auto alloy_browser = AlloyBrowserHostImpl::FromBaseChecked(browser_);
 
   if (host_type == extensions::mojom::ViewType::kExtensionPopup) {
     // Create an extension host that we own.
     extension_host_ = new extensions::CefExtensionViewHost(
-        alloy_browser, extension, web_contents_, url, host_type);
+        alloy_browser.get(), extension, web_contents_, url, host_type);
     // Trigger load of the extension URL.
     extension_host_->CreateRendererSoon();
   } else if (host_type ==
@@ -204,7 +203,7 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
     alloy_browser->is_background_host_ = true;
     // Create an extension host that will be owned by ProcessManager.
     extension_host_ = new extensions::CefExtensionBackgroundHost(
-        alloy_browser,
+        alloy_browser.get(),
         base::BindOnce(&CefBrowserPlatformDelegateAlloy::OnExtensionHostDeleted,
                        weak_ptr_factory_.GetWeakPtr()),
         extension, web_contents_, url, host_type);
@@ -310,19 +309,6 @@ void CefBrowserPlatformDelegateAlloy::ConfigureAutoResize() {
   } else {
     web_contents_->GetRenderWidgetHostView()->DisableAutoResize(gfx::Size());
   }
-}
-
-bool CefBrowserPlatformDelegateAlloy::IsPrintPreviewSupported() const {
-  REQUIRE_ALLOY_RUNTIME();
-
-  // Print preview is not currently supported with OSR.
-  if (IsWindowless()) {
-    return false;
-  }
-
-  auto cef_browser_context =
-      CefBrowserContext::FromBrowserContext(web_contents_->GetBrowserContext());
-  return cef_browser_context->IsPrintPreviewSupported();
 }
 
 void CefBrowserPlatformDelegateAlloy::Find(const CefString& searchText,

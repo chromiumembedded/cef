@@ -37,6 +37,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   CefBrowserInfo(int browser_id,
                  bool is_popup,
                  bool is_windowless,
+                 bool print_preview_enabled,
                  CefRefPtr<CefDictionaryValue> extra_info);
 
   CefBrowserInfo(const CefBrowserInfo&) = delete;
@@ -45,6 +46,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
+  bool print_preview_enabled() const { return print_preview_enabled_; }
   CefRefPtr<CefDictionaryValue> extra_info() const { return extra_info_; }
 
   // May return NULL if the browser has not yet been created or if the browser
@@ -201,9 +203,10 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   void RemoveAllFrames(CefRefPtr<CefBrowserHostBase> old_browser);
 
-  int browser_id_;
-  bool is_popup_;
-  bool is_windowless_;
+  const int browser_id_;
+  const bool is_popup_;
+  const bool is_windowless_;
+  const bool print_preview_enabled_;
   CefRefPtr<CefDictionaryValue> extra_info_;
 
   // Navigation will be blocked while |navigation_lock_| exists.

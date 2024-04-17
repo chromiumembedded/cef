@@ -43,18 +43,16 @@ class MainContext {
   // Returns the background color.
   virtual cef_color_t GetBackgroundColor() = 0;
 
-  // Returns true if the Chrome runtime will be used.
-  virtual bool UseChromeRuntime() = 0;
+  // Returns true if the Chrome runtime bootstrap will be used.
+  virtual bool UseChromeBootstrap() = 0;
 
-  // Returns true if a native parent window is being used with the Chrome
-  // runtime.
-  virtual bool UseChromeRuntimeNative() = 0;
+  // Returns true if the Views framework will be used as the global default.
+  virtual bool UseViewsGlobal() = 0;
 
-  // Returns true if the Views framework will be used.
-  virtual bool UseViews() = 0;
-
-  // Returns true if windowless (off-screen) rendering will be used.
-  virtual bool UseWindowlessRendering() = 0;
+  // Returns true if Alloy style will be used as the global default. Alloy style
+  // is always used with the Alloy runtime bootstrap and optional with the
+  // Chrome runtime bootstrap. Windowless rendering requires Alloy style.
+  virtual bool UseAlloyStyleGlobal() = 0;
 
   // Returns true if touch events are enabled.
   virtual bool TouchEventsEnabled() = 0;

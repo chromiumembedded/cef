@@ -10,6 +10,8 @@ namespace alloy {
 
 DownloadPrefs* GetDownloadPrefsFromBrowserContext(
     content::BrowserContext* context) {
+  // This function is only called with Alloy bootstrap, so the static_cast is
+  // safe.
   return static_cast<AlloyBrowserContext*>(context)->GetDownloadPrefs();
 }
 

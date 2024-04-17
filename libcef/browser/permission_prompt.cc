@@ -250,7 +250,11 @@ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPromptImpl(
     bool* default_handling) {
   CEF_REQUIRE_UIT();
 
+  bool is_alloy_style = cef::IsAlloyRuntimeEnabled();
+
   if (auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents)) {
+    is_alloy_style = browser->IsAlloyStyle();
+
     if (auto client = browser->GetClient()) {
       if (auto handler = client->GetPermissionHandler()) {
         auto permission_prompt =
@@ -284,13 +288,13 @@ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPromptImpl(
     }
   }
 
-  if (cef::IsAlloyRuntimeEnabled()) {
+  if (is_alloy_style) {
     LOG(INFO) << "Implement OnShowPermissionPrompt to override default IGNORE "
                  "handling of permission prompts.";
   }
 
-  // Proceed with default handling. This will be IGNORE with the Alloy runtime
-  // and default UI prompt with the Chrome runtime.
+  // Proceed with default handling. This will be IGNORE with Alloy style and
+  // default UI prompt with Chrome style.
   *default_handling = true;
   return nullptr;
 }

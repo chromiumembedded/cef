@@ -14,7 +14,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/frame_util.h"
 #include "libcef/common/values_impl.h"
-#include "libcef/features/runtime_checks.h"
+#include "libcef/features/runtime.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -66,11 +66,13 @@ CefBrowserInfoManager* CefBrowserInfoManager::GetInstance() {
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
     bool is_popup,
     bool is_windowless,
+    bool print_preview_enabled,
     CefRefPtr<CefDictionaryValue> extra_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  scoped_refptr<CefBrowserInfo> browser_info = new CefBrowserInfo(
-      ++next_browser_id_, is_popup, is_windowless, extra_info);
+  scoped_refptr<CefBrowserInfo> browser_info =
+      new CefBrowserInfo(++next_browser_id_, is_popup, is_windowless,
+                         print_preview_enabled, extra_info);
   browser_info_list_.push_back(browser_info);
 
   return browser_info;
@@ -79,24 +81,23 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
     content::WebContents* new_contents,
     bool is_windowless,
+    bool print_preview_enabled,
     CefRefPtr<CefDictionaryValue> extra_info) {
-  base::AutoLock lock_scope(browser_info_lock_);
+  CEF_REQUIRE_UIT();
 
   auto frame_host = new_contents->GetPrimaryMainFrame();
 
-  scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, true, is_windowless, extra_info);
-  browser_info_list_.push_back(browser_info);
+  scoped_refptr<CefBrowserInfo> browser_info;
+  {
+    base::AutoLock lock_scope(browser_info_lock_);
+    browser_info = new CefBrowserInfo(++next_browser_id_, true, is_windowless,
+                                      print_preview_enabled, extra_info);
+    browser_info_list_.push_back(browser_info);
+  }
 
   // Continue any pending NewBrowserInfo request.
-  auto it =
-      pending_new_browser_info_map_.find(frame_host->GetGlobalFrameToken());
-  if (it != pending_new_browser_info_map_.end()) {
-    SendNewBrowserInfoResponse(browser_info, /*is_guest_view=*/false,
-                               std::move(it->second->callback),
-                               it->second->callback_runner);
-    pending_new_browser_info_map_.erase(it);
-  }
+  ContinueNewBrowserInfo(frame_host->GetGlobalFrameToken(), browser_info,
+                         /*is_guest_view=*/false);
 
   return browser_info;
 }
@@ -129,10 +130,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   bool handled = false;
 
   CefWindowInfo window_info;
-
-#if BUILDFLAG(IS_WIN)
-  window_info.SetAsPopup(nullptr, CefString());
-#endif
+  CefBrowserCreateParams::InitWindowInfo(&window_info, browser.get());
 
   auto pending_popup = std::make_unique<CefBrowserInfoManager::PendingPopup>();
   pending_popup->step = PendingPopup::CAN_CREATE_WINDOW;
@@ -185,10 +183,12 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
   if (allow) {
     CefBrowserCreateParams create_params;
-    create_params.MaybeSetWindowInfo(window_info);
+    create_params.MaybeSetWindowInfo(window_info, /*allow_alloy_style=*/true,
+                                     /*allow_chrome_style=*/true);
 
     if (!handled) {
-      // Use default Browser creation if OnBeforePopup was unhandled.
+      // Use default Browser creation with Chrome style if OnBeforePopup was
+      // unhandled.
       // TODO(chrome): Expose a mechanism for the client to choose default
       // creation.
       pending_popup->use_default_browser_creation = true;
@@ -196,6 +196,10 @@ bool CefBrowserInfoManager::CanCreateWindow(
 
     create_params.popup_with_views_hosted_opener = ShouldCreateViewsHostedPopup(
         browser, pending_popup->use_default_browser_creation);
+
+    // Potentially use Alloy style with the Chrome runtime.
+    create_params.popup_with_alloy_style_opener = browser->IsAlloyStyle();
+
     create_params.settings = pending_popup->settings;
     create_params.client = pending_popup->client;
     create_params.extra_info = pending_popup->extra_info;
@@ -203,6 +207,11 @@ bool CefBrowserInfoManager::CanCreateWindow(
     pending_popup->platform_delegate =
         CefBrowserPlatformDelegate::Create(create_params);
     CHECK(pending_popup->platform_delegate.get());
+
+    // Expect runtime style to match.
+    pending_popup->alloy_style = !create_params.IsChromeStyle();
+    CHECK_EQ(pending_popup->alloy_style,
+             pending_popup->platform_delegate->IsAlloyStyle());
 
     // Between the calls to CanCreateWindow and GetCustomWebContentsView
     // RenderViewHostImpl::CreateNewWindow() will call
@@ -223,9 +232,9 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
   CEF_REQUIRE_UIT();
-  REQUIRE_ALLOY_RUNTIME();
 
   auto pending_popup = PopPendingPopup(PendingPopup::CAN_CREATE_WINDOW,
+                                       PendingPopup::CAN_CREATE_WINDOW,
                                        opener_global_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
@@ -249,13 +258,10 @@ void CefBrowserInfoManager::WebContentsCreated(
     content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
 
-  // GET_CUSTOM_WEB_CONTENTS_VIEW is only used with the alloy runtime.
-  const auto previous_step = cef::IsAlloyRuntimeEnabled()
-                                 ? PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW
-                                 : PendingPopup::CAN_CREATE_WINDOW;
-
-  auto pending_popup =
-      PopPendingPopup(previous_step, opener_global_id, target_url);
+  // GET_CUSTOM_WEB_CONTENTS_VIEW is only used with Alloy style.
+  auto pending_popup = PopPendingPopup(
+      PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
+      PendingPopup::CAN_CREATE_WINDOW, opener_global_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
 
@@ -264,8 +270,8 @@ void CefBrowserInfoManager::WebContentsCreated(
   platform_delegate = std::move(pending_popup->platform_delegate);
   extra_info = pending_popup->extra_info;
 
-  // AddWebContents (the next step) is only used with the Chrome runtime.
-  if (cef::IsChromeRuntimeEnabled()) {
+  // AddWebContents (the next step) is only used with Chrome style.
+  if (!pending_popup->alloy_style) {
     pending_popup->step = PendingPopup::WEB_CONTENTS_CREATED;
     pending_popup->new_contents = new_contents;
     PushPendingPopup(std::move(pending_popup));
@@ -280,8 +286,10 @@ bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
   // chrome::AddWebContents is called directly from the Chrome UI (profile
   // settings, etc).
   auto pending_popup =
-      PopPendingPopup(PendingPopup::WEB_CONTENTS_CREATED, new_contents);
+      PopPendingPopup(PendingPopup::WEB_CONTENTS_CREATED,
+                      PendingPopup::WEB_CONTENTS_CREATED, new_contents);
   if (pending_popup) {
+    DCHECK(!pending_popup->alloy_style);
     return !pending_popup->use_default_browser_creation;
   }
 
@@ -337,6 +345,56 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
         base::BindOnce(&CefBrowserInfoManager::TimeoutNewBrowserInfoResponse,
                        global_token, timeout_id),
         kNewBrowserInfoResponseTimeoutMs);
+  }
+
+  // Check for PDF viewer or print preview frames.
+  CEF_POST_TASK(
+      CEF_UIT,
+      base::BindOnce(
+          &CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread,
+          global_token));
+}
+
+// static
+void CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread(
+    const content::GlobalRenderFrameHostToken& global_token) {
+  CEF_REQUIRE_UIT();
+  if (!g_info_manager) {
+    return;
+  }
+
+  // May return nullptr for PDF renderer process.
+  auto* rfh = content::RenderFrameHost::FromFrameToken(global_token);
+  if (!rfh) {
+    return;
+  }
+
+  // PDF viewer and print preview create multiple renderer processes. Not all
+  // of those processes are currently tracked by CefBrowserInfo, so we also
+  // treat frames from untracked processes (like the print preview dialog) as
+  // guest views in the renderer process.
+  CefBrowserInfo* browser_info;
+  bool excluded_type;
+  GetFrameHost(rfh, /*prefer_speculative=*/true, &browser_info, &excluded_type);
+  if (browser_info && excluded_type) {
+    g_info_manager->ContinueNewBrowserInfo(global_token, browser_info,
+                                           /*is_guest_view=*/true);
+  }
+}
+
+void CefBrowserInfoManager::ContinueNewBrowserInfo(
+    const content::GlobalRenderFrameHostToken& global_token,
+    scoped_refptr<CefBrowserInfo> browser_info,
+    bool is_guest_view) {
+  base::AutoLock lock_scope(browser_info_lock_);
+
+  // Continue any pending NewBrowserInfo request.
+  auto it = pending_new_browser_info_map_.find(global_token);
+  if (it != pending_new_browser_info_map_.end()) {
+    SendNewBrowserInfoResponse(browser_info, is_guest_view,
+                               std::move(it->second->callback),
+                               it->second->callback_runner);
+    pending_new_browser_info_map_.erase(it);
   }
 }
 
@@ -405,15 +463,14 @@ bool CefBrowserInfoManager::MaybeAllowNavigation(
     CefRefPtr<CefBrowserHostBase>& browser_out) const {
   CEF_REQUIRE_UIT();
 
-  bool is_guest_view = false;
-  auto browser = extensions::GetOwnerBrowserForHost(opener, &is_guest_view);
+  auto browser = CefBrowserHostBase::GetBrowserForHost(opener);
   if (!browser) {
     // Print preview uses a modal dialog where we don't own the WebContents.
     // Allow that navigation to proceed.
     return true;
   }
 
-  if (!browser->MaybeAllowNavigation(opener, is_guest_view, params)) {
+  if (!browser->MaybeAllowNavigation(opener, params)) {
     return false;
   }
 
@@ -432,6 +489,66 @@ bool CefBrowserInfoManager::ShouldCreateViewsHostedPopup(
   return opener->HasView() &&
          !opener->platform_delegate()->HasExternalParent() &&
          !use_default_browser_creation;
+}
+
+// static
+CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
+    content::RenderFrameHost* rfh,
+    bool prefer_speculative,
+    CefBrowserInfo** browser_info,
+    bool* excluded_type) {
+  CEF_REQUIRE_UIT();
+  DCHECK(rfh);
+
+  const bool is_pdf_process = rfh->GetProcess()->IsPdf();
+  auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
+  const bool is_browser_process_guest =
+      extensions::IsBrowserPluginGuest(web_contents);
+  const bool is_print_preview_dialog =
+      extensions::IsPrintPreviewDialog(web_contents);
+
+  bool excluded =
+      is_pdf_process || is_browser_process_guest || is_print_preview_dialog;
+
+  bool guest_view = false;
+  CefRefPtr<CefFrameHostImpl> frame;
+
+  // A BrowserHost may match an excluded RFH type. Some associations are
+  // registered directly via CefBrowserInfo::MaybeCreateFrame and some are
+  // discovered indirectly via extensions::GetOwnerForGuestContents.
+  auto browser = CefBrowserHostBase::GetBrowserForHost(rfh);
+  if (browser) {
+    frame = browser->browser_info()->GetFrameForHost(rfh, &guest_view,
+                                                     prefer_speculative);
+    excluded |= guest_view;
+
+    // A FrameHost should never exist for an excluded type.
+    DCHECK(!frame || !excluded);
+  }
+
+  if (browser_info) {
+    *browser_info = browser ? browser->browser_info().get() : nullptr;
+  }
+
+  if (excluded_type) {
+    *excluded_type = excluded;
+  }
+
+  if (VLOG_IS_ON(1)) {
+    const std::string& debug_string =
+        frame_util::GetFrameDebugString(rfh->GetGlobalFrameToken());
+    const bool is_main = rfh->GetParent() == nullptr;
+
+    VLOG(1) << "frame " << debug_string
+            << " registered_guest_view=" << guest_view
+            << ", pdf_process=" << is_pdf_process
+            << ", browser_process_guest=" << is_browser_process_guest
+            << ", print_preview_dialog=" << is_print_preview_dialog
+            << ", main=" << is_main << (browser ? "" : ", has no BrowserHost")
+            << (frame ? "" : ", has no FrameHost");
+  }
+
+  return frame;
 }
 
 CefBrowserInfoManager::BrowserInfoList
@@ -490,16 +607,21 @@ void CefBrowserInfoManager::PushPendingPopup(
 
 std::unique_ptr<CefBrowserInfoManager::PendingPopup>
 CefBrowserInfoManager::PopPendingPopup(
-    PendingPopup::Step previous_step,
+    PendingPopup::Step previous_step_alloy,
+    PendingPopup::Step previous_step_chrome,
     const content::GlobalRenderFrameHostId& opener_global_id,
     const GURL& target_url) {
   CEF_REQUIRE_UIT();
   DCHECK(frame_util::IsValidGlobalId(opener_global_id));
-  DCHECK_LE(previous_step, PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW);
+  DCHECK_LE(previous_step_alloy, PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW);
+  DCHECK_LE(previous_step_chrome, PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW);
 
   PendingPopupList::iterator it = pending_popup_list_.begin();
   for (; it != pending_popup_list_.end(); ++it) {
     PendingPopup* popup = it->get();
+    const auto previous_step =
+        popup->alloy_style ? previous_step_alloy : previous_step_chrome;
+
     if (popup->step == previous_step &&
         popup->opener_global_id == opener_global_id &&
         popup->target_url == target_url) {
@@ -514,14 +636,19 @@ CefBrowserInfoManager::PopPendingPopup(
 }
 
 std::unique_ptr<CefBrowserInfoManager::PendingPopup>
-CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step previous_step,
+CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step previous_step_alloy,
+                                       PendingPopup::Step previous_step_chrome,
                                        content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
-  DCHECK_GE(previous_step, PendingPopup::WEB_CONTENTS_CREATED);
+  DCHECK_GE(previous_step_alloy, PendingPopup::WEB_CONTENTS_CREATED);
+  DCHECK_GE(previous_step_chrome, PendingPopup::WEB_CONTENTS_CREATED);
 
   PendingPopupList::iterator it = pending_popup_list_.begin();
   for (; it != pending_popup_list_.end(); ++it) {
     PendingPopup* popup = it->get();
+    const auto previous_step =
+        popup->alloy_style ? previous_step_alloy : previous_step_chrome;
+
     if (popup->step == previous_step && popup->new_contents == new_contents) {
       // Transfer ownership of the pointer.
       it->release();
@@ -611,6 +738,7 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     params->browser_id = browser_info->browser_id();
     params->is_windowless = browser_info->is_windowless();
     params->is_popup = browser_info->is_popup();
+    params->print_preview_enabled = browser_info->print_preview_enabled();
 
     auto extra_info = browser_info->extra_info();
     if (extra_info) {
@@ -655,15 +783,21 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
       return;
     }
 
-#if DCHECK_IS_ON()
-    // This method should never be called for a PDF renderer.
-    content::RenderProcessHost* process =
-        content::RenderProcessHost::FromID(global_token.child_id);
-    DCHECK(!process || !process->IsPdf());
-#endif
+    // Cases where we expect to time out are:
+    // - With the Chrome runtime when chrome::AddWebContents or
+    //   WebContents::Create are called directly from the Chrome UI (profile
+    //   settings, etc). A RFH will exist without a matching CefBrowserHost.
+    // - When the PDF renderer is loaded in the print preview dialog. There will
+    //   be no RFH in this case.
+    // Any additional cases should be debugged and, if possible,
+    // extensions::GetOwnerForGuestContents should be improved to find the
+    // associated CefBrowserHost.
+    const bool has_rfh =
+        !!content::RenderFrameHost::FromFrameToken(global_token);
 
     LOG(ERROR) << "Timeout of new browser info response for frame "
-               << frame_util::GetFrameDebugString(global_token);
+               << frame_util::GetFrameDebugString(global_token)
+               << " (has_rfh=" << has_rfh << ")";
 
     CancelNewBrowserInfoResponse(pending_info.get());
     g_info_manager->pending_new_browser_info_map_.erase(it);

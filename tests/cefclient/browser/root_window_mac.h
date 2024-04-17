@@ -22,7 +22,7 @@ class RootWindowMacImpl;
 class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
-  RootWindowMac();
+  explicit RootWindowMac(bool use_alloy_style);
   ~RootWindowMac();
 
   BrowserWindow* browser_window() const;
@@ -51,6 +51,7 @@ class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
   bool WithExtension() const override;
 
   // BrowserWindow::Delegate methods.
+  bool UseAlloyStyle() const override { return IsAlloyStyle(); }
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserWindowDestroyed() override;
   void OnSetAddress(const std::string& url) override;

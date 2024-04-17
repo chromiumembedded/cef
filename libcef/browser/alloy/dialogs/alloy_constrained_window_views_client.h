@@ -12,6 +12,8 @@
 
 // Creates a ConstrainedWindowViewsClient for the Chrome environment.
 std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
-CreateAlloyConstrainedWindowViewsClient();
+CreateAlloyConstrainedWindowViewsClient(
+    std::unique_ptr<constrained_window::ConstrainedWindowViewsClient>
+        chrome_client);
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_DIALOGS_ALLOY_CONSTRAINED_WINDOW_VIEWS_CLIENT_H_

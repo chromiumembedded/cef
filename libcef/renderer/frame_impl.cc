@@ -486,11 +486,13 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
   // Don't attempt to connect an invalid or bfcache'd frame. If a bfcache'd
   // frame returns to active status a reconnect will be triggered via
   // OnWasShown().
-  if (!frame_ || blink_glue::IsInBackForwardCache(frame_)) {
+  if (!frame_ || attach_denied_ || blink_glue::IsInBackForwardCache(frame_)) {
     browser_connection_state_ = ConnectionState::DISCONNECTED;
     browser_connect_timer_.Stop();
     VLOG(1) << frame_debug_str_ << " connection retry canceled (reason="
-            << (frame_ ? "BFCACHED" : "INVALID") << ")";
+            << (frame_ ? (attach_denied_ ? "ATTACH_DENIED" : "BFCACHED")
+                       : "INVALID")
+            << ")";
     return;
   }
 
@@ -610,6 +612,11 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason,
     return;
   }
 
+  if (attach_denied_) {
+    VLOG(1) << frame_debug_str_ << " connection attach denied";
+    return;
+  }
+
   const auto connection_state = browser_connection_state_;
   const bool frame_is_valid = !!frame_;
   VLOG(1) << frame_debug_str_ << " disconnected "
@@ -649,8 +656,8 @@ void CefFrameImpl::OnDisconnect(DisconnectReason reason,
 
 void CefFrameImpl::SendToBrowserFrame(const std::string& function_name,
                                       BrowserFrameAction action) {
-  if (!frame_) {
-    // We've been detached.
+  if (!frame_ || attach_denied_) {
+    // We're detached.
     LOG(WARNING) << function_name << " sent to detached " << frame_debug_str_
                  << " will be ignored";
     return;
@@ -695,13 +702,22 @@ void CefFrameImpl::MaybeInitializeScriptContext() {
   frame_->MainWorldScriptContext();
 }
 
-void CefFrameImpl::FrameAttachedAck() {
+void CefFrameImpl::FrameAttachedAck(bool allow) {
   // Sent from the browser process in response to ConnectBrowserFrame() sending
   // FrameAttached().
   CHECK_EQ(ConnectionState::CONNECTION_PENDING, browser_connection_state_);
   browser_connection_state_ = ConnectionState::CONNECTION_ACKED;
   browser_connect_retry_ct_ = 0;
   browser_connect_timer_.Stop();
+
+  if (!allow) {
+    // This will be followed by a connection disconnect from the browser side.
+    attach_denied_ = true;
+    while (!queued_browser_actions_.empty()) {
+      queued_browser_actions_.pop();
+    }
+    return;
+  }
 
   auto& browser_frame = GetBrowserFrame();
   CHECK(browser_frame);

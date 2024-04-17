@@ -23,6 +23,10 @@ class BrowserWindow : public ClientHandler::Delegate {
   // methods of this class will be called on the main thread.
   class Delegate {
    public:
+    // Returns true if the window should use Alloy style. Safe to call on any
+    // thread.
+    virtual bool UseAlloyStyle() const = 0;
+
     // Called when the browser has been created.
     virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
 
@@ -119,6 +123,8 @@ class BrowserWindow : public ClientHandler::Delegate {
   explicit BrowserWindow(Delegate* delegate);
 
   // ClientHandler::Delegate methods.
+  bool UseViews() const override { return false; }
+  bool UseAlloyStyle() const override;
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserClosing(CefRefPtr<CefBrowser> browser) override;
   void OnBrowserClosed(CefRefPtr<CefBrowser> browser) override;

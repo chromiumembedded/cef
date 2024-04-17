@@ -11,6 +11,7 @@
 #include "libcef/browser/request_context_impl.h"
 
 #include "chrome/browser/chrome_content_browser_client.h"
+#include "content/public/browser/web_contents_view_delegate.h"
 
 class ChromeBrowserMainExtraPartsCef;
 
@@ -126,6 +127,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
   void RegisterBrowserInterfaceBindersForFrame(
       content::RenderFrameHost* render_frame_host,
       mojo::BinderMapWithContext<content::RenderFrameHost*>* map) override;
+  std::unique_ptr<content::WebContentsViewDelegate> GetWebContentsViewDelegate(
+      content::WebContents* web_contents) override;
 
   CefRefPtr<CefRequestContextImpl> request_context() const;
 
@@ -134,6 +137,9 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
   scoped_refptr<base::SingleThreadTaskRunner> user_blocking_task_runner() const;
 
  private:
+  static std::unique_ptr<content::WebContentsViewDelegate>
+  CreateWebContentsViewDelegate(content::WebContents* web_contents);
+
   ChromeBrowserMainExtraPartsCef* browser_main_parts_ = nullptr;
 };
 

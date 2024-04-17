@@ -18,6 +18,11 @@ void CefBrowserPlatformDelegateChromeChildWindow::CloseHostWindow() {
   native_delegate_->CloseHostWindow();
 }
 
+CefRefPtr<CefBrowserViewDelegate> CefBrowserPlatformDelegateChromeChildWindow::
+    GetDefaultBrowserViewDelegateForPopupOpener() {
+  return chrome_child_window::GetDefaultBrowserViewDelegateForPopupOpener();
+}
+
 void CefBrowserPlatformDelegateChromeChildWindow::SetFocus(bool focus) {
   native_delegate_->SetFocus(focus);
 }

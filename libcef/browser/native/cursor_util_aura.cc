@@ -57,12 +57,13 @@ display::Display::Rotation OrientationAngleToRotation(
 // It would be better if CursorLoader took a ScreenInfo argument.
 // See https://crbug.com/1149906#c33.
 display::Display GetDisplay(CefRefPtr<CefBrowser> browser) {
-  if (auto web_contents =
-          static_cast<CefBrowserHostBase*>(browser.get())->GetWebContents()) {
+  auto browser_impl = CefBrowserHostBase::FromBrowser(browser);
+  if (auto web_contents = browser_impl->GetWebContents()) {
     if (auto view = web_contents->GetRenderWidgetHostView()) {
       // Windowless browsers always return nullptr from GetNativeView().
-      if (auto native_view = view->GetNativeView()) {
-        return display::Screen::GetScreen()->GetDisplayNearestView(native_view);
+      if (!browser_impl->IsWindowless()) {
+        return display::Screen::GetScreen()->GetDisplayNearestView(
+            view->GetNativeView());
       }
 
       // Make a minimal-effort fake Display object to satisfy the actual usage

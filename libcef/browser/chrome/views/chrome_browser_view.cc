@@ -54,9 +54,6 @@ void ChromeBrowserView::ViewHierarchyChanged(
 void ChromeBrowserView::AddedToWidget() {
   // Create the Browser and ChromeBrowserHostImpl.
   // Results in a call to InitBrowser which calls ParentClass::AddedToWidget.
-  cef_browser_view_->OnBrowserViewAdded();
-
-  // Call after ChromeBrowserHostImpl creation.
   cef_browser_view_->AddedToWidget();
 }
 

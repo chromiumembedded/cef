@@ -62,6 +62,11 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   static CefRefPtr<AlloyBrowserHostImpl> Create(
       CefBrowserCreateParams& create_params);
 
+  // Safe (checked) conversion from CefBrowserHostBase to AlloyBrowserHostImpl.
+  // Use this method instead of static_cast.
+  static CefRefPtr<AlloyBrowserHostImpl> FromBaseChecked(
+      CefRefPtr<CefBrowserHostBase> host_base);
+
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<AlloyBrowserHostImpl> GetBrowserForHost(
       const content::RenderViewHost* host);
@@ -85,8 +90,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
             bool matchCase,
             bool findNext) override;
   void StopFinding(bool clearSelection) override;
-  void CloseDevTools() override;
-  bool HasDevTools() override;
   bool IsWindowRenderingDisabled() override;
   void WasResized() override;
   void WasHidden(bool hidden) override;
@@ -126,9 +129,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void ExecuteChromeCommand(int command_id,
                             cef_window_open_disposition_t disposition) override;
 
-  // Returns true if windowless rendering is enabled.
+  // CefBrowserHostBase methods:
   bool IsWindowless() const override;
-
+  bool IsAlloyStyle() const override { return true; }
   bool IsVisible() const override;
 
   // Returns true if this browser supports picture-in-picture.
@@ -147,7 +150,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void CancelContextMenu();
 
   bool MaybeAllowNavigation(content::RenderFrameHost* opener,
-                            bool is_guest_view,
                             const content::OpenURLParams& params) override;
 
   // Convert from view DIP coordinates to screen coordinates. If
@@ -289,10 +291,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       const std::vector<content::AXLocationChangeNotificationDetails>& locData)
       override;
   void WebContentsDestroyed() override;
-
- protected:
-  void ShowDevToolsOnUIThread(
-      std::unique_ptr<CefShowDevToolsParams> params) override;
 
  private:
   friend class CefBrowserPlatformDelegateAlloy;
