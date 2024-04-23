@@ -67,7 +67,7 @@ index d69b17b004120..5175ea3a785a3 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index d466e72df7e2c..d0a58289ca291 100644
+index f62df6eb7d12b..68f78b5e8bce0 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -93,10 +93,10 @@ index d466e72df7e2c..d0a58289ca291 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 3385e9e9d5690..54b69691383bf 100644
+index 74b3f56ec91a8..78e548bbea4de 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -603,6 +603,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -597,6 +597,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  
@@ -107,10 +107,10 @@ index 3385e9e9d5690..54b69691383bf 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index d8ff86972911d..c6cc9c70741c9 100644
+index 9ca3120cfe3ac..c29c17330a7e5 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
-@@ -585,11 +585,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -586,11 +586,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -129,10 +129,10 @@ index d8ff86972911d..c6cc9c70741c9 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 566230f830ede..8767f6cf813e9 100644
+index 4c922cce6fe89..196fc0a6c07b2 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -671,14 +671,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -673,14 +673,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -152,7 +152,7 @@ index 566230f830ede..8767f6cf813e9 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1669,8 +1672,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1671,8 +1674,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

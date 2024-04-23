@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <memory>
-
 #include "libcef/browser/chrome/chrome_browser_delegate.h"
+
+#include <memory>
 
 #include "libcef/browser/browser_contents_delegate.h"
 #include "libcef/browser/browser_host_base.h"
@@ -22,12 +22,14 @@
 #include "libcef/browser/views/window_impl.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/common/frame_util.h"
+#include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
 
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
@@ -454,9 +456,23 @@ const std::optional<SkRegion> ChromeBrowserDelegate::GetDraggableRegion()
   return draggable_region_;
 }
 
-void ChromeBrowserDelegate::UpdateDraggableRegion(const SkRegion& region) {
-  DCHECK(SupportsDraggableRegion());
-  draggable_region_ = region;
+void ChromeBrowserDelegate::DraggableRegionsChanged(
+    const std::vector<blink::mojom::DraggableRegionPtr>& regions,
+    content::WebContents* contents) {
+  if (SupportsDraggableRegion()) {
+    SkRegion sk_region;
+    for (const auto& region : regions) {
+      sk_region.op(
+          SkIRect::MakeLTRB(region->bounds.x(), region->bounds.y(),
+                            region->bounds.x() + region->bounds.width(),
+                            region->bounds.y() + region->bounds.height()),
+          region->draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
+    }
+
+    draggable_region_ = sk_region;
+  } else if (auto delegate = GetDelegateForWebContents(contents)) {
+    delegate->DraggableRegionsChanged(regions, contents);
+  }
 }
 
 void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
@@ -512,9 +528,11 @@ void ChromeBrowserDelegate::WebContentsCreated(
                             /*is_devtools_popup=*/false, opener);
 }
 
-content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(
+content::WebContents* ChromeBrowserDelegate::OpenURLFromTabEx(
     content::WebContents* source,
-    const content::OpenURLParams& params) {
+    const content::OpenURLParams& params,
+    base::OnceCallback<void(content::NavigationHandle&)>&
+        navigation_handle_callback) {
   // |source| may be nullptr when opening a link from chrome UI such as the
   // Reading List sidebar. In that case we default to using the Browser's
   // currently active WebContents.
@@ -526,7 +544,8 @@ content::WebContents* ChromeBrowserDelegate::OpenURLFromTab(
   // Return nullptr to cancel the navigation. Otherwise, proceed with default
   // chrome handling.
   if (auto delegate = GetDelegateForWebContents(source)) {
-    return delegate->OpenURLFromTab(source, params);
+    return delegate->OpenURLFromTabEx(source, params,
+                                      navigation_handle_callback);
   }
   return nullptr;
 }

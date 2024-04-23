@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 7eda0c852bb51..744452bf6c00c 100644
+index 630ede12ce3f8..b7bc765e3eb99 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -105,15 +105,24 @@ void UpdateModalDialogPosition(views::Widget* widget,
@@ -53,7 +53,7 @@ index 7eda0c852bb51..744452bf6c00c 100644
 -        host_widget->GetClientAreaBoundsInScreen().OffsetFromOrigin();
 -    const gfx::Rect host_screen_bounds = host_widget->GetWindowBoundsInScreen();
 -
--    // TODO(crbug.com/1341530): The requested dialog bounds should never fall
+-    // TODO(crbug.com/40851111): The requested dialog bounds should never fall
 -    // outside the bounds of the transient parent.
 -    DCHECK(dialog_screen_bounds.Intersects(host_screen_bounds));
 -
@@ -178,17 +178,17 @@ index 51ed6bcf6b540..c6e1161140655 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 992dbc606ab78..2361727757696 100644
+index 1361ac9b3d57b..5a41f86862561 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -60,10 +60,12 @@ DialogDelegate::DialogDelegate() {
+@@ -84,10 +84,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
 -                                           gfx::NativeView parent) {
 +                                           gfx::NativeView parent,
 +                                           gfx::AcceleratedWidget parent_widget) {
-   views::Widget* widget = new views::Widget;
+   views::Widget* widget = new DialogWidget;
    views::Widget::InitParams params =
 -      GetDialogWidgetInitParams(delegate, context, parent, gfx::Rect());
 +      GetDialogWidgetInitParams(delegate, context, parent, gfx::Rect(),
@@ -196,7 +196,7 @@ index 992dbc606ab78..2361727757696 100644
    widget->Init(std::move(params));
    return widget;
  }
-@@ -72,17 +74,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -96,17 +98,19 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -220,7 +220,7 @@ index 992dbc606ab78..2361727757696 100644
  #else
    return true;
  #endif
-@@ -93,14 +97,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -117,14 +121,15 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -238,7 +238,7 @@ index 992dbc606ab78..2361727757696 100644
  
    if (!dialog || dialog->use_custom_frame()) {
      params.opacity = Widget::InitParams::WindowOpacity::kTranslucent;
-@@ -113,6 +118,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -137,6 +142,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;
@@ -247,10 +247,10 @@ index 992dbc606ab78..2361727757696 100644
    // Web-modal (ui::MODAL_TYPE_CHILD) dialogs with parents are marked as child
    // widgets to prevent top-level window behavior (independent movement, etc).
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index bfeb88bc9b666..6dd74a72e20cc 100644
+index de642a3bc1101..bdd8664f481a9 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
-@@ -96,13 +96,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -97,13 +97,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    // your use case.
    static Widget* CreateDialogWidget(std::unique_ptr<WidgetDelegate> delegate,
                                      gfx::NativeWindow context,
@@ -272,7 +272,7 @@ index bfeb88bc9b666..6dd74a72e20cc 100644
  
    // Returns the dialog widget InitParams for a given |context| or |parent|.
    // If |bounds| is not empty, used to initially place the dialog, otherwise
-@@ -110,7 +115,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -111,7 +116,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    static Widget::InitParams GetDialogWidgetInitParams(WidgetDelegate* delegate,
                                                        gfx::NativeWindow context,
                                                        gfx::NativeView parent,

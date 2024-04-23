@@ -129,6 +129,10 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
     return std::nullopt;
   }
   bool ShouldFinalizeRequestAfterDecided() const override { return true; }
+  std::vector<permissions::ElementAnchoredBubbleVariant> GetPromptVariants()
+      const override {
+    return {};
+  }
 
  private:
   // We don't expose AcceptThisTime() because it's a special case for

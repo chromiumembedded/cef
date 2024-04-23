@@ -80,7 +80,7 @@ int GetCacheControlHeaderPolicy(CefRequest::HeaderMap headerMap) {
   if (!line.empty()) {
     HttpHeaderUtils::MakeASCIILower(&line);
 
-    std::vector<base::StringPiece> pieces = base::SplitStringPiece(
+    std::vector<std::string_view> pieces = base::SplitStringPiece(
         line, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
     for (const auto& piece : pieces) {
       if (base::EqualsCaseInsensitiveASCII(piece,

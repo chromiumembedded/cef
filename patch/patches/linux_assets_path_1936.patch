@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index e21cd3f9c447d..3e366eab65155 100644
+index 8f4f33fd83ef6..be3c8f5ff50c1 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -188,7 +188,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
+@@ -191,7 +191,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;

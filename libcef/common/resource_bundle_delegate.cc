@@ -43,7 +43,7 @@ std::optional<std::string> CefResourceBundleDelegate::LoadDataResourceString(
 bool CefResourceBundleDelegate::GetRawDataResource(
     int resource_id,
     ui::ResourceScaleFactor scale_factor,
-    base::StringPiece* value) const {
+    std::string_view* value) const {
   auto application = CefAppManager::Get()->GetApplication();
   if (application) {
     CefRefPtr<CefResourceBundleHandler> handler =
@@ -55,10 +55,10 @@ bool CefResourceBundleDelegate::GetRawDataResource(
         if (handler->GetDataResourceForScale(
                 resource_id, static_cast<cef_scale_factor_t>(scale_factor),
                 data, data_size)) {
-          *value = base::StringPiece(static_cast<char*>(data), data_size);
+          *value = std::string_view(static_cast<char*>(data), data_size);
         }
       } else if (handler->GetDataResource(resource_id, data, data_size)) {
-        *value = base::StringPiece(static_cast<char*>(data), data_size);
+        *value = std::string_view(static_cast<char*>(data), data_size);
       }
     }
   }

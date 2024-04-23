@@ -29,7 +29,7 @@ CefDevToolsController::~CefDevToolsController() {
 }
 
 bool CefDevToolsController::SendDevToolsMessage(
-    const base::StringPiece& message) {
+    const std::string_view& message) {
   CEF_REQUIRE_UIT();
   if (!EnsureAgentHost()) {
     return false;
@@ -100,8 +100,8 @@ void CefDevToolsController::DispatchProtocolMessage(
     return;
   }
 
-  base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
-                                message.size());
+  std::string_view str_message(reinterpret_cast<const char*>(message.data()),
+                               message.size());
   if (!devtools_util::ProtocolParser::IsValidMessage(str_message)) {
     LOG(WARNING) << "Invalid message: " << str_message.substr(0, 100);
     return;

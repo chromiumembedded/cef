@@ -118,12 +118,6 @@ void CefRenderFrameObserver::FocusedElementChanged(
   documentImpl->Detach();
 }
 
-void CefRenderFrameObserver::DraggableRegionsChanged() {
-  if (frame_) {
-    frame_->OnDraggableRegionsChanged();
-  }
-}
-
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
     int world_id) {

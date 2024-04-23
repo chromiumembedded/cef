@@ -299,7 +299,7 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
       if (settings_->log_items == LOG_ITEMS_NONE) {
         log_items_str = std::string(switches::kLogItems_None);
       } else {
-        std::vector<base::StringPiece> added_items;
+        std::vector<std::string_view> added_items;
         if (settings_->log_items & LOG_ITEMS_FLAG_PROCESS_ID) {
           added_items.emplace_back(switches::kLogItems_PId);
         }
@@ -472,9 +472,7 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
 #endif  // BUILDFLAG(IS_WIN)
 
   if (dest == LoggingDest::kFile) {
-    log_settings.log_file_path = log_file.value().c_str();
-  } else {
-    log_settings.log_file_path = nullptr;
+    log_settings.log_file_path = log_file.value();
   }
 
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;

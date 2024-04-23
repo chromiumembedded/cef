@@ -452,6 +452,12 @@ void AlloyBrowserContext::RebuildTable(
   enumerator->OnComplete(true);
 }
 
+void AlloyBrowserContext::BuildVisitedLinkTable(
+    const scoped_refptr<VisitedLinkEnumerator>& enumerator) {
+  // Called when visited links will not or cannot be loaded from disk.
+  enumerator->OnVisitedLinkComplete(true);
+}
+
 DownloadPrefs* AlloyBrowserContext::GetDownloadPrefs() {
   CEF_REQUIRE_UIT();
   if (!download_prefs_) {

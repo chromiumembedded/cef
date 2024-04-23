@@ -2364,7 +2364,7 @@ bool CefV8ValueImpl::NeuterArrayBuffer() {
   if (!arr->IsDetachable()) {
     return false;
   }
-  arr->Detach();
+  [[maybe_unused]] auto result = arr->Detach(v8::Local<v8::Value>());
 
   return true;
 }

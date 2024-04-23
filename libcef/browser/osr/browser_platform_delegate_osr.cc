@@ -328,17 +328,21 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   gfx::PointF transformed_pt;
 
   // Some random crashes occured when GetWeakPtr is called on a null pointer
-  // that is the return of GetRenderWidgetHostAtPoint As the root cause is not
-  // yet understood (no reproducible scenario yet), the current fix is only a
-  // protection against null pointer dereferencing.
-  content::RenderWidgetHostImpl* ptr_current_rwh_for_drag =
-      web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
+  // that is the return of GetRenderWidgetHostViewInputAtPoint. As the root
+  // cause is not yet understood (no reproducible scenario yet), the current fix
+  // is only a protection against null pointer dereferencing.
+  auto* view =
+      web_contents->GetInputEventRouter()->GetRenderWidgetHostViewInputAtPoint(
           web_contents->GetRenderViewHost()->GetWidget()->GetView(),
           gfx::PointF(client_pt), &transformed_pt);
-  if (!ptr_current_rwh_for_drag) {
+  if (!view) {
     return;
   }
-  current_rwh_for_drag_ = ptr_current_rwh_for_drag->GetWeakPtr();
+  auto* target_rwh = content::RenderWidgetHostImpl::From(
+      static_cast<content::RenderWidgetHostViewBase*>(view)
+          ->GetRenderWidgetHost());
+
+  current_rwh_for_drag_ = target_rwh->GetWeakPtr();
 
   current_rvh_for_drag_ = web_contents->GetRenderViewHost();
 
@@ -387,10 +391,13 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
       GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
-  content::RenderWidgetHostImpl* target_rwh =
-      web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
+  auto* view =
+      web_contents->GetInputEventRouter()->GetRenderWidgetHostViewInputAtPoint(
           web_contents->GetRenderViewHost()->GetWidget()->GetView(),
           gfx::PointF(client_pt), &transformed_pt);
+  auto* target_rwh = content::RenderWidgetHostImpl::From(
+      static_cast<content::RenderWidgetHostViewBase*>(view)
+          ->GetRenderWidgetHost());
 
   if (target_rwh != current_rwh_for_drag_.get()) {
     if (current_rwh_for_drag_) {
@@ -458,10 +465,13 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
       GetScreenPoint(client_pt, /*want_dip_coords=*/false);
 
   gfx::PointF transformed_pt;
-  content::RenderWidgetHostImpl* target_rwh =
-      web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
+  auto* view =
+      web_contents->GetInputEventRouter()->GetRenderWidgetHostViewInputAtPoint(
           web_contents->GetRenderViewHost()->GetWidget()->GetView(),
           gfx::PointF(client_pt), &transformed_pt);
+  auto* target_rwh = content::RenderWidgetHostImpl::From(
+      static_cast<content::RenderWidgetHostViewBase*>(view)
+          ->GetRenderWidgetHost());
 
   if (target_rwh != current_rwh_for_drag_.get()) {
     if (current_rwh_for_drag_) {

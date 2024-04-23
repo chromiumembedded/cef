@@ -48,7 +48,7 @@ CefRefPtr<CefValue> CefParseJSON(const void* json,
     return nullptr;
   }
   std::optional<base::Value> parse_result = base::JSONReader::Read(
-      base::StringPiece(static_cast<const char*>(json), json_size),
+      std::string_view(static_cast<const char*>(json), json_size),
       GetJSONReaderOptions(options));
   if (parse_result) {
     return new CefValueImpl(std::move(parse_result.value()));

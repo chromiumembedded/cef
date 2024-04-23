@@ -166,7 +166,7 @@ void LogProtocolMessage(const base::FilePath& log_file,
   WriteTimestamp(stream);
   stream << ": " << type_label << ": " << to_log << "\n";
   const std::string& str = stream.str();
-  if (!base::AppendToFile(log_file, base::StringPiece(str))) {
+  if (!base::AppendToFile(log_file, std::string_view(str))) {
     LOG(ERROR) << "Failed to write file " << log_file.value();
     log_error = true;
   }
@@ -200,7 +200,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
     response_headers_ = response_head.headers;
   }
 
-  void OnDataReceived(base::StringPiece chunk,
+  void OnDataReceived(std::string_view chunk,
                       base::OnceClosure resume) override {
     base::Value chunkValue;
 
@@ -577,8 +577,8 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     return;
   }
 
-  base::StringPiece str_message(reinterpret_cast<const char*>(message.data()),
-                                message.size());
+  std::string_view str_message(reinterpret_cast<const char*>(message.data()),
+                               message.size());
   if (ProtocolLoggingEnabled()) {
     // Quick check to avoid parsing the JSON object. Events begin with a
     // "method" value whereas method results begin with an "id" value.
@@ -595,7 +595,7 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
     size_t total_size = str_message.length();
     for (size_t pos = 0; pos < str_message.length();
          pos += kMaxMessageChunkSize) {
-      base::StringPiece str_message_chunk =
+      std::string_view str_message_chunk =
           str_message.substr(pos, kMaxMessageChunkSize);
 
       CallClientFunction(
@@ -643,7 +643,7 @@ bool CefDevToolsFrontend::ProtocolLoggingEnabled() const {
 }
 
 void CefDevToolsFrontend::LogProtocolMessage(ProtocolMessageType type,
-                                             const base::StringPiece& message) {
+                                             const std::string_view& message) {
   DCHECK(ProtocolLoggingEnabled());
 
   std::string to_log(message.substr(0, kMaxLogLineLength));

@@ -33,7 +33,7 @@ index d69f9d4641613..e88aaf8617c52 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 1a1a07dad71dd..42048c360e797 100644
+index 09d80f2ba678d..5dbff44c280a1 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -8,6 +8,7 @@
@@ -68,7 +68,7 @@ index 6af484f35f576..2462700b6d1fb 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index fcd7f310c8b3b..eaa5f17a011d5 100644
+index 6af8af9ed5f95..4cf7b7a56f07a 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -38,6 +38,7 @@ component("controller") {
@@ -79,7 +79,7 @@ index fcd7f310c8b3b..eaa5f17a011d5 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -63,6 +64,8 @@ component("controller") {
+@@ -65,6 +66,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",

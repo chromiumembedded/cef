@@ -44,7 +44,7 @@ index 27af6ec08f593..156689eec644d 100644
  #include "chrome/common/chrome_paths.h"
  
  namespace policy {
-@@ -47,11 +48,6 @@
+@@ -47,11 +48,6 @@ const char kEnrollmentOptionsFilePath[] = FILE_PATH_LITERAL(
      "/Library/Google/Chrome/CloudManagementEnrollmentOptions");
  const char kEnrollmentMandatoryOption[] = "Mandatory";
  
@@ -306,7 +306,7 @@ index 1a2e78c3472ec..5d1bd95a15113 100644
  #include "components/policy/policy_constants.h"
  
  namespace policy::path_parser {
-@@ -97,16 +98,12 @@
+@@ -97,16 +98,12 @@ base::FilePath::StringType ExpandPathVariables(
  void CheckUserDataDirPolicy(base::FilePath* user_data_dir) {
    // Since the configuration management infrastructure is not initialized when
    // this code runs, read the policy preference directly.
@@ -357,10 +357,10 @@ index 8dbf958c189dd..6eaccc6688eca 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 54aca1f19f909..f93197a133dc2 100644
+index c94a25e390864..b47996eaeb902 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -544,7 +544,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -541,7 +541,8 @@ bool PathProvider(int key, base::FilePath* result) {
          return false;
        }
        break;
@@ -392,7 +392,7 @@ index 4cde94111918e..aaf8245abd9a6 100644
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/tools/generate_policy_source.py components/policy/tools/generate_policy_source.py
-index e5efa52a8467f..37253ef517bfa 100755
+index aef54cfd633eb..a3760acb82ea5 100755
 --- components/policy/tools/generate_policy_source.py
 +++ components/policy/tools/generate_policy_source.py
 @@ -449,6 +449,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,

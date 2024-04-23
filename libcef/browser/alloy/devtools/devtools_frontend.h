@@ -87,7 +87,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
   bool ProtocolLoggingEnabled() const;
   void LogProtocolMessage(ProtocolMessageType type,
-                          const base::StringPiece& message);
+                          const std::string_view& message);
 
   PrefService* GetPrefs() const;
 

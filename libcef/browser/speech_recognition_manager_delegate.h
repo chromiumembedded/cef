@@ -52,6 +52,9 @@ class CefSpeechRecognitionManagerDelegate
       override;
   content::SpeechRecognitionEventListener* GetEventListener() override;
   bool FilterProfanities(int render_process_id) override;
+  void BindSpeechRecognitionContext(
+      mojo::PendingReceiver<media::mojom::SpeechRecognitionContext> receiver)
+      override;
 
  private:
   bool filter_profanities_;

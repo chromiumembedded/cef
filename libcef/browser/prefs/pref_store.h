@@ -24,7 +24,7 @@ class CefPrefStore : public PersistentPrefStore {
   CefPrefStore& operator=(const CefPrefStore&) = delete;
 
   // Overriden from PrefStore.
-  bool GetValue(base::StringPiece key,
+  bool GetValue(std::string_view key,
                 const base::Value** result) const override;
   base::Value::Dict GetValues() const override;
   void AddObserver(PrefStore::Observer* observer) override;

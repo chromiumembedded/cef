@@ -4,6 +4,8 @@
 
 #include "libcef/common/crash_reporting.h"
 
+#include <string_view>
+
 #include "include/cef_crash_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/features/runtime.h"
@@ -13,7 +15,6 @@
 #include "base/debug/crash_logging.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
-#include "base/strings/string_piece.h"
 #include "base/strings/string_util.h"
 #include "chrome/common/crash_keys.h"
 #include "components/crash/core/common/crash_key.h"
@@ -51,8 +52,8 @@ typedef int(__cdecl* SetCrashKeyValue)(const char*,
 //    int __declspec(dllexport) __cdecl IsCrashReportingEnabledImpl.
 typedef int(__cdecl* IsCrashReportingEnabled)();
 
-bool SetCrashKeyValueTrampoline(const base::StringPiece& key,
-                                const base::StringPiece& value) {
+bool SetCrashKeyValueTrampoline(const std::string_view& key,
+                                const std::string_view& value) {
   static SetCrashKeyValue set_crash_key = []() {
     HMODULE elf_module = GetModuleHandle(kChromeElfDllName);
     return reinterpret_cast<SetCrashKeyValue>(
@@ -176,8 +177,8 @@ bool Enabled() {
   return g_crash_reporting_enabled;
 }
 
-bool SetCrashKeyValue(const base::StringPiece& key,
-                      const base::StringPiece& value) {
+bool SetCrashKeyValue(const std::string_view& key,
+                      const std::string_view& value) {
   if (!g_crash_reporting_enabled) {
     return false;
   }

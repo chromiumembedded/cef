@@ -11,9 +11,9 @@
 namespace extensions::api::cef {
 
 // static
-base::StringPiece ChromeGeneratedSchemas::Get(const std::string& name) {
+std::string_view ChromeGeneratedSchemas::Get(const std::string& name) {
   if (!ChromeFunctionRegistry::IsSupported(name)) {
-    return base::StringPiece();
+    return std::string_view();
   }
   return extensions::api::ChromeGeneratedSchemas::Get(name);
 }

@@ -59,7 +59,7 @@ namespace {
 
 // Implementation based on ComponentLoader::ParseManifest.
 std::optional<base::Value::Dict> ParseManifest(
-    base::StringPiece manifest_contents) {
+    std::string_view manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest =
       deserializer.Deserialize(nullptr, nullptr);

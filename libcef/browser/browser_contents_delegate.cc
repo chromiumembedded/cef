@@ -25,6 +25,7 @@
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
+#include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
 #include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
 
 #if defined(OS_WIN)
@@ -112,9 +113,11 @@ void CefBrowserContentsDelegate::RemoveObserver(Observer* observer) {
 
 // |source| may be NULL for navigations in the current tab, or if the
 // navigation originates from a guest view via MaybeAllowNavigation.
-content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
+content::WebContents* CefBrowserContentsDelegate::OpenURLFromTabEx(
     content::WebContents* source,
-    const content::OpenURLParams& params) {
+    const content::OpenURLParams& params,
+    base::OnceCallback<void(content::NavigationHandle&)>&
+        navigation_handle_callback) {
   bool cancel = false;
 
   if (auto c = client()) {
@@ -133,8 +136,13 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTab(
     }
   }
 
+  if (!cancel) {
+    // TODO: Do something with |navigation_handle_callback|.
+    return web_contents();
+  }
+
   // Returning nullptr will cancel the navigation.
-  return cancel ? nullptr : web_contents();
+  return nullptr;
 }
 
 void CefBrowserContentsDelegate::LoadingStateChanged(
@@ -228,11 +236,9 @@ void CefBrowserContentsDelegate::CanDownload(
     base::OnceCallback<void(bool)> callback) {
   bool allow = true;
 
-  if (auto delegate = platform_delegate()) {
-    if (auto c = client()) {
-      if (auto handler = c->GetDownloadHandler()) {
-        allow = handler->CanDownload(browser(), url.spec(), request_method);
-      }
+  if (auto c = client()) {
+    if (auto handler = c->GetDownloadHandler()) {
+      allow = handler->CanDownload(browser(), url.spec(), request_method);
     }
   }
 
@@ -292,6 +298,23 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
   }
 
   return false;
+}
+
+void CefBrowserContentsDelegate::DraggableRegionsChanged(
+    const std::vector<blink::mojom::DraggableRegionPtr>& regions,
+    content::WebContents* contents) {
+  // Already converted to window bounds in WebViewImpl::DraggableRegionsChanged.
+  std::vector<cef::mojom::DraggableRegionEntryPtr> cef_regions;
+  if (!regions.empty()) {
+    cef_regions.reserve(regions.size());
+    for (const auto& region : regions) {
+      auto cef_region = cef::mojom::DraggableRegionEntry::New(
+          region->bounds, region->draggable);
+      cef_regions.emplace_back(std::move(cef_region));
+    }
+  }
+
+  browser_info_->GetMainFrame()->UpdateDraggableRegions(std::move(cef_regions));
 }
 
 void CefBrowserContentsDelegate::RenderFrameCreated(

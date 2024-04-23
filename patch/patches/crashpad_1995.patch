@@ -47,10 +47,10 @@ index 37e2d2a50aa2c..bb6ac82cd9cb7 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index 27a803784eb9e..a8b033f475cb4 100644
+index 30a2c1adc4509..b60a7afaf1e5e 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
-@@ -11,12 +11,17 @@
+@@ -12,12 +12,17 @@
  #include <string>
  #include <vector>
  
@@ -68,7 +68,7 @@ index 27a803784eb9e..a8b033f475cb4 100644
  namespace {
  
  // Crash handling from elf is only enabled for the chrome.exe process.
-@@ -77,7 +82,11 @@ bool InitializeCrashReporting() {
+@@ -78,7 +83,11 @@ bool InitializeCrashReporting() {
    g_crash_reports = new std::vector<crash_reporter::Report>;
    g_set_unhandled_exception_filter = new elf_hook::IATHook();
  
@@ -81,7 +81,7 @@ index 27a803784eb9e..a8b033f475cb4 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 2f69ae87fd93d..69a1bb6e008b4 100644
+index 81fb33468431c..9b0d500e37452 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -6,6 +6,8 @@
@@ -93,7 +93,7 @@ index 2f69ae87fd93d..69a1bb6e008b4 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -100,8 +102,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -99,8 +101,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -105,7 +105,7 @@ index 2f69ae87fd93d..69a1bb6e008b4 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -160,11 +164,9 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -159,11 +163,9 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -117,12 +117,20 @@ index 2f69ae87fd93d..69a1bb6e008b4 100644
 +  SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
  }
  
- void SetActiveExtensions(const std::set<std::string>& extensions) {
+ }  // namespace crash_keys
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index d802db81c88ef..f78029680e366 100644
+index 710f553034881..dd1e61f9e194b 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
-@@ -16,6 +16,10 @@ class CommandLine;
+@@ -5,12 +5,18 @@
+ #ifndef CHROME_COMMON_CRASH_KEYS_H_
+ #define CHROME_COMMON_CRASH_KEYS_H_
+ 
++#include <string>
++
+ namespace base {
+ class CommandLine;
+ }
  
  namespace crash_keys {
  
@@ -262,10 +270,10 @@ index a604df7a5ea6a..618fbde10a65c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index a18afed5b55c1..fabb36a299cd9 100644
+index 4a25417a565fd..a7a1d451b56f9 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -129,7 +129,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -137,7 +137,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.

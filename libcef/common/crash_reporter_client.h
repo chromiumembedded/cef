@@ -6,11 +6,11 @@
 #define CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "include/cef_version.h"
 
-#include "base/strings/string_piece.h"
 #include "base/synchronization/lock.h"
 #include "build/build_config.h"
 #include "components/crash/core/app/crash_reporter_client.h"
@@ -78,8 +78,8 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 #endif
 
   // Set or clear a crash key value.
-  bool SetCrashKeyValue(const base::StringPiece& key,
-                        const base::StringPiece& value);
+  bool SetCrashKeyValue(const std::string_view& key,
+                        const std::string_view& value);
 
  private:
   bool has_crash_config_file_ = false;

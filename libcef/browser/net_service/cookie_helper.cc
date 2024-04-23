@@ -253,7 +253,8 @@ void LoadCookies(const CefBrowserContext::Getter& browser_context_getter,
       !request.trusted_params->isolation_info.IsEmpty()) {
     partition_key_collection = net::CookiePartitionKeyCollection::FromOptional(
         net::CookiePartitionKey::FromNetworkIsolationKey(
-            request.trusted_params->isolation_info.network_isolation_key()));
+            request.trusted_params->isolation_info.network_isolation_key(),
+            request.site_for_cookies, net::SchemefulSite(request.url)));
   }
 
   CEF_POST_TASK(
@@ -286,7 +287,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
     response_date = base::Time();
   }
 
-  const base::StringPiece name(net_service::kHTTPSetCookieHeaderName);
+  const std::string_view name(net_service::kHTTPSetCookieHeaderName);
   std::string cookie_string;
   size_t iter = 0;
   net::CookieList allowed_cookies;
@@ -300,7 +301,8 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
         request.url, cookie_string, base::Time::Now(),
         std::make_optional(response_date),
         /*cookie_partition_key=*/std::nullopt,
-        /*block_truncated=*/true, &returned_status);
+        /*block_truncated=*/true, net::CookieSourceType::kHTTP,
+        &returned_status);
     if (!returned_status.IsInclude()) {
       continue;
     }

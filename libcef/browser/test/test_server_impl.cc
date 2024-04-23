@@ -33,9 +33,9 @@ class CefTestServerConnectionImpl : public CefTestServerConnection {
                            size_t data_size) override {
     auto response = std::make_unique<BasicHttpResponse>();
     response->set_code(net::HTTP_OK);
-    response->set_content_type(base::StringPiece(content_type.ToString()));
+    response->set_content_type(std::string_view(content_type.ToString()));
     response->set_content(
-        base::StringPiece(reinterpret_cast<const char*>(data), data_size));
+        std::string_view(reinterpret_cast<const char*>(data), data_size));
     SendBasicHttpResponse(std::move(response));
   }
 
@@ -48,8 +48,8 @@ class CefTestServerConnectionImpl : public CefTestServerConnection {
   void SendHttp500Response(const CefString& error_message) override {
     auto response = std::make_unique<BasicHttpResponse>();
     response->set_code(net::HTTP_INTERNAL_SERVER_ERROR);
-    response->set_content_type(base::StringPiece("text/html"));
-    response->set_content(base::StringPiece(error_message.ToString()));
+    response->set_content_type(std::string_view("text/html"));
+    response->set_content(std::string_view(error_message.ToString()));
     SendBasicHttpResponse(std::move(response));
   }
 
@@ -60,9 +60,9 @@ class CefTestServerConnectionImpl : public CefTestServerConnection {
                         const HeaderMap& extra_headers) override {
     auto response = std::make_unique<BasicHttpResponse>();
     response->set_code(static_cast<net::HttpStatusCode>(response_code));
-    response->set_content_type(base::StringPiece(content_type.ToString()));
+    response->set_content_type(std::string_view(content_type.ToString()));
     response->set_content(
-        base::StringPiece(reinterpret_cast<const char*>(data), data_size));
+        std::string_view(reinterpret_cast<const char*>(data), data_size));
     for (const auto& [key, value] : extra_headers) {
       response->AddCustomHeader(key.ToString(), value.ToString());
     }

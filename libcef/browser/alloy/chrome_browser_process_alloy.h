@@ -92,6 +92,8 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   safe_browsing::SafeBrowsingService* safe_browsing_service() override;
   subresource_filter::RulesetService* subresource_filter_ruleset_service()
       override;
+  subresource_filter::RulesetService*
+  fingerprinting_protection_ruleset_service() override;
   StartupData* startup_data() override;
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)

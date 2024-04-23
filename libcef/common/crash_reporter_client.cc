@@ -4,6 +4,7 @@
 
 #include "libcef/common/crash_reporter_client.h"
 
+#include <string_view>
 #include <utility>
 
 #if BUILDFLAG(IS_WIN)
@@ -14,7 +15,6 @@
 #include "base/logging.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/string_piece.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -250,7 +250,7 @@ CefCrashReporterClient* g_crash_reporter_client = nullptr;
 
 const char kKeyMapDelim = ',';
 
-std::string NormalizeCrashKey(const base::StringPiece& key) {
+std::string NormalizeCrashKey(const std::string_view& key) {
   std::string str(key);
   std::replace(str.begin(), str.end(), kKeyMapDelim, '-');
   if (str.length() > crashpad::Annotation::kNameMaxLength) {
@@ -297,7 +297,7 @@ int __declspec(dllexport) __cdecl SetCrashKeyValueImpl(const char* key,
                                                        size_t value_size) {
   if (g_crash_reporter_client) {
     return g_crash_reporter_client->SetCrashKeyValue(
-        base::StringPiece(key, key_size), base::StringPiece(value, value_size));
+        std::string_view(key, key_size), std::string_view(value, value_size));
   }
   return 0;
 }
@@ -537,7 +537,7 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     for (auto& id : ids) {
       size_t length = std::min(map_keys.size() - offset,
                                crashpad::Annotation::kValueMaxSize);
-      id.Set(base::StringPiece(map_keys.data() + offset, length));
+      id.Set(std::string_view(map_keys.data() + offset, length));
       offset += length;
       if (offset >= map_keys.size()) {
         break;
@@ -751,21 +751,21 @@ bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
       IDKEY(n "-V"), IDKEY(n "-W"), IDKEY(n "-X"), IDKEY(n "-Y"),            \
       IDKEY(n "-Z")
 
-#define IDKEY_FUNCTION(name, size_)                                          \
-  static_assert(size_ <= crashpad::Annotation::kValueMaxSize,                \
-                "Annotation size is too large.");                            \
-  bool Set##name##Annotation(size_t index, const base::StringPiece& value) { \
-    using IDKey = crash_reporter::CrashKeyString<size_>;                     \
-    static IDKey ids[] = {IDKEY_ENTRIES(#name)};                             \
-    if (index < std::size(ids)) {                                            \
-      if (value.empty()) {                                                   \
-        ids[index].Clear();                                                  \
-      } else {                                                               \
-        ids[index].Set(value);                                               \
-      }                                                                      \
-      return true;                                                           \
-    }                                                                        \
-    return false;                                                            \
+#define IDKEY_FUNCTION(name, size_)                                         \
+  static_assert(size_ <= crashpad::Annotation::kValueMaxSize,               \
+                "Annotation size is too large.");                           \
+  bool Set##name##Annotation(size_t index, const std::string_view& value) { \
+    using IDKey = crash_reporter::CrashKeyString<size_>;                    \
+    static IDKey ids[] = {IDKEY_ENTRIES(#name)};                            \
+    if (index < std::size(ids)) {                                           \
+      if (value.empty()) {                                                  \
+        ids[index].Clear();                                                 \
+      } else {                                                              \
+        ids[index].Set(value);                                              \
+      }                                                                     \
+      return true;                                                          \
+    }                                                                       \
+    return false;                                                           \
   }
 
 // The first argument must be kept synchronized with the logic in
@@ -775,8 +775,8 @@ IDKEY_FUNCTION(S, 64)
 IDKEY_FUNCTION(M, 256)
 IDKEY_FUNCTION(L, 1024)
 
-bool CefCrashReporterClient::SetCrashKeyValue(const base::StringPiece& key,
-                                              const base::StringPiece& value) {
+bool CefCrashReporterClient::SetCrashKeyValue(const std::string_view& key,
+                                              const std::string_view& value) {
   if (key.empty() || crash_keys_.empty()) {
     return false;
   }

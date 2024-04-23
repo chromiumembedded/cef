@@ -500,7 +500,7 @@ class CefBrowserURLRequest::Context
   }
 
   // SimpleURLLoaderStreamConsumer methods:
-  void OnDataReceived(base::StringPiece string_piece,
+  void OnDataReceived(std::string_view string_piece,
                       base::OnceClosure resume) override {
     DCHECK(CalledOnValidThread());
     DCHECK_EQ(status_, UR_IO_PENDING);

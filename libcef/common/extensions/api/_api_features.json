@@ -14,7 +14,7 @@
   // Required by the PDF extension which is hosted in a guest view.
   "contentSettings": {
     "dependencies": ["permission:contentSettings"],
-    "contexts": ["blessed_extension"]
+    "contexts": ["privileged_extension"]
   },
   "mimeHandlerViewGuestInternal": {
     "internal": true,
@@ -24,12 +24,12 @@
   },
   "pdfViewerPrivate": {
     "dependencies": ["permission:pdfViewerPrivate"],
-    "contexts": ["blessed_extension"]
+    "contexts": ["privileged_extension"]
   },
   "resourcesPrivate": [
     {
       "dependencies": ["permission:resourcesPrivate"],
-      "contexts": ["blessed_extension"]
+      "contexts": ["privileged_extension"]
     },
     {
       "channel": "stable",
@@ -40,7 +40,7 @@
   "tabs": {
     "channel": "stable",
     "extension_types": ["extension", "legacy_packaged_app"],
-    "contexts": ["blessed_extension"],
+    "contexts": ["privileged_extension"],
     "disallow_for_service_workers": false
   }
 }

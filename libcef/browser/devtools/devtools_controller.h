@@ -7,13 +7,12 @@
 
 #include <memory>
 
-#include "content/public/browser/devtools_agent_host_client.h"
-
 #include "base/containers/span.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/values.h"
+#include "content/public/browser/devtools_agent_host_client.h"
 
 namespace content {
 class WebContents;
@@ -24,12 +23,12 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   class Observer : public base::CheckedObserver {
    public:
     // See CefDevToolsMessageObserver documentation.
-    virtual bool OnDevToolsMessage(const base::StringPiece& message) = 0;
+    virtual bool OnDevToolsMessage(const std::string_view& message) = 0;
     virtual void OnDevToolsMethodResult(int message_id,
                                         bool success,
-                                        const base::StringPiece& result) = 0;
-    virtual void OnDevToolsEvent(const base::StringPiece& method,
-                                 const base::StringPiece& params) = 0;
+                                        const std::string_view& result) = 0;
+    virtual void OnDevToolsEvent(const std::string_view& method,
+                                 const std::string_view& params) = 0;
     virtual void OnDevToolsAgentAttached() = 0;
     virtual void OnDevToolsAgentDetached() = 0;
 
@@ -48,7 +47,7 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
   ~CefDevToolsController() override;
 
   // See CefBrowserHost methods of the same name for documentation.
-  bool SendDevToolsMessage(const base::StringPiece& message);
+  bool SendDevToolsMessage(const std::string_view& message);
   int ExecuteDevToolsMethod(int message_id,
                             const std::string& method,
                             const base::Value::Dict* params);

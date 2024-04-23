@@ -125,7 +125,7 @@ void CefRenderManager::RenderFrameCreated(
   // Enable support for draggable regions.
   // TODO: This has performance consequences so consider making it configurable
   // (e.g. only enabled for frameless windows). See issue #3636.
-  render_frame->GetWebView()->SetSupportsAppRegion(true);
+  render_frame->GetWebView()->SetSupportsDraggableRegions(true);
 }
 
 void CefRenderManager::WebViewCreated(

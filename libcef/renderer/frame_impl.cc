@@ -358,9 +358,8 @@ void CefFrameImpl::OnDidFinishLoad() {
 }
 
 void CefFrameImpl::OnDraggableRegionsChanged() {
-  // Match the behavior in ChromeRenderFrameObserver::DraggableRegionsChanged.
   // Only the main frame is allowed to control draggable regions, to avoid other
-  // frames manipulate the regions in the browser process.
+  // frames trying to manipulate the regions in the browser process.
   if (frame_->Parent() != nullptr) {
     return;
   }
@@ -376,7 +375,7 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
       auto region = cef::mojom::DraggableRegionEntry::New(webregion.bounds,
                                                           webregion.draggable);
       render_frame->ConvertViewportToWindow(&region->bounds);
-      regions.push_back(std::move(region));
+      regions.emplace_back(std::move(region));
     }
   }
 

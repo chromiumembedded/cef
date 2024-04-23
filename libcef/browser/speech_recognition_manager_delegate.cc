@@ -89,3 +89,7 @@ bool CefSpeechRecognitionManagerDelegate::FilterProfanities(
     int render_process_id) {
   return filter_profanities_;
 }
+
+void CefSpeechRecognitionManagerDelegate::BindSpeechRecognitionContext(
+    mojo::PendingReceiver<media::mojom::SpeechRecognitionContext>
+        recognition_receiver) {}

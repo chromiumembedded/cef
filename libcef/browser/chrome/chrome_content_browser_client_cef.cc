@@ -236,6 +236,7 @@ void ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
     int render_process_id,
     URLLoaderFactoryType type,
     const url::Origin& request_initiator,
+    const net::IsolationInfo& isolation_info,
     std::optional<int64_t> navigation_id,
     ukm::SourceIdObj ukm_source_id,
     network::URLLoaderFactoryBuilder& factory_builder,
@@ -252,9 +253,9 @@ void ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   if (!CefBrowserContext::FromProfile(profile)) {
     ChromeContentBrowserClient::WillCreateURLLoaderFactory(
         browser_context, frame, render_process_id, type, request_initiator,
-        navigation_id, ukm_source_id, factory_builder, header_client,
-        bypass_redirect_checks, disable_secure_dns, factory_override,
-        navigation_response_task_runner);
+        isolation_info, navigation_id, ukm_source_id, factory_builder,
+        header_client, bypass_redirect_checks, disable_secure_dns,
+        factory_override, navigation_response_task_runner);
     return;
   }
 
@@ -283,7 +284,7 @@ void ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
   // TODO(chrome): Is it necessary to proxy |header_client| callbacks?
   ChromeContentBrowserClient::WillCreateURLLoaderFactory(
       browser_context, frame, render_process_id, type, request_initiator,
-      navigation_id, ukm_source_id, factory_builder,
+      isolation_info, navigation_id, ukm_source_id, factory_builder,
       /*header_client=*/nullptr, bypass_redirect_checks, disable_secure_dns,
       handler_override, navigation_response_task_runner);
 

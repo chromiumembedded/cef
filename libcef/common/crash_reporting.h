@@ -3,8 +3,8 @@
 // governed by a BSD-style license that can be found in the LICENSE file.
 
 #include <string>
+#include <string_view>
 
-#include "base/strings/string_piece.h"
 #include "build/build_config.h"
 
 namespace base {
@@ -17,8 +17,8 @@ namespace crash_reporting {
 bool Enabled();
 
 // Set or clear a crash key value.
-bool SetCrashKeyValue(const base::StringPiece& key,
-                      const base::StringPiece& value);
+bool SetCrashKeyValue(const std::string_view& key,
+                      const std::string_view& value);
 
 // Functions are called from similarly named methods in AlloyMainDelegate.
 

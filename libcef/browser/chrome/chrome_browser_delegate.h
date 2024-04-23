@@ -87,9 +87,13 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   std::optional<bool> SupportsWindowFeature(int feature) const override;
   bool SupportsDraggableRegion() const override;
   const std::optional<SkRegion> GetDraggableRegion() const override;
-  void UpdateDraggableRegion(const SkRegion& region) override;
   void WindowFullscreenStateChanged() override;
   bool HasViewsHostedOpener() const override;
+  content::WebContents* OpenURLFromTabEx(
+      content::WebContents* source,
+      const content::OpenURLParams& params,
+      base::OnceCallback<void(content::NavigationHandle&)>&
+          navigation_handle_callback) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,
@@ -98,9 +102,6 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
                           const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
-  content::WebContents* OpenURLFromTab(
-      content::WebContents* source,
-      const content::OpenURLParams& params) override;
   void LoadingStateChanged(content::WebContents* source,
                            bool should_show_loading_ui) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -122,6 +123,9 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
+  void DraggableRegionsChanged(
+      const std::vector<blink::mojom::DraggableRegionPtr>& regions,
+      content::WebContents* contents) override;
 
   Browser* browser() const { return browser_; }
 

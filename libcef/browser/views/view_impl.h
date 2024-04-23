@@ -299,6 +299,7 @@
 #include "base/logging.h"
 #include "base/values.h"
 #include "ui/gfx/color_palette.h"
+#include "ui/views/accessibility/view_accessibility.h"
 #include "ui/views/background.h"
 #include "ui/views/border.h"
 #include "ui/views/view.h"
@@ -667,7 +668,7 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsFocusable() {
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsAccessibilityFocusable() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->IsAccessibilityFocusable();
+  return root_view()->GetViewAccessibility().IsAccessibilityFocusable();
 }
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::RequestFocus() {

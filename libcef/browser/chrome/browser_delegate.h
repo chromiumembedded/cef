@@ -12,11 +12,16 @@
 #include "base/memory/scoped_refptr.h"
 #include "chrome/browser/ui/page_action/page_action_icon_type.h"
 #include "content/public/browser/web_contents_delegate.h"
+#include "third_party/blink/public/mojom/page/draggable_region.mojom-forward.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/base/window_open_disposition.h"
 
 class Browser;
 class Profile;
+
+namespace content {
+class NavigationHandle;
+}
 
 namespace cef {
 
@@ -151,16 +156,22 @@ class BrowserDelegate : public content::WebContentsDelegate {
     return std::nullopt;
   }
 
-  // Set the draggable region relative to web contents.
-  // Called from DraggableRegionsHostImpl::UpdateDraggableRegions.
-  virtual void UpdateDraggableRegion(const SkRegion& region) {}
-
   // Called at the end of a fullscreen transition.
   virtual void WindowFullscreenStateChanged() {}
 
   // Returns true if this browser has a Views-hosted opener. Only
   // applicable for Browsers of type picture_in_picture and devtools.
   virtual bool HasViewsHostedOpener() const { return false; }
+
+  // Same as OpenURLFromTab but only taking |navigation_handle_callback|
+  // if the return value is non-nullptr.
+  virtual content::WebContents* OpenURLFromTabEx(
+      content::WebContents* source,
+      const content::OpenURLParams& params,
+      base::OnceCallback<void(content::NavigationHandle&)>&
+          navigation_handle_callback) {
+    return nullptr;
+  }
 };
 
 }  // namespace cef

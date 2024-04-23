@@ -303,7 +303,7 @@ bool CefCookieManagerImpl::SetCookieInternal(
       /*creation_time=*/base::Time(), expiration_time,
       /*last_access_time=*/base::Time(), cookie.secure ? true : false,
       cookie.httponly ? true : false, same_site, priority,
-      /*partition_key=*/std::nullopt);
+      /*partition_key=*/std::nullopt, /*status=*/nullptr);
 
   if (!canonical_cookie) {
     SetCookieCallbackImpl(

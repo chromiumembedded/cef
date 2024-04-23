@@ -59,6 +59,7 @@
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/pdf/common/constants.h"
+#include "components/pdf/common/pdf_util.h"
 #include "components/pdf/renderer/internal_plugin_renderer_helpers.h"
 #include "components/printing/renderer/print_render_frame_helper.h"
 #include "components/spellcheck/renderer/spellcheck.h"
@@ -430,10 +431,11 @@ bool AlloyContentRendererClient::IsOriginIsolatedPepperPlugin(
   return true;
 }
 
-std::unique_ptr<media::KeySystemSupportObserver>
+std::unique_ptr<media::KeySystemSupportRegistration>
 AlloyContentRendererClient::GetSupportedKeySystems(
+    content::RenderFrame* render_frame,
     media::GetSupportedKeySystemsCB cb) {
-  return GetChromeKeySystems(std::move(cb));
+  return GetChromeKeySystems(render_frame, std::move(cb));
 }
 
 void AlloyContentRendererClient::RunScriptsAtDocumentStart(

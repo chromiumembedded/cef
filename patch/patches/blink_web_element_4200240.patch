@@ -13,10 +13,10 @@ index 103cbab74b515..3b763e5100340 100644
    // Returns true if the element's contenteditable attribute is in the true
    // state or in the plaintext-only state:
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 3c71a93d1a6ea..df2c5cd35b846 100644
+index f05470ff9c673..7ffee95e4540b 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -116,6 +116,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -118,6 +118,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

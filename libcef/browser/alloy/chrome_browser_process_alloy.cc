@@ -370,6 +370,12 @@ ChromeBrowserProcessAlloy::subresource_filter_ruleset_service() {
   return nullptr;
 }
 
+subresource_filter::RulesetService*
+ChromeBrowserProcessAlloy::fingerprinting_protection_ruleset_service() {
+  DCHECK(false);
+  return nullptr;
+}
+
 StartupData* ChromeBrowserProcessAlloy::startup_data() {
   DCHECK(false);
   return nullptr;

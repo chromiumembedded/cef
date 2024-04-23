@@ -146,7 +146,12 @@ void ChromeBrowserHostImpl::OnWebContentsDestroyed(
   // CefBrowserInfoManager::DestroyAllBrowsers().
   if (platform_delegate_) {
     platform_delegate_->WebContentsDestroyed(web_contents);
-    DestroyBrowser();
+
+    // Destroy the browser asynchronously to allow the current call stack
+    // to unwind (we may have been called via the TabStripModel owned by the
+    // Browser).
+    CEF_POST_TASK(CEF_UIT,
+                  base::BindOnce(&ChromeBrowserHostImpl::DestroyBrowser, this));
   }
 }
 

@@ -39,7 +39,8 @@ class CefMediaStreamUI : public content::MediaStreamUI {
   void OnDeviceStoppedForSourceChange(
       const std::string& label,
       const content::DesktopMediaID& old_media_id,
-      const content::DesktopMediaID& new_media_id) override {}
+      const content::DesktopMediaID& new_media_id,
+      bool captured_surface_control_active) override {}
 
   void OnDeviceStopped(const std::string& label,
                        const content::DesktopMediaID& media_id) override {}

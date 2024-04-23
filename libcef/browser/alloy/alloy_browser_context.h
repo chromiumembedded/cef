@@ -110,6 +110,8 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
 
   // visitedlink::VisitedLinkDelegate methods.
   void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;
+  void BuildVisitedLinkTable(
+      const scoped_refptr<VisitedLinkEnumerator>& enumerator) override;
 
   // Manages extensions.
   extensions::CefExtensionSystem* extension_system() const {

@@ -618,7 +618,7 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(
                       base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
-                      this, nullptr, params));
+                      this, nullptr, params, base::NullCallback()));
 
     return false;
   }
@@ -926,8 +926,11 @@ bool AlloyBrowserHostImpl::IsAudioMuted() {
 
 content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
     content::WebContents* source,
-    const content::OpenURLParams& params) {
-  auto target_contents = contents_delegate_->OpenURLFromTab(source, params);
+    const content::OpenURLParams& params,
+    base::OnceCallback<void(content::NavigationHandle&)>
+        navigation_handle_callback) {
+  auto target_contents = contents_delegate_->OpenURLFromTabEx(
+      source, params, navigation_handle_callback);
   if (target_contents) {
     // Start a navigation in the current browser that will result in the
     // creation of a new render process.
@@ -1280,6 +1283,12 @@ bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
 content::PreloadingEligibility AlloyBrowserHostImpl::IsPrerender2Supported(
     content::WebContents& web_contents) {
   return content::PreloadingEligibility::kEligible;
+}
+
+void AlloyBrowserHostImpl::DraggableRegionsChanged(
+    const std::vector<blink::mojom::DraggableRegionPtr>& regions,
+    content::WebContents* contents) {
+  contents_delegate_->DraggableRegionsChanged(regions, contents);
 }
 
 // content::WebContentsObserver methods.

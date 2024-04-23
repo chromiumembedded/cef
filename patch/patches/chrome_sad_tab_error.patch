@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/sad_tab_view.cc chrome/browser/ui/views/sad_tab_view.cc
-index 5a3aa5c05907e..3630c7496fb70 100644
+index 0418f446e46ce..541b8389e7c88 100644
 --- chrome/browser/ui/views/sad_tab_view.cc
 +++ chrome/browser/ui/views/sad_tab_view.cc
-@@ -680,6 +680,11 @@ void SadTabView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
+@@ -684,6 +684,11 @@ void SadTabView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
    title_->SizeToFit(max_width);
  }
  

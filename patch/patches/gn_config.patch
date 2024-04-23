@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index afe0b3e90fafb..daae3b0e0e8d3 100644
+index e6f5cbc9c49f9..f64ed7ae77ea1 100644
 --- .gn
 +++ .gn
-@@ -153,6 +153,8 @@ exec_script_whitelist =
+@@ -155,6 +155,8 @@ exec_script_whitelist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,10 +12,10 @@ index afe0b3e90fafb..daae3b0e0e8d3 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 4b37258f1bbba..5106ced723dba 100644
+index 357f7117f8737..724ddd9d61110 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
+@@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
  import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,7 +23,7 @@ index 4b37258f1bbba..5106ced723dba 100644
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
  import("//device/vr/buildflags/buildflags.gni")
-@@ -274,6 +275,10 @@ group("gn_all") {
+@@ -275,6 +276,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 74acbe3a64b73..b148042d9df1e 100644
+index 8acc61076fcf6..4887fe263669c 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -99,7 +99,7 @@ index 74acbe3a64b73..b148042d9df1e 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index c43aa5873d96a..68978caa5b96b 100644
+index 064c39ffe307e..c430ab71419cb 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -110,7 +110,7 @@ index c43aa5873d96a..68978caa5b96b 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -97,6 +98,10 @@ template("chrome_repack_locales") {
+@@ -107,6 +108,10 @@ template("chrome_repack_locales") {
        source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
        deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }

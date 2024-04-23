@@ -18,7 +18,6 @@
 #include "extensions/common/permissions/permissions_data.h"
 #include "extensions/renderer/api/core_extensions_renderer_api_provider.h"
 #include "extensions/renderer/dispatcher.h"
-#include "extensions/renderer/dispatcher_delegate.h"
 #include "extensions/renderer/extension_frame_helper.h"
 #include "extensions/renderer/extensions_render_frame_observer.h"
 #include "extensions/renderer/extensions_renderer_api_provider.h"
@@ -87,9 +86,8 @@ bool CefExtensionsRendererClient::ExtensionAPIEnabledForServiceWorkerScript(
 void CefExtensionsRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
 
-  extension_dispatcher_ = std::make_unique<extensions::Dispatcher>(
-      std::make_unique<extensions::DispatcherDelegate>(),
-      std::move(api_providers_));
+  extension_dispatcher_ =
+      std::make_unique<extensions::Dispatcher>(std::move(api_providers_));
   extension_dispatcher_->OnRenderThreadStarted(thread);
   resource_request_policy_ =
       std::make_unique<extensions::ResourceRequestPolicy>(

@@ -12,7 +12,7 @@
 
 CefPrefStore::CefPrefStore() = default;
 
-bool CefPrefStore::GetValue(base::StringPiece key,
+bool CefPrefStore::GetValue(std::string_view key,
                             const base::Value** value) const {
   return prefs_.GetValue(key, value);
 }

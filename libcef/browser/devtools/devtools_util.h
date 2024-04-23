@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_UTIL_H_
 #pragma once
 
-#include "base/strings/string_piece.h"
+#include <string_view>
 
 namespace devtools_util {
 
@@ -31,10 +31,10 @@ struct ProtocolParser {
   ProtocolParser() = default;
 
   // Checks for a non-empty JSON dictionary.
-  static bool IsValidMessage(const base::StringPiece& message);
+  static bool IsValidMessage(const std::string_view& message);
 
   // Returns false if already initialized.
-  bool Initialize(const base::StringPiece& message);
+  bool Initialize(const std::string_view& message);
 
   bool IsInitialized() const { return status_ != UNINITIALIZED; }
   bool IsEvent() const { return status_ == EVENT; }
@@ -45,7 +45,7 @@ struct ProtocolParser {
 
   // For event messages:
   //   "method" string:
-  base::StringPiece method_;
+  std::string_view method_;
 
   // For result messages:
   //   "id" int:
@@ -55,7 +55,7 @@ struct ProtocolParser {
 
   // For both:
   //   "params", "result" or "error" dictionary:
-  base::StringPiece params_;
+  std::string_view params_;
 
  private:
   enum Status {

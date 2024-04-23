@@ -35,7 +35,7 @@ void WriteToFile(const base::FilePath& path, const std::string& content) {
 
 void AppendToFile(const base::FilePath& path, const std::string& content) {
   DCHECK(!path.empty());
-  base::AppendToFile(path, base::StringPiece(content));
+  base::AppendToFile(path, std::string_view(content));
 }
 
 }  // namespace

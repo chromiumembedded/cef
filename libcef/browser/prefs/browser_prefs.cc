@@ -27,7 +27,9 @@
 #include "chrome/browser/preloading/preloading_prefs.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/profiles/profile_key.h"
 #include "chrome/browser/ssl/ssl_config_service_manager.h"
+#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/browser_view_prefs.h"
 #include "chrome/browser/ui/webui/accessibility/accessibility_ui.h"
@@ -61,7 +63,8 @@
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 #include "components/safe_search_api/safe_search_util.h"
 #include "components/spellcheck/browser/pref_names.h"
-#include "components/supervised_user/core/common/buildflags.h"
+#include "components/supervised_user/core/browser/supervised_user_pref_store.h"
+#include "components/supervised_user/core/browser/supervised_user_settings_service.h"
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "components/sync_preferences/pref_service_syncable_factory.h"
 #include "components/unified_consent/unified_consent_service.h"
@@ -75,13 +78,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "components/os_crypt/sync/os_crypt.h"
-#endif
-
-#if BUILDFLAG(ENABLE_SUPERVISED_USERS)
-#include "chrome/browser/profiles/profile_key.h"
-#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
-#include "components/supervised_user/core/browser/supervised_user_pref_store.h"
-#include "components/supervised_user/core/browser/supervised_user_settings_service.h"
 #endif
 
 namespace browser_prefs {
@@ -170,7 +166,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     factory.set_user_prefs(cef_pref_store.get());
   }
 
-#if BUILDFLAG(ENABLE_SUPERVISED_USERS)
   if (profile) {
     // Used to store supervised user preferences.
     auto* supervised_user_settings =
@@ -191,7 +186,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     DCHECK(supervised_user_prefs->IsInitializationComplete());
     factory.set_supervised_user_prefs(supervised_user_prefs);
   }
-#endif  // BUILDFLAG(ENABLE_SUPERVISED_USERS)
 
   // Registry that will be populated with all known preferences. Preferences
   // are registered with default values that may be changed via a *PrefStore.

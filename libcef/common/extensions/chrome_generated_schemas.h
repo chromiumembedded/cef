@@ -11,8 +11,7 @@
 
 #include <map>
 #include <string>
-
-#include "base/strings/string_piece.h"
+#include <string_view>
 
 namespace extensions::api::cef {
 
@@ -22,7 +21,7 @@ class ChromeGeneratedSchemas {
   static bool IsGenerated(std::string name);
 
   // Gets the API schema named |name|.
-  static base::StringPiece Get(const std::string& name);
+  static std::string_view Get(const std::string& name);
 };
 
 }  // namespace extensions::api::cef

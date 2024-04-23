@@ -80,10 +80,15 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
-  // WebContentsDelegate methods:
-  content::WebContents* OpenURLFromTab(
+  // Same as OpenURLFromTab but only taking |navigation_handle_callback|
+  // if the return value is non-nullptr.
+  content::WebContents* OpenURLFromTabEx(
       content::WebContents* source,
-      const content::OpenURLParams& params) override;
+      const content::OpenURLParams& params,
+      base::OnceCallback<void(content::NavigationHandle&)>&
+          navigation_handle_callback);
+
+  // WebContentsDelegate methods:
   void LoadingStateChanged(content::WebContents* source,
                            bool should_show_loading_ui) override;
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -105,6 +110,9 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   bool HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;
+  void DraggableRegionsChanged(
+      const std::vector<blink::mojom::DraggableRegionPtr>& regions,
+      content::WebContents* contents) override;
 
   // WebContentsObserver methods:
   void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;

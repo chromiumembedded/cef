@@ -6,14 +6,14 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_PROXY_URL_LOADER_FACTORY_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_PROXY_URL_LOADER_FACTORY_H_
 
-#include "libcef/browser/net_service/stream_reader_url_loader.h"
-
 #include <optional>
+#include <string_view>
+
+#include "libcef/browser/net_service/stream_reader_url_loader.h"
 
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/functional/callback.h"
 #include "base/hash/hash.h"
-#include "base/strings/string_piece.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/web_contents.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"

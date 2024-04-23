@@ -12,10 +12,10 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index ffbb5986ca997..9f77c4603bf55 100644
+index 91feb21f4249e..88643fdeb4c4c 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -175,11 +175,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -174,11 +174,8 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -29,7 +29,7 @@ index ffbb5986ca997..9f77c4603bf55 100644
    base::FeatureList::FailOnFeatureAccessWithoutFeatureList();
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    // Lacros is launched with inherited priority. Revert to normal priority
-@@ -187,9 +184,6 @@ RunContentProcess(ContentMainParams params,
+@@ -186,9 +183,6 @@ RunContentProcess(ContentMainParams params,
    base::PlatformThread::SetCurrentThreadType(base::ThreadType::kDefault);
  #endif
    int exit_code = -1;
@@ -39,7 +39,7 @@ index ffbb5986ca997..9f77c4603bf55 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -275,21 +269,14 @@ RunContentProcess(ContentMainParams params,
+@@ -274,20 +268,13 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -57,21 +57,21 @@ index ffbb5986ca997..9f77c4603bf55 100644
 +    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
 +
  #if BUILDFLAG(IS_IOS)
-     // TODO(crbug.com/1412835): We support multiprocess launch of the content
-     // process, but for now networking and GPU are still in process.
+     base::ConditionVariable::InitializeFeatures();
 -    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-     command_line->AppendSwitch(switches::kInProcessGPU);
      command_line->AppendSwitch(switches::kEnableViewport);
      command_line->AppendSwitch(switches::kUseMobileUserAgent);
-@@ -308,19 +295,20 @@ RunContentProcess(ContentMainParams params,
+ #endif
+@@ -304,19 +291,19 @@ RunContentProcess(ContentMainParams params,
+     }
  
  #if BUILDFLAG(IS_WIN)
-     // Route stdio to parent console (if any) or create one.
--    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
--            switches::kEnableLogging)) {
--      base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
--    } else if (base::CommandLine::ForCurrentProcess()->HasSwitch(
--                   switches::kHeadless)) {
+-    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+-    if (command_line->HasSwitch(switches::kHeadless)) {
+-      // When running in headless mode we want stdio routed however if
+-      // console does not exist we should not create one.
+-      base::RouteStdioToConsole(/*create_console_if_not_found*/ false);
+-    } else if (command_line->HasSwitch(switches::kEnableLogging)) {
 +    if (command_line->HasSwitch(switches::kEnableLogging)) {
 +      // Don't route to console for "handle" type in child processes.
 +      if (command_line->GetSwitchValueASCII(switches::kEnableLogging) !=
@@ -79,9 +79,8 @@ index ffbb5986ca997..9f77c4603bf55 100644
 +        base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
 +      }
 +    } else if (command_line->HasSwitch(switches::kHeadless)) {
-       // When running in headless mode we want stdio routed however if
-       // console does not exist we should not create one.
-       base::RouteStdioToConsole(/*create_console_if_not_found*/ false);
+       // Route stdio to parent console (if any) or create one.
+       base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
      }
  #endif
  
@@ -91,7 +90,7 @@ index ffbb5986ca997..9f77c4603bf55 100644
        base::trace_event::TraceConfig trace_config =
            tracing::GetConfigForTraceToConsole();
        base::trace_event::TraceLog::GetInstance()->SetEnabled(
-@@ -330,12 +318,46 @@ RunContentProcess(ContentMainParams params,
+@@ -326,12 +313,46 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -140,10 +139,10 @@ index ffbb5986ca997..9f77c4603bf55 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 824026e6e2bd6..7de0c987dfd3d 100644
+index faa4e5ced67f3..946f26d2c5fe7 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -46,6 +46,7 @@
+@@ -47,6 +47,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -151,7 +150,7 @@ index 824026e6e2bd6..7de0c987dfd3d 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1339,6 +1340,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1338,6 +1339,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

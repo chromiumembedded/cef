@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 5ee79cf7fefb1..a84750a496095 100644
+index 96a290eef86ca..6513a365cddf0 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -39,8 +39,8 @@ index 5ee79cf7fefb1..a84750a496095 100644
  
 @@ -80,9 +87,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    // forms of zooming won't work).
-   // TODO(1042323): Present a coherent representation of a tab id for portal
-   // contents.
+   // TODO(crbug.com/40114809): Present a coherent representation of a tab id for
+   // portal contents.
 -  int tab_id = web_contents->GetOuterWebContents()
 -                   ? SessionID::InvalidValue().id()
 -                   : ExtensionTabUtil::GetTabId(web_contents);
@@ -60,10 +60,10 @@ index 5ee79cf7fefb1..a84750a496095 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 0035aedce82f0..861288525b291 100644
+index 5a0ba568bf30c..8ef4be85e038a 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
-@@ -104,12 +104,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+@@ -142,12 +142,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
           host_type == mojom::ViewType::kOffscreenDocument ||
           host_type == mojom::ViewType::kExtensionPopup ||
           host_type == mojom::ViewType::kExtensionSidePanel);
@@ -79,8 +79,8 @@ index 0035aedce82f0..861288525b291 100644
 +  SetViewType(host_contents_, host_type);
    main_frame_host_ = host_contents_->GetPrimaryMainFrame();
  
-   // Listen for when an extension is unloaded from the same profile, as it may
-@@ -125,11 +126,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
+   if (host_type == mojom::ViewType::kExtensionBackgroundPage) {
+@@ -167,11 +168,49 @@ ExtensionHost::ExtensionHost(const Extension* extension,
    // Create password reuse detection manager when new extension web contents are
    // created.
    ExtensionsBrowserClient::Get()->CreatePasswordReuseDetectionManager(

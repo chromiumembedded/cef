@@ -50,7 +50,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
  private:
   // CefDevToolsController::Observer methods:
-  bool OnDevToolsMessage(const base::StringPiece& message) override {
+  bool OnDevToolsMessage(const std::string_view& message) override {
     CEF_REQUIRE_UIT();
     return observer_->OnDevToolsMessage(browser_, message.data(),
                                         message.size());
@@ -58,14 +58,14 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
   void OnDevToolsMethodResult(int message_id,
                               bool success,
-                              const base::StringPiece& result) override {
+                              const std::string_view& result) override {
     CEF_REQUIRE_UIT();
     observer_->OnDevToolsMethodResult(browser_, message_id, success,
                                       result.data(), result.size());
   }
 
-  void OnDevToolsEvent(const base::StringPiece& method,
-                       const base::StringPiece& params) override {
+  void OnDevToolsEvent(const std::string_view& method,
+                       const std::string_view& params) override {
     CEF_REQUIRE_UIT();
     observer_->OnDevToolsEvent(browser_, std::string(method), params.data(),
                                params.size());
@@ -119,7 +119,7 @@ bool CefDevToolsProtocolManager::SendDevToolsMessage(const void* message,
   }
 
   return devtools_controller_->SendDevToolsMessage(
-      base::StringPiece(static_cast<const char*>(message), message_size));
+      std::string_view(static_cast<const char*>(message), message_size));
 }
 
 int CefDevToolsProtocolManager::ExecuteDevToolsMethod(

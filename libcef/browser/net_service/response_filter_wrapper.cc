@@ -215,7 +215,7 @@ void ResponseFilterWrapper::Write(std::unique_ptr<std::string> data) {
 
   write_pending_ = true;
 
-  base::StringPiece string_piece(*data);
+  std::string_view string_piece(*data);
   forwarder_->Write(std::make_unique<mojo::StringDataSource>(
                         string_piece, mojo::StringDataSource::AsyncWritingMode::
                                           STRING_STAYS_VALID_UNTIL_COMPLETION),
