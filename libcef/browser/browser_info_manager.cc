@@ -551,6 +551,31 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
   return frame;
 }
 
+// static
+bool CefBrowserInfoManager::IsExcludedFrameHost(content::RenderFrameHost* rfh) {
+  CEF_REQUIRE_UIT();
+  DCHECK(rfh);
+
+  const bool is_pdf_process = rfh->GetProcess()->IsPdf();
+  if (is_pdf_process) {
+    return true;
+  }
+
+  auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
+  const bool is_browser_process_guest =
+      extensions::IsBrowserPluginGuest(web_contents);
+  if (is_browser_process_guest) {
+    return true;
+  }
+  const bool is_print_preview_dialog =
+      extensions::IsPrintPreviewDialog(web_contents);
+  if (is_print_preview_dialog) {
+    return true;
+  }
+
+  return false;
+}
+
 CefBrowserInfoManager::BrowserInfoList
 CefBrowserInfoManager::GetBrowserInfoList() {
   base::AutoLock lock_scope(browser_info_lock_);

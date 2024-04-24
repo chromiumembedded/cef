@@ -569,6 +569,10 @@ void CefBrowserContentsDelegate::DidFinishLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url) {
   auto frame = browser_info_->GetFrameForHost(render_frame_host);
+  if (!frame) {
+    return;
+  }
+
   frame->RefreshAttributes();
 
   int http_status_code = 0;

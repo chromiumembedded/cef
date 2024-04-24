@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "libcef/browser/browser_host_base.h"
+#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/frame_util.h"
 #include "libcef/common/values_impl.h"
@@ -97,6 +98,11 @@ void CefBrowserInfo::SetClosing() {
 void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
                                       bool is_guest_view) {
   CEF_REQUIRE_UIT();
+
+  if (CefBrowserInfoManager::IsExcludedFrameHost(host)) {
+    // Don't create a FrameHost for an excluded type.
+    return;
+  }
 
   const auto global_id = host->GetGlobalId();
   const bool is_main_frame = (host->GetParent() == nullptr);
@@ -212,10 +218,11 @@ void CefBrowserInfo::FrameHostStateChanged(
   base::AutoLock lock_scope(lock_);
 
   auto it = frame_id_map_.find(host->GetGlobalId());
-  DCHECK(it != frame_id_map_.end());
-  DCHECK((!it->second->is_in_bfcache_ && added_to_bfcache) ||
-         (it->second->is_in_bfcache_ && removed_from_bfcache));
-  it->second->is_in_bfcache_ = added_to_bfcache;
+  if (it != frame_id_map_.end()) {
+    DCHECK((!it->second->is_in_bfcache_ && added_to_bfcache) ||
+           (it->second->is_in_bfcache_ && removed_from_bfcache));
+    it->second->is_in_bfcache_ = added_to_bfcache;
+  }
 }
 
 void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
@@ -225,7 +232,9 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 
   const auto global_id = host->GetGlobalId();
   auto it = frame_id_map_.find(global_id);
-  DCHECK(it != frame_id_map_.end());
+  if (it == frame_id_map_.end()) {
+    return;
+  }
 
   auto frame_info = it->second;
 

@@ -160,6 +160,9 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                                                   CefBrowserInfo** browser_info,
                                                   bool* excluded_type);
 
+  // Returns true if |rfh| should be excluded (no FrameHost created).
+  static bool IsExcludedFrameHost(content::RenderFrameHost* rfh);
+
  private:
   // RenderProcessHostObserver methods:
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
