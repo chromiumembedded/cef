@@ -1336,7 +1336,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
   if (frame) {
     browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
     if (browserPtr) {
-      // May return nullptr for guest view requests.
+      // May return nullptr for excluded view requests.
       framePtr = browserPtr->GetFrameForHost(frame);
       if (!framePtr) {
         framePtr = browserPtr->GetMainFrame();
@@ -1407,7 +1407,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
   browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
   if (browserPtr) {
-    // May return nullptr for guest view requests.
+    // May return nullptr for excluded view requests.
     framePtr = browserPtr->GetFrameForHost(frame);
     if (!framePtr) {
       framePtr = browserPtr->GetMainFrame();

@@ -97,7 +97,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
 
   // Continue any pending NewBrowserInfo request.
   ContinueNewBrowserInfo(frame_host->GetGlobalFrameToken(), browser_info,
-                         /*is_guest_view=*/false);
+                         /*is_excluded=*/false);
 
   return browser_info;
 }
@@ -307,15 +307,13 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
 
   base::AutoLock lock_scope(browser_info_lock_);
 
-  bool is_guest_view = false;
-
   scoped_refptr<CefBrowserInfo> browser_info =
-      GetBrowserInfoInternal(global_token, &is_guest_view);
+      GetBrowserInfoInternal(global_token);
 
   if (browser_info) {
     // Send the response immediately.
-    SendNewBrowserInfoResponse(browser_info, is_guest_view, std::move(callback),
-                               callback_runner);
+    SendNewBrowserInfoResponse(browser_info, /*is_excluded=*/false,
+                               std::move(callback), callback_runner);
     return;
   }
 
@@ -347,7 +345,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
         kNewBrowserInfoResponseTimeoutMs);
   }
 
-  // Check for PDF viewer or print preview frames.
+  // Check for excluded content (PDF viewer or print preview).
   CEF_POST_TASK(
       CEF_UIT,
       base::BindOnce(
@@ -369,29 +367,27 @@ void CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread(
     return;
   }
 
-  // PDF viewer and print preview create multiple renderer processes. Not all
-  // of those processes are currently tracked by CefBrowserInfo, so we also
-  // treat frames from untracked processes (like the print preview dialog) as
-  // guest views in the renderer process.
+  // PDF viewer and print preview create multiple renderer processes. These
+  // excluded processes are not tracked by CefBrowserInfo.
   CefBrowserInfo* browser_info;
-  bool excluded_type;
-  GetFrameHost(rfh, /*prefer_speculative=*/true, &browser_info, &excluded_type);
-  if (browser_info && excluded_type) {
+  bool is_excluded;
+  GetFrameHost(rfh, /*prefer_speculative=*/true, &browser_info, &is_excluded);
+  if (browser_info && is_excluded) {
     g_info_manager->ContinueNewBrowserInfo(global_token, browser_info,
-                                           /*is_guest_view=*/true);
+                                           /*is_excluded=*/true);
   }
 }
 
 void CefBrowserInfoManager::ContinueNewBrowserInfo(
     const content::GlobalRenderFrameHostToken& global_token,
     scoped_refptr<CefBrowserInfo> browser_info,
-    bool is_guest_view) {
+    bool is_excluded) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   // Continue any pending NewBrowserInfo request.
   auto it = pending_new_browser_info_map_.find(global_token);
   if (it != pending_new_browser_info_map_.end()) {
-    SendNewBrowserInfoResponse(browser_info, is_guest_view,
+    SendNewBrowserInfoResponse(browser_info, is_excluded,
                                std::move(it->second->callback),
                                it->second->callback_runner);
     pending_new_browser_info_map_.erase(it);
@@ -444,17 +440,15 @@ void CefBrowserInfoManager::DestroyAllBrowsers() {
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
-    const content::GlobalRenderFrameHostId& global_id,
-    bool* is_guest_view) {
+    const content::GlobalRenderFrameHostId& global_id) {
   base::AutoLock lock_scope(browser_info_lock_);
-  return GetBrowserInfoInternal(global_id, is_guest_view);
+  return GetBrowserInfoInternal(global_id);
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfo(
-    const content::GlobalRenderFrameHostToken& global_token,
-    bool* is_guest_view) {
+    const content::GlobalRenderFrameHostToken& global_token) {
   base::AutoLock lock_scope(browser_info_lock_);
-  return GetBrowserInfoInternal(global_token, is_guest_view);
+  return GetBrowserInfoInternal(global_token);
 }
 
 bool CefBrowserInfoManager::MaybeAllowNavigation(
@@ -496,7 +490,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
     content::RenderFrameHost* rfh,
     bool prefer_speculative,
     CefBrowserInfo** browser_info,
-    bool* excluded_type) {
+    bool* is_excluded) {
   CEF_REQUIRE_UIT();
   DCHECK(rfh);
 
@@ -510,28 +504,22 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
   bool excluded =
       is_pdf_process || is_browser_process_guest || is_print_preview_dialog;
 
-  bool guest_view = false;
   CefRefPtr<CefFrameHostImpl> frame;
 
   // A BrowserHost may match an excluded RFH type. Some associations are
   // registered directly via CefBrowserInfo::MaybeCreateFrame and some are
   // discovered indirectly via extensions::GetOwnerForGuestContents.
   auto browser = CefBrowserHostBase::GetBrowserForHost(rfh);
-  if (browser) {
-    frame = browser->browser_info()->GetFrameForHost(rfh, &guest_view,
-                                                     prefer_speculative);
-    excluded |= guest_view;
-
-    // A FrameHost should never exist for an excluded type.
-    DCHECK(!frame || !excluded);
+  if (browser && !excluded) {
+    frame = browser->browser_info()->GetFrameForHost(rfh, prefer_speculative);
   }
 
   if (browser_info) {
     *browser_info = browser ? browser->browser_info().get() : nullptr;
   }
 
-  if (excluded_type) {
-    *excluded_type = excluded;
+  if (is_excluded) {
+    *is_excluded = excluded;
   }
 
   if (VLOG_IS_ON(1)) {
@@ -539,9 +527,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
         frame_util::GetFrameDebugString(rfh->GetGlobalFrameToken());
     const bool is_main = rfh->GetParent() == nullptr;
 
-    VLOG(1) << "frame " << debug_string
-            << " registered_guest_view=" << guest_view
-            << ", pdf_process=" << is_pdf_process
+    VLOG(1) << "frame " << debug_string << ", pdf_process=" << is_pdf_process
             << ", browser_process_guest=" << is_browser_process_guest
             << ", print_preview_dialog=" << is_print_preview_dialog
             << ", main=" << is_main << (browser ? "" : ", has no BrowserHost")
@@ -686,26 +672,16 @@ CefBrowserInfoManager::PopPendingPopup(PendingPopup::Step previous_step_alloy,
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
-    const content::GlobalRenderFrameHostId& global_id,
-    bool* is_guest_view) {
+    const content::GlobalRenderFrameHostId& global_id) {
   browser_info_lock_.AssertAcquired();
-
-  if (is_guest_view) {
-    *is_guest_view = false;
-  }
 
   if (!frame_util::IsValidGlobalId(global_id)) {
     return nullptr;
   }
 
   for (const auto& browser_info : browser_info_list_) {
-    bool is_guest_view_tmp;
-    auto frame =
-        browser_info->GetFrameForGlobalId(global_id, &is_guest_view_tmp);
-    if (frame || is_guest_view_tmp) {
-      if (is_guest_view) {
-        *is_guest_view = is_guest_view_tmp;
-      }
+    auto frame = browser_info->GetFrameForGlobalId(global_id);
+    if (frame) {
       return browser_info;
     }
   }
@@ -714,26 +690,16 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
-    const content::GlobalRenderFrameHostToken& global_token,
-    bool* is_guest_view) {
+    const content::GlobalRenderFrameHostToken& global_token) {
   browser_info_lock_.AssertAcquired();
-
-  if (is_guest_view) {
-    *is_guest_view = false;
-  }
 
   if (!frame_util::IsValidGlobalToken(global_token)) {
     return nullptr;
   }
 
   for (const auto& browser_info : browser_info_list_) {
-    bool is_guest_view_tmp;
-    auto frame =
-        browser_info->GetFrameForGlobalToken(global_token, &is_guest_view_tmp);
-    if (frame || is_guest_view_tmp) {
-      if (is_guest_view) {
-        *is_guest_view = is_guest_view_tmp;
-      }
+    auto frame = browser_info->GetFrameForGlobalToken(global_token);
+    if (frame) {
       return browser_info;
     }
   }
@@ -744,20 +710,20 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoInternal(
 // static
 void CefBrowserInfoManager::SendNewBrowserInfoResponse(
     scoped_refptr<CefBrowserInfo> browser_info,
-    bool is_guest_view,
+    bool is_excluded,
     cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback,
     scoped_refptr<base::SequencedTaskRunner> callback_runner) {
   if (!callback_runner->RunsTasksInCurrentSequence()) {
     callback_runner->PostTask(
         FROM_HERE,
         base::BindOnce(&CefBrowserInfoManager::SendNewBrowserInfoResponse,
-                       browser_info, is_guest_view, std::move(callback),
+                       browser_info, is_excluded, std::move(callback),
                        callback_runner));
     return;
   }
 
   auto params = cef::mojom::NewBrowserInfo::New();
-  params->is_guest_view = is_guest_view;
+  params->is_excluded = is_excluded;
 
   if (browser_info) {
     params->browser_id = browser_info->browser_id();
@@ -783,7 +749,7 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
 // static
 void CefBrowserInfoManager::CancelNewBrowserInfoResponse(
     PendingNewBrowserInfo* pending_info) {
-  SendNewBrowserInfoResponse(/*browser_info=*/nullptr, /*is_guest_view=*/false,
+  SendNewBrowserInfoResponse(/*browser_info=*/nullptr, /*is_excluded=*/false,
                              std::move(pending_info->callback),
                              pending_info->callback_runner);
 }

@@ -6,7 +6,6 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_MIME_HANDLER_VIEW_GUEST_DELEGATE_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_MIME_HANDLER_VIEW_GUEST_DELEGATE_H_
 
-#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h"
 
 namespace content {
@@ -14,6 +13,8 @@ struct ContextMenuParams;
 }
 
 namespace extensions {
+
+class MimeHandlerViewGuest;
 
 class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
  public:
@@ -29,13 +30,10 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
   // MimeHandlerViewGuestDelegate methods.
   void OverrideWebContentsCreateParams(
       content::WebContents::CreateParams* params) override;
-  void OnGuestAttached() override;
-  void OnGuestDetached() override;
   bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
 
  private:
-  MimeHandlerViewGuest* guest_;  // Owns us.
   content::WebContents* owner_web_contents_;
 };
 

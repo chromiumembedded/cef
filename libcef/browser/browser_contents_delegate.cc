@@ -94,8 +94,7 @@ void CefBrowserContentsDelegate::ObserveWebContents(
     // Make sure MaybeCreateFrame is called at least one time.
     // Create the frame representation before OnAfterCreated is called for a new
     // browser.
-    browser_info_->MaybeCreateFrame(new_contents->GetPrimaryMainFrame(),
-                                    false /* is_guest_view */);
+    browser_info_->MaybeCreateFrame(new_contents->GetPrimaryMainFrame());
 
     // Make sure RenderWidgetCreated is called at least one time. This Observer
     // is registered too late to catch the initial creation.
@@ -319,7 +318,7 @@ void CefBrowserContentsDelegate::DraggableRegionsChanged(
 
 void CefBrowserContentsDelegate::RenderFrameCreated(
     content::RenderFrameHost* render_frame_host) {
-  browser_info_->MaybeCreateFrame(render_frame_host, false /* is_guest_view */);
+  browser_info_->MaybeCreateFrame(render_frame_host);
   if (render_frame_host->GetParent() == nullptr) {
     auto render_view_host = render_frame_host->GetRenderViewHost();
     auto base_background_color = platform_delegate()->GetBackgroundColor();

@@ -132,14 +132,12 @@ class CefBrowserContext {
   // Called from CefRequestContextImpl::OnRenderFrameCreated.
   void OnRenderFrameCreated(CefRequestContextImpl* request_context,
                             const content::GlobalRenderFrameHostId& global_id,
-                            bool is_main_frame,
-                            bool is_guest_view);
+                            bool is_main_frame);
 
   // Called from CefRequestContextImpl::OnRenderFrameDeleted.
   void OnRenderFrameDeleted(CefRequestContextImpl* request_context,
                             const content::GlobalRenderFrameHostId& global_id,
-                            bool is_main_frame,
-                            bool is_guest_view);
+                            bool is_main_frame);
 
   // Returns the handler that matches the specified IDs. Pass -1 for unknown
   // values. If |require_frame_match| is true only exact matches will be

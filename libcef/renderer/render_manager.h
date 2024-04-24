@@ -31,7 +31,7 @@ class BinderMap;
 }  // namespace mojo
 
 class CefBrowserImpl;
-class CefGuestView;
+class CefExcludedView;
 class CefRenderFrameObserver;
 
 // Singleton object for managing BrowserImpl instances. Only accessed on the
@@ -77,7 +77,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
 
  private:
   friend class CefBrowserImpl;
-  friend class CefGuestView;
+  friend class CefExcludedView;
 
   // Binds receivers for the RenderManager interface.
   void BindReceiver(mojo::PendingReceiver<cef::mojom::RenderManager> receiver);
@@ -91,7 +91,7 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void WebKitInitialized();
 
   // Maybe create a new browser object, return the existing one, or return
-  // nullptr for guest views.
+  // nullptr for excluded views.
   CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
       blink::WebView* web_view,
       content::RenderFrame* render_frame,
@@ -102,19 +102,20 @@ class CefRenderManager : public cef::mojom::RenderManager {
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
 
-  // Returns the guest view associated with the specified RenderView if any.
-  CefGuestView* GetGuestViewForView(blink::WebView* view);
+  // Returns the excluded view associated with the specified RenderView if any.
+  CefExcludedView* GetExcludedViewForView(blink::WebView* view);
 
-  // Called from CefGuestView::OnDestruct().
-  void OnGuestViewDestroyed(CefGuestView* guest_view);
+  // Called from CefExcludedView::OnDestruct().
+  void OnExcludedViewDestroyed(CefExcludedView* excluded_view);
 
   // Map of RenderView pointers to CefBrowserImpl references.
   using BrowserMap = std::map<blink::WebView*, CefRefPtr<CefBrowserImpl>>;
   BrowserMap browsers_;
 
-  // Map of RenderView poiners to CefGuestView implementations.
-  using GuestViewMap = std::map<blink::WebView*, std::unique_ptr<CefGuestView>>;
-  GuestViewMap guest_views_;
+  // Map of RenderView poiners to CefExcludedView implementations.
+  using ExcludedViewMap =
+      std::map<blink::WebView*, std::unique_ptr<CefExcludedView>>;
+  ExcludedViewMap excluded_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
   std::vector<cef::mojom::CrossOriginWhiteListEntryPtr>

@@ -95,8 +95,7 @@ void CefBrowserInfo::SetClosing() {
   is_closing_ = true;
 }
 
-void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
-                                      bool is_guest_view) {
+void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
   CEF_REQUIRE_UIT();
 
   if (CefBrowserInfoManager::IsExcludedFrameHost(host)) {
@@ -129,11 +128,10 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
 #if DCHECK_IS_ON()
     // Check that the frame info hasn't changed unexpectedly.
     DCHECK_EQ(info->global_id_, global_id);
-    DCHECK_EQ(info->is_guest_view_, is_guest_view);
     DCHECK_EQ(info->is_main_frame_, is_main_frame);
 #endif
 
-    if (!info->is_guest_view_ && info->is_speculative_ && !is_speculative) {
+    if (info->is_speculative_ && !is_speculative) {
       // Upgrade the frame info from speculative to non-speculative.
       if (info->is_main_frame_) {
         // Set the main frame object.
@@ -147,28 +145,23 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host,
   auto frame_info = new FrameInfo;
   frame_info->host_ = host;
   frame_info->global_id_ = global_id;
-  frame_info->is_guest_view_ = is_guest_view;
   frame_info->is_main_frame_ = is_main_frame;
   frame_info->is_speculative_ = is_speculative;
 
-  // Guest views don't get their own CefBrowser or CefFrame objects.
-  if (!is_guest_view) {
-    // Create a new frame object.
-    frame_info->frame_ = new CefFrameHostImpl(this, host);
-    MaybeNotifyFrameCreated(frame_info->frame_);
-    if (is_main_frame && !is_speculative) {
-      SetMainFrame(browser_, frame_info->frame_);
-    }
-
-#if DCHECK_IS_ON()
-    // Check that the frame info hasn't changed unexpectedly.
-    DCHECK(host->GetGlobalFrameToken() == *frame_info->frame_->frame_token());
-    DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
-#endif
+  // Create a new frame object.
+  frame_info->frame_ = new CefFrameHostImpl(this, host);
+  MaybeNotifyFrameCreated(frame_info->frame_);
+  if (is_main_frame && !is_speculative) {
+    SetMainFrame(browser_, frame_info->frame_);
   }
 
-  browser_->request_context()->OnRenderFrameCreated(global_id, is_main_frame,
-                                                    is_guest_view);
+#if DCHECK_IS_ON()
+  // Check that the frame info hasn't changed unexpectedly.
+  DCHECK(host->GetGlobalFrameToken() == *frame_info->frame_->frame_token());
+  DCHECK_EQ(frame_info->is_main_frame_, frame_info->frame_->IsMain());
+#endif
+
+  browser_->request_context()->OnRenderFrameCreated(global_id, is_main_frame);
 
   // Populate the lookup maps.
   frame_id_map_.insert(std::make_pair(global_id, frame_info));
@@ -238,8 +231,8 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
 
   auto frame_info = it->second;
 
-  browser_->request_context()->OnRenderFrameDeleted(
-      global_id, frame_info->is_main_frame_, frame_info->is_guest_view_);
+  browser_->request_context()->OnRenderFrameDeleted(global_id,
+                                                    frame_info->is_main_frame_);
 
   // Remove from the lookup maps.
   frame_id_map_.erase(it);
@@ -290,29 +283,19 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::CreateTempSubFrame(
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForHost(
     const content::RenderFrameHost* host,
-    bool* is_guest_view,
     bool prefer_speculative) const {
-  if (is_guest_view) {
-    *is_guest_view = false;
-  }
-
   if (!host) {
     return nullptr;
   }
 
   return GetFrameForGlobalId(
-      const_cast<content::RenderFrameHost*>(host)->GetGlobalId(), is_guest_view,
+      const_cast<content::RenderFrameHost*>(host)->GetGlobalId(),
       prefer_speculative);
 }
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
     const content::GlobalRenderFrameHostId& global_id,
-    bool* is_guest_view,
     bool prefer_speculative) const {
-  if (is_guest_view) {
-    *is_guest_view = false;
-  }
-
   if (!frame_util::IsValidGlobalId(global_id)) {
     return nullptr;
   }
@@ -322,13 +305,6 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
   const auto it = frame_id_map_.find(global_id);
   if (it != frame_id_map_.end()) {
     const auto info = it->second;
-
-    if (info->is_guest_view_) {
-      if (is_guest_view) {
-        *is_guest_view = true;
-      }
-      return nullptr;
-    }
 
     if (info->is_speculative_ && !prefer_speculative) {
       if (info->is_main_frame_ && main_frame_) {
@@ -349,12 +325,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalId(
 
 CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalToken(
     const content::GlobalRenderFrameHostToken& global_token,
-    bool* is_guest_view,
     bool prefer_speculative) const {
-  if (is_guest_view) {
-    *is_guest_view = false;
-  }
-
   if (!frame_util::IsValidGlobalToken(global_token)) {
     return nullptr;
   }
@@ -370,7 +341,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfo::GetFrameForGlobalToken(
     global_id = it->second;
   }
 
-  return GetFrameForGlobalId(global_id, is_guest_view, prefer_speculative);
+  return GetFrameForGlobalId(global_id, prefer_speculative);
 }
 
 CefBrowserInfo::FrameHostList CefBrowserInfo::GetAllFrames() const {

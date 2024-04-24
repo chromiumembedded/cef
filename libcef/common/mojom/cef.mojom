@@ -119,7 +119,7 @@ struct NewBrowserInfo {
   bool? is_popup;
   bool? is_windowless;
   bool? print_preview_enabled;
-  bool is_guest_view;
+  bool is_excluded;
   mojo_base.mojom.DictionaryValue? extra_info;
 };
 

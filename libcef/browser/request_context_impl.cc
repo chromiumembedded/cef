@@ -702,18 +702,14 @@ cef_color_variant_t CefRequestContextImpl::GetChromeColorSchemeVariant() {
 
 void CefRequestContextImpl::OnRenderFrameCreated(
     const content::GlobalRenderFrameHostId& global_id,
-    bool is_main_frame,
-    bool is_guest_view) {
-  browser_context_->OnRenderFrameCreated(this, global_id, is_main_frame,
-                                         is_guest_view);
+    bool is_main_frame) {
+  browser_context_->OnRenderFrameCreated(this, global_id, is_main_frame);
 }
 
 void CefRequestContextImpl::OnRenderFrameDeleted(
     const content::GlobalRenderFrameHostId& global_id,
-    bool is_main_frame,
-    bool is_guest_view) {
-  browser_context_->OnRenderFrameDeleted(this, global_id, is_main_frame,
-                                         is_guest_view);
+    bool is_main_frame) {
+  browser_context_->OnRenderFrameDeleted(this, global_id, is_main_frame);
 }
 
 // static

@@ -283,8 +283,7 @@ std::vector<CefBrowserContext*> CefBrowserContext::GetAll() {
 void CefBrowserContext::OnRenderFrameCreated(
     CefRequestContextImpl* request_context,
     const content::GlobalRenderFrameHostId& global_id,
-    bool is_main_frame,
-    bool is_guest_view) {
+    bool is_main_frame) {
   CEF_REQUIRE_UIT();
   DCHECK(frame_util::IsValidGlobalId(global_id));
 
@@ -302,8 +301,7 @@ void CefBrowserContext::OnRenderFrameCreated(
 void CefBrowserContext::OnRenderFrameDeleted(
     CefRequestContextImpl* request_context,
     const content::GlobalRenderFrameHostId& global_id,
-    bool is_main_frame,
-    bool is_guest_view) {
+    bool is_main_frame) {
   CEF_REQUIRE_UIT();
   DCHECK(frame_util::IsValidGlobalId(global_id));
 

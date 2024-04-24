@@ -7,9 +7,10 @@
 #define CEF_LIBCEF_BROWSER_CHROME_EXTENSIONS_CHROME_MIME_HANDLER_VIEW_GUEST_DELEGATE_CEF_H_
 
 #include "chrome/browser/guest_view/mime_handler_view/chrome_mime_handler_view_guest_delegate.h"
-#include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
 namespace extensions {
+
+class MimeHandlerViewGuest;
 
 class ChromeMimeHandlerViewGuestDelegateCef
     : public ChromeMimeHandlerViewGuestDelegate {
@@ -24,13 +25,10 @@ class ChromeMimeHandlerViewGuestDelegateCef
   ~ChromeMimeHandlerViewGuestDelegateCef() override;
 
   // MimeHandlerViewGuestDelegate methods.
-  void OnGuestAttached() override;
-  void OnGuestDetached() override;
   bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
 
  private:
-  MimeHandlerViewGuest* guest_;  // Owns us.
   content::WebContents* owner_web_contents_;
 };
 

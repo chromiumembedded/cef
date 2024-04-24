@@ -52,13 +52,13 @@ CefRenderManager* g_manager = nullptr;
 
 }  // namespace
 
-// Placeholder object for guest views.
-class CefGuestView : public blink::WebViewObserver {
+// Placeholder object for excluded views.
+class CefExcludedView : public blink::WebViewObserver {
  public:
-  CefGuestView(CefRenderManager* manager,
-               blink::WebView* web_view,
-               std::optional<bool> is_windowless,
-               std::optional<bool> print_preview_enabled)
+  CefExcludedView(CefRenderManager* manager,
+                  blink::WebView* web_view,
+                  std::optional<bool> is_windowless,
+                  std::optional<bool> print_preview_enabled)
       : blink::WebViewObserver(web_view),
         manager_(manager),
         is_windowless_(is_windowless),
@@ -71,7 +71,7 @@ class CefGuestView : public blink::WebViewObserver {
 
  private:
   // RenderViewObserver methods.
-  void OnDestruct() override { manager_->OnGuestViewDestroyed(this); }
+  void OnDestruct() override { manager_->OnExcludedViewDestroyed(this); }
 
   CefRenderManager* const manager_;
   const std::optional<bool> is_windowless_;
@@ -306,8 +306,8 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     return nullptr;
   }
 
-  // Don't create another browser or guest view object if one already exists for
-  // the view.
+  // Don't create another browser or excluded view object if one already exists
+  // for the view.
   auto browser = GetBrowserForView(web_view);
   if (browser) {
     if (is_windowless) {
@@ -319,13 +319,13 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     return browser;
   }
 
-  auto guest_view = GetGuestViewForView(web_view);
-  if (guest_view) {
+  auto excluded_view = GetExcludedViewForView(web_view);
+  if (excluded_view) {
     if (is_windowless) {
-      *is_windowless = guest_view->is_windowless();
+      *is_windowless = excluded_view->is_windowless();
     }
     if (print_preview_enabled) {
-      *print_preview_enabled = guest_view->print_preview_enabled();
+      *print_preview_enabled = excluded_view->print_preview_enabled();
     }
     return nullptr;
   }
@@ -346,14 +346,14 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     *print_preview_enabled = params->print_preview_enabled;
   }
 
-  if (params->is_guest_view || params->browser_id < 0) {
-    // Don't create a CefBrowser for a guest view (PDF renderer, PDF extension
-    // or print preview dialog), or if the new browser info response has timed
-    // out.
-    guest_views_.insert(std::make_pair(
+  if (params->is_excluded || params->browser_id < 0) {
+    // Don't create a CefBrowser for excluded content (PDF renderer, PDF
+    // extension or print preview dialog), or if the new browser info response
+    // has timed out.
+    excluded_views_.insert(std::make_pair(
         web_view,
-        std::make_unique<CefGuestView>(this, web_view, params->is_windowless,
-                                       params->print_preview_enabled)));
+        std::make_unique<CefExcludedView>(this, web_view, params->is_windowless,
+                                          params->print_preview_enabled)));
     return nullptr;
   }
 
@@ -398,26 +398,27 @@ void CefRenderManager::OnBrowserDestroyed(CefBrowserImpl* browser) {
   DCHECK(false);
 }
 
-CefGuestView* CefRenderManager::GetGuestViewForView(blink::WebView* view) {
+CefExcludedView* CefRenderManager::GetExcludedViewForView(
+    blink::WebView* view) {
   CEF_REQUIRE_RT_RETURN(nullptr);
 
-  GuestViewMap::const_iterator it = guest_views_.find(view);
-  if (it != guest_views_.end()) {
+  ExcludedViewMap::const_iterator it = excluded_views_.find(view);
+  if (it != excluded_views_.end()) {
     return it->second.get();
   }
   return nullptr;
 }
 
-void CefRenderManager::OnGuestViewDestroyed(CefGuestView* guest_view) {
-  GuestViewMap::iterator it = guest_views_.begin();
-  for (; it != guest_views_.end(); ++it) {
-    if (it->second.get() == guest_view) {
-      guest_views_.erase(it);
+void CefRenderManager::OnExcludedViewDestroyed(CefExcludedView* excluded_view) {
+  ExcludedViewMap::iterator it = excluded_views_.begin();
+  for (; it != excluded_views_.end(); ++it) {
+    if (it->second.get() == excluded_view) {
+      excluded_views_.erase(it);
       return;
     }
   }
 
-  // No guest view was found in the map.
+  // No excluded view was found in the map.
   DCHECK(false);
 }
 

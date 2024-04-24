@@ -67,10 +67,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   // Ensure that a frame record exists for |host|. Called for the main frame
   // when the RenderView is created, or for a sub-frame when the associated
   // RenderFrame is created in the renderer process.
-  // Called from CefBrowserContentsDelegate::RenderFrameCreated (is_guest_view =
-  // false) or CefMimeHandlerViewGuestDelegate::OnGuestAttached (is_guest_view =
-  // true).
-  void MaybeCreateFrame(content::RenderFrameHost* host, bool is_guest_view);
+  // Called from CefBrowserContentsDelegate::RenderFrameCreated.
+  void MaybeCreateFrame(content::RenderFrameHost* host);
 
   // Used to track state changes such as entering/exiting the BackForwardCache.
   // Called from CefBrowserContentsDelegate::RenderFrameHostStateChanged.
@@ -102,32 +100,22 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       const content::GlobalRenderFrameHostId& parent_global_id);
 
   // Returns the frame object matching the specified host or nullptr if no match
-  // is found. Nullptr will also be returned if a guest view match is found
-  // because we don't create frame objects for guest views. If |is_guest_view|
-  // is non-nullptr it will be set to true in this case. Must be called on the
-  // UI thread.
+  // is found. Must be called on the UI thread.
   CefRefPtr<CefFrameHostImpl> GetFrameForHost(
       const content::RenderFrameHost* host,
-      bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
 
   // Returns the frame object matching the specified ID/token or nullptr if no
-  // match is found. Nullptr will also be returned if a guest view match is
-  // found because we don't create frame objects for guest views. If
-  // |is_guest_view| is non-nullptr it will be set to true in this case. Safe to
-  // call from any thread.
+  // match is found. Safe to call from any thread.
   CefRefPtr<CefFrameHostImpl> GetFrameForGlobalId(
       const content::GlobalRenderFrameHostId& global_id,
-      bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
   CefRefPtr<CefFrameHostImpl> GetFrameForGlobalToken(
       const content::GlobalRenderFrameHostToken& global_token,
-      bool* is_guest_view = nullptr,
       bool prefer_speculative = false) const;
 
-  // Returns all non-speculative frame objects that currently exist. Guest views
-  // will be excluded because they don't have a frame object. Safe to call from
-  // any thread.
+  // Returns all non-speculative frame objects that currently exist. Safe to
+  // call from any thread.
   using FrameHostList = std::set<CefRefPtr<CefFrameHostImpl>>;
   FrameHostList GetAllFrames() const;
 
@@ -184,7 +172,6 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
     content::RenderFrameHost* host_;
     content::GlobalRenderFrameHostId global_id_;
-    bool is_guest_view_;
     bool is_main_frame_;
     bool is_speculative_;
     bool is_in_bfcache_ = false;

@@ -256,7 +256,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
     // May return nullptr if the frame is destroyed while the menu is pending.
     auto* rfh = context_menu_->GetRenderFrameHost();
     if (rfh) {
-      // May return nullptr for guest views.
+      // May return nullptr for excluded views.
       frame = browser_->GetFrameForHost(rfh);
     }
     if (!frame) {

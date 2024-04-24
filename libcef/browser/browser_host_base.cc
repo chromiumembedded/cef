@@ -126,9 +126,9 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForContents(
     return browser;
   }
 
-  // Try the owner WebContents if |contents| originates from a guest view such
-  // as the PDF viewer or Print Preview.
-  // This is safe to call even if Alloy extensions are disabled.
+  // Try the owner WebContents if |contents| originates from an excluded view
+  // such as the PDF viewer or Print Preview. This is safe to call even if Alloy
+  // extensions are disabled.
   if (auto* owner_contents = extensions::GetOwnerForGuestContents(contents)) {
     return WebContentsUserDataAdapter::Get(owner_contents);
   }
@@ -153,8 +153,7 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalId(
     return GetBrowserForHost(render_frame_host);
   } else {
     // Use the thread-safe approach.
-    auto info = CefBrowserInfoManager::GetInstance()->GetBrowserInfo(global_id,
-                                                                     nullptr);
+    auto info = CefBrowserInfoManager::GetInstance()->GetBrowserInfo(global_id);
     if (info) {
       auto browser = info->browser();
       if (!browser) {
@@ -185,8 +184,8 @@ CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForGlobalToken(
     return GetBrowserForHost(render_frame_host);
   } else {
     // Use the thread-safe approach.
-    auto info = CefBrowserInfoManager::GetInstance()->GetBrowserInfo(
-        global_token, nullptr);
+    auto info =
+        CefBrowserInfoManager::GetInstance()->GetBrowserInfo(global_token);
     if (info) {
       auto browser = info->browser();
       if (!browser) {
@@ -1121,24 +1120,23 @@ void CefBrowserHostBase::OnWebContentsDestroyed(
     content::WebContents* web_contents) {}
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForHost(
-    const content::RenderFrameHost* host,
-    bool* is_guest_view) {
+    const content::RenderFrameHost* host) {
   CEF_REQUIRE_UIT();
   if (!host) {
     return nullptr;
   }
 
-  return browser_info_->GetFrameForHost(host, is_guest_view);
+  return browser_info_->GetFrameForHost(host);
 }
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForGlobalId(
     const content::GlobalRenderFrameHostId& global_id) {
-  return browser_info_->GetFrameForGlobalId(global_id, nullptr);
+  return browser_info_->GetFrameForGlobalId(global_id);
 }
 
 CefRefPtr<CefFrame> CefBrowserHostBase::GetFrameForGlobalToken(
     const content::GlobalRenderFrameHostToken& global_token) {
-  return browser_info_->GetFrameForGlobalToken(global_token, nullptr);
+  return browser_info_->GetFrameForGlobalToken(global_token);
 }
 
 void CefBrowserHostBase::AddObserver(Observer* observer) {

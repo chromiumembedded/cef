@@ -209,8 +209,8 @@ void CefExtensionSystem::Init() {
   //    MimeHandlerViewGuest and CefMimeHandlerViewGuestDelegate in the browser
   //    process.
   // 11.MimeHandlerViewGuest::CreateWebContents creates a new guest WebContents
-  //    (is_guest_view=true) to host the PDF extension and the PDF resource
-  //    stream is retrieved via MimeHandlerStreamManager::ReleaseStream.
+  //    to host the PDF extension and the PDF resource stream is retrieved via
+  //    MimeHandlerStreamManager::ReleaseStream.
   // 12.MimeHandlerViewGuest::DidAttachToEmbedder calls
   //    CefMimeHandlerViewGuestDelegate::OnGuestAttached to associate the guest
   //    WebContents routing IDs with the owner CefBrowser. MimeHandlerViewGuest

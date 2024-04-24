@@ -286,12 +286,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   void OnWebContentsDestroyed(content::WebContents* web_contents) override;
 
   // Returns the frame object matching the specified |host| or nullptr if no
-  // match is found. Nullptr will also be returned if a guest view match is
-  // found because we don't create frame objects for guest views. If
-  // |is_guest_view| is non-nullptr it will be set to true in this case. Must be
-  // called on the UI thread.
-  CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host,
-                                      bool* is_guest_view = nullptr);
+  // match is found. Must be called on the UI thread.
+  CefRefPtr<CefFrame> GetFrameForHost(const content::RenderFrameHost* host);
 
   // Returns the frame associated with the specified global ID/token. See
   // documentation on RenderFrameHost::GetFrameTreeNodeId/Token() for why the

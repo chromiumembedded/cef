@@ -49,7 +49,7 @@ class CefBrowserFrame
   bool ShouldCloseOnFinishNavigation() const override { return false; }
 
   CefRefPtr<CefFrameHostImpl> GetFrameHost(bool prefer_speculative,
-                                           bool* excluded_type = nullptr) const;
+                                           bool* is_excluded = nullptr) const;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_FRAME_H_
