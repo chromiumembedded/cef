@@ -7,6 +7,7 @@
 
 #include "libcef/browser/browser_host_base.h"
 #include "libcef/browser/chrome/chrome_context_menu_handler.h"
+#include "libcef/browser/osr/web_contents_view_osr.h"
 
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
@@ -18,6 +19,22 @@ ChromeMimeHandlerViewGuestDelegateCef::ChromeMimeHandlerViewGuestDelegateCef(
 
 ChromeMimeHandlerViewGuestDelegateCef::
     ~ChromeMimeHandlerViewGuestDelegateCef() = default;
+
+void ChromeMimeHandlerViewGuestDelegateCef::OverrideWebContentsCreateParams(
+    content::WebContents::CreateParams* params) {
+  DCHECK(params->guest_delegate);
+
+  auto owner_browser =
+      CefBrowserHostBase::GetBrowserForContents(owner_web_contents_);
+  DCHECK(owner_browser);
+
+  if (owner_browser->IsWindowless()) {
+    CefWebContentsViewOSR* view_osr = new CefWebContentsViewOSR(
+        owner_browser->GetBackgroundColor(), false, false);
+    params->view = view_osr;
+    params->delegate_view = view_osr;
+  }
+}
 
 bool ChromeMimeHandlerViewGuestDelegateCef::HandleContextMenu(
     content::RenderFrameHost& render_frame_host,

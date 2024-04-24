@@ -25,6 +25,8 @@ class ChromeMimeHandlerViewGuestDelegateCef
   ~ChromeMimeHandlerViewGuestDelegateCef() override;
 
   // MimeHandlerViewGuestDelegate methods.
+  void OverrideWebContentsCreateParams(
+      content::WebContents::CreateParams* params) override;
   bool HandleContextMenu(content::RenderFrameHost& render_frame_host,
                          const content::ContextMenuParams& params) override;
 
