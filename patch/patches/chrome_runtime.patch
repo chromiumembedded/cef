@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index c09a805c4ed7b..de89b16690593 100644
+index 33c74865672bd..1640fe7378666 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -37,6 +37,7 @@
@@ -40,7 +40,7 @@ index c09a805c4ed7b..de89b16690593 100644
      // In the case the process is not the singleton process, the uninstall tasks
      // need to be executed here. A window will be displayed asking to close all
      // running instances.
-@@ -1069,7 +1077,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -1061,7 +1069,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
  
    if (base::FeatureList::IsEnabled(
            features::kWriteBasicSystemProfileToPersistentHistogramsFile)) {
@@ -50,7 +50,7 @@ index c09a805c4ed7b..de89b16690593 100644
  #if BUILDFLAG(IS_ANDROID)
      record =
          base::FeatureList::IsEnabled(chrome::android::kUmaBackgroundSessions);
-@@ -1505,6 +1514,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1506,6 +1515,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -58,7 +58,7 @@ index c09a805c4ed7b..de89b16690593 100644
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -1523,6 +1533,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1524,6 +1534,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
  #endif
@@ -66,7 +66,7 @@ index c09a805c4ed7b..de89b16690593 100644
  
  #if BUILDFLAG(IS_WIN)
    child_process_logging::Init();
-@@ -1733,6 +1744,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1734,6 +1745,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -74,7 +74,7 @@ index c09a805c4ed7b..de89b16690593 100644
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess) {
-@@ -1768,6 +1780,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1769,6 +1781,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -82,7 +82,7 @@ index c09a805c4ed7b..de89b16690593 100644
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1893,6 +1906,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1894,6 +1907,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -90,7 +90,7 @@ index c09a805c4ed7b..de89b16690593 100644
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1905,6 +1919,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1906,6 +1920,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -98,7 +98,7 @@ index c09a805c4ed7b..de89b16690593 100644
  }
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-@@ -2001,6 +2016,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -2002,6 +2017,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
    const bool is_browser_process = process_type.empty();
    const bool gwp_asan_boost_sampling = is_browser_process || IsCanaryDev();
  
@@ -106,7 +106,7 @@ index c09a805c4ed7b..de89b16690593 100644
    memory_system::Initializer()
        .SetGwpAsanParameters(gwp_asan_boost_sampling, process_type)
        .SetProfilingClientParameters(chrome::GetChannel(),
-@@ -2010,5 +2026,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -2011,5 +2027,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
                                 memory_system::DispatcherParameters::
                                     AllocationTraceRecorderInclusion::kDynamic,
                                 process_type)
@@ -536,7 +536,7 @@ index e21d5dbffda0b..113df89dcd68a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 14c785c5686a8..ed24f5f045006 100644
+index 6ace1e4dfe2ff..1ed97635c9502 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@
@@ -547,7 +547,7 @@ index 14c785c5686a8..ed24f5f045006 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/invert_bubble_prefs.h"
-@@ -194,6 +195,10 @@
+@@ -195,6 +196,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -558,7 +558,7 @@ index 14c785c5686a8..ed24f5f045006 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1743,7 +1748,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1745,7 +1750,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
  #endif  // BUILDFLAG(IS_WIN)
  
@@ -568,7 +568,7 @@ index 14c785c5686a8..ed24f5f045006 100644
    downgrade::RegisterPrefs(registry);
  #endif
  
-@@ -1779,6 +1785,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1781,6 +1787,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -580,7 +580,7 @@ index 14c785c5686a8..ed24f5f045006 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -2213,6 +2224,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2215,6 +2226,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 01d45469f3bae..d1bed9648e4a2 100644
+index 60c670c77de04..1876ff2da6098 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -401,6 +401,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -403,6 +403,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index 01d45469f3bae..d1bed9648e4a2 100644
      return false;
    }
  
-@@ -417,6 +418,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -419,6 +420,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index 01d45469f3bae..d1bed9648e4a2 100644
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1179,11 +1187,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1197,11 +1205,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -41,10 +41,10 @@ index 01d45469f3bae..d1bed9648e4a2 100644
  
  bool BrowserCommandController::IsWebAppOrCustomTab() const {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index fc51015c70183..52de604f96d9e 100644
+index f080bd8292259..51b40ac1c9e19 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -728,6 +728,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
+@@ -730,6 +730,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
    }
  }
  
@@ -102,7 +102,7 @@ index fc51015c70183..52de604f96d9e 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1572,7 +1623,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1581,7 +1632,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -111,7 +111,7 @@ index fc51015c70183..52de604f96d9e 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1587,6 +1638,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1596,6 +1647,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -142,7 +142,7 @@ index fc51015c70183..52de604f96d9e 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1755,11 +1830,15 @@ void AppMenuModel::Build() {
+@@ -1764,11 +1839,15 @@ void AppMenuModel::Build() {
                                         kDefaultIconSize));
    }
  
@@ -163,7 +163,7 @@ index fc51015c70183..52de604f96d9e 100644
  
    AddItemWithStringId(IDC_PRINT, IDS_PRINT);
  
-@@ -1852,9 +1931,13 @@ void AppMenuModel::Build() {
+@@ -1861,9 +1940,13 @@ void AppMenuModel::Build() {
                           kMoreToolsMenuItem);
  
    if (!features::IsChromeRefresh2023()) {
@@ -180,7 +180,7 @@ index fc51015c70183..52de604f96d9e 100644
    }
  
    if (!features::IsChromeRefresh2023()) {
-@@ -1943,6 +2026,11 @@ void AppMenuModel::Build() {
+@@ -1952,6 +2035,11 @@ void AppMenuModel::Build() {
      SetCommandIcon(this, IDC_EXIT, kExitMenuIcon);
    }
  
@@ -193,10 +193,10 @@ index fc51015c70183..52de604f96d9e 100644
  }
  
 diff --git chrome/browser/ui/toolbar/app_menu_model.h chrome/browser/ui/toolbar/app_menu_model.h
-index c477fba63fd1a..3b9eaad8e1906 100644
+index cc5c28f04e079..8d23e5a3a09c9 100644
 --- chrome/browser/ui/toolbar/app_menu_model.h
 +++ chrome/browser/ui/toolbar/app_menu_model.h
-@@ -218,6 +218,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -220,6 +220,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
    void ExecuteCommand(int command_id, int event_flags) override;
    bool IsCommandIdChecked(int command_id) const override;
    bool IsCommandIdEnabled(int command_id) const override;
@@ -204,7 +204,7 @@ index c477fba63fd1a..3b9eaad8e1906 100644
    bool IsCommandIdAlerted(int command_id) const override;
    bool IsElementIdAlerted(ui::ElementIdentifier element_id) const override;
    bool GetAcceleratorForCommandId(int command_id,
-@@ -259,6 +260,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -261,6 +262,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
        safety_hub::SafetyHubModuleType sh_module,
        int event_flags);
  
@@ -989,7 +989,7 @@ index 880d83324cfa6..a6a80cd0b3def 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index e97342ef97514..e373f6374fa4c 100644
+index 8c3395ee6d7fd..3bedbe48a7696 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -191,7 +191,7 @@ class TabstripLikeBackground : public views::Background {
