@@ -15,7 +15,7 @@
 #include "components/proxy_config/pref_proxy_config_tracker.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 
-class CefDownloadManagerDelegate;
+class AlloyDownloadManagerDelegate;
 class CefSSLHostStateDelegate;
 class CefVisitedLinkListener;
 class PrefService;
@@ -128,7 +128,7 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<PrefService> pref_service_;
   std::unique_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 
-  std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
+  std::unique_ptr<AlloyDownloadManagerDelegate> download_manager_delegate_;
   std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   std::unique_ptr<visitedlink::VisitedLinkWriter> visitedlink_master_;
   // |visitedlink_listener_| is owned by visitedlink_master_.

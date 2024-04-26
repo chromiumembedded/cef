@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 
-#include "libcef/browser/download_manager_delegate.h"
+#include "libcef/browser/alloy/alloy_download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
@@ -336,7 +336,7 @@ content::DownloadManagerDelegate*
 AlloyBrowserContext::GetDownloadManagerDelegate() {
   if (!download_manager_delegate_) {
     download_manager_delegate_ =
-        std::make_unique<CefDownloadManagerDelegate>(GetDownloadManager());
+        std::make_unique<AlloyDownloadManagerDelegate>(GetDownloadManager());
   }
   return download_manager_delegate_.get();
 }

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=60a08a60be70e8fe5df17f18f8e5758e1830d5e1$
+// $hash=7ecfb07a95315ff81937e9f68d419122fc88f1b7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
@@ -117,12 +117,13 @@ typedef struct _cef_download_handler_t {
 
   ///
   /// Called before a download begins. |suggested_name| is the suggested name
-  /// for the download file. By default the download will be canceled. Execute
-  /// |callback| either asynchronously or in this function to continue the
-  /// download if desired. Do not keep a reference to |download_item| outside of
-  /// this function.
+  /// for the download file. Return true (1) and execute |callback| either
+  /// asynchronously or in this function to continue or cancel the download.
+  /// Return false (0) to proceed with default handling (cancel with Alloy
+  /// style, download shelf with Chrome style). Do not keep a reference to
+  /// |download_item| outside of this function.
   ///
-  void(CEF_CALLBACK* on_before_download)(
+  int(CEF_CALLBACK* on_before_download)(
       struct _cef_download_handler_t* self,
       struct _cef_browser_t* browser,
       struct _cef_download_item_t* download_item,

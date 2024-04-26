@@ -858,7 +858,7 @@ bool ClientHandler::CanDownload(CefRefPtr<CefBrowser> browser,
   return true;
 }
 
-void ClientHandler::OnBeforeDownload(
+bool ClientHandler::OnBeforeDownload(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
     const CefString& suggested_name,
@@ -867,6 +867,7 @@ void ClientHandler::OnBeforeDownload(
 
   // Continue the download and show the "Save As" dialog.
   callback->Continue(MainContext::Get()->GetDownloadPath(suggested_name), true);
+  return true;
 }
 
 void ClientHandler::OnDownloadUpdated(

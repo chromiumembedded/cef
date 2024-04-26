@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=690401fe62e7a96ea1c2d72b48144f789207e204$
+// $hash=6c28836de30002d764d9dcab7f51260cc447f639$
 //
 
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
@@ -60,7 +60,7 @@ bool CefDownloadHandlerCToCpp::CanDownload(CefRefPtr<CefBrowser> browser,
 }
 
 NO_SANITIZE("cfi-icall")
-void CefDownloadHandlerCToCpp::OnBeforeDownload(
+bool CefDownloadHandlerCToCpp::OnBeforeDownload(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
     const CefString& suggested_name,
@@ -69,7 +69,7 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(
 
   cef_download_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_before_download)) {
-    return;
+    return false;
   }
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -77,29 +77,32 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get()) {
-    return;
+    return false;
   }
   // Verify param: download_item; type: refptr_diff
   DCHECK(download_item.get());
   if (!download_item.get()) {
-    return;
+    return false;
   }
   // Verify param: suggested_name; type: string_byref_const
   DCHECK(!suggested_name.empty());
   if (suggested_name.empty()) {
-    return;
+    return false;
   }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
   if (!callback.get()) {
-    return;
+    return false;
   }
 
   // Execute
-  _struct->on_before_download(_struct, CefBrowserCppToC::Wrap(browser),
-                              CefDownloadItemCppToC::Wrap(download_item),
-                              suggested_name.GetStruct(),
-                              CefBeforeDownloadCallbackCppToC::Wrap(callback));
+  int _retval = _struct->on_before_download(
+      _struct, CefBrowserCppToC::Wrap(browser),
+      CefDownloadItemCppToC::Wrap(download_item), suggested_name.GetStruct(),
+      CefBeforeDownloadCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

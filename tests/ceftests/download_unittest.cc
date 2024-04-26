@@ -49,7 +49,7 @@ class DownloadSchemeHandler : public CefResourceHandler {
       content_disposition_ = kTestContentDisposition;
       should_delay_ = true;
     } else {
-      EXPECT_TRUE(false);  // Not reached.
+      EXPECT_TRUE(IgnoreURL(url)) << url;
 
       // Cancel immediately.
       handle_request = true;
@@ -187,6 +187,8 @@ class DownloadTestHandler : public TestHandler {
            test_mode_ == CLICKED_BLOCKED;
   }
 
+  bool is_clicked_invalid() const { return test_mode_ == CLICKED_INVALID; }
+
   bool is_clicked_and_downloaded() const { return test_mode_ == CLICKED; }
 
   bool is_downloaded() const {
@@ -276,6 +278,14 @@ class DownloadTestHandler : public TestHandler {
       // ALT key will trigger download of custom protocol links.
       SendClick(browser,
                 test_mode_ == CLICKED_INVALID ? EVENTFLAG_ALT_DOWN : 0);
+
+      if (IsChromeBootstrap() && is_clicked_invalid()) {
+        // Destroy the test after a bit because there will be no further
+        // callbacks.
+        CefPostDelayedTask(
+            TID_UI, base::BindOnce(&DownloadTestHandler::DestroyTest, this),
+            200);
+      }
     } else {
       // Begin the download progammatically.
       browser->GetHost()->StartDownload(kTestDownloadUrl);
@@ -343,7 +353,7 @@ class DownloadTestHandler : public TestHandler {
     return test_mode_ != CLICKED_BLOCKED;
   }
 
-  void OnBeforeDownload(
+  bool OnBeforeDownload(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
@@ -393,6 +403,8 @@ class DownloadTestHandler : public TestHandler {
     } else if (test_mode_ == PENDING) {
       ContinuePendingIfReady();
     }
+
+    return true;
   }
 
   void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
@@ -500,7 +512,14 @@ class DownloadTestHandler : public TestHandler {
       CefRegisterSchemeHandlerFactory("https", kTestDomain, nullptr);
     }
 
-    if (is_clicked()) {
+    if (is_clicked_invalid()) {
+      if (IsChromeBootstrap()) {
+        // No CanDownload for invalid protocol links.
+        EXPECT_FALSE(got_can_download_);
+      } else {
+        EXPECT_TRUE(got_can_download_);
+      }
+    } else if (is_clicked()) {
       EXPECT_TRUE(got_can_download_);
     } else {
       EXPECT_FALSE(got_can_download_);

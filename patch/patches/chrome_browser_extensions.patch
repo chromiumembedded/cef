@@ -186,3 +186,18 @@ index 2f769363f8519..228c20926634b 100644
    // FYI: Do NOT add any more friends here. The functions above are the ONLY
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
+diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
+index a76c331ec5344..ffe3cbe7ce37c 100644
+--- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
++++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
+@@ -850,6 +850,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
+   if (!gfx::Animation::ShouldRenderRichAnimation()) {
+     return;
+   }
++  if (!IsDrawn()) {
++    // Don't animate with a hidden download button.
++    return;
++  }
+   content::WebContents* const web_contents =
+       browser_->tab_strip_model()->GetActiveWebContents();
+   if (!web_contents ||

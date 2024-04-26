@@ -106,17 +106,19 @@ class CefDownloadHandler : public virtual CefBaseRefCounted {
 
   ///
   /// Called before a download begins. |suggested_name| is the suggested name
-  /// for the download file. By default the download will be canceled. Execute
-  /// |callback| either asynchronously or in this method to continue the
-  /// download if desired. Do not keep a reference to |download_item| outside of
-  /// this method.
+  /// for the download file. Return true and execute |callback| either
+  /// asynchronously or in this method to continue or cancel the download.
+  /// Return false to proceed with default handling (cancel with Alloy style,
+  /// download shelf with Chrome style). Do not keep a reference to
+  /// |download_item| outside of this method.
   ///
   /*--cef()--*/
-  virtual void OnBeforeDownload(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDownloadItem> download_item,
-      const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) = 0;
+  virtual bool OnBeforeDownload(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefDownloadItem> download_item,
+                                const CefString& suggested_name,
+                                CefRefPtr<CefBeforeDownloadCallback> callback) {
+    return false;
+  }
 
   ///
   /// Called when a download's status or progress information has been updated.

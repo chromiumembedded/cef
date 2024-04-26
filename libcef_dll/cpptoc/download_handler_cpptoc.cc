@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c70a949d129e47d660f9fd4200db05e2f5721bed$
+// $hash=f310399ebf0026717b1d733a34dd51b90623c452$
 //
 
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
@@ -61,7 +61,7 @@ download_handler_can_download(struct _cef_download_handler_t* self,
   return _retval;
 }
 
-void CEF_CALLBACK
+int CEF_CALLBACK
 download_handler_on_before_download(struct _cef_download_handler_t* self,
                                     cef_browser_t* browser,
                                     struct _cef_download_item_t* download_item,
@@ -73,34 +73,37 @@ download_handler_on_before_download(struct _cef_download_handler_t* self,
 
   DCHECK(self);
   if (!self) {
-    return;
+    return 0;
   }
   // Verify param: browser; type: refptr_diff
   DCHECK(browser);
   if (!browser) {
-    return;
+    return 0;
   }
   // Verify param: download_item; type: refptr_diff
   DCHECK(download_item);
   if (!download_item) {
-    return;
+    return 0;
   }
   // Verify param: suggested_name; type: string_byref_const
   DCHECK(suggested_name);
   if (!suggested_name) {
-    return;
+    return 0;
   }
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
   if (!callback) {
-    return;
+    return 0;
   }
 
   // Execute
-  CefDownloadHandlerCppToC::Get(self)->OnBeforeDownload(
+  bool _retval = CefDownloadHandlerCppToC::Get(self)->OnBeforeDownload(
       CefBrowserCToCpp::Wrap(browser),
       CefDownloadItemCToCpp::Wrap(download_item), CefString(suggested_name),
       CefBeforeDownloadCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
 }
 
 void CEF_CALLBACK
