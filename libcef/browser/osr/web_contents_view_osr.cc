@@ -10,8 +10,6 @@
 #include "libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "libcef/common/drag_data_impl.h"
 
-#include "content/browser/browser_plugin/browser_plugin_embedder.h"
-#include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
 

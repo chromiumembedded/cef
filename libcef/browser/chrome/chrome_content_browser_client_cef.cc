@@ -33,6 +33,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "components/performance_manager/embedder/performance_manager_registry.h"
 #include "content/public/browser/navigation_throttle.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -479,9 +480,13 @@ void ChromeContentBrowserClientCef::RegisterBrowserInterfaceBindersForFrame(
 std::unique_ptr<content::WebContentsViewDelegate>
 ChromeContentBrowserClientCef::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
-  // This does more work than just creating the delegate, so we call it even
-  // though the result gets discarded.
-  ChromeContentBrowserClient::GetWebContentsViewDelegate(web_contents);
+  // From ChromeContentBrowserClient::GetWebContentsViewDelegate. Windowless
+  // browsers don't call this method and use
+  // CefBrowserPlatformDelegateAlloy::AttachHelpers instead.
+  if (auto* registry =
+          performance_manager::PerformanceManagerRegistry::GetInstance()) {
+    registry->MaybeCreatePageNodeForWebContents(web_contents);
+  }
 
   // Used to customize context menu behavior for Alloy style. Called during
   // WebContents::Create() so we don't yet have an associated BrowserHost.

@@ -11,9 +11,7 @@
 #include "third_party/skia/include/core/SkColor.h"
 
 namespace content {
-class BrowserPluginGuest;
 class WebContents;
-class WebContentsViewDelegate;
 }  // namespace content
 
 class AlloyBrowserHostImpl;

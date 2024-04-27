@@ -25,6 +25,7 @@
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"
+#include "components/performance_manager/embedder/performance_manager_registry.h"
 #include "components/permissions/permission_request_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -427,6 +428,16 @@ void CefBrowserPlatformDelegateAlloy::AttachHelpers(
         web_contents, CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(
                           web_contents));
   } else {
+    if (IsWindowless()) {
+      // Logic from ChromeContentBrowserClientCef::GetWebContentsViewDelegate
+      // which is not called for windowless browsers. Needs to be done before
+      // calling AttachTabHelpers.
+      if (auto* registry =
+              performance_manager::PerformanceManagerRegistry::GetInstance()) {
+        registry->MaybeCreatePageNodeForWebContents(web_contents);
+      }
+    }
+
     // Adopt the WebContents now, so all observers are in place, as the network
     // requests for its initial navigation will start immediately
     TabHelpers::AttachTabHelpers(web_contents);
