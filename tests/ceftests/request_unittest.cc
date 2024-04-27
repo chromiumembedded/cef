@@ -314,8 +314,7 @@ class RequestSendRecvTestHandler : public TestHandler {
                               int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
-    if (!use_alloy_style_browser() &&
-        request->GetResourceType() == RT_FAVICON) {
+    if (request->GetResourceType() == RT_FAVICON) {
       // Ignore favicon requests.
       return;
     }

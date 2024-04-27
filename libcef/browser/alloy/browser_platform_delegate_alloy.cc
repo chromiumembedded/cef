@@ -19,7 +19,9 @@
 
 #include "base/logging.h"
 #include "chrome/browser/printing/printing_init.h"
+#include "chrome/browser/task_manager/web_contents_tags.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+#include "chrome/browser/ui/tab_helpers.h"
 #include "components/find_in_page/find_tab_helper.h"
 #include "components/find_in_page/find_types.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"
@@ -30,6 +32,12 @@
 #include "extensions/browser/process_manager.h"
 #include "pdf/pdf_features.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
+
+namespace {
+
+const char kAttachedHelpersUserDataKey[] = "CefAttachedHelpers";
+
+}  // namespace
 
 CefBrowserPlatformDelegateAlloy::CefBrowserPlatformDelegateAlloy()
     : weak_ptr_factory_(this) {}
@@ -99,7 +107,7 @@ void CefBrowserPlatformDelegateAlloy::WebContentsCreated(
   CefBrowserPlatformDelegate::WebContentsCreated(web_contents, owned);
 
   if (primary_) {
-    find_in_page::FindTabHelper::CreateForWebContents(web_contents);
+    AttachHelpers(web_contents);
 
     if (owned) {
       SetOwnedWebContents(web_contents);
@@ -163,14 +171,7 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
   web_contents_->SetDelegate(
       AlloyBrowserHostImpl::FromBaseChecked(browser).get());
 
-  permissions::PermissionRequestManager::CreateForWebContents(web_contents_);
-  PrefsTabHelper::CreateForWebContents(web_contents_);
-  printing::InitializePrintingForWebContents(web_contents_);
-  zoom::ZoomController::CreateForWebContents(web_contents_);
-
-  javascript_dialogs::TabModalDialogManager::CreateForWebContents(
-      web_contents_,
-      CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(web_contents_));
+  AttachHelpers(web_contents_);
 
   // Used for print preview and JavaScript dialogs.
   web_contents_dialog_helper_ =
@@ -399,4 +400,38 @@ void CefBrowserPlatformDelegateAlloy::OnExtensionHostDeleted() {
   DCHECK(is_background_host_);
   DCHECK(extension_host_);
   extension_host_ = nullptr;
+}
+
+void CefBrowserPlatformDelegateAlloy::AttachHelpers(
+    content::WebContents* web_contents) {
+  // If already attached, nothing to be done.
+  base::SupportsUserData::Data* attached_tag =
+      web_contents->GetUserData(&kAttachedHelpersUserDataKey);
+  if (attached_tag) {
+    return;
+  }
+
+  // Mark as attached.
+  web_contents->SetUserData(&kAttachedHelpersUserDataKey,
+                            std::make_unique<base::SupportsUserData::Data>());
+
+  // Create all the helpers.
+  if (cef::IsAlloyRuntimeEnabled()) {
+    find_in_page::FindTabHelper::CreateForWebContents(web_contents);
+    permissions::PermissionRequestManager::CreateForWebContents(web_contents);
+    PrefsTabHelper::CreateForWebContents(web_contents);
+    printing::InitializePrintingForWebContents(web_contents);
+    zoom::ZoomController::CreateForWebContents(web_contents);
+
+    javascript_dialogs::TabModalDialogManager::CreateForWebContents(
+        web_contents, CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(
+                          web_contents));
+  } else {
+    // Adopt the WebContents now, so all observers are in place, as the network
+    // requests for its initial navigation will start immediately
+    TabHelpers::AttachTabHelpers(web_contents);
+
+    // Make the tab show up in the task manager.
+    task_manager::WebContentsTags::CreateForTabContents(web_contents);
+  }
 }

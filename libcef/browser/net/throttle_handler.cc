@@ -97,7 +97,9 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle, base::BindRepeating(&NavigationOnUIThread),
           navigation_interception::SynchronyMode::kSync);
-  throttles.push_back(std::move(throttle));
+
+  // Always execute our throttle first.
+  throttles.emplace(throttles.begin(), std::move(throttle));
 }
 
 }  // namespace throttle

@@ -30,11 +30,11 @@
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/features/runtime_checks.h"
+#include "libcef/renderer/alloy/alloy_render_frame_observer.h"
 #include "libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
-#include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_manager.h"
 #include "libcef/renderer/thread_util.h"
 
@@ -275,7 +275,7 @@ void AlloyContentRendererClient::RenderThreadConnected() {
 
 void AlloyContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
-  auto render_frame_observer = new CefRenderFrameObserver(render_frame);
+  auto render_frame_observer = new AlloyRenderFrameObserver(render_frame);
 
   if (extensions::ExtensionsEnabled()) {
     extensions_renderer_client_->RenderFrameCreated(

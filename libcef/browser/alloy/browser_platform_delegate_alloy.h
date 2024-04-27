@@ -88,6 +88,10 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
 
   void ConfigureAutoResize();
 
+  // Attach all the associated helpers that are needed for the WebContents. It
+  // is safe to call this on a WebContents that was already attached.
+  void AttachHelpers(content::WebContents* web_contents);
+
   // Non-nullptr if this object owns the WebContents. Will be nullptr for popup
   // browsers between the calls to WebContentsCreated() and AddNewContents(),
   // and may never be set if the parent browser is destroyed during popup

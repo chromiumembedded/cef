@@ -33,3 +33,156 @@ index 4007e26f780c3..5f92d74018f9e 100644
    return std::make_unique<ChromeMimeHandlerViewGuestDelegate>();
  }
  
+diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
+index 1eab73b209fea..fca0a2318202e 100644
+--- chrome/browser/extensions/api/tabs/tabs_api.cc
++++ chrome/browser/extensions/api/tabs/tabs_api.cc
+@@ -1550,7 +1550,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   if (DevToolsWindow::IsDevToolsWindow(contents))
+     return RespondNow(Error(tabs_constants::kNotAllowedForDevToolsError));
+ 
+-  if (!ExtensionTabUtil::BrowserSupportsTabs(browser))
++  if (browser && !ExtensionTabUtil::BrowserSupportsTabs(browser))
+     return RespondNow(Error(tabs_constants::kNoCurrentWindowError));
+ 
+   web_contents_ = contents;
+@@ -1574,7 +1574,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+       return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+     }
+ 
+-    if (tab_strip->active_index() != tab_index) {
++    if (tab_strip && tab_strip->active_index() != tab_index) {
+       tab_strip->ActivateTabAt(tab_index);
+       DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
+     }
+@@ -1588,7 +1588,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+     }
+ 
+     bool highlighted = *params->update_properties.highlighted;
+-    if (highlighted != tab_strip->IsTabSelected(tab_index)) {
++    if (tab_strip && highlighted != tab_strip->IsTabSelected(tab_index)) {
+       tab_strip->ToggleSelectionAt(tab_index);
+     }
+   }
+@@ -1601,7 +1601,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+         base::NumberToString(tab_id))));
+   }
+ 
+-  if (params->update_properties.opener_tab_id) {
++  if (tab_strip && params->update_properties.opener_tab_id) {
+     int opener_id = *params->update_properties.opener_tab_id;
+     WebContents* opener_contents = nullptr;
+     if (opener_id == tab_id) {
+@@ -1636,11 +1636,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   }
+ 
+   const bool contents_in_an_uneditable_saved_group =
+-      contents && ExtensionTabUtil::TabIsInSavedTabGroup(
++      browser && contents && ExtensionTabUtil::TabIsInSavedTabGroup(
+                       web_contents_, browser->tab_strip_model()) &&
+                   !ExtensionHasLockedFullscreenPermission(extension());
+ 
+-  if (params->update_properties.pinned) {
++  if (tab_strip && params->update_properties.pinned) {
+     // Pinning will result in changes to the tabs index/group affiliation in
+     // some cases, Throw an error if a tab is attempting to be pinned.
+     if (contents_in_an_uneditable_saved_group) {
+@@ -1671,8 +1671,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+     }
+ 
+     std::string updated_url = *params->update_properties.url;
+-    if (browser->profile()->IsIncognitoProfile() &&
+-        !IsURLAllowedInIncognito(GURL(updated_url), browser->profile())) {
++    auto* profile = Profile::FromBrowserContext(browser_context());
++    if (profile->IsIncognitoProfile() &&
++        !IsURLAllowedInIncognito(GURL(updated_url), profile)) {
+       return RespondNow(Error(ErrorUtils::FormatErrorMessage(
+           tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
+     }
+@@ -1686,7 +1687,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+       return RespondNow(Error(std::move(error)));
+     }
+ 
+-    NotifyExtensionTelemetry(Profile::FromBrowserContext(browser_context()),
++    NotifyExtensionTelemetry(profile,
+                              extension(), safe_browsing::TabsApiInfo::UPDATE,
+                              current_url, updated_url);
+   }
+diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
+index 46154f4501a36..81adec54cee06 100644
+--- chrome/browser/extensions/extension_tab_util.cc
++++ chrome/browser/extensions/extension_tab_util.cc
+@@ -18,6 +18,7 @@
+ #include "base/strings/stringprintf.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/types/expected_macros.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/extensions/api/tab_groups/tab_groups_util.h"
+ #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
+@@ -73,6 +74,10 @@
+ #include "third_party/blink/public/common/features.h"
+ #include "url/gurl.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
++#endif
++
+ using content::NavigationEntry;
+ using content::WebContents;
+ using extensions::mojom::APIPermissionID;
+@@ -763,6 +768,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+     }
+   }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::GetAlloyTabById(tab_id, profile, include_incognito, contents)) {
++    // |tab_strip| and |tab_index| are tied to a specific Browser window, which
++    // doesn't exist for an Alloy style browser.
++    if (tab_strip) {
++      *tab_strip = nullptr;
++    }
++    if (tab_index) {
++      *tab_index = api::tabs::TAB_INDEX_NONE;
++    }
++    return true;
++  }
++#endif  // BUILDFLAG(ENABLE_CEF)
++
+   if (base::FeatureList::IsEnabled(blink::features::kPrerender2InNewTab)) {
+     // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
+     // the tab id exists as a prerendering tab, and the API will returns
+diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
+index 2f769363f8519..228c20926634b 100644
+--- chrome/browser/ui/tab_helpers.h
++++ chrome/browser/ui/tab_helpers.h
+@@ -6,6 +6,7 @@
+ #define CHROME_BROWSER_UI_TAB_HELPERS_H_
+ 
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ 
+@@ -37,6 +38,10 @@ namespace prerender {
+ class ChromeNoStatePrefetchContentsDelegate;
+ }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++class CefBrowserPlatformDelegateAlloy;
++#endif
++
+ // A "tab contents" is a WebContents that is used as a tab in a browser window
+ // (or the equivalent on Android). The TabHelpers class allows specific classes
+ // to attach the set of tab helpers that is used for tab contents.
+@@ -75,6 +80,10 @@ class TabHelpers {
+   // Link Preview shows a preview of a page, then promote it as a new tab.
+   friend class PreviewTab;
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  friend class CefBrowserPlatformDelegateAlloy;
++#endif
++
+   // FYI: Do NOT add any more friends here. The functions above are the ONLY
+   // ones that need to call AttachTabHelpers; if you think you do, re-read the
+   // design document linked above, especially the section "Reusing tab helpers".
