@@ -304,8 +304,9 @@ if(OS_MAC)
   # Standard libraries.
   set(CEF_STANDARD_LIBS
     -lpthread
-    "-framework Cocoa"
     "-framework AppKit"
+    "-framework Cocoa"
+    "-framework IOSurface"
     )
 
   # Find the newest available base SDK.

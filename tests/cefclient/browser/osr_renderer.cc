@@ -4,7 +4,7 @@
 
 #include "tests/cefclient/browser/osr_renderer.h"
 
-#if !defined(OS_WIN)
+#if defined(__clang__)
 // Begin disable NSOpenGL deprecation warnings.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -1092,7 +1092,7 @@ void OsrRenderer::IncrementSpin(float spinDX, float spinDY) {
 
 }  // namespace client
 
-#if !defined(OS_WIN)
+#if defined(__clang__)
 // End disable NSOpenGL deprecation warnings.
 #pragma clang diagnostic pop
 #endif
