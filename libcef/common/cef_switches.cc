@@ -108,8 +108,10 @@ const char kDisableNewBrowserInfoTimeout[] = "disable-new-browser-info-timeout";
 // File used for logging DevTools protocol messages.
 const char kDevToolsProtocolLogFile[] = "devtools-protocol-log-file";
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // Enable use of the Chrome runtime in CEF. See issue #2969 for details.
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
+#endif
 
 // Delegate all login requests to the client GetAuthCredentials callback when
 // using the Chrome runtime.

@@ -16,8 +16,10 @@ inline bool IsCefBuildEnabled() {
   return true;
 }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // True if CEF was initialized with the Alloy runtime.
 bool IsAlloyRuntimeEnabled();
+#endif
 
 // True if CEF was initialized with the Chrome runtime.
 bool IsChromeRuntimeEnabled();
@@ -25,14 +27,16 @@ bool IsChromeRuntimeEnabled();
 // True if CEF crash reporting is enabled.
 bool IsCrashReportingEnabled();
 
-#else
+#else  // !BUILDFLAG(ENABLE_CEF)
 
 inline bool IsCefBuildEnabled() {
   return false;
 }
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 inline bool IsAlloyRuntimeEnabled() {
   return false;
 }
+#endif
 inline bool IsChromeRuntimeEnabled() {
   return false;
 }
@@ -40,7 +44,7 @@ inline bool IsCrashReportingEnabled() {
   return false;
 }
 
-#endif
+#endif  // !BUILDFLAG(ENABLE_CEF)
 
 }  // namespace cef
 

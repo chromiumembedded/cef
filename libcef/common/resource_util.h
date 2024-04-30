@@ -8,15 +8,22 @@
 
 #include "include/cef_base.h"
 
+#include "cef/libcef/features/features.h"
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #include "ui/base/resource/resource_scale_factor.h"
+#endif
 
 namespace base {
 class CommandLine;
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 class FilePath;
+#endif
 }  // namespace base
 
 namespace resource_util {
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // Returns the directory that contains resource files (*.bin, *.dat, *.pak,
 // etc).
 base::FilePath GetResourcesDir();
@@ -26,11 +33,13 @@ base::FilePath GetDefaultLogFilePath();
 
 // Called from MainDelegate::PreSandboxStartup.
 void OverrideDefaultDownloadDir();
-void OverrideUserDataDir(CefSettings* settings,
-                         const base::CommandLine* command_line);
 
 // Returns true if |scale_factor| is supported by this platform.
 bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor);
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
+void OverrideUserDataDir(CefSettings* settings,
+                         const base::CommandLine* command_line);
 
 #if BUILDFLAG(IS_LINUX)
 // Look for binary files (*.bin, *.dat, *.pak, chrome-sandbox, libGLESv2.so,

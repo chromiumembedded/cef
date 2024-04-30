@@ -5,7 +5,6 @@
 #include "libcef/common/app_manager.h"
 
 #include "libcef/common/net/scheme_info.h"
-#include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/scheme_registrar_impl.h"
 
 #include "base/command_line.h"
@@ -16,6 +15,10 @@
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
 #include "base/path_service.h"
+#endif
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#include "libcef/common/net/scheme_registration.h"
 #endif
 
 namespace {
@@ -88,7 +91,9 @@ void CefAppManager::AddAdditionalSchemes(
     schemeRegistrar.GetSchemes(schemes);
   }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   scheme::AddInternalSchemes(schemes);
+#endif
 
   scheme_info_list_locked_ = true;
 }

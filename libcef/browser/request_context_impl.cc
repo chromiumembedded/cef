@@ -490,6 +490,7 @@ void CefRequestContextImpl::LoadExtension(
     const CefString& root_directory,
     CefRefPtr<CefDictionaryValue> manifest,
     CefRefPtr<CefExtensionHandler> handler) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   GetBrowserContext(content::GetUIThreadTaskRunner({}),
                     base::BindOnce(
                         [](const CefString& root_directory,
@@ -505,20 +506,34 @@ void CefRequestContextImpl::LoadExtension(
                         },
                         root_directory, manifest, handler,
                         CefRefPtr<CefRequestContextImpl>(this)));
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 bool CefRequestContextImpl::DidLoadExtension(const CefString& extension_id) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   CefRefPtr<CefExtension> extension = GetExtension(extension_id);
   // GetLoaderContext() will return NULL for internal extensions.
   return extension && IsSame(extension->GetLoaderContext());
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 bool CefRequestContextImpl::HasExtension(const CefString& extension_id) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   return !!GetExtension(extension_id);
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 bool CefRequestContextImpl::GetExtensions(
     std::vector<CefString>& extension_ids) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   extension_ids.clear();
 
   if (!VerifyBrowserContext()) {
@@ -526,15 +541,24 @@ bool CefRequestContextImpl::GetExtensions(
   }
 
   return browser_context()->GetExtensions(extension_ids);
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 CefRefPtr<CefExtension> CefRequestContextImpl::GetExtension(
     const CefString& extension_id) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!VerifyBrowserContext()) {
     return nullptr;
   }
 
   return browser_context()->GetExtension(extension_id);
+#else
+  NOTIMPLEMENTED();
+  return nullptr;
+#endif
 }
 
 CefRefPtr<CefMediaRouter> CefRequestContextImpl::GetMediaRouter(

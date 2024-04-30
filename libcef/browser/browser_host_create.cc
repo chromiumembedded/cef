@@ -154,9 +154,11 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 
 // static
 bool CefBrowserCreateParams::IsChromeStyle(const CefWindowInfo* window_info) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!cef::IsChromeRuntimeEnabled()) {
     return false;
   }
+#endif
   if (!window_info) {
     return true;
   }
@@ -167,9 +169,11 @@ bool CefBrowserCreateParams::IsChromeStyle(const CefWindowInfo* window_info) {
 }
 
 bool CefBrowserCreateParams::IsChromeStyle() const {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!cef::IsChromeRuntimeEnabled()) {
     return false;
   }
+#endif
 
   const bool chrome_style_via_window_info = IsChromeStyle(window_info.get());
 
@@ -206,7 +210,11 @@ void CefBrowserCreateParams::InitWindowInfo(CefWindowInfo* window_info,
   window_info->SetAsPopup(nullptr, CefString());
 #endif
 
-  if (cef::IsChromeRuntimeEnabled() && opener->IsAlloyStyle()) {
+  if (
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+      cef::IsChromeRuntimeEnabled() &&
+#endif
+      opener->IsAlloyStyle()) {
     // Give the popup the same runtime style as the opener.
     window_info->runtime_style = CEF_RUNTIME_STYLE_ALLOY;
   }
@@ -216,10 +224,12 @@ void CefBrowserCreateParams::MaybeSetWindowInfo(
     const CefWindowInfo& new_window_info,
     bool allow_alloy_style,
     bool allow_chrome_style) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!cef::IsChromeRuntimeEnabled()) {
     // Chrome style is not supported wih the Alloy bootstrap.
     allow_chrome_style = false;
   }
+#endif
 
   if (allow_chrome_style && new_window_info.windowless_rendering_enabled) {
     // Chrome style is not supported with windowles rendering.
@@ -253,7 +263,11 @@ void CefBrowserCreateParams::MaybeSetWindowInfo(
   if (!is_chrome_style ||
       chrome_child_window::HasParentHandle(new_window_info)) {
     window_info = std::make_unique<CefWindowInfo>(new_window_info);
-    if (cef::IsChromeRuntimeEnabled() && !allow_chrome_style) {
+    if (
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+        cef::IsChromeRuntimeEnabled() &&
+#endif
+        !allow_chrome_style) {
       // Only Alloy style is allowed.
       window_info->runtime_style = CEF_RUNTIME_STYLE_ALLOY;
     } else if (reset_style) {

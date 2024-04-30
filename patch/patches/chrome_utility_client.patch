@@ -1,5 +1,5 @@
 diff --git chrome/utility/chrome_content_utility_client.cc chrome/utility/chrome_content_utility_client.cc
-index c15d1fa6d6e25..b89a663d2664f 100644
+index c15d1fa6d6e25..f7356f7c1ef64 100644
 --- chrome/utility/chrome_content_utility_client.cc
 +++ chrome/utility/chrome_content_utility_client.cc
 @@ -13,6 +13,7 @@
@@ -10,13 +10,16 @@ index c15d1fa6d6e25..b89a663d2664f 100644
  #include "chrome/common/chrome_paths.h"
  #include "chrome/common/profiler/thread_profiler.h"
  #include "chrome/common/profiler/thread_profiler_configuration.h"
-@@ -54,7 +55,8 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
+@@ -54,7 +55,11 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
        command_line->GetSwitchValueASCII(switches::kProcessType);
    // An in-process utility thread may run in other processes, only set up
    // collector in a utility process.
 -  if (process_type == switches::kUtilityProcess) {
-+  if (process_type == switches::kUtilityProcess &&
-+      !cef::IsAlloyRuntimeEnabled()) {
++  if (process_type == switches::kUtilityProcess
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
++      && !cef::IsAlloyRuntimeEnabled()
++#endif
++      ) {
      // The HeapProfilerController should have been created in
      // ChromeMainDelegate::PostEarlyInitialization.
      using HeapProfilerController = heap_profiling::HeapProfilerController;

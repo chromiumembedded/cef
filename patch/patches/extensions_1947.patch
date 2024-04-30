@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 96a290eef86ca..6513a365cddf0 100644
+index 96a290eef86ca..bee0f9eaad71e 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -14,30 +14,34 @@ index 96a290eef86ca..6513a365cddf0 100644
  #include "pdf/pdf_features.h"
  #endif  // BUILDFLAG(ENABLE_PDF)
  
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +#include "cef/libcef/browser/extensions/alloy_extensions_util.h"
 +#endif
 +
  namespace extensions {
  
  void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
-@@ -44,6 +49,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -44,6 +49,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
++#endif
    // If the request was for NoStatePrefetch, abort the prefetcher and do not
    // continue. This is because plugins cancel NoStatePrefetch, see
    // http://crbug.com/343590.
-@@ -54,6 +60,7 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -54,6 +62,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      no_state_prefetch_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
++#endif
  
    auto* browser_context = web_contents->GetBrowserContext();
  
-@@ -80,9 +87,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -80,9 +91,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    // forms of zooming won't work).
    // TODO(crbug.com/40114809): Present a coherent representation of a tab id for
    // portal contents.
@@ -48,11 +52,11 @@ index 96a290eef86ca..6513a365cddf0 100644
 +  if (web_contents->GetOuterWebContents()) {
 +    tab_id = SessionID::InvalidValue().id();
 +  } else
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (cef::IsAlloyRuntimeEnabled()) {
 +    tab_id = alloy::GetTabIdForWebContents(web_contents);
 +  } else
-+#endif  // BUILDFLAG(ENABLE_CEF)
++#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  {
 +    tab_id = ExtensionTabUtil::GetTabId(web_contents);
 +  }
@@ -168,7 +172,7 @@ index 28ba09319b047..2a097a5ae4c16 100644
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does
 diff --git extensions/browser/extension_registry.cc extensions/browser/extension_registry.cc
-index c3197eb4790fa..1e7ae767b0582 100644
+index c3197eb4790fa..f558ff72bdbac 100644
 --- extensions/browser/extension_registry.cc
 +++ extensions/browser/extension_registry.cc
 @@ -6,9 +6,14 @@
@@ -190,7 +194,7 @@ index c3197eb4790fa..1e7ae767b0582 100644
  
  // static
  ExtensionRegistry* ExtensionRegistry::Get(content::BrowserContext* context) {
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (cef::IsAlloyRuntimeEnabled() && !extensions::ExtensionsEnabled()) {
 +    return nullptr;
 +  }
@@ -257,15 +261,25 @@ index b86a71429eb33..9f7d190975605 100644
        base::BindOnce(&ProcessManager::HandleCloseExtensionHost,
                       weak_ptr_factory_.GetWeakPtr()));
 diff --git extensions/common/extensions_client.cc extensions/common/extensions_client.cc
-index 5142f341b8392..d3242aae96ece 100644
+index 5142f341b8392..0589a1f1466f5 100644
 --- extensions/common/extensions_client.cc
 +++ extensions/common/extensions_client.cc
-@@ -25,7 +25,7 @@ ExtensionsClient* g_client = nullptr;
+@@ -8,6 +8,7 @@
+ 
+ #include "base/check.h"
+ #include "base/notreached.h"
++#include "cef/libcef/features/features.h"
+ #include "extensions/common/extension_icon_set.h"
+ #include "extensions/common/extensions_api_provider.h"
+ #include "extensions/common/features/feature_provider.h"
+@@ -25,7 +26,10 @@ ExtensionsClient* g_client = nullptr;
  }  // namespace
  
  ExtensionsClient* ExtensionsClient::Get() {
--  DCHECK(g_client);
++#if !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  // May be nullptr if using CEF Alloy with extensions disabled.
+   DCHECK(g_client);
++#endif
    return g_client;
  }
  

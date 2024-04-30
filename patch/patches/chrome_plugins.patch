@@ -1,43 +1,65 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 2bb525046619c..611fa1fb57369 100644
+index 2bb525046619c..200fc9c1f0067 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
-@@ -140,6 +140,10 @@ bool IsPluginLoadingAccessibleResourceInWebView(
+@@ -16,6 +16,7 @@
+ #include "base/memory/singleton.h"
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
+ #include "chrome/browser/plugins/chrome_plugin_service_filter.h"
+@@ -140,6 +141,12 @@ bool IsPluginLoadingAccessibleResourceInWebView(
      extensions::ExtensionRegistry* extension_registry,
      int process_id,
      const GURL& resource) {
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  // May be nullptr if using CEF Alloy with extensions disabled.
 +  if (!extension_registry)
 +    return false;
++#endif
 +
    extensions::WebViewRendererState* renderer_state =
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 438276b719c2f..69635e429be78 100644
+index 438276b719c2f..e97fa0eaf2d7a 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
-@@ -68,6 +68,13 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -5,6 +5,7 @@
+ #include "chrome/browser/plugins/plugin_utils.h"
+ 
+ #include "base/values.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "components/content_settings/core/browser/host_content_settings_map.h"
+ #include "components/content_settings/core/common/content_settings_types.h"
+@@ -68,6 +69,15 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
      content::BrowserContext* browser_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
  #if BUILDFLAG(ENABLE_EXTENSIONS)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  // May be nullptr if using CEF Alloy with extensions disabled.
 +  extensions::ExtensionRegistry* registry =
 +      extensions::ExtensionRegistry::Get(browser_context);
 +  if (!registry) {
 +    return mime_type_to_extension_id_map;
 +  }
++#endif
 +
    Profile* profile = Profile::FromBrowserContext(browser_context);
    if (extensions::ChromeContentBrowserClientExtensionsPart::
            AreExtensionsDisabledForProfile(profile)) {
-@@ -78,9 +85,6 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -78,9 +88,11 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
        MimeTypesHandler::GetMIMETypeAllowlist();
    // Go through the allowed extensions and try to use them to intercept
    // the URL request.
--  extensions::ExtensionRegistry* registry =
--      extensions::ExtensionRegistry::Get(browser_context);
--  DCHECK(registry);
++#if !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+   extensions::ExtensionRegistry* registry =
+       extensions::ExtensionRegistry::Get(browser_context);
+   DCHECK(registry);
++#endif
    for (const std::string& extension_id : allowlist) {
      const extensions::Extension* extension =
          registry->enabled_extensions().GetByID(extension_id);

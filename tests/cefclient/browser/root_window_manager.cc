@@ -35,6 +35,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
       CefRefPtr<CefRequestContext> request_context) override {
     CEF_REQUIRE_UI_THREAD();
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
     const auto main_context = MainContext::Get();
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::GetGlobalCommandLine();
@@ -64,6 +65,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler,
         }
       }
     }
+#endif  // !defined(DISABLE_ALLOY_BOOTSTRAP)
 
     // Allow the startup URL to create popups that bypass the popup blocker.
     // For example, via Tests > New Popup from the top menu. This applies for
@@ -118,7 +120,10 @@ void SanityCheckWindowConfig(const bool is_devtools,
                              bool& use_views,
                              bool& use_alloy_style,
                              bool& with_osr) {
-  if (MainContext::Get()->UseChromeBootstrap()) {
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+  if (MainContext::Get()->UseChromeBootstrap())
+#endif
+  {
     if (is_devtools && use_alloy_style) {
       LOG(WARNING)
           << "Alloy style is not supported with Chrome runtime DevTools;"
@@ -173,8 +178,8 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
   SanityCheckWindowConfig(/*is_devtools=*/false, config->use_views,
                           config->use_alloy_style, config->with_osr);
 
-  scoped_refptr<RootWindow> root_window = RootWindow::Create(
-      config->use_views, config->use_alloy_style);
+  scoped_refptr<RootWindow> root_window =
+      RootWindow::Create(config->use_views, config->use_alloy_style);
   root_window->Init(this, std::move(config), settings);
 
   // Store a reference to the root window on the main thread.
@@ -400,7 +405,11 @@ CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
   if (request_context_per_browser_) {
     // Synchronous use of non-global request contexts is not safe with the
     // Chrome runtime.
-    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeBootstrap());
+    CHECK(!callback.is_null()
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+          || !MainContext::Get()->UseChromeBootstrap()
+#endif
+    );
 
     // Create a new request context for each browser.
     CefRequestContextSettings settings;

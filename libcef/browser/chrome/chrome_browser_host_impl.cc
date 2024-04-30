@@ -68,35 +68,45 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::FromBaseChecked(
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderFrameHost* host) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForContents(
     const content::WebContents* contents) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForContents(contents));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
     const content::GlobalRenderFrameHostId& global_id) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForGlobalId(global_id));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForBrowser(
     const Browser* browser) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   // Return the ChromeBrowserHostImpl that is currently active.
   // Views-hosted Browsers will contain a single ChromeBrowserHostImpl.
   // Otherwise, there will be a ChromeBrowserHostImpl per Tab/WebContents.
@@ -315,14 +325,6 @@ void ChromeBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
                                                  const CefSize& min_size,
                                                  const CefSize& max_size) {
   NOTIMPLEMENTED();
-}
-
-CefRefPtr<CefExtension> ChromeBrowserHostImpl::GetExtension() {
-  return nullptr;
-}
-
-bool ChromeBrowserHostImpl::IsBackgroundHost() {
-  return false;
 }
 
 bool ChromeBrowserHostImpl::CanExecuteChromeCommand(int command_id) {

@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7df03921b2ee743fb059f13e545ccf89904eb060$
+// $hash=2c496139ca9a59303b1493ee93d2c3ae96a956c0$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
@@ -253,6 +253,8 @@ typedef struct _cef_request_context_t {
   /// See https://developer.chrome.com/extensions for extension implementation
   /// and usage documentation.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   void(CEF_CALLBACK* load_extension)(struct _cef_request_context_t* self,
                                      const cef_string_t* root_directory,
                                      struct _cef_dictionary_value_t* manifest,
@@ -264,6 +266,8 @@ typedef struct _cef_request_context_t {
   /// access to the extension (see HasExtension). This function must be called
   /// on the browser process UI thread.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   int(CEF_CALLBACK* did_load_extension)(struct _cef_request_context_t* self,
                                         const cef_string_t* extension_id);
 
@@ -272,6 +276,8 @@ typedef struct _cef_request_context_t {
   /// |extension_id|. This may not be the context that was used to load the
   /// extension (see DidLoadExtension). This function must be called on the
   /// browser process UI thread.
+  ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
   ///
   int(CEF_CALLBACK* has_extension)(struct _cef_request_context_t* self,
                                    const cef_string_t* extension_id);
@@ -282,6 +288,8 @@ typedef struct _cef_request_context_t {
   /// extension ID values. Returns true (1) on success. This function must be
   /// called on the browser process UI thread.
   ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
+  ///
   int(CEF_CALLBACK* get_extensions)(struct _cef_request_context_t* self,
                                     cef_string_list_t extension_ids);
 
@@ -289,6 +297,8 @@ typedef struct _cef_request_context_t {
   /// Returns the extension matching |extension_id| or NULL if no matching
   /// extension is accessible in this context (see HasExtension). This function
   /// must be called on the browser process UI thread.
+  ///
+  /// WARNING: This function is deprecated and will be removed in ~M127.
   ///
   struct _cef_extension_t*(CEF_CALLBACK* get_extension)(
       struct _cef_request_context_t* self,

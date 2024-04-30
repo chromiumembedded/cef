@@ -266,6 +266,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// See https://developer.chrome.com/extensions for extension implementation
   /// and usage documentation.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef(optional_param=manifest,optional_param=handler)--*/
   virtual void LoadExtension(const CefString& root_directory,
                              CefRefPtr<CefDictionaryValue> manifest,
@@ -277,6 +279,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// access to the extension (see HasExtension). This method must be called on
   /// the browser process UI thread.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef()--*/
   virtual bool DidLoadExtension(const CefString& extension_id) = 0;
 
@@ -285,6 +289,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// |extension_id|. This may not be the context that was used to load the
   /// extension (see DidLoadExtension). This method must be called on the
   /// browser process UI thread.
+  ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
   ///
   /*--cef()--*/
   virtual bool HasExtension(const CefString& extension_id) = 0;
@@ -295,6 +301,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// extension ID values. Returns true on success. This method must be called
   /// on the browser process UI thread.
   ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
+  ///
   /*--cef()--*/
   virtual bool GetExtensions(std::vector<CefString>& extension_ids) = 0;
 
@@ -302,6 +310,8 @@ class CefRequestContext : public CefPreferenceManager {
   /// Returns the extension matching |extension_id| or NULL if no matching
   /// extension is accessible in this context (see HasExtension). This method
   /// must be called on the browser process UI thread.
+  ///
+  /// WARNING: This method is deprecated and will be removed in ~M127.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefExtension> GetExtension(

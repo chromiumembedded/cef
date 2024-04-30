@@ -43,8 +43,10 @@ class MainContext {
   // Returns the background color.
   virtual cef_color_t GetBackgroundColor() = 0;
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Returns true if the Chrome runtime bootstrap will be used.
   virtual bool UseChromeBootstrap() = 0;
+#endif
 
   // Returns true if the Views framework will be used as the global default.
   virtual bool UseViewsGlobal() = 0;

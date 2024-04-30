@@ -85,7 +85,7 @@ index e2cf12d2c8fee..376818e28798c 100644
  };
  
 diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 773f72da82f90..6d0307988406f 100644
+index 773f72da82f90..0043dd530934d 100644
 --- chrome/browser/download/download_prefs.cc
 +++ chrome/browser/download/download_prefs.cc
 @@ -23,6 +23,7 @@
@@ -100,7 +100,7 @@ index 773f72da82f90..6d0307988406f 100644
  #include "chrome/browser/flags/android/chrome_feature_list.h"
  #endif
  
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +#include "cef/libcef/browser/alloy/alloy_download_util.h"
 +#endif
 +
@@ -111,7 +111,7 @@ index 773f72da82f90..6d0307988406f 100644
  // static
  DownloadPrefs* DownloadPrefs::FromBrowserContext(
      content::BrowserContext* context) {
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (cef::IsAlloyRuntimeEnabled()) {
 +    return alloy::GetDownloadPrefsFromBrowserContext(context);
 +  }

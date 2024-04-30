@@ -233,15 +233,19 @@ int main(int argc, char* argv[]) {
   }
 
   // Log the current configuration.
-  LOG(WARNING)
-      << "Using " << (IsChromeBootstrap() ? "Chrome" : "Alloy")
-      << " bootstrap; " << (UseAlloyStyleBrowserGlobal() ? "Alloy" : "Chrome")
-      << " style browser; "
-      << (UseViewsGlobal()
-              ? (std::string(UseAlloyStyleWindowGlobal() ? "Alloy" : "Chrome") +
-                 " style window; ")
-              : "")
-      << (UseViewsGlobal() ? "Views" : "Native") << "-hosted (not a warning)";
+  LOG(WARNING) << "Using "
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+               << (IsChromeBootstrap() ? "Chrome" : "Alloy") << " bootstrap; "
+#endif
+               << (UseAlloyStyleBrowserGlobal() ? "Alloy" : "Chrome")
+               << " style browser; "
+               << (UseViewsGlobal()
+                       ? (std::string(UseAlloyStyleWindowGlobal() ? "Alloy"
+                                                                  : "Chrome") +
+                          " style window; ")
+                       : "")
+               << (UseViewsGlobal() ? "Views" : "Native")
+               << "-hosted (not a warning)";
 
   std::unique_ptr<client::MainMessageLoop> message_loop;
 

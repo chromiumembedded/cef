@@ -4,14 +4,19 @@
 
 #include "libcef/browser/devtools/devtools_window_runner.h"
 
-#include "libcef/browser/alloy/devtools/alloy_devtools_window_runner.h"
 #include "libcef/browser/chrome/chrome_devtools_window_runner.h"
 #include "libcef/features/runtime.h"
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#include "libcef/browser/alloy/devtools/alloy_devtools_window_runner.h"
+#endif
+
 // static
 std::unique_ptr<CefDevToolsWindowRunner> CefDevToolsWindowRunner::Create() {
-  if (cef::IsChromeRuntimeEnabled()) {
-    return std::make_unique<ChromeDevToolsWindowRunner>();
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  if (cef::IsAlloyRuntimeEnabled()) {
+    return std::make_unique<AlloyDevToolsWindowRunner>();
   }
-  return std::make_unique<AlloyDevToolsWindowRunner>();
+#endif
+  return std::make_unique<ChromeDevToolsWindowRunner>();
 }

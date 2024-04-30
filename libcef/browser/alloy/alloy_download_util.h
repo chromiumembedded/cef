@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_DOWNLOAD_UTIL_H_
 #pragma once
 
+#include "cef/libcef/features/features.h"
+
 class DownloadPrefs;
 
 namespace content {

@@ -74,6 +74,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify CEF global settings here.
   CefSettings settings;
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
   // the command-line. Otherwise, use the CEF Alloy runtime. For more
   // information about CEF runtimes see
@@ -81,6 +82,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if (command_line->HasSwitch("enable-chrome-runtime")) {
     settings.chrome_runtime = true;
   }
+#endif
 
 #if !defined(CEF_USE_SANDBOX)
   settings.no_sandbox = true;

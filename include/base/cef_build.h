@@ -69,6 +69,13 @@
 #if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "build/build_config.h"
+
+#include "cef/libcef/features/features.h"
+
+#if !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#define DISABLE_ALLOY_BOOTSTRAP 1
+#endif
+
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be

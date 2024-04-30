@@ -87,8 +87,10 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
 // Returns true if the old CefResourceHandler API should be tested.
 bool TestOldResourceAPI();
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
 // Returns true if the Chrome runtime is enabled.
 bool IsChromeBootstrap();
+#endif
 
 // Returns true if Views should be used as a the global default.
 bool UseViewsGlobal();

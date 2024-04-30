@@ -187,6 +187,7 @@ std::string GetContentStatusString(cef_ssl_content_status_t status) {
   return result;
 }
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
 // Load a data: URI containing the error message.
 // Only used with Alloy style.
 void LoadErrorPage(CefRefPtr<CefFrame> frame,
@@ -212,6 +213,7 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
   ss << "</body></html>";
   frame->LoadURL(test_runner::GetDataURI(ss.str(), "text/html"));
 }
+#endif  // !defined(DISABLE_ALLOY_BOOTSTRAP)
 
 // Return HTML string with information about a certificate.
 std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
@@ -1078,11 +1080,13 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
     }
   }
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   if (use_alloy_style_) {
     // Load the error page.
     LoadErrorPage(frame, "Page failed to load", failedUrl,
                   test_runner::GetErrorString(errorCode), errorText);
   }
+#endif
 }
 
 bool ClientHandler::OnRequestMediaAccessPermission(
@@ -1172,6 +1176,7 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
     return true;
   }
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   if (use_alloy_style_) {
     if (auto cert = ssl_info->GetX509Certificate()) {
       // Load the error page.
@@ -1180,6 +1185,7 @@ bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
                     GetCertificateInformation(cert, ssl_info->GetCertStatus()));
     }
   }
+#endif
 
   return false;  // Cancel the request.
 }
@@ -1248,12 +1254,14 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
 
   // Don't reload the URL that just resulted in termination.
   if (url.find(start_url) == 0) {
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
     if (use_alloy_style_) {
       LoadErrorPage(frame, "Render process terminated", frame->GetURL(),
                     test_runner::GetErrorString(status) + " (" +
                         error_string.ToString() + ")",
                     std::string());
     }
+#endif
     return;
   }
 
@@ -1300,6 +1308,7 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
 
   CefRefPtr<CefBrowserHost> host = browser->GetHost();
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Test if the DevTools browser already exists.
   if (use_alloy_style_ && !host->HasDevTools() &&
       !MainContext::Get()->UseChromeBootstrap()) {
@@ -1309,6 +1318,7 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
     CreatePopupWindow(browser, /*is_devtools=*/true, CefPopupFeatures(),
                       windowInfo, client, settings);
   }
+#endif
 
   // Create the DevTools browser if it doesn't already exist.
   // Otherwise, focus the existing DevTools browser and inspect the element

@@ -5,6 +5,8 @@
 #ifndef CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_UTIL_H_
 #define CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_UTIL_H_
 
+#include "cef/libcef/features/runtime.h"
+
 namespace extensions {
 
 // Returns true if extensions have not been disabled via the command-line.

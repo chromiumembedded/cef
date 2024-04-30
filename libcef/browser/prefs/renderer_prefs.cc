@@ -4,15 +4,18 @@
 
 #include "libcef/browser/prefs/renderer_prefs.h"
 
-#include <string>
+#include "libcef/common/cef_switches.h"
 
+#include "base/command_line.h"
+#include "content/public/common/content_switches.h"
+#include "third_party/blink/public/common/web_preferences/web_preferences.h"
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #include "libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "libcef/browser/context.h"
-#include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/features/runtime_checks.h"
 
-#include "base/command_line.h"
 #include "base/i18n/character_encoding.h"
 #include "base/memory/ptr_util.h"
 #include "base/values.h"
@@ -41,11 +44,13 @@
 #include "extensions/common/constants.h"
 #include "media/media_buildflags.h"
 #include "third_party/blink/public/common/peerconnection/webrtc_ip_handling_policy.h"
-#include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "ui/color/color_provider_key.h"
 #include "ui/native_theme/native_theme.h"
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 namespace renderer_prefs {
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 namespace {
 
@@ -266,6 +271,8 @@ void SetCommandLinePrefDefaults(CommandLinePrefStore* prefs) {
   }
 }
 
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
 void SetDefaultPrefs(blink::web_pref::WebPreferences& web) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -357,6 +364,8 @@ void SetCefPrefs(const CefBrowserSettings& cef,
     web.webgl2_enabled = false;
   }
 }
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                           const std::string& locale) {
@@ -456,5 +465,7 @@ bool PopulateWebPreferencesAfterNavigation(
   return UpdatePreferredColorScheme(&web, web_contents->GetLastCommittedURL(),
                                     web_contents, native_theme);
 }
+
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 }  // namespace renderer_prefs

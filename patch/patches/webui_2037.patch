@@ -1,5 +1,5 @@
 diff --git chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
-index 16c370e6d9759..1460a9c0d1f49 100644
+index 16c370e6d9759..7fc6d74075dd4 100644
 --- chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 +++ chrome/browser/feedback/system_logs/log_sources/chrome_internal_log_source.cc
 @@ -20,10 +20,12 @@
@@ -15,33 +15,38 @@ index 16c370e6d9759..1460a9c0d1f49 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/google/google_brand.h"
-@@ -422,7 +424,11 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
+@@ -422,7 +424,15 @@ void ChromeInternalLogSource::Fetch(SysLogsSourceCallback callback) {
    response->emplace(kOsVersionTag, os_version);
  #endif
  
--  PopulateSyncLogs(response.get());
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
-+    // Avoid loading ProfileSyncServiceFactory which depends on a lot of
-+    // unnecessary Chrome-specific factories.
-+    PopulateSyncLogs(response.get());
++#endif
++  // Avoid loading ProfileSyncServiceFactory which depends on a lot of
++  // unnecessary Chrome-specific factories.
+   PopulateSyncLogs(response.get());
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
++#endif
    PopulateExtensionInfoLogs(response.get());
    PopulatePowerApiLogs(response.get());
  #if BUILDFLAG(IS_WIN)
-@@ -510,8 +516,12 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
+@@ -510,8 +520,14 @@ void ChromeInternalLogSource::PopulateExtensionInfoLogs(
    if (!profile)
      return;
  
 +  // May be nullptr if using CEF Alloy with extensions disabled.
    extensions::ExtensionRegistry* extension_registry =
        extensions::ExtensionRegistry::Get(profile);
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!extension_registry)
 +    return;
++#endif
 +
    std::string extensions_list;
    for (const scoped_refptr<const extensions::Extension>& extension :
         extension_registry->enabled_extensions()) {
-@@ -612,6 +622,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
+@@ -612,6 +628,8 @@ void ChromeInternalLogSource::PopulateOnboardingTime(
  #if BUILDFLAG(IS_WIN)
  void ChromeInternalLogSource::PopulateUsbKeyboardDetected(
      SystemLogsResponse* response) {
@@ -51,10 +56,18 @@ index 16c370e6d9759..1460a9c0d1f49 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 58fe3bd8f62ae..41b5e35b09a80 100644
+index 58fe3bd8f62ae..f8a2f456bded6 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
-@@ -298,9 +298,11 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -17,6 +17,7 @@
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/task/thread_pool.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "components/nacl/common/nacl_process_type.h"
+ #include "components/strings/grit/components_strings.h"
+@@ -298,9 +299,15 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
                  render_process_host->GetBrowserContext())) {
        content::BrowserContext* context =
            render_process_host->GetBrowserContext();
@@ -62,16 +75,21 @@ index 58fe3bd8f62ae..41b5e35b09a80 100644
 +      // May be nullptr if using CEF Alloy with extensions disabled.
        extensions::ExtensionRegistry* extension_registry =
            extensions::ExtensionRegistry::Get(context);
--      DCHECK(extension_registry);
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +      if (extension_registry) {
++#else
+       DCHECK(extension_registry);
++#endif
        extension_set = &extension_registry->enabled_extensions();
        extensions::ProcessMap* process_map =
            extensions::ProcessMap::Get(context);
-@@ -317,6 +319,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+@@ -317,6 +324,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
            break;
          }
        }
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +      }
++#endif
      }
  #endif
  

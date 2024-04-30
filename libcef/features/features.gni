@@ -12,3 +12,9 @@ declare_args() {
   # PERFORMANCE AND/OR SECURITY IMPLICATIONS.
   is_cef_sandbox_build = false
 }
+
+declare_args() {
+  # Enables the Alloy bootstrap. This will be disabled and removed in ~M127.
+  # See issue #3685.
+  enable_alloy_bootstrap = enable_cef
+}

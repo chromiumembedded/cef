@@ -114,8 +114,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;
-  CefRefPtr<CefExtension> GetExtension() override;
-  bool IsBackgroundHost() override;
   bool CanExecuteChromeCommand(int command_id) override;
   void ExecuteChromeCommand(int command_id,
                             cef_window_open_disposition_t disposition) override;

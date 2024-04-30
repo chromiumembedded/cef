@@ -76,9 +76,11 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     windowless_frame_rate_ = shared_texture_enabled_ ? 60 : 30;
   }
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Enable Chrome runtime bootstrap. See issue #2969 for details.
   use_chrome_bootstrap_ =
       command_line_->HasSwitch(switches::kEnableChromeRuntime);
+#endif
 
   // Whether the Views framework will be used.
   use_views_ = command_line_->HasSwitch(switches::kUseViews);
@@ -90,8 +92,11 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 
   // Whether Alloy style will be used.
-  use_alloy_style_ = !use_chrome_bootstrap_ ||
-                     command_line_->HasSwitch(switches::kUseAlloyStyle);
+  use_alloy_style_ =
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+      !use_chrome_bootstrap_ ||
+#endif
+      command_line_->HasSwitch(switches::kUseAlloyStyle);
 
   if (use_windowless_rendering_ && !use_alloy_style_) {
     LOG(WARNING) << "Windowless rendering requires Alloy style.";
@@ -100,7 +105,10 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
 
   // Whether to use a native parent window with Chrome runtime.
   const bool use_chrome_native_parent =
-      use_chrome_bootstrap_ && command_line->HasSwitch(switches::kUseNative);
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+      use_chrome_bootstrap_ &&
+#endif
+      command_line->HasSwitch(switches::kUseNative);
 
 #if defined(OS_MAC)
   if (use_chrome_native_parent && !use_alloy_style_) {
@@ -110,8 +118,11 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 #endif
 
-  if (use_chrome_bootstrap_ && !use_views_ && !use_chrome_native_parent &&
-      !use_windowless_rendering_) {
+  if (
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+      use_chrome_bootstrap_ &&
+#endif
+      !use_views_ && !use_chrome_native_parent && !use_windowless_rendering_) {
     LOG(WARNING) << "Chrome runtime defaults to the Views framework.";
     use_views_ = true;
   }
@@ -133,10 +144,12 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 
   // Log the current configuration.
-  LOG(WARNING) << "Using " << (use_chrome_bootstrap_ ? "Chrome" : "Alloy")
-               << " bootstrap; " << (use_alloy_style_ ? "Alloy" : "Chrome")
-               << " style; " << (use_views_ ? "Views" : "Native")
-               << "-hosted window; "
+  LOG(WARNING) << "Using "
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+               << (use_chrome_bootstrap_ ? "Chrome" : "Alloy") << " bootstrap; "
+#endif
+               << (use_alloy_style_ ? "Alloy" : "Chrome") << " style; "
+               << (use_views_ ? "Views" : "Native") << "-hosted window; "
                << (use_windowless_rendering_ ? "Windowless" : "Windowed")
                << " rendering (not a warning)";
 }
@@ -175,9 +188,11 @@ cef_color_t MainContextImpl::GetBackgroundColor() {
   return background_color_;
 }
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
 bool MainContextImpl::UseChromeBootstrap() {
   return use_chrome_bootstrap_;
 }
+#endif
 
 bool MainContextImpl::UseViewsGlobal() {
   return use_views_;
@@ -199,9 +214,11 @@ bool MainContextImpl::UseDefaultPopup() {
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
   client::ClientAppBrowser::PopulateSettings(command_line_, *settings);
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   if (use_chrome_bootstrap_) {
     settings->chrome_runtime = true;
   }
+#endif
 
   CefString(&settings->cache_path) =
       command_line_->GetSwitchValue(switches::kCachePath);
@@ -245,7 +262,10 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
     settings->background_color = browser_background_color_;
   }
 
-  if (use_chrome_bootstrap_ &&
+  if (
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+      use_chrome_bootstrap_ &&
+#endif
       command_line_->HasSwitch(switches::kHideChromeBubbles)) {
     settings->chrome_status_bubble = STATE_DISABLED;
     settings->chrome_zoom_bubble = STATE_DISABLED;

@@ -1,5 +1,5 @@
 diff --git chrome/browser/content_settings/host_content_settings_map_factory.cc chrome/browser/content_settings/host_content_settings_map_factory.cc
-index 9356bf044a318..2499576dea7f0 100644
+index 9356bf044a318..883c322eef5bb 100644
 --- chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ chrome/browser/content_settings/host_content_settings_map_factory.cc
 @@ -9,6 +9,7 @@
@@ -14,7 +14,7 @@ index 9356bf044a318..2499576dea7f0 100644
  #include "extensions/buildflags/buildflags.h"
  #include "ui/webui/webui_allowlist_provider.h"
  
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +#include "cef/libcef/common/extensions/extensions_util.h"
 +#endif
 +
@@ -25,11 +25,11 @@ index 9356bf044a318..2499576dea7f0 100644
  #endif
    DependsOn(OneTimePermissionsTrackerFactory::GetInstance());
  #if BUILDFLAG(ENABLE_EXTENSIONS)
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
 +#endif
    DependsOn(extensions::ContentSettingsService::GetFactoryInstance());
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
 +#endif
  #endif
@@ -39,7 +39,7 @@ index 9356bf044a318..2499576dea7f0 100644
        std::move(allowlist_provider));
  
  #if BUILDFLAG(ENABLE_EXTENSIONS)
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled() || extensions::ExtensionsEnabled()) {
 +#endif
    // These must be registered before before the HostSettings are passed over to
@@ -49,7 +49,7 @@ index 9356bf044a318..2499576dea7f0 100644
            // the case where profile->IsOffTheRecord() is true? And what is the
            // interaction with profile->IsGuestSession()?
            false));
-+#if BUILDFLAG(ENABLE_CEF)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
 +#endif
  #endif // BUILDFLAG(ENABLE_EXTENSIONS)

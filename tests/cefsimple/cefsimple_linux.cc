@@ -58,6 +58,7 @@ int main(int argc, char* argv[]) {
   // Specify CEF global settings here.
   CefSettings settings;
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
   // the command-line. Otherwise, use the CEF Alloy runtime. For more
   // information about CEF runtimes see
@@ -65,6 +66,7 @@ int main(int argc, char* argv[]) {
   if (command_line->HasSwitch("enable-chrome-runtime")) {
     settings.chrome_runtime = true;
   }
+#endif
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable

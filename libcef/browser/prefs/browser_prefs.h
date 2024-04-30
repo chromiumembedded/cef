@@ -6,30 +6,36 @@
 #define CEF_LIBCEF_BROWSER_PREFS_BROWSER_PREFS_H_
 
 #include <memory>
+#include <string>
 
+#include "cef/libcef/features/features.h"
+
+class PrefRegistrySimple;
+class Profile;
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 namespace base {
 class FilePath;
 }
 
-class PrefRegistrySimple;
 class PrefService;
-class Profile;
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 namespace browser_prefs {
 
-// Name for the user prefs JSON file.
-extern const char kUserPrefsFileName[];
-
 // Register preferences specific to CEF.
+// Called from chrome/browser/prefs/browser_prefs.cc
 void RegisterLocalStatePrefs(PrefRegistrySimple* registry);
 void RegisterProfilePrefs(PrefRegistrySimple* registry);
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // Create the PrefService used to manage pref registration and storage.
 // |profile| will be nullptr for the system-level PrefService. Used with the
 // Alloy runtime only.
 std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
                                                const base::FilePath& cache_path,
                                                bool persist_user_preferences);
+#endif
 
 // Returns the value for populating the accept-language HTTP request header.
 // |browser_context| and/or |browser| may be nullptr. If |expand| is true then

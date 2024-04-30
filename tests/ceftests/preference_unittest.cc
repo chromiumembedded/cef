@@ -533,15 +533,18 @@ TEST(PreferenceTest, RequestContextGlobalSetGetShared) {
 
   // Get the values from the 4th context.
   *PendingAction() = "Get the values from the 4th context.";
-  if (IsChromeBootstrap()) {
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+  if (!IsChromeBootstrap()) {
+    // They should be at the default.
+    ValidateDefaults(context4, false, event);
+  } else
+#endif
+  {
     // With the Chrome runtime, prefs set via an incognito profile will become
     // an overlay on top of the global (parent) profile. The incognito profile
     // shares the prefs in this case because they were set via the global
     // profile.
     ValidateGet(context4, event);
-  } else {
-    // They should be at the default.
-    ValidateDefaults(context4, false, event);
   }
   event->Wait();
 

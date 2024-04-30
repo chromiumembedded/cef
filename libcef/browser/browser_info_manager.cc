@@ -280,7 +280,9 @@ void CefBrowserInfoManager::WebContentsCreated(
 
 bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   DCHECK(cef::IsChromeRuntimeEnabled());
+#endif
 
   // Pending popup information may be missing in cases where
   // chrome::AddWebContents is called directly from the Chrome UI (profile

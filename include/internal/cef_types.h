@@ -235,12 +235,14 @@ typedef struct _cef_settings_t {
   ///
   cef_string_t main_bundle_path;
 
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
   ///
   /// Set to true (1) to enable use of the Chrome runtime in CEF. This feature
   /// is considered experimental and is not recommended for most users at this
   /// time. See issue #2969 for details.
   ///
   int chrome_runtime;
+#endif
 
   ///
   /// Set to true (1) to have the browser process message loop run in a separate

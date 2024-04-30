@@ -134,7 +134,7 @@ index 3d5fd0d5ca858..965ab69b3fe8f 100644
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
 diff --git chrome/browser/profiles/renderer_updater.cc chrome/browser/profiles/renderer_updater.cc
-index 0d1d2e3661ff1..a97322b1d991d 100644
+index 0d1d2e3661ff1..ba4b8cb233102 100644
 --- chrome/browser/profiles/renderer_updater.cc
 +++ chrome/browser/profiles/renderer_updater.cc
 @@ -9,6 +9,7 @@
@@ -145,16 +145,18 @@ index 0d1d2e3661ff1..a97322b1d991d 100644
  #include "chrome/browser/content_settings/content_settings_manager_delegate.h"
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -45,6 +46,7 @@ RendererUpdater::RendererUpdater(Profile* profile)
+@@ -45,6 +46,9 @@ RendererUpdater::RendererUpdater(Profile* profile)
  #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
        ,
        bound_session_cookie_refresh_service_(
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +          cef::IsAlloyRuntimeEnabled() ? nullptr :
++#endif
            BoundSessionCookieRefreshServiceFactory::GetForProfile(profile))
  #endif
  {
 diff --git chrome/browser/profiles/renderer_updater_factory.cc chrome/browser/profiles/renderer_updater_factory.cc
-index ed5b366aa47ab..58ebe795e4636 100644
+index ed5b366aa47ab..794cf8b3bbec1 100644
 --- chrome/browser/profiles/renderer_updater_factory.cc
 +++ chrome/browser/profiles/renderer_updater_factory.cc
 @@ -4,6 +4,7 @@
@@ -165,13 +167,17 @@ index ed5b366aa47ab..58ebe795e4636 100644
  #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/profiles/renderer_updater.h"
-@@ -25,7 +26,9 @@ RendererUpdaterFactory::RendererUpdaterFactory()
+@@ -25,7 +26,13 @@ RendererUpdaterFactory::RendererUpdaterFactory()
    DependsOn(IdentityManagerFactory::GetInstance());
    DependsOn(HostContentSettingsMapFactory::GetInstance());
  #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
++#endif
    DependsOn(BoundSessionCookieRefreshServiceFactory::GetInstance());
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
++#endif
  #endif  // BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
  }
  

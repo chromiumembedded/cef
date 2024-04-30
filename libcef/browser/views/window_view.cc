@@ -356,15 +356,20 @@ void UpdateModalDialogPosition(views::Widget* widget,
 }
 
 bool ComputeAlloyStyle(CefWindowDelegate* cef_delegate) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   const bool supports_chrome_style = cef::IsChromeRuntimeEnabled();
   const auto default_style = cef::IsAlloyRuntimeEnabled()
                                  ? CEF_RUNTIME_STYLE_ALLOY
                                  : CEF_RUNTIME_STYLE_CHROME;
+#else
+  const auto default_style = CEF_RUNTIME_STYLE_CHROME;
+#endif
 
   auto result_style = default_style;
 
   if (cef_delegate) {
     auto requested_style = cef_delegate->GetWindowRuntimeStyle();
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
     if (requested_style == CEF_RUNTIME_STYLE_ALLOY) {
       // Alloy style is always supported.
       result_style = requested_style;
@@ -376,6 +381,11 @@ bool ComputeAlloyStyle(CefWindowDelegate* cef_delegate) {
                       "Alloy style is supported";
       }
     }
+#else
+    if (requested_style != CEF_RUNTIME_STYLE_DEFAULT) {
+      result_style = requested_style;
+    }
+#endif
   }
 
   return result_style == CEF_RUNTIME_STYLE_ALLOY;

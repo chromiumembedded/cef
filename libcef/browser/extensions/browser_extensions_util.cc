@@ -4,20 +4,10 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/extensions/extensions_util.h"
-#include "libcef/features/runtime_checks.h"
-
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
-#include "content/public/browser/browser_context.h"
-#include "content/public/browser/browser_plugin_guest_manager.h"
-#include "extensions/browser/extension_registry.h"
 
 namespace extensions {
 
@@ -71,50 +61,6 @@ bool IsBrowserPluginGuest(const content::WebContents* web_contents) {
 
 bool IsPrintPreviewDialog(const content::WebContents* web_contents) {
   return !!GetInitiatorForPrintPreviewDialog(web_contents);
-}
-
-CefRefPtr<AlloyBrowserHostImpl> GetBrowserForTabId(
-    int tab_id,
-    content::BrowserContext* browser_context) {
-  REQUIRE_ALLOY_RUNTIME();
-  CEF_REQUIRE_UIT();
-  DCHECK(browser_context);
-  if (tab_id < 0 || !browser_context) {
-    return nullptr;
-  }
-
-  auto cef_browser_context =
-      CefBrowserContext::FromBrowserContext(browser_context);
-
-  for (const auto& browser_info :
-       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
-    auto current_browser =
-        AlloyBrowserHostImpl::FromBaseChecked(browser_info->browser());
-    if (current_browser && current_browser->GetIdentifier() == tab_id) {
-      // Make sure we're operating in the same CefBrowserContext.
-      if (CefBrowserContext::FromBrowserContext(
-              current_browser->GetBrowserContext()) == cef_browser_context) {
-        return current_browser;
-      } else {
-        LOG(WARNING) << "Browser with tabId " << tab_id
-                     << " cannot be accessed because is uses a different "
-                        "CefRequestContext";
-        break;
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-const Extension* GetExtensionForUrl(content::BrowserContext* browser_context,
-                                    const GURL& url) {
-  ExtensionRegistry* registry = ExtensionRegistry::Get(browser_context);
-  if (!registry) {
-    return nullptr;
-  }
-  std::string extension_id = url.host();
-  return registry->enabled_extensions().GetByID(extension_id);
 }
 
 }  // namespace extensions

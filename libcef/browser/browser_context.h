@@ -18,6 +18,7 @@
 #include "base/functional/callback.h"
 #include "base/memory/weak_ptr.h"
 #include "base/task/sequenced_task_runner_helpers.h"
+#include "cef/libcef/features/features.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "ui/base/page_transition_types.h"
@@ -160,7 +161,8 @@ class CefBrowserContext {
                                     const CefString& domain_name,
                                     CefRefPtr<CefSchemeHandlerFactory> factory);
   void ClearSchemeHandlerFactories();
-  // TODO(chrome-runtime): Make these extension methods pure virtual.
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   virtual void LoadExtension(const CefString& root_directory,
                              CefRefPtr<CefDictionaryValue> manifest,
                              CefRefPtr<CefExtensionHandler> handler,
@@ -170,6 +172,7 @@ class CefBrowserContext {
 
   // Called from CefExtensionImpl::Unload().
   virtual bool UnloadExtension(const CefString& extension_id);
+#endif
 
   // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
   // of visited links.

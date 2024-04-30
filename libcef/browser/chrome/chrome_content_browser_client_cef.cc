@@ -28,6 +28,7 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "cef/libcef/features/features.h"
 #include "chrome/browser/chrome_browser_main.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/profiles/profile.h"
@@ -102,8 +103,10 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
   ChromeContentBrowserClient::AppendExtraCommandLineSwitches(command_line,
                                                              child_process_id);
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   // Necessary to launch sub-processes in the correct mode.
   command_line->AppendSwitch(switches::kEnableChromeRuntime);
+#endif
 
   // Necessary to populate DIR_USER_DATA in sub-processes.
   // See resource_util.cc GetUserDataPath.

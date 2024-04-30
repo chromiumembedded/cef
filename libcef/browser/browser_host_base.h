@@ -22,7 +22,11 @@
 
 #include "base/observer_list.h"
 #include "base/synchronization/lock.h"
+#include "cef/libcef/features/features.h"
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #include "extensions/common/mojom/view_type.mojom.h"
+#endif
 
 namespace extensions {
 class Extension;
@@ -99,9 +103,11 @@ struct CefBrowserCreateParams {
   // Browser settings.
   CefBrowserSettings settings;
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   // Other browser that opened this DevTools browser. Will be nullptr for non-
   // DevTools browsers. Currently used with the alloy runtime only.
   CefRefPtr<CefBrowserHostBase> devtools_opener;
+#endif
 
   // Request context to use when creating the browser. If nullptr the global
   // request context will be used.
@@ -111,12 +117,14 @@ struct CefBrowserCreateParams {
   // CefRenderProcessHandler::OnBrowserCreated.
   CefRefPtr<CefDictionaryValue> extra_info;
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   // Used when explicitly creating the browser as an extension host via
   // ProcessManager::CreateBackgroundHost. Currently used with the alloy
   // runtime only.
   const extensions::Extension* extension = nullptr;
   extensions::mojom::ViewType extension_host_type =
       extensions::mojom::ViewType::kInvalid;
+#endif
 };
 
 // Base class for CefBrowserHost implementations. Includes functionality that is
@@ -251,6 +259,8 @@ class CefBrowserHostBase : public CefBrowserHost,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
   void NotifyMoveOrResizeStarted() override;
+  CefRefPtr<CefExtension> GetExtension() override;
+  bool IsBackgroundHost() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
   bool IsRenderProcessUnresponsive() override;

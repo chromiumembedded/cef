@@ -780,9 +780,11 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     Browser* browser,
     scoped_refptr<CreateParams> cef_params,
     const Browser* opener) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!cef::IsChromeRuntimeEnabled()) {
     return nullptr;
   }
+#endif
 
   CefBrowserCreateParams create_params;
 

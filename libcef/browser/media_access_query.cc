@@ -6,17 +6,88 @@
 
 #include "include/cef_permission_handler.h"
 #include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/media_stream_registrar.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/features/runtime.h"
 
 #include "base/command_line.h"
 #include "base/functional/callback_helpers.h"
+#include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#include "libcef/browser/media_capture_devices_dispatcher.h"
+#endif
 
 namespace media_access_query {
 
 namespace {
+
+const blink::MediaStreamDevice* FindDefaultDeviceWithId(
+    const blink::MediaStreamDevices& devices,
+    const std::string& device_id) {
+  if (devices.empty()) {
+    return nullptr;
+  }
+
+  blink::MediaStreamDevices::const_iterator iter = devices.begin();
+  for (; iter != devices.end(); ++iter) {
+    if (iter->id == device_id) {
+      return &(*iter);
+    }
+  }
+
+  return &(*devices.begin());
+}
+
+void GetRequestedDeviceChrome(const std::string& requested_device_id,
+                              bool audio,
+                              bool video,
+                              blink::MediaStreamDevices* devices) {
+  CEF_REQUIRE_UIT();
+  DCHECK(audio || video);
+
+  auto* dispatcher = MediaCaptureDevicesDispatcher::GetInstance();
+
+  if (audio) {
+    const blink::MediaStreamDevices& audio_devices =
+        dispatcher->GetAudioCaptureDevices();
+    const blink::MediaStreamDevice* const device =
+        FindDefaultDeviceWithId(audio_devices, requested_device_id);
+    if (device) {
+      devices->push_back(*device);
+    }
+  }
+  if (video) {
+    const blink::MediaStreamDevices& video_devices =
+        dispatcher->GetVideoCaptureDevices();
+    const blink::MediaStreamDevice* const device =
+        FindDefaultDeviceWithId(video_devices, requested_device_id);
+    if (device) {
+      devices->push_back(*device);
+    }
+  }
+}
+
+// Helper for picking the device that was requested for an OpenDevice request.
+// If the device requested is not available it will revert to using the first
+// available one instead or will return an empty list if no devices of the
+// requested kind are present. Called on the UI thread.
+void GetRequestedDevice(const std::string& requested_device_id,
+                        bool audio,
+                        bool video,
+                        blink::MediaStreamDevices* devices) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  if (cef::IsAlloyRuntimeEnabled()) {
+    CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+        requested_device_id, audio, video, devices);
+    return;
+  }
+#endif
+
+  GetRequestedDeviceChrome(requested_device_id, audio, video, devices);
+}
 
 class CefMediaAccessQuery {
  public:
@@ -136,9 +207,8 @@ class CefMediaAccessQuery {
         !request_.requested_audio_device_ids.front().empty()) {
       // Pick the desired device or fall back to the first available of the
       // given type.
-      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request_.requested_audio_device_ids.front(), true, false,
-          &audio_devices);
+      GetRequestedDevice(request_.requested_audio_device_ids.front(), true,
+                         false, &audio_devices);
     }
 
     if (device_video_requested() &&
@@ -146,9 +216,8 @@ class CefMediaAccessQuery {
         !request_.requested_video_device_ids.front().empty()) {
       // Pick the desired device or fall back to the first available of the
       // given type.
-      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-          request_.requested_video_device_ids.front(), false, true,
-          &video_devices);
+      GetRequestedDevice(request_.requested_video_device_ids.front(), false,
+                         true, &video_devices);
     }
 
     if (desktop_audio_requested()) {

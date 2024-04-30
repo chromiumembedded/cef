@@ -117,7 +117,10 @@ void SimpleApp::OnContextInitialized() {
   // Alloy runtime bootstrap and optional with the Chrome runtime bootstrap.
   bool use_alloy_style = true;
   cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
-  if (command_line->HasSwitch("enable-chrome-runtime")) {
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+  if (command_line->HasSwitch("enable-chrome-runtime"))
+#endif
+  {
     use_alloy_style = command_line->HasSwitch("use-alloy-style");
     if (use_alloy_style) {
       runtime_style = CEF_RUNTIME_STYLE_ALLOY;

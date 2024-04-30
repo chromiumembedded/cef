@@ -9,6 +9,7 @@
 #pragma once
 
 #include "build/build_config.h"
+#include "cef/libcef/features/features.h"
 
 namespace switches {
 
@@ -52,7 +53,9 @@ extern const char kDisablePdfExtension[];
 extern const char kEnablePrintPreview[];
 extern const char kDisableNewBrowserInfoTimeout[];
 extern const char kDevToolsProtocolLogFile[];
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 extern const char kEnableChromeRuntime[];
+#endif
 extern const char kDisableChromeLoginPrompt[];
 extern const char kUserAgentProductAndVersion[];
 extern const char kDisableRequestHandlingForTesting[];

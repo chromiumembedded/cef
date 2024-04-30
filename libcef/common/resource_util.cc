@@ -8,18 +8,24 @@
 #include <dlfcn.h>
 #endif
 
-#include "libcef/features/runtime.h"
-
+#include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/files/file_util.h"
 #include "base/logging.h"
-#include "base/notreached.h"
 #include "base/path_service.h"
-#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
+
+#if BUILDFLAG(IS_LINUX)
+#include "base/environment.h"
+#include "base/nix/xdg_util.h"
+#endif
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#include "base/files/file_util.h"
+#include "base/notreached.h"
+#include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_paths_internal.h"
 #include "ui/base/layout.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -27,14 +33,10 @@
 #include "libcef/common/util_mac.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX)
-#include "base/environment.h"
-#include "base/nix/xdg_util.h"
-#endif
-
 #if BUILDFLAG(IS_WIN)
 #include "base/win/registry.h"
 #endif
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 namespace resource_util {
 
@@ -115,6 +117,12 @@ base::FilePath GetUserDataPath(CefSettings* settings,
   DCHECK(false);
   return result;
 }
+
+}  // namespace
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
+namespace {
 
 // Consider downloads 'dangerous' if they go to the home directory on Linux and
 // to the desktop on any platform.
@@ -206,6 +214,16 @@ void OverrideDefaultDownloadDir() {
   }
 }
 
+// Same as ui::ResourceBundle::IsScaleFactorSupported.
+bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
+  const auto& supported_scale_factors = ui::GetSupportedResourceScaleFactors();
+  return std::find(supported_scale_factors.begin(),
+                   supported_scale_factors.end(),
+                   scale_factor) != supported_scale_factors.end();
+}
+
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
 void OverrideUserDataDir(CefSettings* settings,
                          const base::CommandLine* command_line) {
   const base::FilePath& user_data_path =
@@ -221,14 +239,6 @@ void OverrideUserDataDir(CefSettings* settings,
       user_data_path.Append(FILE_PATH_LITERAL("Dictionaries")),
       false,  // May not be an absolute path.
       true);  // Create if necessary.
-}
-
-// Same as ui::ResourceBundle::IsScaleFactorSupported.
-bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
-  const auto& supported_scale_factors = ui::GetSupportedResourceScaleFactors();
-  return std::find(supported_scale_factors.begin(),
-                   supported_scale_factors.end(),
-                   scale_factor) != supported_scale_factors.end();
 }
 
 #if BUILDFLAG(IS_LINUX)

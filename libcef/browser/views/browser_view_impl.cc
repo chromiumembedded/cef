@@ -40,12 +40,17 @@ std::optional<cef_gesture_command_t> GetGestureCommand(
 bool ComputeAlloyStyle(CefBrowserViewDelegate* cef_delegate,
                        bool is_devtools_popup) {
   // Alloy style is not supported with Chrome DevTools popups.
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   const bool supports_alloy_style =
       cef::IsAlloyRuntimeEnabled() || !is_devtools_popup;
   const bool supports_chrome_style = cef::IsChromeRuntimeEnabled();
   const auto default_style = cef::IsAlloyRuntimeEnabled()
                                  ? CEF_RUNTIME_STYLE_ALLOY
                                  : CEF_RUNTIME_STYLE_CHROME;
+#else
+  const bool supports_alloy_style = !is_devtools_popup;
+  const auto default_style = CEF_RUNTIME_STYLE_CHROME;
+#endif
 
   auto result_style = default_style;
 
@@ -59,12 +64,17 @@ bool ComputeAlloyStyle(CefBrowserViewDelegate* cef_delegate,
                       "Chrome style is supported";
       }
     } else if (requested_style == CEF_RUNTIME_STYLE_CHROME) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
       if (supports_chrome_style) {
         result_style = requested_style;
       } else {
         LOG(ERROR) << "GetBrowserRuntimeStyle() requested Chrome style; only "
                       "Alloy style is supported";
       }
+#else
+      // Chrome style is always supported.
+      result_style = requested_style;
+#endif
     }
   }
 

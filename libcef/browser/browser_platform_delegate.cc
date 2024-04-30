@@ -118,11 +118,13 @@ void CefBrowserPlatformDelegate::WebContentsDestroyed(
   web_contents_ = nullptr;
 }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 bool CefBrowserPlatformDelegate::
     ShouldAllowRendererInitiatedCrossProcessNavigation(
         bool is_main_frame_navigation) {
   return true;
 }
+#endif
 
 void CefBrowserPlatformDelegate::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
@@ -144,6 +146,7 @@ void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostBase* browser) {
   browser_ = browser;
 }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 void CefBrowserPlatformDelegate::CreateExtensionHost(
     const extensions::Extension* extension,
     const GURL& url,
@@ -156,6 +159,7 @@ extensions::ExtensionHost* CefBrowserPlatformDelegate::GetExtensionHost()
   DCHECK(false);
   return nullptr;
 }
+#endif
 
 void CefBrowserPlatformDelegate::NotifyBrowserCreated() {}
 
@@ -347,6 +351,7 @@ bool CefBrowserPlatformDelegate::HandleKeyboardEvent(
   return false;
 }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 bool CefBrowserPlatformDelegate::PreHandleGestureEvent(
     content::WebContents* source,
     const blink::WebGestureEvent& event) {
@@ -357,6 +362,7 @@ bool CefBrowserPlatformDelegate::IsNeverComposited(
     content::WebContents* web_contents) {
   return false;
 }
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 // static
 void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {

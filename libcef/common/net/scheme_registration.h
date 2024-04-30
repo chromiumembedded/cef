@@ -9,12 +9,18 @@
 #include <string>
 #include <vector>
 
+#include "cef/libcef/features/features.h"
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #include "content/public/common/content_client.h"
+#endif
 
 namespace scheme {
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // Add internal schemes.
 void AddInternalSchemes(content::ContentClient::Schemes* schemes);
+#endif
 
 // Returns true if the specified |scheme| is handled internally.
 bool IsInternalHandledScheme(const std::string& scheme);

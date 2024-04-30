@@ -13,7 +13,6 @@
 #include "include/cef_version.h"
 #include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/frame_host_impl.h"
-#include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/app_manager.h"
 #include "libcef/features/runtime.h"
@@ -23,6 +22,7 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
@@ -163,6 +163,7 @@ bool IsUnlistedHost(const std::string& host) {
   return false;
 }
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 // Returns true if a host is WebUI and should be allowed to load.
 bool IsAllowedWebUIHost(const std::string& host) {
   // Chrome runtime allows all WebUI hosts.
@@ -179,6 +180,7 @@ bool IsAllowedWebUIHost(const std::string& host) {
 
   return false;
 }
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 // Additional debug URLs that are not included in chrome::kChromeDebugURLs.
 const char* kAllowedDebugURLs[] = {
@@ -294,63 +296,65 @@ class TemplateParser {
 bool OnExtensionsSupportUI(std::string* mime_type, std::string* output) {
   *mime_type = "text/html";
 
-  if (cef::IsChromeRuntimeEnabled()) {
-    // Redirect to the Chrome documentation.
-    *output =
-        "<html><head>\n"
-        "<meta http-equiv=\"refresh\" "
-        "content=\"0;URL='https://developer.chrome.com/docs/extensions/'\"/>\n"
-        "</head></html>\n";
-    return true;
-  }
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  if (cef::IsAlloyRuntimeEnabled()) {
+    static const char kDevURL[] = "https://developer.chrome.com/extensions/";
 
-  static const char kDevURL[] = "https://developer.chrome.com/extensions/";
+    std::string html =
+        "<html>\n<head><title>Extensions Support</title></head>\n"
+        "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
+        "APIs</h3>\nFollow <a "
+        "href=\"https://github.com/chromiumembedded/cef/issues/1947\" "
+        "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
 
-  std::string html =
-      "<html>\n<head><title>Extensions Support</title></head>\n"
-      "<body bgcolor=\"white\"><h3>Supported Chrome Extensions "
-      "APIs</h3>\nFollow <a "
-      "href=\"https://github.com/chromiumembedded/cef/issues/1947\" "
-      "target=\"new\">issue #1947</a> for development progress.\n<ul>\n";
-
-  bool has_top_level_name = false;
-  for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
-    const std::string& api_name = kSupportedAPIs[i];
-    if (api_name.find("Private") != std::string::npos) {
-      // Don't list private APIs.
-      continue;
-    }
-
-    const size_t dot_pos = api_name.find('.');
-    if (dot_pos == std::string::npos) {
-      if (has_top_level_name) {
-        // End the previous top-level API entry.
-        html += "</ul></li>\n";
-      } else {
-        has_top_level_name = true;
+    bool has_top_level_name = false;
+    for (size_t i = 0; kSupportedAPIs[i] != nullptr; ++i) {
+      const std::string& api_name = kSupportedAPIs[i];
+      if (api_name.find("Private") != std::string::npos) {
+        // Don't list private APIs.
+        continue;
       }
 
-      // Start a new top-level API entry.
-      html += "<li><a href=\"" + std::string(kDevURL) + api_name +
-              "\" target=\"new\">" + api_name + "</a><ul>\n";
-    } else {
-      // Function name.
-      const std::string& group_name = api_name.substr(0, dot_pos);
-      const std::string& function_name = api_name.substr(dot_pos + 1);
-      html += "\t<li><a href=\"" + std::string(kDevURL) + group_name +
-              "#method-" + function_name + "\" target=\"new\">" + api_name +
-              "</a></li>\n";
+      const size_t dot_pos = api_name.find('.');
+      if (dot_pos == std::string::npos) {
+        if (has_top_level_name) {
+          // End the previous top-level API entry.
+          html += "</ul></li>\n";
+        } else {
+          has_top_level_name = true;
+        }
+
+        // Start a new top-level API entry.
+        html += "<li><a href=\"" + std::string(kDevURL) + api_name +
+                "\" target=\"new\">" + api_name + "</a><ul>\n";
+      } else {
+        // Function name.
+        const std::string& group_name = api_name.substr(0, dot_pos);
+        const std::string& function_name = api_name.substr(dot_pos + 1);
+        html += "\t<li><a href=\"" + std::string(kDevURL) + group_name +
+                "#method-" + function_name + "\" target=\"new\">" + api_name +
+                "</a></li>\n";
+      }
     }
+
+    if (has_top_level_name) {
+      // End the last top-level API entry.
+      html += "</ul></li>\n";
+    }
+
+    html += "</ul>\n</body>\n</html>";
+
+    *output = html;
+    return true;
   }
+#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
-  if (has_top_level_name) {
-    // End the last top-level API entry.
-    html += "</ul></li>\n";
-  }
-
-  html += "</ul>\n</body>\n</html>";
-
-  *output = html;
+  // Redirect to the Chrome documentation.
+  *output =
+      "<html><head>\n"
+      "<meta http-equiv=\"refresh\" "
+      "content=\"0;URL='https://developer.chrome.com/docs/extensions/'\"/>\n"
+      "</head></html>\n";
   return true;
 }
 
@@ -534,6 +538,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
 
   // Returns true if WebUI is allowed to handle the specified |url|.
   static bool AllowWebUIForURL(const GURL& url) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
     if (cef::IsChromeRuntimeEnabled() &&
         url.SchemeIs(content::kChromeDevToolsScheme)) {
       return DevToolsUIBindings::IsValidFrontendURL(url);
@@ -549,6 +554,18 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     }
 
     return false;
+#else   // !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+    if (url.SchemeIs(content::kChromeDevToolsScheme)) {
+      return DevToolsUIBindings::IsValidFrontendURL(url);
+    }
+
+    if (!url.SchemeIs(content::kChromeUIScheme) &&
+        !url.SchemeIs(content::kChromeUIUntrustedScheme)) {
+      return false;
+    }
+
+    return true;
+#endif  // ! BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   }
 
   // Returns true if WebUI is allowed to make network requests.
@@ -650,6 +667,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   }
 
   static void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
     // For Chrome runtime this is registered in
     // ChromeContentBrowserClient::BrowserURLHandlerCreated().
     if (cef::IsAlloyRuntimeEnabled()) {
@@ -657,6 +675,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
       handler->AddHandlerPair(&HandleChromeAboutAndChromeSyncRewrite,
                               content::BrowserURLHandler::null_handler());
     }
+#endif
 
     // chrome: & friends. For Chrome runtime the default registration is
     // disabled is ChromeContentBrowserClient::BrowserURLHandlerCreated().

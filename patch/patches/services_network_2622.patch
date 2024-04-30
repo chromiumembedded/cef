@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index 3a8e63a3bcbdd..69954e151f04e 100644
+index 3a8e63a3bcbdd..3fded53efc474 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -10,12 +10,14 @@ index 3a8e63a3bcbdd..69954e151f04e 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/connectors/analysis/analysis_settings.h"
  #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog.h"
-@@ -357,6 +358,9 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
+@@ -357,6 +358,11 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
                                          GURL url,
                                          Data* data,
                                          AnalysisConnector connector) {
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (cef::IsAlloyRuntimeEnabled())
 +    return false;
++#endif
 +
    auto* service = ConnectorsServiceFactory::GetForBrowserContext(profile);
    // If the corresponding Connector policy isn't set, don't perform scans.
@@ -38,7 +40,7 @@ index e6d8a41c10f3a..18df8a6311d0a 100644
    base::RepeatingCallback<content::BrowserContext*()> browser_context_getter =
        base::BindRepeating(
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 77d18bd28eeaf..9eab054ea3416 100644
+index 77d18bd28eeaf..395c62cc348df 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -25,6 +25,7 @@
@@ -49,7 +51,7 @@ index 77d18bd28eeaf..9eab054ea3416 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -266,9 +267,12 @@ void UpdateCookieSettings(Profile* profile, ContentSettingsType type) {
+@@ -266,9 +267,16 @@ void UpdateCookieSettings(Profile* profile, ContentSettingsType type) {
      // occurs in this class is unsynchronized, so it would be racy to rely on
      // this update finishing before calling the context's callback.) This
      // unfortunately triggers a double-update here.
@@ -57,28 +59,36 @@ index 77d18bd28eeaf..9eab054ea3416 100644
 -            FederatedIdentityPermissionContextFactory::GetForProfile(profile);
 -        fedcm_context) {
 +    FederatedIdentityPermissionContext* fedcm_context = nullptr;
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +    if (!cef::IsAlloyRuntimeEnabled()) {
++ #endif
 +      fedcm_context =
 +          FederatedIdentityPermissionContextFactory::GetForProfile(profile);
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +    }
++#endif
 +    if (fedcm_context) {
        settings = fedcm_context->GetSharingPermissionGrantsAsContentSettings();
      }
    } else {
-@@ -323,8 +327,10 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
+@@ -323,8 +331,14 @@ ProfileNetworkContextService::ProfileNetworkContextService(Profile* profile)
                            base::Unretained(this)));
    cookie_settings_ = CookieSettingsFactory::GetForProfile(profile);
    cookie_settings_observation_.Observe(cookie_settings_.get());
 -  privacy_sandbox_settings_observer_.Observe(
 -      PrivacySandboxSettingsFactory::GetForProfile(profile));
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
++#endif
 +    privacy_sandbox_settings_observer_.Observe(
 +        PrivacySandboxSettingsFactory::GetForProfile(profile));
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
++#endif
  
    DisableQuicIfNotAllowed();
  
-@@ -826,9 +832,12 @@ ProfileNetworkContextService::CreateCookieManagerParams(
+@@ -826,9 +840,16 @@ ProfileNetworkContextService::CreateCookieManagerParams(
        continue;
      }
      if (type == ContentSettingsType::FEDERATED_IDENTITY_SHARING) {
@@ -86,15 +96,19 @@ index 77d18bd28eeaf..9eab054ea3416 100644
 -              FederatedIdentityPermissionContextFactory::GetForProfile(profile);
 -          fedcm_context) {
 +      FederatedIdentityPermissionContext* fedcm_context = nullptr;
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +      if (!cef::IsAlloyRuntimeEnabled()) {
++#endif
 +        fedcm_context =
 +            FederatedIdentityPermissionContextFactory::GetForProfile(profile);
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +      }
++#endif
 +      if (fedcm_context) {
          out->content_settings[type] =
              fedcm_context->GetSharingPermissionGrantsAsContentSettings();
        } else {
-@@ -1082,9 +1091,26 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1082,9 +1103,32 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -103,6 +117,7 @@ index 77d18bd28eeaf..9eab054ea3416 100644
 +        ::network::mojom::NetworkContextFilePaths::New();
 +  }
 +
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
    // Configure on-disk storage for non-OTR profiles. OTR profiles just use
    // default behavior (in memory storage, default sizes).
 -  if (!in_memory) {
@@ -117,12 +132,17 @@ index 77d18bd28eeaf..9eab054ea3416 100644
 +    network_context_params->http_cache_max_size =
 +        prefs->GetInteger(prefs::kDiskCacheSize);
 +  }
++#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +
-+  if (!in_memory && !cef::IsAlloyRuntimeEnabled()) {
++  if (!in_memory
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
++      && !cef::IsAlloyRuntimeEnabled()
++#endif
++      ) {
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -1093,15 +1119,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1093,15 +1137,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -142,16 +162,18 @@ index 77d18bd28eeaf..9eab054ea3416 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
-@@ -1276,6 +1301,7 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1276,6 +1319,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->first_party_sets_access_delegate_params =
        network::mojom::FirstPartySetsAccessDelegateParams::New();
    network_context_params->first_party_sets_access_delegate_params->enabled =
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +      cef::IsAlloyRuntimeEnabled() ? false :
++#endif
        PrivacySandboxSettingsFactory::GetForProfile(profile_)
            ->AreRelatedWebsiteSetsEnabled();
  
 diff --git chrome/browser/net/profile_network_context_service_factory.cc chrome/browser/net/profile_network_context_service_factory.cc
-index 14ac2ce8b90c5..66431eface762 100644
+index 14ac2ce8b90c5..c22f8a7a57c69 100644
 --- chrome/browser/net/profile_network_context_service_factory.cc
 +++ chrome/browser/net/profile_network_context_service_factory.cc
 @@ -6,6 +6,7 @@
@@ -162,18 +184,23 @@ index 14ac2ce8b90c5..66431eface762 100644
  #include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
  #include "chrome/browser/net/profile_network_context_service.h"
  #include "chrome/browser/privacy_sandbox/privacy_sandbox_settings_factory.h"
-@@ -53,7 +54,9 @@ ProfileNetworkContextServiceFactory::ProfileNetworkContextServiceFactory()
+@@ -52,8 +53,14 @@ ProfileNetworkContextServiceFactory::ProfileNetworkContextServiceFactory()
+ #endif
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    DependsOn(chromeos::CertificateProviderServiceFactory::GetInstance());
- #endif
++#endif
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  if (!cef::IsAlloyRuntimeEnabled()) {
+ #endif
    DependsOn(PrivacySandboxSettingsFactory::GetInstance());
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  }
++#endif
    DependsOn(
        first_party_sets::FirstPartySetsPolicyServiceFactory::GetInstance());
  }
 diff --git chrome/browser/signin/identity_manager_factory.cc chrome/browser/signin/identity_manager_factory.cc
-index a635c32482ce0..77a3503cea229 100644
+index a635c32482ce0..e478ee670c239 100644
 --- chrome/browser/signin/identity_manager_factory.cc
 +++ chrome/browser/signin/identity_manager_factory.cc
 @@ -11,6 +11,7 @@
@@ -184,11 +211,13 @@ index a635c32482ce0..77a3503cea229 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/image_fetcher/image_decoder_impl.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -97,6 +98,7 @@ IdentityManagerFactory::~IdentityManagerFactory() {
+@@ -97,6 +98,9 @@ IdentityManagerFactory::~IdentityManagerFactory() {
  // static
  signin::IdentityManager* IdentityManagerFactory::GetForProfile(
      Profile* profile) {
++#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 +  DCHECK(!cef::IsAlloyRuntimeEnabled());
++#endif
    return static_cast<signin::IdentityManager*>(
        GetInstance()->GetServiceForBrowserContext(profile, true));
  }

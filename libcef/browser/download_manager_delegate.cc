@@ -12,7 +12,9 @@ namespace cef {
 // static
 std::unique_ptr<cef::DownloadManagerDelegate> DownloadManagerDelegate::Create(
     content::DownloadManager* download_manager) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   REQUIRE_CHROME_RUNTIME();
+#endif
   return std::make_unique<CefDownloadManagerDelegateImpl>(
       download_manager, /*alloy_bootstrap=*/false);
 }

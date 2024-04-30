@@ -16,7 +16,6 @@
 #include "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h"
 #include "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
 #include "libcef/browser/chrome/views/chrome_child_window.h"
-#include "libcef/browser/extensions/browser_platform_delegate_background.h"
 #include "libcef/browser/views/browser_platform_delegate_views.h"
 
 #if BUILDFLAG(IS_WIN)
@@ -30,6 +29,10 @@
 #include "libcef/browser/osr/browser_platform_delegate_osr_linux.h"
 #else
 #error A delegate implementation is not available for your platform.
+#endif
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+#include "libcef/browser/extensions/browser_platform_delegate_background.h"
 #endif
 
 namespace {
@@ -109,6 +112,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     return std::make_unique<CefBrowserPlatformDelegateViews>(
         std::move(native_delegate),
         static_cast<CefBrowserViewImpl*>(create_params.browser_view.get()));
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   } else if (create_params.extension_host_type ==
              extensions::mojom::ViewType::kExtensionBackgroundPage) {
     // Creating a background extension host without a window.
@@ -116,6 +120,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
         CreateNativeDelegate(CefWindowInfo(), background_color);
     return std::make_unique<CefBrowserPlatformDelegateBackground>(
         std::move(native_delegate));
+#endif
   } else if (create_params.window_info) {
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(*create_params.window_info, background_color);

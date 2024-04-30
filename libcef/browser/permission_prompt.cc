@@ -254,7 +254,11 @@ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPromptImpl(
     bool* default_handling) {
   CEF_REQUIRE_UIT();
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   bool is_alloy_style = cef::IsAlloyRuntimeEnabled();
+#else
+  bool is_alloy_style = false;
+#endif
 
   if (auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents)) {
     is_alloy_style = browser->IsAlloyStyle();
