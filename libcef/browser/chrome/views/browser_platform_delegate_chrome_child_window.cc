@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h"
+#include "cef/libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h"
 
-#include "include/views/cef_browser_view.h"
-#include "libcef/browser/chrome/views/chrome_child_window.h"
+#include "cef/include/views/cef_browser_view.h"
+#include "cef/libcef/browser/chrome/views/chrome_child_window.h"
 
 CefBrowserPlatformDelegateChromeChildWindow::
     CefBrowserPlatformDelegateChromeChildWindow(

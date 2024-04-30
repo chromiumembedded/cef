@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "include/cef_browser.h"
+#include "cef/include/cef_browser.h"
 
 class CefBrowserHostBase;
 class CefDevToolsController;

@@ -2,11 +2,10 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_view_host.h"
+#include "cef/libcef/browser/extensions/extension_view_host.h"
 
-#include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/extensions/extension_host_delegate.h"
-
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/extensions/extension_host_delegate.h"
 #include "content/public/browser/web_contents.h"
 #include "extensions/browser/process_util.h"
 #include "third_party/blink/public/common/input/web_gesture_event.h"

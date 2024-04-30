@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/box_layout_impl.h"
+#include "cef/libcef/browser/views/box_layout_impl.h"
 
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/view_util.h"
 
 // static
 CefRefPtr<CefBoxLayoutImpl> CefBoxLayoutImpl::Create(

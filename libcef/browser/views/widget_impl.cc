@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/widget_impl.h"
+#include "cef/libcef/browser/views/widget_impl.h"
 
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/window_view.h"
-#include "libcef/features/runtime.h"
-
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/window_view.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/themes/custom_theme_supplier.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"

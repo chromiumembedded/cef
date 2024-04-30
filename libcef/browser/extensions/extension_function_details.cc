@@ -2,19 +2,18 @@
 // 2014 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_function_details.h"
+#include "cef/libcef/browser/extensions/extension_function_details.h"
 
 #include <memory>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
-#include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/thread_util.h"
-
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/thread_pool.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/extensions/browser_extensions_util.h"
+#include "cef/libcef/browser/extensions/extension_system.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "chrome/browser/extensions/extension_tab_util.h"
 #include "chrome/browser/profiles/profile.h"

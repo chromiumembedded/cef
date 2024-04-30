@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_SOURCE_IMPL_H_
 #pragma once
 
-#include "include/cef_media_router.h"
-
+#include "cef/include/cef_media_router.h"
 #include "components/media_router/common/media_source.h"
 
 // Implementation of the CefMediaSource interface. May be created on any thread.

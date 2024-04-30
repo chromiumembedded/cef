@@ -2,11 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/shared/browser/resource_util.h"
-
 #include <windows.h>
 
 #include "include/internal/cef_string_wrappers.h"
+#include "tests/shared/browser/resource_util.h"
 
 namespace client {
 

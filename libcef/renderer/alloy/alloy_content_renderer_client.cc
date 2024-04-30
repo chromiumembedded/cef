@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
+#include "cef/libcef/renderer/alloy/alloy_content_renderer_client.h"
 
 #include <memory>
 #include <utility>
@@ -21,23 +21,6 @@
 #endif
 #endif
 
-#include "libcef/browser/alloy/alloy_content_browser_client.h"
-#include "libcef/browser/context.h"
-#include "libcef/common/alloy/alloy_content_client.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/extensions/extensions_client.h"
-#include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/request_impl.h"
-#include "libcef/features/runtime_checks.h"
-#include "libcef/renderer/alloy/alloy_render_frame_observer.h"
-#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
-#include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
-#include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/extensions/extensions_renderer_client.h"
-#include "libcef/renderer/render_manager.h"
-#include "libcef/renderer/thread_util.h"
-
 #include "base/command_line.h"
 #include "base/memory/ptr_util.h"
 #include "base/metrics/user_metrics_action.h"
@@ -46,6 +29,22 @@
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
+#include "cef/libcef/browser/alloy/alloy_content_browser_client.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/common/alloy/alloy_content_client.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/extensions/extensions_client.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
+#include "cef/libcef/common/request_impl.h"
+#include "cef/libcef/features/runtime_checks.h"
+#include "cef/libcef/renderer/alloy/alloy_render_frame_observer.h"
+#include "cef/libcef/renderer/alloy/alloy_render_thread_observer.h"
+#include "cef/libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
+#include "cef/libcef/renderer/browser_impl.h"
+#include "cef/libcef/renderer/extensions/extensions_renderer_client.h"
+#include "cef/libcef/renderer/render_manager.h"
+#include "cef/libcef/renderer/thread_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pdf_util.h"
 #include "chrome/common/url_constants.h"

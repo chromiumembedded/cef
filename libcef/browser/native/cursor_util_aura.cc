@@ -2,10 +2,8 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/native/cursor_util.h"
-
-#include "libcef/browser/browser_host_base.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/native/cursor_util.h"
 #include "content/common/cursors/webcursor.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "ui/base/cursor/cursor_factory.h"

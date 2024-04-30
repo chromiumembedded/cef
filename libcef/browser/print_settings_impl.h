@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_PRINT_SETTINGS_IMPL_H_
 #pragma once
 
-#include "include/cef_print_settings.h"
-#include "libcef/common/value_base.h"
-
+#include "cef/include/cef_print_settings.h"
+#include "cef/libcef/common/value_base.h"
 #include "printing/print_settings.h"
 
 // CefPrintSettings implementation

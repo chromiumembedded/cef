@@ -6,12 +6,10 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_PANEL_VIEW_H_
 #pragma once
 
-#include "include/views/cef_panel_delegate.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/view_view.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_panel_delegate.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/view_view.h"
 
 // Helpers for template boiler-plate.
 #define CEF_PANEL_VIEW_T CEF_VIEW_VIEW_T

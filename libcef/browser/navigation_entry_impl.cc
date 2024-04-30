@@ -2,11 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/navigation_entry_impl.h"
+#include "cef/libcef/browser/navigation_entry_impl.h"
 
-#include "libcef/browser/ssl_status_impl.h"
-#include "libcef/common/time_util.h"
-
+#include "cef/libcef/browser/ssl_status_impl.h"
+#include "cef/libcef/common/time_util.h"
 #include "content/public/browser/navigation_entry.h"
 #include "url/gurl.h"
 

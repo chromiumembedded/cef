@@ -2,12 +2,11 @@
 // 2011 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/views/overlay_view_host.h"
-
-#include "libcef/browser/views/view_util.h"
-#include "libcef/browser/views/window_view.h"
+#include "cef/libcef/browser/views/overlay_view_host.h"
 
 #include "base/i18n/rtl.h"
+#include "cef/libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/window_view.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/browser/ui/views/theme_copying_widget.h"
 #include "third_party/skia/include/core/SkColor.h"

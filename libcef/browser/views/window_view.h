@@ -9,13 +9,11 @@
 #include <optional>
 #include <vector>
 
-#include "include/views/cef_window.h"
-#include "include/views/cef_window_delegate.h"
-
-#include "libcef/browser/views/overlay_view_host.h"
-#include "libcef/browser/views/panel_view.h"
-#include "libcef/browser/views/widget_destruction_observer.h"
-
+#include "cef/include/views/cef_window.h"
+#include "cef/include/views/cef_window_delegate.h"
+#include "cef/libcef/browser/views/overlay_view_host.h"
+#include "cef/libcef/browser/views/panel_view.h"
+#include "cef/libcef/browser/views/widget_destruction_observer.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"

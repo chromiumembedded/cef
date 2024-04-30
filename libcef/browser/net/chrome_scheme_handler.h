@@ -8,10 +8,9 @@
 
 #include <string>
 
-#include "include/cef_browser.h"
-#include "include/cef_frame.h"
-#include "include/cef_process_message.h"
-
+#include "cef/include/cef_browser.h"
+#include "cef/include/cef_frame.h"
+#include "cef/include/cef_process_message.h"
 #include "url/gurl.h"
 
 namespace base {

@@ -2,15 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/download_manager_delegate_impl.h"
+#include "cef/libcef/browser/download_manager_delegate_impl.h"
 
 #include <tuple>
-
-#include "include/cef_download_handler.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/download_item_impl.h"
-#include "libcef/browser/thread_util.h"
 
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
@@ -18,6 +12,11 @@
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cef/include/cef_download_handler.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/download_item_impl.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/download_item_utils.h"
 #include "content/public/browser/web_contents.h"

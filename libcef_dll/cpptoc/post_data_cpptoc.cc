@@ -13,7 +13,9 @@
 //
 
 #include "libcef_dll/cpptoc/post_data_cpptoc.h"
+
 #include <algorithm>
+
 #include "libcef_dll/cpptoc/post_data_element_cpptoc.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.

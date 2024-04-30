@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
+
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"

@@ -8,9 +8,8 @@
 
 #include <string>
 
-#include "include/cef_scheme.h"
-
 #include "base/memory/ref_counted_memory.h"
+#include "cef/include/cef_scheme.h"
 #include "url/gurl.h"
 
 namespace scheme {

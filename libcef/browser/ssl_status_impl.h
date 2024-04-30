@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_SSL_STATUS_IMPL_H_
 #pragma once
 
-#include "include/cef_ssl_status.h"
-
+#include "cef/include/cef_ssl_status.h"
 #include "content/public/browser/ssl_status.h"
 
 // CefSSLStatus implementation

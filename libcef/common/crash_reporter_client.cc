@@ -2,7 +2,7 @@
 // 2016 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/common/crash_reporter_client.h"
+#include "cef/libcef/common/crash_reporter_client.h"
 
 #include <string_view>
 #include <utility>
@@ -23,7 +23,7 @@
 #include "third_party/crashpad/crashpad/client/annotation.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "libcef/common/util_mac.h"
+#include "cef/libcef/common/util_mac.h"
 #endif
 
 #if BUILDFLAG(IS_POSIX)
@@ -39,8 +39,8 @@
 #endif
 
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
+#include "cef/libcef/common/cef_crash_report_utils.h"
 #include "content/public/common/content_switches.h"
-#include "libcef/common/cef_crash_report_utils.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)

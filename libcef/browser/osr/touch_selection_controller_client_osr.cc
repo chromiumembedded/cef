@@ -3,15 +3,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
+#include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
 
 #include <cmath>
 #include <set>
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-#include "libcef/browser/osr/touch_handle_drawable_osr.h"
-
 #include "base/functional/bind.h"
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
+#include "cef/libcef/browser/osr/touch_handle_drawable_osr.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/context_menu_params.h"

@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/global_preference_manager_impl.h"
+#include "cef/libcef/browser/global_preference_manager_impl.h"
 
-#include "libcef/browser/context.h"
-#include "libcef/browser/prefs/pref_helper.h"
-#include "libcef/browser/thread_util.h"
-
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/prefs/pref_helper.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/browser_process.h"
 
 bool CefGlobalPreferenceManagerImpl::HasPreference(const CefString& name) {

@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_cpptoc.h"
+
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_child_cpptoc.h"
 #include "libcef_dll/cpptoc/test/translator_test_scoped_library_child_cpptoc.h"
 

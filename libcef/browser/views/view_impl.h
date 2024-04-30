@@ -284,20 +284,18 @@
 //     * Build CEF using Ninja.
 //
 
-#include "include/views/cef_browser_view.h"
-#include "include/views/cef_button.h"
-#include "include/views/cef_panel.h"
-#include "include/views/cef_scroll_view.h"
-#include "include/views/cef_textfield.h"
-#include "include/views/cef_view.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/view_adapter.h"
-#include "libcef/browser/views/view_util.h"
-
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/values.h"
+#include "cef/include/views/cef_browser_view.h"
+#include "cef/include/views/cef_button.h"
+#include "cef/include/views/cef_panel.h"
+#include "cef/include/views/cef_scroll_view.h"
+#include "cef/include/views/cef_textfield.h"
+#include "cef/include/views/cef_view.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/view_adapter.h"
+#include "cef/libcef/browser/views/view_util.h"
 #include "ui/gfx/color_palette.h"
 #include "ui/views/accessibility/view_accessibility.h"
 #include "ui/views/background.h"

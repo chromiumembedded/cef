@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/extensions/chrome_extension_util.h"
+#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
 
-#include "libcef/browser/browser_host_base.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/sessions/content/session_tab_helper.h"
 #include "content/public/browser/render_frame_host.h"

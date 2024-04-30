@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_BROWSER_DOWNLOAD_ITEM_IMPL_H_
 #pragma once
 
-#include "include/cef_download_item.h"
-#include "libcef/common/value_base.h"
+#include "cef/include/cef_download_item.h"
+#include "cef/libcef/common/value_base.h"
 
 namespace download {
 class DownloadItem;

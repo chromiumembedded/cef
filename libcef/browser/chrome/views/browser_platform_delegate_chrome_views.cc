@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
+#include "cef/libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
 
-#include "include/views/cef_window.h"
-#include "libcef/browser/views/window_impl.h"
-
+#include "cef/include/views/cef_window.h"
+#include "cef/libcef/browser/views/window_impl.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/ui/browser.h"
 #include "components/zoom/zoom_controller.h"

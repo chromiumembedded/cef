@@ -15,14 +15,12 @@
 #endif
 #endif
 
-#include "libcef/renderer/render_frame_observer.h"
-
-#include "libcef/common/app_manager.h"
-#include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/dom_document_impl.h"
-#include "libcef/renderer/v8_impl.h"
-
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/renderer/blink_glue.h"
+#include "cef/libcef/renderer/browser_impl.h"
+#include "cef/libcef/renderer/dom_document_impl.h"
+#include "cef/libcef/renderer/render_frame_observer.h"
+#include "cef/libcef/renderer/v8_impl.h"
 #include "content/public/renderer/render_frame.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_document.h"

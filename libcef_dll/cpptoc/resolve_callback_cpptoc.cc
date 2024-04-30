@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/resolve_callback_cpptoc.h"
+
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/transfer_util.h"
 

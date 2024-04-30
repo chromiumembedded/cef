@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/devtools/devtools_protocol_manager.h"
+#include "cef/libcef/browser/devtools/devtools_protocol_manager.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/devtools/devtools_controller.h"
-#include "libcef/browser/thread_util.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/devtools/devtools_controller.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/web_contents.h"
 
 namespace {

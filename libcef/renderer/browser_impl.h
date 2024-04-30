@@ -14,10 +14,9 @@
 #include <string>
 #include <vector>
 
-#include "include/cef_browser.h"
-#include "include/cef_client.h"
-#include "libcef/renderer/frame_impl.h"
-
+#include "cef/include/cef_browser.h"
+#include "cef/include/cef_client.h"
+#include "cef/libcef/renderer/frame_impl.h"
 #include "third_party/blink/public/common/tokens/tokens.h"
 #include "third_party/blink/public/web/web_view_observer.h"
 

@@ -2,23 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_host_base.h"
 
 #include <tuple>
 
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
-#include "libcef/browser/hang_monitor.h"
-#include "libcef/browser/image_impl.h"
-#include "libcef/browser/navigation_entry_impl.h"
-#include "libcef/browser/printing/print_util.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/frame_util.h"
-#include "libcef/common/net/url_util.h"
-
 #include "base/logging.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/extensions/browser_extensions_util.h"
+#include "cef/libcef/browser/hang_monitor.h"
+#include "cef/libcef/browser/image_impl.h"
+#include "cef/libcef/browser/navigation_entry_impl.h"
+#include "cef/libcef/browser/printing/print_util.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/frame_util.h"
+#include "cef/libcef/common/net/url_util.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"

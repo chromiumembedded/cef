@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_system_factory.h"
+#include "cef/libcef/browser/extensions/extension_system_factory.h"
 
-#include "libcef/browser/extensions/extension_system.h"
-
+#include "cef/libcef/browser/extensions/extension_system.h"
 #include "chrome/browser/profiles/incognito_helpers.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "extensions/browser/extension_prefs_factory.h"

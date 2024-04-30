@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_LAYOUT_ADAPTER_H_
 #pragma once
 
-#include "include/views/cef_layout.h"
+#include "cef/include/views/cef_layout.h"
 
 namespace views {
 class LayoutManager;

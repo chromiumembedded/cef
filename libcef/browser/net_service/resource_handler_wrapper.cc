@@ -2,14 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/net_service/resource_handler_wrapper.h"
-
-#include "libcef/browser/net_service/proxy_url_loader_factory.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/net_service/net_service_util.h"
-#include "libcef/common/request_impl.h"
+#include "cef/libcef/browser/net_service/resource_handler_wrapper.h"
 
 #include "base/strings/string_number_conversions.h"
+#include "cef/libcef/browser/net_service/proxy_url_loader_factory.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/net_service/net_service_util.h"
+#include "cef/libcef/common/request_impl.h"
 #include "net/http/http_status_code.h"
 
 namespace net_service {

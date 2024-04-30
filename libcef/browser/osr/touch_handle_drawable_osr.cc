@@ -3,12 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/touch_handle_drawable_osr.h"
+#include "cef/libcef/browser/osr/touch_handle_drawable_osr.h"
 
 #include <cmath>
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "ui/gfx/geometry/rect_f.h"
 #include "ui/gfx/geometry/size.h"
 

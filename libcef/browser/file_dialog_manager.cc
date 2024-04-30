@@ -3,16 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/file_dialog_manager.h"
+#include "cef/libcef/browser/file_dialog_manager.h"
 
 #include <utility>
 
-#include "include/cef_dialog_handler.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/thread_util.h"
-
 #include "base/strings/utf_string_conversions.h"
+#include "cef/include/cef_dialog_handler.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/file_select_helper.h"
 #include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/render_frame_host.h"

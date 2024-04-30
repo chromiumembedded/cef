@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/views/overlay_controller_cpptoc.h"
+
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"

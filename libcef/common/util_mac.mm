@@ -2,9 +2,7 @@
 // 2011 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/common/util_mac.h"
-
-#include "libcef/common/cef_switches.h"
+#include "cef/libcef/common/util_mac.h"
 
 #include "base/apple/bundle_locations.h"
 #include "base/apple/foundation_util.h"
@@ -13,6 +11,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/strings/sys_string_conversions.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "content/public/common/content_paths.h"
 #include "content/public/common/content_switches.h"
 

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/devtools/alloy_devtools_window_runner.h"
+#include "cef/libcef/browser/alloy/devtools/alloy_devtools_window_runner.h"
 
-#include "libcef/browser/alloy/devtools/devtools_frontend.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/alloy/devtools/devtools_frontend.h"
+#include "cef/libcef/browser/thread_util.h"
 
 void AlloyDevToolsWindowRunner::ShowDevTools(
     CefBrowserHostBase* opener,

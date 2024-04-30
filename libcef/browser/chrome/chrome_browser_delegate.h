@@ -9,9 +9,9 @@
 #include <memory>
 #include <optional>
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_info.h"
-#include "libcef/browser/chrome/browser_delegate.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_info.h"
+#include "cef/libcef/browser/chrome/browser_delegate.h"
 
 class CefBrowserContentsDelegate;
 class CefRequestContextImpl;

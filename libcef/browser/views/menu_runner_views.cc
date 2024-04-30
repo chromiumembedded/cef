@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/menu_runner_views.h"
+#include "cef/libcef/browser/views/menu_runner_views.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
 
 CefMenuRunnerViews::CefMenuRunnerViews(CefBrowserViewImpl* browser_view)
     : browser_view_(browser_view) {}

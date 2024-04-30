@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_IMAGE_IMPL_H_
 #pragma once
 
-#include "include/cef_image.h"
-#include "libcef/browser/thread_util.h"
-
+#include "cef/include/cef_image.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/image/image.h"
 

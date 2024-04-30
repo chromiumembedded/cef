@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/chrome/views/toolbar_view_view.h"
+#include "cef/libcef/browser/chrome/views/toolbar_view_view.h"
 
 CefToolbarViewView::CefToolbarViewView(CefViewDelegate* cef_delegate,
                                        Browser* browser,

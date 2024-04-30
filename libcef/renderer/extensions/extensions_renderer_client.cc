@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/extensions/extensions_renderer_client.h"
-
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
-#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
-#include "libcef/renderer/extensions/extensions_renderer_api_provider.h"
+#include "cef/libcef/renderer/extensions/extensions_renderer_client.h"
 
 #include "base/stl_util.h"
+#include "cef/libcef/renderer/alloy/alloy_content_renderer_client.h"
+#include "cef/libcef/renderer/alloy/alloy_render_thread_observer.h"
+#include "cef/libcef/renderer/extensions/extensions_renderer_api_provider.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/resource_request_policy.h"
 #include "content/public/common/content_constants.h"

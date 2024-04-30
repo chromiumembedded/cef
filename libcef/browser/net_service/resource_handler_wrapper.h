@@ -5,8 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_HANDLER_WRAPPER_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_RESOURCE_HANDLER_WRAPPER_H_
 
-#include "include/cef_request.h"
-#include "include/cef_resource_handler.h"
+#include "cef/include/cef_request.h"
+#include "cef/include/cef_resource_handler.h"
 
 namespace net_service {
 

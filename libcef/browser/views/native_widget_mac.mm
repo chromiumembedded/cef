@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/native_widget_mac.h"
+#include "cef/libcef/browser/views/native_widget_mac.h"
 
-#include "include/views/cef_window.h"
-#include "include/views/cef_window_delegate.h"
-#include "libcef/browser/views/ns_window.h"
-#include "libcef/browser/views/window_impl.h"
-
+#include "cef/include/views/cef_window.h"
+#include "cef/include/views/cef_window_delegate.h"
+#include "cef/libcef/browser/views/ns_window.h"
+#include "cef/libcef/browser/views/window_impl.h"
 #include "chrome/browser/apps/app_shim/app_shim_host_mac.h"
 #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
 #import "chrome/browser/ui/cocoa/browser_window_command_handler.h"

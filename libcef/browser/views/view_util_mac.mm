@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/view_util.h"
 
 #import <Cocoa/Cocoa.h>
 
-#include "include/internal/cef_types_mac.h"
-#include "libcef/browser/views/native_widget_mac.h"
-
+#include "cef/include/internal/cef_types_mac.h"
+#include "cef/libcef/browser/views/native_widget_mac.h"
 #include "ui/views/widget/widget.h"
 
 namespace view_util {

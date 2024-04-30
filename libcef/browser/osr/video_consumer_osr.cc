@@ -2,10 +2,9 @@
 // Use of this source code is governed by the MIT license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/video_consumer_osr.h"
+#include "cef/libcef/browser/osr/video_consumer_osr.h"
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "media/base/video_frame_metadata.h"
 #include "media/capture/mojom/video_capture_buffer.mojom.h"
 #include "media/capture/mojom/video_capture_types.mojom.h"

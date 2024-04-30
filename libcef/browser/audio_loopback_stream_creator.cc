@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/audio_loopback_stream_creator.h"
+#include "cef/libcef/browser/audio_loopback_stream_creator.h"
 
 #include <memory>
 #include <utility>

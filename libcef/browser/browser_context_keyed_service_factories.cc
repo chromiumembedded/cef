@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/browser_context_keyed_service_factories.h"
-#include "libcef/common/extensions/extensions_util.h"
+#include "cef/libcef/browser/browser_context_keyed_service_factories.h"
 
 #include "base/feature_list.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
 #include "chrome/browser/content_settings/cookie_settings_factory.h"
 #include "chrome/browser/first_party_sets/first_party_sets_policy_service_factory.h"
 #include "chrome/browser/media/router/chrome_media_router_factory.h"

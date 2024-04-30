@@ -15,6 +15,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <d3d11_1.h>
+
 #include "ui/gl/gl_angle_util_win.h"
 #include "ui/gl/gl_image_dxgi.h"
 #endif

@@ -6,12 +6,10 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_MENU_BUTTON_IMPL_H_
 #pragma once
 
-#include "include/views/cef_menu_button.h"
-#include "include/views/cef_menu_button_delegate.h"
-
-#include "libcef/browser/menu_model_impl.h"
-#include "libcef/browser/views/label_button_impl.h"
-
+#include "cef/include/views/cef_menu_button.h"
+#include "cef/include/views/cef_menu_button_delegate.h"
+#include "cef/libcef/browser/menu_model_impl.h"
+#include "cef/libcef/browser/views/label_button_impl.h"
 #include "ui/views/controls/button/menu_button.h"
 
 class CefMenuButtonImpl : public CefLabelButtonImpl<views::MenuButton,

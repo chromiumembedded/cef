@@ -21,4 +21,4 @@ void ViewsWindow::NudgeWindow() {
   }
 }
 
-}
+}  // namespace client

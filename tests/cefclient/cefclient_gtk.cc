@@ -2,14 +2,14 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include <gtk/gtk.h>
-
 #include <X11/Xlib.h>
+#include <gtk/gtk.h>
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
 
 #include <stdlib.h>
 #include <unistd.h>
+
 #include <memory>
 #include <string>
 

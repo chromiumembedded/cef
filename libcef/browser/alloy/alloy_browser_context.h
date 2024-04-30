@@ -6,11 +6,10 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_
 #pragma once
 
-#include "include/cef_request_context_handler.h"
-#include "libcef/browser/alloy/chrome_profile_alloy.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/request_context_handler_map.h"
-
+#include "cef/include/cef_request_context_handler.h"
+#include "cef/libcef/browser/alloy/chrome_profile_alloy.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/request_context_handler_map.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"

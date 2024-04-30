@@ -3,14 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/extensions/extensions_client.h"
+#include "cef/libcef/common/extensions/extensions_client.h"
 
 #include <utility>
 
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/extensions/extensions_api_provider.h"
-
 #include "base/logging.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/extensions/extensions_api_provider.h"
 #include "extensions/common/core_extensions_api_provider.h"
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/features/simple_feature.h"

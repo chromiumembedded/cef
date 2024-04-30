@@ -3,20 +3,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/browser_impl.h"
+#include "cef/libcef/renderer/browser_impl.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "libcef/common/app_manager.h"
-#include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/render_frame_util.h"
-#include "libcef/renderer/render_manager.h"
-#include "libcef/renderer/thread_util.h"
-
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/renderer/blink_glue.h"
+#include "cef/libcef/renderer/render_frame_util.h"
+#include "cef/libcef/renderer/render_manager.h"
+#include "cef/libcef/renderer/thread_util.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/renderer/document_state.h"
 #include "content/renderer/navigation_state.h"

@@ -4,9 +4,8 @@
 
 #include <vector>
 
-#include "include/internal/cef_string_list.h"
-
 #include "base/check_op.h"
+#include "cef/include/internal/cef_string_list.h"
 
 namespace {
 using StringList = std::vector<CefString>;

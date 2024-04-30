@@ -60,7 +60,6 @@ class cef_api_hash:
         # includes_common
         "cef_api_hash.h",
         "cef_base.h",
-        "cef_config.h",
         "cef_version.h",
         "internal/cef_export.h",
         "internal/cef_ptr.h",

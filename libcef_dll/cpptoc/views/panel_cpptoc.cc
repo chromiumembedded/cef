@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
+
 #include "libcef_dll/cpptoc/views/box_layout_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"

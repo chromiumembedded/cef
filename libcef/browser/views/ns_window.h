@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_NS_WINDOW_H_
 #pragma once
 
-#include "include/internal/cef_types.h"
-
+#include "cef/include/internal/cef_types.h"
 #include "components/remote_cocoa/app_shim/native_widget_mac_nswindow.h"
 
 @interface CefNSWindow : NativeWidgetMacNSWindow {

@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_manager.h"
+#include "cef/libcef/browser/browser_manager.h"
 
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/origin_whitelist_impl.h"
-#include "libcef/common/frame_util.h"
-
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/origin_whitelist_impl.h"
+#include "cef/libcef/common/frame_util.h"
 #include "content/public/browser/render_process_host.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"

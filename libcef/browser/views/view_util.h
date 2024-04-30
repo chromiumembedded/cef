@@ -8,9 +8,8 @@
 
 #include <optional>
 
-#include "include/views/cef_view.h"
-#include "include/views/cef_window.h"
-
+#include "cef/include/views/cef_view.h"
+#include "cef/include/views/cef_window.h"
 #include "ui/color/color_id.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/views/view.h"

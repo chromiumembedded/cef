@@ -16,6 +16,7 @@
 
 #if defined(OS_MAC)
 #include <Carbon/Carbon.h>  // For character codes.
+
 #include "tests/ceftests/os_rendering_unittest_mac.h"
 #elif defined(OS_LINUX)
 #include <X11/keysym.h>

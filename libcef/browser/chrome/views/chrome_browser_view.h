@@ -6,12 +6,11 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_VIEW_H_
 #pragma once
 
-#include "include/views/cef_browser_view.h"
-#include "include/views/cef_browser_view_delegate.h"
-#include "libcef/browser/chrome/views/toolbar_view_impl.h"
-#include "libcef/browser/views/browser_view_view.h"
-#include "libcef/browser/views/view_view.h"
-
+#include "cef/include/views/cef_browser_view.h"
+#include "cef/include/views/cef_browser_view_delegate.h"
+#include "cef/libcef/browser/chrome/views/toolbar_view_impl.h"
+#include "cef/libcef/browser/views/browser_view_view.h"
+#include "cef/libcef/browser/views/view_view.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 

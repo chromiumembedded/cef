@@ -8,10 +8,9 @@
 
 #include <set>
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/download_manager_delegate.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/download_manager_delegate.h"
 #include "components/download/public/common/download_item.h"
 #include "components/download/public/common/download_target_info.h"
 #include "content/public/browser/download_manager.h"

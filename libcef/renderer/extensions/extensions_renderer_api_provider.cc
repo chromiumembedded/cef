@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/extensions/extensions_renderer_api_provider.h"
+#include "cef/libcef/renderer/extensions/extensions_renderer_api_provider.h"
 
 #include "extensions/renderer/module_system.h"
 #include "extensions/renderer/script_context.h"

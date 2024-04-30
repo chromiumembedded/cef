@@ -2,14 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/prefs/pref_registrar.h"
+#include "cef/libcef/browser/prefs/pref_registrar.h"
 
-#include "include/cef_app.h"
-#include "include/cef_browser_process_handler.h"
-#include "include/cef_preference.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/values_impl.h"
-
+#include "cef/include/cef_app.h"
+#include "cef/include/cef_browser_process_handler.h"
+#include "cef/include/cef_preference.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/values_impl.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_store.h"
 

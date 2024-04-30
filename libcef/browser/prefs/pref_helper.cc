@@ -2,13 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/prefs/pref_helper.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/values_impl.h"
+#include "cef/libcef/browser/prefs/pref_helper.h"
 
 #include "base/notreached.h"
 #include "base/strings/stringprintf.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/values_impl.h"
 #include "components/prefs/pref_service.h"
 
 namespace pref_helper {

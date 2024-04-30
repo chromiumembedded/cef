@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/view_adapter.h"
+#include "cef/libcef/browser/views/view_adapter.h"
 
-#include "libcef/browser/chrome/views/toolbar_view_impl.h"
-#include "libcef/browser/views/basic_label_button_impl.h"
-#include "libcef/browser/views/basic_panel_impl.h"
-#include "libcef/browser/views/browser_view_impl.h"
-#include "libcef/browser/views/menu_button_impl.h"
-#include "libcef/browser/views/scroll_view_impl.h"
-#include "libcef/browser/views/textfield_impl.h"
-#include "libcef/browser/views/view_util.h"
-#include "libcef/browser/views/window_impl.h"
+#include "cef/libcef/browser/chrome/views/toolbar_view_impl.h"
+#include "cef/libcef/browser/views/basic_label_button_impl.h"
+#include "cef/libcef/browser/views/basic_panel_impl.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/views/menu_button_impl.h"
+#include "cef/libcef/browser/views/scroll_view_impl.h"
+#include "cef/libcef/browser/views/textfield_impl.h"
+#include "cef/libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/window_impl.h"
 
 // static
 CefViewAdapter* CefViewAdapter::GetFor(CefRefPtr<CefView> view) {

@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/preference_registrar_ctocpp.h"
+
 #include "libcef_dll/ctocpp/value_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

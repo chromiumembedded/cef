@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_COMMON_THREAD_IMPL_H_
 #pragma once
 
-#include "include/cef_thread.h"
-
 #include "base/threading/thread.h"
+#include "cef/include/cef_thread.h"
 
 class CefThreadImpl : public CefThread {
  public:

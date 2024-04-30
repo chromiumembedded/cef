@@ -6,10 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BASIC_LABEL_BUTTON_VIEW_H_
 #pragma once
 
-#include "include/views/cef_button_delegate.h"
-
-#include "libcef/browser/views/label_button_view.h"
-
+#include "cef/include/views/cef_button_delegate.h"
+#include "cef/libcef/browser/views/label_button_view.h"
 #include "ui/views/controls/button/label_button.h"
 
 // Extend views::LabelButton with a no-argument constructor as required by the

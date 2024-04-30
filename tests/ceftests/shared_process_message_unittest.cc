@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_shared_process_message_builder.h"
-
-#include "tests/gtest/include/gtest/gtest.h"
-
 #include <array>
 #include <type_traits>
+
+#include "include/cef_shared_process_message_builder.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 

@@ -5,7 +5,6 @@
 #include "tests/cefclient/browser/root_window.h"
 
 #include "include/base/cef_callback_helpers.h"
-
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/shared/common/client_switches.h"

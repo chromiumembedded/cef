@@ -6,11 +6,11 @@
 #define CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_
 #pragma once
 
-#include "include/cef_request_context.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/media_router/media_router_impl.h"
-#include "libcef/browser/net_service/cookie_manager_impl.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/include/cef_request_context.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/media_router/media_router_impl.h"
+#include "cef/libcef/browser/net_service/cookie_manager_impl.h"
+#include "cef/libcef/browser/thread_util.h"
 
 namespace content {
 struct GlobalRenderFrameHostId;

@@ -4,7 +4,6 @@
 
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
-
 #include "tests/ceftests/routing_test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 

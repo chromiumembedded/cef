@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_COMMON_PROCESS_MESSAGE_SMR_IMPL_H_
 #pragma once
 
-#include "include/cef_process_message.h"
-#include "include/cef_shared_process_message_builder.h"
-
 #include "base/memory/writable_shared_memory_region.h"
+#include "cef/include/cef_process_message.h"
+#include "cef/include/cef_shared_process_message_builder.h"
 
 class CefProcessMessageSMRImpl final : public CefProcessMessage {
  public:

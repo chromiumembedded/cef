@@ -2,13 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_task.h"
-#include "libcef/common/task_runner_impl.h"
-
 #include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/time/time.h"
+#include "cef/include/cef_task.h"
+#include "cef/libcef/common/task_runner_impl.h"
 
 bool CefCurrentlyOn(CefThreadId threadId) {
   scoped_refptr<base::SequencedTaskRunner> task_runner =

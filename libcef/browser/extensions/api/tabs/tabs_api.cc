@@ -2,13 +2,12 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/api/tabs/tabs_api.h"
-
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
+#include "cef/libcef/browser/extensions/api/tabs/tabs_api.h"
 
 #include "base/notreached.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
+#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
 #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
 #include "chrome/browser/extensions/extension_tab_util.h"
 #include "components/zoom/zoom_controller.h"

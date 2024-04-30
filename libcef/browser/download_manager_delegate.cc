@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/download_manager_delegate.h"
+#include "cef/libcef/browser/download_manager_delegate.h"
 
-#include "libcef/browser/download_manager_delegate_impl.h"
-#include "libcef/features/runtime_checks.h"
+#include "cef/libcef/browser/download_manager_delegate_impl.h"
+#include "cef/libcef/features/runtime_checks.h"
 
 namespace cef {
 

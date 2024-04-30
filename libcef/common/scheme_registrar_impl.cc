@@ -2,17 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/common/scheme_registrar_impl.h"
+#include "cef/libcef/common/scheme_registrar_impl.h"
 
 #include <string>
-
-#include "libcef/common/app_manager.h"
-#include "libcef/common/net/scheme_info.h"
-#include "libcef/common/net/scheme_registration.h"
 
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/net/scheme_info.h"
+#include "cef/libcef/common/net/scheme_registration.h"
 
 namespace {
 

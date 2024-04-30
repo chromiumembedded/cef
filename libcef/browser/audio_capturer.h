@@ -7,9 +7,8 @@
 #define CEF_LIBCEF_BROWSER_AUDIO_CAPTURER_H_
 #pragma once
 
-#include "include/internal/cef_ptr.h"
-#include "include/internal/cef_types_wrappers.h"
-
+#include "cef/include/internal/cef_ptr.h"
+#include "cef/include/internal/cef_types_wrappers.h"
 #include "media/base/audio_capturer_source.h"
 
 namespace media {

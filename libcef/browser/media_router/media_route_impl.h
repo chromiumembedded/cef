@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTE_IMPL_H_
 #pragma once
 
-#include "include/cef_media_router.h"
-#include "libcef/browser/browser_context.h"
-
+#include "cef/include/cef_media_router.h"
+#include "cef/libcef/browser/browser_context.h"
 #include "components/media_router/common/media_route.h"
 
 // Implementation of the CefMediaRoute interface. Only created on the UI thread.

@@ -13,7 +13,9 @@
 //
 
 #include "libcef_dll/cpptoc/views/display_cpptoc.h"
+
 #include <algorithm>
+
 #include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.

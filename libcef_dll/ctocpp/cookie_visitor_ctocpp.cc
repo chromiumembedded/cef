@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
+
 #include "libcef_dll/shutdown_checker.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

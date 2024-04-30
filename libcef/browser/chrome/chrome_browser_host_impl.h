@@ -8,10 +8,9 @@
 
 #include <memory>
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/chrome/browser_delegate.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/chrome/browser_delegate.h"
 #include "chrome/browser/ui/browser.h"
 
 class ChromeBrowserDelegate;

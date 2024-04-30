@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+
 #include "include/cef_image.h"
 #include "include/cef_stream.h"
 

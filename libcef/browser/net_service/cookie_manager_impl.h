@@ -5,11 +5,10 @@
 #ifndef CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_MANAGER_IMPL_H_
 #define CEF_LIBCEF_BROWSER_NET_SERVICE_COOKIE_MANAGER_IMPL_H_
 
-#include "include/cef_cookie.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/thread_util.h"
-
 #include "base/files/file_path.h"
+#include "cef/include/cef_cookie.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/thread_util.h"
 
 // Implementation of the CefCookieManager interface. May be created on any
 // thread.

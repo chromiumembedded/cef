@@ -7,6 +7,7 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+
 #include <algorithm>
 #include <sstream>
 #elif defined(OS_POSIX)

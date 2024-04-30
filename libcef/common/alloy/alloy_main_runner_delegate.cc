@@ -3,12 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/alloy/alloy_main_runner_delegate.h"
+#include "cef/libcef/common/alloy/alloy_main_runner_delegate.h"
 
-#include "libcef/browser/alloy/chrome_browser_process_alloy.h"
-#include "libcef/common/alloy/alloy_main_delegate.h"
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
-
+#include "cef/libcef/browser/alloy/chrome_browser_process_alloy.h"
+#include "cef/libcef/common/alloy/alloy_main_delegate.h"
+#include "cef/libcef/renderer/alloy/alloy_content_renderer_client.h"
 #include "chrome/browser/chrome_process_singleton.h"
 #include "content/public/browser/render_process_host.h"
 #include "ui/base/resource/resource_bundle.h"

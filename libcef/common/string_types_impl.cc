@@ -4,12 +4,11 @@
 
 #include <algorithm>
 
-#include "include/internal/cef_string_types.h"
-
 #include "base/i18n/case_conversion.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cef/include/internal/cef_string_types.h"
 
 namespace {
 

@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/waitable_event_cpptoc.h"
+
 #include "libcef_dll/shutdown_checker.h"
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.

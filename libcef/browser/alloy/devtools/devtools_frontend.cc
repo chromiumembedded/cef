@@ -2,21 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/devtools/devtools_frontend.h"
+#include "cef/libcef/browser/alloy/devtools/devtools_frontend.h"
 
 #include <stddef.h>
 
 #include <iomanip>
 #include <memory>
 #include <utility>
-
-#include "libcef/browser/alloy/devtools/devtools_manager_delegate.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/net/devtools_scheme_handler.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/task_runner_manager.h"
-#include "libcef/features/runtime_checks.h"
 
 #include "base/base64.h"
 #include "base/command_line.h"
@@ -31,6 +23,13 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/uuid.h"
 #include "base/values.h"
+#include "cef/libcef/browser/alloy/devtools/devtools_manager_delegate.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/net/devtools_scheme_handler.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/task_runner_manager.h"
+#include "cef/libcef/features/runtime_checks.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"

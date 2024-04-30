@@ -5,9 +5,8 @@
 #include <map>
 #include <vector>
 
-#include "include/internal/cef_string_map.h"
-
 #include "base/check_op.h"
+#include "cef/include/internal/cef_string_map.h"
 
 namespace {
 

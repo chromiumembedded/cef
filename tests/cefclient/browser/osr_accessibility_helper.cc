@@ -3,6 +3,7 @@
 // governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "tests/cefclient/browser/osr_accessibility_helper.h"
+
 #include "tests/cefclient/browser/osr_accessibility_node.h"
 
 namespace client {

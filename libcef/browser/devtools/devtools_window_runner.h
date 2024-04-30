@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "include/cef_client.h"
+#include "cef/include/cef_client.h"
 
 class CefBrowserHostBase;
 

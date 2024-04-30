@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "tests/ceftests/test_server_observer.h"
+
 #include <sstream>
 
 #include "include/cef_command_line.h"
@@ -10,7 +12,6 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/ceftests/test_request.h"
-#include "tests/ceftests/test_server_observer.h"
 #include "tests/ceftests/test_util.h"
 #include "tests/ceftests/track_callback.h"
 #include "tests/gtest/include/gtest/gtest.h"

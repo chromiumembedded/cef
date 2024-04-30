@@ -11,12 +11,11 @@ namespace extensions {
 
 // Provides capabilities for the set of extension APIs defined for the
 // extensions shell.
-class CefExtensionsRendererAPIProvider
-    : public ExtensionsRendererAPIProvider {
+class CefExtensionsRendererAPIProvider : public ExtensionsRendererAPIProvider {
  public:
   CefExtensionsRendererAPIProvider() = default;
-  CefExtensionsRendererAPIProvider(
-      const CefExtensionsRendererAPIProvider&) = delete;
+  CefExtensionsRendererAPIProvider(const CefExtensionsRendererAPIProvider&) =
+      delete;
   CefExtensionsRendererAPIProvider& operator=(
       const CefExtensionsRendererAPIProvider&) = delete;
   ~CefExtensionsRendererAPIProvider() override = default;

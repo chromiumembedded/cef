@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_WEB_CONTENTS_VIEW_DELEGATE_H_
 #pragma once
 
-#include "include/internal/cef_ptr.h"
-
+#include "cef/include/internal/cef_ptr.h"
 #include "content/public/browser/web_contents_view_delegate.h"
 
 namespace content {

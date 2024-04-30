@@ -2,13 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/devtools/devtools_controller.h"
-
-#include "libcef/browser/devtools/devtools_util.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/devtools/devtools_controller.h"
 
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
+#include "cef/libcef/browser/devtools/devtools_util.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/devtools_agent_host.h"
 
 CefDevToolsController::CefDevToolsController(

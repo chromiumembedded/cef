@@ -6,17 +6,15 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_INFO_MANAGER_H_
 #pragma once
 
-#include "include/cef_client.h"
-
 #include <list>
 #include <map>
 #include <memory>
 #include <vector>
 
-#include "libcef/browser/browser_info.h"
-
 #include "base/synchronization/lock.h"
 #include "base/task/sequenced_task_runner.h"
+#include "cef/include/cef_client.h"
+#include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/render_process_host_observer.h"

@@ -5,11 +5,9 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DETAILS_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DETAILS_H_
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-
-#include "include/cef_extension.h"
-
 #include "base/functional/callback_forward.h"
+#include "cef/include/cef_extension.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "chrome/common/extensions/api/tabs.h"
 #include "ui/gfx/native_widget_types.h"
 

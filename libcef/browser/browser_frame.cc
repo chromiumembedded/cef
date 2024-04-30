@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_frame.h"
+#include "cef/libcef/browser/browser_frame.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/frame_util.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/frame_util.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"

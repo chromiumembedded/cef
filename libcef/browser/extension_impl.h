@@ -8,9 +8,9 @@
 
 #include <memory>
 
-#include "include/cef_extension.h"
-#include "include/cef_extension_handler.h"
-#include "include/cef_request_context.h"
+#include "cef/include/cef_extension.h"
+#include "cef/include/cef_extension_handler.h"
+#include "cef/include/cef_request_context.h"
 
 namespace extensions {
 class Extension;

@@ -4,7 +4,6 @@
 
 #include "include/cef_app.h"
 #include "include/wrapper/cef_library_loader.h"
-
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 

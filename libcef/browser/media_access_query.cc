@@ -2,22 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/media_access_query.h"
-
-#include "include/cef_permission_handler.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/media_stream_registrar.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/features/runtime.h"
+#include "cef/libcef/browser/media_access_query.h"
 
 #include "base/command_line.h"
 #include "base/functional/callback_helpers.h"
+#include "cef/include/cef_permission_handler.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/media_stream_registrar.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "cef/libcef/browser/media_capture_devices_dispatcher.h"
 #endif
 
 namespace media_access_query {

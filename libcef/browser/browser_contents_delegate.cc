@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_contents_delegate.h"
+#include "cef/libcef/browser/browser_contents_delegate.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/browser_util.h"
-#include "libcef/browser/native/cursor_util.h"
-#include "libcef/common/frame_util.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/browser_util.h"
+#include "cef/libcef/browser/native/cursor_util.h"
+#include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/ui/views/sad_tab_view.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"

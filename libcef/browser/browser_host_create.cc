@@ -3,13 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "include/cef_browser.h"
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
-#include "libcef/browser/chrome/views/chrome_child_window.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/features/runtime.h"
+#include "cef/include/cef_browser.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/chrome/views/chrome_child_window.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/features/runtime.h"
 
 namespace {
 

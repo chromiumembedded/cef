@@ -2,11 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/ceftests/test_server_runner.h"
-
 #include "include/cef_server.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/ceftests/test_server_runner.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace test_server {

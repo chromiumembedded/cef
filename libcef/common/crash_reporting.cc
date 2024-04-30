@@ -2,13 +2,9 @@
 // 2016 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/common/crash_reporting.h"
+#include "cef/libcef/common/crash_reporting.h"
 
 #include <string_view>
-
-#include "include/cef_crash_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/features/runtime.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -16,6 +12,9 @@
 #include "base/logging.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
+#include "cef/include/cef_crash_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/common/crash_keys.h"
 #include "components/crash/core/common/crash_key.h"
 #include "components/crash/core/common/crash_keys.h"
@@ -29,8 +28,8 @@
 
 #if BUILDFLAG(IS_POSIX)
 #include "base/lazy_instance.h"
+#include "cef/libcef/common/crash_reporter_client.h"
 #include "components/crash/core/app/crashpad.h"
-#include "libcef/common/crash_reporter_client.h"
 #endif
 
 namespace crash_reporting {

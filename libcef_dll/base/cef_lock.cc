@@ -7,6 +7,7 @@
 // real intelligence in the class is in the debugging logic.
 
 #include "include/base/cef_lock.h"
+
 #include "include/base/cef_logging.h"
 
 #if DCHECK_IS_ON()

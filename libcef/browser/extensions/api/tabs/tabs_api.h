@@ -5,8 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 
-#include "libcef/browser/extensions/extension_function_details.h"
-
+#include "cef/libcef/browser/extensions/extension_function_details.h"
 #include "chrome/common/extensions/api/tabs.h"
 #include "extensions/browser/api/execute_code_function.h"
 #include "extensions/browser/extension_function.h"

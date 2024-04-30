@@ -3,16 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/extensions_api_client.h"
-
-#include "include/internal/cef_types_wrappers.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/extensions/api/file_system/cef_file_system_delegate.h"
-#include "libcef/browser/extensions/api/storage/sync_value_store_cache.h"
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
-#include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
+#include "cef/libcef/browser/extensions/extensions_api_client.h"
 
 #include "base/memory/ptr_util.h"
+#include "cef/include/internal/cef_types_wrappers.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/extensions/api/file_system/cef_file_system_delegate.h"
+#include "cef/libcef/browser/extensions/api/storage/sync_value_store_cache.h"
+#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
+#include "cef/libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 #include "chrome/browser/printing/printing_init.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/zoom/zoom_controller.h"

@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/browser_extensions_util.h"
+#include "cef/libcef/browser/extensions/browser_extensions_util.h"
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include <string>
 
 #include "include/internal/cef_types_wrappers.h"

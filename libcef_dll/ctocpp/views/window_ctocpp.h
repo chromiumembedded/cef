@@ -21,6 +21,7 @@
 #endif
 
 #include <vector>
+
 #include "include/capi/views/cef_browser_view_capi.h"
 #include "include/capi/views/cef_window_capi.h"
 #include "include/views/cef_browser_view.h"

@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_LABEL_BUTTON_VIEW_H_
 #pragma once
 
-#include "include/views/cef_label_button.h"
-#include "libcef/browser/views/button_view.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_label_button.h"
+#include "cef/libcef/browser/views/button_view.h"
 #include "ui/gfx/font_list.h"
 
 // Helpers for template boiler-plate.

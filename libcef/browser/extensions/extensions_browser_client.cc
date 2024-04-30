@@ -3,21 +3,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/extensions_browser_client.h"
+#include "cef/libcef/browser/extensions/extensions_browser_client.h"
 
 #include <memory>
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/extensions/component_extension_resource_manager.h"
-#include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/extensions/extension_system_factory.h"
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
-#include "libcef/browser/extensions/extensions_api_client.h"
-#include "libcef/browser/extensions/extensions_browser_api_provider.h"
-#include "libcef/browser/request_context_impl.h"
-
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/extensions/component_extension_resource_manager.h"
+#include "cef/libcef/browser/extensions/extension_system.h"
+#include "cef/libcef/browser/extensions/extension_system_factory.h"
+#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
+#include "cef/libcef/browser/extensions/extensions_api_client.h"
+#include "cef/libcef/browser/extensions/extensions_browser_api_provider.h"
+#include "cef/libcef/browser/request_context_impl.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"

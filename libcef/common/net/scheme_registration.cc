@@ -2,19 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/common/net/scheme_registration.h"
-
-#include "libcef/features/runtime.h"
+#include "cef/libcef/common/net/scheme_registration.h"
 
 #include "base/containers/contains.h"
+#include "cef/libcef/features/runtime.h"
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "url/url_constants.h"
 #include "url/url_util.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/common/app_manager.h"
-#include "libcef/common/net/scheme_info.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/net/scheme_info.h"
 #endif
 
 namespace scheme {

@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_COMMON_RESOURCE_UTIL_H_
 #pragma once
 
-#include "include/cef_base.h"
-
+#include "cef/include/cef_base.h"
 #include "cef/libcef/features/features.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)

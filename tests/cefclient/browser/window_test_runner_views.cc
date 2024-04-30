@@ -8,7 +8,6 @@
 #include "include/views/cef_display.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
-
 #include "tests/cefclient/browser/root_window_views.h"
 #include "tests/cefclient/browser/views_window.h"
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/renderer/render_manager.h"
+#include "cef/libcef/renderer/render_manager.h"
 
 #include <tuple>
 
@@ -19,19 +19,18 @@
 #endif
 #endif
 
-#include "libcef/common/app_manager.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/net/scheme_info.h"
-#include "libcef/common/values_impl.h"
-#include "libcef/renderer/blink_glue.h"
-#include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/render_frame_observer.h"
-#include "libcef/renderer/thread_util.h"
-#include "libcef/renderer/v8_impl.h"
-
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
+#include "cef/libcef/common/net/scheme_info.h"
+#include "cef/libcef/common/values_impl.h"
+#include "cef/libcef/renderer/blink_glue.h"
+#include "cef/libcef/renderer/browser_impl.h"
+#include "cef/libcef/renderer/render_frame_observer.h"
+#include "cef/libcef/renderer/thread_util.h"
+#include "cef/libcef/renderer/v8_impl.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"

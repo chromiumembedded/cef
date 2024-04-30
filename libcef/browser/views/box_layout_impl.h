@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BOX_LAYOUT_IMPL_H_
 #pragma once
 
-#include "include/views/cef_box_layout.h"
-
-#include "libcef/browser/views/layout_impl.h"
+#include "cef/include/views/cef_box_layout.h"
+#include "cef/libcef/browser/views/layout_impl.h"
 #include "ui/views/layout/box_layout.h"
 
 class CefBoxLayoutImpl : public CefLayoutImpl<views::BoxLayout, CefBoxLayout> {

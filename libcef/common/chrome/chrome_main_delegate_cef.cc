@@ -3,22 +3,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/chrome/chrome_main_delegate_cef.h"
+#include "cef/libcef/common/chrome/chrome_main_delegate_cef.h"
 
 #include <tuple>
-
-#include "libcef/browser/chrome/chrome_browser_context.h"
-#include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/command_line_impl.h"
-#include "libcef/common/crash_reporting.h"
-#include "libcef/common/resource_util.h"
-#include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
 #include "base/threading/threading_features.h"
+#include "cef/libcef/browser/chrome/chrome_browser_context.h"
+#include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/command_line_impl.h"
+#include "cef/libcef/common/crash_reporting.h"
+#include "cef/libcef/common/resource_util.h"
+#include "cef/libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/common/chrome_switches.h"
@@ -30,9 +29,9 @@
 #include "ui/base/ui_base_switches.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "libcef/common/util_mac.h"
+#include "cef/libcef/common/util_mac.h"
 #elif BUILDFLAG(IS_POSIX)
-#include "libcef/common/util_linux.h"
+#include "cef/libcef/common/util_linux.h"
 #endif
 
 namespace {

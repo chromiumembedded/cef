@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_path_util.h"
-
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/notreached.h"
 #include "base/path_service.h"
+#include "cef/include/cef_path_util.h"
 #include "chrome/common/chrome_paths.h"
 
 bool CefGetPath(PathKey key, CefString& path) {

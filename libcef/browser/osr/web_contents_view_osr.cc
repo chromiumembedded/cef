@@ -3,13 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/web_contents_view_osr.h"
+#include "cef/libcef/browser/osr/web_contents_view_osr.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
-#include "libcef/common/drag_data_impl.h"
-
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
+#include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
+#include "cef/libcef/common/drag_data_impl.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
 

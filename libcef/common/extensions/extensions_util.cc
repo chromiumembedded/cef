@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/common/extensions/extensions_util.h"
-
-#include "libcef/common/cef_switches.h"
-#include "libcef/features/runtime.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/common/chrome_switches.h"
 
 namespace extensions {

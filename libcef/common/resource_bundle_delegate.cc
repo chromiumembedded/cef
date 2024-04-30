@@ -1,6 +1,6 @@
-#include "libcef/common/resource_bundle_delegate.h"
+#include "cef/libcef/common/resource_bundle_delegate.h"
 
-#include "libcef/common/app_manager.h"
+#include "cef/libcef/common/app_manager.h"
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,

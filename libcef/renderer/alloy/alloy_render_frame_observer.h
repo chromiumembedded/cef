@@ -5,8 +5,7 @@
 #ifndef LIBCEF_RENDERER_ALLOY_ALLOY_RENDER_FRAME_OBSERVER_H_
 #define LIBCEF_RENDERER_ALLOY_ALLOY_RENDER_FRAME_OBSERVER_H_
 
-#include "libcef/renderer/render_frame_observer.h"
-
+#include "cef/libcef/renderer/render_frame_observer.h"
 #include "services/service_manager/public/cpp/binder_registry.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_registry.h"
 

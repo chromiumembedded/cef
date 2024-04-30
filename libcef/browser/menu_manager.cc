@@ -2,19 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/menu_manager.h"
+#include "cef/libcef/browser/menu_manager.h"
 
 #include <tuple>
 #include <utility>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/context_menu_params_impl.h"
-#include "libcef/browser/menu_runner.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/app_manager.h"
-
 #include "base/logging.h"
 #include "cef/grit/cef_strings.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/context_menu_params_impl.h"
+#include "cef/libcef/browser/menu_runner.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/app_manager.h"
 #include "chrome/grit/generated_resources.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"

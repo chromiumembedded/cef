@@ -2,11 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "cef/libcef/browser/alloy/alloy_browser_main.h"
+
 #include <Objbase.h>
-#include <commctrl.h>
+
 #include <windows.h>
 
-#include "libcef/browser/alloy/alloy_browser_main.h"
+#include <commctrl.h>
 
 #include "base/logging.h"
 

@@ -3,12 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_content_browser_client_cef.h"
+#include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
 
-#include "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
+#include "cef/libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
 
 // static
-std::unique_ptr<content::WebContentsViewDelegate> ChromeContentBrowserClientCef::CreateWebContentsViewDelegate(content::WebContents* web_contents) {
+std::unique_ptr<content::WebContentsViewDelegate>
+ChromeContentBrowserClientCef::CreateWebContentsViewDelegate(
+    content::WebContents* web_contents) {
   return std::make_unique<ChromeWebContentsViewDelegateCef>(web_contents);
 }
-

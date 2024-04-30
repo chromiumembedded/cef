@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
-
-#include "libcef/common/extensions/extensions_util.h"
-#include "libcef/renderer/alloy/alloy_content_renderer_client.h"
-#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
+#include "cef/libcef/renderer/alloy/url_loader_throttle_provider_impl.h"
 
 #include <utility>
 
 #include "base/feature_list.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
+#include "cef/libcef/renderer/alloy/alloy_content_renderer_client.h"
+#include "cef/libcef/renderer/alloy/alloy_render_thread_observer.h"
 #include "chrome/common/google_url_loader_throttle.h"
 #include "components/signin/public/base/signin_buildflags.h"
 #include "content/public/common/content_features.h"

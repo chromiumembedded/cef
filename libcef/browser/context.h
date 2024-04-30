@@ -10,11 +10,10 @@
 #include <map>
 #include <string>
 
-#include "include/cef_app.h"
-#include "libcef/browser/main_runner.h"
-
 #include "base/observer_list.h"
 #include "base/threading/platform_thread.h"
+#include "cef/include/cef_app.h"
+#include "cef/libcef/browser/main_runner.h"
 #include "third_party/skia/include/core/SkColor.h"
 
 class CefBrowserInfoManager;

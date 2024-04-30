@@ -3,12 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/simple_menu_model_impl.h"
+#include "cef/libcef/browser/simple_menu_model_impl.h"
 
 #include <vector>
 
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/task_runner_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/task_runner_impl.h"
 
 namespace {
 

@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_COMMON_TRACKER_H_
 #pragma once
 
-#include "include/cef_base.h"
-
 #include "base/synchronization/lock.h"
+#include "cef/include/cef_base.h"
 
 // Class extended by objects that must be tracked.  After creating a tracked
 // object you should add it to the appropriate track manager.

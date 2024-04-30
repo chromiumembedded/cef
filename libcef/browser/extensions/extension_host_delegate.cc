@@ -2,11 +2,10 @@
 // 2014 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_host_delegate.h"
-
-#include "libcef/browser/extensions/extensions_browser_client.h"
+#include "cef/libcef/browser/extensions/extension_host_delegate.h"
 
 #include "base/logging.h"
+#include "cef/libcef/browser/extensions/extensions_browser_client.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 

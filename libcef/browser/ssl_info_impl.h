@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_SSL_INFO_IMPL_H_
 #pragma once
 
-#include "include/cef_ssl_info.h"
-
+#include "cef/include/cef_ssl_info.h"
 #include "net/ssl/ssl_info.h"
 
 // CefSSLInfo implementation

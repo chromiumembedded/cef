@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/fill_layout_impl.h"
+#include "cef/libcef/browser/views/fill_layout_impl.h"
 
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/thread_util.h"
 
 // static
 CefRefPtr<CefFillLayout> CefFillLayoutImpl::Create(views::View* owner_view) {

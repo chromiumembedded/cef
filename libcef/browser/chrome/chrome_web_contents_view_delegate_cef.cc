@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
+#include "cef/libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
 
-#include "libcef/browser/chrome/chrome_context_menu_handler.h"
+#include "cef/libcef/browser/chrome/chrome_context_menu_handler.h"
 
 ChromeWebContentsViewDelegateCef::ChromeWebContentsViewDelegateCef(
     content::WebContents* web_contents)

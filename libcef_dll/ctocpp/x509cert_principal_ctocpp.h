@@ -21,6 +21,7 @@
 #endif
 
 #include <vector>
+
 #include "include/capi/cef_x509_certificate_capi.h"
 #include "include/cef_x509_certificate.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"

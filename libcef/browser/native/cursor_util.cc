@@ -2,10 +2,9 @@
 // 2012 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/native/cursor_util.h"
+#include "cef/libcef/browser/native/cursor_util.h"
 
-#include "include/cef_client.h"
-
+#include "cef/include/cef_client.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
 
 namespace cursor_util {

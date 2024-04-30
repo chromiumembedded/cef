@@ -5,8 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 
-#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
-#include "libcef/browser/native/browser_platform_delegate_native.h"
+#include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 
 class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR;

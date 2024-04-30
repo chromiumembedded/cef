@@ -2,23 +2,21 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/prefs/renderer_prefs.h"
-
-#include "libcef/common/cef_switches.h"
+#include "cef/libcef/browser/prefs/renderer_prefs.h"
 
 #include "base/command_line.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "content/public/common/content_switches.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/context.h"
-#include "libcef/common/extensions/extensions_util.h"
-#include "libcef/features/runtime_checks.h"
-
 #include "base/i18n/character_encoding.h"
 #include "base/memory/ptr_util.h"
 #include "base/values.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
+#include "cef/libcef/features/runtime_checks.h"
 #include "chrome/browser/accessibility/animation_policy_prefs.h"
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/extensions/extension_webkit_preferences.h"

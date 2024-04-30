@@ -6,11 +6,9 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BASIC_PANEL_IMPL_H_
 #pragma once
 
-#include "include/views/cef_panel.h"
-#include "include/views/cef_panel_delegate.h"
-
-#include "libcef/browser/views/panel_impl.h"
-
+#include "cef/include/views/cef_panel.h"
+#include "cef/include/views/cef_panel_delegate.h"
+#include "cef/libcef/browser/views/panel_impl.h"
 #include "ui/views/view.h"
 
 class CefBasicPanelImpl

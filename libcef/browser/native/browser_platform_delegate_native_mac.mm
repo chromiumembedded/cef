@@ -2,22 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/native/browser_platform_delegate_native_mac.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_mac.h"
 
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
-
-#include "include/internal/cef_types_mac.h"
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/native/javascript_dialog_runner_mac.h"
-#include "libcef/browser/native/menu_runner_mac.h"
-#include "libcef/browser/thread_util.h"
 
 #include "base/apple/owned_objc.h"
 #include "base/apple/scoped_nsautorelease_pool.h"
 #include "base/memory/ptr_util.h"
 #include "base/threading/thread_restrictions.h"
+#include "cef/include/internal/cef_types_mac.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/native/javascript_dialog_runner_mac.h"
+#include "cef/libcef/browser/native/menu_runner_mac.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/browser/renderer_host/render_widget_host_view_mac.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"

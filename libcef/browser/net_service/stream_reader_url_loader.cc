@@ -3,10 +3,7 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#include "libcef/browser/net_service/stream_reader_url_loader.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/net_service/net_service_util.h"
+#include "cef/libcef/browser/net_service/stream_reader_url_loader.h"
 
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
@@ -16,6 +13,8 @@
 #include "base/task/single_thread_task_runner.h"
 #include "base/task/thread_pool.h"
 #include "base/threading/thread.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/net_service/net_service_util.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/io_buffer.h"
 #include "net/http/http_status_code.h"

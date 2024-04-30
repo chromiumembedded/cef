@@ -15,6 +15,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
+
 #include "skia/ext/skia_utils_win.h"
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/win/hwnd_util.h"

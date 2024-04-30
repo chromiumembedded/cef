@@ -2,16 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/certificate_query.h"
-
-#include "include/cef_request_handler.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/ssl_info_impl.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/certificate_query.h"
 
 #include "base/functional/callback.h"
 #include "base/functional/callback_helpers.h"
 #include "base/logging.h"
+#include "cef/include/cef_request_handler.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/ssl_info_impl.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/web_contents.h"
 #include "net/ssl/ssl_info.h"
 #include "url/gurl.h"

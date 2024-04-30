@@ -2,18 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_context.h"
+#include "cef/libcef/browser/browser_context.h"
 
 #include <map>
 #include <memory>
 #include <utility>
-
-#include "libcef/browser/context.h"
-#include "libcef/browser/media_router/media_router_manager.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/frame_util.h"
 
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
@@ -21,6 +14,12 @@
 #include "base/no_destructor.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/media_router/media_router_manager.h"
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_task_traits.h"

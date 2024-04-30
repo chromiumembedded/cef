@@ -2,9 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/common/task_runner_impl.h"
-
-#include "libcef/common/task_runner_manager.h"
+#include "cef/libcef/common/task_runner_impl.h"
 
 #include "base/functional/bind.h"
 #include "base/location.h"
@@ -12,6 +10,7 @@
 #include "base/task/single_thread_task_runner.h"
 #include "base/task/thread_pool.h"
 #include "base/time/time.h"
+#include "cef/libcef/common/task_runner_manager.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_launcher_utils.h"

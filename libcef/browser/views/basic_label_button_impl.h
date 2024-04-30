@@ -6,11 +6,9 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BASIC_LABEL_BUTTON_IMPL_H_
 #pragma once
 
-#include "include/views/cef_button_delegate.h"
-#include "include/views/cef_label_button.h"
-
-#include "libcef/browser/views/label_button_impl.h"
-
+#include "cef/include/views/cef_button_delegate.h"
+#include "cef/include/views/cef_label_button.h"
+#include "cef/libcef/browser/views/label_button_impl.h"
 #include "ui/views/controls/button/label_button.h"
 
 class CefBasicLabelButtonImpl : public CefLabelButtonImpl<views::LabelButton,

@@ -22,6 +22,7 @@
 
 #include <map>
 #include <vector>
+
 #include "include/capi/test/cef_translator_test_capi.h"
 #include "include/test/cef_translator_test.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"

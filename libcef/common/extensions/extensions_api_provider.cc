@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/extensions/extensions_api_provider.h"
-
-#include "libcef/common/extensions/chrome_generated_schemas.h"
+#include "cef/libcef/common/extensions/extensions_api_provider.h"
 
 #include "cef/grit/cef_resources.h"
+#include "cef/libcef/common/extensions/chrome_generated_schemas.h"
 // #include "cef/libcef/common/extensions/api/generated_schemas.h"
 #include "cef/libcef/common/extensions/api/cef_api_features.h"
 #include "cef/libcef/common/extensions/api/cef_manifest_features.h"

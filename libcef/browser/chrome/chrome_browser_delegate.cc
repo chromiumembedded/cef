@@ -2,28 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_browser_delegate.h"
+#include "cef/libcef/browser/chrome/chrome_browser_delegate.h"
 
 #include <memory>
 
-#include "libcef/browser/browser_contents_delegate.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/chrome/chrome_browser_context.h"
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
-#include "libcef/browser/chrome/chrome_devtools_window_runner.h"
-#include "libcef/browser/chrome/views/chrome_browser_view.h"
-#include "libcef/browser/chrome/views/chrome_child_window.h"
-#include "libcef/browser/hang_monitor.h"
-#include "libcef/browser/media_access_query.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/views/browser_view_impl.h"
-#include "libcef/browser/views/window_impl.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/frame_util.h"
-#include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
-
+#include "cef/libcef/browser/browser_contents_delegate.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/chrome/chrome_browser_context.h"
+#include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/chrome/chrome_devtools_window_runner.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
+#include "cef/libcef/browser/chrome/views/chrome_child_window.h"
+#include "cef/libcef/browser/hang_monitor.h"
+#include "cef/libcef/browser/media_access_query.h"
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/views/window_impl.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
@@ -33,6 +31,7 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
+#include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
 
 using content::KeyboardEventProcessingResult;
 

@@ -1255,7 +1255,7 @@ config("libcef_dll_wrapper_config") {
     ".",
     # CEF generates some header files that also need to be discoverable.
     # They will be copied to the include/ directory in the binary distribution.
-    "$root_out_dir/includes",
+    "$root_out_dir/includes/cef",
   ]
 
   configs = [ ":libcef_autogen_config" ]
@@ -1380,7 +1380,7 @@ template("make_pack_header") {
 
 # Generate cef_pack_resources.h.
 make_pack_header("resources") {
-  header = "$root_out_dir/includes/include/cef_pack_resources.h"
+  header = "$root_out_dir/includes/cef/include/cef_pack_resources.h"
   inputs = [
     "$root_gen_dir/base/tracing/protos/grit/tracing_proto_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
@@ -1444,7 +1444,7 @@ make_pack_header("resources") {
 
 # Generate cef_pack_strings.h.
 make_pack_header("strings") {
-  header = "$root_out_dir/includes/include/cef_pack_strings.h"
+  header = "$root_out_dir/includes/cef/include/cef_pack_strings.h"
   inputs = [
     "$root_gen_dir/cef/grit/cef_strings.h",
     "$root_gen_dir/chrome/grit/branded_strings.h",
@@ -1482,7 +1482,7 @@ make_pack_header("strings") {
 
 # Generate cef_command_ids.h.
 make_pack_header("command_ids") {
-  header = "$root_out_dir/includes/include/cef_command_ids.h"
+  header = "$root_out_dir/includes/cef/include/cef_command_ids.h"
   inputs = [
     "//chrome/app/chrome_command_ids.h",
   ]
@@ -1500,7 +1500,7 @@ action("make_api_hash_header") {
            gypi_paths2.includes_capi +
            gypi_paths.autogen_capi_includes
   include_dir = [ "include" ]
-  outputs = [ "$root_out_dir/includes/include/cef_api_hash.h" ]
+  outputs = [ "$root_out_dir/includes/cef/include/cef_api_hash.h" ]
 
   args = rebase_path(outputs + include_dir, root_build_dir)
 }
@@ -1509,7 +1509,7 @@ action("make_api_hash_header") {
 action("make_config_header") {
   script = "tools/make_config_header.py"
 
-  outputs = [ "$root_out_dir/includes/include/cef_config.h" ]
+  outputs = [ "$root_out_dir/includes/cef/include/cef_config.h" ]
 
   args = rebase_path(outputs + [ "$root_out_dir/args.gn" ], root_build_dir)
 }
@@ -1523,7 +1523,7 @@ action("make_colorids_header") {
     "//components/color/color_id.h",
     "//chrome/browser/ui/color/chrome_color_id.h",
   ]
-  outputs = [ "$root_out_dir/includes/include/cef_color_ids.h" ]
+  outputs = [ "$root_out_dir/includes/cef/include/cef_color_ids.h" ]
 
   args = rebase_path(outputs + inputs, root_build_dir)
 }

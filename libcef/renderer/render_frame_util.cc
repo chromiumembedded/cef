@@ -3,12 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/render_frame_util.h"
-
-#include "libcef/common/frame_util.h"
-#include "libcef/renderer/blink_glue.h"
+#include "cef/libcef/renderer/render_frame_util.h"
 
 #include "base/logging.h"
+#include "cef/libcef/common/frame_util.h"
+#include "cef/libcef/renderer/blink_glue.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/renderer/render_frame_impl.h"
 #include "third_party/blink/public/web/web_local_frame.h"

@@ -2,7 +2,7 @@
 // 2011 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/common/resource_util.h"
+#include "cef/libcef/common/resource_util.h"
 
 #if BUILDFLAG(IS_LINUX)
 #include <dlfcn.h>
@@ -30,7 +30,7 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "base/apple/foundation_util.h"
-#include "libcef/common/util_mac.h"
+#include "cef/libcef/common/util_mac.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)

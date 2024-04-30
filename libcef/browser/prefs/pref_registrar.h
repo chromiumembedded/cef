@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_PREFS_PREF_REGISTRAR_H_
 #define CEF_LIBCEF_BROWSER_PREFS_PREF_REGISTRAR_H_
 
-#include "include/internal/cef_types.h"
+#include "cef/include/internal/cef_types.h"
 
 class PrefRegistrySimple;
 

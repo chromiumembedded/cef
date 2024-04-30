@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/alloy/alloy_download_util.h"
+#include "cef/libcef/browser/alloy/alloy_download_util.h"
 
-#include "libcef/browser/alloy/alloy_browser_context.h"
+#include "cef/libcef/browser/alloy/alloy_browser_context.h"
 
 namespace alloy {
 

@@ -9,10 +9,9 @@
 
 #include <vector>
 
-#include "include/cef_menu_model.h"
-#include "include/cef_menu_model_delegate.h"
-
 #include "base/threading/platform_thread.h"
+#include "cef/include/cef_menu_model.h"
+#include "cef/include/cef_menu_model_delegate.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom-forward.h"
 #include "ui/base/models/menu_model.h"
 #include "ui/gfx/font_list.h"

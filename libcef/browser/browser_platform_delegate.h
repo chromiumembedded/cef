@@ -9,12 +9,11 @@
 #include <string>
 #include <vector>
 
-#include "include/cef_client.h"
-#include "include/cef_drag_data.h"
-#include "include/internal/cef_types.h"
-#include "include/views/cef_browser_view.h"
-
 #include "base/functional/callback_forward.h"
+#include "cef/include/cef_client.h"
+#include "cef/include/cef_drag_data.h"
+#include "cef/include/internal/cef_types.h"
+#include "cef/include/views/cef_browser_view.h"
 #include "cef/libcef/features/features.h"
 #include "third_party/blink/public/common/page/drag_operation.h"
 #include "third_party/blink/public/mojom/drag/drag.mojom-forward.h"

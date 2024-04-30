@@ -11,9 +11,8 @@
 #include <queue>
 #include <string>
 
-#include "include/cef_frame.h"
-
 #include "base/synchronization/lock.h"
+#include "cef/include/cef_frame.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "content/public/browser/global_routing_id.h"
 #include "mojo/public/cpp/bindings/receiver_set.h"

@@ -8,9 +8,8 @@
 
 #include <memory>
 
-#include "include/views/cef_overlay_controller.h"
-#include "include/views/cef_view.h"
-
+#include "cef/include/views/cef_overlay_controller.h"
+#include "cef/include/views/cef_view.h"
 #include "ui/views/view_observer.h"
 #include "ui/views/widget/unique_widget_ptr.h"
 #include "ui/views/widget/widget_delegate.h"

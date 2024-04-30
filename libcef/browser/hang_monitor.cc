@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/hang_monitor.h"
-
-#include "include/cef_client.h"
-#include "libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/hang_monitor.h"
 
 #include "build/build_config.h"
+#include "cef/include/cef_client.h"
+#include "cef/libcef/browser/browser_host_base.h"
 #include "chrome/browser/hang_monitor/hang_crash_dump.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_widget_host.h"

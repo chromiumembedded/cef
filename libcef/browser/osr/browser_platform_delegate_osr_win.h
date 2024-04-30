@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_WIN_H_
 #define CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_WIN_H_
 
-#include "libcef/browser/osr/browser_platform_delegate_osr.h"
+#include "cef/libcef/browser/osr/browser_platform_delegate_osr.h"
 
 // Windowless browser implementation for Windows.
 class CefBrowserPlatformDelegateOsrWin : public CefBrowserPlatformDelegateOsr {

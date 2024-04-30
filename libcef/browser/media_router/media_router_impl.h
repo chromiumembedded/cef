@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTER_IMPL_H_
 #pragma once
 
-#include "include/cef_media_router.h"
-#include "libcef/browser/browser_context.h"
-
+#include "cef/include/cef_media_router.h"
+#include "cef/libcef/browser/browser_context.h"
 #include "components/media_router/common/mojom/media_router.mojom.h"
 
 class CefRegistrationImpl;

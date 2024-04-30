@@ -2,13 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/server_impl.h"
+#include "cef/libcef/browser/server_impl.h"
 
 #include <memory>
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/request_impl.h"
-#include "libcef/common/task_runner_impl.h"
 
 #include "base/format_macros.h"
 #include "base/functional/bind.h"
@@ -16,6 +12,9 @@
 #include "base/strings/stringprintf.h"
 #include "base/task/thread_pool.h"
 #include "base/threading/thread.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/request_impl.h"
+#include "cef/libcef/common/task_runner_impl.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_request_headers.h"
 #include "net/server/http_server_request_info.h"

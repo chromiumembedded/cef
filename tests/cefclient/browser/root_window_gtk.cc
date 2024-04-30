@@ -4,10 +4,9 @@
 
 #include "tests/cefclient/browser/root_window_gtk.h"
 
+#include <X11/Xlib.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
-
-#include <X11/Xlib.h>
 #undef Success     // Definition conflicts with cef_message_router.h
 #undef RootWindow  // Definition conflicts with root_window.h
 

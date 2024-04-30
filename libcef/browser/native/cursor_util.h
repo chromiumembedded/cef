@@ -5,10 +5,9 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_CURSOR_UTIL_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_CURSOR_UTIL_H_
 
-#include "include/cef_browser.h"
-
 #include <memory>
 
+#include "cef/include/cef_browser.h"
 #include "ui/base/cursor/cursor.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom-forward.h"
 

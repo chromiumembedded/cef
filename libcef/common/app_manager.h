@@ -8,11 +8,10 @@
 
 #include <list>
 
-#include "include/cef_app.h"
-#include "include/cef_request_context.h"
-
 #include "base/functional/callback.h"
 #include "build/build_config.h"
+#include "cef/include/cef_app.h"
+#include "cef/include/cef_request_context.h"
 #include "content/public/common/content_client.h"
 
 class CefBrowserContext;

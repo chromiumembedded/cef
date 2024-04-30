@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_
 #pragma once
 
-#include "libcef/browser/views/color_provider_tracker.h"
-#include "libcef/browser/views/widget.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/views/color_provider_tracker.h"
+#include "cef/libcef/browser/views/widget.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_frame.h"
 

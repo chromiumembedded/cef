@@ -6,12 +6,12 @@
 #define CEF_LIBCEF_BROWSER_STREAM_IMPL_H_
 #pragma once
 
-#include "include/cef_stream.h"
-
 #include <stdio.h>
+
 #include <string>
 
 #include "base/synchronization/lock.h"
+#include "cef/include/cef_stream.h"
 
 // Implementation of CefStreamReader for files.
 class CefFileReader : public CefStreamReader {

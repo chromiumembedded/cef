@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_COMMON_STRING_UTIL_H_
 #pragma once
 
-#include "include/cef_base.h"
-
 #include "base/functional/callback.h"
 #include "base/memory/scoped_refptr.h"
+#include "cef/include/cef_base.h"
 
 namespace base {
 class ReadOnlySharedMemoryRegion;

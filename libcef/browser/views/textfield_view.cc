@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/textfield_view.h"
+#include "cef/libcef/browser/views/textfield_view.h"
 
-#include "libcef/browser/browser_util.h"
+#include "cef/libcef/browser/browser_util.h"
 
 CefTextfieldView::CefTextfieldView(CefTextfieldDelegate* cef_delegate)
     : ParentClass(cef_delegate) {

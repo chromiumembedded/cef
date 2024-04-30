@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/motion_event_osr.h"
+#include "cef/libcef/browser/osr/motion_event_osr.h"
 
 #include <algorithm>
 

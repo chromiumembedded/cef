@@ -2,37 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_platform_delegate.h"
-
 #include <utility>
-
-#include "libcef/browser/context.h"
 
 #include "base/memory/ptr_util.h"
 #include "build/build_config.h"
-
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
-#include "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h"
-#include "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
-#include "libcef/browser/chrome/views/chrome_child_window.h"
-#include "libcef/browser/views/browser_platform_delegate_views.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
+#include "cef/libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h"
+#include "cef/libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
+#include "cef/libcef/browser/chrome/views/chrome_child_window.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/views/browser_platform_delegate_views.h"
 
 #if BUILDFLAG(IS_WIN)
-#include "libcef/browser/native/browser_platform_delegate_native_win.h"
-#include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_win.h"
+#include "cef/libcef/browser/osr/browser_platform_delegate_osr_win.h"
 #elif BUILDFLAG(IS_MAC)
-#include "libcef/browser/native/browser_platform_delegate_native_mac.h"
-#include "libcef/browser/osr/browser_platform_delegate_osr_mac.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_mac.h"
+#include "cef/libcef/browser/osr/browser_platform_delegate_osr_mac.h"
 #elif BUILDFLAG(IS_LINUX)
-#include "libcef/browser/native/browser_platform_delegate_native_linux.h"
-#include "libcef/browser/osr/browser_platform_delegate_osr_linux.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_linux.h"
+#include "cef/libcef/browser/osr/browser_platform_delegate_osr_linux.h"
 #else
 #error A delegate implementation is not available for your platform.
 #endif
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/browser/extensions/browser_platform_delegate_background.h"
+#include "cef/libcef/browser/extensions/browser_platform_delegate_background.h"
 #endif
 
 namespace {

@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_MENU_RUNNER_MAC_H_
 #pragma once
 
-#include "libcef/browser/menu_runner.h"
+#include "cef/libcef/browser/menu_runner.h"
 
 #if __OBJC__
 @class MenuControllerCocoa;

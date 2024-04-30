@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_COMMON_RESPONSE_IMPL_H_
 #pragma once
 
-#include "include/cef_response.h"
-
 #include "base/synchronization/lock.h"
+#include "cef/include/cef_response.h"
 
 namespace net {
 class HttpResponseHeaders;

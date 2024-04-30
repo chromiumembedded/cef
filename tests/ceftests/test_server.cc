@@ -4,9 +4,9 @@
 
 #include "tests/ceftests/test_server.h"
 
-#include "tests/ceftests/test_server_manager.h"
-
 #include <vector>
+
+#include "tests/ceftests/test_server_manager.h"
 
 namespace test_server {
 

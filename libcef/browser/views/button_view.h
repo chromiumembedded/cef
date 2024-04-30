@@ -6,12 +6,10 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BUTTON_VIEW_H_
 #pragma once
 
-#include "include/views/cef_button_delegate.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/view_view.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_button_delegate.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/view_view.h"
 #include "ui/gfx/color_utils.h"
 #include "ui/views/animation/ink_drop.h"
 #include "ui/views/controls/button/button.h"

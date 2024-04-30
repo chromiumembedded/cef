@@ -2,15 +2,13 @@
 // 2011 the Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "include/base/cef_build.h"
-
-#include "include/internal/cef_logging_internal.h"
-#include "include/internal/cef_thread_internal.h"
-#include "include/internal/cef_trace_event_internal.h"
-
 #include "base/logging.h"
 #include "base/threading/platform_thread.h"
 #include "base/trace_event/trace_event.h"
+#include "cef/include/base/cef_build.h"
+#include "cef/include/internal/cef_logging_internal.h"
+#include "cef/include/internal/cef_thread_internal.h"
+#include "cef/include/internal/cef_trace_event_internal.h"
 
 namespace {
 

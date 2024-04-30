@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
+
 #include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 

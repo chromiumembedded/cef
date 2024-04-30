@@ -6,11 +6,10 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_TEXTFIELD_IMPL_H_
 #pragma once
 
-#include "include/views/cef_textfield.h"
-#include "include/views/cef_textfield_delegate.h"
-
-#include "libcef/browser/views/textfield_view.h"
-#include "libcef/browser/views/view_impl.h"
+#include "cef/include/views/cef_textfield.h"
+#include "cef/include/views/cef_textfield_delegate.h"
+#include "cef/libcef/browser/views/textfield_view.h"
+#include "cef/libcef/browser/views/view_impl.h"
 
 class CefTextfieldImpl
     : public CefViewImpl<CefTextfieldView, CefTextfield, CefTextfieldDelegate> {

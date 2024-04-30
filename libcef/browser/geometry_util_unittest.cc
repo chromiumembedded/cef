@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "cef/libcef/browser/geometry_util.h"
-#include "tests/gtest/include/gtest/gtest.h"
 
+#include "tests/gtest/include/gtest/gtest.h"
 #include "ui/gfx/geometry/rect.h"
 
 namespace {

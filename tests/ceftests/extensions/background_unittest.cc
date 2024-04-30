@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "tests/ceftests/extensions/extension_test_handler.h"
-
 #include "tests/ceftests/test_util.h"
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/extension_util.h"

@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/widget.h"
+#include "cef/libcef/browser/views/widget.h"
 
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
-#include "libcef/browser/views/view_util.h"
-#include "libcef/browser/views/widget_impl.h"
-#include "libcef/browser/views/window_impl.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/widget_impl.h"
+#include "cef/libcef/browser/views/window_impl.h"
 
 // static
 CefWidget* CefWidget::Create(CefWindowView* window_view) {

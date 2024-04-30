@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/menu_button_view.h"
+#include "cef/libcef/browser/views/menu_button_view.h"
 
-#include "libcef/browser/thread_util.h"
-
+#include "cef/libcef/browser/thread_util.h"
 #include "ui/gfx/canvas.h"
 #include "ui/views/controls/button/menu_button_controller.h"
 #include "ui/views/controls/menu/menu_config.h"

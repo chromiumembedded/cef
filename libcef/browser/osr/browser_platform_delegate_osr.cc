@@ -2,19 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/browser_platform_delegate_osr.h"
+#include "cef/libcef/browser/osr/browser_platform_delegate_osr.h"
 
 #include <utility>
 
-#include "libcef/browser/image_impl.h"
-#include "libcef/browser/osr/osr_accessibility_util.h"
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
-#include "libcef/browser/osr/web_contents_view_osr.h"
-#include "libcef/browser/views/view_util.h"
-#include "libcef/common/drag_data_impl.h"
-
 #include "base/task/current_thread.h"
+#include "cef/libcef/browser/image_impl.h"
+#include "cef/libcef/browser/osr/osr_accessibility_util.h"
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
+#include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
+#include "cef/libcef/browser/osr/web_contents_view_osr.h"
+#include "cef/libcef/browser/views/view_util.h"
+#include "cef/libcef/common/drag_data_impl.h"
 #include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_view_host.h"

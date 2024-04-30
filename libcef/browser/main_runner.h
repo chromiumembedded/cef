@@ -7,11 +7,10 @@
 #define CEF_LIBCEF_BROWSER_MAIN_RUNNER_H_
 #pragma once
 
-#include "include/cef_app.h"
-#include "libcef/common/main_runner_delegate.h"
-#include "libcef/common/main_runner_handler.h"
-
 #include "base/functional/callback.h"
+#include "cef/include/cef_app.h"
+#include "cef/libcef/common/main_runner_delegate.h"
+#include "cef/libcef/common/main_runner_handler.h"
 #include "content/public/browser/browser_main_runner.h"
 
 namespace base {

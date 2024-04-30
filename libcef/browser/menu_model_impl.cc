@@ -3,16 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/menu_model_impl.h"
+#include "cef/libcef/browser/menu_model_impl.h"
 
 #include <memory>
 #include <vector>
 
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/task_runner_impl.h"
-
 #include "base/functional/bind.h"
 #include "base/logging.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/task_runner_impl.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/models/image_model.h"

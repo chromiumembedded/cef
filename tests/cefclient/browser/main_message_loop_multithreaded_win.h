@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include <queue>
 
 #include "include/base/cef_lock.h"

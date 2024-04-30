@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#import <Cocoa/Cocoa.h>
-
 #include "tests/ceftests/os_rendering_unittest_mac.h"
+
+#import <Cocoa/Cocoa.h>
 
 namespace osr_unittests {
 

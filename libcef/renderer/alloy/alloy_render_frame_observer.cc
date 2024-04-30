@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/renderer/alloy/alloy_render_frame_observer.h"
+#include "cef/libcef/renderer/alloy/alloy_render_frame_observer.h"
 
 AlloyRenderFrameObserver::AlloyRenderFrameObserver(
     content::RenderFrame* render_frame)

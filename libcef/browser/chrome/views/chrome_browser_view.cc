@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/chrome/views/chrome_browser_view.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
 
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
-#include "libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
 
 ChromeBrowserView::ChromeBrowserView(CefBrowserViewImpl* cef_browser_view)
     : ParentClass(cef_browser_view->delegate()),

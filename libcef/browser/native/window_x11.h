@@ -7,9 +7,8 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_
 #pragma once
 
-#include "include/internal/cef_ptr.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/include/internal/cef_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/x/atom_cache.h"

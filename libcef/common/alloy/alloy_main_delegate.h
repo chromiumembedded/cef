@@ -8,13 +8,12 @@
 
 #include <string>
 
-#include "include/cef_app.h"
-#include "libcef/common/alloy/alloy_content_client.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/main_runner_handler.h"
-#include "libcef/common/resource_bundle_delegate.h"
-#include "libcef/common/task_runner_manager.h"
-
+#include "cef/include/cef_app.h"
+#include "cef/libcef/common/alloy/alloy_content_client.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/main_runner_handler.h"
+#include "cef/libcef/common/resource_bundle_delegate.h"
+#include "cef/libcef/common/task_runner_manager.h"
 #include "content/public/app/content_main_delegate.h"
 
 #if BUILDFLAG(IS_WIN)

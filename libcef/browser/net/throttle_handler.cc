@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/net/throttle_handler.h"
+#include "cef/libcef/browser/net/throttle_handler.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/frame_host_impl.h"
-#include "libcef/common/frame_util.h"
-#include "libcef/common/request_impl.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/frame_host_impl.h"
+#include "cef/libcef/common/frame_util.h"
+#include "cef/libcef/common/request_impl.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/navigation_throttle.h"

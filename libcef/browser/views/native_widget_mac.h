@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_NATIVE_WIDGET_MAC_H_
 #pragma once
 
-#include "include/internal/cef_ptr.h"
-
+#include "cef/include/internal/cef_ptr.h"
 #include "ui/views/widget/native_widget_mac.h"
 
 class BrowserView;

@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_HANG_MONITOR_H_
 #pragma once
 
-#include "include/cef_unresponsive_process_callback.h"
-
 #include "base/functional/callback.h"
+#include "cef/include/cef_unresponsive_process_callback.h"
 
 namespace content {
 class RenderWidgetHost;

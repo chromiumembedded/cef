@@ -6,17 +6,15 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_PANEL_IMPL_H_
 #pragma once
 
-#include "include/views/cef_fill_layout.h"
-#include "include/views/cef_layout.h"
-#include "include/views/cef_panel.h"
-#include "include/views/cef_window.h"
-
-#include "libcef/browser/views/box_layout_impl.h"
-#include "libcef/browser/views/fill_layout_impl.h"
-#include "libcef/browser/views/layout_util.h"
-#include "libcef/browser/views/view_impl.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_fill_layout.h"
+#include "cef/include/views/cef_layout.h"
+#include "cef/include/views/cef_panel.h"
+#include "cef/include/views/cef_window.h"
+#include "cef/libcef/browser/views/box_layout_impl.h"
+#include "cef/libcef/browser/views/fill_layout_impl.h"
+#include "cef/libcef/browser/views/layout_util.h"
+#include "cef/libcef/browser/views/view_impl.h"
 
 // Helpers for template boiler-plate.
 #define CEF_PANEL_IMPL_T CEF_VIEW_IMPL_T

@@ -6,9 +6,9 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_MAIN_MESSAGE_LOOP_MULTITHREADED_GTK_H_
 #pragma once
 
-#include <queue>
-
 #include <gdk/gdk.h>
+
+#include <queue>
 
 #include "include/base/cef_lock.h"
 #include "include/base/cef_platform_thread.h"

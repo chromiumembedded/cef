@@ -8,9 +8,8 @@
 
 #include <map>
 
-#include "include/cef_request_context.h"
-#include "include/cef_request_context_handler.h"
-
+#include "cef/include/cef_request_context.h"
+#include "cef/include/cef_request_context_handler.h"
 #include "content/public/browser/global_routing_id.h"
 
 // Tracks CefRequestContextHandler associations on a single thread.

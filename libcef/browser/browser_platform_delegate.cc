@@ -2,17 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/browser_platform_delegate.h"
-
-#include "include/views/cef_window.h"
-#include "include/views/cef_window_delegate.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/browser_view_impl.h"
-#include "libcef/common/cef_switches.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "cef/include/views/cef_window.h"
+#include "cef/include/views/cef_window_delegate.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/shell_integration.h"

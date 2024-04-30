@@ -3,16 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/printing/print_dialog_linux.h"
+#include "cef/libcef/browser/printing/print_dialog_linux.h"
 
 #include <string>
 #include <vector>
-
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/print_settings_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/frame_util.h"
 
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
@@ -20,6 +14,11 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/print_settings_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/frame_util.h"
 #include "content/public/browser/global_routing_id.h"
 #include "printing/metafile.h"
 #include "printing/mojom/print.mojom-shared.h"

@@ -14,6 +14,7 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/util_win.h"
 #endif

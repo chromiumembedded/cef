@@ -3,17 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/javascript_dialog_manager.h"
+#include "cef/libcef/browser/javascript_dialog_manager.h"
 
 #include <utility>
-
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
-#include "libcef/browser/thread_util.h"
 
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
 #include "base/logging.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/extensions/browser_extensions_util.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"
 
 namespace {

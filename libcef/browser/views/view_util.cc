@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/view_util.h"
 
 #include <utility>
 
-#include "include/cef_color_ids.h"
-#include "libcef/browser/views/view_adapter.h"
-#include "libcef/browser/views/widget.h"
-
+#include "cef/include/cef_color_ids.h"
+#include "cef/libcef/browser/views/view_adapter.h"
+#include "cef/libcef/browser/views/widget.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"

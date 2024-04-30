@@ -8,13 +8,11 @@
 
 #include <map>
 
-#include "include/views/cef_window.h"
-#include "include/views/cef_window_delegate.h"
-
-#include "libcef/browser/menu_model_impl.h"
-#include "libcef/browser/views/panel_impl.h"
-#include "libcef/browser/views/window_view.h"
-
+#include "cef/include/views/cef_window.h"
+#include "cef/include/views/cef_window_delegate.h"
+#include "cef/libcef/browser/menu_model_impl.h"
+#include "cef/libcef/browser/views/panel_impl.h"
+#include "cef/libcef/browser/views/window_view.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/views/controls/menu/menu_runner.h"
 #include "ui/views/widget/widget.h"

@@ -10,8 +10,7 @@
 #include <memory>
 #include <optional>
 
-#include "include/internal/cef_ptr.h"
-
+#include "cef/include/internal/cef_ptr.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/receiver_set.h"

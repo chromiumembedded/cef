@@ -4,9 +4,9 @@
 
 #include "libcef_dll/wrapper/cef_message_router_utils.h"
 
-#include "include/cef_shared_process_message_builder.h"
-
 #include <type_traits>
+
+#include "include/cef_shared_process_message_builder.h"
 
 namespace cef_message_router_utils {
 

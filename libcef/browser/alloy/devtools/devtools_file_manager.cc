@@ -2,9 +2,7 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/alloy/devtools/devtools_file_manager.h"
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/alloy/devtools/devtools_file_manager.h"
 
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
@@ -19,6 +17,7 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool.h"
 #include "base/values.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/scoped_user_pref_update.h"
 #include "content/public/browser/web_contents.h"

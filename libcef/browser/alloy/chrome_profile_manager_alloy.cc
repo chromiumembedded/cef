@@ -3,11 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/chrome_profile_manager_alloy.h"
+#include "cef/libcef/browser/alloy/chrome_profile_manager_alloy.h"
 
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/common/app_manager.h"
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/common/app_manager.h"
 
 namespace {
 

@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_BROWSER_NAVIGATION_ENTRY_IMPL_H_
 #pragma once
 
-#include "include/cef_navigation_entry.h"
-#include "libcef/common/value_base.h"
+#include "cef/include/cef_navigation_entry.h"
+#include "cef/libcef/common/value_base.h"
 
 namespace content {
 class NavigationEntry;

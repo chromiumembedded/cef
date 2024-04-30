@@ -6,10 +6,9 @@
 #ifndef CEF_LIBCEF_BROWSER_ALLOY_BROWSER_PLATFORM_DELEGATE_ALLOY_H_
 #define CEF_LIBCEF_BROWSER_ALLOY_BROWSER_PLATFORM_DELEGATE_ALLOY_H_
 
-#include "libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.h"
-#include "libcef/browser/browser_platform_delegate.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
 #include "components/find_in_page/find_notification_details.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/gfx/geometry/size.h"

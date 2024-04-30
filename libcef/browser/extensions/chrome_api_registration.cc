@@ -7,10 +7,9 @@
 // CefExtensionsDispatcherDelegate::PopulateSourceMap. See
 // libcef/common/extensions/api/README.txt for additional details.
 
-#include "libcef/browser/extensions/chrome_api_registration.h"
+#include "cef/libcef/browser/extensions/chrome_api_registration.h"
 
-#include "libcef/browser/extensions/api/tabs/tabs_api.h"
-
+#include "cef/libcef/browser/extensions/api/tabs/tabs_api.h"
 #include "chrome/browser/extensions/api/content_settings/content_settings_api.h"
 #include "chrome/browser/extensions/api/pdf_viewer_private/pdf_viewer_private_api.h"
 #include "chrome/browser/extensions/api/resources_private/resources_private_api.h"

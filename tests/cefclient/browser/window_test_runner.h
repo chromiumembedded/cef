@@ -6,9 +6,9 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_TEST_RUNNER_H_
 #pragma once
 
-#include "include/cef_browser.h"
-
 #include <optional>
+
+#include "include/cef_browser.h"
 
 namespace client::window_test {
 

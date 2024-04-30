@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_CHILD_WINDOW_H_
 #pragma once
 
-#include "include/views/cef_browser_view_delegate.h"
-#include "libcef/browser/browser_host_base.h"
+#include "cef/include/views/cef_browser_view_delegate.h"
+#include "cef/libcef/browser/browser_host_base.h"
 
 namespace chrome_child_window {
 

@@ -3,17 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/net/internal_scheme_handler.h"
+#include "cef/libcef/browser/net/internal_scheme_handler.h"
 
 #include <string>
 #include <utility>
-
-#include "libcef/common/app_manager.h"
 
 #include "base/notreached.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
+#include "cef/libcef/common/app_manager.h"
 #include "net/base/mime_util.h"
 #include "ui/base/resource/resource_bundle.h"
 

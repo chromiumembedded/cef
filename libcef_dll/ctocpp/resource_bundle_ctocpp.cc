@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/resource_bundle_ctocpp.h"
+
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 
 // STATIC METHODS - Body may be edited by hand.

@@ -2,13 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/trace_subscriber.h"
-#include "include/cef_trace.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/trace_subscriber.h"
 
 #include "base/files/file_util.h"
 #include "base/task/single_thread_task_runner.h"
 #include "base/trace_event/trace_event.h"
+#include "cef/include/cef_trace.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/tracing_controller.h"
 
 namespace {

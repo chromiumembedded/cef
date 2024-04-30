@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_PREFS_PREF_HELPER_H_
 #define CEF_LIBCEF_BROWSER_PREFS_PREF_HELPER_H_
 
-#include "include/cef_values.h"
+#include "cef/include/cef_values.h"
 
 class PrefService;
 

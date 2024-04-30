@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_DOWNLOAD_MANAGER_DELEGATE_H_
 #pragma once
 
-#include "libcef/browser/download_manager_delegate_impl.h"
+#include "cef/libcef/browser/download_manager_delegate_impl.h"
 
 // Specialization for the Alloy bootstrap.
 class AlloyDownloadManagerDelegate : public CefDownloadManagerDelegateImpl {

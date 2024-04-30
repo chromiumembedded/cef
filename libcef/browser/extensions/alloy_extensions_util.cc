@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/extensions/alloy_extensions_util.h"
+#include "cef/libcef/browser/extensions/alloy_extensions_util.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 
 namespace extensions::alloy {
 

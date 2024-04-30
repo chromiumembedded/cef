@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
+
 #include "libcef_dll/shutdown_checker.h"
 
 // STATIC METHODS - Body may be edited by hand.

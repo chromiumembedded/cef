@@ -3,11 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/audio_capturer.h"
+#include "cef/libcef/browser/audio_capturer.h"
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/audio_loopback_stream_creator.h"
-
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/audio_loopback_stream_creator.h"
 #include "components/mirroring/service/captured_audio_input.h"
 #include "media/audio/audio_input_device.h"
 

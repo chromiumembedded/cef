@@ -11,7 +11,9 @@
 #if defined(CEF_USE_ATL)
 
 #include <atlbase.h>
+
 #include <oleacc.h>
+
 #include <string>
 
 #include "tests/cefclient/browser/osr_accessibility_helper.h"

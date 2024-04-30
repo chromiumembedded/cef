@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/extension_impl.h"
+#include "cef/libcef/browser/extension_impl.h"
 
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/values_impl.h"
-
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/values_impl.h"
 #include "extensions/common/extension.h"
 
 CefExtensionImpl::CefExtensionImpl(const extensions::Extension* extension,

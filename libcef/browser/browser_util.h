@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_UTIL_H_
 #pragma once
 
-#include "include/internal/cef_types_wrappers.h"
+#include "cef/include/internal/cef_types_wrappers.h"
 
 namespace content {
 struct NativeWebKeyboardEvent;

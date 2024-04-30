@@ -15,7 +15,6 @@
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/cefclient/browser/window_test_runner.h"
-
 #include "tests/cefclient/browser/window_test_runner_views.h"
 
 #if defined(OS_WIN)

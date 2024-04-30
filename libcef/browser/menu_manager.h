@@ -6,11 +6,9 @@
 #define CEF_LIBCEF_BROWSER_MENU_MANAGER_H_
 #pragma once
 
-#include "libcef/browser/menu_model_impl.h"
-
-#include "libcef/browser/menu_runner.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/menu_model_impl.h"
+#include "cef/libcef/browser/menu_runner.h"
 #include "content/public/browser/context_menu_params.h"
 #include "content/public/browser/web_contents_observer.h"
 

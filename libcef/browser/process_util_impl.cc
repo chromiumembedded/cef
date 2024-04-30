@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_process_util.h"
-#include "libcef/common/command_line_impl.h"
-
 #include "base/logging.h"
 #include "base/notreached.h"
 #include "base/process/launch.h"
+#include "cef/include/cef_process_util.h"
+#include "cef/libcef/common/command_line_impl.h"
 #include "content/public/browser/child_process_launcher_utils.h"
 
 bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {

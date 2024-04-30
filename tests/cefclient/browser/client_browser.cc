@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "tests/cefclient/browser/client_browser.h"
-#include "tests/cefclient/browser/main_context.h"
 
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"

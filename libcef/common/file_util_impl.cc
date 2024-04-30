@@ -2,13 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_file_util.h"
-
-#include "include/cef_task.h"
-
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "cef/include/cef_file_util.h"
+#include "cef/include/cef_task.h"
 #include "third_party/zlib/google/zip.h"
 
 namespace {

@@ -7,10 +7,9 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_JAVASCRIPT_DIALOG_RUNNER_MAC_H_
 #pragma once
 
-#include "libcef/browser/javascript_dialog_runner.h"
-
 #include "base/functional/callback.h"
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/javascript_dialog_runner.h"
 
 #if __OBJC__
 @class CefJavaScriptDialogHelper;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/ns_window.h"
+#include "cef/libcef/browser/views/ns_window.h"
 
 #include "base/i18n/rtl.h"
 #include "components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h"

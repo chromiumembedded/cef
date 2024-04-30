@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/textfield_impl.h"
+#include "cef/libcef/browser/views/textfield_impl.h"
 
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/thread_util.h"
 
 namespace {
 static int CefCommandIdToChromeId(cef_text_field_commands_t command_id) {

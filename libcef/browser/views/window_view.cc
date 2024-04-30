@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/window_view.h"
+#include "cef/libcef/browser/views/window_view.h"
 
 #include <memory>
 
@@ -14,13 +14,12 @@
 #endif
 #endif
 
-#include "libcef/browser/geometry_util.h"
-#include "libcef/browser/image_impl.h"
-#include "libcef/browser/views/widget.h"
-#include "libcef/browser/views/window_impl.h"
-#include "libcef/features/runtime.h"
-
 #include "base/ranges/algorithm.h"
+#include "cef/libcef/browser/geometry_util.h"
+#include "cef/libcef/browser/image_impl.h"
+#include "cef/libcef/browser/views/widget.h"
+#include "cef/libcef/browser/views/window_impl.h"
+#include "cef/libcef/features/runtime.h"
 #include "ui/base/hit_test.h"
 #include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"

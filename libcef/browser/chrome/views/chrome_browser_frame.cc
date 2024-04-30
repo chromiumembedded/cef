@@ -2,20 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
 
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/window_view.h"
-
+#include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/window_view.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "libcef/browser/views/native_widget_mac.h"
-#include "libcef/browser/views/view_util.h"
+#include "cef/libcef/browser/views/native_widget_mac.h"
+#include "cef/libcef/browser/views/view_util.h"
 #include "ui/views/widget/native_widget_private.h"
 #endif
 

@@ -3,20 +3,19 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#include "libcef/browser/net_service/proxy_url_loader_factory.h"
+#include "cef/libcef/browser/net_service/proxy_url_loader_factory.h"
 
 #include <tuple>
-
-#include "libcef/browser/context.h"
-#include "libcef/browser/origin_whitelist_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/net/scheme_registration.h"
-#include "libcef/common/net_service/net_service_util.h"
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/origin_whitelist_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/net/scheme_registration.h"
+#include "cef/libcef/common/net_service/net_service_util.h"
 #include "components/safe_browsing/core/common/safebrowsing_constants.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_frame_host.h"

@@ -2,15 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_context_menu_handler.h"
+#include "cef/libcef/browser/chrome/chrome_context_menu_handler.h"
 
 #include "base/memory/weak_ptr.h"
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/context_menu_params_impl.h"
-#include "libcef/browser/simple_menu_model_impl.h"
-
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/context_menu_params_impl.h"
+#include "cef/libcef/browser/simple_menu_model_impl.h"
 #include "chrome/browser/renderer_context_menu/render_view_context_menu.h"
 
 namespace context_menu {

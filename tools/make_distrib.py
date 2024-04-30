@@ -740,9 +740,10 @@ if mode == 'standard' or mode == 'minimal':
   ]
   for include in generated_includes:
     # Debug and Release build should be the same so grab whichever exists.
-    src_path = os.path.join(build_dir_release, 'includes', 'include', include)
+    rel_path = os.path.join('includes', 'cef', 'include', include)
+    src_path = os.path.join(build_dir_release, rel_path)
     if not os.path.exists(src_path):
-      src_path = os.path.join(build_dir_debug, 'includes', 'include', include)
+      src_path = os.path.join(build_dir_debug, rel_path)
       if not os.path.exists(src_path):
         raise Exception('Missing generated header file: %s' % include)
     copy_file(src_path, os.path.join(include_dir, include), options.quiet)

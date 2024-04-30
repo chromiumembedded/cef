@@ -40,7 +40,6 @@
 
 #include "include/cef_base.h"
 #include "include/cef_values.h"
-
 #include "include/cef_x509_certificate.h"
 
 ///

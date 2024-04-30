@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/chrome_profile_alloy.h"
+#include "cef/libcef/browser/alloy/chrome_profile_alloy.h"
 
 #include "base/no_destructor.h"
 #include "components/profile_metrics/browser_profile_type.h"

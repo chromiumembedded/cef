@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_GLOBAL_PREFERENCE_MANAGER_IMPL_H_
 #pragma once
 
-#include "include/cef_preference.h"
+#include "cef/include/cef_preference.h"
 
 // Implementation of the CefPreferenceManager interface for global preferences.
 class CefGlobalPreferenceManagerImpl : public CefPreferenceManager {

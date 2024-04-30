@@ -3,12 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h"
+#include "cef/libcef/browser/chrome/extensions/chrome_mime_handler_view_guest_delegate_cef.h"
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/chrome/chrome_context_menu_handler.h"
-#include "libcef/browser/osr/web_contents_view_osr.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/chrome/chrome_context_menu_handler.h"
+#include "cef/libcef/browser/osr/web_contents_view_osr.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
 namespace extensions {

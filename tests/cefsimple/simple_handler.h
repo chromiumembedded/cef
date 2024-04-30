@@ -5,9 +5,9 @@
 #ifndef CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
 #define CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
 
-#include "include/cef_client.h"
-
 #include <list>
+
+#include "include/cef_client.h"
 
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,

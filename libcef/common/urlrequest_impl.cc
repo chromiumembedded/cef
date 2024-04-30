@@ -2,13 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_urlrequest.h"
-#include "libcef/browser/net_service/browser_urlrequest_impl.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/task_runner_impl.h"
-
 #include "base/logging.h"
 #include "base/notreached.h"
+#include "cef/include/cef_urlrequest.h"
+#include "cef/libcef/browser/net_service/browser_urlrequest_impl.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/task_runner_impl.h"
 #include "content/public/common/content_client.h"
 
 // static

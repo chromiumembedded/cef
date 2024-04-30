@@ -4,6 +4,7 @@
 // found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
+
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
 #include "include/cef_command_ids.h"

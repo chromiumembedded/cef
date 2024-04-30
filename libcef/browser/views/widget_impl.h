@@ -8,10 +8,9 @@
 
 #include <map>
 
-#include "libcef/browser/views/color_provider_tracker.h"
-#include "libcef/browser/views/widget.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/libcef/browser/views/color_provider_tracker.h"
+#include "cef/libcef/browser/views/widget.h"
 #include "chrome/browser/themes/theme_service_observer.h"
 #include "ui/views/widget/widget.h"
 

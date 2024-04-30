@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_DOM_NODE_IMPL_H_
 #pragma once
 
-#include "include/cef_dom.h"
+#include "cef/include/cef_dom.h"
 #include "third_party/blink/public/web/web_node.h"
 
 class CefDOMDocumentImpl;

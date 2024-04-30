@@ -6,9 +6,8 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_TOUCH_HANDLE_DRAWABLE_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_TOUCH_HANDLE_DRAWABLE_OSR_H_
 
-#include "include/internal/cef_types_wrappers.h"
-
 #include "base/memory/raw_ptr.h"
+#include "cef/include/internal/cef_types_wrappers.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/touch_selection/touch_handle.h"
 #include "ui/touch_selection/touch_handle_orientation.h"

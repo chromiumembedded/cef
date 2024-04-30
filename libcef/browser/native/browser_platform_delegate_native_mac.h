@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_MAC_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_MAC_H_
 
-#include "libcef/browser/native/browser_platform_delegate_native.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 
 #if defined(__OBJC__)
 @class CefWindowDelegate;

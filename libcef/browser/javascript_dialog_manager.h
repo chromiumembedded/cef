@@ -10,10 +10,9 @@
 #include <memory>
 #include <string>
 
-#include "include/cef_jsdialog_handler.h"
-#include "libcef/browser/javascript_dialog_runner.h"
-
 #include "base/memory/weak_ptr.h"
+#include "cef/include/cef_jsdialog_handler.h"
+#include "cef/libcef/browser/javascript_dialog_runner.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
 class CefBrowserHostBase;

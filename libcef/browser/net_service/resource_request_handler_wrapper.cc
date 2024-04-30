@@ -2,25 +2,24 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/net_service/resource_request_handler_wrapper.h"
+#include "cef/libcef/browser/net_service/resource_request_handler_wrapper.h"
 
 #include <memory>
 
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/iothread_state.h"
-#include "libcef/browser/net_service/cookie_helper.h"
-#include "libcef/browser/net_service/proxy_url_loader_factory.h"
-#include "libcef/browser/net_service/resource_handler_wrapper.h"
-#include "libcef/browser/net_service/response_filter_wrapper.h"
-#include "libcef/browser/prefs/browser_prefs.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/net/scheme_registration.h"
-#include "libcef/common/net_service/net_service_util.h"
-#include "libcef/common/request_impl.h"
-#include "libcef/common/response_impl.h"
-
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/iothread_state.h"
+#include "cef/libcef/browser/net_service/cookie_helper.h"
+#include "cef/libcef/browser/net_service/proxy_url_loader_factory.h"
+#include "cef/libcef/browser/net_service/resource_handler_wrapper.h"
+#include "cef/libcef/browser/net_service/response_filter_wrapper.h"
+#include "cef/libcef/browser/prefs/browser_prefs.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/net/scheme_registration.h"
+#include "cef/libcef/common/net_service/net_service_util.h"
+#include "cef/libcef/common/request_impl.h"
+#include "cef/libcef/common/response_impl.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_service.h"

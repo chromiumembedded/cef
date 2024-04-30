@@ -2,19 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/browser_platform_delegate_alloy.h"
+#include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
 
 #include <memory>
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/extensions/extension_background_host.h"
-#include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/extensions/extension_view_host.h"
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
-#include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net/url_util.h"
-
 #include "base/logging.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/extensions/extension_background_host.h"
+#include "cef/libcef/browser/extensions/extension_system.h"
+#include "cef/libcef/browser/extensions/extension_view_host.h"
+#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
+#include "cef/libcef/common/net/url_util.h"
 #include "cef/libcef/features/features.h"
 #include "chrome/browser/task_manager/web_contents_tags.h"
 #include "chrome/browser/ui/tab_helpers.h"
@@ -28,9 +27,8 @@
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
-#include "libcef/features/runtime_checks.h"
-
+#include "cef/libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
+#include "cef/libcef/features/runtime_checks.h"
 #include "chrome/browser/printing/printing_init.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/javascript_dialogs/tab_modal_dialog_manager.h"

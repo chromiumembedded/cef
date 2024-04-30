@@ -2,23 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/native/browser_platform_delegate_native_win.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_win.h"
 
 #include <shellapi.h>
 #include <wininet.h>
 #include <winspool.h>
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/geometry_util.h"
-#include "libcef/browser/native/window_delegate_view.h"
-#include "libcef/browser/thread_util.h"
 
 #include "base/base_paths_win.h"
 #include "base/files/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/win_util.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/geometry_util.h"
+#include "cef/libcef/browser/native/window_delegate_view.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"

@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/host_display_client_osr.h"
+#include "cef/libcef/browser/osr/host_display_client_osr.h"
 
 #include <utility>
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
-
 #include "base/memory/shared_memory_mapping.h"
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "components/viz/common/resources/resource_sizes.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "services/viz/privileged/mojom/compositing/layered_window_updater.mojom.h"

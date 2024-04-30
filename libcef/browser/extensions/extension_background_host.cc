@@ -2,12 +2,11 @@
 // 2013 The Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_background_host.h"
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/extensions/extension_host_delegate.h"
+#include "cef/libcef/browser/extensions/extension_background_host.h"
 
 #include "base/functional/callback.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/extensions/extension_host_delegate.h"
 
 namespace extensions {
 

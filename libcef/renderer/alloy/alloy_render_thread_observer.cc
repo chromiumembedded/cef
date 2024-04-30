@@ -3,11 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/alloy/alloy_render_thread_observer.h"
-
-#include "libcef/common/net/net_resource_provider.h"
+#include "cef/libcef/renderer/alloy/alloy_render_thread_observer.h"
 
 #include "base/no_destructor.h"
+#include "cef/libcef/common/net/net_resource_provider.h"
 #include "chrome/common/renderer_configuration.mojom.h"
 #include "net/base/net_module.h"
 #include "services/service_manager/public/cpp/connector.h"

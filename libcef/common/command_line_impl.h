@@ -6,10 +6,9 @@
 #define CEF_LIBCEF_COMMON_COMMAND_LINE_IMPL_H_
 #pragma once
 
-#include "include/cef_command_line.h"
-#include "libcef/common/value_base.h"
-
 #include "base/command_line.h"
+#include "cef/include/cef_command_line.h"
+#include "cef/libcef/common/value_base.h"
 
 // CefCommandLine implementation
 class CefCommandLineImpl

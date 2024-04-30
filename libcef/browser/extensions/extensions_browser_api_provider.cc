@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/extensions_browser_api_provider.h"
-#include "libcef/browser/extensions/chrome_api_registration.h"
+#include "cef/libcef/browser/extensions/extensions_browser_api_provider.h"
+
+#include "cef/libcef/browser/extensions/chrome_api_registration.h"
 
 // #include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "extensions/browser/api/generated_api_registration.h"

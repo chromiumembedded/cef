@@ -6,13 +6,11 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_VIEW_VIEW_H_
 #pragma once
 
-#include "include/views/cef_view.h"
-#include "include/views/cef_view_delegate.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/view_util.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_view.h"
+#include "cef/include/views/cef_view_delegate.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/view_util.h"
 #include "ui/views/accessibility/accessibility_paint_checks.h"
 #include "ui/views/background.h"
 #include "ui/views/view.h"

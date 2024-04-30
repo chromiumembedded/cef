@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/media_sink_device_info_callback_cpptoc.h"
+
 #include "libcef_dll/shutdown_checker.h"
 #include "libcef_dll/template_util.h"
 

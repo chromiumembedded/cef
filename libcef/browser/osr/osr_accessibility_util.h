@@ -7,7 +7,8 @@
 #pragma once
 
 #include <vector>
-#include "include/cef_values.h"
+
+#include "cef/include/cef_values.h"
 
 namespace content {
 struct AXEventNotificationDetails;

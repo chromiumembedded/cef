@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/extension_web_contents_observer.h"
+#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
 
 #include "chrome/common/webui_url_constants.h"
 #include "content/public/browser/child_process_security_policy.h"

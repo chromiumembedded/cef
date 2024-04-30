@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_COMMON_PROCESS_MESSAGE_IMPL_H_
 #pragma once
 
-#include "include/cef_process_message.h"
-
 #include "base/values.h"
+#include "cef/include/cef_process_message.h"
 
 // CefProcessMessage implementation.
 class CefProcessMessageImpl : public CefProcessMessage {

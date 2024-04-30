@@ -2,12 +2,14 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/browser/zip_reader_impl.h"
+#include "cef/libcef/browser/zip_reader_impl.h"
+
 #include <time.h>
+
 #include "base/logging.h"
 #include "base/notreached.h"
 #include "base/time/time.h"
-#include "include/cef_stream.h"
+#include "cef/include/cef_stream.h"
 
 // Static functions
 

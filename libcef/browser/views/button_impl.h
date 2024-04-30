@@ -6,12 +6,10 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BUTTON_IMPL_H_
 #pragma once
 
-#include "include/views/cef_button.h"
-#include "include/views/cef_label_button.h"
-
-#include "libcef/browser/views/view_impl.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_button.h"
+#include "cef/include/views/cef_label_button.h"
+#include "cef/libcef/browser/views/view_impl.h"
 #include "ui/gfx/color_utils.h"
 #include "ui/views/animation/ink_drop.h"
 #include "ui/views/controls/button/button.h"

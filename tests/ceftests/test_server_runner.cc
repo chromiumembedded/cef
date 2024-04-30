@@ -4,10 +4,9 @@
 
 #include "tests/ceftests/test_server_runner.h"
 
-#include "tests/shared/common/client_switches.h"
-
 #include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
+#include "tests/shared/common/client_switches.h"
 
 namespace test_server {
 

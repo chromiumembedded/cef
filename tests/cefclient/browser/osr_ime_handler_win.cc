@@ -4,11 +4,12 @@
 
 // Implementation based on ui/base/ime/win/imm32_manager.cc from Chromium.
 
+#include "tests/cefclient/browser/osr_ime_handler_win.h"
+
 #include <msctf.h>
 #include <windowsx.h>
 
 #include "include/base/cef_build.h"
-#include "tests/cefclient/browser/osr_ime_handler_win.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"

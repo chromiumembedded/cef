@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "include/cef_scheme.h"
-
+#include "cef/include/cef_scheme.h"
 #include "content/public/common/content_client.h"
 
 class CefSchemeRegistrarImpl : public CefSchemeRegistrar {

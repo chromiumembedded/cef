@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/common/frame_util.h"
-
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/common/frame_util.h"
 
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_frame_host.h"
 

@@ -2,21 +2,20 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/context.h"
+#include "cef/libcef/browser/context.h"
 
 #include <memory>
-
-#include "libcef/browser/browser_info_manager.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/trace_subscriber.h"
-#include "libcef/common/cef_switches.h"
 
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
 #include "base/run_loop.h"
 #include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"
+#include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/trace_subscriber.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
@@ -25,9 +24,9 @@
 #if BUILDFLAG(IS_WIN)
 #include "base/debug/alias.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cef/include/internal/cef_win.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
-#include "include/internal/cef_win.h"
 #endif
 
 namespace {

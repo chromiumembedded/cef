@@ -7,9 +7,8 @@
 
 #include <memory>
 
-#include "sandbox/mac/seatbelt_exec.h"
-
 #include "include/cef_sandbox_mac.h"
+#include "sandbox/mac/seatbelt_exec.h"
 
 void* cef_sandbox_initialize(int argc, char** argv) {
   uint32_t exec_path_size = 0;

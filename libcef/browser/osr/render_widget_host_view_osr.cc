@@ -3,24 +3,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/osr/render_widget_host_view_osr.h"
+#include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 
 #include <stdint.h>
+
 #include <memory>
 #include <utility>
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/osr/osr_util.h"
-#include "libcef/browser/osr/synthetic_gesture_target_osr.h"
-#include "libcef/browser/osr/touch_selection_controller_client_osr.h"
-#include "libcef/browser/osr/video_consumer_osr.h"
-#include "libcef/browser/thread_util.h"
 
 #include "base/command_line.h"
 #include "base/functional/callback_helpers.h"
 #include "base/memory/ptr_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cc/base/switches.h"
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/osr/osr_util.h"
+#include "cef/libcef/browser/osr/synthetic_gesture_target_osr.h"
+#include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
+#include "cef/libcef/browser/osr/video_consumer_osr.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"

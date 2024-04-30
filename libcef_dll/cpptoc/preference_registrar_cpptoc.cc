@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/preference_registrar_cpptoc.h"
+
 #include "libcef_dll/cpptoc/value_cpptoc.h"
 
 namespace {

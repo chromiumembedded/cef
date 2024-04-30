@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_TOOLBAR_VIEW_VIEW_H_
 #pragma once
 
-#include "libcef/browser/views/view_view.h"
-
+#include "cef/libcef/browser/views/view_view.h"
 #include "chrome/browser/ui/views/toolbar/toolbar_view.h"
 
 class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {

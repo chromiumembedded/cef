@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <array>
+
 #include "include/base/cef_callback.h"
 #include "include/cef_shared_process_message_builder.h"
 #include "include/cef_task.h"
@@ -9,8 +11,6 @@
 #include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/renderer/client_app_renderer.h"
-
-#include <array>
 
 using client::ClientAppRenderer;
 

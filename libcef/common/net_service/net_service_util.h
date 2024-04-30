@@ -8,9 +8,8 @@
 #include <map>
 #include <string>
 
-#include "include/internal/cef_types_wrappers.h"
-
 #include "base/memory/scoped_refptr.h"
+#include "cef/include/internal/cef_types_wrappers.h"
 #include "net/cookies/cookie_constants.h"
 
 namespace net {

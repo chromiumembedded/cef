@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/alloy_web_contents_view_delegate.h"
+#include "cef/libcef/browser/alloy/alloy_web_contents_view_delegate.h"
 
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "content/public/browser/web_contents.h"
-
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
 
 AlloyWebContentsViewDelegate::AlloyWebContentsViewDelegate(
     content::WebContents* web_contents)

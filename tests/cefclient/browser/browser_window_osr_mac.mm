@@ -4,6 +4,7 @@
 
 #include "tests/cefclient/browser/browser_window_osr_mac.h"
 
+#import <AppKit/NSAccessibility.h>
 #include <Cocoa/Cocoa.h>
 #include <OpenGL/gl.h>
 #import <objc/runtime.h>
@@ -18,8 +19,6 @@
 #include "tests/cefclient/browser/text_input_client_osr_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
-
-#import <AppKit/NSAccessibility.h>
 
 // Begin disable NSOpenGL deprecation warnings.
 #pragma clang diagnostic push

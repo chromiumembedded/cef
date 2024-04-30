@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "include/cef_parser.h"
-#include "libcef/common/values_impl.h"
-
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/values.h"
+#include "cef/include/cef_parser.h"
+#include "cef/libcef/common/values_impl.h"
 
 namespace {
 

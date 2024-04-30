@@ -6,10 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_VIEW_VIEW_H_
 #pragma once
 
-#include "include/views/cef_browser_view_delegate.h"
-
-#include "libcef/browser/views/view_view.h"
-
+#include "cef/include/views/cef_browser_view_delegate.h"
+#include "cef/libcef/browser/views/view_view.h"
 #include "ui/views/controls/webview/webview.h"
 
 // Extend views::WebView with a no-argument constructor as required by the

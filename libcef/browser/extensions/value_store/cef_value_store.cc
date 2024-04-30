@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/extensions/value_store/cef_value_store.h"
+#include "cef/libcef/browser/extensions/value_store/cef_value_store.h"
 
 #include <memory>
 #include <ostream>

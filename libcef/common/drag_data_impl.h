@@ -6,12 +6,11 @@
 #define CEF_LIBCEF_COMMON_DRAG_DATA_IMPL_H_
 #pragma once
 
-#include "include/cef_drag_data.h"
-#include "include/cef_image.h"
-
 #include <vector>
 
 #include "base/synchronization/lock.h"
+#include "cef/include/cef_drag_data.h"
+#include "cef/include/cef_image.h"
 #include "content/public/common/drop_data.h"
 
 // Implementation of CefDragData.

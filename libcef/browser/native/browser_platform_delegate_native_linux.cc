@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/native/browser_platform_delegate_native_linux.h"
-
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/native/window_delegate_view.h"
-#include "libcef/browser/thread_util.h"
+#include "cef/libcef/browser/native/browser_platform_delegate_native_linux.h"
 
 #include "base/no_destructor.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/native/window_delegate_view.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/input/native_web_keyboard_event.h"
@@ -21,7 +20,7 @@
 #include "ui/views/widget/widget.h"
 
 #if BUILDFLAG(IS_OZONE_X11)
-#include "libcef/browser/native/window_x11.h"
+#include "cef/libcef/browser/native/window_x11.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
 #include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h"

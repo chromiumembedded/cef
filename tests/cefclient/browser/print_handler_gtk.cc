@@ -5,17 +5,16 @@
 
 #include "tests/cefclient/browser/print_handler_gtk.h"
 
-#include <memory>
-#include <vector>
-
 #include <gtk/gtk.h>
 #include <gtk/gtkunixprint.h>
+
+#include <memory>
+#include <vector>
 
 #include "include/base/cef_callback.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/wrapper/cef_helpers.h"
-
 #include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/util_gtk.h"
 

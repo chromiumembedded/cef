@@ -13,7 +13,9 @@
 //
 
 #include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
+
 #include <algorithm>
+
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
 #include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"

@@ -3,15 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/native/window_x11.h"
+#include "cef/libcef/browser/native/window_x11.h"
 
 // Include first due to redefinition of x11::EventMask.
+// clang-format off
 #include "ui/base/x/x11_util.h"
+// clang-format on
 
-#include "libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "libcef/browser/browser_host_base.h"
-#include "libcef/browser/thread_util.h"
-
+#include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "cef/libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "net/base/network_interfaces.h"
 #include "ui/events/platform/platform_event_source.h"
 #include "ui/events/platform/x11/x11_event_source.h"

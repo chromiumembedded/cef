@@ -3,17 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/alloy/alloy_content_client.h"
+#include "cef/libcef/common/alloy/alloy_content_client.h"
 
 #include <stdint.h>
 
 #include <string_view>
-
-#include "include/cef_stream.h"
-#include "include/cef_version.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -24,6 +18,11 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "cef/include/cef_stream.h"
+#include "cef/include/cef_version.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/extensions/extensions_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_content_client.h"
 #include "chrome/common/chrome_paths.h"
@@ -40,7 +39,7 @@
 #include "ui/base/resource/resource_bundle.h"
 
 #if BUILDFLAG(ENABLE_CDM_HOST_VERIFICATION)
-#include "libcef/common/cdm_host_file_path.h"
+#include "cef/libcef/common/cdm_host_file_path.h"
 #endif
 
 namespace {

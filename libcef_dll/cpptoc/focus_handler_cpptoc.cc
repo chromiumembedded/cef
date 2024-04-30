@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
+
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
 

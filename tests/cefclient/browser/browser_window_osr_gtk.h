@@ -7,7 +7,6 @@
 #pragma once
 
 #include "include/base/cef_lock.h"
-
 #include "tests/cefclient/browser/browser_window.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
 #include "tests/cefclient/browser/osr_renderer.h"

@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_COMMON_WAITABLE_EVENT_IMPL_H_
 #pragma once
 
-#include "include/cef_waitable_event.h"
-
 #include "base/synchronization/waitable_event.h"
+#include "cef/include/cef_waitable_event.h"
 
 class CefWaitableEventImpl : public CefWaitableEvent {
  public:

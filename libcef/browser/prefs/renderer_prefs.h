@@ -8,8 +8,7 @@
 
 #include <string>
 
-#include "include/internal/cef_types_wrappers.h"
-
+#include "cef/include/internal/cef_types_wrappers.h"
 #include "cef/libcef/features/features.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)

@@ -6,15 +6,13 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_LAYOUT_IMPL_H_
 #pragma once
 
-#include "include/views/cef_box_layout.h"
-#include "include/views/cef_fill_layout.h"
-#include "include/views/cef_layout.h"
-
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/layout_adapter.h"
-#include "libcef/browser/views/layout_util.h"
-
 #include "base/logging.h"
+#include "cef/include/views/cef_box_layout.h"
+#include "cef/include/views/cef_fill_layout.h"
+#include "cef/include/views/cef_layout.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/layout_adapter.h"
+#include "cef/libcef/browser/views/layout_util.h"
 #include "ui/views/layout/layout_manager.h"
 #include "ui/views/view.h"
 

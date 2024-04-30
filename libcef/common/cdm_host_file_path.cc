@@ -2,7 +2,7 @@
 // 2017 The Chromium Authors. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-#include "libcef/common/cdm_host_file_path.h"
+#include "cef/libcef/common/cdm_host_file_path.h"
 
 #include "base/check.h"
 #include "base/files/file_path.h"
@@ -15,7 +15,7 @@
 #include "chrome/common/chrome_version.h"
 
 #if BUILDFLAG(IS_MAC)
-#include "libcef/common/util_mac.h"
+#include "cef/libcef/common/util_mac.h"
 #endif
 
 namespace cef {

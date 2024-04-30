@@ -5,8 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_VIEWS_H_
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_VIEWS_H_
 
-#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
-#include "libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
 
 class CefWindowImpl;
 

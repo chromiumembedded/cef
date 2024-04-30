@@ -2,17 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
-
-#include "libcef/browser/browser_platform_delegate.h"
-#include "libcef/browser/chrome/browser_platform_delegate_chrome.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/browser/views/browser_view_impl.h"
-#include "libcef/common/net/url_util.h"
-#include "libcef/features/runtime_checks.h"
+#include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
 
 #include "base/logging.h"
 #include "base/notreached.h"
+#include "cef/libcef/browser/browser_platform_delegate.h"
+#include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/common/net/url_util.h"
+#include "cef/libcef/features/runtime_checks.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_navigator.h"
@@ -21,8 +22,6 @@
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/frame/contents_web_view.h"
 #include "chrome/common/pref_names.h"
-#include "libcef/browser/chrome/views/chrome_browser_frame.h"
-#include "libcef/browser/chrome/views/chrome_browser_view.h"
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(

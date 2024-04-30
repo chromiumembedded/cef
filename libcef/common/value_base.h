@@ -8,7 +8,6 @@
 
 #include <map>
 #include <set>
-#include "include/cef_base.h"
 
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
@@ -16,6 +15,7 @@
 #include "base/synchronization/lock.h"
 #include "base/thread_annotations.h"
 #include "base/threading/platform_thread.h"
+#include "cef/include/cef_base.h"
 
 // Controller implementation base class.
 class CefValueController

@@ -3,13 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/main_runner.h"
-
-#include "libcef/browser/browser_message_loop.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-#include "libcef/common/chrome/chrome_main_runner_delegate.h"
-#include "libcef/features/runtime.h"
+#include "cef/libcef/browser/main_runner.h"
 
 #include "base/at_exit.h"
 #include "base/base_switches.h"
@@ -20,6 +14,11 @@
 #include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "cef/libcef/browser/browser_message_loop.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
+#include "cef/libcef/common/chrome/chrome_main_runner_delegate.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "components/crash/core/app/crash_switches.h"
 #include "content/app/content_main_runner_impl.h"
@@ -39,15 +38,17 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <Objbase.h>
+
 #include <windows.h>
 
 #include <memory>
+
 #include "content/public/app/sandbox_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/common/alloy/alloy_main_runner_delegate.h"
+#include "cef/libcef/common/alloy/alloy_main_runner_delegate.h"
 #endif
 
 namespace {

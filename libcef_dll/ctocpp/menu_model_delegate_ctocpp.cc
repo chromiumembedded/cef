@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/menu_model_delegate_ctocpp.h"
+
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
 

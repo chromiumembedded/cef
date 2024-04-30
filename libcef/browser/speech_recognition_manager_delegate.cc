@@ -2,16 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/speech_recognition_manager_delegate.h"
+#include "cef/libcef/browser/speech_recognition_manager_delegate.h"
 
 #include <set>
 #include <string>
 
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/cef_switches.h"
-
 #include "base/command_line.h"
 #include "base/functional/bind.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_observer.h"

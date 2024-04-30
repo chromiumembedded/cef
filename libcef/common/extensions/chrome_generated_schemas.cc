@@ -2,10 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/common/extensions/chrome_generated_schemas.h"
+#include "cef/libcef/common/extensions/chrome_generated_schemas.h"
 
-#include "libcef/browser/extensions/chrome_api_registration.h"
-
+#include "cef/libcef/browser/extensions/chrome_api_registration.h"
 #include "chrome/common/extensions/api/generated_schemas.h"
 
 namespace extensions::api::cef {

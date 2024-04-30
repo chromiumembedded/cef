@@ -8,7 +8,7 @@
 
 #include <memory>
 
-#include "include/test/cef_test_server.h"
+#include "cef/include/test/cef_test_server.h"
 
 class CefTestServerImpl : public CefTestServer {
  public:

@@ -6,11 +6,9 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_TEXTFIELD_VIEW_H_
 #pragma once
 
-#include "include/views/cef_textfield_delegate.h"
-
-#include "include/views/cef_textfield.h"
-#include "libcef/browser/views/view_view.h"
-
+#include "cef/include/views/cef_textfield.h"
+#include "cef/include/views/cef_textfield_delegate.h"
+#include "cef/libcef/browser/views/view_view.h"
 #include "ui/views/controls/textfield/textfield.h"
 #include "ui/views/controls/textfield/textfield_controller.h"
 

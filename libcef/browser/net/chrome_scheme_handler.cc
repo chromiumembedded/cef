@@ -3,19 +3,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/net/chrome_scheme_handler.h"
+#include "cef/libcef/browser/net/chrome_scheme_handler.h"
 
 #include <algorithm>
 #include <map>
 #include <string>
 #include <utility>
-
-#include "include/cef_version.h"
-#include "libcef/browser/extensions/chrome_api_registration.h"
-#include "libcef/browser/frame_host_impl.h"
-#include "libcef/browser/thread_util.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/features/runtime.h"
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
@@ -29,6 +22,12 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "cef/grit/cef_resources.h"
+#include "cef/include/cef_version.h"
+#include "cef/libcef/browser/extensions/chrome_api_registration.h"
+#include "cef/libcef/browser/frame_host_impl.h"
+#include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/devtools/devtools_ui_bindings.h"
 #include "chrome/browser/profiles/profile.h"

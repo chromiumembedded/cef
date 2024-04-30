@@ -8,12 +8,11 @@
 
 #include <memory>
 
-#include "include/cef_app.h"
-#include "libcef/common/app_manager.h"
-#include "libcef/common/chrome/chrome_content_client_cef.h"
-#include "libcef/common/main_runner_handler.h"
-#include "libcef/common/task_runner_manager.h"
-
+#include "cef/include/cef_app.h"
+#include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/common/chrome/chrome_content_client_cef.h"
+#include "cef/libcef/common/main_runner_handler.h"
+#include "cef/libcef/common/task_runner_manager.h"
 #include "chrome/app/chrome_main_delegate.h"
 
 class ChromeContentBrowserClientCef;

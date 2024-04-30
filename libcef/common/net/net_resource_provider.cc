@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/common/net/net_resource_provider.h"
+#include "cef/libcef/common/net/net_resource_provider.h"
 
 #include "base/logging.h"
 #include "chrome/common/net/net_resource_provider.h"

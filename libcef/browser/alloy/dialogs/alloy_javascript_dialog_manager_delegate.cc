@@ -3,11 +3,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
-
-#include "libcef/browser/browser_host_base.h"
+#include "cef/libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
 
 #include "base/logging.h"
+#include "cef/libcef/browser/browser_host_base.h"
 
 namespace {
 

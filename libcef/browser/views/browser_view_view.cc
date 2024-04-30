@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "libcef/browser/views/browser_view_view.h"
+#include "cef/libcef/browser/views/browser_view_view.h"
 
-#include "libcef/browser/views/browser_view_impl.h"
+#include "cef/libcef/browser/views/browser_view_impl.h"
 
 CefBrowserViewView::CefBrowserViewView(CefBrowserViewDelegate* cef_delegate,
                                        Delegate* browser_view_delegate)

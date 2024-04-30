@@ -2,28 +2,26 @@
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
-#include "libcef/browser/prefs/browser_prefs.h"
+#include "cef/libcef/browser/prefs/browser_prefs.h"
 
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/context.h"
-#include "libcef/browser/prefs/pref_registrar.h"
-
+#include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/prefs/pref_registrar.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/language/core/browser/pref_names.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "libcef/browser/media_capture_devices_dispatcher.h"
-#include "libcef/browser/prefs/pref_store.h"
-#include "libcef/browser/prefs/renderer_prefs.h"
-#include "libcef/common/cef_switches.h"
-
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/task/thread_pool.h"
 #include "base/values.h"
+#include "cef/libcef/browser/media_capture_devices_dispatcher.h"
+#include "cef/libcef/browser/prefs/pref_store.h"
+#include "cef/libcef/browser/prefs/renderer_prefs.h"
+#include "cef/libcef/common/cef_switches.h"
 #include "chrome/browser/download/download_prefs.h"
 #include "chrome/browser/media/router/discovery/access_code/access_code_cast_feature.h"
 #include "chrome/browser/media/router/media_router_feature.h"

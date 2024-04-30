@@ -2,11 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "libcef/renderer/dom_document_impl.h"
-#include "libcef/renderer/dom_node_impl.h"
-#include "libcef/renderer/thread_util.h"
+#include "cef/libcef/renderer/dom_document_impl.h"
 
 #include "base/logging.h"
+#include "cef/libcef/renderer/dom_node_impl.h"
+#include "cef/libcef/renderer/thread_util.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/platform/web_url.h"
 #include "third_party/blink/public/web/web_document.h"

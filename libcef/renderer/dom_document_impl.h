@@ -7,7 +7,8 @@
 #pragma once
 
 #include <map>
-#include "include/cef_dom.h"
+
+#include "cef/include/cef_dom.h"
 
 namespace blink {
 class WebLocalFrame;

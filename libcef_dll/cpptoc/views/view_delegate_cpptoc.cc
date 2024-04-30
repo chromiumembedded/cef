@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
+
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"

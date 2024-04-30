@@ -13,6 +13,7 @@
 //
 
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_ctocpp.h"
+
 #include "libcef_dll/ctocpp/test/translator_test_scoped_client_child_ctocpp.h"
 
 // VIRTUAL METHODS - Body may be edited by hand.

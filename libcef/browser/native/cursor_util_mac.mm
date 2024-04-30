@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "include/internal/cef_types_mac.h"
-#include "libcef/browser/native/cursor_util.h"
+#include "cef/libcef/browser/native/cursor_util.h"
 
+#include "cef/include/internal/cef_types_mac.h"
 #import "ui/base/cocoa/cursor_utils.h"
 
 namespace cursor_util {

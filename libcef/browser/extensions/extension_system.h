@@ -9,11 +9,10 @@
 #include <map>
 #include <memory>
 
-#include "include/cef_extension_handler.h"
-#include "include/cef_request_context.h"
-
 #include "base/memory/weak_ptr.h"
 #include "base/one_shot_event.h"
+#include "cef/include/cef_extension_handler.h"
+#include "cef/include/cef_request_context.h"
 #include "extensions/browser/extension_system.h"
 
 namespace base {

@@ -6,9 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_VIEW_ADAPTER_H_
 #pragma once
 
-#include "include/views/cef_view.h"
-
 #include "base/values.h"
+#include "cef/include/views/cef_view.h"
 
 namespace views {
 class View;

@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/chrome/chrome_devtools_window_runner.h"
+#include "cef/libcef/browser/chrome/chrome_devtools_window_runner.h"
 
-#include "libcef/browser/chrome/chrome_browser_host_impl.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/thread_util.h"
-
+#include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/request_context_impl.h"
+#include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/devtools/devtools_window.h"
 
 void ChromeDevToolsWindowRunner::ShowDevTools(

@@ -3,12 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
+#include "cef/libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
-#include "libcef/renderer/render_frame_observer.h"
-#include "libcef/renderer/render_manager.h"
-#include "libcef/renderer/thread_util.h"
-
+#include "cef/libcef/renderer/render_frame_observer.h"
+#include "cef/libcef/renderer/render_manager.h"
+#include "cef/libcef/renderer/thread_util.h"
 #include "chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"

@@ -6,12 +6,11 @@
 #ifndef LIBCEF_BROWSER_PRINTING_PRINT_DIALOG_LINUX_H_
 #define LIBCEF_BROWSER_PRINTING_PRINT_DIALOG_LINUX_H_
 
-#include "include/cef_print_handler.h"
-#include "libcef/browser/browser_host_base.h"
-
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/task/sequenced_task_runner_helpers.h"
+#include "cef/include/cef_print_handler.h"
+#include "cef/libcef/browser/browser_host_base.h"
 #include "content/public/browser/browser_thread.h"
 #include "printing/buildflags/buildflags.h"
 #include "printing/print_dialog_linux_interface.h"

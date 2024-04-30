@@ -6,8 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_MENU_RUNNER_VIEWS_AURA_H_
 #pragma once
 
-#include "libcef/browser/menu_runner.h"
-
+#include "cef/libcef/browser/menu_runner.h"
 #include "ui/views/controls/menu/menu_runner.h"
 
 class CefMenuRunnerViewsAura : public CefMenuRunner {
