@@ -32,7 +32,6 @@
 #pragma once
 
 #include "include/base/cef_build.h"
-#include "include/cef_config.h"
 
 #if defined(OS_LINUX)
 

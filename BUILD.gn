@@ -350,6 +350,10 @@ if (is_win) {
       "//build/config:precompiled_headers",
     ]
 
+    public_configs = [
+      "libcef/features:config",
+    ]
+
     if (is_component_build) {
       # Avoid linker errors with content_switches.cc in component build by not
       # defining CONTENT_EXPORT.
@@ -1247,18 +1251,29 @@ config("libcef_autogen_config") {
   }
 }
 
-# Configuration that will be applied to all targets that depend on
-# libcef_dll_wrapper.
-config("libcef_dll_wrapper_config") {
+# Configuration that supports #include paths relative to src/cef/ for CEF
+# client-side code. CEF library-side code (Chromium code and cef/libcef/
+# directory) uses #include paths relative to src/. See libcef/features:config
+# for CEF library-side configuration.
+config("libcef_includes_config") {
   include_dirs = [
-    # CEF sources use include paths relative to the CEF root directory.
+    # cef/include/ directory and CEF client-side code use #includes relative to
+    # the cef/ directory.
     ".",
-    # CEF generates some header files that also need to be discoverable.
+    # CEF generated header files that also need to be discoverable.
+    # These #includes from client-side code will not be prefixed with cef/.
     # They will be copied to the include/ directory in the binary distribution.
     "$root_out_dir/includes/cef",
   ]
+}
 
-  configs = [ ":libcef_autogen_config" ]
+# Configuration that will be applied to all targets that depend on
+# libcef_dll_wrapper.
+config("libcef_dll_wrapper_config") {
+  configs = [
+    ":libcef_autogen_config",
+    ":libcef_includes_config",
+  ]
 
   if (is_win) {
     if (current_cpu == "x86") {
@@ -1273,10 +1288,6 @@ config("libcef_dll_wrapper_config") {
       # Increase the initial stack size to 8MiB from the default 1MiB.
       ldflags = [ "/STACK:0x800000" ]
     }
-  }
-
-  if (!enable_alloy_bootstrap) {
-    defines = [ "DISABLE_ALLOY_BOOTSTRAP" ]
   }
 }
 
@@ -1311,8 +1322,7 @@ static_library("libcef_dll_wrapper") {
 if (is_win) {
   static_library("cef_sandbox") {
     sources = [ "libcef_dll/sandbox/sandbox_win.cc" ]
-    # CEF sources use include paths relative to the CEF root directory.
-    include_dirs = [ "." ]
+    configs += [ ":libcef_includes_config" ]
     deps = [ "libcef/features", "//sandbox" ]
   }
 }
@@ -1320,8 +1330,7 @@ if (is_win) {
 if (is_mac) {
   static_library("cef_sandbox") {
     sources = [ "libcef_dll/sandbox/sandbox_mac.mm" ]
-    # CEF sources use include paths relative to the CEF root directory.
-    include_dirs = [ "." ]
+    configs += [ ":libcef_includes_config" ]
     deps = [
       "//build/config:executable_deps",
       "//sandbox/mac:seatbelt"
@@ -1505,13 +1514,24 @@ action("make_api_hash_header") {
   args = rebase_path(outputs + include_dir, root_build_dir)
 }
 
+# This no-op action lists args.gn as an output, allowing it to be referenced as
+# an input (trigger) for other actions. Otherwise, GN will complain that no
+# target generates the args.gn file because it’s below the $root_out_dir.
+action("args_gn_source") {
+  script = "//build/noop.py"
+  outputs = [ "$root_out_dir/args.gn" ]
+}
+
 # Generate cef_config.h.
 action("make_config_header") {
   script = "tools/make_config_header.py"
 
+  deps = [ ":args_gn_source" ]
+
+  inputs = [ "$root_out_dir/args.gn" ]
   outputs = [ "$root_out_dir/includes/cef/include/cef_config.h" ]
 
-  args = rebase_path(outputs + [ "$root_out_dir/args.gn" ], root_build_dir)
+  args = rebase_path(outputs + inputs, root_build_dir)
 }
 
 # Generate cef_color_ids.h.

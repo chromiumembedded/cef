@@ -51,6 +51,5 @@ Thumbs.db
 /binary_distrib
 /docs
 # CEF generated files
-/include/cef_config.h
 /include/cef_version.h
 .ccls-cache/

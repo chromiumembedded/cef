@@ -71,11 +71,26 @@
 #include "build/build_config.h"
 #include "cef/libcef/features/features.h"
 
+// The following #defines are used in cef/include/ headers and CEF client-side
+// code. CEF library-side code should use BUILDFLAG checks directly instead of
+// these #defines. CEF client-side code will get these #defines from
+// cef_config.h so any changes must also be reflected in
+// tools/make_config_header.py.
+
+#if BUILDFLAG(IS_LINUX)
+#include "ui/base/ozone_buildflags.h"
+#if BUILDFLAG(IS_OZONE_X11)
+#define CEF_X11 1
+#endif
+#endif
+
 #if !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #define DISABLE_ALLOY_BOOTSTRAP 1
 #endif
 
 #else  // !USING_CHROMIUM_INCLUDES
+#include "include/cef_config.h"
+
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.

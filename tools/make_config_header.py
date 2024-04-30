@@ -16,13 +16,21 @@ def make_config_header(gn_config):
 
   defines = []
 
-  if sys.platform.startswith('linux'):
-    lines = read_file(gn_config).split("\n")
+  lines = read_file(gn_config).split("\n")
 
-    # All Linux builds use Ozone, and the X11 platform is enabled by default.
-    # Check if the config is explicitly disabling it.
-    if not 'ozone_platform_x11=false' in lines:
-      defines.append('#define CEF_X11 1')
+  # The following #defines are used in cef/include/ headers and CEF client-side code.
+  # CEF library-side code will get these #defines from include/base/cef_build.h so
+  # any changes must also be reflected there.
+
+  # All Linux builds use Ozone, and the X11 platform is enabled by default.
+  # Check if the config is explicitly disabling it.
+  if sys.platform.startswith('linux') and \
+      not 'ozone_platform_x11=false' in lines:
+    defines.append('#define CEF_X11 1')
+
+  # Temporary define for disabling the Alloy bootstrap. See issue #3685.
+  if 'enable_alloy_bootstrap=false' in lines:
+    defines.append('#define DISABLE_ALLOY_BOOTSTRAP 1')
 
   result = get_copyright(full=True, translator=False) + \
 """//

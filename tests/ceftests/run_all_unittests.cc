@@ -5,7 +5,6 @@
 #include <memory>
 
 #include "include/base/cef_build.h"
-#include "include/cef_config.h"
 
 #if defined(OS_LINUX) && defined(CEF_X11)
 #include <X11/Xlib.h>
