@@ -6,9 +6,12 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_FRAME_H_
 #pragma once
 
+#include <map>
+
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/views/color_provider_tracker.h"
 #include "cef/libcef/browser/views/widget.h"
+#include "chrome/browser/themes/theme_service_observer.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/frame/browser_frame.h"
 
@@ -95,9 +98,11 @@ class CefWindowView;
 // CefWindowView::CreateWidget() when the Chrome runtime is enabled.
 class ChromeBrowserFrame : public BrowserFrame,
                            public CefWidget,
-                           public CefColorProviderTracker::Observer {
+                           public CefColorProviderTracker::Observer,
+                           public ThemeServiceObserver {
  public:
   explicit ChromeBrowserFrame(CefWindowView* window_view);
+  ~ChromeBrowserFrame() override;
 
   ChromeBrowserFrame(const ChromeBrowserFrame&) = delete;
   ChromeBrowserFrame& operator=(const ChromeBrowserFrame&) = delete;
@@ -130,6 +135,10 @@ class ChromeBrowserFrame : public BrowserFrame,
 
   // ui::NativeThemeObserver methods:
   void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
+  ui::ColorProviderKey GetColorProviderKey() const override;
+
+  // ThemeServiceObserver methods:
+  void OnThemeChanged() override;
 
   BrowserView* browser_view() const { return browser_view_; }
 
@@ -144,6 +153,10 @@ class ChromeBrowserFrame : public BrowserFrame,
 
   bool initialized_ = false;
   bool native_theme_change_ = false;
+
+  // Map of Profile* to count.
+  using ProfileMap = std::map<Profile*, size_t>;
+  ProfileMap associated_profiles_;
 
   CefColorProviderTracker color_provider_tracker_{this};
 

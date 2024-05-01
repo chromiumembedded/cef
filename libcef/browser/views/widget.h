@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_WIDGET_H_
 #pragma once
 
+#include "ui/color/color_provider_key.h"
+
 class CefWindowView;
 class Profile;
 
@@ -42,7 +44,6 @@ class CefWidget {
 
   // Track all Profiles associated with this Widget. Called from
   // CefBrowserViewImpl::AddedToWidget and DisassociateFromWidget.
-  // |profile| is only used with the Alloy runtime.
   virtual void AddAssociatedProfile(Profile* profile) = 0;
   virtual void RemoveAssociatedProfile(Profile* profile) = 0;
 
@@ -59,6 +60,10 @@ class CefWidget {
 
  protected:
   virtual ~CefWidget() = default;
+
+  static ui::ColorProviderKey GetColorProviderKey(
+      const ui::ColorProviderKey& widget_key,
+      Profile* profile);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WIDGET_H_

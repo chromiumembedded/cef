@@ -8,6 +8,7 @@
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/window_view.h"
 #include "chrome/browser/themes/theme_service.h"
+#include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
@@ -20,6 +21,10 @@
 
 ChromeBrowserFrame::ChromeBrowserFrame(CefWindowView* window_view)
     : window_view_(window_view) {}
+
+ChromeBrowserFrame::~ChromeBrowserFrame() {
+  DCHECK(associated_profiles_.empty());
+}
 
 void ChromeBrowserFrame::Init(BrowserView* browser_view,
                               std::unique_ptr<Browser> browser) {
@@ -63,16 +68,70 @@ void ChromeBrowserFrame::Initialized() {
 #endif
 }
 
-void ChromeBrowserFrame::AddAssociatedProfile(Profile* /*profile*/) {
-  // Calls ThemeChanged().
-  UserChangedTheme(BrowserThemeChangeType::kBrowserTheme);
+void ChromeBrowserFrame::AddAssociatedProfile(Profile* profile) {
+  DCHECK(profile);
+
+  // Always call ThemeChanged() when the Chrome style BrowserView is added.
+  bool call_theme_changed =
+      browser_view_ && browser_view_->GetProfile() == profile;
+
+  ProfileMap::iterator it = associated_profiles_.find(profile);
+  if (it != associated_profiles_.end()) {
+    // Another instance of a known Profile.
+    (it->second)++;
+  } else {
+    auto* current_profile = GetThemeProfile();
+
+    associated_profiles_.insert(std::make_pair(profile, 1));
+
+    if (auto* theme_service = ThemeServiceFactory::GetForProfile(profile)) {
+      theme_service->AddObserver(this);
+    }
+
+    // Potentially switching to a different theme.
+    call_theme_changed |= GetThemeProfile() != current_profile;
+  }
+
+  if (call_theme_changed) {
+    // Calls ThemeChanged().
+    UserChangedTheme(BrowserThemeChangeType::kBrowserTheme);
+  }
 }
 
-void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* /*profile*/) {}
+void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* profile) {
+  DCHECK(profile);
+  ProfileMap::iterator it = associated_profiles_.find(profile);
+  if (it == associated_profiles_.end()) {
+    DCHECK(false);  // Not reached.
+    return;
+  }
+  if (--(it->second) > 0) {
+    // More instances of the Profile exist.
+    return;
+  }
+
+  auto* current_profile = GetThemeProfile();
+
+  associated_profiles_.erase(it);
+
+  if (auto* theme_service = ThemeServiceFactory::GetForProfile(profile)) {
+    theme_service->RemoveObserver(this);
+  }
+
+  auto* new_profile = GetThemeProfile();
+  if (new_profile != current_profile) {
+    // Switching to a different theme.
+    NotifyThemeColorsChanged(/*chrome_theme=*/!!new_profile);
+  }
+}
 
 Profile* ChromeBrowserFrame::GetThemeProfile() const {
+  // Always prefer the Browser Profile, if any.
   if (browser_view_) {
     return browser_view_->GetProfile();
+  }
+  if (!associated_profiles_.empty()) {
+    return associated_profiles_.begin()->first;
   }
   return nullptr;
 }
@@ -145,6 +204,31 @@ void ChromeBrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
   BrowserFrame::OnNativeThemeUpdated(observed_theme);
 
   native_theme_change_ = false;
+}
+
+ui::ColorProviderKey ChromeBrowserFrame::GetColorProviderKey() const {
+  if (browser_view_) {
+    // Use the default Browser implementation.
+    return BrowserFrame::GetColorProviderKey();
+  }
+
+  const auto& widget_key = Widget::GetColorProviderKey();
+  if (auto* profile = GetThemeProfile()) {
+    return CefWidget::GetColorProviderKey(widget_key, profile);
+  }
+  return widget_key;
+}
+
+void ChromeBrowserFrame::OnThemeChanged() {
+  if (browser_view_) {
+    // Ignore these notifications if we have a Browser.
+    return;
+  }
+
+  // When the Chrome theme changes, the NativeTheme may also change.
+  SelectNativeTheme();
+
+  NotifyThemeColorsChanged(/*chrome_theme=*/true);
 }
 
 void ChromeBrowserFrame::OnColorProviderCacheResetMissed() {
