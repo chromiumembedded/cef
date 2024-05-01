@@ -233,7 +233,7 @@ index 0ccfe39eb5696..c9424316b6d14 100644
      return gfx::Rect();
    }
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 8dd3620ba2720..ab3a92fd7ebe4 100644
+index 8dd3620ba2720..e3bac8207de24 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -114,15 +114,23 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
@@ -332,16 +332,7 @@ index 8dd3620ba2720..ab3a92fd7ebe4 100644
    chrome::SaveWindowWorkspace(browser_view_->browser(), GetWorkspace());
    chrome::SaveWindowVisibleOnAllWorkspaces(browser_view_->browser(),
                                             IsVisibleOnAllWorkspaces());
-@@ -483,6 +515,8 @@ void BrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
- 
- ui::ColorProviderKey BrowserFrame::GetColorProviderKey() const {
-   auto key = Widget::GetColorProviderKey();
-+  if (!browser_view_)
-+    return key;
- 
-   key.app_controller = browser_view_->browser()->app_controller();
- 
-@@ -572,6 +606,13 @@ void BrowserFrame::SelectNativeTheme() {
+@@ -572,6 +604,13 @@ void BrowserFrame::SelectNativeTheme() {
      return;
    }
  
@@ -355,7 +346,7 @@ index 8dd3620ba2720..ab3a92fd7ebe4 100644
    // Ignore the system theme for web apps with window-controls-overlay as the
    // display_override so the web contents can blend with the overlay by using
    // the developer-provided theme color for a better experience. Context:
-@@ -637,5 +678,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
+@@ -637,5 +676,8 @@ bool BrowserFrame::RegenerateFrameOnThemeChange(
  }
  
  bool BrowserFrame::IsIncognitoBrowser() const {
