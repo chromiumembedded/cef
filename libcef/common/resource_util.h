@@ -23,10 +23,6 @@ class FilePath;
 namespace resource_util {
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-// Returns the directory that contains resource files (*.bin, *.dat, *.pak,
-// etc).
-base::FilePath GetResourcesDir();
-
 // Returns the default path for the debug.log file.
 base::FilePath GetDefaultLogFilePath();
 
@@ -36,6 +32,10 @@ void OverrideDefaultDownloadDir();
 // Returns true if |scale_factor| is supported by this platform.
 bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor);
 #endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
+// Returns the directory that contains resource files (*.bin, *.dat, *.pak,
+// etc).
+base::FilePath GetResourcesDir();
 
 void OverrideUserDataDir(CefSettings* settings,
                          const base::CommandLine* command_line);

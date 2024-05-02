@@ -21,6 +21,10 @@
 #include "base/nix/xdg_util.h"
 #endif
 
+#if BUILDFLAG(IS_MAC)
+#include "cef/libcef/common/util_mac.h"
+#endif
+
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 #include "base/files/file_util.h"
 #include "base/notreached.h"
@@ -30,7 +34,6 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "base/apple/foundation_util.h"
-#include "cef/libcef/common/util_mac.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -171,10 +174,6 @@ bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
 
 #if BUILDFLAG(IS_MAC)
 
-base::FilePath GetResourcesDir() {
-  return util_mac::GetFrameworkResourcesDirectory();
-}
-
 // Use a "~/Library/Logs/<app name>_debug.log" file where <app name> is the name
 // of the running executable.
 base::FilePath GetDefaultLogFilePath() {
@@ -185,12 +184,6 @@ base::FilePath GetDefaultLogFilePath() {
 }
 
 #else  // !BUILDFLAG(IS_MAC)
-
-base::FilePath GetResourcesDir() {
-  base::FilePath pak_dir;
-  base::PathService::Get(base::DIR_ASSETS, &pak_dir);
-  return pak_dir;
-}
 
 // Use a "debug.log" file in the running executable's directory.
 base::FilePath GetDefaultLogFilePath() {
@@ -223,6 +216,22 @@ bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
 }
 
 #endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+
+#if BUILDFLAG(IS_MAC)
+
+base::FilePath GetResourcesDir() {
+  return util_mac::GetFrameworkResourcesDirectory();
+}
+
+#else  // !BUILDFLAG(IS_MAC)
+
+base::FilePath GetResourcesDir() {
+  base::FilePath pak_dir;
+  base::PathService::Get(base::DIR_ASSETS, &pak_dir);
+  return pak_dir;
+}
+
+#endif  // !BUILDFLAG(IS_MAC)
 
 void OverrideUserDataDir(CefSettings* settings,
                          const base::CommandLine* command_line) {
