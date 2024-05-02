@@ -18,15 +18,18 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/lazy_instance.h"
+#include "base/path_service.h"
 #include "base/threading/threading_features.h"
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/embedder_support/switches.h"
 #include "content/public/common/content_switches.h"
 #include "sandbox/policy/switches.h"
 #include "third_party/blink/public/common/switches.h"
+#include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -87,6 +90,39 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
 
     bool no_sandbox = settings_->no_sandbox ? true : false;
 
+    if (settings_->browser_subprocess_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings_->browser_subprocess_path));
+      if (!file_path.empty()) {
+        command_line->AppendSwitchPath(switches::kBrowserSubprocessPath,
+                                       file_path);
+
+#if BUILDFLAG(IS_WIN)
+        // The sandbox is not supported when using a separate subprocess
+        // executable on Windows.
+        no_sandbox = true;
+#endif
+      }
+    }
+
+#if BUILDFLAG(IS_MAC)
+    if (settings_->framework_dir_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings_->framework_dir_path));
+      if (!file_path.empty()) {
+        command_line->AppendSwitchPath(switches::kFrameworkDirPath, file_path);
+      }
+    }
+
+    if (settings_->main_bundle_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings_->main_bundle_path));
+      if (!file_path.empty()) {
+        command_line->AppendSwitchPath(switches::kMainBundlePath, file_path);
+      }
+    }
+#endif
+
     if (no_sandbox) {
       command_line->AppendSwitch(sandbox::policy::switches::kNoSandbox);
     }
@@ -112,6 +148,22 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       command_line->AppendSwitchASCII(
           blink::switches::kJavaScriptFlags,
           CefString(&settings_->javascript_flags).ToString());
+    }
+
+    if (settings_->resources_dir_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings_->resources_dir_path));
+      if (!file_path.empty()) {
+        command_line->AppendSwitchPath(switches::kResourcesDirPath, file_path);
+      }
+    }
+
+    if (settings_->locales_dir_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings_->locales_dir_path));
+      if (!file_path.empty()) {
+        command_line->AppendSwitchPath(switches::kLocalesDirPath, file_path);
+      }
     }
 
     if (settings_->remote_debugging_port >= 1024 &&
@@ -193,6 +245,26 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   // Initialize crash reporting state for this process/module.
   // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
   crash_reporting::PreSandboxStartup(*command_line, process_type);
+
+  base::FilePath resources_dir;
+  if (command_line->HasSwitch(switches::kResourcesDirPath)) {
+    resources_dir =
+        command_line->GetSwitchValuePath(switches::kResourcesDirPath);
+  }
+  if (resources_dir.empty()) {
+    resources_dir = resource_util::GetResourcesDir();
+  }
+  if (!resources_dir.empty()) {
+    base::PathService::Override(chrome::DIR_RESOURCES, resources_dir);
+  }
+
+  if (command_line->HasSwitch(switches::kLocalesDirPath)) {
+    const auto& locales_dir =
+        command_line->GetSwitchValuePath(switches::kLocalesDirPath);
+    if (!locales_dir.empty()) {
+      base::PathService::Override(ui::DIR_LOCALES, locales_dir);
+    }
+  }
 }
 
 std::optional<int> ChromeMainDelegateCef::PreBrowserMain() {

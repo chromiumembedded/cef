@@ -118,6 +118,12 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     // Propagate the following switches to all command lines (along with any
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
+#if BUILDFLAG(IS_MAC)
+        switches::kFrameworkDirPath,
+        switches::kMainBundlePath,
+#endif
+        switches::kLocalesDirPath,
+        switches::kResourcesDirPath,
         switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
@@ -125,6 +131,19 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
+
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
+  if (process_type == switches::kZygoteProcess &&
+      browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
+    // Force use of the sub-process executable path for the zygote process.
+    const base::FilePath& subprocess_path =
+        browser_cmd->GetSwitchValuePath(switches::kBrowserSubprocessPath);
+    if (!subprocess_path.empty()) {
+      command_line->SetProgram(subprocess_path);
+    }
+  }
+#endif
+
   if (process_type == switches::kRendererProcess) {
     // Propagate the following switches to the renderer command line (along with
     // any associated values) if present in the browser command line.
