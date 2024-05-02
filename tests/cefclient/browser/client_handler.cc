@@ -1015,7 +1015,8 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     SetOfflineState(browser, true);
   }
 
-  if (browser->GetHost()->GetExtension()) {
+#if !defined(DISABLE_ALLOY_BOOTSTRAP)
+  if (use_alloy_style_ && browser->GetHost()->GetExtension()) {
     // Browsers hosting extension apps should auto-resize.
     browser->GetHost()->SetAutoResizeEnabled(true, CefSize(20, 20),
                                              CefSize(1000, 1000));
@@ -1027,6 +1028,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
           extension, GetResourceManager());
     }
   }
+#endif
 
   NotifyBrowserCreated(browser);
 }
