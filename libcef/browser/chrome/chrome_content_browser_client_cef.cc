@@ -125,6 +125,8 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
         switches::kMainBundlePath,
 #endif
         switches::kLocalesDirPath,
+        switches::kLogItems,
+        switches::kLogSeverity,
         switches::kResourcesDirPath,
         switches::kUserAgentProductAndVersion,
     };

@@ -42,6 +42,76 @@ namespace {
 base::LazyInstance<ChromeContentRendererClientCef>::DestructorAtExit
     g_chrome_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 
+void InitLogging(const base::CommandLine* command_line) {
+  logging::LogSeverity log_severity = logging::LOGGING_INFO;
+
+  std::string log_severity_str =
+      command_line->GetSwitchValueASCII(switches::kLogSeverity);
+  if (!log_severity_str.empty()) {
+    if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                         switches::kLogSeverity_Verbose)) {
+      log_severity = logging::LOGGING_VERBOSE;
+    } else if (base::EqualsCaseInsensitiveASCII(
+                   log_severity_str, switches::kLogSeverity_Warning)) {
+      log_severity = logging::LOGGING_WARNING;
+    } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                                switches::kLogSeverity_Error)) {
+      log_severity = logging::LOGGING_ERROR;
+    } else if (base::EqualsCaseInsensitiveASCII(log_severity_str,
+                                                switches::kLogSeverity_Fatal)) {
+      log_severity = logging::LOGGING_FATAL;
+    } else if (base::EqualsCaseInsensitiveASCII(
+                   log_severity_str, switches::kLogSeverity_Disable)) {
+      log_severity = LOGSEVERITY_DISABLE;
+    }
+  }
+
+  if (log_severity == LOGSEVERITY_DISABLE) {
+    // By default, ERROR and FATAL messages will always be output to stderr due
+    // to the kAlwaysPrintErrorLevel value in base/logging.cc. We change the log
+    // level here so that only FATAL messages are output.
+    logging::SetMinLogLevel(logging::LOGGING_FATAL);
+  } else {
+    logging::SetMinLogLevel(log_severity);
+  }
+
+  // Customization of items automatically prepended to log lines.
+  std::string log_items_str =
+      command_line->GetSwitchValueASCII(switches::kLogItems);
+  if (!log_items_str.empty()) {
+    bool enable_log_of_process_id, enable_log_of_thread_id,
+        enable_log_of_time_stamp, enable_log_of_tick_count;
+    enable_log_of_process_id = enable_log_of_thread_id =
+        enable_log_of_time_stamp = enable_log_of_tick_count = false;
+
+    for (const auto& cur_item_to_log :
+         base::SplitStringPiece(log_items_str, ",", base::TRIM_WHITESPACE,
+                                base::SPLIT_WANT_NONEMPTY)) {
+      // if "none" mode is present, all items are disabled.
+      if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                           switches::kLogItems_None)) {
+        enable_log_of_process_id = enable_log_of_thread_id =
+            enable_log_of_time_stamp = enable_log_of_tick_count = false;
+        break;
+      } else if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                                  switches::kLogItems_PId)) {
+        enable_log_of_process_id = true;
+      } else if (base::EqualsCaseInsensitiveASCII(cur_item_to_log,
+                                                  switches::kLogItems_TId)) {
+        enable_log_of_thread_id = true;
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     cur_item_to_log, switches::kLogItems_TimeStamp)) {
+        enable_log_of_time_stamp = true;
+      } else if (base::EqualsCaseInsensitiveASCII(
+                     cur_item_to_log, switches::kLogItems_TickCount)) {
+        enable_log_of_tick_count = true;
+      }
+    }
+    logging::SetLogItems(enable_log_of_process_id, enable_log_of_thread_id,
+                         enable_log_of_time_stamp, enable_log_of_tick_count);
+  }
+}
+
 }  // namespace
 
 ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
@@ -143,6 +213,70 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
+    if (!command_line->HasSwitch(switches::kLogFile) &&
+        settings_->log_file.length > 0) {
+      auto log_file = base::FilePath(CefString(&settings_->log_file));
+      command_line->AppendSwitchPath(switches::kLogFile, log_file);
+    }
+
+    if (!command_line->HasSwitch(switches::kLogSeverity) &&
+        settings_->log_severity != LOGSEVERITY_DEFAULT) {
+      std::string log_severity;
+      switch (settings_->log_severity) {
+        case LOGSEVERITY_VERBOSE:
+          log_severity = switches::kLogSeverity_Verbose;
+          break;
+        case LOGSEVERITY_INFO:
+          log_severity = switches::kLogSeverity_Info;
+          break;
+        case LOGSEVERITY_WARNING:
+          log_severity = switches::kLogSeverity_Warning;
+          break;
+        case LOGSEVERITY_ERROR:
+          log_severity = switches::kLogSeverity_Error;
+          break;
+        case LOGSEVERITY_FATAL:
+          log_severity = switches::kLogSeverity_Fatal;
+          break;
+        case LOGSEVERITY_DISABLE:
+          log_severity = switches::kLogSeverity_Disable;
+          break;
+        default:
+          break;
+      }
+      if (!log_severity.empty()) {
+        command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
+      }
+    }
+
+    if (!command_line->HasSwitch(switches::kLogItems) &&
+        settings_->log_items != LOG_ITEMS_DEFAULT) {
+      std::string log_items_str;
+      if (settings_->log_items == LOG_ITEMS_NONE) {
+        log_items_str = std::string(switches::kLogItems_None);
+      } else {
+        std::vector<std::string_view> added_items;
+        if (settings_->log_items & LOG_ITEMS_FLAG_PROCESS_ID) {
+          added_items.emplace_back(switches::kLogItems_PId);
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_THREAD_ID) {
+          added_items.emplace_back(switches::kLogItems_TId);
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_TIME_STAMP) {
+          added_items.emplace_back(switches::kLogItems_TimeStamp);
+        }
+        if (settings_->log_items & LOG_ITEMS_FLAG_TICK_COUNT) {
+          added_items.emplace_back(switches::kLogItems_TickCount);
+        }
+        if (!added_items.empty()) {
+          log_items_str = base::JoinString(added_items, ",");
+        }
+      }
+      if (!log_items_str.empty()) {
+        command_line->AppendSwitchASCII(switches::kLogItems, log_items_str);
+      }
+    }
+
     if (settings_->javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(
           blink::switches::kJavaScriptFlags,
@@ -212,6 +346,9 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
     std::ignore = commandLinePtr->Detach(nullptr);
   }
 
+  // Call as early as possible.
+  InitLogging(command_line);
+
 #if BUILDFLAG(IS_MAC)
   util_mac::BasicStartupComplete();
 #endif
@@ -264,6 +401,23 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
     }
   }
+
+#if !BUILDFLAG(IS_WIN)
+  // Call after InitLogging() potentially changes values in
+  // chrome/app/chrome_main_delegate.cc.
+  InitLogging(command_line);
+#endif
+}
+
+void ChromeMainDelegateCef::SandboxInitialized(
+    const std::string& process_type) {
+  ChromeMainDelegate::SandboxInitialized(process_type);
+
+#if BUILDFLAG(IS_WIN)
+  // Call after InitLogging() potentially changes values in
+  // chrome/app/chrome_main_delegate.cc.
+  InitLogging(base::CommandLine::ForCurrentProcess());
+#endif
 }
 
 std::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
