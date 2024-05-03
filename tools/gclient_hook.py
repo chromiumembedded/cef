@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from file_util import make_dir, write_file
+from file_util import make_dir, write_file_if_changed
 from gclient_util import *
 from gn_args import GetAllPlatformConfigs, GetConfigFileContents
 import issue_1999
@@ -140,7 +140,7 @@ for dir, config in configs.items():
   make_dir(out_path, False)
   args_gn_path = os.path.join(out_path, 'args.gn')
   args_gn_contents = GetConfigFileContents(config)
-  write_file(args_gn_path, args_gn_contents)
+  write_file_if_changed(args_gn_path, args_gn_contents)
 
   # Generate the Ninja config.
   cmd = ['gn', 'gen', os.path.join('out', dir)]
