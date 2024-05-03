@@ -7,13 +7,16 @@
 #define CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_
 #pragma once
 
+#include "cef/libcef/features/features.h"
 #include "ui/base/resource/resource_bundle.h"
-
-class AlloyContentClient;
 
 class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
  public:
-  CefResourceBundleDelegate() = default;
+  CefResourceBundleDelegate();
+
+  CefResourceBundleDelegate(const CefResourceBundleDelegate&) = delete;
+  CefResourceBundleDelegate& operator=(const CefResourceBundleDelegate&) =
+      delete;
 
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
   bool pack_loading_disabled() const { return pack_loading_disabled_; }
@@ -40,7 +43,7 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
 
  private:
   bool pack_loading_disabled_ = false;
-  bool allow_pack_file_load_ = false;
+  bool allow_pack_file_load_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_

@@ -12,6 +12,7 @@
 #include "libcef/common/app_manager.h"
 #include "libcef/common/chrome/chrome_content_client_cef.h"
 #include "libcef/common/main_runner_handler.h"
+#include "libcef/common/resource_bundle_delegate.h"
 #include "libcef/common/task_runner_manager.h"
 
 #include "chrome/app/chrome_main_delegate.h"
@@ -72,6 +73,11 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   scoped_refptr<base::SingleThreadTaskRunner> GetRenderTaskRunner() override;
   scoped_refptr<base::SingleThreadTaskRunner> GetWebWorkerTaskRunner() override;
 
+  // ChromeMainDelegate overrides.
+  ui::ResourceBundle::Delegate* GetResourceBundleDelegate() override {
+    return &resource_bundle_delegate_;
+  }
+
  private:
   ChromeContentBrowserClientCef* content_browser_client() const;
   ChromeContentRendererClientCef* content_renderer_client() const;
@@ -82,6 +88,8 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
 
   // We use this instead of ChromeMainDelegate::chrome_content_client_.
   ChromeContentClientCef chrome_content_client_cef_;
+
+  CefResourceBundleDelegate resource_bundle_delegate_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CHROME_CHROME_MAIN_DELEGATE_CEF_

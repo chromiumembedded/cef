@@ -1,6 +1,14 @@
 #include "libcef/common/resource_bundle_delegate.h"
 
 #include "libcef/common/app_manager.h"
+#include "libcef/features/runtime.h"
+
+CefResourceBundleDelegate::CefResourceBundleDelegate() {
+  // Alloy bootstrap explicitly enables pack file loading in
+  // AlloyMainDelegate::InitializeResourceBundle, and it is otherwise disabled
+  // by default. Chrome bootstrap does not support this.
+  allow_pack_file_load_ = cef::IsChromeRuntimeEnabled();
+}
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,
