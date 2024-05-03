@@ -1,24 +1,42 @@
 #include "cef/libcef/common/resource_bundle_delegate.h"
 
 #include "cef/libcef/common/app_manager.h"
+#include "cef/libcef/features/runtime.h"
+
+CefResourceBundleDelegate::CefResourceBundleDelegate() {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  // Alloy bootstrap explicitly enables pack file loading in
+  // AlloyMainDelegate::InitializeResourceBundle, and it is otherwise disabled
+  // by default. Chrome bootstrap does not support this.
+  allow_pack_file_load_ = cef::IsChromeRuntimeEnabled();
+#endif
+}
 
 base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
     const base::FilePath& pack_path,
     ui::ResourceScaleFactor scale_factor) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   // Only allow the cef pack file to load.
   if (!pack_loading_disabled_ && allow_pack_file_load_) {
     return pack_path;
   }
   return base::FilePath();
+#else
+  return pack_path;
+#endif
 }
 
 base::FilePath CefResourceBundleDelegate::GetPathForLocalePack(
     const base::FilePath& pack_path,
     const std::string& locale) {
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   if (!pack_loading_disabled_) {
     return pack_path;
   }
   return base::FilePath();
+#else
+  return pack_path;
+#endif
 }
 
 gfx::Image CefResourceBundleDelegate::GetImageNamed(int resource_id) {
@@ -63,7 +81,13 @@ bool CefResourceBundleDelegate::GetRawDataResource(
     }
   }
 
-  return (pack_loading_disabled_ || !value->empty());
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  if (pack_loading_disabled_) {
+    return true;
+  }
+#endif
+
+  return !value->empty();
 }
 
 bool CefResourceBundleDelegate::GetLocalizedString(
@@ -81,5 +105,11 @@ bool CefResourceBundleDelegate::GetLocalizedString(
     }
   }
 
-  return (pack_loading_disabled_ || !value->empty());
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
+  if (pack_loading_disabled_) {
+    return true;
+  }
+#endif
+
+  return !value->empty();
 }

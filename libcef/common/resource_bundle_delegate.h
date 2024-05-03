@@ -7,18 +7,23 @@
 #define CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_
 #pragma once
 
+#include "cef/libcef/features/features.h"
 #include "ui/base/resource/resource_bundle.h"
-
-class AlloyContentClient;
 
 class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
  public:
-  CefResourceBundleDelegate() = default;
+  CefResourceBundleDelegate();
 
+  CefResourceBundleDelegate(const CefResourceBundleDelegate&) = delete;
+  CefResourceBundleDelegate& operator=(const CefResourceBundleDelegate&) =
+      delete;
+
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
   bool pack_loading_disabled() const { return pack_loading_disabled_; }
   void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
   bool allow_pack_file_load() const { return allow_pack_file_load_; }
+#endif
 
  private:
   // ui::ResourceBundle::Delegate methods.
@@ -38,9 +43,11 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
                           std::string_view* value) const override;
   bool GetLocalizedString(int message_id, std::u16string* value) const override;
 
+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
  private:
   bool pack_loading_disabled_ = false;
-  bool allow_pack_file_load_ = false;
+  bool allow_pack_file_load_;
+#endif
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESOURCE_BUNDLE_DELEGATE_H_
