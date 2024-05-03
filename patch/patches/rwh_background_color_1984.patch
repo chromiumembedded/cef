@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index a52e22d0d43e3..e8403dac2961a 100644
+index f14801e94238e..fbf5b4a2ecebd 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -18,7 +18,7 @@ index a52e22d0d43e3..e8403dac2961a 100644
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -724,10 +726,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -717,10 +719,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    DCHECK(GetBackgroundColor());
  
@@ -35,7 +35,7 @@ index a52e22d0d43e3..e8403dac2961a 100644
  }
  
  #if BUILDFLAG(IS_WIN)
-@@ -2357,6 +2361,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2350,6 +2354,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();
