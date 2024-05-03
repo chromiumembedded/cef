@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5cfff4465a586d2b2ea7b54a9549096faec415f6$
+// $hash=ebac34c9b85de780ce7524211c5dd61a80d4576c$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_HANDLER_CAPI_H_
@@ -79,6 +79,8 @@ typedef struct _cef_get_extension_resource_callback_t {
 /// functions of this structure will be called on the UI thread. See
 /// cef_request_context_t::LoadExtension for information about extension
 /// loading.
+///
+/// WARNING: This API is deprecated and will be removed in ~M127.
 ///
 typedef struct _cef_extension_handler_t {
   ///

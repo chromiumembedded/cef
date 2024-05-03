@@ -70,6 +70,8 @@ class CefGetExtensionResourceCallback : public CefBaseRefCounted {
 /// The methods of this class will be called on the UI thread. See
 /// CefRequestContext::LoadExtension for information about extension loading.
 ///
+/// WARNING: This API is deprecated and will be removed in ~M127.
+///
 /*--cef(source=client)--*/
 class CefExtensionHandler : public virtual CefBaseRefCounted {
  public:

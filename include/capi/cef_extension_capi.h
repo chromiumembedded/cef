@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0ca2b788f70f8c9f5b2706d691d8e063be00ed19$
+// $hash=634054ad25154c30fb4ec630fe7fb79b0cf1f9b3$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_EXTENSION_CAPI_H_
@@ -53,6 +53,8 @@ struct _cef_request_context_t;
 ///
 /// Object representing an extension. Methods may be called on any thread unless
 /// otherwise indicated.
+///
+/// WARNING: This API is deprecated and will be removed in ~M127.
 ///
 typedef struct _cef_extension_t {
   ///

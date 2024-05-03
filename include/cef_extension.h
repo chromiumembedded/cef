@@ -48,6 +48,8 @@ class CefRequestContext;
 /// Object representing an extension. Methods may be called on any thread unless
 /// otherwise indicated.
 ///
+/// WARNING: This API is deprecated and will be removed in ~M127.
+///
 /*--cef(source=library)--*/
 class CefExtension : public CefBaseRefCounted {
  public:
