@@ -61,7 +61,7 @@ index e9ad2d5751f2d..e51381e8f2dbf 100644
      case ui::SHOW_STATE_MAXIMIZED:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 6b6902c0cb0ee..d724e1dfe7d49 100644
+index f67fa6e039aed..6e54bee79a667 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -660,6 +660,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
