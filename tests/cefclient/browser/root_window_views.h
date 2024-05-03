@@ -51,8 +51,6 @@ class RootWindowViews : public RootWindow,
   CefRefPtr<CefBrowser> GetBrowser() const override;
   ClientWindowHandle GetWindowHandle() const override;
   bool WithWindowlessRendering() const override { return false; }
-  bool WithExtension() const override;
-  void OnExtensionsChanged(const ExtensionSet& extensions) override;
 
   // ViewsWindow::Delegate methods:
   bool WithControls() override;
@@ -67,10 +65,6 @@ class RootWindowViews : public RootWindow,
   void OnViewsWindowActivated(CefRefPtr<ViewsWindow> window) override;
   ViewsWindow::Delegate* GetDelegateForPopup(
       CefRefPtr<CefClient> client) override;
-  void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
-                             const CefRect& source_bounds,
-                             CefRefPtr<CefWindow> parent_window,
-                             base::OnceClosure close_callback) override;
   void OnTest(int test_id) override;
   void OnExit() override;
 
@@ -122,7 +116,6 @@ class RootWindowViews : public RootWindow,
   cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
   bool position_on_resize_ = false;
   CefRefPtr<ViewsWindow> window_;
-  ExtensionSet pending_extensions_;
   scoped_refptr<ImageCache> image_cache_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowViews);

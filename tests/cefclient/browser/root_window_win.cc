@@ -135,7 +135,6 @@ void RootWindowWin::Init(RootWindow::Delegate* delegate,
   with_controls_ = config->with_controls;
   always_on_top_ = config->always_on_top;
   with_osr_ = config->with_osr;
-  with_extension_ = config->window_type == WindowType::EXTENSION;
 
   CreateBrowserWindow(config->url);
 
@@ -314,11 +313,6 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
 bool RootWindowWin::WithWindowlessRendering() const {
   REQUIRE_MAIN_THREAD();
   return with_osr_;
-}
-
-bool RootWindowWin::WithExtension() const {
-  REQUIRE_MAIN_THREAD();
-  return with_extension_;
 }
 
 void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
@@ -1071,8 +1065,6 @@ void RootWindowWin::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
     // Make sure the browser is sized correctly.
     OnSize(false);
   }
-
-  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowWin::OnBrowserWindowDestroyed() {

@@ -29,20 +29,4 @@ scoped_refptr<RootWindow> RootWindow::GetForBrowser(int browser_id) {
       browser_id);
 }
 
-void RootWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
-  REQUIRE_MAIN_THREAD();
-  DCHECK(delegate_);
-  DCHECK(!WithExtension());
-
-  if (extensions.empty()) {
-    return;
-  }
-
-  ExtensionSet::const_iterator it = extensions.begin();
-  for (; it != extensions.end(); ++it) {
-    delegate_->CreateExtensionWindow(*it, CefRect(), nullptr, base::DoNothing(),
-                                     WithWindowlessRendering());
-  }
-}
-
 }  // namespace client

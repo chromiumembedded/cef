@@ -15,7 +15,6 @@
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/views_style.h"
-#include "tests/shared/browser/extension_util.h"
 #include "tests/shared/common/client_switches.h"
 
 #if !defined(OS_WIN)
@@ -27,8 +26,6 @@
 namespace client {
 
 namespace {
-
-const char kDefaultExtensionIcon[] = "window_icon";
 
 // Default window size.
 constexpr int kDefaultWidth = 800;
@@ -53,10 +50,6 @@ enum ControlIds {
   // Reserved range of top menu button IDs.
   ID_TOP_MENU_FIRST,
   ID_TOP_MENU_LAST = ID_TOP_MENU_FIRST + 10,
-
-  // Reserved range of extension button IDs.
-  ID_EXTENSION_BUTTON_FIRST,
-  ID_EXTENSION_BUTTON_LAST = ID_EXTENSION_BUTTON_FIRST + 10,
 };
 
 typedef std::vector<CefRefPtr<CefLabelButton>> LabelButtons;
@@ -389,40 +382,6 @@ void ViewsWindow::OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {
   views_style::ApplyTo(model);
 }
 
-void ViewsWindow::OnExtensionsChanged(const ExtensionSet& extensions) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (extensions.empty()) {
-    if (!extensions_.empty()) {
-      extensions_.clear();
-      UpdateExtensionControls();
-    }
-    return;
-  }
-
-  ImageCache::ImageInfoSet image_set;
-
-  ExtensionSet::const_iterator it = extensions.begin();
-  for (; it != extensions.end(); ++it) {
-    CefRefPtr<CefExtension> extension = *it;
-    bool internal = false;
-    const std::string& icon_path =
-        extension_util::GetExtensionIconPath(extension, &internal);
-    if (!icon_path.empty()) {
-      // Load the extension icon.
-      image_set.push_back(
-          ImageCache::ImageInfo::Create1x(icon_path, icon_path, internal));
-    } else {
-      // Get a nullptr image and use the default icon.
-      image_set.push_back(ImageCache::ImageInfo::Empty());
-    }
-  }
-
-  delegate_->GetImageCache()->LoadImages(
-      image_set,
-      base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded, this, extensions));
-}
-
 // static
 bool ViewsWindow::SupportsWindowRestore(WindowType type) {
   // Only support window restore with normal windows.
@@ -587,26 +546,8 @@ void ViewsWindow::OnMenuButtonPressed(
     CefRefPtr<CefMenuButtonPressedLock> button_pressed_lock) {
   CEF_REQUIRE_UI_THREAD();
 
-  const int id = menu_button->GetID();
-  if (id >= ID_EXTENSION_BUTTON_FIRST && id <= ID_EXTENSION_BUTTON_LAST) {
-    const size_t extension_idx = id - ID_EXTENSION_BUTTON_FIRST;
-    if (extension_idx >= extensions_.size()) {
-      LOG(ERROR) << "Invalid extension index " << extension_idx;
-      return;
-    }
-
-    // Keep the button pressed until the extension window is closed.
-    extension_button_pressed_lock_ = button_pressed_lock;
-
-    // Create a window for the extension.
-    delegate_->CreateExtensionWindow(
-        extensions_[extension_idx].extension_, menu_button->GetBoundsInScreen(),
-        window_, base::BindOnce(&ViewsWindow::OnExtensionWindowClosed, this));
-    return;
-  }
-
   DCHECK(with_controls_ || with_overlay_controls_);
-  DCHECK_EQ(ID_MENU_BUTTON, id);
+  DCHECK_EQ(ID_MENU_BUTTON, menu_button->GetID());
 
   const auto button_bounds = menu_button->GetBoundsInScreen();
 
@@ -780,10 +721,8 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
     // Add the BrowserView as the only child of the Window.
     window_->AddChildView(browser_view_);
 
-    if (type_ != WindowType::EXTENSION) {
-      // Choose a reasonable minimum window size.
-      minimum_window_size_ = CefSize(100, 100);
-    }
+    // Choose a reasonable minimum window size.
+    minimum_window_size_ = CefSize(100, 100);
   }
 
   if (!delegate_->InitiallyHidden()) {
@@ -811,7 +750,6 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
     menu_bar_->Reset();
     menu_bar_ = nullptr;
   }
-  extensions_panel_ = nullptr;
   menu_button_ = nullptr;
   window_ = nullptr;
 }
@@ -872,15 +810,7 @@ CefRefPtr<CefWindow> ViewsWindow::GetParentWindow(CefRefPtr<CefWindow> window,
                                                   bool* is_menu,
                                                   bool* can_activate_menu) {
   CEF_REQUIRE_UI_THREAD();
-  CefRefPtr<CefWindow> parent_window = delegate_->GetParentWindow();
-  if (parent_window) {
-    // Extension windows behave as a menu and allow activation.
-    if (type_ == WindowType::EXTENSION) {
-      *is_menu = true;
-      *can_activate_menu = true;
-    }
-  }
-  return parent_window;
+  return delegate_->GetParentWindow();
 }
 
 bool ViewsWindow::IsWindowModalDialog(CefRefPtr<CefWindow> window) {
@@ -965,18 +895,7 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
                              const CefKeyEvent& event) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!window_) {
-    return false;
-  }
-
-  if (type_ == WindowType::EXTENSION && event.type == KEYEVENT_RAWKEYDOWN &&
-      event.windows_key_code == VK_ESCAPE) {
-    // Close the extension window on escape.
-    Close(false);
-    return true;
-  }
-
-  if (!with_controls_) {
+  if (!window_ || !with_controls_) {
     return false;
   }
 
@@ -1045,16 +964,6 @@ void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
     } else if (view_id != ID_MENU_BUTTON) {
       SetMenuFocusable(false);
     }
-  }
-}
-
-void ViewsWindow::OnBlur(CefRefPtr<CefView> view) {
-  CEF_REQUIRE_UI_THREAD();
-
-  const int view_id = view->GetID();
-  if (view_id == ID_BROWSER_VIEW && type_ == WindowType::EXTENSION) {
-    // Close windows hosting extensions when the browser loses focus.
-    Close(false);
   }
 }
 
@@ -1158,7 +1067,7 @@ ViewsWindow::ViewsWindow(WindowType type,
   accepts_first_mouse_ = command_line->HasSwitch(switches::kAcceptsFirstMouse);
 
   // Without a window frame.
-  frameless_ = hide_frame || type_ == WindowType::EXTENSION;
+  frameless_ = hide_frame;
 
   // With an overlay that mimics window controls.
   with_overlay_controls_ = hide_frame && !hide_overlays && !with_controls_;
@@ -1322,11 +1231,6 @@ void ViewsWindow::AddControls() {
       panel->AddChildView(browse_button);
     }
     panel->AddChildView(location_bar_);
-
-    UpdateExtensionControls();
-    DCHECK(extensions_panel_);
-    panel->AddChildView(extensions_panel_);
-
     panel->AddChildView(menu_button_);
 
     // Allow |location| to grow and fill any remaining space.
@@ -1433,88 +1337,6 @@ void ViewsWindow::ShowTopControls(bool show) {
     toolbar_->SetVisible(show);
     toolbar_->InvalidateLayout();
   }
-}
-
-void ViewsWindow::UpdateExtensionControls() {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!window_ || !with_controls_) {
-    return;
-  }
-
-  if (!extensions_panel_) {
-    extensions_panel_ = CefPanel::CreatePanel(this);
-
-    // Use a horizontal box layout for |panel|.
-    CefBoxLayoutSettings panel_layout_settings;
-    panel_layout_settings.horizontal = true;
-    CefRefPtr<CefBoxLayout> panel_layout =
-        extensions_panel_->SetToBoxLayout(panel_layout_settings);
-  } else {
-    extensions_panel_->RemoveAllChildViews();
-  }
-
-  if (extensions_.size() >
-      ID_EXTENSION_BUTTON_LAST - ID_EXTENSION_BUTTON_FIRST) {
-    LOG(WARNING) << "Too many extensions loaded. Some will be ignored.";
-  }
-
-  ExtensionInfoSet::const_iterator it = extensions_.begin();
-  for (int id = ID_EXTENSION_BUTTON_FIRST;
-       it != extensions_.end() && id <= ID_EXTENSION_BUTTON_LAST; ++id, ++it) {
-    CefRefPtr<CefMenuButton> button =
-        CefMenuButton::CreateMenuButton(this, CefString());
-    button->SetID(id);
-    button->SetImage(CEF_BUTTON_STATE_NORMAL, (*it).image_);
-    button->SetInkDropEnabled(true);
-    // Override the default minimum size.
-    button->SetMinimumSize(CefSize(0, 0));
-
-    extensions_panel_->AddChildView(button);
-  }
-
-  CefRefPtr<CefView> parent_view = extensions_panel_->GetParentView();
-  if (parent_view) {
-    parent_view->InvalidateLayout();
-  }
-}
-
-void ViewsWindow::OnExtensionIconsLoaded(const ExtensionSet& extensions,
-                                         const ImageCache::ImageSet& images) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::BindOnce(&ViewsWindow::OnExtensionIconsLoaded,
-                                       this, extensions, images));
-    return;
-  }
-
-  DCHECK_EQ(extensions.size(), images.size());
-
-  extensions_.clear();
-
-  ExtensionSet::const_iterator it1 = extensions.begin();
-  ImageCache::ImageSet::const_iterator it2 = images.begin();
-  for (; it1 != extensions.end() && it2 != images.end(); ++it1, ++it2) {
-    CefRefPtr<CefImage> icon = *it2;
-    if (!icon) {
-      icon = delegate_->GetImageCache()->GetCachedImage(kDefaultExtensionIcon);
-    }
-    extensions_.emplace_back(*it1, icon);
-  }
-
-  UpdateExtensionControls();
-}
-
-void ViewsWindow::OnExtensionWindowClosed() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute this method on the UI thread.
-    CefPostTask(TID_UI,
-                base::BindOnce(&ViewsWindow::OnExtensionWindowClosed, this));
-    return;
-  }
-
-  // Restore the button state.
-  extension_button_pressed_lock_ = nullptr;
 }
 
 #if !defined(OS_MAC)

@@ -57,11 +57,6 @@ IDS_WINDOW_ICON_1X_PNG BINARY "..\\..\\..\\shared\\resources\\window_icon.1x.png
 IDS_WINDOW_ICON_2X_PNG BINARY "..\\..\\..\\shared\\resources\\window_icon.2x.png"
 IDS_XMLHTTPREQUEST_HTML BINARY "..\\xmlhttprequest.html"
 
-IDS_EXTENSIONS_SET_PAGE_COLOR_ICON_PNG BINARY "..\\extensions\\set_page_color\\icon.png"
-IDS_EXTENSIONS_SET_PAGE_COLOR_MANIFEST_JSON BINARY "..\\extensions\\set_page_color\\manifest.json"
-IDS_EXTENSIONS_SET_PAGE_COLOR_POPUP_HTML BINARY "..\\extensions\\set_page_color\\popup.html"
-IDS_EXTENSIONS_SET_PAGE_COLOR_POPUP_JS BINARY "..\\extensions\\set_page_color\\popup.js"
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Icon

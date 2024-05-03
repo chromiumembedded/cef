@@ -822,8 +822,6 @@ if mode == 'standard':
                         'tests/cefclient/', cefclient_dir, options.quiet)
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_extensions_set_page_color'], \
-                        'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer common cefsimple files
   transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \

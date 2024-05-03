@@ -24,9 +24,6 @@ namespace client {
 enum class WindowType {
   NORMAL,
 
-  // The window is hosting an extension app.
-  EXTENSION,
-
   // The window is a modal dialog.
   DIALOG,
 
@@ -92,8 +89,6 @@ struct RootWindowConfig {
   std::string url;
 };
 
-typedef std::set<CefRefPtr<CefExtension>> ExtensionSet;
-
 // Represents a top-level native window in the browser process. While references
 // to this object are thread-safe the methods must be called on the main thread
 // unless otherwise indicated.
@@ -134,18 +129,6 @@ class RootWindow
 
     // Called when the RootWindow is activated (becomes the foreground window).
     virtual void OnRootWindowActivated(RootWindow* root_window) = 0;
-
-    // Called when the browser is created for the RootWindow.
-    virtual void OnBrowserCreated(RootWindow* root_window,
-                                  CefRefPtr<CefBrowser> browser) = 0;
-
-    // Create a window for |extension|. |source_bounds| are the bounds of the
-    // UI element, like a button, that triggered the extension.
-    virtual void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
-                                       const CefRect& source_bounds,
-                                       CefRefPtr<CefWindow> parent_window,
-                                       base::OnceClosure close_callback,
-                                       bool with_osr) = 0;
 
    protected:
     virtual ~Delegate() = default;
@@ -227,13 +210,6 @@ class RootWindow
 
   // Returns true if this window is using windowless rendering (osr).
   virtual bool WithWindowlessRendering() const = 0;
-
-  // Returns true if this window is hosting an extension app.
-  virtual bool WithExtension() const = 0;
-
-  // Called when the set of loaded extensions changes. The default
-  // implementation will create a single window instance for each extension.
-  virtual void OnExtensionsChanged(const ExtensionSet& extensions);
 
  protected:
   // Allow deletion via scoped_refptr only.

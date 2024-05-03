@@ -43,9 +43,6 @@ const char kAlwaysOnTop[] = "always-on-top";
 const char kHideTopMenu[] = "hide-top-menu";
 const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-const char kLoadExtension[] = "load-extension";
-#endif
 const char kNoActivate[] = "no-activate";
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";

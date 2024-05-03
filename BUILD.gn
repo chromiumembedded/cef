@@ -1973,13 +1973,6 @@ if (is_mac) {
     ]
   }
 
-  bundle_data("cefclient_resources_bundle_data_extensions_set_page_color") {
-    sources = gypi_paths2.cefclient_sources_resources_extensions_set_page_color
-    outputs = [
-      "{{bundle_resources_dir}}/extensions/set_page_color/{{source_file_part}}",
-    ]
-  }
-
   bundle_data("cefclient_resources_bundle_data_english") {
     sources = [
       "tests/cefclient/resources/mac/English.lproj/InfoPlist.strings",
@@ -2029,7 +2022,6 @@ if (is_mac) {
               gypi_paths2.cefclient_sources_mac
     deps = [
       ":cefclient_resources_bundle_data",
-      ":cefclient_resources_bundle_data_extensions_set_page_color",
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
     ]
@@ -2219,11 +2211,6 @@ if (is_mac) {
                 gypi_paths2.cefclient_sources_resources
       outputs = [ "${root_out_dir}/cefclient_files/{{source_file_part}}" ]
     }
-
-    copy("copy_cefclient_files_extensions_set_page_color") {
-      sources = gypi_paths2.cefclient_sources_resources_extensions_set_page_color
-      outputs = [ "${root_out_dir}/cefclient_files/extensions/set_page_color/{{source_file_part}}" ]
-    }
   }
 
   executable("cefclient") {
@@ -2294,7 +2281,6 @@ if (is_mac) {
 
       deps += [
         ":copy_cefclient_files",
-        ":copy_cefclient_files_extensions_set_page_color",
       ]
 
       libs = [

@@ -46,22 +46,6 @@ class RootWindowManager : public RootWindow::Delegate {
       CefRefPtr<CefClient>& client,
       CefBrowserSettings& settings);
 
-  // Create a new top-level native window to host |extension|.
-  // If |with_controls| is true the window will show controls.
-  // If |with_osr| is true the window will use off-screen rendering.
-  // This method can be called from anywhere.
-  scoped_refptr<RootWindow> CreateRootWindowAsExtension(
-      CefRefPtr<CefExtension> extension,
-      const CefRect& source_bounds,
-      CefRefPtr<CefWindow> parent_window,
-      base::OnceClosure close_callback,
-      bool with_controls,
-      bool with_osr);
-
-  // Returns true if a window hosting |extension| currently exists. Must be
-  // called on the main thread.
-  bool HasRootWindowAsExtension(CefRefPtr<CefExtension> extension);
-
   // Returns the RootWindow associated with the specified browser ID. Must be
   // called on the main thread.
   scoped_refptr<RootWindow> GetWindowForBrowser(int browser_id) const;
@@ -70,17 +54,9 @@ class RootWindowManager : public RootWindow::Delegate {
   // Must be called on the main thread.
   scoped_refptr<RootWindow> GetActiveRootWindow() const;
 
-  // Returns the currently active/foreground browser. May return nullptr. Safe
-  // to call from any thread.
-  CefRefPtr<CefBrowser> GetActiveBrowser() const;
-
   // Close all existing windows. If |force| is true onunload handlers will not
   // be executed.
   void CloseAllWindows(bool force);
-
-  // Manage the set of loaded extensions. RootWindows will be notified via the
-  // OnExtensionsChanged method.
-  void AddExtension(CefRefPtr<CefExtension> extension);
 
   bool request_context_per_browser() const {
     return request_context_per_browser_;
@@ -93,7 +69,6 @@ class RootWindowManager : public RootWindow::Delegate {
   ~RootWindowManager() override;
 
   void OnRootWindowCreated(scoped_refptr<RootWindow> root_window);
-  void NotifyExtensionsChanged();
 
   // RootWindow::Delegate methods.
   CefRefPtr<CefRequestContext> GetRequestContext() override;
@@ -103,13 +78,6 @@ class RootWindowManager : public RootWindow::Delegate {
   void OnExit(RootWindow* root_window) override;
   void OnRootWindowDestroyed(RootWindow* root_window) override;
   void OnRootWindowActivated(RootWindow* root_window) override;
-  void OnBrowserCreated(RootWindow* root_window,
-                        CefRefPtr<CefBrowser> browser) override;
-  void CreateExtensionWindow(CefRefPtr<CefExtension> extension,
-                             const CefRect& source_bounds,
-                             CefRefPtr<CefWindow> parent_window,
-                             base::OnceClosure close_callback,
-                             bool with_osr) override;
 
   // |callback| may be nullptr. Must be called on the main thread.
   CefRefPtr<CefRequestContext> CreateRequestContext(
@@ -129,18 +97,10 @@ class RootWindowManager : public RootWindow::Delegate {
   // thread.
   scoped_refptr<RootWindow> active_root_window_;
 
-  // The currently active/foreground browser. Access is protected by
-  // |active_browser_lock_;
-  mutable base::Lock active_browser_lock_;
-  CefRefPtr<CefBrowser> active_browser_;
-
   // Singleton window used as the temporary parent for popup browsers.
   std::unique_ptr<TempWindow> temp_window_;
 
   CefRefPtr<CefRequestContext> shared_request_context_;
-
-  // Loaded extensions. Only accessed on the main thread.
-  ExtensionSet extensions_;
 
   scoped_refptr<ImageCache> image_cache_;
 

@@ -48,7 +48,6 @@ class RootWindowMac : public RootWindow, public BrowserWindow::Delegate {
   CefRefPtr<CefBrowser> GetBrowser() const override;
   ClientWindowHandle GetWindowHandle() const override;
   bool WithWindowlessRendering() const override;
-  bool WithExtension() const override;
 
   // BrowserWindow::Delegate methods.
   bool UseAlloyStyle() const override { return IsAlloyStyle(); }

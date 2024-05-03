@@ -83,7 +83,6 @@
     'shared_sources_resources',
     'cefclient_bundle_resources_mac:MAC',
     'cefclient_sources_resources',
-    'cefclient_sources_resources_extensions_set_page_color',
   ],
 }}
 

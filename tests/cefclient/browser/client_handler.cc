@@ -23,7 +23,6 @@
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/test_runner.h"
-#include "tests/shared/browser/extension_util.h"
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/binary_value_utils.h"
 #include "tests/shared/common/client_switches.h"
@@ -1014,21 +1013,6 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (offline_) {
     SetOfflineState(browser, true);
   }
-
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (use_alloy_style_ && browser->GetHost()->GetExtension()) {
-    // Browsers hosting extension apps should auto-resize.
-    browser->GetHost()->SetAutoResizeEnabled(true, CefSize(20, 20),
-                                             CefSize(1000, 1000));
-
-    CefRefPtr<CefExtension> extension = browser->GetHost()->GetExtension();
-    if (extension_util::IsInternalExtension(extension->GetPath())) {
-      // Register the internal handler for extension resources.
-      extension_util::AddInternalExtensionToResourceManager(
-          extension, GetResourceManager());
-    }
-  }
-#endif
 
   NotifyBrowserCreated(browser);
 }

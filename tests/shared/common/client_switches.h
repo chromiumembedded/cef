@@ -37,9 +37,6 @@ extern const char kAlwaysOnTop[];
 extern const char kHideTopMenu[];
 extern const char kSslClientCertificate[];
 extern const char kCRLSetsPath[];
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-extern const char kLoadExtension[];
-#endif
 extern const char kNoActivate[];
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
 extern const char kEnableChromeRuntime[];

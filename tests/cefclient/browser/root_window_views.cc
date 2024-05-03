@@ -194,30 +194,9 @@ ClientWindowHandle RootWindowViews::GetWindowHandle() const {
 #endif
 }
 
-bool RootWindowViews::WithExtension() const {
-  DCHECK(initialized_);
-  return config_->window_type == WindowType::EXTENSION;
-}
-
 bool RootWindowViews::WithControls() {
   DCHECK(initialized_);
   return config_->with_controls;
-}
-
-void RootWindowViews::OnExtensionsChanged(const ExtensionSet& extensions) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::OnExtensionsChanged,
-                                       this, extensions));
-    return;
-  }
-
-  if (window_) {
-    window_->OnExtensionsChanged(extensions);
-  } else {
-    // Window may not exist yet for popups.
-    pending_extensions_ = extensions;
-  }
 }
 
 bool RootWindowViews::InitiallyHidden() {
@@ -256,11 +235,6 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   DCHECK(!window_);
   window_ = window;
   window_->SetAlwaysOnTop(config_->always_on_top);
-
-  if (!pending_extensions_.empty()) {
-    window_->OnExtensionsChanged(pending_extensions_);
-    pending_extensions_.clear();
-  }
 }
 
 void RootWindowViews::OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) {
@@ -312,22 +286,6 @@ ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
   return root_window;
 }
 
-void RootWindowViews::CreateExtensionWindow(CefRefPtr<CefExtension> extension,
-                                            const CefRect& source_bounds,
-                                            CefRefPtr<CefWindow> parent_window,
-                                            base::OnceClosure close_callback) {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowViews::CreateExtensionWindow,
-                                     this, extension, source_bounds,
-                                     parent_window, std::move(close_callback)));
-    return;
-  }
-
-  delegate_->CreateExtensionWindow(extension, source_bounds, parent_window,
-                                   std::move(close_callback), false);
-}
-
 void RootWindowViews::OnTest(int test_id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
@@ -352,7 +310,6 @@ void RootWindowViews::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!browser_);
   browser_ = browser;
-  delegate_->OnBrowserCreated(this, browser);
 }
 
 void RootWindowViews::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {

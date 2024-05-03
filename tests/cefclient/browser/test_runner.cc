@@ -823,15 +823,6 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
 }
 
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
-  if (browser->GetHost()->GetExtension()) {
-    // Alerts originating from extension hosts should instead be displayed in
-    // the active browser.
-    browser = MainContext::Get()->GetRootWindowManager()->GetActiveBrowser();
-    if (!browser) {
-      return;
-    }
-  }
-
   // Escape special characters in the message.
   std::string msg = AsciiStrReplace(message, "\\", "\\\\");
   msg = AsciiStrReplace(msg, "'", "\\'");
