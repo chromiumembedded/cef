@@ -359,6 +359,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   GURL redirect_url_;
   GURL header_client_redirect_url_;
   const net::MutableNetworkTrafficAnnotationTag traffic_annotation_;
+  std::optional<network::mojom::CredentialsMode> original_crendentials_mode_;
 
   mojo::Receiver<network::mojom::URLLoader> proxied_loader_receiver_;
   mojo::Remote<network::mojom::URLLoaderClient> target_client_;
@@ -507,6 +508,7 @@ void InterceptedRequest::Restart() {
     // Match logic in CorsURLLoader::StartNetworkRequest.
     const auto response_tainting = CalculateResponseTainting(
         should_check_cors, request_.mode, tainted_origin);
+    original_crendentials_mode_ = request_.credentials_mode;
     request_.credentials_mode =
         network::cors::CalculateCredentialsFlag(request_.credentials_mode,
                                                 response_tainting)
@@ -875,6 +877,14 @@ void InterceptedRequest::ContinueAfterIntercept() {
         target_loader_.BindNewPipeAndPassReceiver(), id_, options, request_,
         proxied_client_receiver_.BindNewPipeAndPassRemote(),
         traffic_annotation_);
+    if (original_crendentials_mode_) {
+      // Restore the original |credentials_mode| value after calling
+      // CreateLoaderAndStart. This matches the logic in CorsURLLoader::
+      // StartNetworkRequest and allows InterceptedRequest::Restart to compute
+      // the correct |credentials_mode| during a fetch request redirect.
+      request_.credentials_mode = *original_crendentials_mode_;
+      original_crendentials_mode_.reset();
+    }
   }
 }
 
