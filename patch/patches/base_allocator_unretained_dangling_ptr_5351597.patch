@@ -1,0 +1,13 @@
+diff --git base/allocator/partition_alloc_features.cc base/allocator/partition_alloc_features.cc
+index a2616fced0f5b..cacd41b0ffa23 100644
+--- base/allocator/partition_alloc_features.cc
++++ base/allocator/partition_alloc_features.cc
+@@ -36,7 +36,7 @@ const base::FeatureParam<UnretainedDanglingPtrMode>
+     kUnretainedDanglingPtrModeParam = {
+         &kPartitionAllocUnretainedDanglingPtr,
+         "mode",
+-        UnretainedDanglingPtrMode::kCrash,
++        UnretainedDanglingPtrMode::kDumpWithoutCrashing,
+         &kUnretainedDanglingPtrModeOption,
+ };
+ 
