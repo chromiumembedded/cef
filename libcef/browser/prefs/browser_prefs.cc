@@ -28,6 +28,7 @@
 #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/system_network_context_manager.h"
+#include "chrome/browser/permissions/quiet_notification_permission_ui_state.h"
 #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/preloading/preloading_prefs.h"
 #include "chrome/browser/printing/print_preview_sticky_settings.h"
@@ -270,6 +271,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     prefetch::RegisterPredictionOptionsProfilePrefs(registry.get());
     privacy_sandbox::RegisterProfilePrefs(registry.get());
     ProfileNetworkContextService::RegisterProfilePrefs(registry.get());
+    QuietNotificationPermissionUiState::RegisterProfilePrefs(registry.get());
     RegisterBrowserViewProfilePrefs(registry.get());
     safe_browsing::RegisterProfilePrefs(registry.get());
     unified_consent::UnifiedConsentService::RegisterPrefs(registry.get());
