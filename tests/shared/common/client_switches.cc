@@ -45,6 +45,7 @@ const char kSslClientCertificate[] = "ssl-client-certificate";
 const char kCRLSetsPath[] = "crl-sets-path";
 const char kNoActivate[] = "no-activate";
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
+const char kDisableChromeRuntime[] = "disable-chrome-runtime";
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
 #endif
 const char kShowChromeToolbar[] = "show-chrome-toolbar";

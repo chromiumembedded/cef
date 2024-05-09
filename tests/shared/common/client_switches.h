@@ -39,6 +39,7 @@ extern const char kSslClientCertificate[];
 extern const char kCRLSetsPath[];
 extern const char kNoActivate[];
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
+extern const char kDisableChromeRuntime[];
 extern const char kEnableChromeRuntime[];
 #endif
 extern const char kShowChromeToolbar[];

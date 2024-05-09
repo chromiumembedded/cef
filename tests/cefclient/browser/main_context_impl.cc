@@ -79,7 +79,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
   // Enable Chrome runtime bootstrap. See issue #2969 for details.
   use_chrome_bootstrap_ =
-      command_line_->HasSwitch(switches::kEnableChromeRuntime);
+      !command_line_->HasSwitch(switches::kDisableChromeRuntime);
 #endif
 
   // Whether the Views framework will be used.
