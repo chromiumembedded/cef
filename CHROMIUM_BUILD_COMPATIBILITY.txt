@@ -8,5 +8,5 @@
 
 {
   'chromium_checkout': 'refs/tags/125.0.6422.26',
-  'depot_tools_checkout': '4246ba023a'
+  'depot_tools_checkout': '19199514e8'
 }
