@@ -58,13 +58,11 @@ int main(int argc, char* argv[]) {
   // Specify CEF global settings here.
   CefSettings settings;
 
-  // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
-  // the command-line. Otherwise, use the CEF Alloy runtime. For more
-  // information about CEF runtimes see
-  // https://bitbucket.org/chromiumembedded/cef/wiki/Architecture.md#markdown-header-cef3
-  if (command_line->HasSwitch("enable-chrome-runtime")) {
-    settings.chrome_runtime = true;
-  }
+  // Use the CEF Chrome bootstrap unless "--disable-chrome-runtime" is specified
+  // via the command-line. Otherwise, use the CEF Alloy bootstrap. The Alloy
+  // bootstrap is deprecated and will be removed in ~M127. See
+  // https://github.com/chromiumembedded/cef/issues/3685
+  settings.chrome_runtime = !command_line->HasSwitch("disable-chrome-runtime");
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically. Pass -DUSE_SANDBOX=OFF to the CMake command-line to disable

@@ -113,11 +113,14 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
+  const bool enable_chrome_runtime =
+      !command_line->HasSwitch("disable-chrome-runtime");
+
   // Check if Alloy style will be used. Alloy style is always used with the
   // Alloy runtime bootstrap and optional with the Chrome runtime bootstrap.
   bool use_alloy_style = true;
   cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
-  if (command_line->HasSwitch("enable-chrome-runtime")) {
+  if (enable_chrome_runtime) {
     use_alloy_style = command_line->HasSwitch("use-alloy-style");
     if (use_alloy_style) {
       runtime_style = CEF_RUNTIME_STYLE_ALLOY;
@@ -139,10 +142,16 @@ void SimpleApp::OnContextInitialized() {
     url = "http://www.google.com";
   }
 
-  // Create the browser using the Views framework if "--use-views" is specified
-  // via the command-line. Otherwise, create the browser using the native
-  // platform framework.
-  if (command_line->HasSwitch("use-views")) {
+  // Views is enabled by default with the Chrome bootstrap (add `--use-native`
+  // to disable). Views is disabled by default with the Alloy bootstrap (add
+  // `--use-views` to enable).
+  const bool use_views =
+      (enable_chrome_runtime && !command_line->HasSwitch("use-native")) ||
+      (!enable_chrome_runtime && command_line->HasSwitch("use-views"));
+
+  // If using Views create the browser using the Views framework, otherwise
+  // create the browser using the native platform framework.
+  if (use_views) {
     // Create the BrowserView.
     CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
         handler, url, browser_settings, nullptr, nullptr,
