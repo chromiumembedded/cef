@@ -40,6 +40,7 @@ extern const char kCRLSetsPath[];
 extern const char kLoadExtension[];
 extern const char kNoActivate[];
 extern const char kEnableChromeRuntime[];
+extern const char kDisableChromeRuntime[];
 extern const char kShowChromeToolbar[];
 extern const char kInitialShowState[];
 extern const char kUseDefaultPopup[];

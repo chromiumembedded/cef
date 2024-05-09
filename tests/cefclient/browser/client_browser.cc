@@ -69,6 +69,7 @@ class ClientBrowserDelegate : public ClientAppBrowser::Delegate {
       const CefString& current_directory) override {
     // Add logging for some common switches that the user may attempt to use.
     static const char* kIgnoredSwitches[] = {
+        switches::kDisableChromeRuntime,
         switches::kEnableChromeRuntime,
         switches::kMultiThreadedMessageLoop,
         switches::kOffScreenRenderingEnabled,

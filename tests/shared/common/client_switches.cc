@@ -46,6 +46,7 @@ const char kCRLSetsPath[] = "crl-sets-path";
 const char kLoadExtension[] = "load-extension";
 const char kNoActivate[] = "no-activate";
 const char kEnableChromeRuntime[] = "enable-chrome-runtime";
+const char kDisableChromeRuntime[] = "disable-chrome-runtime";
 const char kShowChromeToolbar[] = "show-chrome-toolbar";
 const char kInitialShowState[] = "initial-show-state";
 const char kUseDefaultPopup[] = "use-default-popup";

@@ -78,7 +78,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
 
   // Enable Chrome runtime bootstrap. See issue #2969 for details.
   use_chrome_bootstrap_ =
-      command_line_->HasSwitch(switches::kEnableChromeRuntime);
+      !command_line_->HasSwitch(switches::kDisableChromeRuntime);
 
   // Whether the Views framework will be used.
   use_views_ = command_line_->HasSwitch(switches::kUseViews);
