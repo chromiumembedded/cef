@@ -75,13 +75,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   CefSettings settings;
 
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  // Use the CEF Chrome runtime if "--enable-chrome-runtime" is specified via
-  // the command-line. Otherwise, use the CEF Alloy runtime. For more
-  // information about CEF runtimes see
-  // https://bitbucket.org/chromiumembedded/cef/wiki/Architecture.md#markdown-header-cef3
-  if (command_line->HasSwitch("enable-chrome-runtime")) {
-    settings.chrome_runtime = true;
-  }
+  // Use the CEF Chrome bootstrap unless "--disable-chrome-runtime" is specified
+  // via the command-line. Otherwise, use the CEF Alloy bootstrap. The Alloy
+  // bootstrap is deprecated and will be removed in ~M127. See
+  // https://github.com/chromiumembedded/cef/issues/3685
+  settings.chrome_runtime = !command_line->HasSwitch("disable-chrome-runtime");
 #endif
 
 #if !defined(CEF_USE_SANDBOX)
