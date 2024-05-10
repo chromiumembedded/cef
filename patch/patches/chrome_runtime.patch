@@ -574,7 +574,7 @@ index e21d5dbffda0b..113df89dcd68a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 6ace1e4dfe2ff..1ed97635c9502 100644
+index 934683953cd7d..8f17a64145bd8 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@
@@ -618,7 +618,7 @@ index 6ace1e4dfe2ff..1ed97635c9502 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -2215,6 +2226,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2216,6 +2227,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  
