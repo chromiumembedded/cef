@@ -158,7 +158,7 @@ def GetValueString(val):
   return val
 
 
-def GetChromiumDefaultArgs():
+def GetChromiumDefaultArgs(is_debug):
   """
   Return default GN args. These must match the Chromium defaults.
   Only args that may be retrieved via GetArgValue() need to be specified here.
@@ -169,6 +169,7 @@ def GetChromiumDefaultArgs():
   defaults = {
       'dcheck_always_on': False,
       'is_asan': False,
+      'is_component_build': is_debug,
       'is_debug': True,
       'is_official_build': False,
       'target_cpu': 'x64',
@@ -188,12 +189,15 @@ def GetChromiumDefaultArgs():
   return defaults
 
 
-def GetArgValue(args, key):
+def GetArgValue(args, key, is_debug=None):
   """
   Return an existing GN arg value or the Chromium default.
+  The |is_debug| argument is required in cases where |key| references it in
+  GetChromiumDefaultArgs.
   """
-  defaults = GetChromiumDefaultArgs()
-  assert key in defaults, "No default Chromium value specified for %s" % key
+  defaults = GetChromiumDefaultArgs(is_debug)
+  assert not defaults.get(key, None) is None, \
+      "No default Chromium value specified for %s" % key
   return args.get(key, defaults[key])
 
 
@@ -258,18 +262,6 @@ def GetRecommendedDefaultArgs():
     # https://groups.google.com/a/chromium.org/g/chromium-packagers/c/-2VGexQAK6w/m/5K5ppK9WBAAJ
     result['use_qt'] = False
 
-    # Use the system allocator instead of PartitionAlloc. Default is True with
-    # the allocator shim enabled. See issues #3061 and #3095.
-    result['use_partition_alloc_as_malloc'] = False
-
-  if platform == 'linux' or platform == 'mac':
-    # Disable dangling pointer detector until raw_ptr<> is enabled (see #3239).
-    # https://chromium.googlesource.com/chromium/src/+/main/docs/dangling_ptr.md
-    # These also require use_partition_alloc_as_malloc=true.
-    result['enable_backup_ref_ptr_support'] = False
-    result['enable_dangling_raw_ptr_checks'] = False
-    result['enable_dangling_raw_ptr_feature_flag'] = False
-
   return result
 
 
@@ -331,7 +323,7 @@ def GetMergedArgs(build_args):
   return MergeDicts(dict, required)
 
 
-def ValidateArgs(args):
+def ValidateArgs(args, is_debug):
   """
   Validate GN arg combinations that we know about. Also provide suggestions
   where appropriate.
@@ -483,6 +475,39 @@ def GetConfigArgs(args, is_debug, cpu):
       is_debug = False
       add_args['dcheck_always_on'] = True
 
+    if platform == 'linux':
+      # Use PartitionAlloc-Everywhere (PA-E) instead of the default system
+      # allocator. Default is True with the allocator shim enabled. This is
+      # disabled for improved client app compatibility (see issues #3061 and
+      # #3095).
+      #
+      # Note that PartitionAlloc is still available in the binary and may be
+      # used explicitly in some cases. It would be better to instead build with
+      # |use_allocator_shim=false use_partition_alloc=false| to completely
+      # disable the allocator shim and PartitionAlloc, however that currently
+      # causes build errors in Chromium (see issue #3095).
+      add_args['use_partition_alloc_as_malloc'] = False
+
+      # BackupRefPtr support requires PA-E, so disable it.
+      add_args['enable_backup_ref_ptr_support'] = False
+  else:
+    is_asan = GetArgValue(args, 'is_asan')
+
+    # Enable additional BackupRefPtr debug features in non-Official build
+    # configurations that support them. See //main/base/memory/raw_ptr.md
+    if (is_debug or platform == 'windows' or is_asan) and \
+        not GetArgValue(args, 'is_component_build', is_debug):
+      if is_asan:
+        # Enable additional security checks for ASAN. Note that ASAN does not
+        # support PartitionAlloc-Everywhere (PA-E) and consequently provides
+        # slightly different functionality. This arg is equivalent to passing
+        # `--enable-features=PartitionAllocBackupRefPtr` on the command-line.
+        add_args['enable_backup_ref_ptr_feature_flag'] = True
+      else:
+        # Use a global table to track all live raw_ptr/raw_ref instances to help
+        # debug dangling pointers. This requires PA-E.
+        add_args['enable_backup_ref_ptr_instance_tracer'] = True
+
   result = MergeDicts(args, add_args, {
       'is_debug': is_debug,
       'target_cpu': cpu,
@@ -494,7 +519,7 @@ def GetConfigArgs(args, is_debug, cpu):
       if key.startswith('arm_'):
         del result[key]
 
-  ValidateArgs(result)
+  ValidateArgs(result, is_debug)
   return result
 
 
@@ -550,7 +575,7 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       'target_cpu': cpu,
   })
 
-  ValidateArgs(result)
+  ValidateArgs(result, is_debug)
   return result
 
 
