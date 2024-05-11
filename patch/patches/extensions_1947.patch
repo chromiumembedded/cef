@@ -136,7 +136,7 @@ index 5a0ba568bf30c..8ef4be85e038a 100644
    ExtensionRegistry::Get(browser_context_)->RemoveObserver(this);
  
 diff --git extensions/browser/extension_host.h extensions/browser/extension_host.h
-index 28ba09319b047..2a097a5ae4c16 100644
+index 28ba09319b047..92a52d2056b73 100644
 --- extensions/browser/extension_host.h
 +++ extensions/browser/extension_host.h
 @@ -62,6 +62,12 @@ class ExtensionHost : public DeferredStartRenderHost,
@@ -167,7 +167,7 @@ index 28ba09319b047..2a097a5ae4c16 100644
    // The host for our HTML content.
 -  std::unique_ptr<content::WebContents> host_contents_;
 +  std::unique_ptr<content::WebContents> host_contents_owned_;
-+  content::WebContents* host_contents_;
++  raw_ptr<content::WebContents> host_contents_;
  
    // A pointer to the current or speculative main frame in `host_contents_`. We
    // can't access this frame through the `host_contents_` directly as it does

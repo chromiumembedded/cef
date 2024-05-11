@@ -41,11 +41,14 @@ index b3218a69a1d9e..a7b8e6c20659a 100644
    RenderWidgetHostViewBase* GetRenderWidgetHostViewBase();
  
 diff --git content/common/input/fling_scheduler_base.h content/common/input/fling_scheduler_base.h
-index e8ee63f3abc2e..2d1717082759d 100644
+index e8ee63f3abc2e..765ea358e093a 100644
 --- content/common/input/fling_scheduler_base.h
 +++ content/common/input/fling_scheduler_base.h
-@@ -7,12 +7,23 @@
+@@ -5,14 +5,26 @@
+ #ifndef CONTENT_COMMON_INPUT_FLING_SCHEDULER_BASE_H_
+ #define CONTENT_COMMON_INPUT_FLING_SCHEDULER_BASE_H_
  
++#include "base/memory/raw_ptr.h"
  #include "content/common/input/fling_controller.h"
  
 +namespace ui {
@@ -64,7 +67,7 @@ index e8ee63f3abc2e..2d1717082759d 100644
 +  }
 +
 +protected:
-+ ui::Compositor* compositor_ = nullptr;
++ raw_ptr<ui::Compositor> compositor_ = nullptr;
  };
  
  }  // namespace content

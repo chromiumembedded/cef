@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 9019859a51edf..ed88b61c6dd69 100644
+index 9019859a51edf..636dd2a822812 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -33,7 +33,9 @@
@@ -265,7 +265,7 @@ index 9019859a51edf..ed88b61c6dd69 100644
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  
-+  CompositorDelegate* delegate_ = nullptr;
++  raw_ptr<CompositorDelegate> delegate_ = nullptr;
 +
    // The root of the Layer tree drawn by this compositor.
    raw_ptr<Layer> root_layer_ = nullptr;
