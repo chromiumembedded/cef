@@ -11,6 +11,7 @@
 #include <queue>
 #include <string>
 
+#include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
 #include "cef/include/cef_frame.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
@@ -195,7 +196,7 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   std::optional<content::GlobalRenderFrameHostToken> parent_frame_token_;
 
   // The following members are only accessed on the UI thread.
-  content::RenderFrameHost* render_frame_host_ = nullptr;
+  raw_ptr<content::RenderFrameHost> render_frame_host_ = nullptr;
 
   std::queue<std::pair<std::string, RenderFrameAction>>
       queued_renderer_actions_;

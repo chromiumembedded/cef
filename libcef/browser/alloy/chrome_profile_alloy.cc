@@ -5,6 +5,7 @@
 
 #include "cef/libcef/browser/alloy/chrome_profile_alloy.h"
 
+#include "base/memory/raw_ptr.h"
 #include "base/no_destructor.h"
 #include "components/profile_metrics/browser_profile_type.h"
 #include "components/variations/variations_client.h"
@@ -31,7 +32,7 @@ class CefVariationsClient : public variations::VariationsClient {
   }
 
  private:
-  content::BrowserContext* browser_context_;
+  raw_ptr<content::BrowserContext> browser_context_;
 };
 
 }  // namespace

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_TOOLBAR_VIEW_IMPL_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_view_delegate.h"
 #include "cef/libcef/browser/chrome/views/toolbar_view_view.h"
 #include "cef/libcef/browser/views/view_impl.h"
@@ -46,8 +47,8 @@ class CefToolbarViewImpl
   CefToolbarViewView* CreateRootView() override;
   void InitializeRootView() override;
 
-  Browser* const browser_;
-  BrowserView* const browser_view_;
+  const raw_ptr<Browser> browser_;
+  const raw_ptr<BrowserView> browser_view_;
   std::optional<ToolbarView::DisplayMode> const display_mode_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefToolbarViewImpl);

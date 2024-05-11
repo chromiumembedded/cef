@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/memory/raw_ptr.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cef/include/cef_dialog_handler.h"
 #include "cef/libcef/browser/browser_host_base.h"
@@ -253,8 +254,8 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
     delete this;
   }
 
-  ui::SelectFileDialog::Listener* const listener_;
-  void* const params_;
+  const raw_ptr<ui::SelectFileDialog::Listener> listener_;
+  const raw_ptr<void> params_;
   base::OnceClosure callback_;
 
   // Used to avoid re-entrancy from Cancel().
@@ -488,8 +489,9 @@ CefFileDialogManager::MaybeRunDelegate(
       CefRefPtr<CefFileDialogCallbackImpl> callbackImpl(
           new CefFileDialogCallbackImpl(std::move(callback)));
       const bool handled = handler->OnFileDialog(
-          browser_, static_cast<cef_file_dialog_mode_t>(mode), params.title,
-          params.default_file_name.value(), accept_filters, callbackImpl.get());
+          browser_.get(), static_cast<cef_file_dialog_mode_t>(mode),
+          params.title, params.default_file_name.value(), accept_filters,
+          callbackImpl.get());
       if (!handled) {
         // May return nullptr if the client has already executed the callback.
         callback = callbackImpl->Disconnect();

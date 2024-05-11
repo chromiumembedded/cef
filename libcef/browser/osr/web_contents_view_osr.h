@@ -6,6 +6,7 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_WEB_CONTENTS_VIEW_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_WEB_CONTENTS_VIEW_OSR_H_
 
+#include "base/memory/raw_ptr.h"
 #include "content/browser/renderer_host/render_view_host_delegate_view.h"
 #include "content/browser/web_contents/web_contents_view.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -97,7 +98,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   const bool use_shared_texture_;
   const bool use_external_begin_frame_;
 
-  content::WebContents* web_contents_ = nullptr;
+  raw_ptr<content::WebContents> web_contents_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_WEB_CONTENTS_VIEW_OSR_H_

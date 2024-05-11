@@ -159,7 +159,7 @@ size_t CefBytesReader::Read(void* ptr, size_t size, size_t n) {
   base::AutoLock lock_scope(lock_);
   size_t s = (datasize_ - offset_) / size;
   size_t ret = (n < s ? n : s);
-  memcpy(ptr, (reinterpret_cast<char*>(data_)) + offset_, ret * size);
+  memcpy(ptr, (reinterpret_cast<char*>(data_.get())) + offset_, ret * size);
   offset_ += ret * size;
   return ret;
 }
@@ -249,7 +249,7 @@ size_t CefBytesWriter::Write(const void* ptr, size_t size, size_t n) {
       Grow(size * n) == 0) {
     rv = 0;
   } else {
-    memcpy(reinterpret_cast<char*>(data_) + offset_, ptr, size * n);
+    memcpy(reinterpret_cast<char*>(data_.get()) + offset_, ptr, size * n);
     offset_ += size * n;
     rv = n;
   }
@@ -300,7 +300,7 @@ int CefBytesWriter::Flush() {
 
 std::string CefBytesWriter::GetDataString() {
   base::AutoLock lock_scope(lock_);
-  std::string str(reinterpret_cast<char*>(data_), offset_);
+  std::string str(reinterpret_cast<char*>(data_.get()), offset_);
   return str;
 }
 

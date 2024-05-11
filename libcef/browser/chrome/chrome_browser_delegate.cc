@@ -244,7 +244,7 @@ void ChromeBrowserDelegate::SetAsDelegate(content::WebContents* web_contents,
 
   if (browser_host) {
     // We already have a browser host, so just change the associated Browser.
-    browser_host->SetBrowser(set_delegate ? browser_ : nullptr);
+    browser_host->SetBrowser(set_delegate ? browser_.get() : nullptr);
     return;
   }
 

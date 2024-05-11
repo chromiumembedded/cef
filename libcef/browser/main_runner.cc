@@ -9,6 +9,7 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug/debugger.h"
+#include "base/memory/raw_ptr.h"
 #include "base/run_loop.h"
 #include "base/sequence_checker.h"
 #include "base/synchronization/lock.h"
@@ -236,7 +237,7 @@ class CefUIThread : public base::PlatformThread::Delegate {
 #endif
   }
 
-  CefMainRunner* const runner_;
+  const raw_ptr<CefMainRunner> runner_;
   base::OnceClosure setup_callback_;
   base::OnceClosure shutdown_callback_;
 

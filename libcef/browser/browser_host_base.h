@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_HOST_BASE_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/observer_list.h"
 #include "base/synchronization/lock.h"
 #include "cef/include/cef_browser.h"
@@ -120,7 +121,7 @@ struct CefBrowserCreateParams {
   // Used when explicitly creating the browser as an extension host via
   // ProcessManager::CreateBackgroundHost. Currently used with the alloy
   // runtime only.
-  const extensions::Extension* extension = nullptr;
+  raw_ptr<const extensions::Extension> extension = nullptr;
   extensions::mojom::ViewType extension_host_type =
       extensions::mojom::ViewType::kInvalid;
 #endif
@@ -438,7 +439,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Only accessed on the UI thread.
   std::unique_ptr<CefBrowserContentsDelegate> contents_delegate_;
   CefRefPtr<CefUnresponsiveProcessCallback> unresponsive_process_callback_;
-  RenderViewContextMenuObserver* context_menu_observer_ = nullptr;
+  raw_ptr<RenderViewContextMenuObserver> context_menu_observer_ = nullptr;
 
   // Observers that want to be notified of changes to this object.
   // Only accessed on the UI thread.

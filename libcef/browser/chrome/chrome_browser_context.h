@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CHROME_CHROME_BROWSER_CONTEXT_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/browser_context.h"
 #include "chrome/browser/profiles/profile_manager.h"
@@ -55,7 +56,7 @@ class ChromeBrowserContext : public CefBrowserContext, public ProfileObserver {
   void ProfileCreated(CreateStatus status, Profile* profile);
 
   base::OnceClosure initialized_cb_;
-  Profile* profile_ = nullptr;
+  raw_ptr<Profile> profile_ = nullptr;
   bool should_destroy_ = false;
 
   bool destroyed_ = false;

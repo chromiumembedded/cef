@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DETAILS_H_
 
 #include "base/functional/callback_forward.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_extension.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "chrome/common/extensions/api/tabs.h"
@@ -136,7 +137,7 @@ class CefExtensionFunctionDetails {
  private:
   // The function for which these details have been created. Must outlive the
   // CefExtensionFunctionDetails instance.
-  ExtensionFunction* function_;
+  raw_ptr<ExtensionFunction> function_;
 
   mutable CefRefPtr<CefExtension> cef_extension_;
 

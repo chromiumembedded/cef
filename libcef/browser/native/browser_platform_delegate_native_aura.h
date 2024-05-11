@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_AURA_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_AURA_H_
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 #include "ui/events/event.h"
@@ -79,7 +80,7 @@ class CefBrowserPlatformDelegateNativeAura
 
   // Widget hosting the web contents. It will be deleted automatically when the
   // associated root window is destroyed.
-  views::Widget* window_widget_ = nullptr;
+  raw_ptr<views::Widget> window_widget_ = nullptr;
 
  private:
   // Will only be called if the Widget is deleted before

@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_app.h"
 #include "cef/libcef/common/main_runner_delegate.h"
 #include "cef/libcef/common/main_runner_handler.h"
@@ -48,8 +49,8 @@ class ChromeMainRunnerDelegate : public CefMainRunnerDelegate {
   std::unique_ptr<MainThreadStackSamplingProfiler> sampling_profiler_;
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
 
-  CefMainRunnerHandler* const runner_;
-  CefSettings* const settings_;
+  const raw_ptr<CefMainRunnerHandler> runner_;
+  const raw_ptr<CefSettings> settings_;
   CefRefPtr<CefApp> application_;
 
   bool multi_threaded_message_loop_ = false;

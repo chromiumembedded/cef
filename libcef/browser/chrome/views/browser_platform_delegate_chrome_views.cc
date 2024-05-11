@@ -48,7 +48,7 @@ void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
   if (auto delegate = browser_view_->delegate()) {
-    delegate->OnBrowserCreated(browser_view_, browser_);
+    delegate->OnBrowserCreated(browser_view_, browser_.get());
 
     // DevTools windows hide the notification bubble by default. However, we
     // don't currently have the ability to intercept WebContents creation via
@@ -76,7 +76,8 @@ void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserDestroyed() {
   if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserDestroyed(browser_view_, browser_);
+    browser_view_->delegate()->OnBrowserDestroyed(browser_view_,
+                                                  browser_.get());
   }
 }
 

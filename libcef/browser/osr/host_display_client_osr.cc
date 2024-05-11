@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/shared_memory_mapping.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "components/viz/common/resources/resource_sizes.h"
@@ -43,7 +44,7 @@ class CefLayeredWindowUpdaterOSR : public viz::mojom::LayeredWindowUpdater {
   void Draw(const gfx::Rect& damage_rect, DrawCallback draw_callback) override;
 
  private:
-  CefRenderWidgetHostViewOSR* const view_;
+  const raw_ptr<CefRenderWidgetHostViewOSR> view_;
   mojo::Receiver<viz::mojom::LayeredWindowUpdater> receiver_;
   bool active_ = false;
   base::WritableSharedMemoryMapping shared_memory_;

@@ -10,6 +10,7 @@
 #include <set>
 
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/notreached.h"
 #include "base/synchronization/lock.h"
@@ -128,8 +129,8 @@ class CefValueController
 
  private:
   // Owner object.
-  void* owner_value_ = nullptr;
-  Object* owner_object_ = nullptr;
+  raw_ptr<void> owner_value_ = nullptr;
+  raw_ptr<Object> owner_object_ = nullptr;
 
   // Map of reference objects.
   using ReferenceMap = std::map<void*, Object*>;
@@ -322,7 +323,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
       controller()->RemoveDependencies(value_);
 
       // Delete the value.
-      DeleteValue(value_);
+      DeleteValue(value_.get());
     }
 
     controller_ = nullptr;
@@ -438,7 +439,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
   };
 
  private:
-  ValueType* value_;
+  raw_ptr<ValueType> value_;
   ValueMode value_mode_;
   bool read_only_;
   scoped_refptr<CefValueController> controller_;

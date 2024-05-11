@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
+#include "base/memory/raw_ptr.h"
 #include "base/scoped_observation.h"
 #include "ui/views/widget/widget_observer.h"
 
@@ -27,7 +28,7 @@ class WidgetDestructionObserver : public views::WidgetObserver {
   views::Widget* widget() const { return widget_; }
 
  private:
-  views::Widget* widget_;
+  raw_ptr<views::Widget> widget_;
 
   base::ScopedObservation<views::Widget, views::WidgetObserver> observation_{
       this};

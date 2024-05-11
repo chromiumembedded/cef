@@ -7,6 +7,7 @@
 #pragma once
 
 #include "base/functional/callback_forward.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/include/cef_client.h"
 #include "cef/include/views/cef_browser_view.h"
@@ -138,8 +139,8 @@ class CefBrowserViewImpl
 
   base::RepeatingClosure on_bounds_changed_;
 
-  CefWidget* cef_widget_ = nullptr;
-  Profile* profile_ = nullptr;
+  raw_ptr<CefWidget> cef_widget_ = nullptr;
+  raw_ptr<Profile> profile_ = nullptr;
 
   base::WeakPtrFactory<CefBrowserViewImpl> weak_ptr_factory_;
 

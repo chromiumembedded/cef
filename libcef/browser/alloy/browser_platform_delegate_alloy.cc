@@ -213,7 +213,7 @@ void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
   DCHECK(browser_);
   DCHECK(!extension_host_);
 
-  auto alloy_browser = AlloyBrowserHostImpl::FromBaseChecked(browser_);
+  auto alloy_browser = AlloyBrowserHostImpl::FromBaseChecked(browser_.get());
 
   if (host_type == extensions::mojom::ViewType::kExtensionPopup) {
     // Create an extension host that we own.

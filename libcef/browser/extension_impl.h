@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_extension.h"
 #include "cef/include/cef_extension_handler.h"
 #include "cef/include/cef_request_context.h"
@@ -48,7 +49,7 @@ class CefExtensionImpl : public CefExtension {
   CefString path_;
   CefRefPtr<CefDictionaryValue> manifest_;
 
-  CefRequestContext* loader_context_;
+  raw_ptr<CefRequestContext> loader_context_;
   CefRefPtr<CefExtensionHandler> handler_;
 
   // Only accessed on the UI thread.

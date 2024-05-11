@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/browser/chrome/browser_delegate.h"
@@ -161,7 +162,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   CefWindowImpl* GetCefWindowImpl() const;
   CefWindowView* GetCefWindowView() const;
 
-  Browser* const browser_;
+  const raw_ptr<Browser> browser_;
   base::WeakPtr<ChromeBrowserHostImpl> opener_host_;
 
   // Used when creating a new browser host.

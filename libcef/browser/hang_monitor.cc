@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/hang_monitor.h"
 
+#include "base/memory/raw_ptr.h"
 #include "build/build_config.h"
 #include "cef/include/cef_client.h"
 #include "cef/libcef/browser/browser_host_base.h"
@@ -87,7 +88,7 @@ class CefUnresponsiveProcessCallbackImpl
     }
   }
 
-  content::RenderWidgetHost* render_widget_host_;
+  raw_ptr<content::RenderWidgetHost> render_widget_host_;
   base::RepeatingClosure hang_monitor_restarter_;
 
   IMPLEMENT_REFCOUNTING(CefUnresponsiveProcessCallbackImpl);

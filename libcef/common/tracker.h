@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_COMMON_TRACKER_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
 #include "cef/include/cef_base.h"
 
@@ -35,8 +36,8 @@ class CefTrackNode {
   void RemoveTracking();
 
  private:
-  CefTrackNode* track_next_ = nullptr;
-  CefTrackNode* track_prev_ = nullptr;
+  raw_ptr<CefTrackNode> track_next_ = nullptr;
+  raw_ptr<CefTrackNode> track_prev_ = nullptr;
 
   friend class CefTrackManager;
 };

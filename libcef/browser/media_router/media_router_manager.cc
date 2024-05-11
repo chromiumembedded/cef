@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/media_router/media_router_manager.h"
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "components/media_router/browser/media_router_factory.h"
@@ -34,7 +35,7 @@ class CefMediaRoutesObserver : public media_router::MediaRoutesObserver {
   }
 
  private:
-  CefMediaRouterManager* const manager_;
+  const raw_ptr<CefMediaRouterManager> manager_;
 };
 
 // Used to receive messages if PresentationConnection is not supported.
@@ -61,7 +62,7 @@ class CefPresentationConnectionMessageObserver
   }
 
  private:
-  CefMediaRouterManager* const manager_;
+  const raw_ptr<CefMediaRouterManager> manager_;
   const media_router::MediaRoute route_;
 };
 
@@ -118,7 +119,7 @@ class CefPresentationConnection : public blink::mojom::PresentationConnection {
   }
 
  private:
-  CefMediaRouterManager* const manager_;
+  const raw_ptr<CefMediaRouterManager> manager_;
   const media_router::MediaRoute route_;
 
   // Used to receive messages from the MRP.

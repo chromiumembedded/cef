@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_color_ids.h"
 #include "cef/libcef/browser/views/view_adapter.h"
 #include "cef/libcef/browser/views/widget.h"
@@ -54,7 +55,7 @@ class UserData : public base::SupportsUserData::Data {
     DCHECK(view);
     UserData* data = static_cast<UserData*>(view->GetUserData(UserDataKey()));
     if (data) {
-      return data->view_ref_;
+      return data->view_ref_.get();
     }
     return nullptr;
   }
@@ -111,7 +112,7 @@ class UserData : public base::SupportsUserData::Data {
     }
   }
 
-  void TakeReference() { view_ = view_ref_; }
+  void TakeReference() { view_ = view_ref_.get(); }
 
   void ReleaseReference() { view_ = nullptr; }
 
@@ -123,7 +124,7 @@ class UserData : public base::SupportsUserData::Data {
   }
 
   CefRefPtr<CefView> view_;
-  CefView* view_ref_;
+  raw_ptr<CefView> view_ref_;
 };
 
 // Based on Widget::GetNativeTheme.

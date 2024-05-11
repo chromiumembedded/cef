@@ -6,6 +6,8 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
+
 #if BUILDFLAG(IS_LINUX)
 #include "ui/base/ozone_buildflags.h"
 #if BUILDFLAG(IS_OZONE_X11)
@@ -68,7 +70,8 @@ class ClientViewEx : public views::ClientView {
   }
 
  private:
-  CefWindowView::Delegate* window_delegate_;  // Not owned by this object.
+  // Not owned by this object.
+  raw_ptr<CefWindowView::Delegate> window_delegate_;
 };
 
 // Extend NativeFrameView with draggable region handling.
@@ -151,8 +154,8 @@ class NativeFrameViewEx : public views::NativeFrameView {
 
  private:
   // Not owned by this object.
-  views::Widget* widget_;
-  CefWindowView* view_;
+  raw_ptr<views::Widget> widget_;
+  raw_ptr<CefWindowView> view_;
 };
 
 // The area inside the frame border that can be clicked and dragged for resizing
@@ -284,8 +287,8 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   }
 
   // Not owned by this object.
-  views::Widget* widget_;
-  CefWindowView* view_;
+  raw_ptr<views::Widget> widget_;
+  raw_ptr<CefWindowView> view_;
 
   // The bounds of the client view, in this view's coordinates.
   gfx::Rect client_view_bounds_;

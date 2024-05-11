@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CHROME_CHROME_WEB_CONTENTS_VIEW_DELEGATE_CEF_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "build/build_config.h"
 
 #if BUILDFLAG(IS_MAC)
@@ -31,7 +32,7 @@ class ChromeWebContentsViewDelegateCef
                        const content::ContextMenuParams& params) override;
 
  private:
-  content::WebContents* const web_contents_;
+  const raw_ptr<content::WebContents> web_contents_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_WEB_CONTENTS_VIEW_DELEGATE_CEF_H_

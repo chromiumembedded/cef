@@ -9,6 +9,7 @@
 #include <string_view>
 
 #include "base/command_line.h"
+#include "base/memory/raw_ptr.h"
 #include "build/build_config.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "components/prefs/pref_service.h"
@@ -79,7 +80,7 @@ class AlloyBrowserMainParts : public content::BrowserMainParts {
 #endif  // BUILDFLAG(IS_WIN)
 
   CefRefPtr<CefRequestContextImpl> global_request_context_;
-  CefDevToolsDelegate* devtools_delegate_ = nullptr;  // Deletes itself.
+  raw_ptr<CefDevToolsDelegate> devtools_delegate_ = nullptr;  // Deletes itself.
 
   // Blocking task runners exposed via CefTaskRunner. For consistency with
   // previous named thread behavior always execute all pending tasks before

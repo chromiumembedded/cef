@@ -105,7 +105,7 @@ void CefMediaStreamRegistrar::NotifyMediaStreamChange() {
 
   if (auto client = browser_->GetClient()) {
     if (auto handler = client->GetDisplayHandler()) {
-      handler->OnMediaAccessChange(browser_, video, audio);
+      handler->OnMediaAccessChange(browser_.get(), video, audio);
     }
   }
 }

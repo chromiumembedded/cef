@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_VIEW_IMPL_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 // CEF exposes views framework functionality via a hierarchy of CefView and
 // related objects. While the goal is to accurately represent views framework
 // capabilities there is not always a direct 1:1 mapping between the CEF
@@ -443,7 +444,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
 
   // Unowned reference to the views::View wrapped by this object. Will be
   // nullptr before the View is created and after the View is destroyed.
-  ViewsViewClass* root_view_ref_;
+  raw_ptr<ViewsViewClass> root_view_ref_;
 };
 
 CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::GetTypeString() {

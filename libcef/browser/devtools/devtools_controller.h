@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "base/containers/span.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
@@ -68,7 +69,7 @@ class CefDevToolsController : public content::DevToolsAgentHostClient {
 
   bool EnsureAgentHost();
 
-  content::WebContents* const inspected_contents_;
+  const raw_ptr<content::WebContents> inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   int next_message_id_ = 1;
 

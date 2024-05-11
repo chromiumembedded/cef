@@ -6,6 +6,7 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_MIME_HANDLER_VIEW_GUEST_DELEGATE_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_MIME_HANDLER_VIEW_GUEST_DELEGATE_H_
 
+#include "base/memory/raw_ptr.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h"
 
 namespace content {
@@ -34,7 +35,7 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
                          const content::ContextMenuParams& params) override;
 
  private:
-  content::WebContents* owner_web_contents_;
+  raw_ptr<content::WebContents> owner_web_contents_;
 };
 
 }  // namespace extensions

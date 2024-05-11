@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_browser.h"
 
 class CefBrowserHostBase;
@@ -48,7 +49,7 @@ class CefDevToolsProtocolManager {
  private:
   bool EnsureController();
 
-  CefBrowserHostBase* const inspected_browser_;
+  const raw_ptr<CefBrowserHostBase> inspected_browser_;
 
   std::unique_ptr<CefDevToolsController> devtools_controller_;
 };

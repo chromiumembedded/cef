@@ -7,6 +7,7 @@
 #pragma once
 
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_view.h"
 #include "cef/include/views/cef_view_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -87,7 +88,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
       const views::ViewHierarchyChangedDetails& details);
 
   // Not owned by this object.
-  CefViewDelegateClass* const cef_delegate_;
+  const raw_ptr<CefViewDelegateClass> cef_delegate_;
 };
 
 CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_MEDIA_ROUTER_MEDIA_ROUTER_MANAGER_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "cef/include/cef_media_router.h"
@@ -107,7 +108,7 @@ class CefMediaRouterManager
   RouteState* GetRouteState(const media_router::MediaRoute::Id& route_id);
   void RemoveRouteState(const media_router::MediaRoute::Id& route_id);
 
-  content::BrowserContext* const browser_context_;
+  const raw_ptr<content::BrowserContext> browser_context_;
 
   base::ObserverList<Observer> observers_;
 

@@ -9,6 +9,7 @@
 #include <optional>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/views/overlay_view_host.h"
@@ -150,7 +151,7 @@ class CefWindowView
   void UpdateBoundingBox(gfx::Rect* bounds, bool add_titlebar_height) const;
 
   // Not owned by this object.
-  Delegate* window_delegate_;
+  raw_ptr<Delegate> window_delegate_;
 
   // True if the window is Alloy style, otherwise Chrome style.
   const bool is_alloy_style_;

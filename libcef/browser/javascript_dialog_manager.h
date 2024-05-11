@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/include/cef_jsdialog_handler.h"
 #include "cef/libcef/browser/javascript_dialog_runner.h"
@@ -60,7 +61,7 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   bool CanUseChromeDialogs() const;
 
   // CefBrowserHostBase pointer is guaranteed to outlive this object.
-  CefBrowserHostBase* const browser_;
+  const raw_ptr<CefBrowserHostBase> browser_;
 
   CefRefPtr<CefJSDialogHandler> handler_;
 

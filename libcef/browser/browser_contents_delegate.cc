@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/browser_contents_delegate.h"
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/browser_util.h"
@@ -73,8 +74,8 @@ class CefWidgetHostInterceptor
 
  private:
   CefRefPtr<CefBrowser> const browser_;
-  content::RenderWidgetHost* const render_widget_host_;
-  blink::mojom::WidgetHost* const impl_;
+  const raw_ptr<content::RenderWidgetHost> render_widget_host_;
+  const raw_ptr<blink::mojom::WidgetHost> impl_;
 };
 
 }  // namespace

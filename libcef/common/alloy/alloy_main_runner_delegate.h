@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_base.h"
 #include "cef/libcef/common/main_runner_delegate.h"
 #include "cef/libcef/common/main_runner_handler.h"
@@ -41,8 +42,8 @@ class AlloyMainRunnerDelegate : public CefMainRunnerDelegate {
  private:
   std::unique_ptr<AlloyMainDelegate> main_delegate_;
 
-  CefMainRunnerHandler* const runner_;
-  CefSettings* const settings_;
+  const raw_ptr<CefMainRunnerHandler> runner_;
+  const raw_ptr<CefSettings> settings_;
   CefRefPtr<CefApp> application_;
 };
 

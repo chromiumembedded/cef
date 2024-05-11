@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "base/i18n/rtl.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_util.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
@@ -93,11 +94,11 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
 
  private:
   // Members are guaranteed to outlive this object.
-  CefWindowImpl* window_impl_;
-  views::Widget* widget_;
+  raw_ptr<CefWindowImpl> window_impl_;
+  raw_ptr<views::Widget> widget_;
 
   // |window_| is the event target that is associated with this class.
-  aura::Window* window_;
+  raw_ptr<aura::Window> window_;
 };
 
 #endif  // defined(USE_AURA)

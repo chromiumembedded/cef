@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "base/functional/callback.h"
+#include "base/memory/raw_ptr.h"
 #include "components/viz/host/client_frame_sink_video_capturer.h"
 #include "media/capture/mojom/video_capture_types.mojom.h"
 
@@ -40,7 +41,7 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
 
   const bool use_shared_texture_;
 
-  CefRenderWidgetHostViewOSR* const view_;
+  const raw_ptr<CefRenderWidgetHostViewOSR> view_;
   std::unique_ptr<viz::ClientFrameSinkVideoCapturer> video_capturer_;
 
   gfx::Size size_in_pixels_;

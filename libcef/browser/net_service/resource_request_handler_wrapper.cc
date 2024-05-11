@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/iothread_state.h"
@@ -142,7 +143,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     const int32_t id_;
-    network::ResourceRequest* const request_;
+    const raw_ptr<network::ResourceRequest> request_;
     const bool request_was_redirected_;
     OnBeforeRequestResultCallback callback_;
     CancelRequestCallback cancel_callback_;
@@ -357,7 +358,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     base::Lock lock_;
-    InterceptedRequestHandlerWrapper* wrapper_;
+    raw_ptr<InterceptedRequestHandlerWrapper> wrapper_;
   };
 
   InterceptedRequestHandlerWrapper()

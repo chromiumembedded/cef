@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/chrome/browser_delegate.h"
@@ -174,7 +175,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   // TabStripModel::kNoTab if not found.
   int GetCurrentTabIndex() const;
 
-  Browser* browser_ = nullptr;
+  raw_ptr<Browser> browser_ = nullptr;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
 
   base::WeakPtrFactory<ChromeBrowserHostImpl> weak_ptr_factory_{this};

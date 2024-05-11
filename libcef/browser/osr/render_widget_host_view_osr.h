@@ -11,6 +11,7 @@
 #include <set>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "cc/layers/deadline_policy.h"
@@ -407,7 +408,7 @@ class CefRenderWidgetHostViewOSR
   bool external_begin_frame_enabled_ = false;
   bool needs_external_begin_frames_ = false;
 
-  CefHostDisplayClientOSR* host_display_client_ = nullptr;
+  raw_ptr<CefHostDisplayClientOSR> host_display_client_ = nullptr;
   std::unique_ptr<CefVideoConsumerOSR> video_consumer_;
 
   bool hold_resize_ = false;
@@ -418,12 +419,12 @@ class CefRenderWidgetHostViewOSR
   // The associated Model.  While |this| is being Destroyed,
   // |render_widget_host_| is NULL and the message loop is run one last time
   // Message handlers must check for a NULL |render_widget_host_|.
-  content::RenderWidgetHostImpl* render_widget_host_;
+  raw_ptr<content::RenderWidgetHostImpl> render_widget_host_;
 
   bool has_parent_;
-  CefRenderWidgetHostViewOSR* parent_host_view_;
-  CefRenderWidgetHostViewOSR* popup_host_view_ = nullptr;
-  CefRenderWidgetHostViewOSR* child_host_view_ = nullptr;
+  raw_ptr<CefRenderWidgetHostViewOSR> parent_host_view_;
+  raw_ptr<CefRenderWidgetHostViewOSR> popup_host_view_ = nullptr;
+  raw_ptr<CefRenderWidgetHostViewOSR> child_host_view_ = nullptr;
   std::set<CefRenderWidgetHostViewOSR*> guest_host_views_;
 
   CefRefPtr<AlloyBrowserHostImpl> browser_impl_;

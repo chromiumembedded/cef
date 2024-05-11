@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "base/strings/string_util.h"
 #include "cef/libcef/common/net/http_header_utils.h"
 #include "cef/libcef/common/net_service/net_service_util.h"
@@ -226,7 +227,7 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
     }
 
    private:
-    HeaderMap* map_;
+    raw_ptr<HeaderMap> map_;
   };
 
   HeaderVisitor visitor(&header_map_);

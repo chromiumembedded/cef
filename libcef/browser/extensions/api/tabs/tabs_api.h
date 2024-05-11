@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_API_TABS_TABS_API_H_
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/extensions/extension_function_details.h"
 #include "chrome/common/extensions/api/tabs.h"
 #include "extensions/browser/api/execute_code_function.h"
@@ -68,7 +69,7 @@ class TabsUpdateFunction : public BaseAPIFunction {
   DECLARE_EXTENSION_FUNCTION("tabs.update", TABS_UPDATE)
 
   int tab_id_ = -1;
-  content::WebContents* web_contents_ = nullptr;
+  raw_ptr<content::WebContents> web_contents_ = nullptr;
 };
 
 // Implement API calls tabs.executeScript, tabs.insertCSS, and tabs.removeCSS.

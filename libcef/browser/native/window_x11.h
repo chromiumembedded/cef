@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/include/internal/cef_ptr.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
@@ -70,7 +71,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher,
   CefRefPtr<CefBrowserHostBase> browser_;
 
   // The display and the native X window hosting the root window.
-  x11::Connection* const connection_;
+  const raw_ptr<x11::Connection> connection_;
   x11::Window parent_xwindow_;
   x11::Window xwindow_;
 

@@ -7,6 +7,7 @@
 #define LIBCEF_BROWSER_PRINTING_PRINT_DIALOG_LINUX_H_
 
 #include "base/files/file_path.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/task/sequenced_task_runner_helpers.h"
 #include "cef/include/cef_print_handler.h"
@@ -40,7 +41,7 @@ class CefPrintingContextLinuxDelegate
   void SetDefaultDelegate(ui::PrintingContextLinuxDelegate* delegate);
 
  private:
-  ui::PrintingContextLinuxDelegate* default_delegate_ = nullptr;
+  raw_ptr<ui::PrintingContextLinuxDelegate> default_delegate_ = nullptr;
 };
 
 // Needs to be freed on the UI thread to clean up its member variables.
@@ -99,7 +100,7 @@ class CefPrintDialogLinux : public printing::PrintDialogLinuxInterface,
   // Printing dialog callback.
   PrintingContextLinux::PrintSettingsCallback callback_;
 
-  PrintingContextLinux* context_;
+  raw_ptr<PrintingContextLinux> context_;
   CefRefPtr<CefBrowserHostBase> browser_;
   CefRefPtr<CefPrintHandler> handler_;
 

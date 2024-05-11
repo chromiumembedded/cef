@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 #define CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 
@@ -113,7 +114,8 @@ class CefBrowserPlatformDelegateOsr
   const bool use_shared_texture_;
   const bool use_external_begin_frame_;
 
-  CefWebContentsViewOSR* view_osr_ = nullptr;  // Not owned by this class.
+  // Not owned by this class.
+  raw_ptr<CefWebContentsViewOSR> view_osr_ = nullptr;
 
   // Pending drag/drop data.
   CefRefPtr<CefDragData> drag_data_;
@@ -126,7 +128,7 @@ class CefBrowserPlatformDelegateOsr
   // We also keep track of the RenderViewHost we're dragging over to avoid
   // sending the drag exited message after leaving the current
   // view. |current_rvh_for_drag_| should not be dereferenced.
-  void* current_rvh_for_drag_ = nullptr;
+  raw_ptr<void> current_rvh_for_drag_ = nullptr;
 
   // We keep track of the RenderWidgetHost from which the current drag started,
   // in order to properly route the drag end message to it.

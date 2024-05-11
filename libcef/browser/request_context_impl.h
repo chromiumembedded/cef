@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_REQUEST_CONTEXT_IMPL_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_request_context.h"
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/media_router/media_router_impl.h"
@@ -158,7 +159,7 @@ class CefRequestContextImpl : public CefRequestContext {
 
     // Wrap an existing (non-global) browser context. When specifying this value
     // GetOrCreateRequestContext() must be called on the UI thread.
-    CefBrowserContext* browser_context = nullptr;
+    raw_ptr<CefBrowserContext> browser_context = nullptr;
 
     // |settings| or |other| will be set when creating a new CefRequestContext
     // via the API.
@@ -220,7 +221,7 @@ class CefRequestContextImpl : public CefRequestContext {
   CefBrowserContext* browser_context() const;
 
   // We must disassociate from this on destruction.
-  CefBrowserContext* browser_context_ = nullptr;
+  raw_ptr<CefBrowserContext> browser_context_ = nullptr;
 
   Config config_;
 

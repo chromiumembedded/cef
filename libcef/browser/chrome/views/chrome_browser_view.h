@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_CHROME_BROWSER_VIEW_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_browser_view.h"
 #include "cef/include/views/cef_browser_view_delegate.h"
 #include "cef/libcef/browser/chrome/views/toolbar_view_impl.h"
@@ -52,9 +53,9 @@ class ChromeBrowserView
   CefBrowserViewImpl* cef_browser_view() const { return cef_browser_view_; }
 
  private:
-  CefBrowserViewImpl* const cef_browser_view_;
+  const raw_ptr<CefBrowserViewImpl> cef_browser_view_;
 
-  views::WebView* web_view_ = nullptr;
+  raw_ptr<views::WebView> web_view_ = nullptr;
 
   bool destroyed_ = false;
 

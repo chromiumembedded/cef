@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/chrome/chrome_context_menu_handler.h"
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/browser_host_base.h"
@@ -271,7 +272,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
     OnMenuClosed();
   }
 
-  RenderViewContextMenu* const context_menu_;
+  const raw_ptr<RenderViewContextMenu> context_menu_;
   CefRefPtr<CefBrowserHostBase> browser_;
   CefRefPtr<CefContextMenuHandler> handler_;
   CefRefPtr<CefContextMenuParams> params_;

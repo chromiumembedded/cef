@@ -17,6 +17,7 @@
 #include "base/json/json_writer.h"
 #include "base/json/string_escape.h"
 #include "base/memory/ptr_util.h"
+#include "base/memory/raw_ptr.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
@@ -229,7 +230,7 @@ class CefDevToolsFrontend::NetworkResourceLoader
   void OnRetry(base::OnceClosure start_retry) override { DCHECK(false); }
 
   const int stream_id_;
-  CefDevToolsFrontend* const bindings_;
+  const raw_ptr<CefDevToolsFrontend> bindings_;
   std::unique_ptr<network::SimpleURLLoader> loader_;
   int request_id_;
   scoped_refptr<net::HttpResponseHeaders> response_headers_;

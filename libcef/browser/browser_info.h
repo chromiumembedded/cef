@@ -12,6 +12,7 @@
 
 #include "base/containers/unique_ptr_adapters.h"
 #include "base/functional/callback.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
@@ -169,7 +170,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       return frame_ && is_main_frame_ && !is_speculative_ && !is_in_bfcache_;
     }
 
-    content::RenderFrameHost* host_;
+    raw_ptr<content::RenderFrameHost> host_;
     content::GlobalRenderFrameHostId global_id_;
     bool is_main_frame_;
     bool is_speculative_;
@@ -210,7 +211,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
    protected:
     friend class CefBrowserInfo;
-    CefBrowserInfo* const browser_info_;
+    const raw_ptr<CefBrowserInfo> browser_info_;
     CefRefPtr<CefFrameHandler> frame_handler_;
     std::unique_ptr<base::AutoLock> browser_info_lock_scope_;
     std::queue<FrameNotifyOnceAction> queue_;
@@ -219,7 +220,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   mutable base::Lock notification_lock_;
 
   // These members must be protected by |notification_lock_|.
-  NotificationStateLock* notification_state_lock_ = nullptr;
+  raw_ptr<NotificationStateLock> notification_state_lock_ = nullptr;
   CefRefPtr<CefFrameHandler> frame_handler_;
 
   mutable base::Lock lock_;

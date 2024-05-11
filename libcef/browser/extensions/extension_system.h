@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/one_shot_event.h"
 #include "cef/include/cef_extension_handler.h"
@@ -152,7 +153,7 @@ class CefExtensionSystem : public ExtensionSystem {
   void NotifyExtensionUnloaded(const Extension* extension,
                                UnloadedExtensionReason reason);
 
-  content::BrowserContext* browser_context_;  // Not owned.
+  raw_ptr<content::BrowserContext> browser_context_;  // Not owned.
 
   bool initialized_ = false;
 
@@ -169,11 +170,11 @@ class CefExtensionSystem : public ExtensionSystem {
   base::OneShotEvent ready_;
 
   // Sets of enabled/disabled/terminated/blacklisted extensions. Not owned.
-  ExtensionRegistry* registry_;
+  raw_ptr<ExtensionRegistry> registry_;
 
   // The associated RendererStartupHelper. Guaranteed to outlive the
   // ExtensionSystem, and thus us.
-  extensions::RendererStartupHelper* renderer_helper_;
+  raw_ptr<extensions::RendererStartupHelper> renderer_helper_;
 
   // Map of extension ID to CEF extension object.
   ExtensionMap extension_map_;

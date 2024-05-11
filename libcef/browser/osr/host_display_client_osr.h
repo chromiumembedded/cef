@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "base/functional/callback.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/shared_memory_mapping.h"
 #include "components/viz/host/host_display_client.h"
 #include "ui/gfx/native_widget_types.h"
@@ -41,7 +42,7 @@ class CefHostDisplayClientOSR : public viz::HostDisplayClient {
   void DidCompleteSwapWithNewSize(const gfx::Size& size) override;
 #endif
 
-  CefRenderWidgetHostViewOSR* const view_;
+  const raw_ptr<CefRenderWidgetHostViewOSR> view_;
   std::unique_ptr<CefLayeredWindowUpdaterOSR> layered_window_updater_;
   bool active_ = false;
 };

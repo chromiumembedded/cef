@@ -9,6 +9,7 @@
 
 #include "base/functional/bind.h"
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "base/threading/thread_checker.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_frame_host.h"
@@ -116,7 +117,7 @@ class FrameServiceBase : public Interface, public WebContentsObserver {
     delete this;
   }
 
-  RenderFrameHost* const render_frame_host_ = nullptr;
+  const raw_ptr<RenderFrameHost> render_frame_host_ = nullptr;
   const url::Origin origin_;
   mojo::Receiver<Interface> receiver_;
 };

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_DELEGATE_VIEW_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "ui/views/widget/widget_delegate.h"
 
 namespace content {
@@ -54,7 +55,7 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   base::RepeatingClosure on_bounds_changed_;
   base::OnceClosure on_delete_;
 
-  views::WebView* web_view_ = nullptr;
+  raw_ptr<views::WebView> web_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_WINDOW_DELEGATE_VIEW_H_

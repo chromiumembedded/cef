@@ -176,7 +176,7 @@ gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     int screenX = 0, screenY = 0;
-    if (handler->GetScreenPoint(browser_, view.x(), view.y(), screenX,
+    if (handler->GetScreenPoint(browser_.get(), view.x(), view.y(), screenX,
                                 screenY)) {
       gfx::Point screen_point(screenX, screenY);
 #if !BUILDFLAG(IS_MAC)
@@ -537,7 +537,7 @@ void CefBrowserPlatformDelegateOsr::StartDragging(
     drag_data->SetReadOnly(true);
     base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop allow;
     handled = handler->StartDragging(
-        browser_, drag_data.get(),
+        browser_.get(), drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
         event_info.location.x(), event_info.location.y());
   }
@@ -556,7 +556,8 @@ void CefBrowserPlatformDelegateOsr::UpdateDragOperation(
       browser_->GetClient()->GetRenderHandler();
   if (handler.get()) {
     handler->UpdateDragCursor(
-        browser_, static_cast<CefRenderHandler::DragOperation>(operation));
+        browser_.get(),
+        static_cast<CefRenderHandler::DragOperation>(operation));
   }
 }
 

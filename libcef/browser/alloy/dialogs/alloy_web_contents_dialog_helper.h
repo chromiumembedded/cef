@@ -7,6 +7,7 @@
 #pragma once
 
 #include "base/functional/callback_forward.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "components/web_modal/modal_dialog_host.h"
@@ -40,7 +41,7 @@ class AlloyWebContentsDialogHelper
  private:
   void OnBoundsChanged();
 
-  CefBrowserPlatformDelegate* const browser_delegate_;
+  const raw_ptr<CefBrowserPlatformDelegate> browser_delegate_;
 
   // Used to notify WebContentsModalDialog.
   base::ObserverList<web_modal::ModalDialogHostObserver>::Unchecked

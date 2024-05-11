@@ -57,7 +57,7 @@ CefRefPtr<CefRequestContext> CefExtensionImpl::GetLoaderContext() {
     return nullptr;
   }
 
-  return loader_context_;
+  return loader_context_.get();
 }
 
 bool CefExtensionImpl::IsLoaded() {

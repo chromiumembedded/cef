@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_COLOR_PROVIDER_TRACKER_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/scoped_observation.h"
 #include "ui/color/color_provider_manager.h"
 
@@ -52,7 +53,7 @@ class CefColorProviderTracker : public ui::ColorProviderManagerObserver {
   void OnColorProviderCacheReset() override;
   void OnAfterNativeThemeUpdated() override;
 
-  Observer* const observer_;
+  const raw_ptr<Observer> observer_;
 
   bool got_theme_updated_ = false;
   base::ScopedObservation<ui::ColorProviderManager,

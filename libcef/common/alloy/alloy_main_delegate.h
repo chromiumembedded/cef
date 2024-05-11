@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_app.h"
 #include "cef/libcef/common/alloy/alloy_content_client.h"
 #include "cef/libcef/common/app_manager.h"
@@ -84,8 +85,8 @@ class AlloyMainDelegate : public content::ContentMainDelegate,
  private:
   void InitializeResourceBundle();
 
-  CefMainRunnerHandler* const runner_;
-  CefSettings* const settings_;
+  const raw_ptr<CefMainRunnerHandler> runner_;
+  const raw_ptr<CefSettings> settings_;
   CefRefPtr<CefApp> application_;
 
   std::unique_ptr<AlloyContentBrowserClient> browser_client_;

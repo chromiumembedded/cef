@@ -10,6 +10,7 @@
 #include <optional>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_menu_model.h"
 #include "ui/base/models/simple_menu_model.h"
@@ -154,9 +155,9 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
 
   base::PlatformThreadId supported_thread_id_;
 
-  ui::SimpleMenuModel* model_;
-  ui::SimpleMenuModel::Delegate* const delegate_;
-  StateDelegate* const state_delegate_;
+  raw_ptr<ui::SimpleMenuModel> model_;
+  const raw_ptr<ui::SimpleMenuModel::Delegate> delegate_;
+  const raw_ptr<StateDelegate> state_delegate_;
   const bool is_owned_;
   const bool is_submenu_;
 

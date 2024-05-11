@@ -10,6 +10,7 @@
 
 #include "base/functional/bind.h"
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/task_runner_impl.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
@@ -169,7 +170,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
   void MenuWillClose() override { impl_->MenuWillClose(); }
 
  private:
-  CefMenuModelImpl* impl_;
+  raw_ptr<CefMenuModelImpl> impl_;
 };
 
 cef_menu_color_type_t GetMenuColorType(bool is_text,

@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "build/build_config.h"
 #include "cef/include/cef_request_context_handler.h"
@@ -278,7 +279,7 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   const extensions::Extension* GetExtension(
       content::SiteInstance* site_instance);
 
-  AlloyBrowserMainParts* browser_main_parts_ = nullptr;
+  raw_ptr<AlloyBrowserMainParts> browser_main_parts_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_ALLOY_ALLOY_CONTENT_BROWSER_CLIENT_H_

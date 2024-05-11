@@ -9,6 +9,7 @@
 #include <string>
 
 #include "base/functional/callback_forward.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 
 namespace base {
@@ -70,8 +71,8 @@ class CefDevToolsFileManager {
                           const base::Value* arg3);
 
   // Guaranteed to outlive this object.
-  AlloyBrowserHostImpl* browser_impl_;
-  PrefService* prefs_;
+  raw_ptr<AlloyBrowserHostImpl> browser_impl_;
+  raw_ptr<PrefService> prefs_;
 
   using PathsMap = std::map<std::string, base::FilePath>;
   PathsMap saved_files_;

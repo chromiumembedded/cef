@@ -7,6 +7,7 @@
 #pragma once
 
 #include "base/logging.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_box_layout.h"
 #include "cef/include/views/cef_fill_layout.h"
 #include "cef/include/views/cef_layout.h"
@@ -55,7 +56,7 @@ class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
     owner_view_ = owner_view;
     layout_ref_ = CreateLayout();
     DCHECK(layout_ref_);
-    owner_view->SetLayoutManager(base::WrapUnique(layout_ref_));
+    owner_view->SetLayoutManager(base::WrapUnique(layout_ref_.get()));
     layout_util::Assign(this, owner_view);
   }
 
@@ -65,11 +66,11 @@ class CefLayoutImpl : public CefLayoutAdapter, public CefLayoutClass {
  private:
   // Unowned reference to the views::LayoutManager wrapped by this object. Will
   // be nullptr after the views::LayoutManager is destroyed.
-  ViewsLayoutClass* layout_ref_ = nullptr;
+  raw_ptr<ViewsLayoutClass> layout_ref_ = nullptr;
 
   // Unowned reference to the views::View that owns this object. Will be nullptr
   // after the views::LayoutManager is destroyed.
-  views::View* owner_view_ = nullptr;
+  raw_ptr<views::View> owner_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_LAYOUT_IMPL_H_

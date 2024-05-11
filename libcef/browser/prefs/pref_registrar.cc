@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/prefs/pref_registrar.h"
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_app.h"
 #include "cef/include/cef_browser_process_handler.h"
 #include "cef/include/cef_preference.h"
@@ -77,7 +78,7 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
     }
   }
 
-  PrefRegistrySimple* const registry_;
+  const raw_ptr<PrefRegistrySimple> registry_;
 };
 
 }  // namespace

@@ -8,6 +8,7 @@
 
 #include <set>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/download_manager_delegate.h"
@@ -57,7 +58,7 @@ class CefDownloadManagerDelegateImpl
 
   void ResetManager();
 
-  content::DownloadManager* manager_;
+  raw_ptr<content::DownloadManager> manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;
   const bool alloy_bootstrap_;
 

@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/views/overlay_view_host.h"
 
 #include "base/i18n/rtl.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/browser/views/window_view.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
@@ -161,7 +162,7 @@ class CefOverlayControllerImpl : public CefOverlayController {
   bool IsDrawn() override { return IsVisible(); }
 
  private:
-  CefOverlayViewHost* host_;
+  raw_ptr<CefOverlayViewHost> host_;
   CefRefPtr<CefView> view_;
 
   IMPLEMENT_REFCOUNTING(CefOverlayControllerImpl);

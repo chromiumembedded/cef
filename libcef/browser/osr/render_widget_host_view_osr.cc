@@ -13,6 +13,7 @@
 #include "base/command_line.h"
 #include "base/functional/callback_helpers.h"
 #include "base/memory/ptr_util.h"
+#include "base/memory/raw_ptr.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cc/base/switches.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
@@ -126,7 +127,7 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
   bool ShouldShowStaleContentOnEviction() override { return false; }
 
  private:
-  CefRenderWidgetHostViewOSR* const view_;
+  const raw_ptr<CefRenderWidgetHostViewOSR> view_;
 };
 
 ui::GestureProvider::Config CreateGestureProviderConfig() {
@@ -1034,7 +1035,7 @@ CefRenderWidgetHostViewOSR::CreateHostDisplayClient() {
   host_display_client_ =
       new CefHostDisplayClientOSR(this, gfx::kNullAcceleratedWidget);
   host_display_client_->SetActive(true);
-  return base::WrapUnique(host_display_client_);
+  return base::WrapUnique(host_display_client_.get());
 }
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {

@@ -8,6 +8,7 @@
 
 #include <map>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/views/color_provider_tracker.h"
 #include "cef/libcef/browser/views/widget.h"
@@ -148,8 +149,8 @@ class ChromeBrowserFrame : public BrowserFrame,
 
   void NotifyThemeColorsChanged(bool chrome_theme);
 
-  CefWindowView* window_view_;
-  BrowserView* browser_view_ = nullptr;
+  raw_ptr<CefWindowView> window_view_;
+  raw_ptr<BrowserView> browser_view_ = nullptr;
 
   bool initialized_ = false;
   bool native_theme_change_ = false;

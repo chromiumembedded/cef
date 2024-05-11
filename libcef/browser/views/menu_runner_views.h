@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_MENU_RUNNER_VIEWS_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/menu_runner.h"
 
 class CefBrowserViewImpl;
@@ -23,7 +24,7 @@ class CefMenuRunnerViews : public CefMenuRunner {
   bool FormatLabel(std::u16string& label) override;
 
  private:
-  CefBrowserViewImpl* browser_view_;
+  raw_ptr<CefBrowserViewImpl> browser_view_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_MENU_RUNNER_VIEWS_H_

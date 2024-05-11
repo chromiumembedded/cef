@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/task/sequenced_task_runner.h"
 #include "cef/include/cef_client.h"
@@ -209,7 +210,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     bool use_default_browser_creation = false;
 
     // The newly created WebContents (set in WebContentsCreated).
-    content::WebContents* new_contents = nullptr;
+    raw_ptr<content::WebContents> new_contents = nullptr;
   };
 
   // Manage pending popups. Only called on the UI thread.

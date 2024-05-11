@@ -9,6 +9,7 @@
 
 #include "base/barrier_closure.h"
 #include "base/command_line.h"
+#include "base/memory/raw_ptr.h"
 #include "base/strings/string_number_conversions.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/origin_whitelist_impl.h"
@@ -324,7 +325,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   void OnUploadProgressACK();
 
-  ProxyURLLoaderFactory* const factory_;
+  const raw_ptr<ProxyURLLoaderFactory> factory_;
   const int32_t id_;
   const uint32_t options_;
   bool input_stream_previously_failed_ = false;
@@ -373,7 +374,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   mojo::Receiver<network::mojom::TrustedHeaderClient> header_client_receiver_{
       this};
 
-  StreamReaderURLLoader* stream_loader_ = nullptr;
+  raw_ptr<StreamReaderURLLoader> stream_loader_ = nullptr;
 
   base::WeakPtrFactory<InterceptedRequest> weak_factory_;
 };

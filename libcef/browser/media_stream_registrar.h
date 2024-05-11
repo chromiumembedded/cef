@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/media_stream_request.h"
 
@@ -37,7 +38,7 @@ class CefMediaStreamRegistrar {
   void NotifyMediaStreamChange();
 
   // Guaranteed to outlive this object.
-  CefBrowserHostBase* const browser_;
+  const raw_ptr<CefBrowserHostBase> browser_;
 
   struct MediaStreamInfo {
     bool video;

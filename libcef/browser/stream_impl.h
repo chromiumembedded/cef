@@ -10,6 +10,7 @@
 
 #include <string>
 
+#include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
 #include "cef/include/cef_stream.h"
 
@@ -27,7 +28,7 @@ class CefFileReader : public CefStreamReader {
 
  protected:
   bool close_;
-  FILE* file_;
+  raw_ptr<FILE> file_;
 
   base::Lock lock_;
 
@@ -47,7 +48,7 @@ class CefFileWriter : public CefStreamWriter {
   bool MayBlock() override { return true; }
 
  protected:
-  FILE* file_;
+  raw_ptr<FILE> file_;
   bool close_;
 
   base::Lock lock_;
@@ -73,7 +74,7 @@ class CefBytesReader : public CefStreamReader {
   size_t GetDataSize() { return offset_; }
 
  protected:
-  void* data_ = nullptr;
+  raw_ptr<void> data_ = nullptr;
   int64_t datasize_ = 0;
   bool copy_ = false;
   int64_t offset_ = 0;
@@ -103,7 +104,7 @@ class CefBytesWriter : public CefStreamWriter {
   size_t Grow(size_t size);
 
   size_t grow_;
-  void* data_;
+  raw_ptr<void> data_;
   int64_t datasize_;
   int64_t offset_ = 0;
 

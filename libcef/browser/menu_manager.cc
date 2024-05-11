@@ -151,7 +151,7 @@ bool CefMenuManager::CreateContextMenu(
           new CefContextMenuParamsImpl(&params_));
       CefRefPtr<CefFrame> frame = browser_->GetFocusedFrame();
 
-      handler->OnBeforeContextMenu(browser_, frame, paramsPtr.get(),
+      handler->OnBeforeContextMenu(browser_.get(), frame, paramsPtr.get(),
                                    model_.get());
 
       MenuWillShow(model_);
@@ -166,7 +166,7 @@ bool CefMenuManager::CreateContextMenu(
         // the callback object is deleted.
         custom_menu_callback_ = callbackImpl.get();
 
-        if (handler->RunContextMenu(browser_, frame, paramsPtr.get(),
+        if (handler->RunContextMenu(browser_.get(), frame, paramsPtr.get(),
                                     model_.get(), callbackImpl.get())) {
           custom_menu = true;
         } else {
@@ -224,8 +224,8 @@ void CefMenuManager::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
           new CefContextMenuParamsImpl(&params_));
 
       bool handled = handler->OnContextMenuCommand(
-          browser_, browser_->GetFocusedFrame(), paramsPtr.get(), command_id,
-          event_flags);
+          browser_.get(), browser_->GetFocusedFrame(), paramsPtr.get(),
+          command_id, event_flags);
 
       // Do not keep references to the parameters in the callback.
       std::ignore = paramsPtr->Detach(nullptr);
@@ -277,7 +277,8 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   if (client.get()) {
     CefRefPtr<CefContextMenuHandler> handler = client->GetContextMenuHandler();
     if (handler.get()) {
-      handler->OnContextMenuDismissed(browser_, browser_->GetFocusedFrame());
+      handler->OnContextMenuDismissed(browser_.get(),
+                                      browser_->GetFocusedFrame());
     }
   }
 

@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/devtools/devtools_protocol_manager.h"
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/devtools/devtools_controller.h"
 #include "cef/libcef/browser/thread_util.h"
@@ -51,7 +52,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
   // CefDevToolsController::Observer methods:
   bool OnDevToolsMessage(const std::string_view& message) override {
     CEF_REQUIRE_UIT();
-    return observer_->OnDevToolsMessage(browser_, message.data(),
+    return observer_->OnDevToolsMessage(browser_.get(), message.data(),
                                         message.size());
   }
 
@@ -59,25 +60,25 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
                               bool success,
                               const std::string_view& result) override {
     CEF_REQUIRE_UIT();
-    observer_->OnDevToolsMethodResult(browser_, message_id, success,
+    observer_->OnDevToolsMethodResult(browser_.get(), message_id, success,
                                       result.data(), result.size());
   }
 
   void OnDevToolsEvent(const std::string_view& method,
                        const std::string_view& params) override {
     CEF_REQUIRE_UIT();
-    observer_->OnDevToolsEvent(browser_, std::string(method), params.data(),
-                               params.size());
+    observer_->OnDevToolsEvent(browser_.get(), std::string(method),
+                               params.data(), params.size());
   }
 
   void OnDevToolsAgentAttached() override {
     CEF_REQUIRE_UIT();
-    observer_->OnDevToolsAgentAttached(browser_);
+    observer_->OnDevToolsAgentAttached(browser_.get());
   }
 
   void OnDevToolsAgentDetached() override {
     CEF_REQUIRE_UIT();
-    observer_->OnDevToolsAgentDetached(browser_);
+    observer_->OnDevToolsAgentDetached(browser_.get());
   }
 
   void OnDevToolsControllerDestroyed() override {
@@ -88,7 +89,7 @@ class CefDevToolsRegistrationImpl : public CefRegistration,
 
   CefRefPtr<CefDevToolsMessageObserver> observer_;
 
-  CefBrowserHostBase* browser_ = nullptr;
+  raw_ptr<CefBrowserHostBase> browser_ = nullptr;
   base::WeakPtr<CefDevToolsController> controller_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefDevToolsRegistrationImpl);

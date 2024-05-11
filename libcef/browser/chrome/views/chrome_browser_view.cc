@@ -76,7 +76,8 @@ void ChromeBrowserView::OnGestureEvent(ui::GestureEvent* event) {
 
 ToolbarView* ChromeBrowserView::OverrideCreateToolbar() {
   if (cef_delegate()) {
-    auto toolbar_type = cef_delegate()->GetChromeToolbarType(cef_browser_view_);
+    auto toolbar_type =
+        cef_delegate()->GetChromeToolbarType(cef_browser_view_.get());
     std::optional<ToolbarView::DisplayMode> display_mode;
     switch (toolbar_type) {
       case CEF_CTT_NORMAL:

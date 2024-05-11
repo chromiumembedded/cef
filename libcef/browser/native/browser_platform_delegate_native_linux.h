@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_LINUX_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_NATIVE_LINUX_H_
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
 #include "ui/base/ozone_buildflags.h"
 
@@ -44,7 +45,7 @@ class CefBrowserPlatformDelegateNativeLinux
   bool host_window_created_ = false;
 
 #if BUILDFLAG(IS_OZONE_X11)
-  CefWindowX11* window_x11_ = nullptr;
+  raw_ptr<CefWindowX11> window_x11_ = nullptr;
 #endif
 };
 

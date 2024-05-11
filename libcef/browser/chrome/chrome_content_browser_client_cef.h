@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "chrome/browser/chrome_content_browser_client.h"
 #include "content/public/browser/web_contents_view_delegate.h"
@@ -140,7 +141,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
   static std::unique_ptr<content::WebContentsViewDelegate>
   CreateWebContentsViewDelegate(content::WebContents* web_contents);
 
-  ChromeBrowserMainExtraPartsCef* browser_main_parts_ = nullptr;
+  raw_ptr<ChromeBrowserMainExtraPartsCef> browser_main_parts_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_CONTENT_BROWSER_CLIENT_CEF_

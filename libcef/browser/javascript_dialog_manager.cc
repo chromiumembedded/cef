@@ -124,7 +124,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
       // Execute the user callback.
       bool handled = handler->OnJSDialog(
-          browser_, origin_url.spec(),
+          browser_.get(), origin_url.spec(),
           static_cast<cef_jsdialog_type_t>(message_type), message_text,
           default_prompt_text, callbackPtr.get(), *did_suppress_message);
       if (handled) {
@@ -206,7 +206,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
       // Execute the user callback.
       bool handled = handler->OnBeforeUnloadDialog(
-          browser_, message_text, is_reload, callbackPtr.get());
+          browser_.get(), message_text, is_reload, callbackPtr.get());
       if (handled) {
         return;
       }
@@ -281,7 +281,7 @@ void CefJavaScriptDialogManager::CancelDialogs(
     bool reset_state) {
   if (handler_) {
     if (reset_state) {
-      handler_->OnResetDialogState(browser_);
+      handler_->OnResetDialogState(browser_.get());
     }
     handler_ = nullptr;
     return;
@@ -314,7 +314,7 @@ void CefJavaScriptDialogManager::DialogClosed(
     bool success,
     const std::u16string& user_input) {
   if (handler_) {
-    handler_->OnDialogClosed(browser_);
+    handler_->OnDialogClosed(browser_.get());
     // Call OnResetDialogState.
     CancelDialogs(/*web_contents=*/nullptr, /*reset_state=*/true);
   }

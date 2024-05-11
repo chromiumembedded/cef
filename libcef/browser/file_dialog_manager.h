@@ -10,6 +10,7 @@
 #include <memory>
 #include <set>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/scoped_refptr.h"
 #include "cef/include/cef_browser.h"
 #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
@@ -83,11 +84,11 @@ class CefFileDialogManager {
   void SelectFileDoneByListenerCallback(bool listener_destroyed);
 
   // CefBrowserHostBase pointer is guaranteed to outlive this object.
-  CefBrowserHostBase* const browser_;
+  const raw_ptr<CefBrowserHostBase> browser_;
 
   // Used when running a platform dialog via RunSelectFile.
   scoped_refptr<ui::SelectFileDialog> dialog_;
-  CefSelectFileDialogListener* dialog_listener_ = nullptr;
+  raw_ptr<CefSelectFileDialogListener> dialog_listener_ = nullptr;
 
   // List of all currently active listeners.
   std::set<ui::SelectFileDialog::Listener*> active_listeners_;

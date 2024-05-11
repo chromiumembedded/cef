@@ -8,6 +8,7 @@
 
 #include <map>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/views/color_provider_tracker.h"
 #include "cef/libcef/browser/views/widget.h"
@@ -83,7 +84,7 @@ class CefWidgetImpl : public views::Widget,
   // CefColorProviderTracker::Observer methods:
   void OnColorProviderCacheResetMissed() override;
 
-  CefWindowView* window_view_;
+  raw_ptr<CefWindowView> window_view_;
 
   bool initialized_ = false;
 

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "base/functional/callback_forward.h"
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_client.h"
 #include "cef/include/cef_drag_data.h"
 #include "cef/include/internal/cef_types.h"
@@ -409,8 +410,8 @@ class CefBrowserPlatformDelegate {
   static int TranslateWebEventModifiers(uint32_t cef_modifiers);
 
   // Not owned by this object.
-  content::WebContents* web_contents_ = nullptr;
-  CefBrowserHostBase* browser_ = nullptr;
+  raw_ptr<content::WebContents> web_contents_ = nullptr;
+  raw_ptr<CefBrowserHostBase> browser_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_PLATFORM_DELEGATE_H_

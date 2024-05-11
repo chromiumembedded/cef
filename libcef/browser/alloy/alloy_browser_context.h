@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_ALLOY_BROWSER_CONTEXT_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/cef_request_context_handler.h"
 #include "cef/libcef/browser/alloy/chrome_profile_alloy.h"
 #include "cef/libcef/browser/browser_context.h"
@@ -131,10 +132,10 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   std::unique_ptr<visitedlink::VisitedLinkWriter> visitedlink_master_;
   // |visitedlink_listener_| is owned by visitedlink_master_.
-  CefVisitedLinkListener* visitedlink_listener_ = nullptr;
+  raw_ptr<CefVisitedLinkListener> visitedlink_listener_ = nullptr;
 
   // Owned by the KeyedService system.
-  extensions::CefExtensionSystem* extension_system_ = nullptr;
+  raw_ptr<extensions::CefExtensionSystem> extension_system_ = nullptr;
 
   // The key to index KeyedService instances created by
   // SimpleKeyedServiceFactory.

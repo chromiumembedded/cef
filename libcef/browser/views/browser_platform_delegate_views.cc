@@ -57,7 +57,7 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserCreated() {
   DCHECK(browser_view_);
   DCHECK(browser_);
   if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_);
+    browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_.get());
   }
 }
 
@@ -65,7 +65,8 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
   DCHECK(browser_view_);
   DCHECK(browser_);
   if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserDestroyed(browser_view_, browser_);
+    browser_view_->delegate()->OnBrowserDestroyed(browser_view_,
+                                                  browser_.get());
   }
 }
 

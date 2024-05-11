@@ -65,7 +65,7 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // Create a new window object. It will delete itself when the associated X11
   // window is destroyed.
   window_x11_ =
-      new CefWindowX11(browser_, parent_window, rect,
+      new CefWindowX11(browser_.get(), parent_window, rect,
                        CefString(&window_info_.window_name).ToString());
   DCHECK_NE(window_x11_->xwindow(), x11::Window::None);
   window_info_.window =

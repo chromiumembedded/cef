@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_ALLOY_DEVTOOLS_ALLOY_DEVTOOLS_WINDOW_RUNNER_H_
 #pragma once
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/devtools/devtools_window_runner.h"
 
@@ -31,7 +32,7 @@ class AlloyDevToolsWindowRunner : public CefDevToolsWindowRunner {
 
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
-  CefDevToolsFrontend* devtools_frontend_ = nullptr;
+  raw_ptr<CefDevToolsFrontend> devtools_frontend_ = nullptr;
 
   base::WeakPtrFactory<AlloyDevToolsWindowRunner> weak_ptr_factory_{this};
 };

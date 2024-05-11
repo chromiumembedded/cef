@@ -8,6 +8,7 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_overlay_controller.h"
 #include "cef/include/views/cef_view.h"
 #include "ui/views/view_observer.h"
@@ -58,15 +59,15 @@ class CefOverlayViewHost : public views::WidgetDelegate,
   void Cleanup();
 
   // The CefWindowView that created us.
-  CefWindowView* window_view_;
+  raw_ptr<CefWindowView> window_view_;
 
   const cef_docking_mode_t docking_mode_;
 
   // The host view that the overlay is positioned relative to.
-  views::View* host_view_ = nullptr;
+  raw_ptr<views::View> host_view_ = nullptr;
 
   // Our view, which is responsible for drawing the UI.
-  views::View* view_ = nullptr;
+  raw_ptr<views::View> view_ = nullptr;
 
   // The Widget implementation that is created and maintained by the overlay.
   // It contains |view_|.

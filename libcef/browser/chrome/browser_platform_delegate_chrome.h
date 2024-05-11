@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_CHROME_BROWSER_PLATFORM_DELEGATE_CHROME_H_
 #define CEF_LIBCEF_BROWSER_CHROME_BROWSER_PLATFORM_DELEGATE_CHROME_H_
 
+#include "base/memory/raw_ptr.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 
@@ -60,7 +61,7 @@ class CefBrowserPlatformDelegateChrome
 
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
 
-  Browser* chrome_browser_ = nullptr;
+  raw_ptr<Browser> chrome_browser_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_BROWSER_PLATFORM_DELEGATE_CHROME_H_

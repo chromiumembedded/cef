@@ -8,6 +8,7 @@
 
 #include <map>
 
+#include "base/memory/raw_ptr.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/menu_model_impl.h"
@@ -152,7 +153,7 @@ class CefWindowImpl
   // Initialize the Widget.
   void CreateWidget(gfx::AcceleratedWidget parent_widget);
 
-  views::Widget* widget_ = nullptr;
+  raw_ptr<views::Widget> widget_ = nullptr;
 
   // True if the window has been initialized.
   bool initialized_ = false;

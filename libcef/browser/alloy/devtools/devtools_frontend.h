@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "base/files/file_path.h"
+#include "base/memory/raw_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
@@ -91,7 +92,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   PrefService* GetPrefs() const;
 
   CefRefPtr<AlloyBrowserHostImpl> frontend_browser_;
-  content::WebContents* inspected_contents_;
+  raw_ptr<content::WebContents> inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   CefPoint inspect_element_at_;
   base::OnceClosure frontend_destroyed_callback_;
