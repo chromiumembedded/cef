@@ -133,12 +133,12 @@ class CefValueController
   raw_ptr<Object> owner_object_ = nullptr;
 
   // Map of reference objects.
-  using ReferenceMap = std::map<void*, Object*>;
+  using ReferenceMap = std::map<raw_ptr<void>, raw_ptr<Object>>;
   ReferenceMap reference_map_;
 
   // Map of dependency objects.
-  using DependencySet = std::set<void*>;
-  using DependencyMap = std::map<void*, DependencySet>;
+  using DependencySet = std::set<raw_ptr<void>>;
+  using DependencyMap = std::map<raw_ptr<void>, DependencySet>;
   DependencyMap dependency_map_;
 };
 
@@ -323,7 +323,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
       controller()->RemoveDependencies(value_);
 
       // Delete the value.
-      DeleteValue(value_.get());
+      value_.ClearAndDelete();
     }
 
     controller_ = nullptr;
@@ -374,9 +374,6 @@ class CefValueBase : public CefType, public CefValueController::Object {
     controller_ = nullptr;
     value_ = nullptr;
   }
-
-  // Override to customize value deletion.
-  virtual void DeleteValue(ValueType* value) { delete value; }
 
   // Returns a mutable reference to the value.
   inline ValueType* mutable_value() const {

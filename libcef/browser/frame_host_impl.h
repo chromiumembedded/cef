@@ -144,7 +144,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // cache. We may need to re-attach if the RFH has changed. See
   // https://crbug.com/1179502#c8 for additional background.
   void MaybeReAttach(scoped_refptr<CefBrowserInfo> browser_info,
-                     content::RenderFrameHost* render_frame_host);
+                     content::RenderFrameHost* render_frame_host,
+                     bool require_detached);
 
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
   void SendMessage(const std::string& name,

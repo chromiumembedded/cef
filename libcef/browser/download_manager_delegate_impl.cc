@@ -438,7 +438,7 @@ CefDownloadManagerDelegateImpl::GetOrAssociateBrowser(
     download::DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
   if (it != item_browser_map_.end()) {
-    return it->second;
+    return it->second.get();
   }
 
   CefRefPtr<CefBrowserHostBase> browser;
@@ -469,7 +469,7 @@ CefRefPtr<CefBrowserHostBase> CefDownloadManagerDelegateImpl::GetBrowser(
     DownloadItem* item) {
   ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
   if (it != item_browser_map_.end()) {
-    return it->second;
+    return it->second.get();
   }
 
   // If the download is rejected (e.g. ALT+click on an invalid protocol link)

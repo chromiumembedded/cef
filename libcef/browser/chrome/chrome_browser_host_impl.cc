@@ -146,16 +146,9 @@ void ChromeBrowserHostImpl::AddNewContents(
 
 void ChromeBrowserHostImpl::OnWebContentsDestroyed(
     content::WebContents* web_contents) {
-  // GetWebContents() should return nullptr at this point.
-  DCHECK(!GetWebContents());
+  DestroyWebContents(web_contents);
 
-  // In most cases WebContents destruction will trigger browser destruction.
-  // The exception is if the browser still exists at CefShutdown, in which
-  // case DestroyBrowser() will be called first via
-  // CefBrowserInfoManager::DestroyAllBrowsers().
-  if (platform_delegate_) {
-    platform_delegate_->WebContentsDestroyed(web_contents);
-
+  if (!is_destroying_browser_) {
     // Destroy the browser asynchronously to allow the current call stack
     // to unwind (we may have been called via the TabStripModel owned by the
     // Browser).
@@ -568,24 +561,14 @@ bool ChromeBrowserHostImpl::WillBeDestroyed() const {
 void ChromeBrowserHostImpl::DestroyBrowser() {
   CEF_REQUIRE_UIT();
 
-  // Notify that this browser has been destroyed. These must be delivered in
-  // the expected order.
+  is_destroying_browser_ = true;
 
-  // 1. Notify the platform delegate. With Views this will result in a call to
-  // CefBrowserViewDelegate::OnBrowserDestroyed().
-  platform_delegate_->NotifyBrowserDestroyed();
-
-  // 2. Notify the browser's LifeSpanHandler. This must always be the last
-  // notification for this browser.
-  OnBeforeClose();
-
-  // Notify any observers that may have state associated with this browser.
-  OnBrowserDestroyed();
-
-  // If the WebContents still exists at this point, signal destruction before
-  // browser destruction.
-  if (auto web_contents = GetWebContents()) {
-    platform_delegate_->WebContentsDestroyed(web_contents);
+  // If the WebContents still exists at this point, close the Browser and
+  // WebContents first. See comments on CefBrowserHostBase::DestroyBrowser.
+  if (GetWebContents()) {
+    // Triggers a call to OnWebContentsDestroyed.
+    DoCloseBrowser(/*force_close=*/true);
+    DCHECK(!GetWebContents());
   }
 
   // Disassociate the platform delegate from this browser.
@@ -604,6 +587,7 @@ void ChromeBrowserHostImpl::DoCloseBrowser(bool force_close) {
     // Like chrome::CloseTab() but specifying the WebContents.
     const int tab_index = GetCurrentTabIndex();
     if (tab_index != TabStripModel::kNoTab) {
+      // This will trigger destruction of the Browser and WebContents.
       // TODO(chrome): Handle the case where this method returns false,
       // indicating that the contents were not closed immediately.
       browser_->tab_strip_model()->CloseWebContentsAt(

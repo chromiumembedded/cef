@@ -70,13 +70,32 @@ void CefValueController::Remove(void* value, bool notify_object) {
     // Remove all dependencies.
     dependency_map_.clear();
   } else {
-    ReferenceMap::iterator it = reference_map_.find(value);
-    if (it != reference_map_.end()) {
-      // Remove the reference.
-      if (notify_object) {
-        it->second->OnControlRemoved();
+    {
+      ReferenceMap::iterator it = reference_map_.find(value);
+      if (it != reference_map_.end()) {
+        // Remove the reference.
+        if (notify_object) {
+          it->second->OnControlRemoved();
+        }
+        reference_map_.erase(it);
       }
-      reference_map_.erase(it);
+    }
+
+    if (!dependency_map_.empty()) {
+      // Remove any instance from dependency map sets.
+      DependencyMap::iterator it = dependency_map_.begin();
+      while (it != dependency_map_.end()) {
+        DependencySet& set = it->second;
+        DependencySet::iterator it_set = set.find(value);
+        if (it_set != set.end()) {
+          set.erase(it_set);
+        }
+        if (set.empty()) {
+          it = dependency_map_.erase(it);
+        } else {
+          ++it;
+        }
+      }
     }
   }
 }

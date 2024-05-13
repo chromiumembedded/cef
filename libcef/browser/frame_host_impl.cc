@@ -521,7 +521,7 @@ bool CefFrameHostImpl::Detach(DetachReason reason) {
   bool first_detach = false;
 
   // Should not be called for temporary frames.
-  DCHECK(!is_temporary());
+  CHECK(!is_temporary());
 
   {
     base::AutoLock lock_scope(state_lock_);
@@ -548,17 +548,32 @@ bool CefFrameHostImpl::Detach(DetachReason reason) {
 
 void CefFrameHostImpl::MaybeReAttach(
     scoped_refptr<CefBrowserInfo> browser_info,
-    content::RenderFrameHost* render_frame_host) {
+    content::RenderFrameHost* render_frame_host,
+    bool require_detached) {
   CEF_REQUIRE_UIT();
   if (render_frame_.is_bound() && render_frame_host_ == render_frame_host) {
     // Nothing to do here.
     return;
   }
 
-  // We expect that Detach() was called previously.
+  // Should not be called for temporary frames.
   CHECK(!is_temporary());
-  CHECK(!render_frame_.is_bound());
-  CHECK(!render_frame_host_);
+
+  if (require_detached) {
+    // We expect that Detach() was called previously.
+    CHECK(!render_frame_.is_bound());
+    CHECK(!render_frame_host_);
+  } else if (render_frame_host_) {
+    // Intentionally not clearing |queued_renderer_actions_|, as we may be
+    // changing RFH during initial browser navigation.
+    VLOG(1) << GetDebugString()
+            << " detached (reason=RENDER_FRAME_CHANGED, is_connected="
+            << render_frame_.is_bound() << ")";
+    if (render_frame_.is_bound()) {
+      render_frame_->FrameDetached();
+    }
+    render_frame_.reset();
+  }
 
   // The RFH may change but the frame token should remain the same.
   CHECK(*frame_token_ == render_frame_host->GetGlobalFrameToken());

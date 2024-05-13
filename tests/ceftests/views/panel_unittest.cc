@@ -757,6 +757,10 @@ void ChildThemeImpl() {
   // Restore the default background color for the global theme.
   window->SetThemeColor(CEF_ColorPrimaryBackground, default_color);
   EXPECT_EQ(default_color, window->GetThemeColor(CEF_ColorPrimaryBackground));
+
+  // Close the windows to avoid dangling references.
+  window->Close();
+  new_window->Close();
 }
 
 }  // namespace

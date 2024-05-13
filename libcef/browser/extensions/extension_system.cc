@@ -255,9 +255,7 @@ void CefExtensionSystem::Init() {
   //    any, are handled in the guest renderer process by ChromePDFPrintClient
   //    and CefPrintRenderFrameHelperDelegate.
   // 20.When navigating away from the PDF file or closing the owner CefBrowser
-  //    the guest WebContents will be destroyed. This triggers a call to
-  //    CefMimeHandlerViewGuestDelegate::OnGuestDetached which removes the
-  //    routing ID association with the owner CefBrowser.
+  //    the guest WebContents will be destroyed.
   if (PdfExtensionEnabled()) {
     if (auto manifest = ParseManifest(pdf_extension_util::GetManifest())) {
       LoadExtension(std::move(*manifest),
@@ -392,6 +390,7 @@ void CefExtensionSystem::Shutdown() {
     DCHECK(!cef_extension->loader_context());
   }
 #endif
+  renderer_helper_ = nullptr;
   extension_map_.clear();
 }
 

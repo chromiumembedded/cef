@@ -49,20 +49,29 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   bool print_preview_enabled() const { return print_preview_enabled_; }
   CefRefPtr<CefDictionaryValue> extra_info() const { return extra_info_; }
 
-  // May return NULL if the browser has not yet been created or if the browser
-  // has been destroyed.
+  // May return nullptr if the browser has not yet been created (before
+  // SetBrowser) or if the browser has been destroyed (after BrowserDestroyed).
   CefRefPtr<CefBrowserHostBase> browser() const;
 
-  // Set or clear the browser. Called from CefBrowserHostBase InitializeBrowser
-  // (to set) and DestroyBrowser (to clear).
+  // Returns true if the browser has been created (after SetBrowser) and is not
+  // yet closing (before SetClosing or WebContentsDestroyed).
+  bool IsValid() const;
+
+  // Returns true if the browser is closing (after SetClosing or
+  // WebContentsDestroyed).
+  bool IsClosing() const;
+
+  // Called from CefBrowserHostBase constructor.
   void SetBrowser(CefRefPtr<CefBrowserHostBase> browser);
 
-  // Called after OnBeforeClose and before SetBrowser(nullptr). This will cause
-  // browser() and GetMainFrame() to return nullptr as expected by
-  // CefFrameHandler callbacks. Note that this differs from calling
-  // SetBrowser(nullptr) because the WebContents has not yet been destroyed and
-  // further frame-related callbacks are expected.
+  // Called from CefBrowserHostBase::OnBeforeClose.
   void SetClosing();
+
+  // Called from CefBrowserHostBase::DestroyWebContents.
+  void WebContentsDestroyed();
+
+  // Called from CefBrowserHostBase::DestroyBrowser.
+  void BrowserDestroyed();
 
   // Ensure that a frame record exists for |host|. Called for the main frame
   // when the RenderView is created, or for a sub-frame when the associated
@@ -170,7 +179,6 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       return frame_ && is_main_frame_ && !is_speculative_ && !is_in_bfcache_;
     }
 
-    raw_ptr<content::RenderFrameHost> host_;
     content::GlobalRenderFrameHostId global_id_;
     bool is_main_frame_;
     bool is_speculative_;

@@ -91,7 +91,7 @@ class CefFileDialogManager {
   raw_ptr<CefSelectFileDialogListener> dialog_listener_ = nullptr;
 
   // List of all currently active listeners.
-  std::set<ui::SelectFileDialog::Listener*> active_listeners_;
+  std::set<raw_ptr<ui::SelectFileDialog::Listener>> active_listeners_;
 
   base::WeakPtrFactory<CefFileDialogManager> weak_ptr_factory_{this};
 };

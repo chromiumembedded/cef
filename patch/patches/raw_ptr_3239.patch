@@ -1,0 +1,26 @@
+diff --git net/base/directory_lister.cc net/base/directory_lister.cc
+index ae3a99f31e2ec..213cc33f2cc8e 100644
+--- net/base/directory_lister.cc
++++ net/base/directory_lister.cc
+@@ -200,7 +200,7 @@ void DirectoryLister::OnListFile(const DirectoryListerData& data) {
+ }
+ 
+ void DirectoryLister::OnListDone(int error) {
+-  delegate_->OnListDone(error);
++  delegate_.ExtractAsDangling()->OnListDone(error);
+ }
+ 
+ }  // namespace net
+diff --git net/base/directory_lister.h net/base/directory_lister.h
+index 991d15b79878e..b4a5534ea2c87 100644
+--- net/base/directory_lister.h
++++ net/base/directory_lister.h
+@@ -133,7 +133,7 @@ class NET_EXPORT DirectoryLister  {
+   void OnListDone(int error);
+ 
+   scoped_refptr<Core> core_;
+-  const raw_ptr<DirectoryListerDelegate> delegate_;
++  raw_ptr<DirectoryListerDelegate> delegate_;
+ };
+ 
+ }  // namespace net

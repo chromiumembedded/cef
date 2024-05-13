@@ -141,8 +141,6 @@ class ChromeBrowserFrame : public BrowserFrame,
   // ThemeServiceObserver methods:
   void OnThemeChanged() override;
 
-  BrowserView* browser_view() const { return browser_view_; }
-
  private:
   // CefColorProviderTracker::Observer methods:
   void OnColorProviderCacheResetMissed() override;
@@ -150,13 +148,12 @@ class ChromeBrowserFrame : public BrowserFrame,
   void NotifyThemeColorsChanged(bool chrome_theme);
 
   raw_ptr<CefWindowView> window_view_;
-  raw_ptr<BrowserView> browser_view_ = nullptr;
 
   bool initialized_ = false;
   bool native_theme_change_ = false;
 
   // Map of Profile* to count.
-  using ProfileMap = std::map<Profile*, size_t>;
+  using ProfileMap = std::map<raw_ptr<Profile>, size_t>;
   ProfileMap associated_profiles_;
 
   CefColorProviderTracker color_provider_tracker_{this};

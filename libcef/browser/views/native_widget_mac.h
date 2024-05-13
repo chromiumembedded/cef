@@ -51,7 +51,7 @@ class CefNativeWidgetMac : public views::NativeWidgetMac {
   // Returns true if the CefWindow is fully initialized.
   bool IsCefWindowInitialized() const;
 
-  raw_ptr<BrowserView> browser_view_ = nullptr;
+  raw_ptr<BrowserView, AcrossTasksDanglingUntriaged> browser_view_ = nullptr;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_NATIVE_WIDGET_MAC_H_

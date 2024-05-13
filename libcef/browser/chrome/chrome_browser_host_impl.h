@@ -177,6 +177,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
 
   raw_ptr<Browser> browser_ = nullptr;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
+  bool is_destroying_browser_ = false;
 
   base::WeakPtrFactory<ChromeBrowserHostImpl> weak_ptr_factory_{this};
 };

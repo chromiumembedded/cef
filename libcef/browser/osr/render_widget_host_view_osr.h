@@ -425,7 +425,7 @@ class CefRenderWidgetHostViewOSR
   raw_ptr<CefRenderWidgetHostViewOSR> parent_host_view_;
   raw_ptr<CefRenderWidgetHostViewOSR> popup_host_view_ = nullptr;
   raw_ptr<CefRenderWidgetHostViewOSR> child_host_view_ = nullptr;
-  std::set<CefRenderWidgetHostViewOSR*> guest_host_views_;
+  std::set<raw_ptr<CefRenderWidgetHostViewOSR>> guest_host_views_;
 
   CefRefPtr<AlloyBrowserHostImpl> browser_impl_;
 

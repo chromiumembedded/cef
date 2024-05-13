@@ -5,6 +5,7 @@
 
 #include "cef/libcef/common/alloy/alloy_main_runner_delegate.h"
 
+#include "cef/libcef/browser/alloy/alloy_content_browser_client.h"
 #include "cef/libcef/browser/alloy/chrome_browser_process_alloy.h"
 #include "cef/libcef/common/alloy/alloy_main_delegate.h"
 #include "cef/libcef/renderer/alloy/alloy_content_renderer_client.h"
@@ -43,6 +44,9 @@ void AlloyMainRunnerDelegate::AfterUIThreadInitialize() {
 }
 
 void AlloyMainRunnerDelegate::BeforeUIThreadShutdown() {
+  static_cast<AlloyContentBrowserClient*>(
+      CefAppManager::Get()->GetContentClient()->browser())
+      ->CleanupOnUIThread();
   static_cast<ChromeBrowserProcessAlloy*>(g_browser_process)
       ->CleanupOnUIThread();
 

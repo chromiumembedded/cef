@@ -266,6 +266,8 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
 
   // Test the size.
   EXPECT_EQ(0U, value->GetSize());
+  // Should be a no-op.
+  EXPECT_TRUE(value->Clear());
 
   // Re-add some values.
   TestDictionaryNull(value);

@@ -49,7 +49,8 @@ class CefValueStoreFactory : public ValueStoreFactory {
   std::unique_ptr<ValueStore> CreateStore();
 
   base::FilePath db_path_;
-  raw_ptr<ValueStore> last_created_store_ = nullptr;
+  raw_ptr<ValueStore, AcrossTasksDanglingUntriaged> last_created_store_ =
+      nullptr;
 
   // A mapping from directories to their ValueStore. None of these value
   // stores are owned by this factory, so care must be taken when calling

@@ -154,6 +154,7 @@ void ChromeBrowserProcessAlloy::CleanupOnUIThread() {
     }
   }
 
+  os_crypt_async_.reset();
   local_state_.reset();
   browser_policy_connector_.reset();
   background_printing_manager_.reset();

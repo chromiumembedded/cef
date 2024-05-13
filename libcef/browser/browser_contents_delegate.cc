@@ -341,7 +341,7 @@ void CefBrowserContentsDelegate::RenderFrameCreated(
 void CefBrowserContentsDelegate::RenderFrameHostChanged(
     content::RenderFrameHost* old_host,
     content::RenderFrameHost* new_host) {
-  // Just in case RenderFrameCreated wasn't called for some reason.
+  // Update tracking for the RFH.
   RenderFrameCreated(new_host);
 }
 
@@ -494,6 +494,11 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
     return;
   }
 
+  if (browser_info_->IsClosing()) {
+    // Ignore notifications when the browser is closing.
+    return;
+  }
+
   if (navigation_handle->IsInPrimaryMainFrame() &&
       navigation_handle->HasCommitted()) {
     // A primary main frame navigation has occured.
@@ -506,21 +511,15 @@ void CefBrowserContentsDelegate::DidFinishNavigation(
   const GURL& url =
       (error_code == net::OK ? navigation_handle->GetURL() : GURL());
 
-  auto browser_info = browser_info_;
-  if (!browser_info->browser()) {
-    // Ignore notifications when the browser is closing.
-    return;
-  }
-
   // May return NULL when starting a new navigation if the previous navigation
   // caused the renderer process to crash during load.
   CefRefPtr<CefFrameHostImpl> frame =
-      browser_info->GetFrameForGlobalId(global_id);
+      browser_info_->GetFrameForGlobalId(global_id);
   if (!frame) {
     if (is_main_frame) {
-      frame = browser_info->GetMainFrame();
+      frame = browser_info_->GetMainFrame();
     } else {
-      frame = browser_info->CreateTempSubFrame(frame_util::InvalidGlobalId());
+      frame = browser_info_->CreateTempSubFrame(frame_util::InvalidGlobalId());
     }
   }
   frame->RefreshAttributes();

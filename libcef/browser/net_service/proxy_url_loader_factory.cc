@@ -233,7 +233,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
       mojo::PendingReceiver<network::mojom::TrustedHeaderClient> receiver);
 
   // Called from InterceptDelegate::OnInputStreamOpenFailed.
-  void InputStreamFailed(bool restart_needed);
+  bool InputStreamFailed();
 
   // mojom::TrustedHeaderClient methods:
   void OnBeforeSendHeaders(const net::HttpRequestHeaders& headers,
@@ -328,7 +328,6 @@ class InterceptedRequest : public network::mojom::URLLoader,
   const raw_ptr<ProxyURLLoaderFactory> factory_;
   const int32_t id_;
   const uint32_t options_;
-  bool input_stream_previously_failed_ = false;
   bool request_was_redirected_ = false;
   int redirect_limit_ = net::URLRequest::kMaxRedirects;
   bool redirect_in_progress_ = false;
@@ -374,7 +373,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
   mojo::Receiver<network::mojom::TrustedHeaderClient> header_client_receiver_{
       this};
 
-  raw_ptr<StreamReaderURLLoader> stream_loader_ = nullptr;
+  std::unique_ptr<StreamReaderURLLoader> stream_loader_;
 
   base::WeakPtrFactory<InterceptedRequest> weak_factory_;
 };
@@ -391,9 +390,8 @@ class InterceptDelegate : public StreamReaderURLLoader::Delegate {
     return response_->OpenInputStream(request_id, request, std::move(callback));
   }
 
-  void OnInputStreamOpenFailed(int32_t request_id, bool* restarted) override {
-    request_->InputStreamFailed(false /* restart_needed */);
-    *restarted = false;
+  bool OnInputStreamOpenFailed(int32_t request_id) override {
+    return request_->InputStreamFailed();
   }
 
   void GetResponseHeaders(int32_t request_id,
@@ -456,7 +454,11 @@ InterceptedRequest::~InterceptedRequest() {
 }
 
 void InterceptedRequest::Restart() {
-  stream_loader_ = nullptr;
+  // May exist if the previous stream resulted in a redirect.
+  if (stream_loader_) {
+    stream_loader_.reset();
+  }
+
   if (proxied_client_receiver_.is_bound()) {
     proxied_client_receiver_.reset();
     target_loader_.reset();
@@ -555,24 +557,16 @@ void InterceptedRequest::OnLoaderCreated(
   header_client_receiver_.Bind(std::move(receiver));
 }
 
-void InterceptedRequest::InputStreamFailed(bool restart_needed) {
-  DCHECK(!input_stream_previously_failed_);
-
+bool InterceptedRequest::InputStreamFailed() {
   if (intercept_only_) {
     // This can happen for unsupported schemes, when no proper
     // response from the intercept handler is received, i.e.
     // the provided input stream in response failed to load. In
     // this case we send and error and stop loading.
     SendErrorAndCompleteImmediately(net::ERR_UNKNOWN_URL_SCHEME);
-    return;
+    return true;
   }
-
-  if (!restart_needed) {
-    return;
-  }
-
-  input_stream_previously_failed_ = true;
-  Restart();
+  return false;
 }
 
 // TrustedHeaderClient methods.
@@ -791,7 +785,7 @@ void InterceptedRequest::BeforeRequestReceived(const GURL& original_url,
   intercept_request_ = intercept_request;
   intercept_only_ = intercept_only;
 
-  if (input_stream_previously_failed_ || !intercept_request_) {
+  if (!intercept_request_) {
     // Equivalent to no interception.
     InterceptResponseReceived(original_url, nullptr);
   } else {
@@ -894,7 +888,8 @@ void InterceptedRequest::ContinueAfterInterceptWithOverride(
   // avoid having Set-Cookie headers stripped by the IPC layer.
   current_request_uses_header_client_ = true;
 
-  stream_loader_ = new StreamReaderURLLoader(
+  DCHECK(!stream_loader_);
+  stream_loader_ = std::make_unique<StreamReaderURLLoader>(
       id_, request_, proxied_client_receiver_.BindNewPipeAndPassRemote(),
       header_client_receiver_.BindNewPipeAndPassRemote(), traffic_annotation_,
       std::move(current_cached_metadata_),
@@ -1092,6 +1087,9 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
   const bool is_redirect =
       redirect_url.is_valid() || (headers && headers->IsRedirect(&location));
   if (stream_loader_ && is_redirect) {
+    // Don't continue reading from the stream loader.
+    stream_loader_->Cancel();
+
     // Redirecting from OnReceiveResponse generally isn't supported by the
     // NetworkService, so we can only support it when using a custom loader.
     // TODO(network): Remove this special case.
@@ -1126,6 +1124,9 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
       if (!result.has_value() &&
           !HasCrossOriginWhitelistEntry(*request_.request_initiator,
                                         url::Origin::Create(request_.url))) {
+        // Don't continue reading from the stream loader.
+        stream_loader_->Cancel();
+
         SendErrorStatusAndCompleteImmediately(
             network::URLLoaderCompletionStatus(result.error()));
         return;
@@ -1136,6 +1137,11 @@ void InterceptedRequest::ContinueToResponseStarted(int error_code) {
     // callback.
     if (proxied_client_receiver_.is_bound()) {
       proxied_client_receiver_.Resume();
+    }
+
+    if (stream_loader_) {
+      // Continue reading from the stream loader.
+      stream_loader_->Continue();
     }
 
     target_client_->OnReceiveResponse(

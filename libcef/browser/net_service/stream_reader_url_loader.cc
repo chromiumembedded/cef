@@ -523,6 +523,29 @@ void StreamReaderURLLoader::Start() {
   }
 }
 
+void StreamReaderURLLoader::Continue() {
+  DCHECK(thread_checker_.CalledOnValidThread());
+
+  DCHECK(need_client_callback_ && !got_client_callback_);
+  got_client_callback_ = true;
+
+  writable_handle_watcher_.Watch(
+      producer_handle_.get(), MOJO_HANDLE_SIGNAL_WRITABLE,
+      base::BindRepeating(&StreamReaderURLLoader::OnDataPipeWritable,
+                          base::Unretained(this)));
+
+  ReadMore();
+}
+
+void StreamReaderURLLoader::Cancel() {
+  DCHECK(thread_checker_.CalledOnValidThread());
+
+  DCHECK(need_client_callback_ && !got_client_callback_);
+  got_client_callback_ = true;
+
+  CleanUp();
+}
+
 void StreamReaderURLLoader::ContinueWithRequestHeaders(
     int32_t result,
     const std::optional<net::HttpRequestHeaders>& headers) {
@@ -571,13 +594,8 @@ void StreamReaderURLLoader::OnInputStreamOpened(
   open_cancel_callback_.Reset();
 
   if (!input_stream) {
-    bool restarted = false;
-    response_delegate_->OnInputStreamOpenFailed(request_id_, &restarted);
-    if (restarted) {
-      // The request has been restarted with a new loader.
-      // |this| will be deleted.
-      CleanUp();
-    } else {
+    // May delete |this| iff returns true.
+    if (!response_delegate_->OnInputStreamOpenFailed(request_id_)) {
       HeadersComplete(net::HTTP_NOT_FOUND, -1);
     }
     return;
@@ -700,13 +718,15 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
     pending_response->encoded_body_length = nullptr;
     const GURL new_location =
         has_redirect_url ? *redirect_url : request_.url.Resolve(location);
+
+    CleanUp();
+
+    // The client will restart the request with a new loader.
+    // May delete |this|.
     client_->OnReceiveRedirect(
         MakeRedirectInfo(request_, pending_headers.get(), new_location,
                          pending_headers->response_code()),
         std::move(pending_response));
-    // The client will restart the request with a new loader.
-    // |this| will be deleted.
-    CleanUp();
   } else {
     mojo::ScopedDataPipeConsumerHandle consumer_handle;
     if (CreateDataPipe(nullptr /*options*/, producer_handle_,
@@ -714,15 +734,13 @@ void StreamReaderURLLoader::ContinueWithResponseHeaders(
       RequestComplete(net::ERR_FAILED);
       return;
     }
-    writable_handle_watcher_.Watch(
-        producer_handle_.get(), MOJO_HANDLE_SIGNAL_WRITABLE,
-        base::BindRepeating(&StreamReaderURLLoader::OnDataPipeWritable,
-                            base::Unretained(this)));
 
+    need_client_callback_ = true;
     client_->OnReceiveResponse(std::move(pending_response),
                                std::move(consumer_handle),
                                std::move(cached_metadata_));
-    ReadMore();
+
+    // Wait for the client to call Continue() or Cancel().
   }
 }
 
@@ -808,20 +826,21 @@ void StreamReaderURLLoader::RequestComplete(int status_code) {
   // We don't support decoders, so use the same value.
   status.decoded_body_length = total_bytes_read_;
 
-  client_->OnComplete(status);
   CleanUp();
+
+  // May delete |this|.
+  client_->OnComplete(status);
 }
 
 void StreamReaderURLLoader::CleanUp() {
   DCHECK(thread_checker_.CalledOnValidThread());
 
+  weak_factory_.InvalidateWeakPtrs();
+
   // Resets the watchers and pipes, so that we will never be called back.
   writable_handle_watcher_.Cancel();
   pending_buffer_ = nullptr;
   producer_handle_.reset();
-
-  // Manages its own lifetime.
-  delete this;
 }
 
 bool StreamReaderURLLoader::ParseRange(const net::HttpRequestHeaders& headers) {

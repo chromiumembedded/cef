@@ -230,7 +230,7 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
                     void* params) override {
     DCHECK_EQ(params, params_);
     executing_ = true;
-    listener_->FileSelected(file, index, params);
+    listener_.ExtractAsDangling()->FileSelected(file, index, params);
     Destroy();
   }
 
@@ -238,14 +238,14 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
                           void* params) override {
     DCHECK_EQ(params, params_);
     executing_ = true;
-    listener_->MultiFilesSelected(files, params);
+    listener_.ExtractAsDangling()->MultiFilesSelected(files, params);
     Destroy();
   }
 
   void FileSelectionCanceled(void* params) override {
     DCHECK_EQ(params, params_);
     executing_ = true;
-    listener_->FileSelectionCanceled(params);
+    listener_.ExtractAsDangling()->FileSelectionCanceled(params);
     Destroy();
   }
 
@@ -254,7 +254,7 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
     delete this;
   }
 
-  const raw_ptr<ui::SelectFileDialog::Listener> listener_;
+  raw_ptr<ui::SelectFileDialog::Listener> listener_;
   const raw_ptr<void> params_;
   base::OnceClosure callback_;
 

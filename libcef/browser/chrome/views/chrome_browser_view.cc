@@ -100,3 +100,11 @@ ToolbarView* ChromeBrowserView::OverrideCreateToolbar() {
 
   return nullptr;
 }
+
+void ChromeBrowserView::WillDestroyToolbar() {
+  BrowserView::WillDestroyToolbar();
+  if (cef_toolbar_) {
+    cef_toolbar_->Destroyed();
+    cef_toolbar_ = nullptr;
+  }
+}

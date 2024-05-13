@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_weak_ptr.h"
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -486,6 +487,11 @@ class PopupNavTestHandler : public TestHandler {
       AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
     }
 
+    // By default, TestHandler signals test completion when all CefBrowsers
+    // have closed. For this test we instead want to wait for an explicit call
+    // to DestroyTest before signaling test completion.
+    SetSignalTestCompletionCount(1U);
+
     CreateTestRequestContext(
         rc_mode_, rc_cache_path_,
         base::BindOnce(&PopupNavTestHandler::RunTestContinue, this));
@@ -609,9 +615,10 @@ class PopupNavTestHandler : public TestHandler {
 
       if (mode_ == DENY) {
         // Wait a bit to make sure the popup window isn't created.
-        CefPostDelayedTask(
-            TID_UI, base::BindOnce(&PopupNavTestHandler::DestroyTest, this),
-            200);
+        CefPostDelayedTask(TID_UI,
+                           base::BindOnce(&PopupNavTestHandler::DestroyTest,
+                                          weak_ptr_factory_.GetWeakPtr()),
+                           200);
       }
     } else if (url == kPopupNavPopupUrl) {
       EXPECT_FALSE(got_popup_load_end_);
@@ -664,8 +671,9 @@ class PopupNavTestHandler : public TestHandler {
     }
 
     if (destroy_test) {
-      CefPostTask(TID_UI,
-                  base::BindOnce(&PopupNavTestHandler::DestroyTest, this));
+      // This may race with OnBeforeClose() for the remaining browser.
+      CefPostTask(TID_UI, base::BindOnce(&PopupNavTestHandler::DestroyTest,
+                                         weak_ptr_factory_.GetWeakPtr()));
     }
   }
 
@@ -714,8 +722,14 @@ class PopupNavTestHandler : public TestHandler {
       EXPECT_TRUE(got_popup_load_end2_);
     }
 
-    // Will trigger destruction of all remaining browsers.
+    // Invalidate WeakPtrs now as |this| may be deleted on a different thread.
+    weak_ptr_factory_.InvalidateWeakPtrs();
+
+    // Will trigger destruction of any remaining browsers.
     TestHandler::DestroyTest();
+
+    // Allow the the test to complete once all browsers are gone.
+    SignalTestCompletion();
   }
 
   const TestMode mode_;
@@ -732,6 +746,8 @@ class PopupNavTestHandler : public TestHandler {
   TrackCallback got_popup_load_start2_;
   TrackCallback got_popup_load_error2_;
   TrackCallback got_popup_load_end2_;
+
+  base::WeakPtrFactory<PopupNavTestHandler> weak_ptr_factory_{this};
 
   IMPLEMENT_REFCOUNTING(PopupNavTestHandler);
 };

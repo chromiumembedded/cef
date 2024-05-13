@@ -235,7 +235,7 @@ class CefBrowserContext {
   std::unique_ptr<CefMediaRouterManager> media_router_manager_;
 
   // CefRequestContextImpl objects referencing this object.
-  std::set<CefRequestContextImpl*> request_context_set_;
+  std::set<raw_ptr<CefRequestContextImpl>> request_context_set_;
 
   // Map IDs to CefRequestContextHandler objects.
   CefRequestContextHandlerMap handler_map_;

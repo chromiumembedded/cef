@@ -55,43 +55,72 @@ CefBrowserInfo::~CefBrowserInfo() {
 
 CefRefPtr<CefBrowserHostBase> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
-  if (!is_closing_) {
-    return browser_;
-  }
-  return nullptr;
+  return browser_;
+}
+
+bool CefBrowserInfo::IsValid() const {
+  base::AutoLock lock_scope(lock_);
+  return browser_ && !is_closing_;
+}
+
+bool CefBrowserInfo::IsClosing() const {
+  base::AutoLock lock_scope(lock_);
+  return is_closing_;
 }
 
 void CefBrowserInfo::SetBrowser(CefRefPtr<CefBrowserHostBase> browser) {
-  NotificationStateLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
+  DCHECK(browser);
+  DCHECK(!browser_);
 
-  if (browser) {
-    DCHECK(!browser_);
-
-    // Cache the associated frame handler.
-    if (auto client = browser->GetClient()) {
-      frame_handler_ = client->GetFrameHandler();
-    }
-  } else {
-    DCHECK(browser_);
-  }
-
-  auto old_browser = browser_;
   browser_ = browser;
 
-  if (!browser_) {
-    RemoveAllFrames(old_browser);
-
-    // Any future calls to MaybeExecuteFrameNotification will now fail.
-    // NotificationStateLock already took a reference for the delivery of any
-    // notifications that are currently queued due to RemoveAllFrames.
-    frame_handler_ = nullptr;
+  // Cache the associated frame handler.
+  if (auto client = browser->GetClient()) {
+    frame_handler_ = client->GetFrameHandler();
   }
 }
 
 void CefBrowserInfo::SetClosing() {
   base::AutoLock lock_scope(lock_);
-  DCHECK(!is_closing_);
-  is_closing_ = true;
+
+  // In most cases WebContentsDestroyed will be called first, except if the
+  // browser still exits at CefShitdown.
+  if (!is_closing_) {
+    is_closing_ = true;
+  }
+}
+
+void CefBrowserInfo::WebContentsDestroyed() {
+  NotificationStateLock lock_scope(this);
+
+  // Always called before BrowserDestroyed.
+  DCHECK(browser_);
+
+  // We want GetMainFrame() to return nullptr at this point, but browser()
+  // should still be valid so as not to interfere with the net_service
+  // DestructionObserver.
+  if (!is_closing_) {
+    is_closing_ = true;
+  }
+
+  RemoveAllFrames(browser_);
+
+  // Any future calls to MaybeExecuteFrameNotification will now fail.
+  // NotificationStateLock already took a reference for the delivery of any
+  // notifications that are currently queued due to RemoveAllFrames.
+  frame_handler_ = nullptr;
+}
+
+void CefBrowserInfo::BrowserDestroyed() {
+  base::AutoLock lock_scope(lock_);
+
+  // Always called after SetClosing and WebContentsDestroyed.
+  DCHECK(is_closing_);
+  DCHECK(frame_info_set_.empty());
+
+  DCHECK(browser_);
+  browser_ = nullptr;
 }
 
 void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
@@ -130,6 +159,9 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
     DCHECK_EQ(info->is_main_frame_, is_main_frame);
 #endif
 
+    // Update the associated RFH, which may have changed.
+    info->frame_->MaybeReAttach(this, host, /*require_detached=*/false);
+
     if (info->is_speculative_ && !is_speculative) {
       // Upgrade the frame info from speculative to non-speculative.
       if (info->is_main_frame_) {
@@ -142,7 +174,6 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
   }
 
   auto frame_info = new FrameInfo;
-  frame_info->host_ = host;
   frame_info->global_id_ = global_id;
   frame_info->is_main_frame_ = is_main_frame;
   frame_info->is_speculative_ = is_speculative;
@@ -183,7 +214,7 @@ void CefBrowserInfo::FrameHostStateChanged(
       new_state == content::RenderFrameHost::LifecycleState::kActive) {
     if (auto frame = GetFrameForHost(host)) {
       // Update the associated RFH, which may have changed.
-      frame->MaybeReAttach(this, host);
+      frame->MaybeReAttach(this, host, /*require_detached=*/true);
 
       if (frame->IsMain()) {
         // Update the main frame object.
@@ -519,8 +550,7 @@ void CefBrowserInfo::RemoveAllFrames(
   // Make sure any callbacks will see the correct state (e.g. like
   // CefBrowser::GetMainFrame returning nullptr and CefBrowser::IsValid
   // returning false).
-  DCHECK(!browser_);
-  DCHECK(old_browser);
+  DCHECK(is_closing_);
 
   // Clear the lookup maps.
   frame_id_map_.clear();

@@ -26,6 +26,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
 
   ~ChromeContentBrowserClientCef() override;
 
+  void CleanupOnUIThread() override;
+
   // ChromeContentBrowserClient overrides.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
       bool is_integration_test) override;

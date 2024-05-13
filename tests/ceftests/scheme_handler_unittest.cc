@@ -1437,7 +1437,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -1470,7 +1470,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -1503,7 +1503,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -1676,7 +1676,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -1709,7 +1709,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -1743,7 +1743,7 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
   EXPECT_TRUE(test_results.got_read);
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -2311,7 +2311,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -2346,7 +2346,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);
@@ -2382,7 +2382,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
   EXPECT_TRUE(test_results.got_output);
   EXPECT_TRUE(test_results.got_sub_redirect);
   EXPECT_TRUE(test_results.got_sub_request);
-  EXPECT_TRUE(test_results.got_sub_read);
+  EXPECT_FALSE(test_results.got_sub_read);
   EXPECT_FALSE(test_results.git_exit_success);
 
   ClearTestSchemes(&test_results);

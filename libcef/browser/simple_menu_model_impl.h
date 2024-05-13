@@ -163,7 +163,7 @@ class CefSimpleMenuModelImpl : public CefMenuModel {
 
   // Keep the submenus alive until they're removed, or we're destroyed.
   using SubMenuMap =
-      std::map<ui::SimpleMenuModel*, CefRefPtr<CefSimpleMenuModelImpl>>;
+      std::map<raw_ptr<ui::SimpleMenuModel>, CefRefPtr<CefSimpleMenuModelImpl>>;
   SubMenuMap submenumap_;
 
   IMPLEMENT_REFCOUNTING(CefSimpleMenuModelImpl);

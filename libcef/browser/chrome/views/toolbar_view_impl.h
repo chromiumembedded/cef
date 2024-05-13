@@ -22,6 +22,8 @@ class CefToolbarViewImpl
   CefToolbarViewImpl(const CefToolbarViewImpl&) = delete;
   CefToolbarViewImpl& operator=(const CefToolbarViewImpl&) = delete;
 
+  void Destroyed();
+
   // Create a new CefToolbarViewImpl instance. |delegate| may be nullptr.
   static CefRefPtr<CefToolbarViewImpl> Create(
       CefRefPtr<CefViewDelegate> delegate,
@@ -47,8 +49,8 @@ class CefToolbarViewImpl
   CefToolbarViewView* CreateRootView() override;
   void InitializeRootView() override;
 
-  const raw_ptr<Browser> browser_;
-  const raw_ptr<BrowserView> browser_view_;
+  raw_ptr<Browser> browser_;
+  raw_ptr<BrowserView> browser_view_;
   std::optional<ToolbarView::DisplayMode> const display_mode_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefToolbarViewImpl);

@@ -262,17 +262,47 @@ void CefBrowserHostBase::InitializeBrowser() {
   WebContentsUserDataAdapter::Register(this);
 }
 
+void CefBrowserHostBase::DestroyWebContents(
+    content::WebContents* web_contents) {
+  CEF_REQUIRE_UIT();
+
+  // GetWebContents() should return nullptr at this point.
+  DCHECK(!GetWebContents());
+
+  // Notify that this browser has been destroyed. These must be delivered in
+  // the expected order.
+
+  // 1. Notify the platform delegate. With Views this will result in a call to
+  // CefBrowserViewDelegate::OnBrowserDestroyed().
+  platform_delegate_->NotifyBrowserDestroyed();
+
+  // 2. Notify the browser's LifeSpanHandler. This must always be the last
+  // notification for this browser.
+  OnBeforeClose();
+
+  // Notify any observers that may have state associated with this browser.
+  OnBrowserDestroyed();
+
+  // Free objects that may have references to the WebContents.
+  devtools_protocol_manager_.reset();
+  devtools_window_runner_.reset();
+  context_menu_observer_ = nullptr;
+
+  browser_info_->WebContentsDestroyed();
+  platform_delegate_->WebContentsDestroyed(web_contents);
+}
+
 void CefBrowserHostBase::DestroyBrowser() {
   CEF_REQUIRE_UIT();
 
-  devtools_protocol_manager_.reset();
-  devtools_window_runner_.reset();
+  // The WebContents should no longer be observed.
+  DCHECK(!contents_delegate_->web_contents());
+
   media_stream_registrar_.reset();
 
   platform_delegate_.reset();
 
   contents_delegate_->RemoveObserver(this);
-  contents_delegate_->ObserveWebContents(nullptr);
 
   if (unresponsive_process_callback_) {
     hang_monitor::Detach(unresponsive_process_callback_);
@@ -280,7 +310,7 @@ void CefBrowserHostBase::DestroyBrowser() {
   }
 
   CefBrowserInfoManager::GetInstance()->RemoveBrowserInfo(browser_info_);
-  browser_info_->SetBrowser(nullptr);
+  browser_info_->BrowserDestroyed();
 }
 
 CefRefPtr<CefBrowser> CefBrowserHostBase::GetBrowser() {
@@ -889,7 +919,7 @@ void CefBrowserHostBase::SendMouseWheelEvent(const CefMouseEvent& event,
 }
 
 bool CefBrowserHostBase::IsValid() {
-  return browser_info_->browser() == this;
+  return browser_info_->IsValid();
 }
 
 CefRefPtr<CefBrowserHost> CefBrowserHostBase::GetHost() {

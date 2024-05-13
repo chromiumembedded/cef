@@ -55,13 +55,13 @@ class CefOverlayControllerImpl : public CefOverlayController {
     if (IsValid()) {
       // Results in a call to Destroyed().
       host_->Close();
-      host_ = nullptr;
     }
   }
 
   void Destroyed() {
     DCHECK(view_);
     view_ = nullptr;
+    host_ = nullptr;
   }
 
   void SetBounds(const CefRect& bounds) override {

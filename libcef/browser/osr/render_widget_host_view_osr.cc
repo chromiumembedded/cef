@@ -307,8 +307,16 @@ void CefRenderWidgetHostViewOSR::ReleaseCompositor() {
         content::DelegatedFrameHost::HiddenCause::kOther);
   }
   delegated_frame_host_->DetachFromCompositor();
-
   delegated_frame_host_.reset(nullptr);
+
+  content::RenderWidgetHostImpl* render_widget_host_impl =
+      content::RenderWidgetHostImpl::From(render_widget_host_);
+  if (render_widget_host_impl) {
+    render_widget_host_impl->SetCompositorForFlingScheduler(nullptr);
+  }
+
+  host_display_client_ = nullptr;
+
   compositor_.reset(nullptr);
 }
 

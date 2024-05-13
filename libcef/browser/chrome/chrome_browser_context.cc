@@ -133,7 +133,8 @@ void ChromeBrowserContext::Shutdown() {
   // |g_browser_process| may be nullptr during shutdown.
   if (g_browser_process) {
     if (should_destroy_) {
-      GetPrimaryUserProfile()->DestroyOffTheRecordProfile(profile_);
+      GetPrimaryUserProfile()->DestroyOffTheRecordProfile(
+          profile_.ExtractAsDangling());
     } else if (profile_) {
       OnProfileWillBeDestroyed(profile_);
     }

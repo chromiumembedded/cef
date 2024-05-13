@@ -62,16 +62,16 @@ CefSimpleMenuModelImpl::~CefSimpleMenuModelImpl() {
 void CefSimpleMenuModelImpl::Detach() {
   DCHECK(VerifyContext());
 
-  if (!submenumap_.empty()) {
+  while (!submenumap_.empty()) {
     auto it = submenumap_.begin();
-    for (; it != submenumap_.end(); ++it) {
-      it->second->Detach();
-    }
-    submenumap_.clear();
+    auto impl = it->second;
+    // Clear the raw_ptr reference before calling Detach().
+    submenumap_.erase(it);
+    impl->Detach();
   }
 
   if (is_owned_) {
-    delete model_;
+    model_.ClearAndDelete();
   }
   model_ = nullptr;
 }

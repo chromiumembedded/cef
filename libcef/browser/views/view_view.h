@@ -38,6 +38,15 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   explicit CefViewView(CefViewDelegateClass* cef_delegate, Args... args)
       : ParentClass(args...), cef_delegate_(cef_delegate) {}
 
+  ~CefViewView() override {
+    // Clear the reference to the delegate which may be released by the
+    // CefViewImpl when it's destroyed via UserData.
+    cef_delegate_ = nullptr;
+
+    // Remove any UserData references to class members before they're destroyed.
+    ParentClass::ClearAllUserData();
+  }
+
   // Should be called from InitializeRootView() in the CefViewImpl-derived
   // class that created this object. This method will be called after
   // CefViewImpl registration has completed so it is safe to call complex
@@ -88,7 +97,7 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
       const views::ViewHierarchyChangedDetails& details);
 
   // Not owned by this object.
-  const raw_ptr<CefViewDelegateClass> cef_delegate_;
+  raw_ptr<CefViewDelegateClass> cef_delegate_;
 };
 
 CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {

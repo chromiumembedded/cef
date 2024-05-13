@@ -104,11 +104,9 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   // on the IO thread unless otherwise indicated.
   class Delegate : public ResourceResponse {
    public:
-    // This method is called if the result of calling OpenInputStream was null.
-    // The |restarted| parameter is set to true if the request was restarted
-    // with a new loader.
-    virtual void OnInputStreamOpenFailed(int32_t request_id,
-                                         bool* restarted) = 0;
+    // Called if the result of calling OpenInputStream was nullptr. Returns
+    // true if the failure was handled.
+    virtual bool OnInputStreamOpenFailed(int32_t request_id) = 0;
   };
 
   StreamReaderURLLoader(
@@ -126,6 +124,10 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   ~StreamReaderURLLoader() override;
 
   void Start();
+
+  // Called by the client in response to OnReceiveResponse.
+  void Continue();
+  void Cancel();
 
   // network::mojom::URLLoader methods:
   void FollowRedirect(
@@ -185,6 +187,9 @@ class StreamReaderURLLoader : public network::mojom::URLLoader {
   scoped_refptr<base::SequencedTaskRunner> stream_work_task_runner_;
 
   base::OnceClosure open_cancel_callback_;
+
+  bool need_client_callback_ = false;
+  bool got_client_callback_ = false;
 
   base::WeakPtrFactory<StreamReaderURLLoader> weak_factory_;
 };

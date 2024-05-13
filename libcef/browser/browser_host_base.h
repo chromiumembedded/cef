@@ -201,9 +201,32 @@ class CefBrowserHostBase : public CefBrowserHost,
   // the UI thread only.
   virtual bool WillBeDestroyed() const = 0;
 
-  // Called on the UI thread after the associated WebContents is destroyed.
-  // Also called from CefBrowserInfoManager::DestroyAllBrowsers if the browser
-  // was not properly shut down.
+  // Called on the UI thread to complete WebContents tear-down. In most cases
+  // this will be called via WebContentsObserver::WebContentsDestroyed. Any
+  // remaining objects that reference the WebContents (including RFH, etc)
+  // should be cleared in this callback.
+  virtual void DestroyWebContents(content::WebContents* web_contents);
+
+  // Called on the UI thread to complete CefBrowserHost tear-down.
+  //
+  // With Chrome style the WebContents is owned by the Browser's TabStripModel
+  // and will usually be destroyed first: CloseBrowser -> (async) DoCloseBrowser
+  // -> [TabStripModel deletes the WebContents] -> OnWebContentsDestroyed ->
+  // DestroyWebContents -> (async) DestroyBrowser.
+  //
+  // With Alloy style the WebContents is owned by the
+  // CefBrowserPlatformDelegateAlloy and will usually be destroyed at the same
+  // time: CloseBrowser -> [OS/platform logic] -> (async) DestroyBrowser ->
+  // [CefBrowserPlatformDelegateAlloy deletes the WebContents]
+  // -> WebContentsDestroyed -> DestoyWebContents.
+  //
+  // There are a few exceptions to the above rules:
+  // 1. If the CefBrowserHost still exists at CefShutdown, in which case
+  //    DestroyBrowser will be called first via
+  //    CefBrowserInfoManager::DestroyAllBrowsers.
+  // 2. If a popup WebContents is still pending when the parent WebContents is
+  //    destroyed, in which case WebContentsDestroyed will be called first via
+  //    the parent WebContents destructor.
   virtual void DestroyBrowser();
 
   // CefBrowserHost methods:

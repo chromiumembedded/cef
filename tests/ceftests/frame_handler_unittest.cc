@@ -423,8 +423,10 @@ struct FrameStatus {
     auto main_frame = browser->GetMainFrame();
     if (expect_valid) {
       EXPECT_TRUE(main_frame) << func;
-      EXPECT_TRUE(main_frame->IsValid()) << func;
-      EXPECT_TRUE(main_frame->IsMain()) << func;
+      if (main_frame) {
+        EXPECT_TRUE(main_frame->IsValid()) << func;
+        EXPECT_TRUE(main_frame->IsMain()) << func;
+      }
     } else {
       // GetMainFrame() returns nullptr after OnBeforeClose.
       EXPECT_FALSE(main_frame) << func;
@@ -561,7 +563,9 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
     got_before_close_ = true;
 
     EXPECT_TRUE(current_main_frame_);
-    current_main_frame_->OnBeforeClose(browser);
+    if (current_main_frame_) {
+      current_main_frame_->OnBeforeClose(browser);
+    }
 
     RoutingTestHandler::OnBeforeClose(browser);
   }

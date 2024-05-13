@@ -48,6 +48,7 @@ class ChromeBrowserView
 
   // BrowserView methods:
   ToolbarView* OverrideCreateToolbar() override;
+  void WillDestroyToolbar() override;
 
   CefRefPtr<CefToolbarViewImpl> cef_toolbar() const { return cef_toolbar_; }
   CefBrowserViewImpl* cef_browser_view() const { return cef_browser_view_; }

@@ -581,17 +581,6 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
 
   destruction_state_ = DESTRUCTION_STATE_COMPLETED;
 
-  // Notify that this browser has been destroyed. These must be delivered in
-  // the expected order.
-
-  // 1. Notify the platform delegate. With Views this will result in a call to
-  // CefBrowserViewDelegate::OnBrowserDestroyed().
-  platform_delegate_->NotifyBrowserDestroyed();
-
-  // 2. Notify the browser's LifeSpanHandler. This must always be the last
-  // notification for this browser.
-  OnBeforeClose();
-
   // Destroy any platform constructs first.
   if (javascript_dialog_manager_.get()) {
     javascript_dialog_manager_->Destroy();
@@ -600,16 +589,8 @@ void AlloyBrowserHostImpl::DestroyBrowser() {
     menu_manager_->Destroy();
   }
 
-  // Notify any observers that may have state associated with this browser.
-  OnBrowserDestroyed();
-
-  // If the WebContents still exists at this point, signal destruction before
-  // browser destruction.
-  if (web_contents()) {
-    WebContentsDestroyed();
-  }
-
-  // Disassociate the platform delegate from this browser.
+  // Disassociate the platform delegate from this browser. This will trigger
+  // WebContents destruction in most cases.
   platform_delegate_->BrowserDestroyed(this);
 
   // Delete objects created by the platform delegate that may be referenced by
@@ -1408,10 +1389,22 @@ void AlloyBrowserHostImpl::AccessibilityLocationChangesReceived(
 }
 
 void AlloyBrowserHostImpl::WebContentsDestroyed() {
+  // In case we're notified before the CefBrowserContentsDelegate,
+  // reset it first for consistent state in DestroyWebContents.
+  if (GetWebContents()) {
+    contents_delegate_->WebContentsDestroyed();
+  }
+
   auto wc = web_contents();
   content::WebContentsObserver::Observe(nullptr);
-  if (platform_delegate_) {
-    platform_delegate_->WebContentsDestroyed(wc);
+  DestroyWebContents(wc);
+
+  if (destruction_state_ < DESTRUCTION_STATE_COMPLETED) {
+    // We were not called via DestroyBrowser. This can occur when (for example)
+    // a pending popup WebContents is destroyed during parent WebContents
+    // destruction. Try to close the associated browser now.
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::CloseBrowser,
+                                          this, /*force_close=*/true));
   }
 }
 

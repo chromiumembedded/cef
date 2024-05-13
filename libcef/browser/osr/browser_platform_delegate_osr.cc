@@ -87,9 +87,9 @@ void CefBrowserPlatformDelegateOsr::BrowserCreated(
 
 void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
     CefBrowserHostBase* browser) {
-  CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
-
   view_osr_ = nullptr;
+  current_rvh_for_drag_ = nullptr;
+  CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 }
 
 SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {

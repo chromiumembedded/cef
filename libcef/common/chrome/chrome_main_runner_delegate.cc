@@ -7,10 +7,10 @@
 
 #include "base/command_line.h"
 #include "base/run_loop.h"
+#include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
 #include "cef/libcef/common/app_manager.h"
 #include "cef/libcef/common/chrome/chrome_main_delegate_cef.h"
 #include "chrome/browser/browser_process_impl.h"
-#include "chrome/browser/chrome_content_browser_client.h"
 #include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
@@ -96,7 +96,7 @@ void ChromeMainRunnerDelegate::BeforeUIThreadInitialize() {
 }
 
 void ChromeMainRunnerDelegate::BeforeUIThreadShutdown() {
-  static_cast<ChromeContentBrowserClient*>(
+  static_cast<ChromeContentBrowserClientCef*>(
       CefAppManager::Get()->GetContentClient()->browser())
       ->CleanupOnUIThread();
   main_delegate_->CleanupOnUIThread();

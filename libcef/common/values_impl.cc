@@ -1036,10 +1036,10 @@ bool CefDictionaryValueImpl::SetList(const CefString& key,
 }
 
 bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
-  // The ExtractKey() call below which removes the Value from the dictionary
+  // The Extract() call below which removes the Value from the dictionary
   // will return a new Value object with the moved contents of the Value that
-  // exists in the implementation std::map. Consequently we use FindKey() to
-  // retrieve the actual Value pointer as it current exists first, for later
+  // exists in the implementation std::map. Consequently we use Find() to
+  // retrieve the actual Value pointer as it current exists first, for
   // comparison purposes.
   const base::Value* actual_value =
       const_value().GetDict().Find(std::string_view(key.ToString()));
@@ -1047,20 +1047,18 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
     return false;
   }
 
-  // |actual_value| is no longer valid after this call.
-  std::optional<base::Value> out_value =
-      mutable_value()->GetDict().Extract(std::string_view(key.ToString()));
-  if (!out_value.has_value()) {
-    return false;
-  }
-
   // Remove the value.
   controller()->Remove(const_cast<base::Value*>(actual_value), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value->is_list() || out_value->is_dict()) {
+  if (actual_value->is_list() || actual_value->is_dict()) {
     controller()->RemoveDependencies(const_cast<base::Value*>(actual_value));
   }
+
+  // |actual_value| is no longer valid after this call.
+  std::optional<base::Value> out_value =
+      mutable_value()->GetDict().Extract(std::string_view(key.ToString()));
+  DCHECK(out_value.has_value());
 
   return true;
 }
@@ -1492,21 +1490,21 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
   // The std::move() call below which removes the Value from the list will
   // return a new Value object with the moved contents of the Value that exists
   // in the implementation std::vector. Consequently we use operator[] to
-  // retrieve the actual Value pointer as it current exists first, for later
+  // retrieve the actual Value pointer as it current exists first, for
   // comparison purposes.
   const base::Value& actual_value = list[index];
-
-  // |actual_value| is no longer valid after this call.
-  auto out_value = std::move(list[index]);
-  list.erase(list.begin() + index);
 
   // Remove the value.
   controller()->Remove(const_cast<base::Value*>(&actual_value), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value.is_list() || out_value.is_dict()) {
+  if (actual_value.is_list() || actual_value.is_dict()) {
     controller()->RemoveDependencies(const_cast<base::Value*>(&actual_value));
   }
+
+  // |actual_value| is no longer valid after this call.
+  auto out_value = std::move(list[index]);
+  list.erase(list.begin() + index);
 
   return true;
 }

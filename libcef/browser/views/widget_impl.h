@@ -89,7 +89,7 @@ class CefWidgetImpl : public views::Widget,
   bool initialized_ = false;
 
   // Map of Profile* to count.
-  using ProfileMap = std::map<Profile*, size_t>;
+  using ProfileMap = std::map<raw_ptr<Profile>, size_t>;
   ProfileMap associated_profiles_;
 
   CefColorProviderTracker color_provider_tracker_{this};

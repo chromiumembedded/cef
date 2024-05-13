@@ -65,7 +65,8 @@ class CefDownloadManagerDelegateImpl
   // Map of DownloadItem to originating CefBrowserHostBase. Maintaining this
   // map is necessary because DownloadItem::GetWebContents() may return NULL if
   // the browser navigates while the download is in progress.
-  using ItemBrowserMap = std::map<download::DownloadItem*, CefBrowserHostBase*>;
+  using ItemBrowserMap =
+      std::map<raw_ptr<download::DownloadItem>, raw_ptr<CefBrowserHostBase>>;
   ItemBrowserMap item_browser_map_;
 };
 

@@ -34,6 +34,8 @@ class AlloyContentBrowserClient : public content::ContentBrowserClient {
   AlloyContentBrowserClient();
   ~AlloyContentBrowserClient() override;
 
+  void CleanupOnUIThread();
+
   // ContentBrowserClient implementation.
   std::unique_ptr<content::BrowserMainParts> CreateBrowserMainParts(
       bool is_integration_test) override;

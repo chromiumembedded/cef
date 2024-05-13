@@ -132,7 +132,7 @@ class ImplManager {
     return all_.end();
   }
 
-  using PathMap = std::map<base::FilePath, CefBrowserContext*>;
+  using PathMap = std::map<base::FilePath, raw_ptr<CefBrowserContext>>;
   PathMap map_;
 
   Vector all_;
@@ -419,12 +419,12 @@ CefRefPtr<CefRequestContextImpl> CefBrowserContext::GetAnyRequestContext(
   if (prefer_no_handler) {
     for (const auto& request_context : request_context_set_) {
       if (!request_context->GetHandler()) {
-        return request_context;
+        return request_context.get();
       }
     }
   }
 
-  return *request_context_set_.begin();
+  return request_context_set_.begin()->get();
 }
 
 CefBrowserContext::CookieableSchemes CefBrowserContext::GetCookieableSchemes()

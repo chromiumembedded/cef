@@ -30,6 +30,11 @@ CefToolbarViewImpl::CefToolbarViewImpl(
       browser_view_(browser_view),
       display_mode_(display_mode) {}
 
+void CefToolbarViewImpl::Destroyed() {
+  browser_ = nullptr;
+  browser_view_ = nullptr;
+}
+
 CefToolbarViewView* CefToolbarViewImpl::CreateRootView() {
   return new CefToolbarViewView(delegate(), browser_, browser_view_,
                                 display_mode_);

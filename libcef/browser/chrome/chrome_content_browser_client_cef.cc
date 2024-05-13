@@ -84,6 +84,11 @@ void HandleExternalProtocolHelper(
 ChromeContentBrowserClientCef::ChromeContentBrowserClientCef() = default;
 ChromeContentBrowserClientCef::~ChromeContentBrowserClientCef() = default;
 
+void ChromeContentBrowserClientCef::CleanupOnUIThread() {
+  browser_main_parts_ = nullptr;
+  ChromeContentBrowserClient::CleanupOnUIThread();
+}
+
 std::unique_ptr<content::BrowserMainParts>
 ChromeContentBrowserClientCef::CreateBrowserMainParts(
     bool is_integration_test) {

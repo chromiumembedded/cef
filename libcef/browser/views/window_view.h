@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "base/memory/raw_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/views/overlay_view_host.h"
@@ -141,6 +142,8 @@ class CefWindowView
   bool IsAlloyStyle() const { return is_alloy_style_; }
   bool IsChromeStyle() const { return !is_alloy_style_; }
 
+  Delegate* window_delegate() const { return window_delegate_.get(); }
+
  private:
   // Called after Widget teardown starts, before |this| is deleted.
   void DeleteDelegate();
@@ -173,7 +176,9 @@ class CefWindowView
   std::unique_ptr<WidgetDestructionObserver> host_widget_destruction_observer_;
 
   // Hosts for overlay widgets.
-  std::vector<CefOverlayViewHost*> overlay_hosts_;
+  std::vector<raw_ptr<CefOverlayViewHost>> overlay_hosts_;
+
+  base::WeakPtrFactory<CefWindowView> weak_ptr_factory_{this};
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_WINDOW_VIEW_H_

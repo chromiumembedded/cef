@@ -54,31 +54,29 @@ class ClientViewEx : public views::ClientView {
  public:
   ClientViewEx(views::Widget* widget,
                views::View* contents_view,
-               CefWindowView::Delegate* window_delegate)
-      : views::ClientView(widget, contents_view),
-        window_delegate_(window_delegate) {
-    DCHECK(window_delegate_);
-  }
+               base::WeakPtr<CefWindowView> view)
+      : views::ClientView(widget, contents_view), view_(std::move(view)) {}
 
   ClientViewEx(const ClientViewEx&) = delete;
   ClientViewEx& operator=(const ClientViewEx&) = delete;
 
   views::CloseRequestResult OnWindowCloseRequested() override {
-    return window_delegate_->CanWidgetClose()
+    return view_->window_delegate()->CanWidgetClose()
                ? views::CloseRequestResult::kCanClose
                : views::CloseRequestResult::kCannotClose;
   }
 
  private:
-  // Not owned by this object.
-  raw_ptr<CefWindowView::Delegate> window_delegate_;
+  const base::WeakPtr<CefWindowView> view_;
 };
 
 // Extend NativeFrameView with draggable region handling.
 class NativeFrameViewEx : public views::NativeFrameView {
  public:
-  NativeFrameViewEx(views::Widget* widget, CefWindowView* view)
-      : views::NativeFrameView(widget), widget_(widget), view_(view) {}
+  NativeFrameViewEx(views::Widget* widget, base::WeakPtr<CefWindowView> view)
+      : views::NativeFrameView(widget),
+        widget_(widget),
+        view_(std::move(view)) {}
 
   NativeFrameViewEx(const NativeFrameViewEx&) = delete;
   NativeFrameViewEx& operator=(const NativeFrameViewEx&) = delete;
@@ -155,7 +153,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
  private:
   // Not owned by this object.
   raw_ptr<views::Widget> widget_;
-  raw_ptr<CefWindowView> view_;
+  const base::WeakPtr<CefWindowView> view_;
 };
 
 // The area inside the frame border that can be clicked and dragged for resizing
@@ -170,8 +168,8 @@ const int kResizeAreaCornerSize = 16;
 // with a resizable border. Based on AppWindowFrameView and CustomFrameView.
 class CaptionlessFrameView : public views::NonClientFrameView {
  public:
-  CaptionlessFrameView(views::Widget* widget, CefWindowView* view)
-      : widget_(widget), view_(view) {}
+  CaptionlessFrameView(views::Widget* widget, base::WeakPtr<CefWindowView> view)
+      : widget_(widget), view_(std::move(view)) {}
 
   CaptionlessFrameView(const CaptionlessFrameView&) = delete;
   CaptionlessFrameView& operator=(const CaptionlessFrameView&) = delete;
@@ -288,7 +286,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
 
   // Not owned by this object.
   raw_ptr<views::Widget> widget_;
-  raw_ptr<CefWindowView> view_;
+  const base::WeakPtr<CefWindowView> view_;
 
   // The bounds of the client view, in this view's coordinates.
   gfx::Rect client_view_bounds_;
@@ -680,8 +678,8 @@ void CefWindowView::WindowClosing() {
   // Close any overlays now, before the Widget is destroyed.
   // Use a copy of the array because the original may be modified while
   // iterating.
-  std::vector<CefOverlayViewHost*> overlay_hosts = overlay_hosts_;
-  for (auto* overlay_host : overlay_hosts) {
+  std::vector<raw_ptr<CefOverlayViewHost>> overlay_hosts = overlay_hosts_;
+  for (auto& overlay_host : overlay_hosts) {
     overlay_host->Close();
   }
 
@@ -711,18 +709,21 @@ views::View* CefWindowView::GetContentsView() {
 }
 
 views::ClientView* CefWindowView::CreateClientView(views::Widget* widget) {
-  return new ClientViewEx(widget, GetContentsView(), window_delegate_);
+  return new ClientViewEx(widget, GetContentsView(),
+                          weak_ptr_factory_.GetWeakPtr());
 }
 
 std::unique_ptr<views::NonClientFrameView>
 CefWindowView::CreateNonClientFrameView(views::Widget* widget) {
   if (is_frameless_) {
     // Custom frame type that doesn't render a caption.
-    return std::make_unique<CaptionlessFrameView>(widget, this);
+    return std::make_unique<CaptionlessFrameView>(
+        widget, weak_ptr_factory_.GetWeakPtr());
   } else if (widget->ShouldUseNativeFrame()) {
     // DesktopNativeWidgetAura::CreateNonClientFrameView() returns
     // NativeFrameView by default. Extend that type.
-    return std::make_unique<NativeFrameViewEx>(widget, this);
+    return std::make_unique<NativeFrameViewEx>(widget,
+                                               weak_ptr_factory_.GetWeakPtr());
   }
 
   // Use Chromium provided CustomFrameView. In case if we would like to

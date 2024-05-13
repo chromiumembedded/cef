@@ -384,6 +384,10 @@ AlloyContentBrowserClient::AlloyContentBrowserClient() = default;
 
 AlloyContentBrowserClient::~AlloyContentBrowserClient() = default;
 
+void AlloyContentBrowserClient::CleanupOnUIThread() {
+  browser_main_parts_ = nullptr;
+}
+
 std::unique_ptr<content::BrowserMainParts>
 AlloyContentBrowserClient::CreateBrowserMainParts(
     bool /* is_integration_test */) {

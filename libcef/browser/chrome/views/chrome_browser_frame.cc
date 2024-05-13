@@ -31,11 +31,10 @@ void ChromeBrowserFrame::Init(BrowserView* browser_view,
   DCHECK(browser_view);
   DCHECK(browser);
 
-  DCHECK(!browser_view_);
-  browser_view_ = browser_view;
+  DCHECK(!BrowserFrame::browser_view());
 
   // Initialize BrowserFrame state.
-  InitBrowserView(browser_view);
+  SetBrowserView(browser_view);
 
   // Initialize BrowserView state.
   browser_view->InitBrowser(std::move(browser));
@@ -73,7 +72,7 @@ void ChromeBrowserFrame::AddAssociatedProfile(Profile* profile) {
 
   // Always call ThemeChanged() when the Chrome style BrowserView is added.
   bool call_theme_changed =
-      browser_view_ && browser_view_->GetProfile() == profile;
+      browser_view() && browser_view()->GetProfile() == profile;
 
   ProfileMap::iterator it = associated_profiles_.find(profile);
   if (it != associated_profiles_.end()) {
@@ -127,8 +126,8 @@ void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* profile) {
 
 Profile* ChromeBrowserFrame::GetThemeProfile() const {
   // Always prefer the Browser Profile, if any.
-  if (browser_view_) {
-    return browser_view_->GetProfile();
+  if (browser_view()) {
+    return browser_view()->GetProfile();
   }
   if (!associated_profiles_.empty()) {
     return associated_profiles_.begin()->first;
@@ -137,9 +136,9 @@ Profile* ChromeBrowserFrame::GetThemeProfile() const {
 }
 
 bool ChromeBrowserFrame::ToggleFullscreenMode() {
-  if (browser_view_) {
+  if (browser_view()) {
     // Toggle fullscreen mode via the Chrome command for consistent behavior.
-    chrome::ToggleFullscreenMode(browser_view_->browser());
+    chrome::ToggleFullscreenMode(browser_view()->browser());
     return true;
   }
   return false;
@@ -167,10 +166,10 @@ ChromeBrowserFrame::CreateNonClientFrameView() {
 }
 
 void ChromeBrowserFrame::Activate() {
-  if (browser_view_ && browser_view_->browser() &&
-      browser_view_->browser()->is_type_devtools()) {
+  if (browser_view() && browser_view()->browser() &&
+      browser_view()->browser()->is_type_devtools()) {
     if (auto browser_host = ChromeBrowserHostImpl::GetBrowserForBrowser(
-            browser_view_->browser())) {
+            browser_view()->browser())) {
       if (browser_host->platform_delegate()->HasExternalParent()) {
         // Handle activation of DevTools with external parent via the platform
         // delegate. On Windows the default platform implementation
@@ -189,6 +188,7 @@ void ChromeBrowserFrame::Activate() {
 
 void ChromeBrowserFrame::OnNativeWidgetDestroyed() {
   window_view_ = nullptr;
+  SetBrowserView(nullptr);
   BrowserFrame::OnNativeWidgetDestroyed();
 }
 
@@ -207,7 +207,7 @@ void ChromeBrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
 }
 
 ui::ColorProviderKey ChromeBrowserFrame::GetColorProviderKey() const {
-  if (browser_view_) {
+  if (browser_view()) {
     // Use the default Browser implementation.
     return BrowserFrame::GetColorProviderKey();
   }
@@ -220,7 +220,7 @@ ui::ColorProviderKey ChromeBrowserFrame::GetColorProviderKey() const {
 }
 
 void ChromeBrowserFrame::OnThemeChanged() {
-  if (browser_view_) {
+  if (browser_view()) {
     // Ignore these notifications if we have a Browser.
     return;
   }

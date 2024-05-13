@@ -194,6 +194,10 @@ void AlloyBrowserContext::Shutdown() {
 
   ChromePluginServiceFilter::GetInstance()->UnregisterProfile(this);
 
+  // Clear this reference before the associated KeyedServiceFactory is destroyed
+  // by PerformInterlockedTwoPhaseShutdown().
+  extension_system_ = nullptr;
+
   // Remove any BrowserContextKeyedServiceFactory associations. This must be
   // called before the ProxyService owned by AlloyBrowserContext is destroyed.
   // The SimpleDependencyManager should always be passed after the
