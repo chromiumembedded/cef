@@ -1,0 +1,13 @@
+diff --git base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
+index 9f9c94cce4599..c6a25c4e2fa0c 100644
+--- base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
++++ base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
+@@ -42,7 +42,7 @@ auto& GetStorage() {
+ }
+ 
+ auto& GetStorageMutex() {
+-  static partition_alloc::internal::base::NoDestructor<std::mutex>
++  static partition_alloc::internal::base::NoDestructor<std::recursive_mutex>
+       storage_mutex;
+   return *storage_mutex;
+ }
