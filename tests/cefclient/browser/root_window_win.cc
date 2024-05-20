@@ -1074,9 +1074,10 @@ void RootWindowWin::OnBrowserWindowDestroyed() {
 
   if (!window_destroyed_) {
     // The browser was destroyed first. This could be due to the use of
-    // off-screen rendering or execution of JavaScript window.close().
-    // Close the RootWindow.
-    Close(true);
+    // off-screen rendering or native (external) parent, or execution of
+    // JavaScript window.close(). Close the RootWindow asyncronously to allow
+    // the current call stack to unwind.
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowWin::Close, this, true));
   }
 
   browser_destroyed_ = true;
