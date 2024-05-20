@@ -1,0 +1,36 @@
+diff --git chrome/browser/devtools/chrome_devtools_manager_delegate.cc chrome/browser/devtools/chrome_devtools_manager_delegate.cc
+index 19c2d39b6aa73..099dcb71a6373 100644
+--- chrome/browser/devtools/chrome_devtools_manager_delegate.cc
++++ chrome/browser/devtools/chrome_devtools_manager_delegate.cc
+@@ -13,6 +13,7 @@
+ #include "base/strings/utf_string_conversions.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_features.h"
+ #include "chrome/browser/devtools/chrome_devtools_session.h"
+ #include "chrome/browser/devtools/device/android_device_manager.h"
+@@ -66,6 +67,10 @@
+ #include "ash/constants/ash_switches.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
++#endif
++
+ using content::DevToolsAgentHost;
+ 
+ const char ChromeDevToolsManagerDelegate::kTypeApp[] = "app";
+@@ -246,6 +251,12 @@ std::string ChromeDevToolsManagerDelegate::GetTargetType(
+     return DevToolsAgentHost::kTypePage;
+   }
+ 
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef::IsAlloyContents(web_contents, /*primary_only=*/true)) {
++    return DevToolsAgentHost::kTypePage;
++  }
++#endif
++
+   return DevToolsAgentHost::kTypeOther;
+ }
+ 

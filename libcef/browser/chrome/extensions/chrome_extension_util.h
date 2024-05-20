@@ -21,6 +21,10 @@ bool GetAlloyTabById(int tab_id,
                      bool include_incognito,
                      content::WebContents** contents);
 
+// Returns true if |contents| is owned by an Alloy style CefBrowserHost.
+// If |primary_only| is false then guest contents will also be matched.
+bool IsAlloyContents(content::WebContents* contents, bool primary_only);
+
 }  // namespace cef
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_EXTENSIONS_CHROME_EXTENSION_UTIL_H_

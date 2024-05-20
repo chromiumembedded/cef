@@ -63,4 +63,12 @@ bool GetAlloyTabById(int tab_id,
   return false;
 }
 
+bool IsAlloyContents(content::WebContents* contents, bool primary_only) {
+  auto browser = CefBrowserHostBase::GetBrowserForContents(contents);
+  if (browser && browser->IsAlloyStyle()) {
+    return !primary_only || browser->GetWebContents() == contents;
+  }
+  return false;
+}
+
 }  // namespace cef
