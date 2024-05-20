@@ -58,9 +58,13 @@ class ClientRequestContextHandler : public CefRequestContextHandler {
 
 // Ensure a compatible set of window creation attributes.
 void SanityCheckWindowConfig(const bool is_devtools,
-                             bool& use_views,
+                             const bool use_views,
                              bool& use_alloy_style,
                              bool& with_osr) {
+  // This configuration is not supported by cefclient architecture and
+  // should use default window creation instead.
+  CHECK(!(is_devtools && !use_views));
+
 #if !defined(DISABLE_ALLOY_BOOTSTRAP)
   if (MainContext::Get()->UseChromeBootstrap())
 #endif
@@ -70,13 +74,6 @@ void SanityCheckWindowConfig(const bool is_devtools,
           << "Alloy style is not supported with Chrome runtime DevTools;"
              " using Chrome style.";
       use_alloy_style = false;
-    }
-
-    if (is_devtools && !use_views) {
-      LOG(WARNING)
-          << "Native parent is not supported with Chrome runtime DevTools;"
-             " using Views.";
-      use_views = true;
     }
   }
 
@@ -141,14 +138,14 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     CefBrowserSettings& settings) {
   CEF_REQUIRE_UI_THREAD();
 
-  SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
-
-  if (MainContext::Get()->UseDefaultPopup()) {
+  if (MainContext::Get()->UseDefaultPopup() || (is_devtools && !use_views)) {
     // Use default window creation for the popup. A new |client| instance is
     // still required by cefclient architecture.
     client = new DefaultClientHandler();
     return nullptr;
   }
+
+  SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
 
   if (!temp_window_) {
     // TempWindow must be created on the UI thread.
