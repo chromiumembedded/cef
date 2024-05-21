@@ -116,7 +116,10 @@ void CefAudioCapturer::OnCaptureError(
     media::AudioCapturerSource::ErrorCode code,
     const std::string& message) {
   audio_handler_->OnAudioStreamError(browser_, message);
-  StopStream();
+
+  if (code != media::AudioCapturerSource::ErrorCode::kSocketError) {
+    StopStream();
+  }
 }
 
 void CefAudioCapturer::StopStream() {
