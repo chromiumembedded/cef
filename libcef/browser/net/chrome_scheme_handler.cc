@@ -466,16 +466,16 @@ class CefURLDataSource : public content::URLDataSource {
     bool handled = false;
     switch (host_id_) {
       case CHROME_EXTENSIONS_SUPPORT:
-        handled = OnExtensionsSupportUI(&mime_type_, &output_->data());
+        handled = OnExtensionsSupportUI(&mime_type_, &output_->as_string());
         break;
       case CHROME_LICENSE:
-        handled = OnLicenseUI(&mime_type_, &output_->data());
+        handled = OnLicenseUI(&mime_type_, &output_->as_string());
         break;
       case CHROME_VERSION:
-        handled = OnVersionUI(profile_, &mime_type_, &output_->data());
+        handled = OnVersionUI(profile_, &mime_type_, &output_->as_string());
         break;
       case CHROME_WEBUI_HOSTS:
-        handled = OnWebUIHostsUI(&mime_type_, &output_->data());
+        handled = OnWebUIHostsUI(&mime_type_, &output_->as_string());
         break;
       default:
         break;

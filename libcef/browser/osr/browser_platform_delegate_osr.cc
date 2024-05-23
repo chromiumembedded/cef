@@ -625,7 +625,7 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
 }
 
 void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
-    const content::AXEventNotificationDetails& eventData) {
+    const ui::AXUpdatesAndEvents& details) {
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     CefRefPtr<CefAccessibilityHandler> acchandler =
@@ -633,13 +633,13 @@ void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
 
     if (acchandler.get()) {
       acchandler->OnAccessibilityTreeChange(
-          osr_accessibility_util::ParseAccessibilityEventData(eventData));
+          osr_accessibility_util::ParseAccessibilityEventData(details));
     }
   }
 }
 
 void CefBrowserPlatformDelegateOsr::AccessibilityLocationChangesReceived(
-    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+    const std::vector<ui::AXLocationChanges>& details) {
   CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
   if (handler.get()) {
     CefRefPtr<CefAccessibilityHandler> acchandler =
@@ -647,7 +647,7 @@ void CefBrowserPlatformDelegateOsr::AccessibilityLocationChangesReceived(
 
     if (acchandler.get()) {
       acchandler->OnAccessibilityLocationChange(
-          osr_accessibility_util::ParseAccessibilityLocationData(locData));
+          osr_accessibility_util::ParseAccessibilityLocationData(details));
     }
   }
 }

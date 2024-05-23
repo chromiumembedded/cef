@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index 01367ff6efd6c..975ea8e446dce 100644
+index fc2d817cdab5d..bb0fe5b982aae 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -7,6 +7,7 @@ import("//build/config/chromeos/ui_mode.gni")
@@ -19,7 +19,7 @@ index 01367ff6efd6c..975ea8e446dce 100644
  
    # Platforms where Chrome x509 server certificate enterprise policies are
    # supported. This must must match the supported_on/future_on list of the
-@@ -90,11 +91,13 @@ declare_args() {
+@@ -94,11 +95,13 @@ declare_args() {
    # optimize_webui was moved to ui/base/ui_features.gni
  }
  

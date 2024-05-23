@@ -880,8 +880,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_FALSE(object->HasValue(kName));
 
-    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->SetValue(kName, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
@@ -954,8 +953,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_FALSE(object->HasValue(kName));
 
-    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->SetValue(kName, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
@@ -1026,8 +1024,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_FALSE(object->HasValue(kName));
 
-    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->SetValue(kName, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
@@ -1090,8 +1087,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_FALSE(object->HasValue(kName));
 
-    EXPECT_TRUE(object->SetValue(kName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_READONLY));
+    EXPECT_TRUE(object->SetValue(kName, V8_PROPERTY_ATTRIBUTE_READONLY));
     EXPECT_FALSE(object->HasException());
     EXPECT_TRUE(object->HasValue(kName));
 
@@ -1668,12 +1664,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(object.get());
 
     // We register both names for accessor.
-    EXPECT_TRUE(object->SetValue(kAccessorName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->SetValue(kAccessorName, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
 
-    EXPECT_TRUE(object->SetValue(kInterceptorName, V8_ACCESS_CONTROL_DEFAULT,
-                                 V8_PROPERTY_ATTRIBUTE_NONE));
+    EXPECT_TRUE(object->SetValue(kInterceptorName, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_FALSE(object->HasException());
 
     EXPECT_TRUE(object->SetValue(kAccessorName,

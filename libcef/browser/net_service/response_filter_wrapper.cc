@@ -93,7 +93,7 @@ bool ResponseFilterWrapper::CreateOutputHandle(
 void ResponseFilterWrapper::OnSourceReadable(MojoResult,
                                              const mojo::HandleSignalsState&) {
   const void* buffer = nullptr;
-  uint32_t read_bytes = 0;
+  size_t read_bytes = 0;
   MojoResult result = source_handle_->BeginReadData(&buffer, &read_bytes,
                                                     MOJO_READ_DATA_FLAG_NONE);
   if (result == MOJO_RESULT_SHOULD_WAIT) {

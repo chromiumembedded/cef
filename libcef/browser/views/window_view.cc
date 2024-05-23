@@ -253,7 +253,8 @@ class CaptionlessFrameView : public views::NonClientFrameView {
     LayoutSuperclass<views::NonClientFrameView>(this);
   }
 
-  gfx::Size CalculatePreferredSize() const override {
+  gfx::Size CalculatePreferredSize(
+      const views::SizeBounds& available_size) const override {
     return widget_->non_client_view()
         ->GetWindowBoundsForClientBounds(
             gfx::Rect(widget_->client_view()->GetPreferredSize()))
@@ -529,7 +530,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
   if (params.bounds.IsEmpty()) {
     // The window will be placed on the default screen with origin (0,0).
-    params.bounds = gfx::Rect(CalculatePreferredSize());
+    params.bounds = gfx::Rect(CalculatePreferredSize({}));
     if (params.bounds.IsEmpty()) {
       // Choose a reasonable default size.
       params.bounds.set_size({800, 600});
@@ -756,7 +757,7 @@ bool CefWindowView::MaybeGetMinimumSize(gfx::Size* size) const {
   // Resize is disabled on Linux by returning the preferred size as the min/max
   // size.
   if (!CanResize()) {
-    *size = CalculatePreferredSize();
+    *size = CalculatePreferredSize({});
     return true;
   }
 #endif
@@ -768,7 +769,7 @@ bool CefWindowView::MaybeGetMaximumSize(gfx::Size* size) const {
   // Resize is disabled on Linux by returning the preferred size as the min/max
   // size.
   if (!CanResize()) {
-    *size = CalculatePreferredSize();
+    *size = CalculatePreferredSize({});
     return true;
   }
 #endif

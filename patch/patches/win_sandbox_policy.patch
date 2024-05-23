@@ -12,7 +12,7 @@ index a2d801b370b01..b56de03637fec 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 58f55c1398047..f980f67de4f9b 100644
+index 6a9b45d8de663..24646ea209be0 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
 @@ -190,12 +190,12 @@ PolicyGlobal* ConfigBase::policy() {
@@ -31,7 +31,7 @@ index 58f55c1398047..f980f67de4f9b 100644
    }
    return std::nullopt;
  }
-@@ -774,14 +774,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
+@@ -790,14 +790,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
    return (SBOX_ALL_OK == rc);
  }
  
@@ -49,10 +49,10 @@ index 58f55c1398047..f980f67de4f9b 100644
    // Can only set this once - as there is only one region sent to the child.
    CHECK(!delegate_data_);
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index 6b4a9ec20f348..058bca8674177 100644
+index 17c19aedcd774..e645245c72076 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
-@@ -115,7 +115,7 @@ class ConfigBase final : public TargetConfig {
+@@ -122,7 +122,7 @@ class ConfigBase final : public TargetConfig {
  
    // Should only be called once the object is configured.
    PolicyGlobal* policy();
@@ -61,7 +61,7 @@ index 6b4a9ec20f348..058bca8674177 100644
    std::vector<std::wstring>& blocklisted_dlls();
    AppContainerBase* app_container();
    IntegrityLevel integrity_level() { return integrity_level_; }
-@@ -170,7 +170,7 @@ class PolicyBase final : public TargetPolicy {
+@@ -177,7 +177,7 @@ class PolicyBase final : public TargetPolicy {
    ResultCode SetStdoutHandle(HANDLE handle) override;
    ResultCode SetStderrHandle(HANDLE handle) override;
    void AddHandleToShare(HANDLE handle) override;
@@ -70,7 +70,7 @@ index 6b4a9ec20f348..058bca8674177 100644
  
    // Creates a Job object with the level specified in a previous call to
    // SetJobLevel().
-@@ -232,13 +232,13 @@ class PolicyBase final : public TargetPolicy {
+@@ -241,13 +241,13 @@ class PolicyBase final : public TargetPolicy {
    // time.
  
    // Returns nullopt if no data has been set, or a view into the data.

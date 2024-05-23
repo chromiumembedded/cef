@@ -1365,26 +1365,26 @@ void AlloyBrowserHostImpl::OnRecentlyAudibleTimerFired() {
 }
 
 void AlloyBrowserHostImpl::AccessibilityEventReceived(
-    const content::AXEventNotificationDetails& content_event_bundle) {
+    const ui::AXUpdatesAndEvents& details) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
     if (!web_contents() || !platform_delegate_) {
       return;
     }
 
-    platform_delegate_->AccessibilityEventReceived(content_event_bundle);
+    platform_delegate_->AccessibilityEventReceived(details);
   }
 }
 
 void AlloyBrowserHostImpl::AccessibilityLocationChangesReceived(
-    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+    const std::vector<ui::AXLocationChanges>& details) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
     if (!web_contents() || !platform_delegate_) {
       return;
     }
 
-    platform_delegate_->AccessibilityLocationChangesReceived(locData);
+    platform_delegate_->AccessibilityLocationChangesReceived(details);
   }
 }
 

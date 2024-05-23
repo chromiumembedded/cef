@@ -495,12 +495,12 @@ void CefBrowserPlatformDelegate::DragSourceSystemDragEnded() {
 }
 
 void CefBrowserPlatformDelegate::AccessibilityEventReceived(
-    const content::AXEventNotificationDetails& eventData) {
+    const ui::AXUpdatesAndEvents& details) {
   DCHECK(false);
 }
 
 void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
-    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+    const std::vector<ui::AXLocationChanges>& details) {
   DCHECK(false);
 }
 

@@ -303,10 +303,9 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       content::NavigationHandle* navigation_handle) override;
   void OnAudioStateChanged(bool audible) override;
   void AccessibilityEventReceived(
-      const content::AXEventNotificationDetails& content_event_bundle) override;
+      const ui::AXUpdatesAndEvents& details) override;
   void AccessibilityLocationChangesReceived(
-      const std::vector<content::AXLocationChangeNotificationDetails>& locData)
-      override;
+      const std::vector<ui::AXLocationChanges>& details) override;
   void WebContentsDestroyed() override;
 
  private:

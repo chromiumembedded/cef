@@ -1,5 +1,5 @@
 diff --git chrome/browser/plugins/plugin_info_host_impl.cc chrome/browser/plugins/plugin_info_host_impl.cc
-index 2bb525046619c..200fc9c1f0067 100644
+index 0ca794a57bed3..ce171b7a01a8c 100644
 --- chrome/browser/plugins/plugin_info_host_impl.cc
 +++ chrome/browser/plugins/plugin_info_host_impl.cc
 @@ -16,6 +16,7 @@
@@ -24,7 +24,7 @@ index 2bb525046619c..200fc9c1f0067 100644
        extensions::WebViewRendererState::GetInstance();
    std::string partition_id;
 diff --git chrome/browser/plugins/plugin_utils.cc chrome/browser/plugins/plugin_utils.cc
-index 438276b719c2f..e97fa0eaf2d7a 100644
+index 00dd9a34cd3fb..89d4588bdbe4e 100644
 --- chrome/browser/plugins/plugin_utils.cc
 +++ chrome/browser/plugins/plugin_utils.cc
 @@ -5,6 +5,7 @@
@@ -34,8 +34,8 @@ index 438276b719c2f..e97fa0eaf2d7a 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/profiles/profile.h"
  #include "components/content_settings/core/browser/host_content_settings_map.h"
- #include "components/content_settings/core/common/content_settings_types.h"
-@@ -68,6 +69,15 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+ #include "components/content_settings/core/common/content_settings.h"
+@@ -69,6 +70,15 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
      content::BrowserContext* browser_context) {
    base::flat_map<std::string, std::string> mime_type_to_extension_id_map;
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -51,7 +51,7 @@ index 438276b719c2f..e97fa0eaf2d7a 100644
    Profile* profile = Profile::FromBrowserContext(browser_context);
    if (extensions::ChromeContentBrowserClientExtensionsPart::
            AreExtensionsDisabledForProfile(profile)) {
-@@ -78,9 +88,11 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
+@@ -79,9 +89,11 @@ PluginUtils::GetMimeTypeToExtensionIdMap(
        MimeTypesHandler::GetMIMETypeAllowlist();
    // Go through the allowed extensions and try to use them to intercept
    // the URL request.
@@ -64,10 +64,10 @@ index 438276b719c2f..e97fa0eaf2d7a 100644
      const extensions::Extension* extension =
          registry->enabled_extensions().GetByID(extension_id);
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 620f0ebad27d3..f36f4a6c5d1ee 100644
+index 60bc3751cb325..ebce071c74a8b 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -1007,6 +1007,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1006,6 +1006,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -75,7 +75,7 @@ index 620f0ebad27d3..f36f4a6c5d1ee 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1167,7 +1168,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1166,7 +1167,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -85,7 +85,7 @@ index 620f0ebad27d3..f36f4a6c5d1ee 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1176,7 +1178,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1175,7 +1177,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -95,7 +95,7 @@ index 620f0ebad27d3..f36f4a6c5d1ee 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1186,7 +1189,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1185,7 +1188,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -127,7 +127,7 @@ index 8b26a93f7527e..17890bf20e481 100644
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index f94fcfcf562db..066c66f46b7ae 100644
+index 1ce20a2a42705..7a3ef88ec689b 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -49,6 +49,8 @@ std::unique_ptr<WebContentsImpl> BrowserPluginGuest::CreateNewGuestWindow(

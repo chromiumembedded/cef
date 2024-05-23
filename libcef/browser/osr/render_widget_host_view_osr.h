@@ -188,7 +188,7 @@ class CefRenderWidgetHostViewOSR
   CreateSyntheticGestureTarget() override;
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
-      RenderWidgetHostViewBase* target_view,
+      RenderWidgetHostViewInput* target_view,
       gfx::PointF* transformed_point) override;
   void DidNavigate() override;
   void SelectionChanged(const std::u16string& text,

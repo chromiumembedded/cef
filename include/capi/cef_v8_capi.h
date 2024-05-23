@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3a188f380f8044060ea93fdca0b3d231df88979d$
+// $hash=5dd4948a92af2ad69e2171f2dffb8f2c23e5c147$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
@@ -611,7 +611,6 @@ typedef struct _cef_v8value_t {
   ///
   int(CEF_CALLBACK* set_value_byaccessor)(struct _cef_v8value_t* self,
                                           const cef_string_t* key,
-                                          cef_v8_accesscontrol_t settings,
                                           cef_v8_propertyattribute_t attribute);
 
   ///

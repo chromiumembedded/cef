@@ -277,10 +277,6 @@ def GetRequiredArgs():
   Return required GN args. Also enforced by assert() in //cef/BUILD.gn.
   """
   result = {
-      # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
-      'enable_basic_printing': True,
-      # ENABLE_SERVICE_DISCOVERY=0 for print preview support
-      'enable_print_preview': True,
       'optimize_webui': True,
       # Enable support for Widevine CDM.
       'enable_widevine': True,

@@ -1,8 +1,8 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index ecabd51db586d..a7ae5e101ca02 100644
+index 58df3e9ad67b2..759f27c07efe9 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-@@ -174,7 +174,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
+@@ -180,7 +180,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index ecabd51db586d..a7ae5e101ca02 100644
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -188,7 +189,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
+@@ -194,7 +195,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |
@@ -24,7 +24,7 @@ index ecabd51db586d..a7ae5e101ca02 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index a7ac0f10f11e5..bbbfefd486660 100644
+index 1d352951f9592..c346ebf506aa0 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 @@ -198,7 +198,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(

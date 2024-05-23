@@ -73,7 +73,8 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   }
 
   // views::View methods:
-  gfx::Size CalculatePreferredSize() const override;
+  gfx::Size CalculatePreferredSize(
+      const views::SizeBounds& available_size) const override;
   gfx::Size GetMinimumSize() const override;
   gfx::Size GetMaximumSize() const override;
   int GetHeightForWidth(int w) const override;
@@ -100,7 +101,8 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   raw_ptr<CefViewDelegateClass> cef_delegate_;
 };
 
-CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {
+CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize(
+    const views::SizeBounds& available_size) const {
   gfx::Size result;
   if (cef_delegate()) {
     CefSize cef_size = cef_delegate()->GetPreferredSize(GetCefView());
@@ -109,7 +111,7 @@ CEF_VIEW_VIEW_T gfx::Size CEF_VIEW_VIEW_D::CalculatePreferredSize() const {
     }
   }
   if (result.IsEmpty()) {
-    result = ParentClass::CalculatePreferredSize();
+    result = ParentClass::CalculatePreferredSize(available_size);
   }
   if (result.IsEmpty()) {
     // Some layouts like BoxLayout expect the preferred size to be non-empty.

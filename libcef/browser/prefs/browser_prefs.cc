@@ -258,6 +258,7 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
 
     // Default profile preferences.
     AccessibilityUIMessageHandler::RegisterProfilePrefs(registry.get());
+    content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
     extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
     HostContentSettingsMap::RegisterProfilePrefs(registry.get());
     language::LanguagePrefs::RegisterProfilePrefs(registry.get());

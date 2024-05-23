@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/prefs/pref_watcher.h chrome/browser/ui/prefs/pref_watcher.h
-index c442c6f50eada..e8a42a9d4948d 100644
+index 79ce1590df640..6b57feb48aad6 100644
 --- chrome/browser/ui/prefs/pref_watcher.h
 +++ chrome/browser/ui/prefs/pref_watcher.h
-@@ -33,10 +33,10 @@ class PrefWatcher : public KeyedService,
+@@ -36,10 +36,10 @@ class PrefWatcher : public KeyedService,
    void RegisterRendererPreferenceWatcher(
        mojo::PendingRemote<blink::mojom::RendererPreferenceWatcher> watcher);
  
@@ -11,6 +11,6 @@ index c442c6f50eada..e8a42a9d4948d 100644
    void Shutdown() override;
  
 + private:
-   void OnDoNotTrackEnabledChanged() override;
+   // ui::NativeThemeObserver:
+   void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
  
-   void UpdateRendererPreferences();

@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 285dc38950991..326646bb585da 100644
+index 0cc1db9645f04..ab2ae8c744278 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -26,7 +26,7 @@ struct DropData;
@@ -12,10 +12,10 @@ index 285dc38950991..326646bb585da 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index bd8b5ddfd8659..767c0ec89ef7a 100644
+index 8a77da73784c8..9ca31537809a3 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -205,6 +205,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -204,6 +204,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -25,7 +25,7 @@ index bd8b5ddfd8659..767c0ec89ef7a 100644
                            WebContents::CreateWithSessionStorage(
                                params, owner_web_contents()
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 7f59e7925084e..e3e69dc6d3a43 100644
+index 2fb8a60c1f56d..edd275135e60d 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -7,6 +7,8 @@
@@ -35,9 +35,9 @@ index 7f59e7925084e..e3e69dc6d3a43 100644
 +#include "content/public/browser/web_contents.h"
 +
  namespace content {
+ class BrowserContext;
  class RenderFrameHost;
- struct ContextMenuParams;
-@@ -25,6 +27,10 @@ class MimeHandlerViewGuestDelegate {
+@@ -26,6 +28,10 @@ class MimeHandlerViewGuestDelegate {
  
    virtual ~MimeHandlerViewGuestDelegate() {}
  

@@ -41,8 +41,6 @@ class WindowFeatures;
 }  // namespace blink
 
 namespace content {
-struct AXEventNotificationDetails;
-struct AXLocationChangeNotificationDetails;
 struct DropData;
 struct NativeWebKeyboardEvent;
 class RenderViewHost;
@@ -66,6 +64,11 @@ class Rect;
 class Size;
 class Vector2d;
 }  // namespace gfx
+
+namespace ui {
+struct AXLocationChanges;
+struct AXUpdatesAndEvents;
+}  // namespace ui
 
 namespace views {
 class Widget;
@@ -382,9 +385,9 @@ class CefBrowserPlatformDelegate {
   virtual void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op);
   virtual void DragSourceSystemDragEnded();
   virtual void AccessibilityEventReceived(
-      const content::AXEventNotificationDetails& eventData);
+      const ui::AXUpdatesAndEvents& details);
   virtual void AccessibilityLocationChangesReceived(
-      const std::vector<content::AXLocationChangeNotificationDetails>& locData);
+      const std::vector<ui::AXLocationChanges>& details);
   virtual gfx::Point GetDialogPosition(const gfx::Size& size);
   virtual gfx::Size GetMaximumDialogSize();
 

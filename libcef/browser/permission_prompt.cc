@@ -132,6 +132,7 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
       const override {
     return {};
   }
+  bool IsAskPrompt() const override { return true; }
 
  private:
   // We don't expose AcceptThisTime() because it's a special case for
@@ -216,6 +217,10 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_MULTIPLE_DOWNLOADS;
     case permissions::RequestType::kNotifications:
       return CEF_PERMISSION_TYPE_NOTIFICATIONS;
+    case permissions::RequestType::kKeyboardLock:
+      return CEF_PERMISSION_TYPE_KEYBOARD_LOCK;
+    case permissions::RequestType::kPointerLock:
+      return CEF_PERMISSION_TYPE_POINTER_LOCK;
 #if BUILDFLAG(IS_WIN)
     case permissions::RequestType::kProtectedMediaIdentifier:
       return CEF_PERMISSION_TYPE_PROTECTED_MEDIA_IDENTIFIER;

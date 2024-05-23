@@ -261,9 +261,7 @@ class CefV8ValueImpl : public CefV8Value {
                 CefRefPtr<CefV8Value> value,
                 PropertyAttribute attribute) override;
   bool SetValue(int index, CefRefPtr<CefV8Value> value) override;
-  bool SetValue(const CefString& key,
-                AccessControl settings,
-                PropertyAttribute attribute) override;
+  bool SetValue(const CefString& key, PropertyAttribute attribute) override;
   bool GetKeys(std::vector<CefString>& keys) override;
   bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) override;
   CefRefPtr<CefBaseRefCounted> GetUserData() override;

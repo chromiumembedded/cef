@@ -56,7 +56,7 @@ index 16c370e6d9759..7fc6d74075dd4 100644
    bool result =
        base::win::IsKeyboardPresentOnSlate(ui::GetHiddenWindow(), &reason);
 diff --git chrome/browser/memory_details.cc chrome/browser/memory_details.cc
-index 58fe3bd8f62ae..f8a2f456bded6 100644
+index 362542c0af479..1841cbe14d5b6 100644
 --- chrome/browser/memory_details.cc
 +++ chrome/browser/memory_details.cc
 @@ -17,6 +17,7 @@
@@ -83,8 +83,8 @@ index 58fe3bd8f62ae..f8a2f456bded6 100644
        extension_set = &extension_registry->enabled_extensions();
        extensions::ProcessMap* process_map =
            extensions::ProcessMap::Get(context);
-@@ -317,6 +324,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
-           break;
+@@ -316,6 +323,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
+           process.renderer_type = ProcessMemoryInformation::RENDERER_EXTENSION;
          }
        }
 +#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)

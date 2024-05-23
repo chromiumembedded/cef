@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_view_host_impl.cc content/browser/renderer_host/render_view_host_impl.cc
-index 57926e0d557fd..0004d03aad8f2 100644
+index d39f6f582109e..42f72e96f0128 100644
 --- content/browser/renderer_host/render_view_host_impl.cc
 +++ content/browser/renderer_host/render_view_host_impl.cc
-@@ -711,6 +711,8 @@ bool RenderViewHostImpl::IsRenderViewLive() const {
+@@ -710,6 +710,8 @@ bool RenderViewHostImpl::IsRenderViewLive() const {
  }
  
  void RenderViewHostImpl::SetBackgroundOpaque(bool opaque) {

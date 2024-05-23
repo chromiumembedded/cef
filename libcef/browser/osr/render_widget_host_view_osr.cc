@@ -116,8 +116,11 @@ class CefDelegatedFrameHostClient : public content::DelegatedFrameHostClient {
     return view_->GetDeviceScaleFactor();
   }
 
-  std::vector<viz::SurfaceId> CollectSurfaceIdsForEviction() override {
-    return view_->render_widget_host()->CollectSurfaceIdsForEviction();
+  viz::FrameEvictorClient::EvictIds CollectSurfaceIdsForEviction() override {
+    viz::FrameEvictorClient::EvictIds ids;
+    ids.embedded_ids =
+        view_->render_widget_host()->CollectSurfaceIdsForEviction();
+    return ids;
   }
 
   void InvalidateLocalSurfaceIdOnEviction() override {
@@ -958,7 +961,7 @@ CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
 
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     const gfx::PointF& point,
-    RenderWidgetHostViewBase* target_view,
+    RenderWidgetHostViewInput* target_view,
     gfx::PointF* transformed_point) {
   if (target_view == this) {
     *transformed_point = point;

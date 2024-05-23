@@ -260,7 +260,7 @@ bool MakeCefCookie(const GURL& url,
     path_string = pc.Path();
   }
   std::string cookie_path =
-      net::CanonicalCookie::CanonPathWithString(url, path_string);
+      net::cookie_util::CanonPathWithString(url, path_string);
   base::Time creation_time = base::Time::Now();
   base::Time cookie_expires =
       net::CanonicalCookie::ParseExpiration(pc, creation_time, creation_time);

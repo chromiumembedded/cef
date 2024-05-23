@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 5dc15da08eeff..4d98f417eabc3 100644
+index 575149b2f3246..74719a39cf4e4 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -37,7 +37,7 @@ index 5dc15da08eeff..4d98f417eabc3 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 78f706cd6bef8..87eafa7a762f6 100644
+index 2c5dfc7870ce8..7ed12711289b4 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -8,6 +8,7 @@
@@ -88,7 +88,7 @@ index 1891e95fa387d..fc190dc39ae7d 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/rand_util.h base/rand_util.h
-index a24e93122172e..5084668cb93a7 100644
+index 746166bf75df7..7192a939e4fec 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -17,8 +17,9 @@
@@ -102,7 +102,7 @@ index a24e93122172e..5084668cb93a7 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -125,7 +126,7 @@ class RandomBitGenerator {
+@@ -123,7 +124,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  
@@ -112,10 +112,10 @@ index a24e93122172e..5084668cb93a7 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 299e54300a09d..cdc43cc48dce6 100644
+index 6961e0ef8153c..8863f4ed65ee8 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -15,8 +15,12 @@
+@@ -20,8 +20,12 @@
  
  #include "base/check.h"
  #include "base/feature_list.h"
@@ -128,7 +128,7 @@ index 299e54300a09d..cdc43cc48dce6 100644
  
  // Prototype for ProcessPrng.
  // See: https://learn.microsoft.com/en-us/windows/win32/seccng/processprng
-@@ -28,6 +32,7 @@ namespace base {
+@@ -33,6 +37,7 @@ namespace base {
  
  namespace internal {
  
@@ -136,7 +136,7 @@ index 299e54300a09d..cdc43cc48dce6 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -49,6 +54,10 @@ bool UseBoringSSLForRandBytes() {
+@@ -54,6 +59,10 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -147,15 +147,15 @@ index 299e54300a09d..cdc43cc48dce6 100644
  }  // namespace internal
  
  namespace {
-@@ -66,6 +75,7 @@ decltype(&ProcessPrng) GetProcessPrng() {
+@@ -71,6 +80,7 @@ decltype(&ProcessPrng) GetProcessPrng() {
  }
  
- void RandBytes(span<uint8_t> output, bool avoid_allocation) {
+ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
    if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
      // Ensure BoringSSL is initialized so it can use things like RDRAND.
      CRYPTO_library_init();
-@@ -73,6 +83,7 @@ void RandBytes(span<uint8_t> output, bool avoid_allocation) {
+@@ -78,6 +88,7 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
      (void)RAND_bytes(output.data(), output.size());
      return;
    }
@@ -188,10 +188,10 @@ index 1f91a938caf55..e7b383ebe3986 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index ccaf03323d60f..3d7a7513d1843 100644
+index dd063382d97e1..6f8d6a0be91b1 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
-@@ -17,6 +17,7 @@
+@@ -22,6 +22,7 @@
  #include <utility>
  
  #include "base/check.h"
@@ -199,7 +199,7 @@ index ccaf03323d60f..3d7a7513d1843 100644
  #include "base/no_destructor.h"
  #include "base/rand_util.h"
  #include "base/ranges/algorithm.h"
-@@ -24,8 +25,12 @@
+@@ -29,8 +30,12 @@
  #include "base/win/scoped_handle.h"
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
@@ -212,7 +212,7 @@ index ccaf03323d60f..3d7a7513d1843 100644
  
  namespace base::win {
  
-@@ -126,6 +131,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -131,6 +136,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
    if (known_cap != known_capabilities->end()) {
      return FromKnownCapability(known_cap->second);
    }
@@ -220,7 +220,7 @@ index ccaf03323d60f..3d7a7513d1843 100644
    CRYPTO_library_init();
    static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
                  SECURITY_APP_PACKAGE_RID_COUNT);
-@@ -138,6 +144,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -143,6 +149,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
           reinterpret_cast<uint8_t*>(&rids[2]));
    return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
                              rids);

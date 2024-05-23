@@ -1221,6 +1221,10 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   BaseClientHandler::OnRenderProcessTerminated(browser, status, error_code,
                                                error_string);
 
+  LOG(ERROR) << "Render process terminated with status "
+             << test_runner::GetErrorString(status) << " ("
+             << error_string.ToString() << ")";
+
   // Don't reload if there's no start URL, or if the crash URL was specified.
   if (startup_url_.empty() || startup_url_ == "chrome://crash") {
     return;

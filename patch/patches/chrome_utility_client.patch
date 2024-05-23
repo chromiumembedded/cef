@@ -1,8 +1,8 @@
 diff --git chrome/utility/chrome_content_utility_client.cc chrome/utility/chrome_content_utility_client.cc
-index c15d1fa6d6e25..f7356f7c1ef64 100644
+index 8a498ddd2c563..1a96939d54079 100644
 --- chrome/utility/chrome_content_utility_client.cc
 +++ chrome/utility/chrome_content_utility_client.cc
-@@ -13,6 +13,7 @@
+@@ -14,6 +14,7 @@
  #include "base/path_service.h"
  #include "base/task/single_thread_task_runner.h"
  #include "build/build_config.h"
@@ -10,7 +10,7 @@ index c15d1fa6d6e25..f7356f7c1ef64 100644
  #include "chrome/common/chrome_paths.h"
  #include "chrome/common/profiler/thread_profiler.h"
  #include "chrome/common/profiler/thread_profiler_configuration.h"
-@@ -54,7 +55,11 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
+@@ -55,7 +56,11 @@ void ChromeContentUtilityClient::UtilityThreadStarted() {
        command_line->GetSwitchValueASCII(switches::kProcessType);
    // An in-process utility thread may run in other processes, only set up
    // collector in a utility process.
@@ -20,6 +20,6 @@ index c15d1fa6d6e25..f7356f7c1ef64 100644
 +      && !cef::IsAlloyRuntimeEnabled()
 +#endif
 +      ) {
+     const auto* heap_profiler_controller =
+         heap_profiling::HeapProfilerController::GetInstance();
      // The HeapProfilerController should have been created in
-     // ChromeMainDelegate::PostEarlyInitialization.
-     using HeapProfilerController = heap_profiling::HeapProfilerController;

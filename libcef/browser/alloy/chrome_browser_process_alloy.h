@@ -109,6 +109,9 @@ class ChromeBrowserProcessAlloy : public BrowserProcess {
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
   os_crypt_async::OSCryptAsync* os_crypt_async() override;
+  void set_additional_os_crypt_async_provider_for_test(
+      size_t precedence,
+      std::unique_ptr<os_crypt_async::KeyProvider> provider) override;
   BuildState* GetBuildState() override;
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
   HidSystemTrayIcon* hid_system_tray_icon() override;

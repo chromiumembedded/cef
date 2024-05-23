@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/streams_private/streams_private_api.cc chrome/browser/extensions/api/streams_private/streams_private_api.cc
-index 96a290eef86ca..bee0f9eaad71e 100644
+index b9b147c8c11df..1e3acf4e679ae 100644
 --- chrome/browser/extensions/api/streams_private/streams_private_api.cc
 +++ chrome/browser/extensions/api/streams_private/streams_private_api.cc
 @@ -6,6 +6,7 @@
@@ -10,7 +10,7 @@ index 96a290eef86ca..bee0f9eaad71e 100644
  #include "chrome/browser/extensions/extension_tab_util.h"
  #include "chrome/browser/preloading/prefetch/no_state_prefetch/chrome_no_state_prefetch_contents_delegate.h"
  #include "components/no_state_prefetch/browser/no_state_prefetch_contents.h"
-@@ -27,6 +28,10 @@
+@@ -26,6 +27,10 @@
  #include "pdf/pdf_features.h"
  #endif  // BUILDFLAG(ENABLE_PDF)
  
@@ -21,7 +21,7 @@ index 96a290eef86ca..bee0f9eaad71e 100644
  namespace extensions {
  
  void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
-@@ -44,6 +49,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -43,6 +48,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    if (!web_contents)
      return;
  
@@ -31,7 +31,7 @@ index 96a290eef86ca..bee0f9eaad71e 100644
    // If the request was for NoStatePrefetch, abort the prefetcher and do not
    // continue. This is because plugins cancel NoStatePrefetch, see
    // http://crbug.com/343590.
-@@ -54,6 +62,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -53,6 +61,9 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
      no_state_prefetch_contents->Destroy(prerender::FINAL_STATUS_DOWNLOAD);
      return;
    }
@@ -41,7 +41,7 @@ index 96a290eef86ca..bee0f9eaad71e 100644
  
    auto* browser_context = web_contents->GetBrowserContext();
  
-@@ -80,9 +91,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
+@@ -79,9 +90,18 @@ void StreamsPrivateAPI::SendExecuteMimeTypeHandlerEvent(
    // forms of zooming won't work).
    // TODO(crbug.com/40114809): Present a coherent representation of a tab id for
    // portal contents.
@@ -64,7 +64,7 @@ index 96a290eef86ca..bee0f9eaad71e 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 5a0ba568bf30c..8ef4be85e038a 100644
+index 2bf778dd0c85d..c75d693c6487b 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -142,12 +142,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -203,10 +203,10 @@ index c3197eb4790fa..f558ff72bdbac 100644
  }
  
 diff --git extensions/browser/extensions_browser_client.h extensions/browser/extensions_browser_client.h
-index 7e5c2918e273f..f00799f9e0dad 100644
+index 8b515b7b8c353..f8e4106ac26d4 100644
 --- extensions/browser/extensions_browser_client.h
 +++ extensions/browser/extensions_browser_client.h
-@@ -34,6 +34,7 @@
+@@ -33,6 +33,7 @@
  #include "url/gurl.h"
  
  class ExtensionFunctionRegistry;
@@ -214,7 +214,7 @@ index 7e5c2918e273f..f00799f9e0dad 100644
  class PrefService;
  
  namespace base {
-@@ -82,6 +83,7 @@ class ComponentExtensionResourceManager;
+@@ -81,6 +82,7 @@ class ComponentExtensionResourceManager;
  class Extension;
  class ExtensionCache;
  class ExtensionError;
@@ -238,7 +238,7 @@ index 7e5c2918e273f..f00799f9e0dad 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index b86a71429eb33..9f7d190975605 100644
+index c9793db28037b..e5f017bf2f2f8 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -353,9 +353,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,

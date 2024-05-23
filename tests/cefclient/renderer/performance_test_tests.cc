@@ -280,7 +280,7 @@ PERF_TEST_FUNC(V8ObjectSetValueWithAccessor) {
   CefString name = "name";
   CefRefPtr<CefV8Value> val = CefV8Value::CreateBool(true);
   CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(accessor, nullptr);
-  obj->SetValue(name, V8_ACCESS_CONTROL_DEFAULT, V8_PROPERTY_ATTRIBUTE_NONE);
+  obj->SetValue(name, V8_PROPERTY_ATTRIBUTE_NONE);
   obj->SetValue(name, val, V8_PROPERTY_ATTRIBUTE_NONE);
 
   PERF_ITERATIONS_START()
@@ -314,7 +314,7 @@ PERF_TEST_FUNC(V8ObjectGetValueWithAccessor) {
   CefString name = "name";
   CefRefPtr<CefV8Value> val = CefV8Value::CreateBool(true);
   CefRefPtr<CefV8Value> obj = CefV8Value::CreateObject(accessor, nullptr);
-  obj->SetValue(name, V8_ACCESS_CONTROL_DEFAULT, V8_PROPERTY_ATTRIBUTE_NONE);
+  obj->SetValue(name, V8_PROPERTY_ATTRIBUTE_NONE);
   obj->SetValue(name, val, V8_PROPERTY_ATTRIBUTE_NONE);
 
   PERF_ITERATIONS_START()

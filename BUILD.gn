@@ -252,8 +252,7 @@ if (is_linux) {
 # Set by GetRequiredArgs() in //cef/tools/gn_args.py.
 #
 
-# Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
-assert(enable_basic_printing)
+# Enable support for Print Preview.
 assert(enable_print_preview)
 
 # Enable support for Widevine CDM.
@@ -1018,7 +1017,6 @@ source_set("libcef_static") {
 
     # Normal build dependencies. Should be sorted alphabetically.
     "//base:base_static",
-    "//base/third_party/dynamic_annotations",
     "//cc",
     "//chrome:dependencies",
     "//chrome:packed_resources",

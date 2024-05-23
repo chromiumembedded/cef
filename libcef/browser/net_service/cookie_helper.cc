@@ -250,10 +250,12 @@ void LoadCookies(const CefBrowserContext::Getter& browser_context_getter,
   net::CookiePartitionKeyCollection partition_key_collection;
   if (request.trusted_params.has_value() &&
       !request.trusted_params->isolation_info.IsEmpty()) {
+    const auto& isolation_info = request.trusted_params->isolation_info;
     partition_key_collection = net::CookiePartitionKeyCollection::FromOptional(
         net::CookiePartitionKey::FromNetworkIsolationKey(
-            request.trusted_params->isolation_info.network_isolation_key(),
-            request.site_for_cookies, net::SchemefulSite(request.url)));
+            isolation_info.network_isolation_key(), request.site_for_cookies,
+            net::SchemefulSite(request.url),
+            isolation_info.IsMainFrameRequest()));
   }
 
   CEF_POST_TASK(

@@ -344,10 +344,10 @@ index bf99047fa53cf..0efdb76233331 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index cb1a0d203b448..307158e8117fe 100644
+index e5d4311ba152c..16c86e544fe3a 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
-@@ -253,6 +253,8 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -254,6 +254,8 @@ void SelectFileDialogImpl::SelectFileImpl(
    HWND owner = owning_window && owning_window->GetRootWindow()
                     ? owning_window->GetHost()->GetAcceleratedWidget()
                     : nullptr;

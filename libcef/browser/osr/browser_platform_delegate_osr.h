@@ -88,10 +88,9 @@ class CefBrowserPlatformDelegateOsr
   void DragSourceEndedAt(int x, int y, cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
   void AccessibilityEventReceived(
-      const content::AXEventNotificationDetails& eventData) override;
+      const ui::AXUpdatesAndEvents& details) override;
   void AccessibilityLocationChangesReceived(
-      const std::vector<content::AXLocationChangeNotificationDetails>& locData)
-      override;
+      const std::vector<ui::AXLocationChanges>& details) override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:
   CefWindowHandle GetParentWindowHandle() const override;

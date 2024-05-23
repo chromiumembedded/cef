@@ -215,7 +215,7 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
   // The Rethrow() message is unused due to kDoNotSanitize but it still needs
   // to be non-nullopt for exceptions to be re-thrown as expected.
   auto result = blink::V8ScriptRunner::CompileAndRunScript(
-      blink::ScriptState::From(context), script,
+      blink::ScriptState::From(context->GetIsolate(), context), script,
       blink::ExecuteScriptPolicy::kExecuteScriptWhenScriptsDisabled,
       blink::V8ScriptRunner::RethrowErrorsOption::Rethrow(""));
 

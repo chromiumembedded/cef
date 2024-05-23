@@ -41,9 +41,6 @@ void CefSpeechRecognitionManagerDelegate::OnRecognitionStart(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnAudioStart(int session_id) {}
 
-void CefSpeechRecognitionManagerDelegate::OnEnvironmentEstimationComplete(
-    int session_id) {}
-
 void CefSpeechRecognitionManagerDelegate::OnSoundStart(int session_id) {}
 
 void CefSpeechRecognitionManagerDelegate::OnSoundEnd(int session_id) {}

@@ -142,7 +142,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Isolate* isolate = context->GetIsolate();
     v8::HandleScope handle_scope(isolate);
     v8::Context::Scope scope(context);
-    v8::MicrotasksScope microtasks_scope(isolate,
+    v8::MicrotasksScope microtasks_scope(isolate, context->GetMicrotaskQueue(),
                                          v8::MicrotasksScope::kRunMicrotasks);
 
     CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));

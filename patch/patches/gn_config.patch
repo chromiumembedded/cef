@@ -12,7 +12,7 @@ index e6f5cbc9c49f9..f64ed7ae77ea1 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 357f7117f8737..724ddd9d61110 100644
+index 3ede70d5d17be..764ce45183919 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 8acc61076fcf6..4887fe263669c 100644
+index 87e4b167b6a55..6dafb9ac4ed94 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -87,7 +87,7 @@ index 8acc61076fcf6..4887fe263669c 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -80,6 +81,10 @@ template("chrome_repack_percent") {
+@@ -82,6 +83,10 @@ template("chrome_repack_percent") {
          "//ui/chromeos/resources",
        ]
      }
@@ -99,7 +99,7 @@ index 8acc61076fcf6..4887fe263669c 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 064c39ffe307e..c430ab71419cb 100644
+index 2f5fedb03bc6b..b3b7126aa0f42 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -110,7 +110,7 @@ index 064c39ffe307e..c430ab71419cb 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -107,6 +108,10 @@ template("chrome_repack_locales") {
+@@ -105,6 +106,10 @@ template("chrome_repack_locales") {
        source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
        deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }
@@ -122,7 +122,7 @@ index 064c39ffe307e..c430ab71419cb 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index b94944f6d5527..eecf0673e027e 100644
+index 17c3d731e269b..e2caaf2934cdd 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/features.gni")

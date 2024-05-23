@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 2e67f8c97fab8..a3367979977c9 100644
+index 52da35f06a7a9..5fb43c7c65d34 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -666,7 +666,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -669,7 +669,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -52,10 +52,10 @@ index a9762d47c397d..482c0e4c8550f 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index b06035ad4748f..5d51cd1038a66 100644
+index 7ad5372c8a135..1112491861262 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
-@@ -93,6 +93,10 @@ class Profile : public content::BrowserContext {
+@@ -94,6 +94,10 @@ class Profile : public content::BrowserContext {
      // be applicable to run. Please see crbug.com/1098697#c3 for more details.
      static OTRProfileID CreateUnique(const std::string& profile_id_prefix);
  
@@ -66,7 +66,7 @@ index b06035ad4748f..5d51cd1038a66 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -504,6 +508,8 @@ class Profile : public content::BrowserContext {
+@@ -515,6 +519,8 @@ class Profile : public content::BrowserContext {
      return instant_service_;
    }
  
@@ -75,7 +75,7 @@ index b06035ad4748f..5d51cd1038a66 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -515,7 +521,6 @@ class Profile : public content::BrowserContext {
+@@ -526,7 +532,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -84,7 +84,7 @@ index b06035ad4748f..5d51cd1038a66 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 47ada6bf53225..a0c4d18b93278 100644
+index fbe18f0773bda..1066b8d2b382a 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -1040,7 +1040,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
@@ -99,10 +99,10 @@ index 47ada6bf53225..a0c4d18b93278 100644
    return raw_otr_profile;
  }
 diff --git chrome/browser/profiles/profile_manager.cc chrome/browser/profiles/profile_manager.cc
-index a8ae9d577d4fb..381d6ceeaccba 100644
+index 6e991d99df8ff..00145aba0bd83 100644
 --- chrome/browser/profiles/profile_manager.cc
 +++ chrome/browser/profiles/profile_manager.cc
-@@ -437,7 +437,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
+@@ -436,7 +436,7 @@ ProfileManager::ProfileManager(const base::FilePath& user_data_dir)
    profile_manager_android_ = std::make_unique<ProfileManagerAndroid>(this);
  #endif
  
@@ -156,7 +156,7 @@ index 0d1d2e3661ff1..ba4b8cb233102 100644
  #endif
  {
 diff --git chrome/browser/profiles/renderer_updater_factory.cc chrome/browser/profiles/renderer_updater_factory.cc
-index ed5b366aa47ab..794cf8b3bbec1 100644
+index a836288d08abc..26219d19f0973 100644
 --- chrome/browser/profiles/renderer_updater_factory.cc
 +++ chrome/browser/profiles/renderer_updater_factory.cc
 @@ -4,6 +4,7 @@

@@ -566,6 +566,11 @@ class BasicResponseTest : public TestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
     EXPECT_TRUE(frame->IsMain());
 
+    const std::string& url = request->GetURL();
+    if (IgnoreURL(url)) {
+      return nullptr;
+    }
+
     if (request_id_ == 0U) {
       // This is the first callback that provides a request ID.
       request_id_ = request->GetIdentifier();

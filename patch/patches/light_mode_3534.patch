@@ -93,10 +93,10 @@ index f62df6eb7d12b..68f78b5e8bce0 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 74b3f56ec91a8..78e548bbea4de 100644
+index fc32dfb0de44f..44ca8103247b1 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -597,6 +597,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -587,6 +587,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  
@@ -129,7 +129,7 @@ index 9ca3120cfe3ac..c29c17330a7e5 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 4c922cce6fe89..196fc0a6c07b2 100644
+index 547872076d126..14d0e817f3243 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
 @@ -673,14 +673,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {

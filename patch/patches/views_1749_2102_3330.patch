@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 15ee19bb52b99..398164f428858 100644
+index b95f9c9a2b856..602dc0588b4a5 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1011,7 +1011,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1032,7 +1032,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::MENU_SOURCE_NONE,
@@ -58,7 +58,7 @@ index fb795f76d3616..6e36a4c1e29da 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index c78845d4a5b3b..f387f67449a6e 100644
+index fa63b2ad55957..0b224818db3d9 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -696,6 +696,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
@@ -97,7 +97,7 @@ index c78845d4a5b3b..f387f67449a6e 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index ae52c62126f2e..49e6fdefadcef 100644
+index c18ec4422d538..e89b7403c5399 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -356,6 +356,10 @@ class GFX_EXPORT RenderText {
@@ -121,7 +121,7 @@ index ae52c62126f2e..49e6fdefadcef 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index cbc1a0e7833fe..da451800b1a56 100644
+index c579f65dce9f0..a04e0d1f66aaa 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
 @@ -194,6 +194,8 @@ class VIEWS_EXPORT InkDropHost {
@@ -134,10 +134,10 @@ index cbc1a0e7833fe..da451800b1a56 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index eb4dca274cb94..f82527daa1910 100644
+index 265d1bc554133..d3cb82ed3ecec 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -616,6 +616,12 @@ void LabelButton::OnThemeChanged() {
+@@ -617,6 +617,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -151,10 +151,10 @@ index eb4dca274cb94..f82527daa1910 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index efcec525b197e..5625074ec41c4 100644
+index 3c862290eab9c..0e85970c08486 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -187,6 +187,9 @@ class VIEWS_EXPORT LabelButton : public Button,
+@@ -188,6 +188,9 @@ class VIEWS_EXPORT LabelButton : public Button,
    // widget, and the parent of the containing widget.
    ButtonState GetVisualState() const;
  
@@ -165,10 +165,10 @@ index efcec525b197e..5625074ec41c4 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index ae7ea4ef1557d..7db27169fcaab 100644
+index 2c773355d2961..9ccba5a459bd5 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -52,12 +52,29 @@ enum LabelPropertyKey {
+@@ -51,12 +51,29 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -198,7 +198,7 @@ index ae7ea4ef1557d..7db27169fcaab 100644
  }  // namespace
  
  namespace views {
-@@ -473,6 +490,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -485,6 +502,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -214,7 +214,7 @@ index ae7ea4ef1557d..7db27169fcaab 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -781,6 +807,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -789,6 +815,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -232,10 +232,10 @@ index ae7ea4ef1557d..7db27169fcaab 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 622e808ebffa5..cb6d594d6a8cb 100644
+index 40d9a89b66369..0c7245665d31b 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -241,6 +241,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -245,6 +245,10 @@ class VIEWS_EXPORT Label : public View,
    gfx::ElideBehavior GetElideBehavior() const;
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
  
@@ -246,7 +246,7 @@ index 622e808ebffa5..cb6d594d6a8cb 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -523,6 +527,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -524,6 +528,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -255,7 +255,7 @@ index 622e808ebffa5..cb6d594d6a8cb 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index a85f17a892c97..6569abfdb7832 100644
+index a3d188fdde094..afcb6fda0cabe 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -578,7 +578,8 @@ void MenuController::Run(Widget* parent,
@@ -375,19 +375,19 @@ index 0623d151ddd3e..243e8c573e474 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 05e2952ec637e..814ba2f4607b6 100644
+index b42556c290207..c5c1aedb9df58 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
-@@ -147,6 +147,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
-       submenu_->GetScrollViewContainer()->outside_border_insets();
- #endif
+@@ -144,6 +144,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+                                        : gfx::NativeWindow();
+   params.bounds = init_params.bounds;
  
 +  params.parent_widget = init_params.parent_widget;
 +
  #if defined(USE_AURA)
    params.init_properties_container.SetProperty(aura::client::kOwnedWindowAnchor,
                                                 init_params.owned_window_anchor);
-@@ -154,7 +156,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -151,7 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
    // If MenuHost has no parent widget, it needs to be marked
    // Activatable, so that calling Show in ShowMenuHost will
    // get keyboard focus.
@@ -398,10 +398,10 @@ index 05e2952ec637e..814ba2f4607b6 100644
  
  #if BUILDFLAG(IS_WIN)
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index 7e92e72c01d62..e3e1fe357a635 100644
+index fc1d5fccc3845..c065cafcd537c 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
-@@ -53,6 +53,8 @@ class MenuHost : public Widget, public WidgetObserver {
+@@ -57,6 +57,8 @@ class MenuHost : public Widget, public WidgetObserver {
      // Additional information that helps to position anchored windows in such
      // backends as Wayland.
      ui::OwnedWindowAnchor owned_window_anchor;
@@ -411,10 +411,10 @@ index 7e92e72c01d62..e3e1fe357a635 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 7d80d762ed43f..9effcd90f6e46 100644
+index 7bc2882ee70ad..ee71d64dce415 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1077,6 +1077,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1079,6 +1079,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -430,7 +430,7 @@ index 7d80d762ed43f..9effcd90f6e46 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1141,6 +1150,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1143,6 +1152,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -445,7 +445,7 @@ index 7d80d762ed43f..9effcd90f6e46 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 1109f107fa8c1..cb54fdd6071e1 100644
+index 4babab46bc156..3de7f0891eeaf 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -456,7 +456,7 @@ index 1109f107fa8c1..cb54fdd6071e1 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -226,6 +227,76 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -237,6 +238,76 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -534,10 +534,10 @@ index 1109f107fa8c1..cb54fdd6071e1 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 30e11b5eee406..0c08301054ffa 100644
+index 883188d50ce30..3d3ed449744de 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
-@@ -92,6 +92,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
+@@ -93,6 +93,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
    bool IsCommandEnabled(int id) const override;
    bool IsCommandVisible(int id) const override;
    bool IsItemChecked(int id) const override;
@@ -751,10 +751,10 @@ index e171461e28836..e137275a22a12 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 0fcde1fc9f855..57af601276609 100644
+index 76f58311587d3..850a8d2c9197c 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -252,6 +252,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -253,6 +253,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -767,7 +767,7 @@ index 0fcde1fc9f855..57af601276609 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 9228af7f0b02e..a6957017fef5c 100644
+index dcf4b60ad92c2..64fa80edefc1b 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -16,6 +16,7 @@
@@ -791,13 +791,13 @@ index 9228af7f0b02e..a6957017fef5c 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index e2896cbe245e5..6a8cf99b29a73 100644
+index 4024ec9778c21..d4eeb4c2922e1 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@
+ #include "base/memory/raw_ptr.h"
  #include "base/memory/safety_checks.h"
  #include "base/observer_list.h"
- #include "base/strings/string_piece.h"
 +#include "base/supports_user_data.h"
  #include "base/types/pass_key.h"
  #include "build/build_config.h"

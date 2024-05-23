@@ -94,6 +94,7 @@ class AlloyBrowserContext : public ChromeProfileAlloy,
   policy::SchemaRegistryService* GetPolicySchemaRegistryService() override;
   policy::UserCloudPolicyManager* GetUserCloudPolicyManager() override;
   policy::ProfileCloudPolicyManager* GetProfileCloudPolicyManager() override;
+  policy::CloudPolicyManager* GetCloudPolicyManager() override;
   policy::ProfilePolicyConnector* GetProfilePolicyConnector() override;
   const policy::ProfilePolicyConnector* GetProfilePolicyConnector()
       const override;

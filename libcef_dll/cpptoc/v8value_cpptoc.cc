@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1970fff502586e8d6d473b36ec3d8008fbf7c2a$
+// $hash=c59808566c2a9f2d204b6724bb5a905aeb0e7620$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -782,7 +782,6 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
 int CEF_CALLBACK
 v8value_set_value_byaccessor(struct _cef_v8value_t* self,
                              const cef_string_t* key,
-                             cef_v8_accesscontrol_t settings,
                              cef_v8_propertyattribute_t attribute) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -793,8 +792,8 @@ v8value_set_value_byaccessor(struct _cef_v8value_t* self,
   // Unverified params: key
 
   // Execute
-  bool _retval = CefV8ValueCppToC::Get(self)->SetValue(CefString(key), settings,
-                                                       attribute);
+  bool _retval =
+      CefV8ValueCppToC::Get(self)->SetValue(CefString(key), attribute);
 
   // Return type: bool
   return _retval;

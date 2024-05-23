@@ -432,6 +432,11 @@ AlloyBrowserContext::GetProfileCloudPolicyManager() {
   return nullptr;
 }
 
+policy::CloudPolicyManager* AlloyBrowserContext::GetCloudPolicyManager() {
+  DCHECK(false);
+  return nullptr;
+}
+
 policy::ProfilePolicyConnector*
 AlloyBrowserContext::GetProfilePolicyConnector() {
   DCHECK(false);

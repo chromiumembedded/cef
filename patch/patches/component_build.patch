@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 7c7589a393254..573c11adc21c7 100644
+index c16e81b7d357f..2e74fc89de36f 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -115,7 +115,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -68,7 +68,7 @@ index 6af484f35f576..2462700b6d1fb 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 6af8af9ed5f95..4cf7b7a56f07a 100644
+index 47e37a2aaa79c..7a65e0654453a 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -38,6 +38,7 @@ component("controller") {
@@ -79,7 +79,7 @@ index 6af8af9ed5f95..4cf7b7a56f07a 100644
      "//third_party/blink/renderer:config",
      "//third_party/blink/renderer:inside_blink",
      "//third_party/blink/renderer:non_test_config",
-@@ -65,6 +66,8 @@ component("controller") {
+@@ -67,6 +68,8 @@ component("controller") {
      "performance_manager/v8_detailed_memory_reporter_impl.h",
      "performance_manager/v8_worker_memory_reporter.cc",
      "performance_manager/v8_worker_memory_reporter.h",

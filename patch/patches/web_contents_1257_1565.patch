@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index c455f395b3d89..f39ffa5e1a7a4 100644
+index d08ad3ae25ab3..0979551ef5fcb 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3551,6 +3551,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3578,6 +3578,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index c455f395b3d89..f39ffa5e1a7a4 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3561,6 +3567,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3588,6 +3594,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index c455f395b3d89..f39ffa5e1a7a4 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3756,6 +3763,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -3784,6 +3791,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_.insert(render_widget_host);
@@ -33,7 +33,7 @@ index c455f395b3d89..f39ffa5e1a7a4 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -4583,6 +4593,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -4632,6 +4642,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index c455f395b3d89..f39ffa5e1a7a4 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -8894,6 +8913,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -8955,6 +8974,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -60,7 +60,7 @@ index c455f395b3d89..f39ffa5e1a7a4 100644
  
  void WebContentsImpl::DidCallFocus() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 811fde7ff7d9e..bbd63bf21db3e 100644
+index 629b699461464..04d2008af250f 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -104,10 +104,12 @@ class BrowserContext;
@@ -88,7 +88,7 @@ index 811fde7ff7d9e..bbd63bf21db3e 100644
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 55aa807264c1e..ebfd5bc73fa3e 100644
+index 7c43ffab6a865..608c87ace18d5 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -63,9 +63,11 @@ class EyeDropperListener;
@@ -103,7 +103,7 @@ index 55aa807264c1e..ebfd5bc73fa3e 100644
  struct ContextMenuParams;
  struct DropData;
  struct MediaPlayerWatchTime;
-@@ -354,6 +356,14 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -355,6 +357,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const StoragePartitionConfig& partition_config,
        SessionStorageNamespace* session_storage_namespace);
  
@@ -119,10 +119,10 @@ index 55aa807264c1e..ebfd5bc73fa3e 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 0983d7fa4d180..a0ca59ba1428f 100644
+index 33ce8386f5ca5..935909040c0ed 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -237,6 +237,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -239,6 +239,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // controlled by the capturing tab.
    virtual void OnCapturedSurfaceControl() {}
  
@@ -132,7 +132,7 @@ index 0983d7fa4d180..a0ca59ba1428f 100644
    // This method is invoked when the `blink::WebView` of the current
    // RenderViewHost is ready, e.g. because we recreated it after a crash.
    virtual void RenderViewReady() {}
-@@ -862,6 +865,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -872,6 +875,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

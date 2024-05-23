@@ -445,6 +445,12 @@ os_crypt_async::OSCryptAsync* ChromeBrowserProcessAlloy::os_crypt_async() {
   return os_crypt_async_.get();
 }
 
+void ChromeBrowserProcessAlloy::set_additional_os_crypt_async_provider_for_test(
+    size_t precedence,
+    std::unique_ptr<os_crypt_async::KeyProvider> provider) {
+  DCHECK(false);
+}
+
 BuildState* ChromeBrowserProcessAlloy::GetBuildState() {
   DCHECK(false);
   return nullptr;

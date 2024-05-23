@@ -1,5 +1,5 @@
 diff --git base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
-index 9f9c94cce4599..c6a25c4e2fa0c 100644
+index fecc2c35a3dcf..3745ac1d22a93 100644
 --- base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
 +++ base/allocator/partition_allocator/src/partition_alloc/pointers/instance_tracer.cc
 @@ -42,7 +42,7 @@ auto& GetStorage() {

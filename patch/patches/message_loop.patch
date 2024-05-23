@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index b136708121867..ee2ba2b731291 100644
+index 5a48d5b098d86..95ebca554932f 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,12 +10,12 @@ index b136708121867..ee2ba2b731291 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <winbase.h>
-@@ -577,7 +578,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+@@ -572,7 +573,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
                  ctx.event()->set_chrome_message_pump();
              msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
            });
 -      has_msg = ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != FALSE;
-+ 
++
 +      // We should not process all window messages if we are in the context of an
 +      // OS modal loop, i.e. in the context of a windows API call like MessageBox.
 +      // This is to ensure that these messages are peeked out by the OS modal loop.
@@ -30,7 +30,7 @@ index b136708121867..ee2ba2b731291 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index a93ee7e4213cb..5550158d94de6 100644
+index c4f8862b21ccf..c8c80509abc91 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,7 +43,7 @@ index a93ee7e4213cb..5550158d94de6 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 22bf2c90f90a5..2b4b95c130745 100644
+index 6e21e7299afbf..c9e12a6e701c2 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -163,6 +163,12 @@ class BASE_EXPORT CurrentThread {
@@ -59,7 +59,7 @@ index 22bf2c90f90a5..2b4b95c130745 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -227,6 +233,13 @@ class BASE_EXPORT CurrentThread {
+@@ -232,6 +238,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;

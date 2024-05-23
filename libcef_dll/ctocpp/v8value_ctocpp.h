@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=962bf2f9c8f5628a19f96d379edbf5e83313a858$
+// $hash=82c0a5d4a178b6731729c6fcc267388c19471cb0$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
@@ -72,9 +72,7 @@ class CefV8ValueCToCpp
                 CefRefPtr<CefV8Value> value,
                 PropertyAttribute attribute) override;
   bool SetValue(int index, CefRefPtr<CefV8Value> value) override;
-  bool SetValue(const CefString& key,
-                AccessControl settings,
-                PropertyAttribute attribute) override;
+  bool SetValue(const CefString& key, PropertyAttribute attribute) override;
   bool GetKeys(std::vector<CefString>& keys) override;
   bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) override;
   CefRefPtr<CefBaseRefCounted> GetUserData() override;

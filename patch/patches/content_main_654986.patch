@@ -12,7 +12,7 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 91feb21f4249e..88643fdeb4c4c 100644
+index 96c28a7ce3183..3d60ab170e9a5 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -174,11 +174,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -39,14 +39,14 @@ index 91feb21f4249e..88643fdeb4c4c 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -274,20 +268,13 @@ RunContentProcess(ContentMainParams params,
+@@ -274,14 +268,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
 -    // We need this pool for all the objects created before we get to the event
 -    // loop, but we don't want to leave them hanging around until the app quits.
 -    // Each "main" needs to flush this pool right before it goes into its main
--    // event loop to get rid of the cruft. TODO(https://crbug.com/1424190): This
+-    // event loop to get rid of the cruft. TODO(crbug.com/40260311): This
 -    // is not safe. Each main loop should create and destroy its own pool; it
 -    // should not be flushing the pool at the base of the autorelease pool
 -    // stack.
@@ -54,43 +54,7 @@ index 91feb21f4249e..88643fdeb4c4c 100644
      InitializeMac();
  #endif
  
-+    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-+
- #if BUILDFLAG(IS_IOS)
-     base::ConditionVariable::InitializeFeatures();
--    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-     command_line->AppendSwitch(switches::kEnableViewport);
-     command_line->AppendSwitch(switches::kUseMobileUserAgent);
- #endif
-@@ -304,19 +291,19 @@ RunContentProcess(ContentMainParams params,
-     }
- 
- #if BUILDFLAG(IS_WIN)
--    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
--    if (command_line->HasSwitch(switches::kHeadless)) {
--      // When running in headless mode we want stdio routed however if
--      // console does not exist we should not create one.
--      base::RouteStdioToConsole(/*create_console_if_not_found*/ false);
--    } else if (command_line->HasSwitch(switches::kEnableLogging)) {
-+    if (command_line->HasSwitch(switches::kEnableLogging)) {
-+      // Don't route to console for "handle" type in child processes.
-+      if (command_line->GetSwitchValueASCII(switches::kEnableLogging) !=
-+              "handle") {
-+        base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
-+      }
-+    } else if (command_line->HasSwitch(switches::kHeadless)) {
-       // Route stdio to parent console (if any) or create one.
-       base::RouteStdioToConsole(/*create_console_if_not_found*/ true);
-     }
- #endif
- 
--    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
--            ::switches::kTraceToConsole)) {
-+    if (command_line->HasSwitch(::switches::kTraceToConsole)) {
-       base::trace_event::TraceConfig trace_config =
-           tracing::GetConfigForTraceToConsole();
-       base::trace_event::TraceLog::GetInstance()->SetEnabled(
-@@ -326,12 +313,46 @@ RunContentProcess(ContentMainParams params,
+@@ -329,12 +315,46 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -139,7 +103,7 @@ index 91feb21f4249e..88643fdeb4c4c 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index faa4e5ced67f3..946f26d2c5fe7 100644
+index 5e4c1f8d6c872..6df7bdba1cff7 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -47,6 +47,7 @@
@@ -150,7 +114,7 @@ index faa4e5ced67f3..946f26d2c5fe7 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1338,6 +1339,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1349,6 +1350,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

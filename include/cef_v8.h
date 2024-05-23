@@ -435,7 +435,6 @@ class CefV8ArrayBufferReleaseCallback : public virtual CefBaseRefCounted {
 /*--cef(source=library,no_debugct_check)--*/
 class CefV8Value : public virtual CefBaseRefCounted {
  public:
-  typedef cef_v8_accesscontrol_t AccessControl;
   typedef cef_v8_propertyattribute_t PropertyAttribute;
 
   ///
@@ -794,9 +793,7 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// will return true even though assignment failed.
   ///
   /*--cef(capi_name=set_value_byaccessor,optional_param=key)--*/
-  virtual bool SetValue(const CefString& key,
-                        AccessControl settings,
-                        PropertyAttribute attribute) = 0;
+  virtual bool SetValue(const CefString& key, PropertyAttribute attribute) = 0;
 
   ///
   /// Read the keys for the object's values into the specified vector. Integer-

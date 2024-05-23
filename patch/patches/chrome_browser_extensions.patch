@@ -34,7 +34,7 @@ index 4007e26f780c3..5f92d74018f9e 100644
  }
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 1eab73b209fea..fca0a2318202e 100644
+index 3d0843c7d1a60..b07956d25797d 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1550,7 +1550,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -153,7 +153,7 @@ index 46154f4501a36..81adec54cee06 100644
      // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
      // the tab id exists as a prerendering tab, and the API will returns
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index 2f769363f8519..228c20926634b 100644
+index 4ca4ecd147267..dc8a8d004a1d6 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@
@@ -175,7 +175,7 @@ index 2f769363f8519..228c20926634b 100644
  // A "tab contents" is a WebContents that is used as a tab in a browser window
  // (or the equivalent on Android). The TabHelpers class allows specific classes
  // to attach the set of tab helpers that is used for tab contents.
-@@ -75,6 +80,10 @@ class TabHelpers {
+@@ -74,6 +79,10 @@ class TabHelpers {
    // Link Preview shows a preview of a page, then promote it as a new tab.
    friend class PreviewTab;
  
@@ -187,10 +187,10 @@ index 2f769363f8519..228c20926634b 100644
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
 diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-index a76c331ec5344..ffe3cbe7ce37c 100644
+index b667ccfe87ccf..65283ef921458 100644
 --- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
 +++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-@@ -850,6 +850,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
+@@ -841,6 +841,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
    if (!gfx::Animation::ShouldRenderRichAnimation()) {
      return;
    }
