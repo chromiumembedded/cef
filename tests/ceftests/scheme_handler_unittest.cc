@@ -11,6 +11,7 @@
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_scheme.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_suite.h"
@@ -465,7 +466,13 @@ class ClientSchemeHandler : public CefResourceHandler {
       // CEF_SETTINGS_ACCEPT_LANGUAGE value from
       // CefSettings.accept_language_list set in CefTestSuite::GetSettings()
       // and expanded internally by ComputeAcceptLanguageFromPref.
-      EXPECT_STREQ("en-GB,en;q=0.9", accept_language.data());
+      if (CefIsFeatureEnabledForTests("ReduceAcceptLanguage")) {
+        EXPECT_TRUE(accept_language == "en-GB" ||
+                    accept_language == "en-GB,en;q=0.9")
+            << accept_language;
+      } else {
+        EXPECT_STREQ("en-GB,en;q=0.9", accept_language.data());
+      }
     }
 
     // Continue or cancel the request immediately based on the return value.

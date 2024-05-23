@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=716d8a4bb86c9ee9ebe8dfe28ec2c37411507830$
+// $hash=bc230d77e2985959bc5a6a2af80b500eec070384$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -947,4 +947,21 @@ CEF_EXPORT void cef_set_data_directory_for_tests(const cef_string_t* dir) {
 
   // Execute
   CefSetDataDirectoryForTests(CefString(dir));
+}
+
+CEF_EXPORT int cef_is_feature_enabled_for_tests(
+    const cef_string_t* feature_name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: feature_name; type: string_byref_const
+  DCHECK(feature_name);
+  if (!feature_name) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefIsFeatureEnabledForTests(CefString(feature_name));
+
+  // Return type: bool
+  return _retval;
 }

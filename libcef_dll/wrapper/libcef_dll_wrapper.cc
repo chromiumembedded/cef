@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=23f943f8e59a48f29ba3095642bc05d7f987a2f2$
+// $hash=16d4e51ecbe1fd8eb6915d951a84f707f73dfb1a$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -884,4 +884,21 @@ CEF_GLOBAL void CefSetDataDirectoryForTests(const CefString& dir) {
 
   // Execute
   cef_set_data_directory_for_tests(dir.GetStruct());
+}
+
+NO_SANITIZE("cfi-icall")
+CEF_GLOBAL bool CefIsFeatureEnabledForTests(const CefString& feature_name) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: feature_name; type: string_byref_const
+  DCHECK(!feature_name.empty());
+  if (feature_name.empty()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = cef_is_feature_enabled_for_tests(feature_name.GetStruct());
+
+  // Return type: bool
+  return _retval ? true : false;
 }

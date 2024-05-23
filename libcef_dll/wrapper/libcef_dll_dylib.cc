@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd77a51eeea378bb56d43ba2995a0417d905c247$
+// $hash=641096b7a6d43e8f7fbb4aad3c5ee870717b7f32$
 //
 
 #include <dlfcn.h>
@@ -146,6 +146,7 @@ struct libcef_pointers {
   decltype(&cef_execute_java_script_with_user_gesture_for_tests)
       cef_execute_java_script_with_user_gesture_for_tests;
   decltype(&cef_set_data_directory_for_tests) cef_set_data_directory_for_tests;
+  decltype(&cef_is_feature_enabled_for_tests) cef_is_feature_enabled_for_tests;
   decltype(&cef_browser_host_create_browser) cef_browser_host_create_browser;
   decltype(&cef_browser_host_create_browser_sync)
       cef_browser_host_create_browser_sync;
@@ -385,6 +386,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_register_extension);
   INIT_ENTRY(cef_execute_java_script_with_user_gesture_for_tests);
   INIT_ENTRY(cef_set_data_directory_for_tests);
+  INIT_ENTRY(cef_is_feature_enabled_for_tests);
   INIT_ENTRY(cef_browser_host_create_browser);
   INIT_ENTRY(cef_browser_host_create_browser_sync);
   INIT_ENTRY(cef_command_line_create);
@@ -856,6 +858,11 @@ void cef_execute_java_script_with_user_gesture_for_tests(
 NO_SANITIZE("cfi-icall")
 void cef_set_data_directory_for_tests(const cef_string_t* dir) {
   g_libcef_pointers.cef_set_data_directory_for_tests(dir);
+}
+
+NO_SANITIZE("cfi-icall")
+int cef_is_feature_enabled_for_tests(const cef_string_t* feature_name) {
+  return g_libcef_pointers.cef_is_feature_enabled_for_tests(feature_name);
 }
 
 NO_SANITIZE("cfi-icall")

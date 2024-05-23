@@ -67,4 +67,12 @@ void CefExecuteJavaScriptWithUserGestureForTests(CefRefPtr<CefFrame> frame,
 /*--cef()--*/
 void CefSetDataDirectoryForTests(const CefString& dir);
 
+///
+/// Returns true if |feature_name| is enabled by default, command line or field
+/// trial. This supports a short list of curated values that are queried by unit
+/// tests.
+///
+/*--cef()--*/
+bool CefIsFeatureEnabledForTests(const CefString& feature_name);
+
 #endif  // CEF_INCLUDE_TEST_CEF_TEST_HELPERS_H_

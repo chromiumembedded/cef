@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=db81a65aba3c2d1213744ad4251322acf97c608c$
+// $hash=da2edf5e08eb45942b6a82109aa86682c202ccac$
 //
 
 #ifndef CEF_INCLUDE_CAPI_TEST_CEF_TEST_HELPERS_CAPI_H_
@@ -66,6 +66,14 @@ CEF_EXPORT void cef_execute_java_script_with_user_gesture_for_tests(
 /// must be an absolute path.
 ///
 CEF_EXPORT void cef_set_data_directory_for_tests(const cef_string_t* dir);
+
+///
+/// Returns true (1) if |feature_name| is enabled by default, command line or
+/// field trial. This supports a short list of curated values that are queried
+/// by unit tests.
+///
+CEF_EXPORT int cef_is_feature_enabled_for_tests(
+    const cef_string_t* feature_name);
 
 #ifdef __cplusplus
 }
