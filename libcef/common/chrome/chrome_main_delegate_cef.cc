@@ -324,10 +324,11 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       disable_features.push_back(base::kEnableHangWatcher.name);
     }
 
-#if BUILDFLAG(IS_WIN) && !defined(OFFICIAL_BUILD)
-    // Disable WinSboxNoFakeGdiInit which causes the renderer processes to crash
-    // with STATUS_DLL_INIT_FAILED. This is currently enabled via a field trial
-    // for non-Official builds. See https://crbug.com/326277735#comment23.
+#if BUILDFLAG(IS_WIN) && (defined(COMPONENT_BUILD) || !defined(NDEBUG))
+    // Disable WinSboxNoFakeGdiInit for component and Debug builds. It causes
+    // renderer processes to crash with STATUS_DLL_INIT_FAILED. This is
+    // currently enabled via a field trial for non-Official builds.
+    // See https://crbug.com/326277735#comment37.
     disable_features.push_back(
         sandbox::policy::features::kWinSboxNoFakeGdiInit.name);
 #endif

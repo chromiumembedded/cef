@@ -217,14 +217,34 @@ void CFHtmlToHtml(const std::string& cf_html,
   }
 }
 
-const DWORD moz_url_format = ::RegisterClipboardFormat(L"text/x-moz-url");
-const DWORD html_format = ::RegisterClipboardFormat(L"HTML Format");
-const DWORD file_desc_format = ::RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
-const DWORD file_contents_format =
-    ::RegisterClipboardFormat(CFSTR_FILECONTENTS);
+DWORD GetMozUrlFormat() {
+  static DWORD moz_url_format = ::RegisterClipboardFormat(L"text/x-moz-url");
+  return moz_url_format;
+}
+
+DWORD GetHtmlFormat() {
+  static DWORD html_format = ::RegisterClipboardFormat(L"HTML Format");
+  return html_format;
+}
+
+DWORD GetFileDescFormat() {
+  static DWORD file_desc_format =
+      ::RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
+  return file_desc_format;
+}
+
+DWORD GetFileContentsFormat() {
+  static DWORD file_contents_format =
+      ::RegisterClipboardFormat(CFSTR_FILECONTENTS);
+  return file_contents_format;
+}
 
 bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
                           IDataObject** data_object) {
+  const DWORD moz_url_format = GetMozUrlFormat();
+  const DWORD html_format = GetHtmlFormat();
+  const DWORD file_desc_format = GetFileDescFormat();
+  const DWORD file_contents_format = GetFileContentsFormat();
   const int kMaxDataObjects = 10;
   FORMATETC fmtetcs[kMaxDataObjects];
   STGMEDIUM stgmeds[kMaxDataObjects];
@@ -283,6 +303,8 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
 }
 
 CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
+  const DWORD moz_url_format = GetMozUrlFormat();
+  const DWORD html_format = GetHtmlFormat();
   CefRefPtr<CefDragData> drag_data = CefDragData::Create();
   IEnumFORMATETC* enumFormats = nullptr;
   HRESULT res = data_object->EnumFormatEtc(DATADIR_GET, &enumFormats);

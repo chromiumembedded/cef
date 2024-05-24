@@ -1127,12 +1127,6 @@ source_set("libcef_static") {
       deps += [ "//content:sandbox_helper_win" ]
     }
 
-    libs = [
-      "comctl32.lib",
-      # For D3D11_DECODER_PROFILE_H264_VLD_NOFGT.
-      "dxguid.lib",
-    ]
-
     data_deps = [
       "//chrome/elevation_service",
     ]
@@ -1752,6 +1746,12 @@ if (is_mac) {
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
       configs += [ "//build/config/win:delayloads" ]
+
+      libs = [
+        "comctl32.lib",
+        # For D3D11_DECODER_PROFILE_H264_VLD_NOFGT.
+        "dxguid.lib",
+      ]
     }
 
     if (is_linux && !is_debug && !use_partition_alloc_as_malloc) {
@@ -2266,8 +2266,13 @@ if (is_mac) {
 
       if (target_cpu != "arm64") {
         libs += [
+          "glu32.lib",
           "opengl32.lib",
-          "glu32.lib"
+        ]
+        ldflags = [
+          "/DELAYLOAD:glu32.dll",
+          "/DELAYLOAD:oleaut32.dll",
+          "/DELAYLOAD:opengl32.dll",
         ]
       }
     }
