@@ -20,7 +20,6 @@
       'include/base/cef_logging.h',
       'include/base/cef_macros.h',
       'include/base/cef_platform_thread.h',
-      'include/base/cef_ptr_util.h',
       'include/base/cef_ref_counted.h',
       'include/base/cef_scoped_refptr.h',
       'include/base/cef_thread_checker.h',
