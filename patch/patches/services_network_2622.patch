@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index 65bc8909d771f..a18907dd1e7ec 100644
+index fb6998fb07eaf..6a46b927890c3 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -10,7 +10,7 @@ index 65bc8909d771f..a18907dd1e7ec 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/connectors/analysis/analysis_settings.h"
  #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog.h"
-@@ -357,6 +358,11 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
+@@ -358,6 +359,11 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
                                          GURL url,
                                          Data* data,
                                          AnalysisConnector connector) {

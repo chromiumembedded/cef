@@ -712,7 +712,7 @@ index e7337adf73caf..6130a2eb8fb5c 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index a7f0ff7ce857e..0ee1c61503204 100644
+index 96b489221fb3a..b372f67cd5c92 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -48,6 +48,10 @@
@@ -755,8 +755,8 @@ index a7f0ff7ce857e..0ee1c61503204 100644
      return gfx::Size(content_area.width(), content_area.bottom() - top);
    }
  
-@@ -131,6 +139,13 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
-     return GetHostWidget()->GetNativeView();
+@@ -132,6 +140,13 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
+     return host_widget ? host_widget->GetNativeView() : nullptr;
    }
  
 +  int GetDialogTopY() const {
@@ -769,7 +769,7 @@ index a7f0ff7ce857e..0ee1c61503204 100644
    // Add/remove observer.
    void AddObserver(ModalDialogHostObserver* observer) override {
      observer_list_.AddObserver(observer);
-@@ -441,6 +456,8 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
+@@ -442,6 +457,8 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
    if (exclusive_access_bubble)
      exclusive_access_bubble->RepositionIfVisible();
  
@@ -778,7 +778,7 @@ index a7f0ff7ce857e..0ee1c61503204 100644
    // Adjust any hosted dialogs if the browser's dialog hosting bounds changed.
    const gfx::Rect dialog_bounds(dialog_host_->GetDialogPosition(gfx::Size()),
                                  dialog_host_->GetMaximumDialogSize());
-@@ -454,6 +471,7 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
+@@ -455,6 +472,7 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
      latest_dialog_bounds_in_screen_ = dialog_bounds_in_screen;
      dialog_host_->NotifyPositionRequiresUpdate();
    }
@@ -786,7 +786,7 @@ index a7f0ff7ce857e..0ee1c61503204 100644
  }
  
  gfx::Size BrowserViewLayout::GetPreferredSize(
-@@ -589,6 +607,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
+@@ -590,6 +608,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
  
  int BrowserViewLayout::LayoutToolbar(int top) {
    TRACE_EVENT0("ui", "BrowserViewLayout::LayoutToolbar");
