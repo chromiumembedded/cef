@@ -1315,7 +1315,11 @@ if (is_win) {
   static_library("cef_sandbox") {
     sources = [ "libcef_dll/sandbox/sandbox_win.cc" ]
     configs += [ ":libcef_includes_config" ]
-    deps = [ "libcef/features", "//sandbox" ]
+    deps = [
+      ":make_config_header",
+      "libcef/features",
+      "//sandbox",
+    ]
   }
 }
 
@@ -1324,8 +1328,9 @@ if (is_mac) {
     sources = [ "libcef_dll/sandbox/sandbox_mac.mm" ]
     configs += [ ":libcef_includes_config" ]
     deps = [
+      ":make_config_header",
       "//build/config:executable_deps",
-      "//sandbox/mac:seatbelt"
+      "//sandbox/mac:seatbelt",
     ]
   }
 }
