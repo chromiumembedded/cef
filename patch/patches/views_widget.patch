@@ -61,7 +61,7 @@ index 1a49cf67e0b17..edf5896d3594e 100644
      case ui::SHOW_STATE_MAXIMIZED:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index b1fd8fe22daa6..290912f76fb02 100644
+index c87f6ad832393..23cd3314c1bfe 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -669,6 +669,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -350,7 +350,7 @@ index 3151a2c872f4e..e14caeb1e6645 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 26b46d12db49d..4d591f6453b3d 100644
+index 44462f6079955..88b24cb1a2a71 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -285,8 +285,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
