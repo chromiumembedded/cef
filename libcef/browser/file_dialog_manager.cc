@@ -141,16 +141,19 @@ FileChooserParams SelectFileToFileChooserParams(
   params.title = title;
   params.default_file_name = default_path;
 
-  // Note that this translation will lose any mime-type based filters that
-  // may have existed in the original FileChooserParams::accept_types if this
-  // dialog was created via FileSelectHelper::RunFileChooser.
   if (file_types) {
-    // A list of allowed extensions. For example, it might be
+    // |file_types| comes from FileSelectHelper::GetFileTypesFromAcceptType.
+    // |extensions| is a list of allowed extensions. For example, it might be
     //   { { "htm", "html" }, { "txt" } }
-    for (auto& vec : file_types->extensions) {
-      for (auto& ext : vec) {
-        params.accept_types.push_back(
-            FilePathTypeToString16(FILE_PATH_LITERAL(".") + ext));
+    for (size_t i = 0; i < file_types->extensions.size(); ++i) {
+      if (!file_types->extension_mimetypes[i].empty()) {
+        // Use the original mime type.
+        params.accept_types.push_back(file_types->extension_mimetypes[i]);
+      } else if (file_types->extensions[i].size() == 1) {
+        // Use the single file extension. We ignore the "Custom Files" filter
+        // which is the only instance of multiple file extensions.
+        params.accept_types.push_back(FilePathTypeToString16(
+            FILE_PATH_LITERAL(".") + file_types->extensions[i][0]));
       }
     }
   }
@@ -328,8 +331,10 @@ void CefFileDialogManager::RunFileChooser(
   // handled here there will be another call to the delegate from RunSelectFile.
   // It might be better to execute the delegate only the single time here, but
   // we don't currently have sufficient state in RunSelectFile to know that the
-  // delegate has already been executed.
-  callback = MaybeRunDelegate(params, std::move(callback));
+  // delegate has already been executed. Also, we haven't retrieved file
+  // extension data at this point.
+  callback = MaybeRunDelegate(params, Extensions(), Descriptions(),
+                              std::move(callback));
   if (callback.is_null()) {
     // The delegate kept the callback.
     return;
@@ -377,14 +382,15 @@ void CefFileDialogManager::RunSelectFile(
 
   active_listeners_.insert(listener);
 
-  // This will not be an exact representation of the original params.
   auto chooser_params =
       SelectFileToFileChooserParams(type, title, default_path, file_types);
   auto callback =
       base::BindOnce(&CefFileDialogManager::SelectFileDoneByDelegateCallback,
                      weak_ptr_factory_.GetWeakPtr(), base::Unretained(listener),
                      base::Unretained(params));
-  callback = MaybeRunDelegate(chooser_params, std::move(callback));
+  callback = MaybeRunDelegate(chooser_params, file_types->extensions,
+                              file_types->extension_description_overrides,
+                              std::move(callback));
   if (callback.is_null()) {
     // The delegate kept the callback.
     return;
@@ -456,7 +462,15 @@ void CefFileDialogManager::SelectFileListenerDestroyed(
 CefFileDialogManager::RunFileChooserCallback
 CefFileDialogManager::MaybeRunDelegate(
     const blink::mojom::FileChooserParams& params,
+    const Extensions& extensions,
+    const Descriptions& descriptions,
     RunFileChooserCallback callback) {
+  // |extensions| and |descriptions| may be empty, or may contain 1 additional
+  // entry for the "Custom Files" filter.
+  DCHECK(extensions.empty() || extensions.size() >= params.accept_types.size());
+  DCHECK(descriptions.empty() ||
+         descriptions.size() >= params.accept_types.size());
+
   if (auto client = browser_->client()) {
     if (auto handler = browser_->client()->GetDialogHandler()) {
       int mode = FILE_DIALOG_OPEN;
@@ -478,12 +492,37 @@ CefFileDialogManager::MaybeRunDelegate(
           break;
       }
 
-      std::vector<std::u16string>::const_iterator it;
-
       std::vector<CefString> accept_filters;
-      it = params.accept_types.begin();
-      for (; it != params.accept_types.end(); ++it) {
-        accept_filters.push_back(*it);
+      for (auto& accept_type : params.accept_types) {
+        accept_filters.push_back(accept_type);
+      }
+
+      std::vector<CefString> accept_extensions;
+      std::vector<CefString> accept_descriptions;
+      if (extensions.empty()) {
+        // We don't know the expansion of mime type values at this time,
+        // so only include the single file extensions.
+        for (auto& accept_type : params.accept_types) {
+          accept_extensions.push_back(
+              accept_type.ends_with(u"/*") ? std::u16string() : accept_type);
+        }
+        // Empty descriptions.
+        accept_descriptions.resize(params.accept_types.size());
+      } else {
+        // There may be 1 additional entry in |extensions| and |descriptions|
+        // that we want to ignore (for the "Custom Files" filter).
+        for (size_t i = 0; i < params.accept_types.size(); ++i) {
+          const auto& extension_list = extensions[i];
+          std::u16string ext_str;
+          for (auto& ext : extension_list) {
+            if (!ext_str.empty()) {
+              ext_str += u";";
+            }
+            ext_str += FilePathTypeToString16(FILE_PATH_LITERAL(".") + ext);
+          }
+          accept_extensions.push_back(ext_str);
+          accept_descriptions.push_back(descriptions[i]);
+        }
       }
 
       CefRefPtr<CefFileDialogCallbackImpl> callbackImpl(
@@ -491,10 +530,13 @@ CefFileDialogManager::MaybeRunDelegate(
       const bool handled = handler->OnFileDialog(
           browser_.get(), static_cast<cef_file_dialog_mode_t>(mode),
           params.title, params.default_file_name.value(), accept_filters,
-          callbackImpl.get());
+          accept_extensions, accept_descriptions, callbackImpl.get());
       if (!handled) {
         // May return nullptr if the client has already executed the callback.
         callback = callbackImpl->Disconnect();
+        LOG_IF(ERROR, callback.is_null())
+            << "Should return true from OnFileDialog when executing the "
+               "callback";
       }
     }
   }

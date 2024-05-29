@@ -7,11 +7,13 @@
 #include <libgen.h>
 #include <sys/stat.h>
 
+#include "include/base/cef_logging.h"
 #include "include/cef_browser.h"
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/util_gtk.h"
+#include "tests/shared/common/string_util.h"
 
 namespace client {
 
@@ -49,11 +51,14 @@ std::string GetDescriptionFromMimeType(const std::string& mime_type) {
     }
   }
 
+  LOG(WARNING) << "Unrecognized mime type: " << mime_type;
   return std::string();
 }
 
 void AddFilters(GtkFileChooser* chooser,
                 const std::vector<CefString>& accept_filters,
+                const std::vector<CefString>& accept_extensions,
+                const std::vector<CefString>& accept_descriptions,
                 bool include_all_files,
                 std::vector<GtkFileFilter*>* filters) {
   bool has_filter = false;
@@ -64,33 +69,13 @@ void AddFilters(GtkFileChooser* chooser,
       continue;
     }
 
-    std::vector<std::string> extensions;
-    std::string description;
+    // Extensions and descriptions may be provided.
+    std::vector<std::string> extensions =
+        AsciiStrSplit(accept_extensions[j], ';');
+    std::string description = accept_descriptions[j];
 
-    size_t sep_index = filter.find('|');
-    if (sep_index != std::string::npos) {
-      // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
-      description = filter.substr(0, sep_index);
-
-      const std::string& exts = filter.substr(sep_index + 1);
-      size_t last = 0;
-      size_t size = exts.size();
-      for (size_t i = 0; i <= size; ++i) {
-        if (i == size || exts[i] == ';') {
-          std::string ext(exts, last, i - last);
-          if (!ext.empty() && ext[0] == '.') {
-            extensions.push_back(ext);
-          }
-          last = i + 1;
-        }
-      }
-    } else if (filter[0] == '.') {
-      // Treat as an extension beginning with the '.' character.
-      extensions.push_back(filter);
-    } else {
-      // Otherwise convert mime type to one or more extensions.
-      description = GetDescriptionFromMimeType(filter);
-
+    if (extensions.empty()) {
+      // Try to convert mime type to one or more extensions.
       std::vector<CefString> ext;
       CefGetExtensionsForMimeType(filter, ext);
       for (size_t x = 0; x < ext.size(); ++x) {
@@ -100,6 +85,10 @@ void AddFilters(GtkFileChooser* chooser,
 
     if (extensions.empty()) {
       continue;
+    }
+
+    if (description.empty() && filter[0] != '.') {
+      description = GetDescriptionFromMimeType(filter);
     }
 
     GtkFileFilter* gtk_filter = gtk_file_filter_new();
@@ -154,6 +143,24 @@ GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   return nullptr;
 }
 
+// Returns true if |accept_filters| contains a MIME type value without matching
+// extensions in |accept_extensions|.
+bool MissingMimeTypeData(const std::vector<CefString>& accept_filters,
+                         const std::vector<CefString>& accept_extensions) {
+  if (accept_filters.empty()) {
+    return false;
+  }
+
+  for (size_t i = 0; i < accept_filters.size(); ++i) {
+    const std::string& filter = accept_filters[i];
+    if (filter[0] != '.' && accept_extensions[i].empty()) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 }  // namespace
 
 ClientDialogHandlerGtk::ClientDialogHandlerGtk() : gtk_dialog_(nullptr) {}
@@ -164,8 +171,17 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     const CefString& title,
     const CefString& default_file_path,
     const std::vector<CefString>& accept_filters,
+    const std::vector<CefString>& accept_extensions,
+    const std::vector<CefString>& accept_descriptions,
     CefRefPtr<CefFileDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
+  DCHECK(accept_filters.size() == accept_extensions.size() ==
+         accept_descriptions.size());
+
+  if (MissingMimeTypeData(accept_filters, accept_extensions)) {
+    // Wait for the 2nd call that provides MIME type data.
+    return false;
+  }
 
   OnFileDialogParams params;
   params.browser = browser;
@@ -173,6 +189,8 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   params.title = title;
   params.default_file_path = default_file_path;
   params.accept_filters = accept_filters;
+  params.accept_extensions = accept_extensions;
+  params.accept_descriptions = accept_descriptions;
   params.callback = callback;
 
   GetWindowAndContinue(
@@ -309,7 +327,9 @@ void ClientDialogHandlerGtk::OnFileDialogContinue(
   }
 
   std::vector<GtkFileFilter*> filters;
-  AddFilters(GTK_FILE_CHOOSER(dialog), params.accept_filters, true, &filters);
+  AddFilters(GTK_FILE_CHOOSER(dialog), params.accept_filters,
+             params.accept_extensions, params.accept_descriptions, true,
+             &filters);
 
   bool success = false;
 

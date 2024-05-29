@@ -77,21 +77,30 @@ class CefDialogHandler : public virtual CefBaseRefCounted {
   /// empty to show the default title ("Open" or "Save" depending on the mode).
   /// |default_file_path| is the path with optional directory and/or file name
   /// component that should be initially selected in the dialog.
-  /// |accept_filters| are used to restrict the selectable file types and may
-  /// any combination of (a) valid lower-cased MIME types (e.g. "text/*" or
-  /// "image/*"), (b) individual file extensions (e.g. ".txt" or ".png"), or (c)
-  /// combined description and file extension delimited using "|" and ";" (e.g.
-  /// "Image Types|.png;.gif;.jpg"). To display a custom dialog return true and
-  /// execute |callback| either inline or at a later time. To display the
-  /// default dialog return false.
+  /// |accept_filters| are used to restrict the selectable file types and may be
+  /// any combination of valid lower-cased MIME types (e.g. "text/*" or
+  /// "image/*") and individual file extensions (e.g. ".txt" or ".png").
+  /// |accept_extensions| provides the semicolon-delimited expansion of MIME
+  /// types to file extensions (if known, or empty string otherwise).
+  /// |accept_descriptions| provides the descriptions for MIME types (if known,
+  /// or empty string otherwise). For example, the "image/*" mime type might
+  /// have extensions ".png;.jpg;.bmp;..." and description "Image Files".
+  /// |accept_filters|, |accept_extensions| and |accept_descriptions| will all
+  /// be the same size. To display a custom dialog return true and execute
+  /// |callback| either inline or at a later time. To display the default dialog
+  /// return false. If this method returns false it may be called an additional
+  /// time for the same dialog (both before and after MIME type expansion).
   ///
   /*--cef(optional_param=title,optional_param=default_file_path,
-          optional_param=accept_filters)--*/
+          optional_param=accept_filters,optional_param=accept_extensions,
+          optional_param=accept_descriptions)--*/
   virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser,
                             FileDialogMode mode,
                             const CefString& title,
                             const CefString& default_file_path,
                             const std::vector<CefString>& accept_filters,
+                            const std::vector<CefString>& accept_extensions,
+                            const std::vector<CefString>& accept_descriptions,
                             CefRefPtr<CefFileDialogCallback> callback) {
     return false;
   }

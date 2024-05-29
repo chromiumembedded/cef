@@ -277,6 +277,9 @@ void TestProcessMessageEqual(CefRefPtr<CefProcessMessage> val1,
 void TestStringVectorEqual(const std::vector<CefString>& val1,
                            const std::vector<CefString>& val2) {
   EXPECT_EQ(val1.size(), val2.size());
+  if (val1.size() != val2.size()) {
+    return;
+  }
 
   for (size_t i = 0; i < val1.size(); ++i) {
     EXPECT_STREQ(val1[i].ToString().c_str(), val2[i].ToString().c_str());
