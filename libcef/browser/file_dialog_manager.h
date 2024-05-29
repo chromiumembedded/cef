@@ -73,8 +73,12 @@ class CefFileDialogManager {
   void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
 
  private:
+  using Extensions = std::vector<std::vector<base::FilePath::StringType>>;
+  using Descriptions = std::vector<std::u16string>;
   [[nodiscard]] RunFileChooserCallback MaybeRunDelegate(
       const blink::mojom::FileChooserParams& params,
+      const Extensions& extensions,
+      const Descriptions& descriptions,
       RunFileChooserCallback callback);
 
   void SelectFileDoneByDelegateCallback(

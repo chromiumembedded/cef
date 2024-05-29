@@ -140,16 +140,11 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     if (accept_filters.empty() &&
         dialog_state_->mode_ != FILE_DIALOG_OPEN_FOLDER) {
       // Build filters based on mime time.
-      accept_filters.push_back("text/*");
+      accept_filters.push_back("image/*");
 
       // Build filters based on file extension.
       accept_filters.push_back(".log");
       accept_filters.push_back(".patch");
-
-      // Add specific filters as-is.
-      accept_filters.push_back("Document Files|.doc;.odt");
-      accept_filters.push_back("Image Files|.png;.jpg;.gif");
-      accept_filters.push_back("PDF Files|.pdf");
     }
 
     dialog_state_->pending_ = true;

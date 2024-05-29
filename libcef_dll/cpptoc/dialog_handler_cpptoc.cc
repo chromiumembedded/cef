@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1bb6115ab6501d8d006585cede00970e59af9868$
+// $hash=3c95f12406eee58308a2c019e8081e0710769e0d$
 //
 
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
@@ -30,6 +30,8 @@ dialog_handler_on_file_dialog(struct _cef_dialog_handler_t* self,
                               const cef_string_t* title,
                               const cef_string_t* default_file_path,
                               cef_string_list_t accept_filters,
+                              cef_string_list_t accept_extensions,
+                              cef_string_list_t accept_descriptions,
                               cef_file_dialog_callback_t* callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -49,17 +51,24 @@ dialog_handler_on_file_dialog(struct _cef_dialog_handler_t* self,
   if (!callback) {
     return 0;
   }
-  // Unverified params: title, default_file_path, accept_filters
+  // Unverified params: title, default_file_path, accept_filters,
+  // accept_extensions, accept_descriptions
 
   // Translate param: accept_filters; type: string_vec_byref_const
   std::vector<CefString> accept_filtersList;
   transfer_string_list_contents(accept_filters, accept_filtersList);
+  // Translate param: accept_extensions; type: string_vec_byref_const
+  std::vector<CefString> accept_extensionsList;
+  transfer_string_list_contents(accept_extensions, accept_extensionsList);
+  // Translate param: accept_descriptions; type: string_vec_byref_const
+  std::vector<CefString> accept_descriptionsList;
+  transfer_string_list_contents(accept_descriptions, accept_descriptionsList);
 
   // Execute
   bool _retval = CefDialogHandlerCppToC::Get(self)->OnFileDialog(
       CefBrowserCToCpp::Wrap(browser), mode, CefString(title),
-      CefString(default_file_path), accept_filtersList,
-      CefFileDialogCallbackCToCpp::Wrap(callback));
+      CefString(default_file_path), accept_filtersList, accept_extensionsList,
+      accept_descriptionsList, CefFileDialogCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;

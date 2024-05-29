@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5644fdc2453dd083079bf9e3616b687eeb49f250$
+// $hash=bf7208a86ee17f63fd7163cef8c3a13373a1f1c8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DIALOG_HANDLER_CAPI_H_
@@ -86,13 +86,20 @@ typedef struct _cef_dialog_handler_t {
   /// to show the default title ("Open" or "Save" depending on the mode).
   /// |default_file_path| is the path with optional directory and/or file name
   /// component that should be initially selected in the dialog.
-  /// |accept_filters| are used to restrict the selectable file types and may
-  /// any combination of (a) valid lower-cased MIME types (e.g. "text/*" or
-  /// "image/*"), (b) individual file extensions (e.g. ".txt" or ".png"), or (c)
-  /// combined description and file extension delimited using "|" and ";" (e.g.
-  /// "Image Types|.png;.gif;.jpg"). To display a custom dialog return true (1)
-  /// and execute |callback| either inline or at a later time. To display the
-  /// default dialog return false (0).
+  /// |accept_filters| are used to restrict the selectable file types and may be
+  /// any combination of valid lower-cased MIME types (e.g. "text/*" or
+  /// "image/*") and individual file extensions (e.g. ".txt" or ".png").
+  /// |accept_extensions| provides the semicolon-delimited expansion of MIME
+  /// types to file extensions (if known, or NULL string otherwise).
+  /// |accept_descriptions| provides the descriptions for MIME types (if known,
+  /// or NULL string otherwise). For example, the "image/*" mime type might have
+  /// extensions ".png;.jpg;.bmp;..." and description "Image Files".
+  /// |accept_filters|, |accept_extensions| and |accept_descriptions| will all
+  /// be the same size. To display a custom dialog return true (1) and execute
+  /// |callback| either inline or at a later time. To display the default dialog
+  /// return false (0). If this function returns false (0) it may be called an
+  /// additional time for the same dialog (both before and after MIME type
+  /// expansion).
   ///
   int(CEF_CALLBACK* on_file_dialog)(
       struct _cef_dialog_handler_t* self,
@@ -101,6 +108,8 @@ typedef struct _cef_dialog_handler_t {
       const cef_string_t* title,
       const cef_string_t* default_file_path,
       cef_string_list_t accept_filters,
+      cef_string_list_t accept_extensions,
+      cef_string_list_t accept_descriptions,
       struct _cef_file_dialog_callback_t* callback);
 } cef_dialog_handler_t;
 

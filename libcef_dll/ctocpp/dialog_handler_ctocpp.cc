@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=40bd7cc8a8fd361aceda9bbd426f912ac140ac3d$
+// $hash=bd2c8c9be10525d69d072dacfb3cfd215486e077$
 //
 
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
@@ -28,6 +28,8 @@ bool CefDialogHandlerCToCpp::OnFileDialog(
     const CefString& title,
     const CefString& default_file_path,
     const std::vector<CefString>& accept_filters,
+    const std::vector<CefString>& accept_extensions,
+    const std::vector<CefString>& accept_descriptions,
     CefRefPtr<CefFileDialogCallback> callback) {
   shutdown_checker::AssertNotShutdown();
 
@@ -48,7 +50,8 @@ bool CefDialogHandlerCToCpp::OnFileDialog(
   if (!callback.get()) {
     return false;
   }
-  // Unverified params: title, default_file_path, accept_filters
+  // Unverified params: title, default_file_path, accept_filters,
+  // accept_extensions, accept_descriptions
 
   // Translate param: accept_filters; type: string_vec_byref_const
   cef_string_list_t accept_filtersList = cef_string_list_alloc();
@@ -56,16 +59,36 @@ bool CefDialogHandlerCToCpp::OnFileDialog(
   if (accept_filtersList) {
     transfer_string_list_contents(accept_filters, accept_filtersList);
   }
+  // Translate param: accept_extensions; type: string_vec_byref_const
+  cef_string_list_t accept_extensionsList = cef_string_list_alloc();
+  DCHECK(accept_extensionsList);
+  if (accept_extensionsList) {
+    transfer_string_list_contents(accept_extensions, accept_extensionsList);
+  }
+  // Translate param: accept_descriptions; type: string_vec_byref_const
+  cef_string_list_t accept_descriptionsList = cef_string_list_alloc();
+  DCHECK(accept_descriptionsList);
+  if (accept_descriptionsList) {
+    transfer_string_list_contents(accept_descriptions, accept_descriptionsList);
+  }
 
   // Execute
   int _retval = _struct->on_file_dialog(
       _struct, CefBrowserCppToC::Wrap(browser), mode, title.GetStruct(),
-      default_file_path.GetStruct(), accept_filtersList,
-      CefFileDialogCallbackCppToC::Wrap(callback));
+      default_file_path.GetStruct(), accept_filtersList, accept_extensionsList,
+      accept_descriptionsList, CefFileDialogCallbackCppToC::Wrap(callback));
 
   // Restore param:accept_filters; type: string_vec_byref_const
   if (accept_filtersList) {
     cef_string_list_free(accept_filtersList);
+  }
+  // Restore param:accept_extensions; type: string_vec_byref_const
+  if (accept_extensionsList) {
+    cef_string_list_free(accept_extensionsList);
+  }
+  // Restore param:accept_descriptions; type: string_vec_byref_const
+  if (accept_descriptionsList) {
+    cef_string_list_free(accept_descriptionsList);
   }
 
   // Return type: bool

@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 447a91b9ac380..cf5ad1b907977 100644
+index 447a91b9ac380..0452f0a8b57cf 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -43,30 +43,23 @@ index 447a91b9ac380..cf5ad1b907977 100644
  #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
    enterprise_connectors::ContentAnalysisDelegate::Data data;
    if (enterprise_connectors::ContentAnalysisDelegate::IsEnabled(
-@@ -459,7 +479,8 @@ void FileSelectHelper::DontAbortOnMissingWebContentsForTesting() {
- 
- std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
- FileSelectHelper::GetFileTypesFromAcceptType(
--    const std::vector<std::u16string>& accept_types) {
-+    const std::vector<std::u16string>& accept_types,
-+    bool run_from_cef) {
-   auto base_file_type = std::make_unique<ui::SelectFileDialog::FileTypeInfo>();
-   if (accept_types.empty())
-     return base_file_type;
-@@ -472,17 +493,24 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -472,31 +492,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
 +  // Create individual filters for each accept type.
 +  std::vector<std::vector<base::FilePath::StringType>> all_extensions;
 +  std::vector<std::u16string> all_overrides;
++  std::vector<std::u16string> all_mimetypes;
 +
    // Find the corresponding extensions.
    int valid_type_count = 0;
    int description_id = 0;
++  std::string ascii_type;
    for (const auto& accept_type : accept_types) {
 +    std::vector<base::FilePath::StringType> current_extensions;
 +    description_id = 0;
++    ascii_type.clear();
 +
      size_t old_extension_size = extensions->size();
      if (accept_type[0] == '.') {
@@ -79,7 +72,11 @@ index 447a91b9ac380..cf5ad1b907977 100644
      } else {
        if (!base::IsStringASCII(accept_type))
          continue;
-@@ -493,10 +521,18 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+-      std::string ascii_type = base::UTF16ToASCII(accept_type);
++      ascii_type = base::UTF16ToASCII(accept_type);
+       if (ascii_type == "image/*")
+         description_id = IDS_IMAGE_FILES;
+       else if (ascii_type == "audio/*")
          description_id = IDS_AUDIO_FILES;
        else if (ascii_type == "video/*")
          description_id = IDS_VIDEO_FILES;
@@ -93,6 +90,8 @@ index 447a91b9ac380..cf5ad1b907977 100644
 +      all_overrides.push_back(description_id != 0 ?
 +                              l10n_util::GetStringUTF16(description_id) :
 +                              std::u16string());
++      all_mimetypes.push_back(ascii_type.empty() ?
++                              std::u16string() : accept_type);
 +
 +      extensions->insert(extensions->end(), current_extensions.begin(),
 +                         current_extensions.end());
@@ -100,23 +99,40 @@ index 447a91b9ac380..cf5ad1b907977 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -521,6 +557,15 @@ FileSelectHelper::GetFileTypesFromAcceptType(
-         l10n_util::GetStringUTF16(description_id));
-   }
+@@ -513,12 +553,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+   //    dialog uses the first extension in the list to form the description,
+   //    like "EHTML Files". This is not what we want.
+   if (valid_type_count > 1 ||
+-      (valid_type_count == 1 && description_id == 0 && extensions->size() > 1))
++      (valid_type_count == 1 && description_id == 0 && extensions->size() > 1)) {
+     description_id = IDS_CUSTOM_FILES;
++    ascii_type.clear();
++  }
  
-+  if (run_from_cef && all_extensions.size() > 1) {
+-  if (description_id) {
+-    file_type->extension_description_overrides.push_back(
+-        l10n_util::GetStringUTF16(description_id));
++  file_type->extension_description_overrides.push_back(
++      description_id != 0 ?
++          l10n_util::GetStringUTF16(description_id) :
++          std::u16string());
++  file_type->extension_mimetypes.push_back(
++      ascii_type.empty() ? std::u16string() : base::ASCIIToUTF16(ascii_type));
++
++  if (all_extensions.size() > 1) {
 +    // Insert filters for the specific accept types at the beginning.
 +    file_type->extensions.insert(file_type->extensions.begin(),
 +        all_extensions.begin(), all_extensions.end());
 +    file_type->extension_description_overrides.insert(
 +        file_type->extension_description_overrides.begin(),
 +        all_overrides.begin(), all_overrides.end());
-+  }
-+
-   return file_type;
- }
++    file_type->extension_mimetypes.insert(
++        file_type->extension_mimetypes.begin(),
++        all_mimetypes.begin(), all_mimetypes.end());
+   }
  
-@@ -528,7 +573,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+   return file_type;
+@@ -528,7 +584,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -126,7 +142,7 @@ index 447a91b9ac380..cf5ad1b907977 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -547,6 +593,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -547,6 +604,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -134,18 +150,8 @@ index 447a91b9ac380..cf5ad1b907977 100644
    file_select_helper->RunFileChooser(render_frame_host, std::move(listener),
                                       params.Clone());
  }
-@@ -598,7 +645,8 @@ void FileSelectHelper::RunFileChooser(
- }
- 
- void FileSelectHelper::GetFileTypesInThreadPool(FileChooserParamsPtr params) {
--  select_file_types_ = GetFileTypesFromAcceptType(params->accept_types);
-+  select_file_types_ = GetFileTypesFromAcceptType(params->accept_types,
-+                                                  run_from_cef_);
-   select_file_types_->allowed_paths =
-       params->need_local_path ? ui::SelectFileDialog::FileTypeInfo::NATIVE_PATH
-                               : ui::SelectFileDialog::FileTypeInfo::ANY_PATH;
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 7194323c36956..903cdf0c294fc 100644
+index 7194323c36956..fd4a5361798f0 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -62,7 +62,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -158,17 +164,7 @@ index 7194323c36956..903cdf0c294fc 100644
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -264,7 +265,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-   // |accept_types| contains only valid lowercased MIME types or file extensions
-   // beginning with a period (.).
-   static std::unique_ptr<ui::SelectFileDialog::FileTypeInfo>
--  GetFileTypesFromAcceptType(const std::vector<std::u16string>& accept_types);
-+  GetFileTypesFromAcceptType(const std::vector<std::u16string>& accept_types,
-+                             bool run_from_cef);
- 
-   // Check the accept type is valid. It is expected to be all lower case with
-   // no whitespace.
-@@ -325,6 +327,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -325,6 +326,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    // Set to false in unit tests since there is no WebContents.
    bool abort_on_missing_web_contents_in_tests_ = true;
  
@@ -261,7 +257,7 @@ index 68dd62159b686..e94831cd44a2d 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index 9b12fae59c3cc..dfb534a6f06e6 100644
+index 9b12fae59c3cc..a80873f421c8d 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -102,7 +102,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -274,7 +270,18 @@ index 9b12fae59c3cc..dfb534a6f06e6 100644
  
    SelectFileDialog(const SelectFileDialog&) = delete;
    SelectFileDialog& operator=(const SelectFileDialog&) = delete;
-@@ -199,6 +200,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -126,6 +127,10 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+     // be used.
+     std::vector<std::u16string> extension_description_overrides;
+ 
++    // Original mime types for the specified extensions. Entries correspond to
++    // |extensions|; if left blank then there was no mime type.
++    std::vector<std::u16string> extension_mimetypes;
++
+     // Specifies whether there will be a filter added for all files (i.e. *.*).
+     bool include_all_files = false;
+ 
+@@ -199,6 +204,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
                    const GURL* caller = nullptr);
    bool HasMultipleFileTypeChoices();
  
@@ -294,7 +301,7 @@ index 9b12fae59c3cc..dfb534a6f06e6 100644
   protected:
    friend class base::RefCountedThreadSafe<SelectFileDialog>;
  
-@@ -224,6 +238,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -224,6 +242,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
    raw_ptr<Listener> listener_;
  
@@ -306,7 +313,7 @@ index 9b12fae59c3cc..dfb534a6f06e6 100644
   private:
    // Tests if the file selection dialog can be displayed by
    // testing if the AllowFileSelectionDialogs-Policy is
-@@ -236,8 +255,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -236,8 +259,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
  
    // Returns true if the dialog has multiple file type choices.
    virtual bool HasMultipleFileTypeChoicesImpl() = 0;

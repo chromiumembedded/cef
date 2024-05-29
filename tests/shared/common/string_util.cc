@@ -5,6 +5,8 @@
 #include "tests/shared/common/string_util.h"
 
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 namespace client {
 
@@ -28,6 +30,18 @@ std::string AsciiStrReplace(const std::string& str,
       pos += to_len;
     }
   } while (pos != std::string::npos);
+  return result;
+}
+
+std::vector<std::string> AsciiStrSplit(const std::string& str, char delim) {
+  std::vector<std::string> result;
+  std::stringstream ss(str);
+  std::string item;
+
+  while (getline(ss, item, delim)) {
+    result.push_back(item);
+  }
+
   return result;
 }
 
