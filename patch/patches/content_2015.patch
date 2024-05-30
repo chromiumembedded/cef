@@ -12,10 +12,10 @@ index 2068552edfba8..6ef07a0a5b7fa 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index eef1951861e8b..4800ef3400623 100644
+index 4909784a9f1e3..ef4e4414a0a9b 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -850,7 +850,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -852,7 +852,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
    mojo::PendingRemote<network::mojom::URLLoaderFactory>
        terminal_external_protocol;
    bool handled = GetContentClient()->browser()->HandleExternalProtocol(
@@ -24,7 +24,7 @@ index eef1951861e8b..4800ef3400623 100644
        frame_tree_node->frame_tree_node_id(), navigation_ui_data,
        request_info.is_primary_main_frame,
        frame_tree_node->IsInFencedFrameTree(), request_info.sandbox_flags,
-@@ -862,6 +862,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -864,6 +864,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
                  *request_info.initiator_document_token)
            : nullptr,
        &terminal_external_protocol);

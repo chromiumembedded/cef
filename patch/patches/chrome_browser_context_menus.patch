@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index e9e957b6bf1af..cc883c667f110 100644
+index 4f866d176dccf..c2abc6231c727 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -359,6 +359,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -32,7 +32,7 @@ index e9e957b6bf1af..cc883c667f110 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -872,6 +888,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -879,6 +895,14 @@ RenderViewContextMenu::RenderViewContextMenu(
    pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
  #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
  
@@ -47,7 +47,7 @@ index e9e957b6bf1af..cc883c667f110 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1347,6 +1371,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1354,6 +1378,12 @@ void RenderViewContextMenu::InitMenu() {
            autofill::SuggestionHidingReason::kContextMenuOpened);
      }
    }
@@ -60,7 +60,7 @@ index e9e957b6bf1af..cc883c667f110 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3571,6 +3601,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3578,6 +3608,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
