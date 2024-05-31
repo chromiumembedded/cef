@@ -246,11 +246,11 @@ CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
   if (request_context_per_browser_) {
     // Synchronous use of non-global request contexts is not safe with the
     // Chrome runtime.
-    CHECK(!callback.is_null()
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-          || !MainContext::Get()->UseChromeBootstrap()
+#if defined(DISABLE_ALLOY_BOOTSTRAP)
+    CHECK(!callback.is_null());
+#else
+    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeBootstrap());
 #endif
-    );
 
     // Create a new request context for each browser.
     CefRequestContextSettings settings;
