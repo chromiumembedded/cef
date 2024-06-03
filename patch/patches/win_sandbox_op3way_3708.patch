@@ -1,0 +1,54 @@
+diff --git base/time/time.h base/time/time.h
+index 0efbea85491f4..17f9fe92ef78c 100644
+--- base/time/time.h
++++ base/time/time.h
+@@ -134,6 +134,13 @@ constexpr bool isnan(double d) {
+ 
+ }
+ 
++// Clang compiler is unable to eliminate a "dead" function call to an undefined
++// `std::_Literal_zero_is_expected()` function that MSVC uses to allow
++// comparisons with literal zero without warning.
++#define MSVC_OPERATOR_3WAY_BROKEN \
++    BUILDFLAG(IS_WIN) && (__cplusplus >= 202002L || _MSVC_LANG >= 202002L) && \
++    _MSVC_STL_VERSION >= 143 && _MSVC_STL_UPDATE >= 202303
++
+ // TimeDelta ------------------------------------------------------------------
+ 
+ class BASE_EXPORT TimeDelta {
+@@ -320,8 +327,17 @@ class BASE_EXPORT TimeDelta {
+ 
+   // Comparison operators.
+   friend constexpr bool operator==(TimeDelta, TimeDelta) = default;
++#if MSVC_OPERATOR_3WAY_BROKEN
++  friend constexpr std::strong_ordering operator<=>(TimeDelta lhs,
++                                                    TimeDelta rhs) {
++    if(lhs.delta_ == rhs.delta_) return std::strong_ordering::equal;
++    if(lhs.delta_ < rhs.delta_) return std::strong_ordering::less;
++    return std::strong_ordering::greater;
++  }
++#else
+   friend constexpr std::strong_ordering operator<=>(TimeDelta,
+                                                     TimeDelta) = default;
++#endif
+ 
+   // Returns this delta, ceiled/floored/rounded-away-from-zero to the nearest
+   // multiple of |interval|.
+@@ -472,8 +488,17 @@ class TimeBase {
+ 
+   // Comparison operators
+   friend constexpr bool operator==(const TimeBase&, const TimeBase&) = default;
++#if MSVC_OPERATOR_3WAY_BROKEN
++  friend constexpr std::strong_ordering operator<=>(TimeBase lhs,
++                                                    TimeBase rhs) {
++    if(lhs.us_ == rhs.us_) return std::strong_ordering::equal;
++    if(lhs.us_ < rhs.us_) return std::strong_ordering::less;
++    return std::strong_ordering::greater;
++  }
++#else
+   friend constexpr std::strong_ordering operator<=>(const TimeBase&,
+                                                     const TimeBase&) = default;
++#endif
+ 
+  protected:
+   constexpr explicit TimeBase(int64_t us) : us_(us) {}
