@@ -175,7 +175,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     const std::vector<CefString>& accept_descriptions,
     CefRefPtr<CefFileDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
-  DCHECK(accept_filters.size() == accept_extensions.size() ==
+  DCHECK((accept_filters.size() == accept_extensions.size()) ==
          accept_descriptions.size());
 
   if (MissingMimeTypeData(accept_filters, accept_extensions)) {
