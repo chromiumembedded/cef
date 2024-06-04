@@ -35,8 +35,6 @@
 #include "cef/libcef/common/util_mac.h"
 #elif BUILDFLAG(IS_POSIX)
 #include "cef/libcef/common/util_linux.h"
-#elif BUILDFLAG(IS_WIN)
-#include "sandbox/policy/features.h"
 #endif
 
 namespace {
@@ -323,15 +321,6 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       // to avoid shutdown crashes (see issue #3403).
       disable_features.push_back(base::kEnableHangWatcher.name);
     }
-
-#if BUILDFLAG(IS_WIN) && (defined(COMPONENT_BUILD) || !defined(NDEBUG))
-    // Disable WinSboxNoFakeGdiInit for component and Debug builds. It causes
-    // renderer processes to crash with STATUS_DLL_INIT_FAILED. This is
-    // currently enabled via a field trial for non-Official builds.
-    // See https://crbug.com/326277735#comment37.
-    disable_features.push_back(
-        sandbox::policy::features::kWinSboxNoFakeGdiInit.name);
-#endif
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
