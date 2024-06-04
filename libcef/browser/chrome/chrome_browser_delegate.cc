@@ -619,6 +619,16 @@ void ChromeBrowserDelegate::CanDownload(
   std::move(callback).Run(true);
 }
 
+content::JavaScriptDialogManager*
+ChromeBrowserDelegate::GetJavaScriptDialogManager(
+    content::WebContents* source) {
+  auto browser_host = ChromeBrowserHostImpl::GetBrowserForContents(source);
+  if (browser_host) {
+    return browser_host->GetJavaScriptDialogManager();
+  }
+  return nullptr;
+}
+
 KeyboardEventProcessingResult ChromeBrowserDelegate::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event) {

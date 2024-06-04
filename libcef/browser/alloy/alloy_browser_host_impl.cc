@@ -1210,11 +1210,7 @@ void AlloyBrowserHostImpl::RendererResponsive(
 
 content::JavaScriptDialogManager*
 AlloyBrowserHostImpl::GetJavaScriptDialogManager(content::WebContents* source) {
-  if (!javascript_dialog_manager_) {
-    javascript_dialog_manager_ =
-        std::make_unique<CefJavaScriptDialogManager>(this);
-  }
-  return javascript_dialog_manager_.get();
+  return CefBrowserHostBase::GetJavaScriptDialogManager();
 }
 
 void AlloyBrowserHostImpl::RunFileChooser(

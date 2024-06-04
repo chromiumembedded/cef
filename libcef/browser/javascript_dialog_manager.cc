@@ -182,13 +182,6 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::RenderFrameHost* render_frame_host,
     bool is_reload,
     DialogClosedCallback callback) {
-  if (browser_->WillBeDestroyed()) {
-    // Currently destroying the browser. Accept the unload without showing
-    // the prompt.
-    std::move(callback).Run(true, std::u16string());
-    return;
-  }
-
   const std::u16string& message_text = u"Is it OK to leave/reload this page?";
 
   // Always call DialogClosed().

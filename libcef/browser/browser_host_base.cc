@@ -287,6 +287,10 @@ void CefBrowserHostBase::DestroyWebContents(
   devtools_protocol_manager_.reset();
   devtools_window_runner_.reset();
   context_menu_observer_ = nullptr;
+  if (javascript_dialog_manager_) {
+    javascript_dialog_manager_->Destroy();
+    javascript_dialog_manager_.reset();
+  }
 
   browser_info_->WebContentsDestroyed();
   platform_delegate_->WebContentsDestroyed(web_contents);
@@ -1281,6 +1285,15 @@ void CefBrowserHostBase::SelectFileListenerDestroyed(
   if (file_dialog_manager_) {
     file_dialog_manager_->SelectFileListenerDestroyed(listener);
   }
+}
+
+content::JavaScriptDialogManager*
+CefBrowserHostBase::GetJavaScriptDialogManager() {
+  if (!javascript_dialog_manager_) {
+    javascript_dialog_manager_ =
+        std::make_unique<CefJavaScriptDialogManager>(this);
+  }
+  return javascript_dialog_manager_.get();
 }
 
 bool CefBrowserHostBase::MaybeAllowNavigation(
