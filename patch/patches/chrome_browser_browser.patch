@@ -131,7 +131,7 @@ index e4c38df62e93e..6956a4a6e19ca 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index f6302e83d3b00..c617cc4a4a640 100644
+index f6302e83d3b00..ce0d6010d4b5c 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -269,6 +269,25 @@
@@ -341,7 +341,23 @@ index f6302e83d3b00..c617cc4a4a640 100644
    RenderWidgetHostView* view = render_widget_host->GetView();
    if (view && !render_widget_host->GetView()->IsHTMLFormPopup()) {
      TabDialogs::FromWebContents(source)->HideHungRendererDialog(
-@@ -2093,6 +2199,11 @@ void Browser::DraggableRegionsChanged(
+@@ -2049,6 +2155,15 @@ void Browser::RendererResponsive(
+ 
+ content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
+     WebContents* source) {
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef_browser_delegate_) {
++    auto* cef_js_dialog_manager =
++        cef_browser_delegate_->GetJavaScriptDialogManager(source);
++    if (cef_js_dialog_manager) {
++      return cef_js_dialog_manager;
++    }
++  }
++#endif
+   return javascript_dialogs::TabModalDialogManager::FromWebContents(source);
+ }
+ 
+@@ -2093,6 +2208,11 @@ void Browser::DraggableRegionsChanged(
    if (app_controller_) {
      app_controller_->DraggableRegionsChanged(regions, contents);
    }
@@ -353,7 +369,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
  }
  
  void Browser::DidFinishNavigation(
-@@ -2173,11 +2284,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2173,11 +2293,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -369,7 +385,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2377,6 +2492,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2377,6 +2501,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -385,7 +401,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -2921,9 +3045,11 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -2921,9 +3054,11 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -398,7 +414,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -2931,6 +3057,12 @@ StatusBubble* Browser::GetStatusBubble() {
+@@ -2931,6 +3066,12 @@ StatusBubble* Browser::GetStatusBubble() {
    // mode, as the minimal browser UI includes the status bar.
    if (web_app::AppBrowserController::IsWebApp(this) &&
        !app_controller()->HasMinimalUiButtons()) {
@@ -411,7 +427,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
      return nullptr;
    }
  
-@@ -3080,6 +3212,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3080,6 +3221,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -420,7 +436,7 @@ index f6302e83d3b00..c617cc4a4a640 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3234,6 +3368,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3234,6 +3377,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {

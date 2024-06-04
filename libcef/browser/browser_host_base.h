@@ -20,6 +20,7 @@
 #include "cef/libcef/browser/devtools/devtools_window_runner.h"
 #include "cef/libcef/browser/file_dialog_manager.h"
 #include "cef/libcef/browser/frame_host_impl.h"
+#include "cef/libcef/browser/javascript_dialog_manager.h"
 #include "cef/libcef/browser/media_stream_registrar.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "cef/libcef/features/features.h"
@@ -357,6 +358,10 @@ class CefBrowserHostBase : public CefBrowserHost,
                      void* params);
   void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
 
+  // Called from AlloyBrowserHostImpl::GetJavaScriptDialogManager and
+  // ChromeBrowserDelegate::GetJavaScriptDialogManager.
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager();
+
   // Called from CefBrowserInfoManager::MaybeAllowNavigation.
   virtual bool MaybeAllowNavigation(content::RenderFrameHost* opener,
                                     const content::OpenURLParams& params);
@@ -470,6 +475,9 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Used for creating and managing file dialogs.
   std::unique_ptr<CefFileDialogManager> file_dialog_manager_;
+
+  // Used for creating and managing JavaScript dialogs.
+  std::unique_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
 
   // Volatile state accessed from multiple threads. All access must be protected
   // by |state_lock_|.

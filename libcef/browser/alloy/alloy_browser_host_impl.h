@@ -18,7 +18,6 @@
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/browser/frame_host_impl.h"
-#include "cef/libcef/browser/javascript_dialog_manager.h"
 #include "cef/libcef/browser/menu_manager.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "content/public/browser/web_contents.h"
@@ -362,9 +361,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   // True if the OS window hosting the browser has been destroyed. Only accessed
   // on the UI thread.
   bool window_destroyed_ = false;
-
-  // Used for creating and managing JavaScript dialogs.
-  std::unique_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
 
   // Used for creating and managing context menus.
   std::unique_ptr<CefMenuManager> menu_manager_;
