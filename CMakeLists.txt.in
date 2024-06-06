@@ -240,16 +240,18 @@ PRINT_CEF_CONFIG()
 # Define the API documentation target.
 #
 
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  add_custom_target(apidocs ALL
-    # Generate documentation in the docs/html directory.
-    COMMAND "${DOXYGEN_EXECUTABLE}" Doxyfile
-    # Write a docs/index.html file.
-    COMMAND ${CMAKE_COMMAND} -E echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > docs/index.html
-    WORKING_DIRECTORY "${CEF_ROOT}"
-    COMMENT "Generating API documentation with Doxygen..."
-    VERBATIM )
-else()
-  message(WARNING "Doxygen must be installed to generate API documentation.")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
+  find_package(Doxygen)
+  if(DOXYGEN_FOUND)
+    add_custom_target(apidocs ALL
+      # Generate documentation in the docs/html directory.
+      COMMAND "${DOXYGEN_EXECUTABLE}" Doxyfile
+      # Write a docs/index.html file.
+      COMMAND ${CMAKE_COMMAND} -E echo "<html><head><meta http-equiv=\"refresh\" content=\"0;URL='html/index.html'\"/></head></html>" > docs/index.html
+      WORKING_DIRECTORY "${CEF_ROOT}"
+      COMMENT "Generating API documentation with Doxygen..."
+      VERBATIM )
+  else()
+    message(WARNING "Doxygen must be installed to generate API documentation.")
+  endif()
 endif()
