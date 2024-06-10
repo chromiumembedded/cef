@@ -555,6 +555,12 @@ std::optional<int> AlloyMainDelegate::BasicStartupComplete() {
 
   logging::InitLogging(log_settings);
 
+  if (is_browser) {
+    LOG(WARNING)
+        << "Alloy bootstrap is deprecated and will be removed in ~M127. See "
+           "https://github.com/chromiumembedded/cef/issues/3685";
+  }
+
   ContentSettingsPattern::SetNonWildcardDomainNonPortSchemes(
       kNonWildcardDomainNonPortSchemes, kNonWildcardDomainNonPortSchemesSize);
 
