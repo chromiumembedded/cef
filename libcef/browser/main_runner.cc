@@ -269,12 +269,6 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                void* windows_sandbox_info,
                                bool* initialized,
                                base::OnceClosure context_initialized) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  LOG_IF(WARNING, !settings->chrome_runtime)
-      << "Alloy bootstrap is deprecated and will be removed in ~M127. See "
-         "https://github.com/chromiumembedded/cef/issues/3685";
-#endif
-
   DCHECK(!main_delegate_);
   main_delegate_ = MakeDelegate(
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
