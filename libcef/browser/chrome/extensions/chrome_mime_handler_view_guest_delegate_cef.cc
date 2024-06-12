@@ -8,6 +8,8 @@
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/chrome/chrome_context_menu_handler.h"
 #include "cef/libcef/browser/osr/web_contents_view_osr.h"
+#include "components/renderer_context_menu/context_menu_delegate.h"
+#include "content/public/browser/web_contents.h"
 #include "extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.h"
 
 namespace extensions {
@@ -42,8 +44,27 @@ bool ChromeMimeHandlerViewGuestDelegateCef::HandleContextMenu(
     return true;
   }
 
-  return ChromeMimeHandlerViewGuestDelegate::HandleContextMenu(
-      render_frame_host, params);
+  [[maybe_unused]] bool result =
+      ChromeMimeHandlerViewGuestDelegate::HandleContextMenu(render_frame_host,
+                                                            params);
+  DCHECK(result);
+
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(&render_frame_host);
+  ContextMenuDelegate* menu_delegate =
+      ContextMenuDelegate::FromWebContents(web_contents);
+
+  // The menu may not be running in the following cases:
+  // - If the menu is empty (e.g. cleared in OnBeforeContextMenu).
+  // - If the menu is disabled (see e.g. RenderViewContextMenuViews::Show).
+  // - When the above call blocks until the menu is dismissed (macOS behavior).
+  // We explicitly clean up in these cases instead of waiting for OnMenuClosed
+  // which will otherwise never be called for the first 2 cases.
+  if (!menu_delegate->IsMenuRunning()) {
+    context_menu::MaybeResetContextMenu(owner_web_contents_);
+  }
+
+  return true;
 }
 
 }  // namespace extensions

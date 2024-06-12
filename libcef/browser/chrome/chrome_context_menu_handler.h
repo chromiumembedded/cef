@@ -21,6 +21,8 @@ void RegisterCallbacks();
 bool HandleContextMenu(content::WebContents* opener,
                        const content::ContextMenuParams& params);
 
+void MaybeResetContextMenu(content::WebContents* opener);
+
 }  // namespace context_menu
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_CHROME_CONTEXT_MENU_HANDLER_H_

@@ -19,4 +19,14 @@ void ChromeWebContentsViewDelegateCef::ShowContextMenu(
   }
 
   ChromeWebContentsViewDelegateBase::ShowContextMenu(render_frame_host, params);
+
+  // The menu may not be running in the following cases:
+  // - If the menu is empty (e.g. cleared in OnBeforeContextMenu).
+  // - If the menu is disabled (see e.g. RenderViewContextMenuViews::Show).
+  // - When the above call blocks until the menu is dismissed (macOS behavior).
+  // We explicitly clean up in these cases instead of waiting for OnMenuClosed
+  // which will otherwise never be called for the first 2 cases.
+  if (!IsMenuRunning()) {
+    context_menu::MaybeResetContextMenu(web_contents_);
+  }
 }

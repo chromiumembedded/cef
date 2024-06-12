@@ -152,6 +152,12 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   }
 
   void OnMenuClosed() override {
+    // May be called multiple times. For example, if the menu runs and is
+    // additionally reset via MaybeResetContextMenu.
+    if (!handler_) {
+      return;
+    }
+
     handler_->OnContextMenuDismissed(browser_, GetFrame());
     model_->Detach();
 
@@ -203,17 +209,25 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
             base::BindOnce(&CefContextMenuObserver::ExecuteCommandCallback,
                            weak_ptr_factory_.GetWeakPtr())));
 
-    bool handled = handler_->RunContextMenu(browser_, GetFrame(), params_,
-                                            model_, callbackImpl.get());
-    if (!handled && callbackImpl->IsDisconnected()) {
+    is_handled_ = handler_->RunContextMenu(browser_, GetFrame(), params_,
+                                           model_, callbackImpl.get());
+    if (!is_handled_ && callbackImpl->IsDisconnected()) {
       LOG(ERROR) << "Should return true from RunContextMenu when executing the "
                     "callback";
-      handled = true;
+      is_handled_ = true;
     }
-    if (!handled) {
+    if (!is_handled_) {
       callbackImpl->Disconnect();
     }
-    return handled;
+    return is_handled_;
+  }
+
+  void MaybeResetContextMenu() {
+    // Don't reset the menu when the client is using custom handling. It will be
+    // reset via ExecuteCommandCallback instead.
+    if (!is_handled_) {
+      OnMenuClosed();
+    }
   }
 
  private:
@@ -282,6 +296,8 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
   using ItemInfoMap = std::map<int, ItemInfo>;
   ItemInfoMap iteminfomap_;
 
+  bool is_handled_ = false;
+
   base::WeakPtrFactory<CefContextMenuObserver> weak_ptr_factory_{this};
 };
 
@@ -334,6 +350,15 @@ bool HandleContextMenu(content::WebContents* opener,
 
   // Continue with creating the RenderViewContextMenu.
   return false;
+}
+
+void MaybeResetContextMenu(content::WebContents* opener) {
+  auto browser = CefBrowserHostBase::GetBrowserForContents(opener);
+  if (browser && browser->context_menu_observer()) {
+    return static_cast<CefContextMenuObserver*>(
+               browser->context_menu_observer())
+        ->MaybeResetContextMenu();
+  }
 }
 
 }  // namespace context_menu
