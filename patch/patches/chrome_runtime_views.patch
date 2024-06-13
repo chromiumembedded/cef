@@ -931,10 +931,10 @@ index b862ceac7225d..9575440a77d67 100644
      LocationBarView* location_bar_view = browser_view_->GetLocationBarView();
      CHECK(location_bar_view);
 diff --git chrome/browser/ui/views/page_action/page_action_icon_controller.cc chrome/browser/ui/views/page_action/page_action_icon_controller.cc
-index ad0147f9b8fe8..80aea21bb605a 100644
+index e9bc6c28db30f..38ddcb98139b0 100644
 --- chrome/browser/ui/views/page_action/page_action_icon_controller.cc
 +++ chrome/browser/ui/views/page_action/page_action_icon_controller.cc
-@@ -96,6 +96,12 @@ void PageActionIconController::Init(const PageActionIconParams& params,
+@@ -97,6 +97,12 @@ void PageActionIconController::Init(const PageActionIconParams& params,
    };
  
    for (PageActionIconType type : params.types_enabled) {

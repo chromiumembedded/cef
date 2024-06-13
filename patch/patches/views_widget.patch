@@ -530,10 +530,10 @@ index 6383110804d44..e5bc85f63fab9 100644
        break;
      case ui::SHOW_STATE_END:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index f2f1f54c474cf..2feb6a47c04e1 100644
+index e113e926b324c..572eccab19085 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -409,7 +409,8 @@ void Widget::Init(InitParams params) {
+@@ -410,7 +410,8 @@ void Widget::Init(InitParams params) {
    }
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -543,7 +543,7 @@ index f2f1f54c474cf..2feb6a47c04e1 100644
    is_headless_ = params.ShouldInitAsHeadless();
    is_autosized_ = params.autosize;
  
-@@ -501,9 +502,14 @@ void Widget::Init(InitParams params) {
+@@ -502,9 +503,14 @@ void Widget::Init(InitParams params) {
  
      if (show_state == ui::SHOW_STATE_MAXIMIZED) {
        Maximize();
@@ -558,7 +558,7 @@ index f2f1f54c474cf..2feb6a47c04e1 100644
      }
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
-@@ -517,7 +523,12 @@ void Widget::Init(InitParams params) {
+@@ -518,7 +524,12 @@ void Widget::Init(InitParams params) {
    } else if (delegate) {
      SetContentsView(delegate->TransferOwnershipOfContentsView());
      if (should_set_initial_bounds) {
@@ -572,7 +572,7 @@ index f2f1f54c474cf..2feb6a47c04e1 100644
      }
    }
  
-@@ -1696,10 +1707,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1704,10 +1715,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -589,7 +589,7 @@ index f2f1f54c474cf..2feb6a47c04e1 100644
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -1950,7 +1967,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
+@@ -1958,7 +1975,8 @@ bool Widget::SetInitialFocus(ui::WindowShowState show_state) {
      return false;
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ || show_state == ui::SHOW_STATE_INACTIVE ||

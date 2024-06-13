@@ -74,7 +74,7 @@ index e857e2363da9e..3dd4db8ae4267 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index e4c38df62e93e..6956a4a6e19ca 100644
+index f61a369f16ee3..a0313d74a02ee 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -113,7 +113,7 @@ index e4c38df62e93e..6956a4a6e19ca 100644
        "views/apps/app_info_dialog/arc_app_info_links_panel.cc",
        "views/apps/app_info_dialog/arc_app_info_links_panel.h",
        "views/apps/chrome_app_window_client_views_chromeos.cc",
-@@ -5117,8 +5125,6 @@ static_library("ui") {
+@@ -5118,8 +5126,6 @@ static_library("ui") {
        "views/accessibility/theme_tracking_non_accessible_image_view.h",
        "views/apps/app_dialog/app_dialog_view.cc",
        "views/apps/app_dialog/app_dialog_view.h",
@@ -122,7 +122,7 @@ index e4c38df62e93e..6956a4a6e19ca 100644
        "views/apps/app_info_dialog/app_info_dialog_container.cc",
        "views/apps/app_info_dialog/app_info_dialog_container.h",
        "views/apps/app_info_dialog/app_info_dialog_views.cc",
-@@ -6969,6 +6975,7 @@ static_library("ui") {
+@@ -6972,6 +6978,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
