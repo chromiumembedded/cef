@@ -225,6 +225,18 @@ index c88a77a0b49e2..31b7224a36ae8 100644
  views::Widget* RenderViewContextMenuViews::GetTopLevelWidget() {
    return views::Widget::GetTopLevelWidgetForNativeView(GetActiveNativeView());
  }
+diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
+index 55ba34c417e4a..e92f668868e74 100644
+--- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
++++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
+@@ -45,6 +45,7 @@ class RenderViewContextMenuViews : public RenderViewContextMenu {
+ 
+   // RenderViewContextMenuBase implementation.
+   void Show() override;
++  bool IsRunning() override;
+ 
+  protected:
+   RenderViewContextMenuViews(content::RenderFrameHost& render_frame_host,
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 index eb855deeb6040..3ff97b28fa4c6 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
@@ -240,6 +252,18 @@ index eb855deeb6040..3ff97b28fa4c6 100644
  void ChromeWebContentsViewDelegateViews::ShowContextMenu(
      content::RenderFrameHost& render_frame_host,
      const content::ContextMenuParams& params) {
+diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
+index 97c98c8738965..96c142806d7b2 100644
+--- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
++++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
+@@ -55,6 +55,7 @@ class ChromeWebContentsViewDelegateViews
+       content::RenderFrameHost& render_frame_host,
+       const content::ContextMenuParams& params) override;
+   void ShowMenu(std::unique_ptr<RenderViewContextMenuBase> menu) override;
++  bool IsMenuRunning() override;
+ 
+  private:
+   // The context menu is reset every time we show it, but we keep a pointer to
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
 index 07e5b3613a2df..293282690bd5a 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
