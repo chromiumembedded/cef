@@ -105,7 +105,7 @@ index d8fda08453256..466718e824503 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index 50f1b5313ce45..687e667e4b942 100644
+index 138ae48ca13c1..6d4e45a234a4e 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,11 +13,14 @@

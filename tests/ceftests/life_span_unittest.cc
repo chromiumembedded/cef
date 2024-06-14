@@ -278,7 +278,7 @@ TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
   EXPECT_TRUE(handler->got_after_created_);
   EXPECT_TRUE(handler->got_do_close_);
   EXPECT_TRUE(handler->got_before_close_);
-  EXPECT_FALSE(handler->got_before_unload_dialog_);
+  EXPECT_TRUE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
@@ -297,7 +297,7 @@ TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadForce) {
   EXPECT_TRUE(handler->got_after_created_);
   EXPECT_TRUE(handler->got_do_close_);
   EXPECT_FALSE(handler->got_before_close_);
-  EXPECT_FALSE(handler->got_before_unload_dialog_);
+  EXPECT_TRUE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);

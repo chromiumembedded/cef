@@ -37,29 +37,16 @@ class CefVariationsClient : public variations::VariationsClient {
 
 }  // namespace
 
-ChromeProfileAlloy::ChromeProfileAlloy() {
+ChromeProfileAlloy::ChromeProfileAlloy() : Profile(nullptr) {
+  // Alloy contexts are never flagged as off-the-record. It causes problems
+  // for the extension system.
+  DCHECK(!IsOffTheRecord());
+
   profile_metrics::SetBrowserProfileType(
       this, profile_metrics::BrowserProfileType::kRegular);
 }
 
 ChromeProfileAlloy::~ChromeProfileAlloy() = default;
-
-bool ChromeProfileAlloy::IsOffTheRecord() {
-  return false;
-}
-
-bool ChromeProfileAlloy::IsOffTheRecord() const {
-  // Alloy contexts are never flagged as off-the-record. It causes problems
-  // for the extension system.
-  return false;
-}
-
-const Profile::OTRProfileID& ChromeProfileAlloy::GetOTRProfileID() const {
-  DCHECK(false);
-  static base::NoDestructor<Profile::OTRProfileID> otr_profile_id(
-      Profile::OTRProfileID::PrimaryID());
-  return *otr_profile_id;
-}
 
 variations::VariationsClient* ChromeProfileAlloy::GetVariationsClient() {
   if (!variations_client_) {

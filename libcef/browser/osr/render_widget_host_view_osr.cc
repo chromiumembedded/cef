@@ -30,15 +30,15 @@
 #include "components/viz/common/switches.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/gpu/gpu_data_manager_impl.h"
-#include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/input/motion_event_web.h"
 #include "content/browser/renderer_host/input/synthetic_gesture_target_base.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/common/content_switches_internal.h"
+#include "content/common/input/cursor_manager.h"
+#include "content/common/input/render_widget_host_input_event_router.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -1186,7 +1186,7 @@ void CefRenderWidgetHostViewOSR::SendExternalBeginFrame() {
 }
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   TRACE_EVENT0("cef", "CefRenderWidgetHostViewOSR::SendKeyEvent");
   content::RenderWidgetHostImpl* target_host = render_widget_host_;
 
@@ -1415,8 +1415,8 @@ void CefRenderWidgetHostViewOSR::SendTouchEvent(const CefTouchEvent& event) {
     render_widget_host_->delegate()->GetInputEventRouter()->RouteTouchEvent(
         this, &touch_event, latency_info);
   } else {
-    render_widget_host_->ForwardTouchEventWithLatencyInfo(touch_event,
-                                                          latency_info);
+    render_widget_host_->GetRenderInputRouter()
+        ->ForwardTouchEventWithLatencyInfo(touch_event, latency_info);
   }
 
   bool touch_end =
@@ -1495,7 +1495,7 @@ void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
 }
 
 void CefRenderWidgetHostViewOSR::ProcessAckedTouchEvent(
-    const content::TouchEventWithLatencyInfo& touch,
+    const input::TouchEventWithLatencyInfo& touch,
     blink::mojom::InputEventResultState ack_result) {
   const bool event_consumed =
       ack_result == blink::mojom::InputEventResultState::kConsumed;

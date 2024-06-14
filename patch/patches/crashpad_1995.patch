@@ -357,16 +357,15 @@ index 171095381e8ac..13407a7809844 100644
                                annotations, arguments, false, false));
    } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index eb5bcfe0234c3..8963b26806922 100644
+index 42fe73aefe44f..575ce6732ae43 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
-@@ -17,11 +17,14 @@
+@@ -17,10 +17,13 @@
  #include "base/apple/foundation_util.h"
  #include "base/check.h"
  #include "base/files/file_path.h"
 +#include "base/path_service.h"
  #include "base/strings/string_number_conversions.h"
- #include "base/strings/string_piece.h"
  #include "base/strings/sys_string_conversions.h"
  #include "build/branding_buildflags.h"
  #include "components/crash/core/app/crash_reporter_client.h"
@@ -375,7 +374,7 @@ index eb5bcfe0234c3..8963b26806922 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -39,15 +42,25 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -38,15 +41,25 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
      std::map<std::string, std::string> process_annotations;
      @autoreleasepool {
        NSBundle* outer_bundle = base::apple::OuterBundle();
@@ -407,7 +406,7 @@ index eb5bcfe0234c3..8963b26806922 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
        // Empty means stable.
-@@ -78,12 +91,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
+@@ -77,12 +90,20 @@ std::map<std::string, std::string> GetProcessSimpleAnnotations() {
          }
        }
  
@@ -433,7 +432,7 @@ index eb5bcfe0234c3..8963b26806922 100644
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -143,10 +164,10 @@ bool PlatformCrashpadInitialization(
+@@ -142,10 +163,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -448,7 +447,7 @@ index eb5bcfe0234c3..8963b26806922 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -175,6 +196,12 @@ bool PlatformCrashpadInitialization(
+@@ -174,6 +195,12 @@ bool PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  

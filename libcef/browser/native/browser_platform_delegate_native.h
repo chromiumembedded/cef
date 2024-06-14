@@ -34,7 +34,7 @@ class CefBrowserPlatformDelegateNative
   void WasResized() override;
 
   // Translate CEF events to Chromium/Blink Web events.
-  virtual content::NativeWebKeyboardEvent TranslateWebKeyEvent(
+  virtual input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const = 0;
   virtual blink::WebMouseEvent TranslateWebClickEvent(
       const CefMouseEvent& mouse_event,

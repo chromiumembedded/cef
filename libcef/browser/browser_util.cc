@@ -4,11 +4,11 @@
 
 #include "cef/libcef/browser/browser_util.h"
 
-#include "content/public/common/input/native_web_keyboard_event.h"
+#include "components/input/native_web_keyboard_event.h"
 
 namespace browser_util {
 
-bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
+bool GetCefKeyEvent(const input::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event) {
   switch (event.GetType()) {
     case blink::WebKeyboardEvent::Type::kRawKeyDown:
@@ -66,7 +66,7 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
 }
 
 bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event) {
-  content::NativeWebKeyboardEvent native_event(event);
+  input::NativeWebKeyboardEvent native_event(event);
   return GetCefKeyEvent(native_event, cef_event);
 }
 

@@ -101,10 +101,10 @@ gfx::Point CefBrowserPlatformDelegateNativeAura::GetScreenPoint(
   return screen_pt;
 }
 
-content::NativeWebKeyboardEvent
+input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeAura::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
-  return content::NativeWebKeyboardEvent(TranslateUiKeyEvent(key_event));
+  return input::NativeWebKeyboardEvent(TranslateUiKeyEvent(key_event));
 }
 
 blink::WebMouseEvent

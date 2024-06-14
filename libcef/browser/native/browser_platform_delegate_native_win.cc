@@ -18,7 +18,7 @@
 #include "cef/libcef/browser/geometry_util.h"
 #include "cef/libcef/browser/native/window_delegate_view.h"
 #include "cef/libcef/browser/thread_util.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
 #include "third_party/blink/public/common/input/web_mouse_wheel_event.h"
 #include "ui/aura/window.h"
@@ -375,7 +375,7 @@ void CefBrowserPlatformDelegateNativeWin::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // Any unhandled keyboard/character messages are sent to DefWindowProc so that
   // shortcut keys work correctly.
   if (event.os_event) {
@@ -409,7 +409,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
     UINT scan_code = ::MapVirtualKeyW(event.windows_key_code, MAPVK_VK_TO_VSC);
     msg.lParam = (scan_code << 16) |  // key scan code
                  1;                   // key repeat count
-    if (event.GetModifiers() & content::NativeWebKeyboardEvent::kAltKey) {
+    if (event.GetModifiers() & input::NativeWebKeyboardEvent::kAltKey) {
       msg.lParam |= (1 << 29);
     }
 
@@ -418,7 +418,7 @@ bool CefBrowserPlatformDelegateNativeWin::HandleKeyboardEvent(
 }
 
 CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   if (!event.os_event) {
     return nullptr;
   }

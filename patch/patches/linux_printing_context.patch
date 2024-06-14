@@ -1,5 +1,5 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index 03302777935ba..4e53392605c37 100644
+index d1ab2a72e0d11..c6be9f1ba1793 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
 @@ -69,11 +69,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {

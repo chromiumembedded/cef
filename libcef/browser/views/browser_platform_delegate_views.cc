@@ -176,13 +176,13 @@ void CefBrowserPlatformDelegateViews::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegateViews::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // The BrowserView will handle accelerators.
   return browser_view_->HandleKeyboardEvent(event);
 }
 
 CefEventHandle CefBrowserPlatformDelegateViews::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   return native_delegate_->GetEventHandle(event);
 }
 

@@ -25,12 +25,12 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
 
 using content::KeyboardEventProcessingResult;
@@ -631,7 +631,7 @@ ChromeBrowserDelegate::GetJavaScriptDialogManager(
 
 KeyboardEventProcessingResult ChromeBrowserDelegate::PreHandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   if (auto delegate = GetDelegateForWebContents(source)) {
     return delegate->PreHandleKeyboardEvent(source, event);
   }
@@ -640,7 +640,7 @@ KeyboardEventProcessingResult ChromeBrowserDelegate::PreHandleKeyboardEvent(
 
 bool ChromeBrowserDelegate::HandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   if (auto delegate = GetDelegateForWebContents(source)) {
     return delegate->HandleKeyboardEvent(source, event);
   }

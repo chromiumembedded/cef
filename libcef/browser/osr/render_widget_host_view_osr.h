@@ -228,7 +228,7 @@ class CefRenderWidgetHostViewOSR
 
   // ui::GestureProviderClient implementation.
   void ProcessAckedTouchEvent(
-      const content::TouchEventWithLatencyInfo& touch,
+      const input::TouchEventWithLatencyInfo& touch,
       blink::mojom::InputEventResultState ack_result) override;
   void OnGestureEvent(const ui::GestureEventData& gesture) override;
 
@@ -241,7 +241,7 @@ class CefRenderWidgetHostViewOSR
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendExternalBeginFrame();
-  void SendKeyEvent(const content::NativeWebKeyboardEvent& event);
+  void SendKeyEvent(const input::NativeWebKeyboardEvent& event);
   void SendMouseEvent(const blink::WebMouseEvent& event);
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
   void SendTouchEvent(const CefTouchEvent& event);

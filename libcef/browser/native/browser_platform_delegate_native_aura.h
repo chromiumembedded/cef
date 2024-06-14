@@ -41,7 +41,7 @@ class CefBrowserPlatformDelegateNativeAura
                             bool want_dip_coords) const override;
 
   // CefBrowserPlatformDelegateNative methods:
-  content::NativeWebKeyboardEvent TranslateWebKeyEvent(
+  input::NativeWebKeyboardEvent TranslateWebKeyEvent(
       const CefKeyEvent& key_event) const override;
   blink::WebMouseEvent TranslateWebClickEvent(
       const CefMouseEvent& mouse_event,

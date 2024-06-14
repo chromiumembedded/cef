@@ -18,7 +18,6 @@
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/extensions/extensions_client.h"
 #include "cef/libcef/common/extensions/extensions_util.h"
-#include "chrome/browser/browser_features.h"
 #include "chrome/browser/component_updater/chrome_component_updater_configurator.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/permissions/chrome_permissions_client.h"
@@ -92,16 +91,12 @@ void ChromeBrowserProcessAlloy::OnContextInitialized() {
       providers;
 
 #if BUILDFLAG(IS_WIN)
-  // TODO(crbug.com/1373092): For Windows, continue to add providers behind
-  // features, as support for them is added.
-  if (base::FeatureList::IsEnabled(features::kEnableDPAPIEncryptionProvider)) {
-    // The DPAPI key provider requires OSCrypt::Init to have already been called
-    // to initialize the key storage. This happens in
-    // AlloyBrowserMainParts::PreCreateMainMessageLoop.
-    providers.emplace_back(std::make_pair(
-        /*precedence=*/10u,
-        std::make_unique<os_crypt_async::DPAPIKeyProvider>(local_state())));
-  }
+  // The DPAPI key provider requires OSCrypt::Init to have already been called
+  // to initialize the key storage. This happens in
+  // AlloyBrowserMainParts::PreCreateMainMessageLoop.
+  providers.emplace_back(std::make_pair(
+      /*precedence=*/10u,
+      std::make_unique<os_crypt_async::DPAPIKeyProvider>(local_state())));
 #endif  // BUILDFLAG(IS_WIN)
 
   os_crypt_async_ =

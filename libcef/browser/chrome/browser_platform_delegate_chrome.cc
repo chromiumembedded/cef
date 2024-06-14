@@ -114,7 +114,7 @@ void CefBrowserPlatformDelegateChrome::ViewText(const std::string& text) {
 }
 
 CefEventHandle CefBrowserPlatformDelegateChrome::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   return native_delegate_->GetEventHandle(event);
 }
 

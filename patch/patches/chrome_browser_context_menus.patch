@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index b62e659a27d00..e76cc7c0a7813 100644
+index b3908e6711f3e..58db1ed6e1e8a 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -357,6 +357,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -356,6 +356,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -21,9 +21,9 @@ index b62e659a27d00..e76cc7c0a7813 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -618,6 +630,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
-   if (ContextMenuMatcher::IsExtensionsCustomCommandId(id))
+@@ -619,6 +631,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
+   }
  
 +  // Match the MENU_ID_USER_FIRST to MENU_ID_USER_LAST range from cef_types.h.
 +  if (id >= 26500 && id <= 28500)
@@ -32,9 +32,9 @@ index b62e659a27d00..e76cc7c0a7813 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -868,6 +884,14 @@ RenderViewContextMenu::RenderViewContextMenu(
-   pdf_ocr_submenu_model_ = std::make_unique<ui::SimpleMenuModel>(this);
- #endif  // BUILDFLAG(ENABLE_SCREEN_AI_SERVICE)
+@@ -882,6 +898,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+                     : nullptr;
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
 +  auto* cb = GetMenuCreatedCallback();
 +  if (!cb->is_null()) {
@@ -47,9 +47,9 @@ index b62e659a27d00..e76cc7c0a7813 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1343,6 +1367,12 @@ void RenderViewContextMenu::InitMenu() {
-           autofill::SuggestionHidingReason::kContextMenuOpened);
-     }
+@@ -1350,6 +1374,12 @@ void RenderViewContextMenu::InitMenu() {
+     autofill_client->HideAutofillSuggestions(
+         autofill::SuggestionHidingReason::kContextMenuOpened);
    }
 +
 +  if (first_observer_) {
@@ -60,7 +60,7 @@ index b62e659a27d00..e76cc7c0a7813 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3564,6 +3594,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3596,6 +3626,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -88,10 +88,10 @@ index b62e659a27d00..e76cc7c0a7813 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 6c59d4ccaf3d5..21c959aea9c21 100644
+index 8f0e62fe84ff2..77bf0875db2b2 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -155,7 +155,21 @@ class RenderViewContextMenu
+@@ -153,7 +153,21 @@ class RenderViewContextMenu
    }
  #endif
  
@@ -113,7 +113,7 @@ index 6c59d4ccaf3d5..21c959aea9c21 100644
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -464,6 +478,9 @@ class RenderViewContextMenu
+@@ -475,6 +489,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -305,7 +305,7 @@ index 042428f77f4ad..e4efd98ca45d5 100644
    raw_ptr<content::WebContents> web_contents_ = nullptr;
  };
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index 8e45cecb17039..e40115e23ee82 100644
+index c22b3a584bb54..542b838ba3a44 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
 @@ -374,6 +374,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {

@@ -34,6 +34,7 @@
 #include "cef/libcef/features/runtime.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "components/zoom/page_zoom.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/public/browser/desktop_media_id.h"
@@ -46,7 +47,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
 #include "content/public/common/url_constants.h"
 #include "extensions/common/constants.h"
 #include "net/base/net_errors.h"
@@ -1084,13 +1084,13 @@ void AlloyBrowserHostImpl::CanDownload(
 
 KeyboardEventProcessingResult AlloyBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   return contents_delegate_->PreHandleKeyboardEvent(source, event);
 }
 
 bool AlloyBrowserHostImpl::HandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_if_unhandled) {
     return false;
@@ -1297,7 +1297,8 @@ void AlloyBrowserHostImpl::ExitPictureInPicture() {
   PictureInPictureWindowManager::GetInstance()->ExitPictureInPicture();
 }
 
-bool AlloyBrowserHostImpl::IsBackForwardCacheSupported() {
+bool AlloyBrowserHostImpl::IsBackForwardCacheSupported(
+    content::WebContents& web_contents) {
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   return true;
 #else

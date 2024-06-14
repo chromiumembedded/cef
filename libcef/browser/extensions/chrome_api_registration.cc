@@ -40,7 +40,6 @@ const char* const kSupportedAPIs[] = {
         ContentSettingsContentSettingGetResourceIdentifiersFunction),
     "pdfViewerPrivate",
     EXTENSION_FUNCTION_NAME(PdfViewerPrivateIsAllowedLocalFileAccessFunction),
-    EXTENSION_FUNCTION_NAME(PdfViewerPrivateIsPdfOcrAlwaysActiveFunction),
     "resourcesPrivate",
     EXTENSION_FUNCTION_NAME(ResourcesPrivateGetStringsFunction),
     "storage",
@@ -89,7 +88,6 @@ void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
       ContentSettingsContentSettingGetResourceIdentifiersFunction>();
   registry
       ->RegisterFunction<PdfViewerPrivateIsAllowedLocalFileAccessFunction>();
-  registry->RegisterFunction<PdfViewerPrivateIsPdfOcrAlwaysActiveFunction>();
   registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<StorageStorageAreaGetFunction>();
   registry->RegisterFunction<StorageStorageAreaSetFunction>();

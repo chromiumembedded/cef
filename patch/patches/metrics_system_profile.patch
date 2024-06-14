@@ -1,5 +1,5 @@
 diff --git components/metrics/persistent_system_profile.cc components/metrics/persistent_system_profile.cc
-index 768c933cd13c6..78d86b97e64bf 100644
+index a04737dc52b0c..c7e9caa809f8a 100644
 --- components/metrics/persistent_system_profile.cc
 +++ components/metrics/persistent_system_profile.cc
 @@ -395,6 +395,10 @@ bool PersistentSystemProfile::GetSystemProfile(

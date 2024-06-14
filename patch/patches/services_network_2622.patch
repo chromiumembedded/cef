@@ -1,5 +1,5 @@
 diff --git chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
-index 65bc8909d771f..a18907dd1e7ec 100644
+index 504a8473a7511..6c6aa2d9c4541 100644
 --- chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 +++ chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.cc
 @@ -23,6 +23,7 @@
@@ -10,7 +10,7 @@ index 65bc8909d771f..a18907dd1e7ec 100644
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/enterprise/connectors/analysis/analysis_settings.h"
  #include "chrome/browser/enterprise/connectors/analysis/content_analysis_dialog.h"
-@@ -357,6 +358,11 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
+@@ -367,6 +368,11 @@ bool ContentAnalysisDelegate::IsEnabled(Profile* profile,
                                          GURL url,
                                          Data* data,
                                          AnalysisConnector connector) {
@@ -40,7 +40,7 @@ index a3c34a9922d2e..38c982442bc80 100644
    base::RepeatingCallback<content::BrowserContext*()> browser_context_getter =
        base::BindRepeating(
 diff --git chrome/browser/net/profile_network_context_service.cc chrome/browser/net/profile_network_context_service.cc
-index 627fc56f4f7cf..86d5f8027fd26 100644
+index 6a0d1c78df0df..b38785be13813 100644
 --- chrome/browser/net/profile_network_context_service.cc
 +++ chrome/browser/net/profile_network_context_service.cc
 @@ -25,6 +25,7 @@
@@ -51,7 +51,7 @@ index 627fc56f4f7cf..86d5f8027fd26 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/content_settings/cookie_settings_factory.h"
-@@ -239,9 +240,16 @@ void UpdateCookieSettings(Profile* profile, ContentSettingsType type) {
+@@ -241,9 +242,16 @@ void UpdateCookieSettings(Profile* profile, ContentSettingsType type) {
      // occurs in this class is unsynchronized, so it would be racy to rely on
      // this update finishing before calling the context's callback.) This
      // unfortunately triggers a double-update here.
@@ -71,7 +71,7 @@ index 627fc56f4f7cf..86d5f8027fd26 100644
        settings = fedcm_context->GetSharingPermissionGrantsAsContentSettings();
      }
    } else {
-@@ -801,9 +809,16 @@ ProfileNetworkContextService::CreateCookieManagerParams(
+@@ -819,9 +827,16 @@ ProfileNetworkContextService::CreateCookieManagerParams(
        continue;
      }
      if (type == ContentSettingsType::FEDERATED_IDENTITY_SHARING) {
@@ -91,7 +91,7 @@ index 627fc56f4f7cf..86d5f8027fd26 100644
          out->content_settings[type] =
              fedcm_context->GetSharingPermissionGrantsAsContentSettings();
        } else {
-@@ -1039,9 +1054,32 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1054,9 +1069,32 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->cookie_manager_params =
        CreateCookieManagerParams(profile_, *cookie_settings_);
  
@@ -125,7 +125,7 @@ index 627fc56f4f7cf..86d5f8027fd26 100644
      PrefService* local_state = g_browser_process->local_state();
      // Configure the HTTP cache path and size.
      base::FilePath base_cache_path;
-@@ -1050,15 +1088,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1065,15 +1103,14 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
          local_state->GetFilePath(prefs::kDiskCacheDir);
      if (!disk_cache_dir.empty())
        base_cache_path = disk_cache_dir.Append(base_cache_path.BaseName());
@@ -145,7 +145,7 @@ index 627fc56f4f7cf..86d5f8027fd26 100644
      network_context_params->file_paths->data_directory =
          path.Append(chrome::kNetworkDataDirname);
      network_context_params->file_paths->unsandboxed_data_path = path;
-@@ -1229,6 +1266,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
+@@ -1264,6 +1301,9 @@ void ProfileNetworkContextService::ConfigureNetworkContextParamsInternal(
    network_context_params->first_party_sets_access_delegate_params =
        network::mojom::FirstPartySetsAccessDelegateParams::New();
    network_context_params->first_party_sets_access_delegate_params->enabled =
@@ -178,10 +178,10 @@ index 58750a47240e5..2894f323c26bb 100644
        GetInstance()->GetServiceForBrowserContext(profile, true));
  }
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 80af544e4175c..5b1edea7a43cb 100644
+index 8e1134654e2b1..d0f578b5f9976 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -630,6 +630,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -635,6 +635,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -208,7 +208,7 @@ index 80af544e4175c..5b1edea7a43cb 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index b4cb9c4c343a5..976f2134eb055 100644
+index bea9a3b81a538..78fbab874c436 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -210,6 +210,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -237,10 +237,10 @@ index 3f0be99e0e145..0462ebbe9bedc 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 60cd3989fe135..d65e76f5b8b75 100644
+index 613f34e4bc536..35096fc6f5f19 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -313,14 +313,9 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -340,14 +340,9 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -259,10 +259,10 @@ index 60cd3989fe135..d65e76f5b8b75 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index aa94a653ee3fb..2c105860f5682 100644
+index 42d451bfe43e1..1a1cf67b38d27 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2434,16 +2434,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2495,16 +2495,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -291,7 +291,7 @@ index aa94a653ee3fb..2c105860f5682 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 10109d4ac851f..23b6f7ff418b9 100644
+index 5597a97f13cc0..c8524b7d971f0 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -359,6 +359,9 @@ struct NetworkContextParams {

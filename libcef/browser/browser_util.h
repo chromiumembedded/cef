@@ -8,7 +8,7 @@
 
 #include "cef/include/internal/cef_types_wrappers.h"
 
-namespace content {
+namespace input {
 struct NativeWebKeyboardEvent;
 }
 
@@ -18,8 +18,8 @@ class KeyEvent;
 
 namespace browser_util {
 
-// Convert a content::NativeWebKeyboardEvent to a CefKeyEvent.
-bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
+// Convert a input::NativeWebKeyboardEvent to a CefKeyEvent.
+bool GetCefKeyEvent(const input::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event);
 
 // Convert a ui::KeyEvent to a CefKeyEvent.

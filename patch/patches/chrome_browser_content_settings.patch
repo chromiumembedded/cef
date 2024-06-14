@@ -56,15 +56,15 @@ index a344dc5c74ce3..548e6218b0e82 100644
    supervised_user::SupervisedUserSettingsService* supervised_service =
        SupervisedUserSettingsServiceFactory::GetForKey(profile->GetProfileKey());
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index f988c812b4ad9..3d5637f3cbdf3 100644
+index 0cc2bfa06245f..86655f6746459 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -148,7 +148,7 @@ ContentSetting GetContentSettingFromRules(
        return rule.GetContentSetting();
      }
    }
--  NOTREACHED();
-+  // NOTREACHED();
+-  NOTREACHED_IN_MIGRATION();
++  // NOTREACHED_IN_MIGRATION();
    return CONTENT_SETTING_DEFAULT;
  }
  }  // namespace

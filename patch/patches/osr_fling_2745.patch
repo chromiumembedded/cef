@@ -1,8 +1,39 @@
+diff --git components/input/fling_scheduler_base.h components/input/fling_scheduler_base.h
+index 76057b3e50f78..d3b63a3b07805 100644
+--- components/input/fling_scheduler_base.h
++++ components/input/fling_scheduler_base.h
+@@ -5,14 +5,26 @@
+ #ifndef COMPONENTS_INPUT_FLING_SCHEDULER_BASE_H_
+ #define COMPONENTS_INPUT_FLING_SCHEDULER_BASE_H_
+ 
++#include "base/memory/raw_ptr.h"
+ #include "components/input/fling_controller.h"
+ 
++namespace ui {
++class Compositor;
++}
++
+ namespace input {
+ 
+ class FlingSchedulerBase : public FlingControllerSchedulerClient {
+  public:
+   virtual void ProgressFlingOnBeginFrameIfneeded(
+       base::TimeTicks current_time) = 0;
++  
++  void SetCompositor(ui::Compositor* compositor) {
++    compositor_ = compositor;
++  }
++
++ protected:
++  raw_ptr<ui::Compositor> compositor_ = nullptr;
+ };
+ 
+ }  // namespace input
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 431df5d50debe..0fcc9ea8fbb1a 100644
+index 57ef85cbfdfdf..758af3beffde6 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
-@@ -68,6 +68,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
+@@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
  }
  
  ui::Compositor* FlingScheduler::GetCompositor() {
@@ -13,10 +44,10 @@ index 431df5d50debe..0fcc9ea8fbb1a 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 7fba410705048..7ce1d8a5eeb7f 100644
+index 7f2fdc026d61b..9d719020f971f 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3292,6 +3292,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
+@@ -3277,6 +3277,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
        GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
  }
  
@@ -29,10 +60,10 @@ index 7fba410705048..7ce1d8a5eeb7f 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index dee4fb6b79285..fd3eaef2b6972 100644
+index 3f0048bea5698..24936dc2b3154 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -811,6 +811,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -827,6 +827,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
@@ -40,46 +71,15 @@ index dee4fb6b79285..fd3eaef2b6972 100644
  
    RenderWidgetHostViewBase* GetRenderWidgetHostViewBase();
  
-diff --git content/common/input/fling_scheduler_base.h content/common/input/fling_scheduler_base.h
-index e8ee63f3abc2e..765ea358e093a 100644
---- content/common/input/fling_scheduler_base.h
-+++ content/common/input/fling_scheduler_base.h
-@@ -5,14 +5,26 @@
- #ifndef CONTENT_COMMON_INPUT_FLING_SCHEDULER_BASE_H_
- #define CONTENT_COMMON_INPUT_FLING_SCHEDULER_BASE_H_
- 
-+#include "base/memory/raw_ptr.h"
- #include "content/common/input/fling_controller.h"
- 
-+namespace ui {
-+class Compositor;
-+}
-+
- namespace content {
- 
- class FlingSchedulerBase : public FlingControllerSchedulerClient {
-  public:
-   virtual void ProgressFlingOnBeginFrameIfneeded(
-       base::TimeTicks current_time) = 0;
-+
-+  void SetCompositor(ui::Compositor* compositor) {
-+    compositor_ = compositor;
-+  }
-+
-+protected:
-+ raw_ptr<ui::Compositor> compositor_ = nullptr;
- };
- 
- }  // namespace content
 diff --git content/common/input/render_input_router.h content/common/input/render_input_router.h
-index cab10100a369d..d8f3be04bfeba 100644
+index 6b6267448dcac..e166401709885 100644
 --- content/common/input/render_input_router.h
 +++ content/common/input/render_input_router.h
-@@ -61,6 +61,7 @@ class CONTENT_EXPORT RenderInputRouter : public InputRouterImplClient {
+@@ -62,6 +62,7 @@ class CONTENT_EXPORT RenderInputRouter : public InputRouterImplClient,
  
    InputRouter* input_router() { return input_router_.get(); }
    RenderInputRouterDelegate* delegate() { return delegate_; }
-+  FlingSchedulerBase* fling_scheduler() { return fling_scheduler_.get(); }
++  input::FlingSchedulerBase* fling_scheduler() { return fling_scheduler_.get(); }
  
    void SetForceEnableZoom(bool);
    void SetDeviceScaleFactor(float device_scale_factor);

@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_backend_service_manager.cc chrome/browser/printing/print_backend_service_manager.cc
-index e3a6645add6e3..4dde23d0451ff 100644
+index a79694f7bdcc2..ec42dd0dc5ba2 100644
 --- chrome/browser/printing/print_backend_service_manager.cc
 +++ chrome/browser/printing/print_backend_service_manager.cc
 @@ -74,7 +74,15 @@ PrintBackendServiceManager* g_print_backend_service_manager_singleton = nullptr;
@@ -17,5 +17,5 @@ index e3a6645add6e3..4dde23d0451ff 100644
 +  }
 +  return base::win::HandleToUint32(hwnd);
  #else
-   NOTREACHED();
+   NOTREACHED_IN_MIGRATION();
    return 0;

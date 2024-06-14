@@ -495,6 +495,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
         url_loader_factory.get(), request_id);
     loaders_.insert(std::move(resource_loader));
     return;
+  } else if (*method == "getHostConfig") {
+    SendMessageAck(request_id, {});
+    return;
   } else if (*method == "getPreferences") {
     SendMessageAck(request_id,
                    GetPrefs()->GetDict(prefs::kDevToolsPreferences).Clone());

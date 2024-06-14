@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <optional>
 #include <string>
 
 #include "base/observer_list.h"
@@ -51,6 +52,7 @@ class CefPrefStore : public PersistentPrefStore {
                           base::OnceClosure synchronous_done_callback) override;
   void SchedulePendingLossyWrites() override;
   void OnStoreDeletionFromDisk() override;
+  bool HasReadErrorDelegate() const override;
 
   // Marks the store as having completed initialization.
   void SetInitializationCompleted();
@@ -111,7 +113,8 @@ class CefPrefStore : public PersistentPrefStore {
   // mutation.
   bool committed_ = true;
 
-  std::unique_ptr<ReadErrorDelegate> error_delegate_;
+  // Optional so we can differentiate `nullopt` from `nullptr`.
+  std::optional<std::unique_ptr<ReadErrorDelegate>> error_delegate_;
   base::ObserverList<PrefStore::Observer, true>::Unchecked observers_;
 };
 

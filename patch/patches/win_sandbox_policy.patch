@@ -12,7 +12,7 @@ index a2d801b370b01..b56de03637fec 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 6a9b45d8de663..24646ea209be0 100644
+index e41f68c171438..40eeaacde5fad 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
 @@ -190,12 +190,12 @@ PolicyGlobal* ConfigBase::policy() {

@@ -64,7 +64,7 @@ index b9b147c8c11df..1e3acf4e679ae 100644
    std::unique_ptr<StreamContainer> stream_container(
        new StreamContainer(tab_id, embedded, handler_url, extension_id,
 diff --git extensions/browser/extension_host.cc extensions/browser/extension_host.cc
-index 2bf778dd0c85d..c75d693c6487b 100644
+index 55b798350ae8d..e4f7f261efcb3 100644
 --- extensions/browser/extension_host.cc
 +++ extensions/browser/extension_host.cc
 @@ -142,12 +142,13 @@ ExtensionHost::ExtensionHost(const Extension* extension,
@@ -238,7 +238,7 @@ index 8b515b7b8c353..f8e4106ac26d4 100644
    // once each time the extensions system is loaded per browser_context. The
    // implementation may wish to use the BrowserContext to record the current
 diff --git extensions/browser/process_manager.cc extensions/browser/process_manager.cc
-index c9793db28037b..e5f017bf2f2f8 100644
+index 8e512cd3c826e..0cfda0e69be23 100644
 --- extensions/browser/process_manager.cc
 +++ extensions/browser/process_manager.cc
 @@ -353,9 +353,17 @@ bool ProcessManager::CreateBackgroundHost(const Extension* extension,
@@ -261,7 +261,7 @@ index c9793db28037b..e5f017bf2f2f8 100644
        base::BindOnce(&ProcessManager::HandleCloseExtensionHost,
                       weak_ptr_factory_.GetWeakPtr()));
 diff --git extensions/common/extensions_client.cc extensions/common/extensions_client.cc
-index 5142f341b8392..0589a1f1466f5 100644
+index c313f6f98cabc..d49f624cce881 100644
 --- extensions/common/extensions_client.cc
 +++ extensions/common/extensions_client.cc
 @@ -8,6 +8,7 @@
@@ -269,9 +269,9 @@ index 5142f341b8392..0589a1f1466f5 100644
  #include "base/check.h"
  #include "base/notreached.h"
 +#include "cef/libcef/features/features.h"
- #include "extensions/common/extension_icon_set.h"
  #include "extensions/common/extensions_api_provider.h"
  #include "extensions/common/features/feature_provider.h"
+ #include "extensions/common/features/json_feature_provider_source.h"
 @@ -25,7 +26,10 @@ ExtensionsClient* g_client = nullptr;
  }  // namespace
  

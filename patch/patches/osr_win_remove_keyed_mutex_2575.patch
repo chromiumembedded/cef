@@ -1,5 +1,5 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index 58df3e9ad67b2..759f27c07efe9 100644
+index 9cac49288f3b1..3ee5ff8714824 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 @@ -180,7 +180,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
@@ -24,10 +24,10 @@ index 58df3e9ad67b2..759f27c07efe9 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 1d352951f9592..c346ebf506aa0 100644
+index fb079f3ad91c5..74658c47bf04f 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -198,7 +198,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
+@@ -197,7 +197,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
  bool FrameResources::Initialize() {
    auto* context = pool_->GetContext();
  
@@ -36,7 +36,7 @@ index 1d352951f9592..c346ebf506aa0 100644
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
        gfx::BufferUsage::SCANOUT_VEA_CPU_READ
  #else
-@@ -212,13 +212,30 @@ bool FrameResources::Initialize() {
+@@ -211,13 +211,30 @@ bool FrameResources::Initialize() {
    const gfx::Size buffer_size_in_pixels =
        GetBufferSizeInPixelsForVideoPixelFormat(format_, coded_size_);
  

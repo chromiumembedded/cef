@@ -37,10 +37,9 @@ class CefBrowserPlatformDelegateBackground
   gfx::Point GetScreenPoint(const gfx::Point& view,
                             bool want_dip_coords) const override;
   void ViewText(const std::string& text) override;
-  bool HandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event) override;
+  bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
-      const content::NativeWebKeyboardEvent& event) const override;
+      const input::NativeWebKeyboardEvent& event) const override;
   std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
 
   // CefBrowserPlatformDelegateNative::WindowlessHandler methods:

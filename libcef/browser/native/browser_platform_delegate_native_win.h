@@ -29,10 +29,9 @@ class CefBrowserPlatformDelegateNativeWin
   void NotifyMoveOrResizeStarted() override;
   void SizeTo(int width, int height) override;
   void ViewText(const std::string& text) override;
-  bool HandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event) override;
+  bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
-      const content::NativeWebKeyboardEvent& event) const override;
+      const input::NativeWebKeyboardEvent& event) const override;
 
   // CefBrowserPlatformDelegateNativeAura methods:
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;

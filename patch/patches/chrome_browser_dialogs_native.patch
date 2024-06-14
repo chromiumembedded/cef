@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 447a91b9ac380..0452f0a8b57cf 100644
+index b6e26d1d2e082..90aec2642adfe 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -20,6 +20,7 @@
@@ -188,7 +188,7 @@ index 49272553c7c53..5ba90c9a06ecf 100644
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
 diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 9361287ac3411..59567b485bf99 100644
+index 5ef377bcbd69f..a2b9cc0b9be48 100644
 --- ui/shell_dialogs/execute_select_file_win.cc
 +++ ui/shell_dialogs/execute_select_file_win.cc
 @@ -360,9 +360,7 @@ bool ExecuteSelectSingleFile(HWND owner,
@@ -240,10 +240,10 @@ index 9361287ac3411..59567b485bf99 100644
          paths.push_back(std::move(path));
        }
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index 68dd62159b686..e94831cd44a2d 100644
+index 4a71b1d4535d9..722a9480681bd 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
-@@ -73,8 +73,10 @@ void SelectFileDialog::SetFactory(
+@@ -89,8 +89,10 @@ void SelectFileDialog::SetFactory(
  // static
  scoped_refptr<SelectFileDialog> SelectFileDialog::Create(
      Listener* listener,
@@ -257,7 +257,7 @@ index 68dd62159b686..e94831cd44a2d 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index 9b12fae59c3cc..a80873f421c8d 100644
+index e71c14e499c25..3bc1e44b4c856 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -102,7 +102,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -270,8 +270,8 @@ index 9b12fae59c3cc..a80873f421c8d 100644
  
    SelectFileDialog(const SelectFileDialog&) = delete;
    SelectFileDialog& operator=(const SelectFileDialog&) = delete;
-@@ -126,6 +127,10 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
-     // be used.
+@@ -136,6 +137,10 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+     // FileTypeExtensions instead of this and the above vector?
      std::vector<std::u16string> extension_description_overrides;
  
 +    // Original mime types for the specified extensions. Entries correspond to
@@ -281,7 +281,7 @@ index 9b12fae59c3cc..a80873f421c8d 100644
      // Specifies whether there will be a filter added for all files (i.e. *.*).
      bool include_all_files = false;
  
-@@ -199,6 +204,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -209,6 +214,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
                    const GURL* caller = nullptr);
    bool HasMultipleFileTypeChoices();
  
@@ -301,7 +301,7 @@ index 9b12fae59c3cc..a80873f421c8d 100644
   protected:
    friend class base::RefCountedThreadSafe<SelectFileDialog>;
  
-@@ -224,6 +242,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -234,6 +252,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
    raw_ptr<Listener> listener_;
  
@@ -313,7 +313,7 @@ index 9b12fae59c3cc..a80873f421c8d 100644
   private:
    // Tests if the file selection dialog can be displayed by
    // testing if the AllowFileSelectionDialogs-Policy is
-@@ -236,8 +259,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -246,8 +269,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
  
    // Returns true if the dialog has multiple file type choices.
    virtual bool HasMultipleFileTypeChoicesImpl() = 0;
@@ -336,7 +336,7 @@ index c7acd9b05fbb8..3e95e4125fa24 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index bf99047fa53cf..0efdb76233331 100644
+index abf5baa269fa2..b5e88a82537c1 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
 @@ -107,6 +107,10 @@ void SelectFileDialogImpl::SelectFileImpl(
@@ -351,7 +351,7 @@ index bf99047fa53cf..0efdb76233331 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index e5d4311ba152c..16c86e544fe3a 100644
+index 9200d30f8d58a..f4156db6a7a73 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
 @@ -254,6 +254,8 @@ void SelectFileDialogImpl::SelectFileImpl(

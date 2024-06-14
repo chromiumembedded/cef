@@ -64,10 +64,10 @@ index 00dd9a34cd3fb..89d4588bdbe4e 100644
      const extensions::Extension* extension =
          registry->enabled_extensions().GetByID(extension_id);
 diff --git chrome/renderer/chrome_content_renderer_client.cc chrome/renderer/chrome_content_renderer_client.cc
-index 60bc3751cb325..ebce071c74a8b 100644
+index 120ec8af72623..012f7b602cf40 100644
 --- chrome/renderer/chrome_content_renderer_client.cc
 +++ chrome/renderer/chrome_content_renderer_client.cc
-@@ -1006,6 +1006,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -996,6 +996,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
  
      if ((status == chrome::mojom::PluginStatus::kUnauthorized ||
           status == chrome::mojom::PluginStatus::kBlocked) &&
@@ -75,7 +75,7 @@ index 60bc3751cb325..ebce071c74a8b 100644
          content_settings_agent_delegate->IsPluginTemporarilyAllowed(
              identifier)) {
        status = chrome::mojom::PluginStatus::kAllowed;
-@@ -1166,7 +1167,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1156,7 +1157,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
          render_frame->GetRemoteAssociatedInterfaces()->GetInterface(
              plugin_auth_host.BindNewEndpointAndPassReceiver());
          plugin_auth_host->BlockedUnauthorizedPlugin(group_name, identifier);
@@ -85,7 +85,7 @@ index 60bc3751cb325..ebce071c74a8b 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlocked: {
-@@ -1175,7 +1177,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1165,7 +1167,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
              l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name));
          placeholder->AllowLoading();
          RenderThread::Get()->RecordAction(UserMetricsAction("Plugin_Blocked"));
@@ -95,7 +95,7 @@ index 60bc3751cb325..ebce071c74a8b 100644
          break;
        }
        case chrome::mojom::PluginStatus::kBlockedByPolicy: {
-@@ -1185,7 +1188,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
+@@ -1175,7 +1178,8 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
                                         group_name));
          RenderThread::Get()->RecordAction(
              UserMetricsAction("Plugin_BlockedByPolicy"));
@@ -106,7 +106,7 @@ index 60bc3751cb325..ebce071c74a8b 100644
        }
      }
 diff --git content/browser/browser_plugin/browser_plugin_embedder.h content/browser/browser_plugin/browser_plugin_embedder.h
-index 8b26a93f7527e..17890bf20e481 100644
+index ea2891a279371..595e5b8eb2cb6 100644
 --- content/browser/browser_plugin/browser_plugin_embedder.h
 +++ content/browser/browser_plugin/browser_plugin_embedder.h
 @@ -15,6 +15,7 @@
@@ -115,9 +115,9 @@ index 8b26a93f7527e..17890bf20e481 100644
  #include "base/memory/raw_ptr.h"
 +#include "content/common/content_export.h"
  
- namespace content {
- 
-@@ -26,7 +27,7 @@ struct NativeWebKeyboardEvent;
+ namespace input {
+ struct NativeWebKeyboardEvent;
+@@ -29,7 +30,7 @@ class WebContentsImpl;
  
  // TODO(wjmaclean): Get rid of "BrowserPlugin" in the name of this class.
  // Perhaps "WebContentsEmbedderDelegate" would be better?

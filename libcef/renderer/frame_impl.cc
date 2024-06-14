@@ -371,9 +371,9 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
 
     regions.reserve(webregions.size());
     for (const auto& webregion : webregions) {
-      auto region = cef::mojom::DraggableRegionEntry::New(webregion.bounds,
-                                                          webregion.draggable);
-      render_frame->ConvertViewportToWindow(&region->bounds);
+      auto region = cef::mojom::DraggableRegionEntry::New(
+          render_frame->ConvertViewportToWindow(webregion.bounds),
+          webregion.draggable);
       regions.emplace_back(std::move(region));
     }
   }

@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index e6f5cbc9c49f9..f64ed7ae77ea1 100644
+index 44a11ec90ec9b..4c35b35a97f28 100644
 --- .gn
 +++ .gn
-@@ -155,6 +155,8 @@ exec_script_whitelist =
+@@ -158,6 +158,8 @@ exec_script_whitelist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,7 +12,7 @@ index e6f5cbc9c49f9..f64ed7ae77ea1 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 3ede70d5d17be..764ce45183919 100644
+index 2902e374bb1a2..875924ff22c23 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -20,10 +20,10 @@ index 3ede70d5d17be..764ce45183919 100644
  import("//build/gn_logs.gni")
  import("//build/util/generate_wrapper.gni")
 +import("//cef/libcef/features/features.gni")
+ import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
- import("//device/vr/buildflags/buildflags.gni")
-@@ -275,6 +276,10 @@ group("gn_all") {
+@@ -280,6 +281,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,20 +76,20 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 87e4b167b6a55..6dafb9ac4ed94 100644
+index e75651677c098..9288caaf195e1 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -5,6 +5,7 @@
- import("//ash/ambient/resources/resources.gni")
+@@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
+ import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/locales.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -82,6 +83,10 @@ template("chrome_repack_percent") {
-         "//ui/chromeos/resources",
-       ]
+@@ -89,6 +90,10 @@ template("chrome_repack_percent") {
+         ]
+       }
      }
 +    if (enable_cef) {
 +      sources += [ "$root_gen_dir/cef/cef_resources.pak" ]

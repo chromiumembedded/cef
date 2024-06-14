@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 575149b2f3246..74719a39cf4e4 100644
+index 4ae52e5351615..272875eb5fe93 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index 575149b2f3246..74719a39cf4e4 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1525,7 +1526,11 @@ component("base") {
+@@ -1510,7 +1511,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 575149b2f3246..74719a39cf4e4 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1954,6 +1959,12 @@ component("base") {
+@@ -1939,6 +1944,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -73,11 +73,11 @@ index 215d636fec275..922e88f31b999 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 1891e95fa387d..fc190dc39ae7d 100644
+index 857159d757637..63b5b396a00dd 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
-@@ -14,7 +14,9 @@
- #include "base/base_export.h"
+@@ -15,7 +15,9 @@
+ #include "base/compiler_specific.h"
  #include "base/containers/span.h"
  #include "build/build_config.h"
 -#if BUILDFLAG(IS_NACL)
@@ -188,7 +188,7 @@ index 1f91a938caf55..e7b383ebe3986 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index dd063382d97e1..6f8d6a0be91b1 100644
+index dd063382d97e1..968dde0567c44 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
 @@ -22,6 +22,7 @@
@@ -220,13 +220,12 @@ index dd063382d97e1..6f8d6a0be91b1 100644
    CRYPTO_library_init();
    static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
                  SECURITY_APP_PACKAGE_RID_COUNT);
-@@ -143,6 +149,10 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -143,6 +149,9 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
           reinterpret_cast<uint8_t*>(&rids[2]));
    return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
                              rids);
 +#else
 +  NOTREACHED();
-+  return Sid(WellKnownSid::kNull);
 +#endif
  }
  

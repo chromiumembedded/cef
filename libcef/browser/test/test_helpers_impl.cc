@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "base/feature_list.h"
+#include "base/features.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "cef/include/test/cef_test_helpers.h"
@@ -17,6 +18,7 @@ void CefSetDataDirectoryForTests(const CefString& dir) {
 bool CefIsFeatureEnabledForTests(const CefString& feature_name) {
   // Only includes values that are queried by unit tests.
   const base::Feature* features[] = {
+      &base::features::kUseRustJsonParser,
       &network::features::kReduceAcceptLanguage,
   };
 

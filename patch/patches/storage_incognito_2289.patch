@@ -58,7 +58,7 @@ index e82cdd66a2d5c..1816b2fe54ff5 100644
  
  // static
 diff --git storage/browser/database/database_tracker.cc storage/browser/database/database_tracker.cc
-index 872bf7d1671bb..b87bb299316f2 100644
+index 3d98c6095ef27..a84c84d580d84 100644
 --- storage/browser/database/database_tracker.cc
 +++ storage/browser/database/database_tracker.cc
 @@ -559,7 +559,7 @@ bool DatabaseTracker::LazyInit() {

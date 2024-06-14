@@ -301,8 +301,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
         request.url, cookie_string, base::Time::Now(),
         std::make_optional(response_date),
-        /*cookie_partition_key=*/std::nullopt,
-        /*block_truncated=*/true, net::CookieSourceType::kHTTP,
+        /*cookie_partition_key=*/std::nullopt, net::CookieSourceType::kHTTP,
         &returned_status);
     if (!returned_status.IsInclude()) {
       continue;

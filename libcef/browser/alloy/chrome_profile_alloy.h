@@ -25,9 +25,6 @@ class ChromeProfileAlloy : public Profile {
 
  protected:
   // Profile methods.
-  bool IsOffTheRecord() override;
-  bool IsOffTheRecord() const override;
-  const OTRProfileID& GetOTRProfileID() const override;
   variations::VariationsClient* GetVariationsClient() override;
   scoped_refptr<base::SequencedTaskRunner> GetIOTaskRunner() override;
   std::string GetProfileUserName() const override;

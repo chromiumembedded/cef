@@ -14,8 +14,8 @@
 #include "cef/libcef/browser/osr/web_contents_view_osr.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/common/drag_data_impl.h"
-#include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/web_contents/web_contents_impl.h"
+#include "content/common/input/render_widget_host_input_event_router.h"
 #include "content/public/browser/render_view_host.h"
 #include "ui/display/screen.h"
 #include "ui/events/base_event_utils.h"
@@ -109,7 +109,7 @@ void CefBrowserPlatformDelegateOsr::SendKeyEvent(const CefKeyEvent& event) {
     return;
   }
 
-  content::NativeWebKeyboardEvent web_event =
+  input::NativeWebKeyboardEvent web_event =
       native_delegate_->TranslateWebKeyEvent(event);
   view->SendKeyEvent(web_event);
 }
@@ -200,12 +200,12 @@ void CefBrowserPlatformDelegateOsr::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegateOsr::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   return native_delegate_->HandleKeyboardEvent(event);
 }
 
 CefEventHandle CefBrowserPlatformDelegateOsr::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   return native_delegate_->GetEventHandle(event);
 }
 

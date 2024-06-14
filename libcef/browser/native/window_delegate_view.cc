@@ -37,7 +37,8 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   // See CalculateWindowStylesFromInitParams in
   // ui/views/widget/widget_hwnd_utils.cc for the conversion of |params| to
   // Windows style flags.
-  views::Widget::InitParams params;
+  views::Widget::InitParams params(
+      views::Widget::InitParams::NATIVE_WIDGET_OWNS_WIDGET);
   params.parent_widget = parent_widget;
   params.bounds = bounds;
   params.delegate = this;

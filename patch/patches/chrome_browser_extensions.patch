@@ -34,10 +34,10 @@ index 4007e26f780c3..5f92d74018f9e 100644
  }
  
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 3d0843c7d1a60..b07956d25797d 100644
+index 73de5dd73a522..12005b67a6ee9 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1550,7 +1550,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1553,7 +1553,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    if (DevToolsWindow::IsDevToolsWindow(contents))
      return RespondNow(Error(tabs_constants::kNotAllowedForDevToolsError));
  
@@ -46,7 +46,7 @@ index 3d0843c7d1a60..b07956d25797d 100644
      return RespondNow(Error(tabs_constants::kNoCurrentWindowError));
  
    web_contents_ = contents;
-@@ -1574,7 +1574,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1577,7 +1577,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
      }
  
@@ -55,7 +55,7 @@ index 3d0843c7d1a60..b07956d25797d 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1588,7 +1588,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1591,7 +1591,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      bool highlighted = *params->update_properties.highlighted;
@@ -64,7 +64,7 @@ index 3d0843c7d1a60..b07956d25797d 100644
        tab_strip->ToggleSelectionAt(tab_index);
      }
    }
-@@ -1601,7 +1601,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1604,7 +1604,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          base::NumberToString(tab_id))));
    }
  
@@ -73,7 +73,7 @@ index 3d0843c7d1a60..b07956d25797d 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1636,11 +1636,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1639,11 +1639,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    const bool contents_in_an_uneditable_saved_group =
@@ -87,7 +87,7 @@ index 3d0843c7d1a60..b07956d25797d 100644
      // Pinning will result in changes to the tabs index/group affiliation in
      // some cases, Throw an error if a tab is attempting to be pinned.
      if (contents_in_an_uneditable_saved_group) {
-@@ -1671,8 +1671,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1674,8 +1674,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      std::string updated_url = *params->update_properties.url;
@@ -99,14 +99,14 @@ index 3d0843c7d1a60..b07956d25797d 100644
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
      }
-@@ -1686,7 +1687,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1689,7 +1690,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
 -    NotifyExtensionTelemetry(Profile::FromBrowserContext(browser_context()),
 +    NotifyExtensionTelemetry(profile,
                               extension(), safe_browsing::TabsApiInfo::UPDATE,
-                              current_url, updated_url);
+                              current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
 index 46154f4501a36..81adec54cee06 100644
@@ -187,10 +187,10 @@ index 4ca4ecd147267..dc8a8d004a1d6 100644
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
 diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-index b667ccfe87ccf..65283ef921458 100644
+index b9bca4946ef9f..41207ebb86045 100644
 --- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
 +++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-@@ -841,6 +841,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
+@@ -830,6 +830,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
    if (!gfx::Animation::ShouldRenderRichAnimation()) {
      return;
    }

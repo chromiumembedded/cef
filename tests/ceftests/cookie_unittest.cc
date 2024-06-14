@@ -1062,7 +1062,7 @@ TEST(CookieTest, GetCookieManagerCustomInMemory) {
 
 namespace {
 
-constexpr bool kUseHttpsServerScheme = false;
+constexpr bool kUseHttpsServerScheme = true;
 
 const char kCookieAccessDomain[] = "test-cookies.com";
 

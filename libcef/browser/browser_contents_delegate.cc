@@ -12,6 +12,7 @@
 #include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/ui/views/sad_tab_view.h"
 #include "chrome/common/chrome_result_codes.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/focused_node_details.h"
 #include "content/public/browser/keyboard_event_processing_result.h"
@@ -21,7 +22,6 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_observer.h"
 #include "content/public/browser/render_widget_host_view.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
 #include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
@@ -247,7 +247,7 @@ void CefBrowserContentsDelegate::CanDownload(
 KeyboardEventProcessingResult
 CefBrowserContentsDelegate::PreHandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   if (auto delegate = platform_delegate()) {
     if (auto c = client()) {
       if (auto handler = c->GetKeyboardHandler()) {
@@ -274,7 +274,7 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
 
 bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_if_unhandled) {
     return false;

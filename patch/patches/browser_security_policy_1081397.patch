@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 7822aeab4826a..fa72112bfee98 100644
+index 26fbdc7e7db0c..ac02e60276e5c 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -1988,6 +1988,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessMaybeOpaqueOrigin(
+@@ -2048,6 +2048,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;
@@ -20,10 +20,10 @@ index 7822aeab4826a..fa72112bfee98 100644
  
            // Make an exception to allow most visited tiles to commit in
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index e3dd21898b85e..2176fde9c1764 100644
+index 87db8bec18603..22c7d3fb838ab 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -7958,10 +7958,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -8057,10 +8057,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -47,7 +47,7 @@ index e3dd21898b85e..2176fde9c1764 100644
    }
  
    return origin_and_debug_info;
-@@ -8069,6 +8081,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+@@ -8168,6 +8180,15 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  

@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index 103cbab74b515..3b763e5100340 100644
+index 023ce7091b061..f175b3683f48f 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
 @@ -82,6 +82,9 @@ class BLINK_EXPORT WebElement : public WebNode {
@@ -10,13 +10,13 @@ index 103cbab74b515..3b763e5100340 100644
 +  WebString AttributeValue(unsigned index) const;
 +  unsigned AttributeCount() const;
  
-   // Returns true if the element's contenteditable attribute is in the true
-   // state or in the plaintext-only state:
+   // Returns true if the element's computed writing suggestions value is true.
+   // https://html.spec.whatwg.org/#writing-suggestions:computed-writing-suggestions-value
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index f05470ff9c673..7ffee95e4540b 100644
+index da6ab6488ad80..7b23243e21a61 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -118,6 +118,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -119,6 +119,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

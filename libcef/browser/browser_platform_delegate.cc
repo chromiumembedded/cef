@@ -345,7 +345,7 @@ void CefBrowserPlatformDelegate::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegate::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   DCHECK(false);
   return false;
 }
@@ -369,7 +369,7 @@ void CefBrowserPlatformDelegate::HandleExternalProtocol(const GURL& url) {
 }
 
 CefEventHandle CefBrowserPlatformDelegate::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   DCHECK(false);
   return kNullEventHandle;
 }

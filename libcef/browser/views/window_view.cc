@@ -410,7 +410,8 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   CefWidget* cef_widget = CefWidget::Create(this);
   views::Widget* widget = cef_widget->GetWidget();
 
-  views::Widget::InitParams params;
+  views::Widget::InitParams params(
+      views::Widget::InitParams::NATIVE_WIDGET_OWNS_WIDGET);
   params.delegate = this;
 
   views::Widget* host_widget = nullptr;

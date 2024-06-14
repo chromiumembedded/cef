@@ -9,9 +9,9 @@
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/native/window_delegate_view.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/render_view_host.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/mojom/renderer_preferences.mojom.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 #include "ui/events/keycodes/dom/keycode_converter.h"
@@ -227,13 +227,13 @@ void CefBrowserPlatformDelegateNativeLinux::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegateNativeLinux::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // TODO(cef): Is something required here to handle shortcut keys?
   return false;
 }
 
 CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   // TODO(cef): We need to return an XEvent* from this method, but
   // |event.os_event->native_event()| now returns a ui::Event* instead.
   // See https://crbug.com/965991.
@@ -285,12 +285,12 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeLinux::TranslateUiKeyEvent(
   return ui::KeyEvent(type, key_code, dom_code, flags, dom_key, time_stamp);
 }
 
-content::NativeWebKeyboardEvent
+input::NativeWebKeyboardEvent
 CefBrowserPlatformDelegateNativeLinux::TranslateWebKeyEvent(
     const CefKeyEvent& key_event) const {
   ui::KeyEvent ui_event = TranslateUiKeyEvent(key_event);
   if (key_event.type == KEYEVENT_CHAR) {
-    return content::NativeWebKeyboardEvent(ui_event, key_event.character);
+    return input::NativeWebKeyboardEvent(ui_event, key_event.character);
   }
-  return content::NativeWebKeyboardEvent(ui_event);
+  return input::NativeWebKeyboardEvent(ui_event);
 }

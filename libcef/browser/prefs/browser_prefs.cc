@@ -311,11 +311,6 @@ std::unique_ptr<PrefService> CreatePrefService(Profile* profile,
     registry->RegisterBooleanPref(
         prefs::kAccessControlAllowMethodsInCORSPreflightSpecConformant, true);
 
-    // Based on browser_prefs::RegisterProfilePrefs.
-    registry->RegisterBooleanPref(prefs::kAccessibilityPdfOcrAlwaysActive,
-                                  false);
-    registry->RegisterBooleanPref(prefs::kBlockTruncatedCookies, true);
-
     // Spell checking preferences.
     // Modify defaults from SpellcheckServiceFactory::RegisterProfilePrefs.
     std::string spellcheck_lang =

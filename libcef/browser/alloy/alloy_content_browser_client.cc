@@ -361,10 +361,15 @@ const extensions::Extension* GetEnabledExtensionFromSiteURL(
 
 std::unique_ptr<blink::URLLoaderThrottle> CreateGoogleURLLoaderThrottle(
     Profile* profile) {
+#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
+  std::vector<chrome::mojom::BoundSessionThrottlerParamsPtr>
+      bound_session_throttler_params;
+#endif
+
   chrome::mojom::DynamicParamsPtr dynamic_params =
       chrome::mojom::DynamicParams::New(
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
-          /*bound_session_params=*/nullptr,
+          std::move(bound_session_throttler_params),
 #endif
           profile->GetPrefs()->GetBoolean(
               policy::policy_prefs::kForceGoogleSafeSearch),

@@ -42,7 +42,6 @@ class WindowFeatures;
 
 namespace content {
 struct DropData;
-struct NativeWebKeyboardEvent;
 class RenderViewHost;
 class RenderViewHostDelegateView;
 class RenderWidgetHostImpl;
@@ -64,6 +63,10 @@ class Rect;
 class Size;
 class Vector2d;
 }  // namespace gfx
+
+namespace input {
+struct NativeWebKeyboardEvent;
+}
 
 namespace ui {
 struct AXLocationChanges;
@@ -288,8 +291,7 @@ class CefBrowserPlatformDelegate {
 
   // Forward the keyboard event to the application or frame window to allow
   // processing of shortcut keys.
-  virtual bool HandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event);
+  virtual bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event);
 
 #if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   // See WebContentsDelegate documentation.
@@ -305,7 +307,7 @@ class CefBrowserPlatformDelegate {
 
   // Returns the OS event handle, if any, associated with |event|.
   virtual CefEventHandle GetEventHandle(
-      const content::NativeWebKeyboardEvent& event) const;
+      const input::NativeWebKeyboardEvent& event) const;
 
   // Create the platform-specific JavaScript dialog runner.
   virtual std::unique_ptr<CefJavaScriptDialogRunner>

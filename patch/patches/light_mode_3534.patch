@@ -48,7 +48,7 @@ index 23d0611fdb2b5..81fd1055e926e 100644
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index d69b17b004120..5175ea3a785a3 100644
+index 0b765216c727f..d2c1e21e19b98 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
 @@ -164,9 +164,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
@@ -107,7 +107,7 @@ index fc32dfb0de44f..44ca8103247b1 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index 9ca3120cfe3ac..c29c17330a7e5 100644
+index a2dbe84d61e09..aff4aad15e069 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
 @@ -586,11 +586,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
@@ -129,10 +129,10 @@ index 9ca3120cfe3ac..c29c17330a7e5 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 547872076d126..14d0e817f3243 100644
+index b5bdcf72d8b33..e3f04dda5c1a6 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -673,14 +673,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -675,14 +675,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -152,7 +152,7 @@ index 547872076d126..14d0e817f3243 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1671,8 +1674,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1673,8 +1676,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

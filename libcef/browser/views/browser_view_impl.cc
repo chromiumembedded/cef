@@ -17,7 +17,7 @@
 #include "cef/libcef/browser/views/window_impl.h"
 #include "cef/libcef/features/runtime.h"
 #include "chrome/browser/profiles/profile.h"
-#include "content/public/common/input/native_web_keyboard_event.h"
+#include "components/input/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
 
 namespace {
@@ -186,7 +186,7 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
 }
 
 bool CefBrowserViewImpl::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   if (!root_view()) {
     return false;
   }
@@ -428,7 +428,7 @@ CefWindowImpl* CefBrowserViewImpl::cef_window_impl() const {
 }
 
 bool CefBrowserViewImpl::HandleAccelerator(
-    const content::NativeWebKeyboardEvent& event,
+    const input::NativeWebKeyboardEvent& event,
     views::FocusManager* focus_manager) {
   // Previous calls to TranslateMessage can generate Char events as well as
   // RawKeyDown events, even if the latter triggered an accelerator.  In these

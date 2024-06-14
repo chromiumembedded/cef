@@ -93,13 +93,13 @@ void CefBrowserPlatformDelegateBackground::ViewText(const std::string& text) {
 }
 
 bool CefBrowserPlatformDelegateBackground::HandleKeyboardEvent(
-    const content::NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   // Nothing to do here.
   return false;
 }
 
 CefEventHandle CefBrowserPlatformDelegateBackground::GetEventHandle(
-    const content::NativeWebKeyboardEvent& event) const {
+    const input::NativeWebKeyboardEvent& event) const {
   return native_delegate_->GetEventHandle(event);
 }
 

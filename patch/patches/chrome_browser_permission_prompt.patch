@@ -1,5 +1,5 @@
 diff --git chrome/browser/background_fetch/background_fetch_permission_context.cc chrome/browser/background_fetch/background_fetch_permission_context.cc
-index 429739d7b8dfe..726cc7d9e9ced 100644
+index fbc2dccbeb46d..9eea3a3c5c64c 100644
 --- chrome/browser/background_fetch/background_fetch_permission_context.cc
 +++ chrome/browser/background_fetch/background_fetch_permission_context.cc
 @@ -4,6 +4,7 @@
@@ -24,7 +24,7 @@ index 429739d7b8dfe..726cc7d9e9ced 100644
          g_browser_process->download_request_limiter();
      DCHECK(limiter);
 diff --git chrome/browser/background_sync/periodic_background_sync_permission_context.cc chrome/browser/background_sync/periodic_background_sync_permission_context.cc
-index d63a055919747..49adba291f1bb 100644
+index c45e337c0c746..948cbbc9e3d7a 100644
 --- chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 +++ chrome/browser/background_sync/periodic_background_sync_permission_context.cc
 @@ -6,6 +6,7 @@
@@ -49,10 +49,10 @@ index d63a055919747..49adba291f1bb 100644
        base::FeatureList::IsEnabled(
            features::kPeriodicSyncPermissionForDefaultSearchEngine) &&
 diff --git chrome/browser/permissions/chrome_permissions_client.cc chrome/browser/permissions/chrome_permissions_client.cc
-index 6d07868a1100b..ac8fc5e70f045 100644
+index 1123ef8c5aa52..51f42541b3d7b 100644
 --- chrome/browser/permissions/chrome_permissions_client.cc
 +++ chrome/browser/permissions/chrome_permissions_client.cc
-@@ -14,6 +14,7 @@
+@@ -15,6 +15,7 @@
  #include "base/time/time.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -60,7 +60,7 @@ index 6d07868a1100b..ac8fc5e70f045 100644
  #include "chrome/browser/ash/shimless_rma/chrome_shimless_rma_delegate.h"
  #include "chrome/browser/bluetooth/bluetooth_chooser_context_factory.h"
  #include "chrome/browser/browser_process.h"
-@@ -198,6 +199,11 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
+@@ -199,6 +200,11 @@ ChromePermissionsClient::GetPermissionDecisionAutoBlocker(
  double ChromePermissionsClient::GetSiteEngagementScore(
      content::BrowserContext* browser_context,
      const GURL& origin) {
@@ -72,7 +72,7 @@ index 6d07868a1100b..ac8fc5e70f045 100644
    return site_engagement::SiteEngagementService::Get(
               Profile::FromBrowserContext(browser_context))
        ->GetScore(origin);
-@@ -368,8 +374,14 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
+@@ -369,8 +375,14 @@ ChromePermissionsClient::CreatePermissionUiSelectors(
        std::make_unique<ContextualNotificationPermissionUiSelector>());
    selectors.emplace_back(std::make_unique<PrefBasedQuietPermissionUiSelector>(
        Profile::FromBrowserContext(browser_context)));
@@ -161,10 +161,10 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 7bf3d2015afc8..8a58296f19c30 100644
+index 7f976b5bc5c44..ee2faa5c297a7 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -217,11 +217,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -222,11 +222,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  

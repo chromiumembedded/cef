@@ -60,7 +60,7 @@ class CefBrowserViewImpl
 
   // Called to handle accelerators when the event is unhandled by the web
   // content and the browser client.
-  bool HandleKeyboardEvent(const content::NativeWebKeyboardEvent& event);
+  bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event);
 
   // CefBrowserView methods:
   CefRefPtr<CefBrowser> GetBrowser() override;
@@ -120,7 +120,7 @@ class CefBrowserViewImpl
   // Logic extracted from UnhandledKeyboardEventHandler::HandleKeyboardEvent for
   // the handling of accelerators. Returns true if the event was handled by the
   // accelerator.
-  bool HandleAccelerator(const content::NativeWebKeyboardEvent& event,
+  bool HandleAccelerator(const input::NativeWebKeyboardEvent& event,
                          views::FocusManager* focus_manager);
 
   void RequestFocusInternal();

@@ -10,10 +10,10 @@ index 0e563dbb253ca..891b2bbc3785c 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 20)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index be520e63b503c..74f842d07499c 100644
+index 0a05208583e4e..0a2f2e1c39fba 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -1905,7 +1905,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -1980,7 +1980,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
@@ -24,7 +24,7 @@ index be520e63b503c..74f842d07499c 100644
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 3d4cc0dbf277e..eddba6b5a8471 100644
+index b220ca953b1db..c9057833fe15b 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
 @@ -329,7 +329,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {

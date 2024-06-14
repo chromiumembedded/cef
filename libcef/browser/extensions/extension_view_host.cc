@@ -10,10 +10,10 @@
 #include "extensions/browser/process_util.h"
 #include "third_party/blink/public/common/input/web_gesture_event.h"
 
-using content::NativeWebKeyboardEvent;
 using content::OpenURLParams;
 using content::WebContents;
 using content::WebContentsObserver;
+using input::NativeWebKeyboardEvent;
 
 namespace extensions {
 

@@ -221,7 +221,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     friend class CefBrowserInfo;
     const raw_ptr<CefBrowserInfo> browser_info_;
     CefRefPtr<CefFrameHandler> frame_handler_;
-    std::unique_ptr<base::AutoLock> browser_info_lock_scope_;
+    std::unique_ptr<base::MovableAutoLock> browser_info_lock_scope_;
     std::queue<FrameNotifyOnceAction> queue_;
   };
 

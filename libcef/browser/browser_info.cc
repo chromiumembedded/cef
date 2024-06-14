@@ -590,7 +590,7 @@ CefBrowserInfo::NotificationStateLock::NotificationStateLock(
 
   // Take the browser info state lock.
   browser_info_lock_scope_ =
-      std::make_unique<base::AutoLock>(browser_info_->lock_);
+      std::make_unique<base::MovableAutoLock>(browser_info_->lock_);
 }
 
 CefBrowserInfo::NotificationStateLock::~NotificationStateLock() {

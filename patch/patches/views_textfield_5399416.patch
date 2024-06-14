@@ -1,8 +1,8 @@
 diff --git ui/views/controls/textfield/textfield.cc ui/views/controls/textfield/textfield.cc
-index c8a4f5805248c..a9f693b357fb9 100644
+index f53fd1e03bdb2..5572b3d2cccc4 100644
 --- ui/views/controls/textfield/textfield.cc
 +++ ui/views/controls/textfield/textfield.cc
-@@ -2973,6 +2973,10 @@ void Textfield::OnCursorBlinkTimerFired() {
+@@ -2990,6 +2990,10 @@ void Textfield::OnCursorBlinkTimerFired() {
  void Textfield::OnEnabledChanged() {
    if (GetInputMethod())
      GetInputMethod()->OnTextInputTypeChanged(this);

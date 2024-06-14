@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 0ef41b4efc339..a1c1ea6a00fc1 100644
+index 0ad0fcd3d3ab1..16c9fd0360d80 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -28,7 +28,7 @@ index 0ef41b4efc339..a1c1ea6a00fc1 100644
 +#if BUILDFLAG(IS_WIN)
  void HostDisplayClient::AddChildWindowToBrowser(
      gpu::SurfaceHandle child_window) {
-   NOTREACHED();
+   NOTREACHED_IN_MIGRATION();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
 index cb16487f9fc08..6191f8801f302 100644
 --- components/viz/host/host_display_client.h
@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 35b6474193b3f..55b518fe138cc 100644
+index f28503c3bd02b..7a474b9839e46 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -253,6 +253,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index 35b6474193b3f..55b518fe138cc 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index e8e3237bb2b8f..cec146af141ba 100644
+index 54a83ba9fe1e9..e5520ccf6265d 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -18,6 +18,7 @@
@@ -150,10 +150,10 @@ index 796ae2688436e..37a3406790210 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 3634618a687b3..3a568135f6a0f 100644
+index 2ea7347d2abe0..ab412fabe399b 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -385,8 +385,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -390,8 +390,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();

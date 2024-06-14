@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index b95f9c9a2b856..602dc0588b4a5 100644
+index 7986c86012518..fa75795aa6c30 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1032,7 +1032,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1025,7 +1025,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::MENU_SOURCE_NONE,
@@ -58,7 +58,7 @@ index fb795f76d3616..6e36a4c1e29da 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index fa63b2ad55957..0b224818db3d9 100644
+index 7437fc1dbf24c..fe19f3e046b1a 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -696,6 +696,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
@@ -134,10 +134,10 @@ index c579f65dce9f0..a04e0d1f66aaa 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 265d1bc554133..d3cb82ed3ecec 100644
+index 04d4aca2784dc..b3ce5e1f2174c 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -617,6 +617,12 @@ void LabelButton::OnThemeChanged() {
+@@ -596,6 +596,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -151,10 +151,10 @@ index 265d1bc554133..d3cb82ed3ecec 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 3c862290eab9c..0e85970c08486 100644
+index aaa15dcd8c72b..7d5fe7306a37c 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -188,6 +188,9 @@ class VIEWS_EXPORT LabelButton : public Button,
+@@ -187,6 +187,9 @@ class VIEWS_EXPORT LabelButton : public Button,
    // widget, and the parent of the containing widget.
    ButtonState GetVisualState() const;
  
@@ -165,10 +165,10 @@ index 3c862290eab9c..0e85970c08486 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 2c773355d2961..9ccba5a459bd5 100644
+index 33e534c7eb6d0..3ed887e0dae41 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -51,12 +51,29 @@ enum LabelPropertyKey {
+@@ -57,12 +57,29 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -198,7 +198,7 @@ index 2c773355d2961..9ccba5a459bd5 100644
  }  // namespace
  
  namespace views {
-@@ -485,6 +502,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -492,6 +509,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -214,7 +214,7 @@ index 2c773355d2961..9ccba5a459bd5 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -789,6 +815,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -796,6 +822,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -255,7 +255,7 @@ index 40d9a89b66369..0c7245665d31b 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index a3d188fdde094..afcb6fda0cabe 100644
+index ef6a903caf5a9..c329a7684bfca 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -578,7 +578,8 @@ void MenuController::Run(Widget* parent,
@@ -276,7 +276,7 @@ index a3d188fdde094..afcb6fda0cabe 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2246,6 +2248,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2247,6 +2249,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -284,7 +284,7 @@ index a3d188fdde094..afcb6fda0cabe 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2930,8 +2933,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2931,8 +2934,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -299,7 +299,7 @@ index a3d188fdde094..afcb6fda0cabe 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2951,8 +2959,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2952,8 +2960,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -312,10 +312,10 @@ index a3d188fdde094..afcb6fda0cabe 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index a051195134920..ef2a1dacb163c 100644
+index 4c25ffcf9ab92..df270df5c024e 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
-@@ -139,7 +139,9 @@ class VIEWS_EXPORT MenuController
+@@ -137,7 +137,9 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
             MenuAnchorPosition position,
             bool context_menu,
             bool is_nested_drag,
@@ -326,7 +326,7 @@ index a051195134920..ef2a1dacb163c 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -736,6 +738,8 @@ class VIEWS_EXPORT MenuController
+@@ -738,6 +740,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -375,10 +375,10 @@ index 0623d151ddd3e..243e8c573e474 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index b42556c290207..c5c1aedb9df58 100644
+index c7c9deb69dbba..0edd342c9a713 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
-@@ -144,6 +144,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -145,6 +145,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
                                         : gfx::NativeWindow();
    params.bounds = init_params.bounds;
  
@@ -387,7 +387,7 @@ index b42556c290207..c5c1aedb9df58 100644
  #if defined(USE_AURA)
    params.init_properties_container.SetProperty(aura::client::kOwnedWindowAnchor,
                                                 init_params.owned_window_anchor);
-@@ -151,7 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -152,7 +154,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
    // If MenuHost has no parent widget, it needs to be marked
    // Activatable, so that calling Show in ShowMenuHost will
    // get keyboard focus.
@@ -411,10 +411,10 @@ index fc1d5fccc3845..c065cafcd537c 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 7bc2882ee70ad..ee71d64dce415 100644
+index 6377bb1fe7a6c..9f20510d92c80 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1079,6 +1079,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1076,6 +1076,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -430,7 +430,7 @@ index 7bc2882ee70ad..ee71d64dce415 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1143,6 +1152,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1140,6 +1149,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -445,7 +445,7 @@ index 7bc2882ee70ad..ee71d64dce415 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 4babab46bc156..3de7f0891eeaf 100644
+index d6a9c662edb9b..7bba7ca1cae5f 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -456,7 +456,7 @@ index 4babab46bc156..3de7f0891eeaf 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -237,6 +238,76 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -236,6 +237,75 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -474,7 +474,6 @@ index 4babab46bc156..3de7f0891eeaf 100644
 +  }
 +
 +  NOTREACHED();
-+  return nullptr;
 +}
 +
 +void MenuModelAdapter::OnUnhandledOpenSubmenu(MenuItemView* menu,
@@ -791,7 +790,7 @@ index dcf4b60ad92c2..64fa80edefc1b 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 4024ec9778c21..d4eeb4c2922e1 100644
+index 1a8ad95eed953..a1fa62ac5dcc4 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@

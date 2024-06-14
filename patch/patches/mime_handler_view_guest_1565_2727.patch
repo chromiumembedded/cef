@@ -12,7 +12,7 @@ index 0cc1db9645f04..ab2ae8c744278 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 8a77da73784c8..9ca31537809a3 100644
+index fad08e33e16e4..571b52332a198 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -204,6 +204,8 @@ void MimeHandlerViewGuest::CreateWebContents(

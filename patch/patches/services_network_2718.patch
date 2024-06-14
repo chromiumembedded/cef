@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 56f70fef0b2fb..4d2a75eebd102 100644
+index 8b04f2afe863e..effc59857dfd4 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -3326,8 +3326,12 @@ void StoragePartitionImpl::GetQuotaSettings(
+@@ -3353,8 +3353,12 @@ void StoragePartitionImpl::GetQuotaSettings(
      return;
    }
  
@@ -16,7 +16,7 @@ index 56f70fef0b2fb..4d2a75eebd102 100644
        storage::GetDefaultDeviceInfoHelper(), std::move(callback));
  }
  
-@@ -3337,9 +3341,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -3364,9 +3368,12 @@ void StoragePartitionImpl::InitNetworkContext() {
    cert_verifier::mojom::CertVerifierCreationParamsPtr
        cert_verifier_creation_params =
            cert_verifier::mojom::CertVerifierCreationParams::New();
