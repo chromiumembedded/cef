@@ -103,13 +103,28 @@ base::FilePath NormalizePath(const cef_string_t& path_str,
     path = path.StripTrailingSeparators();
   }
 
-  if (!path.empty() && !path.IsAbsolute()) {
-    LOG(ERROR) << "The " << name << " directory (" << path.value()
-               << ") is not an absolute path. Defaulting to empty.";
-    if (has_error) {
-      *has_error = true;
+  if (!path.empty()) {
+    if (!path.IsAbsolute()) {
+      LOG(ERROR) << "The " << name << " directory (" << path.value()
+                 << ") is not an absolute path. Defaulting to empty.";
+      if (has_error) {
+        *has_error = true;
+      }
+      return base::FilePath();
     }
-    path = base::FilePath();
+
+#if BUILDFLAG(IS_POSIX)
+    // Always resolve symlinks to absolute paths. This avoids issues with
+    // mismatched paths when mixing Chromium and OS filesystem functions.
+    // See https://crbug.com/40229712.
+    base::ScopedAllowBlockingForTesting allow_blocking;
+    const base::FilePath& resolved_path = base::MakeAbsoluteFilePath(path);
+    if (!resolved_path.empty()) {
+      return resolved_path;
+    } else if (errno != 0 && errno != ENOENT) {
+      PLOG(ERROR) << "realpath(" << path.value() << ") failed";
+    }
+#endif  // BUILDFLAG(IS_POSIX)
   }
 
   return path;
