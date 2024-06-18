@@ -140,11 +140,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     void Run(InterceptedRequestHandlerWrapper* self) {
       self->OnBeforeRequest(id_, request_, request_was_redirected_,
                             std::move(callback_), std::move(cancel_callback_));
-      request_ = nullptr;
     }
 
     const int32_t id_;
-    raw_ptr<network::ResourceRequest> request_;
+    const raw_ptr<network::ResourceRequest> request_;
     const bool request_was_redirected_;
     OnBeforeRequestResultCallback callback_;
     CancelRequestCallback cancel_callback_;
