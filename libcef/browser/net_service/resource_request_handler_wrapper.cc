@@ -143,7 +143,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     const int32_t id_;
-    const raw_ptr<network::ResourceRequest> request_;
+    const raw_ptr<network::ResourceRequest, DisableDanglingPtrDetection>
+        request_;
     const bool request_was_redirected_;
     OnBeforeRequestResultCallback callback_;
     CancelRequestCallback cancel_callback_;
