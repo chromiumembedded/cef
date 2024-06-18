@@ -559,11 +559,10 @@ void CefFrameHostImpl::MaybeReAttach(
   // Should not be called for temporary frames.
   CHECK(!is_temporary());
 
-  if (require_detached) {
-    // We expect that Detach() was called previously.
-    CHECK(!render_frame_.is_bound());
-    CHECK(!render_frame_host_);
-  } else if (render_frame_host_) {
+  // If |require_detached| then we expect that Detach() was called previously.
+  CHECK(!require_detached || !render_frame_.is_bound());
+
+  if (render_frame_host_) {
     // Intentionally not clearing |queued_renderer_actions_|, as we may be
     // changing RFH during initial browser navigation.
     VLOG(1) << GetDebugString()
