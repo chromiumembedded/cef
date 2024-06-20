@@ -85,7 +85,9 @@ class CefFileDialogManager {
       ui::SelectFileDialog::Listener* listener,
       void* params,
       const std::vector<base::FilePath>& paths);
-  void SelectFileDoneByListenerCallback(bool listener_destroyed);
+  void SelectFileDoneByListenerCallback(
+      ui::SelectFileDialog::Listener* listener,
+      bool listener_destroyed);
 
   // CefBrowserHostBase pointer is guaranteed to outlive this object.
   const raw_ptr<CefBrowserHostBase> browser_;
