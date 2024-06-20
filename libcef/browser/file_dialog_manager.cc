@@ -146,7 +146,8 @@ FileChooserParams SelectFileToFileChooserParams(
     // |extensions| is a list of allowed extensions. For example, it might be
     //   { { "htm", "html" }, { "txt" } }
     for (size_t i = 0; i < file_types->extensions.size(); ++i) {
-      if (!file_types->extension_mimetypes[i].empty()) {
+      if (file_types->extension_mimetypes.size() > i &&
+          !file_types->extension_mimetypes[i].empty()) {
         // Use the original mime type.
         params.accept_types.push_back(file_types->extension_mimetypes[i]);
       } else if (file_types->extensions[i].size() == 1) {
@@ -273,7 +274,8 @@ CefFileDialogManager::~CefFileDialogManager() = default;
 void CefFileDialogManager::Destroy() {
   if (dialog_listener_) {
     // Cancel the listener and delete related objects.
-    SelectFileDoneByListenerCallback(/*listener_destroyed=*/false);
+    SelectFileDoneByListenerCallback(/*listener=*/nullptr,
+                                     /*listener_destroyed=*/false);
   }
   DCHECK(!dialog_);
   DCHECK(!dialog_listener_);
@@ -424,7 +426,8 @@ void CefFileDialogManager::RunSelectFile(
       listener, params,
       base::BindOnce(&CefFileDialogManager::SelectFileDoneByListenerCallback,
                      weak_ptr_factory_.GetWeakPtr(),
-                     /*listener_destroyed=*/false));
+                     /*listener=*/listener,
+                     /*listener_destroyed=*/true));
 
   // This call will not be intercepted by CefSelectFileDialogFactory due to the
   // |run_from_cef=true| flag.
@@ -449,9 +452,9 @@ void CefFileDialogManager::SelectFileListenerDestroyed(
 
   // This notification will arrive from whomever owns |listener|, so we don't
   // want to execute any |listener| methods after this point.
-  if (dialog_listener_ && listener == dialog_listener_->listener()) {
+  if (dialog_listener_) {
     // Cancel the currently active dialog.
-    SelectFileDoneByListenerCallback(/*listener_destroyed=*/true);
+    SelectFileDoneByListenerCallback(listener, /*listener_destroyed=*/true);
   } else {
     // Any future SelectFileDoneByDelegateCallback call for |listener| becomes a
     // no-op.
@@ -570,8 +573,13 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
 }
 
 void CefFileDialogManager::SelectFileDoneByListenerCallback(
+    ui::SelectFileDialog::Listener* listener,
     bool listener_destroyed) {
   CEF_REQUIRE_UIT();
+
+  // |listener| will be provided iff |listener_destroyed=true|, as
+  // |dialog_listener_->listener()| will return nullptr at this point.
+  DCHECK(!listener || listener_destroyed);
 
   // Avoid re-entrancy of this method. CefSelectFileDialogListener callbacks to
   // the delegated listener may result in an immediate call to
@@ -587,7 +595,7 @@ void CefFileDialogManager::SelectFileDoneByListenerCallback(
   DCHECK(dialog_);
   DCHECK(dialog_listener_);
 
-  active_listeners_.erase(dialog_listener_->listener());
+  active_listeners_.erase(listener ? listener : dialog_listener_->listener());
 
   // Clear |dialog_listener_| before calling Cancel() to avoid re-entrancy.
   auto dialog_listener = dialog_listener_;

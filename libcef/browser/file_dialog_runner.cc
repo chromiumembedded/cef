@@ -39,6 +39,8 @@ class CefSelectFileDialogFactory final : public ui::SelectFileDialogFactory {
 // Delegates the running of the dialog to CefFileDialogManager.
 class CefSelectFileDialog final : public ui::SelectFileDialog {
  public:
+  // |listener| is not owned by this object. It will remain valid until
+  // ListenerDestroyed() is called.
   CefSelectFileDialog(ui::SelectFileDialog::Listener* listener,
                       std::unique_ptr<ui::SelectFilePolicy> policy)
       : ui::SelectFileDialog(listener, std::move(policy)) {
