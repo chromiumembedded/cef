@@ -1138,8 +1138,8 @@ void AlloyBrowserHostImpl::GetCustomWebContentsView(
     const GURL& target_url,
     int opener_render_process_id,
     int opener_render_frame_id,
-    content::WebContentsView** view,
-    content::RenderViewHostDelegateView** delegate_view) {
+    raw_ptr<content::WebContentsView>* view,
+    raw_ptr<content::RenderViewHostDelegateView>* delegate_view) {
   CefBrowserInfoManager::GetInstance()->GetCustomWebContentsView(
       target_url,
       frame_util::MakeGlobalId(opener_render_process_id,

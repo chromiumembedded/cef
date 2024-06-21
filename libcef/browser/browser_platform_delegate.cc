@@ -85,8 +85,8 @@ content::WebContents* CefBrowserPlatformDelegate::CreateWebContents(
 }
 
 void CefBrowserPlatformDelegate::CreateViewForWebContents(
-    content::WebContentsView** view,
-    content::RenderViewHostDelegateView** delegate_view) {
+    raw_ptr<content::WebContentsView>* view,
+    raw_ptr<content::RenderViewHostDelegateView>* delegate_view) {
   DCHECK(false);
 }
 

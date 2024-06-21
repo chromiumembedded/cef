@@ -282,6 +282,7 @@ void RegisterURLSchemeAsSupportingFetchAPI(const blink::WebString& scheme) {
 }
 
 struct CefScriptForbiddenScope::Impl {
+  STACK_ALLOCATED_IGNORE()
   blink::ScriptForbiddenScope scope_;
 };
 

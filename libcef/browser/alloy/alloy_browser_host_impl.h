@@ -237,8 +237,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       const GURL& target_url,
       int opener_render_process_id,
       int opener_render_frame_id,
-      content::WebContentsView** view,
-      content::RenderViewHostDelegateView** delegate_view) override;
+      raw_ptr<content::WebContentsView>* view,
+      raw_ptr<content::RenderViewHostDelegateView>* delegate_view) override;
   void WebContentsCreated(content::WebContents* source_contents,
                           int opener_render_process_id,
                           int opener_render_frame_id,

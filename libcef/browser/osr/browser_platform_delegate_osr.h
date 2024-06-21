@@ -23,8 +23,8 @@ class CefBrowserPlatformDelegateOsr
  public:
   // CefBrowserPlatformDelegate methods:
   void CreateViewForWebContents(
-      content::WebContentsView** view,
-      content::RenderViewHostDelegateView** delegate_view) override;
+      raw_ptr<content::WebContentsView>* view,
+      raw_ptr<content::RenderViewHostDelegateView>* delegate_view) override;
   void WebContentsCreated(content::WebContents* web_contents,
                           bool owned) override;
   void WebContentsDestroyed(content::WebContents* web_contents) override;

@@ -228,8 +228,8 @@ bool CefBrowserInfoManager::CanCreateWindow(
 void CefBrowserInfoManager::GetCustomWebContentsView(
     const GURL& target_url,
     const content::GlobalRenderFrameHostId& opener_global_id,
-    content::WebContentsView** view,
-    content::RenderViewHostDelegateView** delegate_view) {
+    raw_ptr<content::WebContentsView>* view,
+    raw_ptr<content::RenderViewHostDelegateView>* delegate_view) {
   CEF_REQUIRE_UIT();
 
   auto pending_popup = PopPendingPopup(PendingPopup::CAN_CREATE_WINDOW,
