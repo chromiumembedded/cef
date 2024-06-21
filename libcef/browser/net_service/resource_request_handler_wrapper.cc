@@ -95,14 +95,16 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
 
     void Reset(CefRefPtr<CefResourceRequestHandler> handler,
                CefRefPtr<CefSchemeHandlerFactory> scheme_factory,
-               CefRefPtr<CefRequestImpl> request,
+               CefRefPtr<CefRequestImpl> pending_request,
+               network::ResourceRequest* request,
                bool request_was_redirected,
                CancelRequestCallback cancel_callback) {
       handler_ = handler;
       scheme_factory_ = scheme_factory;
       cookie_filter_ = nullptr;
-      pending_request_ = request;
+      pending_request_ = pending_request;
       pending_response_ = nullptr;
+      request_ = request;
       request_was_redirected_ = request_was_redirected;
       was_custom_handled_ = false;
       cancel_callback_ = std::move(cancel_callback);
@@ -113,6 +115,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     CefRefPtr<CefCookieAccessFilter> cookie_filter_;
     CefRefPtr<CefRequestImpl> pending_request_;
     CefRefPtr<CefResponseImpl> pending_response_;
+    raw_ptr<network::ResourceRequest> request_;
     bool request_was_redirected_ = false;
     bool was_custom_handled_ = false;
     bool accept_language_added_ = false;
@@ -569,8 +572,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
 
     // May have a handler and/or scheme factory.
-    state->Reset(handler, scheme_factory, requestPtr, request_was_redirected,
-                 std::move(cancel_callback));
+    state->Reset(handler, scheme_factory, requestPtr, request,
+                 request_was_redirected, std::move(cancel_callback));
 
     if (handler) {
       state->cookie_filter_ = handler->GetCookieAccessFilter(
@@ -587,16 +590,15 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    MaybeLoadCookies(request_id, state, request, std::move(exec_callback));
+    MaybeLoadCookies(request_id, state, std::move(exec_callback));
   }
 
   void MaybeLoadCookies(int32_t request_id,
                         RequestState* state,
-                        network::ResourceRequest* request,
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
 
-    if (!cookie_helper::IsCookieableScheme(request->url,
+    if (!cookie_helper::IsCookieableScheme(state->request_->url,
                                            init_state_->cookieable_schemes_)) {
       // The scheme does not support cookies.
       std::move(callback).Run();
@@ -614,10 +616,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                   &InterceptedRequestHandlerWrapper::AllowCookieAlways);
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithLoadedCookies,
-        weak_ptr_factory_.GetWeakPtr(), request_id,
-        base::UnsafeDanglingUntriaged(request), std::move(callback));
-    cookie_helper::LoadCookies(init_state_->browser_context_getter_, *request,
-                               allow_cookie_callback,
+        weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback));
+    cookie_helper::LoadCookies(init_state_->browser_context_getter_,
+                               *(state->request_), allow_cookie_callback,
                                std::move(done_cookie_callback));
   }
 
@@ -649,7 +650,6 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
   }
 
   void ContinueWithLoadedCookies(int32_t request_id,
-                                 network::ResourceRequest* request,
                                  base::OnceClosure callback,
                                  int total_count,
                                  net::CookieList allowed_cookies) {
@@ -666,13 +666,14 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // Also add/save cookies ourselves for default-handled network requests
       // so that we can filter them. This will be a no-op for custom-handled
       // requests.
-      request->load_flags |= kLoadNoCookiesFlags;
+      state->request_->load_flags |= kLoadNoCookiesFlags;
     }
 
     if (!allowed_cookies.empty()) {
       const std::string& cookie_line =
           net::CanonicalCookie::BuildCookieLine(allowed_cookies);
-      request->headers.SetHeader(net::HttpRequestHeaders::kCookie, cookie_line);
+      state->request_->headers.SetHeader(net::HttpRequestHeaders::kCookie,
+                                         cookie_line);
 
       state->pending_request_->SetReadOnly(false);
       state->pending_request_->SetHeaderByName(net::HttpRequestHeaders::kCookie,
@@ -708,8 +709,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       CefRefPtr<RequestCallbackWrapper> callbackPtr =
           new RequestCallbackWrapper(base::BindOnce(
               &InterceptedRequestHandlerWrapper::ContinueShouldInterceptRequest,
-              weak_ptr_factory_.GetWeakPtr(), request_id,
-              base::Unretained(request), std::move(callback)));
+              weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback)));
 
       cef_return_value_t retval = state->handler_->OnBeforeResourceLoad(
           init_state_->browser_, init_state_->frame_,
@@ -725,14 +725,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       }
     } else {
       // The scheme factory may choose to handle it.
-      ContinueShouldInterceptRequest(request_id, request, std::move(callback),
-                                     true);
+      ContinueShouldInterceptRequest(request_id, std::move(callback), true);
     }
   }
 
   void ContinueShouldInterceptRequest(
       int32_t request_id,
-      network::ResourceRequest* request,
       ShouldInterceptRequestResultCallback callback,
       bool allow) {
     CEF_REQUIRE_IOT();
@@ -751,7 +749,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (state->handler_) {
       if (allow) {
         // Apply any |requestPtr| changes to |request|.
-        state->pending_request_->Get(request, true /* changed_only */);
+        state->pending_request_->Get(state->request_, true /* changed_only */);
       }
 
       const bool redirect =
@@ -790,8 +788,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!resource_handler && state->scheme_factory_) {
       // Does the scheme factory want to handle the request?
       resource_handler = state->scheme_factory_->Create(
-          init_state_->browser_, init_state_->frame_, request->url.scheme(),
-          state->pending_request_.get());
+          init_state_->browser_, init_state_->frame_,
+          state->request_->url.scheme(), state->pending_request_.get());
     }
 
     std::unique_ptr<ResourceResponse> resource_response;
@@ -803,7 +801,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // The request will be handled by the NetworkService. Remove the
       // "Accept-Language" header here so that it can be re-added in
       // URLRequestHttpJob::AddExtraHeaders with correct ordering applied.
-      request->headers.RemoveHeader(net::HttpRequestHeaders::kAcceptLanguage);
+      state->request_->headers.RemoveHeader(
+          net::HttpRequestHeaders::kAcceptLanguage);
     }
 
     // Continue the request.
@@ -860,7 +859,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     if (!state->handler_) {
       // Cookies may come from a scheme handler.
       MaybeSaveCookies(
-          request_id, state, request, headers,
+          request_id, state, headers,
           base::BindOnce(
               std::move(callback), ResponseMode::CONTINUE, nullptr,
               redirect_info.has_value() ? redirect_info->new_url : GURL()));
@@ -871,16 +870,15 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     DCHECK(state->pending_response_);
 
     if (redirect_info.has_value()) {
-      HandleRedirect(request_id, state, request, headers, *redirect_info,
+      HandleRedirect(request_id, state, headers, *redirect_info,
                      std::move(callback));
     } else {
-      HandleResponse(request_id, state, request, headers, std::move(callback));
+      HandleResponse(request_id, state, headers, std::move(callback));
     }
   }
 
   void HandleRedirect(int32_t request_id,
                       RequestState* state,
-                      network::ResourceRequest* request,
                       net::HttpResponseHeaders* headers,
                       const net::RedirectInfo& redirect_info,
                       OnRequestResponseResultCallback callback) {
@@ -911,13 +909,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto exec_callback = base::BindOnce(
         std::move(callback), ResponseMode::CONTINUE, nullptr, new_url);
 
-    MaybeSaveCookies(request_id, state, request, headers,
-                     std::move(exec_callback));
+    MaybeSaveCookies(request_id, state, headers, std::move(exec_callback));
   }
 
   void HandleResponse(int32_t request_id,
                       RequestState* state,
-                      network::ResourceRequest* request,
                       net::HttpResponseHeaders* headers,
                       OnRequestResponseResultCallback callback) {
     // The client may modify |pending_request_| in OnResourceResponse.
@@ -933,7 +929,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // The request may have been modified.
       const auto changes = state->pending_request_->GetChanges();
       if (changes) {
-        state->pending_request_->Get(request, true /* changed_only */);
+        state->pending_request_->Get(state->request_, true /* changed_only */);
 
         if (changes & CefRequestImpl::kChangedUrl) {
           // Redirect to the new URL.
@@ -961,13 +957,11 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    MaybeSaveCookies(request_id, state, request, headers,
-                     std::move(exec_callback));
+    MaybeSaveCookies(request_id, state, headers, std::move(exec_callback));
   }
 
   void MaybeSaveCookies(int32_t request_id,
                         RequestState* state,
-                        network::ResourceRequest* request,
                         net::HttpResponseHeaders* headers,
                         base::OnceClosure callback) {
     CEF_REQUIRE_IOT();
@@ -978,7 +972,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       return;
     }
 
-    if (!cookie_helper::IsCookieableScheme(request->url,
+    if (!cookie_helper::IsCookieableScheme(state->request_->url,
                                            init_state_->cookieable_schemes_)) {
       // The scheme does not support cookies.
       std::move(callback).Run();
@@ -997,9 +991,9 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithSavedCookies,
         weak_ptr_factory_.GetWeakPtr(), request_id, std::move(callback));
-    cookie_helper::SaveCookies(init_state_->browser_context_getter_, *request,
-                               headers, allow_cookie_callback,
-                               std::move(done_cookie_callback));
+    cookie_helper::SaveCookies(
+        init_state_->browser_context_getter_, *(state->request_), headers,
+        allow_cookie_callback, std::move(done_cookie_callback));
   }
 
   void AllowCookieSave(int32_t request_id,
@@ -1275,6 +1269,12 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     for (auto& pair : request_map) {
       auto state = std::move(pair.second);
       if (state->cancel_callback_) {
+        // The cancel callback may trigger a call to OnRequestComplete followed
+        // by destruction of the InterceptedRequest that owns the
+        // ResourceRequest. We therefore need to clear the
+        // raw_ptr<ResourceRequest> first to avoid dangling pointer errors.
+        state->request_ = nullptr;
+
         std::move(state->cancel_callback_).Run(net::ERR_ABORTED);
       }
     }
