@@ -31,8 +31,8 @@ CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
 }
 
 void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
-    content::WebContentsView** view,
-    content::RenderViewHostDelegateView** delegate_view) {
+    raw_ptr<content::WebContentsView>* view,
+    raw_ptr<content::RenderViewHostDelegateView>* delegate_view) {
   DCHECK(!view_osr_);
 
   // Use the OSR view instead of the default platform view.

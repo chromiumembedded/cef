@@ -111,8 +111,8 @@ class CefBrowserPlatformDelegate {
   // called a single time per instance. May be called on multiple threads. Only
   // used with windowless rendering.
   virtual void CreateViewForWebContents(
-      content::WebContentsView** view,
-      content::RenderViewHostDelegateView** delegate_view);
+      raw_ptr<content::WebContentsView>* view,
+      raw_ptr<content::RenderViewHostDelegateView>* delegate_view);
 
   // Called after the WebContents for a browser has been created. |owned| will
   // be true if |web_contents| was created via CreateWebContents() and we should

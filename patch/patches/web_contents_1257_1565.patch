@@ -60,7 +60,7 @@ index 205a1bb692091..d5cf0a22b11b2 100644
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 1ee36913ac37c..19b13abaf0679 100644
+index 1ee36913ac37c..6dcca3c80ede2 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -105,10 +105,12 @@ class BrowserContext;
@@ -81,14 +81,14 @@ index 1ee36913ac37c..19b13abaf0679 100644
          network::mojom::WebSandboxFlags::kNone;
  
 +    // Optionally specify the view and delegate view.
-+    content::WebContentsView* view = nullptr;
-+    content::RenderViewHostDelegateView* delegate_view = nullptr;
++    raw_ptr<content::WebContentsView> view = nullptr;
++    raw_ptr<content::RenderViewHostDelegateView> delegate_view = nullptr;
 +
      // Value used to set the last time the WebContents was made active, this is
      // the value that'll be returned by GetLastActiveTime(). If this is left
      // default initialized then the value is not passed on to the WebContents
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index fd851a9347dd6..82abe6dd2fd07 100644
+index fd851a9347dd6..dc77e13235743 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -63,9 +63,11 @@ class EyeDropperListener;
@@ -112,8 +112,8 @@ index fd851a9347dd6..82abe6dd2fd07 100644
 +      const GURL& target_url,
 +      int opener_render_process_id,
 +      int opener_render_frame_id,
-+      content::WebContentsView** view,
-+      content::RenderViewHostDelegateView** delegate_view) {}
++      raw_ptr<content::WebContentsView>* view,
++      raw_ptr<content::RenderViewHostDelegateView>* delegate_view) {}
 +
    // Notifies the delegate about the creation of a new WebContents. This
    // typically happens when popups are created.

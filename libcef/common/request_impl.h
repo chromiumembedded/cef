@@ -258,7 +258,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
   Type type_ = PDE_TYPE_EMPTY;
   union {
     struct {
-      void* bytes;
+      RAW_PTR_EXCLUSION void* bytes;
       size_t size;
     } bytes;
     cef_string_t filename;
