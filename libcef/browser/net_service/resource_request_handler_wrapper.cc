@@ -614,8 +614,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
                   &InterceptedRequestHandlerWrapper::AllowCookieAlways);
     auto done_cookie_callback = base::BindOnce(
         &InterceptedRequestHandlerWrapper::ContinueWithLoadedCookies,
-        weak_ptr_factory_.GetWeakPtr(), request_id, request,
-        std::move(callback));
+        weak_ptr_factory_.GetWeakPtr(), request_id,
+        base::UnsafeDanglingUntriaged(request), std::move(callback));
     cookie_helper::LoadCookies(init_state_->browser_context_getter_, *request,
                                allow_cookie_callback,
                                std::move(done_cookie_callback));
