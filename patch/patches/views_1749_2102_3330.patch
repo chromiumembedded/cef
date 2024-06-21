@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 7986c86012518..fa75795aa6c30 100644
+index 0645d841f604c..0f5aa54288f5c 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1025,7 +1025,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1037,7 +1037,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::MENU_SOURCE_NONE,

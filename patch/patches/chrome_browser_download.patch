@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index 2628f1751cd14..cc2c330d8db5d 100644
+index bd2c41e30f01e..d87b8baf3de2b 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
-@@ -148,6 +148,10 @@
+@@ -150,6 +150,10 @@
  #include "chrome/browser/safe_browsing/download_protection/download_protection_util.h"
  #endif
  
@@ -13,7 +13,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  using content::BrowserThread;
  using content::DownloadManager;
  using download::DownloadItem;
-@@ -492,6 +496,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
+@@ -500,6 +504,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
    download_dialog_bridge_ = std::make_unique<DownloadDialogBridge>();
    download_message_bridge_ = std::make_unique<DownloadMessageBridge>();
  #endif
@@ -25,7 +25,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  }
  
  ChromeDownloadManagerDelegate::~ChromeDownloadManagerDelegate() {
-@@ -551,6 +560,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
+@@ -559,6 +568,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
      download_manager_->RemoveObserver(this);
      download_manager_ = nullptr;
    }
@@ -35,7 +35,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  }
  
  void ChromeDownloadManagerDelegate::OnDownloadCanceledAtShutdown(
-@@ -619,6 +631,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
+@@ -627,6 +639,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
      ReportPDFLoadStatus(PDFLoadStatus::kTriggeredNoGestureDriveByDownload);
    }
  
