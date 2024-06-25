@@ -388,8 +388,8 @@ void CefFileDialogManager::RunSelectFile(
       SelectFileToFileChooserParams(type, title, default_path, file_types);
   auto callback =
       base::BindOnce(&CefFileDialogManager::SelectFileDoneByDelegateCallback,
-                     weak_ptr_factory_.GetWeakPtr(), base::Unretained(listener),
-                     base::Unretained(params));
+                     weak_ptr_factory_.GetWeakPtr(),
+                     base::UnsafeDangling(listener), base::Unretained(params));
   callback = MaybeRunDelegate(chooser_params, file_types->extensions,
                               file_types->extension_description_overrides,
                               std::move(callback));
@@ -426,7 +426,7 @@ void CefFileDialogManager::RunSelectFile(
       listener, params,
       base::BindOnce(&CefFileDialogManager::SelectFileDoneByListenerCallback,
                      weak_ptr_factory_.GetWeakPtr(),
-                     /*listener=*/listener,
+                     base::UnsafeDangling(listener),
                      /*listener_destroyed=*/true));
 
   // This call will not be intercepted by CefSelectFileDialogFactory due to the
@@ -548,7 +548,7 @@ CefFileDialogManager::MaybeRunDelegate(
 }
 
 void CefFileDialogManager::SelectFileDoneByDelegateCallback(
-    ui::SelectFileDialog::Listener* listener,
+    MayBeDangling<ui::SelectFileDialog::Listener> listener,
     void* params,
     const std::vector<base::FilePath>& paths) {
   CEF_REQUIRE_UIT();
@@ -559,7 +559,7 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
     return;
   }
 
-  active_listeners_.erase(listener);
+  active_listeners_.erase(listener.get());
 
   if (paths.empty()) {
     listener->FileSelectionCanceled(params);
@@ -573,7 +573,7 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
 }
 
 void CefFileDialogManager::SelectFileDoneByListenerCallback(
-    ui::SelectFileDialog::Listener* listener,
+    MayBeDangling<ui::SelectFileDialog::Listener> listener,
     bool listener_destroyed) {
   CEF_REQUIRE_UIT();
 
@@ -595,7 +595,8 @@ void CefFileDialogManager::SelectFileDoneByListenerCallback(
   DCHECK(dialog_);
   DCHECK(dialog_listener_);
 
-  active_listeners_.erase(listener ? listener : dialog_listener_->listener());
+  active_listeners_.erase(listener ? listener.get()
+                                   : dialog_listener_->listener());
 
   // Clear |dialog_listener_| before calling Cancel() to avoid re-entrancy.
   auto dialog_listener = dialog_listener_;

@@ -82,11 +82,11 @@ class CefFileDialogManager {
       RunFileChooserCallback callback);
 
   void SelectFileDoneByDelegateCallback(
-      ui::SelectFileDialog::Listener* listener,
+      MayBeDangling<ui::SelectFileDialog::Listener> listener,
       void* params,
       const std::vector<base::FilePath>& paths);
   void SelectFileDoneByListenerCallback(
-      ui::SelectFileDialog::Listener* listener,
+      MayBeDangling<ui::SelectFileDialog::Listener> listener,
       bool listener_destroyed);
 
   // CefBrowserHostBase pointer is guaranteed to outlive this object.
