@@ -33,29 +33,14 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
                       const blink::mojom::WindowFeatures& window_features,
                       bool user_gesture,
                       bool* was_blocked) override;
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  bool ShouldAllowRendererInitiatedCrossProcessNavigation(
-      bool is_main_frame_navigation) override;
-#endif
   void RenderViewReady() override;
   void BrowserCreated(CefBrowserHostBase* browser) override;
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  void CreateExtensionHost(const extensions::Extension* extension,
-                           const GURL& url,
-                           extensions::mojom::ViewType host_type) override;
-  extensions::ExtensionHost* GetExtensionHost() const override;
-#endif
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
       const override;
   void SendCaptureLostEvent() override;
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   void NotifyMoveOrResizeStarted() override;
-#endif
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  bool PreHandleGestureEvent(content::WebContents* source,
-                             const blink::WebGestureEvent& event) override;
-  bool IsNeverComposited(content::WebContents* web_contents) override;
 #endif
   bool IsAlloyStyle() const override { return true; }
   void SetAutoResizeEnabled(bool enabled,
@@ -89,11 +74,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
  private:
   void SetOwnedWebContents(content::WebContents* owned_contents);
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  void DestroyExtensionHost();
-  void OnExtensionHostDeleted();
-#endif
-
   void ConfigureAutoResize();
 
   // Attach all the associated helpers that are needed for the WebContents. It
@@ -112,12 +92,6 @@ class CefBrowserPlatformDelegateAlloy : public CefBrowserPlatformDelegate {
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc.
   find_in_page::FindNotificationDetails last_search_result_;
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // Used when the browser is hosting an extension.
-  raw_ptr<extensions::ExtensionHost> extension_host_ = nullptr;
-  bool is_background_host_ = false;
-#endif
 
   // Used with auto-resize.
   bool auto_resize_enabled_ = false;

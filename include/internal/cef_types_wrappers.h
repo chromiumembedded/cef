@@ -387,9 +387,6 @@ struct CefSettingsTraits {
                    &target->framework_dir_path, copy);
     cef_string_set(src->main_bundle_path.str, src->main_bundle_path.length,
                    &target->main_bundle_path, copy);
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-    target->chrome_runtime = src->chrome_runtime;
-#endif
     target->multi_threaded_message_loop = src->multi_threaded_message_loop;
     target->external_message_pump = src->external_message_pump;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
@@ -400,7 +397,6 @@ struct CefSettingsTraits {
     cef_string_set(src->root_cache_path.str, src->root_cache_path.length,
                    &target->root_cache_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
-    target->persist_user_preferences = src->persist_user_preferences;
 
     cef_string_set(src->user_agent.str, src->user_agent.length,
                    &target->user_agent, copy);
@@ -419,7 +415,6 @@ struct CefSettingsTraits {
                    &target->resources_dir_path, copy);
     cef_string_set(src->locales_dir_path.str, src->locales_dir_path.length,
                    &target->locales_dir_path, copy);
-    target->pack_loading_disabled = src->pack_loading_disabled;
     target->remote_debugging_port = src->remote_debugging_port;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
     target->background_color = src->background_color;
@@ -462,7 +457,6 @@ struct CefRequestContextSettingsTraits {
     cef_string_set(src->cache_path.str, src->cache_path.length,
                    &target->cache_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
-    target->persist_user_preferences = src->persist_user_preferences;
     cef_string_set(src->accept_language_list.str,
                    src->accept_language_list.length,
                    &target->accept_language_list, copy);

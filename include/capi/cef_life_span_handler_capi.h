@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=54edf9e9c2a12acdc4cab55079a4a5cb8e2a1e43$
+// $hash=5232dd6bf16af9b6d195a47bb41de0dfb880a65e$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -117,7 +117,7 @@ typedef struct _cef_life_span_handler_t {
   /// Views-hosted source browsers will create Views-hosted DevTools popups
   /// unless |use_default_window| is set to to true (1). DevTools popups can be
   /// blocked by returning true (1) from cef_command_handler_t::OnChromeCommand
-  /// for IDC_DEV_TOOLS. Only used with the Chrome runtime.
+  /// for IDC_DEV_TOOLS. Only used with Chrome style.
   ///
   void(CEF_CALLBACK* on_before_dev_tools_popup)(
       struct _cef_life_span_handler_t* self,

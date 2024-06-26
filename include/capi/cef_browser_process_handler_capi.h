@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d958d5bed7f909f6313facef3440fb8ba07a5c01$
+// $hash=56ad161a75ca5083812e11959053abbcafbb9a5d$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_PROCESS_HANDLER_CAPI_H_
@@ -69,8 +69,8 @@ typedef struct _cef_browser_process_handler_t {
   /// If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be
   /// accessed via cef_preference_manager_t::GetGlobalPreferences after
   /// OnContextInitialized is called. Global preferences are registered a single
-  /// time at application startup. See related cef_settings_t.cache_path and
-  /// cef_settings_t.persist_user_preferences configuration.
+  /// time at application startup. See related cef_settings_t.cache_path
+  /// configuration.
   ///
   /// If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be
   /// accessed via the cef_request_context_t after
@@ -78,8 +78,7 @@ typedef struct _cef_browser_process_handler_t {
   /// Request context preferences are registered each time a new
   /// cef_request_context_t is created. It is intended but not required that all
   /// request contexts have the same registered preferences. See related
-  /// cef_request_context_settings_t.cache_path and
-  /// cef_request_context_settings_t.persist_user_preferences configuration.
+  /// cef_request_context_settings_t.cache_path configuration.
   ///
   /// Do not keep a reference to the |registrar| object. This function is called
   /// on the browser process UI thread.
@@ -152,8 +151,8 @@ typedef struct _cef_browser_process_handler_t {
   /// (cef_browser_t object). If null is returned the cef_browser_t will be
   /// unmanaged (no callbacks will be executed for that cef_browser_t) and
   /// application shutdown will be blocked until the browser window is closed
-  /// manually. This function is currently only used with the Chrome runtime
-  /// when creating new browser windows via Chrome UI.
+  /// manually. This function is currently only used with Chrome style when
+  /// creating new browser windows via Chrome UI.
   ///
   struct _cef_client_t*(CEF_CALLBACK* get_default_client)(
       struct _cef_browser_process_handler_t* self);
@@ -162,8 +161,8 @@ typedef struct _cef_browser_process_handler_t {
   /// Return the default handler for use with a new user or incognito profile
   /// (cef_request_context_t object). If null is returned the
   /// cef_request_context_t will be unmanaged (no callbacks will be executed for
-  /// that cef_request_context_t). This function is currently only used with the
-  /// Chrome runtime when creating new browser windows via Chrome UI.
+  /// that cef_request_context_t). This function is currently only used with
+  /// Chrome style when creating new browser windows via Chrome UI.
   ///
   struct _cef_request_context_handler_t*(
       CEF_CALLBACK* get_default_request_context_handler)(

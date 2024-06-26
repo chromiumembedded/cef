@@ -764,15 +764,6 @@ void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
 #endif
 }
 
-CefRefPtr<CefExtension> CefBrowserHostBase::GetExtension() {
-  NOTIMPLEMENTED();
-  return nullptr;
-}
-
-bool CefBrowserHostBase::IsBackgroundHost() {
-  return false;
-}
-
 bool CefBrowserHostBase::IsFullscreen() {
   if (!CEF_CURRENTLY_ON_UIT()) {
     DCHECK(false) << "called on invalid thread";

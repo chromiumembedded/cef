@@ -1041,18 +1041,9 @@ ViewsWindow::ViewsWindow(WindowType type,
     SetBrowserView(browser_view);
   }
 
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (!MainContext::Get()->UseChromeBootstrap()) {
-    // Alloy bootstrap requires Alloy style.
-    DCHECK(use_alloy_style_);
-    use_alloy_style_window_ = true;
-  } else
-#endif
-  {
-    use_alloy_style_window_ =
-        use_alloy_style_ &&
-        !command_line_->HasSwitch(switches::kUseChromeStyleWindow);
-  }
+  use_alloy_style_window_ =
+      use_alloy_style_ &&
+      !command_line_->HasSwitch(switches::kUseChromeStyleWindow);
 
   const bool is_normal_type = type_ == WindowType::NORMAL;
 

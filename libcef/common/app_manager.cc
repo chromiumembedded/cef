@@ -17,10 +17,6 @@
 #include "base/path_service.h"
 #endif
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "cef/libcef/common/net/scheme_registration.h"
-#endif
-
 namespace {
 
 CefAppManager* g_manager = nullptr;
@@ -90,10 +86,6 @@ void CefAppManager::AddAdditionalSchemes(
     application->OnRegisterCustomSchemes(&schemeRegistrar);
     schemeRegistrar.GetSchemes(schemes);
   }
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  scheme::AddInternalSchemes(schemes);
-#endif
 
   scheme_info_list_locked_ = true;
 }

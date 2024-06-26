@@ -44,8 +44,7 @@ struct RootWindowConfig {
   // If true the Views framework will be used.
   bool use_views;
 
-  // If true Alloy style will be used. Alloy style is always used with
-  // the Alloy runtime and optional with the Chrome runtime. Windowless
+  // If true Alloy style will be used. Alloy style is optional. Windowless
   // rendering requires Alloy style.
   bool use_alloy_style;
 
@@ -100,9 +99,8 @@ class RootWindow
   class Delegate {
    public:
     // Called to synchronously retrieve the CefRequestContext for browser. Only
-    // called for non-popup browsers. Must be called on the main thread. With
-    // the Chrome runtime this method is only safe when using the global request
-    // context.
+    // called for non-popup browsers. Must be called on the main thread. This
+    // method is only safe when using the global request context.
     // TODO: Delete this method and use the async version instead.
     virtual CefRefPtr<CefRequestContext> GetRequestContext() = 0;
 

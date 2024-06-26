@@ -19,7 +19,6 @@
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/chrome/chrome_main_runner_delegate.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "components/crash/core/app/crash_switches.h"
 #include "content/app/content_main_runner_impl.h"
@@ -48,36 +47,18 @@
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "cef/libcef/common/alloy/alloy_main_runner_delegate.h"
-#endif
-
 namespace {
 
 enum class RuntimeType {
   UNINITIALIZED,
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  ALLOY,
-#endif
   CHROME,
 };
 RuntimeType g_runtime_type = RuntimeType::UNINITIALIZED;
 
 std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-    RuntimeType type,
-#endif
     CefMainRunnerHandler* runner,
     CefSettings* settings,
     CefRefPtr<CefApp> application) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (type == RuntimeType::ALLOY) {
-    g_runtime_type = RuntimeType::ALLOY;
-    return std::make_unique<AlloyMainRunnerDelegate>(runner, settings,
-                                                     application);
-  }
-#endif
-
   g_runtime_type = RuntimeType::CHROME;
   return std::make_unique<ChromeMainRunnerDelegate>(runner, settings,
                                                     application);
@@ -270,11 +251,7 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                bool* initialized,
                                base::OnceClosure context_initialized) {
   DCHECK(!main_delegate_);
-  main_delegate_ = MakeDelegate(
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-      settings->chrome_runtime ? RuntimeType::CHROME : RuntimeType::ALLOY,
-#endif
-      this, settings, application);
+  main_delegate_ = MakeDelegate(this, settings, application);
 
   exit_code_ =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
@@ -387,11 +364,6 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   }
 
   auto main_delegate = MakeDelegate(
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-      command_line.HasSwitch(switches::kEnableChromeRuntime)
-          ? RuntimeType::CHROME
-          : RuntimeType::ALLOY,
-#endif
       /*runner=*/nullptr, /*settings=*/nullptr, application);
   main_delegate->BeforeExecuteProcess(args);
 
@@ -598,12 +570,6 @@ void CefMainRunner::FinishShutdownOnUIThread() {
 
 // From libcef/features/runtime.h:
 namespace cef {
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool IsAlloyRuntimeEnabled() {
-  return g_runtime_type == RuntimeType::ALLOY;
-}
-#endif
 
 bool IsChromeRuntimeEnabled() {
   return g_runtime_type == RuntimeType::CHROME;

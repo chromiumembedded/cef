@@ -18,7 +18,7 @@
 class CefWindowView;
 class Profile;
 
-// Widget specialization to implement theme support for the Alloy runtime. The
+// Widget specialization to implement theme support for Alloy style. The
 // global NativeTheme (native/OS theme) will be used unless this Widget contains
 // a BrowserView, in which case a Chrome theme associated with the BrowserView's
 // Profile will be used.

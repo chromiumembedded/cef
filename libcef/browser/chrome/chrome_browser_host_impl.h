@@ -17,7 +17,7 @@
 class ChromeBrowserDelegate;
 class ChromeBrowserView;
 
-// CefBrowser implementation for the chrome runtime. Method calls are delegated
+// CefBrowser implementation for Chrome style. Method calls are delegated
 // to the chrome Browser object or the WebContents as appropriate. See the
 // ChromeBrowserDelegate documentation for additional details. All methods are
 // thread-safe unless otherwise indicated.

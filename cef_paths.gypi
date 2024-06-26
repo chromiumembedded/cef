@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=3b28f3236c16d2b776a44674ae3bae0a070e9f27$
+# $hash=29c508f2fb23e0ed2899163039384fb0a230be70$
 #
 
 {
@@ -35,8 +35,6 @@
       'include/cef_download_item.h',
       'include/cef_drag_data.h',
       'include/cef_drag_handler.h',
-      'include/cef_extension.h',
-      'include/cef_extension_handler.h',
       'include/cef_file_util.h',
       'include/cef_find_handler.h',
       'include/cef_focus_handler.h',
@@ -140,8 +138,6 @@
       'include/capi/cef_download_item_capi.h',
       'include/capi/cef_drag_data_capi.h',
       'include/capi/cef_drag_handler_capi.h',
-      'include/capi/cef_extension_capi.h',
-      'include/capi/cef_extension_handler_capi.h',
       'include/capi/cef_file_util_capi.h',
       'include/capi/cef_find_handler_capi.h',
       'include/capi/cef_focus_handler_capi.h',
@@ -304,10 +300,6 @@
       'libcef_dll/ctocpp/drag_handler_ctocpp.h',
       'libcef_dll/ctocpp/end_tracing_callback_ctocpp.cc',
       'libcef_dll/ctocpp/end_tracing_callback_ctocpp.h',
-      'libcef_dll/cpptoc/extension_cpptoc.cc',
-      'libcef_dll/cpptoc/extension_cpptoc.h',
-      'libcef_dll/ctocpp/extension_handler_ctocpp.cc',
-      'libcef_dll/ctocpp/extension_handler_ctocpp.h',
       'libcef_dll/cpptoc/file_dialog_callback_cpptoc.cc',
       'libcef_dll/cpptoc/file_dialog_callback_cpptoc.h',
       'libcef_dll/cpptoc/views/fill_layout_cpptoc.cc',
@@ -320,8 +312,6 @@
       'libcef_dll/cpptoc/frame_cpptoc.h',
       'libcef_dll/ctocpp/frame_handler_ctocpp.cc',
       'libcef_dll/ctocpp/frame_handler_ctocpp.h',
-      'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.cc',
-      'libcef_dll/cpptoc/get_extension_resource_callback_cpptoc.h',
       'libcef_dll/cpptoc/image_cpptoc.cc',
       'libcef_dll/cpptoc/image_cpptoc.h',
       'libcef_dll/cpptoc/jsdialog_callback_cpptoc.cc',
@@ -634,10 +624,6 @@
       'libcef_dll/cpptoc/drag_handler_cpptoc.h',
       'libcef_dll/cpptoc/end_tracing_callback_cpptoc.cc',
       'libcef_dll/cpptoc/end_tracing_callback_cpptoc.h',
-      'libcef_dll/ctocpp/extension_ctocpp.cc',
-      'libcef_dll/ctocpp/extension_ctocpp.h',
-      'libcef_dll/cpptoc/extension_handler_cpptoc.cc',
-      'libcef_dll/cpptoc/extension_handler_cpptoc.h',
       'libcef_dll/ctocpp/file_dialog_callback_ctocpp.cc',
       'libcef_dll/ctocpp/file_dialog_callback_ctocpp.h',
       'libcef_dll/ctocpp/views/fill_layout_ctocpp.cc',
@@ -650,8 +636,6 @@
       'libcef_dll/ctocpp/frame_ctocpp.h',
       'libcef_dll/cpptoc/frame_handler_cpptoc.cc',
       'libcef_dll/cpptoc/frame_handler_cpptoc.h',
-      'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.cc',
-      'libcef_dll/ctocpp/get_extension_resource_callback_ctocpp.h',
       'libcef_dll/ctocpp/image_ctocpp.cc',
       'libcef_dll/ctocpp/image_ctocpp.h',
       'libcef_dll/ctocpp/jsdialog_callback_ctocpp.cc',

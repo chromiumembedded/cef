@@ -28,10 +28,6 @@ def make_config_header(gn_config):
       not 'ozone_platform_x11=false' in lines:
     defines.append('#define CEF_X11 1')
 
-  # Temporary define for disabling the Alloy bootstrap. See issue #3685.
-  if 'enable_alloy_bootstrap=false' in lines:
-    defines.append('#define DISABLE_ALLOY_BOOTSTRAP 1')
-
   result = get_copyright(full=True, translator=False) + \
 """//
 // ---------------------------------------------------------------------------

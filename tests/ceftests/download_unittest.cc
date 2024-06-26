@@ -279,11 +279,7 @@ class DownloadTestHandler : public TestHandler {
       SendClick(browser,
                 test_mode_ == CLICKED_INVALID ? EVENTFLAG_ALT_DOWN : 0);
 
-      if (
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-          IsChromeBootstrap() &&
-#endif
-          is_clicked_invalid()) {
+      if (is_clicked_invalid()) {
         // Destroy the test after a bit because there will be no further
         // callbacks.
         CefPostDelayedTask(
@@ -517,15 +513,8 @@ class DownloadTestHandler : public TestHandler {
     }
 
     if (is_clicked_invalid()) {
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-      if (!IsChromeBootstrap()) {
-        EXPECT_TRUE(got_can_download_);
-      } else
-#endif
-      {
-        // No CanDownload for invalid protocol links.
-        EXPECT_FALSE(got_can_download_);
-      }
+      // No CanDownload for invalid protocol links.
+      EXPECT_FALSE(got_can_download_);
     } else if (is_clicked()) {
       EXPECT_TRUE(got_can_download_);
     } else {

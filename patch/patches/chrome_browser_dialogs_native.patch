@@ -1,26 +1,14 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index b6e26d1d2e082..90aec2642adfe 100644
+index b6e26d1d2e082..c84b890fa8a62 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -20,6 +20,7 @@
- #include "base/threading/hang_watcher.h"
- #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/browser_process.h"
- #include "chrome/browser/enterprise/connectors/common.h"
- #include "chrome/browser/platform_util.h"
-@@ -245,6 +246,17 @@ void FileSelectHelper::OnListFile(
+@@ -245,6 +245,13 @@ void FileSelectHelper::OnListFile(
  void FileSelectHelper::LaunchConfirmationDialog(
      const base::FilePath& path,
      std::vector<ui::SelectedFileInfo> selected_files) {
-+  if (
-+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-+      cef::IsAlloyRuntimeEnabled() ||
-+#endif
-+      run_from_cef_) {
-+    // Don't show the upload confirmation dialog with the Alloy runtime, or
-+    // when triggered via CEF (initially or recursively).
++  if (run_from_cef_) {
++    // Don't show the upload confirmation dialog when triggered via CEF
++    // (initially or recursively).
 +    ConvertToFileChooserFileInfoList(selected_files);
 +    return;
 +  }
@@ -28,22 +16,7 @@ index b6e26d1d2e082..90aec2642adfe 100644
    ShowFolderUploadConfirmationDialog(
        path,
        base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -329,6 +341,14 @@ void FileSelectHelper::PerformContentAnalysisIfNeeded(
-   if (AbortIfWebContentsDestroyed())
-     return;
- 
-+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-+  // Don't trigger creation of a AccountConsistencyModeManager (see issue #3401)
-+  if (cef::IsAlloyRuntimeEnabled()) {
-+    NotifyListenerAndEnd(std::move(list));
-+    return;
-+  }
-+#endif
-+
- #if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
-   enterprise_connectors::ContentAnalysisDelegate::Data data;
-   if (enterprise_connectors::ContentAnalysisDelegate::IsEnabled(
-@@ -472,31 +492,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -472,31 +479,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -99,7 +72,7 @@ index b6e26d1d2e082..90aec2642adfe 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -513,12 +553,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -513,12 +540,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -132,7 +105,7 @@ index b6e26d1d2e082..90aec2642adfe 100644
    }
  
    return file_type;
-@@ -528,7 +584,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -528,7 +571,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -142,7 +115,7 @@ index b6e26d1d2e082..90aec2642adfe 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -547,6 +604,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -547,6 +591,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));

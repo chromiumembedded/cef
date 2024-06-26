@@ -107,13 +107,6 @@ class CefRequestContextImpl : public CefRequestContext {
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
   void ResolveHost(const CefString& origin,
                    CefRefPtr<CefResolveCallback> callback) override;
-  void LoadExtension(const CefString& root_directory,
-                     CefRefPtr<CefDictionaryValue> manifest,
-                     CefRefPtr<CefExtensionHandler> handler) override;
-  bool DidLoadExtension(const CefString& extension_id) override;
-  bool HasExtension(const CefString& extension_id) override;
-  bool GetExtensions(std::vector<CefString>& extension_ids) override;
-  CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
   CefRefPtr<CefValue> GetWebsiteSetting(

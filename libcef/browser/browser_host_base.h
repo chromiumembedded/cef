@@ -23,15 +23,6 @@
 #include "cef/libcef/browser/javascript_dialog_manager.h"
 #include "cef/libcef/browser/media_stream_registrar.h"
 #include "cef/libcef/browser/request_context_impl.h"
-#include "cef/libcef/features/features.h"
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "extensions/common/mojom/view_type.mojom.h"
-#endif
-
-namespace extensions {
-class Extension;
-}
 
 class RenderViewContextMenuObserver;
 
@@ -78,7 +69,7 @@ struct CefBrowserCreateParams {
   bool IsWindowless() const;
 
   // Platform-specific window creation info. Will be nullptr for Views-hosted
-  // browsers except when using the Chrome runtime with a native parent handle.
+  // browsers except when using Chrome style with a native parent handle.
   std::unique_ptr<CefWindowInfo> window_info;
 
   // The BrowserView that will own a Views-hosted browser. Will be nullptr for
@@ -91,7 +82,7 @@ struct CefBrowserCreateParams {
   bool popup_with_views_hosted_opener = false;
 
   // True if this browser is a popup and has an Alloy style opener. Only used
-  // with the Chrome runtime.
+  // with Chrome style.
   bool popup_with_alloy_style_opener = false;
 
   // Client implementation. May be nullptr.
@@ -104,12 +95,6 @@ struct CefBrowserCreateParams {
   // Browser settings.
   CefBrowserSettings settings;
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // Other browser that opened this DevTools browser. Will be nullptr for non-
-  // DevTools browsers. Currently used with the alloy runtime only.
-  CefRefPtr<CefBrowserHostBase> devtools_opener;
-#endif
-
   // Request context to use when creating the browser. If nullptr the global
   // request context will be used.
   CefRefPtr<CefRequestContext> request_context;
@@ -117,19 +102,10 @@ struct CefBrowserCreateParams {
   // Extra information that will be passed to
   // CefRenderProcessHandler::OnBrowserCreated.
   CefRefPtr<CefDictionaryValue> extra_info;
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // Used when explicitly creating the browser as an extension host via
-  // ProcessManager::CreateBackgroundHost. Currently used with the alloy
-  // runtime only.
-  raw_ptr<const extensions::Extension> extension = nullptr;
-  extensions::mojom::ViewType extension_host_type =
-      extensions::mojom::ViewType::kInvalid;
-#endif
 };
 
 // Base class for CefBrowserHost implementations. Includes functionality that is
-// shared by the alloy and chrome runtimes. All methods are thread-safe unless
+// shared by Alloy and Chrome styles. All methods are thread-safe unless
 // otherwise indicated.
 class CefBrowserHostBase : public CefBrowserHost,
                            public CefBrowser,
@@ -283,8 +259,6 @@ class CefBrowserHostBase : public CefBrowserHost,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
   void NotifyMoveOrResizeStarted() override;
-  CefRefPtr<CefExtension> GetExtension() override;
-  bool IsBackgroundHost() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
   bool IsRenderProcessUnresponsive() override;

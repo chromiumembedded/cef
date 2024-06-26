@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=dd183a473b1e8c5ee8bdcf99949fc5274c4cc892$
+// $hash=9c7d613d1256bd6353f5102ece5a04e572f20627$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_COMMAND_HANDLER_CAPI_H_
@@ -64,7 +64,7 @@ typedef struct _cef_command_handler_t {
   /// intended command target. Return true (1) if the command was handled or
   /// false (0) for the default implementation. For context menu commands this
   /// will be called after cef_context_menu_handler_t::OnContextMenuCommand.
-  /// Only used with the Chrome runtime.
+  /// Only used with Chrome style.
   ///
   int(CEF_CALLBACK* on_chrome_command)(
       struct _cef_command_handler_t* self,
@@ -75,8 +75,7 @@ typedef struct _cef_command_handler_t {
   ///
   /// Called to check if a Chrome app menu item should be visible. Values for
   /// |command_id| can be found in the cef_command_ids.h file. Only called for
-  /// menu items that would be visible by default. Only used with the Chrome
-  /// runtime.
+  /// menu items that would be visible by default. Only used with Chrome style.
   ///
   int(CEF_CALLBACK* is_chrome_app_menu_item_visible)(
       struct _cef_command_handler_t* self,
@@ -86,8 +85,7 @@ typedef struct _cef_command_handler_t {
   ///
   /// Called to check if a Chrome app menu item should be enabled. Values for
   /// |command_id| can be found in the cef_command_ids.h file. Only called for
-  /// menu items that would be enabled by default. Only used with the Chrome
-  /// runtime.
+  /// menu items that would be enabled by default. Only used with Chrome style.
   ///
   int(CEF_CALLBACK* is_chrome_app_menu_item_enabled)(
       struct _cef_command_handler_t* self,
@@ -97,7 +95,7 @@ typedef struct _cef_command_handler_t {
   ///
   /// Called during browser creation to check if a Chrome page action icon
   /// should be visible. Only called for icons that would be visible by default.
-  /// Only used with the Chrome runtime.
+  /// Only used with Chrome style.
   ///
   int(CEF_CALLBACK* is_chrome_page_action_icon_visible)(
       struct _cef_command_handler_t* self,
@@ -106,7 +104,7 @@ typedef struct _cef_command_handler_t {
   ///
   /// Called during browser creation to check if a Chrome toolbar button should
   /// be visible. Only called for buttons that would be visible by default. Only
-  /// used with the Chrome runtime.
+  /// used with Chrome style.
   ///
   int(CEF_CALLBACK* is_chrome_toolbar_button_visible)(
       struct _cef_command_handler_t* self,

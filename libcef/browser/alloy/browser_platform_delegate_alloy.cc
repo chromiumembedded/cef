@@ -8,13 +8,7 @@
 
 #include "base/logging.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
-#include "cef/libcef/browser/extensions/extension_background_host.h"
-#include "cef/libcef/browser/extensions/extension_system.h"
-#include "cef/libcef/browser/extensions/extension_view_host.h"
-#include "cef/libcef/browser/extensions/extension_web_contents_observer.h"
-#include "cef/libcef/common/extensions/extensions_util.h"
 #include "cef/libcef/common/net/url_util.h"
-#include "cef/libcef/features/features.h"
 #include "chrome/browser/task_manager/web_contents_tags.h"
 #include "chrome/browser/ui/tab_helpers.h"
 #include "components/find_in_page/find_tab_helper.h"
@@ -26,33 +20,9 @@
 #include "pdf/pdf_features.h"
 #include "third_party/blink/public/mojom/frame/find_in_page.mojom.h"
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "cef/libcef/browser/alloy/dialogs/alloy_javascript_dialog_manager_delegate.h"
-#include "cef/libcef/features/runtime_checks.h"
-#include "chrome/browser/printing/printing_init.h"
-#include "chrome/browser/ui/prefs/prefs_tab_helper.h"
-#include "components/javascript_dialogs/tab_modal_dialog_manager.h"
-#include "components/permissions/permission_request_manager.h"
-#include "components/zoom/zoom_controller.h"
-#include "extensions/browser/extension_registry.h"
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
 namespace {
 
 const char kAttachedHelpersUserDataKey[] = "CefAttachedHelpers";
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-const extensions::Extension* GetExtensionForUrl(
-    content::BrowserContext* browser_context,
-    const GURL& url) {
-  auto* registry = extensions::ExtensionRegistry::Get(browser_context);
-  if (!registry) {
-    return nullptr;
-  }
-  std::string extension_id = url.host();
-  return registry->enabled_extensions().GetByID(extension_id);
-}
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 }  // namespace
 
@@ -73,38 +43,7 @@ content::WebContents* CefBrowserPlatformDelegateAlloy::CreateWebContents(
       CefRequestContextImpl::GetBrowserContext(create_params.request_context);
   CHECK(browser_context);
 
-  scoped_refptr<content::SiteInstance> site_instance;
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (extensions::ExtensionsEnabled() && !create_params.url.empty()) {
-    GURL gurl = url_util::MakeGURL(create_params.url, /*fixup=*/true);
-    if (!create_params.extension) {
-      // We might be loading an extension app view where the extension URL is
-      // provided by the client.
-      create_params.extension = GetExtensionForUrl(browser_context, gurl);
-    }
-    if (create_params.extension) {
-      if (create_params.extension_host_type ==
-          extensions::mojom::ViewType::kInvalid) {
-        // Default to popup behavior.
-        create_params.extension_host_type =
-            extensions::mojom::ViewType::kExtensionPopup;
-      }
-
-      // Extension resources will fail to load if we don't use a SiteInstance
-      // associated with the extension.
-      // (AlloyContentBrowserClient::SiteInstanceGotProcessAndSite won't find
-      // the extension to register with InfoMap, and AllowExtensionResourceLoad
-      // in ExtensionProtocolHandler::MaybeCreateJob will return false resulting
-      // in ERR_BLOCKED_BY_CLIENT).
-      site_instance = extensions::ProcessManager::Get(browser_context)
-                          ->GetSiteInstanceForURL(gurl);
-      DCHECK(site_instance);
-    }
-  }
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
-  content::WebContents::CreateParams wc_create_params(browser_context,
-                                                      site_instance);
+  content::WebContents::CreateParams wc_create_params(browser_context, nullptr);
 
   if (IsWindowless()) {
     // Create the OSR view for the WebContents.
@@ -154,27 +93,7 @@ void CefBrowserPlatformDelegateAlloy::AddNewContents(
         ->SetOwnedWebContents(new_contents.release());
     return;
   }
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (extension_host_) {
-    extension_host_->AddNewContents(source, std::move(new_contents), target_url,
-                                    disposition, window_features, user_gesture,
-                                    was_blocked);
-  }
-#endif
 }
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool CefBrowserPlatformDelegateAlloy::
-    ShouldAllowRendererInitiatedCrossProcessNavigation(
-        bool is_main_frame_navigation) {
-  if (extension_host_) {
-    return extension_host_->ShouldAllowRendererInitiatedCrossProcessNavigation(
-        is_main_frame_navigation);
-  }
-  return true;
-}
-#endif
 
 void CefBrowserPlatformDelegateAlloy::RenderViewReady() {
   ConfigureAutoResize();
@@ -200,55 +119,9 @@ void CefBrowserPlatformDelegateAlloy::BrowserCreated(
       std::make_unique<AlloyWebContentsDialogHelper>(web_contents_, this);
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-void CefBrowserPlatformDelegateAlloy::CreateExtensionHost(
-    const extensions::Extension* extension,
-    const GURL& url,
-    extensions::mojom::ViewType host_type) {
-  REQUIRE_ALLOY_RUNTIME();
-  DCHECK(primary_);
-
-  // Should get WebContentsCreated and BrowserCreated calls first.
-  DCHECK(web_contents_);
-  DCHECK(browser_);
-  DCHECK(!extension_host_);
-
-  auto alloy_browser = AlloyBrowserHostImpl::FromBaseChecked(browser_.get());
-
-  if (host_type == extensions::mojom::ViewType::kExtensionPopup) {
-    // Create an extension host that we own.
-    extension_host_ = new extensions::CefExtensionViewHost(
-        alloy_browser.get(), extension, web_contents_, url, host_type);
-    // Trigger load of the extension URL.
-    extension_host_->CreateRendererSoon();
-  } else if (host_type ==
-             extensions::mojom::ViewType::kExtensionBackgroundPage) {
-    is_background_host_ = true;
-    alloy_browser->is_background_host_ = true;
-    // Create an extension host that will be owned by ProcessManager.
-    extension_host_ = new extensions::CefExtensionBackgroundHost(
-        alloy_browser.get(),
-        base::BindOnce(&CefBrowserPlatformDelegateAlloy::OnExtensionHostDeleted,
-                       weak_ptr_factory_.GetWeakPtr()),
-        extension, web_contents_, url, host_type);
-    // Load will be triggered by ProcessManager::CreateBackgroundHost.
-  } else {
-    DCHECK(false) << " Unsupported extension host type: " << host_type;
-  }
-}
-
-extensions::ExtensionHost* CefBrowserPlatformDelegateAlloy::GetExtensionHost()
-    const {
-  return extension_host_;
-}
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
 void CefBrowserPlatformDelegateAlloy::BrowserDestroyed(
     CefBrowserHostBase* browser) {
   if (primary_) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-    DestroyExtensionHost();
-#endif
     owned_web_contents_.reset();
   }
 
@@ -289,25 +162,6 @@ void CefBrowserPlatformDelegateAlloy::NotifyMoveOrResizeStarted() {
   }
 }
 #endif
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool CefBrowserPlatformDelegateAlloy::PreHandleGestureEvent(
-    content::WebContents* source,
-    const blink::WebGestureEvent& event) {
-  if (extension_host_) {
-    return extension_host_->PreHandleGestureEvent(source, event);
-  }
-  return false;
-}
-
-bool CefBrowserPlatformDelegateAlloy::IsNeverComposited(
-    content::WebContents* web_contents) {
-  if (extension_host_) {
-    return extension_host_->IsNeverComposited(web_contents);
-  }
-  return false;
-}
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 void CefBrowserPlatformDelegateAlloy::SetAutoResizeEnabled(
     bool enabled,
@@ -404,34 +258,6 @@ void CefBrowserPlatformDelegateAlloy::SetOwnedWebContents(
   owned_web_contents_.reset(owned_contents);
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-void CefBrowserPlatformDelegateAlloy::DestroyExtensionHost() {
-  if (!extension_host_) {
-    return;
-  }
-  if (extension_host_->extension_host_type() ==
-      extensions::mojom::ViewType::kExtensionBackgroundPage) {
-    DCHECK(is_background_host_);
-    // Close notification for background pages arrives via CloseContents.
-    // The extension host will be deleted by
-    // ProcessManager::CloseBackgroundHost and OnExtensionHostDeleted will be
-    // called to notify us.
-    extension_host_->Close();
-  } else {
-    DCHECK(!is_background_host_);
-    // We own the extension host and must delete it.
-    delete extension_host_;
-    extension_host_ = nullptr;
-  }
-}
-
-void CefBrowserPlatformDelegateAlloy::OnExtensionHostDeleted() {
-  DCHECK(is_background_host_);
-  DCHECK(extension_host_);
-  extension_host_ = nullptr;
-}
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
 void CefBrowserPlatformDelegateAlloy::AttachHelpers(
     content::WebContents* web_contents) {
   // If already attached, nothing to be done.
@@ -445,36 +271,20 @@ void CefBrowserPlatformDelegateAlloy::AttachHelpers(
   web_contents->SetUserData(&kAttachedHelpersUserDataKey,
                             std::make_unique<base::SupportsUserData::Data>());
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // Create all the helpers.
-  if (cef::IsAlloyRuntimeEnabled()) {
-    find_in_page::FindTabHelper::CreateForWebContents(web_contents);
-    permissions::PermissionRequestManager::CreateForWebContents(web_contents);
-    PrefsTabHelper::CreateForWebContents(web_contents);
-    printing::InitializePrintingForWebContents(web_contents);
-    zoom::ZoomController::CreateForWebContents(web_contents);
-
-    javascript_dialogs::TabModalDialogManager::CreateForWebContents(
-        web_contents, CreateAlloyJavaScriptTabModalDialogManagerDelegateDesktop(
-                          web_contents));
-  } else
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  {
-    if (IsWindowless()) {
-      // Logic from ChromeContentBrowserClientCef::GetWebContentsViewDelegate
-      // which is not called for windowless browsers. Needs to be done before
-      // calling AttachTabHelpers.
-      if (auto* registry =
-              performance_manager::PerformanceManagerRegistry::GetInstance()) {
-        registry->MaybeCreatePageNodeForWebContents(web_contents);
-      }
+  if (IsWindowless()) {
+    // Logic from ChromeContentBrowserClientCef::GetWebContentsViewDelegate
+    // which is not called for windowless browsers. Needs to be done before
+    // calling AttachTabHelpers.
+    if (auto* registry =
+            performance_manager::PerformanceManagerRegistry::GetInstance()) {
+      registry->MaybeCreatePageNodeForWebContents(web_contents);
     }
-
-    // Adopt the WebContents now, so all observers are in place, as the network
-    // requests for its initial navigation will start immediately
-    TabHelpers::AttachTabHelpers(web_contents);
-
-    // Make the tab show up in the task manager.
-    task_manager::WebContentsTags::CreateForTabContents(web_contents);
   }
+
+  // Adopt the WebContents now, so all observers are in place, as the network
+  // requests for its initial navigation will start immediately
+  TabHelpers::AttachTabHelpers(web_contents);
+
+  // Make the tab show up in the task manager.
+  task_manager::WebContentsTags::CreateForTabContents(web_contents);
 }

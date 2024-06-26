@@ -111,7 +111,7 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   /// Views-hosted source browsers will create Views-hosted DevTools popups
   /// unless |use_default_window| is set to to true. DevTools popups can be
   /// blocked by returning true from CefCommandHandler::OnChromeCommand for
-  /// IDC_DEV_TOOLS. Only used with the Chrome runtime.
+  /// IDC_DEV_TOOLS. Only used with Chrome style.
   ///
   /*--cef()--*/
   virtual void OnBeforeDevToolsPopup(CefRefPtr<CefBrowser> browser,

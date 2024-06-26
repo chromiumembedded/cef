@@ -26,13 +26,6 @@ namespace {
 cef_runtime_style_t GetExpectedRuntimeStyle(TestHandler* handler,
                                             bool is_devtools_popup,
                                             bool is_window) {
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (!IsChromeBootstrap()) {
-    // Alloy runtime always uses Alloy style.
-    return CEF_RUNTIME_STYLE_ALLOY;
-  }
-#endif
-
   const bool alloy_requested = is_window ? handler->use_alloy_style_window()
                                          : handler->use_alloy_style_browser();
 
@@ -67,7 +60,7 @@ class TestWindowDelegate : public CefWindowDelegate {
     window->AddChildView(browser_view_);
     window->Show();
 
-    // With Chrome runtime, the Browser is not created until after the
+    // With Chrome style, the Browser is not created until after the
     // BrowserView is assigned to the Window.
     browser_id_ = browser_view_->GetBrowser()->GetIdentifier();
     handler_->OnWindowCreated(browser_id_);
@@ -692,13 +685,6 @@ void TestHandler::SetUseViews(bool use_views) {
 
 void TestHandler::SetUseAlloyStyle(bool use_alloy_style_browser,
                                    bool use_alloy_style_window) {
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (!IsChromeBootstrap()) {
-    LOG(WARNING) << "SetUseAlloyStyle is ignored with the Alloy runtime";
-    return;
-  }
-#endif
-
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::BindOnce(&TestHandler::SetUseAlloyStyle, this,
                                        use_alloy_style_browser,

@@ -113,23 +113,11 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  const bool enable_chrome_runtime =
-      !command_line->HasSwitch("disable-chrome-runtime");
-#endif
-
-  // Check if Alloy style will be used. Alloy style is always used with the
-  // Alloy runtime bootstrap and optional with the Chrome runtime bootstrap.
-  bool use_alloy_style = true;
+  // Check if Alloy style will be used.
   cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (enable_chrome_runtime)
-#endif
-  {
-    use_alloy_style = command_line->HasSwitch("use-alloy-style");
-    if (use_alloy_style) {
-      runtime_style = CEF_RUNTIME_STYLE_ALLOY;
-    }
+  bool use_alloy_style = command_line->HasSwitch("use-alloy-style");
+  if (use_alloy_style) {
+    runtime_style = CEF_RUNTIME_STYLE_ALLOY;
   }
 
   // SimpleHandler implements browser-level callbacks.
@@ -147,16 +135,8 @@ void SimpleApp::OnContextInitialized() {
     url = "https://www.google.com";
   }
 
-  // Views is enabled by default with the Chrome bootstrap (add `--use-native`
-  // to disable). Views is disabled by default with the Alloy bootstrap (add
-  // `--use-views` to enable).
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  const bool use_views =
-      (enable_chrome_runtime && !command_line->HasSwitch("use-native")) ||
-      (!enable_chrome_runtime && command_line->HasSwitch("use-views"));
-#else
+  // Views is enabled by default (add `--use-native` to disable).
   const bool use_views = !command_line->HasSwitch("use-native");
-#endif
 
   // If using Views create the browser using the Views framework, otherwise
   // create the browser using the native platform framework.
@@ -195,8 +175,8 @@ void SimpleApp::OnContextInitialized() {
     window_info.SetAsPopup(nullptr, "cefsimple");
 #endif
 
-    // Alloy runtime style will create a basic native window. Chrome runtime
-    // style will create a fully styled Chrome UI window.
+    // Alloy style will create a basic native window. Chrome style will create a
+    // fully styled Chrome UI window.
     window_info.runtime_style = runtime_style;
 
     // Create the first browser window.
@@ -206,6 +186,6 @@ void SimpleApp::OnContextInitialized() {
 }
 
 CefRefPtr<CefClient> SimpleApp::GetDefaultClient() {
-  // Called when a new browser window is created via the Chrome runtime UI.
+  // Called when a new browser window is created via Chrome style UI.
   return SimpleHandler::GetInstance();
 }

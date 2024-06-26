@@ -530,7 +530,7 @@ class BasicResponseTest : public TestHandler {
     EXPECT_TRUE(frame->IsMain());
 
     if (!use_alloy_style_browser()) {
-      // With the Chrome runtime this is true on initial navigation via
+      // With Chrome style this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
     } else {
@@ -1563,7 +1563,7 @@ class SubresourceResponseTest : public RoutingTestHandler {
     }
 
     if (!use_alloy_style_browser() && IsMainURL(url)) {
-      // With the Chrome runtime this is true on initial navigation via
+      // With Chrome style this is true on initial navigation via
       // chrome::AddTabAt() and also true for clicked links.
       EXPECT_TRUE(user_gesture);
     } else {

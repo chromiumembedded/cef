@@ -84,38 +84,3 @@ index af7f1d5fac12b..1cb1d01464c11 100644
    base::WeakPtrFactory<ChromeDownloadManagerDelegate> weak_ptr_factory_{this};
  };
  
-diff --git chrome/browser/download/download_prefs.cc chrome/browser/download/download_prefs.cc
-index 4ffbb8f5630d4..da0d2975b13d5 100644
---- chrome/browser/download/download_prefs.cc
-+++ chrome/browser/download/download_prefs.cc
-@@ -23,6 +23,7 @@
- #include "base/strings/utf_string_conversions.h"
- #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
-+#include "cef/libcef/features/runtime.h"
- #include "chrome/browser/download/chrome_download_manager_delegate.h"
- #include "chrome/browser/download/download_core_service_factory.h"
- #include "chrome/browser/download/download_core_service_impl.h"
-@@ -64,6 +65,10 @@
- #include "chrome/browser/flags/android/chrome_feature_list.h"
- #endif
- 
-+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-+#include "cef/libcef/browser/alloy/alloy_download_util.h"
-+#endif
-+
- using content::BrowserContext;
- using content::BrowserThread;
- using content::DownloadManager;
-@@ -351,6 +356,11 @@ DownloadPrefs* DownloadPrefs::FromDownloadManager(
- // static
- DownloadPrefs* DownloadPrefs::FromBrowserContext(
-     content::BrowserContext* context) {
-+#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-+  if (cef::IsAlloyRuntimeEnabled()) {
-+    return alloy::GetDownloadPrefsFromBrowserContext(context);
-+  }
-+#endif
-   return FromDownloadManager(context->GetDownloadManager());
- }
- 

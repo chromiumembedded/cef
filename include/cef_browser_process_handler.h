@@ -60,8 +60,8 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be
   /// accessed via CefPreferenceManager::GetGlobalPreferences after
   /// OnContextInitialized is called. Global preferences are registered a single
-  /// time at application startup. See related cef_settings_t.cache_path and
-  /// cef_settings_t.persist_user_preferences configuration.
+  /// time at application startup. See related cef_settings_t.cache_path
+  /// configuration.
   ///
   /// If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be
   /// accessed via the CefRequestContext after
@@ -69,8 +69,7 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// context preferences are registered each time a new CefRequestContext is
   /// created. It is intended but not required that all request contexts have
   /// the same registered preferences. See related
-  /// cef_request_context_settings_t.cache_path and
-  /// cef_request_context_settings_t.persist_user_preferences configuration.
+  /// cef_request_context_settings_t.cache_path configuration.
   ///
   /// Do not keep a reference to the |registrar| object. This method is called
   /// on the browser process UI thread.
@@ -144,8 +143,8 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// (CefBrowser object). If null is returned the CefBrowser will be unmanaged
   /// (no callbacks will be executed for that CefBrowser) and application
   /// shutdown will be blocked until the browser window is closed manually. This
-  /// method is currently only used with the Chrome runtime when creating new
-  /// browser windows via Chrome UI.
+  /// method is currently only used with Chrome style when creating new browser
+  /// windows via Chrome UI.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefClient> GetDefaultClient() { return nullptr; }
@@ -154,8 +153,8 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   /// Return the default handler for use with a new user or incognito profile
   /// (CefRequestContext object). If null is returned the CefRequestContext will
   /// be unmanaged (no callbacks will be executed for that CefRequestContext).
-  /// This method is currently only used with the Chrome runtime when creating
-  /// new browser windows via Chrome UI.
+  /// This method is currently only used with Chrome style when creating new
+  /// browser windows via Chrome UI.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefRequestContextHandler>

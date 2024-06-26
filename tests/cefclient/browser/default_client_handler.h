@@ -10,8 +10,8 @@
 
 namespace client {
 
-// Default client handler for unmanaged browser windows. Used with the Chrome
-// runtime only.
+// Default client handler for unmanaged browser windows. Used with Chrome
+// style only.
 class DefaultClientHandler : public BaseClientHandler {
  public:
   DefaultClientHandler() = default;

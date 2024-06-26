@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=c9b3913701581cd6a1077fa3a39d197f338a2507$
+// $hash=66aebf0e910224fb8eaa7f847feeccac73378374$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_PERMISSION_HANDLER_CAPI_H_
@@ -108,11 +108,11 @@ typedef struct _cef_permission_handler_t {
   /// cef_media_access_permission_types_t that represent the requested
   /// permissions. Return true (1) and call cef_media_access_callback_t
   /// functions either in this function or at a later time to continue or cancel
-  /// the request. Return false (0) to proceed with default handling. With the
-  /// Chrome runtime, default handling will display the permission request UI.
-  /// With the Alloy runtime, default handling will deny the request. This
-  /// function will not be called if the "--enable-media-stream" command-line
-  /// switch is used to grant all permissions.
+  /// the request. Return false (0) to proceed with default handling. With
+  /// Chrome style, default handling will display the permission request UI.
+  /// With Alloy style, default handling will deny the request. This function
+  /// will not be called if the "--enable-media-stream" command-line switch is
+  /// used to grant all permissions.
   ///
   int(CEF_CALLBACK* on_request_media_access_permission)(
       struct _cef_permission_handler_t* self,
@@ -129,9 +129,9 @@ typedef struct _cef_permission_handler_t {
   /// cef_permission_request_types_t that represent the requested permissions.
   /// Return true (1) and call cef_permission_prompt_callback_t::Continue either
   /// in this function or at a later time to continue or cancel the request.
-  /// Return false (0) to proceed with default handling. With the Chrome
-  /// runtime, default handling will display the permission prompt UI. With the
-  /// Alloy runtime, default handling is CEF_PERMISSION_RESULT_IGNORE.
+  /// Return false (0) to proceed with default handling. With Chrome style,
+  /// default handling will display the permission prompt UI. With Alloy style,
+  /// default handling is CEF_PERMISSION_RESULT_IGNORE.
   ///
   int(CEF_CALLBACK* on_show_permission_prompt)(
       struct _cef_permission_handler_t* self,

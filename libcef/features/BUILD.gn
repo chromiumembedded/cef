@@ -80,7 +80,6 @@ buildflag_header("features") {
   header = "features.h"
 
   flags = [
-    "ENABLE_ALLOY_BOOTSTRAP=$enable_alloy_bootstrap",
     "ENABLE_CEF=$enable_cef",
     "IS_CEF_SANDBOX_BUILD=$is_cef_sandbox_build",
   ]

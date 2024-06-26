@@ -35,7 +35,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler {
 
     // Allow the startup URL to create popups that bypass the popup blocker.
     // For example, via Tests > New Popup from the top menu. This applies for
-    // for the Chrome runtime only.
+    // for Chrome style only.
     const auto& startup_url =
         MainContext::Get()->GetMainURL(/*command_line=*/nullptr);
     request_context->SetContentSetting(startup_url, startup_url,
@@ -65,16 +65,10 @@ void SanityCheckWindowConfig(const bool is_devtools,
   // should use default window creation instead.
   CHECK(!(is_devtools && !use_views));
 
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  if (MainContext::Get()->UseChromeBootstrap())
-#endif
-  {
-    if (is_devtools && use_alloy_style) {
-      LOG(WARNING)
-          << "Alloy style is not supported with Chrome runtime DevTools;"
-             " using Chrome style.";
-      use_alloy_style = false;
-    }
+  if (is_devtools && use_alloy_style) {
+    LOG(WARNING) << "Alloy style is not supported with Chrome runtime DevTools;"
+                    " using Chrome style.";
+    use_alloy_style = false;
   }
 
   if (!use_alloy_style && with_osr) {
@@ -244,13 +238,8 @@ CefRefPtr<CefRequestContext> RootWindowManager::CreateRequestContext(
   REQUIRE_MAIN_THREAD();
 
   if (request_context_per_browser_) {
-    // Synchronous use of non-global request contexts is not safe with the
-    // Chrome runtime.
-#if defined(DISABLE_ALLOY_BOOTSTRAP)
+    // Synchronous use of non-global request contexts is not safe.
     CHECK(!callback.is_null());
-#else
-    CHECK(!callback.is_null() || !MainContext::Get()->UseChromeBootstrap());
-#endif
 
     // Create a new request context for each browser.
     CefRequestContextSettings settings;

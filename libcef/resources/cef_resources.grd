@@ -9,12 +9,8 @@
   <translations />
   <release seq="1">
     <includes>
-      <include name="IDR_CEF_DEVTOOLS_DISCOVERY_PAGE" file="devtools_discovery_page.html" type="BINDATA" />
       <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
       <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
-
-      <!-- Extension features supported by CEF. -->
-      <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
     </includes>
   </release>
 </grit>

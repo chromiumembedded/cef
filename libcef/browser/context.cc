@@ -589,9 +589,6 @@ void CefContext::PopulateGlobalRequestContextSettings(
   settings->persist_session_cookies =
       settings_.persist_session_cookies ||
       command_line->HasSwitch(switches::kPersistSessionCookies);
-  settings->persist_user_preferences =
-      settings_.persist_user_preferences ||
-      command_line->HasSwitch(switches::kPersistUserPreferences);
 
   CefString(&settings->cookieable_schemes_list) =
       CefString(&settings_.cookieable_schemes_list);

@@ -26,21 +26,16 @@ class CorsBrowserTest : public client::ClientAppBrowser::Delegate {
   CorsBrowserTest() = default;
 
   void OnContextInitialized(CefRefPtr<client::ClientAppBrowser> app) override {
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-    if (IsChromeBootstrap())
-#endif
-    {
-      // Disable InsecureFormNavigationThrottle which blocks 307 redirect of
-      // POST requests from HTTPS to custom non-standard scheme causing the
-      // CorsTest.RedirectPost307HttpSchemeToCustomNonStandardScheme test to
-      // fail.
-      CefRefPtr<CefValue> value = CefValue::Create();
-      value->SetBool(false);
-      CefString error;
-      bool result = CefRequestContext::GetGlobalContext()->SetPreference(
-          "profile.mixed_forms_warnings", value, error);
-      CHECK(result) << error.ToString();
-    }
+    // Disable InsecureFormNavigationThrottle which blocks 307 redirect of
+    // POST requests from HTTPS to custom non-standard scheme causing the
+    // CorsTest.RedirectPost307HttpSchemeToCustomNonStandardScheme test to
+    // fail.
+    CefRefPtr<CefValue> value = CefValue::Create();
+    value->SetBool(false);
+    CefString error;
+    bool result = CefRequestContext::GetGlobalContext()->SetPreference(
+        "profile.mixed_forms_warnings", value, error);
+    CHECK(result) << error.ToString();
   }
 
  private:

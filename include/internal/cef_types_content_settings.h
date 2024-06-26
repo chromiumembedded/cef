@@ -37,7 +37,7 @@ extern "C" {
 
 ///
 /// Supported content setting types. Some types are platform-specific or only
-/// supported with the Chrome runtime. Should be kept in sync with Chromium's
+/// supported with Chrome style. Should be kept in sync with Chromium's
 /// ContentSettingsType type.
 ///
 typedef enum {

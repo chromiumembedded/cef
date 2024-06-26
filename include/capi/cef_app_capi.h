@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=dfa0d4d2da319b2fd5e92324fd14301b500ceb5c$
+// $hash=608f4520d7901b6e18bf9164c9460f1b75bad8f4$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_APP_CAPI_H_
@@ -91,11 +91,9 @@ typedef struct _cef_app_t {
       struct _cef_scheme_registrar_t* registrar);
 
   ///
-  /// Return the handler for resource bundle events. If
-  /// cef_settings_t.pack_loading_disabled is true (1) a handler must be
-  /// returned. If no handler is returned resources will be loaded from pack
-  /// files. This function is called by the browser and render processes on
-  /// multiple threads.
+  /// Return the handler for resource bundle events. If no handler is returned
+  /// resources will be loaded from pack files. This function is called by the
+  /// browser and render processes on multiple threads.
   ///
   struct _cef_resource_bundle_handler_t*(
       CEF_CALLBACK* get_resource_bundle_handler)(struct _cef_app_t* self);

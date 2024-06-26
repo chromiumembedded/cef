@@ -258,14 +258,14 @@ void CefWindowImpl::SetFullscreen(bool fullscreen) {
       return;
     }
 
-    // Call the Widget method directly with Alloy runtime, or Chrome runtime
+    // Call the Widget method directly with Alloy style, or Chrome style
     // when no BrowserView exists.
     widget_->SetFullscreen(fullscreen);
 
-    // Use a synchronous callback notification on Windows/Linux. Chrome runtime
+    // Use a synchronous callback notification on Windows/Linux. Chrome style
     // on Windows/Linux gets notified synchronously via ChromeBrowserDelegate
-    // callbacks when a BrowserView exists. MacOS (both runtimes) gets notified
-    // asynchronously via CefNativeWidgetMac callbacks.
+    // callbacks when a BrowserView exists. MacOS (both runtime styles) gets
+    // notified asynchronously via CefNativeWidgetMac callbacks.
 #if !BUILDFLAG(IS_MAC)
     if (delegate()) {
       delegate()->OnWindowFullscreenTransition(this, /*is_completed=*/true);

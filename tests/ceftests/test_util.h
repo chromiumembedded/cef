@@ -87,11 +87,6 @@ inline bool IsTestRequestContextModeCustom(TestRequestContextMode mode) {
 // Returns true if the old CefResourceHandler API should be tested.
 bool TestOldResourceAPI();
 
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-// Returns true if the Chrome runtime is enabled.
-bool IsChromeBootstrap();
-#endif
-
 // Returns true if Views should be used as a the global default.
 bool UseViewsGlobal();
 
@@ -130,8 +125,7 @@ void SendMouseClickEvent(CefRefPtr<CefBrowser> browser,
                          cef_mouse_button_type_t mouse_button_type = MBT_LEFT);
 
 // Allow |parent_url| to create popups that bypass the popup blocker. If
-// |parent_url| is empty the default value will be configured. This method only
-// applies for the Chrome runtime.
+// |parent_url| is empty the default value will be configured.
 void GrantPopupPermission(CefRefPtr<CefRequestContext> request_context,
                           const std::string& parent_url);
 

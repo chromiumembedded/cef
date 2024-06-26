@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a0a9f2bfcdf8e05d3d1114fcd8860caaa726ec98$
+// $hash=f8e8992eedf254a60e2875715c3adfa23ca4ae20$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -134,7 +134,7 @@ typedef struct _cef_browser_view_delegate_t {
   ///
   /// Called when |browser_view| receives a gesture command. Return true (1) to
   /// handle (or disable) a |gesture_command| or false (0) to propagate the
-  /// gesture to the browser for default handling. With the Chrome runtime these
+  /// gesture to the browser for default handling. With Chrome style these
   /// commands can also be handled via cef_command_handler_t::OnChromeCommand.
   ///
   int(CEF_CALLBACK* on_gesture_command)(

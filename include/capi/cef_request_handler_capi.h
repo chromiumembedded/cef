@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=2e8b5c5107f61e3d4c333dc02c76a9f30cd0cf83$
+// $hash=db7cfb76483d6ab73eba74deaefafa7700ad1988$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -227,20 +227,19 @@ typedef struct _cef_request_handler_t {
   /// Called on the browser process UI thread when the render process is
   /// unresponsive as indicated by a lack of input event processing for at least
   /// 15 seconds. Return false (0) for the default behavior which is an
-  /// indefinite wait with the Alloy runtime or display of the "Page
-  /// unresponsive" dialog with the Chrome runtime. Return true (1) and don't
-  /// execute the callback for an indefinite wait without display of the Chrome
-  /// runtime dialog. Return true (1) and call
-  /// cef_unresponsive_process_callback_t::Wait either in this function or at a
-  /// later time to reset the wait timer, potentially triggering another call to
-  /// this function if the process remains unresponsive. Return true (1) and
-  /// call cef_unresponsive_process_callback_t:: Terminate either in this
-  /// function or at a later time to terminate the unresponsive process,
-  /// resulting in a call to OnRenderProcessTerminated.
-  /// OnRenderProcessResponsive will be called if the process becomes responsive
-  /// after this function is called. This functionality depends on the hang
-  /// monitor which can be disabled by passing the `--disable-hang-monitor`
-  /// command-line flag.
+  /// indefinite wait with Alloy style or display of the "Page unresponsive"
+  /// dialog with Chrome style. Return true (1) and don't execute the callback
+  /// for an indefinite wait without display of the Chrome style dialog. Return
+  /// true (1) and call cef_unresponsive_process_callback_t::Wait either in this
+  /// function or at a later time to reset the wait timer, potentially
+  /// triggering another call to this function if the process remains
+  /// unresponsive. Return true (1) and call
+  /// cef_unresponsive_process_callback_t:: Terminate either in this function or
+  /// at a later time to terminate the unresponsive process, resulting in a call
+  /// to OnRenderProcessTerminated. OnRenderProcessResponsive will be called if
+  /// the process becomes responsive after this function is called. This
+  /// functionality depends on the hang monitor which can be disabled by passing
+  /// the `--disable-hang-monitor` command-line flag.
   ///
   int(CEF_CALLBACK* on_render_process_unresponsive)(
       struct _cef_request_handler_t* self,

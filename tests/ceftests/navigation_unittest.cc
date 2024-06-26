@@ -1919,7 +1919,7 @@ class LoadNavTestHandler : public TestHandler {
     if (mode_ == LOAD || IsInitialUrl(request->GetURL())) {
       EXPECT_EQ(kTransitionExplicitLoad, request->GetTransitionType());
       if (!use_alloy_style_browser()) {
-        // With the Chrome runtime this is true on initial navigation via
+        // With Chrome style this is true on initial navigation via
         // chrome::AddTabAt()
         EXPECT_EQ(user_gesture, IsInitialUrl(request->GetURL()));
       } else {
@@ -1972,8 +1972,8 @@ class LoadNavTestHandler : public TestHandler {
     got_open_url_from_tab_.yes();
 
     if (!cancel_in_open_url_ && !use_alloy_style_browser()) {
-      // The chrome runtime may create a new popup window, which is not the
-      // behavior that this test expects. Instead, match the alloy runtime
+      // Chrome style may create a new popup window, which is not the
+      // behavior that this test expects. Instead, match Alloy style
       // behavior by navigating in the current window.
       browser->GetMainFrame()->LoadURL(target_url);
       return true;

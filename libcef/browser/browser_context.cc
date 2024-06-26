@@ -365,35 +365,6 @@ void CefBrowserContext::ClearSchemeHandlerFactories() {
                                iothread_state_));
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-void CefBrowserContext::LoadExtension(
-    const CefString& root_directory,
-    CefRefPtr<CefDictionaryValue> manifest,
-    CefRefPtr<CefExtensionHandler> handler,
-    CefRefPtr<CefRequestContext> loader_context) {
-  NOTIMPLEMENTED();
-  if (handler) {
-    handler->OnExtensionLoadFailed(ERR_ABORTED);
-  }
-}
-
-bool CefBrowserContext::GetExtensions(std::vector<CefString>& extension_ids) {
-  NOTIMPLEMENTED();
-  return false;
-}
-
-CefRefPtr<CefExtension> CefBrowserContext::GetExtension(
-    const CefString& extension_id) {
-  NOTIMPLEMENTED();
-  return nullptr;
-}
-
-bool CefBrowserContext::UnloadExtension(const CefString& extension_id) {
-  NOTIMPLEMENTED();
-  return false;
-}
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
 network::mojom::NetworkContext* CefBrowserContext::GetNetworkContext() {
   CEF_REQUIRE_UIT();
   auto browser_context = AsBrowserContext();

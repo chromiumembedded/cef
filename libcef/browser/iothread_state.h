@@ -10,7 +10,6 @@
 #include "cef/include/cef_request_context_handler.h"
 #include "cef/include/cef_scheme.h"
 #include "cef/libcef/browser/request_context_handler_map.h"
-#include "cef/libcef/features/features.h"
 #include "content/public/browser/browser_thread.h"
 
 namespace content {
@@ -52,10 +51,6 @@ class CefIOThreadState : public base::RefCountedThreadSafe<
   friend class base::DeleteHelper<CefIOThreadState>;
 
   ~CefIOThreadState();
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  void InitOnIOThread();
-#endif
 
   // Map IDs to CefRequestContextHandler objects.
   CefRequestContextHandlerMap handler_map_;

@@ -36,19 +36,15 @@ extern "C" {
 #endif
 
 ///
-/// CEF supports both a Chrome runtime (based on the Chrome UI layer) and an
-/// Alloy runtime (based on the Chromium content layer). The Chrome runtime
-/// provides the full Chrome UI and browser functionality whereas the Alloy
-/// runtime provides less default browser functionality but adds additional
-/// client callbacks and support for windowless (off-screen) rendering. For
-/// additional comparative details on runtime types see
+/// CEF supports both a Chrome runtime style (based on the Chrome UI layer) and
+/// an Alloy runtime style (based on the Chromium content layer). Chrome style
+/// provides the full Chrome UI and browser functionality whereas Alloy style
+/// provides less default browser functionality but adds additional client
+/// callbacks and support for windowless (off-screen) rendering. The style type
+/// is individually configured for each window/browser at creation time and
+/// different styles can be mixed during runtime. For additional comparative
+/// details on runtime styles see
 /// https://bitbucket.org/chromiumembedded/cef/wiki/Architecture.md#markdown-header-cef3
-///
-/// Each runtime is composed of a bootstrap component and a style component. The
-/// bootstrap component is configured via CefSettings.chrome_runtime and cannot
-/// be changed after CefInitialize. The style component is individually
-/// configured for each window/browser at creation time and, in combination with
-/// the Chrome bootstrap, different styles can be mixed during runtime.
 ///
 /// Windowless rendering will always use Alloy style. Windowed rendering with a
 /// default window or client-provided parent window can configure the style via
@@ -63,20 +59,17 @@ extern "C" {
 ///
 typedef enum {
   ///
-  /// Use the default runtime style. The default style will match the
-  /// CefSettings.chrome_runtime value in most cases. See above documentation
-  /// for exceptions.
+  /// Use the default style. See above documentation for exceptions.
   ///
   CEF_RUNTIME_STYLE_DEFAULT,
 
   ///
-  /// Use the Chrome runtime style. Only supported with the Chrome runtime.
+  /// Use Chrome style.
   ///
   CEF_RUNTIME_STYLE_CHROME,
 
   ///
-  /// Use the Alloy runtime style. Supported with both the Alloy and Chrome
-  /// runtime.
+  /// Use Alloy style.
   ///
   CEF_RUNTIME_STYLE_ALLOY,
 } cef_runtime_style_t;

@@ -8,7 +8,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/notreached.h"
 #include "cef/libcef/browser/browser_host_base.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/ui/permission_bubble/permission_prompt.h"
 
 namespace permission_prompt {
@@ -258,11 +257,7 @@ std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPromptImpl(
     bool* default_handling) {
   CEF_REQUIRE_UIT();
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  bool is_alloy_style = cef::IsAlloyRuntimeEnabled();
-#else
   bool is_alloy_style = false;
-#endif
 
   if (auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents)) {
     is_alloy_style = browser->IsAlloyStyle();

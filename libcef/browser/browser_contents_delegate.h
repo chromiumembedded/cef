@@ -43,8 +43,8 @@ constexpr inline CefBrowserContentsState operator|(
 }
 
 // Tracks state and executes client callbacks based on WebContents callbacks.
-// Includes functionality that is shared by the alloy and chrome runtimes.
-// Only accessed on the UI thread.
+// Includes functionality that is shared by Alloy and Chrome styles. Only
+// accessed on the UI thread.
 class CefBrowserContentsDelegate : public content::WebContentsDelegate,
                                    public content::WebContentsObserver {
  public:

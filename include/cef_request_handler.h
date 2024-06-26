@@ -226,10 +226,10 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   /// Called on the browser process UI thread when the render process is
   /// unresponsive as indicated by a lack of input event processing for at
   /// least 15 seconds. Return false for the default behavior which is an
-  /// indefinite wait with the Alloy runtime or display of the "Page
-  /// unresponsive" dialog with the Chrome runtime. Return true and don't
+  /// indefinite wait with Alloy style or display of the "Page
+  /// unresponsive" dialog with Chrome style. Return true and don't
   /// execute the callback for an indefinite wait without display of the Chrome
-  /// runtime dialog. Return true and call CefUnresponsiveProcessCallback::Wait
+  /// style dialog. Return true and call CefUnresponsiveProcessCallback::Wait
   /// either in this method or at a later time to reset the wait timer,
   /// potentially triggering another call to this method if the process remains
   /// unresponsive. Return true and call CefUnresponsiveProcessCallback::

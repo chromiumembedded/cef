@@ -13,7 +13,6 @@
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 #include "cef/libcef/common/net/url_util.h"
-#include "cef/libcef/features/runtime_checks.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_navigator.h"
@@ -67,45 +66,30 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::FromBaseChecked(
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  REQUIRE_CHROME_RUNTIME();
-#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForHost(
     const content::RenderFrameHost* host) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  REQUIRE_CHROME_RUNTIME();
-#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForHost(host));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForContents(
     const content::WebContents* contents) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  REQUIRE_CHROME_RUNTIME();
-#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForContents(contents));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForGlobalId(
     const content::GlobalRenderFrameHostId& global_id) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  REQUIRE_CHROME_RUNTIME();
-#endif
   return FromBaseChecked(CefBrowserHostBase::GetBrowserForGlobalId(global_id));
 }
 
 // static
 CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::GetBrowserForBrowser(
     const Browser* browser) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  REQUIRE_CHROME_RUNTIME();
-#endif
   // Return the ChromeBrowserHostImpl that is currently active.
   // Views-hosted Browsers will contain a single ChromeBrowserHostImpl.
   // Otherwise, there will be a ChromeBrowserHostImpl per Tab/WebContents.

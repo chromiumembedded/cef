@@ -11,13 +11,8 @@
 #include "cef/libcef/browser/media_stream_registrar.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/cef_switches.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/media/webrtc/media_capture_devices_dispatcher.h"
 #include "third_party/blink/public/mojom/mediastream/media_stream.mojom.h"
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "cef/libcef/browser/media_capture_devices_dispatcher.h"
-#endif
 
 namespace media_access_query {
 
@@ -40,10 +35,14 @@ const blink::MediaStreamDevice* FindDefaultDeviceWithId(
   return &(*devices.begin());
 }
 
-void GetRequestedDeviceChrome(const std::string& requested_device_id,
-                              bool audio,
-                              bool video,
-                              blink::MediaStreamDevices* devices) {
+// Helper for picking the device that was requested for an OpenDevice request.
+// If the device requested is not available it will revert to using the first
+// available one instead or will return an empty list if no devices of the
+// requested kind are present. Called on the UI thread.
+void GetRequestedDevice(const std::string& requested_device_id,
+                        bool audio,
+                        bool video,
+                        blink::MediaStreamDevices* devices) {
   CEF_REQUIRE_UIT();
   DCHECK(audio || video);
 
@@ -67,25 +66,6 @@ void GetRequestedDeviceChrome(const std::string& requested_device_id,
       devices->push_back(*device);
     }
   }
-}
-
-// Helper for picking the device that was requested for an OpenDevice request.
-// If the device requested is not available it will revert to using the first
-// available one instead or will return an empty list if no devices of the
-// requested kind are present. Called on the UI thread.
-void GetRequestedDevice(const std::string& requested_device_id,
-                        bool audio,
-                        bool video,
-                        blink::MediaStreamDevices* devices) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (cef::IsAlloyRuntimeEnabled()) {
-    CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-        requested_device_id, audio, video, devices);
-    return;
-  }
-#endif
-
-  GetRequestedDeviceChrome(requested_device_id, audio, video, devices);
 }
 
 class CefMediaAccessQuery {

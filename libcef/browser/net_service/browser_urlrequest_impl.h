@@ -8,6 +8,9 @@
 #include <memory>
 #include <optional>
 
+#include "cef/include/cef_frame.h"
+#include "cef/include/cef_request.h"
+#include "cef/include/cef_request_context.h"
 #include "cef/include/cef_urlrequest.h"
 
 namespace content {

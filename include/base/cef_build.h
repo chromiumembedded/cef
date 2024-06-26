@@ -84,10 +84,6 @@
 #endif
 #endif
 
-#if !BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#define DISABLE_ALLOY_BOOTSTRAP 1
-#endif
-
 #else  // !USING_CHROMIUM_INCLUDES
 #include "include/cef_config.h"
 

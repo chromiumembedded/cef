@@ -7,31 +7,12 @@
 #pragma once
 
 #include "cef/include/cef_base.h"
-#include "cef/libcef/features/features.h"
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "ui/base/resource/resource_scale_factor.h"
-#endif
 
 namespace base {
 class CommandLine;
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-class FilePath;
-#endif
 }  // namespace base
 
 namespace resource_util {
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-// Returns the default path for the debug.log file.
-base::FilePath GetDefaultLogFilePath();
-
-// Called from MainDelegate::PreSandboxStartup.
-void OverrideDefaultDownloadDir();
-
-// Returns true if |scale_factor| is supported by this platform.
-bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor);
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 // Returns the directory that contains resource files (*.bin, *.dat, *.pak,
 // etc).

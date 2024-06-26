@@ -25,22 +25,6 @@
 #include "cef/libcef/common/util_mac.h"
 #endif
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "base/files/file_util.h"
-#include "base/notreached.h"
-#include "chrome/common/chrome_constants.h"
-#include "chrome/common/chrome_paths_internal.h"
-#include "ui/base/layout.h"
-
-#if BUILDFLAG(IS_MAC)
-#include "base/apple/foundation_util.h"
-#endif
-
-#if BUILDFLAG(IS_WIN)
-#include "base/win/registry.h"
-#endif
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
 namespace resource_util {
 
 namespace {
@@ -122,100 +106,6 @@ base::FilePath GetUserDataPath(CefSettings* settings,
 }
 
 }  // namespace
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-
-namespace {
-
-// Consider downloads 'dangerous' if they go to the home directory on Linux and
-// to the desktop on any platform.
-// From chrome/browser/download/download_prefs.cc.
-bool DownloadPathIsDangerous(const base::FilePath& download_path) {
-#if BUILDFLAG(IS_LINUX)
-  base::FilePath home_dir = base::GetHomeDir();
-  if (download_path == home_dir) {
-    return true;
-  }
-#endif
-
-  base::FilePath desktop_dir;
-  if (!base::PathService::Get(base::DIR_USER_DESKTOP, &desktop_dir)) {
-    DCHECK(false);
-    return false;
-  }
-  return (download_path == desktop_dir);
-}
-
-bool GetDefaultDownloadDirectory(base::FilePath* result) {
-  // This will return the safe download directory if necessary.
-  return chrome::GetUserDownloadsDirectory(result);
-}
-
-bool GetDefaultDownloadSafeDirectory(base::FilePath* result) {
-  // Start with the default download directory.
-  if (!GetDefaultDownloadDirectory(result)) {
-    return false;
-  }
-
-  if (DownloadPathIsDangerous(*result)) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
-    // Explicitly switch to the safe download directory.
-    return chrome::GetUserDownloadsDirectorySafe(result);
-#else
-    // No viable alternative on macOS.
-    return false;
-#endif
-  }
-
-  return true;
-}
-
-}  // namespace
-
-#if BUILDFLAG(IS_MAC)
-
-// Use a "~/Library/Logs/<app name>_debug.log" file where <app name> is the name
-// of the running executable.
-base::FilePath GetDefaultLogFilePath() {
-  std::string exe_name = util_mac::GetMainProcessPath().BaseName().value();
-  return base::apple::GetUserLibraryPath()
-      .Append(FILE_PATH_LITERAL("Logs"))
-      .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
-}
-
-#else  // !BUILDFLAG(IS_MAC)
-
-// Use a "debug.log" file in the running executable's directory.
-base::FilePath GetDefaultLogFilePath() {
-  base::FilePath log_path;
-  base::PathService::Get(base::DIR_EXE, &log_path);
-  return log_path.Append(FILE_PATH_LITERAL("debug.log"));
-}
-
-#endif  // !BUILDFLAG(IS_MAC)
-
-void OverrideDefaultDownloadDir() {
-  base::FilePath dir_default_download;
-  base::FilePath dir_default_download_safe;
-  if (GetDefaultDownloadDirectory(&dir_default_download)) {
-    base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS,
-                                dir_default_download);
-  }
-  if (GetDefaultDownloadSafeDirectory(&dir_default_download_safe)) {
-    base::PathService::Override(chrome::DIR_DEFAULT_DOWNLOADS_SAFE,
-                                dir_default_download_safe);
-  }
-}
-
-// Same as ui::ResourceBundle::IsScaleFactorSupported.
-bool IsScaleFactorSupported(ui::ResourceScaleFactor scale_factor) {
-  const auto& supported_scale_factors = ui::GetSupportedResourceScaleFactors();
-  return std::find(supported_scale_factors.begin(),
-                   supported_scale_factors.end(),
-                   scale_factor) != supported_scale_factors.end();
-}
-
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
 #if BUILDFLAG(IS_MAC)
 

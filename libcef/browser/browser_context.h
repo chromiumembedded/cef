@@ -17,7 +17,6 @@
 #include "cef/include/cef_request_context_handler.h"
 #include "cef/libcef/browser/iothread_state.h"
 #include "cef/libcef/browser/request_context_handler_map.h"
-#include "cef/libcef/features/features.h"
 #include "chrome/common/plugin.mojom.h"
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "ui/base/page_transition_types.h"
@@ -160,18 +159,6 @@ class CefBrowserContext {
                                     const CefString& domain_name,
                                     CefRefPtr<CefSchemeHandlerFactory> factory);
   void ClearSchemeHandlerFactories();
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  virtual void LoadExtension(const CefString& root_directory,
-                             CefRefPtr<CefDictionaryValue> manifest,
-                             CefRefPtr<CefExtensionHandler> handler,
-                             CefRefPtr<CefRequestContext> loader_context);
-  virtual bool GetExtensions(std::vector<CefString>& extension_ids);
-  virtual CefRefPtr<CefExtension> GetExtension(const CefString& extension_id);
-
-  // Called from CefExtensionImpl::Unload().
-  virtual bool UnloadExtension(const CefString& extension_id);
-#endif
 
   // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
   // of visited links.

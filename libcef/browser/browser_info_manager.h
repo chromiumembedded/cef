@@ -82,7 +82,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                        bool opener_suppressed,
                        bool* no_javascript_access);
 
-  // Called from WebContentsDelegate::GetCustomWebContentsView (alloy runtime
+  // Called from WebContentsDelegate::GetCustomWebContentsView (Alloy style
   // only). See comments on PendingPopup for more information.
   void GetCustomWebContentsView(
       const GURL& target_url,
@@ -169,11 +169,11 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   //   WebContentsDelegate::OpenURLFromTab is called via the
   //   CefBrowserHostBase::MaybeAllowNavigation implementation.
   // And then the following calls may occur at the same time:
-  // - GetCustomWebContentsView (UIT) (alloy runtime only):
+  // - GetCustomWebContentsView (UIT) (Alloy style only):
   //   Creates the OSR views for windowless popups.
   // - WebContentsCreated (UIT):
   //   Creates the CefBrowserHost representation for the popup.
-  // - AddWebContents (UIT) (chrome runtime only):
+  // - AddWebContents (UIT) (Chrome style only):
   //   Creates the Browser or tab representation for the popup.
   // - CefBrowserManager::GetNewBrowserInfo (IOT)
   //   Passes information about the popup to the renderer process.

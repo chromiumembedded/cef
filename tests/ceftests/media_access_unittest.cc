@@ -159,7 +159,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         "}";
 
     if (test_setup_->deny_implicitly && !use_alloy_style_browser()) {
-      // Default behavior with the Chrome runtime is to show a UI prompt, so add
+      // Default behavior with Chrome style is to show a UI prompt, so add
       // a timeout.
       page += "setTimeout(() => { onResult(`TIMEOUT`); }, 1000);";
     } else if (test_setup_->deny_with_navigation) {

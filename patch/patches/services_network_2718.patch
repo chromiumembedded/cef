@@ -1,22 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 8b04f2afe863e..effc59857dfd4 100644
+index 8b04f2afe863e..ad04e519ca2df 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -3353,8 +3353,12 @@ void StoragePartitionImpl::GetQuotaSettings(
-     return;
-   }
- 
-+  // CEF always returns false for IsOffTheRecord(), so also check the path.
-+  const bool is_incognito = browser_context_->IsOffTheRecord() ||
-+                            browser_context_->GetPath().empty();
-+
-   storage::GetNominalDynamicSettings(
--      GetPath(), browser_context_->IsOffTheRecord(),
-+      GetPath(), is_incognito,
-       storage::GetDefaultDeviceInfoHelper(), std::move(callback));
- }
- 
-@@ -3364,9 +3368,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -3364,9 +3364,12 @@ void StoragePartitionImpl::InitNetworkContext() {
    cert_verifier::mojom::CertVerifierCreationParamsPtr
        cert_verifier_creation_params =
            cert_verifier::mojom::CertVerifierCreationParams::New();

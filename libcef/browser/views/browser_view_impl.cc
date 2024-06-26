@@ -15,7 +15,6 @@
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_impl.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "ui/content_accelerators/accelerator_util.h"
@@ -39,17 +38,8 @@ std::optional<cef_gesture_command_t> GetGestureCommand(
 bool ComputeAlloyStyle(CefBrowserViewDelegate* cef_delegate,
                        bool is_devtools_popup) {
   // Alloy style is not supported with Chrome DevTools popups.
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  const bool supports_alloy_style =
-      cef::IsAlloyRuntimeEnabled() || !is_devtools_popup;
-  const bool supports_chrome_style = cef::IsChromeRuntimeEnabled();
-  const auto default_style = cef::IsAlloyRuntimeEnabled()
-                                 ? CEF_RUNTIME_STYLE_ALLOY
-                                 : CEF_RUNTIME_STYLE_CHROME;
-#else
   const bool supports_alloy_style = !is_devtools_popup;
   const auto default_style = CEF_RUNTIME_STYLE_CHROME;
-#endif
 
   auto result_style = default_style;
 
@@ -63,17 +53,8 @@ bool ComputeAlloyStyle(CefBrowserViewDelegate* cef_delegate,
                       "Chrome style is supported";
       }
     } else if (requested_style == CEF_RUNTIME_STYLE_CHROME) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-      if (supports_chrome_style) {
-        result_style = requested_style;
-      } else {
-        LOG(ERROR) << "GetBrowserRuntimeStyle() requested Chrome style; only "
-                      "Alloy style is supported";
-      }
-#else
       // Chrome style is always supported.
       result_style = requested_style;
-#endif
     }
   }
 
@@ -263,7 +244,7 @@ void CefBrowserViewImpl::Detach() {
   DCHECK(!root_view());
 
   if (browser_) {
-    // With the Alloy runtime |browser_| will disappear when WindowDestroyed()
+    // With Alloy style |browser_| will disappear when WindowDestroyed()
     // indirectly calls BrowserDestroyed() so keep a reference.
     CefRefPtr<CefBrowserHostBase> browser = browser_;
 
@@ -320,7 +301,7 @@ void CefBrowserViewImpl::AddedToWidget() {
 }
 
 void CefBrowserViewImpl::RemovedFromWidget() {
-  // With Chrome runtime this may be called after BrowserDestroyed(), in which
+  // With Chrome style this may be called after BrowserDestroyed(), in which
   // case the following call will be a no-op.
   DisassociateFromWidget();
 }
@@ -338,7 +319,7 @@ bool CefBrowserViewImpl::OnGestureEvent(ui::GestureEvent* event) {
     }
 
     if (is_alloy_style_ && browser_) {
-      // Default handling for the Alloy runtime.
+      // Default handling for Alloy style.
       switch (*command) {
         case CEF_GESTURE_COMMAND_BACK:
           browser_->GoBack();

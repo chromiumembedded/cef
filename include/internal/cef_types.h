@@ -235,15 +235,6 @@ typedef struct _cef_settings_t {
   ///
   cef_string_t main_bundle_path;
 
-#if !defined(DISABLE_ALLOY_BOOTSTRAP)
-  ///
-  /// Set to true (1) to enable use of the Chrome runtime in CEF. This feature
-  /// is considered experimental and is not recommended for most users at this
-  /// time. See issue #2969 for details.
-  ///
-  int chrome_runtime;
-#endif
-
   ///
   /// Set to true (1) to have the browser process message loop run in a separate
   /// thread. If false (0) then the CefDoMessageLoopWork() function must be
@@ -290,9 +281,9 @@ typedef struct _cef_settings_t {
   /// in root_cache_path). HTML5 databases such as localStorage will only
   /// persist across sessions if a cache path is specified. Can be overridden
   /// for individual CefRequestContext instances via the
-  /// CefRequestContextSettings.cache_path value. When using the Chrome runtime
-  /// any child directory value will be ignored and the "default" profile (also
-  /// a child directory) will be used instead.
+  /// CefRequestContextSettings.cache_path value. Any child directory value will
+  /// be ignored and the "default" profile (also a child directory) will be used
+  /// instead.
   ///
   cef_string_t cache_path;
 
@@ -335,16 +326,6 @@ typedef struct _cef_settings_t {
   /// CefRequestContextSettings.persist_session_cookies value.
   ///
   int persist_session_cookies;
-
-  ///
-  /// To persist user preferences as a JSON file in the cache path directory set
-  /// this value to true (1). A |cache_path| value must also be specified
-  /// to enable this feature. Also configurable using the
-  /// "persist-user-preferences" command-line switch. Can be overridden for
-  /// individual CefRequestContext instances via the
-  /// CefRequestContextSettings.persist_user_preferences value.
-  ///
-  int persist_user_preferences;
 
   ///
   /// Value that will be returned as the User-Agent HTTP header. If empty the
@@ -424,15 +405,6 @@ typedef struct _cef_settings_t {
   cef_string_t locales_dir_path;
 
   ///
-  /// Set to true (1) to disable loading of pack files for resources and
-  /// locales. A resource bundle handler must be provided for the browser and
-  /// render processes via CefApp::GetResourceBundleHandler() if loading of pack
-  /// files is disabled. Also configurable using the "disable-pack-loading"
-  /// command- line switch.
-  ///
-  int pack_loading_disabled;
-
-  ///
   /// Set to a value between 1024 and 65535 to enable remote debugging on the
   /// specified port. Also configurable using the "remote-debugging-port"
   /// command-line switch. Specifying 0 via the command-line switch will result
@@ -496,7 +468,7 @@ typedef struct _cef_settings_t {
   /// policies. On Windows, this is a registry key like
   /// "SOFTWARE\\Policies\\Google\\Chrome". On MacOS, this is a bundle ID like
   /// "com.google.Chrome". On Linux, this is an absolute directory path like
-  /// "/etc/opt/chrome/policies". Only supported with the Chrome runtime. See
+  /// "/etc/opt/chrome/policies". Only supported with Chrome style. See
   /// https://support.google.com/chrome/a/answer/9037717 for details.
   ///
   /// Chrome Browser Cloud Management integration, when enabled via the
@@ -510,8 +482,8 @@ typedef struct _cef_settings_t {
   /// Specify an ID for an ICON resource that can be loaded from the main
   /// executable and used when creating default Chrome windows such as DevTools
   /// and Task Manager. If unspecified the default Chromium ICON (IDR_MAINFRAME
-  /// [101]) will be loaded from libcef.dll. Only supported with the Chrome
-  /// runtime on Windows.
+  /// [101]) will be loaded from libcef.dll. Only supported with Chrome style on
+  /// Windows.
   ///
   int chrome_app_icon_id;
 } cef_settings_t;
@@ -549,14 +521,6 @@ typedef struct _cef_request_context_settings_t {
   /// |cache_path| is empty or if it matches the CefSettings.cache_path value.
   ///
   int persist_session_cookies;
-
-  ///
-  /// To persist user preferences as a JSON file in the cache path directory set
-  /// this value to true (1). Can be set globally using the
-  /// CefSettings.persist_user_preferences value. This value will be ignored if
-  /// |cache_path| is empty or if it matches the CefSettings.cache_path value.
-  ///
-  int persist_user_preferences;
 
   ///
   /// Comma delimited ordered list of language codes without any whitespace that
@@ -720,14 +684,14 @@ typedef struct _cef_browser_settings_t {
 
   ///
   /// Controls whether the Chrome status bubble will be used. Only supported
-  /// with the Chrome runtime. For details about the status bubble see
+  /// with Chrome style. For details about the status bubble see
   /// https://www.chromium.org/user-experience/status-bubble/
   ///
   cef_state_t chrome_status_bubble;
 
   ///
   /// Controls whether the Chrome zoom bubble will be shown when zooming. Only
-  /// supported with the Chrome runtime.
+  /// supported with Chrome style.
   ///
   cef_state_t chrome_zoom_bubble;
 } cef_browser_settings_t;
@@ -1401,7 +1365,7 @@ typedef enum {
 
   ///
   /// User got to this page through a suggestion in the UI (for example, via the
-  /// destinations page). Chrome runtime only.
+  /// destinations page). Chrome style only.
   ///
   TT_AUTO_BOOKMARK = 2,
 
@@ -1428,7 +1392,7 @@ typedef enum {
   /// that did not look like a URL.  For example, a match might have the URL
   /// of a Google search result page, but appear like "Search Google for ...".
   /// These are not quite the same as EXPLICIT navigations because the user
-  /// didn't type or see the destination URL. Chrome runtime only.
+  /// didn't type or see the destination URL. Chrome style only.
   /// See also TT_KEYWORD.
   ///
   TT_GENERATED = 5,
@@ -1438,7 +1402,7 @@ typedef enum {
   /// loaded in a toplevel frame.  For example, opening a tab to show the ASH
   /// screen saver, opening the devtools window, opening the NTP after the safe
   /// browsing warning, opening web-based dialog boxes are examples of
-  /// AUTO_TOPLEVEL navigations. Chrome runtime only.
+  /// AUTO_TOPLEVEL navigations. Chrome style only.
   ///
   TT_AUTO_TOPLEVEL = 6,
 
@@ -1465,13 +1429,13 @@ typedef enum {
   /// the url 'http://' + keyword. For example, if you do a tab-to-search
   /// against wikipedia the generated url has a transition qualifer of
   /// TT_KEYWORD, and TemplateURLModel generates a visit for 'wikipedia.org'
-  /// with a transition type of TT_KEYWORD_GENERATED. Chrome runtime only.
+  /// with a transition type of TT_KEYWORD_GENERATED. Chrome style only.
   ///
   TT_KEYWORD = 9,
 
   ///
   /// Corresponds to a visit generated for a keyword. See description of
-  /// TT_KEYWORD for more details. Chrome runtime only.
+  /// TT_KEYWORD for more details. Chrome style only.
   ///
   TT_KEYWORD_GENERATED = 10,
 
@@ -1501,14 +1465,13 @@ typedef enum {
   TT_DIRECT_LOAD_FLAG = 0x02000000,
 
   ///
-  /// User is navigating to the home page. Chrome runtime only.
+  /// User is navigating to the home page. Chrome style only.
   ///
   TT_HOME_PAGE_FLAG = 0x04000000,
 
   ///
   /// The transition originated from an external application; the exact
-  /// definition of this is embedder dependent. Chrome runtime and
-  /// extension system only.
+  /// definition of this is embedder dependent. Chrome style only.
   ///
   TT_FROM_API_FLAG = 0x08000000,
 
@@ -3613,7 +3576,7 @@ typedef enum {
 
 ///
 /// Permission types used with OnShowPermissionPrompt. Some types are
-/// platform-specific or only supported with the Chrome runtime. Should be kept
+/// platform-specific or only supported with Chrome style. Should be kept
 /// in sync with Chromium's permissions::RequestType type.
 ///
 typedef enum {

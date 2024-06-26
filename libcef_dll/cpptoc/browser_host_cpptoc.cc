@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c6611682e7524936295e32a429dd92a22646a95a$
+// $hash=434a753c90262b051077f7a79f3106ac52ffbf75$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
-#include "libcef_dll/cpptoc/extension_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/registration_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
@@ -1367,43 +1366,6 @@ browser_host_set_auto_resize_enabled(struct _cef_browser_host_t* self,
       enabled ? true : false, min_sizeVal, max_sizeVal);
 }
 
-struct _cef_extension_t* CEF_CALLBACK
-browser_host_get_extension(struct _cef_browser_host_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self) {
-    return NULL;
-  }
-
-  // Execute
-  CefRefPtr<CefExtension> _retval =
-      CefBrowserHostCppToC::Get(self)->GetExtension();
-
-  // Return type: refptr_same
-  return CefExtensionCppToC::Wrap(_retval);
-}
-
-int CEF_CALLBACK
-browser_host_is_background_host(struct _cef_browser_host_t* self) {
-  shutdown_checker::AssertNotShutdown();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self) {
-    return 0;
-  }
-
-  // Execute
-  bool _retval = CefBrowserHostCppToC::Get(self)->IsBackgroundHost();
-
-  // Return type: bool
-  return _retval;
-}
-
 void CEF_CALLBACK browser_host_set_audio_muted(struct _cef_browser_host_t* self,
                                                int mute) {
   shutdown_checker::AssertNotShutdown();
@@ -1617,8 +1579,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
       browser_host_get_visible_navigation_entry;
   GetStruct()->set_accessibility_state = browser_host_set_accessibility_state;
   GetStruct()->set_auto_resize_enabled = browser_host_set_auto_resize_enabled;
-  GetStruct()->get_extension = browser_host_get_extension;
-  GetStruct()->is_background_host = browser_host_is_background_host;
   GetStruct()->set_audio_muted = browser_host_set_audio_muted;
   GetStruct()->is_audio_muted = browser_host_is_audio_muted;
   GetStruct()->is_fullscreen = browser_host_is_fullscreen;

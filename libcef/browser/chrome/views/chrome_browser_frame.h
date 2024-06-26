@@ -96,7 +96,7 @@ class BrowserView;
 class CefWindowView;
 
 // Widget for a Views-hosted Chrome browser. Created in
-// CefWindowView::CreateWidget() when the Chrome runtime is enabled.
+// CefWindowView::CreateWidget() with Chrome style.
 class ChromeBrowserFrame : public BrowserFrame,
                            public CefWidget,
                            public CefColorProviderTracker::Observer,

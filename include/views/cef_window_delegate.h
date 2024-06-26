@@ -89,7 +89,7 @@ class CefWindowDelegate : public CefPanelDelegate {
   /// the transition occurs asynchronously with |is_competed| set to false when
   /// the transition starts and true after the transition completes. On other
   /// platforms the transition occurs synchronously with |is_completed| set to
-  /// true after the transition completes. With the Alloy runtime you must also
+  /// true after the transition completes. With Alloy style you must also
   /// implement CefDisplayHandler::OnFullscreenModeChange to handle fullscreen
   /// transitions initiated by browser content.
   ///
@@ -251,12 +251,10 @@ class CefWindowDelegate : public CefPanelDelegate {
   /// Chrome theme colors will be applied and this callback will be triggered
   /// if/when a BrowserView is added to the Window's component hierarchy. Chrome
   /// theme colors can be configured on a per-RequestContext basis using
-  /// CefRequestContext::SetChromeColorScheme or (Chrome runtime only) by
+  /// CefRequestContext::SetChromeColorScheme or (Chrome style only) by
   /// visiting chrome://settings/manageProfile. Any theme changes using those
   /// mechanisms will also trigger this callback. Chrome theme colors will be
-  /// persisted and restored from disk cache with the Chrome runtime, and with
-  /// the Alloy runtime if persist_user_preferences is set to true via
-  /// CefSettings or CefRequestContextSettings.
+  /// persisted and restored from disk cache.
   ///
   /// This callback is not triggered on Window creation so clients that wish to
   /// customize the initial native/OS theme must call CefWindow::SetThemeColor

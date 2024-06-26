@@ -15,16 +15,11 @@
 #include "cef/include/cef_drag_data.h"
 #include "cef/include/internal/cef_types.h"
 #include "cef/include/views/cef_browser_view.h"
-#include "cef/libcef/features/features.h"
 #include "third_party/blink/public/common/page/drag_operation.h"
 #include "third_party/blink/public/mojom/drag/drag.mojom-forward.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/base/dragdrop/mojom/drag_drop_types.mojom-forward.h"
 #include "ui/base/window_open_disposition.h"
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "extensions/common/mojom/view_type.mojom-forward.h"
-#endif
 
 class GURL;
 
@@ -48,13 +43,6 @@ class RenderWidgetHostImpl;
 class WebContents;
 class WebContentsView;
 }  // namespace content
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-namespace extensions {
-class Extension;
-class ExtensionHost;
-}  // namespace extensions
-#endif
 
 namespace gfx {
 class ImageSkia;
@@ -138,12 +126,6 @@ class CefBrowserPlatformDelegate {
   // BrowserDestroyed(). Will only be called a single time per instance.
   virtual void WebContentsDestroyed(content::WebContents* web_contents);
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // See WebContentsDelegate documentation.
-  virtual bool ShouldAllowRendererInitiatedCrossProcessNavigation(
-      bool is_main_frame_navigation);
-#endif
-
   // Called after the RenderViewHost is created.
   virtual void RenderViewCreated(content::RenderViewHost* render_view_host);
 
@@ -154,16 +136,6 @@ class CefBrowserPlatformDelegate {
   // called a single time per instance. Do not send any client notifications
   // from this method.
   virtual void BrowserCreated(CefBrowserHostBase* browser);
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // Called from BrowserHost::Create.
-  virtual void CreateExtensionHost(const extensions::Extension* extension,
-                                   const GURL& url,
-                                   extensions::mojom::ViewType host_type);
-
-  // Returns the current extension host.
-  virtual extensions::ExtensionHost* GetExtensionHost() const;
-#endif
 
   // Send any notifications related to browser creation. Called after
   // BrowserCreated().
@@ -292,15 +264,6 @@ class CefBrowserPlatformDelegate {
   // Forward the keyboard event to the application or frame window to allow
   // processing of shortcut keys.
   virtual bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event);
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  // See WebContentsDelegate documentation.
-  virtual bool PreHandleGestureEvent(content::WebContents* source,
-                                     const blink::WebGestureEvent& event);
-
-  // See WebContentsDelegate documentation.
-  virtual bool IsNeverComposited(content::WebContents* web_contents);
-#endif  // BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
 
   // Invoke platform specific handling for the external protocol.
   static void HandleExternalProtocol(const GURL& url);

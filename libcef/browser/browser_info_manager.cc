@@ -14,10 +14,8 @@
 #include "cef/libcef/browser/extensions/browser_extensions_util.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/cef_switches.h"
-#include "cef/libcef/common/extensions/extensions_util.h"
 #include "cef/libcef/common/frame_util.h"
 #include "cef/libcef/common/values_impl.h"
-#include "cef/libcef/features/runtime.h"
 #include "content/public/browser/child_process_host.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
@@ -141,7 +139,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   pending_popup->client = client;
   pending_popup->settings = browser->settings();
 
-  // With the Chrome runtime, we want to use default popup Browser creation
+  // With Chrome style, we want to use default popup Browser creation
   // for document picture-in-picture.
   pending_popup->use_default_browser_creation =
       disposition == WindowOpenDisposition::NEW_PICTURE_IN_PICTURE;
@@ -196,7 +194,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
     create_params.popup_with_views_hosted_opener = ShouldCreateViewsHostedPopup(
         browser, pending_popup->use_default_browser_creation);
 
-    // Potentially use Alloy style with the Chrome runtime.
+    // Potentially use Alloy style.
     create_params.popup_with_alloy_style_opener = browser->IsAlloyStyle();
 
     create_params.settings = pending_popup->settings;
@@ -279,9 +277,6 @@ void CefBrowserInfoManager::WebContentsCreated(
 
 bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  DCHECK(cef::IsChromeRuntimeEnabled());
-#endif
 
   // Pending popup information may be missing in cases where
   // chrome::AddWebContents is called directly from the Chrome UI (profile
@@ -334,7 +329,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
       std::make_pair(global_token, std::move(pending)));
 
   // Register a timeout for the pending response so that the renderer process
-  // doesn't hang forever. With the Chrome runtime, timeouts may occur in cases
+  // doesn't hang forever. With Chrome style, timeouts may occur in cases
   // where chrome::AddWebContents or WebContents::Create are called directly
   // from the Chrome UI (profile settings, etc).
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
@@ -478,8 +473,8 @@ bool CefBrowserInfoManager::ShouldCreateViewsHostedPopup(
     CefRefPtr<CefBrowserHostBase> opener,
     bool use_default_browser_creation) {
   // In most cases, Views-hosted browsers should create Views-hosted popups
-  // and native browsers should use default popup handling. With the Chrome
-  // runtime, we should additionally use default handling (a) when using an
+  // and native browsers should use default popup handling. With Chrome
+  // style, we should additionally use default handling (a) when using an
   // external parent and (b) when using default Browser creation.
   return opener->HasView() &&
          !opener->platform_delegate()->HasExternalParent() &&
@@ -776,9 +771,9 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     }
 
     // Cases where we expect to time out are:
-    // - With the Chrome runtime when chrome::AddWebContents or
-    //   WebContents::Create are called directly from the Chrome UI (profile
-    //   settings, etc). A RFH will exist without a matching CefBrowserHost.
+    // - With Chrome style when chrome::AddWebContents or WebContents::Create
+    //   are called directly from the Chrome UI (profile settings, etc). A RFH
+    //   will exist without a matching CefBrowserHost.
     // - When the PDF renderer is loaded in the print preview dialog. There will
     //   be no RFH in this case.
     // Any additional cases should be debugged and, if possible,

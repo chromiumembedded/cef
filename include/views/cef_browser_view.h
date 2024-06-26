@@ -82,7 +82,7 @@ class CefBrowserView : public CefView {
 
   ///
   /// Returns the Chrome toolbar associated with this BrowserView. Only
-  /// supported when using the Chrome runtime. The CefBrowserViewDelegate::
+  /// supported when using Chrome style. The CefBrowserViewDelegate::
   /// GetChromeToolbarType() method must return a value other than
   /// CEF_CTT_NONE and the toolbar will not be available until after this
   /// BrowserView is added to a CefWindow and CefViewDelegate::OnWindowChanged()
@@ -96,7 +96,7 @@ class CefBrowserView : public CefView {
   /// content (`keydown` event handler) or CefKeyboardHandler. Normal priority
   /// accelerators can be registered via CefWindow::SetAccelerator (with
   /// |high_priority|=false) or internally for standard accelerators supported
-  /// by the Chrome runtime. If |prefer_accelerators| is true then the matching
+  /// by Chrome style. If |prefer_accelerators| is true then the matching
   /// accelerator will be triggered immediately (calling
   /// CefWindowDelegate::OnAccelerator or CefCommandHandler::OnChromeCommand
   /// respectively) and the event will not be forwarded to the web content or

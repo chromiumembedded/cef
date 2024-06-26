@@ -31,7 +31,6 @@
 #include "cef/libcef/common/net/url_util.h"
 #include "cef/libcef/common/request_impl.h"
 #include "cef/libcef/common/values_impl.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "components/input/native_web_keyboard_event.h"
@@ -51,10 +50,6 @@
 #include "extensions/common/constants.h"
 #include "net/base/net_errors.h"
 #include "ui/events/base_event_utils.h"
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-#include "extensions/common/extension.h"
-#endif
 
 using content::KeyboardEventProcessingResult;
 
@@ -77,15 +72,9 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::Create(
   // Expect runtime style to match.
   CHECK(platform_delegate->IsAlloyStyle());
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  const bool is_devtools_popup = !!create_params.devtools_opener;
-#else
-  const bool is_devtools_popup = false;
-#endif
-
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreateBrowserInfo(
-          is_devtools_popup, platform_delegate->IsWindowless(),
+          /*is_devtools_popup=*/false, platform_delegate->IsWindowless(),
           platform_delegate->IsPrintPreviewSupported(),
           create_params.extra_info);
 
@@ -98,47 +87,18 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::Create(
   auto request_context_impl =
       static_cast<CefRequestContextImpl*>(create_params.request_context.get());
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  CefRefPtr<CefExtension> cef_extension;
-  if (create_params.extension) {
-    auto cef_browser_context = request_context_impl->GetBrowserContext();
-    cef_extension =
-        cef_browser_context->GetExtension(create_params.extension->id());
-    CHECK(cef_extension);
-  }
-#endif
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  auto platform_delegate_ptr = platform_delegate.get();
-#endif
-
-  CefRefPtr<AlloyBrowserHostImpl> browser = CreateInternal(
-      create_params.settings, create_params.client, web_contents,
-      own_web_contents, info,
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-      FromBaseChecked(create_params.devtools_opener),
-#else
-      /*opener=*/nullptr,
-#endif
-      is_devtools_popup, request_context_impl, std::move(platform_delegate)
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-                                                   ,
-      cef_extension
-#endif
-  );
+  CefRefPtr<AlloyBrowserHostImpl> browser =
+      CreateInternal(create_params.settings, create_params.client, web_contents,
+                     own_web_contents, info,
+                     /*opener=*/nullptr, /*is_devtools_popup=*/false,
+                     request_context_impl, std::move(platform_delegate));
   if (!browser) {
     return nullptr;
   }
 
   GURL url = url_util::MakeGURL(create_params.url, /*fixup=*/true);
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (create_params.extension) {
-    platform_delegate_ptr->CreateExtensionHost(
-        create_params.extension, url, create_params.extension_host_type);
-  } else
-#endif
-      if (!url.is_empty()) {
+  if (!url.is_empty()) {
     content::OpenURLParams params(url, content::Referrer(),
                                   WindowOpenDisposition::CURRENT_TAB,
                                   CefFrameHostImpl::kPageTransitionExplicit,
@@ -159,12 +119,7 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
     CefRefPtr<AlloyBrowserHostImpl> opener,
     bool is_devtools_popup,
     CefRefPtr<CefRequestContextImpl> request_context,
-    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-    ,
-    CefRefPtr<CefExtension> extension
-#endif
-) {
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate) {
   CEF_REQUIRE_UIT();
   DCHECK(web_contents);
   DCHECK(browser_info);
@@ -195,12 +150,7 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
 
   CefRefPtr<AlloyBrowserHostImpl> browser = new AlloyBrowserHostImpl(
       settings, client, web_contents, browser_info, opener, request_context,
-      std::move(platform_delegate)
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-          ,
-      extension
-#endif
-  );
+      std::move(platform_delegate));
   browser->InitializeBrowser();
 
   if (!browser->CreateHostWindow()) {
@@ -213,7 +163,7 @@ CefRefPtr<AlloyBrowserHostImpl> AlloyBrowserHostImpl::CreateInternal(
   if (opener && opener->platform_delegate_) {
     // 1. Notify the opener browser's platform delegate. With Views this will
     // result in a call to CefBrowserViewDelegate::OnPopupBrowserViewCreated().
-    // Do this first for consistency with the Chrome runtime.
+    // Do this first for consistency with Chrome style.
     opener->platform_delegate_->PopupBrowserCreated(
         browser->platform_delegate(), browser.get(), is_devtools_popup);
   }
@@ -382,16 +332,6 @@ void AlloyBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
     platform_delegate_->SetAutoResizeEnabled(enabled, min_size, max_size);
   }
 }
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-CefRefPtr<CefExtension> AlloyBrowserHostImpl::GetExtension() {
-  return extension_;
-}
-
-bool AlloyBrowserHostImpl::IsBackgroundHost() {
-  return is_background_host_;
-}
-#endif
 
 bool AlloyBrowserHostImpl::CanExecuteChromeCommand(int command_id) {
   return false;
@@ -639,14 +579,6 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
 
   return true;
 }
-
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-extensions::ExtensionHost* AlloyBrowserHostImpl::GetExtensionHost() const {
-  CEF_REQUIRE_UIT();
-  DCHECK(platform_delegate_);
-  return platform_delegate_->GetExtensionHost();
-}
-#endif
 
 void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
   if (!CEF_CURRENTLY_ON_UIT()) {
@@ -958,14 +890,6 @@ content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
   return nullptr;
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool AlloyBrowserHostImpl::ShouldAllowRendererInitiatedCrossProcessNavigation(
-    bool is_main_frame_navigation) {
-  return platform_delegate_->ShouldAllowRendererInitiatedCrossProcessNavigation(
-      is_main_frame_navigation);
-}
-#endif
-
 void AlloyBrowserHostImpl::AddNewContents(
     content::WebContents* source,
     std::unique_ptr<content::WebContents> new_contents,
@@ -1106,14 +1030,6 @@ bool AlloyBrowserHostImpl::HandleKeyboardEvent(
   return false;
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool AlloyBrowserHostImpl::PreHandleGestureEvent(
-    content::WebContents* source,
-    const blink::WebGestureEvent& event) {
-  return platform_delegate_->PreHandleGestureEvent(source, event);
-}
-#endif
-
 bool AlloyBrowserHostImpl::CanDragEnter(content::WebContents* source,
                                         const content::DropData& data,
                                         blink::DragOperationsMask mask) {
@@ -1186,12 +1102,8 @@ void AlloyBrowserHostImpl::WebContentsCreated(
   // However, we need to install observers/delegates here.
   CefRefPtr<AlloyBrowserHostImpl> browser = CreateInternal(
       settings, client, new_contents, /*own_web_contents=*/false, info, opener,
-      /*is_devtools_popup=*/false, request_context, std::move(platform_delegate)
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-                                                        ,
-      /*extension=*/nullptr
-#endif
-  );
+      /*is_devtools_popup=*/false, request_context,
+      std::move(platform_delegate));
 }
 
 void AlloyBrowserHostImpl::RendererUnresponsive(
@@ -1275,13 +1187,6 @@ bool AlloyBrowserHostImpl::CheckMediaAccessPermission(
                                                         security_origin, type);
 }
 
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-bool AlloyBrowserHostImpl::IsNeverComposited(
-    content::WebContents* web_contents) {
-  return platform_delegate_->IsNeverComposited(web_contents);
-}
-#endif
-
 content::PictureInPictureResult AlloyBrowserHostImpl::EnterPictureInPicture(
     content::WebContents* web_contents) {
   if (!IsPictureInPictureSupported()) {
@@ -1299,12 +1204,7 @@ void AlloyBrowserHostImpl::ExitPictureInPicture() {
 
 bool AlloyBrowserHostImpl::IsBackForwardCacheSupported(
     content::WebContents& web_contents) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
   return true;
-#else
-  // Disabled with Alloy bootstrap due to issue #3237.
-  return cef::IsChromeRuntimeEnabled();
-#endif
 }
 
 content::PreloadingEligibility AlloyBrowserHostImpl::IsPrerender2Supported(
@@ -1438,12 +1338,7 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<AlloyBrowserHostImpl> opener,
     CefRefPtr<CefRequestContextImpl> request_context,
-    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-    ,
-    CefRefPtr<CefExtension> extension
-#endif
-    )
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate)
     : CefBrowserHostBase(settings,
                          client,
                          std::move(platform_delegate),
@@ -1451,12 +1346,7 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
                          request_context),
       content::WebContentsObserver(web_contents),
       opener_(kNullWindowHandle),
-      is_windowless_(platform_delegate_->IsWindowless())
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-      ,
-      extension_(extension)
-#endif
-{
+      is_windowless_(platform_delegate_->IsWindowless()) {
   contents_delegate_->ObserveWebContents(web_contents);
 
   if (opener.get() && !is_views_hosted_) {

@@ -278,10 +278,9 @@ class TestHandler : public CefClient,
   void SetUseViews(bool use_views);
 
   // Call prior to CreateBrowser() to configure whether browsers (and windows
-  // with Views) will be created as Alloy style or Chrome style. Alloy style is
-  // always used with the Alloy runtime and optional with the Chrome runtime.
-  // Defaults to false for the Chrome runtime unless the
-  // `--use-alloy-style` command-line flag is specified.
+  // with Views) will be created as Alloy style or Chrome style. Alloy style
+  // optional. Defaults to false unless the `--use-alloy-style` command-line
+  // flag is specified.
   void SetUseAlloyStyle(bool use_alloy_style_browser,
                         bool use_alloy_style_window);
 

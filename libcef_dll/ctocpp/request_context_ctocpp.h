@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=daa5d7e0fa0e6b882ca98d9b4be5e6f5c81ddbde$
+// $hash=04e1e7f7b7c3170ba02ab0e1f623a774da489fec$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_CTOCPP_H_
@@ -19,8 +19,6 @@
 #if !defined(WRAPPING_CEF_SHARED)
 #error This file can be included wrapper-side only
 #endif
-
-#include <vector>
 
 #include "include/capi/cef_request_context_capi.h"
 #include "include/capi/cef_request_context_handler_capi.h"
@@ -60,13 +58,6 @@ class CefRequestContextCToCpp
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
   void ResolveHost(const CefString& origin,
                    CefRefPtr<CefResolveCallback> callback) override;
-  void LoadExtension(const CefString& root_directory,
-                     CefRefPtr<CefDictionaryValue> manifest,
-                     CefRefPtr<CefExtensionHandler> handler) override;
-  bool DidLoadExtension(const CefString& extension_id) override;
-  bool HasExtension(const CefString& extension_id) override;
-  bool GetExtensions(std::vector<CefString>& extension_ids) override;
-  CefRefPtr<CefExtension> GetExtension(const CefString& extension_id) override;
   CefRefPtr<CefMediaRouter> GetMediaRouter(
       CefRefPtr<CefCompletionCallback> callback) override;
   CefRefPtr<CefValue> GetWebsiteSetting(

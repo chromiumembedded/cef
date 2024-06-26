@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4b9914613aed142228d0cfe181a6ac65e9b6e494$
+// $hash=9f40e4ce3e46a895b5bf644bebdc2d802c9b598b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -131,8 +131,6 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void SetAutoResizeEnabled(bool enabled,
                             const CefSize& min_size,
                             const CefSize& max_size) override;
-  CefRefPtr<CefExtension> GetExtension() override;
-  bool IsBackgroundHost() override;
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
   bool IsFullscreen() override;

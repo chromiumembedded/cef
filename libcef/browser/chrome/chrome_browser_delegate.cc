@@ -121,8 +121,8 @@ Browser* ChromeBrowserDelegate::CreateDevToolsBrowser(
   }
 
   // Start with the same extra info as the opener, for consistency with
-  // current Alloy runtime behavior (see CefDevToolsFrontend::Show). This
-  // value, if non-empty, will be read-only.
+  // previous Alloy runtime behavior. This value, if non-empty, will be
+  // read-only.
   create_params.extra_info = opener_browser_host->browser_info()->extra_info();
   DCHECK(!create_params.extra_info || create_params.extra_info->IsReadOnly());
 
@@ -789,12 +789,6 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     Browser* browser,
     scoped_refptr<CreateParams> cef_params,
     const Browser* opener) {
-#if BUILDFLAG(ENABLE_ALLOY_BOOTSTRAP)
-  if (!cef::IsChromeRuntimeEnabled()) {
-    return nullptr;
-  }
-#endif
-
   CefBrowserCreateParams create_params;
 
   // Parameters from ChromeBrowserHostImpl::Create, or nullptr if the Browser

@@ -45,7 +45,7 @@ class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
   void OnBeforeCommandLineProcessing(
       CefRefPtr<client::ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
-    // Delegate auth callbacks to GetAuthCredentials with the chrome runtime.
+    // Delegate auth callbacks to GetAuthCredentials.
     command_line->AppendSwitch("disable-chrome-login-prompt");
 
     // Disable component extensions that require creation of a background

@@ -16,9 +16,9 @@ class Widget;
 }
 
 // Interface that provides access to common CEF-specific Widget functionality.
-// Alloy and Chrome runtimes use different views::Widget inheritance so we can't
-// cast types directly. Implemented by CefWidgetImpl for the Alloy runtime and
-// ChromeBrowserFrame for the Chrome runtime.
+// Alloy and Chrome styles use different views::Widget inheritance so we can't
+// cast types directly. Implemented by CefWidgetImpl for Alloy style and
+// ChromeBrowserFrame for Chrome style.
 class CefWidget {
  public:
   // Called from CefWindowView::CreateWidget.
@@ -48,7 +48,7 @@ class CefWidget {
   virtual void RemoveAssociatedProfile(Profile* profile) = 0;
 
   // Returns the Profile that will be used for Chrome theme purposes. Chrome
-  // runtime supports a single BrowserView in a single Widget. Alloy runtime
+  // style supports a single BrowserView in a single Widget. Alloy style
   // supports multiple BrowserViews in a single Widget, and those BrowserViews
   // may have different Profiles. If there are multiple Profiles we return an
   // arbitrary one. The returned Profile will remain consistent until the set of
