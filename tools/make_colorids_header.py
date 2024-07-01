@@ -64,7 +64,7 @@ def MakeFile(output, input):
     segments += MakeFileSegment(file)
 
   # Extract the unique names of all defines.
-  p = re.compile('#define\s([A-Za-z0-9_]{1,})\s')
+  p = re.compile(r'#define\s([A-Za-z0-9_]{1,})\s')
   all_defines = sorted(set(p.findall(segments)))
 
   undefines = "\n".join(["#undef %s" % define for define in all_defines])
