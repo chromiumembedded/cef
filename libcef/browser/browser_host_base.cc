@@ -1360,7 +1360,7 @@ CefMediaStreamRegistrar* CefBrowserHostBase::GetMediaStreamRegistrar() {
 
 CefDevToolsWindowRunner* CefBrowserHostBase::GetDevToolsWindowRunner() {
   if (!devtools_window_runner_) {
-    devtools_window_runner_ = CefDevToolsWindowRunner::Create();
+    devtools_window_runner_ = std::make_unique<CefDevToolsWindowRunner>();
   }
   return devtools_window_runner_.get();
 }

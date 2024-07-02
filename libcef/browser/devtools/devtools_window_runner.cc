@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cef/libcef/browser/chrome/chrome_devtools_window_runner.h"
+#include "cef/libcef/browser/devtools/devtools_window_runner.h"
 
 #include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/devtools/devtools_window.h"
 
-void ChromeDevToolsWindowRunner::ShowDevTools(
+void CefDevToolsWindowRunner::ShowDevTools(
     CefBrowserHostBase* opener,
     std::unique_ptr<CefShowDevToolsParams> params) {
   CEF_REQUIRE_UIT();
@@ -46,7 +46,7 @@ void ChromeDevToolsWindowRunner::ShowDevTools(
   DCHECK(browser_host_);
 }
 
-void ChromeDevToolsWindowRunner::CloseDevTools() {
+void CefDevToolsWindowRunner::CloseDevTools() {
   CEF_REQUIRE_UIT();
   if (browser_host_) {
     browser_host_->TryCloseBrowser();
@@ -54,18 +54,18 @@ void ChromeDevToolsWindowRunner::CloseDevTools() {
   }
 }
 
-bool ChromeDevToolsWindowRunner::HasDevTools() {
+bool CefDevToolsWindowRunner::HasDevTools() {
   CEF_REQUIRE_UIT();
   return !!browser_host_;
 }
 
 std::unique_ptr<CefShowDevToolsParams>
-ChromeDevToolsWindowRunner::TakePendingParams() {
+CefDevToolsWindowRunner::TakePendingParams() {
   CEF_REQUIRE_UIT();
   return std::move(pending_params_);
 }
 
-void ChromeDevToolsWindowRunner::SetDevToolsBrowserHost(
+void CefDevToolsWindowRunner::SetDevToolsBrowserHost(
     base::WeakPtr<ChromeBrowserHostImpl> browser_host) {
   CEF_REQUIRE_UIT();
   DCHECK(!browser_host_);

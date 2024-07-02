@@ -12,9 +12,9 @@
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/chrome/chrome_browser_context.h"
 #include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
-#include "cef/libcef/browser/chrome/chrome_devtools_window_runner.h"
 #include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
 #include "cef/libcef/browser/chrome/views/chrome_child_window.h"
+#include "cef/libcef/browser/devtools/devtools_window_runner.h"
 #include "cef/libcef/browser/hang_monitor.h"
 #include "cef/libcef/browser/media_access_query.h"
 #include "cef/libcef/browser/request_context_impl.h"
@@ -98,8 +98,7 @@ Browser* ChromeBrowserDelegate::CreateDevToolsBrowser(
   CefBrowserCreateParams create_params;
   CefWindowInfo window_info;
 
-  auto* devtools_window_runner = static_cast<ChromeDevToolsWindowRunner*>(
-      opener_browser_host->GetDevToolsWindowRunner());
+  auto* devtools_window_runner = opener_browser_host->GetDevToolsWindowRunner();
   auto pending_show_devtools_params =
       devtools_window_runner->TakePendingParams();
 

@@ -8,9 +8,11 @@
 
 #include <memory>
 
+#include "base/memory/weak_ptr.h"
 #include "cef/include/cef_client.h"
 
 class CefBrowserHostBase;
+class ChromeBrowserHostImpl;
 
 // Parameters passed to ShowDevTools.
 struct CefShowDevToolsParams {
@@ -30,18 +32,28 @@ struct CefShowDevToolsParams {
 };
 
 // Creates and runs a DevTools window instance. Only accessed on the UI thread.
-class CefDevToolsWindowRunner {
+class CefDevToolsWindowRunner final {
  public:
-  // Creates the appropriate runner type based on the current runtime.
-  static std::unique_ptr<CefDevToolsWindowRunner> Create();
+  CefDevToolsWindowRunner() = default;
 
-  // See documentation on CefBrowserHost methods of the same name.
-  virtual void ShowDevTools(CefBrowserHostBase* opener,
-                            std::unique_ptr<CefShowDevToolsParams> params) = 0;
-  virtual void CloseDevTools() = 0;
-  virtual bool HasDevTools() = 0;
+  CefDevToolsWindowRunner(const CefDevToolsWindowRunner&) = delete;
+  CefDevToolsWindowRunner& operator=(const CefDevToolsWindowRunner&) =
+      delete;
 
-  virtual ~CefDevToolsWindowRunner() = default;
+  void ShowDevTools(CefBrowserHostBase* opener,
+                    std::unique_ptr<CefShowDevToolsParams> params);
+  void CloseDevTools();
+  bool HasDevTools();
+
+  std::unique_ptr<CefShowDevToolsParams> TakePendingParams();
+
+  void SetDevToolsBrowserHost(
+      base::WeakPtr<ChromeBrowserHostImpl> browser_host);
+
+ private:
+  std::unique_ptr<CefShowDevToolsParams> pending_params_;
+
+  base::WeakPtr<ChromeBrowserHostImpl> browser_host_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DEVTOOLS_WINDOW_RUNNER_H_
