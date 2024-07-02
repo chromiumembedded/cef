@@ -5,40 +5,31 @@
 
 #include "cef/libcef/browser/main_runner.h"
 
-#include "base/at_exit.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug/debugger.h"
 #include "base/memory/raw_ptr.h"
 #include "base/run_loop.h"
-#include "base/sequence_checker.h"
-#include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
-#include "base/threading/thread.h"
 #include "cef/libcef/browser/browser_message_loop.h"
+#include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/app_manager.h"
 #include "cef/libcef/common/cef_switches.h"
-#include "cef/libcef/common/chrome/chrome_main_runner_delegate.h"
+#include "chrome/browser/browser_process_impl.h"
+#include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "components/crash/core/app/crash_switches.h"
+#include "components/keep_alive_registry/keep_alive_types.h"
+#include "components/metrics/persistent_system_profile.h"
 #include "content/app/content_main_runner_impl.h"
 #include "content/browser/scheduler/browser_task_executor.h"
 #include "content/public/app/content_main.h"
-#include "content/public/app/content_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "third_party/crashpad/crashpad/handler/handler_main.h"
 
-#if BUILDFLAG(IS_LINUX)
-#include "ui/base/ozone_buildflags.h"
-#if BUILDFLAG(IS_OZONE_X11)
-#include "ui/ozone/platform/x11/ozone_platform_x11.h"
-#endif
-#endif
-
 #if BUILDFLAG(IS_WIN)
-#include <Objbase.h>
-
 #include <windows.h>
 
 #include <memory>
@@ -49,20 +40,7 @@
 
 namespace {
 
-enum class RuntimeType {
-  UNINITIALIZED,
-  CHROME,
-};
-RuntimeType g_runtime_type = RuntimeType::UNINITIALIZED;
-
-std::unique_ptr<CefMainRunnerDelegate> MakeDelegate(
-    CefMainRunnerHandler* runner,
-    CefSettings* settings,
-    CefRefPtr<CefApp> application) {
-  g_runtime_type = RuntimeType::CHROME;
-  return std::make_unique<ChromeMainRunnerDelegate>(runner, settings,
-                                                    application);
-}
+bool g_initialized = false;
 
 // Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
@@ -110,139 +88,10 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
 
 }  // namespace
 
-// Used to run the UI on a separate thread.
-class CefUIThread : public base::PlatformThread::Delegate {
- public:
-  CefUIThread(CefMainRunner* runner, base::OnceClosure setup_callback)
-      : runner_(runner), setup_callback_(std::move(setup_callback)) {}
-  ~CefUIThread() override { Stop(); }
-
-  void Start() {
-    base::AutoLock lock(thread_lock_);
-    bool success = base::PlatformThread::CreateWithType(
-        0, this, &thread_, base::ThreadType::kDefault);
-    if (!success) {
-      LOG(FATAL) << "failed to UI create thread";
-    }
-  }
-
-  void Stop() {
-    base::AutoLock lock(thread_lock_);
-
-    if (!stopping_) {
-      stopping_ = true;
-      CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefMainRunner::QuitMessageLoop,
-                                            base::Unretained(runner_)));
-    }
-
-    // Can't join if the |thread_| is either already gone or is non-joinable.
-    if (thread_.is_null()) {
-      return;
-    }
-
-    base::PlatformThread::Join(thread_);
-    thread_ = base::PlatformThreadHandle();
-
-    stopping_ = false;
-  }
-
-  bool WaitUntilThreadStarted() const {
-    DCHECK(owning_sequence_checker_.CalledOnValidSequence());
-    start_event_.Wait();
-    return true;
-  }
-
-  void InitializeBrowserRunner(
-      content::MainFunctionParams main_function_params) {
-#if BUILDFLAG(IS_LINUX)
-#if BUILDFLAG(IS_OZONE_X11)
-    // Disable creation of GtkUi (interface to GTK desktop features) and cause
-    // ui::GetDefaultLinuxUi() (and related functions) to return nullptr. We
-    // can't use GtkUi in combination with multi-threaded-message-loop because
-    // Chromium's GTK implementation doesn't use GDK threads. Light/dark theme
-    // changes will still be detected via DarkModeManagerLinux.
-    ui::SetMultiThreadedMessageLoopX11();
-#endif
-#endif
-
-    // Use our own browser process runner.
-    browser_runner_ = content::BrowserMainRunner::Create();
-
-    // Initialize browser process state. Uses the current thread's message loop.
-    int exit_code =
-        browser_runner_->Initialize(std::move(main_function_params));
-    CHECK_EQ(exit_code, -1);
-  }
-
-  void set_shutdown_callback(base::OnceClosure shutdown_callback) {
-    shutdown_callback_ = std::move(shutdown_callback);
-  }
-
- protected:
-  void ThreadMain() override {
-    base::PlatformThread::SetName("CefUIThread");
-
-#if BUILDFLAG(IS_WIN)
-    // Initializes the COM library on the current thread.
-    CoInitialize(nullptr);
-#endif
-
-    start_event_.Signal();
-
-    std::move(setup_callback_).Run();
-
-    runner_->RunMessageLoop();
-
-    // Stop may be called before InitializeBrowserRunner if
-    // content::ContentMainRun was not successful (for example, due to process
-    // singleton relaunch).
-    if (browser_runner_) {
-      browser_runner_->Shutdown();
-      browser_runner_.reset();
-    }
-
-    // This will be a no-op if there is no BrowserTaskExecutor.
-    content::BrowserTaskExecutor::Shutdown();
-
-    if (!shutdown_callback_.is_null()) {
-      std::move(shutdown_callback_).Run();
-    }
-
-    // Run exit callbacks on the UI thread to avoid sequence check failures.
-    base::AtExitManager::ProcessCallbacksNow();
-
-#if BUILDFLAG(IS_WIN)
-    // Closes the COM library on the current thread. CoInitialize must
-    // be balanced by a corresponding call to CoUninitialize.
-    CoUninitialize();
-#endif
-  }
-
-  const raw_ptr<CefMainRunner> runner_;
-  base::OnceClosure setup_callback_;
-  base::OnceClosure shutdown_callback_;
-
-  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
-
-  bool stopping_ = false;
-
-  // The thread's handle.
-  base::PlatformThreadHandle thread_;
-  mutable base::Lock thread_lock_;  // Protects |thread_|.
-
-  mutable base::WaitableEvent start_event_;
-
-  // This class is not thread-safe, use this to verify access from the owning
-  // sequence of the Thread.
-  base::SequenceChecker owning_sequence_checker_;
-};
-
 CefMainRunner::CefMainRunner(bool multi_threaded_message_loop,
                              bool external_message_pump)
     : multi_threaded_message_loop_(multi_threaded_message_loop),
       external_message_pump_(external_message_pump) {}
-
-CefMainRunner::~CefMainRunner() = default;
 
 bool CefMainRunner::Initialize(CefSettings* settings,
                                CefRefPtr<CefApp> application,
@@ -250,8 +99,9 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                void* windows_sandbox_info,
                                bool* initialized,
                                base::OnceClosure context_initialized) {
-  DCHECK(!main_delegate_);
-  main_delegate_ = MakeDelegate(this, settings, application);
+  g_initialized = true;
+  settings_ = settings;
+  application_ = application;
 
   exit_code_ =
       ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
@@ -294,8 +144,6 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
     ui_thread_.reset();
   }
 
-  main_delegate_->BeforeMainThreadShutdown();
-
   if (!multi_threaded_message_loop_) {
     // Main thread and UI thread are the same.
     StartShutdownOnUIThread(std::move(shutdown_on_ui_thread));
@@ -312,10 +160,14 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
   main_runner_.reset();
 
   std::move(finalize_shutdown).Run();
-  main_delegate_->AfterMainThreadShutdown();
 
   main_delegate_.reset();
-  g_runtime_type = RuntimeType::UNINITIALIZED;
+  sampling_profiler_.reset();
+  keep_alive_.reset();
+  settings_ = nullptr;
+  application_ = nullptr;
+
+  g_initialized = false;
 }
 
 void CefMainRunner::RunMessageLoop() {
@@ -324,7 +176,21 @@ void CefMainRunner::RunMessageLoop() {
   DCHECK(quit_callback_.is_null());
   quit_callback_ = run_loop.QuitClosure();
 
-  main_delegate_->BeforeMainMessageLoopRun(&run_loop);
+  // May be nullptr if content::ContentMainRun exits early.
+  if (g_browser_process) {
+    // The ScopedKeepAlive instance triggers shutdown logic when released on the
+    // UI thread before terminating the message loop (e.g. from
+    // CefQuitMessageLoop or FinishShutdownOnUIThread when running with
+    // multi-threaded message loop).
+    keep_alive_ = std::make_unique<ScopedKeepAlive>(
+        KeepAliveOrigin::APP_CONTROLLER, KeepAliveRestartOption::DISABLED);
+
+    // The QuitClosure will be executed from BrowserProcessImpl::Unpin() via
+    // KeepAliveRegistry when the last ScopedKeepAlive is released.
+    // ScopedKeepAlives are also held by Browser objects.
+    static_cast<BrowserProcessImpl*>(g_browser_process)
+        ->SetQuitClosure(run_loop.QuitClosure());
+  }
 
   // Blocks until QuitMessageLoop() is called.
   run_loop.Run();
@@ -332,7 +198,7 @@ void CefMainRunner::RunMessageLoop() {
 
 void CefMainRunner::QuitMessageLoop() {
   if (!quit_callback_.is_null()) {
-    if (main_delegate_->HandleMainMessageLoopQuit()) {
+    if (HandleMainMessageLoopQuit()) {
       return;
     }
     std::move(quit_callback_).Run();
@@ -363,21 +229,18 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
     return -1;
   }
 
-  auto main_delegate = MakeDelegate(
-      /*runner=*/nullptr, /*settings=*/nullptr, application);
-  main_delegate->BeforeExecuteProcess(args);
+  g_initialized = true;
 
-  int result;
+  auto main_delegate = std::make_unique<ChromeMainDelegateCef>(
+      /*runner=*/nullptr, /*settings=*/nullptr, application);
+  BeforeMainInitialize(args);
 
   if (process_type == crash_reporter::switches::kCrashpadHandler) {
-    result = RunAsCrashpadHandler(command_line);
-    main_delegate->AfterExecuteProcess();
-    return result;
+    return RunAsCrashpadHandler(command_line);
   }
 
   // Execute the secondary process.
-  content::ContentMainParams main_params(
-      main_delegate->GetContentMainDelegate());
+  content::ContentMainParams main_params(main_delegate.get());
 #if BUILDFLAG(IS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
   if (windows_sandbox_info == nullptr) {
@@ -392,22 +255,20 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   main_params.argc = args.argc;
   main_params.argv = const_cast<const char**>(args.argv);
 #endif
-  result = content::ContentMain(std::move(main_params));
-
-  main_delegate->AfterExecuteProcess();
-
-  return result;
+  return content::ContentMain(std::move(main_params));
 }
 
 int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
                                          void* windows_sandbox_info,
                                          int* no_sandbox) {
-  main_delegate_->BeforeMainThreadInitialize(args);
+  BeforeMainInitialize(args);
+
+  main_delegate_ =
+      std::make_unique<ChromeMainDelegateCef>(this, settings_, application_);
 
   // Initialize the content runner.
   main_runner_ = content::ContentMainRunner::Create();
-  content::ContentMainParams main_params(
-      main_delegate_->GetContentMainDelegate());
+  content::ContentMainParams main_params(main_delegate_.get());
 
 #if BUILDFLAG(IS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
@@ -430,7 +291,12 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
 
 int CefMainRunner::ContentMainRun(bool* initialized,
                                   base::OnceClosure context_initialized) {
-  main_delegate_->BeforeMainThreadRun(multi_threaded_message_loop_);
+  if (multi_threaded_message_loop_) {
+    // Detach from the main thread so that these objects can be attached and
+    // modified from the UI thread going forward.
+    metrics::GlobalPersistentSystemProfile::GetInstance()
+        ->DetachFromCurrentThread();
+  }
 
   int exit_code = -1;
 
@@ -446,7 +312,7 @@ int CefMainRunner::ContentMainRun(bool* initialized,
     if (!CreateUIThread(base::BindOnce(
             [](CefMainRunner* runner, base::WaitableEvent* event,
                int* exit_code) {
-              runner->main_delegate_->BeforeUIThreadInitialize();
+              runner->BeforeUIThreadInitialize();
               *exit_code = content::ContentMainRun(runner->main_runner_.get());
 
               if (*exit_code != content::RESULT_CODE_NORMAL_EXIT) {
@@ -473,7 +339,7 @@ int CefMainRunner::ContentMainRun(bool* initialized,
     }
   } else {
     *initialized = true;
-    main_delegate_->BeforeUIThreadInitialize();
+    BeforeUIThreadInitialize();
     exit_code = content::ContentMainRun(main_runner_.get());
   }
 
@@ -493,6 +359,30 @@ int CefMainRunner::ContentMainRun(bool* initialized,
   return exit_code;
 }
 
+// static
+void CefMainRunner::BeforeMainInitialize(const CefMainArgs& args) {
+#if BUILDFLAG(IS_WIN)
+  base::CommandLine::Init(0, nullptr);
+#else
+  base::CommandLine::Init(args.argc, args.argv);
+#endif
+}
+
+bool CefMainRunner::HandleMainMessageLoopQuit() {
+  // May be nullptr if content::ContentMainRun exits early.
+  if (!g_browser_process) {
+    // Proceed with direct execution of the QuitClosure().
+    return false;
+  }
+
+  // May be called multiple times. See comments in RunMainMessageLoopBefore.
+  keep_alive_.reset();
+
+  // Cancel direct execution of the QuitClosure() in QuitMessageLoop. We
+  // instead wait for all Chrome browser windows to exit.
+  return true;
+}
+
 void CefMainRunner::PreBrowserMain() {
   if (external_message_pump_) {
     InitExternalMessagePumpFactoryForUI();
@@ -506,8 +396,7 @@ int CefMainRunner::RunMainProcess(
     browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Results in a call to
-    // AlloyBrowserMain::PreBrowserMain() which creates the UI message
-    // loop.
+    // PreBrowserMain() which creates the UI message loop.
     int exit_code =
         browser_runner_->Initialize(std::move(main_function_params));
     if (exit_code >= 0) {
@@ -539,7 +428,6 @@ void CefMainRunner::OnContextInitialized(
     base::OnceClosure context_initialized) {
   CEF_REQUIRE_UIT();
 
-  main_delegate_->AfterUIThreadInitialize();
   std::move(context_initialized).Run();
 }
 
@@ -561,18 +449,35 @@ void CefMainRunner::StartShutdownOnUIThread(
       ->ShutdownOnUIThread();
 
   std::move(shutdown_on_ui_thread).Run();
-  main_delegate_->BeforeUIThreadShutdown();
+  BeforeUIThreadShutdown();
 }
 
 void CefMainRunner::FinishShutdownOnUIThread() {
-  main_delegate_->AfterUIThreadShutdown();
+  if (multi_threaded_message_loop_) {
+    // Don't wait for this to be called in ChromeMainDelegate::ProcessExiting.
+    // It is safe to call multiple times.
+    ChromeProcessSingleton::DeleteInstance();
+  }
+}
+
+void CefMainRunner::BeforeUIThreadInitialize() {
+  sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
+}
+
+void CefMainRunner::BeforeUIThreadShutdown() {
+  static_cast<ChromeContentBrowserClientCef*>(
+      CefAppManager::Get()->GetContentClient()->browser())
+      ->CleanupOnUIThread();
+  main_delegate_->CleanupOnUIThread();
+
+  sampling_profiler_.reset();
 }
 
 // From libcef/features/runtime.h:
 namespace cef {
 
 bool IsChromeRuntimeEnabled() {
-  return g_runtime_type == RuntimeType::CHROME;
+  return g_initialized;
 }
 
 }  // namespace cef

@@ -14,6 +14,7 @@
 #include "base/threading/threading_features.h"
 #include "cef/libcef/browser/chrome/chrome_browser_context.h"
 #include "cef/libcef/browser/chrome/chrome_content_browser_client_cef.h"
+#include "cef/libcef/browser/main_runner.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/command_line_impl.h"
 #include "cef/libcef/common/crash_reporting.h"
@@ -114,7 +115,7 @@ void InitLogging(const base::CommandLine* command_line) {
 
 }  // namespace
 
-ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunner* runner,
                                              CefSettings* settings,
                                              CefRefPtr<CefApp> application)
     : ChromeMainDelegate(base::TimeTicks::Now()),

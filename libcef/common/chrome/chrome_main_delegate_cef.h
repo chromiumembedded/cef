@@ -12,11 +12,11 @@
 #include "cef/include/cef_app.h"
 #include "cef/libcef/common/app_manager.h"
 #include "cef/libcef/common/chrome/chrome_content_client_cef.h"
-#include "cef/libcef/common/main_runner_handler.h"
 #include "cef/libcef/common/resource_bundle_delegate.h"
 #include "cef/libcef/common/task_runner_manager.h"
 #include "chrome/app/chrome_main_delegate.h"
 
+class CefMainRunner;
 class ChromeContentBrowserClientCef;
 class ChromeContentRendererClientCef;
 
@@ -27,7 +27,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
  public:
   // |runner| will be non-nullptr for the main process only, and will outlive
   // this object.
-  ChromeMainDelegateCef(CefMainRunnerHandler* runner,
+  ChromeMainDelegateCef(CefMainRunner* runner,
                         CefSettings* settings,
                         CefRefPtr<CefApp> application);
 
@@ -36,6 +36,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
 
   ~ChromeMainDelegateCef() override;
 
+ protected:
   // ChromeMainDelegate overrides.
   std::optional<int> BasicStartupComplete() override;
   void PreSandboxStartup() override;
@@ -51,8 +52,10 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   content::ContentClient* CreateContentClient() override;
   content::ContentBrowserClient* CreateContentBrowserClient() override;
   content::ContentRendererClient* CreateContentRendererClient() override;
+  ui::ResourceBundle::Delegate* GetResourceBundleDelegate() override {
+    return &resource_bundle_delegate_;
+  }
 
- protected:
   // CefAppManager overrides.
   CefRefPtr<CefApp> GetApplication() override { return application_; }
   content::ContentClient* GetContentClient() override {
@@ -73,16 +76,11 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   scoped_refptr<base::SingleThreadTaskRunner> GetRenderTaskRunner() override;
   scoped_refptr<base::SingleThreadTaskRunner> GetWebWorkerTaskRunner() override;
 
-  // ChromeMainDelegate overrides.
-  ui::ResourceBundle::Delegate* GetResourceBundleDelegate() override {
-    return &resource_bundle_delegate_;
-  }
-
  private:
   ChromeContentBrowserClientCef* content_browser_client() const;
   ChromeContentRendererClientCef* content_renderer_client() const;
 
-  const raw_ptr<CefMainRunnerHandler> runner_;
+  const raw_ptr<CefMainRunner> runner_;
   const raw_ptr<CefSettings> settings_;
   CefRefPtr<CefApp> application_;
 
