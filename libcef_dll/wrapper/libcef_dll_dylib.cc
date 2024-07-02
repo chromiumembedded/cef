@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=641096b7a6d43e8f7fbb4aad3c5ee870717b7f32$
+// $hash=fd47567e105e5fc15bee190670216f0f007c6d27$
 //
 
 #include <dlfcn.h>
@@ -65,6 +65,7 @@
 #include "include/capi/views/cef_window_capi.h"
 #include "include/cef_api_hash.h"
 #include "include/cef_version.h"
+#include "include/internal/cef_dump_without_crashing_internal.h"
 #include "include/internal/cef_logging_internal.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
@@ -253,6 +254,9 @@ struct libcef_pointers {
   decltype(&cef_window_create_top_level) cef_window_create_top_level;
   decltype(&cef_api_hash) cef_api_hash;
   decltype(&cef_version_info) cef_version_info;
+  decltype(&cef_dump_without_crashing) cef_dump_without_crashing;
+  decltype(&cef_dump_without_crashing_unthrottled)
+      cef_dump_without_crashing_unthrottled;
   decltype(&cef_get_min_log_level) cef_get_min_log_level;
   decltype(&cef_get_vlog_level) cef_get_vlog_level;
   decltype(&cef_log) cef_log;
@@ -469,6 +473,8 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_window_create_top_level);
   INIT_ENTRY(cef_api_hash);
   INIT_ENTRY(cef_version_info);
+  INIT_ENTRY(cef_dump_without_crashing);
+  INIT_ENTRY(cef_dump_without_crashing_unthrottled);
   INIT_ENTRY(cef_get_min_log_level);
   INIT_ENTRY(cef_get_vlog_level);
   INIT_ENTRY(cef_log);
@@ -1361,6 +1367,19 @@ NO_SANITIZE("cfi-icall") const char* cef_api_hash(int entry) {
 
 NO_SANITIZE("cfi-icall") int cef_version_info(int entry) {
   return g_libcef_pointers.cef_version_info(entry);
+}
+
+NO_SANITIZE("cfi-icall")
+int cef_dump_without_crashing(long long mseconds_between_dumps,
+                              const char* function_name,
+                              const char* file_name,
+                              int line_number) {
+  return g_libcef_pointers.cef_dump_without_crashing(
+      mseconds_between_dumps, function_name, file_name, line_number);
+}
+
+NO_SANITIZE("cfi-icall") int cef_dump_without_crashing_unthrottled() {
+  return g_libcef_pointers.cef_dump_without_crashing_unthrottled();
 }
 
 NO_SANITIZE("cfi-icall") int cef_get_min_log_level() {

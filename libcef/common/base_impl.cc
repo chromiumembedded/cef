@@ -2,10 +2,12 @@
 // 2011 the Chromium Authors. All rights reserved. Use of this source code is
 // governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "base/debug/dump_without_crashing.h"
 #include "base/logging.h"
 #include "base/threading/platform_thread.h"
 #include "base/trace_event/trace_event.h"
 #include "cef/include/base/cef_build.h"
+#include "cef/include/internal/cef_dump_without_crashing_internal.h"
 #include "cef/include/internal/cef_logging_internal.h"
 #include "cef/include/internal/cef_thread_internal.h"
 #include "cef/include/internal/cef_trace_event_internal.h"
@@ -226,4 +228,17 @@ cef_get_current_platform_thread_handle() {
 #else
   return base::PlatformThread::CurrentHandle().platform_handle();
 #endif
+}
+
+CEF_EXPORT int cef_dump_without_crashing(long long mseconds_between_dumps,
+                                         const char* function_name,
+                                         const char* file_name,
+                                         int line_number) {
+  return base::debug::DumpWithoutCrashing(
+      base::Location::Current(function_name, file_name, line_number),
+      base::Milliseconds(mseconds_between_dumps));
+}
+
+CEF_EXPORT int cef_dump_without_crashing_unthrottled() {
+  return base::debug::DumpWithoutCrashingUnthrottled();
 }

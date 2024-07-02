@@ -78,6 +78,7 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsMuteAudio:(id)sender;
 - (IBAction)menuTestsUnmuteAudio:(id)sender;
 - (IBAction)menuTestsOtherTests:(id)sender;
+- (IBAction)menuTestsDumpWithoutCrashing:(id)sender;
 - (void)enableAccessibility:(bool)bEnable;
 @end
 
@@ -320,6 +321,10 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsOtherTests:(id)sender {
   [self testsItemSelected:ID_TESTS_OTHER_TESTS];
+}
+
+- (IBAction)menuTestsDumpWithoutCrashing:(id)sender {
+  [self testsItemSelected:ID_TESTS_DUMP_WITHOUT_CRASHING];
 }
 
 - (scoped_refptr<client::RootWindow>)getActiveRootWindow {

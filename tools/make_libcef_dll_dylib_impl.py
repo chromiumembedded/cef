@@ -11,6 +11,7 @@ import os
 OTHER_HEADERS = [
     'cef_api_hash.h',
     'cef_version.h',
+    'internal/cef_dump_without_crashing_internal.h',
     'internal/cef_logging_internal.h',
     'internal/cef_string_list.h',
     'internal/cef_string_map.h',

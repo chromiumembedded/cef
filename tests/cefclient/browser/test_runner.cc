@@ -11,6 +11,7 @@
 #include <string>
 
 #include "include/base/cef_callback.h"
+#include "include/base/cef_dump_without_crashing.h"
 #include "include/cef_parser.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
@@ -593,6 +594,9 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_OTHER_TESTS:
       RunOtherTests(browser);
+      break;
+    case ID_TESTS_DUMP_WITHOUT_CRASHING:
+      CefDumpWithoutCrashing();
       break;
   }
 }

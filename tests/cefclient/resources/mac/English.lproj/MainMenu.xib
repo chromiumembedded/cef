@@ -434,6 +434,12 @@
                                     <action selector="menuTestsOtherTests:" target="-2" id="HbC-QY-Pwf"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Dump without crashing" id="Xsl-IU-4Kk">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuTestsDumpWithoutCrashing:" target="-2" id="cSU-rq-oMD"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

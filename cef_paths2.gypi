@@ -16,6 +16,7 @@
       'include/base/cef_callback_list.h',
       'include/base/cef_cancelable_callback.h',
       'include/base/cef_compiler_specific.h',
+      'include/base/cef_dump_without_crashing.h',
       'include/base/cef_lock.h',
       'include/base/cef_logging.h',
       'include/base/cef_macros.h',
@@ -43,6 +44,7 @@
       'include/internal/cef_types_wrappers.h',
     ],
     'includes_common_capi': [
+      'include/internal/cef_dump_without_crashing_internal.h',
       'include/internal/cef_logging_internal.h',
       'include/internal/cef_string.h',
       'include/internal/cef_string_list.h',
@@ -123,6 +125,7 @@
       'libcef_dll/base/cef_atomic_flag.cc',
       'libcef_dll/base/cef_callback_helpers.cc',
       'libcef_dll/base/cef_callback_internal.cc',
+      'libcef_dll/base/cef_dump_without_crashing.cc',
       'libcef_dll/base/cef_lock.cc',
       'libcef_dll/base/cef_lock_impl.cc',
       'libcef_dll/base/cef_logging.cc',

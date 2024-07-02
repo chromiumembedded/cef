@@ -95,6 +95,7 @@ void AddTestMenuItems(CefRefPtr<CefMenuModel> test_menu) {
   test_menu->AddItem(ID_TESTS_MUTE_AUDIO, "Mute Audio");
   test_menu->AddItem(ID_TESTS_UNMUTE_AUDIO, "Unmute Audio");
   test_menu->AddItem(ID_TESTS_OTHER_TESTS, "Other Tests");
+  test_menu->AddItem(ID_TESTS_DUMP_WITHOUT_CRASHING, "Dump without crashing");
 }
 
 void AddFileMenuItems(CefRefPtr<CefMenuModel> file_menu) {
