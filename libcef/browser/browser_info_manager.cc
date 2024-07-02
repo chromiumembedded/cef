@@ -9,9 +9,9 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/task/sequenced_task_runner.h"
+#include "cef/libcef/browser/browser_guest_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
-#include "cef/libcef/browser/extensions/browser_extensions_util.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/frame_util.h"
@@ -492,10 +492,8 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
 
   const bool is_pdf_process = rfh->GetProcess()->IsPdf();
   auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
-  const bool is_browser_process_guest =
-      extensions::IsBrowserPluginGuest(web_contents);
-  const bool is_print_preview_dialog =
-      extensions::IsPrintPreviewDialog(web_contents);
+  const bool is_browser_process_guest = IsBrowserPluginGuest(web_contents);
+  const bool is_print_preview_dialog = IsPrintPreviewDialog(web_contents);
 
   bool excluded =
       is_pdf_process || is_browser_process_guest || is_print_preview_dialog;
@@ -504,7 +502,7 @@ CefRefPtr<CefFrameHostImpl> CefBrowserInfoManager::GetFrameHost(
 
   // A BrowserHost may match an excluded RFH type. Some associations are
   // registered directly via CefBrowserInfo::MaybeCreateFrame and some are
-  // discovered indirectly via extensions::GetOwnerForGuestContents.
+  // discovered indirectly via GetOwnerForGuestContents.
   auto browser = CefBrowserHostBase::GetBrowserForHost(rfh);
   if (browser && !excluded) {
     frame = browser->browser_info()->GetFrameForHost(rfh, prefer_speculative);
@@ -544,13 +542,11 @@ bool CefBrowserInfoManager::IsExcludedFrameHost(content::RenderFrameHost* rfh) {
   }
 
   auto* web_contents = content::WebContents::FromRenderFrameHost(rfh);
-  const bool is_browser_process_guest =
-      extensions::IsBrowserPluginGuest(web_contents);
+  const bool is_browser_process_guest = IsBrowserPluginGuest(web_contents);
   if (is_browser_process_guest) {
     return true;
   }
-  const bool is_print_preview_dialog =
-      extensions::IsPrintPreviewDialog(web_contents);
+  const bool is_print_preview_dialog = IsPrintPreviewDialog(web_contents);
   if (is_print_preview_dialog) {
     return true;
   }
@@ -777,8 +773,8 @@ void CefBrowserInfoManager::TimeoutNewBrowserInfoResponse(
     // - When the PDF renderer is loaded in the print preview dialog. There will
     //   be no RFH in this case.
     // Any additional cases should be debugged and, if possible,
-    // extensions::GetOwnerForGuestContents should be improved to find the
-    // associated CefBrowserHost.
+    // GetOwnerForGuestContents should be improved to find the associated
+    // CefBrowserHost.
     const bool has_rfh =
         !!content::RenderFrameHost::FromFrameToken(global_token);
 

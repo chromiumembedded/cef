@@ -2,14 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cef/libcef/browser/extensions/browser_extensions_util.h"
+#include "cef/libcef/browser/browser_guest_util.h"
 
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
-
-namespace extensions {
 
 namespace {
 
@@ -62,5 +60,3 @@ bool IsBrowserPluginGuest(const content::WebContents* web_contents) {
 bool IsPrintPreviewDialog(const content::WebContents* web_contents) {
   return !!GetInitiatorForPrintPreviewDialog(web_contents);
 }
-
-}  // namespace extensions

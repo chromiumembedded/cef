@@ -15,11 +15,11 @@
 #include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "cef/libcef/browser/audio_capturer.h"
 #include "cef/libcef/browser/browser_context.h"
+#include "cef/libcef/browser/browser_guest_util.h"
 #include "cef/libcef/browser/browser_info.h"
 #include "cef/libcef/browser/browser_info_manager.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/context.h"
-#include "cef/libcef/browser/extensions/browser_extensions_util.h"
 #include "cef/libcef/browser/hang_monitor.h"
 #include "cef/libcef/browser/media_access_query.h"
 #include "cef/libcef/browser/osr/osr_util.h"
@@ -559,8 +559,8 @@ void AlloyBrowserHostImpl::CancelContextMenu() {
 bool AlloyBrowserHostImpl::MaybeAllowNavigation(
     content::RenderFrameHost* opener,
     const content::OpenURLParams& params) {
-  const bool is_guest_view = extensions::IsBrowserPluginGuest(
-      content::WebContents::FromRenderFrameHost(opener));
+  const bool is_guest_view =
+      IsBrowserPluginGuest(content::WebContents::FromRenderFrameHost(opener));
   if (is_guest_view && !params.is_pdf &&
       !params.url.SchemeIs(extensions::kExtensionScheme) &&
       !params.url.SchemeIs(content::kChromeUIScheme)) {
