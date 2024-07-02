@@ -4,7 +4,7 @@
 
 #include "cef/libcef/browser/views/textfield_view.h"
 
-#include "cef/libcef/browser/browser_util.h"
+#include "cef/libcef/browser/browser_event_util.h"
 
 CefTextfieldView::CefTextfieldView(CefTextfieldDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
@@ -27,7 +27,7 @@ bool CefTextfieldView::HandleKeyEvent(views::Textfield* sender,
   }
 
   CefKeyEvent cef_key_event;
-  if (!browser_util::GetCefKeyEvent(key_event, cef_key_event)) {
+  if (!GetCefKeyEvent(key_event, cef_key_event)) {
     return false;
   }
 

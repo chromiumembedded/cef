@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "cef/libcef/browser/browser_util.h"
+#include "cef/libcef/browser/browser_event_util.h"
 
 #include "components/input/native_web_keyboard_event.h"
-
-namespace browser_util {
 
 bool GetCefKeyEvent(const input::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event) {
@@ -69,5 +67,3 @@ bool GetCefKeyEvent(const ui::KeyEvent& event, CefKeyEvent& cef_event) {
   input::NativeWebKeyboardEvent native_event(event);
   return GetCefKeyEvent(native_event, cef_event);
 }
-
-}  // namespace browser_util

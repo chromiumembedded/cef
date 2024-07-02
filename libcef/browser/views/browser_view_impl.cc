@@ -7,8 +7,8 @@
 #include <memory>
 #include <optional>
 
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
-#include "cef/libcef/browser/browser_util.h"
 #include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/request_context_impl.h"
@@ -184,7 +184,7 @@ bool CefBrowserViewImpl::HandleKeyboardEvent(
   // Give the CefWindowDelegate a chance to handle the event.
   if (auto* window_impl = cef_window_impl()) {
     CefKeyEvent cef_event;
-    if (browser_util::GetCefKeyEvent(event, cef_event) &&
+    if (GetCefKeyEvent(event, cef_event) &&
         window_impl->OnKeyEvent(cef_event)) {
       return true;
     }

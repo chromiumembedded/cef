@@ -8,7 +8,7 @@
 
 #include "base/i18n/rtl.h"
 #include "base/memory/raw_ptr.h"
-#include "cef/libcef/browser/browser_util.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 #include "cef/libcef/browser/views/display_impl.h"
@@ -86,7 +86,7 @@ class CefUnhandledKeyEventHandler : public ui::EventHandler {
     }
 
     CefKeyEvent cef_event;
-    if (browser_util::GetCefKeyEvent(*event, cef_event) &&
+    if (GetCefKeyEvent(*event, cef_event) &&
         window_impl_->OnKeyEvent(cef_event)) {
       event->StopPropagation();
     }

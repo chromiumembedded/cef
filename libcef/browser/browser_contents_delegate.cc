@@ -5,9 +5,9 @@
 #include "cef/libcef/browser/browser_contents_delegate.h"
 
 #include "base/memory/raw_ptr.h"
+#include "cef/libcef/browser/browser_event_util.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
-#include "cef/libcef/browser/browser_util.h"
 #include "cef/libcef/browser/native/cursor_util.h"
 #include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/ui/views/sad_tab_view.h"
@@ -252,7 +252,7 @@ CefBrowserContentsDelegate::PreHandleKeyboardEvent(
     if (auto c = client()) {
       if (auto handler = c->GetKeyboardHandler()) {
         CefKeyEvent cef_event;
-        if (browser_util::GetCefKeyEvent(event, cef_event)) {
+        if (GetCefKeyEvent(event, cef_event)) {
           cef_event.focus_on_editable_field = focus_on_editable_field_;
 
           auto event_handle = delegate->GetEventHandle(event);
@@ -284,7 +284,7 @@ bool CefBrowserContentsDelegate::HandleKeyboardEvent(
     if (auto c = client()) {
       if (auto handler = c->GetKeyboardHandler()) {
         CefKeyEvent cef_event;
-        if (browser_util::GetCefKeyEvent(event, cef_event)) {
+        if (GetCefKeyEvent(event, cef_event)) {
           cef_event.focus_on_editable_field = focus_on_editable_field_;
 
           auto event_handle = delegate->GetEventHandle(event);
