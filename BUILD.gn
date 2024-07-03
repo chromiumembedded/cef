@@ -831,7 +831,6 @@ source_set("libcef_static") {
     "libcef/common/waitable_event_impl.cc",
     "libcef/common/waitable_event_impl.h",
     "libcef/features/runtime.h",
-    "libcef/features/runtime_checks.h",
     "libcef/renderer/browser_impl.cc",
     "libcef/renderer/browser_impl.h",
     "libcef/renderer/chrome/chrome_content_renderer_client_cef.cc",
