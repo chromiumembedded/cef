@@ -1,0 +1,381 @@
+diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
+index 55541159e5fc8..8021d1d963f59 100644
+--- chrome/browser/ui/webui/version/version_handler.cc
++++ chrome/browser/ui/webui/version/version_handler.cc
+@@ -27,12 +27,23 @@
+ #include "ui/base/l10n/l10n_util.h"
+ #include "url/gurl.h"
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "base/base_paths.h"
++#include "base/path_service.h"
++#include "chrome/common/chrome_paths.h"
++#endif
++
+ namespace {
+ 
+ // Retrieves the executable and profile paths on the FILE thread.
+ void GetFilePaths(const base::FilePath& profile_path,
+                   std::u16string* exec_path_out,
+-                  std::u16string* profile_path_out) {
++                  std::u16string* profile_path_out
++#if BUILDFLAG(ENABLE_CEF)
++                  , std::u16string* module_path_out,
++                  std::u16string* user_data_path_out
++#endif
++                  ) {
+   base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
+                                                 base::BlockingType::MAY_BLOCK);
+ 
+@@ -48,6 +59,19 @@ void GetFilePaths(const base::FilePath& profile_path,
+     *profile_path_out = profile_path.LossyDisplayName();
+   else
+     *profile_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
++
++#if BUILDFLAG(ENABLE_CEF)
++  base::FilePath module_path;
++  if (base::PathService::Get(base::FILE_MODULE, &module_path)) {
++    *module_path_out = module_path.LossyDisplayName();
++  } else {
++    *module_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
++  }
++
++  base::FilePath user_data_dir =
++      base::PathService::CheckedGet(chrome::DIR_USER_DATA);
++  *user_data_path_out = user_data_dir.LossyDisplayName();
++#endif
+ }
+ 
+ }  // namespace
+@@ -111,23 +135,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
+   // OnGotFilePaths.
+   std::u16string* exec_path_buffer = new std::u16string;
+   std::u16string* profile_path_buffer = new std::u16string;
++#if BUILDFLAG(ENABLE_CEF)
++  std::u16string* module_path_buffer = new std::u16string;
++  std::u16string* user_data_path_buffer = new std::u16string;
++#endif
+   base::ThreadPool::PostTaskAndReply(
+       FROM_HERE, {base::TaskPriority::USER_VISIBLE, base::MayBlock()},
+       base::BindOnce(&GetFilePaths, Profile::FromWebUI(web_ui())->GetPath(),
+                      base::Unretained(exec_path_buffer),
+-                     base::Unretained(profile_path_buffer)),
++                     base::Unretained(profile_path_buffer)
++#if BUILDFLAG(ENABLE_CEF)
++                     , base::Unretained(module_path_buffer),
++                     base::Unretained(user_data_path_buffer)
++#endif
++                     ),
+       base::BindOnce(&VersionHandler::OnGotFilePaths,
+                      weak_ptr_factory_.GetWeakPtr(), callback_id,
+                      base::Owned(exec_path_buffer),
+-                     base::Owned(profile_path_buffer)));
++                     base::Owned(profile_path_buffer)
++#if BUILDFLAG(ENABLE_CEF)
++                     , base::Owned(module_path_buffer),
++                     base::Owned(user_data_path_buffer)
++#endif
++                     ));
+ }
+ 
+ void VersionHandler::OnGotFilePaths(std::string callback_id,
+                                     std::u16string* executable_path_data,
+-                                    std::u16string* profile_path_data) {
++                                    std::u16string* profile_path_data
++#if BUILDFLAG(ENABLE_CEF)
++                                    , std::u16string* module_path_data,
++                                    std::u16string* user_data_path_data
++#endif
++                                    ) {
+   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+   base::Value::Dict response;
+   response.Set(version_ui::kKeyExecPath, *executable_path_data);
+   response.Set(version_ui::kKeyProfilePath, *profile_path_data);
++#if BUILDFLAG(ENABLE_CEF)
++  response.Set(version_ui::kKeyModulePath, *module_path_data);
++  response.Set(version_ui::kKeyUserDataPath, *user_data_path_data);
++#endif
+   ResolveJavascriptCallback(base::Value(callback_id), response);
+ }
+diff --git chrome/browser/ui/webui/version/version_handler.h chrome/browser/ui/webui/version/version_handler.h
+index 2f8162d7491d1..b00f0d5bf26ae 100644
+--- chrome/browser/ui/webui/version/version_handler.h
++++ chrome/browser/ui/webui/version/version_handler.h
+@@ -9,6 +9,7 @@
+ 
+ #include "base/memory/weak_ptr.h"
+ #include "base/values.h"
++#include "cef/libcef/features/features.h"
+ #include "content/public/browser/web_ui_message_handler.h"
+ 
+ // Handler class for Version page operations.
+@@ -44,7 +45,12 @@ class VersionHandler : public content::WebUIMessageHandler {
+   // front end.
+   void OnGotFilePaths(std::string callback_id,
+                       std::u16string* executable_path_data,
+-                      std::u16string* profile_path_data);
++                      std::u16string* profile_path_data
++#if BUILDFLAG(ENABLE_CEF)
++                      , std::u16string* module_path_data,
++                      std::u16string* user_data_path_data
++#endif
++                      );
+ 
+   // Factory for the creating refs in callbacks.
+   base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
+diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
+index 6e205bf700de2..c281769b5cb5c 100644
+--- chrome/browser/ui/webui/version/version_ui.cc
++++ chrome/browser/ui/webui/version/version_ui.cc
+@@ -17,6 +17,7 @@
+ #include "base/time/time.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/browser_process_impl.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/ui/webui/version/version_handler.h"
+@@ -64,6 +65,10 @@
+ #include "chrome/browser/ui/webui/version/version_util_win.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/include/cef_version.h"
++#endif
++
+ using content::WebUIDataSource;
+ 
+ namespace {
+@@ -84,6 +89,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+     {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
+     {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
+     {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
++#if BUILDFLAG(ENABLE_CEF)
++    {version_ui::kModulePathName, IDS_VERSION_UI_MODULE_PATH},
++    {version_ui::kUserDataPathName, IDS_VERSION_UI_USER_DATA_PATH},
++#endif
+     {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
+     {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
+     {version_ui::kVariationsSeedName, IDS_VERSION_UI_VARIATIONS_SEED_NAME},
+@@ -121,6 +130,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+                                IDR_PRODUCT_LOGO_WHITE);
+ #endif  // BUILDFLAG(IS_ANDROID)
+   html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
++
++#if BUILDFLAG(ENABLE_CEF)
++  html_source->AddString(version_ui::kCefVersion, CEF_VERSION);
++#endif
+ }
+ 
+ std::string GetProductModifier() {
+@@ -241,6 +254,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+   // blank.
+   html_source->AddString(version_ui::kExecutablePath, std::string());
+   html_source->AddString(version_ui::kProfilePath, std::string());
++#if BUILDFLAG(ENABLE_CEF)
++  html_source->AddString(version_ui::kModulePath, std::string());
++  html_source->AddString(version_ui::kUserDataPath, std::string());
++#endif
+ 
+ #if BUILDFLAG(IS_MAC)
+   html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
+diff --git components/version_ui/BUILD.gn components/version_ui/BUILD.gn
+index 913cf913dca7a..d79c330989149 100644
+--- components/version_ui/BUILD.gn
++++ components/version_ui/BUILD.gn
+@@ -2,6 +2,8 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
++import("//cef/libcef/features/features.gni")
++
+ static_library("version_ui") {
+   sources = [
+     "version_handler_helper.cc",
+@@ -17,4 +19,8 @@ static_library("version_ui") {
+     "//components/variations/net",
+     "//components/variations/service",
+   ]
++
++  if (enable_cef) {
++    configs += [ "//cef/libcef/features:config" ]
++  }
+ }
+diff --git components/version_ui/resources/about_version.css components/version_ui/resources/about_version.css
+index 6b753d716b55d..58d6419be0165 100644
+--- components/version_ui/resources/about_version.css
++++ components/version_ui/resources/about_version.css
+@@ -135,3 +135,7 @@ body {
+   position: fixed;
+   width: 1px;
+ }
++
++#footnote {
++  font-size: 0.8em;
++}
+diff --git components/version_ui/resources/about_version.html components/version_ui/resources/about_version.html
+index 508c4ecfd790f..fed6933908951 100644
+--- components/version_ui/resources/about_version.html
++++ components/version_ui/resources/about_version.html
+@@ -62,9 +62,21 @@ about:version template page
+         </picture>
+ </if>
+         <div id="company">$i18n{company}</div>
+-        <div id="copyright">$i18n{copyright}</div>
++        <div id="copyright">$i18n{copyright}
++<if expr="enable_cef">
++        <br/><a href="chrome://license">license</a> | <a href="chrome://credits">credits</a>
++</if>
++        </div>
+       </div>
+       <table id="inner" cellpadding="0" cellspacing="0" border="0">
++<if expr="enable_cef">
++        <tr>
++          <td class="label">CEF</td>
++          <td class="version">
++            <span>$i18n{cef_version}</span>
++          </td>
++        </tr>
++</if>
+         <tr><td class="label">$i18n{application_label}</td>
+           <td class="version" id="version">
+             <span id="copy-content">
+@@ -171,7 +183,15 @@ about:version template page
+         <tr><td class="label">$i18n{executable_path_name}</td>
+           <td class="version" id="executable_path">$i18n{executable_path}</td>
+         </tr>
+-        <tr><td class="label">$i18n{profile_path_name}</td>
++<if expr="enable_cef">
++        <tr><td class="label">$i18n{module_path_name}</td>
++          <td class="version" id="module_path">$i18n{module_path}</td>
++        </tr>
++        <tr><td class="label">$i18n{user_data_path_name} <sup><a href="#footnote">[*]</a></sup></td>
++          <td class="version" id="user_data_path">$i18n{user_data_path}</td>
++        </tr>
++</if>
++        <tr><td class="label">$i18n{profile_path_name} <sup><a href="#footnote">[*]</a></sup></td>
+           <td class="version" id="profile_path">$i18n{profile_path}</td>
+         </tr>
+ </if>
+@@ -198,6 +218,17 @@ about:version template page
+           <td class="version" id="sanitizer">$i18n{sanitizer}</td>
+         </tr>
+       </table>
++<if expr="enable_cef">
++      <div id="footnote">
++        <br/><a name="footnote">[*] In <a href="https://chromium.googlesource.com/chromium/src/+/master/docs/user_data_dir.md" target="_new">Chromium terminology</a>,
++        <a href="https://cef-builds.spotifycdn.com/docs/stable.html?structcef__settings__t.html#a2e2be03f34ddd93de90e1cf196757a19" target="_new">CefSettings.root_cache_path</a>
++        is the "$i18n{user_data_path_name}" and <a href="https://cef-builds.spotifycdn.com/docs/stable.html?structcef__settings__t.html#ad1644a7eb23cad969181db010f007710" target="_new">CefSettings.cache_path</a>
++        is the "$i18n{profile_path_name}". Chromium's <a href="https://chromium.googlesource.com/chromium/src/+/master/chrome/browser/process_singleton.h#35" target="_new">process singleton lock</a>
++        protects against multiple app instances writing to the same "$i18n{user_data_path_name}" directory.
++        Implement <a href="https://cef-builds.spotifycdn.com/docs/stable.html?classCefBrowserProcessHandler.html#a052a91639483467c0b546d57a05c2f06" target="_new">CefBrowserProcessHandler:: OnAlreadyRunningAppRelaunch</a>
++        to handle the case of app relaunch with the same directory.
++      </div>
++</if>
+     </div>
+ 
+     <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
+diff --git components/version_ui/resources/about_version.ts components/version_ui/resources/about_version.ts
+index fcd11ec05dc17..565657694f768 100644
+--- components/version_ui/resources/about_version.ts
++++ components/version_ui/resources/about_version.ts
+@@ -50,9 +50,21 @@ function handleVariationInfo(
+  * @param profilePath The profile path to display.
+  */
+ function handlePathInfo(
+-    {execPath, profilePath}: {execPath: string, profilePath: string}) {
++    {execPath, profilePath
++// <if expr="enable_cef">
++     , modulePath, userDataPath
++// </if>
++    }: {execPath: string, profilePath: string
++// <if expr="enable_cef">
++        , modulePath: string, userDataPath: string
++// </if>
++    }) {
+   getRequiredElement('executable_path').textContent = execPath;
+   getRequiredElement('profile_path').textContent = profilePath;
++// <if expr="enable_cef">
++  getRequiredElement('module_path').textContent = modulePath;
++  getRequiredElement('user_data_path').textContent = userDataPath;
++// </if>
+ }
+ 
+ // <if expr="chromeos_lacros or is_win">
+diff --git components/version_ui/version_ui_constants.cc components/version_ui/version_ui_constants.cc
+index f33bd808d6d56..75515ffa256b7 100644
+--- components/version_ui/version_ui_constants.cc
++++ components/version_ui/version_ui_constants.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ 
+ namespace version_ui {
+ 
+@@ -90,4 +91,15 @@ const char kVersion[] = "version";
+ const char kVersionModifier[] = "version_modifier";
+ const char kVersionProcessorVariation[] = "version_processor_variation";
+ 
++#if BUILDFLAG(ENABLE_CEF)
++const char kKeyModulePath[] = "modulePath";
++const char kKeyUserDataPath[] = "userDataPath";
++
++const char kCefVersion[] = "cef_version";
++const char kModulePath[] = "module_path";
++const char kModulePathName[] = "module_path_name";
++const char kUserDataPath[] = "user_data_path";
++const char kUserDataPathName[] = "user_data_path_name";
++#endif
++
+ }  // namespace version_ui
+diff --git components/version_ui/version_ui_constants.h components/version_ui/version_ui_constants.h
+index 212f7e2114c75..d35549eb15310 100644
+--- components/version_ui/version_ui_constants.h
++++ components/version_ui/version_ui_constants.h
+@@ -7,6 +7,7 @@
+ 
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ 
+ namespace version_ui {
+ 
+@@ -92,6 +93,17 @@ extern const char kVersion[];
+ extern const char kVersionModifier[];
+ extern const char kVersionProcessorVariation[];
+ 
++#if BUILDFLAG(ENABLE_CEF)
++extern const char kKeyModulePath[];
++extern const char kKeyUserDataPath[];
++
++extern const char kCefVersion[];
++extern const char kModulePath[];
++extern const char kModulePathName[];
++extern const char kUserDataPath[];
++extern const char kUserDataPathName[];
++#endif
++
+ }  // namespace version_ui
+ 
+ #endif  // COMPONENTS_VERSION_UI_VERSION_UI_CONSTANTS_H_
+diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
+index 9f236e6217ee9..d2b7964c3a09f 100644
+--- components/version_ui_strings.grdp
++++ components/version_ui_strings.grdp
+@@ -76,6 +76,14 @@
+   <message name="IDS_VERSION_UI_PROFILE_PATH" desc="label for the profile path on the about:version page">
+     Profile Path
+   </message>
++  <if expr="enable_cef">
++    <message name="IDS_VERSION_UI_MODULE_PATH" desc="label for the module path on the about:version page">
++      Module Path
++    </message>
++    <message name="IDS_VERSION_UI_USER_DATA_PATH" desc="label for the user data path on the about:version page">
++      User Data Path
++    </message>
++  </if>
+   <message name="IDS_VERSION_UI_PATH_NOTFOUND" desc="label for the non-existent path on the about:version page">
+     No such file or directory
+   </message>

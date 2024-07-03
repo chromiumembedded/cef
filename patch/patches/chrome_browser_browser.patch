@@ -74,7 +74,7 @@ index 02ff1e580d3a7..7f51115896049 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 74460ac479210..8cf70c80a87ad 100644
+index 74460ac479210..c484be466eefb 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -104,7 +104,18 @@ index 74460ac479210..8cf70c80a87ad 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -3040,6 +3046,8 @@ static_library("ui") {
+@@ -759,6 +765,10 @@ static_library("ui") {
+     deps += [ "//components/plus_addresses/resources:vector_icons" ]
+   }
+ 
++  if (enable_cef) {
++    deps += [ "//cef:cef_resources" ]
++  }
++
+   # TODO(crbug.com/41437292): Remove this circular dependency.
+   allow_circular_includes_from = [
+     # TODO(crbug.com/40161499): Remove this circular dependency.
+@@ -3040,6 +3050,8 @@ static_library("ui") {
        "views/apps/app_dialog/app_local_block_dialog_view.h",
        "views/apps/app_dialog/app_pause_dialog_view.cc",
        "views/apps/app_dialog/app_pause_dialog_view.h",
@@ -113,7 +124,7 @@ index 74460ac479210..8cf70c80a87ad 100644
        "views/apps/app_info_dialog/arc_app_info_links_panel.cc",
        "views/apps/app_info_dialog/arc_app_info_links_panel.h",
        "views/apps/chrome_app_window_client_views_chromeos.cc",
-@@ -4249,8 +4257,6 @@ static_library("ui") {
+@@ -4249,8 +4261,6 @@ static_library("ui") {
        "autofill/payments/webauthn_dialog_model.h",
        "autofill/payments/webauthn_dialog_model_observer.h",
        "autofill/payments/webauthn_dialog_state.h",
@@ -122,7 +133,7 @@ index 74460ac479210..8cf70c80a87ad 100644
        "incognito_clear_browsing_data_dialog_interface.h",
        "signin/signin_modal_dialog.cc",
        "signin/signin_modal_dialog.h",
-@@ -5125,8 +5131,6 @@ static_library("ui") {
+@@ -5125,8 +5135,6 @@ static_library("ui") {
        "views/accessibility/theme_tracking_non_accessible_image_view.h",
        "views/apps/app_dialog/app_dialog_view.cc",
        "views/apps/app_dialog/app_dialog_view.h",
@@ -131,7 +142,7 @@ index 74460ac479210..8cf70c80a87ad 100644
        "views/apps/app_info_dialog/app_info_dialog_container.cc",
        "views/apps/app_info_dialog/app_info_dialog_container.h",
        "views/apps/app_info_dialog/app_info_dialog_views.cc",
-@@ -6908,6 +6912,7 @@ static_library("ui") {
+@@ -6908,6 +6916,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",

@@ -1,0 +1,120 @@
+diff --git chrome/browser/ui/webui/about/about_ui.cc chrome/browser/ui/webui/about/about_ui.cc
+index 7d04b86885167..b89b060efc9e0 100644
+--- chrome/browser/ui/webui/about/about_ui.cc
++++ chrome/browser/ui/webui/about/about_ui.cc
+@@ -34,6 +34,7 @@
+ #include "base/values.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -91,6 +92,10 @@
+ #include "chrome/common/webui_url_constants.h"
+ #endif  // BUILDFLAG(IS_CHROMEOS)
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/grit/cef_resources.h"
++#endif
++
+ using content::BrowserThread;
+ 
+ namespace {
+@@ -692,6 +697,16 @@ void AboutUIHTMLSource::StartDataRequest(
+             IDS_TERMS_HTML);
+ #endif
+   }
++#if BUILDFLAG(ENABLE_CEF)
++  else if (source_name_ == chrome::kChromeUILicenseHost) {
++    response =
++        "<html><head><title>CEF License</title></head>"
++        "<body bgcolor=\"white\"><pre>" +
++        ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
++            IDR_CEF_LICENSE_TXT) +
++        "</pre></body></html>";
++  }
++#endif
+ 
+   FinishDataRequest(response, std::move(callback));
+ }
+diff --git chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
+index 7b61f43d8c72a..811d075966239 100644
+--- chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
++++ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
+@@ -18,6 +18,7 @@
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/buildflags.h"
+ #include "chrome/browser/commerce/shopping_service_factory.h"
+@@ -391,6 +392,9 @@ bool IsAboutUI(const GURL& url) {
+           || url.host_piece() == chrome::kChromeUIOSCreditsHost ||
+           url.host_piece() == chrome::kChromeUIBorealisCreditsHost ||
+           url.host_piece() == chrome::kChromeUICrostiniCreditsHost
++#endif
++#if BUILDFLAG(ENABLE_CEF)
++          || url.host_piece() == chrome::kChromeUILicenseHost
+ #endif
+   );  // NOLINT
+ }
+@@ -1019,6 +1023,9 @@ ChromeWebUIControllerFactory::GetListOfAcceptableURLs() {
+     GURL(chrome::kChromeUIGpuURL),
+     GURL(chrome::kChromeUIHistogramsURL),
+     GURL(chrome::kChromeUIInspectURL),
++#if BUILDFLAG(ENABLE_CEF)
++    GURL(chrome::kChromeUILicenseURL),
++#endif
+     GURL(chrome::kChromeUIManagementURL),
+     GURL(chrome::kChromeUINetExportURL),
+     GURL(chrome::kChromeUIPrefsInternalsURL),
+diff --git chrome/common/webui_url_constants.cc chrome/common/webui_url_constants.cc
+index 4604facee295e..acd8857875d6e 100644
+--- chrome/common/webui_url_constants.cc
++++ chrome/common/webui_url_constants.cc
+@@ -131,6 +131,10 @@ const char kChromeUILauncherInternalsHost[] = "launcher-internals";
+ const char kChromeUILauncherInternalsURL[] = "chrome://launcher-internals";
+ const char kChromeUILensSearchBubbleHost[] = "lens-search-bubble";
+ const char kChromeUILensSearchBubbleURL[] = "chrome://lens-search-bubble/";
++#if BUILDFLAG(ENABLE_CEF)
++const char kChromeUILicenseHost[] = "license";
++const char kChromeUILicenseURL[] = "chrome://license/";
++#endif
+ const char kChromeUISensorInfoHost[] = "sensor-info";
+ const char kChromeUISensorInfoURL[] = "chrome://sensor-info/";
+ const char kChromeUILocalStateHost[] = "local-state";
+@@ -704,6 +708,9 @@ const char* const kChromeHostURLs[] = {
+     kChromeUIHumanPresenceInternalsHost,
+ #endif
+     kChromeUIInterstitialHost,
++#if BUILDFLAG(ENABLE_CEF)
++    kChromeUILicenseHost,
++#endif
+     kChromeUILocalStateHost,
+ #if !BUILDFLAG(IS_ANDROID)
+     kChromeUIManagementHost,
+diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
+index b1247ef8ad3ff..a4ebfe2d585a0 100644
+--- chrome/common/webui_url_constants.h
++++ chrome/common/webui_url_constants.h
+@@ -15,6 +15,7 @@
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/common/buildflags.h"
+ #include "components/lens/buildflags.h"
+ #include "content/public/common/url_constants.h"
+@@ -123,6 +124,10 @@ extern const char kChromeUILauncherInternalsHost[];
+ extern const char kChromeUILauncherInternalsURL[];
+ extern const char kChromeUILensSearchBubbleHost[];
+ extern const char kChromeUILensSearchBubbleURL[];
++#if BUILDFLAG(ENABLE_CEF)
++extern const char kChromeUILicenseHost[];
++extern const char kChromeUILicenseURL[];
++#endif
+ extern const char kChromeUISensorInfoURL[];
+ extern const char kChromeUISensorInfoHost[];
+ extern const char kChromeUILocalStateHost[];

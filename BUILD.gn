@@ -601,8 +601,6 @@ source_set("libcef_static") {
     "libcef/browser/native/window_delegate_view.h",
     "libcef/browser/navigation_entry_impl.cc",
     "libcef/browser/navigation_entry_impl.h",
-    "libcef/browser/net/chrome_scheme_handler.cc",
-    "libcef/browser/net/chrome_scheme_handler.h",
     "libcef/browser/net/crlset_file_util_impl.cc",
     "libcef/browser/net/throttle_handler.cc",
     "libcef/browser/net/throttle_handler.h",

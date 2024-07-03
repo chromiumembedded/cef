@@ -16,7 +16,6 @@
 #include "cef/libcef/browser/certificate_query.h"
 #include "cef/libcef/browser/chrome/chrome_browser_main_extra_parts_cef.h"
 #include "cef/libcef/browser/context.h"
-#include "cef/libcef/browser/net/chrome_scheme_handler.h"
 #include "cef/libcef/browser/net/throttle_handler.h"
 #include "cef/libcef/browser/net_service/cookie_manager_impl.h"
 #include "cef/libcef/browser/net_service/login_delegate.h"
@@ -464,18 +463,6 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
       auth_info, web_contents, browser_context, request_id,
       is_request_for_main_frame, url, response_headers, first_auth_attempt,
       std::move(auth_required_callback));
-}
-
-void ChromeContentBrowserClientCef::BrowserURLHandlerCreated(
-    content::BrowserURLHandler* handler) {
-  // Register the Chrome handlers first for proper URL rewriting.
-  ChromeContentBrowserClient::BrowserURLHandlerCreated(handler);
-  scheme::BrowserURLHandlerCreated(handler);
-}
-
-bool ChromeContentBrowserClientCef::IsWebUIAllowedToMakeNetworkRequests(
-    const url::Origin& origin) {
-  return scheme::IsWebUIAllowedToMakeNetworkRequests(origin);
 }
 
 void ChromeContentBrowserClientCef::ExposeInterfacesToRenderer(

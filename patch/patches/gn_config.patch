@@ -149,22 +149,25 @@ index 17c3d731e269b..e2caaf2934cdd 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 79d613489bac2..86b82e96b7ec0 100644
+index 79d613489bac2..869b682d453ee 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
-@@ -5,6 +5,7 @@
+@@ -5,7 +5,9 @@
  import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/devtools.gni")
 +import("//build/config/locales.gni")
  import("//build/config/ui.gni")
++import("//cef/libcef/features/features.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
-@@ -36,6 +37,8 @@ _grit_defines = [
+ devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
+@@ -36,6 +38,9 @@ _grit_defines = [
  
    # Mac and iOS want Title Case strings.
    "use_titlecase=${is_apple}",
 +
++  "enable_cef=${enable_cef}",
 +  "enable_pseudolocales=${enable_pseudolocales}",
  ]
  

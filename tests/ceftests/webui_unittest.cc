@@ -176,7 +176,6 @@ void RunWebUITest(const std::string& url) {
 
 WEBUI_TEST(accessibility)
 WEBUI_TEST(blob_internals)
-WEBUI_TEST(extensions_support)
 WEBUI_TEST(gpu)
 WEBUI_TEST(histograms)
 WEBUI_TEST(indexeddb_internals)
@@ -189,7 +188,6 @@ WEBUI_TEST(system)
 WEBUI_TEST(tracing)
 WEBUI_TEST(version)
 WEBUI_TEST(webrtc_internals)
-WEBUI_TEST(webui_hosts)
 
 // Test hosts with multiple URLs.
 

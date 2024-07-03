@@ -10,7 +10,6 @@
 #include "cef/libcef/browser/chrome/chrome_startup_browser_creator.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/file_dialog_runner.h"
-#include "cef/libcef/browser/net/chrome_scheme_handler.h"
 #include "cef/libcef/browser/permission_prompt.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/views/chrome_constrained_window_views_client.h"
@@ -68,7 +67,6 @@ void ChromeBrowserMainExtraPartsCef::PreMainMessageLoopRun() {
       {base::TaskPriority::USER_BLOCKING,
        base::TaskShutdownBehavior::BLOCK_SHUTDOWN, base::MayBlock()});
 
-  scheme::RegisterWebUIControllerFactory();
   context_menu::RegisterCallbacks();
   file_dialog_runner::RegisterFactory();
   permission_prompt::RegisterCreateCallback();
