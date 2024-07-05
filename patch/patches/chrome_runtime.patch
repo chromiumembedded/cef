@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 2805028bc810c..bdf6f2fb7b3a1 100644
+index 2805028bc810c..53154db3326f7 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -37,6 +37,7 @@
@@ -60,14 +60,18 @@ index 2805028bc810c..bdf6f2fb7b3a1 100644
  #if BUILDFLAG(IS_ANDROID)
      record =
          base::FeatureList::IsEnabled(chrome::android::kUmaBackgroundSessions);
-@@ -1506,6 +1516,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1506,9 +1516,10 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
 +  if (!cef::IsChromeRuntimeEnabled()) {
    crash_reporter::InitializeCrashKeys();
  
- #if BUILDFLAG(IS_POSIX)
+-#if BUILDFLAG(IS_POSIX)
++#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(ENABLE_CEF)
+   ChromeCrashReporterClient::Create();
+ #endif
+ 
 @@ -1516,6 +1527,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    InitMacCrashReporter(command_line, process_type);
    SetUpInstallerPreferences(command_line);
@@ -173,6 +177,40 @@ index 3553377e96017..9f6edc70ef1d4 100644
  
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    std::unique_ptr<chromeos::LacrosService> lacros_service_;
+diff --git chrome/app_shim/BUILD.gn chrome/app_shim/BUILD.gn
+index 8bf88eee16370..4c4d31d6a5451 100644
+--- chrome/app_shim/BUILD.gn
++++ chrome/app_shim/BUILD.gn
+@@ -24,6 +24,7 @@ source_set("app_shim") {
+   deps = [
+     "//base/allocator:early_zone_registration_apple",
+     "//build:chromeos_buildflags",
++    "//cef/libcef/features",
+     "//chrome:strings",
+     "//chrome/app:command_ids",
+     "//chrome/browser/renderer_host:history_swiper",
+diff --git chrome/app_shim/chrome_main_app_mode_mac.mm chrome/app_shim/chrome_main_app_mode_mac.mm
+index ac1361bd6bc2e..a303ca169c7f7 100644
+--- chrome/app_shim/chrome_main_app_mode_mac.mm
++++ chrome/app_shim/chrome_main_app_mode_mac.mm
+@@ -35,6 +35,7 @@
+ #include "base/task/single_thread_task_executor.h"
+ #include "base/task/thread_pool/thread_pool_instance.h"
+ #include "base/threading/thread.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/app/chrome_crash_reporter_client.h"
+ #include "chrome/app_shim/app_shim_controller.h"
+ #include "chrome/app_shim/app_shim_delegate.h"
+@@ -171,7 +172,9 @@ int APP_SHIM_ENTRY_POINT_NAME(const app_mode::ChromeAppModeInfo* info) {
+         base::FilePath(info->user_data_dir).DirName().DirName().DirName();
+ 
+     // TODO(crbug.com/40807881): Specify `user_data_dir` to  CrashPad.
++#if !BUILDFLAG(ENABLE_CEF)
+     ChromeCrashReporterClient::Create();
++#endif
+     crash_reporter::InitializeCrashpad(true, "app_shim");
+ 
+     base::PathService::OverrideAndCreateIfNeeded(
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
 index f90f1b8fa54d9..3c1406cc798a7 100644
 --- chrome/browser/chrome_browser_main.cc
