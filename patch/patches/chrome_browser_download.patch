@@ -49,14 +49,14 @@ index 2628f1751cd14..cc2c330d8db5d 100644
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
 diff --git chrome/browser/download/chrome_download_manager_delegate.h chrome/browser/download/chrome_download_manager_delegate.h
-index af7f1d5fac12b..1cb1d01464c11 100644
+index af7f1d5fac12b..8cd591798ab61 100644
 --- chrome/browser/download/chrome_download_manager_delegate.h
 +++ chrome/browser/download/chrome_download_manager_delegate.h
 @@ -19,6 +19,7 @@
  #include "base/task/sequenced_task_runner.h"
  #include "base/unguessable_token.h"
  #include "build/build_config.h"
-+#include "cef/libcef/features/runtime.h"
++#include "cef/libcef/features/features.h"
  #include "chrome/browser/download/download_completion_blocker.h"
  #include "chrome/browser/download/download_target_determiner_delegate.h"
  #include "components/download/public/common/download_danger_type.h"

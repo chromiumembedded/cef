@@ -40,8 +40,6 @@
 
 namespace {
 
-bool g_initialized = false;
-
 // Based on components/crash/core/app/run_as_crashpad_handler_win.cc
 // Remove the "--type=crashpad-handler" command-line flag that will otherwise
 // confuse the crashpad handler.
@@ -99,7 +97,6 @@ bool CefMainRunner::Initialize(CefSettings* settings,
                                void* windows_sandbox_info,
                                bool* initialized,
                                base::OnceClosure context_initialized) {
-  g_initialized = true;
   settings_ = settings;
   application_ = application;
 
@@ -166,8 +163,6 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
   keep_alive_.reset();
   settings_ = nullptr;
   application_ = nullptr;
-
-  g_initialized = false;
 }
 
 void CefMainRunner::RunMessageLoop() {
@@ -228,8 +223,6 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   if (process_type.empty()) {
     return -1;
   }
-
-  g_initialized = true;
 
   auto main_delegate = std::make_unique<ChromeMainDelegateCef>(
       /*runner=*/nullptr, /*settings=*/nullptr, application);
@@ -472,12 +465,3 @@ void CefMainRunner::BeforeUIThreadShutdown() {
 
   sampling_profiler_.reset();
 }
-
-// From libcef/features/runtime.h:
-namespace cef {
-
-bool IsChromeRuntimeEnabled() {
-  return g_initialized;
-}
-
-}  // namespace cef

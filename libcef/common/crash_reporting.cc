@@ -14,7 +14,6 @@
 #include "base/strings/string_util.h"
 #include "cef/include/cef_crash_util.h"
 #include "cef/libcef/common/cef_switches.h"
-#include "cef/libcef/features/runtime.h"
 #include "chrome/common/crash_keys.h"
 #include "components/crash/core/common/crash_key.h"
 #include "components/crash/core/common/crash_keys.h"
@@ -244,12 +243,3 @@ void CefSetCrashKeyValue(const CefString& key, const CefString& value) {
                  << " with value: " << value.ToString();
   }
 }
-
-// From libcef/features/runtime.h:
-namespace cef {
-
-bool IsCrashReportingEnabled() {
-  return crash_reporting::Enabled();
-}
-
-}  // namespace cef
