@@ -884,8 +884,6 @@ if not options.nodocs:
 
 if platform == 'windows':
   libcef_dll = 'libcef.dll'
-  libcef_dll_lib = '%s.lib' % libcef_dll
-  libcef_dll_pdb = '%s.pdb' % libcef_dll
   # yapf: disable
   binaries = [
       {'path': 'chrome_elf.dll'},
@@ -901,6 +899,15 @@ if platform == 'windows':
       {'path': 'vk_swiftshader_icd.json'},
       {'path': 'vulkan-1.dll'},
   ]
+  pdb_files = [
+      {'path': 'chrome_elf.dll.pdb'},
+      {'path': 'dxcompiler.dll.pdb', 'conditional': True},
+      {'path': '%s.pdb' % libcef_dll},
+      {'path': 'libEGL.dll.pdb'},
+      {'path': 'libGLESv2.dll.pdb'},
+      {'path': 'vk_swiftshader.dll.pdb'},
+      {'path': 'vulkan-1.dll.pdb'},
+  ]
   # yapf: enable
 
   if mode == 'client':
@@ -908,7 +915,7 @@ if platform == 'windows':
         'path': 'cefsimple.exe' if platform_arch == 'arm64' else 'cefclient.exe'
     })
   else:
-    binaries.append({'path': libcef_dll_lib, 'out_path': 'libcef.lib'})
+    binaries.append({'path': '%s.lib' % libcef_dll, 'out_path': 'libcef.lib'})
 
   # yapf: disable
   resources = [
@@ -971,9 +978,7 @@ if platform == 'windows':
         symbol_output_dir = create_output_dir(
             output_dir_name + '_debug_symbols', options.outputdir)
         # transfer contents
-        copy_file(
-            os.path.join(build_dir, libcef_dll_pdb), symbol_output_dir,
-            options.quiet)
+        copy_files_list(build_dir, symbol_output_dir, pdb_files)
     else:
       sys.stdout.write("No Debug build files.\n")
 
@@ -991,9 +996,7 @@ if platform == 'windows':
         symbol_output_dir = create_output_dir(
             output_dir_name + '_release_symbols', options.outputdir)
         # transfer contents
-        copy_file(
-            os.path.join(build_dir, libcef_dll_pdb), symbol_output_dir,
-            options.quiet)
+        copy_files_list(build_dir, symbol_output_dir, pdb_files)
     else:
       sys.stdout.write("No Release build files.\n")
 
@@ -1042,7 +1045,6 @@ if platform == 'windows':
 
 elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
-  framework_dsym = '%s.dSYM' % framework_name
   cefclient_app = 'cefclient.app'
 
   cef_sandbox_lib = 'obj/cef/libcef_sandbox.a'
@@ -1053,6 +1055,12 @@ elif platform == 'mac':
       'obj/third_party/protobuf/libprotobuf_lite.a',
       'obj/buildtools/third_party/libc++/libc++/*.o',
       'obj/buildtools/third_party/libc++abi/libc++abi/*.o',
+  ]
+  dsym_dirs = [
+      '%s.dSYM' % framework_name,
+      'libEGL.dylib.dSYM',
+      'libGLESv2.dylib.dSYM',
+      'libvk_swiftshader.dylib.dSYM',
   ]
 
   # Generate the cef_sandbox.a merged library. A separate *_sandbox build
@@ -1095,9 +1103,10 @@ elif platform == 'mac':
         # The real dSYM already exists, just copy it to the output directory.
         # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
         # See //build/config/mac/symbols.gni.
-        copy_dir(
-            os.path.join(build_dir, framework_dsym),
-            os.path.join(symbol_output_dir, framework_dsym), options.quiet)
+        for dsym in dsym_dirs:
+          copy_dir(
+              os.path.join(build_dir, dsym),
+              os.path.join(symbol_output_dir, dsym), options.quiet)
     else:
       sys.stdout.write("No Debug build files.\n")
 
@@ -1134,9 +1143,10 @@ elif platform == 'mac':
         # The real dSYM already exists, just copy it to the output directory.
         # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
         # See //build/config/mac/symbols.gni.
-        copy_dir(
-            os.path.join(build_dir, framework_dsym),
-            os.path.join(symbol_output_dir, framework_dsym), options.quiet)
+        for dsym in dsym_dirs:
+          copy_dir(
+              os.path.join(build_dir, dsym),
+              os.path.join(symbol_output_dir, dsym), options.quiet)
     else:
       sys.stdout.write("No Release build files.\n")
 
