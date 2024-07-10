@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 26c825186ad85..821c5722ecabf 100644
+index e06cdcd322877..7c0382fd1948a 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -18,7 +18,7 @@ index 26c825186ad85..821c5722ecabf 100644
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2775,6 +2777,10 @@ static_library("browser") {
+@@ -2777,6 +2779,10 @@ static_library("browser") {
      ]
    }
  

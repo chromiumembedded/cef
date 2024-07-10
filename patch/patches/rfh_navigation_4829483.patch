@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 9c8b401d00136..f1b9050b55bc3 100644
+index 6c2d3a422cb49..6fe875b4f714f 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
 @@ -10880,6 +10880,7 @@ void RenderFrameHostImpl::CommitNavigation(

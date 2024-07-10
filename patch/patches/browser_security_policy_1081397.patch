@@ -20,7 +20,7 @@ index 26fbdc7e7db0c..ac02e60276e5c 100644
  
            // Make an exception to allow most visited tiles to commit in
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 87db8bec18603..22c7d3fb838ab 100644
+index eaed2976e16ac..f4a67c2447e69 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -8057,10 +8057,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(

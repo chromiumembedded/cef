@@ -61,7 +61,7 @@ index 791fc1874851e..db58beed440f8 100644
      case ui::SHOW_STATE_MAXIMIZED:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index c9b1737f91452..7231c79be3bdc 100644
+index ee8a71a213cf3..bd56c6f84cb3a 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -677,6 +677,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -80,7 +80,7 @@ index c9b1737f91452..7231c79be3bdc 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 1a7932a580836..7ceb1b03ce36c 100644
+index 76612bc5e9760..636f61739e9f3 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -72,6 +72,7 @@ class CursorManager;
@@ -125,7 +125,7 @@ index 1a7932a580836..7ceb1b03ce36c 100644
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -649,6 +663,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -646,6 +660,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index 1a7932a580836..7ceb1b03ce36c 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -670,10 +688,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -667,10 +685,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -259,10 +259,10 @@ index 2cf9330a4e24b..4bf0890ae000b 100644
  
  // Specifies which edges of the window are tiled.
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 4907de4e24cea..9824c17378207 100644
+index b11e5604f0d5d..415fe672ba8d4 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
-@@ -1864,7 +1864,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
+@@ -1867,7 +1867,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
    req.border_pixel = 0;
  
    bounds_in_pixels_ = SanitizeBounds(bounds);
@@ -350,7 +350,7 @@ index e698f71577c51..8a6e28128564d 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 30781b584b649..6edaa60e652ab 100644
+index 74016f5663952..8c7171639f979 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -281,8 +281,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {

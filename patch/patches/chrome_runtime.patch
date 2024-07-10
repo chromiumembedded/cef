@@ -422,7 +422,7 @@ index 6b27cf7037fce..70fd49bb873ff 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index d81a2b75f4c6c..4c29ef42b4576 100644
+index c6fb861755332..8f2c467018d05 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -46,6 +46,7 @@
@@ -433,7 +433,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager_impl.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1486,6 +1487,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1488,6 +1489,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -442,7 +442,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1523,6 +1526,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1525,6 +1528,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -454,7 +454,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3744,28 +3752,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
+@@ -3746,28 +3754,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
          web_prefs->preferred_color_scheme;
    }
  #else
@@ -500,7 +500,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
    // Reauth WebUI doesn't support dark mode yet because it shares the dialog
-@@ -4506,9 +4511,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4508,9 +4513,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -512,7 +512,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6627,7 +6634,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6637,7 +6644,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -521,7 +521,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6645,6 +6652,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6655,6 +6662,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -530,7 +530,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
  }
  
  std::vector<base::FilePath>
-@@ -7767,10 +7776,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7777,10 +7786,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -543,7 +543,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7789,7 +7798,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7799,7 +7808,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -553,7 +553,7 @@ index d81a2b75f4c6c..4c29ef42b4576 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7968,7 +7978,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7978,7 +7988,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -594,7 +594,7 @@ index 522c072575325..b63e9aacd1f0a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index f48b25bb957d1..08ee4dd4b7e02 100644
+index 31c6b71dd79dd..4eb9c6d61b6a8 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@
@@ -605,7 +605,7 @@ index f48b25bb957d1..08ee4dd4b7e02 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/invert_bubble_prefs.h"
-@@ -198,6 +199,10 @@
+@@ -199,6 +200,10 @@
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
  
@@ -616,7 +616,7 @@ index f48b25bb957d1..08ee4dd4b7e02 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1917,7 +1922,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1919,7 +1924,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
  #endif  // BUILDFLAG(IS_WIN)
  
@@ -626,7 +626,7 @@ index f48b25bb957d1..08ee4dd4b7e02 100644
    downgrade::RegisterPrefs(registry);
  #endif
  
-@@ -1961,6 +1967,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1963,6 +1969,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -638,7 +638,7 @@ index f48b25bb957d1..08ee4dd4b7e02 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -2411,6 +2422,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2416,6 +2427,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  
