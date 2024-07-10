@@ -461,6 +461,7 @@ def check_pattern_matches(output_file=None):
       # Don't continue when we know the build will be wrong.
       sys.exit(1)
 
+
 def invalid_options_combination(a, b):
   print("Invalid combination of options: '%s' and '%s'" % (a, b))
   parser.print_help(sys.stderr)
@@ -768,6 +769,18 @@ parser.add_option(
     default=False,
     help='Create a cef_sandbox static library distribution only.')
 parser.add_option(
+    '--tools-distrib',
+    action='store_true',
+    dest='toolsdistrib',
+    default=False,
+    help='Create a tools distribution.')
+parser.add_option(
+    '--tools-distrib-only',
+    action='store_true',
+    dest='toolsdistribonly',
+    default=False,
+    help='Create a tools distribution only.')
+parser.add_option(
     '--no-distrib-docs',
     action='store_true',
     dest='nodistribdocs',
@@ -814,22 +827,22 @@ if options.runtests:
   options.buildtests = True
 
 if (options.nochromiumupdate and options.forceupdate):
-    invalid_options_combination('--no-chromium-update', '--force-update')
+  invalid_options_combination('--no-chromium-update', '--force-update')
 if (options.nocefupdate and options.forceupdate):
-    invalid_options_combination('--no-cef-update', '--force-update')
+  invalid_options_combination('--no-cef-update', '--force-update')
 if (options.nobuild and options.forcebuild):
-    invalid_options_combination('--no-build', '--force-build')
+  invalid_options_combination('--no-build', '--force-build')
 if (options.nodistrib and options.forcedistrib):
-    invalid_options_combination('--no-distrib', '--force-distrib')
+  invalid_options_combination('--no-distrib', '--force-distrib')
 if (options.forceclean and options.fastupdate):
-    invalid_options_combination('--force-clean', '--fast-update')
+  invalid_options_combination('--force-clean', '--fast-update')
 if (options.forcecleandeps and options.fastupdate):
-    invalid_options_combination('--force-clean-deps', '--fast-update')
+  invalid_options_combination('--force-clean-deps', '--fast-update')
 
 if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
       options.clientdistrib or options.clientdistribonly)) or \
-   (options.minimaldistribonly + options.clientdistribonly + options.sandboxdistribonly > 1):
+   (options.minimaldistribonly + options.clientdistribonly + options.sandboxdistribonly + options.toolsdistribonly > 1):
   print('Invalid combination of options.')
   parser.print_help(sys.stderr)
   sys.exit(1)
@@ -1450,6 +1463,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
     distrib_types.append('client')
   elif options.sandboxdistribonly:
     distrib_types.append('sandbox')
+  elif options.toolsdistribonly:
+    distrib_types.append('tools')
   else:
     distrib_types.append('standard')
     if options.minimaldistrib:
@@ -1458,6 +1473,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
       distrib_types.append('client')
     if options.sandboxdistrib:
       distrib_types.append('sandbox')
+    if options.toolsdistrib:
+      distrib_types.append('tools')
 
   cef_tools_dir = os.path.join(cef_src_dir, 'tools')
 
@@ -1482,6 +1499,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
       path += ' --client'
     elif type == 'sandbox':
       path += ' --sandbox'
+    elif type == 'tools':
+      path += ' --tools'
 
     if first_type:
       if options.nodistribdocs:
