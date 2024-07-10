@@ -122,7 +122,7 @@ def create_readme():
 
   # format the file
   data = header_data + '\n\n' + mode_data
-  if mode != 'sandbox':
+  if mode != 'sandbox' and mode != 'tools':
     data += '\n\n' + redistrib_data
   data += '\n\n' + footer_data
   data = data.replace('$CEF_URL$', cef_url)
@@ -165,6 +165,9 @@ def create_readme():
     distrib_type = 'Sandbox'
     distrib_desc = 'This distribution contains only the cef_sandbox static library. Please see\n' \
                    'the LICENSING section of this document for licensing terms and conditions.'
+  elif mode == 'tools':
+    distrib_type = 'Tools'
+    distrib_desc = 'This distribution contains additional tools for building CEF-based applications.'
 
   data = data.replace('$DISTRIB_TYPE$', distrib_type)
   data = data.replace('$DISTRIB_DESC$', distrib_desc)
@@ -230,6 +233,128 @@ def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
     dst_path = os.path.dirname(dst)
     make_dir(dst_path, quiet)
     copy_file(src, dst, quiet)
+
+
+def extract_toolchain_cmd(build_dir,
+                          exe_name,
+                          require_toolchain,
+                          require_cmd=True):
+  """ Extract a toolchain command from the ninja configuration file. """
+  toolchain_ninja = os.path.join(build_dir, 'toolchain.ninja')
+  if not os.path.isfile(toolchain_ninja):
+    if not require_toolchain:
+      return None, None
+    raise Exception('Missing file: %s' % toolchain_ninja)
+
+  data = read_file(toolchain_ninja)
+
+  cmd = None
+  path = None
+
+  # Looking for a value like:
+  #   command = python3 ../../v8/tools/run.py ./exe_name --arg1 --arg2
+  # OR (for cross-compile):
+  #   command = python3 ../../v8/tools/run.py ./clang_arch1_arch2/exe_name --arg1 --arg2
+  findstr = '/%s ' % exe_name
+  start = data.find(findstr)
+  if start >= 0:
+    # Extract the command-line arguments.
+    after_start = start + len(findstr)
+    end = data.find('\n', after_start)
+    if end >= after_start:
+      cmd = data[after_start:end].strip()
+      print('%s command:' % exe_name, cmd)
+      if cmd != '' and not re.match(r"^[0-9a-zA-Z\_\- ./=]{1,}$", cmd):
+        cmd = None
+
+    # Extract the relative file path.
+    dot = start - 1
+    while data[dot].isalnum() or data[dot] == '_':
+      dot -= 1
+    path = data[dot + 1:start]
+    print('%s path:' % exe_name, path)
+    if path != '' and not re.match(r"^(win_)?clang_[0-9a-z_]{1,}$", path):
+      path = None
+
+  if require_cmd and (cmd is None or path is None):
+    raise Exception('Failed to extract %s command from %s' % (exe_name,
+                                                              toolchain_ninja))
+
+  return cmd, path
+
+
+def get_exe_name(exe_name):
+  return exe_name + ('.exe' if platform == 'windows' else '')
+
+
+def get_script_name(script_name):
+  return script_name + ('.bat' if platform == 'windows' else '.sh')
+
+
+def transfer_tools_files(script_dir, build_dirs, output_dir):
+  for build_dir in build_dirs:
+    is_debug = build_dir.find('Debug') >= 0
+    dst_dir_name = 'Debug' if is_debug else 'Release'
+    dst_dir = os.path.join(output_dir, dst_dir_name)
+
+    # Retrieve the binary path and command-line arguments.
+    # See issue #3734 for the expected format.
+    mksnapshot_name = 'mksnapshot'
+    tool_cmd, tool_dir = extract_toolchain_cmd(
+        build_dir, mksnapshot_name, require_toolchain=not options.allowpartial)
+    if tool_cmd is None:
+      sys.stdout.write("No %s build toolchain for %s.\n" % (dst_dir_name,
+                                                            mksnapshot_name))
+      continue
+
+    if options.allowpartial and not path_exists(
+        os.path.join(build_dir, tool_dir, get_exe_name(mksnapshot_name))):
+      sys.stdout.write("No %s build of %s.\n" % (dst_dir_name, mksnapshot_name))
+      continue
+
+    # yapf: disable
+    binaries = [
+        {'path': get_exe_name(mksnapshot_name)},
+        {'path': get_exe_name('v8_context_snapshot_generator')},
+    ]
+    # yapf: disable
+
+    # Transfer binaries.
+    copy_files_list(os.path.join(build_dir, tool_dir), dst_dir, binaries)
+
+    # Evaluate command-line arguments and remove relative paths. Copy any input files
+    # into the distribution.
+    # - Example input path : ../../v8/tools/builtins-pgo/profiles/x64-rl.profile
+    # - Example output path: gen/v8/embedded.S
+    parsed_cmd = []
+    for cmd in tool_cmd.split(' '):
+      if cmd.find('/') > 0:
+        file_name = os.path.split(cmd)[1]
+        if len(file_name) == 0:
+          raise Exception('Failed to parse %s command component: %s' % (mksnapshot_name, cmd))
+        if cmd.startswith('../../'):
+          file_path = os.path.realpath(os.path.join(build_dir, cmd))
+          # Validate input file/path.
+          if not file_path.startswith(src_dir):
+            raise Exception('Invalid %s command input file: %s' % (mksnapshot_name, file_path))
+          if not os.path.isfile(file_path):
+            raise Exception('Missing %s command input file: %s' % (mksnapshot_name, file_path))
+          # Transfer input file.
+          copy_file(file_path, os.path.join(dst_dir, file_name), options.quiet)
+        cmd = file_name
+      parsed_cmd.append(cmd)
+
+    # Write command-line arguments file.
+    write_file(os.path.join(dst_dir, 'mksnapshot_cmd.txt'), ' '.join(parsed_cmd))
+
+  # yapf: disable
+  files = [
+      {'path': get_script_name('run_mksnapshot')},
+  ]
+  # yapf: disable
+
+  # Transfer other tools files.
+  copy_files_list(os.path.join(script_dir, 'distrib', 'tools'), output_dir, files)
 
 
 def normalize_headers(file, new_path=''):
@@ -541,6 +666,12 @@ parser.add_option(
     default=False,
     help='include only the cef_sandbox static library (macOS and Windows only)')
 parser.add_option(
+    '--tools',
+    action='store_true',
+    dest='tools',
+    default=False,
+    help='include only the tools')
+parser.add_option(
     '--ozone',
     action='store_true',
     dest='ozone',
@@ -597,10 +728,10 @@ if options.ozone and platform != 'linux':
 script_dir = os.path.dirname(__file__)
 
 # CEF root directory
-cef_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+cef_dir = os.path.realpath(os.path.join(script_dir, os.pardir))
 
 # src directory
-src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
+src_dir = os.path.realpath(os.path.join(cef_dir, os.pardir))
 
 if not git.is_checkout(cef_dir):
   raise Exception('Not a valid checkout: %s' % (cef_dir))
@@ -665,6 +796,9 @@ elif options.client:
 elif options.sandbox:
   mode = 'sandbox'
   output_dir_name = output_dir_name + '_sandbox'
+elif options.tools:
+  mode = 'tools'
+  output_dir_name = output_dir_name + '_tools'
 else:
   mode = 'standard'
 
@@ -882,7 +1016,10 @@ if not options.nodocs:
   else:
     sys.stdout.write("ERROR: No docs generated.\n")
 
-if platform == 'windows':
+if mode == 'tools':
+  transfer_tools_files(script_dir, (build_dir_debug, build_dir_release),
+                       output_dir)
+elif platform == 'windows':
   libcef_dll = 'libcef.dll'
   # yapf: disable
   binaries = [
