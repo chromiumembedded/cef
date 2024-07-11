@@ -52,10 +52,11 @@ def make_fake_file_info(platform, version, type):
 def create_fake_files(platform, version):
   files = []
 
-  # All platforms create standard, minimal and client distributions.
+  # All platforms create standard, minimal, client and tools distributions.
   files.append(make_fake_file_info(platform, version, 'standard'))
   files.append(make_fake_file_info(platform, version, 'minimal'))
   files.append(make_fake_file_info(platform, version, 'client'))
+  files.append(make_fake_file_info(platform, version, 'tools'))
 
   # Windows and OS X platforms create debug and release symbols.
   if platform.find('windows') == 0 or platform.find('macosx') == 0:

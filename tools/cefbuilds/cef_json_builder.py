@@ -99,13 +99,14 @@ class cef_json_builder:
   @staticmethod
   def get_platforms():
     """ Returns the list of supported platforms. """
-    return ('linux32', 'linux64', 'linuxarm', 'linuxarm64', 'macosarm64', 'macosx64',
-            'windows32', 'windows64', 'windowsarm64')
+    return ('linux32', 'linux64', 'linuxarm', 'linuxarm64', 'macosarm64',
+            'macosx64', 'windows32', 'windows64', 'windowsarm64')
 
   @staticmethod
   def get_distrib_types():
     """ Returns the list of supported distribution types. """
-    return ('standard', 'minimal', 'client', 'release_symbols', 'debug_symbols')
+    return ('standard', 'minimal', 'client', 'tools', 'release_symbols',
+            'debug_symbols')
 
   @staticmethod
   def is_valid_version(version):
@@ -358,6 +359,11 @@ class cef_json_builder:
     # Might be '<version>_<platform>_client'.
     if name_parts[-1] == 'client':
       type = 'client'
+      del name_parts[-1]
+
+    # Might be '<version>_<platform>_tools'.
+    if name_parts[-1] == 'tools':
+      type = 'tools'
       del name_parts[-1]
 
     # Might be '<version>_<platform>_beta'.

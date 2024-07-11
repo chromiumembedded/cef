@@ -152,6 +152,10 @@ class TestCefJSONBuilder(unittest.TestCase):
   def test_add_client_file(self):
     self._test_add_file('client')
 
+  # Test add/get of a tools type file.
+  def test_add_tools_file(self):
+    self._test_add_file('tools')
+
   # Test add/get of a debug_symbols type file.
   def test_add_debug_symbols_file(self):
     self._test_add_file('debug_symbols')
@@ -171,6 +175,10 @@ class TestCefJSONBuilder(unittest.TestCase):
   # Test add/get of a client type file in beta channel.
   def test_add_client_file_beta(self):
     self._test_add_file('client', channel='beta')
+
+  # Test add/get of a tools type file in beta channel.
+  def test_add_tools_file_beta(self):
+    self._test_add_file('tools', channel='beta')
 
   # Test add/get of a debug_symbols type file in beta channel.
   def test_add_debug_symbols_file_beta(self):
