@@ -13,7 +13,7 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
    return false;
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index 02ff1e580d3a7..7f51115896049 100644
+index 02ff1e580d3a7..e2e232c424029 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
 @@ -37,6 +37,7 @@
@@ -38,7 +38,21 @@ index 02ff1e580d3a7..7f51115896049 100644
    }
  
    // Create WebContents with devtools.
-@@ -1919,12 +1927,28 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -1754,9 +1762,13 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
+   if (!inspected_web_contents ||
+       !inspected_web_contents->OpenURL(params,
+                                        /*navigation_handle_callback=*/{})) {
++#if !BUILDFLAG(ENABLE_CEF)
++    // Remove default behavior when CEF handles the open via OnOpenURLFromTab.
++    // See CEF issue #3735.
+     chrome::ScopedTabbedBrowserDisplayer displayer(profile_);
+     chrome::AddSelectedTabWithURL(displayer.browser(), fixed_url,
+                                   ui::PAGE_TRANSITION_LINK);
++#endif
+   }
+ }
+ 
+@@ -1919,12 +1931,28 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
