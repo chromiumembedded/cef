@@ -1335,8 +1335,8 @@ if not options.nobuild and (chromium_checkout_changed or \
   tool = os.path.join(cef_src_dir, 'tools', 'gclient_hook.py')
   run('%s %s' % (python_exe, tool), cef_src_dir, depot_tools_dir)
 
-  # Build using Ninja.
-  command = 'ninja '
+  # Build using autoninja for automatic `-j (#cores)` configuration.
+  command = 'autoninja '
   if options.verbosebuild:
     command += '-v '
   if options.buildfailurelimit != 1:
