@@ -594,7 +594,7 @@ index 522c072575325..b63e9aacd1f0a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 31c6b71dd79dd..4eb9c6d61b6a8 100644
+index 3b6ce83dd7579..bcaa68b901656 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@
