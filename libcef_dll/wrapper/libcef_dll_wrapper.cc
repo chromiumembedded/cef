@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=16d4e51ecbe1fd8eb6915d951a84f707f73dfb1a$
+// $hash=e9099c29c9695cabcedfde25b85c1f77f14cb516$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -119,12 +119,12 @@ NO_SANITIZE("cfi-icall") CEF_GLOBAL int CefGetExitCode() {
 NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefShutdown() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Execute
+  cef_shutdown();
+
 #if DCHECK_IS_ON()
   shutdown_checker::SetIsShutdown();
 #endif
-
-  // Execute
-  cef_shutdown();
 }
 
 NO_SANITIZE("cfi-icall") CEF_GLOBAL void CefDoMessageLoopWork() {

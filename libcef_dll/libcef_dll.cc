@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bc230d77e2985959bc5a6a2af80b500eec070384$
+// $hash=4a4490df4b9440aeb853d6625fddb7de5741f5b0$
 //
 
 #include "include/capi/cef_app_capi.h"
@@ -131,12 +131,12 @@ CEF_EXPORT int cef_get_exit_code() {
 CEF_EXPORT void cef_shutdown() {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Execute
+  CefShutdown();
+
 #if DCHECK_IS_ON()
   shutdown_checker::SetIsShutdown();
 #endif
-
-  // Execute
-  CefShutdown();
 }
 
 CEF_EXPORT void cef_do_message_loop_work() {
