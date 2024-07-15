@@ -147,8 +147,9 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
 
   SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
 
-  if (!temp_window_) {
-    // TempWindow must be created on the UI thread.
+  if (!temp_window_ && !use_views) {
+    // TempWindow must be created on the UI thread. It is only used with
+    // native (non-Views) parent windows.
     temp_window_.reset(new TempWindow());
   }
 

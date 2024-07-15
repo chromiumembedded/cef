@@ -29,7 +29,7 @@ class TempWindowMacImpl {
   }
   ~TempWindowMacImpl() {
     DCHECK(window_);
-    [window_ close];
+    window_ = nil;
   }
 
  private:
