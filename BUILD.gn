@@ -678,6 +678,8 @@ source_set("libcef_static") {
     "libcef/browser/ssl_status_impl.h",
     "libcef/browser/stream_impl.cc",
     "libcef/browser/stream_impl.h",
+    "libcef/browser/task_manager_impl.cc",
+    "libcef/browser/task_manager_impl.h",
     "libcef/browser/trace_impl.cc",
     "libcef/browser/trace_subscriber.cc",
     "libcef/browser/trace_subscriber.h",

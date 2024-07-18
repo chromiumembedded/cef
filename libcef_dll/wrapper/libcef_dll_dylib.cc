@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fd47567e105e5fc15bee190670216f0f007c6d27$
+// $hash=fd61a77bd549fb94bba963f9c0737ebceac324ac$
 //
 
 #include <dlfcn.h>
@@ -44,6 +44,7 @@
 #include "include/capi/cef_ssl_info_capi.h"
 #include "include/capi/cef_stream_capi.h"
 #include "include/capi/cef_task_capi.h"
+#include "include/capi/cef_task_manager_capi.h"
 #include "include/capi/cef_thread_capi.h"
 #include "include/capi/cef_trace_capi.h"
 #include "include/capi/cef_urlrequest_capi.h"
@@ -189,6 +190,7 @@ struct libcef_pointers {
   decltype(&cef_task_runner_get_for_current_thread)
       cef_task_runner_get_for_current_thread;
   decltype(&cef_task_runner_get_for_thread) cef_task_runner_get_for_thread;
+  decltype(&cef_task_manager_get) cef_task_manager_get;
   decltype(&cef_thread_create) cef_thread_create;
   decltype(&cef_urlrequest_create) cef_urlrequest_create;
   decltype(&cef_v8context_get_current_context)
@@ -420,6 +422,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_stream_writer_create_for_handler);
   INIT_ENTRY(cef_task_runner_get_for_current_thread);
   INIT_ENTRY(cef_task_runner_get_for_thread);
+  INIT_ENTRY(cef_task_manager_get);
   INIT_ENTRY(cef_thread_create);
   INIT_ENTRY(cef_urlrequest_create);
   INIT_ENTRY(cef_v8context_get_current_context);
@@ -1043,6 +1046,10 @@ NO_SANITIZE("cfi-icall")
 struct _cef_task_runner_t* cef_task_runner_get_for_thread(
     cef_thread_id_t threadId) {
   return g_libcef_pointers.cef_task_runner_get_for_thread(threadId);
+}
+
+NO_SANITIZE("cfi-icall") struct _cef_task_manager_t* cef_task_manager_get() {
+  return g_libcef_pointers.cef_task_manager_get();
 }
 
 NO_SANITIZE("cfi-icall")

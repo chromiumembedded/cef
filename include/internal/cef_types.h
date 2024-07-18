@@ -3812,6 +3812,67 @@ typedef enum {
   CEF_COLOR_VARIANT_EXPRESSIVE,
 } cef_color_variant_t;
 
+///
+/// Specifies the task type variants supported by CefTaskManager.
+/// Should be kept in sync with Chromium's task_manager::Task::Type type.
+///
+typedef enum {
+  CEF_TASK_TYPE_UNKNOWN = 0,
+  /// The main browser process.
+  CEF_TASK_TYPE_BROWSER,
+  /// A graphics process.
+  CEF_TASK_TYPE_GPU,
+  /// A Linux zygote process.
+  CEF_TASK_TYPE_ZYGOTE,
+  /// A browser utility process.
+  CEF_TASK_TYPE_UTILITY,
+  /// A normal WebContents renderer process.
+  CEF_TASK_TYPE_RENDERER,
+  /// An extension or app process.
+  CEF_TASK_TYPE_EXTENSION,
+  /// A browser plugin guest process.
+  CEF_TASK_TYPE_GUEST,
+  /// A plugin process.
+  CEF_TASK_TYPE_PLUGIN,
+  /// A sandbox helper process
+  CEF_TASK_TYPE_SANDBOX_HELPER,
+  /// A dedicated worker running on the renderer process.
+  CEF_TASK_TYPE_DEDICATED_WORKER,
+  /// A shared worker running on the renderer process.
+  CEF_TASK_TYPE_SHARED_WORKER,
+  /// A service worker running on the renderer process.
+  CEF_TASK_TYPE_SERVICE_WORKER,
+} cef_task_type_t;
+
+///
+/// Structure representing task information provided by CefTaskManager.
+///
+typedef struct _cef_task_info_t {
+  /// The task ID.
+  int64_t id;
+  /// The task type.
+  cef_task_type_t type;
+  /// Set to true (1) if the task is killable.
+  int is_killable;
+  /// The task title.
+  cef_string_t title;
+  /// The CPU usage of the process on which the task is running. The value is
+  /// in the range zero to number_of_processors * 100%.
+  double cpu_usage;
+  /// The number of processors available on the system.
+  int number_of_processors;
+  /// The memory footprint of the task in bytes. A value of -1 means no valid
+  /// value is currently available.
+  int64_t memory;
+  /// The GPU memory usage of the task in bytes. A value of -1 means no valid
+  /// value is currently available.
+  int64_t gpu_memory;
+  /// Set to true (1) if this task process' GPU resource count is inflated
+  /// because it is counting other processes' resources (e.g, the GPU process
+  /// has this value set to true because it is the aggregate of all processes).
+  int is_gpu_memory_inflated;
+} cef_task_info_t;
+
 #ifdef __cplusplus
 }
 #endif

@@ -756,4 +756,31 @@ class CefAcceleratedPaintInfo : public cef_accelerated_paint_info_t {
       : cef_accelerated_paint_info_t(r) {}
 };
 
+struct CefTaskInfoTraits {
+  using struct_type = cef_task_info_t;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) { cef_string_clear(&s->title); }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->id = src->id;
+    target->type = src->type;
+    target->is_killable = src->is_killable;
+    cef_string_set(src->title.str, src->title.length, &target->title, copy);
+    target->cpu_usage = src->cpu_usage;
+    target->number_of_processors = src->number_of_processors;
+    target->memory = src->memory;
+    target->gpu_memory = src->gpu_memory;
+    target->is_gpu_memory_inflated = src->is_gpu_memory_inflated;
+  }
+};
+
+///
+/// Class representing task information.
+///
+using CefTaskInfo = CefStructBase<CefTaskInfoTraits>;
+
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

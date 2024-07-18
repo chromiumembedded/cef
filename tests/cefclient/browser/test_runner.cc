@@ -31,6 +31,7 @@
 #include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/scheme_test.h"
 #include "tests/cefclient/browser/server_test.h"
+#include "tests/cefclient/browser/task_manager_test.h"
 #include "tests/cefclient/browser/urlrequest_test.h"
 #include "tests/cefclient/browser/window_test.h"
 #include "tests/shared/browser/resource_util.h"
@@ -876,6 +877,9 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
 
   // Create the server test handlers.
   server_test::CreateMessageHandlers(handlers);
+
+  // Create the task manager handlers.
+  task_manager_test::CreateMessageHandlers(handlers);
 
   // Create the urlrequest test handlers.
   urlrequest_test::CreateMessageHandlers(handlers);

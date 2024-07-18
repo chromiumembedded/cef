@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Task Manager</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="taskTable">
+      <tr>
+        <th>Task ID</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>CPU Usage</th>
+        <th>Memory Footprint</th>
+        <th>GPU Memory</th>
+        <th>Actions</th>
+      </tr>
+    </table>
+    <script>
+      function sendCefQuery(payload, onSuccess, onFailure) {
+        return window.cefQuery({
+          request: payload,
+          onSuccess: onSuccess,
+          onFailure: onFailure,
+        });
+      }
+
+      async function sendCefQueryAsync(payload) {
+        return new Promise((resolve, reject) => {
+          sendCefQuery(payload, resolve, (_error, message) => {
+            onError(new Error(message));
+          });
+        });
+      }
+
+      async function fetchTasks() {
+        const response = await sendCefQueryAsync("get_tasks");
+        return JSON.parse(response);
+      }
+
+      async function endProcess(id) {
+        await sendCefQueryAsync(`${id}`);
+        await refresh();
+      }
+
+      function humanFileSize(bytes) {
+        const step = 1024;
+        if (bytes < 0) {
+          return "N/A";
+        }
+        if (Math.abs(bytes) < step) {
+          return bytes + " B";
+        }
+
+        const units = [" KB", " MB", " GB"];
+        let u = -1;
+        let count = 0;
+
+        do {
+          bytes /= step;
+          u += 1;
+          count += 1;
+        } while (Math.abs(bytes) >= step && u < units.length - 1);
+
+        return bytes.toFixed(2) + units[u];
+      }
+
+      async function refresh() {
+        try {
+          const tasks = await fetchTasks();
+
+          const table = document.getElementById("taskTable");
+          while (table.rows.length > 1) {
+            table.deleteRow(1);
+          }
+
+          tasks.forEach((task) => {
+            let row = table.insertRow();
+            row.insertCell(0).textContent = task.id;
+            row.insertCell(1).textContent = task.title;
+            row.insertCell(2).textContent = task.type;
+            row.insertCell(3).textContent = task.cpu_usage.toFixed(2) + "%";
+            row.insertCell(4).textContent = humanFileSize(task.memory);
+            row.insertCell(5).textContent = humanFileSize(task.gpu_memory);
+
+            let actionCell = row.insertCell(6);
+            if (task.is_killable) {
+              let endButton = document.createElement("button");
+              endButton.textContent = "End Process";
+              endButton.onclick = () => endProcess(task.id);
+              actionCell.appendChild(endButton);
+            }
+          });
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        }
+      }
+
+      setInterval(refresh, 5000);
+      refresh();
+    </script>
+  </body>
+</html>

@@ -8,7 +8,7 @@
 # by hand. See the translator.README.txt file in the tools directory for
 # more information.
 #
-# $hash=29c508f2fb23e0ed2899163039384fb0a230be70$
+# $hash=e092ed49124ef5969b2052fd6ae5f6e6d89390ba$
 #
 
 {
@@ -81,6 +81,7 @@
       'include/cef_stream.h',
       'include/cef_string_visitor.h',
       'include/cef_task.h',
+      'include/cef_task_manager.h',
       'include/cef_thread.h',
       'include/cef_trace.h',
       'include/cef_unresponsive_process_callback.h',
@@ -184,6 +185,7 @@
       'include/capi/cef_stream_capi.h',
       'include/capi/cef_string_visitor_capi.h',
       'include/capi/cef_task_capi.h',
+      'include/capi/cef_task_manager_capi.h',
       'include/capi/cef_thread_capi.h',
       'include/capi/cef_trace_capi.h',
       'include/capi/cef_unresponsive_process_callback_capi.h',
@@ -460,6 +462,8 @@
       'libcef_dll/ctocpp/string_visitor_ctocpp.h',
       'libcef_dll/ctocpp/task_ctocpp.cc',
       'libcef_dll/ctocpp/task_ctocpp.h',
+      'libcef_dll/cpptoc/task_manager_cpptoc.cc',
+      'libcef_dll/cpptoc/task_manager_cpptoc.h',
       'libcef_dll/cpptoc/task_runner_cpptoc.cc',
       'libcef_dll/cpptoc/task_runner_cpptoc.h',
       'libcef_dll/cpptoc/test/test_server_cpptoc.cc',
@@ -784,6 +788,8 @@
       'libcef_dll/cpptoc/string_visitor_cpptoc.h',
       'libcef_dll/cpptoc/task_cpptoc.cc',
       'libcef_dll/cpptoc/task_cpptoc.h',
+      'libcef_dll/ctocpp/task_manager_ctocpp.cc',
+      'libcef_dll/ctocpp/task_manager_ctocpp.h',
       'libcef_dll/ctocpp/task_runner_ctocpp.cc',
       'libcef_dll/ctocpp/task_runner_ctocpp.h',
       'libcef_dll/ctocpp/test/test_server_ctocpp.cc',
