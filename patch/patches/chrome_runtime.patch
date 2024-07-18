@@ -422,7 +422,7 @@ index 6b27cf7037fce..70fd49bb873ff 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index c6fb861755332..8f2c467018d05 100644
+index 7c3178793b3fb..98a4e74106b97 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -46,6 +46,7 @@
@@ -433,7 +433,7 @@ index c6fb861755332..8f2c467018d05 100644
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager_impl.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1488,6 +1489,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1489,6 +1490,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -442,7 +442,7 @@ index c6fb861755332..8f2c467018d05 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1525,6 +1528,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1526,6 +1529,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -454,7 +454,7 @@ index c6fb861755332..8f2c467018d05 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3746,28 +3754,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
+@@ -3756,28 +3764,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
          web_prefs->preferred_color_scheme;
    }
  #else
@@ -500,7 +500,7 @@ index c6fb861755332..8f2c467018d05 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
    // Reauth WebUI doesn't support dark mode yet because it shares the dialog
-@@ -4508,9 +4513,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4518,9 +4523,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -512,7 +512,7 @@ index c6fb861755332..8f2c467018d05 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6637,7 +6644,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6647,7 +6654,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -521,7 +521,7 @@ index c6fb861755332..8f2c467018d05 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6655,6 +6662,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6665,6 +6672,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -530,7 +530,7 @@ index c6fb861755332..8f2c467018d05 100644
  }
  
  std::vector<base::FilePath>
-@@ -7777,10 +7786,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7787,10 +7796,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -543,7 +543,7 @@ index c6fb861755332..8f2c467018d05 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7799,7 +7808,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7809,7 +7818,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -553,7 +553,7 @@ index c6fb861755332..8f2c467018d05 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7978,7 +7988,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7988,7 +7998,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -563,7 +563,7 @@ index c6fb861755332..8f2c467018d05 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 522c072575325..b63e9aacd1f0a 100644
+index c7ede4d105592..49cfa4193ab5e 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -147,6 +147,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -575,7 +575,7 @@ index 522c072575325..b63e9aacd1f0a 100644
    // TODO(crbug.com/41356866): This file is about calls from content/ out
    // to chrome/ to get values or notify about events, but both of these
    // functions are from chrome/ to chrome/ and don't involve content/ at all.
-@@ -691,7 +693,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -693,7 +695,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
        override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
@@ -584,7 +584,7 @@ index 522c072575325..b63e9aacd1f0a 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1233,7 +1235,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1235,7 +1237,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
@@ -594,7 +594,7 @@ index 522c072575325..b63e9aacd1f0a 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 3b6ce83dd7579..bcaa68b901656 100644
+index c93cccc815a14..e39d3434fa1b0 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@
