@@ -244,14 +244,13 @@ CefBrowserHostBase::CefBrowserHostBase(
       platform_delegate_(std::move(platform_delegate)),
       browser_info_(browser_info),
       request_context_(request_context),
-      is_views_hosted_(platform_delegate_->IsViewsHosted()) {
+      is_views_hosted_(platform_delegate_->IsViewsHosted()),
+      contents_delegate_(browser_info_) {
   CEF_REQUIRE_UIT();
   DCHECK(!browser_info_->browser().get());
   browser_info_->SetBrowser(this);
 
-  contents_delegate_ =
-      std::make_unique<CefBrowserContentsDelegate>(browser_info_);
-  contents_delegate_->AddObserver(this);
+  contents_delegate_.AddObserver(this);
 }
 
 void CefBrowserHostBase::InitializeBrowser() {
@@ -300,13 +299,13 @@ void CefBrowserHostBase::DestroyBrowser() {
   CEF_REQUIRE_UIT();
 
   // The WebContents should no longer be observed.
-  DCHECK(!contents_delegate_->web_contents());
+  DCHECK(!contents_delegate_.web_contents());
 
   media_stream_registrar_.reset();
 
   platform_delegate_.reset();
 
-  contents_delegate_->RemoveObserver(this);
+  contents_delegate_.RemoveObserver(this);
 
   if (unresponsive_process_callback_) {
     hang_monitor::Detach(unresponsive_process_callback_);
@@ -1131,21 +1130,21 @@ void CefBrowserHostBase::OnStateChanged(CefBrowserContentsState state_changed) {
   base::AutoLock lock_scope(state_lock_);
   if ((state_changed & CefBrowserContentsState::kNavigation) ==
       CefBrowserContentsState::kNavigation) {
-    is_loading_ = contents_delegate_->is_loading();
-    can_go_back_ = contents_delegate_->can_go_back();
-    can_go_forward_ = contents_delegate_->can_go_forward();
+    is_loading_ = contents_delegate_.is_loading();
+    can_go_back_ = contents_delegate_.can_go_back();
+    can_go_forward_ = contents_delegate_.can_go_forward();
   }
   if ((state_changed & CefBrowserContentsState::kDocument) ==
       CefBrowserContentsState::kDocument) {
-    has_document_ = contents_delegate_->has_document();
+    has_document_ = contents_delegate_.has_document();
   }
   if ((state_changed & CefBrowserContentsState::kFullscreen) ==
       CefBrowserContentsState::kFullscreen) {
-    is_fullscreen_ = contents_delegate_->is_fullscreen();
+    is_fullscreen_ = contents_delegate_.is_fullscreen();
   }
   if ((state_changed & CefBrowserContentsState::kFocusedFrame) ==
       CefBrowserContentsState::kFocusedFrame) {
-    focused_frame_ = contents_delegate_->focused_frame();
+    focused_frame_ = contents_delegate_.focused_frame();
   }
 }
 
@@ -1338,7 +1337,7 @@ SkColor CefBrowserHostBase::GetBackgroundColor() const {
 
 content::WebContents* CefBrowserHostBase::GetWebContents() const {
   CEF_REQUIRE_UIT();
-  return contents_delegate_->web_contents();
+  return contents_delegate_.web_contents();
 }
 
 content::BrowserContext* CefBrowserHostBase::GetBrowserContext() const {
@@ -1418,7 +1417,7 @@ bool CefBrowserHostBase::IsVisible() const {
 
 bool CefBrowserHostBase::EnsureDevToolsProtocolManager() {
   CEF_REQUIRE_UIT();
-  if (!contents_delegate_->web_contents()) {
+  if (!contents_delegate_.web_contents()) {
     return false;
   }
 
@@ -1448,7 +1447,7 @@ void CefBrowserHostBase::InitializeDevToolsRegistrationOnUIThread(
 
 bool CefBrowserHostBase::EnsureFileDialogManager() {
   CEF_REQUIRE_UIT();
-  if (!contents_delegate_->web_contents()) {
+  if (!contents_delegate_.web_contents()) {
     return false;
   }
 

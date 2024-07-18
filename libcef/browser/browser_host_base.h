@@ -369,8 +369,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   CefBrowserPlatformDelegate* platform_delegate() const {
     return platform_delegate_.get();
   }
-  CefBrowserContentsDelegate* contents_delegate() const {
-    return contents_delegate_.get();
+  CefBrowserContentsDelegate* contents_delegate() {
+    return &contents_delegate_;
   }
   CefMediaStreamRegistrar* GetMediaStreamRegistrar();
   CefDevToolsWindowRunner* GetDevToolsWindowRunner();
@@ -439,7 +439,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   const bool is_views_hosted_;
 
   // Only accessed on the UI thread.
-  std::unique_ptr<CefBrowserContentsDelegate> contents_delegate_;
+  CefBrowserContentsDelegate contents_delegate_;
   CefRefPtr<CefUnresponsiveProcessCallback> unresponsive_process_callback_;
   raw_ptr<RenderViewContextMenuObserver> context_menu_observer_ = nullptr;
 

@@ -82,9 +82,7 @@ class CefWidgetHostInterceptor
 
 CefBrowserContentsDelegate::CefBrowserContentsDelegate(
     scoped_refptr<CefBrowserInfo> browser_info)
-    : browser_info_(browser_info) {
-  DCHECK(browser_info_->browser());
-}
+    : browser_info_(browser_info) {}
 
 void CefBrowserContentsDelegate::ObserveWebContents(
     content::WebContents* new_contents) {

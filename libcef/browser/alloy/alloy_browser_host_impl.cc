@@ -587,7 +587,7 @@ void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     return;
   }
 
-  if (contents_delegate_->OnSetFocus(source)) {
+  if (contents_delegate_.OnSetFocus(source)) {
     return;
   }
 
@@ -599,13 +599,13 @@ void AlloyBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 void AlloyBrowserHostImpl::EnterFullscreenModeForTab(
     content::RenderFrameHost* requesting_frame,
     const blink::mojom::FullscreenOptions& options) {
-  contents_delegate_->EnterFullscreenModeForTab(requesting_frame, options);
+  contents_delegate_.EnterFullscreenModeForTab(requesting_frame, options);
   WasResized();
 }
 
 void AlloyBrowserHostImpl::ExitFullscreenModeForTab(
     content::WebContents* web_contents) {
-  contents_delegate_->ExitFullscreenModeForTab(web_contents);
+  contents_delegate_.ExitFullscreenModeForTab(web_contents);
   WasResized();
 }
 
@@ -877,7 +877,7 @@ content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
     const content::OpenURLParams& params,
     base::OnceCallback<void(content::NavigationHandle&)>
         navigation_handle_callback) {
-  auto target_contents = contents_delegate_->OpenURLFromTabEx(
+  auto target_contents = contents_delegate_.OpenURLFromTabEx(
       source, params, navigation_handle_callback);
   if (target_contents) {
     // Start a navigation in the current browser that will result in the
@@ -905,7 +905,7 @@ void AlloyBrowserHostImpl::AddNewContents(
 
 void AlloyBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
                                                bool should_show_loading_ui) {
-  contents_delegate_->LoadingStateChanged(source, should_show_loading_ui);
+  contents_delegate_.LoadingStateChanged(source, should_show_loading_ui);
 }
 
 void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
@@ -958,7 +958,7 @@ void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
 
 void AlloyBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
                                            const GURL& url) {
-  contents_delegate_->UpdateTargetURL(source, url);
+  contents_delegate_.UpdateTargetURL(source, url);
 }
 
 bool AlloyBrowserHostImpl::DidAddMessageToConsole(
@@ -967,8 +967,8 @@ bool AlloyBrowserHostImpl::DidAddMessageToConsole(
     const std::u16string& message,
     int32_t line_no,
     const std::u16string& source_id) {
-  return contents_delegate_->DidAddMessageToConsole(source, level, message,
-                                                    line_no, source_id);
+  return contents_delegate_.DidAddMessageToConsole(source, level, message,
+                                                   line_no, source_id);
 }
 
 void AlloyBrowserHostImpl::ContentsZoomChange(bool zoom_in) {
@@ -1003,13 +1003,13 @@ void AlloyBrowserHostImpl::CanDownload(
     const GURL& url,
     const std::string& request_method,
     base::OnceCallback<void(bool)> callback) {
-  contents_delegate_->CanDownload(url, request_method, std::move(callback));
+  contents_delegate_.CanDownload(url, request_method, std::move(callback));
 }
 
 KeyboardEventProcessingResult AlloyBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
     const input::NativeWebKeyboardEvent& event) {
-  return contents_delegate_->PreHandleKeyboardEvent(source, event);
+  return contents_delegate_.PreHandleKeyboardEvent(source, event);
 }
 
 bool AlloyBrowserHostImpl::HandleKeyboardEvent(
@@ -1020,7 +1020,7 @@ bool AlloyBrowserHostImpl::HandleKeyboardEvent(
     return false;
   }
 
-  if (contents_delegate_->HandleKeyboardEvent(source, event)) {
+  if (contents_delegate_.HandleKeyboardEvent(source, event)) {
     return true;
   }
 
@@ -1215,7 +1215,7 @@ content::PreloadingEligibility AlloyBrowserHostImpl::IsPrerender2Supported(
 void AlloyBrowserHostImpl::DraggableRegionsChanged(
     const std::vector<blink::mojom::DraggableRegionPtr>& regions,
     content::WebContents* contents) {
-  contents_delegate_->DraggableRegionsChanged(regions, contents);
+  contents_delegate_.DraggableRegionsChanged(regions, contents);
 }
 
 // content::WebContentsObserver methods.
@@ -1289,7 +1289,7 @@ void AlloyBrowserHostImpl::WebContentsDestroyed() {
   // In case we're notified before the CefBrowserContentsDelegate,
   // reset it first for consistent state in DestroyWebContents.
   if (GetWebContents()) {
-    contents_delegate_->WebContentsDestroyed();
+    contents_delegate_.WebContentsDestroyed();
   }
 
   auto wc = web_contents();
@@ -1347,7 +1347,7 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
       content::WebContentsObserver(web_contents),
       opener_(kNullWindowHandle),
       is_windowless_(platform_delegate_->IsWindowless()) {
-  contents_delegate_->ObserveWebContents(web_contents);
+  contents_delegate_.ObserveWebContents(web_contents);
 
   if (opener.get() && !is_views_hosted_) {
     // GetOpenerWindowHandle() only returns a value for non-views-hosted

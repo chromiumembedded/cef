@@ -148,7 +148,7 @@ void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     return;
   }
 
-  if (contents_delegate_->OnSetFocus(source)) {
+  if (contents_delegate_.OnSetFocus(source)) {
     return;
   }
 
@@ -470,7 +470,7 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
 
   platform_delegate_->WebContentsCreated(web_contents,
                                          /*own_web_contents=*/false);
-  contents_delegate_->ObserveWebContents(web_contents);
+  contents_delegate_.ObserveWebContents(web_contents);
 
   // Associate the platform delegate with this browser.
   platform_delegate_->BrowserCreated(this);
