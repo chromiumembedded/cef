@@ -218,6 +218,23 @@ CefBrowserHostBase::GetBrowserForTopLevelNativeWindow(
 }
 
 // static
+CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetBrowserForBrowserId(
+    int browser_id) {
+  DCHECK_GT(browser_id, 0);
+
+  for (const auto& browser_info :
+       CefBrowserInfoManager::GetInstance()->GetBrowserInfoList()) {
+    if (auto browser = browser_info->browser()) {
+      if (browser->GetIdentifier() == browser_id) {
+        return browser;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+// static
 CefRefPtr<CefBrowserHostBase> CefBrowserHostBase::GetLikelyFocusedBrowser() {
   CEF_REQUIRE_UIT();
 

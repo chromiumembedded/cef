@@ -151,6 +151,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns the browser associated with the specified top-level window.
   static CefRefPtr<CefBrowserHostBase> GetBrowserForTopLevelNativeWindow(
       gfx::NativeWindow owning_window);
+  // Returns the browser associated with the specified browser ID.
+  static CefRefPtr<CefBrowserHostBase> GetBrowserForBrowserId(int browser_id);
 
   // Returns the browser most likely to be focused. This may be somewhat iffy
   // with windowless browsers as there is no guarantee that the client has only

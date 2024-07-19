@@ -29,6 +29,7 @@ class CefTaskManagerImpl : public task_manager::TaskManagerObserver,
   bool GetTaskIdsList(TaskIdList& task_ids) override;
   bool GetTaskInfo(int64_t task_id, CefTaskInfo& info) override;
   bool KillTask(int64_t task_id) override;
+  int64_t GetTaskIdForBrowserId(int browser_id) override;
 
  private:
   bool IsValidTaskId(int64_t task_id) const;

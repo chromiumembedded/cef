@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d51db130ffb459b22574d7393e63e87c87dd75e0$
+// $hash=2d35ee921c7a1abda4c83b66708bce2451b38f20$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_TASK_MANAGER_CTOCPP_H_
@@ -38,6 +38,7 @@ class CefTaskManagerCToCpp : public CefCToCppRefCounted<CefTaskManagerCToCpp,
   bool GetTaskIdsList(TaskIdList& task_ids) override;
   bool GetTaskInfo(int64_t task_id, CefTaskInfo& info) override;
   bool KillTask(int64_t task_id) override;
+  int64_t GetTaskIdForBrowserId(int browser_id) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_MANAGER_CTOCPP_H_

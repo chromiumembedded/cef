@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=944e04f8c3213981c3955d6b5ede036b887d4d9e$
+// $hash=324b0399edef39e64fb54fce053e7f8e347e07de$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TASK_MANAGER_CAPI_H_
@@ -92,6 +92,16 @@ typedef struct _cef_task_manager_t {
   ///
   int(CEF_CALLBACK* kill_task)(struct _cef_task_manager_t* self,
                                int64_t task_id);
+
+  ///
+  /// Returns the task ID associated with the main task for |browser_id| (value
+  /// from cef_browser_t::GetIdentifier). Returns -1 if |browser_id| is invalid,
+  /// does not currently have an associated task, or the function was called
+  /// from the incorrect thread.
+  ///
+  int64_t(CEF_CALLBACK* get_task_id_for_browser_id)(
+      struct _cef_task_manager_t* self,
+      int browser_id);
 } cef_task_manager_t;
 
 ///

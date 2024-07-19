@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=56907c5bc7334bc3289f0a97dbc4a70c3ac9b41a$
+// $hash=5838ce3611dda9523ff072eceb36137663828dd6$
 //
 
 #include "libcef_dll/ctocpp/task_manager_ctocpp.h"
@@ -130,6 +130,24 @@ NO_SANITIZE("cfi-icall") bool CefTaskManagerCToCpp::KillTask(int64_t task_id) {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+int64_t CefTaskManagerCToCpp::GetTaskIdForBrowserId(int browser_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_task_manager_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_task_id_for_browser_id)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int64_t _retval = _struct->get_task_id_for_browser_id(_struct, browser_id);
+
+  // Return type: simple
+  return _retval;
 }
 
 // CONSTRUCTOR - Do not edit by hand.

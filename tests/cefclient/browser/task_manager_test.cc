@@ -49,7 +49,8 @@ std::string TaskTypeToString(cef_task_type_t type) {
   return "Unknown";
 }
 
-std::string TasksToJsonString(const std::vector<CefTaskInfo>& tasks) {
+std::string TasksToJsonString(const std::vector<CefTaskInfo>& tasks,
+                              int64_t browser_task_id) {
   std::string json = "[";
   for (size_t i = 0; i < tasks.size(); ++i) {
     const auto& task = tasks[i];
@@ -68,7 +69,9 @@ std::string TasksToJsonString(const std::vector<CefTaskInfo>& tasks) {
     json += "\"memory\":" + std::to_string(task.memory) + ",";
     json += "\"gpu_memory\":" + std::to_string(task.gpu_memory) + ",";
     json += "\"is_gpu_memory_inflated\":";
-    json += (task.is_gpu_memory_inflated ? "true" : "false");
+    json += std::string(task.is_gpu_memory_inflated ? "true" : "false") + ",";
+    json += "\"is_this_browser\":";
+    json += (task.id == browser_task_id ? "true" : "false");
     json += "}";
   }
   json += "]";
@@ -102,7 +105,11 @@ class Handler final : public CefMessageRouterBrowserSide::Handler {
         task_manager_->GetTaskInfo(task_id, info);
         tasks.push_back(info);
       }
-      callback->Success(TasksToJsonString(tasks));
+
+      int64_t browser_task_id =
+          task_manager_->GetTaskIdForBrowserId(browser->GetIdentifier());
+
+      callback->Success(TasksToJsonString(tasks, browser_task_id));
       return true;
     }
 

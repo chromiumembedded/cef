@@ -7,6 +7,7 @@
 #include "base/check.h"
 #include "base/ranges/algorithm.h"
 #include "base/system/sys_info.h"
+#include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "chrome/browser/task_manager/task_manager_interface.h"
@@ -146,6 +147,22 @@ bool CefTaskManagerImpl::KillTask(int64_t task_id) {
 
   task_manager_->KillTask(task_id);
   return true;
+}
+
+int64_t CefTaskManagerImpl::GetTaskIdForBrowserId(int browser_id) {
+  CEF_REQUIRE_UIT_RETURN(-1);
+
+  auto browser = CefBrowserHostBase::GetBrowserForBrowserId(browser_id);
+  if (!browser) {
+    return -1;
+  }
+
+  auto* web_contents = browser->GetWebContents();
+  if (!web_contents) {
+    return -1;
+  }
+
+  return task_manager_->GetTaskIdForWebContents(web_contents);
 }
 
 bool CefTaskManagerImpl::IsValidTaskId(int64_t task_id) const {

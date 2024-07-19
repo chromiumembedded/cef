@@ -18,6 +18,9 @@
       th {
         background-color: #f2f2f2;
       }
+      .highlight {
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
@@ -105,6 +108,10 @@
               endButton.textContent = "End Process";
               endButton.onclick = () => endProcess(task.id);
               actionCell.appendChild(endButton);
+            }
+
+            if (task.is_this_browser) {
+              row.classList.add('highlight');
             }
           });
         } catch (error) {

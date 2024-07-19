@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=07933b22615488a634fd4df87e9691156ae23ec4$
+// $hash=93050197dccd1c7999c7b90700a6144e5225c773$
 //
 
 #include "libcef_dll/cpptoc/task_manager_cpptoc.h"
@@ -155,6 +155,26 @@ int CEF_CALLBACK task_manager_kill_task(struct _cef_task_manager_t* self,
   return _retval;
 }
 
+int64_t CEF_CALLBACK
+task_manager_get_task_id_for_browser_id(struct _cef_task_manager_t* self,
+                                        int browser_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  int64_t _retval =
+      CefTaskManagerCppToC::Get(self)->GetTaskIdForBrowserId(browser_id);
+
+  // Return type: simple
+  return _retval;
+}
+
 }  // namespace
 
 // CONSTRUCTOR - Do not edit by hand.
@@ -164,6 +184,8 @@ CefTaskManagerCppToC::CefTaskManagerCppToC() {
   GetStruct()->get_task_ids_list = task_manager_get_task_ids_list;
   GetStruct()->get_task_info = task_manager_get_task_info;
   GetStruct()->kill_task = task_manager_kill_task;
+  GetStruct()->get_task_id_for_browser_id =
+      task_manager_get_task_id_for_browser_id;
 }
 
 // DESTRUCTOR - Do not edit by hand.

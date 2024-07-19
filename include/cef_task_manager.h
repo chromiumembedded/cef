@@ -95,6 +95,15 @@ class CefTaskManager : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual bool KillTask(int64_t task_id) = 0;
+
+  ///
+  /// Returns the task ID associated with the main task for |browser_id|
+  /// (value from CefBrowser::GetIdentifier). Returns -1 if |browser_id| is
+  /// invalid, does not currently have an associated task, or the method was
+  /// called from the incorrect thread.
+  ///
+  /*--cef()--*/
+  virtual int64_t GetTaskIdForBrowserId(int browser_id) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_TASK_MANAGER_H_
