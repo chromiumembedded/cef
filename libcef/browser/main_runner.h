@@ -62,7 +62,8 @@ class CefMainRunner final {
   // Called from Initialize().
   int ContentMainInitialize(const CefMainArgs& args,
                             void* windows_sandbox_info,
-                            int* no_sandbox);
+                            int* no_sandbox,
+                            bool disable_signal_handlers);
   int ContentMainRun(bool* initialized, base::OnceClosure context_initialized);
 
   static void BeforeMainInitialize(const CefMainArgs& args);
