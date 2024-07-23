@@ -101,7 +101,8 @@ bool CefMainRunner::Initialize(CefSettings* settings,
   application_ = application;
 
   exit_code_ =
-      ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox, settings->disable_signal_handlers);
+      ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox,
+                            settings->disable_signal_handlers);
   if (exit_code_ >= 0) {
     LOG(ERROR) << "ContentMainInitialize failed with exit code " << exit_code_;
     return false;
