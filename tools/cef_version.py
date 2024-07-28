@@ -230,11 +230,16 @@ class VersionFormatter:
       return self._get_old_version_parts()
     return self._get_version_parts()
 
+  def get_short_version_string(self, oldFormat=None):
+    """ Returns the short CEF version number string based on current checkout
+        state. """
+    parts = self.get_version_parts(oldFormat=oldFormat)
+    return "%d.%d.%d" % (parts['MAJOR'], parts['MINOR'], parts['PATCH'])
+
   def get_plist_version_string(self, oldFormat=None):
     """ Returns the CEF version number string for plist files based on current
         checkout state. """
-    parts = self.get_version_parts(oldFormat=oldFormat)
-    return "%d.%d.%d.0" % (parts['MAJOR'], parts['MINOR'], parts['PATCH'])
+    return self.get_short_version_string() + ".0"
 
   def get_dylib_version_string(self, oldFormat=None):
     """ Returns the CEF version number string for dylib files based on current

@@ -1,0 +1,71 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+load("//bazel/win:variables.bzl",
+     WIN_COMMON_LINKOPTS="COMMON_LINKOPTS",
+     WIN_COMMON_COPTS="COMMON_COPTS",
+     WIN_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
+     WIN_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG")
+load("//bazel/linux:variables.bzl",
+     LINUX_COMMON_LINKOPTS="COMMON_LINKOPTS",
+     LINUX_COMMON_COPTS="COMMON_COPTS",
+     LINUX_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
+     LINUX_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG")
+load("//bazel/mac:variables.bzl",
+     MAC_COMMON_LINKOPTS="COMMON_LINKOPTS",
+     MAC_COMMON_COPTS="COMMON_COPTS",
+     MAC_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
+     MAC_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG")
+load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+
+# Allow access from targets in other packages.
+package(default_visibility = [
+    "//visibility:public",
+])
+
+cc_library(
+    name = "gtest",
+    srcs = [
+        "include/gtest/gtest.h",
+        "src/gtest-all.cc",
+        "teamcity/include/teamcity_gtest.h",
+        "teamcity/src/teamcity_gtest.cpp",
+        "teamcity/src/teamcity_messages.cpp",
+        "teamcity/src/teamcity_messages.h",
+    ],
+    local_defines = [
+        # In order to allow regex matches in gtest to be shared between Windows
+        # and other systems we tell gtest to always use it's internal engine.
+        "GTEST_HAS_POSIX_RE=0",
+        "GTEST_LANG_CXX11=1",
+    ],
+    defines = [
+        # All dependent targets are unit tests.
+        "UNIT_TEST",
+    ],
+    includes = [
+        # The gtest-all.cc file uses #include "gtest/gtest.h"
+        "include",
+    ],
+    copts = select({
+        "@platforms//os:windows": [
+            # Disable unused variable warning.
+            "/wd4800",
+        ] + WIN_COMMON_COPTS,
+        "@platforms//os:linux": LINUX_COMMON_COPTS,
+        "@platforms//os:macos":  MAC_COMMON_COPTS,
+        "//conditions:default": None,
+    }) + select({
+        "//:windows_opt": WIN_COMMON_COPTS_RELEASE,
+        "//:windows_dbg": WIN_COMMON_COPTS_DEBUG,
+        "//:windows_fastbuild": WIN_COMMON_COPTS_DEBUG,
+        "//:linux_opt": LINUX_COMMON_COPTS_RELEASE,
+        "//:linux_dbg": LINUX_COMMON_COPTS_DEBUG,
+        "//:linux_fastbuild": LINUX_COMMON_COPTS_DEBUG,
+        "//:macos_opt": MAC_COMMON_COPTS_RELEASE,
+        "//:macos_dbg": MAC_COMMON_COPTS_DEBUG,
+        "//:macos_fastbuild": MAC_COMMON_COPTS_DEBUG,
+        "//conditions:default": None,
+    }),
+)

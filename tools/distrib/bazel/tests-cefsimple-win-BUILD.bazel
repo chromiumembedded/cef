@@ -1,0 +1,37 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefsimple"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+load("//bazel/win:exe_helpers.bzl", "declare_exe")
+
+#
+# Windows executable target.
+#
+
+declare_exe(
+    name = PRODUCT_NAME,
+    srcs = [
+        "{}:SrcsWin".format(PKG_NAME),
+    ],
+    rc_file = "{}.rc".format(PRODUCT_NAME),
+    manifest_srcs = [
+        "compatibility.manifest",
+        "{}.exe.manifest".format(PRODUCT_NAME),
+    ],
+    resources_srcs = [
+        "{}:ResourceH".format(PKG_NAME),
+        "{}.ico".format(PRODUCT_NAME),
+        "small.ico",
+    ],
+    linkopts = [
+        "/SUBSYSTEM:WINDOWS",
+    ],
+)

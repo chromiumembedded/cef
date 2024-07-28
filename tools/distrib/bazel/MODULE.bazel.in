@@ -1,0 +1,17 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+module(name = "cef", version = "${version_short}")
+
+# Configure local MacOS toolchain.
+# See https://github.com/bazelbuild/apple_support/releases
+bazel_dep(name = "apple_support", version = "1.16.0", repo_name = "build_bazel_apple_support")
+# See https://github.com/bazelbuild/rules_apple/releases
+bazel_dep(name = "rules_apple", version = "3.6.0", repo_name = "build_bazel_rules_apple")
+
+# Configure local C++ toolchain.
+# See https://github.com/bazelbuild/rules_cc/releases
+bazel_dep(name = "rules_cc", version = "0.0.9")
+
+# Add other dependencies here.

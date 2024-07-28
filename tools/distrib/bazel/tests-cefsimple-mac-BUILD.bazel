@@ -1,0 +1,48 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefsimple"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+load("//bazel/mac:app_helpers.bzl", "declare_all_helper_apps", "declare_main_app")
+
+#
+# MacOS app bundle target.
+#
+
+filegroup(
+    name = "ResourcesMac",
+    srcs = [
+        "English.lproj/InfoPlist.strings",
+        "English.lproj/MainMenu.xib",
+        "{}.icns".format(PRODUCT_NAME),
+    ],
+)
+
+# Helper app bundles.
+declare_all_helper_apps(
+    name = PRODUCT_NAME,
+    info_plist = "helper-Info.plist.in",
+    deps = [
+        "{}:RendererLibMac".format(PKG_NAME),
+    ],
+)
+
+# Main app bundle.
+declare_main_app(
+    name = PRODUCT_NAME,
+   	info_plist = "Info.plist.in",
+    deps = [
+        "{}:BrowserLibMac".format(PKG_NAME),
+    ],
+    linkopts = [],
+    resources = [
+        ":ResourcesMac",
+    ]
+)

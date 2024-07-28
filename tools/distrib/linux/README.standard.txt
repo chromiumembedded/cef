@@ -1,6 +1,8 @@
 CONTENTS
 --------
 
+bazel       Contains Bazel configuration files shared by all targets.
+
 cmake       Contains CMake configuration files shared by all targets.
 
 Debug       Contains libcef.so and other components required to run the debug
@@ -46,6 +48,28 @@ USAGE
 Building using CMake:
   CMake can be used to generate project files in many different formats. See
   usage instructions at the top of the CMakeLists.txt file.
+
+Building using Bazel:
+  Bazel can be used to build CEF-based applications. CEF support for Bazel is
+  considered experimental. For current development status see
+  https://github.com/chromiumembedded/cef/issues/3757.
+
+  To build the bundled cefclient sample application using Bazel:
+
+  1. Install Bazelisk [https://github.com/bazelbuild/bazelisk/blob/master/README.md]
+  2. Install the patchelf package:
+     $ sudo apt install patchelf
+  3. Build using Bazel:
+     $ bazel build //tests/cefclient
+  4. Run using Bazel:
+     $ bazel run //tests/cefclient
+
+  Other sample applications (cefsimple, ceftests) can be built in the same way.
+
+  Additional notes:
+  - To generate a Debug build add `-c dbg` (both `build` and `run`
+    command-line).
+  - To pass arguments using the `run` command add `-- [...]` at the end.
 
 Please visit the CEF Website for additional usage information.
 

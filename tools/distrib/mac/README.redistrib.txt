@@ -6,7 +6,7 @@ the "required" section must be redistributed with all applications using CEF.
 Components listed under the "optional" section may be excluded if the related
 features will not be used.
 
-Applications using CEF on OS X must follow a specific app bundle structure.
+Applications using CEF on MacOS must follow a specific app bundle structure.
 Replace "cefclient" in the below example with your application name.
 
 cefclient.app/

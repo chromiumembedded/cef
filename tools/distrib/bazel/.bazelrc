@@ -1,0 +1,54 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+# Enable Bzlmod for every Bazel command.
+common --enable_bzlmod
+
+# Enable build:{macos,linux,windows}.
+build --enable_platform_specific_config
+
+#
+# Common configuration.
+#
+
+# Build with C++17.
+build:linux --cxxopt='-std=c++17'
+build:macos --cxxopt='-std=c++17'
+build:macos --copt='-std=c++17'
+build:windows --cxxopt='/std:c++17'
+
+#
+# MacOS configuration.
+#
+
+build:macos --copt='-ObjC++'
+
+#
+# Windows configuration.
+#
+
+# Enable creation of symlinks for runfiles.
+build:windows --enable_runfiles
+
+# Use /MT[d].
+build:windows --features=static_link_msvcrt
+
+#
+# Linux configuration.
+#
+
+# The cfi-icall attribute is not supported by the GNU C++ compiler.
+# TODO: Move to toolchain or add `--config=[gcc|llvm]` command-line option.
+build:linux --cxxopt=-Wno-attributes
+
+# Use hardlinks instead of symlinks in sandboxes on Linux.
+# This is required for CEF binaries to run, and for copy_filegroups() to work
+# as expected on Linux.
+build:linux --experimental_use_hermetic_linux_sandbox
+build:linux --sandbox_add_mount_pair=/etc
+build:linux --sandbox_add_mount_pair=/usr
+ ## symlinks into /usr
+build:linux --sandbox_add_mount_pair=/usr/bin:/bin
+build:linux --sandbox_add_mount_pair=/usr/lib:/lib
+build:linux --sandbox_add_mount_pair=/usr/lib64:/lib64

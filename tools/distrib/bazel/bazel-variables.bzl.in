@@ -1,0 +1,8 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+# CEF version.
+VERSION_LONG="${version_long}"
+VERSION_SHORT="${version_short}"
+VERSION_PLIST="${version_plist}"

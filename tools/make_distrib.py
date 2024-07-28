@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+from bazel_util import bazel_substitute, bazel_last_error, bazel_set_quiet
 from cef_version import VersionFormatter
 from date_util import *
 from exec_util import exec_cmd
@@ -357,6 +358,64 @@ def transfer_tools_files(script_dir, build_dirs, output_dir):
   copy_files_list(os.path.join(script_dir, 'distrib', 'tools'), output_dir, files)
 
 
+def copy_bazel_file_with_substitution(path, target_path, variables, relative_path):
+  data = read_file(path)
+  bazel_set_quiet(True)
+  result = bazel_substitute(data, variables, path_relative_to=relative_path, label=path)
+  last_error = bazel_last_error()
+  bazel_set_quiet(False)
+  if not last_error is None:
+    raise Exception(last_error)
+  if not options.quiet:
+    sys.stdout.write('Writing %s file.\n' % target_path)
+  write_file(target_path, result)
+
+
+def transfer_bazel_files(bazel_dir, output_dir, variables, require_parent_dir):
+  # All input files.
+  bazel_files = get_files(os.path.join(bazel_dir, '*')) + get_files(os.path.join(bazel_dir, '.*'))
+
+  # Map of path component to required platform.
+  platform_map = {
+    'linux': 'linux',
+    'mac': 'mac',
+    'win': 'windows',
+  }
+
+  for path in bazel_files:
+    name = os.path.split(path)[1]
+
+    # |name| uses hyphens to indicate directory components.
+    directory_parts = name.split('-')[:-1]
+
+    # Skip files that don't apply for the current platform.
+    skip = False
+    for part in directory_parts:
+      if part in platform_map and platform_map[part] != platform:
+        skip = True
+        break
+    if skip:
+      sys.stdout.write('Skipping %s file.\n' % path)
+      continue
+
+    target_path = os.path.join(output_dir, name.replace('-', '/'))
+    target_dir = os.path.split(target_path)[0]
+    if not os.path.isdir(target_dir):
+      parent_dir = os.path.split(target_dir)[0]
+      if not os.path.isdir(parent_dir) and require_parent_dir:
+        # Don't write tests/* files if the tests/ directory is missing.
+        sys.stdout.write('Skipping %s file.\n' % path)
+        continue
+      make_dir(target_dir)
+    if target_path.endswith('.in'):
+      # Copy with variable substitution.
+      relative_path = '/'.join(directory_parts)
+      copy_bazel_file_with_substitution(path, target_path[:-3], variables, relative_path)
+    else:
+      # Copy as-is.
+      copy_file(path, target_path, options.quiet)
+
+
 def normalize_headers(file, new_path=''):
   """ Normalize headers post-processing. Remove the path component from any
       project include directives. """
@@ -624,6 +683,12 @@ parser.add_option(
     default=False,
     help='don\'t create archives for output directories')
 parser.add_option(
+    '--no-sandbox',
+    action='store_true',
+    dest='nosandbox',
+    default=False,
+    help='don\'t create cef_sandbox files')
+parser.add_option(
     '--ninja-build',
     action='store_true',
     dest='ninjabuild',
@@ -751,9 +816,9 @@ chromium_rev = git.get_hash(src_dir)
 date = get_date()
 
 # format version strings
-formatter = VersionFormatter()
-cef_ver = formatter.get_version_string()
-chromium_ver = formatter.get_chromium_version_string()
+version_formatter = VersionFormatter()
+cef_ver = version_formatter.get_version_string()
+chromium_ver = version_formatter.get_chromium_version_string()
 
 # list of output directories to be archived
 archive_dirs = []
@@ -1084,7 +1149,7 @@ elif platform == 'windows':
 
   # Generate the cef_sandbox.lib merged library. A separate *_sandbox build
   # should exist when GN is_official_build=true.
-  if mode in ('standard', 'minimal', 'sandbox'):
+  if mode in ('standard', 'minimal', 'sandbox') and not options.nosandbox:
     dirs = {
         'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
         'Release': (build_dir_release + '_sandbox', build_dir_release)
@@ -1162,21 +1227,21 @@ elif platform == 'windows':
                         'tests/shared/', shared_dir, options.quiet)
 
     # transfer cefclient files
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
-                        'tests/cefclient/', cefclient_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources_win'], \
+    transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'] +
+                        cef_paths2['cefclient_sources_resources_win'] +
+                        cef_paths2['cefclient_sources_resources_win_rc'],
                         'tests/cefclient/', cefclient_dir, options.quiet)
 
     # transfer cefsimple files
-    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'], \
-                        'tests/cefsimple/', cefsimple_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_resources_win'], \
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'] +
+                        cef_paths2['cefsimple_sources_resources_win'] +
+                        cef_paths2['cefsimple_sources_resources_win_rc'],
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
     # transfer ceftests files
-    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'], \
-                        'tests/ceftests/', ceftests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_resources_win'], \
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'] +
+                        cef_paths2['ceftests_sources_resources_win'] +
+                        cef_paths2['ceftests_sources_resources_win_rc'],
                         'tests/ceftests/', ceftests_dir, options.quiet)
 
 elif platform == 'mac':
@@ -1201,7 +1266,7 @@ elif platform == 'mac':
 
   # Generate the cef_sandbox.a merged library. A separate *_sandbox build
   # should exist when GN is_official_build=true.
-  if mode in ('standard', 'minimal', 'sandbox'):
+  if mode in ('standard', 'minimal', 'sandbox') and not options.nosandbox:
     dirs = {
         'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
         'Release': (build_dir_release + '_sandbox', build_dir_release)
@@ -1314,9 +1379,9 @@ elif platform == 'mac':
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
 
-    # transfer cefclient/resources/mac files
-    copy_dir(os.path.join(cef_dir, 'tests/cefclient/resources/mac'), \
-             os.path.join(cefclient_dir, 'resources/mac'), \
+    # transfer cefclient/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/cefclient/mac'), \
+             os.path.join(cefclient_dir, 'mac'), \
              options.quiet)
 
     # transfer cefsimple files
@@ -1336,9 +1401,9 @@ elif platform == 'mac':
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_mac_helper'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
 
-    # transfer ceftests/resources/mac files
-    copy_dir(os.path.join(cef_dir, 'tests/ceftests/resources/mac'), \
-             os.path.join(ceftests_dir, 'resources/mac'), \
+    # transfer ceftests/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/ceftests/mac'), \
+             os.path.join(ceftests_dir, 'mac'), \
              options.quiet)
 
 elif platform == 'linux':
@@ -1432,6 +1497,24 @@ elif platform == 'linux':
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_linux'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
+
+if mode == 'standard' or mode == 'minimal':
+  variables = {
+      'version_long': version_formatter.get_version_string(),
+      'version_short': version_formatter.get_short_version_string(),
+      'version_plist': version_formatter.get_plist_version_string(),
+  }
+  variables.update(cef_paths2)
+
+  copy_dir(
+      os.path.join(cef_dir, 'bazel'),
+      os.path.join(output_dir, 'bazel'), options.quiet)
+
+  transfer_bazel_files(
+      os.path.join(script_dir, 'distrib', 'bazel'),
+      output_dir,
+      variables,
+      require_parent_dir=(mode != 'standard'))
 
 if not options.noarchive:
   # create an archive for each output directory

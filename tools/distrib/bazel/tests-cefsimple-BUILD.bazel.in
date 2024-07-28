@@ -1,0 +1,113 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefsimple"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from subpackages only.
+package(default_visibility = [
+    ":__subpackages__",
+])
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+
+#
+# Source file lists.
+#
+
+srcs_browser = [
+    ${cefsimple_sources_common}
+]
+
+srcs_browser_linux = [
+    ${cefsimple_sources_linux}
+]
+
+srcs_browser_mac = [
+    ${cefsimple_sources_mac}
+]
+
+srcs_browser_win = [
+    ${cefsimple_sources_win}
+]
+
+srcs_renderer_mac = [
+    ${cefsimple_sources_mac_helper}
+]
+
+#
+# MacOS targets.
+#
+
+objc_library(
+    name = "BrowserLibMac",
+    srcs = srcs_browser + srcs_browser_mac,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+    ],
+)
+
+cc_library(
+    name = "RendererLibMac",
+    srcs = srcs_renderer_mac,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+    ],
+)
+
+#
+# Windows targets.
+#
+
+# Allow access from the declare_exe target.
+filegroup(
+    name = "ResourceH",
+    srcs = [
+        "resource.h"
+    ]
+)
+
+# Include files directly in the declare_exe target. This simplifies the build
+# configuration and avoids issues with Windows discarding symbols (like WinMain)
+# when linking libraries.
+filegroup(
+    name = "SrcsWin",
+    srcs = srcs_browser + srcs_browser_win,
+    target_compatible_with = [
+        "@platforms//os:windows",
+    ],
+)
+
+#
+# Linux targets.
+#
+
+# Include files directly in the declare_exe target. This simplifies the build
+# configuration.
+filegroup(
+    name = "SrcsLinux",
+    srcs = srcs_browser + srcs_browser_linux,
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
+)
+
+#
+# Alias to platform-specific build targets.
+#
+
+alias(
+    name = PRODUCT_NAME,
+    actual = select({
+        "@platforms//os:linux": "{}/linux:{}".format(PKG_NAME, PRODUCT_NAME),
+        "@platforms//os:macos": "{}/mac:{}".format(PKG_NAME, PRODUCT_NAME),
+        "@platforms//os:windows": "{}/win:{}".format(PKG_NAME, PRODUCT_NAME),
+    }),
+)
