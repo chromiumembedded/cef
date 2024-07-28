@@ -1,0 +1,144 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+
+# Allow access from all //tests packages.
+package(default_visibility = [
+    "//tests:__subpackages__",
+])
+
+#
+# Source file lists.
+#
+
+srcs_common = [
+    ${shared_sources_common}
+]
+
+srcs_browser = [
+    ${shared_sources_browser}
+]
+
+srcs_browser_linux = [
+    ${shared_sources_linux}
+]
+
+srcs_browser_mac = [
+    ${shared_sources_mac}
+]
+
+srcs_browser_mac_ceftests = [
+    ${ceftests_sources_mac_browser_shared}
+]
+
+srcs_browser_win = [
+    ${shared_sources_win}
+]
+
+srcs_renderer = [
+    ${shared_sources_renderer}
+]
+
+srcs_renderer_mac = [
+    ${shared_sources_mac_helper}
+]
+
+srcs_renderer_mac_ceftests = [
+    ${ceftests_sources_mac_helper_shared}
+]
+
+srcs_resources = [
+    ${shared_sources_resources}
+]
+
+filegroup(
+    name = "Resources",
+    srcs = srcs_resources,
+)
+
+#
+# MacOS targets.
+#
+
+objc_library(
+    name = "BrowserLibMac",
+    srcs = srcs_common + srcs_browser + srcs_browser_mac,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+    ],
+)
+
+cc_library(
+    name = "RendererLibMac",
+    srcs = srcs_common + srcs_renderer + srcs_renderer_mac,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+    ],
+)
+
+# Same as above, but adding additional files for ceftests. This is a workaround
+# for ceftests including browser and renderer test code in the same cc files.
+# Needs to be defined here because Bazel disallows direct access to files
+# outside of the package directory.
+
+objc_library(
+    name = "BrowserLibMacCefTests",
+    srcs = srcs_browser_mac_ceftests,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+        ":BrowserLibMac",
+    ],
+)
+
+objc_library(
+    name = "RendererLibMacCefTests",
+    srcs = srcs_renderer_mac_ceftests,
+    target_compatible_with = [
+        "@platforms//os:macos",
+    ],
+    deps = [
+        "//:cef_wrapper",
+        ":RendererLibMac",
+    ],
+)
+
+#
+# Windows targets.
+#
+
+# Include files directly in the declare_exe target. This simplifies the build
+# configuration and avoids issues with Windows discarding symbols (like WinMain)
+# when linking libraries.
+filegroup(
+    name = "SrcsWin",
+    srcs = srcs_common + srcs_browser + srcs_browser_win + srcs_renderer,
+    target_compatible_with = [
+        "@platforms//os:windows",
+    ],
+)
+
+#
+# Linux targets.
+#
+
+# Include files directly in the declare_exe target. This simplifies the build
+# configuration.
+filegroup(
+    name = "SrcsLinux",
+    srcs = srcs_common + srcs_browser + srcs_browser_linux + srcs_renderer,
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
+)
+

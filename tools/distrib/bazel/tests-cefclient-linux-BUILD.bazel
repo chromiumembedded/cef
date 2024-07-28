@@ -1,0 +1,59 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefclient"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+load("//bazel:copy_filegroups.bzl", "copy_filegroups")
+load("//bazel/linux:exe_helpers.bzl", "declare_exe")
+
+#
+# Linux executable target.
+#
+
+# Copy resources into the current project.
+copy_target = "{}_resources".format(PRODUCT_NAME)
+copy_filegroups(
+    name = copy_target,
+    filegroups = [
+        "{}:Resources".format(PKG_NAME),
+        "//tests/shared:Resources",
+    ],
+    remove_prefixes = [
+        "tests/{}/resources".format(PRODUCT_NAME),
+        "tests/shared/resources",
+    ],
+    add_prefix = "cefclient_files",
+)
+
+declare_exe(
+    name = PRODUCT_NAME,
+    srcs = [
+        "{}:SrcsLinux".format(PKG_NAME),
+        "//tests/shared:SrcsLinux",
+    ],
+    data = [
+        ":{}".format(copy_target),
+    ],
+    copts = [
+         "-Wno-deprecated-declarations",
+    ],
+    linkopts = [
+        "-lGL",
+    ],
+    deps = [
+        # Declared in the top-level WORKSPACE file.
+        "@gmodule2//:lib",
+        "@gtk3//:lib",
+        "@gthread2//:lib",
+        "@gtkprint3//:lib",
+        "@xi//:lib",
+    ],
+)
+

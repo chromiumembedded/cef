@@ -1,0 +1,59 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "ceftests"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+load("//bazel:copy_filegroups.bzl", "copy_filegroups")
+load("//bazel/win:exe_helpers.bzl", "declare_exe")
+
+#
+# Windows executable target.
+#
+
+# Copy resources into the current project.
+copy_target = "{}_resources".format(PRODUCT_NAME)
+copy_filegroups(
+    name = copy_target,
+    filegroups = [
+        "{}:Resources".format(PKG_NAME),
+    ],
+    remove_prefixes = [
+        "tests/{}/resources".format(PRODUCT_NAME),
+    ],
+    add_prefix = "ceftests_files",
+)
+
+declare_exe(
+    name = PRODUCT_NAME,
+    srcs = [
+        "{}:SrcsWin".format(PKG_NAME),
+        "//tests/shared:SrcsWin",
+    ],
+    deps = [
+        "//tests/gtest",
+    ],
+    rc_file = "{}.rc".format(PRODUCT_NAME),
+    manifest_srcs = [
+        "compatibility.manifest",
+        "{}.exe.manifest".format(PRODUCT_NAME),
+    ],
+    resources_srcs = [
+        "{}:ResourceH".format(PKG_NAME),
+        "{}.ico".format(PRODUCT_NAME),
+        "small.ico",
+        "//tests/shared:Resources",
+    ],
+    linkopts = [
+        "/SUBSYSTEM:CONSOLE",
+    ],
+    data = [
+        ":{}".format(copy_target),
+    ],
+)

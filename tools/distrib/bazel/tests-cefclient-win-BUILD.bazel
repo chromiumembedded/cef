@@ -1,0 +1,59 @@
+# Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefclient"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+load("//bazel/win:exe_helpers.bzl", "declare_exe")
+
+#
+# Windows executable target.
+#
+
+LINK_LIBS = [
+    "comdlg32.lib",
+    "d3d11.lib",
+    "glu32.lib",
+    "imm32.lib",
+    "opengl32.lib",
+]
+
+DELAYLOAD_DLLS = [
+    "comdlg32.dll",
+    "glu32.dll",
+    "oleaut32.dll",
+    "opengl32.dll",
+]
+
+declare_exe(
+    name = PRODUCT_NAME,
+    srcs = [
+        "{}:SrcsWin".format(PKG_NAME),
+        "//tests/shared:SrcsWin",
+    ],
+    rc_file = "{}.rc".format(PRODUCT_NAME),
+    manifest_srcs = [
+        "compatibility.manifest",
+        "{}.exe.manifest".format(PRODUCT_NAME),
+    ],
+    resources_srcs = [
+        "{}:ResourceH".format(PKG_NAME),
+        "{}:Resources".format(PKG_NAME),
+        "{}.ico".format(PRODUCT_NAME),
+        "small.ico",
+        "//tests/shared:Resources",
+    ],
+    linkopts = [
+        "/SUBSYSTEM:WINDOWS",
+    ] + [
+        "/DEFAULTLIB:{}".format(lib) for lib in LINK_LIBS
+    ] + [
+        "/DELOAYLOAD:{}".format(lib) for lib in DELAYLOAD_DLLS
+    ],
+)

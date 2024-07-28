@@ -1,0 +1,32 @@
+# vi: ft=bzl
+package(default_visibility = ["//visibility:private"])
+
+_imports = [p[:len(p)-2] for p in glob(["{}/**/*.a".format(d) for d in [%{deps}]])]
+[cc_import(
+    name = i.replace("/", "_"),
+    hdrs = glob([%{hdrs}]),
+    # TODO: library extension for platform.
+    static_library = "{}.a".format(i),
+    shared_library = "{}.dylib".format(i),
+) for i in _imports]
+
+cc_library(
+    name = "internal_lib",
+    hdrs = glob([%{hdrs}]),
+    copts = [%{copts}],
+    includes = [%{includes}],
+    linkopts = [%{linkopts}],
+    deps = [(":" + i.replace("/", "_")) for i in _imports],
+)
+
+cc_library(
+    name = "lib",
+    hdrs = glob(["%{strip_include}/**/*.h"]),
+    copts = [%{extra_copts}],
+    linkopts = [%{extra_linkopts}],
+    deps = [":internal_lib"] + [%{extra_deps}],
+    visibility = ["//visibility:public"],
+    strip_include_prefix = "%{strip_include}",
+    include_prefix = "%{include_prefix}",
+)
+

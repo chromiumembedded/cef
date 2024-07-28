@@ -376,12 +376,14 @@
       'tests/cefclient/browser/window_test_runner_win.cc',
       'tests/cefclient/browser/window_test_runner_win.h',
       'tests/cefclient/cefclient_win.cc',
-      'tests/cefclient/resources/win/cefclient.rc',
     ],
     'cefclient_sources_resources_win': [
-      'tests/cefclient/resources/win/cefclient.exe.manifest',
-      'tests/cefclient/resources/win/cefclient.ico',
-      'tests/cefclient/resources/win/small.ico',
+      'tests/cefclient/win/cefclient.exe.manifest',
+      'tests/cefclient/win/cefclient.ico',
+      'tests/cefclient/win/small.ico',
+    ],
+    'cefclient_sources_resources_win_rc': [
+      'tests/cefclient/win/cefclient.rc',
     ],
     'cefclient_sources_mac': [
       'tests/cefclient/browser/browser_window_osr_mac.h',
@@ -404,12 +406,12 @@
       'tests/cefclient/browser/window_test_runner_mac.h',
       'tests/cefclient/browser/window_test_runner_mac.mm',
       'tests/cefclient/cefclient_mac.mm',
-   ],
+    ],
     'cefclient_bundle_resources_mac': [
-      'tests/cefclient/resources/mac/cefclient.icns',
-      'tests/cefclient/resources/mac/English.lproj/InfoPlist.strings',
-      'tests/cefclient/resources/mac/English.lproj/MainMenu.xib',
-      'tests/cefclient/resources/mac/Info.plist',
+      'tests/cefclient/mac/cefclient.icns',
+      'tests/cefclient/mac/English.lproj/InfoPlist.strings',
+      'tests/cefclient/mac/English.lproj/MainMenu.xib',
+      'tests/cefclient/mac/Info.plist.in',
     ],
     'cefclient_sources_linux': [
       'tests/cefclient/browser/browser_window_osr_gtk.cc',
@@ -441,15 +443,17 @@
       'tests/cefsimple/simple_handler.h',
     ],
     'cefsimple_sources_win': [
-      'tests/cefsimple/cefsimple.rc',
       'tests/cefsimple/cefsimple_win.cc',
-      'tests/cefsimple/simple_handler_win.cc',
       'tests/cefsimple/resource.h',
+      'tests/cefsimple/simple_handler_win.cc',
     ],
     'cefsimple_sources_resources_win': [
-      'tests/cefsimple/cefsimple.exe.manifest',
-      'tests/cefsimple/res/cefsimple.ico',
-      'tests/cefsimple/res/small.ico',
+      'tests/cefsimple/win/cefsimple.exe.manifest',
+      'tests/cefsimple/win/cefsimple.ico',
+      'tests/cefsimple/win/small.ico',
+    ],
+    'cefsimple_sources_resources_win_rc': [
+      'tests/cefsimple/win/cefsimple.rc',
     ],
     'cefsimple_sources_mac': [
       'tests/cefsimple/cefsimple_mac.mm',
@@ -462,7 +466,7 @@
       'tests/cefsimple/mac/cefsimple.icns',
       'tests/cefsimple/mac/English.lproj/InfoPlist.strings',
       'tests/cefsimple/mac/English.lproj/MainMenu.xib',
-      'tests/cefsimple/mac/Info.plist',
+      'tests/cefsimple/mac/Info.plist.in',
     ],
     'cefsimple_sources_linux': [
       'tests/cefsimple/cefsimple_linux.cc',
@@ -580,24 +584,32 @@
     'ceftests_sources_win': [
       'tests/ceftests/resource_util_win_dir.cc',
       'tests/ceftests/resource_util_win_idmap.cc',
-      'tests/ceftests/resources/win/ceftests.rc',
     ],
     'ceftests_sources_resources_win': [
-      'tests/ceftests/resources/win/ceftests.exe.manifest',
-      'tests/ceftests/resources/win/ceftests.ico',
-      'tests/ceftests/resources/win/small.ico',
+      'tests/ceftests/win/ceftests.exe.manifest',
+      'tests/ceftests/win/ceftests.ico',
+      'tests/ceftests/win/small.ico',
+    ],
+    'ceftests_sources_resources_win_rc': [
+      'tests/ceftests/win/ceftests.rc',
     ],
     'ceftests_sources_mac': [
       'tests/ceftests/os_rendering_unittest_mac.h',
       'tests/ceftests/os_rendering_unittest_mac.mm',
       'tests/ceftests/run_all_unittests_mac.mm',
     ],
-    'ceftests_sources_mac_helper': [
+    'ceftests_sources_mac_browser_shared': [
+      'tests/shared/renderer/client_app_renderer.h',
+    ],
+    'ceftests_sources_mac_helper_shared': [
+      'tests/shared/browser/client_app_browser.h',
       'tests/shared/browser/file_util.cc',
       'tests/shared/browser/file_util.h',
       'tests/shared/browser/resource_util.h',
       'tests/shared/browser/resource_util_mac.mm',
       'tests/shared/browser/resource_util_posix.cc',
+    ],
+    'ceftests_sources_mac_helper': [
       'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/client_app_delegates.cc',
       'tests/ceftests/cookie_unittest.cc',
@@ -653,10 +665,10 @@
       'tests/ceftests/v8_unittest.cc',
     ],
     'ceftests_bundle_resources_mac': [
-      'tests/ceftests/resources/mac/ceftests.icns',
-      'tests/ceftests/resources/mac/English.lproj/InfoPlist.strings',
-      'tests/ceftests/resources/mac/English.lproj/MainMenu.xib',
-      'tests/ceftests/resources/mac/Info.plist',
+      'tests/ceftests/mac/ceftests.icns',
+      'tests/ceftests/mac/English.lproj/InfoPlist.strings',
+      'tests/ceftests/mac/English.lproj/MainMenu.xib',
+      'tests/ceftests/mac/Info.plist.in',
     ],
     'ceftests_sources_linux': [
       'tests/ceftests/resource_util_linux.cc',

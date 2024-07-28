@@ -1834,7 +1834,7 @@ if (is_mac) {
   bundle_data("cefclient_resources_bundle_data") {
     sources = gypi_paths2.shared_sources_resources +
               gypi_paths2.cefclient_sources_resources + [
-      "tests/cefclient/resources/mac/cefclient.icns",
+      "tests/cefclient/mac/cefclient.icns",
     ]
 
     outputs = [
@@ -1844,7 +1844,7 @@ if (is_mac) {
 
   bundle_data("cefclient_resources_bundle_data_english") {
     sources = [
-      "tests/cefclient/resources/mac/English.lproj/InfoPlist.strings",
+      "tests/cefclient/mac/English.lproj/InfoPlist.strings",
     ]
 
     outputs = [
@@ -1854,7 +1854,7 @@ if (is_mac) {
 
   mac_xib_bundle_data("cefclient_xibs") {
     sources = [
-      "tests/cefclient/resources/mac/English.lproj/MainMenu.xib",
+      "tests/cefclient/mac/English.lproj/MainMenu.xib",
     ]
 
     output_path = "{{bundle_resources_dir}}/English.lproj"
@@ -1864,7 +1864,7 @@ if (is_mac) {
     # Necessary because the cef_framework target is testonly.
     testonly = true
 
-    helper_info_plist = "tests/cefclient/resources/mac/helper-Info.plist"
+    helper_info_plist = "tests/cefclient/mac/helper-Info.plist.in"
     helper_sources = includes_common +
                      includes_mac +
                      gypi_paths2.includes_wrapper +
@@ -1878,7 +1878,7 @@ if (is_mac) {
       "CEF_USE_SANDBOX",
     ]
 
-    info_plist = "tests/cefclient/resources/mac/Info.plist"
+    info_plist = "tests/cefclient/mac/Info.plist.in"
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
@@ -1940,7 +1940,7 @@ if (is_mac) {
     # Necessary because the cef_framework target is testonly.
     testonly = true
 
-    helper_info_plist = "tests/cefsimple/mac/helper-Info.plist"
+    helper_info_plist = "tests/cefsimple/mac/helper-Info.plist.in"
     helper_sources = includes_common +
                      includes_mac +
                      gypi_paths2.includes_wrapper +
@@ -1950,7 +1950,7 @@ if (is_mac) {
       "CEF_USE_SANDBOX",
     ]
 
-    info_plist = "tests/cefsimple/mac/Info.plist"
+    info_plist = "tests/cefsimple/mac/Info.plist.in"
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
@@ -1977,7 +1977,7 @@ if (is_mac) {
 
   bundle_data("ceftests_resources_bundle_data") {
     sources = gypi_paths2.shared_sources_resources + [
-      "tests/ceftests/resources/mac/ceftests.icns",
+      "tests/ceftests/mac/ceftests.icns",
     ]
 
     outputs = [
@@ -1987,7 +1987,7 @@ if (is_mac) {
 
   bundle_data("ceftests_resources_bundle_data_english") {
     sources = [
-      "tests/ceftests/resources/mac/English.lproj/InfoPlist.strings",
+      "tests/ceftests/mac/English.lproj/InfoPlist.strings",
     ]
 
     outputs = [
@@ -1997,7 +1997,7 @@ if (is_mac) {
 
   mac_xib_bundle_data("ceftests_xibs") {
     sources = [
-      "tests/ceftests/resources/mac/English.lproj/MainMenu.xib",
+      "tests/ceftests/mac/English.lproj/MainMenu.xib",
     ]
     output_path = "{{bundle_resources_dir}}/English.lproj"
   }
@@ -2005,11 +2005,12 @@ if (is_mac) {
   cef_app("ceftests") {
     testonly = true
 
-    helper_info_plist = "tests/ceftests/resources/mac/helper-Info.plist"
+    helper_info_plist = "tests/ceftests/mac/helper-Info.plist.in"
     helper_sources = gypi_paths2.shared_sources_common +
                      gypi_paths2.shared_sources_renderer +
                      gypi_paths2.shared_sources_mac_helper +
-                     gypi_paths2.ceftests_sources_mac_helper
+                     gypi_paths2.ceftests_sources_mac_helper +
+                     gypi_paths2.ceftests_sources_mac_helper_shared
     helper_deps = [
       ":gtest_teamcity",
       "//testing/gtest",
@@ -2022,7 +2023,7 @@ if (is_mac) {
       "CEF_TESTS_IN_SRC_DIRECTORY",
     ]
 
-    info_plist = "tests/ceftests/resources/mac/Info.plist"
+    info_plist = "tests/ceftests/mac/Info.plist.in"
     sources = includes_common +
               includes_mac +
               gypi_paths2.includes_wrapper +
@@ -2107,7 +2108,8 @@ if (is_mac) {
     if (is_win) {
       sources += includes_win +
                  gypi_paths2.shared_sources_win +
-                 gypi_paths2.cefclient_sources_win
+                 gypi_paths2.cefclient_sources_win +
+                 gypi_paths2.cefclient_sources_resources_win_rc
 
       # Set /SUBSYSTEM:WINDOWS.
       configs -= [ "//build/config/win:console" ]
@@ -2203,7 +2205,8 @@ if (is_mac) {
 
     if (is_win) {
       sources += includes_win +
-                 gypi_paths2.cefsimple_sources_win
+                 gypi_paths2.cefsimple_sources_win +
+                 gypi_paths2.cefsimple_sources_resources_win_rc
 
       # Set /SUBSYSTEM:WINDOWS.
       configs -= [ "//build/config/win:console" ]
@@ -2278,7 +2281,8 @@ if (is_mac) {
 
     if (is_win) {
       sources += gypi_paths2.shared_sources_win +
-                 gypi_paths2.ceftests_sources_win
+                 gypi_paths2.ceftests_sources_win +
+                 gypi_paths2.ceftests_sources_resources_win_rc
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.

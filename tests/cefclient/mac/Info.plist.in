@@ -3,34 +3,36 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleDisplayName</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIconFile</key>
+	<string>cefclient.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.cef.cefclient.helper${BUNDLE_ID_SUFFIX}</string>
+	<string>org.cef.cefclient</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>${VERSION_SHORT}</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${VERSION_SHORT}</string>
 	<key>LSEnvironment</key>
 	<dict>
 		<key>MallocNanoZone</key>
 		<string>0</string>
 	</dict>
-	<key>LSFileQuarantineEnabled</key>
-	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.15.0</string>
-	<key>LSUIElement</key>
-	<string>1</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

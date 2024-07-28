@@ -7,21 +7,21 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>cefclient.icns</string>
+	<string>ceftests.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.cef.cefclient</string>
+	<string>org.cef.ceftests</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>${VERSION_SHORT}</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${VERSION_SHORT}</string>
 	<key>LSEnvironment</key>
 	<dict>
 		<key>MallocNanoZone</key>

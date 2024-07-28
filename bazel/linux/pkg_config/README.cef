@@ -1,0 +1,11 @@
+Name: pkg_config
+URL: https://github.com/cherrry/bazel_pkg_config
+Version: 284219a
+
+Description:
+Bazel rules for pkg-config tools.
+
+CEF-specific changes:
+- Fix failure with duplicate symlinks.
+- Remove `--static` flag from pkg-config invocation.
+
