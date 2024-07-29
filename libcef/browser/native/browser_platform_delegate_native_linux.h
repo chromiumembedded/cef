@@ -11,6 +11,8 @@
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
 class CefWindowX11;
+#include "ui/gfx/x/atom_cache.h"
+#include "ui/gfx/x/connection.h"
 #endif
 
 // Windowed browser implementation for Linux.
@@ -21,6 +23,9 @@ class CefBrowserPlatformDelegateNativeLinux
                                         SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+  void BrowserCreated(CefBrowserHostBase* browser) override;
+#endif
   void BrowserDestroyed(CefBrowserHostBase* browser) override;
   bool CreateHostWindow() override;
   void CloseHostWindow() override;
@@ -45,6 +50,12 @@ class CefBrowserPlatformDelegateNativeLinux
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
   raw_ptr<CefWindowX11> window_x11_ = nullptr;
+  // for chrome_runtime only
+  void chromeRuntimeBrowserFocus();
+  void chromeRuntimeBrowserUnfocus();
+  void enableKeyboardEventsForWindow(x11::Window target_win, bool enable) const;
+  raw_ptr<x11::Connection> connection_ = nullptr;
+  x11::Window previously_focused_ = x11::Window::None;
 #endif
 };
 

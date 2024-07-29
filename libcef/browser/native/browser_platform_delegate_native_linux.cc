@@ -29,7 +29,56 @@
 CefBrowserPlatformDelegateNativeLinux::CefBrowserPlatformDelegateNativeLinux(
     const CefWindowInfo& window_info,
     SkColor background_color)
-    : CefBrowserPlatformDelegateNativeAura(window_info, background_color) {}
+    : CefBrowserPlatformDelegateNativeAura(window_info, background_color) {
+  connection_ = x11::Connection::Get();
+}
+
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+void CefBrowserPlatformDelegateNativeLinux::enableKeyboardEventsForWindow(
+    x11::Window target_win,
+    bool enable) const {
+  if (enable) {
+    auto win_attr_response =
+        connection_->GetWindowAttributes({target_win}).Sync();
+    if (!win_attr_response) {
+      return;
+    }
+    auto window_attrs_req = x11::ChangeWindowAttributesRequest{};
+    window_attrs_req.window = target_win;
+    auto event_mask = static_cast<int>(win_attr_response->your_event_mask);
+    event_mask |= static_cast<int>(x11::EventMask::KeyPress);
+    event_mask |= static_cast<int>(x11::EventMask::KeyRelease);
+    window_attrs_req.event_mask = static_cast<x11::EventMask>(event_mask);
+    connection_->ChangeWindowAttributes(window_attrs_req);
+  } else {
+    if (target_win != x11::Window::None) {
+      auto win_attr_response =
+          connection_->GetWindowAttributes({target_win}).Sync();
+      if (!win_attr_response) {
+        return;
+      }
+      auto window_attrs_req = x11::ChangeWindowAttributesRequest{};
+      window_attrs_req.window = target_win;
+      auto event_mask = static_cast<int>(win_attr_response->your_event_mask);
+      event_mask &= ~static_cast<int>(x11::EventMask::KeyPress);
+      event_mask &= ~static_cast<int>(x11::EventMask::KeyRelease);
+      window_attrs_req.event_mask = static_cast<x11::EventMask>(event_mask);
+      connection_->ChangeWindowAttributes(window_attrs_req);
+    }
+  }
+}
+
+void CefBrowserPlatformDelegateNativeLinux::BrowserCreated(
+    CefBrowserHostBase* browser) {
+  CefBrowserPlatformDelegateNativeAura::BrowserCreated(browser);
+
+  // we only enable keyboard events when it is focused, just disable them now
+  const auto host_x11_win = static_cast<x11::Window>(GetHostWindowHandle());
+  if (host_x11_win != x11::Window::None) {
+    enableKeyboardEventsForWindow(host_x11_win, false);
+  }
+}
+#endif
 
 void CefBrowserPlatformDelegateNativeLinux::BrowserDestroyed(
     CefBrowserHostBase* browser) {
@@ -134,9 +183,189 @@ views::Widget* CefBrowserPlatformDelegateNativeLinux::GetWindowWidget() const {
   return window_widget_;
 }
 
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+// Returns true if |window| is visible.
+// Deleted from ui/base/x/x11_util.h in https://crrev.com/62fc260067.
+bool IsWindowVisible(x11::Connection* connection, x11::Window window) {
+  auto response = connection->GetWindowAttributes({window}).Sync();
+  if (!response || response->map_state != x11::MapState::Viewable) {
+    return false;
+  }
+
+  // Minimized windows are not visible.
+  std::vector<x11::Atom> wm_states;
+  if (connection->GetArrayProperty(window, x11::GetAtom("_NET_WM_STATE"),
+                                   &wm_states)) {
+    x11::Atom hidden_atom = x11::GetAtom("_NET_WM_STATE_HIDDEN");
+    if (std::ranges::contains(wm_states, hidden_atom)) {
+      return false;
+    }
+  }
+
+  // Do not check _NET_CURRENT_DESKTOP/_NET_WM_DESKTOP since some
+  // window managers (eg. i3) have per-monitor workspaces where more
+  // than one workspace can be visible at once, but only one will be
+  // "active".
+  return true;
+}
+
+x11::Window FindChild(x11::Connection* connection, x11::Window window) {
+  auto query_tree = connection->QueryTree({window}).Sync();
+  if (query_tree && query_tree->children.size() >= 1U) {
+    return query_tree->children[0];
+  }
+  return x11::Window::None;
+}
+
+x11::Window FindToplevelParent(x11::Connection* connection,
+                               x11::Window window) {
+  x11::Window top_level_window = window;
+
+  do {
+    auto query_tree = connection->QueryTree({window}).Sync();
+    if (!query_tree) {
+      break;
+    }
+    top_level_window = window;
+    if (query_tree->parent == query_tree->root) {
+      break;
+    }
+    window = query_tree->parent;
+  } while (true);
+
+  return top_level_window;
+}
+
+bool IsParentOfChildWindow(x11::Connection* connection,
+                           x11::Window parent,
+                           x11::Window child) {
+  if (parent == child) {
+    return false;
+  }
+  do {
+    auto query_tree = connection->QueryTree({child}).Sync();
+    if (!query_tree) {
+      break;
+    }
+
+    if (query_tree->parent == query_tree->root) {
+      return query_tree->parent == parent;
+    }
+    if (query_tree->parent == parent) {
+      return true;
+    }
+    child = query_tree->parent;
+  } while (true);
+  return false;
+}
+
+void CefBrowserPlatformDelegateNativeLinux::chromeRuntimeBrowserFocus() {
+  auto host_x11_win = static_cast<x11::Window>(GetHostWindowHandle());
+  if (host_x11_win == x11::Window::None) {
+    return;
+  }
+
+  if (not IsWindowVisible(connection_, host_x11_win)) {
+    return;
+  }
+
+  const auto focused = connection_->GetInputFocus().Sync().reply->focus;
+  x11::Window focus_target = host_x11_win;
+
+  if (browser_.get()) {
+    if (focused != host_x11_win) {
+      auto top_parent = FindToplevelParent(connection_, host_x11_win);
+      if (top_parent != host_x11_win) {
+        connection_->MapWindow({top_parent});
+      }
+      // Give focus to the child DesktopWindowTreeHostLinux.
+      focus_target = host_x11_win;
+      connection_
+          ->SetInputFocus(
+              {x11::InputFocus::Parent, focus_target, x11::Time::CurrentTime})
+          .IgnoreError();
+      if (focused != host_x11_win) {
+        // Store the focused window to restore the original state precisely.
+        previously_focused_ = focused;
+      }
+    }
+  } else if (focused != host_x11_win) {
+    auto top_parent = FindToplevelParent(connection_, host_x11_win);
+    if (top_parent != host_x11_win) {
+      connection_->MapWindow({top_parent});
+    }
+    connection_
+        ->SetInputFocus(
+            {x11::InputFocus::Parent, host_x11_win, x11::Time::CurrentTime})
+        .IgnoreError();
+    // Store the focused window to restore the original state precisely.
+    previously_focused_ = focused;
+  }
+  // enable keyboard events when the window got focus
+  enableKeyboardEventsForWindow(host_x11_win, true);
+}
+
+void CefBrowserPlatformDelegateNativeLinux::chromeRuntimeBrowserUnfocus() {
+  auto host_x11_win = static_cast<x11::Window>(GetHostWindowHandle());
+  if (host_x11_win == x11::Window::None) {
+    return;
+  }
+
+  if (not IsWindowVisible(connection_, host_x11_win)) {
+    return;
+  }
+
+  auto focused = x11::Window::None;
+  focused = connection_->GetInputFocus().Sync().reply->focus;
+  if (focused == x11::Window::None) {
+    return;
+  }
+
+  auto toplevel = FindToplevelParent(connection_, host_x11_win);
+  if (toplevel == host_x11_win) {
+    return;
+  }
+
+  x11::Window child = x11::Window::None;
+  if (browser_.get()) {
+    child = FindChild(connection_, host_x11_win);
+  }
+  auto old_focused = x11::Window::None;
+  if (focused == host_x11_win || focused == child) {
+    old_focused = focused;
+    // Our window or child window  still has keyboard focus. Return it back to
+    // the original window so that GUI toolkits can receive keyboard events
+    // again.
+    if (previously_focused_ != x11::Window::None &&
+        IsParentOfChildWindow(connection_, toplevel, previously_focused_)) {
+      // GTK+ may have a special "focus window" for keyboard events. It must be
+      // a child of the toplevel though.
+      connection_
+          ->SetInputFocus({x11::InputFocus::Parent, previously_focused_,
+                           x11::Time::CurrentTime})
+          .IgnoreError();
+    } else {
+      // Otherwise, the tolevel window is the best focus candidate we have.
+      connection_
+          ->SetInputFocus(
+              {x11::InputFocus::Parent, toplevel, x11::Time::CurrentTime})
+          .IgnoreError();
+    }
+  }
+
+  if (old_focused != x11::Window::None) {
+    // disable keyboard events when lost focus
+    enableKeyboardEventsForWindow(old_focused, false);
+  }
+}
+#endif
+
 void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
   if (!setFocus) {
+#if BUILDFLAG(SUPPORTS_OZONE_X11)
+    chromeRuntimeBrowserUnfocus();
     return;
+#endif
   }
 
   if (web_contents_) {
@@ -146,12 +375,7 @@ void CefBrowserPlatformDelegateNativeLinux::SetFocus(bool setFocus) {
   }
 
 #if BUILDFLAG(SUPPORTS_OZONE_X11)
-  if (window_x11_) {
-    // Give native focus to the DesktopNativeWidgetAura for the root window.
-    // Needs to be done via the ::Window so that keyboard focus is assigned
-    // correctly.
-    window_x11_->Focus();
-  }
+  chromeRuntimeBrowserFocus();
 #endif  // BUILDFLAG(SUPPORTS_OZONE_X11)
 }
 
