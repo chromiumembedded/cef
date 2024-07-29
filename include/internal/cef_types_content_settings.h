@@ -438,12 +438,12 @@ typedef enum {
 
   /// Website setting which is used for UnusedSitePermissionsService to store
   /// auto-revoked notification permissions from abusive sites.
-  REVOKED_ABUSIVE_NOTIFICATION_PERMISSIONS,
+  CEF_CONTENT_SETTING_TYPE_REVOKED_ABUSIVE_NOTIFICATION_PERMISSIONS,
 
   /// Content setting that controls tracking protection status per site.
   /// BLOCK: Protections enabled. This is the default state.
   /// ALLOW: Protections disabled.
-  TRACKING_PROTECTION,
+  CEF_CONTENT_SETTING_TYPE_TRACKING_PROTECTION,
 } cef_content_setting_types_t;
 
 ///
