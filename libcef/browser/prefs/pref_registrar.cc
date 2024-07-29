@@ -51,7 +51,8 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
         registry_->RegisterDoublePref(nameStr, default_value->GetDouble());
         return true;
       case VTYPE_STRING:
-        registry_->RegisterStringPref(nameStr, default_value->GetString());
+        registry_->RegisterStringPref(
+            nameStr, std::string_view(default_value->GetString().ToString()));
         return true;
       case VTYPE_DICTIONARY:
       case VTYPE_LIST:
@@ -70,9 +71,11 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
     auto impl_value = impl->CopyValue();
 
     if (impl_value.type() == base::Value::Type::DICT) {
-      registry_->RegisterDictionaryPref(name, std::move(impl_value.GetDict()));
+      registry_->RegisterDictionaryPref(std::string_view(name),
+                                        std::move(impl_value.GetDict()));
     } else if (impl_value.type() == base::Value::Type::LIST) {
-      registry_->RegisterListPref(name, std::move(impl_value.GetList()));
+      registry_->RegisterListPref(std::string_view(name),
+                                  std::move(impl_value.GetList()));
     } else {
       DCHECK(false);
     }

@@ -1,8 +1,8 @@
 diff --git chrome/browser/devtools/chrome_devtools_manager_delegate.cc chrome/browser/devtools/chrome_devtools_manager_delegate.cc
-index 10fd31daf60fa..49b10da9625f0 100644
+index c2850e124952c..0b5b32a70da71 100644
 --- chrome/browser/devtools/chrome_devtools_manager_delegate.cc
 +++ chrome/browser/devtools/chrome_devtools_manager_delegate.cc
-@@ -13,6 +13,7 @@
+@@ -14,6 +14,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -10,7 +10,7 @@ index 10fd31daf60fa..49b10da9625f0 100644
  #include "chrome/browser/browser_features.h"
  #include "chrome/browser/devtools/chrome_devtools_session.h"
  #include "chrome/browser/devtools/device/android_device_manager.h"
-@@ -67,6 +68,10 @@
+@@ -68,6 +69,10 @@
  #include "ash/constants/ash_switches.h"
  #endif
  
@@ -21,7 +21,7 @@ index 10fd31daf60fa..49b10da9625f0 100644
  using content::DevToolsAgentHost;
  
  const char ChromeDevToolsManagerDelegate::kTypeApp[] = "app";
-@@ -247,6 +252,12 @@ std::string ChromeDevToolsManagerDelegate::GetTargetType(
+@@ -278,6 +283,12 @@ std::string ChromeDevToolsManagerDelegate::GetTargetType(
      return DevToolsAgentHost::kTypePage;
    }
  

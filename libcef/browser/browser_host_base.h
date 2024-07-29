@@ -330,8 +330,7 @@ class CefBrowserHostBase : public CefBrowserHost,
                      const ui::SelectFileDialog::FileTypeInfo* file_types,
                      int file_type_index,
                      const base::FilePath::StringType& default_extension,
-                     gfx::NativeWindow owning_window,
-                     void* params);
+                     gfx::NativeWindow owning_window);
   void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
 
   // Called from AlloyBrowserHostImpl::GetJavaScriptDialogManager and

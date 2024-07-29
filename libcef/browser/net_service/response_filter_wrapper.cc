@@ -6,6 +6,7 @@
 
 #include <queue>
 
+#include "base/containers/span.h"
 #include "base/logging.h"
 #include "mojo/public/cpp/system/simple_watcher.h"
 #include "mojo/public/cpp/system/string_data_source.h"
@@ -92,10 +93,9 @@ bool ResponseFilterWrapper::CreateOutputHandle(
 
 void ResponseFilterWrapper::OnSourceReadable(MojoResult,
                                              const mojo::HandleSignalsState&) {
-  const void* buffer = nullptr;
-  size_t read_bytes = 0;
-  MojoResult result = source_handle_->BeginReadData(&buffer, &read_bytes,
-                                                    MOJO_READ_DATA_FLAG_NONE);
+  base::span<const uint8_t> buffer;
+  MojoResult result =
+      source_handle_->BeginReadData(MOJO_READ_DATA_FLAG_NONE, buffer);
   if (result == MOJO_RESULT_SHOULD_WAIT) {
     source_watcher_.ArmOrNotify();
     return;
@@ -107,14 +107,15 @@ void ResponseFilterWrapper::OnSourceReadable(MojoResult,
     return;
   }
 
-  Filter(static_cast<const char*>(buffer), read_bytes);
+  base::span<const char> chars = base::as_chars(buffer);
+  Filter(chars.data(), chars.size());
   if (last_status_ == RESPONSE_FILTER_ERROR) {
     // Something went wrong.
     Drain(false);
     return;
   }
 
-  source_handle_->EndReadData(read_bytes);
+  source_handle_->EndReadData(buffer.size());
   source_watcher_.ArmOrNotify();
 }
 

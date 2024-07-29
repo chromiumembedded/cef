@@ -7,7 +7,6 @@
 #include "cef/libcef/browser/x509_cert_principal_impl.h"
 #include "cef/libcef/common/time_util.h"
 #include "net/cert/x509_util.h"
-#include "net/ssl/ssl_private_key.h"
 
 namespace {
 
@@ -27,10 +26,6 @@ CefRefPtr<CefBinaryValue> EncodeCertificate(const CRYPTO_BUFFER* cert_buffer,
 }
 
 }  // namespace
-
-CefX509CertificateImpl::CefX509CertificateImpl(
-    std::unique_ptr<net::ClientCertIdentity> identity)
-    : identity_(std::move(identity)), cert_(identity_->certificate()) {}
 
 CefX509CertificateImpl::CefX509CertificateImpl(
     scoped_refptr<net::X509Certificate> cert)
@@ -97,16 +92,6 @@ size_t CefX509CertificateImpl::GetIssuerChainSize() {
     return cert_->intermediate_buffers().size();
   }
   return 0;
-}
-
-void CefX509CertificateImpl::AcquirePrivateKey(
-    base::OnceCallback<void(scoped_refptr<net::SSLPrivateKey>)>
-        private_key_callback) {
-  if (identity_) {
-    identity_->AcquirePrivateKey(std::move(private_key_callback));
-  } else {
-    std::move(private_key_callback).Run(nullptr);
-  }
 }
 
 void CefX509CertificateImpl::GetEncodedIssuerChain(

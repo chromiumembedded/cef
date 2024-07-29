@@ -1,9 +1,9 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index 2628f1751cd14..cc2c330d8db5d 100644
+index 1becf94d357e9..9cb014e242917 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
-@@ -148,6 +148,10 @@
- #include "chrome/browser/safe_browsing/download_protection/download_protection_util.h"
+@@ -157,6 +157,10 @@
+ #include "chrome/browser/ash/policy/skyvault/skyvault_rename_handler.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -13,7 +13,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  using content::BrowserThread;
  using content::DownloadManager;
  using download::DownloadItem;
-@@ -492,6 +496,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
+@@ -513,6 +517,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
    download_dialog_bridge_ = std::make_unique<DownloadDialogBridge>();
    download_message_bridge_ = std::make_unique<DownloadMessageBridge>();
  #endif
@@ -25,7 +25,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  }
  
  ChromeDownloadManagerDelegate::~ChromeDownloadManagerDelegate() {
-@@ -551,6 +560,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
+@@ -572,6 +581,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
      download_manager_->RemoveObserver(this);
      download_manager_ = nullptr;
    }
@@ -35,7 +35,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
  }
  
  void ChromeDownloadManagerDelegate::OnDownloadCanceledAtShutdown(
-@@ -619,6 +631,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
+@@ -640,6 +652,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
      ReportPDFLoadStatus(PDFLoadStatus::kTriggeredNoGestureDriveByDownload);
    }
  
@@ -49,7 +49,7 @@ index 2628f1751cd14..cc2c330d8db5d 100644
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
 diff --git chrome/browser/download/chrome_download_manager_delegate.h chrome/browser/download/chrome_download_manager_delegate.h
-index af7f1d5fac12b..8cd591798ab61 100644
+index 2c99baa2c9fa8..b721db7058d8f 100644
 --- chrome/browser/download/chrome_download_manager_delegate.h
 +++ chrome/browser/download/chrome_download_manager_delegate.h
 @@ -19,6 +19,7 @@
@@ -73,7 +73,7 @@ index af7f1d5fac12b..8cd591798ab61 100644
  // This is the Chrome side helper for the download system.
  class ChromeDownloadManagerDelegate
      : public content::DownloadManagerDelegate,
-@@ -389,6 +396,10 @@ class ChromeDownloadManagerDelegate
+@@ -391,6 +398,10 @@ class ChromeDownloadManagerDelegate
    // Whether a file picker dialog is showing.
    bool is_file_picker_showing_;
  

@@ -23,15 +23,17 @@ void CefSyntheticGestureTargetOSR::DispatchWebTouchEventToPlatform(
 void CefSyntheticGestureTargetOSR::DispatchWebMouseWheelEventToPlatform(
     const blink::WebMouseWheelEvent& web_wheel,
     const ui::LatencyInfo& latency_info) {
-  render_widget_host()->ForwardWheelEventWithLatencyInfo(web_wheel,
-                                                         latency_info);
+  render_widget_host()
+      ->GetRenderInputRouter()
+      ->ForwardWheelEventWithLatencyInfo(web_wheel, latency_info);
 }
 
 void CefSyntheticGestureTargetOSR::DispatchWebGestureEventToPlatform(
     const blink::WebGestureEvent& web_gesture,
     const ui::LatencyInfo& latency_info) {
-  render_widget_host()->ForwardGestureEventWithLatencyInfo(web_gesture,
-                                                           latency_info);
+  render_widget_host()
+      ->GetRenderInputRouter()
+      ->ForwardGestureEventWithLatencyInfo(web_gesture, latency_info);
 }
 
 void CefSyntheticGestureTargetOSR::DispatchWebMouseEventToPlatform(

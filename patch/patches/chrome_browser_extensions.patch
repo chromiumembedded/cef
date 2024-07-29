@@ -34,7 +34,7 @@ index 4007e26f780c3..26d0d492cf176 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 73de5dd73a522..12005b67a6ee9 100644
+index 6e3aae787fc9d..67ea775042117 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1553,7 +1553,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -109,7 +109,7 @@ index 73de5dd73a522..12005b67a6ee9 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 46154f4501a36..81adec54cee06 100644
+index a6b36f62fe03c..215caeb8f1315 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -18,6 +18,7 @@
@@ -131,7 +131,7 @@ index 46154f4501a36..81adec54cee06 100644
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -763,6 +768,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -764,6 +769,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  
@@ -187,10 +187,10 @@ index 4ca4ecd147267..dc8a8d004a1d6 100644
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
 diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-index b9bca4946ef9f..41207ebb86045 100644
+index 427988cdc5b24..f448bb8dac9b4 100644
 --- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
 +++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-@@ -830,6 +830,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
+@@ -831,6 +831,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
    if (!gfx::Animation::ShouldRenderRichAnimation()) {
      return;
    }

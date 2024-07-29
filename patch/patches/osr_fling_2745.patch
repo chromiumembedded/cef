@@ -29,8 +29,20 @@ index 76057b3e50f78..d3b63a3b07805 100644
  };
  
  }  // namespace input
+diff --git components/input/render_input_router.h components/input/render_input_router.h
+index c9c40a06b7bac..9f85335522a55 100644
+--- components/input/render_input_router.h
++++ components/input/render_input_router.h
+@@ -66,6 +66,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
+ 
+   InputRouter* input_router() { return input_router_.get(); }
+   RenderInputRouterDelegate* delegate() { return delegate_; }
++  input::FlingSchedulerBase* fling_scheduler() { return fling_scheduler_.get(); }
+ 
+   void SetForceEnableZoom(bool);
+   void SetDeviceScaleFactor(float device_scale_factor);
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 57ef85cbfdfdf..758af3beffde6 100644
+index f1030a744809c..c222a209949e6 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -44,11 +56,11 @@ index 57ef85cbfdfdf..758af3beffde6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 7f2fdc026d61b..9d719020f971f 100644
+index 632d06f99f2cf..e192b005dc0d8 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3277,6 +3277,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
-       GetProcess(), bad_message::INPUT_ROUTER_INVALID_EVENT_SOURCE);
+@@ -3170,6 +3170,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+   }
  }
  
 +void RenderWidgetHostImpl::SetCompositorForFlingScheduler(
@@ -60,10 +72,10 @@ index 7f2fdc026d61b..9d719020f971f 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 3f0048bea5698..24936dc2b3154 100644
+index 6f4e44aba5c19..c447c5e9e653e 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -827,6 +827,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -830,6 +830,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
@@ -71,15 +83,3 @@ index 3f0048bea5698..24936dc2b3154 100644
  
    RenderWidgetHostViewBase* GetRenderWidgetHostViewBase();
  
-diff --git content/common/input/render_input_router.h content/common/input/render_input_router.h
-index 6b6267448dcac..e166401709885 100644
---- content/common/input/render_input_router.h
-+++ content/common/input/render_input_router.h
-@@ -62,6 +62,7 @@ class CONTENT_EXPORT RenderInputRouter : public InputRouterImplClient,
- 
-   InputRouter* input_router() { return input_router_.get(); }
-   RenderInputRouterDelegate* delegate() { return delegate_; }
-+  input::FlingSchedulerBase* fling_scheduler() { return fling_scheduler_.get(); }
- 
-   void SetForceEnableZoom(bool);
-   void SetDeviceScaleFactor(float device_scale_factor);

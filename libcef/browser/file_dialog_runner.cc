@@ -57,7 +57,6 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
                       int file_type_index,
                       const base::FilePath::StringType& default_extension,
                       gfx::NativeWindow owning_window,
-                      void* params,
                       const GURL* caller) override {
     // Try to determine the associated browser (with decreasing levels of
     // confidence).
@@ -100,7 +99,7 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
     if (!browser_) {
       LOG(ERROR)
           << "Failed to identify associated browser; canceling the file dialog";
-      listener_->FileSelectionCanceled(params);
+      listener_->FileSelectionCanceled();
       return;
     }
 
@@ -110,7 +109,7 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
 
     browser_->RunSelectFile(listener_, std::move(select_file_policy_), type,
                             title, default_path, file_types, file_type_index,
-                            default_extension, owning_window, params);
+                            default_extension, owning_window);
   }
 
   bool IsRunning(gfx::NativeWindow owning_window) const override {

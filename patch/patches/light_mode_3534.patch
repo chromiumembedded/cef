@@ -32,11 +32,11 @@ index 73d6ad5e9bb36..6c450e79c0f94 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 23d0611fdb2b5..81fd1055e926e 100644
+index a4fc1857349e4..65f620ac8e289 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -61,7 +61,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
-                               linux_ui_theme->GetNativeTheme()->system_theme());
+@@ -56,7 +56,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+     ui::CursorFactory::GetInstance()->ObserveThemeChanges();
    }
  #if defined(USE_DBUS)
 -  dark_mode_manager_ = std::make_unique<ui::DarkModeManagerLinux>();
@@ -48,10 +48,10 @@ index 23d0611fdb2b5..81fd1055e926e 100644
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index 0b765216c727f..d2c1e21e19b98 100644
+index d059f86ddad39..592b4d7903f15 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
-@@ -164,9 +164,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
+@@ -156,9 +156,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
    // have a light variant and aren't affected by the setting.  Because of this,
    // experimentally check if the theme is dark by checking if the window
    // background color is dark.
@@ -67,7 +67,7 @@ index 0b765216c727f..d2c1e21e19b98 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index f62df6eb7d12b..68f78b5e8bce0 100644
+index e32c556fcf464..3cd78b04b7dad 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -93,10 +93,10 @@ index f62df6eb7d12b..68f78b5e8bce0 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index fc32dfb0de44f..44ca8103247b1 100644
+index 0ec4f3d6d9d2c..6ba2631e9ef11 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -587,6 +587,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -595,6 +595,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  

@@ -131,6 +131,10 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
       const override {
     return {};
   }
+  std::optional<permissions::feature_params::PermissionElementPromptPosition>
+  GetPromptPosition() const override {
+    return std::nullopt;
+  }
   bool IsAskPrompt() const override { return true; }
 
  private:

@@ -1,5 +1,5 @@
 diff --git components/content_settings/renderer/content_settings_agent_impl.cc components/content_settings/renderer/content_settings_agent_impl.cc
-index 0cc2bfa06245f..86655f6746459 100644
+index fdc02b8b65544..825dba69168e3 100644
 --- components/content_settings/renderer/content_settings_agent_impl.cc
 +++ components/content_settings/renderer/content_settings_agent_impl.cc
 @@ -148,7 +148,7 @@ ContentSetting GetContentSettingFromRules(

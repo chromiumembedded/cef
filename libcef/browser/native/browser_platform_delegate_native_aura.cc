@@ -141,7 +141,7 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiClickEvent(
   DCHECK_GE(clickCount, 1);
 
   ui::EventType event_type =
-      mouseUp ? ui::ET_MOUSE_RELEASED : ui::ET_MOUSE_PRESSED;
+      mouseUp ? ui::EventType::kMouseReleased : ui::EventType::kMousePressed;
   gfx::PointF location(mouse_event.x, mouse_event.y);
   gfx::PointF root_location(GetScreenPoint(
       gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/false));
@@ -173,7 +173,7 @@ ui::MouseEvent CefBrowserPlatformDelegateNativeAura::TranslateUiMoveEvent(
     const CefMouseEvent& mouse_event,
     bool mouseLeave) const {
   ui::EventType event_type =
-      mouseLeave ? ui::ET_MOUSE_EXITED : ui::ET_MOUSE_MOVED;
+      mouseLeave ? ui::EventType::kMouseExited : ui::EventType::kMouseMoved;
   gfx::PointF location(mouse_event.x, mouse_event.y);
   gfx::PointF root_location(GetScreenPoint(
       gfx::Point(mouse_event.x, mouse_event.y), /*want_dip_coords=*/false));
@@ -194,7 +194,6 @@ ui::MouseWheelEvent CefBrowserPlatformDelegateNativeAura::TranslateUiWheelEvent(
     int deltaX,
     int deltaY) const {
   gfx::Vector2d offset(GetUiWheelEventOffset(deltaX, deltaY));
-  DCHECK(!offset.IsZero());
 
   gfx::PointF location(mouse_event.x, mouse_event.y);
   gfx::PointF root_location(GetScreenPoint(

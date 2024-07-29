@@ -52,13 +52,16 @@ class TouchSelectionController;
 
 namespace content {
 class BackingStore;
-class CursorManager;
 class DelegatedFrameHost;
 class DelegatedFrameHostClient;
 class RenderWidgetHost;
 class RenderWidgetHostImpl;
 class RenderWidgetHostViewGuest;
 }  // namespace content
+
+namespace input {
+class CursorManager;
+}
 
 class CefCopyFrameGenerator;
 class CefSoftwareOutputDeviceOSR;
@@ -164,7 +167,7 @@ class CefRenderWidgetHostViewOSR
   void RenderProcessGone() override;
   void Destroy() override;
   void UpdateTooltipUnderCursor(const std::u16string& tooltip_text) override;
-  content::CursorManager* GetCursorManager() override;
+  input::CursorManager* GetCursorManager() override;
   gfx::Size GetCompositorViewportPixelSize() override;
   void CopyFromSurface(
       const gfx::Rect& src_rect,
@@ -188,7 +191,7 @@ class CefRenderWidgetHostViewOSR
   CreateSyntheticGestureTarget() override;
   bool TransformPointToCoordSpaceForView(
       const gfx::PointF& point,
-      RenderWidgetHostViewInput* target_view,
+      input::RenderWidgetHostViewInput* target_view,
       gfx::PointF* transformed_point) override;
   void DidNavigate() override;
   void SelectionChanged(const std::u16string& text,
@@ -396,7 +399,7 @@ class CefRenderWidgetHostViewOSR
       parent_local_surface_id_allocator_;
   viz::ParentLocalSurfaceIdAllocator compositor_local_surface_id_allocator_;
 
-  std::unique_ptr<content::CursorManager> cursor_manager_;
+  std::unique_ptr<input::CursorManager> cursor_manager_;
 
   // Provides |source_id| for BeginFrameArgs that we create.
   viz::StubBeginFrameSource begin_frame_source_;

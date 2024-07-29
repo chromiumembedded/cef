@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 2902e374bb1a2..875924ff22c23 100644
+index 35e7fdec17819..c4734b7519f52 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 2902e374bb1a2..875924ff22c23 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -280,6 +281,10 @@ group("gn_all") {
+@@ -279,6 +280,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index e75651677c098..9288caaf195e1 100644
+index 274b4b40cbc2b..463d60597dda9 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -99,7 +99,7 @@ index e75651677c098..9288caaf195e1 100644
        sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
        deps += [ "//extensions:extensions_browser_resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 2f5fedb03bc6b..b3b7126aa0f42 100644
+index e8f61e2fbf6f2..5de226ad5a8f2 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")

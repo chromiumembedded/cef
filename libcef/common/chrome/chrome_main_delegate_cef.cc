@@ -118,7 +118,7 @@ void InitLogging(const base::CommandLine* command_line) {
 ChromeMainDelegateCef::ChromeMainDelegateCef(CefMainRunner* runner,
                                              CefSettings* settings,
                                              CefRefPtr<CefApp> application)
-    : ChromeMainDelegate(base::TimeTicks::Now()),
+    : ChromeMainDelegate({.exe_entry_point_ticks = base::TimeTicks::Now()}),
       runner_(runner),
       settings_(settings),
       application_(application) {

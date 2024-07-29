@@ -89,7 +89,7 @@ index db8209bbcc214..b50bce7fae5b5 100644
  HICON GetSmallAppIcon();
  
 diff --git chrome/common/chrome_constants.cc chrome/common/chrome_constants.cc
-index 064cb8fef1f1b..fa8e50f8681a0 100644
+index 6d49c77d98046..1c60eb15b4f65 100644
 --- chrome/common/chrome_constants.cc
 +++ chrome/common/chrome_constants.cc
 @@ -6,6 +6,7 @@
@@ -100,7 +100,7 @@ index 064cb8fef1f1b..fa8e50f8681a0 100644
  #include "chrome/common/chrome_version.h"
  
  #define FPL FILE_PATH_LITERAL
-@@ -100,7 +101,12 @@ const char kMacHelperSuffixAlerts[] = " (Alerts)";
+@@ -89,7 +90,12 @@ const char kMacHelperSuffixAlerts[] = " (Alerts)";
  #endif  // BUILDFLAG(IS_MAC)
  
  #if BUILDFLAG(IS_WIN)

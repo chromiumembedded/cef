@@ -22,6 +22,8 @@
 #include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"
 #include "cef/libcef/browser/osr/video_consumer_osr.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "components/input/cursor_manager.h"
+#include "components/input/render_widget_host_input_event_router.h"
 #include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
@@ -37,8 +39,6 @@
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/content_switches_internal.h"
-#include "content/common/input/cursor_manager.h"
-#include "content/common/input/render_widget_host_input_event_router.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -261,7 +261,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     render_widget_host_impl->SetCompositorForFlingScheduler(compositor_.get());
   }
 
-  cursor_manager_ = std::make_unique<content::CursorManager>(this);
+  cursor_manager_ = std::make_unique<input::CursorManager>(this);
 
   // This may result in a call to GetFrameSinkId().
   render_widget_host_->SetView(this);
@@ -660,7 +660,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(const ui::Cursor& cursor) {}
 
-content::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
+input::CursorManager* CefRenderWidgetHostViewOSR::GetCursorManager() {
   return cursor_manager_.get();
 }
 
@@ -961,7 +961,7 @@ CefRenderWidgetHostViewOSR::CreateSyntheticGestureTarget() {
 
 bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     const gfx::PointF& point,
-    RenderWidgetHostViewInput* target_view,
+    input::RenderWidgetHostViewInput* target_view,
     gfx::PointF* transformed_point) {
   if (target_view == this) {
     *transformed_point = point;
@@ -1203,13 +1203,7 @@ void CefRenderWidgetHostViewOSR::SendKeyEvent(
 
   if (target_host && target_host->GetView()) {
     // Direct routing requires that events go directly to the View.
-    target_host->ForwardKeyboardEventWithLatencyInfo(
-        event,
-        ui::LatencyInfo(event.GetType() == blink::WebInputEvent::Type::kChar ||
-                                event.GetType() ==
-                                    blink::WebInputEvent::Type::kRawKeyDown
-                            ? ui::SourceEventType::KEY_PRESS
-                            : ui::SourceEventType::OTHER));
+    target_host->ForwardKeyboardEventWithLatencyInfo(event, ui::LatencyInfo());
   }
 }
 
@@ -1272,11 +1266,10 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
       // forwards it to RenderWidgetTargeter::FindTargetAndDispatch as a const
       // reference, so const_cast here is safe.
       render_widget_host_->delegate()->GetInputEventRouter()->RouteMouseEvent(
-          this, const_cast<blink::WebMouseEvent*>(&event),
-          ui::LatencyInfo(ui::SourceEventType::OTHER));
+          this, const_cast<blink::WebMouseEvent*>(&event), ui::LatencyInfo());
     } else {
-      render_widget_host_->GetView()->ProcessMouseEvent(
-          event, ui::LatencyInfo(ui::SourceEventType::OTHER));
+      render_widget_host_->GetView()->ProcessMouseEvent(event,
+                                                        ui::LatencyInfo());
     }
   }
 }
@@ -1355,10 +1348,10 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
           ->GetInputEventRouter()
           ->RouteMouseWheelEvent(
               this, const_cast<blink::WebMouseWheelEvent*>(&mouse_wheel_event),
-              ui::LatencyInfo(ui::SourceEventType::WHEEL));
+              ui::LatencyInfo());
     } else {
-      render_widget_host_->GetView()->ProcessMouseWheelEvent(
-          mouse_wheel_event, ui::LatencyInfo(ui::SourceEventType::WHEEL));
+      render_widget_host_->GetView()->ProcessMouseWheelEvent(mouse_wheel_event,
+                                                             ui::LatencyInfo());
     }
   }
 }
@@ -1505,9 +1498,9 @@ void CefRenderWidgetHostViewOSR::ProcessAckedTouchEvent(
 
 void CefRenderWidgetHostViewOSR::OnGestureEvent(
     const ui::GestureEventData& gesture) {
-  if ((gesture.type() == ui::ET_GESTURE_PINCH_BEGIN ||
-       gesture.type() == ui::ET_GESTURE_PINCH_UPDATE ||
-       gesture.type() == ui::ET_GESTURE_PINCH_END) &&
+  if ((gesture.type() == ui::EventType::kGesturePinchBegin ||
+       gesture.type() == ui::EventType::kGesturePinchUpdate ||
+       gesture.type() == ui::EventType::kGesturePinchEnd) &&
       !pinch_zoom_enabled_) {
     return;
   }
@@ -1525,8 +1518,8 @@ void CefRenderWidgetHostViewOSR::OnGestureEvent(
     render_widget_host_->delegate()->GetInputEventRouter()->RouteGestureEvent(
         this, &web_event, latency_info);
   } else {
-    render_widget_host_->ForwardGestureEventWithLatencyInfo(web_event,
-                                                            latency_info);
+    render_widget_host_->GetRenderInputRouter()
+        ->ForwardGestureEventWithLatencyInfo(web_event, latency_info);
   }
 }
 

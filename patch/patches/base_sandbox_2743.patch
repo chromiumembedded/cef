@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 4ae52e5351615..272875eb5fe93 100644
+index 59f1502704eac..7e33aec70c24b 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index 4ae52e5351615..272875eb5fe93 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1510,7 +1511,11 @@ component("base") {
+@@ -1521,7 +1522,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 4ae52e5351615..272875eb5fe93 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1939,6 +1944,12 @@ component("base") {
+@@ -1950,6 +1955,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index 4ae52e5351615..272875eb5fe93 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 2c5dfc7870ce8..7ed12711289b4 100644
+index 3e47d1f5d35df..004eefac8bbf3 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -8,6 +8,7 @@
@@ -45,7 +45,7 @@ index 2c5dfc7870ce8..7ed12711289b4 100644
  #include "base/dcheck_is_on.h"
  #include "base/no_destructor.h"
 +#include "cef/libcef/features/features.h"
- #include "partition_alloc/partition_alloc_buildflags.h"
+ #include "partition_alloc/buildflags.h"
  #include "partition_alloc/shim/allocator_shim.h"
  
 @@ -33,7 +34,7 @@ struct Dispatcher::Impl {
@@ -87,6 +87,28 @@ index 857159d757637..63b5b396a00dd 100644
  #include "base/hash/sha1_nacl.h"
  #else
  #include "base/hash/sha1_boringssl.h"
+diff --git base/metrics/crc32.cc base/metrics/crc32.cc
+index 83e3cee2579ab..8238767ab9126 100644
+--- base/metrics/crc32.cc
++++ base/metrics/crc32.cc
+@@ -3,14 +3,15 @@
+ // found in the LICENSE file.
+ 
+ #include "base/metrics/crc32.h"
++#include "cef/libcef/features/features.h"
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if !BUILDFLAG(IS_NACL) && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ #include "third_party/zlib/zlib.h"
+ #endif  // !BUILDFLAG(IS_NACL)
+ 
+ namespace base {
+ 
+-#if !BUILDFLAG(IS_NACL)
++#if !BUILDFLAG(IS_NACL) && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
+ uint32_t Crc32(uint32_t sum, span<const uint8_t> data) {
+   if (data.empty()) {
+     return sum;
 diff --git base/rand_util.h base/rand_util.h
 index 746166bf75df7..7192a939e4fec 100644
 --- base/rand_util.h
@@ -112,23 +134,22 @@ index 746166bf75df7..7192a939e4fec 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 6961e0ef8153c..8863f4ed65ee8 100644
+index 9c2ae8389bfb2..e639a4d85b3dd 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -20,8 +20,12 @@
+@@ -20,7 +20,11 @@
  
  #include "base/check.h"
  #include "base/feature_list.h"
 +#include "cef/libcef/features/features.h"
 +
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
- #include "third_party/boringssl/src/include/openssl/crypto.h"
  #include "third_party/boringssl/src/include/openssl/rand.h"
 +#endif
  
  // Prototype for ProcessPrng.
  // See: https://learn.microsoft.com/en-us/windows/win32/seccng/processprng
-@@ -33,6 +37,7 @@ namespace base {
+@@ -32,6 +36,7 @@ namespace base {
  
  namespace internal {
  
@@ -136,7 +157,7 @@ index 6961e0ef8153c..8863f4ed65ee8 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -54,6 +59,10 @@ bool UseBoringSSLForRandBytes() {
+@@ -53,6 +58,10 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -147,15 +168,13 @@ index 6961e0ef8153c..8863f4ed65ee8 100644
  }  // namespace internal
  
  namespace {
-@@ -71,6 +80,7 @@ decltype(&ProcessPrng) GetProcessPrng() {
+@@ -70,11 +79,13 @@ decltype(&ProcessPrng) GetProcessPrng() {
  }
  
  void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
    if (!avoid_allocation && internal::UseBoringSSLForRandBytes()) {
-     // Ensure BoringSSL is initialized so it can use things like RDRAND.
-     CRYPTO_library_init();
-@@ -78,6 +88,7 @@ void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
+     // BoringSSL's RAND_bytes always returns 1. Any error aborts the program.
      (void)RAND_bytes(output.data(), output.size());
      return;
    }
@@ -164,10 +183,10 @@ index 6961e0ef8153c..8863f4ed65ee8 100644
    static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
    BOOL success =
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index 1f91a938caf55..e7b383ebe3986 100644
+index ea33ca66f384c..33f4cc76f76bd 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
-@@ -10,8 +10,9 @@
+@@ -11,8 +11,9 @@
  #include "base/format_macros.h"
  #include "base/rand_util.h"
  #include "build/build_config.h"
@@ -178,7 +197,7 @@ index 1f91a938caf55..e7b383ebe3986 100644
  #include "third_party/boringssl/src/include/openssl/mem.h"
  #endif
  
-@@ -57,7 +58,7 @@ std::optional<UnguessableToken> UnguessableToken::DeserializeFromString(
+@@ -58,7 +59,7 @@ std::optional<UnguessableToken> UnguessableToken::DeserializeFromString(
  }
  
  bool operator==(const UnguessableToken& lhs, const UnguessableToken& rhs) {
@@ -188,7 +207,7 @@ index 1f91a938caf55..e7b383ebe3986 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index dd063382d97e1..968dde0567c44 100644
+index 2f250ba9bf79d..8a269af206051 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
 @@ -22,6 +22,7 @@
@@ -199,28 +218,27 @@ index dd063382d97e1..968dde0567c44 100644
  #include "base/no_destructor.h"
  #include "base/rand_util.h"
  #include "base/ranges/algorithm.h"
-@@ -29,8 +30,12 @@
+@@ -29,7 +30,11 @@
  #include "base/win/scoped_handle.h"
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
 +#include "cef/libcef/features/features.h"
 +
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
- #include "third_party/boringssl/src/include/openssl/crypto.h"
  #include "third_party/boringssl/src/include/openssl/sha.h"
 +#endif
  
  namespace base::win {
  
-@@ -131,6 +136,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+@@ -130,6 +135,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
    if (known_cap != known_capabilities->end()) {
      return FromKnownCapability(known_cap->second);
    }
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-   CRYPTO_library_init();
    static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
                  SECURITY_APP_PACKAGE_RID_COUNT);
-@@ -143,6 +149,9 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
+   DWORD rids[(SHA256_DIGEST_LENGTH / sizeof(DWORD)) + 2];
+@@ -141,6 +147,9 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
           reinterpret_cast<uint8_t*>(&rids[2]));
    return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
                              rids);

@@ -24,10 +24,10 @@ index 9cac49288f3b1..3ee5ff8714824 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index fb079f3ad91c5..74658c47bf04f 100644
+index b420e7f14165f..83f09abff7173 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -197,7 +197,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
+@@ -195,7 +195,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
  bool FrameResources::Initialize() {
    auto* context = pool_->GetContext();
  
@@ -36,7 +36,7 @@ index fb079f3ad91c5..74658c47bf04f 100644
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
        gfx::BufferUsage::SCANOUT_VEA_CPU_READ
  #else
-@@ -211,13 +211,30 @@ bool FrameResources::Initialize() {
+@@ -209,13 +209,30 @@ bool FrameResources::Initialize() {
    const gfx::Size buffer_size_in_pixels =
        GetBufferSizeInPixelsForVideoPixelFormat(format_, coded_size_);
  

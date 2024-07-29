@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 8e1134654e2b1..d0f578b5f9976 100644
+index 98b23597fb61c..e476a9a86af35 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -635,6 +635,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -58,10 +58,10 @@ index 3f0be99e0e145..0462ebbe9bedc 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 613f34e4bc536..35096fc6f5f19 100644
+index f78c6a467befc..97f1d21218eed 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -340,14 +340,9 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -345,14 +345,9 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -80,10 +80,10 @@ index 613f34e4bc536..35096fc6f5f19 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 42d451bfe43e1..1a1cf67b38d27 100644
+index 5c20e5b79fa0d..e8c7a287f38f2 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2495,16 +2495,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2524,16 +2524,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -112,7 +112,7 @@ index 42d451bfe43e1..1a1cf67b38d27 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 5597a97f13cc0..c8524b7d971f0 100644
+index a618fd97fd4c5..623611337c7b7 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -359,6 +359,9 @@ struct NetworkContextParams {

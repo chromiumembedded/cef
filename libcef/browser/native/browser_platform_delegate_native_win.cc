@@ -440,14 +440,14 @@ ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
                                        key_code, dom_code, flags, time_stamp);
   }
 
-  ui::EventType type = ui::ET_UNKNOWN;
+  ui::EventType type = ui::EventType::kUnknown;
   switch (key_event.type) {
     case KEYEVENT_RAWKEYDOWN:
     case KEYEVENT_KEYDOWN:
-      type = ui::ET_KEY_PRESSED;
+      type = ui::EventType::kKeyPressed;
       break;
     case KEYEVENT_KEYUP:
-      type = ui::ET_KEY_RELEASED;
+      type = ui::EventType::kKeyReleased;
       break;
     default:
       DCHECK(false);

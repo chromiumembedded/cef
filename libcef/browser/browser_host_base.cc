@@ -1275,16 +1275,15 @@ void CefBrowserHostBase::RunSelectFile(
     const ui::SelectFileDialog::FileTypeInfo* file_types,
     int file_type_index,
     const base::FilePath::StringType& default_extension,
-    gfx::NativeWindow owning_window,
-    void* params) {
+    gfx::NativeWindow owning_window) {
   if (!EnsureFileDialogManager()) {
     LOG(ERROR) << "File dialog canceled due to invalid state.";
-    listener->FileSelectionCanceled(params);
+    listener->FileSelectionCanceled();
     return;
   }
   file_dialog_manager_->RunSelectFile(listener, std::move(policy), type, title,
                                       default_path, file_types, file_type_index,
-                                      default_extension, owning_window, params);
+                                      default_extension, owning_window);
 }
 
 void CefBrowserHostBase::SelectFileListenerDestroyed(

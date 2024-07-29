@@ -27,17 +27,6 @@
   # Files in the chromium/src directory that should be evaluated for changes.
   # Similar changes may need to be applied to the CEF source code.
   'files': [
-    'chrome/browser/browser_process.h',
-    'chrome/browser/extensions/api/tabs/tabs_api.*',
-    'chrome/browser/extensions/chrome_component_extension_resource_manager.*',
-    'chrome/browser/extensions/chrome_extension_web_contents_observer.*',
-    'chrome/browser/extensions/component_loader.*',
-    'chrome/browser/extensions/extension_service.*',
-    'chrome/browser/profiles/profile.h',
-    'chrome/browser/renderer_host/chrome_resource_dispatcher_host_delegate.*',
-    'chrome/common/extensions/api/*_features.json',
-    'chrome/renderer/chrome_content_renderer_client.*',
-    'chrome/renderer/extensions/chrome_extensions_renderer_client.*',
     'components/content_settings/core/common/content_settings_types.mojom',
     'components/permissions/request_type.h',
     'content/browser/renderer_host/render_widget_host_view_base.*',

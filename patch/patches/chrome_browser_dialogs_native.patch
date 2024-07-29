@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index b6e26d1d2e082..c84b890fa8a62 100644
+index b35b0303e723d..97d43a18a9bed 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -245,6 +245,13 @@ void FileSelectHelper::OnListFile(
@@ -115,7 +115,7 @@ index b6e26d1d2e082..c84b890fa8a62 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -547,6 +591,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -536,6 +580,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -124,7 +124,7 @@ index b6e26d1d2e082..c84b890fa8a62 100644
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 7194323c36956..fd4a5361798f0 100644
+index a89c6ae3ea21a..0533cec2752bb 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -62,7 +62,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -137,9 +137,9 @@ index 7194323c36956..fd4a5361798f0 100644
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -325,6 +326,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
-   // Set to false in unit tests since there is no WebContents.
-   bool abort_on_missing_web_contents_in_tests_ = true;
+@@ -330,6 +331,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+   bool has_notified_picture_in_picture_window_manager_of_open_dialog_ = false;
+ #endif  // !BUILDFLAG(IS_ANDROID)
  
 +  // Set to true if this dialog was triggered via CEF.
 +  bool run_from_cef_ = false;
@@ -160,63 +160,11 @@ index 49272553c7c53..5ba90c9a06ecf 100644
   private:
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
-diff --git ui/shell_dialogs/execute_select_file_win.cc ui/shell_dialogs/execute_select_file_win.cc
-index 5ef377bcbd69f..a2b9cc0b9be48 100644
---- ui/shell_dialogs/execute_select_file_win.cc
-+++ ui/shell_dialogs/execute_select_file_win.cc
-@@ -360,9 +360,7 @@ bool ExecuteSelectSingleFile(HWND owner,
-                              const std::vector<FileFilterSpec>& filter,
-                              int* filter_index,
-                              std::vector<base::FilePath>* paths) {
--  // Note: The title is not passed down for historical reasons.
--  // TODO(pmonette): Figure out if it's a worthwhile improvement.
--  return RunOpenFileDialog(owner, std::u16string(), std::u16string(),
-+  return RunOpenFileDialog(owner, title, std::u16string(),
-                            default_path, filter, 0, filter_index, paths);
- }
- 
-@@ -374,14 +372,13 @@ bool ExecuteSelectMultipleFile(HWND owner,
-                                std::vector<base::FilePath>* paths) {
-   DWORD dialog_options = FOS_ALLOWMULTISELECT;
- 
--  // Note: The title is not passed down for historical reasons.
--  // TODO(pmonette): Figure out if it's a worthwhile improvement.
--  return RunOpenFileDialog(owner, std::u16string(), std::u16string(),
-+  return RunOpenFileDialog(owner, title, std::u16string(),
-                            default_path, filter, dialog_options, filter_index,
-                            paths);
- }
- 
- bool ExecuteSaveFile(HWND owner,
-+                     const std::u16string& title,
-                      const base::FilePath& default_path,
-                      const std::vector<FileFilterSpec>& filter,
-                      const std::wstring& def_ext,
-@@ -394,9 +391,7 @@ bool ExecuteSaveFile(HWND owner,
- 
-   DWORD dialog_options = FOS_OVERWRITEPROMPT;
- 
--  // Note: The title is not passed down for historical reasons.
--  // TODO(pmonette): Figure out if it's a worthwhile improvement.
--  return RunSaveFileDialog(owner, std::u16string(), default_path, filter,
-+  return RunSaveFileDialog(owner, title, default_path, filter,
-                            dialog_options, def_ext, filter_index, path);
- }
- 
-@@ -421,7 +416,7 @@ void ExecuteSelectFile(
-       break;
-     case SelectFileDialog::SELECT_SAVEAS_FILE: {
-       base::FilePath path;
--      if (ExecuteSaveFile(owner, default_path, filter, default_extension,
-+      if (ExecuteSaveFile(owner, title, default_path, filter, default_extension,
-                           &file_type_index, &path)) {
-         paths.push_back(std::move(path));
-       }
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index 4a71b1d4535d9..722a9480681bd 100644
+index 1bc5ddb0ab802..053916ea1c998 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
-@@ -89,8 +89,10 @@ void SelectFileDialog::SetFactory(
+@@ -88,8 +88,10 @@ void SelectFileDialog::SetFactory(
  // static
  scoped_refptr<SelectFileDialog> SelectFileDialog::Create(
      Listener* listener,
@@ -230,11 +178,11 @@ index 4a71b1d4535d9..722a9480681bd 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index e71c14e499c25..3bc1e44b4c856 100644
+index ab916846f3776..70ac544ca6884 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
-@@ -102,7 +102,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
-   // is refcounted and uses a background thread.
+@@ -96,7 +96,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+   // listener when there are no calls to SelectFile() outstanding.
    static scoped_refptr<SelectFileDialog> Create(
        Listener* listener,
 -      std::unique_ptr<SelectFilePolicy> policy);
@@ -243,7 +191,7 @@ index e71c14e499c25..3bc1e44b4c856 100644
  
    SelectFileDialog(const SelectFileDialog&) = delete;
    SelectFileDialog& operator=(const SelectFileDialog&) = delete;
-@@ -136,6 +137,10 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -130,6 +131,10 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
      // FileTypeExtensions instead of this and the above vector?
      std::vector<std::u16string> extension_description_overrides;
  
@@ -254,7 +202,7 @@ index e71c14e499c25..3bc1e44b4c856 100644
      // Specifies whether there will be a filter added for all files (i.e. *.*).
      bool include_all_files = false;
  
-@@ -209,6 +214,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -220,6 +225,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
                    const GURL* caller = nullptr);
    bool HasMultipleFileTypeChoices();
  
@@ -274,7 +222,7 @@ index e71c14e499c25..3bc1e44b4c856 100644
   protected:
    friend class base::RefCountedThreadSafe<SelectFileDialog>;
  
-@@ -234,6 +252,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -244,6 +262,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
    raw_ptr<Listener> listener_;
  
@@ -286,7 +234,7 @@ index e71c14e499c25..3bc1e44b4c856 100644
   private:
    // Tests if the file selection dialog can be displayed by
    // testing if the AllowFileSelectionDialogs-Policy is
-@@ -246,8 +269,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -256,8 +279,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
  
    // Returns true if the dialog has multiple file type choices.
    virtual bool HasMultipleFileTypeChoicesImpl() = 0;
@@ -309,10 +257,10 @@ index c7acd9b05fbb8..3e95e4125fa24 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index abf5baa269fa2..b5e88a82537c1 100644
+index 72f687be6fb42..4fa78758dd4df 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
-@@ -107,6 +107,10 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -104,6 +104,10 @@ void SelectFileDialogImpl::SelectFileImpl(
      mojo_window->CreateSelectFileDialog(std::move(receiver));
    } else {
      NSWindow* ns_window = gfx_window.GetNativeNSWindow();
@@ -324,10 +272,10 @@ index abf5baa269fa2..b5e88a82537c1 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index 9200d30f8d58a..f4156db6a7a73 100644
+index ed343dc032789..a7105f4c78a1c 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
-@@ -254,6 +254,8 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -251,6 +251,8 @@ void SelectFileDialogImpl::SelectFileImpl(
    HWND owner = owning_window && owning_window->GetRootWindow()
                     ? owning_window->GetHost()->GetAcceleratedWidget()
                     : nullptr;

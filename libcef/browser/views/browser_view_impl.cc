@@ -24,7 +24,7 @@ namespace {
 std::optional<cef_gesture_command_t> GetGestureCommand(
     ui::GestureEvent* event) {
 #if BUILDFLAG(IS_MAC)
-  if (event->details().type() == ui::ET_GESTURE_SWIPE) {
+  if (event->details().type() == ui::EventType::kGestureSwipe) {
     if (event->details().swipe_left()) {
       return CEF_GESTURE_COMMAND_BACK;
     } else if (event->details().swipe_right()) {

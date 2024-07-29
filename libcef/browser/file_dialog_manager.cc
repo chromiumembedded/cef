@@ -203,9 +203,8 @@ class CefFileSelectListener : public content::FileSelectListener {
 class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
  public:
   CefSelectFileDialogListener(ui::SelectFileDialog::Listener* listener,
-                              void* params,
                               base::OnceClosure callback)
-      : listener_(listener), params_(params), callback_(std::move(callback)) {}
+      : listener_(listener), callback_(std::move(callback)) {}
 
   CefSelectFileDialogListener(const CefSelectFileDialogListener&) = delete;
   CefSelectFileDialogListener& operator=(const CefSelectFileDialogListener&) =
@@ -220,7 +219,7 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
       // Don't execute the listener.
       Destroy();
     } else {
-      FileSelectionCanceled(params_);
+      FileSelectionCanceled();
     }
   }
 
@@ -229,27 +228,22 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
  private:
   ~CefSelectFileDialogListener() override = default;
 
-  void FileSelected(const ui::SelectedFileInfo& file,
-                    int index,
-                    void* params) override {
-    DCHECK_EQ(params, params_);
+  void FileSelected(const ui::SelectedFileInfo& file, int index) override {
     executing_ = true;
-    listener_.ExtractAsDangling()->FileSelected(file, index, params);
+    listener_.ExtractAsDangling()->FileSelected(file, index);
     Destroy();
   }
 
-  void MultiFilesSelected(const std::vector<ui::SelectedFileInfo>& files,
-                          void* params) override {
-    DCHECK_EQ(params, params_);
+  void MultiFilesSelected(
+      const std::vector<ui::SelectedFileInfo>& files) override {
     executing_ = true;
-    listener_.ExtractAsDangling()->MultiFilesSelected(files, params);
+    listener_.ExtractAsDangling()->MultiFilesSelected(files);
     Destroy();
   }
 
-  void FileSelectionCanceled(void* params) override {
-    DCHECK_EQ(params, params_);
+  void FileSelectionCanceled() override {
     executing_ = true;
-    listener_.ExtractAsDangling()->FileSelectionCanceled(params);
+    listener_.ExtractAsDangling()->FileSelectionCanceled();
     Destroy();
   }
 
@@ -259,7 +253,6 @@ class CefSelectFileDialogListener : public ui::SelectFileDialog::Listener {
   }
 
   raw_ptr<ui::SelectFileDialog::Listener> listener_;
-  const raw_ptr<void> params_;
   base::OnceClosure callback_;
 
   // Used to avoid re-entrancy from Cancel().
@@ -378,18 +371,16 @@ void CefFileDialogManager::RunSelectFile(
     const ui::SelectFileDialog::FileTypeInfo* file_types,
     int file_type_index,
     const base::FilePath::StringType& default_extension,
-    gfx::NativeWindow owning_window,
-    void* params) {
+    gfx::NativeWindow owning_window) {
   CEF_REQUIRE_UIT();
 
   active_listeners_.insert(listener);
 
   auto chooser_params =
       SelectFileToFileChooserParams(type, title, default_path, file_types);
-  auto callback =
-      base::BindOnce(&CefFileDialogManager::SelectFileDoneByDelegateCallback,
-                     weak_ptr_factory_.GetWeakPtr(),
-                     base::UnsafeDangling(listener), base::Unretained(params));
+  auto callback = base::BindOnce(
+      &CefFileDialogManager::SelectFileDoneByDelegateCallback,
+      weak_ptr_factory_.GetWeakPtr(), base::UnsafeDangling(listener));
   callback = MaybeRunDelegate(chooser_params, file_types->extensions,
                               file_types->extension_description_overrides,
                               std::move(callback));
@@ -423,7 +414,7 @@ void CefFileDialogManager::RunSelectFile(
 
   // This object will delete itself.
   dialog_listener_ = new CefSelectFileDialogListener(
-      listener, params,
+      listener,
       base::BindOnce(&CefFileDialogManager::SelectFileDoneByListenerCallback,
                      weak_ptr_factory_.GetWeakPtr(),
                      base::UnsafeDangling(listener),
@@ -442,7 +433,7 @@ void CefFileDialogManager::RunSelectFile(
   }
 
   dialog_->SelectFile(type, title, default_path, file_types, file_type_index,
-                      default_extension, owning_window, params);
+                      default_extension, owning_window);
 }
 
 void CefFileDialogManager::SelectFileListenerDestroyed(
@@ -549,7 +540,6 @@ CefFileDialogManager::MaybeRunDelegate(
 
 void CefFileDialogManager::SelectFileDoneByDelegateCallback(
     MayBeDangling<ui::SelectFileDialog::Listener> listener,
-    void* params,
     const std::vector<base::FilePath>& paths) {
   CEF_REQUIRE_UIT();
 
@@ -562,12 +552,11 @@ void CefFileDialogManager::SelectFileDoneByDelegateCallback(
   active_listeners_.erase(listener.get());
 
   if (paths.empty()) {
-    listener->FileSelectionCanceled(params);
+    listener->FileSelectionCanceled();
   } else if (paths.size() == 1) {
-    listener->FileSelected(ui::SelectedFileInfo(paths[0]), /*index=*/0, params);
+    listener->FileSelected(ui::SelectedFileInfo(paths[0]), /*index=*/0);
   } else {
-    listener->MultiFilesSelected(ui::FilePathListToSelectedFileInfoList(paths),
-                                 params);
+    listener->MultiFilesSelected(ui::FilePathListToSelectedFileInfoList(paths));
   }
   // |listener| is likely deleted at this point.
 }

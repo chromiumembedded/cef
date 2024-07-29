@@ -524,7 +524,7 @@ const mojo::Remote<cef::mojom::BrowserFrame>& CefFrameImpl::GetBrowserFrame(
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);
     if (render_frame) {
       // Triggers creation of a CefBrowserFrame in the browser process.
-      render_frame->GetBrowserInterfaceBroker()->GetInterface(
+      render_frame->GetBrowserInterfaceBroker().GetInterface(
           browser_frame_.BindNewPipeAndPassReceiver());
       browser_frame_.set_disconnect_with_reason_handler(
           base::BindOnce(&CefFrameImpl::OnBrowserFrameDisconnect, this));

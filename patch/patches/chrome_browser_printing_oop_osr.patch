@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_backend_service_manager.cc chrome/browser/printing/print_backend_service_manager.cc
-index a79694f7bdcc2..ec42dd0dc5ba2 100644
+index aef82204869ce..b30d275c97ade 100644
 --- chrome/browser/printing/print_backend_service_manager.cc
 +++ chrome/browser/printing/print_backend_service_manager.cc
-@@ -74,7 +74,15 @@ PrintBackendServiceManager* g_print_backend_service_manager_singleton = nullptr;
+@@ -75,7 +75,15 @@ PrintBackendServiceManager* g_print_backend_service_manager_singleton = nullptr;
  // to support modal dialogs from OOP.
  uint32_t NativeViewToUint(gfx::NativeView view) {
  #if BUILDFLAG(IS_WIN)

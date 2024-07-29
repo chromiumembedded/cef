@@ -1328,8 +1328,9 @@ make_pack_header("strings") {
     "$root_gen_dir/components/strings/grit/components_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
     "$root_gen_dir/services/strings/grit/services_strings.h",
-    "$root_gen_dir/third_party/blink/public/strings/grit/blink_accessibility_strings.h",
     "$root_gen_dir/third_party/blink/public/strings/grit/blink_strings.h",
+    "$root_gen_dir/ui/strings/grit/app_locale_settings.h",
+    "$root_gen_dir/ui/strings/grit/auto_image_annotation_strings.h",
     "$root_gen_dir/ui/strings/grit/ui_strings.h",
   ]
 
@@ -1346,8 +1347,8 @@ make_pack_header("strings") {
     "//extensions/strings",
     "//services/strings",
     "//third_party/blink/public/strings",
-    "//third_party/blink/public/strings:accessibility_strings",
     "//ui/strings:app_locale_settings",
+    "//ui/strings:auto_image_annotation_strings",
     "//ui/strings:ui_strings",
   ]
 }
@@ -1471,50 +1472,32 @@ if (is_mac) {
     ]
   }
 
-  if (use_egl) {
-    # Add the ANGLE .dylibs in the MODULE_DIR of the Framework app bundle.
-    bundle_data("cef_framework_angle_binaries") {
-      sources = [
-        "$root_out_dir/egl_intermediates/libEGL.dylib",
-        "$root_out_dir/egl_intermediates/libGLESv2.dylib",
-      ]
-      outputs = [
-        "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
-      ]
-      public_deps = [
-        "//ui/gl:angle_library_copy",
-      ]
-    }
-
-    # Add the SwiftShader .dylibs in the MODULE_DIR of the Framework app bundle.
-    bundle_data("cef_framework_swiftshader_binaries") {
-      sources = [
-        "$root_out_dir/vk_intermediates/libvk_swiftshader.dylib",
-        "$root_out_dir/vk_intermediates/vk_swiftshader_icd.json",
-      ]
-      outputs = [
-        "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
-      ]
-      public_deps = [
-        "//ui/gl:swiftshader_vk_library_copy",
-      ]
-    }
+  # Add the ANGLE .dylibs in the MODULE_DIR of the Framework app bundle.
+  bundle_data("cef_framework_angle_binaries") {
+    sources = [
+      "$root_out_dir/egl_intermediates/libEGL.dylib",
+      "$root_out_dir/egl_intermediates/libGLESv2.dylib",
+    ]
+    outputs = [
+      "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+    ]
+    public_deps = [
+      "//ui/gl:angle_library_copy",
+    ]
   }
 
-  group("cef_framework_angle_library") {
-    if (use_egl) {
-      deps = [
-        ":cef_framework_angle_binaries",
-      ]
-    }
-  }
-
-  group("cef_framework_swiftshader_library") {
-    if (use_egl) {
-      deps = [
-        ":cef_framework_swiftshader_binaries",
-      ]
-    }
+  # Add the SwiftShader .dylibs in the MODULE_DIR of the Framework app bundle.
+  bundle_data("cef_framework_swiftshader_binaries") {
+    sources = [
+      "$root_out_dir/vk_intermediates/libvk_swiftshader.dylib",
+      "$root_out_dir/vk_intermediates/vk_swiftshader_icd.json",
+    ]
+    outputs = [
+      "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+    ]
+    public_deps = [
+      "//ui/gl:swiftshader_vk_library_copy",
+    ]
   }
 
   mac_framework_bundle("cef_framework") {
@@ -1538,9 +1521,9 @@ if (is_mac) {
               gypi_paths.autogen_library_side
 
     deps = [
-      ":cef_framework_angle_library",
+      ":cef_framework_angle_binaries",
       ":cef_framework_resources",
-      ":cef_framework_swiftshader_library",
+      ":cef_framework_swiftshader_binaries",
       ":libcef_static",
       ":libcef_test_support",
     ]

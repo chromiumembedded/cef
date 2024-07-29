@@ -61,7 +61,6 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void SetOverscrollControllerEnabled(bool enabled) override {}
   void OnCapturerCountChanged() override {}
   void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override {}
-  void TransferDragSecurityInfo(content::WebContentsView* view) override {}
   content::BackForwardTransitionAnimationManager*
   GetBackForwardTransitionAnimationManager() override {
     return nullptr;

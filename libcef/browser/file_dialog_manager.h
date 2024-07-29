@@ -66,8 +66,7 @@ class CefFileDialogManager {
                      const ui::SelectFileDialog::FileTypeInfo* file_types,
                      int file_type_index,
                      const base::FilePath::StringType& default_extension,
-                     gfx::NativeWindow owning_window,
-                     void* params);
+                     gfx::NativeWindow owning_window);
 
   // Must be called when the |listener| passed to RunSelectFile is destroyed.
   void SelectFileListenerDestroyed(ui::SelectFileDialog::Listener* listener);
@@ -83,7 +82,6 @@ class CefFileDialogManager {
 
   void SelectFileDoneByDelegateCallback(
       MayBeDangling<ui::SelectFileDialog::Listener> listener,
-      void* params,
       const std::vector<base::FilePath>& paths);
   void SelectFileDoneByListenerCallback(
       MayBeDangling<ui::SelectFileDialog::Listener> listener,
