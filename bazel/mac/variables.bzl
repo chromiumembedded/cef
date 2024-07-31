@@ -24,7 +24,7 @@ COMMON_LINKOPTS_RELEASE = [
 COMMON_LINKOPTS = [
     "-framework {}".format(lib) for lib in STANDARD_FRAMEWORKS
 ]  + select({
-    "//:macos_dbg": COMMON_LINKOPTS_DEBUG,
+    "@cef//:macos_dbg": COMMON_LINKOPTS_DEBUG,
     "//conditions:default": COMMON_LINKOPTS_RELEASE,
 })
 
