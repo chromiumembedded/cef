@@ -75,47 +75,47 @@ selects.config_setting_group(
 
 selects.config_setting_group(
     name = "windows_dbg",
-    match_all = ["@platforms//os:windows", ":dbg"],
+    match_all = ["@platforms//os:windows", "@cef//:dbg"],
 )
 
 selects.config_setting_group(
     name = "windows_fastbuild",
-    match_all = ["@platforms//os:windows", ":fastbuild"],
+    match_all = ["@platforms//os:windows", "@cef//:fastbuild"],
 )
 
 selects.config_setting_group(
     name = "windows_opt",
-    match_all = ["@platforms//os:windows", ":opt"],
+    match_all = ["@platforms//os:windows", "@cef//:opt"],
 )
 
 selects.config_setting_group(
     name = "linux_dbg",
-    match_all = ["@platforms//os:linux", ":dbg"],
+    match_all = ["@platforms//os:linux", "@cef//:dbg"],
 )
 
 selects.config_setting_group(
     name = "linux_fastbuild",
-    match_all = ["@platforms//os:linux", ":fastbuild"],
+    match_all = ["@platforms//os:linux", "@cef//:fastbuild"],
 )
 
 selects.config_setting_group(
     name = "linux_opt",
-    match_all = ["@platforms//os:linux", ":opt"],
+    match_all = ["@platforms//os:linux", "@cef//:opt"],
 )
 
 selects.config_setting_group(
     name = "macos_dbg",
-    match_all = ["@platforms//os:macos", ":dbg"],
+    match_all = ["@platforms//os:macos", "@cef//:dbg"],
 )
 
 selects.config_setting_group(
     name = "macos_fastbuild",
-    match_all = ["@platforms//os:macos", ":fastbuild"],
+    match_all = ["@platforms//os:macos", "@cef//:fastbuild"],
 )
 
 selects.config_setting_group(
     name = "macos_opt",
-    match_all = ["@platforms//os:macos", ":opt"],
+    match_all = ["@platforms//os:macos", "@cef//:opt"],
 )
 
 #
@@ -165,15 +165,15 @@ cc_library(
         "@platforms//os:macos": MAC_COMMON_COPTS,
         "//conditions:default": None,
     }) + select({
-        ":windows_opt": WIN_COMMON_COPTS_RELEASE,
-        ":windows_dbg": WIN_COMMON_COPTS_DEBUG,
-        ":windows_fastbuild": WIN_COMMON_COPTS_RELEASE,
-        ":linux_opt": LINUX_COMMON_COPTS_RELEASE,
-        ":linux_dbg": LINUX_COMMON_COPTS_DEBUG,
-        ":linux_fastbuild": LINUX_COMMON_COPTS_RELEASE,
-        ":macos_opt": MAC_COMMON_COPTS_RELEASE,
-        ":macos_dbg": MAC_COMMON_COPTS_DEBUG,
-        ":macos_fastbuild": MAC_COMMON_COPTS_RELEASE,
+        "@cef//:windows_opt": WIN_COMMON_COPTS_RELEASE,
+        "@cef//:windows_dbg": WIN_COMMON_COPTS_DEBUG,
+        "@cef//:windows_fastbuild": WIN_COMMON_COPTS_RELEASE,
+        "@cef//:linux_opt": LINUX_COMMON_COPTS_RELEASE,
+        "@cef//:linux_dbg": LINUX_COMMON_COPTS_DEBUG,
+        "@cef//:linux_fastbuild": LINUX_COMMON_COPTS_RELEASE,
+        "@cef//:macos_opt": MAC_COMMON_COPTS_RELEASE,
+        "@cef//:macos_dbg": MAC_COMMON_COPTS_DEBUG,
+        "@cef//:macos_fastbuild": MAC_COMMON_COPTS_RELEASE,
         "//conditions:default": None,
     }),
     defines = [
@@ -184,15 +184,15 @@ cc_library(
         "@platforms//os:macos": MAC_COMMON_DEFINES,
         "//conditions:default": None,
     }) + select({
-        ":windows_opt": WIN_COMMON_DEFINES_RELEASE,
-        ":windows_dbg": WIN_COMMON_DEFINES_DEBUG,
-        ":windows_fastbuild": WIN_COMMON_DEFINES_RELEASE,
-        ":linux_opt": LINUX_COMMON_DEFINES_RELEASE,
-        ":linux_dbg": LINUX_COMMON_DEFINES_DEBUG,
-        ":linux_fastbuild": LINUX_COMMON_DEFINES_RELEASE,
-        ":macos_opt": MAC_COMMON_DEFINES_RELEASE,
-        ":macos_dbg": MAC_COMMON_DEFINES_DEBUG,
-        ":macos_fastbuild": MAC_COMMON_DEFINES_RELEASE,
+        "@cef//:windows_opt": WIN_COMMON_DEFINES_RELEASE,
+        "@cef//:windows_dbg": WIN_COMMON_DEFINES_DEBUG,
+        "@cef//:windows_fastbuild": WIN_COMMON_DEFINES_RELEASE,
+        "@cef//:linux_opt": LINUX_COMMON_DEFINES_RELEASE,
+        "@cef//:linux_dbg": LINUX_COMMON_DEFINES_DEBUG,
+        "@cef//:linux_fastbuild": LINUX_COMMON_DEFINES_RELEASE,
+        "@cef//:macos_opt": MAC_COMMON_DEFINES_RELEASE,
+        "@cef//:macos_dbg": MAC_COMMON_DEFINES_DEBUG,
+        "@cef//:macos_fastbuild": MAC_COMMON_DEFINES_RELEASE,
         "//conditions:default": None,
     }),
     deps = [":cef_wrapper_headers"] +
@@ -238,8 +238,8 @@ cc_import(
 alias(
     name = "cef_sandbox",
     actual = select({
-        "//:dbg": ":cef_sandbox_debug",
-        "//conditions:default": ":cef_sandbox_release",
+        "@cef//:dbg": "@cef//:cef_sandbox_debug",
+        "//conditions:default": "@cef//:cef_sandbox_release",
     }),
 )
 
@@ -247,7 +247,7 @@ filegroup(
     name = "dlls_opt",
     srcs = ["Release/{}".format(name) for name in WIN_DLLS] +
         select({
-            "//:windows_64": ["Release/{}".format(name) for name in WIN_DLLS_X64],
+            "@cef//:windows_64": ["Release/{}".format(name) for name in WIN_DLLS_X64],
             "//conditions:default": None,
         }),
 )
@@ -256,7 +256,7 @@ filegroup(
     name = "dlls_dbg",
     srcs = ["Debug/{}".format(name) for name in WIN_DLLS] +
         select({
-            "//:windows_64": ["Debug/{}".format(name) for name in WIN_DLLS_X64],
+            "@cef//:windows_64": ["Debug/{}".format(name) for name in WIN_DLLS_X64],
             "//conditions:default": None,
         }),
 )
@@ -264,8 +264,8 @@ filegroup(
 alias(
     name = "dlls",
     actual = select({
-        "//:dbg": ":dlls_dbg",
-        "//conditions:default": ":dlls_opt",
+        "@cef//:dbg": "@cef//:dlls_dbg",
+        "//conditions:default": "@cef//:dlls_opt",
     })
 )
 
@@ -282,8 +282,8 @@ filegroup(
 alias(
     name = "sos",
     actual = select({
-        "//:dbg": ":sos_dbg",
-        "//conditions:default": ":sos_opt",
+        "@cef//:dbg": "@cef//:sos_dbg",
+        "//conditions:default": "@cef//:sos_opt",
     })
 )
 
@@ -300,7 +300,7 @@ filegroup(
         "Release/snapshot_blob.bin",
         "Release/v8_context_snapshot.bin",
         "Release/vk_swiftshader_icd.json",
-        ":resources_common",
+        "@cef//:resources_common",
     ],
 )
 
@@ -310,15 +310,15 @@ filegroup(
         "Debug/snapshot_blob.bin",
         "Debug/v8_context_snapshot.bin",
         "Debug/vk_swiftshader_icd.json",
-        ":resources_common",
+        "@cef//:resources_common",
     ],
 )
 
 alias(
     name = "resources",
     actual = select({
-        "//:opt": ":resources_opt",
-        "//conditions:default": ":resources_dbg",
+        "@cef//:opt": "@cef//:resources_opt",
+        "//conditions:default": "@cef//:resources_dbg",
     })
 )
 
@@ -352,15 +352,15 @@ cc_import(
 alias(
     name = "cef",
     actual = select({
-        "//:dbg": ":cef_dbg",
-        "//conditions:default": ":cef_opt",
+        "@cef//:dbg": "@cef//:cef_dbg",
+        "//conditions:default": "@cef//:cef_opt",
     }),
 )
 
 apple_dynamic_framework_import(
     name = "cef_framework",
     framework_imports = select({
-        "//:dbg": glob(["Debug/{}.framework/**".format(CEF_FRAMEWORK_NAME)]),
+        "@cef//:dbg": glob(["Debug/{}.framework/**".format(CEF_FRAMEWORK_NAME)]),
         "//conditions:default": glob(["Release/{}.framework/**".format(CEF_FRAMEWORK_NAME)]),
     }),
 )

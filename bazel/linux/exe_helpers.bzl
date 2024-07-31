@@ -15,8 +15,8 @@ def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], defines=[], data=
     copy_filegroups(
         name = copy_target,
         filegroups = [
-            "//:sos",
-            "//:resources",
+            "@cef//:sos",
+            "@cef//:resources",
         ],
         remove_prefixes = [
             "Debug",
@@ -31,13 +31,13 @@ def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], defines=[], data=
         name = binary_target,
         srcs = srcs,
         deps = [
-            "//:cef_wrapper",
-            "//:cef",
-            "//:cef_sandbox",
+            "@cef//:cef_wrapper",
+            "@cef//:cef",
+            "@cef//:cef_sandbox",
         ] + deps,
         linkopts = COMMON_LINKOPTS + linkopts,
         copts = select({
-            "//:linux_dbg": COMMON_COPTS_DEBUG,
+            "@cef//:linux_dbg": COMMON_COPTS_DEBUG,
             "//conditions:default": COMMON_COPTS_RELEASE,
         }) + COMMON_COPTS + copts,
         defines = defines,
