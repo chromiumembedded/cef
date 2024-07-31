@@ -32,7 +32,7 @@ COMMON_LINKOPTS_RELEASE = [
 COMMON_LINKOPTS = [
     "-l{}".format(lib) for lib in STANDARD_LIBS
 ]  + select({
-    "//:linux_dbg": COMMON_LINKOPTS_DEBUG,
+    "@cef//:linux_dbg": COMMON_LINKOPTS_DEBUG,
     "//conditions:default": COMMON_LINKOPTS_RELEASE,
 })
 

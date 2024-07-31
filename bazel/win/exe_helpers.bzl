@@ -28,8 +28,8 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
     copy_filegroups(
         name = copy_target,
         filegroups = [
-            "//:dlls",
-            "//:resources",
+            "@cef//:dlls",
+            "@cef//:resources",
         ],
         remove_prefixes = [
             "Debug",
@@ -44,15 +44,15 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
         name = binary_target,
         srcs = srcs,
         deps = [
-            "//:cef_wrapper",
-            "//:cef",
-            "//:cef_sandbox",
+            "@cef//:cef_wrapper",
+            "@cef//:cef",
+            "@cef//:cef_sandbox",
         ] + deps,
         linkopts = [
             "$(location :{})".format(res_target),
         ] + COMMON_LINKOPTS + linkopts,
         copts = select({
-            "//:windows_dbg": COMMON_COPTS_DEBUG,
+            "@cef//:windows_dbg": COMMON_COPTS_DEBUG,
             "//conditions:default": COMMON_COPTS_RELEASE,
         }) + COMMON_COPTS + copts,
         defines = defines,

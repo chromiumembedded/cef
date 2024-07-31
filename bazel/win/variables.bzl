@@ -133,11 +133,11 @@ COMMON_LINKOPTS = [
     # can only control through this setting. The main thread (in 32-bit builds
     # only) uses fibers to switch to a 4MiB stack at runtime via
     # CefRunWinMainWithPreferredStackSize().
-    "//:windows_32": ["/STACK:0x80000"],
+    "@cef//:windows_32": ["/STACK:0x80000"],
     # Increase the initial stack size to 8MiB from the default 1MiB.
     "//conditions:default": ["/STACK:0x800000"],
 }) + select({
-    "//:windows_dbg": COMMON_LINKOPTS_DEBUG,
+    "@cef//:windows_dbg": COMMON_LINKOPTS_DEBUG,
     "//conditions:default": COMMON_LINKOPTS_RELEASE,
 })
 

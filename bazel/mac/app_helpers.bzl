@@ -26,7 +26,7 @@ def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix)
         out = "{}Info.plist".format(helper_base_name),
         substitutions = {
             "${EXECUTABLE_NAME}": helper_name,
-            "${PRODUCT_NAME}": helper_name,
+            "${PRODUCT_NAME}": name,
             "${BUNDLE_ID_SUFFIX}": bundle_id_suffix,
             "${VERSION_SHORT}": VERSION_PLIST,
             "${VERSION_LONG}": VERSION_PLIST,
@@ -41,7 +41,7 @@ def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix)
         infoplists = [":{}_InfoPList".format(helper_base_name)],
         minimum_os_version = MACOS_DEPLOYMENT_TARGET,
         deps = [
-            "//:cef_sandbox",
+            "@cef//:cef_sandbox",
         ] + deps,
     )
 
@@ -65,7 +65,7 @@ def declare_all_helper_apps(name, info_plist, deps):
         helper_suffix = v,
     ) for h, v in HELPERS.items()]
 
-def declare_main_app(name, info_plist, deps, linkopts, resources):
+def declare_main_app(name, info_plist, deps, resources, linkopts=[]):
     """
     Creates the main .app target.
     """
@@ -103,6 +103,6 @@ def declare_main_app(name, info_plist, deps, linkopts, resources):
             "@platforms//os:macos",
         ],
         deps = [
-            "//:cef_framework",
+            "@cef//:cef_framework",
         ] + deps,
     )
