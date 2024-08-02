@@ -173,7 +173,7 @@ index c54ec37e56ad7..fda899ec278ef 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 681fe10f28260..89da7d87b306b 100644
+index 5513b0d21ea63..0c8291992f194 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -271,6 +271,25 @@

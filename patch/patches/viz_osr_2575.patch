@@ -150,7 +150,7 @@ index 796ae2688436e..37a3406790210 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index b9ad5c8cbeb5b..05ab69062b3b2 100644
+index 2ea7347d2abe0..ab412fabe399b 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -390,8 +390,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
