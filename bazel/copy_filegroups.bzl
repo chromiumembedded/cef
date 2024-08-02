@@ -10,12 +10,16 @@ def _copy_filegroups_impl(ctx):
     outputs = []
     for f in inputs:
         relative_path = f.path
+        if relative_path.startswith("external/"):
+          # Remove the "external/<repo>" component, if any.
+          relative_path = "/".join(relative_path.split("/")[2:])
+
         for prefix in remove_prefixes:
             # Add trailing forward slash if necessary.
             if prefix[-1] != "/":
                 prefix += "/"
-            if len(prefix) > 0 and f.path.startswith(prefix):
-                relative_path = f.path[len(prefix):]
+            if len(prefix) > 0 and relative_path.startswith(prefix):
+                relative_path = relative_path[len(prefix):]
                 break
 
         if len(add_prefix) > 0:

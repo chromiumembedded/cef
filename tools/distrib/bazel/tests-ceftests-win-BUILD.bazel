@@ -45,10 +45,12 @@ declare_exe(
         "{}.exe.manifest".format(PRODUCT_NAME),
     ],
     resources_srcs = [
-        "{}:ResourceH".format(PKG_NAME),
         "{}.ico".format(PRODUCT_NAME),
         "small.ico",
         "//tests/shared:Resources",
+    ],
+    resources_deps = [
+        "{}:ResourceH".format(PKG_NAME),
     ],
     linkopts = [
         "/SUBSYSTEM:CONSOLE",
