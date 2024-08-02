@@ -66,10 +66,10 @@ cc_library(
 # Windows targets.
 #
 
-# Allow access from the declare_exe target.
-filegroup(
+# Allow access to resource.h from the declare_exe target.
+cc_library(
     name = "ResourceH",
-    srcs = [
+    hdrs = [
         "resource.h"
     ]
 )
