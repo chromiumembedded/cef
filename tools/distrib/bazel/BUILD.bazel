@@ -201,6 +201,8 @@ cc_library(
                "@platforms//os:windows": [":cef"],
                "//conditions:default": None,
            }),
+    # Support <angled> includes.
+    includes = ["./"],
 )
 
 # Only available on MacOS/Windows.
