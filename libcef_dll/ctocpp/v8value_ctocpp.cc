@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=856fc6c190d0e3376824564155618e468764e841$
+// $hash=df9571f843ed0e55e581dc6282079803e3641d2c$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -159,6 +159,21 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
   cef_v8value_t* _retval = cef_v8value_create_array_buffer(
       buffer, length,
       CefV8ArrayBufferReleaseCallbackCppToC::Wrap(release_callback));
+
+  // Return type: refptr_same
+  return CefV8ValueCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefV8Value> CefV8Value::CreateArrayBufferWithCopy(void* buffer,
+                                                            size_t length) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: buffer
+
+  // Execute
+  cef_v8value_t* _retval =
+      cef_v8value_create_array_buffer_with_copy(buffer, length);
 
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);

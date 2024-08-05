@@ -1070,11 +1070,15 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
     CefRefPtr<CefV8Context> context = GetContextByID(context_id);
     if (context && info->success_callback && context->Enter()) {
-      CefRefPtr<cmru::BinaryValueABRCallback> release_callback =
-          new cmru::BinaryValueABRCallback(response);
-
-      CefRefPtr<CefV8Value> value = CefV8Value::CreateArrayBuffer(
-          response->GetData(), response->GetSize(), release_callback);
+      CefRefPtr<CefV8Value> value;
+#ifdef CEF_V8_ENABLE_SANDBOX
+      value = CefV8Value::CreateArrayBufferWithCopy(response->GetData(),
+                                                    response->GetSize());
+#else
+      value = CefV8Value::CreateArrayBuffer(
+          response->GetData(), response->GetSize(),
+          new cmru::BinaryValueABRCallback(response));
+#endif
 
       context->Exit();
 

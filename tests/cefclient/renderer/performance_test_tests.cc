@@ -322,6 +322,7 @@ PERF_TEST_FUNC(V8ObjectGetValueWithAccessor) {
   PERF_ITERATIONS_END()
 }
 
+#ifndef CEF_V8_ENABLE_SANDBOX
 PERF_TEST_FUNC(V8ArrayBufferCreate) {
   class ReleaseCallback : public CefV8ArrayBufferReleaseCallback {
    public:
@@ -337,6 +338,17 @@ PERF_TEST_FUNC(V8ArrayBufferCreate) {
   float* buffer = (float*)std::malloc(byte_len);
   CefRefPtr<CefV8Value> ret =
       CefV8Value::CreateArrayBuffer(buffer, byte_len, callback);
+  PERF_ITERATIONS_END()
+}
+#endif  // CEF_V8_ENABLE_SANDBOX
+
+PERF_TEST_FUNC(V8ArrayBufferCopy) {
+  constexpr size_t len = 1;
+  constexpr size_t byte_len = len * sizeof(float);
+  std::array<float, len> buffer = {0};
+  PERF_ITERATIONS_START()
+  CefRefPtr<CefV8Value> ret =
+      CefV8Value::CreateArrayBufferWithCopy(buffer.data(), byte_len);
   PERF_ITERATIONS_END()
 }
 
@@ -385,7 +397,10 @@ const PerfTestEntry kPerfTests[] = {
     PERF_TEST_ENTRY(V8ObjectGetValue),
     PERF_TEST_ENTRY(V8ObjectSetValueWithAccessor),
     PERF_TEST_ENTRY(V8ObjectGetValueWithAccessor),
+#ifndef CEF_V8_ENABLE_SANDBOX
     PERF_TEST_ENTRY(V8ArrayBufferCreate),
+#endif  // CEF_V8_ENABLE_SANDBOX
+    PERF_TEST_ENTRY(V8ArrayBufferCopy),
     PERF_TEST_ENTRY(V8ContextEnterExit),
     PERF_TEST_ENTRY(V8ContextEval),
 };

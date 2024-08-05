@@ -520,11 +520,25 @@ class CefV8Value : public virtual CefBaseRefCounted {
   /// or CefV8Accessor callback, or in combination with calling Enter() and
   /// Exit() on a stored CefV8Context reference.
   ///
+  /// NOTE: Always returns nullptr when V8 sandbox is enabled.
+  ///
   /*--cef(optional_param=buffer)--*/
   static CefRefPtr<CefV8Value> CreateArrayBuffer(
       void* buffer,
       size_t length,
       CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback);
+
+  ///
+  /// Create a new CefV8Value object of type ArrayBuffer which copies the
+  /// provided |buffer| of size |length| bytes.
+  /// This method should only be called from within the scope of a
+  /// CefRenderProcessHandler, CefV8Handler or CefV8Accessor callback, or in
+  /// combination with calling Enter() and Exit() on a stored CefV8Context
+  /// reference.
+  ///
+  /*--cef(optional_param=buffer)--*/
+  static CefRefPtr<CefV8Value> CreateArrayBufferWithCopy(void* buffer,
+                                                         size_t length);
 
   ///
   /// Create a new CefV8Value object of type function. This method should only

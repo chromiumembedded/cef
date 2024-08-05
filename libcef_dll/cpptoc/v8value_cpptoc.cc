@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c59808566c2a9f2d204b6724bb5a905aeb0e7620$
+// $hash=befb2f29af8a0e8eabf745fad126ebad5a741c74$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -150,6 +150,21 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_array_buffer(
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateArrayBuffer(
       buffer, length,
       CefV8ArrayBufferReleaseCallbackCToCpp::Wrap(release_callback));
+
+  // Return type: refptr_same
+  return CefV8ValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_v8value_t* cef_v8value_create_array_buffer_with_copy(
+    void* buffer,
+    size_t length) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: buffer
+
+  // Execute
+  CefRefPtr<CefV8Value> _retval =
+      CefV8Value::CreateArrayBufferWithCopy(buffer, length);
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);

@@ -28,6 +28,13 @@ def make_config_header(gn_config):
       not 'ozone_platform_x11=false' in lines:
     defines.append('#define CEF_X11 1')
 
+  # If the V8 sandbox is not disabled explicitly and
+  # the target_cpu is arm64 or x64 (see v8_enable_pointer_compression)
+  # add CEF_V8_ENABLE_SANDBOX define used in cef_message_router.h
+  if not 'v8_enable_sandbox=false' in lines and \
+          ('target_cpu="arm64"' in lines or 'target_cpu="x64"' in lines):
+    defines.append('#define CEF_V8_ENABLE_SANDBOX 1')
+
   result = get_copyright(full=True, translator=False) + \
 """//
 // ---------------------------------------------------------------------------
