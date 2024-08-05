@@ -1581,8 +1581,10 @@ void BrowserWindowOsrMacImpl::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
 
   // Detach |this| from the ClientHandlerOsr.
-  static_cast<ClientHandlerOsr*>(browser_window_.client_handler_.get())
-      ->DetachOsrDelegate();
+  auto handler =
+      ClientHandlerOsr::GetForClient(browser_window_.client_handler_);
+  CHECK(handler);
+  handler->DetachOsrDelegate();
 }
 
 bool BrowserWindowOsrMacImpl::GetRootScreenRect(CefRefPtr<CefBrowser> browser,

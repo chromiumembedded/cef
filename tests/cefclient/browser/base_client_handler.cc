@@ -14,7 +14,13 @@ BaseClientHandler::BaseClientHandler() {
 // static
 CefRefPtr<BaseClientHandler> BaseClientHandler::GetForBrowser(
     CefRefPtr<CefBrowser> browser) {
-  return static_cast<BaseClientHandler*>(browser->GetHost()->GetClient().get());
+  return GetForClient(browser->GetHost()->GetClient());
+}
+
+// static
+CefRefPtr<BaseClientHandler> BaseClientHandler::GetForClient(
+    CefRefPtr<CefClient> client) {
+  return static_cast<BaseClientHandler*>(client.get());
 }
 
 bool BaseClientHandler::OnProcessMessageReceived(

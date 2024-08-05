@@ -1124,7 +1124,9 @@ void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
   // Detach |this| from the ClientHandlerOsr.
-  static_cast<ClientHandlerOsr*>(client_handler_.get())->DetachOsrDelegate();
+  auto handler = ClientHandlerOsr::GetForClient(client_handler_);
+  CHECK(handler);
+  handler->DetachOsrDelegate();
 
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
