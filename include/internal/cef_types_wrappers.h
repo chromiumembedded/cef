@@ -432,6 +432,10 @@ struct CefSettingsTraits {
     cef_string_set(src->chrome_policy_id.str, src->chrome_policy_id.length,
                    &target->chrome_policy_id, copy);
     target->chrome_app_icon_id = src->chrome_app_icon_id;
+
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+    target->disable_signal_handlers = src->disable_signal_handlers;
+#endif
   }
 };
 
