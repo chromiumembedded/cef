@@ -9,14 +9,14 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=bcb4d6aea88f1445def6014708b69087f1a6dc74$
+// $hash=2fca5c473412bd7acef54f5057dc55488271aaf9$
 //
 
 #include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
-
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
 #include "libcef_dll/shutdown_checker.h"
+#include "libcef_dll/template_util.h"
 
 namespace {
 
@@ -600,6 +600,52 @@ window_delegate_get_window_runtime_style(struct _cef_window_delegate_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK window_delegate_get_linux_window_properties(
+    struct _cef_window_delegate_t* self,
+    cef_window_t* window,
+    struct _cef_linux_window_properties_t* properties) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window) {
+    return 0;
+  }
+  // Verify param: properties; type: struct_byref
+  DCHECK(properties);
+  if (!properties) {
+    return 0;
+  }
+  if (!template_util::has_valid_size(properties)) {
+    DCHECK(false) << "invalid properties->[base.]size";
+    return 0;
+  }
+
+  // Translate param: properties; type: struct_byref
+  CefLinuxWindowProperties propertiesObj;
+  if (properties) {
+    propertiesObj.AttachTo(*properties);
+  }
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->GetLinuxWindowProperties(
+      CefWindowCToCpp::Wrap(window), propertiesObj);
+
+  // Restore param: properties; type: struct_byref
+  if (properties) {
+    propertiesObj.DetachTo(*properties);
+  }
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK
 window_delegate_get_preferred_size(struct _cef_view_delegate_t* self,
                                    cef_view_t* view) {
@@ -916,6 +962,8 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
       window_delegate_on_theme_colors_changed;
   GetStruct()->get_window_runtime_style =
       window_delegate_get_window_runtime_style;
+  GetStruct()->get_linux_window_properties =
+      window_delegate_get_linux_window_properties;
   GetStruct()->base.base.get_preferred_size =
       window_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_delegate_get_minimum_size;

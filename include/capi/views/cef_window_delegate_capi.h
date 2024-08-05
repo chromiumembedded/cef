@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=a2e5caf4dc0ed5b43a6075678e3b7b7ae83834ae$
+// $hash=bafa7ddf3dfbc3fa82b1fb8a064b51f0791b29b6$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_DELEGATE_CAPI_H_
@@ -280,6 +280,15 @@ typedef struct _cef_window_delegate_t {
   ///
   cef_runtime_style_t(CEF_CALLBACK* get_window_runtime_style)(
       struct _cef_window_delegate_t* self);
+
+  ///
+  /// Return Linux-specific window properties for correctly handling by window
+  /// managers
+  ///
+  int(CEF_CALLBACK* get_linux_window_properties)(
+      struct _cef_window_delegate_t* self,
+      struct _cef_window_t* window,
+      struct _cef_linux_window_properties_t* properties);
 } cef_window_delegate_t;
 
 #ifdef __cplusplus

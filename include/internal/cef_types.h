@@ -1848,6 +1848,34 @@ typedef struct _cef_screen_info_t {
 } cef_screen_info_t;
 
 ///
+/// Linux window properties, such as X11's WM_CLASS or Wayland's app_id.
+/// Those are passed to CefWindowDelegate, so the client can set them
+/// for the CefWindow's top-level. Thus, allowing window managers to correctly
+/// display the application's information (e.g., icons).
+///
+typedef struct _cef_linux_window_properties_t {
+  ///
+  /// Main window's Wayland's app_id
+  ///
+  cef_string_t wayland_app_id;
+
+  ///
+  /// Main window's WM_CLASS_CLASS in X11
+  ///
+  cef_string_t wm_class_class;
+
+  ///
+  /// Main window's WM_CLASS_NAME in X11
+  ///
+  cef_string_t wm_class_name;
+
+  ///
+  /// Main window's WM_WINDOW_ROLE in X11
+  ///
+  cef_string_t wm_role_name;
+} cef_linux_window_properties_t;
+
+///
 /// Supported menu IDs. Non-English translations can be provided for the
 /// IDS_MENU_* strings in CefResourceBundleHandler::GetLocalizedString().
 ///
