@@ -16,7 +16,16 @@ class DefaultClientHandler : public BaseClientHandler {
  public:
   DefaultClientHandler() = default;
 
+  // Returns the DefaultClientHandler for |client|, or nullptr if |client| is
+  // not a DefaultClientHandler.
+  static CefRefPtr<DefaultClientHandler> GetForClient(
+      CefRefPtr<CefClient> client);
+
  private:
+  // Used to determine the object type.
+  virtual const void* GetTypeKey() const override { return &kTypeKey; }
+  static const int kTypeKey = 0;
+
   IMPLEMENT_REFCOUNTING(DefaultClientHandler);
   DISALLOW_COPY_AND_ASSIGN(DefaultClientHandler);
 };
