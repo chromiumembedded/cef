@@ -101,7 +101,13 @@ bool CefMainRunner::Initialize(CefSettings* settings,
   application_ = application;
 
   exit_code_ =
-      ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox);
+      ContentMainInitialize(args, windows_sandbox_info, &settings->no_sandbox,
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+                            settings->disable_signal_handlers
+#else
+                            false
+#endif
+      );
   if (exit_code_ >= 0) {
     LOG(ERROR) << "ContentMainInitialize failed with exit code " << exit_code_;
     return false;
@@ -253,7 +259,8 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
 int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
                                          void* windows_sandbox_info,
-                                         int* no_sandbox) {
+                                         int* no_sandbox,
+                                         bool disable_signal_handlers) {
   BeforeMainInitialize(args);
 
   main_delegate_ =
@@ -276,6 +283,10 @@ int CefMainRunner::ContentMainInitialize(const CefMainArgs& args,
 #else
   main_params.argc = args.argc;
   main_params.argv = const_cast<const char**>(args.argv);
+#endif
+
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+  main_params.disable_signal_handlers = disable_signal_handlers;
 #endif
 
   return content::ContentMainInitialize(std::move(main_params),
