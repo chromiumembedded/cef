@@ -12,7 +12,7 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 96c28a7ce3183..8a396ce7adf86 100644
+index 4251459b695e6..4b61268b74378 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -174,11 +174,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -39,7 +39,7 @@ index 96c28a7ce3183..8a396ce7adf86 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -266,7 +260,9 @@ RunContentProcess(ContentMainParams params,
+@@ -267,7 +261,9 @@ RunContentProcess(ContentMainParams params,
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -50,7 +50,7 @@ index 96c28a7ce3183..8a396ce7adf86 100644
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -274,14 +270,6 @@ RunContentProcess(ContentMainParams params,
+@@ -275,14 +271,6 @@ RunContentProcess(ContentMainParams params,
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -65,7 +65,7 @@ index 96c28a7ce3183..8a396ce7adf86 100644
      InitializeMac();
  #endif
  
-@@ -329,12 +317,46 @@ RunContentProcess(ContentMainParams params,
+@@ -330,12 +318,46 @@ RunContentProcess(ContentMainParams params,
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -114,7 +114,7 @@ index 96c28a7ce3183..8a396ce7adf86 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 78b9930f1ca5c..1d93552c3da25 100644
+index eedd753c7990a..87f342581607b 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -52,6 +52,7 @@
@@ -125,7 +125,7 @@ index 78b9930f1ca5c..1d93552c3da25 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1342,6 +1343,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1361,6 +1362,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
