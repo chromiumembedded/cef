@@ -19,6 +19,16 @@ ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
   DCHECK(osr_delegate_);
 }
 
+// static
+CefRefPtr<ClientHandlerOsr> ClientHandlerOsr::GetForClient(
+    CefRefPtr<CefClient> client) {
+  auto base = BaseClientHandler::GetForClient(client);
+  if (base && base->GetTypeKey() == &kTypeKey) {
+    return static_cast<ClientHandlerOsr*>(base.get());
+  }
+  return nullptr;
+}
+
 void ClientHandlerOsr::DetachOsrDelegate() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.

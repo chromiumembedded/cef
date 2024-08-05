@@ -24,6 +24,9 @@ class BaseClientHandler : public CefClient,
   static CefRefPtr<BaseClientHandler> GetForBrowser(
       CefRefPtr<CefBrowser> browser);
 
+  // Returns the BaseClientHandler for |client|.
+  static CefRefPtr<BaseClientHandler> GetForClient(CefRefPtr<CefClient> client);
+
   // CefClient methods
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
@@ -91,6 +94,9 @@ class BaseClientHandler : public CefClient,
   };
   void SetHangAction(HangAction action);
   HangAction GetHangAction() const;
+
+  // Used to determine the object type for each concrete implementation.
+  virtual const void* GetTypeKey() const = 0;
 
  protected:
   CefRefPtr<CefResourceManager> GetResourceManager() const {

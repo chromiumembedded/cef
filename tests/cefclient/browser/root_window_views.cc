@@ -273,7 +273,12 @@ ViewsWindow::Delegate* RootWindowViews::GetDelegateForPopup(
     CefRefPtr<CefClient> client) {
   CEF_REQUIRE_UI_THREAD();
   // |handler| was created in RootWindowViews::InitAsPopup().
-  ClientHandlerStd* handler = static_cast<ClientHandlerStd*>(client.get());
+  // May return nullptr when running with `--use-default-popup`.
+  auto handler = ClientHandlerStd::GetForClient(client);
+  if (!handler) {
+    return nullptr;
+  }
+
   RootWindowViews* root_window =
       static_cast<RootWindowViews*>(handler->delegate());
 

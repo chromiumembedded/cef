@@ -80,6 +80,10 @@ class ClientHandlerOsr : public ClientHandler,
                    bool with_controls,
                    const std::string& startup_url);
 
+  // Returns the ClientHandlerOsr for |client|, or nullptr if |client| is not a
+  // ClientHandlerOsr.
+  static CefRefPtr<ClientHandlerOsr> GetForClient(CefRefPtr<CefClient> client);
+
   // This object may outlive the OsrDelegate object so it's necessary for the
   // OsrDelegate to detach itself before destruction.
   void DetachOsrDelegate();
@@ -139,6 +143,10 @@ class ClientHandlerOsr : public ClientHandler,
   void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) override;
 
  private:
+  // Used to determine the object type.
+  virtual const void* GetTypeKey() const override { return &kTypeKey; }
+  static const int kTypeKey = 0;
+
   // Only accessed on the UI thread.
   OsrDelegate* osr_delegate_;
 

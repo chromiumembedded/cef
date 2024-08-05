@@ -947,8 +947,10 @@ void OsrWindowWin::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
   // Detach |this| from the ClientHandlerOsr.
-  static_cast<ClientHandlerOsr*>(browser_->GetHost()->GetClient().get())
-      ->DetachOsrDelegate();
+  auto handler =
+      ClientHandlerOsr::GetForClient(browser_->GetHost()->GetClient());
+  CHECK(handler);
+  handler->DetachOsrDelegate();
   browser_ = nullptr;
   render_handler_->SetBrowser(nullptr);
   Destroy();
