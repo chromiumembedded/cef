@@ -213,7 +213,8 @@ class InputStreamReader : public base::RefCountedThreadSafe<InputStreamReader> {
       InputStream::SkipCallback skip_callback);
   static void RunReadCallbackOnJobThread(
       int bytes_read,
-      InputStream::ReadCallback read_callback);
+      InputStream::ReadCallback read_callback,
+      scoped_refptr<net::IOBuffer> buffer);
 
   std::unique_ptr<InputStream> stream_;
 
@@ -442,8 +443,9 @@ void InputStreamReader::RunReadCallback(int bytes_read) {
 
   DCHECK(!pending_read_callback_.is_null());
   job_thread_task_runner_->PostTask(
-      FROM_HERE, base::BindOnce(InputStreamReader::RunReadCallbackOnJobThread,
-                                bytes_read, std::move(pending_read_callback_)));
+      FROM_HERE,
+      base::BindOnce(InputStreamReader::RunReadCallbackOnJobThread, bytes_read,
+                     std::move(pending_read_callback_), buffer_));
 
   // Reset callback state.
   pending_callback_id_ = -1;
@@ -460,7 +462,8 @@ void InputStreamReader::RunSkipCallbackOnJobThread(
 // static
 void InputStreamReader::RunReadCallbackOnJobThread(
     int bytes_read,
-    InputStream::ReadCallback read_callback) {
+    InputStream::ReadCallback read_callback,
+    scoped_refptr<net::IOBuffer> buffer) {
   std::move(read_callback).Run(bytes_read);
 }
 
