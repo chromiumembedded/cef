@@ -1412,6 +1412,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
     void* buffer,
     size_t length,
     CefRefPtr<CefV8ArrayBufferReleaseCallback> release_callback) {
+#ifndef V8_ENABLE_SANDBOX
   CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
 
   v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
@@ -1451,6 +1452,46 @@ CefRefPtr<CefV8Value> CefV8Value::CreateArrayBuffer(
   CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
   impl->InitObject(ab, tracker);
   return impl.get();
+#else
+  LOG(ERROR)
+      << "CefV8Value::CreateArrayBuffer is not supported with the V8 "
+         "sandbox enabled, use CefV8Value::CreateArrayBufferWithCopy instead";
+  return nullptr;
+#endif  // V8_ENABLE_SANDBOX
+}
+
+// static
+CefRefPtr<CefV8Value> CefV8Value::CreateArrayBufferWithCopy(void* buffer,
+                                                            size_t length) {
+  CEF_V8_REQUIRE_ISOLATE_RETURN(nullptr);
+
+  v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  if (context.IsEmpty()) {
+    DCHECK(false) << "not currently in a V8 context";
+    return nullptr;
+  }
+
+  // Create a tracker object that will cause the user data reference to be
+  // released when the V8 object is destroyed.
+  V8TrackObject* tracker = new V8TrackObject(isolate);
+
+  v8::Local<v8::ArrayBuffer> ab = v8::ArrayBuffer::New(
+      isolate, length, v8::BackingStoreInitializationMode::kUninitialized);
+
+  if (length > 0) {
+    DCHECK(ab->Data());
+    DCHECK(buffer);
+    memcpy(ab->Data(), buffer, length);
+  }
+
+  // Attach the tracker object.
+  tracker->AttachTo(context, ab);
+
+  CefRefPtr<CefV8ValueImpl> impl = new CefV8ValueImpl(isolate);
+  impl->InitObject(ab, tracker);
+  return impl;
 }
 
 // static

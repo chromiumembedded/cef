@@ -48,6 +48,7 @@ struct RendererMessage {
   std::variant<CefString, CefRefPtr<const CefBinaryBuffer>> payload;
 };
 
+#ifndef CEF_V8_ENABLE_SANDBOX
 class BinaryValueABRCallback final : public CefV8ArrayBufferReleaseCallback {
  public:
   explicit BinaryValueABRCallback(CefRefPtr<CefBinaryBuffer> value)
@@ -62,6 +63,7 @@ class BinaryValueABRCallback final : public CefV8ArrayBufferReleaseCallback {
 
   IMPLEMENT_REFCOUNTING(BinaryValueABRCallback);
 };
+#endif
 
 CefRefPtr<BrowserResponseBuilder> CreateBrowserResponseBuilder(
     size_t threshold,

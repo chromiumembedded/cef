@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <title>Binary vs String Transfer Benchmark</title>
-    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.34.0.min.js"></script>
     <style>
       body {
         font-family: Tahoma, Serif;
         font-size: 10pt;
+        background-color: white;
       }
       .info {
         font-size: 12pt;
@@ -116,7 +117,9 @@
     <div id="round_trip_avg_chart">
       <!-- Average round trip linear chart will be drawn inside this DIV -->
     </div>
-
+    <div id="round_trip_chart">
+      <!-- Round trip linear chart will be drawn inside this DIV -->
+    </div>
     <div id="box_plot_chart">
       <!-- Box plot of round trip time will be drawn inside this DIV -->
     </div>
@@ -125,13 +128,14 @@
       let tests = [];
       let box_plot_test_data = [];
       let round_trip_avg_plot_data = [];
+      let round_trip_plot_data = [];
 
       function nextTestSuite(testIndex) {
         const nextTestIndex = testIndex + 1;
         setTimeout(execTestSuite, 0, nextTestIndex);
       }
 
-      function generateRandomString(size) {
+      function generateString(size) {
         // Symbols that will be encoded as two bytes in UTF-8
         // so we compare transfer of the same amount of bytes
         const characters =
@@ -144,7 +148,7 @@
         return randomString;
       }
 
-      function generateRandomArrayBuffer(size) {
+      function generateArrayBuffer(size) {
         const buffer = new ArrayBuffer(size);
         const uint8Array = new Uint8Array(buffer);
         for (let i = 0; i < uint8Array.length; i++) {
@@ -157,8 +161,7 @@
         console.error(`ErrorCode:${errorCode} Message:${errorMessage}`);
       }
 
-      function sendString(size, testIndex) {
-        const request = generateRandomString(size);
+      function sendString(request, testIndex) {
         const startTime = performance.now();
         const onSuccess = (response) => {
           const roundTrip = performance.now() - startTime;
@@ -166,6 +169,8 @@
           test.totalRoundTrip += roundTrip;
           test.sample++;
           box_plot_test_data[testIndex].x.push(roundTrip);
+          round_trip_plot_data[testIndex].x.push(test.sample);
+          round_trip_plot_data[testIndex].y.push(roundTrip);
           setTimeout(execTest, 0, testIndex);
         };
 
@@ -176,8 +181,7 @@
         });
       }
 
-      function sendArrayBuffer(size, testIndex) {
-        const request = generateRandomArrayBuffer(size);
+      function sendArrayBuffer(request, testIndex) {
         const startTime = performance.now();
         const onSuccess = (response) => {
           const roundTrip = performance.now() - startTime;
@@ -185,6 +189,8 @@
           test.totalRoundTrip += roundTrip;
           test.sample++;
           box_plot_test_data[testIndex].x.push(roundTrip);
+          round_trip_plot_data[testIndex].x.push(test.sample);
+          round_trip_plot_data[testIndex].y.push(roundTrip);
           setTimeout(execTest, 0, testIndex);
         };
 
@@ -209,7 +215,7 @@
         if (test.sample >= test.totalSamples) {
           return nextTestSuite(testIndex);
         }
-        test.func(test.length, test.index);
+        test.func(test.request, test.index);
       }
 
       function column(prepared, value) {
@@ -279,14 +285,14 @@
       function buildTestResults(tests) {
         testResults = [];
 
-        let oldRoundTrip = {
+        let stringRoundTrip = {
           x: [],
           y: [],
           type: "scatter",
           name: "String",
         };
 
-        let newRoundTrip = {
+        let binaryRoundTrip = {
           x: [],
           y: [],
           type: "scatter",
@@ -332,13 +338,13 @@
             stdDeviationBinary: stdDeviationBinary,
           });
 
-          oldRoundTrip.x.push(test.byteSize);
-          newRoundTrip.x.push(test.byteSize);
-          oldRoundTrip.y.push(avgRoundTrip);
-          newRoundTrip.y.push(avgRoundTripBin);
+          stringRoundTrip.x.push(test.byteSize);
+          binaryRoundTrip.x.push(test.byteSize);
+          stringRoundTrip.y.push(avgRoundTrip);
+          binaryRoundTrip.y.push(avgRoundTripBin);
         }
 
-        round_trip_avg_plot_data = [oldRoundTrip, newRoundTrip];
+        round_trip_avg_plot_data = [stringRoundTrip, binaryRoundTrip];
         return testResults;
       }
 
@@ -374,17 +380,21 @@
         box_plot_test_data.forEach((data) => {
           data.x = [];
         });
+        round_trip_plot_data.forEach((data) => {
+          data.x = [];
+          data.y = [];
+        });
       }
 
-      function queueTest(name, byteSize, length, testFunc) {
+      function queueTest(name, byteSize, request, testFunc) {
         const testIndex = tests.length;
         test = {
           name: name,
           byteSize: byteSize,
-          length: length,
           index: testIndex,
           sample: 0,
           totalRoundTrip: 0,
+          request: request,
           func: testFunc,
         };
         tests.push(test);
@@ -397,11 +407,18 @@
           jitter: 0.3,
           pointpos: -1.8,
         });
+
+        round_trip_plot_data.push({
+          x: [],
+          y: [],
+          type: "scatter",
+          name: name,
+        });
       }
 
       function execTestSuite(testIndex) {
         if (testIndex < tests.length) {
-          execTest(testIndex);
+          setTimeout(execTest, 0, testIndex);
         } else {
           testsRunFinished();
         }
@@ -426,19 +443,16 @@
         testResults = buildTestResults(tests);
         testResults.forEach((result) => displayResult(result));
 
-        const round_trip_layout = {
+        Plotly.newPlot("round_trip_avg_chart", round_trip_avg_plot_data, {
           title: "Average round trip, μs (Smaller Better)",
-        };
-        Plotly.newPlot(
-          "round_trip_avg_chart",
-          round_trip_avg_plot_data,
-          round_trip_layout
-        );
+        });
+        Plotly.newPlot("round_trip_chart", round_trip_plot_data, {
+          title: "Linear: Round Trip Time, μs",
+        });
+        Plotly.newPlot("box_plot_chart", box_plot_test_data, {
+          title: "Box plot: Round Trip Time, μs",
+        });
 
-        const box_plot_layout = {
-          title: "Round Trip Time, μs",
-        };
-        Plotly.newPlot("box_plot_chart", box_plot_test_data, box_plot_layout);
         setSettingsState(false);
       }
 
@@ -466,6 +480,7 @@
       window.runTestSuite = () => {
         Plotly.purge("round_trip_avg_chart");
         Plotly.purge("box_plot_chart");
+        Plotly.purge("round_trip_chart");
         setSettingsState(true);
         const totalSamples = parseInt(
           document.getElementById("sSamples").value
@@ -474,21 +489,22 @@
       };
 
       const totalSamples = parseInt(document.getElementById("sSamples").value);
-      queueTest("Empty String", 0, 0, sendString);
-      queueTest("Empty Binary", 0, 0, sendArrayBuffer);
-      for (let byteSize = 8; byteSize <= 512 * 1024; byteSize *= 2) {
+
+      queueTest("Empty String", 0, generateString(0), sendString);
+      queueTest("Empty Binary", 0, generateArrayBuffer(0), sendArrayBuffer);
+      for (let byteSize = 8; byteSize <= 512 * 1024; byteSize *= 4) {
         // Byte size of a string is twice its length because of UTF-16 encoding
         const stringLen = byteSize / 2;
         queueTest(
           humanFileSize(byteSize) + " String",
           byteSize,
-          stringLen,
+          generateString(stringLen),
           sendString
         );
         queueTest(
           humanFileSize(byteSize) + " Binary",
           byteSize,
-          byteSize,
+          generateArrayBuffer(byteSize),
           sendArrayBuffer
         );
       }
