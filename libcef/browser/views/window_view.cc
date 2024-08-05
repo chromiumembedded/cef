@@ -429,6 +429,16 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     auto bounds = cef_delegate()->GetInitialBounds(cef_window);
     params.bounds = gfx::Rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
+#if BUILDFLAG(IS_LINUX)
+    CefLinuxWindowProperties linux_props;
+    if (cef_delegate()->GetLinuxWindowProperties(cef_window, linux_props)) {
+      params.wayland_app_id = CefString(&linux_props.wayland_app_id);
+      params.wm_class_class = CefString(&linux_props.wm_class_class);
+      params.wm_class_name = CefString(&linux_props.wm_class_name);
+      params.wm_role_name = CefString(&linux_props.wm_role_name);
+    }
+#endif
+
     if (has_native_parent) {
       DCHECK(!params.bounds.IsEmpty());
     } else {

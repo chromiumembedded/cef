@@ -783,4 +783,36 @@ struct CefTaskInfoTraits {
 ///
 using CefTaskInfo = CefStructBase<CefTaskInfoTraits>;
 
+struct CefLinuxWindowPropertiesTraits {
+  using struct_type = cef_linux_window_properties_t;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->wayland_app_id);
+    cef_string_clear(&s->wm_class_class);
+    cef_string_clear(&s->wm_class_name);
+    cef_string_clear(&s->wm_role_name);
+  }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    cef_string_set(src->wayland_app_id.str, src->wayland_app_id.length,
+                   &target->wayland_app_id, copy);
+    cef_string_set(src->wm_class_class.str, src->wm_class_class.length,
+                   &target->wm_class_class, copy);
+    cef_string_set(src->wm_class_name.str, src->wm_class_name.length,
+                   &target->wm_class_name, copy);
+    cef_string_set(src->wm_role_name.str, src->wm_role_name.length,
+                   &target->wm_role_name, copy);
+  }
+};
+
+///
+/// Class representing the Linux-specific window properties required
+/// for the window managers to correct group and display the window.
+///
+using CefLinuxWindowProperties = CefStructBase<CefLinuxWindowPropertiesTraits>;
+
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

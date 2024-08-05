@@ -9,11 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=da609d625660ca617e1a01d5dc359932142e15a3$
+// $hash=7bdd882f715040d06246576d0bafbbd7b9a39f8f$
 //
 
 #include "libcef_dll/ctocpp/views/window_delegate_ctocpp.h"
-
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
 #include "libcef_dll/shutdown_checker.h"
@@ -577,6 +576,33 @@ cef_runtime_style_t CefWindowDelegateCToCpp::GetWindowRuntimeStyle() {
 
   // Return type: simple
   return _retval;
+}
+
+NO_SANITIZE("cfi-icall")
+bool CefWindowDelegateCToCpp::GetLinuxWindowProperties(
+    CefRefPtr<CefWindow> window,
+    CefLinuxWindowProperties& properties) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_linux_window_properties)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get()) {
+    return false;
+  }
+
+  // Execute
+  int _retval = _struct->get_linux_window_properties(
+      _struct, CefWindowCppToC::Wrap(window), &properties);
+
+  // Return type: bool
+  return _retval ? true : false;
 }
 
 NO_SANITIZE("cfi-icall")

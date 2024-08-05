@@ -671,6 +671,19 @@ cef_runtime_style_t ViewsWindow::GetWindowRuntimeStyle() {
   return CEF_RUNTIME_STYLE_DEFAULT;
 }
 
+#if defined(OS_LINUX)
+bool ViewsWindow::GetLinuxWindowProperties(
+    CefRefPtr<CefWindow> window,
+    CefLinuxWindowProperties& properties) {
+  CefString(&properties.wayland_app_id) =
+      CefString(&properties.wm_class_class) =
+          CefString(&properties.wm_class_name) =
+              CefString(&properties.wm_role_name) = "cef";
+
+  return true;
+}
+#endif
+
 void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(browser_view_);

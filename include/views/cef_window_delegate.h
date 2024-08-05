@@ -278,6 +278,16 @@ class CefWindowDelegate : public CefPanelDelegate {
   virtual cef_runtime_style_t GetWindowRuntimeStyle() {
     return CEF_RUNTIME_STYLE_DEFAULT;
   }
+
+  ///
+  /// Return Linux-specific window properties for correctly handling by window
+  /// managers
+  ///
+  /*--cef()--*/
+  virtual bool GetLinuxWindowProperties(CefRefPtr<CefWindow> window,
+                                        CefLinuxWindowProperties& properties) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=50ace2b6a45a23d4ff5d9a91ab7c37a893f7e0b4$
+// $hash=ef831469d4dd59c3a20f0dfee3e8e945a52d7637$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_DELEGATE_CTOCPP_H_
@@ -67,6 +67,8 @@ class CefWindowDelegateCToCpp
   void OnThemeColorsChanged(CefRefPtr<CefWindow> window,
                             bool chrome_theme) override;
   cef_runtime_style_t GetWindowRuntimeStyle() override;
+  bool GetLinuxWindowProperties(CefRefPtr<CefWindow> window,
+                                CefLinuxWindowProperties& properties) override;
 
   // CefPanelDelegate methods.
 

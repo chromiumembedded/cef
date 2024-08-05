@@ -162,6 +162,11 @@ class ViewsWindow : public CefBrowserViewDelegate,
                   const CefKeyEvent& event) override;
 
   // CefWindowDelegate methods:
+#if defined(OS_LINUX)
+  virtual bool GetLinuxWindowProperties(
+      CefRefPtr<CefWindow> window,
+      CefLinuxWindowProperties& properties) override;
+#endif
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
   void OnWindowClosing(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
