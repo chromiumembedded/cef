@@ -7,7 +7,7 @@ MACOS_BUNDLE_ID_BASE="org.cef"
 CEF_FRAMEWORK_NAME="Chromium Embedded Framework"
 
 #
-# Common 'linkopts' for cc_binary targets.
+# Common 'linkopts' for macos_application targets.
 #
 
 # Standard link frameworks.
@@ -29,34 +29,24 @@ COMMON_LINKOPTS = [
 })
 
 #
-# Common 'copts' for cc_libary and cc_binary targets.
+# Common 'copts' for cc_libary, objc_library and macos_application targets.
+# We include defines in 'copts' because objc_library does not support
+# 'local_defines'. See https://github.com/bazelbuild/bazel/issues/17482.
 #
 
 COMMON_COPTS = [
     "-Wno-undefined-var-template",
     "-Wno-missing-field-initializers",
     "-Wno-deprecated-copy",
+
+    # Used by apps to test if the sandbox is enabled
+    "-DCEF_USE_SANDBOX",
 ]
 
 COMMON_COPTS_DEBUG = [
 ]
 
 COMMON_COPTS_RELEASE = [
-]
-
-#
-# Common 'defines' for cc_libary targets.
-#
-
-COMMON_DEFINES = [
-    # Used by apps to test if the sandbox is enabled
-    "CEF_USE_SANDBOX",
-]
-
-COMMON_DEFINES_DEBUG = [
-]
-
-COMMON_DEFINES_RELEASE = [
     # Not a debug build
-    "NDEBUG",
+    "-DNDEBUG",
 ]
