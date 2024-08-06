@@ -514,6 +514,13 @@ typedef struct _cef_settings_t {
   /// runtime on Windows.
   ///
   int chrome_app_icon_id;
+
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  ///
+  /// Specify whether signal handlers must be disabled on POSIX systems.
+  ///
+  bool disable_signal_handlers;
+#endif
 } cef_settings_t;
 
 ///
