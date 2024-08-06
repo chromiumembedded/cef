@@ -2,7 +2,8 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+load("//bazel:library_helpers.bzl", "declare_cc_library", "declare_objc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 # Allow access from all //tests packages.
 package(default_visibility = [
@@ -62,7 +63,7 @@ filegroup(
 # MacOS targets.
 #
 
-objc_library(
+declare_objc_library(
     name = "BrowserLibMac",
     srcs = srcs_common + srcs_browser + srcs_browser_mac,
     target_compatible_with = [
@@ -73,7 +74,7 @@ objc_library(
     ],
 )
 
-cc_library(
+declare_cc_library(
     name = "RendererLibMac",
     srcs = srcs_common + srcs_renderer + srcs_renderer_mac,
     target_compatible_with = [
@@ -89,7 +90,7 @@ cc_library(
 # Needs to be defined here because Bazel disallows direct access to files
 # outside of the package directory.
 
-objc_library(
+declare_objc_library(
     name = "BrowserLibMacCefTests",
     srcs = srcs_browser_mac_ceftests,
     target_compatible_with = [
@@ -101,7 +102,7 @@ objc_library(
     ],
 )
 
-objc_library(
+declare_objc_library(
     name = "RendererLibMacCefTests",
     srcs = srcs_renderer_mac_ceftests,
     target_compatible_with = [

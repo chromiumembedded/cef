@@ -6,10 +6,11 @@ load("//bazel:copy_filegroups.bzl", "copy_filegroups")
 load("//bazel/linux:fix_rpath.bzl", "fix_rpath")
 load("//bazel/linux:variables.bzl",
      "COMMON_LINKOPTS",
-     "COMMON_COPTS", "COMMON_COPTS_RELEASE", "COMMON_COPTS_DEBUG")
+     "COMMON_COPTS", "COMMON_COPTS_RELEASE", "COMMON_COPTS_DEBUG",
+     "COMMON_DEFINES", "COMMON_DEFINES_RELEASE", "COMMON_DEFINES_DEBUG")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
-def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], defines=[], data=[]):
+def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], local_defines=[], data=[], **kwargs):
     # Copy SOs and resources into the current project.
     copy_target = "{}_sos_and_resources".format(name)
     copy_filegroups(
@@ -36,15 +37,19 @@ def declare_exe(name, srcs=[], deps=[], linkopts=[], copts=[], defines=[], data=
             "@cef//:cef_sandbox",
         ] + deps,
         linkopts = COMMON_LINKOPTS + linkopts,
-        copts = select({
+        copts = COMMON_COPTS + select({
             "@cef//:linux_dbg": COMMON_COPTS_DEBUG,
             "//conditions:default": COMMON_COPTS_RELEASE,
-        }) + COMMON_COPTS + copts,
-        defines = defines,
+        }) + copts,
+        local_defines = COMMON_DEFINES + select({
+            "@cef//:linux_dbg": COMMON_DEFINES_DEBUG,
+            "//conditions:default": COMMON_DEFINES_RELEASE,
+        }) + local_defines,
         data = [
             ":{}".format(copy_target),
         ] + data,
         target_compatible_with = ["@platforms//os:linux"],
+        **kwargs
     )
 
     # Set rpath to $ORIGIN so that libraries can be loaded from next to the

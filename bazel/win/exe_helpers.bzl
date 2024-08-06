@@ -7,11 +7,13 @@ load("//bazel/win:mt.bzl", "add_manifest")
 load("//bazel/win:rc.bzl", "compile_rc")
 load("//bazel/win:variables.bzl",
      "COMMON_LINKOPTS",
-     "COMMON_COPTS", "COMMON_COPTS_RELEASE", "COMMON_COPTS_DEBUG")
+     "COMMON_COPTS", "COMMON_COPTS_RELEASE", "COMMON_COPTS_DEBUG",
+     "COMMON_DEFINES", "COMMON_DEFINES_RELEASE", "COMMON_DEFINES_DEBUG")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_deps=[],
-                deps=[], linkopts=[], copts=[], defines=[], data=[]):
+                deps=[], linkopts=[], copts=[], local_defines=[], data=[],
+                additional_linker_inputs=[], features=[], **kwargs):
     # Resource file.
     res_target = "{}_res".format(name)
     compile_rc(
@@ -51,19 +53,23 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
         linkopts = [
             "$(location :{})".format(res_target),
         ] + COMMON_LINKOPTS + linkopts,
-        copts = select({
+        copts = COMMON_COPTS + select({
             "@cef//:windows_dbg": COMMON_COPTS_DEBUG,
             "//conditions:default": COMMON_COPTS_RELEASE,
-        }) + COMMON_COPTS + copts,
-        defines = defines,
+        }) + copts,
+        local_defines = COMMON_DEFINES + select({
+            "@cef//:windows_dbg": COMMON_DEFINES_DEBUG,
+            "//conditions:default": COMMON_DEFINES_RELEASE,
+        }) + local_defines,
         additional_linker_inputs = [
             ":{}".format(res_target),
-        ],
+        ] + additional_linker_inputs,
         data = [
             ":{}".format(copy_target),
         ] + data,
-        features = ["generate_pdb_file"],
+        features = ["generate_pdb_file"] + features,
         target_compatible_with = ["@platforms//os:windows"],
+        **kwargs
     )
 
     # Add manifest and rename to final executable.
