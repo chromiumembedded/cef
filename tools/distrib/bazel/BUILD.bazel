@@ -9,33 +9,16 @@ package(default_visibility = [
 
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@build_bazel_rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
+load("//bazel:library_helpers.bzl", "declare_cc_library", "declare_objc_library")
 load("//bazel/win:variables.bzl",
      WIN_DLLS="DLLS",
      WIN_DLLS_X64="DLLS_X64",
-     WIN_SANDBOX_LIBS="SANDBOX_LIBS",
-     WIN_COMMON_COPTS="COMMON_COPTS",
-     WIN_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
-     WIN_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG",
-     WIN_COMMON_DEFINES="COMMON_DEFINES",
-     WIN_COMMON_DEFINES_RELEASE="COMMON_DEFINES_RELEASE",
-     WIN_COMMON_DEFINES_DEBUG="COMMON_DEFINES_DEBUG")
+     WIN_SANDBOX_LIBS="SANDBOX_LIBS")
 load("//bazel/linux:variables.bzl",
-     LINUX_SOS="SOS",
-     LINUX_COMMON_COPTS="COMMON_COPTS",
-     LINUX_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
-     LINUX_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG",
-     LINUX_COMMON_DEFINES="COMMON_DEFINES",
-     LINUX_COMMON_DEFINES_RELEASE="COMMON_DEFINES_RELEASE",
-     LINUX_COMMON_DEFINES_DEBUG="COMMON_DEFINES_DEBUG")
+     LINUX_SOS="SOS")
 load("//bazel/mac:variables.bzl",
-     "CEF_FRAMEWORK_NAME",
-     MAC_COMMON_COPTS="COMMON_COPTS",
-     MAC_COMMON_COPTS_RELEASE="COMMON_COPTS_RELEASE",
-     MAC_COMMON_COPTS_DEBUG="COMMON_COPTS_DEBUG",
-     MAC_COMMON_DEFINES="COMMON_DEFINES",
-     MAC_COMMON_DEFINES_RELEASE="COMMON_DEFINES_RELEASE",
-     MAC_COMMON_DEFINES_DEBUG="COMMON_DEFINES_DEBUG")
-load("@rules_cc//cc:defs.bzl", "cc_import", "cc_library", "objc_library")
+     "CEF_FRAMEWORK_NAME")
+load("@rules_cc//cc:defs.bzl", "cc_import")
 
 #
 # Define supported configurations.
@@ -124,7 +107,7 @@ selects.config_setting_group(
 
 # Public headers for cef_wrapper here.
 # Seperated from the actual cef_wrapper since the *.mm file needs access to these as well.
-cc_library(
+declare_cc_library(
     name = "cef_wrapper_headers",
     hdrs = glob(
         [
@@ -137,7 +120,7 @@ cc_library(
     ),
 )
 
-objc_library(
+declare_objc_library(
     name = "cef_wrapper_apple",
     srcs = [
         "libcef_dll/wrapper/cef_library_loader_mac.mm",
@@ -145,7 +128,7 @@ objc_library(
     implementation_deps = [":cef_wrapper_headers"],
 )
 
-cc_library(
+declare_cc_library(
     name = "cef_wrapper",
     srcs = glob(
         [
@@ -159,42 +142,9 @@ cc_library(
             "include/test/*.h",
         ],
     ),
-    copts = select({
-        "@platforms//os:windows": WIN_COMMON_COPTS,
-        "@platforms//os:linux": LINUX_COMMON_COPTS,
-        "@platforms//os:macos": MAC_COMMON_COPTS,
-        "//conditions:default": None,
-    }) + select({
-        "@cef//:windows_opt": WIN_COMMON_COPTS_RELEASE,
-        "@cef//:windows_dbg": WIN_COMMON_COPTS_DEBUG,
-        "@cef//:windows_fastbuild": WIN_COMMON_COPTS_RELEASE,
-        "@cef//:linux_opt": LINUX_COMMON_COPTS_RELEASE,
-        "@cef//:linux_dbg": LINUX_COMMON_COPTS_DEBUG,
-        "@cef//:linux_fastbuild": LINUX_COMMON_COPTS_RELEASE,
-        "@cef//:macos_opt": MAC_COMMON_COPTS_RELEASE,
-        "@cef//:macos_dbg": MAC_COMMON_COPTS_DEBUG,
-        "@cef//:macos_fastbuild": MAC_COMMON_COPTS_RELEASE,
-        "//conditions:default": None,
-    }),
     defines = [
         "WRAPPING_CEF_SHARED",
-    ] + select({
-        "@platforms//os:windows": WIN_COMMON_DEFINES,
-        "@platforms//os:linux": LINUX_COMMON_DEFINES,
-        "@platforms//os:macos": MAC_COMMON_DEFINES,
-        "//conditions:default": None,
-    }) + select({
-        "@cef//:windows_opt": WIN_COMMON_DEFINES_RELEASE,
-        "@cef//:windows_dbg": WIN_COMMON_DEFINES_DEBUG,
-        "@cef//:windows_fastbuild": WIN_COMMON_DEFINES_RELEASE,
-        "@cef//:linux_opt": LINUX_COMMON_DEFINES_RELEASE,
-        "@cef//:linux_dbg": LINUX_COMMON_DEFINES_DEBUG,
-        "@cef//:linux_fastbuild": LINUX_COMMON_DEFINES_RELEASE,
-        "@cef//:macos_opt": MAC_COMMON_DEFINES_RELEASE,
-        "@cef//:macos_dbg": MAC_COMMON_DEFINES_DEBUG,
-        "@cef//:macos_fastbuild": MAC_COMMON_DEFINES_RELEASE,
-        "//conditions:default": None,
-    }),
+    ],
     deps = [":cef_wrapper_headers"] +
            select({
                "@platforms//os:macos": [":cef_wrapper_apple"],
@@ -206,7 +156,7 @@ cc_library(
 )
 
 # Only available on MacOS/Windows.
-cc_library(
+declare_cc_library(
     name = "cef_sandbox_linkflags",
     linkopts = select({
         "@platforms//os:macos": ["-lsandbox"],

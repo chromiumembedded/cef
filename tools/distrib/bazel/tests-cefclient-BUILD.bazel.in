@@ -10,7 +10,8 @@ package(default_visibility = [
     ":__subpackages__",
 ])
 
-load("@rules_cc//cc:defs.bzl", "cc_library", "objc_library")
+load("//bazel:library_helpers.bzl", "declare_cc_library", "declare_objc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 #
 # Source file lists.
@@ -53,7 +54,7 @@ filegroup(
 # MacOS targets.
 #
 
-objc_library(
+declare_objc_library(
     name = "BrowserLibMac",
     srcs = srcs_common + srcs_browser + srcs_browser_mac,
     target_compatible_with = [
@@ -65,7 +66,7 @@ objc_library(
     ],
 )
 
-objc_library(
+declare_objc_library(
     name = "RendererLibMac",
     srcs = srcs_common + srcs_renderer,
     target_compatible_with = [
