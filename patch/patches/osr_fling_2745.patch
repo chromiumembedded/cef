@@ -44,7 +44,7 @@ index 57ef85cbfdfdf..758af3beffde6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 7f2fdc026d61b..9d719020f971f 100644
+index 97741dfcb91db..4618a40ae097f 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
 @@ -3277,6 +3277,11 @@ void RenderWidgetHostImpl::OnInvalidInputEventSource() {
