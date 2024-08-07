@@ -33,6 +33,7 @@
 #include "cef/libcef/common/values_impl.h"
 #include "chrome/browser/file_select_helper.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
+#include "chrome/common/webui_url_constants.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "components/zoom/page_zoom.h"
 #include "content/browser/gpu/compositor_util.h"
@@ -56,6 +57,47 @@ using content::KeyboardEventProcessingResult;
 namespace {
 
 static constexpr base::TimeDelta kRecentlyAudibleTimeout = base::Seconds(2);
+
+// List of WebUI hosts that have been tested to work in Alloy-style browsers.
+// Do not add new hosts to this list without also manually testing all related
+// functionality in CEF.
+const char* kAllowedWebUIHosts[] = {
+    chrome::kChromeUIAccessibilityHost,
+    content::kChromeUIBlobInternalsHost,
+    chrome::kChromeUIChromeURLsHost,
+    chrome::kChromeUICreditsHost,
+    content::kChromeUIGpuHost,
+    content::kChromeUIHistogramHost,
+    content::kChromeUIIndexedDBInternalsHost,
+    chrome::kChromeUILicenseHost,
+    content::kChromeUIMediaInternalsHost,
+    chrome::kChromeUINetExportHost,
+    chrome::kChromeUINetInternalsHost,
+    content::kChromeUINetworkErrorHost,
+    content::kChromeUINetworkErrorsListingHost,
+    chrome::kChromeUIPrintHost,
+    content::kChromeUIProcessInternalsHost,
+    content::kChromeUIResourcesHost,
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
+    chrome::kChromeUISandboxHost,
+#endif
+    content::kChromeUIServiceWorkerInternalsHost,
+    chrome::kChromeUISystemInfoHost,
+    chrome::kChromeUITermsHost,
+    chrome::kChromeUIThemeHost,
+    content::kChromeUITracingHost,
+    chrome::kChromeUIVersionHost,
+    content::kChromeUIWebRTCInternalsHost,
+};
+
+bool IsAllowedWebUIHost(const std::string_view& host) {
+  for (auto& allowed_host : kAllowedWebUIHosts) {
+    if (base::EqualsCaseInsensitiveASCII(allowed_host, host)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 }  // namespace
 
@@ -567,13 +609,21 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
     // The PDF viewer will load the PDF extension in the guest view, and print
     // preview will load chrome://print in the guest view. The PDF renderer
     // used with PdfUnseasoned will set |params.is_pdf| when loading the PDF
-    // stream (see PdfNavigationThrottle::WillStartRequest). All other
-    // navigations are passed to the owner browser.
+    // stream (see PdfNavigationThrottle::WillStartRequest). All other guest
+    // view navigations are passed to the owner browser.
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(
                       base::IgnoreResult(&AlloyBrowserHostImpl::OpenURLFromTab),
                       this, nullptr, params, base::NullCallback()));
 
+    return false;
+  }
+
+  if (!is_guest_view && params.url.SchemeIs(content::kChromeUIScheme) &&
+      !IsAllowedWebUIHost(params.url.host_piece())) {
+    // Block navigation to non-allowlisted WebUI pages.
+    LOG(WARNING) << "Navigation to " << params.url.spec()
+                 << " is blocked in Alloy-style browser.";
     return false;
   }
 
