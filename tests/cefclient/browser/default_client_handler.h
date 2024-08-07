@@ -24,7 +24,7 @@ class DefaultClientHandler : public BaseClientHandler {
  private:
   // Used to determine the object type.
   virtual const void* GetTypeKey() const override { return &kTypeKey; }
-  static const int kTypeKey = 0;
+  static constexpr int kTypeKey = 0;
 
   IMPLEMENT_REFCOUNTING(DefaultClientHandler);
   DISALLOW_COPY_AND_ASSIGN(DefaultClientHandler);
