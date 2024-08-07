@@ -25,7 +25,7 @@ class ClientHandlerStd : public ClientHandler {
  private:
   // Used to determine the object type.
   virtual const void* GetTypeKey() const override { return &kTypeKey; }
-  static const int kTypeKey = 0;
+  static constexpr int kTypeKey = 0;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandlerStd);
