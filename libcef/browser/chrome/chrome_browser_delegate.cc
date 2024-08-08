@@ -526,7 +526,7 @@ void ChromeBrowserDelegate::WebContentsCreated(
                             /*is_devtools_popup=*/false, opener);
 }
 
-content::WebContents* ChromeBrowserDelegate::OpenURLFromTabEx(
+bool ChromeBrowserDelegate::OpenURLFromTabEx(
     content::WebContents* source,
     const content::OpenURLParams& params,
     base::OnceCallback<void(content::NavigationHandle&)>&
@@ -535,17 +535,31 @@ content::WebContents* ChromeBrowserDelegate::OpenURLFromTabEx(
   // Reading List sidebar. In that case we default to using the Browser's
   // currently active WebContents.
   if (!source) {
+    // GetActiveWebContents() may return nullptr if we're in a new Browser
+    // created using ScopedTabbedBrowserDisplayer. This new Browser does
+    // not have a WebContents yet.
     source = browser_->tab_strip_model()->GetActiveWebContents();
-    DCHECK(source);
+  }
+  if (!source) {
+    LOG(WARNING) << "Failed to identify target browser for "
+                 << params.url.spec();
+    // Proceed with default chrome handling.
+    return true;
   }
 
-  // Return nullptr to cancel the navigation. Otherwise, proceed with default
-  // chrome handling.
   if (auto delegate = GetDelegateForWebContents(source)) {
-    return delegate->OpenURLFromTabEx(source, params,
-                                      navigation_handle_callback);
+    // Returns nullptr to cancel the navigation.
+    const bool cancel =
+        delegate->OpenURLFromTabEx(source, params,
+                                   navigation_handle_callback) == nullptr;
+    if (cancel) {
+      // Cancel the navigation.
+      return false;
+    }
   }
-  return nullptr;
+
+  // Proceed with default chrome handling.
+  return true;
 }
 
 void ChromeBrowserDelegate::LoadingStateChanged(content::WebContents* source,
