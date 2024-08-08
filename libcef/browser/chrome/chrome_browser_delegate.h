@@ -90,11 +90,10 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   const std::optional<SkRegion> GetDraggableRegion() const override;
   void WindowFullscreenStateChanged() override;
   bool HasViewsHostedOpener() const override;
-  content::WebContents* OpenURLFromTabEx(
-      content::WebContents* source,
-      const content::OpenURLParams& params,
-      base::OnceCallback<void(content::NavigationHandle&)>&
-          navigation_handle_callback) override;
+  bool OpenURLFromTabEx(content::WebContents* source,
+                        const content::OpenURLParams& params,
+                        base::OnceCallback<void(content::NavigationHandle&)>&
+                            navigation_handle_callback) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,
