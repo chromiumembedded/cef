@@ -164,13 +164,14 @@ class BrowserDelegate : public content::WebContentsDelegate {
   virtual bool HasViewsHostedOpener() const { return false; }
 
   // Same as OpenURLFromTab but only taking |navigation_handle_callback|
-  // if the return value is non-nullptr.
-  virtual content::WebContents* OpenURLFromTabEx(
+  // if the return value is false. Return false to cancel the navigation
+  // or true to proceed with default chrome handling.
+  virtual bool OpenURLFromTabEx(
       content::WebContents* source,
       const content::OpenURLParams& params,
       base::OnceCallback<void(content::NavigationHandle&)>&
           navigation_handle_callback) {
-    return nullptr;
+    return true;
   }
 };
 
