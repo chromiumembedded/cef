@@ -377,12 +377,6 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
   // number in the app bundle path.
   resource_util::OverrideUserDataDir(settings_, command_line);
 
-  ChromeMainDelegate::PreSandboxStartup();
-
-  // Initialize crash reporting state for this process/module.
-  // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
-  crash_reporting::PreSandboxStartup(*command_line, process_type);
-
   base::FilePath resources_dir;
   if (command_line->HasSwitch(switches::kResourcesDirPath)) {
     resources_dir =
@@ -402,6 +396,12 @@ void ChromeMainDelegateCef::PreSandboxStartup() {
       base::PathService::Override(ui::DIR_LOCALES, locales_dir);
     }
   }
+
+  ChromeMainDelegate::PreSandboxStartup();
+
+  // Initialize crash reporting state for this process/module.
+  // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
+  crash_reporting::PreSandboxStartup(*command_line, process_type);
 
 #if !BUILDFLAG(IS_WIN)
   // Call after InitLogging() potentially changes values in
