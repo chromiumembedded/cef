@@ -7,8 +7,8 @@ package(default_visibility = [
     "//visibility:public",
 ])
 
+load("@aspect_bazel_lib//lib:copy_directory.bzl", "copy_directory")
 load("@bazel_skylib//lib:selects.bzl", "selects")
-load("@build_bazel_rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
 load("//bazel:library_helpers.bzl", "declare_cc_library", "declare_objc_library")
 load("//bazel/win:variables.bzl",
      WIN_DLLS="DLLS",
@@ -309,10 +309,15 @@ alias(
     }),
 )
 
-apple_dynamic_framework_import(
+# Copy the CEF framework into the app bundle but do not link it. See
+# https://groups.google.com/g/cef-announce/c/Fith0A3kWtw/m/6ds_mJVMCQAJ
+# for background. Use `copy_directory` instead of `filegroup` to remove
+# the Debug/Release path prefix.
+copy_directory(
     name = "cef_framework",
-    framework_imports = select({
-        "@cef//:dbg": glob(["Debug/{}.framework/**".format(CEF_FRAMEWORK_NAME)]),
-        "//conditions:default": glob(["Release/{}.framework/**".format(CEF_FRAMEWORK_NAME)]),
+    src = select({
+        "@cef//:dbg": "Debug/{}.framework".format(CEF_FRAMEWORK_NAME),
+        "//conditions:default": "Release/{}.framework".format(CEF_FRAMEWORK_NAME),
     }),
+    out = "{}.framework".format(CEF_FRAMEWORK_NAME),
 )
