@@ -5,10 +5,13 @@
 load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 load("@build_bazel_rules_apple//apple:macos.bzl", "macos_application")
 load("//bazel:variables.bzl", "VERSION_PLIST")
-load("//bazel/mac:variables.bzl", "MACOS_DEPLOYMENT_TARGET", "MACOS_BUNDLE_ID_BASE",
-                                  "COMMON_LINKOPTS")
+load("//bazel/mac:variables.bzl",
+     "MACOS_DEPLOYMENT_TARGET",
+     "MACOS_BUNDLE_ID_BASE",
+     "CEF_FRAMEWORK_NAME",
+     "COMMON_LINKOPTS")
 
-def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix):
+def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix, **kwargs):
     """
     Creates a Helper .app target.
     """
@@ -43,6 +46,7 @@ def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix)
         deps = [
             "@cef//:cef_sandbox",
         ] + deps,
+        **kwargs,
     )
 
 HELPERS = {
@@ -53,7 +57,7 @@ HELPERS = {
     "HelperRenderer": "Renderer",
 }
 
-def declare_all_helper_apps(name, info_plist, deps):
+def declare_all_helper_apps(name, info_plist, deps, **kwargs):
     """
     Creates all Helper .app targets.
     """
@@ -63,9 +67,10 @@ def declare_all_helper_apps(name, info_plist, deps):
         deps = deps,
         helper_base_name = h,
         helper_suffix = v,
+        **kwargs,
     ) for h, v in HELPERS.items()]
 
-def declare_main_app(name, info_plist, deps, resources, linkopts=[]):
+def declare_main_app(name, info_plist, deps, resources, linkopts=[], **kwargs):
     """
     Creates the main .app target.
     """
@@ -92,6 +97,7 @@ def declare_main_app(name, info_plist, deps, resources, linkopts=[]):
             ":HelperGPU": "Frameworks",
             ":HelperPlugin": "Frameworks",
             ":HelperRenderer": "Frameworks",
+            "@cef//:cef_framework": "Frameworks/{}.framework".format(CEF_FRAMEWORK_NAME),
         },
         bundle_name = name,
         bundle_id = "{}.{}".format(MACOS_BUNDLE_ID_BASE, name.lower()),
@@ -102,7 +108,6 @@ def declare_main_app(name, info_plist, deps, resources, linkopts=[]):
         target_compatible_with = [
             "@platforms//os:macos",
         ],
-        deps = [
-            "@cef//:cef_framework",
-        ] + deps,
+        deps = deps,
+        **kwargs,
     )
