@@ -15,3 +15,4 @@ bazel_dep(name = "rules_apple", version = "3.6.0", repo_name = "build_bazel_rule
 bazel_dep(name = "rules_cc", version = "0.0.9")
 
 # Add other dependencies here.
+bazel_dep(name = "aspect_bazel_lib", version = "2.7.9")
