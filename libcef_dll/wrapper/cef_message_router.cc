@@ -198,9 +198,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   bool AddHandler(Handler* handler, bool first) override {
     CEF_REQUIRE_UI_THREAD();
-    if (handler_set_.find(handler) == handler_set_.end()) {
-      handler_set_.insert(first ? handler_set_.begin() : handler_set_.end(),
-                          handler);
+    if (std::find(handlers_.begin(), handlers_.end(), handler) ==
+        handlers_.end()) {
+      handlers_.insert(first ? handlers_.begin() : handlers_.end(), handler);
       return true;
     }
     return false;
@@ -208,7 +208,9 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   bool RemoveHandler(Handler* handler) override {
     CEF_REQUIRE_UI_THREAD();
-    if (handler_set_.erase(handler) > 0) {
+    auto it = std::find(handlers_.begin(), handlers_.end(), handler);
+    if (it != handlers_.end()) {
+      handlers_.erase(it);
       CancelPendingFor(nullptr, handler, true);
       return true;
     }
@@ -297,7 +299,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       const int request_id = content.request_id;
       const bool persistent = content.is_persistent;
 
-      if (handler_set_.empty()) {
+      if (handlers_.empty()) {
         // No handlers so cancel the query.
         CancelUnhandledQuery(browser, frame, context_id, request_id);
         return true;
@@ -312,7 +314,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
       // Make a copy of the handler list in case the user adds or removes a
       // handler while we're iterating.
-      const HandlerSet handlers = handler_set_;
+      const HandlerSet handlers = handlers_;
 
       Handler* handler = std::visit(
           [&](const auto& arg) -> CefMessageRouterBrowserSide::Handler* {
@@ -615,8 +617,8 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
   // Set of currently registered handlers. An entry is added when a handler is
   // registered and removed when a handler is unregistered.
-  using HandlerSet = std::set<Handler*>;
-  HandlerSet handler_set_;
+  using HandlerSet = std::vector<Handler*>;
+  HandlerSet handlers_;
 
   // Map of query ID to QueryInfo instance. An entry is added when a Handler
   // indicates that it will handle the query and removed when either the query

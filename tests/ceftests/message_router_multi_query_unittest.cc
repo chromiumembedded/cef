@@ -1164,33 +1164,63 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
                  const CefString& request,
                  bool persistent,
                  CefRefPtr<Callback> callback) override {
-      // Each handler only handles a single request.
-      std::stringstream ss;
-      ss << kMultiQueryRequest << ":" << index_;
-      const std::string& handled_request = ss.str();
-      if (request != handled_request) {
-        return false;
+      // We expect handlers to be called in order 0, 1, 2.
+
+      // The handler0 is called 3 times:
+      // - 1st request = "MultiQueryRequest:0", returns true, preventing calls
+      //   to the other handlers.
+      // - 2nd request = "MultiQueryRequest:1", returns false
+      // - 3rd request = "MultiQueryRequest:2", returns false
+      if (index_ == 0) {
+        if (request == HandledRequest(0)) {
+          EXPECT_FALSE(test_handler_->got_query0_);
+          EXPECT_FALSE(test_handler_->got_query1_);
+          EXPECT_FALSE(test_handler_->got_query2_);
+
+          test_handler_->got_query0_.yes();
+        } else if (request == HandledRequest(1)) {
+          EXPECT_TRUE(test_handler_->got_query0_);
+          EXPECT_FALSE(test_handler_->got_query1_);
+          EXPECT_FALSE(test_handler_->got_query2_);
+        } else {
+          EXPECT_EQ(request, HandledRequest(2));
+          EXPECT_TRUE(test_handler_->got_query0_);
+          EXPECT_TRUE(test_handler_->got_query1_);
+          EXPECT_FALSE(test_handler_->got_query2_);
+        }
       }
 
-      // Verify that handlers are called in the correct order.
-      if (index_ == 0) {
-        EXPECT_FALSE(test_handler_->got_query0_);
-        EXPECT_FALSE(test_handler_->got_query1_);
-        EXPECT_FALSE(test_handler_->got_query2_);
+      // The handler1 is called 2 times:
+      // - 1st request = "MultiQueryRequest:1", returns true, preventing calls
+      //   to the handler2.
+      // - 2nd request = "MultiQueryRequest:2", returns false
+      if (index_ == 1) {
+        if (request == HandledRequest(1)) {
+          EXPECT_TRUE(test_handler_->got_query0_);
+          EXPECT_FALSE(test_handler_->got_query1_);
+          EXPECT_FALSE(test_handler_->got_query2_);
 
-        test_handler_->got_query0_.yes();
-      } else if (index_ == 1) {
-        EXPECT_TRUE(test_handler_->got_query0_);
-        EXPECT_FALSE(test_handler_->got_query1_);
-        EXPECT_FALSE(test_handler_->got_query2_);
+          test_handler_->got_query1_.yes();
+        } else {
+          EXPECT_EQ(request, HandledRequest(2));
+          EXPECT_TRUE(test_handler_->got_query0_);
+          EXPECT_TRUE(test_handler_->got_query1_);
+          EXPECT_FALSE(test_handler_->got_query2_);
+        }
+      }
 
-        test_handler_->got_query1_.yes();
-      } else if (index_ == 2) {
+      // The handler2 is called 1 time with request = "MultiQueryRequest:2".
+      if (index_ == 2) {
+        EXPECT_EQ(request, HandledRequest(2));
         EXPECT_TRUE(test_handler_->got_query0_);
         EXPECT_TRUE(test_handler_->got_query1_);
         EXPECT_FALSE(test_handler_->got_query2_);
-
         test_handler_->got_query2_.yes();
+      }
+
+      // Each handler only handles a single request.
+      if (request != HandledRequest(index_)) {
+        return false;
       }
 
       query_id_ = query_id;
@@ -1219,6 +1249,12 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
     }
 
    private:
+    static std::string HandledRequest(int index) {
+      std::stringstream ss;
+      ss << kMultiQueryRequest << ":" << index;
+      return ss.str();
+    }
+
     MultiQueryMultiHandlerTestHandler* test_handler_;
     const int index_;
     int64_t query_id_ = 0;
@@ -1227,9 +1263,9 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
   MultiQueryMultiHandlerTestHandler(bool synchronous,
                                     bool cancel_by_removing_handler)
       : manager_(std::string(), synchronous, 0),
-        handler0_(this, 0),
-        handler1_(this, 1),
         handler2_(this, 2),
+        handler1_(this, 1),
+        handler0_(this, 0),
         cancel_by_removing_handler_(cancel_by_removing_handler) {
     manager_.AddObserver(this);
 
@@ -1347,8 +1383,7 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
  protected:
   void AddHandlers(
       CefRefPtr<CefMessageRouterBrowserSide> message_router) override {
-    // OnQuery call order will verify that the first/last ordering works as
-    // expected.
+    // OnQuery call order will verify that the ordering works as expected.
     EXPECT_TRUE(message_router->AddHandler(&handler1_, true));
     EXPECT_TRUE(message_router->AddHandler(&handler0_, true));
     EXPECT_TRUE(message_router->AddHandler(&handler2_, false));
@@ -1359,9 +1394,9 @@ class MultiQueryMultiHandlerTestHandler : public SingleLoadTestHandler,
 
  private:
   MultiQueryManager manager_;
-  Handler handler0_;
-  Handler handler1_;
   Handler handler2_;
+  Handler handler1_;
+  Handler handler0_;
 
   const bool cancel_by_removing_handler_;
 
