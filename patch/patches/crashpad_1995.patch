@@ -81,10 +81,10 @@ index 30a2c1adc4509..b60a7afaf1e5e 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index a29f22161328a..4de56b81683f3 100644
+index d9c721376c855..e72b67e2a1a50 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
-@@ -7,6 +7,8 @@
+@@ -12,6 +12,8 @@
  #include <deque>
  #include <string_view>
  
@@ -93,7 +93,7 @@ index a29f22161328a..4de56b81683f3 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -100,8 +102,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -110,8 +112,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -102,16 +102,21 @@ index a29f22161328a..4de56b81683f3 100644
  // Return true if we DON'T want to upload this flag to the crash server.
 -bool IsBoringSwitch(const std::string& flag) {
 +bool IsBoringChromeSwitch(const std::string& flag) {
-   static const char* const kIgnoreSwitches[] = {
+   static const std::string_view kIgnoreSwitches[] = {
+     kStringAnnotationsSwitch,
      switches::kEnableLogging,
-     switches::kFlagSwitchesBegin,
-@@ -160,11 +164,9 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -171,6 +175,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
--}  // namespace
--
++namespace {
++
+ std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
+   static base::NoDestructor<std::deque<CrashKeyWithName>>
+       command_line_string_annotations;
+@@ -216,7 +222,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
+   SetStringAnnotations(command_line);
    HandleEnableDisableFeatures(command_line);
 -  SetSwitchesFromCommandLine(command_line, &IsBoringSwitch);
 +  SetSwitchesFromCommandLine(command_line, &IsBoringChromeSwitch);
@@ -119,28 +124,28 @@ index a29f22161328a..4de56b81683f3 100644
  
  }  // namespace crash_keys
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index 710f553034881..dd1e61f9e194b 100644
+index a274b3e364084..3d995cf643399 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
-@@ -5,12 +5,18 @@
+@@ -5,6 +5,7 @@
  #ifndef CHROME_COMMON_CRASH_KEYS_H_
  #define CHROME_COMMON_CRASH_KEYS_H_
  
 +#include <string>
-+
- namespace base {
- class CommandLine;
- }
+ #include <string_view>
  
- namespace crash_keys {
+ namespace base {
+@@ -24,6 +25,10 @@ void AllocateCrashKeyInBrowserAndChildren(std::string_view key,
+ // SetCrashKeysFromCommandLine().
+ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line);
  
 +// Returns true if the specified command-line flag should be excluded from
 +// crash reporting.
 +bool IsBoringChromeSwitch(const std::string& flag);
 +
  // Sets the kNumSwitches key and the set of keys named using kSwitchFormat based
- // on the given |command_line|.
- void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
+ // on the given `command_line`. For non-browser processes, allocates crash keys
+ // from the switch value set by AppendStringAnnotationsCommandLineSwitch().
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
 index 3f3ed53d48fc4..05bbc81db0c6a 100644
 --- components/crash/core/app/crash_reporter_client.cc
@@ -270,10 +275,10 @@ index a604df7a5ea6a..618fbde10a65c 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 3e96d2562b6cb..06133487e4157 100644
+index 641c9cdba5011..20a8b9983a476 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -124,7 +124,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -128,7 +128,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.

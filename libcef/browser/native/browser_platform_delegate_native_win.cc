@@ -52,8 +52,8 @@ void WriteTempFileAndView(const std::string& data) {
   // program to open.
   tmp_file = tmp_file.AddExtension(L"txt");
 
-  int write_ct = base::WriteFile(tmp_file, data.c_str(), data.size());
-  DCHECK_EQ(static_cast<int>(data.size()), write_ct);
+  const bool write_success = base::WriteFile(tmp_file, data);
+  DCHECK(write_success);
 
   ui::win::OpenFileViaShell(tmp_file);
 }

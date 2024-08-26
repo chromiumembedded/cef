@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index 0e48a7582d86c..6ddeaa7c4e736 100644
+index 402be34ab888c..28769289c6b46 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
 @@ -124,6 +124,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)

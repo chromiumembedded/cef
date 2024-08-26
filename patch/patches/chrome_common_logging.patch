@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index bcc0da3ae5a96..87617098debd3 100644
+index a584f49ecfb1b..fdc7eceb76024 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -7,6 +7,7 @@ import("//build/config/chromeos/ui_mode.gni")
@@ -8,8 +8,8 @@ index bcc0da3ae5a96..87617098debd3 100644
  import("//build/config/features.gni")
 +import("//cef/libcef/features/features.gni")
  import("//components/compose/features.gni")
- import("//components/feed/features.gni")
  import("//components/nacl/features.gni")
+ import("//components/safe_browsing/buildflags.gni")
 @@ -31,7 +32,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
  declare_args() {
    # Enables the build to have logging enabled by default.
@@ -17,9 +17,9 @@ index bcc0da3ae5a96..87617098debd3 100644
 -  chrome_enable_logging_by_default = is_debug
 +  chrome_enable_logging_by_default = is_debug || enable_cef
  
-   # Platforms where Chrome x509 server certificate enterprise policies are
-   # supported. This must must match the supported_on/future_on list of the
-@@ -95,11 +96,13 @@ declare_args() {
+   # Platforms for which Chrome supports a certificate management UI that
+   # shows the Chrome Root Store. This is specific to the v2 UI that is
+@@ -63,11 +64,13 @@ declare_args() {
    # optimize_webui was moved to ui/base/ui_features.gni
  }
  

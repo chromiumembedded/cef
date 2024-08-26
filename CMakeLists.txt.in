@@ -48,10 +48,9 @@
 #     libgtk3.0-dev     (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 12.2 to 15.0 building on MacOS 10.15.4 (Catalina) or newer. Only
-#   64-bit builds are supported. The Xcode command-line tools must also be
-#   installed. Newer Xcode versions may not have been been tested and are not
-#   recommended.
+#   Xcode 12.2 to 15.4 building on MacOS 11.0 (Big Sur) or newer. The Xcode
+#   command-line tools must also be installed. Newer Xcode versions may not have
+#   been been tested and are not recommended.
 #
 # - Windows requirements:
 #   Visual Studio 2022 building on Windows 10 or newer. Windows 10/11 64-bit is

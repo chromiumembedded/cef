@@ -67,7 +67,7 @@ index d059f86ddad39..592b4d7903f15 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index e32c556fcf464..3cd78b04b7dad 100644
+index 9d108fe375fa6..49f7694355c9a 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -93,10 +93,10 @@ index e32c556fcf464..3cd78b04b7dad 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 0ec4f3d6d9d2c..6ba2631e9ef11 100644
+index 9caf18c2106c7..e3ede1b32a010 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -595,6 +595,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -604,6 +604,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  
@@ -129,10 +129,10 @@ index a2dbe84d61e09..aff4aad15e069 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index b5bdcf72d8b33..e3f04dda5c1a6 100644
+index c1523bbdbf16e..bc0af8c47b7c7 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -675,14 +675,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -680,14 +680,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -152,7 +152,7 @@ index b5bdcf72d8b33..e3f04dda5c1a6 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1673,8 +1676,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1678,8 +1681,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

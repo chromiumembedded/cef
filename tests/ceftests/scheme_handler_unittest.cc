@@ -205,18 +205,17 @@ class TestSchemeHandler : public TestHandler {
                         const CefString& source,
                         int line) override {
     bool expected = false;
-    if (!test_results_->console_messages.empty()) {
-      std::vector<std::string>::iterator it =
-          test_results_->console_messages.begin();
-      for (; it != test_results_->console_messages.end(); ++it) {
-        const std::string& possible = *it;
-        const std::string& actual = message.ToString();
-        if (actual.find(possible) == 0U) {
-          expected = true;
-          test_results_->console_messages.erase(it);
-          break;
-        }
-      }
+    const std::string& actual = message.ToString();
+
+    auto it = std::find_if(test_results_->console_messages.begin(),
+                           test_results_->console_messages.end(),
+                           [&actual](const std::string& possible) {
+                             return actual.find(possible) == 0U;
+                           });
+
+    if (it != test_results_->console_messages.end()) {
+      expected = true;
+      test_results_->console_messages.erase(it);
     }
 
     EXPECT_TRUE(expected) << "Unexpected console message: "
@@ -1400,7 +1399,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
            "customnonstd:xhr%20value");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
@@ -1526,7 +1525,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
            "customstd://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"customstd://test2\" from "
       "accessing a cross-origin frame.");
 
@@ -1554,7 +1553,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolHttp) {
            "https://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"https://test2\" from accessing "
       "a cross-origin frame.");
 
@@ -1583,7 +1582,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentProtocolCustomNonStandard) {
            "customnonstd:some%20value");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
@@ -1611,7 +1610,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomStandard) {
            "customstd://test2/iframe.html");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"customstd://test2\" from "
       "accessing a cross-origin frame.");
 
@@ -1639,7 +1638,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentProtocolCustomNonStandard) {
            "customnonstd:some%20value");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"null\" from accessing a "
       "cross-origin frame.");
 
@@ -1765,7 +1764,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
   SetUpXSS(&test_results, "https://test1/run.html", "https://test2/xss.html");
 
   test_results.console_messages.push_back(
-      "SecurityError: Failed to read a named property 'getResult' from "
+      "Error: Failed to read a named property 'getResult' from "
       "'Window': Blocked a frame with origin \"https://test2\" from accessing "
       "a cross-origin frame.");
 

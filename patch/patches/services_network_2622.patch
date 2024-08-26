@@ -80,10 +80,10 @@ index f78c6a467befc..97f1d21218eed 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 5c20e5b79fa0d..e8c7a287f38f2 100644
+index dff1afbe01fcd..7acfcec4b52ca 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2524,16 +2524,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2576,16 +2576,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -112,7 +112,7 @@ index 5c20e5b79fa0d..e8c7a287f38f2 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index a618fd97fd4c5..623611337c7b7 100644
+index 0678afc12458f..fa7763534dd89 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -359,6 +359,9 @@ struct NetworkContextParams {

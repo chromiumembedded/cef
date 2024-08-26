@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 71f67744bc79a..2bb886ea46ab5 100644
+index c3fe3e246d225..df8676d7b5080 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -114,7 +114,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -68,7 +68,7 @@ index 6af484f35f576..2462700b6d1fb 100644
  blink::mojom::V8CacheOptions GetV8CacheOptions();
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 47e37a2aaa79c..7a65e0654453a 100644
+index 6ff75a6bb03e7..938113ef46a0d 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -38,6 +38,7 @@ component("controller") {

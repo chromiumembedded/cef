@@ -823,12 +823,12 @@ void InterceptedRequest::InterceptResponseReceived(
     // Avoid incorrect replacement of 0 with nullptr. NOLINTNEXTLINE
     current_response_->encoded_body_length = 0;
 
-    std::string origin;
-    if (request_.headers.GetHeader(net::HttpRequestHeaders::kOrigin, &origin) &&
-        origin != url::Origin().Serialize()) {
+    const auto origin =
+        request_.headers.GetHeader(net::HttpRequestHeaders::kOrigin);
+    if (origin && origin != url::Origin().Serialize()) {
       // Allow redirects of cross-origin resource loads.
       headers->AddHeader(network::cors::header_names::kAccessControlAllowOrigin,
-                         origin);
+                         *origin);
     }
 
     if (request_.credentials_mode ==

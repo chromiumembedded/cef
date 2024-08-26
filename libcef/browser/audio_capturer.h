@@ -9,7 +9,9 @@
 
 #include "cef/include/internal/cef_ptr.h"
 #include "cef/include/internal/cef_types_wrappers.h"
+#include "components/mirroring/mojom/session_observer.mojom.h"
 #include "media/base/audio_capturer_source.h"
+#include "mojo/public/cpp/bindings/remote.h"
 
 namespace media {
 class AudioInputDevice;
@@ -44,6 +46,7 @@ class CefAudioCapturer : public media::AudioCapturerSource::CaptureCallback {
   CefRefPtr<CefAudioHandler> audio_handler_;
   std::unique_ptr<CefAudioLoopbackStreamCreator> audio_stream_creator_;
   scoped_refptr<media::AudioInputDevice> audio_input_device_;
+  mojo::Remote<mirroring::mojom::SessionObserver> observer_;
   bool capturing_ = false;
   int channels_ = 0;
 };

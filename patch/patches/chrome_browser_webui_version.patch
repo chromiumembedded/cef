@@ -124,10 +124,10 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 6e205bf700de2..c281769b5cb5c 100644
+index f12ad5b23e75c..0f07abc1b85f5 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
-@@ -17,6 +17,7 @@
+@@ -22,6 +22,7 @@
  #include "base/time/time.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -135,7 +135,7 @@ index 6e205bf700de2..c281769b5cb5c 100644
  #include "chrome/browser/browser_process_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/ui/webui/version/version_handler.h"
-@@ -64,6 +65,10 @@
+@@ -69,6 +70,10 @@
  #include "chrome/browser/ui/webui/version/version_util_win.h"
  #endif
  
@@ -146,7 +146,7 @@ index 6e205bf700de2..c281769b5cb5c 100644
  using content::WebUIDataSource;
  
  namespace {
-@@ -84,6 +89,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -89,6 +94,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
      {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
      {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
      {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
@@ -157,7 +157,7 @@ index 6e205bf700de2..c281769b5cb5c 100644
      {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
      {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
      {version_ui::kVariationsSeedName, IDS_VERSION_UI_VARIATIONS_SEED_NAME},
-@@ -121,6 +130,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -126,6 +135,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
    html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
@@ -168,7 +168,7 @@ index 6e205bf700de2..c281769b5cb5c 100644
  }
  
  std::string GetProductModifier() {
-@@ -241,6 +254,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -246,6 +259,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string());
    html_source->AddString(version_ui::kProfilePath, std::string());

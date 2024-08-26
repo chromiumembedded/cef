@@ -11,7 +11,7 @@ index 4220a0aebf4a2..0bb15451c703f 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 36bd7ee7ed789..319b00f0df16b 100644
+index 42b00bd0b3c22..31b8da18cab0b 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -252,8 +252,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
@@ -30,7 +30,7 @@ index 36bd7ee7ed789..319b00f0df16b 100644
  }
  
  namespace {
-@@ -600,6 +605,7 @@ WebViewImpl::WebViewImpl(
+@@ -611,6 +616,7 @@ WebViewImpl::WebViewImpl(
            blink::ZoomFactorToZoomLevel(kMinimumBrowserZoomFactor)),
        maximum_zoom_level_(
            blink::ZoomFactorToZoomLevel(kMaximumBrowserZoomFactor)),
@@ -39,10 +39,10 @@ index 36bd7ee7ed789..319b00f0df16b 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 764d48e8fc89f..a7446fa5bf2ea 100644
+index d4f129c072ef1..956ad9beb22b4 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -139,7 +139,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -138,7 +138,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index 764d48e8fc89f..a7446fa5bf2ea 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -874,6 +875,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -870,6 +871,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -62,10 +62,10 @@ index 764d48e8fc89f..a7446fa5bf2ea 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index b227679f7f921..c9d7f749f0952 100644
+index 1536a0c7089d7..0376e3a663d98 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -988,7 +988,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+@@ -973,7 +973,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();
  

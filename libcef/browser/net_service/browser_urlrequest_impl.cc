@@ -300,7 +300,7 @@ class CefBrowserURLRequest::Context
     auto request_body = resource_request->request_body;
     resource_request->request_body = nullptr;
 
-    std::string content_type;
+    std::optional<std::string> content_type;
     std::string method = resource_request->method;
     if (request_body) {
       if (method == "GET" || method == "HEAD") {
@@ -312,8 +312,8 @@ class CefBrowserURLRequest::Context
         request_->SetMethod(method);
         request_->SetReadOnly(true);
       }
-      resource_request->headers.GetHeader(net::HttpRequestHeaders::kContentType,
-                                          &content_type);
+      content_type = resource_request->headers.GetHeader(
+          net::HttpRequestHeaders::kContentType);
     }
 
     loader_ = network::SimpleURLLoader::Create(std::move(resource_request),
@@ -329,25 +329,30 @@ class CefBrowserURLRequest::Context
         const auto& element = (*request_body->elements())[0];
         if (element.type() == network::DataElement::Tag::kFile) {
           const auto& file_element = element.As<network::DataElementFile>();
-          if (content_type.empty()) {
+          if (!content_type.has_value() || content_type->empty()) {
             const auto& extension = file_element.path().Extension();
             if (!extension.empty()) {
               // Requests should not block on the disk! On POSIX this goes to
               // disk. http://code.google.com/p/chromium/issues/detail?id=59849
               base::ScopedAllowBlockingForTesting allow_blocking;
               // Also remove the leading period.
-              net::GetMimeTypeFromExtension(extension.substr(1), &content_type);
+              std::string extension_content_type;
+              if (net::GetMimeTypeFromExtension(extension.substr(1),
+                                                &extension_content_type)) {
+                content_type = extension_content_type;
+              }
             }
           }
-          loader_->AttachFileForUpload(file_element.path(), content_type);
+          loader_->AttachFileForUpload(file_element.path(),
+                                       content_type.value_or(std::string()));
         } else if (element.type() == network::DataElement::Tag::kBytes) {
           const auto& bytes_element = element.As<network::DataElementBytes>();
           const auto& bytes = bytes_element.bytes();
-          if (content_type.empty()) {
+          if (!content_type.has_value() || content_type->empty()) {
             content_type = net_service::kContentTypeApplicationFormURLEncoded;
           }
           loader_->AttachStringForUpload(
-              std::string(bytes_element.AsStringPiece()), content_type);
+              std::string(bytes_element.AsStringPiece()), *content_type);
 
           if (request_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
             // Report the expected upload data size.

@@ -17,8 +17,6 @@
 #include "cef/libcef/browser/trace_subscriber.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "components/network_session_configurator/common/network_switches.h"
-#include "content/public/browser/notification_service.h"
-#include "content/public/browser/notification_types.h"
 #include "ui/base/ui_base_switches.h"
 
 #if BUILDFLAG(IS_WIN)

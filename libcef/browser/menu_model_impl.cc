@@ -11,6 +11,7 @@
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/memory/raw_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/task_runner_impl.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
@@ -38,6 +39,10 @@ class CefSimpleMenuModel : public ui::MenuModel {
   CefSimpleMenuModel& operator=(const CefSimpleMenuModel&) = delete;
 
   // MenuModel methods.
+  base::WeakPtr<MenuModel> AsWeakPtr() override {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
+
   size_t GetItemCount() const override { return impl_->GetCount(); }
 
   ItemType GetTypeAt(size_t index) const override {
@@ -171,6 +176,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
 
  private:
   raw_ptr<CefMenuModelImpl> impl_;
+  base::WeakPtrFactory<CefSimpleMenuModel> weak_ptr_factory_{this};
 };
 
 cef_menu_color_type_t GetMenuColorType(bool is_text,

@@ -83,8 +83,7 @@ NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
     const remote_cocoa::mojom::CreateWindowParams* params) {
   NSUInteger style_mask =
       NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable |
-      NSWindowStyleMaskClosable | NSWindowStyleMaskResizable |
-      NSWindowStyleMaskTexturedBackground;
+      NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
 
   const bool is_frameless = window_delegate_->IsFrameless(window_);
   const auto accepts_first_mouse = window_delegate_->AcceptsFirstMouse(window_);

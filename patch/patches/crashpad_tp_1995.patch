@@ -1,5 +1,5 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 59b96461bbbbb..b3781cd1c42d9 100644
+index 927ed6010f36e..1a36ae5d41d1f 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -75,13 +75,19 @@ size_t PruneCrashReportDatabase(CrashReportDatabase* database,
@@ -40,7 +40,7 @@ index b362e0aadbadd..1588232a6e4d4 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 420fbfc958168..eef5955d6f5a8 100644
+index 0174c62b52856..c87205500aef0 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -117,7 +117,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -184,10 +184,10 @@ index a2d6f7fb482a7..a5b6ae04f897b 100644
  
    if (crashpad_is_win) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index c224871a1de23..3186b9a45428d 100644
+index 8350d0761ac18..9fc26214c4c0a 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -297,6 +297,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+@@ -296,6 +296,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
    if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);

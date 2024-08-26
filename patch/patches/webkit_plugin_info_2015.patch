@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 848edcdaf3a01..4c08bddc07337 100644
+index cbc11108212e7..ff6c412c36713 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -804,6 +804,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -818,6 +818,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    }
  #endif
  
@@ -15,7 +15,7 @@ index 848edcdaf3a01..4c08bddc07337 100644
    static void InitializeMainThreadCommon(
        Platform* platform,
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 8c581ccf3b1f7..478f1bdb63b40 100644
+index e773961ed731e..13ff106677ace 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -16,6 +16,7 @@
@@ -26,7 +26,7 @@ index 8c581ccf3b1f7..478f1bdb63b40 100644
  #include "third_party/blink/renderer/bindings/core/v8/script_controller.h"
  #include "third_party/blink/renderer/core/frame/local_frame.h"
  #include "third_party/blink/renderer/core/inspector/devtools_agent.h"
-@@ -174,6 +175,7 @@ DevToolsSession::DevToolsSession(
+@@ -173,6 +174,7 @@ DevToolsSession::DevToolsSession(
      for (wtf_size_t i = 0; i < agents_.size(); i++)
        agents_[i]->Restore();
    }
@@ -34,7 +34,7 @@ index 8c581ccf3b1f7..478f1bdb63b40 100644
  }
  
  DevToolsSession::~DevToolsSession() {
-@@ -219,6 +221,7 @@ void DevToolsSession::Detach() {
+@@ -218,6 +220,7 @@ void DevToolsSession::Detach() {
    agents_.clear();
    v8_session_.reset();
    agent_->client_->DebuggerTaskFinished();

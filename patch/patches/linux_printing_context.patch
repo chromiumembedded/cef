@@ -41,11 +41,35 @@ index d1ab2a72e0d11..c6be9f1ba1793 100644
  
    if (print_dialog_) {
      // PrintDialogGtk::UpdateSettings() calls InitWithSettings() so settings_ will
+diff --git ui/linux/BUILD.gn ui/linux/BUILD.gn
+index 2a9662e84fbce..a7241dc95a809 100644
+--- ui/linux/BUILD.gn
++++ ui/linux/BUILD.gn
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
+ 
+ import("//build/config/linux/gtk/gtk.gni")
++import("//printing/buildflags/buildflags.gni")
+ import("//ui/qt/qt.gni")
+ 
+ assert(is_linux)
+@@ -34,6 +35,11 @@ component("linux_ui") {
+     "//ui/display/types",
+     "//ui/gfx/geometry",
+   ]
++
++  if (enable_printing) {
++    deps += [ "//printing/mojom" ]
++  }
++
+   public_deps = [ "//printing/buildflags" ]
+ }
+ 
 diff --git ui/linux/linux_ui.cc ui/linux/linux_ui.cc
-index 3408b6200d17a..5d91e65a2b40f 100644
+index 3ab395e3b0b45..c012641a5dc7e 100644
 --- ui/linux/linux_ui.cc
 +++ ui/linux/linux_ui.cc
-@@ -18,11 +18,29 @@ namespace ui {
+@@ -23,11 +23,29 @@ namespace ui {
  namespace {
  
  LinuxUi* g_linux_ui = nullptr;

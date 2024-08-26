@@ -1,5 +1,5 @@
 diff --git ui/base/models/simple_menu_model.cc ui/base/models/simple_menu_model.cc
-index 88e27362452e5..9c18ac5c77544 100644
+index fbf6043fc4322..913b30ba2eed8 100644
 --- ui/base/models/simple_menu_model.cc
 +++ ui/base/models/simple_menu_model.cc
 @@ -10,6 +10,7 @@

@@ -22,6 +22,7 @@
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_impl.h"
 #include "ui/base/hit_test.h"
+#include "ui/base/mojom/ui_base_types.mojom-shared.h"
 #include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
@@ -507,7 +508,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
           // DesktopWindowTreeHostLinux::InitModalType). See the X11-specific
           // implementation below that may work with some window managers.
           if (cef_delegate()->IsWindowModalDialog(cef_window)) {
-            SetModalType(ui::MODAL_TYPE_WINDOW);
+            SetModalType(ui::mojom::ModalType::kWindow);
           }
 #endif
 

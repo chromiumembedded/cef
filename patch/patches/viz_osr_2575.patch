@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index 0ad0fcd3d3ab1..16c9fd0360d80 100644
+index d20063ec5ccbe..1c3d4a64f5ab6 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -30,7 +30,7 @@ index 0ad0fcd3d3ab1..16c9fd0360d80 100644
      gpu::SurfaceHandle child_window) {
    NOTREACHED_IN_MIGRATION();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index cb16487f9fc08..6191f8801f302 100644
+index 294f99f234006..9d52ca5e7b0b4 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 2ce093d0818f5..3ad06b1d10c61 100644
+index c72378fbfd823..22d113b0481fb 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -255,6 +255,8 @@ viz_component("service") {
+@@ -258,6 +258,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -93,7 +93,7 @@ index 2ce093d0818f5..3ad06b1d10c61 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 54a83ba9fe1e9..e5520ccf6265d 100644
+index bddaacb09fcf9..9965df4a130de 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -18,6 +18,7 @@
@@ -104,7 +104,7 @@ index 54a83ba9fe1e9..e5520ccf6265d 100644
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/features.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
-@@ -31,6 +32,7 @@
+@@ -32,6 +33,7 @@
  #include "gpu/command_buffer/service/scheduler_sequence.h"
  #include "gpu/config/gpu_finch_features.h"
  #include "gpu/ipc/common/surface_handle.h"
@@ -112,7 +112,7 @@ index 54a83ba9fe1e9..e5520ccf6265d 100644
  #include "ui/base/ui_base_switches.h"
  
  #if BUILDFLAG(IS_WIN)
-@@ -146,6 +148,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -147,6 +149,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -150,10 +150,10 @@ index 796ae2688436e..37a3406790210 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index b9ad5c8cbeb5b..05ab69062b3b2 100644
+index 0a7aff6ee5b1c..05455d0cb2e9b 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -390,8 +390,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -396,8 +396,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -191,10 +191,10 @@ index 0173f9b181714..36a734d64738e 100644
    // running in the same process, so it won't block anything.
    // TODO(159346933) Remove once the origin isolation logic is moved outside of
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index d7deccb6e6ec6..6a91f4aae6259 100644
+index 7d19b6be8bb0e..5a54e67bf0018 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -108,13 +108,15 @@ interface DisplayPrivate {
+@@ -111,13 +111,15 @@ interface DisplayPrivate {
  
  // DisplayClient allows privileged clients to receive events from the Display.
  interface DisplayClient {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index adb90506e6df9..d966558511a64 100644
+index b6c784c612bcf..65e58ecb262ee 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -33,7 +33,9 @@
@@ -261,7 +261,7 @@ index adb90506e6df9..d966558511a64 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -548,6 +561,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -563,6 +576,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

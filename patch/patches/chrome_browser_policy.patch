@@ -105,7 +105,7 @@ index d8fda08453256..466718e824503 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index 138ae48ca13c1..6d4e45a234a4e 100644
+index b7dc08e42137f..50e196ff0251c 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,11 +13,14 @@
@@ -208,8 +208,8 @@ index 138ae48ca13c1..6d4e45a234a4e 100644
 +
  base::flat_set<std::string>
  ChromeBrowserPolicyConnector::device_affiliation_ids() const {
- #if BUILDFLAG(IS_CHROMEOS_LACROS)
-@@ -349,25 +424,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
+   if (!device_affiliation_ids_for_testing_.empty()) {
+@@ -357,25 +432,22 @@ ChromeBrowserPolicyConnector::CreatePolicyProviders() {
  std::unique_ptr<ConfigurationPolicyProvider>
  ChromeBrowserPolicyConnector::CreatePlatformProvider() {
  #if BUILDFLAG(IS_WIN)
@@ -244,7 +244,7 @@ index 138ae48ca13c1..6d4e45a234a4e 100644
    auto loader = std::make_unique<PolicyLoaderMac>(
        base::ThreadPool::CreateSequencedTaskRunner(
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
-@@ -377,7 +449,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
+@@ -385,7 +457,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
                                                 std::move(loader));
  #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
    base::FilePath config_dir_path;
@@ -254,7 +254,7 @@ index 138ae48ca13c1..6d4e45a234a4e 100644
      // If the folder containing the policy files doesn't exist, there's no need
      // to have a provider for them. Note that in verified boot, the folder
 diff --git chrome/browser/policy/chrome_browser_policy_connector.h chrome/browser/policy/chrome_browser_policy_connector.h
-index 8f90fe72995f3..4d818e1cc61c7 100644
+index e4c6792766ae4..0a0c054d9e4d1 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.h
 +++ chrome/browser/policy/chrome_browser_policy_connector.h
 @@ -28,6 +28,10 @@
@@ -292,8 +292,8 @@ index 8f90fe72995f3..4d818e1cc61c7 100644
 +#endif
 +
    virtual base::flat_set<std::string> device_affiliation_ids() const;
- 
- #if BUILDFLAG(IS_CHROMEOS_LACROS)
+   void SetDeviceAffiliatedIdsForTesting(
+       const base::flat_set<std::string>& device_affiliation_ids);
 diff --git chrome/browser/policy/policy_path_parser_mac.mm chrome/browser/policy/policy_path_parser_mac.mm
 index 1a2e78c3472ec..5d1bd95a15113 100644
 --- chrome/browser/policy/policy_path_parser_mac.mm

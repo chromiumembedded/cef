@@ -161,7 +161,7 @@ index 49272553c7c53..5ba90c9a06ecf 100644
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index 1bc5ddb0ab802..053916ea1c998 100644
+index f9c0d03193a63..f32f02d216120 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
 @@ -88,8 +88,10 @@ void SelectFileDialog::SetFactory(
@@ -178,7 +178,7 @@ index 1bc5ddb0ab802..053916ea1c998 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index ab916846f3776..70ac544ca6884 100644
+index eb3d997598631..e3002e471e842 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -96,7 +96,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -202,7 +202,7 @@ index ab916846f3776..70ac544ca6884 100644
      // Specifies whether there will be a filter added for all files (i.e. *.*).
      bool include_all_files = false;
  
-@@ -220,6 +225,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -224,6 +229,19 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
                    const GURL* caller = nullptr);
    bool HasMultipleFileTypeChoices();
  
@@ -222,7 +222,7 @@ index ab916846f3776..70ac544ca6884 100644
   protected:
    friend class base::RefCountedThreadSafe<SelectFileDialog>;
  
-@@ -244,6 +262,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -248,6 +266,11 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
    // The listener to be notified of selection completion.
    raw_ptr<Listener> listener_;
  
@@ -234,7 +234,7 @@ index ab916846f3776..70ac544ca6884 100644
   private:
    // Tests if the file selection dialog can be displayed by
    // testing if the AllowFileSelectionDialogs-Policy is
-@@ -256,8 +279,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
+@@ -260,8 +283,6 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
  
    // Returns true if the dialog has multiple file type choices.
    virtual bool HasMultipleFileTypeChoicesImpl() = 0;

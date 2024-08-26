@@ -21,9 +21,7 @@ void SavePdfFile(const CefString& path,
   CEF_REQUIRE_BLOCKING();
   DCHECK_GT(data->size(), 0U);
 
-  const bool ok =
-      base::WriteFile(path, reinterpret_cast<const char*>(data->data()),
-                      data->size()) == static_cast<int>(data->size());
+  const bool ok = base::WriteFile(path, *data);
 
   if (callback) {
     CEF_POST_TASK(CEF_UIT,
