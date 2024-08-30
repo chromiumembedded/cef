@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index c49b266e288ca..d1f9a1ab1e26d 100644
+index 1ee39659a3658..e927aa831adbe 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -413,6 +413,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
