@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 214c70f690b18..7e481aee2a1ca 100644
+index 7d2a81d96995c..69dc5d6321a90 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -2079,6 +2079,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessMaybeOpaqueOrigin(
+@@ -2080,6 +2080,16 @@ bool ChildProcessSecurityPolicyImpl::CanAccessMaybeOpaqueOrigin(
              // DeclarativeApiTest.PersistRules.
              if (actual_process_lock.matches_scheme(url::kDataScheme))
                return true;

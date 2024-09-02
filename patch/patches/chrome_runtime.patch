@@ -481,7 +481,7 @@ index 9a8dfdb6bc3ce..5981a8a0fae38 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 4b8cf312d4ca4..ef3c7e5e372b4 100644
+index c4b98aa0e759f..4b61126a6fa92 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -46,6 +46,7 @@
@@ -492,7 +492,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager_keyed_service_factory.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1518,6 +1519,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1523,6 +1524,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -501,7 +501,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1555,6 +1558,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1560,6 +1563,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -513,7 +513,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -3890,28 +3898,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
+@@ -3905,28 +3913,25 @@ bool UpdatePreferredColorScheme(WebPreferences* web_prefs,
          web_prefs->preferred_color_scheme;
    }
  #else
@@ -559,7 +559,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
    // Reauth WebUI doesn't support dark mode yet because it shares the dialog
-@@ -4693,9 +4698,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4708,9 +4713,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -571,7 +571,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6794,7 +6801,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6810,7 +6817,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -580,7 +580,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6812,6 +6819,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6828,6 +6835,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -589,7 +589,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
  }
  
  std::vector<base::FilePath>
-@@ -7929,10 +7938,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7945,10 +7954,10 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -602,7 +602,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
          FROM_HERE, keepalive_deadline_ - now,
          base::BindOnce(
              &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7951,7 +7960,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7967,7 +7976,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -612,7 +612,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8100,7 +8110,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8116,7 +8126,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -622,7 +622,7 @@ index 4b8cf312d4ca4..ef3c7e5e372b4 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index be75c2ce84ba4..f76963b5023ef 100644
+index b668d0f80abf2..a486d9d0bdea7 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -150,6 +150,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -643,7 +643,7 @@ index be75c2ce84ba4..f76963b5023ef 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1248,7 +1250,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1249,7 +1251,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
@@ -653,7 +653,7 @@ index be75c2ce84ba4..f76963b5023ef 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 0f37944dfa465..6d36a31dff18c 100644
+index 8cf6b5d7d4281..ee979b5d7a4da 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -16,6 +16,7 @@

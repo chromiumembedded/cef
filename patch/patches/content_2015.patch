@@ -114,7 +114,7 @@ index 77e3d993b3dc0..349043f3d965b 100644
    // on blink::features::kUserAgentReduction. Content may cache this value.
    virtual std::string GetUserAgent();
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index dd8f6b9a87a0c..c1f93a716b485 100644
+index 6dff7d89d2842..02fe3c1a88332 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -108,6 +108,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -127,7 +127,7 @@ index dd8f6b9a87a0c..c1f93a716b485 100644
    // Notifies that a new RenderFrame has been created.
    virtual void RenderFrameCreated(RenderFrame* render_frame) {}
  
-@@ -345,6 +348,10 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -349,6 +352,10 @@ class CONTENT_EXPORT ContentRendererClient {
    // This method may invalidate the frame.
    virtual void RunScriptsAtDocumentIdle(RenderFrame* render_frame) {}
  

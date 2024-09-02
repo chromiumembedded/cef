@@ -365,7 +365,7 @@ index 6eb1cf9451db1..97b1c9bcebb1d 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 269aabace2510..8e9c115c381fd 100644
+index bb3eabc909922..45d063518c0ea 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -20,6 +20,7 @@
@@ -423,7 +423,7 @@ index 269aabace2510..8e9c115c381fd 100644
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1025,10 +1046,23 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1029,10 +1050,23 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
    if (!native_widget_delegate_->IsNativeWidgetInitialized())
      return;
  
@@ -449,7 +449,7 @@ index 269aabace2510..8e9c115c381fd 100644
  }
  
  void DesktopWindowTreeHostWin::HandleClientSizeChanged(
-@@ -1045,11 +1079,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1049,11 +1083,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -467,7 +467,7 @@ index 269aabace2510..8e9c115c381fd 100644
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1057,6 +1095,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1061,6 +1099,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
    if (ui::PlatformEventSource::ShouldIgnoreNativePlatformEvents())
      return true;
  
@@ -480,7 +480,7 @@ index 269aabace2510..8e9c115c381fd 100644
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1235,8 +1279,16 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1239,9 +1283,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -490,7 +490,8 @@ index 269aabace2510..8e9c115c381fd 100644
 +    root = AsWindowTreeHost()->window();
 +  }
 +  gfx::Rect bounds_in_pixels =
-       display::Screen::GetScreen()->DIPToScreenRectInWindow(root, bounds);
+       display::Screen::GetScreen()->DIPToScreenRectInWindow(
+           root, AdjustedContentBounds(bounds));
 +  if (has_external_parent_) {
 +    // Child windows always have origin (0,0).
 +    bounds_in_pixels.set_origin(gfx::Point(0, 0));
@@ -499,10 +500,10 @@ index 269aabace2510..8e9c115c381fd 100644
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 8169f17982253..fd8c22449a6a3 100644
+index e5b304f90ef8f..205d92e42b7a9 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -324,6 +324,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -327,6 +327,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window should have the frame removed.
    bool remove_standard_frame_;
  
@@ -518,7 +519,7 @@ index 8169f17982253..fd8c22449a6a3 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index e13f3a3fe4e9a..8827c0355b665 100644
+index 002eab9f27f11..71c316a2292e3 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
 @@ -656,6 +656,7 @@ void NativeWidgetMac::Show(ui::WindowShowState show_state,
@@ -600,7 +601,7 @@ index 2fac5a83aac46..8db0925bf0edd 100644
      // focus when the window is restored.
      if (v)
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 721aa7432abbe..70dbf0eeb737e 100644
+index c52927b8e10b0..deddd8aa129f2 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -370,6 +370,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -612,7 +613,7 @@ index 721aa7432abbe..70dbf0eeb737e 100644
      // Specifies the initial bounds of the Widget. Default is empty, which means
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
-@@ -776,7 +778,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -783,7 +785,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
    void ShowInactive();
  
    // Activates the widget, assuming it already exists and is visible.

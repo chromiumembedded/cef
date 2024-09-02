@@ -397,7 +397,7 @@ index 14a8a70d853f6..bf81594947886 100644
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 6e5ce23ae43a4..12cd21a6e71ab 100644
+index 41c6c06ccfb21..382c02cece70a 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -354,11 +354,10 @@ using content::WebContents;
@@ -564,7 +564,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -4283,11 +4326,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4284,11 +4327,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -605,7 +605,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4296,7 +4366,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4297,7 +4367,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -614,7 +614,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -4407,8 +4477,10 @@ void BrowserView::Layout(PassKey) {
+@@ -4408,8 +4478,10 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -627,7 +627,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -4474,6 +4546,11 @@ void BrowserView::AddedToWidget() {
+@@ -4475,6 +4547,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -639,7 +639,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
    toolbar_->Init();
  
    // TODO(pbos): Investigate whether the side panels should be creatable when
-@@ -4515,13 +4592,9 @@ void BrowserView::AddedToWidget() {
+@@ -4516,13 +4593,9 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -655,7 +655,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -4889,7 +4962,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
+@@ -4890,7 +4963,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -665,7 +665,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
  }
  
  void BrowserView::RequestFullscreen(bool fullscreen, int64_t display_id) {
-@@ -5390,6 +5464,8 @@ Profile* BrowserView::GetProfile() {
+@@ -5391,6 +5465,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -674,7 +674,7 @@ index 6e5ce23ae43a4..12cd21a6e71ab 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -5412,6 +5488,8 @@ void BrowserView::HideDownloadShelf() {
+@@ -5413,6 +5489,8 @@ void BrowserView::HideDownloadShelf() {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -1007,7 +1007,7 @@ index 190843e6c42f7..da4e026a790a3 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index d1519e7f3782a..f82d651692a99 100644
+index df6dffc7d04ec..823b254ceb667 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -192,7 +192,7 @@ class TabstripLikeBackground : public views::Background {
