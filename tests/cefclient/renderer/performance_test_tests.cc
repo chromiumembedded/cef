@@ -4,6 +4,8 @@
 
 #include "tests/cefclient/renderer/performance_test.h"
 
+#include <array>
+
 #include "include/cef_v8.h"
 #include "tests/cefclient/renderer/performance_test_setup.h"
 
