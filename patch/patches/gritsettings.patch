@@ -1,5 +1,5 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index 57ce06d745941..0038e95ce024b 100644
+index 307e222ab9ce9..5862a098c118c 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
 @@ -1350,6 +1350,15 @@
