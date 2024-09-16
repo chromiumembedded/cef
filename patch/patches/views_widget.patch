@@ -23,7 +23,7 @@ index cef40af382b1e..a2cf4691edc37 100644
      case ui::SHOW_STATE_END:
        return ui::SHOW_STATE_NORMAL;
 diff --git components/sessions/core/session_service_commands.cc components/sessions/core/session_service_commands.cc
-index 618e95c4e4b10..028612a57382e 100644
+index cb28533323769..bbaf7c78bde84 100644
 --- components/sessions/core/session_service_commands.cc
 +++ components/sessions/core/session_service_commands.cc
 @@ -165,9 +165,10 @@ enum PersistedWindowShowState {
