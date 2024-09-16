@@ -515,7 +515,9 @@ CefFileDialogManager::MaybeRunDelegate(
             ext_str += FilePathTypeToString16(FILE_PATH_LITERAL(".") + ext);
           }
           accept_extensions.push_back(ext_str);
-          accept_descriptions.push_back(descriptions[i]);
+          if (descriptions.size() == extensions.size()) {
+            accept_descriptions.push_back(descriptions[i]);
+          }
         }
       }
 
