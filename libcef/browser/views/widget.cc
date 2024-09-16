@@ -42,6 +42,9 @@ CefWidget* CefWidget::GetForWidget(views::Widget* widget) {
   if (auto window = view_util::GetWindowFor(widget)) {
     if (auto* window_view =
             static_cast<CefWindowImpl*>(window.get())->cef_window_view()) {
+      if (auto widget_view = view_util::GetHostView(widget)) {
+        widget = widget_view->GetWidget();
+      }
       if (window_view->IsChromeStyle()) {
         return static_cast<ChromeBrowserFrame*>(widget);
       }
