@@ -145,11 +145,36 @@ void WindowCreateMaximizedImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
+#if defined(OS_MAC)
+void WindowFullscreenCreationComplete(CefRefPtr<CefWindow> window,
+                                      size_t count) {
+  EXPECT_FALSE(window->IsMinimized());
+  EXPECT_EQ(window->IsFullscreen(), window->IsMaximized());
+
+  if (window->IsFullscreen()) {
+    EXPECT_EQ(1U, count);
+    window->SetFullscreen(false);
+  } else {
+    EXPECT_EQ(2U, count);
+    // End the test by closing the Window.
+    window->Close();
+  }
+}
+#endif
+
 void WindowCreateFullscreenImpl(CefRefPtr<CefWaitableEvent> event) {
   auto config = std::make_unique<TestWindowDelegate::Config>();
   config->initial_show_state = CEF_SHOW_STATE_FULLSCREEN;
   config->on_window_created =
       base::BindOnce(RunWindowShow, config->initial_show_state);
+#if defined(OS_MAC)
+  // On macOS, destroying a fullscreen window can take a long time.
+  // To prevent the next test from starting before the window is fully closed,
+  // we need to exit fullscreen mode before closing the window.
+  config->on_window_fullscreen_transition_complete =
+      base::BindRepeating(WindowFullscreenCreationComplete);
+  config->close_window = false;
+#endif
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 

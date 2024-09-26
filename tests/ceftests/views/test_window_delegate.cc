@@ -193,8 +193,15 @@ void TestWindowDelegate::OnWindowFullscreenTransition(
   fullscreen_transition_callback_count_++;
 
 #if defined(OS_MAC)
-  // Two callbacks on MacOS.
-  EXPECT_EQ(is_completed ? 2U : 1U, fullscreen_transition_callback_count_);
+  // Only one callback when window is initially shown fullscreen on MacOS.
+  if (config_->initial_show_state == CEF_SHOW_STATE_FULLSCREEN &&
+      fullscreen_transition_complete_count_ == 0) {
+    EXPECT_TRUE(is_completed);
+    EXPECT_EQ(1U, fullscreen_transition_callback_count_);
+  } else {
+    // Two callbacks otherwise.
+    EXPECT_EQ(is_completed ? 2U : 1U, fullscreen_transition_callback_count_);
+  }
 #else
   // Single callback on other platforms.
   EXPECT_TRUE(is_completed);
