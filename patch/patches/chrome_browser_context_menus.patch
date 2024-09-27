@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 348128d804493..5d893c71e55ea 100644
+index c5511b1df85cf..f56a4efcfb8d2 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -360,6 +360,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -60,7 +60,7 @@ index 348128d804493..5d893c71e55ea 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3648,6 +3678,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3643,6 +3673,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -88,7 +88,7 @@ index 348128d804493..5d893c71e55ea 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 6b3874524e87b..4e0fd1d7297f1 100644
+index 91de5780521af..571ad0260b4f7 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -153,7 +153,21 @@ class RenderViewContextMenu
@@ -113,7 +113,7 @@ index 6b3874524e87b..4e0fd1d7297f1 100644
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -477,6 +491,9 @@ class RenderViewContextMenu
+@@ -478,6 +492,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  

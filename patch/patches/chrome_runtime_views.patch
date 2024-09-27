@@ -721,7 +721,7 @@ index 6fa57160f7193..4e10786e2c5a4 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index 80dcf5b08c67c..d0aef3fc40b07 100644
+index 60e7ea98b1dd2..e0c772a33ebc4 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -53,6 +53,10 @@
