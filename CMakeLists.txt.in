@@ -142,7 +142,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 project(cef)
 
 # Use folders in the resulting project files.
-set_property(GLOBAL PROPERTY OS_FOLDERS ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 
 #
