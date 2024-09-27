@@ -93,10 +93,10 @@ index 9d108fe375fa6..49f7694355c9a 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 9caf18c2106c7..e3ede1b32a010 100644
+index 0ba23d2d8ea58..2934cfd37db91 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -604,6 +604,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -608,6 +608,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  
@@ -107,7 +107,7 @@ index 9caf18c2106c7..e3ede1b32a010 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index a2dbe84d61e09..aff4aad15e069 100644
+index 23491b97bb068..4aa1ecef92f5f 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
 @@ -586,11 +586,15 @@ void NativeThemeMac::PaintSelectedMenuItem(

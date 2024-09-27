@@ -1133,7 +1133,9 @@ elif platform == 'windows':
   sandbox_libs = [
       'obj\\base\\base.lib',
       'obj\\base\\base_static.lib',
+      'obj\\base\\third_party\\cityhash\\cityhash\\*.obj',
       'obj\\base\\third_party\\double_conversion\\double_conversion.lib',
+      'obj\\base\\third_party\\superfasthash\\superfasthash\\*.obj',
       'obj\\base\\win\\pe_image.lib',
       cef_sandbox_lib,
       'obj\\sandbox\\common\\*.obj',

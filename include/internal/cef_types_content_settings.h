@@ -445,28 +445,35 @@ typedef enum {
   /// ALLOW: Protections disabled.
   CEF_CONTENT_SETTING_TYPE_TRACKING_PROTECTION,
 
-  // With this permission, when the application calls `getDisplayMedia()`, a
-  // system audio track can be returned without showing the display media
-  // selection picker. The application can explicitly specify
-  // `systemAudio: 'exclude'` or `video: true` to still show the display media
-  // selection picker if needed. Please note that the setting only works for
-  // WebUI.
+  /// With this permission, when the application calls `getDisplayMedia()`, a
+  /// system audio track can be returned without showing the display media
+  /// selection picker. The application can explicitly specify
+  /// `systemAudio: 'exclude'` or `video: true` to still show the display media
+  /// selection picker if needed. Please note that the setting only works for
+  /// WebUI.
   CEF_CONTENT_SETTING_TYPE_DISPLAY_MEDIA_SYSTEM_AUDIO,
 
-  // Whether to use the higher-tier v8 optimizers for running JavaScript on the
-  // page.
+  /// Whether to use the higher-tier v8 optimizers for running JavaScript on the
+  /// page.
   CEF_CONTENT_SETTING_TYPE_JAVASCRIPT_OPTIMIZER,
 
-  // Content Setting for the Storage Access Headers persistent origin trial that
-  // allows origins to opt into the storage access header behavior. Should be
-  // scoped to `REQUESTING_ORIGIN_AND_TOP_SCHEMEFUL_SITE_SCOPE` in order to
-  // correspond to the design of persistent origin trials. See also:
-  // https://github.com/cfredric/storage-access-headers
-  // ALLOW: storage access request headers will be attached to cross-site
-  //        requests, and url requests will look for response headers from
-  //        origins to retry a request or load with storage access.
-  // BLOCK (default): no effect.
+  /// Content Setting for the Storage Access Headers persistent origin trial
+  /// that allows origins to opt into the storage access header behavior. Should
+  /// be scoped to `REQUESTING_ORIGIN_AND_TOP_SCHEMEFUL_SITE_SCOPE` in order to
+  /// correspond to the design of persistent origin trials. See also:
+  /// https://github.com/cfredric/storage-access-headers
+  /// ALLOW: storage access request headers will be attached to cross-site
+  ///        requests, and url requests will look for response headers from
+  ///        origins to retry a request or load with storage access.
+  /// BLOCK (default): no effect.
   CEF_CONTENT_SETTING_TYPE_STORAGE_ACCESS_HEADER_ORIGIN_TRIAL,
+
+  /// Whether or not sites can request Hand Tracking data within WebXR Sessions.
+  CEF_CONTENT_SETTING_TYPE_HAND_TRACKING,
+
+  /// Website setting to indicate whether user has opted in to allow web apps to
+  /// install other web apps.
+  CEF_CONTENT_SETTING_TYPE_WEB_APP_INSTALLATION,
 } cef_content_setting_types_t;
 
 ///

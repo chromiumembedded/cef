@@ -951,8 +951,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     static const char* kName = "val";
     static const char* kGetException = "My get exception";
     static const char* kSetException = "My set exception";
-    static const char* kGetExceptionMsg = "Uncaught Error: My get exception";
-    static const char* kSetExceptionMsg = "Uncaught Error: My set exception";
+    static const char* kGetExceptionMsg =
+        "Uncaught Error: Failed to read the 'val' property from 'Object': My "
+        "get exception";
+    static const char* kSetExceptionMsg =
+        "Uncaught Error: Failed to set the 'val' property on 'Object': My set "
+        "exception";
 
     class Accessor : public CefV8Accessor {
      public:
@@ -1493,13 +1497,17 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     static const char* kSetByIndexException = "My set_byindex exception";
 
     static const char* kGetByNameExceptionMsg =
-        "Uncaught Error: My get_byname exception";
+        "Uncaught Error: Failed to read a named property 'val' from 'Object': "
+        "My get_byname exception";
     static const char* kGetByIndexExceptionMsg =
-        "Uncaught Error: My get_byindex exception";
+        "Uncaught Error: Failed to read an indexed property [1] from 'Object': "
+        "My get_byindex exception";
     static const char* kSetByNameExceptionMsg =
-        "Uncaught Error: My set_byname exception";
+        "Uncaught Error: Failed to set a named property 'val' on 'Object': My "
+        "set_byname exception";
     static const char* kSetByIndexExceptionMsg =
-        "Uncaught Error: My set_byindex exception";
+        "Uncaught Error: Failed to set an indexed property [1] on 'Object': My "
+        "set_byindex exception";
 
     class Interceptor : public CefV8Interceptor {
      public:

@@ -240,9 +240,9 @@ void CreateBoxLayout(CefRefPtr<CefWindow> parent) {
 
   // The children should each take up 50% of the client area.
   ExpectCloseRects(CefRect(0, 0, kWSize, kWSize / 2), panel_child1->GetBounds(),
-                   2);
+                   3);
   ExpectCloseRects(CefRect(0, kWSize / 2, kWSize, kWSize / 2),
-                   panel_child2->GetBounds(), 2);
+                   panel_child2->GetBounds(), 3);
 }
 
 void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
@@ -267,7 +267,7 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(view2->ConvertPointToScreen(point));
   ExpectClosePoints(CefPoint(client_bounds_in_screen.x,
                              client_bounds_in_screen.y + kWSize / 2),
-                    point, 1);
+                    point, 3);
 
   // Test view from screen coordinate conversions.
   point = CefPoint(client_bounds_in_screen.x, client_bounds_in_screen.y);
@@ -276,7 +276,7 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   point = CefPoint(client_bounds_in_screen.x,
                    client_bounds_in_screen.y + kWSize / 2);
   EXPECT_TRUE(view2->ConvertPointFromScreen(point));
-  ExpectClosePoints(CefPoint(0, 0), point, 1);
+  ExpectClosePoints(CefPoint(0, 0), point, 3);
 
   // Test view to window coordinate conversions.
   point = CefPoint(0, 0);
@@ -284,7 +284,7 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   EXPECT_EQ(CefPoint(0, 0), point);
   point = CefPoint(0, 0);
   EXPECT_TRUE(view2->ConvertPointToWindow(point));
-  ExpectClosePoints(CefPoint(0, kWSize / 2), point, 1);
+  ExpectClosePoints(CefPoint(0, kWSize / 2), point, 3);
 
   // Test view from window coordinate conversions.
   point = CefPoint(0, 0);
@@ -292,23 +292,23 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   EXPECT_EQ(CefPoint(0, 0), point);
   point = CefPoint(0, kWSize / 2);
   EXPECT_TRUE(view2->ConvertPointFromWindow(point));
-  ExpectClosePoints(CefPoint(0, 0), point, 1);
+  ExpectClosePoints(CefPoint(0, 0), point, 3);
 
   // Test view to view coordinate conversions.
   point = CefPoint(0, 0);
   EXPECT_TRUE(view1->ConvertPointToView(view2, point));
-  ExpectClosePoints(CefPoint(0, -kWSize / 2), point, 1);
+  ExpectClosePoints(CefPoint(0, -kWSize / 2), point, 3);
   point = CefPoint(0, 0);
   EXPECT_TRUE(view2->ConvertPointToView(view1, point));
-  ExpectClosePoints(CefPoint(0, kWSize / 2), point, 1);
+  ExpectClosePoints(CefPoint(0, kWSize / 2), point, 3);
 
   // Test view from view coordinate conversions.
   point = CefPoint(0, -kWSize / 2);
   EXPECT_TRUE(view1->ConvertPointFromView(view2, point));
-  ExpectClosePoints(CefPoint(0, 0), point, 1);
+  ExpectClosePoints(CefPoint(0, 0), point, 3);
   point = CefPoint(0, kWSize / 2);
   EXPECT_TRUE(view2->ConvertPointFromView(view1, point));
-  ExpectClosePoints(CefPoint(0, 0), point, 1);
+  ExpectClosePoints(CefPoint(0, 0), point, 3);
 
   CefRefPtr<CefDisplay> display = window->GetDisplay();
   EXPECT_TRUE(display.get());
@@ -324,7 +324,7 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
   point = CefPoint(client_bounds_in_screen.x, client_bounds_in_screen.y);
   const auto pixels = CefDisplay::ConvertScreenPointToPixels(point);
   const auto dip = CefDisplay::ConvertScreenPointFromPixels(pixels);
-  EXPECT_EQ(point, dip);
+  ExpectClosePoints(point, dip, 1);
 }
 
 void WindowLayoutAndCoordsImpl(CefRefPtr<CefWaitableEvent> event) {

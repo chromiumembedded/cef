@@ -51,7 +51,7 @@ namespace {
 void HandleExternalProtocolHelper(
     ChromeContentBrowserClientCef* self,
     content::WebContents::Getter web_contents_getter,
-    int frame_tree_node_id,
+    content::FrameTreeNodeId frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_primary_main_frame,
     bool is_in_fenced_frame_tree,
@@ -343,7 +343,7 @@ void ChromeContentBrowserClientCef::WillCreateURLLoaderFactory(
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     const GURL& url,
     content::WebContents::Getter web_contents_getter,
-    int frame_tree_node_id,
+    content::FrameTreeNodeId frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_primary_main_frame,
     bool is_in_fenced_frame_tree,
@@ -372,7 +372,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     content::WebContents::Getter web_contents_getter,
-    int frame_tree_node_id,
+    content::FrameTreeNodeId frame_tree_node_id,
     content::NavigationUIData* navigation_data,
     bool is_primary_main_frame,
     bool is_in_fenced_frame_tree,

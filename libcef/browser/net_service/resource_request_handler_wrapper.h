@@ -41,7 +41,7 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 // ProxyURLLoaderFactory::CreateProxy. Called on the UI thread only.
 std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
     content::WebContents::Getter web_contents_getter,
-    int frame_tree_node_id,
+    content::FrameTreeNodeId frame_tree_node_id,
     const network::ResourceRequest& request,
     const base::RepeatingClosure& unhandled_request_callback);
 

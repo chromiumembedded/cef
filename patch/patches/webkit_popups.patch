@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 4220a0aebf4a2..0bb15451c703f 100644
+index 746af7113a66d..63346d59fe411 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -335,6 +335,7 @@ class BLINK_EXPORT WebView {
+@@ -341,6 +341,7 @@ class BLINK_EXPORT WebView {
  
    // Sets whether select popup menus should be rendered by the browser.
    static void SetUseExternalPopupMenus(bool);
@@ -11,10 +11,10 @@ index 4220a0aebf4a2..0bb15451c703f 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 42b00bd0b3c22..31b8da18cab0b 100644
+index 8f3603538170a..70366efd02575 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -252,8 +252,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -253,8 +253,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 42b00bd0b3c22..31b8da18cab0b 100644
  }
  
  namespace {
-@@ -611,6 +616,7 @@ WebViewImpl::WebViewImpl(
+@@ -616,6 +621,7 @@ WebViewImpl::WebViewImpl(
            blink::ZoomFactorToZoomLevel(kMinimumBrowserZoomFactor)),
        maximum_zoom_level_(
            blink::ZoomFactorToZoomLevel(kMaximumBrowserZoomFactor)),
@@ -39,10 +39,10 @@ index 42b00bd0b3c22..31b8da18cab0b 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index d4f129c072ef1..956ad9beb22b4 100644
+index 69318d9676ed6..84c2d95694146 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -138,7 +138,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -140,7 +140,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    static HashSet<WebViewImpl*>& AllInstances();
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index d4f129c072ef1..956ad9beb22b4 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -870,6 +871,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -873,6 +874,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  

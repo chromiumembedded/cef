@@ -14,10 +14,10 @@ index 7ae18c5a960b0..d48ba838efe6f 100644
               ? profile_metrics::BrowserProfileType::kRegular
               : profile_metrics::BrowserProfileType::kIncognito;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index 826fa20afbb56..f08891c4aaa0d 100644
+index 3ac5ebf1b49b5..d41cffecb5603 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-@@ -31,7 +31,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
+@@ -32,7 +32,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
        dialog_type_(type),
        incognito_profile_(incognito_profile) {
    DCHECK(incognito_profile_);
@@ -25,7 +25,7 @@ index 826fa20afbb56..f08891c4aaa0d 100644
 +  DCHECK(incognito_profile_->IsIncognitoProfile() ||
 +         (incognito_profile_->IsOffTheRecord() &&
 +          incognito_profile_->GetOTRProfileID().IsUniqueForCEF()));
-   SetButtons(ui::DIALOG_BUTTON_NONE);
+   SetButtons(static_cast<int>(ui::mojom::DialogButton::kNone));
    SetShowCloseButton(true);
  
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc

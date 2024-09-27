@@ -1,0 +1,12 @@
+diff --git base/allocator/partition_allocator/src/partition_alloc/oom.cc base/allocator/partition_allocator/src/partition_alloc/oom.cc
+index 9b78dfb817139..89589784aa0aa 100644
+--- base/allocator/partition_allocator/src/partition_alloc/oom.cc
++++ base/allocator/partition_allocator/src/partition_alloc/oom.cc
+@@ -15,6 +15,7 @@
+ 
+ #include <array>
+ #include <cstdlib>
++#include <limits>
+ #endif  // PA_BUILDFLAG(IS_WIN)
+ 
+ namespace partition_alloc {

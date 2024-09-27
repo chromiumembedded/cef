@@ -469,8 +469,8 @@ void CefFrameHostImpl::ExecuteJavaScriptWithUserGestureForTests(
 
   content::RenderFrameHost* rfh = GetRenderFrameHost();
   if (rfh) {
-    rfh->ExecuteJavaScriptWithUserGestureForTests(javascript,
-                                                  base::NullCallback());
+    rfh->ExecuteJavaScriptWithUserGestureForTests(
+        javascript, base::NullCallback(), content::ISOLATED_WORLD_ID_GLOBAL);
   }
 }
 

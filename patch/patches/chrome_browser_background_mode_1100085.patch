@@ -14,10 +14,10 @@ index b7abca02f48f8..b595e9daa40eb 100644
        std::unique_ptr<BackgroundModeManager> manager) = 0;
  #endif
 diff --git chrome/browser/browser_process_impl.cc chrome/browser/browser_process_impl.cc
-index 126516f5d5c28..ed8c126e78156 100644
+index 4de58876a9947..d1b0319482293 100644
 --- chrome/browser/browser_process_impl.cc
 +++ chrome/browser/browser_process_impl.cc
-@@ -1111,18 +1111,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
+@@ -1141,18 +1141,14 @@ DownloadRequestLimiter* BrowserProcessImpl::download_request_limiter() {
    return download_request_limiter_.get();
  }
  
@@ -38,7 +38,7 @@ index 126516f5d5c28..ed8c126e78156 100644
      std::unique_ptr<BackgroundModeManager> manager) {
    background_mode_manager_ = std::move(manager);
 diff --git chrome/browser/browser_process_impl.h chrome/browser/browser_process_impl.h
-index c73845ee5a52e..b60e60050666f 100644
+index 9b6380d7fe36c..839558f24a06e 100644
 --- chrome/browser/browser_process_impl.h
 +++ chrome/browser/browser_process_impl.h
 @@ -193,8 +193,8 @@ class BrowserProcessImpl : public BrowserProcess,
@@ -52,10 +52,10 @@ index c73845ee5a52e..b60e60050666f 100644
        std::unique_ptr<BackgroundModeManager> manager) override;
  #endif
 diff --git chrome/browser/lifetime/browser_close_manager.cc chrome/browser/lifetime/browser_close_manager.cc
-index bfffa272e6458..460a35e0c708f 100644
+index 173f85fa144a1..43b8f2e2a18db 100644
 --- chrome/browser/lifetime/browser_close_manager.cc
 +++ chrome/browser/lifetime/browser_close_manager.cc
-@@ -158,12 +158,14 @@ void BrowserCloseManager::CloseBrowsers() {
+@@ -158,6 +158,7 @@ void BrowserCloseManager::CloseBrowsers() {
    // exit can restore all browsers open before exiting.
    ProfileManager::ShutdownSessionServices();
  #endif
@@ -63,8 +63,9 @@ index bfffa272e6458..460a35e0c708f 100644
    if (!browser_shutdown::IsTryingToQuit()) {
      BackgroundModeManager* background_mode_manager =
          g_browser_process->background_mode_manager();
-     if (background_mode_manager)
+@@ -165,6 +166,7 @@ void BrowserCloseManager::CloseBrowsers() {
        background_mode_manager->SuspendBackgroundMode();
+     }
    }
 +#endif
  

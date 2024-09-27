@@ -283,10 +283,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
 
   // Match the logic in
   // URLRequestHttpJob::SaveCookiesAndNotifyHeadersComplete.
-  base::Time response_date;
-  if (!headers->GetDateValue(&response_date)) {
-    response_date = base::Time();
-  }
+  const auto response_date = headers->GetDateValue();
 
   const std::string_view name(net_service::kHTTPSetCookieHeaderName);
   std::string cookie_string;
@@ -299,8 +296,7 @@ void SaveCookies(const CefBrowserContext::Getter& browser_context_getter,
 
     net::CookieInclusionStatus returned_status;
     std::unique_ptr<net::CanonicalCookie> cookie = net::CanonicalCookie::Create(
-        request.url, cookie_string, base::Time::Now(),
-        std::make_optional(response_date),
+        request.url, cookie_string, base::Time::Now(), response_date,
         /*cookie_partition_key=*/std::nullopt, net::CookieSourceType::kHTTP,
         &returned_status);
     if (!returned_status.IsInclude()) {

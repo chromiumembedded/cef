@@ -208,6 +208,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_LOCAL_FONTS;
     case permissions::RequestType::kGeolocation:
       return CEF_PERMISSION_TYPE_GEOLOCATION;
+    case permissions::RequestType::kHandTracking:
+      return CEF_PERMISSION_TYPE_HAND_TRACKING;
     case permissions::RequestType::kIdentityProvider:
       return CEF_PERMISSION_TYPE_IDENTITY_PROVIDER;
     case permissions::RequestType::kIdleDetection:
@@ -236,6 +238,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_TOP_LEVEL_STORAGE_ACCESS;
     case permissions::RequestType::kVrSession:
       return CEF_PERMISSION_TYPE_VR_SESSION;
+    case permissions::RequestType::kWebAppInstallation:
+      return CEF_PERMISSION_TYPE_WEB_APP_INSTALLATION;
     case permissions::RequestType::kWindowManagement:
       return CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT;
     case permissions::RequestType::kFileSystemAccess:

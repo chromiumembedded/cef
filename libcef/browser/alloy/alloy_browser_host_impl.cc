@@ -940,7 +940,7 @@ content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
   return nullptr;
 }
 
-void AlloyBrowserHostImpl::AddNewContents(
+content::WebContents* AlloyBrowserHostImpl::AddNewContents(
     content::WebContents* source,
     std::unique_ptr<content::WebContents> new_contents,
     const GURL& target_url,
@@ -948,9 +948,11 @@ void AlloyBrowserHostImpl::AddNewContents(
     const blink::mojom::WindowFeatures& window_features,
     bool user_gesture,
     bool* was_blocked) {
+  auto* new_contents_ptr = new_contents.get();
   platform_delegate_->AddNewContents(source, std::move(new_contents),
                                      target_url, disposition, window_features,
                                      user_gesture, was_blocked);
+  return new_contents_ptr;
 }
 
 void AlloyBrowserHostImpl::LoadingStateChanged(content::WebContents* source,

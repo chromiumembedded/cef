@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index cec2b9df48ca1..b8e250e7376a2 100644
+index 097e59f46d07a..54096982660c6 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index cec2b9df48ca1..b8e250e7376a2 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -279,6 +280,10 @@ group("gn_all") {
+@@ -285,6 +286,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index f98782561d861..6361483e28a18 100644
+index 8e6a2401aab03..571951616dec1 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -87,17 +87,17 @@ index f98782561d861..6361483e28a18 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -89,6 +90,10 @@ template("chrome_repack_percent") {
-         ]
-       }
+@@ -468,6 +469,10 @@ template("chrome_extra_paks") {
+       ]
+       deps += [ "//extensions:extensions_resources" ]
      }
 +    if (enable_cef) {
 +      sources += [ "$root_gen_dir/cef/cef_resources.pak" ]
 +      deps += [ "//cef:cef_resources" ]
 +    }
      if (enable_extensions) {
-       sources += [ "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak" ]
-       deps += [ "//extensions:extensions_browser_resources" ]
+       sources += [
+         "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
 index e8f61e2fbf6f2..5de226ad5a8f2 100644
 --- chrome/chrome_repack_locales.gni

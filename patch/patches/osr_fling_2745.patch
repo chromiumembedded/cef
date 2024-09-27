@@ -30,7 +30,7 @@ index 76057b3e50f78..d3b63a3b07805 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index 4234f63f5a717..ded170d0c5945 100644
+index 82f462173913b..05b4824ec8329 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -66,6 +66,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index c77a3fa9a247c..611baceed3883 100644
+index 5754c2bd33053..25688e64d712d 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3190,6 +3190,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+@@ -3216,6 +3216,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
  
@@ -72,10 +72,10 @@ index c77a3fa9a247c..611baceed3883 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 2852c10fc0de6..4a09b95e1309c 100644
+index 3d03709303e22..1d162642a2f8a 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -834,6 +834,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -835,6 +835,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

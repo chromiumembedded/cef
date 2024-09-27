@@ -69,7 +69,7 @@ index 6548d519c3da9..645163f69f822 100644
  // chrome://terms
  class TermsUIConfig : public AboutUIConfigBase {
 diff --git chrome/browser/ui/webui/chrome_web_ui_configs.cc chrome/browser/ui/webui/chrome_web_ui_configs.cc
-index 07e648356a5fb..b284630f01b3a 100644
+index b56981733057e..20386be211feb 100644
 --- chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_configs.cc
 @@ -6,6 +6,7 @@
@@ -80,7 +80,7 @@ index 07e648356a5fb..b284630f01b3a 100644
  #include "chrome/browser/ui/webui/about/about_ui.h"
  #include "chrome/browser/ui/webui/accessibility/accessibility_ui.h"
  #include "chrome/browser/ui/webui/autofill_and_password_manager_internals/autofill_internals_ui.h"
-@@ -74,6 +75,9 @@ void RegisterChromeWebUIConfigs() {
+@@ -97,6 +98,9 @@ void RegisterChromeWebUIConfigs() {
    map.AddWebUIConfig(std::make_unique<AutofillInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<BrowsingTopicsInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<ChromeURLsUIConfig>());
@@ -91,7 +91,7 @@ index 07e648356a5fb..b284630f01b3a 100644
    map.AddWebUIConfig(std::make_unique<CreditsUIConfig>());
    map.AddWebUIConfig(std::make_unique<DataSharingInternalsUIConfig>());
 diff --git chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index af6d877f601d2..03c53be62e560 100644
+index 743fd86a35a10..48b0488d8f56a 100644
 --- chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 @@ -18,6 +18,7 @@
@@ -102,7 +102,7 @@ index af6d877f601d2..03c53be62e560 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/buildflags.h"
  #include "chrome/browser/commerce/shopping_service_factory.h"
-@@ -980,6 +981,9 @@ ChromeWebUIControllerFactory::GetListOfAcceptableURLs() {
+@@ -927,6 +928,9 @@ ChromeWebUIControllerFactory::GetListOfAcceptableURLs() {
      GURL(chrome::kChromeUIGpuURL),
      GURL(chrome::kChromeUIHistogramsURL),
      GURL(chrome::kChromeUIInspectURL),
@@ -127,7 +127,7 @@ index 248b6795e8cbe..c957f9d55613d 100644
  #if !BUILDFLAG(IS_ANDROID)
        kChromeUIManagementHost,
 diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
-index 52672e0274345..cdcaf3deb3c32 100644
+index d1a8dc8342177..8d3226adca3c4 100644
 --- chrome/common/webui_url_constants.h
 +++ chrome/common/webui_url_constants.h
 @@ -18,6 +18,7 @@
@@ -137,8 +137,8 @@ index 52672e0274345..cdcaf3deb3c32 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/common/buildflags.h"
  #include "components/lens/buildflags.h"
- #include "content/public/common/url_constants.h"
-@@ -155,6 +156,10 @@ inline constexpr char kChromeUILauncherInternalsURL[] =
+ #include "components/signin/public/base/signin_buildflags.h"
+@@ -160,6 +161,10 @@ inline constexpr char kChromeUILauncherInternalsURL[] =
  inline constexpr char kChromeUILensSearchBubbleHost[] = "lens-search-bubble";
  inline constexpr char kChromeUILensSearchBubbleURL[] =
      "chrome://lens-search-bubble/";

@@ -415,8 +415,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -431,8 +430,7 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -449,8 +447,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -467,8 +464,7 @@ TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -485,8 +481,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -503,8 +498,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -519,8 +513,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -535,8 +528,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -551,8 +543,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -567,8 +558,7 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -675,8 +665,7 @@ TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 
@@ -713,8 +702,7 @@ TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
 
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
-  EXPECT_STREQ("NotAllowedError: Invalid state",
-               test_setup.js_error_str.c_str());
+  EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
   EXPECT_FALSE(test_setup.got_change);
 }
 

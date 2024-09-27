@@ -13,7 +13,7 @@ index 023ce7091b061..f175b3683f48f 100644
    // Returns true if the element's computed writing suggestions value is true.
    // https://html.spec.whatwg.org/#writing-suggestions:computed-writing-suggestions-value
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index da6ab6488ad80..7b23243e21a61 100644
+index def4b446fcbbb..d48998241f604 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
 @@ -119,6 +119,24 @@ void WebElement::SetAttribute(const WebString& attr_name,

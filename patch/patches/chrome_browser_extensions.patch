@@ -34,19 +34,10 @@ index 4007e26f780c3..26d0d492cf176 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 723e68fdb68e0..604989e6bfd1a 100644
+index faefffb1010e8..ee3c11ffda006 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1552,7 +1552,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-   if (DevToolsWindow::IsDevToolsWindow(contents))
-     return RespondNow(Error(tabs_constants::kNotAllowedForDevToolsError));
- 
--  if (!ExtensionTabUtil::BrowserSupportsTabs(browser))
-+  if (browser && !ExtensionTabUtil::BrowserSupportsTabs(browser))
-     return RespondNow(Error(tabs_constants::kNoCurrentWindowError));
- 
-   web_contents_ = contents;
-@@ -1576,7 +1576,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1577,7 +1577,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
      }
  
@@ -55,7 +46,7 @@ index 723e68fdb68e0..604989e6bfd1a 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1590,7 +1590,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1591,7 +1591,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      bool highlighted = *params->update_properties.highlighted;
@@ -64,7 +55,7 @@ index 723e68fdb68e0..604989e6bfd1a 100644
        tab_strip->ToggleSelectionAt(tab_index);
      }
    }
-@@ -1603,7 +1603,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1604,7 +1604,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          base::NumberToString(tab_id))));
    }
  
@@ -73,23 +64,18 @@ index 723e68fdb68e0..604989e6bfd1a 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1638,11 +1638,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1638,7 +1638,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+         ->SetAutoDiscardable(state);
    }
- 
-   const bool contents_in_an_uneditable_saved_group =
--      contents && ExtensionTabUtil::TabIsInSavedTabGroup(
-+      browser && contents && ExtensionTabUtil::TabIsInSavedTabGroup(
-                       web_contents_, browser->tab_strip_model()) &&
-                   !ExtensionHasLockedFullscreenPermission(extension());
  
 -  if (params->update_properties.pinned) {
 +  if (tab_strip && params->update_properties.pinned) {
-     // Pinning will result in changes to the tabs index/group affiliation in
-     // some cases, Throw an error if a tab is attempting to be pinned.
-     if (contents_in_an_uneditable_saved_group) {
-@@ -1673,8 +1673,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-     }
- 
+     // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
+     // the user is dragging tabs.
+     if (!ExtensionTabUtil::IsTabStripEditable()) {
+@@ -1659,8 +1659,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   // Navigate the tab to a new location if the url is different.
+   if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
 -    if (browser->profile()->IsIncognitoProfile() &&
 -        !IsURLAllowedInIncognito(GURL(updated_url), browser->profile())) {
@@ -99,7 +85,7 @@ index 723e68fdb68e0..604989e6bfd1a 100644
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
      }
-@@ -1688,7 +1689,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1674,7 +1675,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
@@ -109,18 +95,18 @@ index 723e68fdb68e0..604989e6bfd1a 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 9d33f958ae540..40dc75ebc88b6 100644
+index 1687e36dd5966..929e1fdf78611 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -18,6 +18,7 @@
+@@ -20,6 +20,7 @@
  #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/types/expected_macros.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process.h"
- #include "chrome/browser/extensions/api/tab_groups/tab_groups_util.h"
  #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
-@@ -72,6 +73,10 @@
+ #include "chrome/browser/extensions/browser_extension_window_controller.h"
+@@ -75,6 +76,10 @@
  #include "third_party/blink/public/common/features.h"
  #include "url/gurl.h"
  
@@ -131,7 +117,7 @@ index 9d33f958ae540..40dc75ebc88b6 100644
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -758,6 +763,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -698,6 +703,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  
@@ -153,7 +139,7 @@ index 9d33f958ae540..40dc75ebc88b6 100644
      // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
      // the tab id exists as a prerendering tab, and the API will returns
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index 4ca4ecd147267..dc8a8d004a1d6 100644
+index 63848c93738ce..0358e098c7339 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@
@@ -164,9 +150,9 @@ index 4ca4ecd147267..dc8a8d004a1d6 100644
  
  #if BUILDFLAG(IS_ANDROID)
  
-@@ -37,6 +38,10 @@ namespace prerender {
- class ChromeNoStatePrefetchContentsDelegate;
- }
+@@ -41,6 +42,10 @@ namespace tabs {
+ class TabModel;
+ }  // namespace tabs
  
 +#if BUILDFLAG(ENABLE_CEF)
 +class CefBrowserPlatformDelegateAlloy;
@@ -175,7 +161,7 @@ index 4ca4ecd147267..dc8a8d004a1d6 100644
  // A "tab contents" is a WebContents that is used as a tab in a browser window
  // (or the equivalent on Android). The TabHelpers class allows specific classes
  // to attach the set of tab helpers that is used for tab contents.
-@@ -74,6 +79,10 @@ class TabHelpers {
+@@ -79,6 +84,10 @@ class TabHelpers {
    // Link Preview shows a preview of a page, then promote it as a new tab.
    friend class PreviewTab;
  
@@ -187,10 +173,10 @@ index 4ca4ecd147267..dc8a8d004a1d6 100644
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
 diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-index 427988cdc5b24..f448bb8dac9b4 100644
+index 101afe2d08189..f4f4479f5ee54 100644
 --- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
 +++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-@@ -831,6 +831,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
+@@ -835,6 +835,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
    if (!gfx::Animation::ShouldRenderRichAnimation()) {
      return;
    }
