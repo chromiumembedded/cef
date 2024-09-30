@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index c77a3fa9a247c..611baceed3883 100644
+index 4b7a2ab4833ce..bc3b1745875fd 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3190,6 +3190,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+@@ -3191,6 +3191,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
  

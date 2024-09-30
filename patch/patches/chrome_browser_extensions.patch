@@ -34,7 +34,7 @@ index 4007e26f780c3..26d0d492cf176 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 723e68fdb68e0..604989e6bfd1a 100644
+index cbfeb699bb92c..259c9b9d5938b 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1552,7 +1552,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -73,23 +73,18 @@ index 723e68fdb68e0..604989e6bfd1a 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1638,11 +1638,11 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1637,7 +1637,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+         ->SetAutoDiscardable(state);
    }
- 
-   const bool contents_in_an_uneditable_saved_group =
--      contents && ExtensionTabUtil::TabIsInSavedTabGroup(
-+      browser && contents && ExtensionTabUtil::TabIsInSavedTabGroup(
-                       web_contents_, browser->tab_strip_model()) &&
-                   !ExtensionHasLockedFullscreenPermission(extension());
  
 -  if (params->update_properties.pinned) {
 +  if (tab_strip && params->update_properties.pinned) {
-     // Pinning will result in changes to the tabs index/group affiliation in
-     // some cases, Throw an error if a tab is attempting to be pinned.
-     if (contents_in_an_uneditable_saved_group) {
-@@ -1673,8 +1673,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-     }
- 
+     // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
+     // the user is dragging tabs.
+     if (!ExtensionTabUtil::IsTabStripEditable()) {
+@@ -1658,8 +1658,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+   // Navigate the tab to a new location if the url is different.
+   if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
 -    if (browser->profile()->IsIncognitoProfile() &&
 -        !IsURLAllowedInIncognito(GURL(updated_url), browser->profile())) {
@@ -99,7 +94,7 @@ index 723e68fdb68e0..604989e6bfd1a 100644
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
      }
-@@ -1688,7 +1689,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1673,7 +1674,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
@@ -109,7 +104,7 @@ index 723e68fdb68e0..604989e6bfd1a 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 9d33f958ae540..40dc75ebc88b6 100644
+index c630431022688..534c6f9e52726 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -18,6 +18,7 @@
@@ -131,7 +126,7 @@ index 9d33f958ae540..40dc75ebc88b6 100644
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -758,6 +763,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -748,6 +753,20 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  
