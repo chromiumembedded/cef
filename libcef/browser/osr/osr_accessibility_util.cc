@@ -42,8 +42,8 @@ CefRefPtr<CefListValue> ToCefValue(uint32_t state) {
 
   int index = 0;
   // Iterate and find which states are set.
-  for (unsigned i = static_cast<unsigned>(ax::mojom::Role::kMinValue) + 1;
-       i <= static_cast<unsigned>(ax::mojom::Role::kMaxValue); i++) {
+  for (unsigned i = static_cast<unsigned>(ax::mojom::State::kNone) + 1;
+       i <= static_cast<unsigned>(ax::mojom::State::kMaxValue); i++) {
     if (state & (1 << i)) {
       value->SetString(index++, ToString(static_cast<ax::mojom::State>(i)));
     }
