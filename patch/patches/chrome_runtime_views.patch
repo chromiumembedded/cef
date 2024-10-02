@@ -721,7 +721,7 @@ index bff67fba31480..bf3c87a126457 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index 80dcf5b08c67c..d0aef3fc40b07 100644
+index cb14b46b727ca..eef3da9247c54 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -53,6 +53,10 @@
@@ -755,16 +755,16 @@ index 80dcf5b08c67c..d0aef3fc40b07 100644
      return gfx::Point(middle_x - size.width() / 2, top);
    }
  
-@@ -162,7 +170,7 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
+@@ -137,7 +145,7 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
      // universally.
      views::View* view = browser_view_layout_->contents_container_;
      gfx::Rect content_area = view->ConvertRectToWidget(view->GetLocalBounds());
 -    const int top = browser_view_layout_->dialog_top_y_;
 +    const int top = GetDialogTopY();
      return gfx::Size(content_area.width(), content_area.bottom() - top);
- #endif
    }
-@@ -192,6 +200,13 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
+ 
+@@ -166,6 +174,13 @@ class BrowserViewLayout::WebContentsModalDialogHostViews
      return host_widget ? host_widget->GetNativeView() : nullptr;
    }
  
@@ -778,7 +778,7 @@ index 80dcf5b08c67c..d0aef3fc40b07 100644
    // Add/remove observer.
    void AddObserver(ModalDialogHostObserver* observer) override {
      observer_list_.AddObserver(observer);
-@@ -513,6 +528,8 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
+@@ -487,6 +502,8 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
    if (exclusive_access_bubble)
      exclusive_access_bubble->RepositionIfVisible();
  
@@ -787,7 +787,7 @@ index 80dcf5b08c67c..d0aef3fc40b07 100644
    // Adjust any hosted dialogs if the browser's dialog hosting bounds changed.
    const gfx::Rect dialog_bounds(dialog_host_->GetDialogPosition(gfx::Size()),
                                  dialog_host_->GetMaximumDialogSize());
-@@ -526,6 +543,7 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
+@@ -500,6 +517,7 @@ void BrowserViewLayout::Layout(views::View* browser_view) {
      latest_dialog_bounds_in_screen_ = dialog_bounds_in_screen;
      dialog_host_->NotifyPositionRequiresUpdate();
    }
@@ -795,7 +795,7 @@ index 80dcf5b08c67c..d0aef3fc40b07 100644
  }
  
  gfx::Size BrowserViewLayout::GetPreferredSize(
-@@ -667,6 +685,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
+@@ -641,6 +659,13 @@ int BrowserViewLayout::LayoutWebUITabStrip(int top) {
  
  int BrowserViewLayout::LayoutToolbar(int top) {
    TRACE_EVENT0("ui", "BrowserViewLayout::LayoutToolbar");
