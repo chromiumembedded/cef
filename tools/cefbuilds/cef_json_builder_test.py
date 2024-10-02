@@ -78,7 +78,8 @@ class TestCefJSONBuilder(unittest.TestCase):
                      type='standard',
                      channel='stable',
                      attrib_idx=0,
-                     shouldfail=False):
+                     shouldfail=False,
+                     sha1='2d48ee05ea6385c8fe80879c98c5dd505ad4b100'):
     name = cef_json_builder.get_file_name(version, platform, type,
                                           channel) + '.tar.gz'
 
@@ -86,7 +87,7 @@ class TestCefJSONBuilder(unittest.TestCase):
     attribs = [{
         'date_str': '2016-05-18T22:42:15.487Z',
         'date_val': datetime.datetime(2016, 5, 18, 22, 42, 15, 487000),
-        'sha1': '2d48ee05ea6385c8fe80879c98c5dd505ad4b100',
+        'sha1': sha1,
         'size': 48395610
     }, {
         'date_str': '2016-05-14T22:42:15.487Z',
@@ -436,6 +437,25 @@ class TestCefJSONBuilder(unittest.TestCase):
 
     # Only old-style version numbers.
     self.assertEqual(4, builder.get_query_count())
+
+  def test_add_files_with_diff_sha1(self):
+    builder = cef_json_builder()
+
+    sha1 = '2d48ee05ea6385c8fe80879c98c5dd505ad4b100'
+    self._add_test_file(builder, sha1=sha1)
+
+    new_sha1 = '2d48ee05ea6385c8fe80879c98c5dd505ad4b101'
+    expected = self._add_test_file(builder, sha1=new_sha1)
+    files = builder.get_files()
+    self.assertEqual(len(files), 1)
+    self.assertEqual(expected, files[0])
+
+  def test_add_files_with_diff_channels(self):
+    builder = cef_json_builder()
+    self._add_test_file(builder, channel='beta')
+    self._add_test_file(builder, channel='stable')
+    files = builder.get_files()
+    self.assertEqual(len(files), 2)
 
 
 # Program entry point.

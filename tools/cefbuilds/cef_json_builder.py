@@ -74,16 +74,16 @@ class cef_json_encoder(json.JSONEncoder):
     return o
 
 
-_chromium_version_regex = '[1-9]{1}[0-9]{1,2}\.0\.[1-9]{1}[0-9]{2,4}\.(0|[1-9]{1}[0-9]{0,2})'
-_cef_hash_regex = 'g[0-9a-f]{7}'
-_cef_number_regex = '[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}'
+_chromium_version_regex = r'[1-9]{1}[0-9]{1,2}\.0\.[1-9]{1}[0-9]{2,4}\.(0|[1-9]{1}[0-9]{0,2})'
+_cef_hash_regex = r'g[0-9a-f]{7}'
+_cef_number_regex = r'[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}'
 
 # Example: 3.2704.1414.g185cd6c
-_cef_old_version_regex = _cef_number_regex + '\.' + _cef_hash_regex
+_cef_old_version_regex = _cef_number_regex + r'\.' + _cef_hash_regex
 # Example: 74.0.1+g62d140e+chromium-74.0.3729.6
-_cef_version_release_regex = _cef_number_regex + '\+' + _cef_hash_regex + '\+chromium\-' + _chromium_version_regex
+_cef_version_release_regex = _cef_number_regex + r'\+' + _cef_hash_regex + r'\+chromium\-' + _chromium_version_regex
 # Example: 74.0.0-master.1920+g725ed88+chromium-74.0.3729.0
-_cef_version_dev_regex = _cef_number_regex + '\-\w+\.[0-9]{1,7}\+' + _cef_hash_regex + '\+chromium\-' + _chromium_version_regex
+_cef_version_dev_regex = _cef_number_regex + r'\-\w+\.[0-9]{1,7}\+' + _cef_hash_regex + r'\+chromium\-' + _chromium_version_regex
 
 
 class cef_json_builder:
@@ -140,6 +140,22 @@ class cef_json_builder:
       self._data[platform] = {'versions': []}
     self._versions = {}
     self._queryct = 0
+
+  def filter_files(self, files, file_type, sha1, name):
+    filtered_files = []
+    file_changed = True
+    for file_record in files:
+      if file_record['type'] == file_type:
+        existing_sha1 = file_record['sha1']
+        if existing_sha1 != sha1:
+          # Print and filter out the file with a different sha1.
+          self._print(f'  Remove {name} {existing_sha1}')
+        else:
+          file_changed = False
+          filtered_files.append(file_record)
+      else:
+        filtered_files.append(file_record)
+    return filtered_files, file_changed
 
   def __repr__(self):
     # Return a string representation of this object.
@@ -315,11 +331,10 @@ class cef_json_builder:
   def _sort_versions(self):
     # Sort version records by first (newest) file last_modified value.
     for platform in self._data.keys():
-      for i in range(0, len(self._data[platform]['versions'])):
-        self._data[platform]['versions'] = \
-          sorted(self._data[platform]['versions'],
-                 key=lambda k: k['files'][0]['last_modified'],
-                 reverse=True)
+      self._data[platform]['versions'] = sorted(
+          self._data[platform]['versions'],
+          key=lambda k: k['files'][0]['last_modified'],
+          reverse=True)
 
   @staticmethod
   def _sort_files(files):
@@ -422,8 +437,8 @@ class cef_json_builder:
 
     # Find the existing version record.
     version_idx = -1
-    for i in range(0, len(self._data[platform]['versions'])):
-      if self._data[platform]['versions'][i]['cef_version'] == version:
+    for i, v in enumerate(self._data[platform]['versions']):
+      if v['cef_version'] == version and v['channel'] == channel:
         # Check the version record.
         self._print('add_file: Check %s %s' % (platform, version))
         version_idx = i
@@ -440,21 +455,9 @@ class cef_json_builder:
       })
       version_idx = len(self._data[platform]['versions']) - 1
 
-    # Find the existing file record with matching type.
-    file_changed = True
-    for i in range(0,
-                   len(self._data[platform]['versions'][version_idx]['files'])):
-      if self._data[platform]['versions'][version_idx]['files'][i][
-          'type'] == type:
-        existing_sha1 = self._data[platform]['versions'][version_idx]['files'][
-            i]['sha1']
-        if existing_sha1 != sha1:
-          # Remove the existing file record.
-          self._print('  Remove %s %s' % (name, existing_sha1))
-          del self._data[platform]['versions'][version_idx]['files'][i]
-        else:
-          file_changed = False
-        break
+    files = self._data[platform]['versions'][version_idx]['files']
+    self._data[platform]['versions'][version_idx][
+        'files'], file_changed = self.filter_files(files, type, sha1, name)
 
     if file_changed:
       # Add a new file record.
