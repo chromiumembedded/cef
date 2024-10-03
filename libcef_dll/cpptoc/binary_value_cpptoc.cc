@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e4cad5e75e1837d5d68c936e71b919e1702afad9$
+// $hash=a5ca27729a570de0318a9d15416fee153afaec32$
 //
 
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -145,13 +145,12 @@ const void* CEF_CALLBACK
 binary_value_get_raw_data(struct _cef_binary_value_t* self) {
   shutdown_checker::AssertNotShutdown();
 
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
   DCHECK(self);
   if (!self) {
     return NULL;
   }
-
-  // This manual implementation can be removed once support for 'const void*'
-  // is integrated into the CEF translator tool (issue #3591).
 
   // Execute
   const void* _retval = CefBinaryValueCppToC::Get(self)->GetRawData();

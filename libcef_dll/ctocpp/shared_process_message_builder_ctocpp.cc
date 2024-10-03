@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=da73d238eb11ae25ae64d3373e2357e40a01051a$
+// $hash=b950950a19b7825e808132e616468bb51f8607fb$
 //
 
 #include "libcef_dll/ctocpp/shared_process_message_builder_ctocpp.h"
@@ -82,13 +82,15 @@ NO_SANITIZE("cfi-icall") void* CefSharedProcessMessageBuilderCToCpp::Memory() {
 
   cef_shared_process_message_builder_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, memory)) {
-    return NULL;
+    return nullptr;
   }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   void* _retval = _struct->memory(_struct);
 
-  // Return type: simple
+  // Return type: simple_byaddr
   return _retval;
 }
 

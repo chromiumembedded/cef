@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e5fd79e6dbb20737b5c3a5b6e4bf547336c62398$
+// $hash=8ff0f88b9a33d5c635a0128aef98046c68ddb3ad$
 //
 
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
@@ -148,8 +148,7 @@ NO_SANITIZE("cfi-icall") const void* CefBinaryValueCToCpp::GetRawData() {
     return nullptr;
   }
 
-  // This manual implementation can be removed once support for 'const void*'
-  // is integrated into the CEF translator tool (issue #3591).
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   const void* _retval = _struct->get_raw_data(_struct);

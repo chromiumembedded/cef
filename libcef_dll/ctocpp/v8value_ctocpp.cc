@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=df9571f843ed0e55e581dc6282079803e3641d2c$
+// $hash=8469f8012718df705bf24d8abc2c127d68df07c2$
 //
 
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -989,8 +989,7 @@ NO_SANITIZE("cfi-icall") void* CefV8ValueCToCpp::GetArrayBufferData() {
     return nullptr;
   }
 
-  // This manual implementation can be removed once support for 'void*'
-  // is integrated into the CEF translator tool (issue #3591).
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   void* _retval = _struct->get_array_buffer_data(_struct);

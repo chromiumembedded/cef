@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b2e33c91a598c69f92031e0624bf96803247439c$
+// $hash=2ac7389e153471dba2e636363a5fb49a5afb0d3a$
 //
 
 #include "libcef_dll/ctocpp/shared_memory_region_ctocpp.h"
@@ -57,11 +57,10 @@ NO_SANITIZE("cfi-icall") void* CefSharedMemoryRegionCToCpp::Memory() {
 
   cef_shared_memory_region_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, memory)) {
-    return NULL;
+    return nullptr;
   }
 
-  // This manual implementation can be removed once support for 'void*'
-  // is integrated into the CEF translator tool (issue #3591).
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
   void* _retval = _struct->memory(_struct);

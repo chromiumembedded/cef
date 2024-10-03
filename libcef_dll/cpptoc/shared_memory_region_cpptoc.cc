@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d9074b7c1500d594cc88a4eedb68d9d31c5f5018$
+// $hash=fd37d01fdcf8c3de25e36d428ca38781c4749586$
 //
 
 #include "libcef_dll/cpptoc/shared_memory_region_cpptoc.h"
@@ -60,13 +60,12 @@ void* CEF_CALLBACK
 shared_memory_region_memory(struct _cef_shared_memory_region_t* self) {
   shutdown_checker::AssertNotShutdown();
 
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
   DCHECK(self);
   if (!self) {
     return NULL;
   }
-
-  // This manual implementation can be removed once support for 'void*'
-  // is integrated into the CEF translator tool (issue #3591).
 
   // Execute
   void* _retval = CefSharedMemoryRegionCppToC::Get(self)->Memory();

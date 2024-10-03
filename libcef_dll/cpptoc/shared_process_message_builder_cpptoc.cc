@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=592d43a6597f03f91eb13ea9354ed552f581ebec$
+// $hash=fb7e4b1912656da200ed1dd614a9f03e7d5f8ce7$
 //
 
 #include "libcef_dll/cpptoc/shared_process_message_builder_cpptoc.h"
@@ -84,15 +84,17 @@ void* CEF_CALLBACK shared_process_message_builder_memory(
     struct _cef_shared_process_message_builder_t* self) {
   shutdown_checker::AssertNotShutdown();
 
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
   DCHECK(self);
   if (!self) {
-    return 0;
+    return NULL;
   }
 
   // Execute
   void* _retval = CefSharedProcessMessageBuilderCppToC::Get(self)->Memory();
 
-  // Return type: simple
+  // Return type: simple_byaddr
   return _retval;
 }
 

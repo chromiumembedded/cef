@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=befb2f29af8a0e8eabf745fad126ebad5a741c74$
+// $hash=10ac43c0f16dedaf21bfa55f126f61c4d179abca$
 //
 
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
@@ -976,13 +976,12 @@ v8value_get_array_buffer_byte_length(struct _cef_v8value_t* self) {
 }
 
 void* CEF_CALLBACK v8value_get_array_buffer_data(struct _cef_v8value_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
   DCHECK(self);
   if (!self) {
     return NULL;
   }
-
-  // This manual implementation can be removed once support for 'void*'
-  // is integrated into the CEF translator tool (issue #3591).
 
   // Execute
   void* _retval = CefV8ValueCppToC::Get(self)->GetArrayBufferData();
