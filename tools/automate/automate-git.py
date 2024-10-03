@@ -117,7 +117,13 @@ def move_directory(source, target, allow_overwrite=False):
   if os.path.exists(source):
     msg("Moving directory %s to %s" % (source, target))
     if not options.dryrun:
-      shutil.move(source, target)
+      try:
+        # This will fail if |source| and |target| are on different filesystems,
+        # or if files in |source| are currently locked.
+        os.rename(source, target)
+      except OSError:
+        msg('ERROR Failed to move directory %s to %s' % (source, target))
+        raise
 
 
 def is_git_checkout(path):
