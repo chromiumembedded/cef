@@ -325,7 +325,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
 
   if retval_type != 'none':
     # has a return value
-    if retval_type == 'simple':
+    if retval_type == 'simple' or retval_type == 'simple_byaddr':
       result += retval.get_type().get_result_simple_type()
     else:
       result += retval.get_type().get_type()
@@ -446,7 +446,7 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
   if retval_type != 'none':
     # has a return value
     result += '\n  // Return type: ' + retval_type
-    if retval_type == 'simple' or retval_type == 'bool':
+    if retval_type == 'simple' or retval_type == 'simple_byaddr' or retval_type == 'bool':
       result += '\n  return _retval;'
     elif retval_type == 'string':
       result += '\n  return _retval.DetachToUserFree();'

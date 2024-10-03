@@ -342,6 +342,8 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
     # has a return value
     if retval_type == 'simple' or retval_type == 'bool':
       result += retval.get_type().get_result_simple_type_root()
+    elif retval_type == 'simple_byaddr':
+      result += retval.get_type().get_result_simple_type()
     elif retval_type == 'string':
       result += 'cef_string_userfree_t'
     elif retval_type == 'refptr_same' or retval_type == 'refptr_diff' or \
@@ -485,7 +487,7 @@ def make_ctocpp_function_impl_new(clsname, name, func, base_scoped):
   if retval_type != 'none':
     # has a return value
     result += '\n  // Return type: ' + retval_type
-    if retval_type == 'simple':
+    if retval_type == 'simple' or retval_type == 'simple_byaddr':
       result += '\n  return _retval;'
     elif retval_type == 'bool':
       result += '\n  return _retval?true:false;'

@@ -1514,6 +1514,7 @@ class obj_argument:
     if self.type.is_result_vector():
       # all vector types must be passed by reference
       if not self.type.is_byref():
+        print('ERROR: Invalid (vector not byref) type')
         return 'invalid'
 
       if self.type.is_result_vector_string():
@@ -1549,6 +1550,8 @@ class obj_argument:
     # string single map type
     if self.type.is_result_map_single():
       if not self.type.is_byref():
+        print('ERROR: Invalid (single map not byref) type for %s' %
+              self.type.get_name())
         return 'invalid'
       if self.type.is_const():
         return 'string_map_single_byref_const'
@@ -1557,11 +1560,14 @@ class obj_argument:
     # string multi map type
     if self.type.is_result_map_multi():
       if not self.type.is_byref():
+        print('ERROR: Invalid (multi map not byref) type for %s' %
+              self.type.get_name())
         return 'invalid'
       if self.type.is_const():
         return 'string_map_multi_byref_const'
       return 'string_map_multi_byref'
 
+    print('ERROR: Invalid (unknown) type for %s' % self.type.get_name())
     return 'invalid'
 
   def get_retval_type(self):
@@ -1569,9 +1575,19 @@ class obj_argument:
     if self.type.has_name():
       raise Exception('Cannot be called for argument types')
 
+    # special case for void* return value (may also be const)
+    if self.type.get_type() == 'void' and self.type.is_byaddr():
+      return 'simple_byaddr'
+
     # unsupported modifiers
-    if self.type.is_const() or self.type.is_byref() or \
-        self.type.is_byaddr():
+    if self.type.is_const():
+      print('ERROR: Invalid (const) type for retval')
+      return 'invalid'
+    if self.type.is_byref():
+      print('ERROR: Invalid (byref) type for retval')
+      return 'invalid'
+    if self.type.is_byaddr():
+      print('ERROR: Invalid (byaddr) type for retval')
       return 'invalid'
 
     # void types don't have a return value
@@ -1596,6 +1612,7 @@ class obj_argument:
       else:
         return prefix + 'ptr_diff'
 
+    print('ERROR: Invalid (unknown) type for retval')
     return 'invalid'
 
   def get_retval_default(self, for_capi):
@@ -1615,6 +1632,10 @@ class obj_argument:
     type = self.get_retval_type()
     if type == 'simple':
       return self.get_type().get_result_simple_default()
+    elif type == 'simple_byaddr':
+      if for_capi:
+        return 'NULL'
+      return 'nullptr'
     elif type == 'bool':
       if for_capi:
         return '0'
