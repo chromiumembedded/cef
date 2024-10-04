@@ -1064,9 +1064,9 @@ ViewsWindow::ViewsWindow(WindowType type,
   with_controls_ = is_normal_type && delegate_->WithControls();
 
   const bool hide_frame = command_line->HasSwitch(switches::kHideFrame);
-  const bool hide_overlays =
-      !is_normal_type || command_line->HasSwitch(switches::kHideOverlays);
-  const bool hide_toolbar = hide_overlays && !with_controls_;
+  const bool show_overlays = is_normal_type && hide_frame && !with_controls_ &&
+                             !command_line->HasSwitch(switches::kHideOverlays);
+  const bool hide_toolbar = !show_overlays && !with_controls_;
   const bool show_window_buttons =
       command_line->HasSwitch(switches::kShowWindowButtons);
   accepts_first_mouse_ = command_line->HasSwitch(switches::kAcceptsFirstMouse);
@@ -1075,7 +1075,7 @@ ViewsWindow::ViewsWindow(WindowType type,
   frameless_ = hide_frame;
 
   // With an overlay that mimics window controls.
-  with_overlay_controls_ = hide_frame && !hide_overlays && !with_controls_;
+  with_overlay_controls_ = show_overlays;
 
   // If window has frame or flag passed explicitly
   with_standard_buttons_ = !frameless_ || show_window_buttons;
