@@ -280,8 +280,8 @@ void CefBrowserViewImpl::AddedToWidget() {
   CefWidget* cef_widget = CefWidget::GetForWidget(widget);
   DCHECK(cef_widget);
 
-  if (!browser_) {
-    if (cef_widget->IsAlloyStyle() && !is_alloy_style_) {
+  if (!browser_ && !is_alloy_style_) {
+    if (cef_widget->IsAlloyStyle()) {
       LOG(ERROR) << "Cannot add Chrome style BrowserView to Alloy style Window";
       return;
     }
