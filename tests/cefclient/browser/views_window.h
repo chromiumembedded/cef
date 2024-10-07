@@ -27,6 +27,7 @@
 #include "tests/cefclient/browser/image_cache.h"
 #include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/views_menu_bar.h"
+#include "tests/cefclient/browser/views_overlay_browser.h"
 #include "tests/cefclient/browser/views_overlay_controls.h"
 
 namespace client {
@@ -279,6 +280,13 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefSize minimum_window_size_;
 
   CefRefPtr<ViewsOverlayControls> overlay_controls_;
+
+  // Overlay browser view state.
+  bool with_overlay_browser_ = false;
+  std::string initial_url_;
+  CefBrowserSettings settings_;
+  CefRefPtr<CefRequestContext> request_context_;
+  CefRefPtr<ViewsOverlayBrowser> overlay_browser_;
 
   std::optional<float> default_titlebar_height_;
   std::optional<float> override_titlebar_height_;

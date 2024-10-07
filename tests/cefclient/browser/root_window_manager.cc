@@ -134,8 +134,11 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
 
   if (MainContext::Get()->UseDefaultPopup() || (is_devtools && !use_views)) {
     // Use default window creation for the popup. A new |client| instance is
-    // still required by cefclient architecture.
-    client = new DefaultClientHandler();
+    // required by cefclient architecture if the type is not already
+    // DefaultClientHandler.
+    if (!DefaultClientHandler::GetForClient(client)) {
+      client = new DefaultClientHandler(use_alloy_style);
+    }
     return nullptr;
   }
 

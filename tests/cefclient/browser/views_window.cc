@@ -12,6 +12,7 @@
 #include "include/cef_i18n_util.h"
 #include "include/views/cef_box_layout.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefclient/browser/default_client_handler.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/views_style.h"
@@ -145,6 +146,14 @@ CefRefPtr<ViewsWindow> ViewsWindow::Create(
   // Create a new ViewsWindow.
   CefRefPtr<ViewsWindow> views_window =
       new ViewsWindow(type, delegate, nullptr, command_line);
+
+  // Only create an overlay browser for a primary window.
+  if (command_line->HasSwitch(switches::kShowOverlayBrowser)) {
+    views_window->with_overlay_browser_ = true;
+    views_window->initial_url_ = url;
+    views_window->settings_ = settings;
+    views_window->request_context_ = request_context;
+  }
 
   const auto expected_browser_runtime_style = views_window->use_alloy_style_
                                                   ? CEF_RUNTIME_STYLE_ALLOY
@@ -357,6 +366,11 @@ void ViewsWindow::SetDraggableRegions(
   if (overlay_controls_) {
     // Exclude all regions obscured by overlays.
     overlay_controls_->UpdateDraggableRegions(window_regions);
+  }
+
+  if (overlay_browser_) {
+    // Exclude all regions obscured by overlays.
+    overlay_browser_->UpdateDraggableRegions(window_regions);
   }
 
   window_->SetDraggableRegions(window_regions);
@@ -1001,6 +1015,19 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
                                     CreateLocationBar(),
                                     chrome_toolbar_type_ != CEF_CTT_NONE);
     }
+
+    if (with_overlay_browser_) {
+      overlay_browser_ = new ViewsOverlayBrowser(this);
+
+      // Use default behavior for the overlay browser. A new |client| instance
+      // is still required by cefclient architecture.
+      CefRefPtr<CefClient> client =
+          new DefaultClientHandler(/*use_alloy_style=*/true);
+
+      overlay_browser_->Initialize(window_, client, initial_url_, settings_,
+                                   request_context_);
+      request_context_ = nullptr;
+    }
   } else {
     // Remove any controls that may include the Chrome toolbar before removing
     // the BrowserView.
@@ -1015,6 +1042,10 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
         location_bar_ = nullptr;
       }
     }
+    if (overlay_browser_) {
+      overlay_browser_->Destroy();
+      overlay_browser_ = nullptr;
+    }
   }
 }
 
@@ -1027,6 +1058,12 @@ void ViewsWindow::OnLayoutChanged(CefRefPtr<CefView> view,
 
   if (overlay_controls_) {
     overlay_controls_->UpdateControls();
+  }
+
+  if (overlay_browser_) {
+    // TODO: Consider modifying insets based on toolbar visibility.
+    CefInsets window_insets(200, 200, 200, 200);
+    overlay_browser_->UpdateBounds(window_insets);
   }
 }
 
