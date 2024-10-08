@@ -35,30 +35,39 @@ std::optional<cef_gesture_command_t> GetGestureCommand(
   return std::nullopt;
 }
 
-bool ComputeAlloyStyle(CefBrowserViewDelegate* cef_delegate,
-                       bool is_devtools_popup) {
-  // Alloy style is not supported with Chrome DevTools popups.
-  const bool supports_alloy_style = !is_devtools_popup;
-  const auto default_style = CEF_RUNTIME_STYLE_CHROME;
-
-  auto result_style = default_style;
-
-  if (cef_delegate) {
-    auto requested_style = cef_delegate->GetBrowserRuntimeStyle();
-    if (requested_style == CEF_RUNTIME_STYLE_ALLOY) {
-      if (supports_alloy_style) {
-        result_style = requested_style;
-      } else {
-        LOG(ERROR) << "GetBrowserRuntimeStyle() requested Alloy style; only "
-                      "Chrome style is supported";
-      }
-    } else if (requested_style == CEF_RUNTIME_STYLE_CHROME) {
-      // Chrome style is always supported.
-      result_style = requested_style;
+bool ComputeAlloyStyle(
+    CefBrowserViewDelegate* cef_delegate,
+    bool is_devtools_popup,
+    std::optional<cef_runtime_style_t> opener_runtime_style) {
+  if (is_devtools_popup) {
+    // Alloy style is not supported with Chrome DevTools popups.
+    if (cef_delegate &&
+        cef_delegate->GetBrowserRuntimeStyle() == CEF_RUNTIME_STYLE_ALLOY) {
+      LOG(ERROR) << "GetBrowserRuntimeStyle() requested Alloy style; only "
+                    "Chrome style is supported for DevTools popups";
     }
+    return false;
   }
 
-  return result_style == CEF_RUNTIME_STYLE_ALLOY;
+  if (opener_runtime_style) {
+    // Popup style must match the opener style.
+    const bool opener_alloy_style =
+        *opener_runtime_style == CEF_RUNTIME_STYLE_ALLOY;
+    if (cef_delegate) {
+      const auto requested_style = cef_delegate->GetBrowserRuntimeStyle();
+      if (requested_style != CEF_RUNTIME_STYLE_DEFAULT &&
+          requested_style != (opener_alloy_style ? CEF_RUNTIME_STYLE_ALLOY
+                                                 : CEF_RUNTIME_STYLE_CHROME)) {
+        LOG(ERROR)
+            << "GetBrowserRuntimeStyle() for popups must match opener style";
+      }
+    }
+    return opener_alloy_style;
+  }
+
+  // Chrome style is the default unless Alloy is specifically requested.
+  return cef_delegate &&
+         cef_delegate->GetBrowserRuntimeStyle() == CEF_RUNTIME_STYLE_ALLOY;
 }
 
 }  // namespace
@@ -111,7 +120,8 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
   }
 
   CefRefPtr<CefBrowserViewImpl> browser_view =
-      new CefBrowserViewImpl(delegate, /*is_devtools_popup=*/false);
+      new CefBrowserViewImpl(delegate, /*is_devtools_popup=*/false,
+                             /*opener_runtime_style=*/std::nullopt);
   browser_view->SetPendingBrowserCreateParams(
       window_info, client, url, settings, extra_info, request_context);
   browser_view->Initialize();
@@ -123,11 +133,12 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::Create(
 CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
     const CefBrowserSettings& settings,
     CefRefPtr<CefBrowserViewDelegate> delegate,
-    bool is_devtools) {
+    bool is_devtools,
+    cef_runtime_style_t opener_runtime_style) {
   CEF_REQUIRE_UIT_RETURN(nullptr);
 
   CefRefPtr<CefBrowserViewImpl> browser_view =
-      new CefBrowserViewImpl(delegate, is_devtools);
+      new CefBrowserViewImpl(delegate, is_devtools, opener_runtime_style);
   browser_view->Initialize();
   browser_view->SetDefaults(settings);
   return browser_view;
@@ -337,9 +348,12 @@ bool CefBrowserViewImpl::OnGestureEvent(ui::GestureEvent* event) {
 
 CefBrowserViewImpl::CefBrowserViewImpl(
     CefRefPtr<CefBrowserViewDelegate> delegate,
-    bool is_devtools_popup)
+    bool is_devtools_popup,
+    std::optional<cef_runtime_style_t> opener_runtime_style)
     : ParentClass(delegate),
-      is_alloy_style_(ComputeAlloyStyle(delegate.get(), is_devtools_popup)),
+      is_alloy_style_(ComputeAlloyStyle(delegate.get(),
+                                        is_devtools_popup,
+                                        opener_runtime_style)),
       weak_ptr_factory_(this) {}
 
 void CefBrowserViewImpl::SetPendingBrowserCreateParams(
