@@ -195,8 +195,9 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
   }
 
   CefRefPtr<CefBrowserViewDelegate> new_delegate;
-
   CefRefPtr<CefBrowserViewDelegate> opener_delegate;
+  cef_runtime_style_t opener_runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
+
   auto browser_view = GetBrowserView();
   if (browser_view) {
     // When |this| (the popup opener) is Views-hosted use the current delegate.
@@ -212,9 +213,16 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
         browser_view, settings, client, is_devtools);
   }
 
+  if (browser_view) {
+    opener_runtime_style = browser_view->GetRuntimeStyle();
+  } else if (opener_delegate) {
+    opener_runtime_style = opener_delegate->GetBrowserRuntimeStyle();
+  }
+
   // Create a new BrowserView for the popup.
   CefRefPtr<CefBrowserViewImpl> new_browser_view =
-      CefBrowserViewImpl::CreateForPopup(settings, new_delegate, is_devtools);
+      CefBrowserViewImpl::CreateForPopup(settings, new_delegate, is_devtools,
+                                         opener_runtime_style);
 
   // Associate the PlatformDelegate with the new BrowserView.
   new_platform_delegate->SetBrowserView(new_browser_view);

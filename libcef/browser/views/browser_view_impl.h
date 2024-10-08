@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_VIEW_IMPL_H_
 #pragma once
 
+#include <optional>
+
 #include "base/functional/callback_forward.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
@@ -49,7 +51,8 @@ class CefBrowserViewImpl
   static CefRefPtr<CefBrowserViewImpl> CreateForPopup(
       const CefBrowserSettings& settings,
       CefRefPtr<CefBrowserViewDelegate> delegate,
-      bool is_devtools);
+      bool is_devtools,
+      cef_runtime_style_t opener_runtime_style);
 
   // Called from CefBrowserPlatformDelegate[Chrome]Views.
   void WebContentsCreated(content::WebContents* web_contents);
@@ -101,7 +104,8 @@ class CefBrowserViewImpl
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   CefBrowserViewImpl(CefRefPtr<CefBrowserViewDelegate> delegate,
-                     bool is_devtools_popup);
+                     bool is_devtools_popup,
+                     std::optional<cef_runtime_style_t> opener_runtime_style);
 
   void SetPendingBrowserCreateParams(
       const CefWindowInfo& window_info,
