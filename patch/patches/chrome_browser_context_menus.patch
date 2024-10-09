@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index c5511b1df85cf..f56a4efcfb8d2 100644
+index aa0d1cc1d45fe..9329872580f9b 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -360,6 +360,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -32,7 +32,7 @@ index c5511b1df85cf..f56a4efcfb8d2 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -902,6 +918,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -907,6 +923,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -47,7 +47,7 @@ index c5511b1df85cf..f56a4efcfb8d2 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1358,6 +1382,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1363,6 +1387,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,7 +60,7 @@ index c5511b1df85cf..f56a4efcfb8d2 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3643,6 +3673,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3645,6 +3675,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  

@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 097e59f46d07a..54096982660c6 100644
+index b1a8b7eaabaf4..89038f28c70c9 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
