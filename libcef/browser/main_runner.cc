@@ -449,9 +449,6 @@ void CefMainRunner::StartShutdownOnUIThread(
   content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
       content::BrowserThread::IO);
 
-  static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
-      ->ShutdownOnUIThread();
-
   std::move(shutdown_on_ui_thread).Run();
   BeforeUIThreadShutdown();
 }
@@ -462,6 +459,9 @@ void CefMainRunner::FinishShutdownOnUIThread() {
     // It is safe to call multiple times.
     ChromeProcessSingleton::DeleteInstance();
   }
+
+   static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
+      ->ShutdownOnUIThread();
 }
 
 void CefMainRunner::BeforeUIThreadInitialize() {
