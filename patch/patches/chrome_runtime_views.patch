@@ -839,7 +839,7 @@ index 71445bfab1824..c77750ea2a820 100644
  
  ContentsWebView::~ContentsWebView() {
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-index 9dddf71ef05bd..18c43631ea288 100644
+index 04ad8415b5e95..eb5f7161d72e0 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 +++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 @@ -619,6 +619,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
@@ -915,7 +915,7 @@ index 9dddf71ef05bd..18c43631ea288 100644
    top_bar_container_view_->SetBoundsRect(top_bar);
  #if !BUILDFLAG(IS_ANDROID)
    if (auto_pip_setting_overlay_) {
-@@ -1371,7 +1401,8 @@ gfx::Insets PictureInPictureBrowserFrameView::ResizeBorderInsets() const {
+@@ -1372,7 +1402,8 @@ gfx::Insets PictureInPictureBrowserFrameView::ResizeBorderInsets() const {
  }
  
  int PictureInPictureBrowserFrameView::GetTopAreaHeight() const {
