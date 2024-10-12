@@ -116,6 +116,14 @@ class CefRefCount {
   ///
   bool HasAtLeastOneRef() const { return !ref_count_.IsZero(); }
 
+  ///
+  /// Returns the current reference count (with no barriers). This is subtle,
+  /// and should be used only for debugging.
+  ///
+  int SubtleRefCountForDebug() const {
+    return ref_count_.SubtleRefCountForDebug();
+  }
+
  private:
   mutable base::AtomicRefCount ref_count_{0};
 };
