@@ -33,9 +33,15 @@ void ViewsOverlayBrowser::Initialize(
 
 void ViewsOverlayBrowser::Destroy() {
   window_ = nullptr;
-  browser_view_ = nullptr;
   controller_->Destroy();
   controller_ = nullptr;
+
+  // We hold the last reference to the BrowserView, and releasing it will
+  // trigger overlay Browser destruction. OnBeforeClose for that Browser may be
+  // called synchronously or asynchronously depending on whether beforeunload
+  // needs to be dispatched.
+  DCHECK(browser_view_->HasOneRef());
+  browser_view_ = nullptr;
 }
 
 void ViewsOverlayBrowser::UpdateBounds(CefInsets insets) {

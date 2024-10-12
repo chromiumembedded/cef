@@ -35,6 +35,8 @@ class CefBrowserViewImpl
   CefBrowserViewImpl(const CefBrowserViewImpl&) = delete;
   CefBrowserViewImpl& operator=(const CefBrowserViewImpl&) = delete;
 
+  ~CefBrowserViewImpl() override;
+
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
   // |window_info| will only be used when creating a Chrome child window.
   static CefRefPtr<CefBrowserViewImpl> Create(
@@ -98,6 +100,10 @@ class CefBrowserViewImpl
 
   bool IsAlloyStyle() const { return is_alloy_style_; }
   bool IsChromeStyle() const { return !is_alloy_style_; }
+
+  base::WeakPtr<CefBrowserViewImpl> GetWeakPtr() {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
 
  private:
   // Create a new implementation object.

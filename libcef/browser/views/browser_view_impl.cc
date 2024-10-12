@@ -144,6 +144,27 @@ CefRefPtr<CefBrowserViewImpl> CefBrowserViewImpl::CreateForPopup(
   return browser_view;
 }
 
+CefBrowserViewImpl::~CefBrowserViewImpl() {
+  // We want no further callbacks to this object.
+  weak_ptr_factory_.InvalidateWeakPtrs();
+
+  // |browser_| may exist here if the BrowserView was removed from the Views
+  // hierarchy prior to tear-down and the last BrowserView reference was
+  // released. In that case DisassociateFromWidget() will be called when the
+  // BrowserView is removed from the Window but Detach() will not be called
+  // because the BrowserView was not destroyed via the Views hierarchy
+  // tear-down.
+  DCHECK(!cef_widget_);
+  if (browser_ && !browser_->WillBeDestroyed()) {
+    // With Alloy style |browser_| will disappear when WindowDestroyed()
+    // indirectly calls BrowserDestroyed() so keep a reference.
+    CefRefPtr<CefBrowserHostBase> browser = browser_;
+
+    // Force the browser to be destroyed.
+    browser->WindowDestroyed();
+  }
+}
+
 void CefBrowserViewImpl::WebContentsCreated(
     content::WebContents* web_contents) {
   if (web_view()) {
