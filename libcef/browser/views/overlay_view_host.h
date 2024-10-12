@@ -44,6 +44,7 @@ class CefOverlayViewHost : public views::WidgetDelegate,
 
   // views::ViewObserver methods:
   void OnViewBoundsChanged(views::View* observed_view) override;
+  void OnViewIsDeleting(views::View* observed_view) override;
 
   cef_docking_mode_t docking_mode() const { return docking_mode_; }
   CefRefPtr<CefOverlayController> controller() const { return cef_controller_; }

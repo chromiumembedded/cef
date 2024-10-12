@@ -27,7 +27,8 @@ void CefBrowserPlatformDelegateViews::SetBrowserView(
     CefRefPtr<CefBrowserView> browser_view) {
   DCHECK(!browser_view_);
   DCHECK(browser_view);
-  browser_view_ = static_cast<CefBrowserViewImpl*>(browser_view.get());
+  browser_view_ =
+      static_cast<CefBrowserViewImpl*>(browser_view.get())->GetWeakPtr();
 }
 
 void CefBrowserPlatformDelegateViews::WebContentsCreated(
@@ -41,7 +42,10 @@ void CefBrowserPlatformDelegateViews::WebContentsCreated(
 void CefBrowserPlatformDelegateViews::WebContentsDestroyed(
     content::WebContents* web_contents) {
   CefBrowserPlatformDelegateAlloy::WebContentsDestroyed(web_contents);
-  browser_view_->WebContentsCreated(web_contents);
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_) {
+    browser_view_->WebContentsDestroyed(web_contents);
+  }
   native_delegate_->WebContentsDestroyed(web_contents);
 }
 
@@ -57,15 +61,16 @@ void CefBrowserPlatformDelegateViews::NotifyBrowserCreated() {
   DCHECK(browser_view_);
   DCHECK(browser_);
   if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserCreated(browser_view_, browser_.get());
+    browser_view_->delegate()->OnBrowserCreated(browser_view_.get(),
+                                                browser_.get());
   }
 }
 
 void CefBrowserPlatformDelegateViews::NotifyBrowserDestroyed() {
-  DCHECK(browser_view_);
   DCHECK(browser_);
-  if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserDestroyed(browser_view_,
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_ && browser_view_->delegate()) {
+    browser_view_->delegate()->OnBrowserDestroyed(browser_view_.get(),
                                                   browser_.get());
   }
 }
@@ -74,7 +79,10 @@ void CefBrowserPlatformDelegateViews::BrowserDestroyed(
     CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateAlloy::BrowserDestroyed(browser);
 
-  browser_view_->BrowserDestroyed(browser);
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_) {
+    browser_view_->BrowserDestroyed(browser);
+  }
   browser_view_ = nullptr;
   native_delegate_->BrowserDestroyed(browser);
 }

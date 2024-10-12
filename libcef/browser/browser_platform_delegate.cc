@@ -226,6 +226,9 @@ void CefBrowserPlatformDelegate::PopupWebContentsCreated(
 
   // Associate the PlatformDelegate with the new BrowserView.
   new_platform_delegate->SetBrowserView(new_browser_view);
+
+  // Keep the BrowserView alive until PopupBrowserCreated() is called.
+  new_browser_view->AddRef();
 }
 
 void CefBrowserPlatformDelegate::PopupBrowserCreated(
@@ -263,6 +266,9 @@ void CefBrowserPlatformDelegate::PopupBrowserCreated(
     CefWindow::CreateTopLevelWindow(
         new PopupWindowDelegate(new_browser_view.get()));
   }
+
+  // Release the reference added in PopupWebContentsCreated().
+  new_browser_view->Release();
 }
 
 CefRefPtr<CefBrowserViewDelegate>

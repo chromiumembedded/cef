@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_VIEWS_H_
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_VIEWS_H_
 
+#include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/alloy/browser_platform_delegate_alloy.h"
 #include "cef/libcef/browser/native/browser_platform_delegate_native.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
@@ -65,7 +66,13 @@ class CefBrowserPlatformDelegateViews
 
  private:
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
-  CefRefPtr<CefBrowserViewImpl> browser_view_;
+
+  // Holding a weak reference here because we want the CefBrowserViewImpl to be
+  // destroyed first if all references are released by the client.
+  // CefBrowserViewImpl destruction will then trigger destruction of any
+  // associated CefBrowserHostBase (which owns this CefBrowserPlatformDelegate
+  // object).
+  base::WeakPtr<CefBrowserViewImpl> browser_view_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BROWSER_PLATFORM_DELEGATE_VIEWS_H_
