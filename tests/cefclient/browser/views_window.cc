@@ -1350,12 +1350,12 @@ void ViewsWindow::SetMenuFocusable(bool focusable) {
 
   if (menu_bar_) {
     menu_bar_->SetMenuFocusable(focusable);
-  } else {
-    window_->GetViewForID(ID_MENU_BUTTON)->SetFocusable(focusable);
+  } else if (menu_button_) {
+    menu_button_->SetFocusable(focusable);
 
     if (focusable) {
       // Give focus to menu button.
-      window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
+      menu_button_->RequestFocus();
     }
   }
 
