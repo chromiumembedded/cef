@@ -138,7 +138,12 @@ void CefNativeWidgetMac::OnWindowFullscreenTransitionComplete() {
 }
 
 void CefNativeWidgetMac::OnWindowInitialized() {
-  if (!browser_view_) {
+  // This connects the native widget with the command dispatcher so accelerators
+  // work even if a browser_view_ is not created later.
+  // The initialized_ check is necessary because the method can be called twice:
+  // 1. From NativeWidgetMac::InitNativeWidget
+  // 2. From ChromeBrowserFrame::Init
+  if (initialized_) {
     return;
   }
 
@@ -146,10 +151,12 @@ void CefNativeWidgetMac::OnWindowInitialized() {
   if (auto* bridge = GetInProcessNSWindowBridge()) {
     bridge->SetCommandDispatcher([[ChromeCommandDispatcherDelegate alloc] init],
                                  [[BrowserWindowCommandHandler alloc] init]);
-  } else {
+    initialized_ = true;
+  } else if (browser_view_) {
     if (auto* host = GetHostForBrowser(browser_view_->browser())) {
       host->GetAppShim()->CreateCommandDispatcherForWidget(
           GetNSWindowHost()->bridged_native_widget_id());
+      initialized_ = true;
     }
   }
 }
