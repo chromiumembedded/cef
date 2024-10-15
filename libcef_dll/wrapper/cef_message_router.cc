@@ -4,6 +4,7 @@
 
 #include "include/wrapper/cef_message_router.h"
 
+#include <algorithm>
 #include <limits>
 #include <map>
 #include <set>
