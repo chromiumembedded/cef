@@ -30,6 +30,7 @@ class ChromeBrowserView
 
   // |cef_browser_view| is non-nullptr and will outlive this object.
   explicit ChromeBrowserView(CefBrowserViewImpl* cef_browser_view);
+  ~ChromeBrowserView() override;
 
   ChromeBrowserView(const ChromeBrowserView&) = delete;
   ChromeBrowserView& operator=(const ChromeBrowserView&) = delete;
