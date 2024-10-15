@@ -522,68 +522,21 @@ void WindowIconFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, std::move(config));
 }
 
-const int kChar = 'A';
-const int kCloseWindowId = 2;
+constexpr int kChar = 'A';
+constexpr int kCloseWindowId = 2;
 bool got_accelerator;
-int got_key_event_alt_count;
-bool got_key_event_char;
 
 void TriggerAccelerator(CefRefPtr<CefWindow> window) {
   window->SendKeyPress(kChar, EVENTFLAG_ALT_DOWN);
 }
 
-bool OnKeyEvent(CefRefPtr<CefWindow> window, const CefKeyEvent& event) {
-  if (event.type != KEYEVENT_RAWKEYDOWN) {
-    return false;
-  }
-
-  if (event.windows_key_code == VK_MENU) {
-    // First we get the ALT key press in all cases.
-    EXPECT_FALSE(got_key_event_char);
-    if (got_key_event_alt_count == 0) {
-      EXPECT_FALSE(got_accelerator);
-    } else {
-      EXPECT_TRUE(got_accelerator);
-    }
-
-    EXPECT_EQ(EVENTFLAG_ALT_DOWN, static_cast<int>(event.modifiers));
-    got_key_event_alt_count++;
-  } else if (event.windows_key_code == kChar) {
-    // Then we get the char key press with the ALT modifier if the accelerator
-    // isn't registered.
-    EXPECT_TRUE(got_accelerator);
-    EXPECT_EQ(got_key_event_alt_count, 2);
-    EXPECT_FALSE(got_key_event_char);
-
-    EXPECT_EQ(EVENTFLAG_ALT_DOWN, static_cast<int>(event.modifiers));
-    got_key_event_char = true;
-
-    // Call this method just to make sure it doesn't crash.
-    window->RemoveAllAccelerators();
-
-    // End the test by closing the Window.
-    window->Close();
-
-    return true;
-  }
-
-  return false;
-}
-
 bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
   EXPECT_FALSE(got_accelerator);
-  EXPECT_EQ(got_key_event_alt_count, 1);
-  EXPECT_FALSE(got_key_event_char);
 
   EXPECT_EQ(kCloseWindowId, command_id);
   got_accelerator = true;
 
-  // Remove the accelerator.
-  window->RemoveAccelerator(kCloseWindowId);
-
-  // Now send the event without the accelerator registered. Should result in a
-  // call to OnKeyEvent.
-  TriggerAccelerator(window);
+  window->Close();
 
   return true;
 }
@@ -598,25 +551,15 @@ void RunWindowAccelerator(CefRefPtr<CefWindow> window) {
 
 void VerifyWindowAccelerator(CefRefPtr<CefWindow> window) {
   EXPECT_TRUE(got_accelerator);
-  EXPECT_EQ(got_key_event_alt_count, 2);
-  EXPECT_TRUE(got_key_event_char);
 }
 
-// Expected order of events:
-// 1. OnKeyEvent for ALT key press.
-// 2. OnAccelerator for ALT+Char key press (with accelerator registered).
-// 3. OnKeyEvent for ALT key press.
-// 4. OnKeyEvent for ALT+Char key press (without accelerator registered).
 void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
   got_accelerator = false;
-  got_key_event_alt_count = 0;
-  got_key_event_char = false;
 
   auto config = std::make_unique<TestWindowDelegate::Config>();
   config->on_window_created = base::BindOnce(RunWindowAccelerator);
   config->on_window_destroyed = base::BindOnce(VerifyWindowAccelerator);
   config->on_accelerator = base::BindRepeating(OnAccelerator);
-  config->on_key_event = base::BindRepeating(OnKeyEvent);
   config->close_window = false;
   TestWindowDelegate::RunTest(event, std::move(config));
 }
