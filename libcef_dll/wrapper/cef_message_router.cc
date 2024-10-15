@@ -7,6 +7,7 @@
 #include <limits>
 #include <map>
 #include <set>
+#include <algorithm>
 
 #include "include/base/cef_callback.h"
 #include "include/cef_task.h"
