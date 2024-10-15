@@ -280,18 +280,17 @@ void CefOverlayViewHost::SetOverlayBounds(const gfx::Rect& bounds) {
     return;
   }
 
-  gfx::Rect new_bounds = bounds;
-
-  // Keep the result inside the widget.
-  new_bounds.Intersect(window_view_->bounds());
-
-  if (new_bounds == bounds_) {
+  // Empty bounds are not allowed.
+  if (bounds.IsEmpty()) {
     return;
   }
 
   bounds_changing_ = true;
+  bounds_ = bounds;
 
-  bounds_ = new_bounds;
+  // Keep the result inside the widget.
+  bounds_.Intersect(window_view_->bounds());
+
   if (view_->size() != bounds_.size()) {
     view_->SetSize(bounds_.size());
   }
