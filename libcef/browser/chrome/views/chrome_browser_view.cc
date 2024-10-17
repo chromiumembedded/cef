@@ -11,6 +11,13 @@ ChromeBrowserView::ChromeBrowserView(CefBrowserViewImpl* cef_browser_view)
     : ParentClass(cef_browser_view->delegate()),
       cef_browser_view_(cef_browser_view) {}
 
+ChromeBrowserView::~ChromeBrowserView() {
+  if (cef_toolbar_) {
+    WillDestroyToolbar();
+    cef_toolbar_ = nullptr;
+  }
+}
+
 void ChromeBrowserView::InitBrowser(std::unique_ptr<Browser> browser) {
   DCHECK(!web_view_);
 

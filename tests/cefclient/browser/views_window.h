@@ -27,6 +27,7 @@
 #include "tests/cefclient/browser/image_cache.h"
 #include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/views_menu_bar.h"
+#include "tests/cefclient/browser/views_overlay_browser.h"
 #include "tests/cefclient/browser/views_overlay_controls.h"
 
 namespace client {
@@ -127,6 +128,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool GetWindowRestorePreferences(cef_show_state_t& show_state,
                                    std::optional<CefRect>& dip_bounds);
   void SetTitlebarHeight(const std::optional<float>& height);
+
+  void UpdateDraggableRegions();
 
   // CefBrowserViewDelegate methods:
   CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
@@ -251,7 +254,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void NudgeWindow();
 
   const WindowType type_;
-  Delegate* delegate_;  // Not owned by this object.
+  Delegate* const delegate_;  // Not owned by this object.
   const bool use_alloy_style_;
   bool use_alloy_style_window_;
   CefRefPtr<CefBrowserView> browser_view_;
@@ -280,6 +283,13 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   CefRefPtr<ViewsOverlayControls> overlay_controls_;
 
+  // Overlay browser view state.
+  bool with_overlay_browser_ = false;
+  std::string initial_url_;
+  CefBrowserSettings settings_;
+  CefRefPtr<CefRequestContext> request_context_;
+  CefRefPtr<ViewsOverlayBrowser> overlay_browser_;
+
   std::optional<float> default_titlebar_height_;
   std::optional<float> override_titlebar_height_;
 
@@ -292,6 +302,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool is_loading_ = false;
   bool can_go_back_ = false;
   bool can_go_forward_ = false;
+
+  std::vector<CefDraggableRegion> last_regions_;
 
   IMPLEMENT_REFCOUNTING(ViewsWindow);
   DISALLOW_COPY_AND_ASSIGN(ViewsWindow);

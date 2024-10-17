@@ -169,7 +169,7 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   bool WillBeDestroyed() const override;
   void DestroyBrowser() override;
 
-  void DoCloseBrowser(bool force_close);
+  void DoCloseBrowser();
 
   // Returns the current tab index for the associated WebContents, or
   // TabStripModel::kNoTab if not found.

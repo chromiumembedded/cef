@@ -312,6 +312,11 @@ void CefOverlayViewHost::OnViewBoundsChanged(views::View* observed_view) {
   MoveIfNecessary();
 }
 
+void CefOverlayViewHost::OnViewIsDeleting(views::View* observed_view) {
+  view_ = nullptr;
+  Cleanup();
+}
+
 gfx::Rect CefOverlayViewHost::ComputeBounds() const {
   // This method is only used with corner docking.
   DCHECK_NE(docking_mode_, CEF_DOCKING_MODE_CUSTOM);

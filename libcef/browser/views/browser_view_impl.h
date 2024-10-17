@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_VIEWS_BROWSER_VIEW_IMPL_H_
 #pragma once
 
+#include <optional>
+
 #include "base/functional/callback_forward.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
@@ -33,6 +35,8 @@ class CefBrowserViewImpl
   CefBrowserViewImpl(const CefBrowserViewImpl&) = delete;
   CefBrowserViewImpl& operator=(const CefBrowserViewImpl&) = delete;
 
+  ~CefBrowserViewImpl() override;
+
   // Create a new CefBrowserView instance. |delegate| may be nullptr.
   // |window_info| will only be used when creating a Chrome child window.
   static CefRefPtr<CefBrowserViewImpl> Create(
@@ -49,7 +53,8 @@ class CefBrowserViewImpl
   static CefRefPtr<CefBrowserViewImpl> CreateForPopup(
       const CefBrowserSettings& settings,
       CefRefPtr<CefBrowserViewDelegate> delegate,
-      bool is_devtools);
+      bool is_devtools,
+      cef_runtime_style_t opener_runtime_style);
 
   // Called from CefBrowserPlatformDelegate[Chrome]Views.
   void WebContentsCreated(content::WebContents* web_contents);
@@ -96,12 +101,17 @@ class CefBrowserViewImpl
   bool IsAlloyStyle() const { return is_alloy_style_; }
   bool IsChromeStyle() const { return !is_alloy_style_; }
 
+  base::WeakPtr<CefBrowserViewImpl> GetWeakPtr() {
+    return weak_ptr_factory_.GetWeakPtr();
+  }
+
  private:
   // Create a new implementation object.
   // Always call Initialize() after creation.
   // |delegate| may be nullptr.
   CefBrowserViewImpl(CefRefPtr<CefBrowserViewDelegate> delegate,
-                     bool is_devtools_popup);
+                     bool is_devtools_popup,
+                     std::optional<cef_runtime_style_t> opener_runtime_style);
 
   void SetPendingBrowserCreateParams(
       const CefWindowInfo& window_info,

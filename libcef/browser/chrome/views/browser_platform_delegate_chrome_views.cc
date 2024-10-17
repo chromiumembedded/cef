@@ -24,7 +24,8 @@ void CefBrowserPlatformDelegateChromeViews::SetBrowserView(
     CefRefPtr<CefBrowserView> browser_view) {
   DCHECK(!browser_view_);
   DCHECK(browser_view);
-  browser_view_ = static_cast<CefBrowserViewImpl*>(browser_view.get());
+  browser_view_ =
+      static_cast<CefBrowserViewImpl*>(browser_view.get())->GetWeakPtr();
 }
 
 void CefBrowserPlatformDelegateChromeViews::WebContentsCreated(
@@ -37,7 +38,10 @@ void CefBrowserPlatformDelegateChromeViews::WebContentsCreated(
 void CefBrowserPlatformDelegateChromeViews::WebContentsDestroyed(
     content::WebContents* web_contents) {
   CefBrowserPlatformDelegateChrome::WebContentsDestroyed(web_contents);
-  browser_view_->WebContentsDestroyed(web_contents);
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_) {
+    browser_view_->WebContentsDestroyed(web_contents);
+  }
 }
 
 void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
@@ -48,7 +52,7 @@ void CefBrowserPlatformDelegateChromeViews::BrowserCreated(
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
   if (auto delegate = browser_view_->delegate()) {
-    delegate->OnBrowserCreated(browser_view_, browser_.get());
+    delegate->OnBrowserCreated(browser_view_.get(), browser_.get());
 
     // DevTools windows hide the notification bubble by default. However, we
     // don't currently have the ability to intercept WebContents creation via
@@ -75,8 +79,9 @@ void CefBrowserPlatformDelegateChromeViews::NotifyBrowserCreated() {
 }
 
 void CefBrowserPlatformDelegateChromeViews::NotifyBrowserDestroyed() {
-  if (browser_view_->delegate()) {
-    browser_view_->delegate()->OnBrowserDestroyed(browser_view_,
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_ && browser_view_->delegate()) {
+    browser_view_->delegate()->OnBrowserDestroyed(browser_view_.get(),
                                                   browser_.get());
   }
 }
@@ -84,7 +89,11 @@ void CefBrowserPlatformDelegateChromeViews::NotifyBrowserDestroyed() {
 void CefBrowserPlatformDelegateChromeViews::BrowserDestroyed(
     CefBrowserHostBase* browser) {
   CefBrowserPlatformDelegateChrome::BrowserDestroyed(browser);
-  browser_view_->BrowserDestroyed(browser);
+  // |browser_view_| may be destroyed before this callback arrives.
+  if (browser_view_) {
+    browser_view_->BrowserDestroyed(browser);
+  }
+  browser_view_ = nullptr;
 }
 
 void CefBrowserPlatformDelegateChromeViews::CloseHostWindow() {
@@ -100,7 +109,7 @@ CefWindowHandle CefBrowserPlatformDelegateChromeViews::GetHostWindowHandle()
 }
 
 views::Widget* CefBrowserPlatformDelegateChromeViews::GetWindowWidget() const {
-  if (browser_view_->root_view()) {
+  if (browser_view_ && browser_view_->root_view()) {
     return browser_view_->root_view()->GetWidget();
   }
   return nullptr;

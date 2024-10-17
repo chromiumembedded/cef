@@ -322,6 +322,8 @@ void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   EXPECT_UI_THREAD();
 
+  EXPECT_TRUE(browser->GetHost()->IsReadyToBeClosed());
+
   // Free the browser pointer so that the browser can be destroyed.
   const int browser_id = browser->GetIdentifier();
   BrowserMap::iterator it = browser_map_.find(browser_id);

@@ -452,6 +452,20 @@ bool CefBrowserHostBase::HasView() {
   return is_views_hosted_;
 }
 
+bool CefBrowserHostBase::IsReadyToBeClosed() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+
+  if (auto web_contents = GetWebContents()) {
+    return static_cast<content::RenderFrameHostImpl*>(
+               web_contents->GetPrimaryMainFrame())
+        ->IsPageReadyToBeClosed();
+  }
+  return true;
+}
+
 void CefBrowserHostBase::SetFocus(bool focus) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,

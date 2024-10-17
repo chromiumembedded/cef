@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_VIEWS_H_
 #define CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_VIEWS_H_
 
+#include "base/memory/weak_ptr.h"
 #include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 
@@ -33,12 +34,17 @@ class CefBrowserPlatformDelegateChromeViews
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view) override;
   bool IsViewsHosted() const override;
 
-  CefRefPtr<CefBrowserViewImpl> browser_view() const { return browser_view_; }
+  CefBrowserViewImpl* browser_view() const { return browser_view_.get(); }
 
  private:
   CefWindowImpl* GetWindowImpl() const;
 
-  CefRefPtr<CefBrowserViewImpl> browser_view_;
+  // Holding a weak reference here because we want the CefBrowserViewImpl to be
+  // destroyed first if all references are released by the client.
+  // CefBrowserViewImpl destruction will then trigger destruction of any
+  // associated CefBrowserHostBase (which owns this CefBrowserPlatformDelegate
+  // object).
+  base::WeakPtr<CefBrowserViewImpl> browser_view_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CHROME_VIEWS_BROWSER_PLATFORM_DELEGATE_CHROME_VIEWS_H_
