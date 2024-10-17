@@ -45,6 +45,7 @@ class CefFrameCToCpp
   void Cut() override;
   void Copy() override;
   void Paste() override;
+  void PasteAndMatchStyle() override;
   void Delete() override;
   void SelectAll() override;
   void ViewSource() override;
