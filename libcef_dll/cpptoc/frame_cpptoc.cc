@@ -115,6 +115,20 @@ void CEF_CALLBACK frame_paste(struct _cef_frame_t* self) {
   CefFrameCppToC::Get(self)->Paste();
 }
 
+void CEF_CALLBACK frame_paste_and_match_style(struct _cef_frame_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefFrameCppToC::Get(self)->PasteAndMatchStyle();
+}
+
 void CEF_CALLBACK frame_del(struct _cef_frame_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -486,6 +500,7 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->cut = frame_cut;
   GetStruct()->copy = frame_copy;
   GetStruct()->paste = frame_paste;
+  GetStruct()->paste_and_match_style = frame_paste_and_match_style;
   GetStruct()->del = frame_del;
   GetStruct()->select_all = frame_select_all;
   GetStruct()->view_source = frame_view_source;

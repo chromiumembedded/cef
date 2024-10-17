@@ -99,6 +99,11 @@ typedef struct _cef_frame_t {
   void(CEF_CALLBACK* paste)(struct _cef_frame_t* self);
 
   ///
+  /// Execute paste and match style in this frame.
+  ///
+  void(CEF_CALLBACK* paste_and_match_style)(struct _cef_frame_t* self);
+
+  ///
   /// Execute delete in this frame.
   ///
   void(CEF_CALLBACK* del)(struct _cef_frame_t* self);

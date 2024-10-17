@@ -113,6 +113,20 @@ NO_SANITIZE("cfi-icall") void CefFrameCToCpp::Paste() {
   _struct->paste(_struct);
 }
 
+NO_SANITIZE("cfi-icall") void CefFrameCToCpp::PasteAndMatchStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_frame_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, paste_and_match_style)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->paste_and_match_style(_struct);
+}
+
 NO_SANITIZE("cfi-icall") void CefFrameCToCpp::Delete() {
   shutdown_checker::AssertNotShutdown();
 

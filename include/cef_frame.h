@@ -96,6 +96,12 @@ class CefFrame : public virtual CefBaseRefCounted {
   virtual void Paste() = 0;
 
   ///
+  /// Execute paste and match style in this frame.
+  ///
+  /*--cef()--*/
+  virtual void PasteAndMatchStyle() = 0;
+
+  ///
   /// Execute delete in this frame.
   ///
   /*--cef(capi_name=del)--*/
