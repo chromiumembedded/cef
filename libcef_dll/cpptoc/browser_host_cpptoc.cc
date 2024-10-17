@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=434a753c90262b051077f7a79f3106ac52ffbf75$
+// $hash=8a2a8a4853c3869876ffad3e6c175945ac1c5021$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -186,6 +186,24 @@ browser_host_try_close_browser(struct _cef_browser_host_t* self) {
 
   // Execute
   bool _retval = CefBrowserHostCppToC::Get(self)->TryCloseBrowser();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK
+browser_host_is_ready_to_be_closed(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->IsReadyToBeClosed();
 
   // Return type: bool
   return _retval;
@@ -1514,6 +1532,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->get_browser = browser_host_get_browser;
   GetStruct()->close_browser = browser_host_close_browser;
   GetStruct()->try_close_browser = browser_host_try_close_browser;
+  GetStruct()->is_ready_to_be_closed = browser_host_is_ready_to_be_closed;
   GetStruct()->set_focus = browser_host_set_focus;
   GetStruct()->get_window_handle = browser_host_get_window_handle;
   GetStruct()->get_opener_window_handle = browser_host_get_opener_window_handle;

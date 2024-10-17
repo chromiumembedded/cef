@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=5232dd6bf16af9b6d195a47bb41de0dfb880a65e$
+// $hash=6aad2ccf30a6c519bbeee64d83866e82a41a48d8$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -138,35 +138,44 @@ typedef struct _cef_life_span_handler_t {
                                        struct _cef_browser_t* browser);
 
   ///
-  /// Called when a browser has received a request to close. This may result
-  /// directly from a call to cef_browser_host_t::*close_browser() or indirectly
-  /// if the browser is parented to a top-level window created by CEF and the
-  /// user attempts to close that window (by clicking the 'X', for example). The
-  /// do_close() function will be called after the JavaScript 'onunload' event
-  /// has been fired.
+  /// Called when an Alloy style browser is ready to be closed, meaning that the
+  /// close has already been initiated and that JavaScript unload handlers have
+  /// already executed or should be ignored. This may result directly from a
+  /// call to cef_browser_host_t::[Try]close_browser() or indirectly if the
+  /// browser's top-level parent window was created by CEF and the user attempts
+  /// to close that window (by clicking the 'X', for example). do_close() will
+  /// not be called if the browser's host window/view has already been destroyed
+  /// (via parent window/view hierarchy tear-down, for example), as it is no
+  /// longer possible to customize the close behavior at that point.
   ///
-  /// An application should handle top-level owner window close notifications by
-  /// calling cef_browser_host_t::try_close_browser() or
+  /// An application should handle top-level parent window close notifications
+  /// by calling cef_browser_host_t::try_close_browser() or
   /// cef_browser_host_t::CloseBrowser(false (0)) instead of allowing the window
   /// to close immediately (see the examples below). This gives CEF an
-  /// opportunity to process the 'onbeforeunload' event and optionally cancel
+  /// opportunity to process JavaScript unload handlers and optionally cancel
   /// the close before do_close() is called.
   ///
-  /// When windowed rendering is enabled CEF will internally create a window or
-  /// view to host the browser. In that case returning false (0) from do_close()
-  /// will send the standard close notification to the browser's top-level owner
-  /// window (e.g. WM_CLOSE on Windows, performClose: on OS X, "delete_event" on
-  /// Linux or cef_window_delegate_t::can_close() callback from Views). If the
-  /// browser's host window/view has already been destroyed (via view hierarchy
-  /// tear-down, for example) then do_close() will not be called for that
-  /// browser since is no longer possible to cancel the close.
+  /// When windowed rendering is enabled CEF will create an internal child
+  /// window/view to host the browser. In that case returning false (0) from
+  /// do_close() will send the standard close notification to the browser's top-
+  /// level parent window (e.g. WM_CLOSE on Windows, performClose: on OS X,
+  /// "delete_event" on Linux or cef_window_delegate_t::can_close() callback
+  /// from Views).
   ///
-  /// When windowed rendering is disabled returning false (0) from do_close()
-  /// will cause the browser object to be destroyed immediately.
+  /// When windowed rendering is disabled there is no internal window/view and
+  /// returning false (0) from do_close() will cause the browser object to be
+  /// destroyed immediately.
   ///
-  /// If the browser's top-level owner window requires a non-standard close
+  /// If the browser's top-level parent window requires a non-standard close
   /// notification then send that notification from do_close() and return true
-  /// (1).
+  /// (1). You are still required to complete the browser close as soon as
+  /// possible (either by calling [Try]close_browser() or by proceeding with
+  /// window/view hierarchy tear-down), otherwise the browser will be left in a
+  /// partially closed state that interferes with proper functioning. Top-level
+  /// windows created on the browser process UI thread can alternately call
+  /// cef_browser_host_t::is_ready_to_be_closed() in the close handler to check
+  /// close status instead of relying on custom do_close() handling. See
+  /// documentation on that function for additional details.
   ///
   /// The cef_life_span_handler_t::on_before_close() function will be called
   /// after do_close() (if do_close() is called) and immediately before the
@@ -182,22 +191,26 @@ typedef struct _cef_life_span_handler_t {
   /// which sends a close notification
   ///     to the application's top-level window.
   /// 2.  Application's top-level window receives the close notification and
-  ///     calls TryCloseBrowser() (which internally calls CloseBrowser(false)).
+  ///     calls TryCloseBrowser() (similar to calling CloseBrowser(false)).
   ///     TryCloseBrowser() returns false so the client cancels the window
   ///     close.
   /// 3.  JavaScript 'onbeforeunload' handler executes and shows the close
   ///     confirmation dialog (which can be overridden via
   ///     CefJSDialogHandler::OnBeforeUnloadDialog()).
   /// 4.  User approves the close. 5.  JavaScript 'onunload' handler executes.
-  /// 6.  CEF sends a close notification to the application's top-level window
-  ///     (because DoClose() returned false by default).
-  /// 7.  Application's top-level window receives the close notification and
+  /// 6.  Application's do_close() handler is called and returns false (0) by
+  ///     default.
+  /// 7.  CEF sends a close notification to the application's top-level window
+  ///     (because DoClose() returned false).
+  /// 8.  Application's top-level window receives the close notification and
   ///     calls TryCloseBrowser(). TryCloseBrowser() returns true so the client
   ///     allows the window close.
-  /// 8.  Application's top-level window is destroyed. 9.  Application's
-  /// on_before_close() handler is called and the browser object
+  /// 9.  Application's top-level window is destroyed, triggering destruction
+  ///     of the child browser window.
+  /// 10. Application's on_before_close() handler is called and the browser
+  /// object
   ///     is destroyed.
-  /// 10. Application exits by calling cef_quit_message_loop() if no other
+  /// 11. Application exits by calling cef_quit_message_loop() if no other
   /// browsers
   ///     exist.
   ///
@@ -215,13 +228,17 @@ typedef struct _cef_life_span_handler_t {
   ///     CefJSDialogHandler::OnBeforeUnloadDialog()).
   /// 4.  User approves the close. 5.  JavaScript 'onunload' handler executes.
   /// 6.  Application's do_close() handler is called. Application will:
-  ///     A. Set a flag to indicate that the next close attempt will be allowed.
+  ///     A. Set a flag to indicate that the next top-level window close attempt
+  ///        will be allowed.
   ///     B. Return false.
-  /// 7.  CEF sends an close notification to the application's top-level window.
+  /// 7.  CEF sends a close notification to the application's top-level window
+  ///     (because DoClose() returned false).
   /// 8.  Application's top-level window receives the close notification and
-  ///     allows the window to close based on the flag from #6B.
-  /// 9.  Application's top-level window is destroyed. 10. Application's
-  /// on_before_close() handler is called and the browser object
+  ///     allows the window to close based on the flag from #6A.
+  /// 9.  Application's top-level window is destroyed, triggering destruction
+  ///     of the child browser window.
+  /// 10. Application's on_before_close() handler is called and the browser
+  /// object
   ///     is destroyed.
   /// 11. Application exits by calling cef_quit_message_loop() if no other
   /// browsers

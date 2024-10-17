@@ -218,6 +218,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   double GetZoomLevel() override;
   void SetZoomLevel(double zoomLevel) override;
   bool HasView() override;
+  bool IsReadyToBeClosed() override;
   void SetFocus(bool focus) override;
   void RunFileDialog(FileDialogMode mode,
                      const CefString& title,

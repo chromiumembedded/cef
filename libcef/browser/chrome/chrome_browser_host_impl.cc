@@ -165,14 +165,47 @@ void ChromeBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 }
 
 void ChromeBrowserHostImpl::CloseBrowser(bool force_close) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::CloseBrowser,
+                                          this, force_close));
+    return;
+  }
+
+  if (!force_close) {
+    TryCloseBrowser();
+    return;
+  }
+
   // Always do this asynchronously because TabStripModel is not re-entrant.
-  CEF_POST_TASK(CEF_UIT, base::BindOnce(&ChromeBrowserHostImpl::DoCloseBrowser,
-                                        this, force_close));
+  CEF_POST_TASK(CEF_UIT,
+                base::BindOnce(&ChromeBrowserHostImpl::DoCloseBrowser, this));
 }
 
 bool ChromeBrowserHostImpl::TryCloseBrowser() {
-  // TODO(chrome): Handle the case where the browser may not close immediately.
-  CloseBrowser(true);
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+
+  if (auto* web_contents = GetWebContents()) {
+    // This check works as follows:
+    // 1. Returns false if the main frame is ready to close
+    //    (IsPageReadyToBeClosed returns true).
+    // 2. Otherwise returns true if any frame in the frame tree needs to run
+    //    beforeunload or unload-time event handlers.
+    // 3. Otherwise returns false.
+    if (web_contents->NeedToFireBeforeUnloadOrUnloadEvents()) {
+      // Will result in a call to Browser::BeforeUnloadFired and, if the close
+      // isn't canceled, Browser::CloseContents which indirectly calls
+      // TabStripModel::CloseWebContentsAt (similar to DoCloseBrowser but
+      // without CLOSE_USER_GESTURE). Additional calls to DispatchBeforeUnload
+      // while the unload is pending will be ignored.
+      web_contents->DispatchBeforeUnload(/*auto_cancel=*/false);
+      return false;
+    }
+  }
+
+  CloseBrowser(/*force_close=*/true);
   return true;
 }
 
@@ -551,7 +584,7 @@ void ChromeBrowserHostImpl::DestroyBrowser() {
   // WebContents first. See comments on CefBrowserHostBase::DestroyBrowser.
   if (GetWebContents()) {
     // Triggers a call to OnWebContentsDestroyed.
-    DoCloseBrowser(/*force_close=*/true);
+    DoCloseBrowser();
     DCHECK(!GetWebContents());
   }
 
@@ -565,15 +598,13 @@ void ChromeBrowserHostImpl::DestroyBrowser() {
   CefBrowserHostBase::DestroyBrowser();
 }
 
-void ChromeBrowserHostImpl::DoCloseBrowser(bool force_close) {
+void ChromeBrowserHostImpl::DoCloseBrowser() {
   CEF_REQUIRE_UIT();
   if (browser_) {
     // Like chrome::CloseTab() but specifying the WebContents.
     const int tab_index = GetCurrentTabIndex();
     if (tab_index != TabStripModel::kNoTab) {
       // This will trigger destruction of the Browser and WebContents.
-      // TODO(chrome): Handle the case where this method returns false,
-      // indicating that the contents were not closed immediately.
       browser_->tab_strip_model()->CloseWebContentsAt(
           tab_index, TabCloseTypes::CLOSE_CREATE_HISTORICAL_TAB |
                          TabCloseTypes::CLOSE_USER_GESTURE);
