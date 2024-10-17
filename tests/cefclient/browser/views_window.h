@@ -129,6 +129,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
                                    std::optional<CefRect>& dip_bounds);
   void SetTitlebarHeight(const std::optional<float>& height);
 
+  void UpdateDraggableRegions();
+
   // CefBrowserViewDelegate methods:
   CefRefPtr<CefBrowserViewDelegate> GetDelegateForPopupBrowserView(
       CefRefPtr<CefBrowserView> browser_view,
@@ -252,7 +254,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void NudgeWindow();
 
   const WindowType type_;
-  Delegate* delegate_;  // Not owned by this object.
+  Delegate* const delegate_;  // Not owned by this object.
   const bool use_alloy_style_;
   bool use_alloy_style_window_;
   CefRefPtr<CefBrowserView> browser_view_;
@@ -300,6 +302,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool is_loading_ = false;
   bool can_go_back_ = false;
   bool can_go_forward_ = false;
+
+  std::vector<CefDraggableRegion> last_regions_;
 
   IMPLEMENT_REFCOUNTING(ViewsWindow);
   DISALLOW_COPY_AND_ASSIGN(ViewsWindow);
