@@ -331,29 +331,62 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual CefRefPtr<CefBrowser> GetBrowser() = 0;
 
   ///
-  /// Request that the browser close. The JavaScript 'onbeforeunload' event will
-  /// be fired. If |force_close| is false the event handler, if any, will be
-  /// allowed to prompt the user and the user can optionally cancel the close.
-  /// If |force_close| is true the prompt will not be displayed and the close
-  /// will proceed. Results in a call to CefLifeSpanHandler::DoClose() if the
-  /// event handler allows the close or if |force_close| is true. See
-  /// CefLifeSpanHandler::DoClose() documentation for additional usage
-  /// information.
+  /// Request that the browser close. Closing a browser is a multi-stage process
+  /// that may complete either synchronously or asynchronously, and involves
+  /// callbacks such as CefLifeSpanHandler::DoClose (Alloy style only),
+  /// CefLifeSpanHandler::OnBeforeClose, and a top-level window close handler
+  /// such as CefWindowDelegate::CanClose (or platform-specific equivalent). In
+  /// some cases a close request may be delayed or canceled by the user. Using
+  /// TryCloseBrowser() instead of CloseBrowser() is recommended for most use
+  /// cases. See CefLifeSpanHandler::DoClose() documentation for detailed usage
+  /// and examples.
+  ///
+  /// If |force_close| is false then JavaScript unload handlers, if any, may be
+  /// fired and the close may be delayed or canceled by the user. If
+  /// |force_close| is true then the user will not be prompted and the close
+  /// will proceed immediately (possibly asynchronously). If browser close is
+  /// delayed and not canceled the default behavior is to call the top-level
+  /// window close handler once the browser is ready to be closed. This default
+  /// behavior can be changed for Alloy style browsers by implementing
+  /// CefLifeSpanHandler::DoClose(). IsReadyToBeClosed() can be used to detect
+  /// mandatory browser close events when customizing close behavior on the
+  /// browser process UI thread.
   ///
   /*--cef()--*/
   virtual void CloseBrowser(bool force_close) = 0;
 
   ///
-  /// Helper for closing a browser. Call this method from the top-level window
-  /// close handler (if any). Internally this calls CloseBrowser(false) if the
-  /// close has not yet been initiated. This method returns false while the
-  /// close is pending and true after the close has completed. See
-  /// CloseBrowser() and CefLifeSpanHandler::DoClose() documentation for
-  /// additional usage information. This method must be called on the browser
-  /// process UI thread.
+  /// Helper for closing a browser. This is similar in behavior to
+  /// CLoseBrowser(false) but returns a boolean to reflect the immediate close
+  /// status. Call this method from a top-level window close handler such as
+  /// CefWindowDelegate::CanClose (or platform-specific equivalent) to request
+  /// that the browser close, and return the result to indicate if the window
+  /// close should proceed. Returns false if the close will be delayed
+  /// (JavaScript unload handlers triggered but still pending) or true if the
+  /// close will proceed immediately (possibly asynchronously). See
+  /// CloseBrowser() documentation for additional usage information. This method
+  /// must be called on the browser process UI thread.
   ///
   /*--cef()--*/
   virtual bool TryCloseBrowser() = 0;
+
+  ///
+  /// Returns true if the browser is ready to be closed, meaning that the close
+  /// has already been initiated and that JavaScript unload handlers have
+  /// already executed or should be ignored. This can be used from a top-level
+  /// window close handler such as CefWindowDelegate::CanClose (or
+  /// platform-specific equivalent) to distringuish between potentially
+  /// cancelable browser close events (like the user clicking the top-level
+  /// window close button before browser close has started) and mandatory
+  /// browser close events (like JavaScript `window.close()` or after browser
+  /// close has started in response to [Try]CloseBrowser()). Not completing the
+  /// browser close for mandatory close events (when this method returns true)
+  /// will leave the browser in a partially closed state that interferes with
+  /// proper functioning. See CloseBrowser() documentation for additional usage
+  /// information. This method must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool IsReadyToBeClosed() = 0;
 
   ///
   /// Set whether the browser is focused.

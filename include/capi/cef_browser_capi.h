@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=7c786570b1c7af912a31c6f0c3d742e8aeb38fd8$
+// $hash=e9f34d90eb4af614e35cbb29da0639b62acec7fd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -301,28 +301,61 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  /// Request that the browser close. The JavaScript 'onbeforeunload' event will
-  /// be fired. If |force_close| is false (0) the event handler, if any, will be
-  /// allowed to prompt the user and the user can optionally cancel the close.
-  /// If |force_close| is true (1) the prompt will not be displayed and the
-  /// close will proceed. Results in a call to
-  /// cef_life_span_handler_t::do_close() if the event handler allows the close
-  /// or if |force_close| is true (1). See cef_life_span_handler_t::do_close()
-  /// documentation for additional usage information.
+  /// Request that the browser close. Closing a browser is a multi-stage process
+  /// that may complete either synchronously or asynchronously, and involves
+  /// callbacks such as cef_life_span_handler_t::DoClose (Alloy style only),
+  /// cef_life_span_handler_t::OnBeforeClose, and a top-level window close
+  /// handler such as cef_window_delegate_t::CanClose (or platform-specific
+  /// equivalent). In some cases a close request may be delayed or canceled by
+  /// the user. Using try_close_browser() instead of close_browser() is
+  /// recommended for most use cases. See cef_life_span_handler_t::do_close()
+  /// documentation for detailed usage and examples.
+  ///
+  /// If |force_close| is false (0) then JavaScript unload handlers, if any, may
+  /// be fired and the close may be delayed or canceled by the user. If
+  /// |force_close| is true (1) then the user will not be prompted and the close
+  /// will proceed immediately (possibly asynchronously). If browser close is
+  /// delayed and not canceled the default behavior is to call the top-level
+  /// window close handler once the browser is ready to be closed. This default
+  /// behavior can be changed for Alloy style browsers by implementing
+  /// cef_life_span_handler_t::do_close(). is_ready_to_be_closed() can be used
+  /// to detect mandatory browser close events when customizing close behavior
+  /// on the browser process UI thread.
   ///
   void(CEF_CALLBACK* close_browser)(struct _cef_browser_host_t* self,
                                     int force_close);
 
   ///
-  /// Helper for closing a browser. Call this function from the top-level window
-  /// close handler (if any). Internally this calls CloseBrowser(false (0)) if
-  /// the close has not yet been initiated. This function returns false (0)
-  /// while the close is pending and true (1) after the close has completed. See
-  /// close_browser() and cef_life_span_handler_t::do_close() documentation for
-  /// additional usage information. This function must be called on the browser
-  /// process UI thread.
+  /// Helper for closing a browser. This is similar in behavior to
+  /// CLoseBrowser(false (0)) but returns a boolean to reflect the immediate
+  /// close status. Call this function from a top-level window close handler
+  /// such as cef_window_delegate_t::CanClose (or platform-specific equivalent)
+  /// to request that the browser close, and return the result to indicate if
+  /// the window close should proceed. Returns false (0) if the close will be
+  /// delayed (JavaScript unload handlers triggered but still pending) or true
+  /// (1) if the close will proceed immediately (possibly asynchronously). See
+  /// close_browser() documentation for additional usage information. This
+  /// function must be called on the browser process UI thread.
   ///
   int(CEF_CALLBACK* try_close_browser)(struct _cef_browser_host_t* self);
+
+  ///
+  /// Returns true (1) if the browser is ready to be closed, meaning that the
+  /// close has already been initiated and that JavaScript unload handlers have
+  /// already executed or should be ignored. This can be used from a top-level
+  /// window close handler such as cef_window_delegate_t::CanClose (or platform-
+  /// specific equivalent) to distringuish between potentially cancelable
+  /// browser close events (like the user clicking the top-level window close
+  /// button before browser close has started) and mandatory browser close
+  /// events (like JavaScript `window.close()` or after browser close has
+  /// started in response to [Try]close_browser()). Not completing the browser
+  /// close for mandatory close events (when this function returns true (1))
+  /// will leave the browser in a partially closed state that interferes with
+  /// proper functioning. See close_browser() documentation for additional usage
+  /// information. This function must be called on the browser process UI
+  /// thread.
+  ///
+  int(CEF_CALLBACK* is_ready_to_be_closed)(struct _cef_browser_host_t* self);
 
   ///
   /// Set whether the browser is focused.

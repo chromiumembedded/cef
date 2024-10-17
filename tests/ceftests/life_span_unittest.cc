@@ -6,6 +6,7 @@
 #include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/routing_test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -58,6 +59,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   }
 
   bool DoClose(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_TRUE(browser->GetHost()->IsReadyToBeClosed());
+
     if (executing_delay_close_) {
       return false;
     }
@@ -75,6 +78,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   }
 
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    EXPECT_TRUE(browser->GetHost()->IsReadyToBeClosed());
+
     if (!executing_delay_close_) {
       got_before_close_.yes();
       EXPECT_TRUE(browser->IsSame(GetBrowser()));
@@ -87,6 +92,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
                             const CefString& message_text,
                             bool is_reload,
                             CefRefPtr<CefJSDialogCallback> callback) override {
+    EXPECT_FALSE(browser->GetHost()->IsReadyToBeClosed());
+
     if (executing_delay_close_) {
       callback->Continue(true, CefString());
       return true;
@@ -123,6 +130,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
       // handler. See https://crbug.com/707007.
       CefExecuteJavaScriptWithUserGestureForTests(frame, CefString());
     }
+
+    EXPECT_FALSE(browser->GetHost()->IsReadyToBeClosed());
 
     // Attempt to close the browser.
     CloseBrowser(browser, settings_.force_close);
@@ -180,12 +189,15 @@ class LifeSpanTestHandler : public RoutingTestHandler {
 
 TEST(LifeSpanTest, DoCloseAllow) {
   LifeSpanTestHandler::Settings settings;
-  settings.allow_do_close = true;
   CefRefPtr<LifeSpanTestHandler> handler = new LifeSpanTestHandler(settings);
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_after_created_);
-  EXPECT_TRUE(handler->got_do_close_);
+  if (handler->use_alloy_style_browser()) {
+    EXPECT_TRUE(handler->got_do_close_);
+  } else {
+    EXPECT_FALSE(handler->got_do_close_);
+  }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_FALSE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);
@@ -197,13 +209,16 @@ TEST(LifeSpanTest, DoCloseAllow) {
 
 TEST(LifeSpanTest, DoCloseAllowForce) {
   LifeSpanTestHandler::Settings settings;
-  settings.allow_do_close = true;
   settings.force_close = true;
   CefRefPtr<LifeSpanTestHandler> handler = new LifeSpanTestHandler(settings);
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_after_created_);
-  EXPECT_TRUE(handler->got_do_close_);
+  if (handler->use_alloy_style_browser()) {
+    EXPECT_TRUE(handler->got_do_close_);
+  } else {
+    EXPECT_FALSE(handler->got_do_close_);
+  }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_FALSE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);
@@ -214,6 +229,11 @@ TEST(LifeSpanTest, DoCloseAllowForce) {
 }
 
 TEST(LifeSpanTest, DoCloseDisallow) {
+  // Test not supported with Chrome style browser.
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
+
   LifeSpanTestHandler::Settings settings;
   settings.allow_do_close = false;
   CefRefPtr<LifeSpanTestHandler> handler = new LifeSpanTestHandler(settings);
@@ -231,6 +251,11 @@ TEST(LifeSpanTest, DoCloseDisallow) {
 }
 
 TEST(LifeSpanTest, DoCloseDisallowForce) {
+  // Test not supported with Chrome style browser.
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
+
   LifeSpanTestHandler::Settings settings;
   settings.allow_do_close = false;
   settings.force_close = true;
@@ -249,6 +274,11 @@ TEST(LifeSpanTest, DoCloseDisallowForce) {
 }
 
 TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadAllow) {
+  // Test not supported with Chrome style browser.
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
+
   LifeSpanTestHandler::Settings settings;
   settings.allow_do_close = false;
   settings.add_onunload_handler = true;
@@ -269,14 +299,17 @@ TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadAllow) {
 
 TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
   LifeSpanTestHandler::Settings settings;
-  settings.allow_do_close = true;
   settings.add_onunload_handler = true;
   settings.force_close = true;
   CefRefPtr<LifeSpanTestHandler> handler = new LifeSpanTestHandler(settings);
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_after_created_);
-  EXPECT_TRUE(handler->got_do_close_);
+  if (handler->use_alloy_style_browser()) {
+    EXPECT_TRUE(handler->got_do_close_);
+  } else {
+    EXPECT_FALSE(handler->got_do_close_);
+  }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_TRUE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);
@@ -287,6 +320,11 @@ TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
 }
 
 TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadForce) {
+  // Test not supported with Chrome style browser.
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
+
   LifeSpanTestHandler::Settings settings;
   settings.allow_do_close = false;
   settings.add_onunload_handler = true;
@@ -313,7 +351,11 @@ TEST(LifeSpanTest, OnUnloadAllow) {
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_after_created_);
-  EXPECT_TRUE(handler->got_do_close_);
+  if (handler->use_alloy_style_browser()) {
+    EXPECT_TRUE(handler->got_do_close_);
+  } else {
+    EXPECT_FALSE(handler->got_do_close_);
+  }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_TRUE(handler->got_before_unload_dialog_);
   EXPECT_TRUE(handler->got_unload_message_);

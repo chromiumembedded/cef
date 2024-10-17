@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9f40e4ce3e46a895b5bf644bebdc2d802c9b598b$
+// $hash=73d8659f17a4ae3319b5bf20807d5c69a1759c04$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
@@ -41,6 +41,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   CefRefPtr<CefBrowser> GetBrowser() override;
   void CloseBrowser(bool force_close) override;
   bool TryCloseBrowser() override;
+  bool IsReadyToBeClosed() override;
   void SetFocus(bool focus) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
