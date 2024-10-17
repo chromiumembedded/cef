@@ -63,6 +63,10 @@ class PopupWindowDelegate : public CefWindowDelegate {
     return true;
   }
 
+  cef_runtime_style_t GetWindowRuntimeStyle() override {
+    return browser_view_->GetRuntimeStyle();
+  }
+
  private:
   CefRefPtr<CefBrowserView> browser_view_;
 

@@ -354,6 +354,8 @@ void ViewsWindow::SetDraggableRegions(
     return;
   }
 
+  last_regions_ = regions;
+
   // Convert the regions from BrowserView to Window coordinates.
   std::vector<CefDraggableRegion> window_regions = regions;
   for (auto& region : window_regions) {
@@ -446,6 +448,10 @@ void ViewsWindow::SetTitlebarHeight(const std::optional<float>& height) {
     override_titlebar_height_ = default_titlebar_height_;
   }
   NudgeWindow();
+}
+
+void ViewsWindow::UpdateDraggableRegions() {
+  SetDraggableRegions(last_regions_);
 }
 
 CefRefPtr<CefBrowserViewDelegate> ViewsWindow::GetDelegateForPopupBrowserView(
@@ -914,6 +920,8 @@ bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
   if (command_id == ID_QUIT) {
     delegate_->OnExit();
     return true;
+  } else if (overlay_browser_) {
+    return overlay_browser_->OnAccelerator(window, command_id);
   }
 
   return false;
