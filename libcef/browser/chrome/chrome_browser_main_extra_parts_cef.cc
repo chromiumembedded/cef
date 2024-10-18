@@ -17,6 +17,7 @@
 
 #if BUILDFLAG(IS_LINUX)
 #include "base/linux_util.h"
+#include "cef/libcef/browser/printing/print_dialog_linux.h"
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -83,4 +84,11 @@ void ChromeBrowserMainExtraPartsCef::ToolkitInitialized() {
   // Override the default Chrome client.
   SetConstrainedWindowViewsClient(CreateAlloyConstrainedWindowViewsClient(
       CreateChromeConstrainedWindowViewsClient()));
+
+#if BUILDFLAG(IS_LINUX)
+  auto printing_delegate = new CefPrintingContextLinuxDelegate();
+  auto default_delegate =
+      ui::PrintingContextLinuxDelegate::SetInstance(printing_delegate);
+  printing_delegate->SetDefaultDelegate(default_delegate);
+#endif  // BUILDFLAG(IS_LINUX)
 }
