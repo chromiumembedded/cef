@@ -133,6 +133,10 @@ void CefFrameHostImpl::Paste() {
   EXEC_WEBCONTENTS_COMMAND(Paste);
 }
 
+void CefFrameHostImpl::PasteAndMatchStyle() {
+  EXEC_WEBCONTENTS_COMMAND(PasteAndMatchStyle);
+}
+
 void CefFrameHostImpl::Delete() {
   EXEC_WEBCONTENTS_COMMAND(Delete);
 }

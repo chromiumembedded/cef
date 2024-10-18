@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2422c489d40f44ad21b8f80d284ec6375ae93689$
+// $hash=d5d7d1577311729c9db2209af72abc2e0126dfa5$
 //
 
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
@@ -111,6 +111,20 @@ NO_SANITIZE("cfi-icall") void CefFrameCToCpp::Paste() {
 
   // Execute
   _struct->paste(_struct);
+}
+
+NO_SANITIZE("cfi-icall") void CefFrameCToCpp::PasteAndMatchStyle() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_frame_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, paste_and_match_style)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->paste_and_match_style(_struct);
 }
 
 NO_SANITIZE("cfi-icall") void CefFrameCToCpp::Delete() {

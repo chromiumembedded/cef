@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c70637482d64cbe5fd1bea33bf18950594a50dac$
+// $hash=15ea4aa67b0535061854dc3a10c72fb10581157b$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_CTOCPP_H_
@@ -45,6 +45,7 @@ class CefFrameCToCpp
   void Cut() override;
   void Copy() override;
   void Paste() override;
+  void PasteAndMatchStyle() override;
   void Delete() override;
   void SelectAll() override;
   void ViewSource() override;

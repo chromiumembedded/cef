@@ -328,6 +328,8 @@ void CefMenuManager::CreateDefaultModel() {
     model_->AddItem(MENU_ID_CUT, GetLabel(IDS_CONTENT_CONTEXT_CUT));
     model_->AddItem(MENU_ID_COPY, GetLabel(IDS_CONTENT_CONTEXT_COPY));
     model_->AddItem(MENU_ID_PASTE, GetLabel(IDS_CONTENT_CONTEXT_PASTE));
+    model_->AddItem(MENU_ID_PASTE_MATCH_STYLE,
+                    GetLabel(IDS_CONTENT_CONTEXT_PASTE_AND_MATCH_STYLE));
 
     model_->AddSeparator();
     model_->AddItem(MENU_ID_SELECT_ALL,
@@ -347,6 +349,7 @@ void CefMenuManager::CreateDefaultModel() {
     }
     if (!(params_.edit_flags & CM_EDITFLAG_CAN_PASTE)) {
       model_->SetEnabled(MENU_ID_PASTE, false);
+      model_->SetEnabled(MENU_ID_PASTE_MATCH_STYLE, false);
     }
     if (!(params_.edit_flags & CM_EDITFLAG_CAN_DELETE)) {
       model_->SetEnabled(MENU_ID_DELETE, false);
@@ -457,6 +460,9 @@ void CefMenuManager::ExecuteDefaultCommand(int command_id) {
       break;
     case MENU_ID_PASTE:
       browser_->GetFocusedFrame()->Paste();
+      break;
+    case MENU_ID_PASTE_MATCH_STYLE:
+      browser_->GetFocusedFrame()->PasteAndMatchStyle();
       break;
     case MENU_ID_DELETE:
       browser_->GetFocusedFrame()->Delete();

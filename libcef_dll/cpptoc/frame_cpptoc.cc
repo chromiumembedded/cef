@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1edf2a7d9f2dc18f4422c9651554577735b83b66$
+// $hash=78b6ea5be9077164a1d7ea6143601040b124f1c0$
 //
 
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
@@ -113,6 +113,20 @@ void CEF_CALLBACK frame_paste(struct _cef_frame_t* self) {
 
   // Execute
   CefFrameCppToC::Get(self)->Paste();
+}
+
+void CEF_CALLBACK frame_paste_and_match_style(struct _cef_frame_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+
+  // Execute
+  CefFrameCppToC::Get(self)->PasteAndMatchStyle();
 }
 
 void CEF_CALLBACK frame_del(struct _cef_frame_t* self) {
@@ -486,6 +500,7 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->cut = frame_cut;
   GetStruct()->copy = frame_copy;
   GetStruct()->paste = frame_paste;
+  GetStruct()->paste_and_match_style = frame_paste_and_match_style;
   GetStruct()->del = frame_del;
   GetStruct()->select_all = frame_select_all;
   GetStruct()->view_source = frame_view_source;

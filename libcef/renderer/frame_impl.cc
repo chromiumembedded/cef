@@ -104,6 +104,10 @@ void CefFrameImpl::Paste() {
   SendCommand("Paste");
 }
 
+void CefFrameImpl::PasteAndMatchStyle() {
+  SendCommand("PasteAndMatchStyle");
+}
+
 void CefFrameImpl::Delete() {
   SendCommand("Delete");
 }
