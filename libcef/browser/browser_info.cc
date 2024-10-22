@@ -277,11 +277,14 @@ void CefBrowserInfo::RemoveFrame(content::RenderFrameHost* host) {
   {
     auto it2 = frame_info_set_.find(frame_info);
 
-    // Explicitly Detach everything but the current main frame.
+    // Explicitly Detach everything.
     const auto& other_frame_info = *it2;
-    if (other_frame_info->frame_ && !other_frame_info->IsCurrentMainFrame()) {
+    if (other_frame_info->frame_) {
+      const bool is_current_main_frame = other_frame_info->IsCurrentMainFrame();
       if (other_frame_info->frame_->Detach(
-              CefFrameHostImpl::DetachReason::RENDER_FRAME_DELETED)) {
+              CefFrameHostImpl::DetachReason::RENDER_FRAME_DELETED,
+              is_current_main_frame)) {
+        DCHECK(!is_current_main_frame);
         MaybeNotifyFrameDetached(browser_, other_frame_info->frame_);
       }
     }
@@ -477,7 +480,8 @@ void CefBrowserInfo::SetMainFrame(CefRefPtr<CefBrowserHostBase> browser,
   CefRefPtr<CefFrameHostImpl> old_frame;
   if (main_frame_) {
     old_frame = main_frame_;
-    if (old_frame->Detach(CefFrameHostImpl::DetachReason::NEW_MAIN_FRAME)) {
+    if (old_frame->Detach(CefFrameHostImpl::DetachReason::NEW_MAIN_FRAME,
+                          /*is_current_main_frame=*/false)) {
       MaybeNotifyFrameDetached(browser, old_frame);
     }
   }
@@ -556,11 +560,14 @@ void CefBrowserInfo::RemoveAllFrames(
   frame_id_map_.clear();
   frame_token_to_id_map_.clear();
 
-  // Explicitly Detach everything but the current main frame.
+  // Explicitly Detach everything.
   for (auto& info : frame_info_set_) {
-    if (info->frame_ && !info->IsCurrentMainFrame()) {
+    if (info->frame_) {
+      const bool is_current_main_frame = info->IsCurrentMainFrame();
       if (info->frame_->Detach(
-              CefFrameHostImpl::DetachReason::BROWSER_DESTROYED)) {
+              CefFrameHostImpl::DetachReason::BROWSER_DESTROYED,
+              is_current_main_frame)) {
+        DCHECK(!is_current_main_frame);
         MaybeNotifyFrameDetached(old_browser, info->frame_);
       }
     }
