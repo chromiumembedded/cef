@@ -495,7 +495,7 @@ bool CefFrameHostImpl::IsDetached() const {
   return !GetRenderFrameHost();
 }
 
-bool CefFrameHostImpl::Detach(DetachReason reason) {
+bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
   CEF_REQUIRE_UIT();
 
   if (VLOG_IS_ON(1)) {
@@ -516,24 +516,29 @@ bool CefFrameHostImpl::Detach(DetachReason reason) {
             << ", is_connected=" << render_frame_.is_bound() << ")";
   }
 
-  // May be called multiple times (e.g. from CefBrowserInfo SetMainFrame and
-  // RemoveFrame).
-  bool first_detach = false;
+  // This method may be called multiple times (e.g. from CefBrowserInfo
+  // SetMainFrame and RemoveFrame).
+  bool is_first_complete_detach = false;
 
   // Should not be called for temporary frames.
   CHECK(!is_temporary());
 
-  {
-    base::AutoLock lock_scope(state_lock_);
-    if (browser_info_) {
-      first_detach = true;
-      browser_info_ = nullptr;
-    }
-  }
+  // Must be a main frame if |is_current_main_frame| is true.
+  CHECK(!is_current_main_frame || is_main_frame_);
 
-  // In case we never attached, clean up.
-  while (!queued_renderer_actions_.empty()) {
-    queued_renderer_actions_.pop();
+  if (!is_current_main_frame) {
+    {
+      base::AutoLock lock_scope(state_lock_);
+      if (browser_info_) {
+        is_first_complete_detach = true;
+        browser_info_ = nullptr;
+      }
+    }
+
+    // In case we never attached, clean up.
+    while (!queued_renderer_actions_.empty()) {
+      queued_renderer_actions_.pop();
+    }
   }
 
   if (render_frame_.is_bound()) {
@@ -543,7 +548,7 @@ bool CefFrameHostImpl::Detach(DetachReason reason) {
   render_frame_.reset();
   render_frame_host_ = nullptr;
 
-  return first_detach;
+  return is_first_complete_detach;
 }
 
 void CefFrameHostImpl::MaybeReAttach(
