@@ -207,18 +207,10 @@ index ea33ca66f384c..33f4cc76f76bd 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 2f250ba9bf79d..8a269af206051 100644
+index 2f250ba9bf79d..0af427e779266 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
-@@ -22,6 +22,7 @@
- #include <utility>
- 
- #include "base/check.h"
-+#include "base/notreached.h"
- #include "base/no_destructor.h"
- #include "base/rand_util.h"
- #include "base/ranges/algorithm.h"
-@@ -29,7 +30,11 @@
+@@ -29,12 +29,56 @@
  #include "base/win/scoped_handle.h"
  #include "base/win/scoped_localalloc.h"
  #include "base/win/windows_version.h"
@@ -226,25 +218,52 @@ index 2f250ba9bf79d..8a269af206051 100644
 +
 +#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
  #include "third_party/boringssl/src/include/openssl/sha.h"
++#else
++#include <wincrypt.h>
 +#endif
  
  namespace base::win {
  
-@@ -130,6 +135,7 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
-   if (known_cap != known_capabilities->end()) {
-     return FromKnownCapability(known_cap->second);
-   }
-+#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-   static_assert((SHA256_DIGEST_LENGTH / sizeof(DWORD)) ==
-                 SECURITY_APP_PACKAGE_RID_COUNT);
-   DWORD rids[(SHA256_DIGEST_LENGTH / sizeof(DWORD)) + 2];
-@@ -141,6 +147,9 @@ Sid Sid::FromNamedCapability(const std::wstring& capability_name) {
-          reinterpret_cast<uint8_t*>(&rids[2]));
-   return FromSubAuthorities(SECURITY_APP_PACKAGE_AUTHORITY, std::size(rids),
-                             rids);
-+#else
-+  NOTREACHED();
-+#endif
- }
+ namespace {
  
- Sid Sid::FromKnownSid(WellKnownSid type) {
++#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
++
++#define SHA256_DIGEST_LENGTH 32
++
++bool SHA256(const uint8_t* InData, size_t InDataLen, uint8_t* OutHash) {
++  HCRYPTPROV hProv = 0;
++  HCRYPTHASH hHash = 0;
++
++  if (!CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES,
++                           CRYPT_VERIFYCONTEXT)) {
++    return false;
++  }
++
++  if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
++    CryptReleaseContext(hProv, 0);
++    return false;
++  }
++
++  if (!CryptHashData(hHash, InData, static_cast<DWORD>(InDataLen), 0)) {
++    CryptDestroyHash(hHash);
++    CryptReleaseContext(hProv, 0);
++    return false;
++  }
++
++  DWORD dwHashLen = SHA256_DIGEST_LENGTH;
++  if (!CryptGetHashParam(hHash, HP_HASHVAL, OutHash, &dwHashLen, 0)) {
++    CryptDestroyHash(hHash);
++    CryptReleaseContext(hProv, 0);
++    return false;
++  }
++
++  CryptDestroyHash(hHash);
++  CryptReleaseContext(hProv, 0);
++  return true;
++}
++
++#endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)
++
+ template <typename Iterator>
+ Sid FromSubAuthorities(const SID_IDENTIFIER_AUTHORITY& identifier_authority,
+                        size_t sub_authority_count,
