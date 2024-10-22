@@ -174,6 +174,10 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   DestructionState destruction_state() const { return destruction_state_; }
 
   // content::WebContentsDelegate methods.
+  void PrintCrossProcessSubframe(content::WebContents* web_contents,
+      const gfx::Rect& rect,
+      int document_cookie,
+      content::RenderFrameHost* subframe_host) const override;
   content::WebContents* OpenURLFromTab(
       content::WebContents* source,
       const content::OpenURLParams& params,
