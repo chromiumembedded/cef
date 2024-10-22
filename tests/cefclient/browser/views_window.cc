@@ -817,9 +817,11 @@ void ViewsWindow::OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
 bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
   CEF_REQUIRE_UI_THREAD();
 
+  CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
+
 #if defined(OS_MAC)
   // On MacOS we might hide the window instead of closing it.
-  if (hide_on_close_) {
+  if (hide_on_close_ && browser && !browser->GetHost()->IsReadyToBeClosed()) {
     if (window->IsFullscreen()) {
       // Need to exit fullscreen mode before hiding the window.
       // Execution continues in OnWindowFullscreenTransition.
@@ -833,7 +835,6 @@ bool ViewsWindow::CanClose(CefRefPtr<CefWindow> window) {
 #endif
 
   // Allow the window to close if the browser says it's OK.
-  CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
   if (browser) {
     return browser->GetHost()->TryCloseBrowser();
   }
