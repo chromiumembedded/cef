@@ -34,10 +34,10 @@ index 4007e26f780c3..26d0d492cf176 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index faefffb1010e8..ee3c11ffda006 100644
+index aa6acb2e58acc..8b27e0debf930 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1577,7 +1577,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1592,7 +1592,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
      }
  
@@ -46,7 +46,7 @@ index faefffb1010e8..ee3c11ffda006 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1591,7 +1591,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1606,7 +1606,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      bool highlighted = *params->update_properties.highlighted;
@@ -55,7 +55,7 @@ index faefffb1010e8..ee3c11ffda006 100644
        tab_strip->ToggleSelectionAt(tab_index);
      }
    }
-@@ -1604,7 +1604,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1619,7 +1619,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          base::NumberToString(tab_id))));
    }
  
@@ -64,7 +64,7 @@ index faefffb1010e8..ee3c11ffda006 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1638,7 +1638,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1653,7 +1653,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -73,7 +73,7 @@ index faefffb1010e8..ee3c11ffda006 100644
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -1659,8 +1659,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1674,8 +1674,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -85,7 +85,7 @@ index faefffb1010e8..ee3c11ffda006 100644
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
      }
-@@ -1674,7 +1675,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1689,7 +1690,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
