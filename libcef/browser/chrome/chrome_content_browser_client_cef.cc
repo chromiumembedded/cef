@@ -23,6 +23,7 @@
 #include "cef/libcef/browser/net_service/resource_request_handler_wrapper.h"
 #include "cef/libcef/browser/prefs/browser_prefs.h"
 #include "cef/libcef/browser/prefs/renderer_prefs.h"
+#include "cef/libcef/browser/x509_certificate_impl.h"
 #include "cef/libcef/common/app_manager.h"
 #include "cef/libcef/common/cef_switches.h"
 #include "cef/libcef/common/command_line_impl.h"
@@ -32,6 +33,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/performance_manager/embedder/performance_manager_registry.h"
+#include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/navigation_throttle.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -39,6 +41,8 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/weak_document_ptr.h"
 #include "content/public/common/content_switches.h"
+#include "net/ssl/ssl_cert_request_info.h"
+#include "net/ssl/ssl_private_key.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 
@@ -47,6 +51,82 @@
 #endif
 
 namespace {
+
+class CefSelectClientCertificateCallbackImpl
+    : public CefSelectClientCertificateCallback {
+ public:
+  explicit CefSelectClientCertificateCallbackImpl(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate)
+      : delegate_(std::move(delegate)) {}
+
+  CefSelectClientCertificateCallbackImpl(
+      const CefSelectClientCertificateCallbackImpl&) = delete;
+  CefSelectClientCertificateCallbackImpl& operator=(
+      const CefSelectClientCertificateCallbackImpl&) = delete;
+
+  ~CefSelectClientCertificateCallbackImpl() override {
+    // If Select has not been called, call it with NULL to continue without any
+    // client certificate.
+    RunNow(std::move(delegate_), nullptr);
+  }
+
+  void Select(CefRefPtr<CefX509Certificate> cert) override {
+    if (!CEF_CURRENTLY_ON_UIT()) {
+      CEF_POST_TASK(
+          CEF_UIT,
+          base::BindOnce(&CefSelectClientCertificateCallbackImpl::Select, this,
+                         cert));
+    } else {
+      RunNow(std::move(delegate_), cert);
+    }
+  }
+
+  [[nodiscard]] std::unique_ptr<content::ClientCertificateDelegate>
+  DisconnectDelegate() {
+    CEF_REQUIRE_UIT();
+    return std::move(delegate_);
+  }
+
+ private:
+  static void RunNow(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate,
+      CefRefPtr<CefX509Certificate> cert) {
+    CEF_REQUIRE_UIT();
+
+    if (delegate) {
+      if (cert) {
+        CefX509CertificateImpl* certImpl =
+            static_cast<CefX509CertificateImpl*>(cert.get());
+        certImpl->AcquirePrivateKey(base::BindOnce(
+            &CefSelectClientCertificateCallbackImpl::RunWithPrivateKey,
+            std::move(delegate), cert));
+        return;
+      }
+
+      delegate->ContinueWithCertificate(nullptr, nullptr);
+    }
+  }
+
+  static void RunWithPrivateKey(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate,
+      CefRefPtr<CefX509Certificate> cert,
+      scoped_refptr<net::SSLPrivateKey> key) {
+    CEF_REQUIRE_UIT();
+    DCHECK(cert);
+
+    if (key) {
+      CefX509CertificateImpl* certImpl =
+          static_cast<CefX509CertificateImpl*>(cert.get());
+      delegate->ContinueWithCertificate(certImpl->GetInternalCertObject(), key);
+    } else {
+      delegate->ContinueWithCertificate(nullptr, nullptr);
+    }
+  }
+
+  std::unique_ptr<content::ClientCertificateDelegate> delegate_;
+
+  IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefSelectClientCertificateCallbackImpl);
+};
 
 void HandleExternalProtocolHelper(
     ChromeContentBrowserClientCef* self,
@@ -199,6 +279,64 @@ void ChromeContentBrowserClientCef::AllowCertificateError(
   ChromeContentBrowserClient::AllowCertificateError(
       web_contents, cert_error, ssl_info, request_url, is_main_frame_request,
       strict_enforcement, std::move(returned_callback));
+}
+
+base::OnceClosure ChromeContentBrowserClientCef::SelectClientCertificate(
+    content::BrowserContext* browser_context,
+    int process_id,
+    content::WebContents* web_contents,
+    net::SSLCertRequestInfo* cert_request_info,
+    net::ClientCertIdentityList client_certs,
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
+  CEF_REQUIRE_UIT();
+
+  CefRefPtr<CefRequestHandler> handler;
+  CefRefPtr<CefBrowserHostBase> browser =
+      CefBrowserHostBase::GetBrowserForContents(web_contents);
+  if (browser) {
+    if (auto client = browser->GetClient()) {
+      handler = client->GetRequestHandler();
+    }
+  }
+
+  if (!handler) {
+    return ChromeContentBrowserClient::SelectClientCertificate(
+        browser_context, process_id, web_contents, cert_request_info,
+        std::move(client_certs), std::move(delegate));
+  }
+
+  CefRequestHandler::X509CertificateList certs;
+  for (auto& client_cert : client_certs) {
+    certs.push_back(new CefX509CertificateImpl(std::move(client_cert)));
+  }
+
+  CefRefPtr<CefSelectClientCertificateCallbackImpl> callbackImpl(
+      new CefSelectClientCertificateCallbackImpl(std::move(delegate)));
+
+  bool handled = handler->OnSelectClientCertificate(
+      browser.get(), cert_request_info->is_proxy,
+      cert_request_info->host_and_port.host(),
+      cert_request_info->host_and_port.port(), certs, callbackImpl.get());
+
+  if (!handled) {
+    delegate = callbackImpl->DisconnectDelegate();
+    if (delegate) {
+      client_certs.clear();
+      for (auto& cert : certs) {
+        CefX509CertificateImpl* certImpl =
+            static_cast<CefX509CertificateImpl*>(cert.get());
+        client_certs.push_back(certImpl->DisconnectIdentity());
+      }
+      return ChromeContentBrowserClient::SelectClientCertificate(
+          browser_context, process_id, web_contents, cert_request_info,
+          std::move(client_certs), std::move(delegate));
+    } else {
+      LOG(ERROR) << "Should return true from OnSelectClientCertificate when "
+                    "executing the callback";
+    }
+  }
+
+  return base::OnceClosure();
 }
 
 bool ChromeContentBrowserClientCef::CanCreateWindow(

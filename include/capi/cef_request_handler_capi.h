@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=db7cfb76483d6ab73eba74deaefafa7700ad1988$
+// $hash=cf3b97164ac99d564ebcd30f927e1331949acbe5$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_HANDLER_CAPI_H_
@@ -194,16 +194,19 @@ typedef struct _cef_request_handler_t {
 
   ///
   /// Called on the UI thread when a client certificate is being requested for
-  /// authentication. Return false (0) to use the default behavior and
-  /// automatically select the first certificate available. Return true (1) and
-  /// call cef_select_client_certificate_callback_t::Select either in this
-  /// function or at a later time to select a certificate. Do not call Select or
-  /// call it with NULL to continue without using any certificate. |isProxy|
-  /// indicates whether the host is an HTTPS proxy or the origin server. |host|
-  /// and |port| contains the hostname and port of the SSL server.
-  /// |certificates| is the list of certificates to choose from; this list has
-  /// already been pruned by Chromium so that it only contains certificates from
-  /// issuers that the server trusts.
+  /// authentication. Return false (0) to use the default behavior.  If the
+  /// |certificates| list is not NULL the default behavior will be to display a
+  /// dialog for certificate selection. If the |certificates| list is NULL then
+  /// the default behavior will be not to show a dialog and it will continue
+  /// without using any certificate. Return true (1) and call
+  /// cef_select_client_certificate_callback_t::Select either in this function
+  /// or at a later time to select a certificate. Do not call Select or call it
+  /// with NULL to continue without using any certificate. |isProxy| indicates
+  /// whether the host is an HTTPS proxy or the origin server. |host| and |port|
+  /// contains the hostname and port of the SSL server. |certificates| is the
+  /// list of certificates to choose from; this list has already been pruned by
+  /// Chromium so that it only contains certificates from issuers that the
+  /// server trusts.
   ///
   int(CEF_CALLBACK* on_select_client_certificate)(
       struct _cef_request_handler_t* self,
