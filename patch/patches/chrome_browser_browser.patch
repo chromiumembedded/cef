@@ -88,7 +88,7 @@ index b4a11f0509df7..04f615abc4404 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index bc6e4008f2c5a..1b6b33e96b46c 100644
+index bc6e4008f2c5a..b8db5a4b59095 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -129,42 +129,7 @@ index bc6e4008f2c5a..1b6b33e96b46c 100644
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -1009,8 +1019,6 @@ static_library("ui") {
-     sources += [
-       "app_icon_loader.cc",
-       "app_icon_loader.h",
--      "bluetooth/chrome_bluetooth_chooser_controller.cc",
--      "bluetooth/chrome_bluetooth_chooser_controller.h",
-       "bookmarks/bookmark_bar.h",
-       "bookmarks/bookmark_context_menu_controller.cc",
-       "bookmarks/bookmark_context_menu_controller.h",
-@@ -1466,7 +1474,6 @@ static_library("ui") {
-       "tabs/tab_menu_model_factory.h",
-       "tabs/tab_model.cc",
-       "tabs/tab_model.h",
--      "tabs/tab_network_state.cc",
-       "tabs/tab_network_state.h",
-       "tabs/tab_renderer_data.cc",
-       "tabs/tab_renderer_data.h",
-@@ -3208,8 +3215,6 @@ static_library("ui") {
- 
-   if (is_win || is_mac || is_linux || is_chromeos) {
-     sources += [
--      "frame/window_frame_util.cc",
--      "frame/window_frame_util.h",
-       "incognito_clear_browsing_data_dialog_interface.h",
-       "passwords/password_cross_domain_confirmation_popup_controller_impl.cc",
-       "passwords/password_cross_domain_confirmation_popup_controller_impl.h",
-@@ -5535,8 +5540,6 @@ static_library("ui") {
- 
-   if (use_aura) {
-     sources += [
--      "aura/accessibility/automation_manager_aura.cc",
--      "aura/accessibility/automation_manager_aura.h",
-       "overscroll_pref_manager.cc",
-       "overscroll_pref_manager.h",
-       "views/accelerator_utils_aura.cc",
-@@ -5788,6 +5791,7 @@ static_library("ui") {
+@@ -5788,6 +5798,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
