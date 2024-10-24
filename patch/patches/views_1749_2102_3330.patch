@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 477159889efb0..b984eee1ec4d8 100644
+index d7e3313414e5b..8691f6e1a4131 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1015,7 +1015,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1014,7 +1014,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::MENU_SOURCE_NONE,
@@ -133,10 +133,10 @@ index c579f65dce9f0..a04e0d1f66aaa 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 8fcf7575ebe4e..a8c8ab6927ba2 100644
+index 5b675ae814e09..bcea717c1a23b 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -589,6 +589,12 @@ void LabelButton::OnThemeChanged() {
+@@ -585,6 +585,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -150,10 +150,10 @@ index 8fcf7575ebe4e..a8c8ab6927ba2 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 414087e088a4e..0d757f5e7933e 100644
+index 7586a6f089f62..4e3a40b33f535 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -187,6 +187,9 @@ class VIEWS_EXPORT LabelButton : public Button,
+@@ -186,6 +186,9 @@ class VIEWS_EXPORT LabelButton : public Button,
    // widget, and the parent of the containing widget.
    ButtonState GetVisualState() const;
  
@@ -254,7 +254,7 @@ index bc315ed47b197..2c0f4deafb3c1 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 4b753ff618598..ddb2506be9695 100644
+index c394177f4a19b..fd88fa8a89d91 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -578,7 +578,8 @@ void MenuController::Run(Widget* parent,
@@ -283,7 +283,7 @@ index 4b753ff618598..ddb2506be9695 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2954,8 +2957,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2940,8 +2943,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -298,7 +298,7 @@ index 4b753ff618598..ddb2506be9695 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2975,8 +2983,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2961,8 +2969,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -374,10 +374,10 @@ index 7c6ff7acb08a7..91ababb3dccd8 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index c7c9deb69dbba..0edd342c9a713 100644
+index f315051d58d34..edffdf794b19d 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
-@@ -145,6 +145,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -148,6 +148,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
                                         : gfx::NativeWindow();
    params.bounds = init_params.bounds;
  
@@ -386,7 +386,7 @@ index c7c9deb69dbba..0edd342c9a713 100644
  #if defined(USE_AURA)
    params.init_properties_container.SetProperty(aura::client::kOwnedWindowAnchor,
                                                 init_params.owned_window_anchor);
-@@ -152,7 +154,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -155,7 +157,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
    // If MenuHost has no parent widget, it needs to be marked
    // Activatable, so that calling Show in ShowMenuHost will
    // get keyboard focus.
@@ -410,10 +410,10 @@ index fc1d5fccc3845..c065cafcd537c 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 81fabd16b2ce3..90f1ec4fcaaec 100644
+index 14006cc21e5e2..a1e64d2b3aed1 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1102,6 +1102,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1107,6 +1107,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -429,7 +429,7 @@ index 81fabd16b2ce3..90f1ec4fcaaec 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1166,6 +1175,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1171,6 +1180,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -444,7 +444,7 @@ index 81fabd16b2ce3..90f1ec4fcaaec 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 9e6b9cc599691..51946fb5c50d4 100644
+index b6836ecbbeb13..56a7c14fb1f8c 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -455,7 +455,7 @@ index 9e6b9cc599691..51946fb5c50d4 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -240,6 +241,75 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -241,6 +242,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -465,8 +465,7 @@ index 9e6b9cc599691..51946fb5c50d4 100644
 +                                               bool* has_mnemonics,
 +                                               MenuButton** button) {
 +  // Look up the menu model for this menu.
-+  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
-+      menu_map_.find(menu);
++  const auto map_iterator = menu_map_.find(menu);
 +  if (map_iterator != menu_map_.end()) {
 +    map_iterator->second->MouseOutsideMenu(screen_point);
 +    return nullptr;
@@ -475,11 +474,9 @@ index 9e6b9cc599691..51946fb5c50d4 100644
 +  NOTREACHED();
 +}
 +
-+void MenuModelAdapter::OnUnhandledOpenSubmenu(MenuItemView* menu,
-+                                              bool is_rtl) {
++void MenuModelAdapter::OnUnhandledOpenSubmenu(MenuItemView* menu, bool is_rtl) {
 +  // Look up the menu model for this menu.
-+  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
-+      menu_map_.find(menu);
++  const auto map_iterator = menu_map_.find(menu);
 +  if (map_iterator != menu_map_.end()) {
 +    map_iterator->second->UnhandledOpenSubmenu(is_rtl);
 +    return;
@@ -491,8 +488,7 @@ index 9e6b9cc599691..51946fb5c50d4 100644
 +void MenuModelAdapter::OnUnhandledCloseSubmenu(MenuItemView* menu,
 +                                               bool is_rtl) {
 +  // Look up the menu model for this menu.
-+  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
-+      menu_map_.find(menu);
++  const auto map_iterator = menu_map_.find(menu);
 +  if (map_iterator != menu_map_.end()) {
 +    map_iterator->second->UnhandledCloseSubmenu(is_rtl);
 +    return;
@@ -530,9 +526,9 @@ index 9e6b9cc599691..51946fb5c50d4 100644
 +
  void MenuModelAdapter::WillShowMenu(MenuItemView* menu) {
    // Look up the menu model for this menu.
-   const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
+   const std::map<MenuItemView*,
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 2d37aa1c602cf..5f1062cb8477a 100644
+index d2e0377559862..de2b0e2d2fa28 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -93,6 +93,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -749,7 +745,7 @@ index e171461e28836..e137275a22a12 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 37135f8ef2d73..459a3c2e60062 100644
+index 87427e16e1b60..eb5998419a8f3 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -254,6 +254,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)

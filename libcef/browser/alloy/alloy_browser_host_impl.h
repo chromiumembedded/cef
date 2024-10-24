@@ -284,7 +284,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void AccessibilityEventReceived(
       const ui::AXUpdatesAndEvents& details) override;
   void AccessibilityLocationChangesReceived(
-      const std::vector<ui::AXLocationChanges>& details) override;
+      const ui::AXTreeID& tree_id,
+      ui::AXLocationAndScrollUpdates& details) override;
   void WebContentsDestroyed() override;
 
  private:

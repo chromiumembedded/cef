@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 0367ed7d21fdf..7cf6dd6fb122b 100644
+index 94a1de886b530..dec2dd5f20721 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,7 +10,7 @@ index 0367ed7d21fdf..7cf6dd6fb122b 100644
  #include "base/message_loop/message_pump_win.h"
  
  #include <winbase.h>
-@@ -572,7 +573,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+@@ -569,7 +570,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
                  ctx.event()->set_chrome_message_pump();
              msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
            });

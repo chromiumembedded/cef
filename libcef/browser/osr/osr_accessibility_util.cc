@@ -14,7 +14,9 @@
 #include "base/strings/stringprintf.h"
 #include "ui/accessibility/ax_enum_util.h"
 #include "ui/accessibility/ax_enums.mojom.h"
+#include "ui/accessibility/ax_location_and_scroll_updates.h"
 #include "ui/accessibility/ax_text_utils.h"
+#include "ui/accessibility/ax_tree_id.h"
 #include "ui/accessibility/ax_tree_update.h"
 #include "ui/accessibility/ax_updates_and_events.h"
 #include "ui/gfx/geometry/transform.h"
@@ -234,6 +236,11 @@ struct PopulateAxNodeAttributes {
         if (ax::mojom::TextDecorationStyle::kNone != state) {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
+      } break;
+      case ax::mojom::IntAttribute::kDetailsFrom: {
+        attributes->SetString(
+            ToString(attr.first),
+            ToString(static_cast<ax::mojom::DetailsFrom>(attr.second)));
       } break;
       case ax::mojom::IntAttribute::kAriaCellColumnSpan:
       case ax::mojom::IntAttribute::kAriaCellRowSpan:
@@ -525,19 +532,30 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXRelativeBounds& location) {
 }
 
 // Convert AXLocationChangeNotificationDetails to CefDictionaryValue.
-CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXLocationChanges& locData) {
+CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXTreeID& tree_id,
+                                         const ui::AXLocationChange& locData) {
   CefRefPtr<CefDictionaryValue> value = CefDictionaryValue::Create();
 
   if (locData.id != -1) {
     value->SetInt("id", locData.id);
   }
 
-  if (!locData.ax_tree_id.ToString().empty()) {
-    value->SetString("ax_tree_id", locData.ax_tree_id.ToString());
+  if (auto ax_tree_id = tree_id.ToString(); !ax_tree_id.empty()) {
+    value->SetString("ax_tree_id", ax_tree_id);
   }
 
   value->SetDictionary("new_location", ToCefValue(locData.new_location));
 
+  return value;
+}
+
+CefRefPtr<CefListValue> ToCefValue(
+    const ui::AXTreeID& tree_id,
+    const std::vector<ui::AXLocationChange>& location_changes) {
+  CefRefPtr<CefListValue> value = CefListValue::Create();
+  for (size_t i = 0; i < location_changes.size(); i++) {
+    value->SetDictionary(i, ToCefValue(tree_id, location_changes[i]));
+  }
   return value;
 }
 
@@ -564,9 +582,10 @@ CefRefPtr<CefValue> ParseAccessibilityEventData(
 }
 
 CefRefPtr<CefValue> ParseAccessibilityLocationData(
-    const std::vector<ui::AXLocationChanges>& details) {
+    const ui::AXTreeID& tree_id,
+    const ui::AXLocationAndScrollUpdates& details) {
   CefRefPtr<CefValue> value = CefValue::Create();
-  value->SetList(ToCefValue(details));
+  value->SetList(ToCefValue(tree_id, details.location_changes));
   return value;
 }
 

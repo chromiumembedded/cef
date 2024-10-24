@@ -67,18 +67,18 @@ index d059f86ddad39..592b4d7903f15 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 9d108fe375fa6..49f7694355c9a 100644
+index 09aeff0a2303a..d5bb4283e3464 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
    color_provider_manager.ResetColorProviderCache();
-   for (NativeThemeObserver& observer : native_theme_observers_)
-     observer.OnNativeThemeUpdated(this);
+   native_theme_observers_.Notify(&NativeThemeObserver::OnNativeThemeUpdated,
+                                  this);
 +  color_provider_manager.AfterNativeThemeUpdated();
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -276,6 +277,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -275,6 +276,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,10 +93,10 @@ index 9d108fe375fa6..49f7694355c9a 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 0ba23d2d8ea58..2934cfd37db91 100644
+index c8e200ba27bd5..a91635c24e213 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -608,6 +608,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -604,6 +604,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Whether dark mode is forced via command-line flag.
    static bool IsForcedDarkMode();
  

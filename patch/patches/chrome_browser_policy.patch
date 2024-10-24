@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
-index 02c801eb35549..2fa2e336a8cf7 100644
+index cbad74b559c07..f3b4f6261d7c0 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
 +++ chrome/browser/policy/browser_dm_token_storage_linux.cc
 @@ -22,6 +22,7 @@
@@ -10,7 +10,7 @@ index 02c801eb35549..2fa2e336a8cf7 100644
  #include "chrome/common/chrome_paths.h"
  #include "components/policy/core/common/policy_logger.h"
  
-@@ -121,8 +122,8 @@ std::string BrowserDMTokenStorageLinux::InitEnrollmentToken() {
+@@ -127,8 +128,8 @@ std::string BrowserDMTokenStorageLinux::InitEnrollmentToken() {
    std::string enrollment_token;
    base::FilePath dir_policy_files_path;
  
@@ -21,7 +21,7 @@ index 02c801eb35549..2fa2e336a8cf7 100644
      return std::string();
    }
  
-@@ -152,8 +153,8 @@ bool BrowserDMTokenStorageLinux::InitEnrollmentErrorOption() {
+@@ -162,8 +163,8 @@ bool BrowserDMTokenStorageLinux::InitEnrollmentErrorOption() {
    std::string options;
    base::FilePath dir_policy_files_path;
  
@@ -105,7 +105,7 @@ index d8fda08453256..466718e824503 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index b7dc08e42137f..50e196ff0251c 100644
+index cf3c9a1871a35..0577e8f8b60ec 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,11 +13,14 @@
@@ -246,13 +246,13 @@ index b7dc08e42137f..50e196ff0251c 100644
            {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
 @@ -385,7 +457,7 @@ ChromeBrowserPolicyConnector::CreatePlatformProvider() {
                                                 std::move(loader));
- #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+ #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
    base::FilePath config_dir_path;
 -  if (base::PathService::Get(chrome::DIR_POLICY_FILES, &config_dir_path)) {
 +  if (GetDirPolicyFilesPath(&config_dir_path)) {
- #if BUILDFLAG(IS_CHROMEOS)
-     // If the folder containing the policy files doesn't exist, there's no need
-     // to have a provider for them. Note that in verified boot, the folder
+     auto loader = std::make_unique<ConfigDirPolicyLoader>(
+         base::ThreadPool::CreateSequencedTaskRunner(
+             {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
 diff --git chrome/browser/policy/chrome_browser_policy_connector.h chrome/browser/policy/chrome_browser_policy_connector.h
 index e4c6792766ae4..0a0c054d9e4d1 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.h
@@ -357,10 +357,10 @@ index 8dbf958c189dd..6eaccc6688eca 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 3c569bc610124..4f438a3d1f857 100644
+index ec09803ffabcf..9a39e6172293f 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -541,7 +541,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -535,7 +535,8 @@ bool PathProvider(int key, base::FilePath* result) {
          return false;
        }
        break;

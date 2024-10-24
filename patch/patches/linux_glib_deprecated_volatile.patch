@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 2e24201fcdc1e..e93e1ef6458e2 100644
+index 2b3aad7a639c6..5188665feae79 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -341,6 +341,10 @@ component("platform") {
+@@ -342,6 +342,10 @@ component("platform") {
        if (use_gio) {
          configs += [ "//build/linux:gio_config" ]
        }

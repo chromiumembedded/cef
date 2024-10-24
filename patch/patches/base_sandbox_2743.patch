@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index d6dbc2c38b401..0e0a5cc086291 100644
+index 91b6fad048440..ead9819a9dfc6 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -10,7 +10,7 @@ index d6dbc2c38b401..0e0a5cc086291 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1507,7 +1508,11 @@ component("base") {
+@@ -1503,7 +1504,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index d6dbc2c38b401..0e0a5cc086291 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1932,6 +1937,12 @@ component("base") {
+@@ -1928,6 +1933,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index d6dbc2c38b401..0e0a5cc086291 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 3e47d1f5d35df..004eefac8bbf3 100644
+index 3dd632a89dc90..a64cd61ddb02b 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -8,6 +8,7 @@
@@ -54,7 +54,7 @@ index 3e47d1f5d35df..004eefac8bbf3 100644
    void Reset() {
 -#if DCHECK_IS_ON()
 +#if DCHECK_IS_ON() && !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-     DCHECK([&]() {
+     DCHECK([&] {
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
@@ -73,7 +73,7 @@ index 215d636fec275..922e88f31b999 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 857159d757637..63b5b396a00dd 100644
+index 2158b648ca58a..8a8cb13b2fd74 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
 @@ -15,7 +15,9 @@

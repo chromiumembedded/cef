@@ -968,8 +968,8 @@ bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
     return true;
   }
 
-  return target_view->TransformPointToLocalCoordSpace(
-      point, GetCurrentSurfaceId(), transformed_point);
+  return target_view->TransformPointToLocalCoordSpace(point, GetFrameSinkId(),
+                                                      transformed_point);
 }
 
 void CefRenderWidgetHostViewOSR::DidNavigate() {

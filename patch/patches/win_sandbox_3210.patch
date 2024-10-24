@@ -1,16 +1,20 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index e6a3cd1e84b3b..e4eb19e6cc9a5 100644
+index b550651a8a981..f5664314075dc 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
-@@ -981,6 +981,13 @@ ResultCode SandboxWin::StartSandboxedProcess(
+@@ -963,6 +963,17 @@ ResultCode SandboxWin::StartSandboxedProcess(
      const base::HandlesToInheritVector& handles_to_inherit,
      SandboxDelegate* delegate,
-     base::Process* process) {
+     StartSandboxedProcessCallback result_callback) {
 +  // Will be nullptr if SandboxInterfaceInfo was not initialized by the CEF
 +  // client, meaning that the sandbox is implicitly disabled.
 +  if (!g_broker_services) {
-+    return LaunchWithoutSandbox(cmd_line, handles_to_inherit, delegate,
-+                                process);
++    base::Process process;
++    ResultCode result =
++        LaunchWithoutSandbox(cmd_line, handles_to_inherit, delegate, &process);
++    DWORD last_error = GetLastError();
++    std::move(result_callback).Run(std::move(process), last_error, result);
++    return SBOX_ALL_OK;
 +  }
 +
    SandboxLaunchTimer timer;

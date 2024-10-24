@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 348128d804493..5d893c71e55ea 100644
+index 4f655f74e289d..2c119831b6cd2 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -360,6 +360,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -361,6 +361,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -21,7 +21,7 @@ index 348128d804493..5d893c71e55ea 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -626,6 +638,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -629,6 +641,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index 348128d804493..5d893c71e55ea 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -902,6 +918,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -910,6 +926,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -47,7 +47,7 @@ index 348128d804493..5d893c71e55ea 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1358,6 +1382,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1366,6 +1390,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,7 +60,7 @@ index 348128d804493..5d893c71e55ea 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3648,6 +3678,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3667,6 +3697,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -88,7 +88,7 @@ index 348128d804493..5d893c71e55ea 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 6b3874524e87b..4e0fd1d7297f1 100644
+index 91de5780521af..571ad0260b4f7 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -153,7 +153,21 @@ class RenderViewContextMenu
@@ -113,7 +113,7 @@ index 6b3874524e87b..4e0fd1d7297f1 100644
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -477,6 +491,9 @@ class RenderViewContextMenu
+@@ -478,6 +492,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -305,10 +305,10 @@ index 042428f77f4ad..e4efd98ca45d5 100644
    raw_ptr<content::WebContents> web_contents_ = nullptr;
  };
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index c22b3a584bb54..542b838ba3a44 100644
+index 01a7fe089662d..5b67b639e3f09 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
-@@ -374,6 +374,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
+@@ -380,6 +380,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
    return false;
  }
  
@@ -327,7 +327,7 @@ index c22b3a584bb54..542b838ba3a44 100644
    command_executed_ = true;
    RecordUsedItem(id);
 diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
-index 57b288bc885e6..9909899e3b5fe 100644
+index b607544ab0a48..a389e96cf5182 100644
 --- components/renderer_context_menu/render_view_context_menu_base.h
 +++ components/renderer_context_menu/render_view_context_menu_base.h
 @@ -85,8 +85,13 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
@@ -368,7 +368,7 @@ index 9fdda1636003d..538bd05a41296 100644
 +  return false;
 +}
 diff --git components/renderer_context_menu/render_view_context_menu_observer.h components/renderer_context_menu/render_view_context_menu_observer.h
-index 0527c57abd51c..70bebcbb50461 100644
+index 05efbd822ab0a..f3dff27cdfd19 100644
 --- components/renderer_context_menu/render_view_context_menu_observer.h
 +++ components/renderer_context_menu/render_view_context_menu_observer.h
 @@ -11,6 +11,10 @@ namespace content {

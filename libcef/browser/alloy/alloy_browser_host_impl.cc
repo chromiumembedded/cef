@@ -1337,14 +1337,15 @@ void AlloyBrowserHostImpl::AccessibilityEventReceived(
 }
 
 void AlloyBrowserHostImpl::AccessibilityLocationChangesReceived(
-    const std::vector<ui::AXLocationChanges>& details) {
+    const ui::AXTreeID& tree_id,
+    ui::AXLocationAndScrollUpdates& details) {
   // Only needed in windowless mode.
   if (IsWindowless()) {
     if (!web_contents() || !platform_delegate_) {
       return;
     }
 
-    platform_delegate_->AccessibilityLocationChangesReceived(details);
+    platform_delegate_->AccessibilityLocationChangesReceived(tree_id, details);
   }
 }
 

@@ -626,28 +626,22 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
 
 void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
     const ui::AXUpdatesAndEvents& details) {
-  CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
-  if (handler.get()) {
-    CefRefPtr<CefAccessibilityHandler> acchandler =
-        handler->GetAccessibilityHandler();
-
-    if (acchandler.get()) {
-      acchandler->OnAccessibilityTreeChange(
+  if (auto handler = browser_->client()->GetRenderHandler()) {
+    if (auto acc_handler = handler->GetAccessibilityHandler()) {
+      acc_handler->OnAccessibilityTreeChange(
           osr_accessibility_util::ParseAccessibilityEventData(details));
     }
   }
 }
 
 void CefBrowserPlatformDelegateOsr::AccessibilityLocationChangesReceived(
-    const std::vector<ui::AXLocationChanges>& details) {
-  CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
-  if (handler.get()) {
-    CefRefPtr<CefAccessibilityHandler> acchandler =
-        handler->GetAccessibilityHandler();
-
-    if (acchandler.get()) {
-      acchandler->OnAccessibilityLocationChange(
-          osr_accessibility_util::ParseAccessibilityLocationData(details));
+    const ui::AXTreeID& tree_id,
+    ui::AXLocationAndScrollUpdates& details) {
+  if (auto handler = browser_->client()->GetRenderHandler()) {
+    if (auto acc_handler = handler->GetAccessibilityHandler()) {
+      acc_handler->OnAccessibilityLocationChange(
+          osr_accessibility_util::ParseAccessibilityLocationData(tree_id,
+                                                                 details));
     }
   }
 }

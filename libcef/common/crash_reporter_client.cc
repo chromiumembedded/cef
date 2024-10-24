@@ -581,7 +581,7 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
     return;
   }
 
-  std::wstring process_type = install_static::GetSwitchValueFromCommandLine(
+  std::wstring process_type = install_static::GetCommandLineSwitchValue(
       ::GetCommandLineW(), install_static::kProcessType);
   if (process_type != install_static::kCrashpadHandler) {
     crash_reporter::SetCrashReporterClient(g_crash_reporter_client);

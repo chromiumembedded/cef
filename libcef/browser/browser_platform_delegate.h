@@ -57,7 +57,8 @@ struct NativeWebKeyboardEvent;
 }
 
 namespace ui {
-struct AXLocationChanges;
+class AXTreeID;
+struct AXLocationAndScrollUpdates;
 struct AXUpdatesAndEvents;
 }  // namespace ui
 
@@ -352,7 +353,8 @@ class CefBrowserPlatformDelegate {
   virtual void AccessibilityEventReceived(
       const ui::AXUpdatesAndEvents& details);
   virtual void AccessibilityLocationChangesReceived(
-      const std::vector<ui::AXLocationChanges>& details);
+      const ui::AXTreeID& tree_id,
+      ui::AXLocationAndScrollUpdates& details);
   virtual gfx::Point GetDialogPosition(const gfx::Size& size);
   virtual gfx::Size GetMaximumDialogSize();
 

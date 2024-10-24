@@ -1,8 +1,8 @@
 diff --git printing/printing_context_linux.cc printing/printing_context_linux.cc
-index d1ab2a72e0d11..c6be9f1ba1793 100644
+index fa55d2a1c5f42..9eaf306672220 100644
 --- printing/printing_context_linux.cc
 +++ printing/printing_context_linux.cc
-@@ -69,11 +69,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+@@ -67,11 +67,11 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
    ResetSettings();
  
  #if BUILDFLAG(IS_LINUX)
@@ -16,7 +16,7 @@ index d1ab2a72e0d11..c6be9f1ba1793 100644
  
    if (print_dialog_) {
      print_dialog_->UseDefaultSettings();
-@@ -85,8 +85,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
+@@ -83,8 +83,8 @@ mojom::ResultCode PrintingContextLinux::UseDefaultSettings() {
  
  gfx::Size PrintingContextLinux::GetPdfPaperSizeDeviceUnits() {
  #if BUILDFLAG(IS_LINUX)
@@ -27,7 +27,7 @@ index d1ab2a72e0d11..c6be9f1ba1793 100644
  #endif
  
    return gfx::Size();
-@@ -98,11 +98,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
+@@ -96,11 +96,11 @@ mojom::ResultCode PrintingContextLinux::UpdatePrinterSettings(
    DCHECK(!in_print_job_);
  
  #if BUILDFLAG(IS_LINUX)
@@ -100,7 +100,7 @@ index 3ab395e3b0b45..c012641a5dc7e 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 0a4c394b07a68..a726244ad3ea3 100644
+index 1e59679d20646..de7b4b573b057 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -20,6 +20,10 @@

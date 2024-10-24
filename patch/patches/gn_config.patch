@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 097e59f46d07a..54096982660c6 100644
+index 7c46b25626512..1a438687b67e6 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 097e59f46d07a..54096982660c6 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -285,6 +286,10 @@ group("gn_all") {
+@@ -286,6 +287,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 8e6a2401aab03..571951616dec1 100644
+index 17491efcceeee..5d54a58fb9651 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -87,7 +87,7 @@ index 8e6a2401aab03..571951616dec1 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -468,6 +469,10 @@ template("chrome_extra_paks") {
+@@ -470,6 +471,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }
@@ -96,10 +96,10 @@ index 8e6a2401aab03..571951616dec1 100644
 +      deps += [ "//cef:cef_resources" ]
 +    }
      if (enable_extensions) {
-       sources += [
-         "$root_gen_dir/chrome/extensions_resources.pak",
+       sources += [ "$root_gen_dir/chrome/extensions_resources.pak" ]
+       deps += [ "//chrome/browser/resources/extensions:resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index e8f61e2fbf6f2..5de226ad5a8f2 100644
+index 736d258d04b95..b496c0d3a0e4e 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -110,7 +110,7 @@ index e8f61e2fbf6f2..5de226ad5a8f2 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -105,6 +106,10 @@ template("chrome_repack_locales") {
+@@ -107,6 +108,10 @@ template("chrome_repack_locales") {
        source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
        deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }
@@ -118,7 +118,7 @@ index e8f61e2fbf6f2..5de226ad5a8f2 100644
 +      source_patterns += [ "${root_gen_dir}/cef/cef_strings_" ]
 +      deps += [ "//cef:cef_strings" ]
 +    }
-     if (enable_extensions) {
+     if (enable_extensions_core) {
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn

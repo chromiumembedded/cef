@@ -453,22 +453,22 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
       const auto show_state = cef_delegate()->GetInitialShowState(cef_window);
       switch (show_state) {
         case CEF_SHOW_STATE_NORMAL:
-          params.show_state = ui::SHOW_STATE_NORMAL;
+          params.show_state = ui::mojom::WindowShowState::kNormal;
           break;
         case CEF_SHOW_STATE_MINIMIZED:
-          params.show_state = ui::SHOW_STATE_MINIMIZED;
+          params.show_state = ui::mojom::WindowShowState::kMinimized;
           break;
         case CEF_SHOW_STATE_MAXIMIZED:
-          params.show_state = ui::SHOW_STATE_MAXIMIZED;
+          params.show_state = ui::mojom::WindowShowState::kMaximized;
           break;
         case CEF_SHOW_STATE_FULLSCREEN:
-          params.show_state = ui::SHOW_STATE_FULLSCREEN;
+          params.show_state = ui::mojom::WindowShowState::kFullscreen;
           break;
         case CEF_SHOW_STATE_HIDDEN:
 #if BUILDFLAG(IS_MAC)
-          params.show_state = ui::SHOW_STATE_HIDDEN;
+          params.show_state = ui::mojom::WindowShowState::kHidden;
 #else
-          params.show_state = ui::SHOW_STATE_MINIMIZED;
+          params.show_state = ui::mojom::WindowShowState::kMinimized;
 #endif
           break;
       }

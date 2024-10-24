@@ -12,10 +12,10 @@ index 70c3179ee66ff..9493ee22c541e 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 4731c8fac7950..434eef63e533e 100644
+index 1c8ae730e5dd3..5d04f11a770c5 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
-@@ -195,12 +195,12 @@ PolicyGlobal* ConfigBase::policy() {
+@@ -194,12 +194,12 @@ PolicyGlobal* ConfigBase::policy() {
    return policy_;
  }
  
@@ -31,7 +31,7 @@ index 4731c8fac7950..434eef63e533e 100644
    }
    return std::nullopt;
  }
-@@ -790,14 +790,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
+@@ -785,14 +785,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
    return (SBOX_ALL_OK == rc);
  }
  
@@ -49,7 +49,7 @@ index 4731c8fac7950..434eef63e533e 100644
    // Can only set this once - as there is only one region sent to the child.
    CHECK(!delegate_data_);
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index daaff5042a562..5f67342e1c48d 100644
+index 291dea81a1b18..1850dd502d74b 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
 @@ -120,7 +120,7 @@ class ConfigBase final : public TargetConfig {

@@ -59,10 +59,10 @@ index 791ab794c8750..ca9e0851e2689 100644
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index ce7e02f549ab3..338af80de71d6 100644
+index ee9f399e4c010..2182e42981f9d 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -56,7 +56,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
+@@ -58,7 +58,9 @@ void ProfileMenuCoordinator::Show(bool is_source_accelerator) {
    is_incognito &= !browser.profile()->IsGuestSession();
  #endif
  

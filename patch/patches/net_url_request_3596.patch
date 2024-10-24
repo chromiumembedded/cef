@@ -1,5 +1,5 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index a2aa3c3361410..c5e91f6ddebe7 100644
+index 10f3c6ca826bf..a1ce407076619 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -35,6 +35,7 @@
@@ -27,7 +27,7 @@ index a2aa3c3361410..c5e91f6ddebe7 100644
  }  // namespace
  
  // Each SourceStreams own the previous SourceStream in the chain, but the
-@@ -343,8 +354,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
+@@ -338,8 +349,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
    }
  
    bool secure_referrer_but_insecure_destination =

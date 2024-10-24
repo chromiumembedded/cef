@@ -11,8 +11,9 @@
 #include "cef/include/cef_values.h"
 
 namespace ui {
-struct AXLocationChanges;
+struct AXLocationAndScrollUpdates;
 struct AXUpdatesAndEvents;
+class AXTreeID;
 }  // namespace ui
 
 namespace osr_accessibility_util {
@@ -23,7 +24,8 @@ CefRefPtr<CefValue> ParseAccessibilityEventData(
     const ui::AXUpdatesAndEvents& details);
 
 CefRefPtr<CefValue> ParseAccessibilityLocationData(
-    const std::vector<ui::AXLocationChanges>& details);
+    const ui::AXTreeID& tree_id,
+    const ui::AXLocationAndScrollUpdates& details);
 
 }  // namespace osr_accessibility_util
 

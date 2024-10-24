@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 6b19478013bf5..acc6f2dcb4472 100644
+index b8506e1b025df..d18163053f430 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -635,6 +635,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -29,7 +29,7 @@ index 6b19478013bf5..acc6f2dcb4472 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index bea9a3b81a538..78fbab874c436 100644
+index eaf790ed6050c..dfbe71c38204a 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -210,6 +210,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -80,10 +80,10 @@ index f78c6a467befc..97f1d21218eed 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 502cd4ac8b0e8..4532f67ceca70 100644
+index d18f5b091d33e..ff7f620d3750d 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2578,16 +2578,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2577,16 +2577,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -112,7 +112,7 @@ index 502cd4ac8b0e8..4532f67ceca70 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index b3775284f55c7..66f1b5279c7b7 100644
+index 83bce4a3bf9dc..c6efc2e4333fc 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -359,6 +359,9 @@ struct NetworkContextParams {

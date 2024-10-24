@@ -117,12 +117,10 @@ CefString CefGetMimeType(const CefString& extension) {
 
 void CefGetExtensionsForMimeType(const CefString& mime_type,
                                  std::vector<CefString>& extensions) {
-  using VectorType = std::vector<base::FilePath::StringType>;
-  VectorType ext;
-  net::GetExtensionsForMimeType(mime_type, &ext);
-  VectorType::const_iterator it = ext.begin();
-  for (; it != ext.end(); ++it) {
-    extensions.push_back(*it);
+  std::vector<base::FilePath::StringType> buffer;
+  net::GetExtensionsForMimeType(mime_type.ToString(), &buffer);
+  for (const auto& extension : buffer) {
+    extensions.push_back(extension);
   }
 }
 

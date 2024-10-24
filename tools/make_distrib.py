@@ -1144,6 +1144,7 @@ elif platform == 'windows':
       'obj\\third_party\\abseil-cpp\\absl\\base\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\debugging\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\numeric\\**\\*.obj',
+      'obj\\third_party\\abseil-cpp\\absl\\strings\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\synchronization\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\time\\**\\*.obj',
       'obj\\third_party\\abseil-cpp\\absl\\types\\**\\*.obj',

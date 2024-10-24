@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 5420ca8496773..74bdd5aa84c31 100644
+index 0b7e60d6742de..94af5f4d226bf 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -658,7 +658,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -643,7 +643,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,10 +14,10 @@ index 5420ca8496773..74bdd5aa84c31 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 76e435416e7ca..594ef7ae92fed 100644
+index 89254771117da..eb35e4595d1ad 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -91,6 +91,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
+@@ -81,6 +81,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
  
  namespace {
  
@@ -25,7 +25,7 @@ index 76e435416e7ca..594ef7ae92fed 100644
  const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
  const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
  const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -111,6 +112,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -101,6 +102,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
    if (*this == PrimaryID() ||
@@ -34,7 +34,7 @@ index 76e435416e7ca..594ef7ae92fed 100644
        base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
                         base::CompareCase::SENSITIVE) ||
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
-@@ -148,6 +151,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -138,6 +141,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -52,7 +52,7 @@ index 76e435416e7ca..594ef7ae92fed 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 0c961e399183b..70a02994bd478 100644
+index f79b0cd32e4fb..c797e6659a43f 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -94,6 +94,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index 0c961e399183b..70a02994bd478 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -519,6 +523,9 @@ class Profile : public content::BrowserContext {
+@@ -503,6 +507,9 @@ class Profile : public content::BrowserContext {
    static Profile* FromJavaObject(const jni_zero::JavaRef<jobject>& obj);
    jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject() const;
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -76,7 +76,7 @@ index 0c961e399183b..70a02994bd478 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -530,7 +537,6 @@ class Profile : public content::BrowserContext {
+@@ -514,7 +521,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,10 +85,10 @@ index 0c961e399183b..70a02994bd478 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 8eea00363de53..2167b1b8df4d2 100644
+index 26667af1eb648..79bb0289f6150 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1043,7 +1043,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1012,7 +1012,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  

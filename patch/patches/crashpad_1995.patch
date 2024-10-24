@@ -147,7 +147,7 @@ index a274b3e364084..3d995cf643399 100644
  // on the given `command_line`. For non-browser processes, allocates crash keys
  // from the switch value set by AppendStringAnnotationsCommandLineSwitch().
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index 0e9fe8892af82..7c1ce4b94fba5 100644
+index 4abce141b758e..c2624423ed44e 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
 @@ -93,7 +93,7 @@ bool CrashReporterClient::GetShouldDumpLargerDumps() {

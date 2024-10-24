@@ -12,7 +12,7 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
    if (main_argv)
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index c37f18d794ae2..6d64483992d0c 100644
+index c37f18d794ae2..fd360f7698bcf 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
 @@ -194,11 +194,8 @@ ContentMainParams::~ContentMainParams() = default;
@@ -65,7 +65,7 @@ index c37f18d794ae2..6d64483992d0c 100644
      InitializeMac();
  #endif
  
-@@ -353,12 +341,46 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -353,12 +341,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -76,8 +76,7 @@ index c37f18d794ae2..6d64483992d0c 100644
 +
 +// This function must be marked with NO_STACK_PROTECTOR or it may crash on
 +// return, see the --change-stack-guard-on-fork command line flag.
-+int NO_STACK_PROTECTOR
-+ContentMainRun(ContentMainRunner* content_main_runner) {
++NO_STACK_PROTECTOR int ContentMainRun(ContentMainRunner* content_main_runner) {
 +  return content_main_runner->Run();
 +}
 +
@@ -89,8 +88,7 @@ index c37f18d794ae2..6d64483992d0c 100644
 +
 +// This function must be marked with NO_STACK_PROTECTOR or it may crash on
 +// return, see the --change-stack-guard-on-fork command line flag.
-+int NO_STACK_PROTECTOR
-+RunContentProcess(ContentMainParams params,
++NO_STACK_PROTECTOR int RunContentProcess(ContentMainParams params,
 +                  ContentMainRunner* content_main_runner) {
 +#if BUILDFLAG(IS_MAC)
 +  // We need this pool for all the objects created before we get to the event

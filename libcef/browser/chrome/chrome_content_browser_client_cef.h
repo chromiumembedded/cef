@@ -94,6 +94,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       bool has_user_gesture,
       const std::optional<url::Origin>& initiating_origin,
       content::RenderFrameHost* initiator_document,
+      const net::IsolationInfo& isolation_info,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
   bool HandleExternalProtocol(
@@ -106,6 +107,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       const network::ResourceRequest& request,
       const std::optional<url::Origin>& initiating_origin,
       content::RenderFrameHost* initiator_document,
+      const net::IsolationInfo& isolation_info,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
   std::vector<std::unique_ptr<content::NavigationThrottle>>
@@ -123,7 +125,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       content::WebContents* web_contents,
       content::BrowserContext* browser_context,
       const content::GlobalRequestID& request_id,
-      bool is_request_for_main_frame,
+      bool is_request_for_primary_main_frame,
+      bool is_request_for_navigation,
       const GURL& url,
       scoped_refptr<net::HttpResponseHeaders> response_headers,
       bool first_auth_attempt,

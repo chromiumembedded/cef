@@ -190,8 +190,6 @@ void ExecuteResult(CefRefPtr<CefBrowserHostBase> browser,
 cef_permission_request_types_t GetCefRequestType(
     permissions::RequestType type) {
   switch (type) {
-    case permissions::RequestType::kAccessibilityEvents:
-      return CEF_PERMISSION_TYPE_ACCESSIBILITY_EVENTS;
     case permissions::RequestType::kArSession:
       return CEF_PERMISSION_TYPE_AR_SESSION;
     case permissions::RequestType::kCameraPanTiltZoom:

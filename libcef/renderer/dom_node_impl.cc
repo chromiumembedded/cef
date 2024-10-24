@@ -41,8 +41,6 @@ cef_dom_form_control_type_t GetCefFormControlType(FormControlType type) {
       return DOM_FORM_CONTROL_TYPE_BUTTON_SUBMIT;
     case FormControlType::kButtonReset:
       return DOM_FORM_CONTROL_TYPE_BUTTON_RESET;
-    case FormControlType::kButtonSelectList:
-      return DOM_FORM_CONTROL_TYPE_BUTTON_SELECT_LIST;
     case FormControlType::kButtonPopover:
       return DOM_FORM_CONTROL_TYPE_BUTTON_POPOVER;
     case FormControlType::kFieldset:
@@ -97,8 +95,6 @@ cef_dom_form_control_type_t GetCefFormControlType(FormControlType type) {
       return DOM_FORM_CONTROL_TYPE_SELECT_ONE;
     case FormControlType::kSelectMultiple:
       return DOM_FORM_CONTROL_TYPE_SELECT_MULTIPLE;
-    case FormControlType::kSelectList:
-      return DOM_FORM_CONTROL_TYPE_SELECT_LIST;
     case FormControlType::kTextArea:
       return DOM_FORM_CONTROL_TYPE_TEXT_AREA;
   }

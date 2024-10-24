@@ -482,7 +482,8 @@ void CefBrowserPlatformDelegate::AccessibilityEventReceived(
 }
 
 void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
-    const std::vector<ui::AXLocationChanges>& details) {
+    const ui::AXTreeID& tree_id,
+    ui::AXLocationAndScrollUpdates& details) {
   DCHECK(false);
 }
 

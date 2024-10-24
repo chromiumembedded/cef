@@ -138,7 +138,8 @@ void HandleExternalProtocolHelper(
     network::mojom::WebSandboxFlags sandbox_flags,
     const network::ResourceRequest& resource_request,
     const std::optional<url::Origin>& initiating_origin,
-    content::WeakDocumentPtr initiator_document) {
+    content::WeakDocumentPtr initiator_document,
+    const net::IsolationInfo& isolation_info) {
   // May return nullptr if frame has been deleted or a cross-document navigation
   // has committed in the same RenderFrameHost.
   auto initiator_rfh = initiator_document.AsRenderFrameHostIfValid();
@@ -154,7 +155,7 @@ void HandleExternalProtocolHelper(
       sandbox_flags,
       static_cast<ui::PageTransition>(resource_request.transition_type),
       resource_request.has_user_gesture, initiating_origin, initiator_rfh,
-      nullptr);
+      isolation_info, nullptr);
 }
 
 }  // namespace
@@ -199,14 +200,14 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
 #if BUILDFLAG(IS_MAC)
-        switches::kFrameworkDirPath,
-        switches::kMainBundlePath,
+      switches::kFrameworkDirPath,
+      switches::kMainBundlePath,
 #endif
-        switches::kLocalesDirPath,
-        switches::kLogItems,
-        switches::kLogSeverity,
-        switches::kResourcesDirPath,
-        switches::kUserAgentProductAndVersion,
+      switches::kLocalesDirPath,
+      switches::kLogItems,
+      switches::kLogSeverity,
+      switches::kResourcesDirPath,
+      switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
@@ -490,6 +491,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     bool has_user_gesture,
     const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
+    const net::IsolationInfo& isolation_info,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   // |out_factory| will be non-nullptr when this method is initially called
   // from NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
@@ -505,7 +507,7 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
       url, web_contents_getter, frame_tree_node_id, navigation_data,
       is_primary_main_frame, is_in_fenced_frame_tree, sandbox_flags,
       page_transition, has_user_gesture, initiating_origin, initiator_document,
-      nullptr);
+      isolation_info, nullptr);
 }
 
 bool ChromeContentBrowserClientCef::HandleExternalProtocol(
@@ -515,9 +517,10 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
     bool is_primary_main_frame,
     bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
-    const network::ResourceRequest& resource_request,
+    const network::ResourceRequest& request,
     const std::optional<url::Origin>& initiating_origin,
     content::RenderFrameHost* initiator_document,
+    const net::IsolationInfo& isolation_info,
     mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory) {
   mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver =
       out_factory->InitWithNewPipeAndPassReceiver();
@@ -528,13 +531,13 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
 
   // HandleExternalProtocolHelper may be called if nothing handles the request.
   auto request_handler = net_service::CreateInterceptedRequestHandler(
-      web_contents_getter, frame_tree_node_id, resource_request,
+      web_contents_getter, frame_tree_node_id, request,
       base::BindRepeating(HandleExternalProtocolHelper, base::Unretained(this),
                           web_contents_getter, frame_tree_node_id,
                           navigation_data, is_primary_main_frame,
-                          is_in_fenced_frame_tree, sandbox_flags,
-                          resource_request, initiating_origin,
-                          std::move(weak_initiator_document)));
+                          is_in_fenced_frame_tree, sandbox_flags, request,
+                          initiating_origin, std::move(weak_initiator_document),
+                          isolation_info));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));
@@ -583,7 +586,8 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
     content::WebContents* web_contents,
     content::BrowserContext* browser_context,
     const content::GlobalRequestID& request_id,
-    bool is_request_for_main_frame,
+    bool is_request_for_primary_main_frame,
+    bool is_request_for_navigation,
     const GURL& url,
     scoped_refptr<net::HttpResponseHeaders> response_headers,
     bool first_auth_attempt,
@@ -599,8 +603,8 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
 
   return ChromeContentBrowserClient::CreateLoginDelegate(
       auth_info, web_contents, browser_context, request_id,
-      is_request_for_main_frame, url, response_headers, first_auth_attempt,
-      std::move(auth_required_callback));
+      is_request_for_primary_main_frame, is_request_for_navigation, url,
+      response_headers, first_auth_attempt, std::move(auth_required_callback));
 }
 
 void ChromeContentBrowserClientCef::ExposeInterfacesToRenderer(

@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 0236631b56d79..aedc1c65a20f4 100644
+index 20ed48220d230..a8774d167bcad 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -11277,6 +11277,7 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -11466,6 +11466,7 @@ void RenderFrameHostImpl::CommitNavigation(
    auto browser_calc_origin_to_commit =
        navigation_request->GetOriginToCommitWithDebugInfo();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&
