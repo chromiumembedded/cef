@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 0e62bcaf1c171..2d6bde17f774c 100644
+index f25b2cc6c138a..75d0f1d479668 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3650,6 +3650,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3651,6 +3651,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index 0e62bcaf1c171..2d6bde17f774c 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3660,6 +3666,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3661,6 +3667,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index 0e62bcaf1c171..2d6bde17f774c 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -3857,6 +3864,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -3858,6 +3865,9 @@ void WebContentsImpl::RenderWidgetCreated(
    OPTIONAL_TRACE_EVENT1("content", "WebContentsImpl::RenderWidgetCreated",
                          "render_widget_host", render_widget_host);
    created_widgets_.insert(render_widget_host);
@@ -33,7 +33,7 @@ index 0e62bcaf1c171..2d6bde17f774c 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -4740,6 +4750,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -4741,6 +4751,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index 0e62bcaf1c171..2d6bde17f774c 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -9155,6 +9174,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -9156,6 +9175,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);

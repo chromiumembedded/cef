@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 91b6fad048440..ead9819a9dfc6 100644
+index 4c0e4645f64e3..4ace56138209d 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/nocompile.gni")
@@ -23,7 +23,7 @@ index 91b6fad048440..ead9819a9dfc6 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1928,6 +1933,12 @@ component("base") {
+@@ -1934,6 +1939,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  

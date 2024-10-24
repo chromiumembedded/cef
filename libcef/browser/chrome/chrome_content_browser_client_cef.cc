@@ -200,14 +200,14 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
 #if BUILDFLAG(IS_MAC)
-      switches::kFrameworkDirPath,
-      switches::kMainBundlePath,
+        switches::kFrameworkDirPath,
+        switches::kMainBundlePath,
 #endif
-      switches::kLocalesDirPath,
-      switches::kLogItems,
-      switches::kLogSeverity,
-      switches::kResourcesDirPath,
-      switches::kUserAgentProductAndVersion,
+        switches::kLocalesDirPath,
+        switches::kLogItems,
+        switches::kLogSeverity,
+        switches::kResourcesDirPath,
+        switches::kUserAgentProductAndVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
@@ -586,7 +586,7 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
     content::WebContents* web_contents,
     content::BrowserContext* browser_context,
     const content::GlobalRequestID& request_id,
-    bool is_request_for_primary_main_frame,
+    bool is_request_for_primary_main_frame_navigation,
     bool is_request_for_navigation,
     const GURL& url,
     scoped_refptr<net::HttpResponseHeaders> response_headers,
@@ -603,8 +603,9 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
 
   return ChromeContentBrowserClient::CreateLoginDelegate(
       auth_info, web_contents, browser_context, request_id,
-      is_request_for_primary_main_frame, is_request_for_navigation, url,
-      response_headers, first_auth_attempt, std::move(auth_required_callback));
+      is_request_for_primary_main_frame_navigation, is_request_for_navigation,
+      url, response_headers, first_auth_attempt,
+      std::move(auth_required_callback));
 }
 
 void ChromeContentBrowserClientCef::ExposeInterfacesToRenderer(

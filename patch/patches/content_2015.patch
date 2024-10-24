@@ -12,7 +12,7 @@ index 11c9cd82d0392..9c700bc625cd5 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 736d8ae6db4a3..372d6cb9eef7f 100644
+index ebfa887660e23..6a8958000fb64 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -863,7 +863,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
@@ -47,7 +47,7 @@ index 736d8ae6db4a3..372d6cb9eef7f 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index a55557845dd85..ddbf8ce90227d 100644
+index 21967547790ca..7bdf48b830a21 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1138,7 +1138,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,7 +68,7 @@ index a55557845dd85..ddbf8ce90227d 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 57f1179aad3c7..ad218cfa315d4 100644
+index 0f6781dc459e1..8d8deaba4e049 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -2188,7 +2188,7 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -80,7 +80,7 @@ index 57f1179aad3c7..ad218cfa315d4 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2409,6 +2409,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2412,6 +2412,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -103,7 +103,7 @@ index 57f1179aad3c7..ad218cfa315d4 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2469,6 +2485,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2472,6 +2488,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -140,7 +140,7 @@ index 784e0a5166d6b..1fd1e9ee107f3 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 1a13fc3eb3362..aa1f92cbf728e 100644
+index 15e28effa2cbf..eb25a1adb7f6c 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -568,6 +568,8 @@ void RenderThreadImpl::Init() {
@@ -187,10 +187,10 @@ index 69c52cb8333fc..ac2bbc7459864 100644
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
 diff --git content/shell/browser/shell_content_browser_client.cc content/shell/browser/shell_content_browser_client.cc
-index 552345eecf589..996dd96388372 100644
+index 6c08727a74408..2efb3de40164d 100644
 --- content/shell/browser/shell_content_browser_client.cc
 +++ content/shell/browser/shell_content_browser_client.cc
-@@ -756,7 +756,7 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
+@@ -757,7 +757,7 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -199,7 +199,7 @@ index 552345eecf589..996dd96388372 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -765,6 +765,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
+@@ -766,6 +766,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    ConfigureNetworkContextParamsForShell(context, network_context_params,
                                          cert_verifier_creation_params);
@@ -208,7 +208,7 @@ index 552345eecf589..996dd96388372 100644
  
  std::vector<base::FilePath>
 diff --git content/shell/browser/shell_content_browser_client.h content/shell/browser/shell_content_browser_client.h
-index c6784075ed657..ebba4477dfa65 100644
+index a2514c8a9f8a8..3266b8a0bd781 100644
 --- content/shell/browser/shell_content_browser_client.h
 +++ content/shell/browser/shell_content_browser_client.h
 @@ -150,7 +150,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {

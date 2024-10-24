@@ -79,6 +79,7 @@ struct PopulateAxNodeAttributes {
 
     switch (attr.first) {
       case ax::mojom::IntAttribute::kNone:
+      case ax::mojom::IntAttribute::kMaxLength:
         break;
       case ax::mojom::IntAttribute::kScrollX:
       case ax::mojom::IntAttribute::kScrollXMin:

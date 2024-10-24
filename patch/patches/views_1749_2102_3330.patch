@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index d7e3313414e5b..8691f6e1a4131 100644
+index 7d91e43c61417..8956ad4452b57 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1014,7 +1014,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -164,10 +164,10 @@ index 7586a6f089f62..4e3a40b33f535 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index cd330fd0a56e1..f2a54c5c47068 100644
+index accbbb51263ba..7ba1eb32f1bb3 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -51,12 +51,29 @@ enum LabelPropertyKey {
+@@ -52,12 +52,29 @@ enum LabelPropertyKey {
    kLabelLineHeight,
    kLabelObscured,
    kLabelAllowCharacterBreak,
@@ -197,7 +197,7 @@ index cd330fd0a56e1..f2a54c5c47068 100644
  }  // namespace
  
  namespace views {
-@@ -496,6 +513,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -497,6 +514,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    OnPropertyChanged(&elide_behavior_, kPropertyEffectsPreferredSizeChanged);
  }
  
@@ -213,7 +213,7 @@ index cd330fd0a56e1..f2a54c5c47068 100644
  std::u16string Label::GetTooltipText() const {
    return tooltip_text_;
  }
-@@ -815,6 +841,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -816,6 +842,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -231,10 +231,10 @@ index cd330fd0a56e1..f2a54c5c47068 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index bc315ed47b197..2c0f4deafb3c1 100644
+index aae9bfa72f8f9..386cdead499f7 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -245,6 +245,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -246,6 +246,10 @@ class VIEWS_EXPORT Label : public View,
    gfx::ElideBehavior GetElideBehavior() const;
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
  
@@ -245,7 +245,7 @@ index bc315ed47b197..2c0f4deafb3c1 100644
    // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
    // to show the full text if it is wider than its bounds.  Calling this
    // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -530,6 +534,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -532,6 +536,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -254,10 +254,10 @@ index bc315ed47b197..2c0f4deafb3c1 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index c394177f4a19b..fd88fa8a89d91 100644
+index bbbc64c5f4644..516aaa1468d17 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -578,7 +578,8 @@ void MenuController::Run(Widget* parent,
+@@ -579,7 +579,8 @@ void MenuController::Run(Widget* parent,
                           MenuAnchorPosition position,
                           bool context_menu,
                           bool is_nested_drag,
@@ -267,7 +267,7 @@ index c394177f4a19b..fd88fa8a89d91 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -623,6 +624,7 @@ void MenuController::Run(Widget* parent,
+@@ -624,6 +625,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index c394177f4a19b..fd88fa8a89d91 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2263,6 +2265,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2264,6 +2266,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index c394177f4a19b..fd88fa8a89d91 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2940,8 +2943,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2941,8 +2944,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -298,7 +298,7 @@ index c394177f4a19b..fd88fa8a89d91 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2961,8 +2969,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2962,8 +2970,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -311,10 +311,10 @@ index c394177f4a19b..fd88fa8a89d91 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index e1c59fd911f71..d2a72f6bdf8aa 100644
+index e516d8035db49..2209823333fd7 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
-@@ -137,7 +137,9 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -138,7 +138,9 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
             MenuAnchorPosition position,
             bool context_menu,
             bool is_nested_drag,
@@ -325,7 +325,7 @@ index e1c59fd911f71..d2a72f6bdf8aa 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -741,6 +743,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -742,6 +744,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -335,7 +335,7 @@ index e1c59fd911f71..d2a72f6bdf8aa 100644
    bool possible_drag_ = false;
  
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 7c6ff7acb08a7..91ababb3dccd8 100644
+index ec079fa83c063..d644ab72fed07 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
 @@ -73,6 +73,22 @@ class VIEWS_EXPORT MenuDelegate {
@@ -553,18 +553,18 @@ index d2e0377559862..de2b0e2d2fa28 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_runner.cc ui/views/controls/menu/menu_runner.cc
-index 9f746392f6d83..fa37345b6e021 100644
+index 720cd4aed05c1..2cb6f982ae8d6 100644
 --- ui/views/controls/menu/menu_runner.cc
 +++ ui/views/controls/menu/menu_runner.cc
-@@ -42,6 +42,7 @@ void MenuRunner::RunMenuAt(
+@@ -43,6 +43,7 @@ void MenuRunner::RunMenuAt(
      MenuAnchorPosition anchor,
-     ui::MenuSourceType source_type,
+     ui::mojom::MenuSourceType source_type,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget parent_widget,
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
    // Do not attempt to show the menu if the application is currently shutting
-@@ -89,7 +90,7 @@ void MenuRunner::RunMenuAt(
+@@ -90,7 +91,7 @@ void MenuRunner::RunMenuAt(
    }
  
    impl_->RunMenuAt(parent, button_controller, bounds, anchor, run_types_,
@@ -574,12 +574,12 @@ index 9f746392f6d83..fa37345b6e021 100644
  }
  
 diff --git ui/views/controls/menu/menu_runner.h ui/views/controls/menu/menu_runner.h
-index c18d1c4d729e1..a73c48c02f1be 100644
+index fa8028a7a6d20..dc6d1210462a4 100644
 --- ui/views/controls/menu/menu_runner.h
 +++ ui/views/controls/menu/menu_runner.h
 @@ -157,6 +157,8 @@ class VIEWS_EXPORT MenuRunner {
                   MenuAnchorPosition anchor,
-                  ui::MenuSourceType source_type,
+                  ui::mojom::MenuSourceType source_type,
                   gfx::NativeView native_view_for_gestures = gfx::NativeView(),
 +                 gfx::AcceleratedWidget parent_widget =
 +                     gfx::kNullAcceleratedWidget,
@@ -785,7 +785,7 @@ index dcf4b60ad92c2..64fa80edefc1b 100644
  #if !BUILDFLAG(IS_CHROMEOS_LACROS)
    if (root_location != root_current_location &&
 diff --git ui/views/view.h ui/views/view.h
-index 4ce922b20a9d1..2505558b6428c 100644
+index 14d175dacf2ae..7a7c051f6ee08 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@
@@ -796,7 +796,7 @@ index 4ce922b20a9d1..2505558b6428c 100644
  #include "base/types/pass_key.h"
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -289,7 +290,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -290,7 +291,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,
@@ -806,7 +806,7 @@ index 4ce922b20a9d1..2505558b6428c 100644
    // Do not remove this macro!
    // The macro is maintained by the memory safety team.
    ADVANCED_MEMORY_SAFETY_CHECKS();
-@@ -609,7 +611,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -610,7 +612,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
  
    // Return the preferred height for a specific width. It is a helper function
    // of GetPreferredSize(SizeBounds(w, SizeBound())).height().

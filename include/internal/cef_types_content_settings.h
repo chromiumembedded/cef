@@ -119,8 +119,8 @@ typedef enum {
   /// permission to respond to accessibility events, which can be used to
   /// provide a custom accessibility experience. Requires explicit user consent
   /// because some users may not want sites to know they're using assistive
-  /// technology.
-  CEF_CONTENT_SETTING_TYPE_ACCESSIBILITY_EVENTS,
+  /// technology. Deprecated in M131.
+  CEF_CONTENT_SETTING_TYPE_DEPRECATED_ACCESSIBILITY_EVENTS,
 
   /// Used to store whether to allow a website to install a payment handler.
   CEF_CONTENT_SETTING_TYPE_PAYMENT_HANDLER,
@@ -474,6 +474,10 @@ typedef enum {
   /// Website setting to indicate whether user has opted in to allow web apps to
   /// install other web apps.
   CEF_CONTENT_SETTING_TYPE_WEB_APP_INSTALLATION,
+
+  /// Content settings for private network access in the context of the
+  /// Direct Sockets API.
+  CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS,
 } cef_content_setting_types_t;
 
 ///

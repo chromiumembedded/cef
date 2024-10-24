@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 1c3802fa1b580..48e8316090fe6 100644
+index f1627512b3212..b9bdd63daae7d 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -133,6 +133,9 @@ declare_args() {
@@ -12,7 +12,7 @@ index 1c3802fa1b580..48e8316090fe6 100644
    # Initialize all local variables with a pattern. This flag will fill
    # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
    # rest with 0xAA. This makes behavior of uninitialized memory bugs consistent,
-@@ -2263,11 +2266,13 @@ config("export_dynamic") {
+@@ -2268,11 +2271,13 @@ config("export_dynamic") {
  config("thin_archive") {
    # The macOS and iOS default linker ld64 does not support reading thin
    # archives.

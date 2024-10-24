@@ -30,10 +30,10 @@ index 76057b3e50f78..d3b63a3b07805 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index 82f462173913b..05b4824ec8329 100644
+index d5c125e621004..cd1177744e1a8 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
-@@ -66,6 +66,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
+@@ -67,6 +67,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
  
    InputRouter* input_router() { return input_router_.get(); }
    RenderInputRouterDelegate* delegate() { return delegate_; }

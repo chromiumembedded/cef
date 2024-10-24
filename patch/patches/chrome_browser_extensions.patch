@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index d1efdcb11d925..87fbfde83af42 100644
+index 66ea000f8c048..02eeb15adceed 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index d1efdcb11d925..87fbfde83af42 100644
  #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
  #include "chrome/browser/extensions/api/chrome_device_permissions_prompt.h"
  #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
-@@ -93,6 +94,10 @@
+@@ -86,6 +87,10 @@
  #include "chrome/browser/extensions/clipboard_extension_helper_chromeos.h"
  #endif
  
@@ -21,7 +21,7 @@ index d1efdcb11d925..87fbfde83af42 100644
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -316,7 +321,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -309,7 +314,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,10 +34,10 @@ index d1efdcb11d925..87fbfde83af42 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 14af722d7e382..c86b9f28689cc 100644
+index d0ec6330ae8c1..c9e2857fa06b4 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1615,7 +1615,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1603,7 +1603,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
      }
  
@@ -46,7 +46,7 @@ index 14af722d7e382..c86b9f28689cc 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1629,7 +1629,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1617,7 +1617,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      bool highlighted = *params->update_properties.highlighted;
@@ -55,7 +55,7 @@ index 14af722d7e382..c86b9f28689cc 100644
        tab_strip->ToggleSelectionAt(tab_index);
      }
    }
-@@ -1641,7 +1641,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1629,7 +1629,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
    }
  
@@ -64,7 +64,7 @@ index 14af722d7e382..c86b9f28689cc 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1676,7 +1676,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1664,7 +1664,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -73,7 +73,7 @@ index 14af722d7e382..c86b9f28689cc 100644
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -1697,8 +1697,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1685,8 +1685,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -85,7 +85,7 @@ index 14af722d7e382..c86b9f28689cc 100644
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
      }
-@@ -1712,7 +1713,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1700,7 +1701,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
