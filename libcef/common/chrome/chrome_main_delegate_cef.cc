@@ -26,7 +26,9 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/embedder_support/switches.h"
+#include "components/variations/service/buildflags.h"
 #include "content/public/common/content_switches.h"
+#include "net/base/features.h"
 #include "sandbox/policy/switches.h"
 #include "third_party/blink/public/common/switches.h"
 #include "ui/base/ui_base_paths.h"
@@ -323,6 +325,26 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       disable_features.push_back(base::kEnableHangWatcher.name);
     }
 
+#if BUILDFLAG(IS_WIN)
+    {
+      const bool feature_enabled =
+#if BUILDFLAG(FIELDTRIAL_TESTING_ENABLED)
+          // May be enabled via the experiments platform is non-Official builds.
+          true;
+#else
+          net::features::kTcpSocketIoCompletionPortWin.default_state ==
+          base::FEATURE_ENABLED_BY_DEFAULT;
+#endif
+
+      if (feature_enabled) {
+        // Disable TcpSocketIoCompletionPortWin which breaks embedded test
+        // servers. See https://crbug.com/40287434#comment36
+        disable_features.push_back(
+            net::features::kTcpSocketIoCompletionPortWin.name);
+      }
+    }
+#endif  // BUILDFLAG(IS_WIN)
+
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =
@@ -431,8 +453,8 @@ std::optional<int> ChromeMainDelegateCef::PreBrowserMain() {
 
 std::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
     InvokedIn invoked_in) {
-  // Configure this before ChromeMainDelegate::PostEarlyInitialization triggers
-  // ChromeBrowserPolicyConnector creation.
+  // Configure this before ChromeMainDelegate::PostEarlyInitialization
+  // triggers ChromeBrowserPolicyConnector creation.
   if (settings_ && settings_->chrome_policy_id.length > 0) {
     policy::ChromeBrowserPolicyConnector::EnablePlatformPolicySupport(
         CefString(&settings_->chrome_policy_id).ToString());
@@ -488,8 +510,8 @@ content::ContentClient* ChromeMainDelegateCef::CreateContentClient() {
 
 content::ContentBrowserClient*
 ChromeMainDelegateCef::CreateContentBrowserClient() {
-  // Match the logic in the parent ChromeMainDelegate implementation, but create
-  // our own object type.
+  // Match the logic in the parent ChromeMainDelegate implementation, but
+  // create our own object type.
   chrome_content_browser_client_ =
       std::make_unique<ChromeContentBrowserClientCef>();
   return chrome_content_browser_client_.get();
