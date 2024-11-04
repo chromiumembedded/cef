@@ -62,6 +62,10 @@ class RootWindowManager : public RootWindow::Delegate {
     return request_context_per_browser_;
   }
 
+  // Track other browsers that are not directly associated with a RootWindow.
+  void OtherBrowserCreated();
+  void OtherBrowserClosed();
+
  private:
   // Allow deletion via std::unique_ptr only.
   friend std::default_delete<RootWindowManager>;
@@ -83,6 +87,7 @@ class RootWindowManager : public RootWindow::Delegate {
   CefRefPtr<CefRequestContext> CreateRequestContext(
       RequestContextCallback callback);
 
+  void MaybeCleanup();
   void CleanupOnUIThread();
 
   const bool terminate_when_all_windows_closed_;
@@ -92,6 +97,9 @@ class RootWindowManager : public RootWindow::Delegate {
   // Existing root windows. Only accessed on the main thread.
   typedef std::set<scoped_refptr<RootWindow>> RootWindowSet;
   RootWindowSet root_windows_;
+
+  // Count of other browsers. Only accessed on the main thread.
+  int other_browser_ct_ = 0;
 
   // The currently active/foreground RootWindow. Only accessed on the main
   // thread.
