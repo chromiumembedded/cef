@@ -464,6 +464,10 @@ ClientHandler::ClientHandler(Delegate* delegate,
       startup_url_(startup_url),
       delegate_(delegate),
       console_log_file_(MainContext::Get()->GetConsoleLogPath()) {
+  // This handler is used with RootWindows that are explicitly tracked by
+  // RootWindowManager.
+  set_track_as_other_browser(false);
+
   DCHECK(!console_log_file_.empty());
 
   // Read command line settings.

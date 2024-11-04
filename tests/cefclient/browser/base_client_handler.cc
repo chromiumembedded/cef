@@ -4,6 +4,9 @@
 
 #include "tests/cefclient/browser/base_client_handler.h"
 
+#include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/root_window_manager.h"
+
 namespace client {
 
 BaseClientHandler::BaseClientHandler() {
@@ -49,6 +52,10 @@ void BaseClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
       message_router_->AddHandler(message_handler, false);
     }
   }
+
+  if (track_as_other_browser_) {
+    MainContext::Get()->GetRootWindowManager()->OtherBrowserCreated();
+  }
 }
 
 void BaseClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
@@ -62,6 +69,10 @@ void BaseClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     }
     message_handler_set_.clear();
     message_router_ = nullptr;
+  }
+
+  if (track_as_other_browser_) {
+    MainContext::Get()->GetRootWindowManager()->OtherBrowserClosed();
   }
 }
 
