@@ -551,6 +551,10 @@ void AlloyBrowserHostImpl::WindowDestroyed() {
   CEF_REQUIRE_UIT();
   DCHECK(!window_destroyed_);
   window_destroyed_ = true;
+
+  // Destroy objects that may reference the window.
+  menu_manager_.reset(nullptr);
+
   CloseBrowser(true);
 }
 
@@ -929,8 +933,9 @@ void AlloyBrowserHostImpl::PrintCrossProcessSubframe(
     int document_cookie,
     content::RenderFrameHost* subframe_host) const {
   auto* client = printing::PrintCompositeClient::FromWebContents(web_contents);
-  if (client)
+  if (client) {
     client->PrintCrossProcessSubframe(rect, document_cookie, subframe_host);
+  }
 }
 
 content::WebContents* AlloyBrowserHostImpl::OpenURLFromTab(
