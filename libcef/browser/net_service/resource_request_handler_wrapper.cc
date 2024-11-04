@@ -1116,7 +1116,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
             init_state_->browser_, init_state_->frame_,
             state->pending_request_.get(), allow_os_execution);
         if (allow_os_execution && init_state_->unhandled_request_callback_) {
-          init_state_->unhandled_request_callback_.Run();
+          CEF_POST_TASK(TID_UI, init_state_->unhandled_request_callback_);
         }
       }
     }
