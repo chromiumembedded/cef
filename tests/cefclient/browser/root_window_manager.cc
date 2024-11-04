@@ -202,6 +202,31 @@ void RootWindowManager::CloseAllWindows(bool force) {
   }
 }
 
+void RootWindowManager::OtherBrowserCreated() {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowManager::OtherBrowserCreated,
+                                     base::Unretained(this)));
+    return;
+  }
+
+  other_browser_ct_++;
+}
+
+void RootWindowManager::OtherBrowserClosed() {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowManager::OtherBrowserClosed,
+                                     base::Unretained(this)));
+    return;
+  }
+
+  DCHECK_GT(other_browser_ct_, 0);
+  other_browser_ct_--;
+
+  MaybeCleanup();
+}
+
 void RootWindowManager::OnRootWindowCreated(
     scoped_refptr<RootWindow> root_window) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
@@ -318,11 +343,7 @@ void RootWindowManager::OnRootWindowDestroyed(RootWindow* root_window) {
     active_root_window_ = nullptr;
   }
 
-  if (terminate_when_all_windows_closed_ && root_windows_.empty()) {
-    // All windows have closed. Clean up on the UI thread.
-    CefPostTask(TID_UI, base::BindOnce(&RootWindowManager::CleanupOnUIThread,
-                                       base::Unretained(this)));
-  }
+  MaybeCleanup();
 }
 
 void RootWindowManager::OnRootWindowActivated(RootWindow* root_window) {
@@ -333,6 +354,16 @@ void RootWindowManager::OnRootWindowActivated(RootWindow* root_window) {
   }
 
   active_root_window_ = root_window;
+}
+
+void RootWindowManager::MaybeCleanup() {
+  REQUIRE_MAIN_THREAD();
+  if (terminate_when_all_windows_closed_ && root_windows_.empty() &&
+      other_browser_ct_ == 0) {
+    // All windows and browsers have closed. Clean up on the UI thread.
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowManager::CleanupOnUIThread,
+                                       base::Unretained(this)));
+  }
 }
 
 void RootWindowManager::CleanupOnUIThread() {
