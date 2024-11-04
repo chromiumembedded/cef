@@ -500,8 +500,8 @@ bool CefWindowImpl::AcceleratorPressed(const ui::Accelerator& accelerator) {
 }
 
 bool CefWindowImpl::CanHandleAccelerators() const {
-  if (delegate() && widget_) {
-    return widget_->IsActive();
+  if (delegate() && widget_ && root_view()) {
+    return root_view()->CanHandleAccelerators();
   }
   return false;
 }
