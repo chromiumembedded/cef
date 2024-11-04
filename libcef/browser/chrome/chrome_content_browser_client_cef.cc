@@ -59,6 +59,8 @@ void HandleExternalProtocolHelper(
     const network::ResourceRequest& resource_request,
     const std::optional<url::Origin>& initiating_origin,
     content::WeakDocumentPtr initiator_document) {
+  CEF_REQUIRE_UIT();
+
   // May return nullptr if frame has been deleted or a cross-document navigation
   // has committed in the same RenderFrameHost.
   auto initiator_rfh = initiator_document.AsRenderFrameHostIfValid();
