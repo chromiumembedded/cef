@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b7f89f3d93bb41c5f952ba85b6cd8ebc826dd45d$
+// $hash=0d9f8c7c00d7b2e59b4fbf35927a53ce335a8304$
 //
 
 #include "libcef_dll/ctocpp/views/panel_ctocpp.h"
@@ -953,6 +953,23 @@ NO_SANITIZE("cfi-icall") bool CefPanelCToCpp::IsAccessibilityFocusable() {
 
   // Execute
   int _retval = _struct->is_accessibility_focusable(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefPanelCToCpp::HasFocus() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_focus)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_focus(_struct);
 
   // Return type: bool
   return _retval ? true : false;

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=1b896bea52b0d62490a5b78a86dee729a4236cda$
+// $hash=b466f3a709cc15c08f77ec31fe845fe2c7e096a7$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_SCROLL_VIEW_CTOCPP_H_
@@ -84,6 +84,7 @@ class CefScrollViewCToCpp : public CefCToCppRefCounted<CefScrollViewCToCpp,
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;

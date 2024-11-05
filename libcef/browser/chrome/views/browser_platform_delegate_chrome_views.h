@@ -32,6 +32,7 @@ class CefBrowserPlatformDelegateChromeViews
   views::Widget* GetWindowWidget() const override;
   CefRefPtr<CefBrowserView> GetBrowserView() const override;
   void SetBrowserView(CefRefPtr<CefBrowserView> browser_view) override;
+  void SetFocus(bool setFocus) override;
   bool IsViewsHosted() const override;
 
   CefBrowserViewImpl* browser_view() const { return browser_view_.get(); }

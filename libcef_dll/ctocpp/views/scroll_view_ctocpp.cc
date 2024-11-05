@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f74bed30da72caaf40fb59b2e34b1c99aa647105$
+// $hash=037b63e599b503cbc2800814057d8f866473f998$
 //
 
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
@@ -851,6 +851,23 @@ NO_SANITIZE("cfi-icall") bool CefScrollViewCToCpp::IsAccessibilityFocusable() {
 
   // Execute
   int _retval = _struct->is_accessibility_focusable(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefScrollViewCToCpp::HasFocus() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_focus)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_focus(_struct);
 
   // Return type: bool
   return _retval ? true : false;

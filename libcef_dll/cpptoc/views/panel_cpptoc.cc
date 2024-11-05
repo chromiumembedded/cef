@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4c768c4065540d40bfcc8da63dfa1916ca09f6f7$
+// $hash=3ec9c298cd10893df63c6f7fd360968a5560a48c$
 //
 
 #include "libcef_dll/cpptoc/views/panel_cpptoc.h"
@@ -1040,6 +1040,24 @@ int CEF_CALLBACK panel_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK panel_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK panel_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1374,6 +1392,7 @@ CefPanelCppToC::CefPanelCppToC() {
   GetStruct()->base.is_focusable = panel_is_focusable;
   GetStruct()->base.is_accessibility_focusable =
       panel_is_accessibility_focusable;
+  GetStruct()->base.has_focus = panel_has_focus;
   GetStruct()->base.request_focus = panel_request_focus;
   GetStruct()->base.set_background_color = panel_set_background_color;
   GetStruct()->base.get_background_color = panel_get_background_color;

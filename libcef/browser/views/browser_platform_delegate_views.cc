@@ -154,15 +154,8 @@ void CefBrowserPlatformDelegateViews::SendTouchEvent(
 }
 
 void CefBrowserPlatformDelegateViews::SetFocus(bool setFocus) {
-  // Will activate the Widget and result in a call to WebContents::Focus().
-  if (setFocus && browser_view_->root_view()) {
-    if (auto widget = GetWindowWidget()) {
-      // Don't activate a minimized Widget, or it will be shown.
-      if (widget->IsMinimized()) {
-        return;
-      }
-    }
-    browser_view_->root_view()->RequestFocus();
+  if (setFocus && browser_view_) {
+    browser_view_->RequestFocusSync();
   }
 }
 

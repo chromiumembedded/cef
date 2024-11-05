@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=34539b590718fa83d794a6cfcb34876da8a03d26$
+// $hash=f6c0c1dc3de70dab819ba42db591025c48667379$
 //
 
 #include "libcef_dll/cpptoc/views/browser_view_cpptoc.h"
@@ -964,6 +964,25 @@ browser_view_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK browser_view_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefBrowserViewCppToC::Get(reinterpret_cast<cef_browser_view_t*>(self))
+          ->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK browser_view_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1299,6 +1318,7 @@ CefBrowserViewCppToC::CefBrowserViewCppToC() {
   GetStruct()->base.is_focusable = browser_view_is_focusable;
   GetStruct()->base.is_accessibility_focusable =
       browser_view_is_accessibility_focusable;
+  GetStruct()->base.has_focus = browser_view_has_focus;
   GetStruct()->base.request_focus = browser_view_request_focus;
   GetStruct()->base.set_background_color = browser_view_set_background_color;
   GetStruct()->base.get_background_color = browser_view_get_background_color;

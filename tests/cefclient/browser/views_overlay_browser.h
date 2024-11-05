@@ -44,6 +44,8 @@ class ViewsOverlayBrowser : public CefBrowserViewDelegate {
 
   void PopOutWindowDestroyed();
 
+  bool RequestFocus();
+
  private:
   // CefViewDelegate methods:
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;

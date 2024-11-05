@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=dd32b58ec9aca0e04a1d30ccf94a741995fcc094$
+// $hash=9de8ff77a40adc1e3edd7e2648f6c395c21a36bd$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_WINDOW_CAPI_H_
@@ -52,6 +52,7 @@ extern "C" {
 #endif
 
 struct _cef_browser_view_t;
+struct _cef_view_t;
 
 ///
 /// A Window is a top-level Window/widget in the Views hierarchy. By default it
@@ -176,6 +177,15 @@ typedef struct _cef_window_t {
   /// Returns true (1) if the Window is fullscreen.
   ///
   int(CEF_CALLBACK* is_fullscreen)(struct _cef_window_t* self);
+
+  ///
+  /// Returns the View that currently has focus in this Window, or nullptr if no
+  /// View currently has focus. A Window may have a focused View even if it is
+  /// not currently active. Any focus changes while a Window is not active may
+  /// be applied after that Window next becomes active.
+  ///
+  struct _cef_view_t*(CEF_CALLBACK* get_focused_view)(
+      struct _cef_window_t* self);
 
   ///
   /// Set the Window title.

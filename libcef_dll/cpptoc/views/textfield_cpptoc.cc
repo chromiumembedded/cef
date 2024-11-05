@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5407c7f442b7787de087a85d5613fffb384288c8$
+// $hash=09a4dcefc71b4554d12a950d4c8879c0e2fd2521$
 //
 
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
@@ -1397,6 +1397,25 @@ textfield_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK textfield_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefTextfieldCppToC::Get(reinterpret_cast<cef_textfield_t*>(self))
+          ->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK textfield_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1759,6 +1778,7 @@ CefTextfieldCppToC::CefTextfieldCppToC() {
   GetStruct()->base.is_focusable = textfield_is_focusable;
   GetStruct()->base.is_accessibility_focusable =
       textfield_is_accessibility_focusable;
+  GetStruct()->base.has_focus = textfield_has_focus;
   GetStruct()->base.request_focus = textfield_request_focus;
   GetStruct()->base.set_background_color = textfield_set_background_color;
   GetStruct()->base.get_background_color = textfield_get_background_color;

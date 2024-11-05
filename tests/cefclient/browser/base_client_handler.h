@@ -14,7 +14,9 @@ namespace client {
 
 // Abstract base class for client handlers.
 class BaseClientHandler : public CefClient,
+                          public CefFocusHandler,
                           public CefLifeSpanHandler,
+                          public CefLoadHandler,
                           public CefRequestHandler,
                           public CefResourceRequestHandler {
  public:
@@ -28,16 +30,27 @@ class BaseClientHandler : public CefClient,
   static CefRefPtr<BaseClientHandler> GetForClient(CefRefPtr<CefClient> client);
 
   // CefClient methods
+  CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override;
 
+  // CefFocusHandler methods
+  bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override;
+
   // CefLifeSpanHandler methods
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+
+  // CefLoadHandler methods
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override;
 
   // CefRequestHandler methods
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -95,6 +108,8 @@ class BaseClientHandler : public CefClient,
   void SetHangAction(HangAction action);
   HangAction GetHangAction() const;
 
+  bool ShouldRequestFocus();
+
   // Used to determine the object type for each concrete implementation.
   virtual const void* GetTypeKey() const = 0;
 
@@ -128,6 +143,9 @@ class BaseClientHandler : public CefClient,
   test_runner::StringResourceMap string_resource_map_;
 
   HangAction hang_action_ = HangAction::kDefault;
+
+  // True for the initial navigation after browser creation.
+  bool initial_navigation_ = true;
 
   DISALLOW_COPY_AND_ASSIGN(BaseClientHandler);
 };

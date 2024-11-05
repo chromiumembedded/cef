@@ -46,6 +46,7 @@
 #include "include/views/cef_window_delegate.h"
 
 class CefBrowserView;
+class CefView;
 
 ///
 /// A Window is a top-level Window/widget in the Views hierarchy. By default it
@@ -189,6 +190,15 @@ class CefWindow : public CefPanel {
   ///
   /*--cef()--*/
   virtual bool IsFullscreen() = 0;
+
+  ///
+  /// Returns the View that currently has focus in this Window, or nullptr if no
+  /// View currently has focus. A Window may have a focused View even if it is
+  /// not currently active. Any focus changes while a Window is not active may
+  /// be applied after that Window next becomes active.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefView> GetFocusedView() = 0;
 
   ///
   /// Set the Window title.

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=ae22b240b761b1bd2e9f168de2859ae0085191f6$
+// $hash=489b647764397f8cfba17ea7bccdd1153f0cc1a5$
 //
 
 #include "libcef_dll/cpptoc/views/view_cpptoc.h"
@@ -743,6 +743,23 @@ int CEF_CALLBACK view_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK view_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval = CefViewCppToC::Get(self)->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK view_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1053,6 +1070,7 @@ CefViewCppToC::CefViewCppToC() {
   GetStruct()->set_focusable = view_set_focusable;
   GetStruct()->is_focusable = view_is_focusable;
   GetStruct()->is_accessibility_focusable = view_is_accessibility_focusable;
+  GetStruct()->has_focus = view_has_focus;
   GetStruct()->request_focus = view_request_focus;
   GetStruct()->set_background_color = view_set_background_color;
   GetStruct()->get_background_color = view_get_background_color;

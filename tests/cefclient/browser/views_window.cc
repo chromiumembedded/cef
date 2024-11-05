@@ -12,6 +12,7 @@
 #include "include/cef_i18n_util.h"
 #include "include/views/cef_box_layout.h"
 #include "include/wrapper/cef_helpers.h"
+#include "tests/cefclient/browser/base_client_handler.h"
 #include "tests/cefclient/browser/default_client_handler.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
@@ -201,10 +202,7 @@ void ViewsWindow::Show() {
       window_->Show();
     }
   }
-  if (browser_view_ && !window_->IsMinimized()) {
-    // Give keyboard focus to the BrowserView.
-    browser_view_->RequestFocus();
-  }
+  MaybeRequestBrowserFocus();
 }
 
 void ViewsWindow::Hide() {
@@ -376,6 +374,18 @@ void ViewsWindow::SetDraggableRegions(
   }
 
   window_->SetDraggableRegions(window_regions);
+}
+
+bool ViewsWindow::OnSetFocus(cef_focus_source_t source) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // No special handling of focus requests originating from the system.
+  if (source == FOCUS_SOURCE_SYSTEM) {
+    return false;
+  }
+
+  RequestBrowserFocus();
+  return true;
 }
 
 void ViewsWindow::TakeFocus(bool next) {
@@ -1395,5 +1405,32 @@ void ViewsWindow::NudgeWindow() {
   NOTIMPLEMENTED();
 }
 #endif
+
+void ViewsWindow::MaybeRequestBrowserFocus() {
+  if (browser_view_) {
+    // BaseClientHandler has some state that we need to query.
+    if (auto handler =
+            BaseClientHandler::GetForBrowser(browser_view_->GetBrowser());
+        handler->ShouldRequestFocus()) {
+      RequestBrowserFocus();
+    }
+  }
+}
+
+void ViewsWindow::RequestBrowserFocus() {
+  if (window_->IsMinimized()) {
+    return;
+  }
+
+  // Maybe give keyboard focus to the overlay BrowserView.
+  if (overlay_browser_ && overlay_browser_->RequestFocus()) {
+    return;
+  }
+
+  // Give keyboard focus to the main BrowserView.
+  if (browser_view_) {
+    browser_view_->RequestFocus();
+  }
+}
 
 }  // namespace client

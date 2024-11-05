@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=08f13de764f30261616372dfffb7f97c57957f73$
+// $hash=4c3a47faa34c20cee64fcaa37123860319995809$
 //
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_VIEW_CAPI_H_
@@ -332,8 +332,17 @@ typedef struct _cef_view_t {
   int(CEF_CALLBACK* is_accessibility_focusable)(struct _cef_view_t* self);
 
   ///
-  /// Request keyboard focus. If this View is focusable it will become the
-  /// focused View.
+  /// Returns true (1) if this View has focus in the context of the containing
+  /// Window. Check both this function and cef_window_t::IsActive to determine
+  /// global keyboard focus.
+  ///
+  int(CEF_CALLBACK* has_focus)(struct _cef_view_t* self);
+
+  ///
+  /// Request focus for this View in the context of the containing Window. If
+  /// this View is focusable it will become the focused View. Any focus changes
+  /// while a Window is not active may be applied after that Window next becomes
+  /// active.
   ///
   void(CEF_CALLBACK* request_focus)(struct _cef_view_t* self);
 

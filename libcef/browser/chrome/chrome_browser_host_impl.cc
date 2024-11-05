@@ -28,7 +28,8 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   auto browser = CreateBrowser(params, std::nullopt);
 
   GURL url = url_util::MakeGURL(params.url, /*fixup=*/true);
-  if (url.is_empty()) {
+  const bool url_is_empty = url.is_empty();
+  if (url_is_empty) {
     // Chrome will navigate to kChromeUINewTabURL by default. We want to keep
     // the current CEF behavior of not navigating at all. Use a special URL that
     // will be recognized in HandleNonNavigationAboutURL.
@@ -49,6 +50,11 @@ CefRefPtr<ChromeBrowserHostImpl> ChromeBrowserHostImpl::Create(
   auto browser_host =
       ChromeBrowserHostImpl::GetBrowserForContents(web_contents);
   CHECK(browser_host);
+
+  if (!url_is_empty) {
+    // Match Alloy-style behavior of requesting focus after initial navigation.
+    browser_host->OnSetFocus(FOCUS_SOURCE_NAVIGATION);
+  }
 
   return browser_host;
 }

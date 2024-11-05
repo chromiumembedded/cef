@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c8c1e03aa10a0ea469774ccd59640fcec2487513$
+// $hash=fabfb73c073981506fb91b409bf85db47176f347$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BUTTON_CTOCPP_H_
@@ -84,6 +84,7 @@ class CefButtonCToCpp
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;

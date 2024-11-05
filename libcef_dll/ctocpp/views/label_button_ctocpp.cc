@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=771ab2674e580450d8a0478435305bccc2440cae$
+// $hash=abd223cdf6d809bf1a7e2ed11b36f5427ea892a9$
 //
 
 #include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
@@ -1038,6 +1038,23 @@ NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::IsAccessibilityFocusable() {
 
   // Execute
   int _retval = _struct->is_accessibility_focusable(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefLabelButtonCToCpp::HasFocus() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_focus)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_focus(_struct);
 
   // Return type: bool
   return _retval ? true : false;

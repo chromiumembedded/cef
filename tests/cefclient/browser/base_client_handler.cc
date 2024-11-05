@@ -4,8 +4,10 @@
 
 #include "tests/cefclient/browser/base_client_handler.h"
 
+#include "include/cef_command_line.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/root_window_manager.h"
+#include "tests/shared/common/client_switches.h"
 
 namespace client {
 
@@ -34,6 +36,11 @@ bool BaseClientHandler::OnProcessMessageReceived(
   CEF_REQUIRE_UI_THREAD();
   return message_router_->OnProcessMessageReceived(browser, frame,
                                                    source_process, message);
+}
+
+bool BaseClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
+                                   FocusSource source) {
+  return !ShouldRequestFocus();
 }
 
 void BaseClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -73,6 +80,17 @@ void BaseClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
   if (track_as_other_browser_) {
     MainContext::Get()->GetRootWindowManager()->OtherBrowserClosed();
+  }
+}
+
+void BaseClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                             bool isLoading,
+                                             bool canGoBack,
+                                             bool canGoForward) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!isLoading && initial_navigation_) {
+    initial_navigation_ = false;
   }
 }
 
@@ -166,6 +184,21 @@ void BaseClientHandler::SetHangAction(HangAction action) {
 BaseClientHandler::HangAction BaseClientHandler::GetHangAction() const {
   CEF_REQUIRE_UI_THREAD();
   return hang_action_;
+}
+
+bool BaseClientHandler::ShouldRequestFocus() {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (initial_navigation_) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    if (command_line->HasSwitch(switches::kNoActivate)) {
+      // Don't give focus to the browser on creation.
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace client

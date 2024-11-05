@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=77c2df71313e5075c9a25bde8a4cd7ee13ec5ac2$
+// $hash=15fd2f3ae41c973eccf6359eac04070d03c5e27e$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
@@ -1259,6 +1259,23 @@ NO_SANITIZE("cfi-icall") bool CefTextfieldCToCpp::IsAccessibilityFocusable() {
 
   // Execute
   int _retval = _struct->is_accessibility_focusable(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefTextfieldCToCpp::HasFocus() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_focus)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_focus(_struct);
 
   // Return type: bool
   return _retval ? true : false;

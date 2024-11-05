@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6ebaa8a85615b3a4ea46cf32893e4297667f81a4$
+// $hash=c6c8223d5505cf28b00dcfaa1e16047d4ed45520$
 //
 
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
@@ -344,6 +344,23 @@ NO_SANITIZE("cfi-icall") bool CefWindowCToCpp::IsFullscreen() {
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") CefRefPtr<CefView> CefWindowCToCpp::GetFocusedView() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_focused_view)) {
+    return nullptr;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_view_t* _retval = _struct->get_focused_view(_struct);
+
+  // Return type: refptr_same
+  return CefViewCToCpp::Wrap(_retval);
 }
 
 NO_SANITIZE("cfi-icall")
@@ -1664,6 +1681,23 @@ NO_SANITIZE("cfi-icall") bool CefWindowCToCpp::IsAccessibilityFocusable() {
 
   // Execute
   int _retval = _struct->is_accessibility_focusable(_struct);
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall") bool CefWindowCToCpp::HasFocus() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, has_focus)) {
+    return false;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_focus(_struct);
 
   // Return type: bool
   return _retval ? true : false;

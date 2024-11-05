@@ -120,6 +120,12 @@ CefBrowserPlatformDelegateChromeViews::GetBrowserView() const {
   return browser_view_.get();
 }
 
+void CefBrowserPlatformDelegateChromeViews::SetFocus(bool setFocus) {
+  if (setFocus && browser_view_) {
+    browser_view_->RequestFocusSync();
+  }
+}
+
 bool CefBrowserPlatformDelegateChromeViews::IsViewsHosted() const {
   return true;
 }

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4e2f75d68d804ad2414eb34b9f273b8f558c3dab$
+// $hash=2dc1cc5c216bf39628e9e67dad6432705c1b5123$
 //
 
 #include "libcef_dll/cpptoc/views/button_cpptoc.h"
@@ -902,6 +902,24 @@ int CEF_CALLBACK button_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK button_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefButtonCppToC::Get(reinterpret_cast<cef_button_t*>(self))->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK button_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1230,6 +1248,7 @@ CefButtonCppToC::CefButtonCppToC() {
   GetStruct()->base.is_focusable = button_is_focusable;
   GetStruct()->base.is_accessibility_focusable =
       button_is_accessibility_focusable;
+  GetStruct()->base.has_focus = button_has_focus;
   GetStruct()->base.request_focus = button_request_focus;
   GetStruct()->base.set_background_color = button_set_background_color;
   GetStruct()->base.get_background_color = button_get_background_color;

@@ -85,6 +85,7 @@ class RootWindowViews : public RootWindow,
                          bool canGoForward) override;
   void OnSetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) override;
+  bool OnSetFocus(cef_focus_source_t source) override;
   void OnTakeFocus(bool next) override;
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) override;
 
