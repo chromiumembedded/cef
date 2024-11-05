@@ -6,10 +6,10 @@
 # Distribution DLLs.
 #
 
-# NOTE: libcef.dll is included via the //:cef dependency.
 DLLS = [
     "chrome_elf.dll",
     "d3dcompiler_47.dll",
+    "libcef.dll",
     "libEGL.dll",
     "libGLESv2.dll",
     "vk_swiftshader.dll",

@@ -274,29 +274,19 @@ alias(
     })
 )
 
-# Only available on Linux/Windows.
+# Only available on Linux.
 cc_import(
     name = "cef_dbg",
-    interface_library = select({
-        "@platforms//os:windows": "Debug/libcef.lib",
-        "//conditions:default": None,
-    }),
     shared_library = select({
         "@platforms//os:linux": "Debug/libcef.so",
-        "@platforms//os:windows": "Debug/libcef.dll",
         "//conditions:default": None,
     }),
 )
 
 cc_import(
     name = "cef_opt",
-    interface_library = select({
-        "@platforms//os:windows": "Release/libcef.lib",
-        "//conditions:default": None,
-    }),
     shared_library = select({
         "@platforms//os:linux": "Release/libcef.so",
-        "@platforms//os:windows": "Release/libcef.dll",
         "//conditions:default": None,
     }),
 )
@@ -306,6 +296,36 @@ alias(
     actual = select({
         "@cef//:dbg": "@cef//:cef_dbg",
         "//conditions:default": "@cef//:cef_opt",
+    }),
+)
+
+# Only available on Windows.
+# Using cc_import + interface_library/shared_library to link libcef.lib causes
+# libcef.dll to be copied as a transitive dependency, leading to issues with
+# complex Bazel configs. Instead, we explicitly link libcef.lib in the binary
+# target (cc_binary + linkopts/additional_linker_inputs) and explicitly copy
+# libcef.dll to the target directory.
+alias(
+    name = "cef_lib_dbg",
+    actual = select({
+        "@platforms//os:windows": "Debug/libcef.lib",
+        "//conditions:default": None,
+    }),
+)
+
+alias(
+    name = "cef_lib_opt",
+    actual =  select({
+        "@platforms//os:windows": "Release/libcef.lib",
+        "//conditions:default": None,
+    }),
+)
+
+alias(
+    name = "cef_lib",
+    actual = select({
+       "@cef//:dbg": "@cef//:cef_lib_dbg",
+       "//conditions:default": "@cef//:cef_lib_opt",
     }),
 )
 

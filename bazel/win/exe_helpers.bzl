@@ -47,10 +47,10 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
         srcs = srcs,
         deps = [
             "@cef//:cef_wrapper",
-            "@cef//:cef",
             "@cef//:cef_sandbox",
         ] + deps,
         linkopts = [
+            "$(location @cef//:cef_lib)",
             "$(location :{})".format(res_target),
         ] + COMMON_LINKOPTS + linkopts,
         copts = COMMON_COPTS + select({
@@ -62,6 +62,7 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
             "//conditions:default": COMMON_DEFINES_RELEASE,
         }) + local_defines,
         additional_linker_inputs = [
+            "@cef//:cef_lib",
             ":{}".format(res_target),
         ] + additional_linker_inputs,
         data = [
