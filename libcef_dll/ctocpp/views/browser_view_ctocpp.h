@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a61b633e9b8e4156fd4cdcb778ad54e38106dc0d$
+// $hash=ef7142f37fb7b2312373a6cf1c4df49f6a171623$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_CTOCPP_H_
@@ -81,6 +81,7 @@ class CefBrowserViewCToCpp : public CefCToCppRefCounted<CefBrowserViewCToCpp,
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;

@@ -62,6 +62,7 @@ class CefBrowserViewImpl
   void BrowserCreated(CefBrowserHostBase* browser,
                       base::RepeatingClosure on_bounds_changed);
   void BrowserDestroyed(CefBrowserHostBase* browser);
+  void RequestFocusSync();
 
   // Called to handle accelerators when the event is unhandled by the web
   // content and the browser client.
@@ -91,6 +92,7 @@ class CefBrowserViewImpl
 
   // Return the WebView representation of this object.
   views::WebView* web_view() const;
+  views::View* content_view() const override { return web_view(); }
 
   // Return the CEF specialization of BrowserView.
   ChromeBrowserView* chrome_browser_view() const;
@@ -132,8 +134,6 @@ class CefBrowserViewImpl
   // accelerator.
   bool HandleAccelerator(const input::NativeWebKeyboardEvent& event,
                          views::FocusManager* focus_manager);
-
-  void RequestFocusInternal();
 
   void DisassociateFromWidget();
 

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3ba705772b9bd57b5abac5f7128bc5afe148c83a$
+// $hash=c1f0efa7f36eff25faec6ababe5872a30d31e0f8$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_LABEL_BUTTON_CTOCPP_H_
@@ -99,6 +99,7 @@ class CefLabelButtonCToCpp : public CefCToCppRefCounted<CefLabelButtonCToCpp,
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;

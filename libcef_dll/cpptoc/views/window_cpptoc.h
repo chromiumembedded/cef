@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=b1cca0d792a8c1aa71ec2aeda294b380b82e48fd$
+// $hash=519bc28c076065156644994840f486d3390ccd3e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CPPTOC_VIEWS_WINDOW_CPPTOC_H_
@@ -21,8 +21,10 @@
 #endif
 
 #include "include/capi/views/cef_browser_view_capi.h"
+#include "include/capi/views/cef_view_capi.h"
 #include "include/capi/views/cef_window_capi.h"
 #include "include/views/cef_browser_view.h"
+#include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 #include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 

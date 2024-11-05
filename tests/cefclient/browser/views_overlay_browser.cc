@@ -15,8 +15,8 @@ namespace {
 void AddPopOutAccelerator(CefRefPtr<CefWindow> window) {
   // Add an accelerator to toggle the BrowserView popout. OnAccelerator will be
   // called when the accelerator is triggered.
-  window->SetAccelerator(ID_POPOUT_OVERLAY, 'O', /*shift_pressed=*/false,
-                         /*ctrl_pressed=*/false, /*alt_pressed=*/true,
+  window->SetAccelerator(ID_POPOUT_OVERLAY, 'O', /*shift_pressed=*/true,
+                         /*ctrl_pressed=*/true, /*alt_pressed=*/false,
                          /*high_priority=*/true);
 }
 
@@ -201,10 +201,15 @@ void ViewsOverlayBrowser::PopOutBrowserView() {
 void ViewsOverlayBrowser::PopInBrowserView() {
   CHECK(!browser_view_);
 
+  CefRefPtr<CefView> last_focused_view = window_->GetFocusedView();
+
   // Resume ownership of the BrowserView and close the popout Window.
   CHECK(popout_window_);
   browser_view_ =
       PopoutWindowDelegate::GetForWindow(popout_window_)->DetachBrowserView();
+
+  const bool should_focus_browser =
+      popout_window_->IsActive() && browser_view_->HasFocus();
   popout_window_->RemoveChildView(browser_view_);
   popout_window_->Close();
   popout_window_ = nullptr;
@@ -219,6 +224,14 @@ void ViewsOverlayBrowser::PopInBrowserView() {
 
   // Make sure the overlay is positioned correctly.
   UpdateBounds(last_insets_);
+
+  if (should_focus_browser) {
+    // Keep the BrowserView focused.
+    browser_view_->RequestFocus();
+  } else if (last_focused_view) {
+    // Keep focus unchanged in the main Window.
+    last_focused_view->RequestFocus();
+  }
 }
 
 void ViewsOverlayBrowser::UpdateBounds(CefInsets insets) {
@@ -268,6 +281,14 @@ bool ViewsOverlayBrowser::OnAccelerator(CefRefPtr<CefWindow> window,
 
 void ViewsOverlayBrowser::PopOutWindowDestroyed() {
   popout_window_ = nullptr;
+}
+
+bool ViewsOverlayBrowser::RequestFocus() {
+  if (browser_view_) {
+    browser_view_->RequestFocus();
+    return true;
+  }
+  return false;
 }
 
 CefSize ViewsOverlayBrowser::GetMinimumSize(CefRefPtr<CefView> view) {

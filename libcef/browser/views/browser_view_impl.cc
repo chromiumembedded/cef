@@ -198,6 +198,20 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostBase* browser) {
   DCHECK(!cef_widget_);
 }
 
+void CefBrowserViewImpl::RequestFocusSync() {
+  // With Chrome style the root_view() type (ChromeBrowserView) does not accept
+  // focus, so always give focus to the WebView directly.
+  if (web_view()) {
+    if (auto widget = web_view()->GetWidget(); widget->IsMinimized()) {
+      // Don't activate a minimized Widget, or it will be shown.
+      return;
+    }
+
+    // Activate the Widget and indirectly call WebContents::Focus().
+    web_view()->RequestFocus();
+  }
+}
+
 bool CefBrowserViewImpl::HandleKeyboardEvent(
     const input::NativeWebKeyboardEvent& event) {
   if (!root_view()) {
@@ -256,9 +270,8 @@ cef_runtime_style_t CefBrowserViewImpl::GetRuntimeStyle() {
 void CefBrowserViewImpl::RequestFocus() {
   CEF_REQUIRE_VALID_RETURN_VOID();
   // Always execute asynchronously to work around issue #3040.
-  CEF_POST_TASK(CEF_UIT,
-                base::BindOnce(&CefBrowserViewImpl::RequestFocusInternal,
-                               weak_ptr_factory_.GetWeakPtr()));
+  CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserViewImpl::RequestFocusSync,
+                                        weak_ptr_factory_.GetWeakPtr()));
 }
 
 void CefBrowserViewImpl::SetBackgroundColor(cef_color_t color) {
@@ -479,10 +492,6 @@ bool CefBrowserViewImpl::HandleAccelerator(
   }
 
   return false;
-}
-
-void CefBrowserViewImpl::RequestFocusInternal() {
-  ParentClass::RequestFocus();
 }
 
 void CefBrowserViewImpl::DisassociateFromWidget() {

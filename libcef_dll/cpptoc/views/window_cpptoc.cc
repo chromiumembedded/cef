@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=e0e9fa1a9ab6826b9dda799e4a1fc3b8c133eeab$
+// $hash=374db873cd7af7312f9dd7c2bc6440e0f6f8cc02$
 //
 
 #include "libcef_dll/cpptoc/views/window_cpptoc.h"
@@ -354,6 +354,23 @@ int CEF_CALLBACK window_is_fullscreen(struct _cef_window_t* self) {
 
   // Return type: bool
   return _retval;
+}
+
+cef_view_t* CEF_CALLBACK window_get_focused_view(struct _cef_window_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return NULL;
+  }
+
+  // Execute
+  CefRefPtr<CefView> _retval = CefWindowCppToC::Get(self)->GetFocusedView();
+
+  // Return type: refptr_same
+  return CefViewCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK window_set_title(struct _cef_window_t* self,
@@ -1784,6 +1801,24 @@ int CEF_CALLBACK window_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK window_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefWindowCppToC::Get(reinterpret_cast<cef_window_t*>(self))->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK window_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -2084,6 +2119,7 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->is_maximized = window_is_maximized;
   GetStruct()->is_minimized = window_is_minimized;
   GetStruct()->is_fullscreen = window_is_fullscreen;
+  GetStruct()->get_focused_view = window_get_focused_view;
   GetStruct()->set_title = window_set_title;
   GetStruct()->get_title = window_get_title;
   GetStruct()->set_window_icon = window_set_window_icon;
@@ -2161,6 +2197,7 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->base.base.is_focusable = window_is_focusable;
   GetStruct()->base.base.is_accessibility_focusable =
       window_is_accessibility_focusable;
+  GetStruct()->base.base.has_focus = window_has_focus;
   GetStruct()->base.base.request_focus = window_request_focus;
   GetStruct()->base.base.set_background_color = window_set_background_color;
   GetStruct()->base.base.get_background_color = window_get_background_color;

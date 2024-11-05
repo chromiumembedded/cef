@@ -451,6 +451,14 @@ void RootWindowViews::OnSetDraggableRegions(
   }
 }
 
+bool RootWindowViews::OnSetFocus(cef_focus_source_t source) {
+  CEF_REQUIRE_UI_THREAD();
+  if (window_) {
+    return window_->OnSetFocus(source);
+  }
+  return false;
+}
+
 void RootWindowViews::OnTakeFocus(bool next) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.

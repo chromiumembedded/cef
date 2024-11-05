@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=02040c0851514ead9307d3901c117d94d4fffb41$
+// $hash=d6f8f7a25fae4188fcced83882c2ec51f134e312$
 //
 
 #include "libcef_dll/cpptoc/views/menu_button_cpptoc.h"
@@ -1231,6 +1231,25 @@ menu_button_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK menu_button_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(self))
+          ->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK menu_button_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1585,6 +1604,7 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
   GetStruct()->base.base.base.is_focusable = menu_button_is_focusable;
   GetStruct()->base.base.base.is_accessibility_focusable =
       menu_button_is_accessibility_focusable;
+  GetStruct()->base.base.base.has_focus = menu_button_has_focus;
   GetStruct()->base.base.base.request_focus = menu_button_request_focus;
   GetStruct()->base.base.base.set_background_color =
       menu_button_set_background_color;

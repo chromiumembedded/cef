@@ -120,6 +120,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void SetAlwaysOnTop(bool on_top);
   void SetLoadingState(bool isLoading, bool canGoBack, bool canGoForward);
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
+  bool OnSetFocus(cef_focus_source_t source);
   void TakeFocus(bool next);
   void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
 
@@ -252,6 +253,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void ShowTopControls(bool show);
 
   void NudgeWindow();
+
+  void MaybeRequestBrowserFocus();
+  void RequestBrowserFocus();
 
   const WindowType type_;
   Delegate* const delegate_;  // Not owned by this object.

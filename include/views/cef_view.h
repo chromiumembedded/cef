@@ -350,8 +350,18 @@ class CefView : public CefBaseRefCounted {
   virtual bool IsAccessibilityFocusable() = 0;
 
   ///
-  /// Request keyboard focus. If this View is focusable it will become the
-  /// focused View.
+  /// Returns true if this View has focus in the context of the containing
+  /// Window. Check both this method and CefWindow::IsActive to determine global
+  /// keyboard focus.
+  ///
+  /*--cef()--*/
+  virtual bool HasFocus() = 0;
+
+  ///
+  /// Request focus for this View in the context of the containing Window. If
+  /// this View is focusable it will become the focused View. Any focus changes
+  /// while a Window is not active may be applied after that Window next becomes
+  /// active.
   ///
   /*--cef()--*/
   virtual void RequestFocus() = 0;

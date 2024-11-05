@@ -298,6 +298,16 @@ bool CefWindowImpl::IsFullscreen() {
   return false;
 }
 
+CefRefPtr<CefView> CefWindowImpl::GetFocusedView() {
+  CEF_REQUIRE_VALID_RETURN(nullptr);
+  if (widget_ && widget_->GetFocusManager()) {
+    if (auto* focused_view = widget_->GetFocusManager()->GetFocusedView()) {
+      return view_util::GetFor(focused_view, /*find_known_parent=*/true);
+    }
+  }
+  return nullptr;
+}
+
 void CefWindowImpl::SetTitle(const CefString& title) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (root_view()) {

@@ -401,6 +401,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter, public CefViewClass {
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
@@ -656,23 +657,29 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsEnabled() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetFocusBehavior(focusable ? views::View::FocusBehavior::ALWAYS
-                                          : views::View::FocusBehavior::NEVER);
+  content_view()->SetFocusBehavior(focusable
+                                       ? views::View::FocusBehavior::ALWAYS
+                                       : views::View::FocusBehavior::NEVER);
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsFocusable() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->IsFocusable();
+  return content_view()->IsFocusable();
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsAccessibilityFocusable() {
   CEF_REQUIRE_VALID_RETURN(false);
-  return root_view()->GetViewAccessibility().IsAccessibilityFocusable();
+  return content_view()->GetViewAccessibility().IsAccessibilityFocusable();
+}
+
+CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::HasFocus() {
+  CEF_REQUIRE_VALID_RETURN(false);
+  return content_view()->HasFocus();
 }
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::RequestFocus() {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->RequestFocus();
+  content_view()->RequestFocus();
 }
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetBackgroundColor(cef_color_t color) {

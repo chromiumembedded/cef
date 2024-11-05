@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=51a06f8ad654129497df44179105e8523e1234af$
+// $hash=a1d17102b2aa9df60fa0296cafe9f43d879e20ea$
 //
 
 #include "libcef_dll/cpptoc/views/label_button_cpptoc.h"
@@ -1178,6 +1178,25 @@ label_button_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK label_button_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(self))
+          ->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK label_button_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1528,6 +1547,7 @@ CefLabelButtonCppToC::CefLabelButtonCppToC() {
   GetStruct()->base.base.is_focusable = label_button_is_focusable;
   GetStruct()->base.base.is_accessibility_focusable =
       label_button_is_accessibility_focusable;
+  GetStruct()->base.base.has_focus = label_button_has_focus;
   GetStruct()->base.base.request_focus = label_button_request_focus;
   GetStruct()->base.base.set_background_color =
       label_button_set_background_color;

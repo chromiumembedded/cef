@@ -58,6 +58,7 @@ class CefWindowImpl
   bool IsMaximized() override;
   bool IsMinimized() override;
   bool IsFullscreen() override;
+  CefRefPtr<CefView> GetFocusedView() override;
   void SetTitle(const CefString& title) override;
   CefString GetTitle() override;
   void SetWindowIcon(CefRefPtr<CefImage> image) override;

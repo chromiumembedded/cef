@@ -32,9 +32,7 @@ class ClientHandler : public BaseClientHandler,
                       public CefDisplayHandler,
                       public CefDownloadHandler,
                       public CefDragHandler,
-                      public CefFocusHandler,
                       public CefKeyboardHandler,
-                      public CefLoadHandler,
                       public CefPermissionHandler {
  public:
   // Implement this interface to receive notification of ClientHandler
@@ -82,6 +80,9 @@ class ClientHandler : public BaseClientHandler,
     virtual void OnSetDraggableRegions(
         const std::vector<CefDraggableRegion>& regions) = 0;
 
+    // Called on the UI thread to optionally handle the browser gaining focus.
+    virtual bool OnSetFocus(cef_focus_source_t source) { return false; }
+
     // Set focus to the next/previous control.
     virtual void OnTakeFocus(bool next) {}
 
@@ -111,9 +112,7 @@ class ClientHandler : public BaseClientHandler,
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() override { return this; }
   CefRefPtr<CefDragHandler> GetDragHandler() override { return this; }
-  CefRefPtr<CefFocusHandler> GetFocusHandler() override { return this; }
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
-  CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefPermissionHandler> GetPermissionHandler() override {
     return this;
   }
@@ -422,9 +421,6 @@ class ClientHandler : public BaseClientHandler,
 
   // True if an editable field currently has focus.
   bool focus_on_editable_field_ = false;
-
-  // True for the initial navigation after browser creation.
-  bool initial_navigation_ = true;
 
   DISALLOW_COPY_AND_ASSIGN(ClientHandler);
 };

@@ -33,12 +33,6 @@ class SimpleWindowDelegate : public CefWindowDelegate {
     if (initial_show_state_ != CEF_SHOW_STATE_HIDDEN) {
       window->Show();
     }
-
-    if (initial_show_state_ != CEF_SHOW_STATE_MINIMIZED &&
-        initial_show_state_ != CEF_SHOW_STATE_HIDDEN) {
-      // Give keyboard focus to the browser view.
-      browser_view_->RequestFocus();
-    }
   }
 
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {

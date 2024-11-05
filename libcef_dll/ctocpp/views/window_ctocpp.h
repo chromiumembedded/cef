@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=d0c83991173ca5acb77c4bb8525cca3b645a2b19$
+// $hash=57275bfe260c39a2103f811886704009eb5688fd$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_WINDOW_CTOCPP_H_
@@ -23,8 +23,10 @@
 #include <vector>
 
 #include "include/capi/views/cef_browser_view_capi.h"
+#include "include/capi/views/cef_view_capi.h"
 #include "include/capi/views/cef_window_capi.h"
 #include "include/views/cef_browser_view.h"
+#include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 #include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
@@ -57,6 +59,7 @@ class CefWindowCToCpp
   bool IsMaximized() override;
   bool IsMinimized() override;
   bool IsFullscreen() override;
+  CefRefPtr<CefView> GetFocusedView() override;
   void SetTitle(const CefString& title) override;
   CefString GetTitle() override;
   void SetWindowIcon(CefRefPtr<CefImage> image) override;
@@ -150,6 +153,7 @@ class CefWindowCToCpp
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;

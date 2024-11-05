@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=9c4a2548745464359046f080fa2a07d1438c208b$
+// $hash=1a624e78c1f34412717a3bf45bacc306fbde2b9c$
 //
 
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
@@ -967,6 +967,25 @@ scroll_view_is_accessibility_focusable(struct _cef_view_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK scroll_view_has_focus(struct _cef_view_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  bool _retval =
+      CefScrollViewCppToC::Get(reinterpret_cast<cef_scroll_view_t*>(self))
+          ->HasFocus();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK scroll_view_request_focus(struct _cef_view_t* self) {
   shutdown_checker::AssertNotShutdown();
 
@@ -1304,6 +1323,7 @@ CefScrollViewCppToC::CefScrollViewCppToC() {
   GetStruct()->base.is_focusable = scroll_view_is_focusable;
   GetStruct()->base.is_accessibility_focusable =
       scroll_view_is_accessibility_focusable;
+  GetStruct()->base.has_focus = scroll_view_has_focus;
   GetStruct()->base.request_focus = scroll_view_request_focus;
   GetStruct()->base.set_background_color = scroll_view_set_background_color;
   GetStruct()->base.get_background_color = scroll_view_get_background_color;

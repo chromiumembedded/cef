@@ -888,13 +888,12 @@ bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
                                FocusSource source) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (initial_navigation_) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    if (command_line->HasSwitch(switches::kNoActivate)) {
-      // Don't give focus to the browser on creation.
-      return true;
-    }
+  if (BaseClientHandler::OnSetFocus(browser, source)) {
+    return true;
+  }
+
+  if (delegate_ && delegate_->OnSetFocus(source)) {
+    return true;
   }
 
   return false;
@@ -1009,9 +1008,8 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                          bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (!isLoading && initial_navigation_) {
-    initial_navigation_ = false;
-  }
+  BaseClientHandler::OnLoadingStateChange(browser, isLoading, canGoBack,
+                                          canGoForward);
 
   NotifyLoadingState(isLoading, canGoBack, canGoForward);
 }

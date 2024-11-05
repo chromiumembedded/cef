@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=fbe53f51eb991aeebc5d66da40a894880374e248$
+// $hash=544585f39ed5faa5230674c6a6d636cd12ba344e$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_VIEWS_MENU_BUTTON_CTOCPP_H_
@@ -103,6 +103,7 @@ class CefMenuButtonCToCpp : public CefCToCppRefCounted<CefMenuButtonCToCpp,
   void SetFocusable(bool focusable) override;
   bool IsFocusable() override;
   bool IsAccessibilityFocusable() override;
+  bool HasFocus() override;
   void RequestFocus() override;
   void SetBackgroundColor(cef_color_t color) override;
   cef_color_t GetBackgroundColor() override;
