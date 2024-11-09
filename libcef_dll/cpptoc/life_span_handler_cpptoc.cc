@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=3883fd2aca10df181da30759fcce351fed62d43d$
+// $hash=b3844320e2d708a582a4bc2e3d5f2f143de8f514$
 //
 
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
@@ -29,6 +29,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
     struct _cef_life_span_handler_t* self,
     cef_browser_t* browser,
     cef_frame_t* frame,
+    int popup_id,
     const cef_string_t* target_url,
     const cef_string_t* target_frame_name,
     cef_window_open_disposition_t target_disposition,
@@ -128,7 +129,7 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
 
   // Execute
   bool _retval = CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopup(
-      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame),
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame), popup_id,
       CefString(target_url), CefString(target_frame_name), target_disposition,
       user_gesture ? true : false, popupFeaturesVal, windowInfoObj, clientPtr,
       settingsObj, extra_infoPtr, &no_javascript_accessBool);
@@ -168,6 +169,29 @@ int CEF_CALLBACK life_span_handler_on_before_popup(
 
   // Return type: bool
   return _retval;
+}
+
+void CEF_CALLBACK
+life_span_handler_on_before_popup_aborted(struct _cef_life_span_handler_t* self,
+                                          cef_browser_t* browser,
+                                          int popup_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return;
+  }
+
+  // Execute
+  CefLifeSpanHandlerCppToC::Get(self)->OnBeforePopupAborted(
+      CefBrowserCToCpp::Wrap(browser), popup_id);
 }
 
 void CEF_CALLBACK life_span_handler_on_before_dev_tools_popup(
@@ -365,6 +389,8 @@ life_span_handler_on_before_close(struct _cef_life_span_handler_t* self,
 
 CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC() {
   GetStruct()->on_before_popup = life_span_handler_on_before_popup;
+  GetStruct()->on_before_popup_aborted =
+      life_span_handler_on_before_popup_aborted;
   GetStruct()->on_before_dev_tools_popup =
       life_span_handler_on_before_dev_tools_popup;
   GetStruct()->on_after_created = life_span_handler_on_after_created;

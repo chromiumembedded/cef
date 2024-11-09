@@ -203,6 +203,8 @@ class PopupTestHandler : public TestHandler {
   enum Mode {
     MODE_WINDOW_OPEN,
     MODE_TARGETED_LINK,
+    // The no-referrer popup won't have an opener from the renderer's
+    // perspective, but we still track it from the browser's perspective.
     MODE_NOREFERRER_LINK,
   };
 
@@ -284,6 +286,7 @@ class PopupTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,
@@ -294,7 +297,13 @@ class PopupTestHandler : public TestHandler {
                      CefBrowserSettings& settings,
                      CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
+    EXPECT_FALSE(got_on_before_popup_);
+    EXPECT_FALSE(got_on_before_popup_aborted_);
+    EXPECT_FALSE(got_on_after_created_popup_);
     got_on_before_popup_.yes();
+
+    // Only ever a single popup with this test.
+    EXPECT_EQ(1, popup_id);
 
     const std::string& url = target_url;
     EXPECT_STREQ(url.c_str(), popup_url_.c_str());
@@ -308,6 +317,30 @@ class PopupTestHandler : public TestHandler {
     }
 
     return false;
+  }
+
+  void OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                            int popup_id) override {
+    EXPECT_TRUE(got_on_before_popup_);
+    EXPECT_FALSE(got_on_before_popup_aborted_);
+    EXPECT_FALSE(got_on_after_created_popup_);
+    got_on_before_popup_aborted_.yes();
+
+    // Only ever a single popup with this test.
+    EXPECT_EQ(1, popup_id);
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    if (browser->IsPopup()) {
+      EXPECT_TRUE(got_on_before_popup_);
+      EXPECT_FALSE(got_on_before_popup_aborted_);
+      got_on_after_created_popup_.yes();
+      // Opener is the main browser.
+      EXPECT_EQ(GetBrowserId(), browser->GetHost()->GetOpenerIdentifier());
+    } else {
+      EXPECT_EQ(0, browser->GetHost()->GetOpenerIdentifier());
+    }
+    TestHandler::OnAfterCreated(browser);
   }
 
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
@@ -372,6 +405,8 @@ class PopupTestHandler : public TestHandler {
     // Verify test expectations.
     EXPECT_TRUE(got_load_end1_);
     EXPECT_TRUE(got_on_before_popup_);
+    EXPECT_FALSE(got_on_before_popup_aborted_);
+    EXPECT_TRUE(got_on_after_created_popup_);
     EXPECT_TRUE(got_load_end2_);
     EXPECT_TRUE(got_cookie1_);
     EXPECT_TRUE(got_cookie2_);
@@ -389,6 +424,8 @@ class PopupTestHandler : public TestHandler {
 
   TrackCallback got_load_end1_;
   TrackCallback got_on_before_popup_;
+  TrackCallback got_on_before_popup_aborted_;
+  TrackCallback got_on_after_created_popup_;
   TrackCallback got_load_end2_;
   TrackCallback got_cookie1_;
   TrackCallback got_cookie2_;
@@ -516,6 +553,7 @@ class PopupNavTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,
@@ -527,10 +565,16 @@ class PopupNavTestHandler : public TestHandler {
                      CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override {
     EXPECT_FALSE(got_on_before_popup_);
+    EXPECT_FALSE(got_on_before_popup_aborted_);
     got_on_before_popup_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
-    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+
+    // Only ever a single popup with this test.
+    EXPECT_EQ(1, popup_id);
+    opener_browser_id_ = browser->GetIdentifier();
+    EXPECT_EQ(GetBrowserId(), opener_browser_id_);
+
     EXPECT_STREQ(kPopupNavPageUrl, frame->GetURL().ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
@@ -547,8 +591,32 @@ class PopupNavTestHandler : public TestHandler {
     return (mode_ == DENY);  // Return true to cancel the popup.
   }
 
+  void OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                            int popup_id) override {
+    EXPECT_TRUE(got_on_before_popup_);
+    EXPECT_FALSE(got_on_before_popup_aborted_);
+    got_on_before_popup_aborted_.yes();
+
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
+    // Can't use GetBrowserId() here because the opener is already closing.
+    EXPECT_EQ(opener_browser_id_, browser->GetIdentifier());
+    EXPECT_FALSE(browser->IsValid());
+
+    // Only ever a single popup with this test.
+    EXPECT_EQ(1, popup_id);
+  }
+
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnAfterCreated(browser);
+    if (browser->IsPopup()) {
+      EXPECT_TRUE(got_on_before_popup_);
+      EXPECT_EQ(opener_browser_id_, browser->GetHost()->GetOpenerIdentifier());
+    } else {
+      EXPECT_FALSE(got_on_before_popup_);
+      EXPECT_EQ(0, browser->GetHost()->GetOpenerIdentifier());
+    }
+    EXPECT_FALSE(got_on_before_popup_aborted_);
 
     if (browser->IsPopup() && (mode_ == DESTROY_PARENT_AFTER_CREATION ||
                                mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE)) {
@@ -684,10 +752,24 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_TRUE(got_load_end_);
 
     // OnBeforePopup may come before or after browser destruction with the
-    // DESTROY_PARENT_BEFORE_CREATION* tests.
+    // DESTROY_PARENT_BEFORE_CREATION* tests and Alloy style browsers.
     if (mode_ != DESTROY_PARENT_BEFORE_CREATION &&
         mode_ != DESTROY_PARENT_BEFORE_CREATION_FORCE) {
       EXPECT_TRUE(got_on_before_popup_);
+    } else if (!use_alloy_style_browser()) {
+      EXPECT_FALSE(got_on_before_popup_);
+    }
+
+    if (mode_ == DESTROY_PARENT_DURING_CREATION ||
+        mode_ == DESTROY_PARENT_DURING_CREATION_FORCE ||
+        mode_ == DESTROY_PARENT_AFTER_CREATION ||
+        mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE) {
+      // Timing of Alloy style browsers may not result in abort.
+      if (!use_alloy_style_browser()) {
+        EXPECT_TRUE(got_on_before_popup_aborted_);
+      }
+    } else {
+      EXPECT_FALSE(got_on_before_popup_aborted_);
     }
 
     if (mode_ == ALLOW_CLOSE_POPUP_FIRST || mode_ == ALLOW_CLOSE_POPUP_LAST) {
@@ -737,6 +819,8 @@ class PopupNavTestHandler : public TestHandler {
   const std::string rc_cache_path_;
 
   TrackCallback got_on_before_popup_;
+  int opener_browser_id_ = 0;
+  TrackCallback got_on_before_popup_aborted_;
   TrackCallback got_load_start_;
   TrackCallback got_load_error_;
   TrackCallback got_load_end_;

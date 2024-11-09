@@ -152,6 +152,21 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 }
 
 // static
+CefRefPtr<CefBrowser> CefBrowserHost::GetBrowserByIdentifier(int browser_id) {
+  // Verify that the context is in a valid state.
+  if (!CONTEXT_STATE_VALID()) {
+    DCHECK(false) << "context not valid";
+    return nullptr;
+  }
+
+  if (browser_id <= 0) {
+    return nullptr;
+  }
+
+  return CefBrowserHostBase::GetBrowserForBrowserId(browser_id).get();
+}
+
+// static
 bool CefBrowserCreateParams::IsChromeStyle(const CefWindowInfo* window_info) {
   if (!window_info) {
     return true;

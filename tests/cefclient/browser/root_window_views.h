@@ -105,7 +105,6 @@ class RootWindowViews : public RootWindow,
   // Members set during initialization. Safe to access from any thread.
   std::unique_ptr<RootWindowConfig> config_;
   CefRefPtr<ClientHandler> client_handler_;
-  bool initialized_ = false;
 
   // Only accessed on the main thread.
   CefRefPtr<CefBrowser> browser_;

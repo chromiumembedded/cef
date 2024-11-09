@@ -125,6 +125,8 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     bool use_alloy_style,
     bool with_controls,
     bool with_osr,
+    int opener_browser_id,
+    int popup_id,
     bool is_devtools,
     const CefPopupFeatures& popupFeatures,
     CefWindowInfo& windowInfo,
@@ -142,6 +144,9 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
     return nullptr;
   }
 
+  CHECK_GT(opener_browser_id, 0);
+  CHECK(popup_id > 0 || is_devtools);
+
   SanityCheckWindowConfig(is_devtools, use_views, use_alloy_style, with_osr);
 
   if (!temp_window_ && !use_views) {
@@ -154,6 +159,9 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
 
   scoped_refptr<RootWindow> root_window =
       RootWindow::Create(use_views, use_alloy_style);
+  if (!is_devtools) {
+    root_window->SetPopupId(opener_browser_id, popup_id);
+  }
   root_window->InitAsPopup(this, with_controls, with_osr, popupFeatures,
                            windowInfo, client, settings);
 
@@ -161,6 +169,12 @@ scoped_refptr<RootWindow> RootWindowManager::CreateRootWindowAsPopup(
   OnRootWindowCreated(root_window);
 
   return root_window;
+}
+
+void RootWindowManager::AbortOrClosePopup(int opener_browser_id, int popup_id) {
+  CEF_REQUIRE_UI_THREAD();
+  // Continue on the main thread.
+  OnAbortOrClosePopup(opener_browser_id, popup_id);
 }
 
 scoped_refptr<RootWindow> RootWindowManager::GetWindowForBrowser(
@@ -202,27 +216,47 @@ void RootWindowManager::CloseAllWindows(bool force) {
   }
 }
 
-void RootWindowManager::OtherBrowserCreated() {
+void RootWindowManager::OtherBrowserCreated(int browser_id,
+                                            int opener_browser_id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
     MAIN_POST_CLOSURE(base::BindOnce(&RootWindowManager::OtherBrowserCreated,
-                                     base::Unretained(this)));
+                                     base::Unretained(this), browser_id,
+                                     opener_browser_id));
     return;
   }
 
   other_browser_ct_++;
+
+  // Track ownership of popup browsers that don't have a RootWindow.
+  if (opener_browser_id > 0) {
+    other_browser_owners_[opener_browser_id].insert(browser_id);
+  }
 }
 
-void RootWindowManager::OtherBrowserClosed() {
+void RootWindowManager::OtherBrowserClosed(int browser_id,
+                                           int opener_browser_id) {
   if (!CURRENTLY_ON_MAIN_THREAD()) {
     // Execute this method on the main thread.
     MAIN_POST_CLOSURE(base::BindOnce(&RootWindowManager::OtherBrowserClosed,
-                                     base::Unretained(this)));
+                                     base::Unretained(this), browser_id,
+                                     opener_browser_id));
     return;
   }
 
   DCHECK_GT(other_browser_ct_, 0);
   other_browser_ct_--;
+
+  // Track ownership of popup browsers that don't have a RootWindow.
+  if (opener_browser_id > 0) {
+    DCHECK(other_browser_owners_.contains(opener_browser_id));
+    auto& child_set = other_browser_owners_[opener_browser_id];
+    DCHECK(child_set.contains(browser_id));
+    child_set.erase(browser_id);
+    if (child_set.empty()) {
+      other_browser_owners_.erase(opener_browser_id);
+    }
+  }
 
   MaybeCleanup();
 }
@@ -241,6 +275,55 @@ void RootWindowManager::OnRootWindowCreated(
   if (root_windows_.size() == 1U) {
     // The first root window should be considered the active window.
     OnRootWindowActivated(root_window.get());
+  }
+}
+
+void RootWindowManager::OnAbortOrClosePopup(int opener_browser_id,
+                                            int popup_id) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowManager::OnAbortOrClosePopup,
+                                     base::Unretained(this), opener_browser_id,
+                                     popup_id));
+    return;
+  }
+
+  // Use a copy of |root_windows_| because the original set may be modified
+  // in OnRootWindowDestroyed while iterating.
+  RootWindowSet root_windows = root_windows_;
+
+  // Close or destroy the associated RootWindow(s). This may be a specific popup
+  // (|popup_id| > 0), or all popups if the opener is closing (|popup_id| < 0).
+  for (auto root_window : root_windows) {
+    if (root_window->IsPopupIdMatch(opener_browser_id, popup_id)) {
+      const bool window_created = root_window->IsWindowCreated();
+      LOG(INFO) << (window_created ? "Closing" : "Aborting") << " popup "
+                << root_window->popup_id() << " of browser "
+                << opener_browser_id;
+      if (window_created) {
+        // Close the window in the usual way. Will result in a call to
+        // OnRootWindowDestroyed.
+        root_window->Close(/*force=*/false);
+      } else {
+        // The window was not created, so destroy directly.
+        OnRootWindowDestroyed(root_window.get());
+      }
+    }
+  }
+
+  // Close all other associated popups if the opener is closing. These popups
+  // don't have a RootWindow (e.g. when running with `--use-default-popup`).
+  if (popup_id < 0 && other_browser_owners_.contains(opener_browser_id)) {
+    // Use a copy as the original set may be modified in OtherBrowserClosed
+    // while iterating.
+    auto set = other_browser_owners_[opener_browser_id];
+    for (auto browser_id : set) {
+      if (auto browser = CefBrowserHost::GetBrowserByIdentifier(browser_id)) {
+        LOG(INFO) << "Closing popup browser " << browser_id << " of browser "
+                  << opener_browser_id;
+        browser->GetHost()->CloseBrowser(/*force=*/false);
+      }
+    }
   }
 }
 

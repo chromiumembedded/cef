@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=6aad2ccf30a6c519bbeee64d83866e82a41a48d8$
+// $hash=5a56a530920ced27e4adf06c8ff758c1a42bc6e7$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LIFE_SPAN_HANDLER_CAPI_H_
@@ -62,33 +62,40 @@ typedef struct _cef_life_span_handler_t {
 
   ///
   /// Called on the UI thread before a new popup browser is created. The
-  /// |browser| and |frame| values represent the source of the popup request.
-  /// The |target_url| and |target_frame_name| values indicate where the popup
-  /// browser should navigate and may be NULL if not specified with the request.
-  /// The |target_disposition| value indicates where the user intended to open
-  /// the popup (e.g. current tab, new tab, etc). The |user_gesture| value will
-  /// be true (1) if the popup was opened via explicit user gesture (e.g.
-  /// clicking a link) or false (0) if the popup opened automatically (e.g. via
-  /// the DomContentLoaded event). The |popupFeatures| structure contains
-  /// additional information about the requested popup window. To allow creation
-  /// of the popup browser optionally modify |windowInfo|, |client|, |settings|
-  /// and |no_javascript_access| and return false (0). To cancel creation of the
+  /// |browser| and |frame| values represent the source of the popup request
+  /// (opener browser and frame). The |popup_id| value uniquely identifies the
+  /// popup in the context of the opener browser. The |target_url| and
+  /// |target_frame_name| values indicate where the popup browser should
+  /// navigate and may be NULL if not specified with the request. The
+  /// |target_disposition| value indicates where the user intended to open the
+  /// popup (e.g. current tab, new tab, etc). The |user_gesture| value will be
+  /// true (1) if the popup was opened via explicit user gesture (e.g. clicking
+  /// a link) or false (0) if the popup opened automatically (e.g. via the
+  /// DomContentLoaded event). The |popupFeatures| structure contains additional
+  /// information about the requested popup window. To allow creation of the
+  /// popup browser optionally modify |windowInfo|, |client|, |settings| and
+  /// |no_javascript_access| and return false (0). To cancel creation of the
   /// popup browser return true (1). The |client| and |settings| values will
   /// default to the source browser's values. If the |no_javascript_access|
   /// value is set to false (0) the new browser will not be scriptable and may
   /// not be hosted in the same renderer process as the source browser. Any
   /// modifications to |windowInfo| will be ignored if the parent browser is
-  /// wrapped in a cef_browser_view_t. Popup browser creation will be canceled
-  /// if the parent browser is destroyed before the popup browser creation
-  /// completes (indicated by a call to OnAfterCreated for the popup browser).
-  /// The |extra_info| parameter provides an opportunity to specify extra
-  /// information specific to the created popup browser that will be passed to
+  /// wrapped in a cef_browser_view_t. The |extra_info| parameter provides an
+  /// opportunity to specify extra information specific to the created popup
+  /// browser that will be passed to
   /// cef_render_process_handler_t::on_browser_created() in the render process.
+  ///
+  /// If popup browser creation succeeds then OnAfterCreated will be called for
+  /// the new popup browser. If popup browser creation fails, and if the opener
+  /// browser has not yet been destroyed, then OnBeforePopupAborted will be
+  /// called for the opener browser. See OnBeforePopupAborted documentation for
+  /// additional details.
   ///
   int(CEF_CALLBACK* on_before_popup)(
       struct _cef_life_span_handler_t* self,
       struct _cef_browser_t* browser,
       struct _cef_frame_t* frame,
+      int popup_id,
       const cef_string_t* target_url,
       const cef_string_t* target_frame_name,
       cef_window_open_disposition_t target_disposition,
@@ -99,6 +106,26 @@ typedef struct _cef_life_span_handler_t {
       struct _cef_browser_settings_t* settings,
       struct _cef_dictionary_value_t** extra_info,
       int* no_javascript_access);
+
+  ///
+  /// Called on the UI thread if a new popup browser is aborted. This only
+  /// occurs if the popup is allowed in OnBeforePopup and creation fails before
+  /// OnAfterCreated is called for the new popup browser. The |browser| value is
+  /// the source of the popup request (opener browser). The |popup_id| value
+  /// uniquely identifies the popup in the context of the opener browser, and is
+  /// the same value that was passed to OnBeforePopup.
+  ///
+  /// Any client state associated with pending popups should be cleared in
+  /// OnBeforePopupAborted, OnAfterCreated of the popup browser, or
+  /// OnBeforeClose of the opener browser. OnBeforeClose of the opener browser
+  /// may be called before this function in cases where the opener is closing
+  /// during popup creation, in which case cef_browser_host_t::IsValid will
+  /// return false (0) in this function.
+  ///
+  void(CEF_CALLBACK* on_before_popup_aborted)(
+      struct _cef_life_span_handler_t* self,
+      struct _cef_browser_t* browser,
+      int popup_id);
 
   ///
   /// Called on the UI thread before a new DevTools popup browser is created.
@@ -252,10 +279,11 @@ typedef struct _cef_life_span_handler_t {
   /// browser object and do not attempt to execute any functions on the browser
   /// object (other than IsValid, GetIdentifier or IsSame) after this callback
   /// returns. cef_frame_handler_t callbacks related to final main frame
-  /// destruction will arrive after this callback and cef_browser_t::IsValid
-  /// will return false (0) at that time. Any in-progress network requests
-  /// associated with |browser| will be aborted when the browser is destroyed,
-  /// and cef_resource_request_handler_t callbacks related to those requests may
+  /// destruction, and OnBeforePopupAborted callbacks for any pending popups,
+  /// will arrive after this callback and cef_browser_t::IsValid will return
+  /// false (0) at that time. Any in-progress network requests associated with
+  /// |browser| will be aborted when the browser is destroyed, and
+  /// cef_resource_request_handler_t callbacks related to those requests may
   /// still arrive on the IO thread after this callback. See cef_frame_handler_t
   /// and do_close() documentation for additional usage information.
   ///

@@ -131,7 +131,6 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   bool is_popup_;
   CefRect start_rect_;
   std::unique_ptr<BrowserWindow> browser_window_;
-  bool initialized_;
 
   // Main window.
   GtkWidget* window_;

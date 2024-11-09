@@ -924,6 +924,7 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
+    int popup_id,
     const CefString& target_url,
     const CefString& target_frame_name,
     CefLifeSpanHandler::WindowOpenDisposition target_disposition,
@@ -944,11 +945,18 @@ bool ClientHandler::OnBeforePopup(
 
   // Potentially create a new RootWindow for the popup browser that will be
   // created asynchronously.
-  CreatePopupWindow(browser, /*is_devtools=*/false, popupFeatures, windowInfo,
-                    client, settings);
+  CreatePopupWindow(browser, popup_id, /*is_devtools=*/false, popupFeatures,
+                    windowInfo, client, settings);
 
   // Allow popup creation.
   return false;
+}
+
+void ClientHandler::OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                                         int popup_id) {
+  CEF_REQUIRE_UI_THREAD();
+  MainContext::Get()->GetRootWindowManager()->AbortOrClosePopup(
+      browser->GetIdentifier(), popup_id);
 }
 
 void ClientHandler::OnBeforeDevToolsPopup(
@@ -962,8 +970,8 @@ void ClientHandler::OnBeforeDevToolsPopup(
 
   // Potentially create a new RootWindow for the DevTools popup browser that
   // will be created immediately after this method returns.
-  if (!CreatePopupWindow(browser, /*is_devtools=*/true, CefPopupFeatures(),
-                         windowInfo, client, settings)) {
+  if (!CreatePopupWindow(browser, /*popup_id=*/-1, /*is_devtools=*/true,
+                         CefPopupFeatures(), windowInfo, client, settings)) {
     *use_default_window = true;
   }
 }
@@ -998,6 +1006,10 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  // Close all popups that have this browser as the opener.
+  OnBeforePopupAborted(browser, /*popup_id=*/-1);
+
   BaseClientHandler::OnBeforeClose(browser);
   NotifyBrowserClosed(browser);
 }
@@ -1308,6 +1320,7 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
 }
 
 bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
+                                      int popup_id,
                                       bool is_devtools,
                                       const CefPopupFeatures& popupFeatures,
                                       CefWindowInfo& windowInfo,
@@ -1320,7 +1333,8 @@ bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,
   // May return nullptr if UseDefaultPopup() returns true.
   return !!MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
       use_views_, use_alloy_style_, with_controls_ && !is_devtools, is_osr_,
-      is_devtools, popupFeatures, windowInfo, client, settings);
+      browser->GetIdentifier(), popup_id, is_devtools, popupFeatures,
+      windowInfo, client, settings);
 }
 
 void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {

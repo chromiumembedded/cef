@@ -480,6 +480,10 @@ void CefBrowserHostBase::SetFocus(bool focus) {
   }
 }
 
+int CefBrowserHostBase::GetOpenerIdentifier() {
+  return opener_id_;
+}
+
 void CefBrowserHostBase::RunFileDialog(
     FileDialogMode mode,
     const CefString& title,
@@ -1443,6 +1447,11 @@ bool CefBrowserHostBase::IsVisible() const {
     }
   }
   return false;
+}
+
+int CefBrowserHostBase::GetNextPopupId() {
+  CEF_REQUIRE_UIT();
+  return next_popup_id_++;
 }
 
 bool CefBrowserHostBase::EnsureDevToolsProtocolManager() {

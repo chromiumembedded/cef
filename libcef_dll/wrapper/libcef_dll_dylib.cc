@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=85864cf7616899c4d51fbaf995d8e0db55249bd7$
+// $hash=c4ecb087f15c4b73a529efc0b0715064ebb7fe2b$
 //
 
 #include <dlfcn.h>
@@ -152,6 +152,8 @@ struct libcef_pointers {
   decltype(&cef_browser_host_create_browser) cef_browser_host_create_browser;
   decltype(&cef_browser_host_create_browser_sync)
       cef_browser_host_create_browser_sync;
+  decltype(&cef_browser_host_get_browser_by_identifier)
+      cef_browser_host_get_browser_by_identifier;
   decltype(&cef_command_line_create) cef_command_line_create;
   decltype(&cef_command_line_get_global) cef_command_line_get_global;
   decltype(&cef_cookie_manager_get_global_manager)
@@ -397,6 +399,7 @@ int libcef_init_pointers(const char* path) {
   INIT_ENTRY(cef_is_feature_enabled_for_tests);
   INIT_ENTRY(cef_browser_host_create_browser);
   INIT_ENTRY(cef_browser_host_create_browser_sync);
+  INIT_ENTRY(cef_browser_host_get_browser_by_identifier);
   INIT_ENTRY(cef_command_line_create);
   INIT_ENTRY(cef_command_line_get_global);
   INIT_ENTRY(cef_cookie_manager_get_global_manager);
@@ -899,6 +902,13 @@ struct _cef_browser_t* cef_browser_host_create_browser_sync(
     struct _cef_request_context_t* request_context) {
   return g_libcef_pointers.cef_browser_host_create_browser_sync(
       windowInfo, client, url, settings, extra_info, request_context);
+}
+
+NO_SANITIZE("cfi-icall")
+struct _cef_browser_t* cef_browser_host_get_browser_by_identifier(
+    int browser_id) {
+  return g_libcef_pointers.cef_browser_host_get_browser_by_identifier(
+      browser_id);
 }
 
 NO_SANITIZE("cfi-icall") struct _cef_command_line_t* cef_command_line_create() {

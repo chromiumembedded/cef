@@ -220,6 +220,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   bool HasView() override;
   bool IsReadyToBeClosed() override;
   void SetFocus(bool focus) override;
+  int GetOpenerIdentifier() override;
   void RunFileDialog(FileDialogMode mode,
                      const CefString& title,
                      const CefString& default_file_path,
@@ -418,6 +419,10 @@ class CefBrowserHostBase : public CefBrowserHost,
   // Returns true if this browser is currently visible.
   virtual bool IsVisible() const;
 
+  // Returns the next popup ID for use with OnBeforePopup. Must be called on
+  // the UI thread.
+  int GetNextPopupId();
+
  protected:
   bool EnsureDevToolsProtocolManager();
   void InitializeDevToolsRegistrationOnUIThread(
@@ -439,6 +444,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefRefPtr<CefRequestContextImpl> request_context_;
   const bool is_views_hosted_;
+  int opener_id_ = 0;
 
   // Only accessed on the UI thread.
   CefBrowserContentsDelegate contents_delegate_;
@@ -472,6 +478,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   std::unique_ptr<CefDevToolsWindowRunner> devtools_window_runner_;
 
   std::unique_ptr<CefMediaStreamRegistrar> media_stream_registrar_;
+
+  int next_popup_id_ = 1;
 
  private:
   IMPLEMENT_REFCOUNTING(CefBrowserHostBase);

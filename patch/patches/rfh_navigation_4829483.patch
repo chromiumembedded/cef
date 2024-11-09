@@ -1,8 +1,25 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 98c865765c57d..7694cd4516dc9 100644
+index 98c865765c57d..f31210f9c3070 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -11466,6 +11466,7 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -9125,6 +9125,16 @@ void RenderFrameHostImpl::CreateNewWindow(
+     return;
+   }
+ 
++  callback = base::BindOnce(
++      [](RenderFrameHostImpl* self,
++         CreateNewWindowCallback callback,
++         mojom::CreateNewWindowStatus status,
++         mojom::CreateNewWindowReplyPtr reply) {
++        GetContentClient()->browser()->CreateWindowResult(
++            self, status == mojom::CreateNewWindowStatus::kSuccess);
++        std::move(callback).Run(status, std::move(reply));
++      }, base::Unretained(this), std::move(callback));
++
+   // Otherwise, consume user activation before we proceed. In particular, it is
+   // important to do this before we return from the |opener_suppressed| case
+   // below.
+@@ -11466,6 +11476,7 @@ void RenderFrameHostImpl::CommitNavigation(
    auto browser_calc_origin_to_commit =
        navigation_request->GetOriginToCommitWithDebugInfo();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&

@@ -126,7 +126,6 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
   std::unique_ptr<BrowserWindow> browser_window_;
   CefBrowserSettings browser_settings_;
-  bool initialized_ = false;
 
   // Main window.
   HWND hwnd_ = nullptr;

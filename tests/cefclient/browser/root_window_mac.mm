@@ -240,7 +240,6 @@ class RootWindowMacImpl
   CefRect initial_bounds_;
   cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
   std::unique_ptr<BrowserWindow> browser_window_;
-  bool initialized_ = false;
 
   // Main window.
   NSWindow* window_ = nil;
@@ -273,7 +272,7 @@ RootWindowMacImpl::~RootWindowMacImpl() {
 void RootWindowMacImpl::Init(RootWindow::Delegate* delegate,
                              std::unique_ptr<RootWindowConfig> config,
                              const CefBrowserSettings& settings) {
-  DCHECK(!initialized_);
+  DCHECK(!root_window_.initialized_);
 
   with_controls_ = config->with_controls;
   with_osr_ = config->with_osr;
@@ -294,7 +293,7 @@ void RootWindowMacImpl::Init(RootWindow::Delegate* delegate,
 
   CreateBrowserWindow(config->url);
 
-  initialized_ = true;
+  root_window_.initialized_ = true;
 
   CreateRootWindow(settings, config->initially_hidden);
 }
@@ -307,7 +306,7 @@ void RootWindowMacImpl::InitAsPopup(RootWindow::Delegate* delegate,
                                     CefRefPtr<CefClient>& client,
                                     CefBrowserSettings& settings) {
   DCHECK(delegate);
-  DCHECK(!initialized_);
+  DCHECK(!root_window_.initialized_);
 
   with_controls_ = with_controls;
   with_osr_ = with_osr;
@@ -328,7 +327,7 @@ void RootWindowMacImpl::InitAsPopup(RootWindow::Delegate* delegate,
 
   CreateBrowserWindow(std::string());
 
-  initialized_ = true;
+  root_window_.initialized_ = true;
 
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
@@ -632,6 +631,8 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
     // Show the window.
     Show(mode);
   }
+
+  root_window_.window_created_ = true;
 }
 
 void RootWindowMacImpl::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {

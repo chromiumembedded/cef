@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=8a2a8a4853c3869876ffad3e6c175945ac1c5021$
+// $hash=c7458f64a0d7c8537dbdbcf34d11e62bf781428c$
 //
 
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
@@ -136,6 +136,20 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
   return CefBrowserCppToC::Wrap(_retval);
 }
 
+CEF_EXPORT cef_browser_t* cef_browser_host_get_browser_by_identifier(
+    int browser_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefRefPtr<CefBrowser> _retval =
+      CefBrowserHost::GetBrowserByIdentifier(browser_id);
+
+  // Return type: refptr_same
+  return CefBrowserCppToC::Wrap(_retval);
+}
+
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -257,6 +271,24 @@ browser_host_get_opener_window_handle(struct _cef_browser_host_t* self) {
   // Execute
   cef_window_handle_t _retval =
       CefBrowserHostCppToC::Get(self)->GetOpenerWindowHandle();
+
+  // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK
+browser_host_get_opener_identifier(struct _cef_browser_host_t* self) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return 0;
+  }
+
+  // Execute
+  int _retval = CefBrowserHostCppToC::Get(self)->GetOpenerIdentifier();
 
   // Return type: simple
   return _retval;
@@ -1536,6 +1568,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->set_focus = browser_host_set_focus;
   GetStruct()->get_window_handle = browser_host_get_window_handle;
   GetStruct()->get_opener_window_handle = browser_host_get_opener_window_handle;
+  GetStruct()->get_opener_identifier = browser_host_get_opener_identifier;
   GetStruct()->has_view = browser_host_has_view;
   GetStruct()->get_client = browser_host_get_client;
   GetStruct()->get_request_context = browser_host_get_request_context;

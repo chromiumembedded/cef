@@ -235,6 +235,17 @@ void RootWindowViews::OnViewsWindowCreated(CefRefPtr<ViewsWindow> window) {
   DCHECK(!window_);
   window_ = window;
   window_->SetAlwaysOnTop(config_->always_on_top);
+
+  if (CURRENTLY_ON_MAIN_THREAD()) {
+    window_created_ = true;
+  } else {
+    // Execute on the main thread.
+    MAIN_POST_CLOSURE(base::BindOnce(
+        [](scoped_refptr<RootWindowViews> self) {
+          self->window_created_ = true;
+        },
+        scoped_refptr<RootWindowViews>(this)));
+  }
 }
 
 void RootWindowViews::OnViewsWindowClosing(CefRefPtr<ViewsWindow> window) {

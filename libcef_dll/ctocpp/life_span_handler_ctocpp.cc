@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=f8686b23625810a3c7ceab1097eced10acec16ce$
+// $hash=fb1397bef33af6e40385469551b2037eeed8c390$
 //
 
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
@@ -26,6 +26,7 @@ NO_SANITIZE("cfi-icall")
 bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
+    int popup_id,
     const CefString& target_url,
     const CefString& target_frame_name,
     WindowOpenDisposition target_disposition,
@@ -81,9 +82,9 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
   // Execute
   int _retval = _struct->on_before_popup(
       _struct, CefBrowserCppToC::Wrap(browser), CefFrameCppToC::Wrap(frame),
-      target_url.GetStruct(), target_frame_name.GetStruct(), target_disposition,
-      user_gesture, &popupFeatures, &windowInfo, &clientStruct, &settings,
-      &extra_infoStruct, &no_javascript_accessInt);
+      popup_id, target_url.GetStruct(), target_frame_name.GetStruct(),
+      target_disposition, user_gesture, &popupFeatures, &windowInfo,
+      &clientStruct, &settings, &extra_infoStruct, &no_javascript_accessInt);
 
   // Restore param:client; type: refptr_same_byref
   if (clientStruct) {
@@ -108,6 +109,30 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(
 
   // Return type: bool
   return _retval ? true : false;
+}
+
+NO_SANITIZE("cfi-icall")
+void CefLifeSpanHandlerCToCpp::OnBeforePopupAborted(
+    CefRefPtr<CefBrowser> browser,
+    int popup_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_life_span_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_popup_aborted)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_before_popup_aborted(_struct, CefBrowserCppToC::Wrap(browser),
+                                   popup_id);
 }
 
 NO_SANITIZE("cfi-icall")

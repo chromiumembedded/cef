@@ -325,6 +325,12 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
       CefRefPtr<CefRequestContext> request_context);
 
   ///
+  /// Returns the browser (if any) with the specified identifier.
+  ///
+  /*--cef()--*/
+  static CefRefPtr<CefBrowser> GetBrowserByIdentifier(int browser_id);
+
+  ///
   /// Returns the hosted browser object.
   ///
   /*--cef()--*/
@@ -411,6 +417,13 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetOpenerWindowHandle() = 0;
+
+  ///
+  /// Retrieve the unique identifier of the browser that opened this browser.
+  /// Will return 0 for non-popup browsers.
+  ///
+  /*--cef()--*/
+  virtual int GetOpenerIdentifier() = 0;
 
   ///
   /// Returns true if this browser is wrapped in a CefBrowserView.

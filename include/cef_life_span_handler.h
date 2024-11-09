@@ -55,13 +55,15 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
 
   ///
   /// Called on the UI thread before a new popup browser is created. The
-  /// |browser| and |frame| values represent the source of the popup request.
-  /// The |target_url| and |target_frame_name| values indicate where the popup
-  /// browser should navigate and may be empty if not specified with the
-  /// request. The |target_disposition| value indicates where the user intended
-  /// to open the popup (e.g. current tab, new tab, etc). The |user_gesture|
-  /// value will be true if the popup was opened via explicit user gesture (e.g.
-  /// clicking a link) or false if the popup opened automatically (e.g. via the
+  /// |browser| and |frame| values represent the source of the popup request
+  /// (opener browser and frame). The |popup_id| value uniquely identifies the
+  /// popup in the context of the opener browser. The |target_url| and
+  /// |target_frame_name| values indicate where the popup browser should
+  /// navigate and may be empty if not specified with the request. The
+  /// |target_disposition| value indicates where the user intended to open the
+  /// popup (e.g. current tab, new tab, etc). The |user_gesture| value will be
+  /// true if the popup was opened via explicit user gesture (e.g. clicking a
+  /// link) or false if the popup opened automatically (e.g. via the
   /// DomContentLoaded event). The |popupFeatures| structure contains additional
   /// information about the requested popup window. To allow creation of the
   /// popup browser optionally modify |windowInfo|, |client|, |settings| and
@@ -71,16 +73,21 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   /// false the new browser will not be scriptable and may not be hosted in the
   /// same renderer process as the source browser. Any modifications to
   /// |windowInfo| will be ignored if the parent browser is wrapped in a
-  /// CefBrowserView. Popup browser creation will be canceled if the parent
-  /// browser is destroyed before the popup browser creation completes
-  /// (indicated by a call to OnAfterCreated for the popup browser). The
-  /// |extra_info| parameter provides an opportunity to specify extra
-  /// information specific to the created popup browser that will be passed to
-  /// CefRenderProcessHandler::OnBrowserCreated() in the render process.
+  /// CefBrowserView. The |extra_info| parameter provides an opportunity to
+  /// specify extra information specific to the created popup browser that will
+  /// be passed to CefRenderProcessHandler::OnBrowserCreated() in the render
+  /// process.
+  ///
+  /// If popup browser creation succeeds then OnAfterCreated will be called for
+  /// the new popup browser. If popup browser creation fails, and if the opener
+  /// browser has not yet been destroyed, then OnBeforePopupAborted will be
+  /// called for the opener browser. See OnBeforePopupAborted documentation for
+  /// additional details.
   ///
   /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                              CefRefPtr<CefFrame> frame,
+                             int popup_id,
                              const CefString& target_url,
                              const CefString& target_frame_name,
                              WindowOpenDisposition target_disposition,
@@ -93,6 +100,25 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
                              bool* no_javascript_access) {
     return false;
   }
+
+  ///
+  /// Called on the UI thread if a new popup browser is aborted. This only
+  /// occurs if the popup is allowed in OnBeforePopup and creation fails before
+  /// OnAfterCreated is called for the new popup browser. The |browser| value is
+  /// the source of the popup request (opener browser). The |popup_id| value
+  /// uniquely identifies the popup in the context of the opener browser, and is
+  /// the same value that was passed to OnBeforePopup.
+  ///
+  /// Any client state associated with pending popups should be cleared in
+  /// OnBeforePopupAborted, OnAfterCreated of the popup browser, or
+  /// OnBeforeClose of the opener browser. OnBeforeClose of the opener browser
+  /// may be called before this method in cases where the opener is closing
+  /// during popup creation, in which case CefBrowserHost::IsValid will return
+  /// false in this method.
+  ///
+  /*--cef()--*/
+  virtual void OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                                    int popup_id) {}
 
   ///
   /// Called on the UI thread before a new DevTools popup browser is created.
@@ -242,7 +268,8 @@ class CefLifeSpanHandler : public virtual CefBaseRefCounted {
   /// Called just before a browser is destroyed. Release all references to the
   /// browser object and do not attempt to execute any methods on the browser
   /// object (other than IsValid, GetIdentifier or IsSame) after this callback
-  /// returns. CefFrameHandler callbacks related to final main frame destruction
+  /// returns. CefFrameHandler callbacks related to final main frame
+  /// destruction, and OnBeforePopupAborted callbacks for any pending popups,
   /// will arrive after this callback and CefBrowser::IsValid will return false
   /// at that time. Any in-progress network requests associated with |browser|
   /// will be aborted when the browser is destroyed, and
