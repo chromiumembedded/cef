@@ -1480,6 +1480,7 @@ class OrderNavTestHandler : public TestHandler {
   bool OnBeforePopup(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
+      int popup_id,
       const CefString& target_url,
       const CefString& target_frame_name,
       CefLifeSpanHandler::WindowOpenDisposition target_disposition,
@@ -2270,6 +2271,7 @@ class PopupSimultaneousTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,
@@ -2429,6 +2431,7 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,
@@ -2576,6 +2579,7 @@ class PopupJSWindowEmptyTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,
@@ -3602,6 +3606,7 @@ class ExtraInfoNavTestHandler : public TestHandler {
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      cef_window_open_disposition_t target_disposition,

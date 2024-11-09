@@ -174,7 +174,8 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   DestructionState destruction_state() const { return destruction_state_; }
 
   // content::WebContentsDelegate methods.
-  void PrintCrossProcessSubframe(content::WebContents* web_contents,
+  void PrintCrossProcessSubframe(
+      content::WebContents* web_contents,
       const gfx::Rect& rect,
       int document_cookie,
       content::RenderFrameHost* subframe_host) const override;
@@ -317,7 +318,7 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
   void StartAudioCapturer();
   void OnRecentlyAudibleTimerFired();
 
-  CefWindowHandle opener_;
+  CefWindowHandle opener_window_handle_ = kNullWindowHandle;
   const bool is_windowless_;
   CefWindowHandle host_window_handle_ = kNullWindowHandle;
 

@@ -29,4 +29,28 @@ scoped_refptr<RootWindow> RootWindow::GetForBrowser(int browser_id) {
       browser_id);
 }
 
+bool RootWindow::IsWindowCreated() const {
+  REQUIRE_MAIN_THREAD();
+  return window_created_;
+}
+
+void RootWindow::SetPopupId(int opener_browser_id, int popup_id) {
+  DCHECK_GT(opener_browser_id, 0);
+  DCHECK_GT(popup_id, 0);
+  opener_browser_id_ = opener_browser_id;
+  popup_id_ = popup_id;
+}
+
+bool RootWindow::IsPopupIdMatch(int opener_browser_id, int popup_id) const {
+  if (opener_browser_id_ == 0 || popup_id_ == 0) {
+    // Not a popup.
+    return false;
+  }
+  if (popup_id < 0) {
+    // Only checking the opener.
+    return opener_browser_id == opener_browser_id_;
+  }
+  return opener_browser_id == opener_browser_id_ && popup_id == popup_id_;
+}
+
 }  // namespace client

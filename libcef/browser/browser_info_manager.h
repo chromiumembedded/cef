@@ -82,6 +82,10 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                        bool opener_suppressed,
                        bool* no_javascript_access);
 
+  // Called from ContentBrowserClient::CreateWindowResult if CanCreateWindow
+  // returns true. See comments on PendingPopup for more information.
+  void CreateWindowResult(content::RenderFrameHost* opener, bool success);
+
   // Called from WebContentsDelegate::GetCustomWebContentsView (Alloy style
   // only). See comments on PendingPopup for more information.
   void GetCustomWebContentsView(
@@ -161,23 +165,33 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // RenderProcessHostObserver methods:
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
 
-  // Store state information about pending popups. Call order is:
+  // Store state information about pending popups. The UIT callbacks occur
+  // synchronously during RenderFrameHostImpl::CreateNewWindow execution. The
+  // result of CreateNewWindow execution will be passed to CreateWindowResult
+  // (may call OnBeforePopupAborted; see documentation in that method). Call
+  // order for successful popup creation is is:
   // - CanCreateWindow (UIT):
   //   Provides an opportunity to cancel the popup (calls OnBeforePopup) and
   //   creates the new platform delegate for the popup. If the popup owner is
   //   an extension guest view (PDF viewer) then the popup is canceled and
   //   WebContentsDelegate::OpenURLFromTab is called via the
   //   CefBrowserHostBase::MaybeAllowNavigation implementation.
-  // And then the following calls may occur at the same time:
+  // And then the following UIT and IOT calls may occur at the same time:
   // - GetCustomWebContentsView (UIT) (Alloy style only):
   //   Creates the OSR views for windowless popups.
   // - WebContentsCreated (UIT):
-  //   Creates the CefBrowserHost representation for the popup.
+  //   Creates the CefBrowserHost representation for the popup (calls
+  //   OnAfterCreated).
   // - AddWebContents (UIT) (Chrome style only):
   //   Creates the Browser or tab representation for the popup.
   // - CefBrowserManager::GetNewBrowserInfo (IOT)
   //   Passes information about the popup to the renderer process.
   struct PendingPopup {
+    ~PendingPopup();
+
+    // Used to notify if popup creation is aborted.
+    base::OnceClosure aborted_callback;
+
     // Track the last method that modified this PendingPopup instance. There may
     // be multiple pending popups with the same identifiers and this allows us
     // to differentiate between them at different processing steps.
@@ -185,6 +199,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       CAN_CREATE_WINDOW,
       GET_CUSTOM_WEB_CONTENTS_VIEW,
       WEB_CONTENTS_CREATED,
+      CREATION_COMPLETE,
     } step;
 
     // True if this popup is Alloy style, otherwise Chrome style.
@@ -285,6 +300,11 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Only accessed on the UI thread.
   using PendingPopupList = std::vector<std::unique_ptr<PendingPopup>>;
   PendingPopupList pending_popup_list_;
+
+  // Current popup pending creation during RenderFrameHostImpl::CreateNewWindow
+  // execution (valid from CanCreateWindow returning true to WebContentsCreated
+  // or CreateWindowResult being called). Only accessed on the UI thread.
+  raw_ptr<PendingPopup> pending_create_popup_ = nullptr;
 
   int next_timeout_id_ = 0;
 };

@@ -29,6 +29,7 @@ class DefaultClientHandler : public BaseClientHandler {
   bool OnBeforePopup(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
+      int popup_id,
       const CefString& target_url,
       const CefString& target_frame_name,
       CefLifeSpanHandler::WindowOpenDisposition target_disposition,
@@ -39,6 +40,9 @@ class DefaultClientHandler : public BaseClientHandler {
       CefBrowserSettings& settings,
       CefRefPtr<CefDictionaryValue>& extra_info,
       bool* no_javascript_access) override;
+  void OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                            int popup_id) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
  private:
   // Used to determine the object type.

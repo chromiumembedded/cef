@@ -1017,6 +1017,8 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     browser_window_->ShowPopup(hwnd_, rect.left, rect.top,
                                rect.right - rect.left, rect.bottom - rect.top);
   }
+
+  window_created_ = true;
 }
 
 bool RootWindowWin::OnClose() {

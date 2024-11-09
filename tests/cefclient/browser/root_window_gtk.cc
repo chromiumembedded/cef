@@ -86,7 +86,6 @@ RootWindowGtk::RootWindowGtk(bool use_alloy_style)
       always_on_top_(false),
       with_osr_(false),
       is_popup_(false),
-      initialized_(false),
       window_(nullptr),
       back_button_(nullptr),
       forward_button_(nullptr),
@@ -443,6 +442,8 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
     browser_window_->ShowPopup(parent, browser_bounds_.x, browser_bounds_.y,
                                browser_bounds_.width, browser_bounds_.height);
   }
+
+  window_created_ = true;
 }
 
 void RootWindowGtk::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {

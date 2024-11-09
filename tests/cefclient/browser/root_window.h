@@ -209,6 +209,19 @@ class RootWindow
   // Returns true if this window is using windowless rendering (osr).
   virtual bool WithWindowlessRendering() const = 0;
 
+  // Returns true if this object has been initialized.
+  bool IsInitialized() const { return initialized_; }
+
+  // Returns true if the platform window has been created.
+  bool IsWindowCreated() const;
+
+  // Used to uniquely identify popup windows.
+  void SetPopupId(int opener_browser_id, int popup_id);
+  // If |popup_id| is -1 only match |opener_browser_id|.
+  bool IsPopupIdMatch(int opener_browser_id, int popup_id) const;
+  int opener_browser_id() const { return opener_browser_id_; }
+  int popup_id() const { return popup_id_; }
+
  protected:
   // Allow deletion via scoped_refptr only.
   friend struct DeleteOnMainThread;
@@ -217,10 +230,19 @@ class RootWindow
   explicit RootWindow(bool use_alloy_style);
   virtual ~RootWindow();
 
+  // Members set during initialization. Safe to access from any thread.
   Delegate* delegate_ = nullptr;
+  bool initialized_ = false;
+
+  // Only accessed on the main thread.
+  bool window_created_ = false;
 
  private:
   const bool use_alloy_style_;
+
+  // Members set during initialization. Safe to access from any thread.
+  int opener_browser_id_ = 0;
+  int popup_id_ = 0;
 };
 
 }  // namespace client

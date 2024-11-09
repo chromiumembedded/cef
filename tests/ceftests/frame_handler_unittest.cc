@@ -412,6 +412,11 @@ struct FrameStatus {
       EXPECT_FALSE(browser->IsValid()) << func;
     }
 
+    const auto browser_id = browser->GetIdentifier();
+    EXPECT_GT(browser_id, 0) << func;
+    auto get_browser = CefBrowserHost::GetBrowserByIdentifier(browser_id);
+    EXPECT_TRUE(get_browser && get_browser->IsSame(browser)) << func;
+
     // Note that this might not be the same main frame as us when navigating
     // cross-origin, because the new main frame object is assigned to the
     // browser before the CefFrameHandler callbacks related to main frame change
@@ -1641,6 +1646,7 @@ class ParentOrderMainTestHandler : public OrderMainTestHandler {
   bool OnBeforePopup(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
+      int popup_id,
       const CefString& target_url,
       const CefString& target_frame_name,
       CefLifeSpanHandler::WindowOpenDisposition target_disposition,

@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=787463118d294d6a9b1004b54fb26b05c9f0a47b$
+// $hash=2e0ae9e4f7e647e43dc4d28fde904298550349e6$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
@@ -39,6 +39,7 @@ class CefLifeSpanHandlerCToCpp
   // CefLifeSpanHandler methods.
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefFrame> frame,
+                     int popup_id,
                      const CefString& target_url,
                      const CefString& target_frame_name,
                      WindowOpenDisposition target_disposition,
@@ -49,6 +50,8 @@ class CefLifeSpanHandlerCToCpp
                      CefBrowserSettings& settings,
                      CefRefPtr<CefDictionaryValue>& extra_info,
                      bool* no_javascript_access) override;
+  void OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                            int popup_id) override;
   void OnBeforeDevToolsPopup(CefRefPtr<CefBrowser> browser,
                              CefWindowInfo& windowInfo,
                              CefRefPtr<CefClient>& client,

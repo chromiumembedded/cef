@@ -500,6 +500,8 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
   DCHECK(web_contents);
 
   if (opener) {
+    opener_id_ = opener->GetIdentifier();
+
     // Give the opener browser's platform delegate an opportunity to modify the
     // new browser's platform delegate.
     opener->platform_delegate()->PopupWebContentsCreated(

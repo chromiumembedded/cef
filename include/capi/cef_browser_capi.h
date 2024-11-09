@@ -33,7 +33,7 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=e9f34d90eb4af614e35cbb29da0639b62acec7fd$
+// $hash=7b8b175b96f59916c09ac0dc9f307d07c1ad7e32$
 //
 
 #ifndef CEF_INCLUDE_CAPI_CEF_BROWSER_CAPI_H_
@@ -379,6 +379,12 @@ typedef struct _cef_browser_host_t {
   ///
   cef_window_handle_t(CEF_CALLBACK* get_opener_window_handle)(
       struct _cef_browser_host_t* self);
+
+  ///
+  /// Retrieve the unique identifier of the browser that opened this browser.
+  /// Will return 0 for non-popup browsers.
+  ///
+  int(CEF_CALLBACK* get_opener_identifier)(struct _cef_browser_host_t* self);
 
   ///
   /// Returns true (1) if this browser is wrapped in a cef_browser_view_t.
@@ -1045,6 +1051,12 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
     const struct _cef_browser_settings_t* settings,
     struct _cef_dictionary_value_t* extra_info,
     struct _cef_request_context_t* request_context);
+
+///
+/// Returns the browser (if any) with the specified identifier.
+///
+CEF_EXPORT cef_browser_t* cef_browser_host_get_browser_by_identifier(
+    int browser_id);
 
 #ifdef __cplusplus
 }

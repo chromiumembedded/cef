@@ -330,7 +330,7 @@ CefWindowHandle AlloyBrowserHostImpl::GetWindowHandle() {
 }
 
 CefWindowHandle AlloyBrowserHostImpl::GetOpenerWindowHandle() {
-  return opener_;
+  return opener_window_handle_;
 }
 
 void AlloyBrowserHostImpl::Find(const CefString& searchText,
@@ -1414,14 +1414,17 @@ AlloyBrowserHostImpl::AlloyBrowserHostImpl(
                          browser_info,
                          request_context),
       content::WebContentsObserver(web_contents),
-      opener_(kNullWindowHandle),
       is_windowless_(platform_delegate_->IsWindowless()) {
   contents_delegate_.ObserveWebContents(web_contents);
 
-  if (opener.get() && !is_views_hosted_) {
-    // GetOpenerWindowHandle() only returns a value for non-views-hosted
-    // popup browsers.
-    opener_ = opener->GetWindowHandle();
+  if (opener.get()) {
+    opener_id_ = opener->GetIdentifier();
+
+    if (!is_views_hosted_) {
+      // GetOpenerWindowHandle() only returns a value for non-views-hosted
+      // popup browsers.
+      opener_window_handle_ = opener->GetWindowHandle();
+    }
   }
 
   // Associate the platform delegate with this browser.

@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_ROOT_WINDOW_MANAGER_H_
 #pragma once
 
+#include <map>
 #include <memory>
 #include <set>
 
@@ -40,11 +41,17 @@ class RootWindowManager : public RootWindow::Delegate {
       bool use_alloy_style,
       bool with_controls,
       bool with_osr,
+      int opener_browser_id,
+      int popup_id,
       bool is_devtools,
       const CefPopupFeatures& popupFeatures,
       CefWindowInfo& windowInfo,
       CefRefPtr<CefClient>& client,
       CefBrowserSettings& settings);
+
+  // Abort or close the popup matching the specified identifiers. If |popup_id|
+  // is -1 then all popups for |opener_browser_id| will be impacted.
+  void AbortOrClosePopup(int opener_browser_id, int popup_id);
 
   // Returns the RootWindow associated with the specified browser ID. Must be
   // called on the main thread.
@@ -63,8 +70,11 @@ class RootWindowManager : public RootWindow::Delegate {
   }
 
   // Track other browsers that are not directly associated with a RootWindow.
-  void OtherBrowserCreated();
-  void OtherBrowserClosed();
+  // This may be an overlay browser, a popup created with `--use-default-popup`,
+  // or a browser using default Chrome UI. |opener_browser_id| will be > 0 for
+  // popup browsers.
+  void OtherBrowserCreated(int browser_id, int opener_browser_id);
+  void OtherBrowserClosed(int browser_id, int opener_browser_id);
 
  private:
   // Allow deletion via std::unique_ptr only.
@@ -73,6 +83,7 @@ class RootWindowManager : public RootWindow::Delegate {
   ~RootWindowManager() override;
 
   void OnRootWindowCreated(scoped_refptr<RootWindow> root_window);
+  void OnAbortOrClosePopup(int opener_browser_id, int popup_id);
 
   // RootWindow::Delegate methods.
   CefRefPtr<CefRequestContext> GetRequestContext() override;
@@ -95,11 +106,18 @@ class RootWindowManager : public RootWindow::Delegate {
   bool request_context_shared_cache_;
 
   // Existing root windows. Only accessed on the main thread.
-  typedef std::set<scoped_refptr<RootWindow>> RootWindowSet;
+  using RootWindowSet = std::set<scoped_refptr<RootWindow>>;
   RootWindowSet root_windows_;
 
-  // Count of other browsers. Only accessed on the main thread.
+  // Count of browsers that are not directly associated with a RootWindow. Only
+  // accessed on the main thread.
   int other_browser_ct_ = 0;
+
+  // Map of owner browser ID to popup browser IDs for popups that don't have a
+  // RootWindow. Only accessed on the main thread.
+  using BrowserIdSet = std::set<int>;
+  using BrowserOwnerMap = std::map<int, BrowserIdSet>;
+  BrowserOwnerMap other_browser_owners_;
 
   // The currently active/foreground RootWindow. Only accessed on the main
   // thread.

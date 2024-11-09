@@ -27,6 +27,7 @@ CefRefPtr<DefaultClientHandler> DefaultClientHandler::GetForClient(
 bool DefaultClientHandler::OnBeforePopup(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
+    int popup_id,
     const CefString& target_url,
     const CefString& target_frame_name,
     CefLifeSpanHandler::WindowOpenDisposition target_disposition,
@@ -52,11 +53,27 @@ bool DefaultClientHandler::OnBeforePopup(
   // created asynchronously.
   MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
       config.use_views, use_alloy_style_, config.with_controls,
-      /*is_osr=*/false, /*is_devtools=*/false, popupFeatures, windowInfo,
-      client, settings);
+      /*is_osr=*/false, browser->GetIdentifier(), popup_id,
+      /*is_devtools=*/false, popupFeatures, windowInfo, client, settings);
 
   // Allow popup creation.
   return false;
+}
+
+void DefaultClientHandler::OnBeforePopupAborted(CefRefPtr<CefBrowser> browser,
+                                                int popup_id) {
+  CEF_REQUIRE_UI_THREAD();
+  MainContext::Get()->GetRootWindowManager()->AbortOrClosePopup(
+      browser->GetIdentifier(), popup_id);
+}
+
+void DefaultClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // Close all popups that have this browser as the opener.
+  OnBeforePopupAborted(browser, /*popup_id=*/-1);
+
+  BaseClientHandler::OnBeforeClose(browser);
 }
 
 }  // namespace client

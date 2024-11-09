@@ -45,6 +45,14 @@ CefBrowserInfoManager* g_info_manager = nullptr;
 
 }  // namespace
 
+CefBrowserInfoManager::PendingPopup::~PendingPopup() {
+  CEF_REQUIRE_UIT();
+  if (step != CREATION_COMPLETE && !aborted_callback.is_null()) {
+    // Notify of pending popup abort.
+    std::move(aborted_callback).Run();
+  }
+}
+
 CefBrowserInfoManager::CefBrowserInfoManager() {
   DCHECK(!g_info_manager);
   g_info_manager = this;
@@ -167,14 +175,35 @@ bool CefBrowserInfoManager::CanCreateWindow(
         window_info.bounds.height = cef_features.height;
       }
 
+      const int popup_id = browser->GetNextPopupId();
+
       allow = !handler->OnBeforePopup(
-          browser.get(), opener_frame, pending_popup->target_url.spec(),
-          pending_popup->target_frame_name,
+          browser.get(), opener_frame, popup_id,
+          pending_popup->target_url.spec(), pending_popup->target_frame_name,
           static_cast<cef_window_open_disposition_t>(disposition), user_gesture,
           cef_features, window_info, pending_popup->client,
           pending_popup->settings, pending_popup->extra_info,
           no_javascript_access);
       handled = true;
+
+      if (allow) {
+        // The parent browser may be destroyed during popup creation, so don't
+        // bind a direct reference.
+        pending_popup->aborted_callback = base::BindOnce(
+            [](int browser_id, int popup_id) {
+              LOG(WARNING) << "Pending popup " << popup_id
+                           << " aborted for browser " << browser_id;
+              if (auto browser =
+                      CefBrowserHostBase::GetBrowserForBrowserId(browser_id)) {
+                if (auto client = browser->GetClient()) {
+                  if (auto handler = client->GetLifeSpanHandler()) {
+                    handler->OnBeforePopupAborted(browser.get(), popup_id);
+                  }
+                }
+              }
+            },
+            browser->GetIdentifier(), popup_id);
+      }
     }
   }
 
@@ -217,10 +246,39 @@ bool CefBrowserInfoManager::CanCreateWindow(
     // otherwise GetCustomWebContentsView will fail to retrieve the PopupInfo.
     opener->GetProcess()->FilterURL(false, &pending_popup->target_url);
 
+    pending_create_popup_ = pending_popup.get();
+
+    // Need to Push here because WebContentsCreated may be called before
+    // CreateWindowResult.
     PushPendingPopup(std::move(pending_popup));
   }
 
   return allow;
+}
+
+void CefBrowserInfoManager::CreateWindowResult(content::RenderFrameHost* opener,
+                                               bool success) {
+  // This method is called during RenderFrameHostImpl::CreateNewWindow execution
+  // (if CanCreateWindow returns true) with three possible states:
+  // 1. Before WebContentsCreated with |success=false|. This is the normal
+  //    failure case where the pending popup will be canceled. For example, if a
+  //    file select dialog is active.
+  // 2. After WebContentsCreated/AddWebContents with |success=true|. This is the
+  //    normal success case where OnAfterCreated has already been called.
+  // 3. After WebContentsCreated/AddWebContents with |success=false|. This is
+  //    the failure case where a WebContents won't have an opener from the
+  //    renderer's perspective (for example, with JavaScript access disabled or
+  //    no-referrer links). The WebContents is still valid, will navigate
+  //    normally, and OnAfterCreated has already been called.
+  if (!success && pending_create_popup_) {
+    const auto* popup = pending_create_popup_.get();
+    pending_create_popup_ = nullptr;
+
+    // Cancel the pending popup.
+    std::erase_if(pending_popup_list_, [popup](const auto& popup_ptr) {
+      return popup_ptr.get() == popup;
+    });
+  }
 }
 
 void CefBrowserInfoManager::GetCustomWebContentsView(
@@ -255,6 +313,8 @@ void CefBrowserInfoManager::WebContentsCreated(
     content::WebContents* new_contents) {
   CEF_REQUIRE_UIT();
 
+  pending_create_popup_ = nullptr;
+
   // GET_CUSTOM_WEB_CONTENTS_VIEW is only used with Alloy style.
   auto pending_popup = PopPendingPopup(
       PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
@@ -272,6 +332,8 @@ void CefBrowserInfoManager::WebContentsCreated(
     pending_popup->step = PendingPopup::WEB_CONTENTS_CREATED;
     pending_popup->new_contents = new_contents;
     PushPendingPopup(std::move(pending_popup));
+  } else {
+    pending_popup->step = PendingPopup::CREATION_COMPLETE;
   }
 }
 
@@ -286,6 +348,7 @@ bool CefBrowserInfoManager::AddWebContents(content::WebContents* new_contents) {
                       PendingPopup::WEB_CONTENTS_CREATED, new_contents);
   if (pending_popup) {
     DCHECK(!pending_popup->alloy_style);
+    pending_popup->step = PendingPopup::CREATION_COMPLETE;
     return !pending_popup->use_default_browser_creation;
   }
 
@@ -589,17 +652,10 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
   }
 
   // Remove all pending popups that reference the destroyed host as the opener.
-  {
-    PendingPopupList::iterator it = pending_popup_list_.begin();
-    while (it != pending_popup_list_.end()) {
-      PendingPopup* popup = it->get();
-      if (popup->opener_global_id.child_id == render_process_id) {
-        it = pending_popup_list_.erase(it);
-      } else {
-        ++it;
-      }
-    }
-  }
+  std::erase_if(
+      pending_popup_list_, [render_process_id](const auto& popup_ptr) {
+        return popup_ptr->opener_global_id.child_id == render_process_id;
+      });
 }
 
 void CefBrowserInfoManager::PushPendingPopup(

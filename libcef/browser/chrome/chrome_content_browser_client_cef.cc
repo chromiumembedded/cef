@@ -369,6 +369,12 @@ bool ChromeContentBrowserClientCef::CanCreateWindow(
       user_gesture, opener_suppressed, no_javascript_access);
 }
 
+void ChromeContentBrowserClientCef::CreateWindowResult(
+    content::RenderFrameHost* opener,
+    bool success) {
+  CefBrowserInfoManager::GetInstance()->CreateWindowResult(opener, success);
+}
+
 void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
     content::WebContents* web_contents,
     blink::web_pref::WebPreferences* prefs) {

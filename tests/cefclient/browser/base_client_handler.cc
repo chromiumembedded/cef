@@ -61,7 +61,8 @@ void BaseClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   }
 
   if (track_as_other_browser_) {
-    MainContext::Get()->GetRootWindowManager()->OtherBrowserCreated();
+    MainContext::Get()->GetRootWindowManager()->OtherBrowserCreated(
+        browser->GetIdentifier(), browser->GetHost()->GetOpenerIdentifier());
   }
 }
 
@@ -79,7 +80,8 @@ void BaseClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   }
 
   if (track_as_other_browser_) {
-    MainContext::Get()->GetRootWindowManager()->OtherBrowserClosed();
+    MainContext::Get()->GetRootWindowManager()->OtherBrowserClosed(
+        browser->GetIdentifier(), browser->GetHost()->GetOpenerIdentifier());
   }
 }
 

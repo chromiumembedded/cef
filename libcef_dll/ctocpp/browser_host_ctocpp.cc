@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=2319d794dd3a38c448908114d1b4ea37b34f89dd$
+// $hash=02fc65eec44894d136e5c5ed139927c675a84c6e$
 //
 
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -74,6 +74,20 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
       &windowInfo, CefClientCppToC::Wrap(client), url.GetStruct(), &settings,
       CefDictionaryValueCToCpp::Unwrap(extra_info),
       CefRequestContextCToCpp::Unwrap(request_context));
+
+  // Return type: refptr_same
+  return CefBrowserCToCpp::Wrap(_retval);
+}
+
+NO_SANITIZE("cfi-icall")
+CefRefPtr<CefBrowser> CefBrowserHost::GetBrowserByIdentifier(int browser_id) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_browser_t* _retval =
+      cef_browser_host_get_browser_by_identifier(browser_id);
 
   // Return type: refptr_same
   return CefBrowserCToCpp::Wrap(_retval);
@@ -193,6 +207,23 @@ CefWindowHandle CefBrowserHostCToCpp::GetOpenerWindowHandle() {
 
   // Execute
   cef_window_handle_t _retval = _struct->get_opener_window_handle(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+NO_SANITIZE("cfi-icall") int CefBrowserHostCToCpp::GetOpenerIdentifier() {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_opener_identifier)) {
+    return 0;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_opener_identifier(_struct);
 
   // Return type: simple
   return _retval;
