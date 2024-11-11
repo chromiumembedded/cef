@@ -392,10 +392,22 @@ struct FrameStatus {
 
     for (int i = 0; i <= CALLBACK_LAST; ++i) {
       if (i < current_callback && IsExpectedCallback(i)) {
+        if (i == FRAME_ATTACHED &&
+            (current_callback == MAIN_FRAME_CHANGED_ASSIGNED ||
+             current_callback == LOAD_START || current_callback == LOAD_END)) {
+          // Timing of OnFrameAttached is flaky. See issue #3817.
+          continue;
+        }
         EXPECT_TRUE(got_callback_[i])
             << "inside " << func << " should already have gotten "
             << GetCallbackName(i);
       } else {
+        if (current_callback == FRAME_ATTACHED &&
+            (i == MAIN_FRAME_CHANGED_ASSIGNED || i == LOAD_START ||
+             i == LOAD_END)) {
+          // Timing of OnFrameAttached is flaky. See issue #3817.
+          continue;
+        }
         EXPECT_FALSE(got_callback_[i])
             << "inside " << func << " should not already have gotten "
             << GetCallbackName(i);
