@@ -76,7 +76,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -  visual_studio_runtime_dirs = []
  }
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 4f99bf3e0ee60..d4b3f46070697 100644
+index e546a14a02ca6..720bf0e9508db 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -87,7 +87,7 @@ index 4f99bf3e0ee60..d4b3f46070697 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -473,6 +474,10 @@ template("chrome_extra_paks") {
+@@ -475,6 +476,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }

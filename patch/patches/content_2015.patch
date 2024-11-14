@@ -12,7 +12,7 @@ index 11c9cd82d0392..9c700bc625cd5 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index ebfa887660e23..6a8958000fb64 100644
+index 0852fba0c4352..173c5724c6e9c 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -863,7 +863,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
@@ -47,7 +47,7 @@ index ebfa887660e23..6a8958000fb64 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 21967547790ca..7bdf48b830a21 100644
+index b80b9e005c94e..313579c039744 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1138,7 +1138,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,7 +68,7 @@ index 21967547790ca..7bdf48b830a21 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 0f6781dc459e1..3f3095cce2ba6 100644
+index eadc4ffef8055..d23b45b3ecc74 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1329,6 +1329,12 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -166,10 +166,10 @@ index 15e28effa2cbf..eb25a1adb7f6c 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index da2515e0067a9..e792751f278b4 100644
+index c668742dfc869..9bb7b446e7fb8 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1037,6 +1037,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1032,6 +1032,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -186,10 +186,10 @@ index da2515e0067a9..e792751f278b4 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 69c52cb8333fc..ac2bbc7459864 100644
+index 17c01a1f03ad4..33a484f412bba 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
-@@ -245,6 +245,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
+@@ -244,6 +244,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
    InertAndMinimumIntervalOfUserLevelMemoryPressureSignal() override;
  #endif  // BUILDFLAG(IS_ANDROID)
  

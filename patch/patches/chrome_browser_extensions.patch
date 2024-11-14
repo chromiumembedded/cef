@@ -34,7 +34,7 @@ index 66ea000f8c048..02eeb15adceed 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index d0ec6330ae8c1..c9e2857fa06b4 100644
+index bc9187e767fd3..f4e45472f5352 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1603,7 +1603,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -73,18 +73,16 @@ index d0ec6330ae8c1..c9e2857fa06b4 100644
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -1685,8 +1685,9 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1685,7 +1685,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
 -    if (browser->profile()->IsIncognitoProfile() &&
--        !IsURLAllowedInIncognito(GURL(updated_url), browser->profile())) {
 +    auto* profile = Profile::FromBrowserContext(browser_context());
 +    if (profile->IsIncognitoProfile() &&
-+        !IsURLAllowedInIncognito(GURL(updated_url), profile)) {
+         !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-     }
 @@ -1700,7 +1701,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
