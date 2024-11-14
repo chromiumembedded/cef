@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/about/about_ui.cc chrome/browser/ui/webui/about/about_ui.cc
-index 63e740fe81847..ea422ae7bbda4 100644
+index e28af86de9298..fb182fa3f7c32 100644
 --- chrome/browser/ui/webui/about/about_ui.cc
 +++ chrome/browser/ui/webui/about/about_ui.cc
-@@ -92,6 +92,10 @@
+@@ -89,6 +89,10 @@
  #include "chrome/common/webui_url_constants.h"
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -13,7 +13,7 @@ index 63e740fe81847..ea422ae7bbda4 100644
  using content::BrowserThread;
  
  namespace {
-@@ -624,6 +628,11 @@ ChromeURLsUIConfig::ChromeURLsUIConfig()
+@@ -620,6 +624,11 @@ ChromeURLsUIConfig::ChromeURLsUIConfig()
  CreditsUIConfig::CreditsUIConfig()
      : AboutUIConfigBase(chrome::kChromeUICreditsHost) {}
  
@@ -25,7 +25,7 @@ index 63e740fe81847..ea422ae7bbda4 100644
  #if !BUILDFLAG(IS_ANDROID)
  TermsUIConfig::TermsUIConfig()
      : AboutUIConfigBase(chrome::kChromeUITermsHost) {}
-@@ -725,6 +734,16 @@ void AboutUIHTMLSource::StartDataRequest(
+@@ -721,6 +730,16 @@ void AboutUIHTMLSource::StartDataRequest(
              IDS_TERMS_HTML);
  #endif
    }
@@ -69,7 +69,7 @@ index 6548d519c3da9..645163f69f822 100644
  // chrome://terms
  class TermsUIConfig : public AboutUIConfigBase {
 diff --git chrome/browser/ui/webui/chrome_web_ui_configs.cc chrome/browser/ui/webui/chrome_web_ui_configs.cc
-index a1f43d79b6f9b..281ee1e2c8a41 100644
+index 8b877339c4179..dcb347ef1878f 100644
 --- chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_configs.cc
 @@ -6,6 +6,7 @@
@@ -77,21 +77,21 @@ index a1f43d79b6f9b..281ee1e2c8a41 100644
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
+ #include "chrome/browser/optimization_guide/optimization_guide_internals_ui.h"
  #include "chrome/browser/ui/webui/about/about_ui.h"
  #include "chrome/browser/ui/webui/accessibility/accessibility_ui.h"
- #include "chrome/browser/ui/webui/autofill_and_password_manager_internals/autofill_internals_ui.h"
-@@ -211,6 +212,9 @@ void RegisterChromeWebUIConfigs() {
+@@ -215,6 +216,9 @@ void RegisterChromeWebUIConfigs() {
+   map.AddWebUIConfig(std::make_unique<BluetoothInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<BrowsingTopicsInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<chromeos::DeviceLogUIConfig>());
-   map.AddWebUIConfig(std::make_unique<ChromeURLsUIConfig>());
 +#if BUILDFLAG(ENABLE_CEF)
 +  map.AddWebUIConfig(std::make_unique<ChromeUILicenseConfig>());
 +#endif
-   map.AddWebUIConfig(std::make_unique<ComponentsUIConfig>());
-   map.AddWebUIConfig(
-       std::make_unique<security_interstitials::ConnectionHelpUIConfig>());
+   map.AddWebUIConfig(std::make_unique<ChromeURLsUIConfig>());
+   map.AddWebUIConfig(std::make_unique<CrashesUIConfig>());
+   map.AddWebUIConfig(std::make_unique<commerce::CommerceInternalsUIConfig>());
 diff --git chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-index 279f73938d406..c1bf263962e0c 100644
+index f9ca5f61c9c1f..a99993720a7ea 100644
 --- chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 @@ -18,6 +18,7 @@
@@ -101,8 +101,8 @@ index 279f73938d406..c1bf263962e0c 100644
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/buildflags.h"
- #include "chrome/browser/commerce/shopping_service_factory.h"
-@@ -538,6 +539,9 @@ ChromeWebUIControllerFactory::GetListOfAcceptableURLs() {
+ #include "chrome/browser/devtools/devtools_ui_bindings.h"
+@@ -485,6 +486,9 @@ ChromeWebUIControllerFactory::GetListOfAcceptableURLs() {
      GURL(chrome::kChromeUIGpuURL),
      GURL(chrome::kChromeUIHistogramsURL),
      GURL(chrome::kChromeUIInspectURL),
@@ -113,7 +113,7 @@ index 279f73938d406..c1bf263962e0c 100644
      GURL(chrome::kChromeUINetExportURL),
      GURL(chrome::kChromeUIPrefsInternalsURL),
 diff --git chrome/common/webui_url_constants.cc chrome/common/webui_url_constants.cc
-index 248b6795e8cbe..c957f9d55613d 100644
+index 47932e80c59ea..805a9e8e3c3e6 100644
 --- chrome/common/webui_url_constants.cc
 +++ chrome/common/webui_url_constants.cc
 @@ -99,6 +99,9 @@ base::span<const base::cstring_view> ChromeURLHosts() {

@@ -1,5 +1,5 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index b550651a8a981..f5664314075dc 100644
+index 5f5857379ad34..1de09e19a2350 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
 @@ -963,6 +963,17 @@ ResultCode SandboxWin::StartSandboxedProcess(

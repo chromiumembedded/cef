@@ -43,11 +43,10 @@ const void* const kResourceContextUserDataKey = &kResourceContextUserDataKey;
 std::optional<std::string> GetHeaderString(
     const net::HttpResponseHeaders* headers,
     const std::string& header_name) {
-  std::string header_value;
-  if (!headers || !headers->GetNormalizedHeader(header_name, &header_value)) {
-    return std::nullopt;
+  if (headers) {
+    return headers->GetNormalizedHeader(header_name);
   }
-  return header_value;
+  return std::nullopt;
 }
 
 void CreateProxyHelper(

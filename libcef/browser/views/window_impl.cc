@@ -18,6 +18,7 @@
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_view.h"
 #include "components/constrained_window/constrained_window_views.h"
+#include "ui/base/mojom/menu_source_type.mojom.h"
 #include "ui/base/test/ui_controls.h"
 #include "ui/compositor/compositor.h"
 #include "ui/gfx/geometry/rect.h"
@@ -554,7 +555,7 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
       widget_, menu_button ? menu_button->button_controller() : nullptr,
       gfx::Rect(gfx::Point(screen_point.x, screen_point.y), gfx::Size()),
       static_cast<views::MenuAnchorPosition>(anchor_position),
-      ui::MENU_SOURCE_NONE);
+      ui::mojom::MenuSourceType::kNone);
 }
 
 void CefWindowImpl::MenuClosed() {

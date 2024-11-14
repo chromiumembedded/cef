@@ -8,6 +8,7 @@
 
 #include "base/strings/string_util.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
+#include "ui/base/mojom/menu_source_type.mojom.h"
 #include "ui/gfx/geometry/point.h"
 
 CefMenuRunnerViewsAura::CefMenuRunnerViewsAura() = default;
@@ -35,7 +36,8 @@ bool CefMenuRunnerViewsAura::RunContextMenu(
       gfx::Point(params.x, params.y), /*want_dip_coords=*/true);
 
   menu_->RunMenuAt(widget, nullptr, gfx::Rect(screen_point, gfx::Size()),
-                   views::MenuAnchorPosition::kTopRight, ui::MENU_SOURCE_NONE,
+                   views::MenuAnchorPosition::kTopRight,
+                   ui::mojom::MenuSourceType::kNone,
                    /*native_view_for_gestures=*/nullptr, parent_widget);
 
   return true;

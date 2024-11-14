@@ -24,7 +24,7 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 #include "third_party/blink/public/mojom/favicon/favicon_url.mojom.h"
-#include "third_party/blink/public/mojom/input/focus_type.mojom-blink.h"
+#include "third_party/blink/public/mojom/input/focus_type.mojom.h"
 #include "third_party/blink/public/mojom/page/draggable_region.mojom.h"
 #include "third_party/blink/public/mojom/widget/platform_widget.mojom-test-utils.h"
 
@@ -621,7 +621,7 @@ void CefBrowserContentsDelegate::OnWebContentsFocused(
 void CefBrowserContentsDelegate::OnFocusChangedInPage(
     content::FocusedNodeDetails* details) {
   focus_on_editable_field_ =
-      details->focus_type != blink::mojom::blink::FocusType::kNone &&
+      details->focus_type != blink::mojom::FocusType::kNone &&
       details->is_editable_node;
 }
 

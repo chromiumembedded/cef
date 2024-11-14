@@ -26,6 +26,7 @@ class CefResourceBundleDelegate : public ui::ResourceBundle::Delegate {
                                       const std::string& locale) override;
   gfx::Image GetImageNamed(int resource_id) override;
   gfx::Image GetNativeImageNamed(int resource_id) override;
+  bool HasDataResource(int resource_id) const override;
   base::RefCountedMemory* LoadDataResourceBytes(
       int resource_id,
       ui::ResourceScaleFactor scale_factor) override;

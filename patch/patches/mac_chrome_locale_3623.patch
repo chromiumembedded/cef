@@ -1,5 +1,5 @@
 diff --git chrome/browser/chrome_resource_bundle_helper.cc chrome/browser/chrome_resource_bundle_helper.cc
-index 0cfc966050b60..bbc20cffaee1a 100644
+index 0e256b2a268ca..66ef8460d46ca 100644
 --- chrome/browser/chrome_resource_bundle_helper.cc
 +++ chrome/browser/chrome_resource_bundle_helper.cc
 @@ -68,8 +68,10 @@ extern void InitializeLocalState(
@@ -43,7 +43,7 @@ index 0cfc966050b60..bbc20cffaee1a 100644
    CHECK(!actual_locale.empty())
        << "Locale could not be found for " << preferred_locale;
  
-@@ -155,6 +150,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+@@ -136,6 +131,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
  
  std::string LoadLocalState(
      ChromeFeatureListCreator* chrome_feature_list_creator,
@@ -51,7 +51,7 @@ index 0cfc966050b60..bbc20cffaee1a 100644
      bool is_running_tests) {
    base::FilePath user_data_dir;
    if (!base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir))
-@@ -166,5 +162,6 @@ std::string LoadLocalState(
+@@ -147,5 +143,6 @@ std::string LoadLocalState(
        new ChromeCommandLinePrefStore(base::CommandLine::ForCurrentProcess()));
  
    return InitResourceBundleAndDetermineLocale(
@@ -98,7 +98,7 @@ index aa43742055b04..e84f21ab963cc 100644
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index 36bd7743e5b73..744918bde3012 100644
+index 3ba9c2e2971ad..f01e59a731f5e 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
 @@ -506,25 +506,7 @@ bool CheckAndResolveLocale(const std::string& locale,

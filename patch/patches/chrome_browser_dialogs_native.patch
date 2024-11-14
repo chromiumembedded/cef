@@ -1,22 +1,21 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 50fca3503b2a9..89a58b139af4a 100644
+index 5d563a5311ec1..7c8c70393ed4b 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -239,6 +239,13 @@ void FileSelectHelper::OnListFile(
- void FileSelectHelper::LaunchConfirmationDialog(
-     const base::FilePath& path,
-     std::vector<ui::SelectedFileInfo> selected_files) {
-+  if (run_from_cef_) {
-+    // Don't show the upload confirmation dialog when triggered via CEF
-+    // (initially or recursively).
-+    ConvertToFileChooserFileInfoList(selected_files);
-+    return;
-+  }
-+
-   ShowFolderUploadConfirmationDialog(
-       path,
-       base::BindOnce(&FileSelectHelper::ConvertToFileChooserFileInfoList, this),
-@@ -466,31 +473,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -313,6 +313,12 @@ void FileSelectHelper::OnListDone(int error) {
+   }
+ 
+   if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
++    if (run_from_cef_) {
++      // Don't show the upload confirmation dialog when triggered via CEF
++      // (initially or recursively).
++      PerformContentAnalysisIfNeeded(std::move(chooser_files));
++      return;
++    }
+     auto model = CreateConfirmationDialog(
+         entry->display_name_, std::move(chooser_files),
+         base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
+@@ -511,31 +517,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -72,7 +71,7 @@ index 50fca3503b2a9..89a58b139af4a 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -507,12 +534,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -552,12 +578,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -105,7 +104,7 @@ index 50fca3503b2a9..89a58b139af4a 100644
    }
  
    return file_type;
-@@ -522,7 +565,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -567,7 +609,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -115,7 +114,7 @@ index 50fca3503b2a9..89a58b139af4a 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -530,6 +574,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -575,6 +618,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -124,10 +123,10 @@ index 50fca3503b2a9..89a58b139af4a 100644
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 138889a07790b..73d480d4f2525 100644
+index 921b36076c3f3..d61248be1997b 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -63,7 +63,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -137,7 +136,7 @@ index 138889a07790b..73d480d4f2525 100644
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -330,6 +331,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -336,6 +337,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
        scoped_disallow_picture_in_picture_;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
@@ -257,7 +256,7 @@ index c7acd9b05fbb8..3e95e4125fa24 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index 72f687be6fb42..4fa78758dd4df 100644
+index 416c1bb5503ef..a6705c94c0dc2 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
 @@ -104,6 +104,10 @@ void SelectFileDialogImpl::SelectFileImpl(
@@ -272,7 +271,7 @@ index 72f687be6fb42..4fa78758dd4df 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index ed343dc032789..a7105f4c78a1c 100644
+index e3bd03f336edd..afc421d99112f 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
 @@ -251,6 +251,8 @@ void SelectFileDialogImpl::SelectFileImpl(

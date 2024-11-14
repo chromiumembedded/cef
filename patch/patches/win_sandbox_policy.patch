@@ -1,5 +1,5 @@
 diff --git sandbox/win/src/sandbox_policy.h sandbox/win/src/sandbox_policy.h
-index 70c3179ee66ff..9493ee22c541e 100644
+index 17699e60e60be..53658b54f4fa7 100644
 --- sandbox/win/src/sandbox_policy.h
 +++ sandbox/win/src/sandbox_policy.h
 @@ -282,7 +282,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
@@ -12,7 +12,7 @@ index 70c3179ee66ff..9493ee22c541e 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 1c8ae730e5dd3..5d04f11a770c5 100644
+index bb144af1a7e12..2a05c5a62c941 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
 @@ -194,12 +194,12 @@ PolicyGlobal* ConfigBase::policy() {
@@ -49,10 +49,10 @@ index 1c8ae730e5dd3..5d04f11a770c5 100644
    // Can only set this once - as there is only one region sent to the child.
    CHECK(!delegate_data_);
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index 291dea81a1b18..1850dd502d74b 100644
+index af905fba23ac1..cba2426b098a8 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
-@@ -120,7 +120,7 @@ class ConfigBase final : public TargetConfig {
+@@ -117,7 +117,7 @@ class ConfigBase final : public TargetConfig {
  
    // Should only be called once the object is configured.
    PolicyGlobal* policy();
@@ -61,7 +61,7 @@ index 291dea81a1b18..1850dd502d74b 100644
    std::vector<std::wstring>& blocklisted_dlls();
    AppContainerBase* app_container();
    IntegrityLevel integrity_level() { return integrity_level_; }
-@@ -175,7 +175,7 @@ class PolicyBase final : public TargetPolicy {
+@@ -172,7 +172,7 @@ class PolicyBase final : public TargetPolicy {
    ResultCode SetStdoutHandle(HANDLE handle) override;
    ResultCode SetStderrHandle(HANDLE handle) override;
    void AddHandleToShare(HANDLE handle) override;
@@ -70,7 +70,7 @@ index 291dea81a1b18..1850dd502d74b 100644
  
    // Creates a Job object with the level specified in a previous call to
    // SetJobLevel().
-@@ -239,13 +239,13 @@ class PolicyBase final : public TargetPolicy {
+@@ -236,13 +236,13 @@ class PolicyBase final : public TargetPolicy {
    // time.
  
    // Returns nullopt if no data has been set, or a view into the data.

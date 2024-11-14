@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index b8506e1b025df..d18163053f430 100644
+index 020b7141b4bf5..8879bae28f119 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -635,6 +635,25 @@ void CookieMonster::SetCookieableSchemes(
@@ -58,7 +58,7 @@ index 3f0be99e0e145..0462ebbe9bedc 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index f78c6a467befc..97f1d21218eed 100644
+index 06a85c11e6604..c1d0bcfac60d4 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
 @@ -345,14 +345,9 @@ void CookieManager::AllowFileSchemeCookies(
@@ -80,10 +80,10 @@ index f78c6a467befc..97f1d21218eed 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index d18f5b091d33e..ff7f620d3750d 100644
+index cae84c27a26d6..ce496fd4f97ea 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2577,16 +2577,20 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2640,17 +2640,21 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -91,13 +91,15 @@ index d18f5b091d33e..ff7f620d3750d 100644
 -    std::unique_ptr<net::CookieMonster> cookie_store =
 -        std::make_unique<net::CookieMonster>(session_cleanup_cookie_store.get(),
 -                                             net_log);
--    if (params_->persist_session_cookies)
+-    if (params_->persist_session_cookies) {
 -      cookie_store->SetPersistSessionCookies(true);
+-    }
 +  std::unique_ptr<net::CookieMonster> cookie_store =
 +      std::make_unique<net::CookieMonster>(session_cleanup_cookie_store.get(),
 +                                           net_log);
-+  if (session_cleanup_cookie_store && params_->persist_session_cookies)
++  if (session_cleanup_cookie_store && params_->persist_session_cookies) {
 +    cookie_store->SetPersistSessionCookies(true);
++  }
  
 -    builder.SetCookieStore(std::move(cookie_store));
 +  if (params_->cookieable_schemes.has_value()) {
@@ -112,10 +114,10 @@ index d18f5b091d33e..ff7f620d3750d 100644
        base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 83bce4a3bf9dc..c6efc2e4333fc 100644
+index f2c8a56442e0a..747948ea6d197 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -359,6 +359,9 @@ struct NetworkContextParams {
+@@ -366,6 +366,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 446020ac6a831..6e3f6d048704c 100644
+index 37cb1dac49610..6e5989c73bf08 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -26,7 +26,7 @@ struct DropData;
@@ -12,18 +12,18 @@ index 446020ac6a831..6e3f6d048704c 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 6c8040666b520..d03d33415f033 100644
+index bd3bb10e2d6b1..0559c97775444 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -204,6 +204,8 @@ void MimeHandlerViewGuest::CreateWebContents(
-   WebContents::CreateParams params(browser_context(),
-                                    guest_site_instance.get());
-   params.guest_delegate = this;
-+  if (delegate_)
-+    delegate_->OverrideWebContentsCreateParams(&params);
-   std::move(callback).Run(std::move(owned_this),
-                           WebContents::CreateWithSessionStorage(
-                               params, owner_web_contents()
+@@ -211,6 +211,8 @@ void MimeHandlerViewGuest::CreateInnerPage(
+     WebContents::CreateParams params(browser_context(),
+                                      guest_site_instance.get());
+     params.guest_delegate = this;
++    if (delegate_)
++      delegate_->OverrideWebContentsCreateParams(&params);
+     std::move(callback).Run(std::move(owned_this),
+                             WebContents::CreateWithSessionStorage(
+                                 params, owner_web_contents()
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 index 2fb8a60c1f56d..edd275135e60d 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h

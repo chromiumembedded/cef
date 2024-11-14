@@ -65,6 +65,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   GetBackForwardTransitionAnimationManager() override {
     return nullptr;
   }
+  void DestroyBackForwardTransitionAnimationManager() override {}
 
 #if BUILDFLAG(IS_MAC)
   bool CloseTabAfterEventTrackingIfNeeded() override { return false; }

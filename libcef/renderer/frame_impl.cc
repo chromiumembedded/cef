@@ -34,8 +34,6 @@
 #include "cef/libcef/renderer/thread_util.h"
 #include "cef/libcef/renderer/v8_impl.h"
 #include "content/renderer/render_frame_impl.h"
-#include "third_party/blink/public/mojom/frame/frame.mojom-blink.h"
-#include "third_party/blink/public/mojom/frame/lifecycle.mojom-blink.h"
 #include "third_party/blink/public/platform/scheduler/web_agent_group_scheduler.h"
 #include "third_party/blink/public/platform/web_data.h"
 #include "third_party/blink/public/platform/web_string.h"

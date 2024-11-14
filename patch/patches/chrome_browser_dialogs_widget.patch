@@ -279,7 +279,7 @@ index bc119f10f749e..d81c1ce4e786f 100644
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index d64117586a5c3..c37d7a59c134e 100644
+index 0777e2fe71f04..546994cad2b14 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -106,13 +106,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 4c0e4645f64e3..4ace56138209d 100644
+index 5dee8a9226d24..a8215969e3494 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -41,6 +41,7 @@ import("//build/nocompile.gni")
+@@ -43,6 +43,7 @@ import("//build/rust/rust_static_library.gni")
  import("//build/timestamp.gni")
  import("//build/util/process_version.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 4c0e4645f64e3..4ace56138209d 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1503,7 +1504,11 @@ component("base") {
+@@ -1483,7 +1484,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 4c0e4645f64e3..4ace56138209d 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1934,6 +1939,12 @@ component("base") {
+@@ -1916,6 +1921,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -110,7 +110,7 @@ index 83e3cee2579ab..8238767ab9126 100644
    if (data.empty()) {
      return sum;
 diff --git base/rand_util.h base/rand_util.h
-index 746166bf75df7..7192a939e4fec 100644
+index b198a7198aab9..01bc8e9b6ad1f 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -17,8 +17,9 @@
@@ -124,7 +124,7 @@ index 746166bf75df7..7192a939e4fec 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -123,7 +124,7 @@ class RandomBitGenerator {
+@@ -117,7 +118,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  

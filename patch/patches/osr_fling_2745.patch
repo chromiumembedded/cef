@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 5a521aa5a6117..1a6454eb4f300 100644
+index e8f68eca2104c..dded892de5ce4 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3232,6 +3232,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+@@ -3248,6 +3248,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
  
@@ -72,10 +72,10 @@ index 5a521aa5a6117..1a6454eb4f300 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index b8dadc4cca462..f5bbd83de86ab 100644
+index 01b87c84b32c0..e6061b75d201d 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -836,6 +836,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -841,6 +841,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

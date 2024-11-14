@@ -89,7 +89,7 @@ index db8209bbcc214..b50bce7fae5b5 100644
  HICON GetSmallAppIcon();
  
 diff --git chrome/common/chrome_constants.cc chrome/common/chrome_constants.cc
-index ba30144d3e7be..ec2d3c5e7298c 100644
+index 298138e77b9f6..cce479212b682 100644
 --- chrome/common/chrome_constants.cc
 +++ chrome/common/chrome_constants.cc
 @@ -6,6 +6,7 @@

@@ -48,7 +48,7 @@ index a4fc1857349e4..65f620ac8e289 100644
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index d059f86ddad39..592b4d7903f15 100644
+index 184939bdb8b3d..bb13d7c74e20b 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
 @@ -156,9 +156,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
@@ -67,10 +67,10 @@ index d059f86ddad39..592b4d7903f15 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 09aeff0a2303a..d5bb4283e3464 100644
+index 728069cfdba9a..3561f49631e5c 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
-@@ -143,6 +143,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
+@@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
    color_provider_manager.ResetColorProviderCache();
    native_theme_observers_.Notify(&NativeThemeObserver::OnNativeThemeUpdated,
                                   this);
@@ -78,7 +78,7 @@ index 09aeff0a2303a..d5bb4283e3464 100644
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -275,6 +276,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -288,6 +289,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,12 +93,12 @@ index 09aeff0a2303a..d5bb4283e3464 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index c8e200ba27bd5..a91635c24e213 100644
+index b2a7455c7e005..77170b90189c8 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -604,6 +604,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
-   // Whether dark mode is forced via command-line flag.
-   static bool IsForcedDarkMode();
+@@ -610,6 +610,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+   // Calculates and returns the use overlay scrollbar setting.
+   static bool CalculateUseOverlayScrollbar();
  
 +  // Whether light mode is forced via command-line flag.
 +  static bool IsForcedLightMode();
@@ -107,10 +107,10 @@ index c8e200ba27bd5..a91635c24e213 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index 23491b97bb068..4aa1ecef92f5f 100644
+index dc1224ca2fa27..b2a0ce01b4611 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
-@@ -586,11 +586,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -585,11 +585,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -129,10 +129,10 @@ index 23491b97bb068..4aa1ecef92f5f 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index c1523bbdbf16e..bc0af8c47b7c7 100644
+index 1b098cbb291fe..fc8f22b7db5a3 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -680,14 +680,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -676,14 +676,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -152,7 +152,7 @@ index c1523bbdbf16e..bc0af8c47b7c7 100644
      return NativeTheme::CalculatePreferredColorScheme();
  
    // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1678,8 +1681,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1653,8 +1656,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

@@ -1,8 +1,8 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index 2096591596a26..5a0c3fd16eecf 100644
+index a7742298af440..a7dab9f4f770b 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-@@ -179,7 +179,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
+@@ -178,7 +178,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index 2096591596a26..5a0c3fd16eecf 100644
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -193,7 +194,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
+@@ -192,7 +193,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |
@@ -24,10 +24,10 @@ index 2096591596a26..5a0c3fd16eecf 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 596affaba0993..3c28ea80fc631 100644
+index b27bcf13d3a5f..df1b2d697f7cc 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -205,7 +205,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
+@@ -193,7 +193,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
  bool FrameResources::Initialize() {
    auto* context = pool_->GetContext();
  
@@ -36,7 +36,7 @@ index 596affaba0993..3c28ea80fc631 100644
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
        gfx::BufferUsage::SCANOUT_VEA_CPU_READ
  #else
-@@ -219,6 +219,23 @@ bool FrameResources::Initialize() {
+@@ -207,6 +207,23 @@ bool FrameResources::Initialize() {
    const gfx::Size buffer_size_in_pixels =
        GetBufferSizeInPixelsForVideoPixelFormat(format_, coded_size_);
  
@@ -57,35 +57,15 @@ index 596affaba0993..3c28ea80fc631 100644
 +  }
 +#endif
 +
-   // Create the GpuMemoryBuffer if MappableSharedImages is not enabled. When its
-   // enabled, clients only create a mappable shared image directly without
-   // needing to create a GMB.
-@@ -226,16 +243,16 @@ bool FrameResources::Initialize() {
-       kUseMappableSIForRenderableGpuMemoryBufferVideoFramePool);
-   if (!is_mappable_si_enabled) {
-     gpu_memory_buffer_ = context->CreateGpuMemoryBuffer(
--        buffer_size_in_pixels, buffer_format, kBufferUsage);
-+        buffer_size_in_pixels, buffer_format, buffer_usage);
-     if (!gpu_memory_buffer_) {
-       LOG(ERROR) << "Failed to allocate GpuMemoryBuffer for frame: coded_size="
-                  << coded_size_.ToString()
--                 << ", usage=" << static_cast<int>(kBufferUsage);
-+                 << ", usage=" << static_cast<int>(buffer_usage);
-       return false;
-     }
- 
+   constexpr gpu::SharedImageUsageSet kSharedImageUsage =
  #if BUILDFLAG(IS_MAC)
--  gpu_memory_buffer_->SetColorSpace(color_space_);
-+    gpu_memory_buffer_->SetColorSpace(color_space_);
- #endif
-   }
+       gpu::SHARED_IMAGE_USAGE_MACOS_VIDEO_TOOLBOX |
+@@ -231,7 +248,7 @@ bool FrameResources::Initialize() {
+       viz::GetSharedImageFormat(buffer_format);
  
-@@ -264,7 +281,7 @@ bool FrameResources::Initialize() {
- 
-   if (is_mappable_si_enabled) {
-     shared_image_ = context->CreateSharedImage(
--        buffer_size_in_pixels, kBufferUsage, si_format, color_space_,
-+        buffer_size_in_pixels, buffer_usage, si_format, color_space_,
-         kTopLeft_GrSurfaceOrigin, kPremul_SkAlphaType, kSharedImageUsage,
-         sync_token_);
-   } else {
+   shared_image_ = context->CreateSharedImage(
+-      buffer_size_in_pixels, kBufferUsage, si_format, color_space_,
++      buffer_size_in_pixels, buffer_usage, si_format, color_space_,
+       kTopLeft_GrSurfaceOrigin, kPremul_SkAlphaType, kSharedImageUsage,
+       sync_token_);
+   if (!shared_image_) {

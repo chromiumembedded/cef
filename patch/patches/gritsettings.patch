@@ -1,8 +1,14 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index 38cf9d8fd803f..f7fe30053dfca 100644
+index a5b89cfbae164..1c3532b2a8196 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
-@@ -1376,6 +1376,15 @@
+@@ -1385,11 +1385,20 @@
+   "<(SHARED_INTERMEDIATE_DIR)/third_party/blink/public/strings/permission_element_generated_strings.grd": {
+     "META": {"sizes": {"messages": [2000],}},
+     "messages": [10080],
+-  }
++  },
+ 
    # END "everything else" section.
    # Everything but chrome/, components/, content/, and ios/
  
@@ -13,7 +19,7 @@ index 38cf9d8fd803f..f7fe30053dfca 100644
 +  "cef/libcef/resources/cef_strings.grd": {
 +    "META": {"align": 32000},
 +    "messages": [32000],
-+  },
++  }
 +
    # Thinking about appending to the end?
    # Please read the header and find the right section above instead.

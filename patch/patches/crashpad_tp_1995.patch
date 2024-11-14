@@ -40,19 +40,19 @@ index b362e0aadbadd..1588232a6e4d4 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 0174c62b52856..c87205500aef0 100644
+index 76d77c86072d5..9cb6be87eb46f 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -117,7 +117,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
- 
- struct Settings::Data {
-   static constexpr uint32_t kSettingsMagic = 'CPds';
+@@ -122,7 +122,7 @@ struct Settings::Data {
+   // Version number only used for incompatible changes to Data. Do not change
+   // this when adding additional fields at the end. Modifying `kSettingsVersion`
+   // will wipe away the entire struct when reading from other versions.
 -  static constexpr uint32_t kSettingsVersion = 1;
 +  static constexpr uint32_t kSettingsVersion = 2;
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -128,6 +128,9 @@ struct Settings::Data {
+@@ -133,6 +133,9 @@ struct Settings::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 0174c62b52856..c87205500aef0 100644
             client_id() {}
  
    uint32_t magic;
-@@ -135,6 +138,9 @@ struct Settings::Data {
+@@ -140,6 +143,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,7 +72,7 @@ index 0174c62b52856..c87205500aef0 100644
    UUID client_id;
  };
  
-@@ -234,6 +240,56 @@ bool Settings::IsLockExpired(const base::FilePath& file_path,
+@@ -239,6 +245,56 @@ bool Settings::IsLockExpired(const base::FilePath& file_path,
  }
  #endif  // !CRASHPAD_FLOCK_ALWAYS_SUPPORTED
  

@@ -1,8 +1,8 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index a45a20da28026..6ab41c52f0b54 100644
+index c43bb22ce2326..f757f4aa5e822 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
-@@ -3336,9 +3336,12 @@ void StoragePartitionImpl::InitNetworkContext() {
+@@ -3335,9 +3335,12 @@ void StoragePartitionImpl::InitNetworkContext() {
    cert_verifier::mojom::CertVerifierCreationParamsPtr
        cert_verifier_creation_params =
            cert_verifier::mojom::CertVerifierCreationParams::New();

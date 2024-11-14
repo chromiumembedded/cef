@@ -7,8 +7,8 @@
 #import "base/mac/scoped_sending_event.h"
 #include "base/task/current_thread.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
-#import "ui/base/cocoa/menu_controller.h"
 #include "ui/gfx/geometry/point.h"
+#import "ui/menus/cocoa/menu_controller.h"
 
 CefMenuRunnerMac::CefMenuRunnerMac() {}
 

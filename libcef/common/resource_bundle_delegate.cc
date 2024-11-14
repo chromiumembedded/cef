@@ -24,6 +24,11 @@ gfx::Image CefResourceBundleDelegate::GetNativeImageNamed(int resource_id) {
   return gfx::Image();
 }
 
+bool CefResourceBundleDelegate::HasDataResource(int resource_id) const {
+  // This has no impact on the loading of resources in ResourceBundle.
+  return false;
+}
+
 base::RefCountedMemory* CefResourceBundleDelegate::LoadDataResourceBytes(
     int resource_id,
     ui::ResourceScaleFactor scale_factor) {

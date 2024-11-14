@@ -24,6 +24,7 @@
 #include "cef/libcef/browser/thread_util.h"
 #include "components/input/cursor_manager.h"
 #include "components/input/render_widget_host_input_event_router.h"
+#include "components/input/switches.h"
 #include "components/viz/common/features.h"
 #include "components/viz/common/frame_sinks/begin_frame_args.h"
 #include "components/viz/common/frame_sinks/copy_output_request.h"
@@ -38,7 +39,6 @@
 #include "content/browser/renderer_host/input/synthetic_gesture_target_base.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/common/content_switches_internal.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -210,7 +210,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
       has_parent_(parent_host_view != nullptr),
       parent_host_view_(parent_host_view),
-      pinch_zoom_enabled_(content::IsPinchToZoomEnabled()),
+      pinch_zoom_enabled_(input::switches::IsPinchToZoomEnabled()),
       mouse_wheel_phase_handler_(this),
       gesture_provider_(CreateGestureProviderConfig(), this),
       weak_ptr_factory_(this) {

@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 3d8fa4d09b729..381172ec653f4 100644
+index d91ef0419d702..f9b612ba8ac7a 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index 3d8fa4d09b729..381172ec653f4 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -286,6 +287,10 @@ group("gn_all") {
+@@ -288,6 +289,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -35,7 +35,7 @@ index 3d8fa4d09b729..381172ec653f4 100644
        deps += [ "//printing:printing_unittests" ]
      }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 1da479dd5eebc..ff9c7e467997c 100644
+index bd41166938952..fba7843d79796 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -5,15 +5,14 @@
@@ -57,7 +57,7 @@ index 1da479dd5eebc..ff9c7e467997c 100644
  
    # Full path to the Windows SDK, not including a backslash at the end.
    # This value is the default location, override if you have a different
-@@ -31,14 +30,13 @@ if (visual_studio_path == "") {
+@@ -31,16 +30,15 @@ if (visual_studio_path == "") {
    windows_sdk_version = toolchain_data.sdk_version
    windows_sdk_path = toolchain_data.sdk_path
    visual_studio_version = toolchain_data.vs_version
@@ -75,8 +75,10 @@ index 1da479dd5eebc..ff9c7e467997c 100644
 -         "You must set the wdk_path if you set the visual studio path")
 -  visual_studio_runtime_dirs = []
  }
+ 
+ visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 4f99bf3e0ee60..d4b3f46070697 100644
+index ca413e1286916..70379761ebd59 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -87,7 +89,7 @@ index 4f99bf3e0ee60..d4b3f46070697 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -473,6 +474,10 @@ template("chrome_extra_paks") {
+@@ -479,6 +480,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }
