@@ -544,10 +544,6 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       # Enable base target customizations necessary for distribution of the
       # cef_sandbox static library.
       'is_cef_sandbox_build': True,
-
-      # Disable use of rust for JSON parsing. This avoids a dependency on
-      # rust libraries.
-      'enable_rust_json': False,
   }
 
   if platform == 'windows':
