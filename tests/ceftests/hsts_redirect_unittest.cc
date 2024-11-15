@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
+#include "include/test/cef_test_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
 #include "tests/ceftests/test_server.h"
@@ -178,13 +179,18 @@ class HSTSRedirectTest : public TestHandler {
       //   explicit port component that is not equal to "80", the port component
       //   value MUST be preserved; otherwise, if the URI does not contain an
       //   explicit port component, the UA MUST NOT add one.
-      const std::string& expected_https_url =
-          client::AsciiStrReplace(http_url_, "http:", "https:");
-      EXPECT_STREQ(expected_https_url.c_str(), new_url.ToString().c_str())
-          << nav_ct_;
+      //
+      // This behavior is changed in M132 with
+      // https://issues.chromium.org/issues/41251622.
+      if (!CefIsFeatureEnabledForTests("IgnoreHSTSForLocalhost")) {
+        const std::string& expected_https_url =
+            client::AsciiStrReplace(http_url_, "http:", "https:");
+        EXPECT_STREQ(expected_https_url.c_str(), new_url.ToString().c_str())
+            << nav_ct_;
 
-      // Redirect to the correct HTTPS URL instead.
-      new_url = https_url_;
+        // Redirect to the correct HTTPS URL instead.
+        new_url = https_url_;
+      }
     }
   }
 

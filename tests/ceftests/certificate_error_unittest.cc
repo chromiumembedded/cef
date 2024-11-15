@@ -357,13 +357,11 @@ namespace {
 
 class RedirectMismatchedFromHandlerTest : public CertificateErrorTest {
  public:
-  RedirectMismatchedFromHandlerTest(bool continue_invalid_certificate,
-                                    bool redirect_from_https)
+  RedirectMismatchedFromHandlerTest(bool continue_invalid_certificate)
       : CertificateErrorTest(
             /*cert_type=*/CEF_TEST_CERT_OK_DOMAIN,
             /*expect_load_success=*/continue_invalid_certificate,
-            /*expect_certificate_error=*/true),
-        redirect_from_https_(redirect_from_https) {}
+            /*expect_certificate_error=*/true) {}
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
@@ -384,8 +382,7 @@ class RedirectMismatchedFromHandlerTest : public CertificateErrorTest {
 
  protected:
   std::string GetStartURL() const override {
-    return redirect_from_https_ ? "https://certificate-test.com/index.html"
-                                : "http://certificate-test.com/index.html";
+    return "https://certificate-test.com/index.html";
   }
 
   std::string GetEndURL() const override {
@@ -393,9 +390,6 @@ class RedirectMismatchedFromHandlerTest : public CertificateErrorTest {
     return client::AsciiStrReplace(server_origin(), "localhost", "127.0.0.1") +
            "/index.html";
   }
-
- private:
-  const bool redirect_from_https_;
 };
 
 }  // namespace
@@ -403,8 +397,7 @@ class RedirectMismatchedFromHandlerTest : public CertificateErrorTest {
 TEST(CertificateErrorTest, RedirectMismatchedFromHttpsResourceCancel) {
   CefRefPtr<RedirectMismatchedFromHandlerTest> handler =
       new RedirectMismatchedFromHandlerTest(
-          /*continue_invalid_certificate=*/false,
-          /*redirect_from_https=*/true);
+          /*continue_invalid_certificate=*/false);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
@@ -412,26 +405,7 @@ TEST(CertificateErrorTest, RedirectMismatchedFromHttpsResourceCancel) {
 TEST(CertificateErrorTest, RedirectMismatchedFromHttpsResourceContinue) {
   CefRefPtr<RedirectMismatchedFromHandlerTest> handler =
       new RedirectMismatchedFromHandlerTest(
-          /*continue_invalid_certificate=*/true,
-          /*redirect_from_https=*/true);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-TEST(CertificateErrorTest, RedirectMismatchedFromHttpResourceCancel) {
-  CefRefPtr<RedirectMismatchedFromHandlerTest> handler =
-      new RedirectMismatchedFromHandlerTest(
-          /*continue_invalid_certificate=*/false,
-          /*redirect_from_https=*/false);
-  handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
-}
-
-TEST(CertificateErrorTest, RedirectMismatchedFromHttpResourceContinue) {
-  CefRefPtr<RedirectMismatchedFromHandlerTest> handler =
-      new RedirectMismatchedFromHandlerTest(
-          /*continue_invalid_certificate=*/true,
-          /*redirect_from_https=*/false);
+          /*continue_invalid_certificate=*/true);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

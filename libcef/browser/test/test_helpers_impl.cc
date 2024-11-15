@@ -7,6 +7,7 @@
 #include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "cef/include/test/cef_test_helpers.h"
+#include "net/base/features.h"
 #include "services/network/public/cpp/features.h"
 
 void CefSetDataDirectoryForTests(const CefString& dir) {
@@ -18,6 +19,7 @@ void CefSetDataDirectoryForTests(const CefString& dir) {
 bool CefIsFeatureEnabledForTests(const CefString& feature_name) {
   // Only includes values that are queried by unit tests.
   const base::Feature* features[] = {
+      &net::features::kIgnoreHSTSForLocalhost,
       &base::features::kUseRustJsonParser,
       &network::features::kReduceAcceptLanguage,
   };
