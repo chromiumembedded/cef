@@ -56,9 +56,18 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index e8f68eca2104c..dded892de5ce4 100644
+index e8f68eca2104c..c579cff86fbbb 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
+@@ -791,7 +791,7 @@ void RenderWidgetHostImpl::WasHidden() {
+ 
+   // Cancel pending pointer lock requests, unless there's an open user prompt.
+   // Prompts should remain open and functional across tab switches.
+-  if (!delegate_->IsWaitingForPointerLockPrompt(this)) {
++  if (!delegate_ || !delegate_->IsWaitingForPointerLockPrompt(this)) {
+     RejectPointerLockOrUnlockIfNecessary(
+         blink::mojom::PointerLockResult::kWrongDocument);
+   }
 @@ -3248,6 +3248,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
