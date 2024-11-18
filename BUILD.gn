@@ -1147,6 +1147,19 @@ config("libcef_dll_wrapper_config") {
       ldflags = [ "/STACK:0x800000" ]
     }
   }
+
+  # Build using the minimum C++ version supported by the CEF binary distribution.
+  # Chromium (and libcef) may build with a newer C++ version so this helps to
+  # avoid accidental usage of new/unsupported language features in sample apps.
+  # For Chromium defaults see //build/config/compiler/BUILD.gn.
+  if (is_win) {
+    cflags_cc = [ "/std:c++17" ]
+  } else {
+    cflags_cc = [ "-std=c++17" ]
+  }
+  if (is_mac) {
+    cflags_objcc = [ "-std=c++17" ]
+  }
 }
 
 # libcef_dll_wrapper target.
