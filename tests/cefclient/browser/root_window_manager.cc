@@ -249,9 +249,10 @@ void RootWindowManager::OtherBrowserClosed(int browser_id,
 
   // Track ownership of popup browsers that don't have a RootWindow.
   if (opener_browser_id > 0) {
-    DCHECK(other_browser_owners_.contains(opener_browser_id));
+    DCHECK(other_browser_owners_.find(opener_browser_id) !=
+           other_browser_owners_.end());
     auto& child_set = other_browser_owners_[opener_browser_id];
-    DCHECK(child_set.contains(browser_id));
+    DCHECK(child_set.find(browser_id) != child_set.end());
     child_set.erase(browser_id);
     if (child_set.empty()) {
       other_browser_owners_.erase(opener_browser_id);
@@ -313,7 +314,8 @@ void RootWindowManager::OnAbortOrClosePopup(int opener_browser_id,
 
   // Close all other associated popups if the opener is closing. These popups
   // don't have a RootWindow (e.g. when running with `--use-default-popup`).
-  if (popup_id < 0 && other_browser_owners_.contains(opener_browser_id)) {
+  if (popup_id < 0 && other_browser_owners_.find(opener_browser_id) !=
+                          other_browser_owners_.end()) {
     // Use a copy as the original set may be modified in OtherBrowserClosed
     // while iterating.
     auto set = other_browser_owners_[opener_browser_id];
