@@ -138,7 +138,9 @@ class CefFrameImpl
   // Called if/when a disconnect occurs. This may occur due to frame navigation,
   // destruction, or insertion into the bfcache (when the browser-side frame
   // representation is destroyed and closes the connection).
-  void OnDisconnect(DisconnectReason reason, const std::string& description);
+  void OnDisconnect(DisconnectReason reason,
+                    uint32_t custom_reason,
+                    const std::string& description);
 
   // Send an action to the remote BrowserFrame. This will queue the action if
   // the remote frame is not yet attached.
@@ -185,6 +187,8 @@ class CefFrameImpl
 
   // Number of times that browser reconnect has been attempted.
   size_t browser_connect_retry_ct_ = 0;
+  // Log of reasons why the reconnect failed.
+  std::string browser_connect_retry_log_;
 
   // Current browser connection state.
   enum class ConnectionState {
@@ -196,7 +200,9 @@ class CefFrameImpl
 
   static std::string GetDisconnectDebugString(ConnectionState connection_state,
                                               bool frame_is_valid,
+                                              bool frame_is_main,
                                               DisconnectReason reason,
+                                              uint32_t custom_reason,
                                               const std::string& description);
 
   base::OneShotTimer browser_connect_timer_;
