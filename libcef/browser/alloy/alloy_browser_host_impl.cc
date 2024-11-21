@@ -1277,7 +1277,8 @@ bool AlloyBrowserHostImpl::IsBackForwardCacheSupported(
 
 content::PreloadingEligibility AlloyBrowserHostImpl::IsPrerender2Supported(
     content::WebContents& web_contents) {
-  return content::PreloadingEligibility::kEligible;
+  // Prerender is not supported in CEF. See issue #3664.
+  return content::PreloadingEligibility::kPreloadingDisabled;
 }
 
 void AlloyBrowserHostImpl::DraggableRegionsChanged(

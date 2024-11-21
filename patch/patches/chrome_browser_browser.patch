@@ -138,7 +138,7 @@ index 4c9e41d73cedd..eed762cd05bf9 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index df205a82b34c4..042df3763233b 100644
+index df205a82b34c4..888f9c4dc3035 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -272,6 +272,25 @@
@@ -236,7 +236,22 @@ index df205a82b34c4..042df3763233b 100644
  }
  
  bool Browser::TabsNeedBeforeUnloadFired() const {
-@@ -1809,6 +1858,14 @@ WebContents* Browser::OpenURLFromTab(
+@@ -1747,9 +1796,14 @@ bool Browser::IsBackForwardCacheSupported(content::WebContents& web_contents) {
+ 
+ content::PreloadingEligibility Browser::IsPrerender2Supported(
+     content::WebContents& web_contents) {
++#if BUILDFLAG(ENABLE_CEF)
++  // Prerender is not supported in CEF. See issue #3664.
++  return content::PreloadingEligibility::kPreloadingDisabled;
++#else
+   Profile* profile =
+       Profile::FromBrowserContext(web_contents.GetBrowserContext());
+   return prefetch::IsSomePreloadingEnabled(*profile->GetPrefs());
++#endif
+ }
+ 
+ bool Browser::ShouldShowStaleContentOnEviction(content::WebContents* source) {
+@@ -1809,6 +1863,14 @@ WebContents* Browser::OpenURLFromTab(
                                    std::move(navigation_handle_callback));
    }
  
@@ -251,7 +266,7 @@ index df205a82b34c4..042df3763233b 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -1975,6 +2032,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -1975,6 +2037,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool should_show_loading_ui) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, should_show_loading_ui);
@@ -260,7 +275,7 @@ index df205a82b34c4..042df3763233b 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -2003,6 +2062,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -2003,6 +2067,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -269,7 +284,7 @@ index df205a82b34c4..042df3763233b 100644
    if (!GetStatusBubble())
      return;
  
-@@ -2010,6 +2071,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -2010,6 +2076,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
      GetStatusBubble()->SetURL(url);
  }
  
@@ -287,7 +302,7 @@ index df205a82b34c4..042df3763233b 100644
  void Browser::ContentsMouseEvent(WebContents* source, const ui::Event& event) {
    const ui::EventType type = event.type();
    const bool exited = type == ui::EventType::kMouseExited;
-@@ -2038,6 +2110,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
+@@ -2038,6 +2115,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
    return false;
  }
  
@@ -307,7 +322,7 @@ index df205a82b34c4..042df3763233b 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -2137,12 +2222,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -2137,12 +2227,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
  
    // Make the tab show up in the task manager.
    task_manager::WebContentsTags::CreateForTabContents(new_contents);
@@ -332,7 +347,7 @@ index df205a82b34c4..042df3763233b 100644
    // Don't show the page hung dialog when a HTML popup hangs because
    // the dialog will take the focus and immediately close the popup.
    RenderWidgetHostView* view = render_widget_host->GetView();
-@@ -2155,6 +2252,13 @@ void Browser::RendererUnresponsive(
+@@ -2155,6 +2257,13 @@ void Browser::RendererUnresponsive(
  void Browser::RendererResponsive(
      WebContents* source,
      content::RenderWidgetHost* render_widget_host) {
@@ -346,7 +361,7 @@ index df205a82b34c4..042df3763233b 100644
    RenderWidgetHostView* view = render_widget_host->GetView();
    if (view && !render_widget_host->GetView()->IsHTMLFormPopup()) {
      TabDialogs::FromWebContents(source)->HideHungRendererDialog(
-@@ -2164,6 +2268,15 @@ void Browser::RendererResponsive(
+@@ -2164,6 +2273,15 @@ void Browser::RendererResponsive(
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
      WebContents* source) {
@@ -362,7 +377,7 @@ index df205a82b34c4..042df3763233b 100644
    return javascript_dialogs::TabModalDialogManager::FromWebContents(source);
  }
  
-@@ -2199,6 +2312,11 @@ void Browser::DraggableRegionsChanged(
+@@ -2199,6 +2317,11 @@ void Browser::DraggableRegionsChanged(
    if (app_controller_) {
      app_controller_->DraggableRegionsChanged(regions, contents);
    }
@@ -374,7 +389,7 @@ index df205a82b34c4..042df3763233b 100644
  }
  
  void Browser::DidFinishNavigation(
-@@ -2279,11 +2397,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2279,11 +2402,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -390,7 +405,7 @@ index df205a82b34c4..042df3763233b 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2486,6 +2608,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2486,6 +2613,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -406,7 +421,7 @@ index df205a82b34c4..042df3763233b 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -3046,9 +3177,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -3046,9 +3182,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -418,7 +433,7 @@ index df205a82b34c4..042df3763233b 100644
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -3056,6 +3188,12 @@ StatusBubble* Browser::GetStatusBubble() {
+@@ -3056,6 +3193,12 @@ StatusBubble* Browser::GetStatusBubble() {
    // mode, as the minimal browser UI includes the status bar.
    if (web_app::AppBrowserController::IsWebApp(this) &&
        !app_controller()->HasMinimalUiButtons()) {
@@ -431,7 +446,7 @@ index df205a82b34c4..042df3763233b 100644
      return nullptr;
    }
  
-@@ -3205,6 +3343,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3205,6 +3348,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -440,7 +455,7 @@ index df205a82b34c4..042df3763233b 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3359,6 +3499,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3359,6 +3504,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {
