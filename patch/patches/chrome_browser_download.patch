@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index e07f9d6b5aabd..f57b5da7e9364 100644
+index 16f38b6c8d6f9..97f54931c02dd 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
 @@ -31,6 +31,7 @@
@@ -56,7 +56,7 @@ index e07f9d6b5aabd..f57b5da7e9364 100644
    DownloadTargetDeterminer::CompletionCallback target_determined_callback =
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
-@@ -1119,8 +1138,11 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
+@@ -1120,8 +1139,11 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
    Browser* browser =
        web_contents ? chrome::FindBrowserWithTab(web_contents) : nullptr;
    std::unique_ptr<chrome::ScopedTabbedBrowserDisplayer> browser_displayer;

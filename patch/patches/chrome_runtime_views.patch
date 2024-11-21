@@ -41,10 +41,10 @@ index ec7c90dc23958..0fa7a7110cf43 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 5d09d33c4a730..205a4fbb6abe3 100644
+index 0d4b0fb263538..cdc472aa9f997 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -714,10 +714,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
+@@ -715,10 +715,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
      ui::SimpleMenuModel::Delegate* delegate)
      : SimpleMenuModel(delegate) {
    AddItemWithStringIdAndVectorIcon(this, IDC_FIND, IDS_FIND, kSearchMenuIcon);
@@ -57,7 +57,7 @@ index 5d09d33c4a730..205a4fbb6abe3 100644
  }
  
  class SaveAndShareSubMenuModel : public ui::SimpleMenuModel {
-@@ -782,6 +784,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
+@@ -783,6 +785,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
    }
  }
  
@@ -115,7 +115,7 @@ index 5d09d33c4a730..205a4fbb6abe3 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1696,7 +1749,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1699,7 +1752,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 5d09d33c4a730..205a4fbb6abe3 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1712,6 +1765,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1715,6 +1768,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 5d09d33c4a730..205a4fbb6abe3 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1868,8 +1945,10 @@ void AppMenuModel::Build() {
+@@ -1871,8 +1948,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 5d09d33c4a730..205a4fbb6abe3 100644
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -1965,6 +2044,11 @@ void AppMenuModel::Build() {
+@@ -1968,6 +2047,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS_ASH)
  
