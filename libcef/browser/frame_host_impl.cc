@@ -101,6 +101,7 @@ CefFrameHostImpl::CefFrameHostImpl(scoped_refptr<CefBrowserInfo> browser_info,
               : render_frame_host->GetParent()->GetGlobalFrameToken()),
       render_frame_host_(render_frame_host) {
   DCHECK(browser_info_);
+  DVLOG(1) << __func__ << ": " << GetDebugString() << " created ";
 }
 
 CefFrameHostImpl::~CefFrameHostImpl() {
@@ -502,24 +503,6 @@ bool CefFrameHostImpl::IsDetached() const {
 bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
   CEF_REQUIRE_UIT();
 
-  if (VLOG_IS_ON(1)) {
-    std::string reason_str;
-    switch (reason) {
-      case DetachReason::RENDER_FRAME_DELETED:
-        reason_str = "RENDER_FRAME_DELETED";
-        break;
-      case DetachReason::NEW_MAIN_FRAME:
-        reason_str = "NEW_MAIN_FRAME";
-        break;
-      case DetachReason::BROWSER_DESTROYED:
-        reason_str = "BROWSER_DESTROYED";
-        break;
-    };
-
-    VLOG(1) << GetDebugString() << " detached (reason=" << reason_str
-            << ", is_connected=" << render_frame_.is_bound() << ")";
-  }
-
   // This method may be called multiple times (e.g. from CefBrowserInfo
   // SetMainFrame and RemoveFrame).
   bool is_first_complete_detach = false;
@@ -546,13 +529,39 @@ bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
   }
 
   if (render_frame_.is_bound()) {
-    render_frame_->FrameDetached();
+    if (VLOG_IS_ON(1)) {
+      std::string reason_str;
+      switch (reason) {
+        case DetachReason::RENDER_FRAME_DELETED:
+          reason_str = "RENDER_FRAME_DELETED";
+          break;
+        case DetachReason::NEW_MAIN_FRAME:
+          reason_str = "NEW_MAIN_FRAME";
+          break;
+        case DetachReason::BROWSER_DESTROYED:
+          reason_str = "BROWSER_DESTROYED";
+          break;
+      };
+
+      DVLOG(1) << __func__ << ": " << GetDebugString()
+               << " detached (reason=" << reason_str << ")";
+    }
+    DetachRenderFrame();
   }
 
-  render_frame_.reset();
-  render_frame_host_ = nullptr;
+  if (render_frame_host_) {
+    DVLOG(1) << __func__ << ": " << GetDebugString() << " host cleared";
+    render_frame_host_ = nullptr;
+  }
 
   return is_first_complete_detach;
+}
+
+void CefFrameHostImpl::DetachRenderFrame() {
+  CEF_REQUIRE_UIT();
+  DCHECK(render_frame_.is_bound());
+  render_frame_.ResetWithReason(
+      static_cast<uint32_t>(frame_util::ResetReason::kDetached), "Detached");
 }
 
 void CefFrameHostImpl::MaybeReAttach(
@@ -571,16 +580,12 @@ void CefFrameHostImpl::MaybeReAttach(
   // If |require_detached| then we expect that Detach() was called previously.
   CHECK(!require_detached || !render_frame_.is_bound());
 
-  if (render_frame_host_) {
+  if (render_frame_.is_bound()) {
     // Intentionally not clearing |queued_renderer_actions_|, as we may be
     // changing RFH during initial browser navigation.
-    VLOG(1) << GetDebugString()
-            << " detached (reason=RENDER_FRAME_CHANGED, is_connected="
-            << render_frame_.is_bound() << ")";
-    if (render_frame_.is_bound()) {
-      render_frame_->FrameDetached();
-    }
-    render_frame_.reset();
+    DVLOG(1) << __func__ << ": " << GetDebugString()
+             << " detached (reason=RENDER_FRAME_CHANGED)";
+    DetachRenderFrame();
   }
 
   // The RFH may change but the frame token should remain the same.
@@ -591,6 +596,7 @@ void CefFrameHostImpl::MaybeReAttach(
     browser_info_ = browser_info;
   }
 
+  DVLOG(1) << __func__ << ": " << GetDebugString() << " host changed";
   render_frame_host_ = render_frame_host;
   RefreshAttributes();
 
@@ -689,7 +695,8 @@ void CefFrameHostImpl::FrameAttached(
     return;
   }
 
-  VLOG(1) << GetDebugString() << " " << (reattached ? "re" : "") << "connected";
+  DVLOG(1) << __func__ << ": " << GetDebugString() << " "
+           << (reattached ? "re" : "") << "connected";
 
   render_frame_.Bind(std::move(render_frame_remote));
   render_frame_.set_disconnect_handler(

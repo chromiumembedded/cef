@@ -86,6 +86,16 @@ std::string GetFrameDebugString(
 std::string GetFrameDebugString(
     const content::GlobalRenderFrameHostToken& global_token);
 
+// Used in combination with ResetWithReason() to report mojo connection
+// disconnect reasons. |kNoReason| (0) is the default when a mojo connection
+// disconnects without a specified reason.
+enum class ResetReason : uint32_t {
+  kNoReason,
+  kDeleted,
+  kDetached,
+  kExcluded,
+};
+
 }  // namespace frame_util
 
 #endif  // CEF_LIBCEF_COMMON_FRAME_UTIL_H_

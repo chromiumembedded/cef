@@ -184,6 +184,8 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
 
   void OnRenderFrameDisconnect();
 
+  void DetachRenderFrame();
+
   std::string GetDebugString() const;
 
   const bool is_main_frame_;
