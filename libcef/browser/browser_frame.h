@@ -16,8 +16,7 @@
 // association with the RenderFrameHost (which may be speculative, etc.), and so
 // that messages are always routed to the most appropriate CefFrameHostImpl
 // instance. Lifespan is tied to the RFH via FrameServiceBase.
-class CefBrowserFrame
-    : public content::FrameServiceBase<cef::mojom::BrowserFrame> {
+class CefBrowserFrame : public CefFrameServiceBase<cef::mojom::BrowserFrame> {
  public:
   CefBrowserFrame(content::RenderFrameHost* render_frame_host,
                   mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver);
@@ -43,9 +42,6 @@ class CefBrowserFrame
   void UpdateDraggableRegions(
       std::optional<std::vector<cef::mojom::DraggableRegionEntryPtr>> regions)
       override;
-
-  // FrameServiceBase methods:
-  bool ShouldCloseOnFinishNavigation() const override { return false; }
 
   CefRefPtr<CefFrameHostImpl> GetFrameHost(bool prefer_speculative,
                                            bool* is_excluded = nullptr) const;
