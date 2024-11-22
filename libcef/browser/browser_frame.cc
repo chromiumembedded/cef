@@ -17,7 +17,12 @@
 CefBrowserFrame::CefBrowserFrame(
     content::RenderFrameHost* render_frame_host,
     mojo::PendingReceiver<cef::mojom::BrowserFrame> receiver)
-    : FrameServiceBase(render_frame_host, std::move(receiver)) {}
+    : CefFrameServiceBase(render_frame_host, std::move(receiver)) {
+  DVLOG(1) << __func__ << ": frame "
+           << frame_util::GetFrameDebugString(
+                  render_frame_host->GetGlobalFrameToken())
+           << " bound";
+}
 
 CefBrowserFrame::~CefBrowserFrame() = default;
 
@@ -62,13 +67,15 @@ void CefBrowserFrame::FrameAttached(
   if (auto host = GetFrameHost(/*prefer_speculative=*/true, &is_excluded)) {
     host->FrameAttached(std::move(render_frame), reattached);
   } else if (is_excluded) {
-    VLOG(1) << "frame "
-            << frame_util::GetFrameDebugString(
-                   render_frame_host()->GetGlobalFrameToken())
-            << " attach denied";
+    DVLOG(1) << __func__ << ": frame "
+             << frame_util::GetFrameDebugString(
+                    render_frame_host()->GetGlobalFrameToken())
+             << " attach denied";
     mojo::Remote<cef::mojom::RenderFrame> render_frame_remote;
     render_frame_remote.Bind(std::move(render_frame));
     render_frame_remote->FrameAttachedAck(/*allow=*/false);
+    render_frame_remote.ResetWithReason(
+        static_cast<uint32_t>(frame_util::ResetReason::kExcluded), "Excluded");
   }
 }
 

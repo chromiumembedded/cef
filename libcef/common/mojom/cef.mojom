@@ -54,9 +54,6 @@ interface RenderFrame {
   // |allow| will be false if we don't want to attach the frame.
   FrameAttachedAck(bool allow);
 
-  // Browser process has intentionally detached.
-  FrameDetached();
-
   // Send a message to the render process.
   SendMessage(string name, mojo_base.mojom.ListValue arguments);
 

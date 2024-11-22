@@ -117,20 +117,17 @@ class CefFrameImpl
   using BrowserFrameType = mojo::Remote<cef::mojom::BrowserFrame>;
   const BrowserFrameType& GetBrowserFrame(bool expect_acked = true);
 
-  // Called if the BrowserFrame connection attempt times out.
-  void OnBrowserFrameTimeout();
-
   // Called if the BrowserFrame connection is disconnected.
   void OnBrowserFrameDisconnect(uint32_t custom_reason,
-                                const std::string& description);
+                                const std::string& description,
+                                MojoResult error_result);
   // Called if the RenderFrame connection is disconnected.
   void OnRenderFrameDisconnect(uint32_t custom_reason,
-                               const std::string& description);
+                               const std::string& description,
+                               MojoResult error_result);
 
   enum class DisconnectReason {
     DETACHED,
-    BROWSER_FRAME_DETACHED,
-    CONNECT_TIMEOUT,
     RENDER_FRAME_DISCONNECT,
     BROWSER_FRAME_DISCONNECT,
   };
@@ -140,7 +137,8 @@ class CefFrameImpl
   // representation is destroyed and closes the connection).
   void OnDisconnect(DisconnectReason reason,
                     uint32_t custom_reason,
-                    const std::string& description);
+                    const std::string& description,
+                    MojoResult error_result);
 
   // Send an action to the remote BrowserFrame. This will queue the action if
   // the remote frame is not yet attached.
@@ -152,7 +150,6 @@ class CefFrameImpl
 
   // cef::mojom::RenderFrame methods:
   void FrameAttachedAck(bool allow) override;
-  void FrameDetached() override;
   void SendMessage(const std::string& name,
                    base::Value::List arguments) override;
   void SendSharedMemoryRegion(const std::string& name,
@@ -190,6 +187,8 @@ class CefFrameImpl
   // Log of reasons why the reconnect failed.
   std::string browser_connect_retry_log_;
 
+  bool ever_connected_ = false;
+
   // Current browser connection state.
   enum class ConnectionState {
     DISCONNECTED,
@@ -203,7 +202,8 @@ class CefFrameImpl
                                               bool frame_is_main,
                                               DisconnectReason reason,
                                               uint32_t custom_reason,
-                                              const std::string& description);
+                                              const std::string& description,
+                                              MojoResult error_result);
 
   base::OneShotTimer browser_connect_timer_;
 
