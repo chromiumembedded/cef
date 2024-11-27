@@ -10,6 +10,7 @@
 #include <optional>
 #include <queue>
 #include <string>
+#include <utility>
 
 #include "base/memory/raw_ptr.h"
 #include "base/synchronization/lock.h"
@@ -140,15 +141,15 @@ class CefFrameHostImpl : public CefFrame, public cef::mojom::BrowserFrame {
   // implicitly via CefBrowserInfo::browser() returning nullptr. If
   // |is_current_main_frame| is true then only the RenderFrameHost references
   // will be released as we want the frame object itself to remain valid.
-  // Returns true if the frame is completely detached for the first time.
-  bool Detach(DetachReason reason, bool is_current_main_frame);
+  // Returns (bool, bool) to indicate if frame detached and/or frame destroyed
+  // notifications should be triggered respectively.
+  std::pair<bool, bool> Detach(DetachReason reason, bool is_current_main_frame);
 
-  // A frame has swapped to active status from prerendering or the back-forward
-  // cache. We may need to re-attach if the RFH has changed. See
-  // https://crbug.com/1179502#c8 for additional background.
-  void MaybeReAttach(scoped_refptr<CefBrowserInfo> browser_info,
-                     content::RenderFrameHost* render_frame_host,
-                     bool require_detached);
+  // A new frame was created or a frame has swapped to active status from
+  // prerendering or the back-forward cache. Update internal state if the RFH
+  // has changed. See https://crbug.com/1179502#c8 for additional background.
+  void MaybeAttach(scoped_refptr<CefBrowserInfo> browser_info,
+                   content::RenderFrameHost* render_frame_host);
 
   // cef::mojom::BrowserFrame methods forwarded from CefBrowserFrame.
   void SendMessage(const std::string& name,

@@ -500,12 +500,9 @@ bool CefFrameHostImpl::IsDetached() const {
   return !GetRenderFrameHost();
 }
 
-bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
+std::pair<bool, bool> CefFrameHostImpl::Detach(DetachReason reason,
+                                               bool is_current_main_frame) {
   CEF_REQUIRE_UIT();
-
-  // This method may be called multiple times (e.g. from CefBrowserInfo
-  // SetMainFrame and RemoveFrame).
-  bool is_first_complete_detach = false;
 
   // Should not be called for temporary frames.
   CHECK(!is_temporary());
@@ -513,22 +510,8 @@ bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
   // Must be a main frame if |is_current_main_frame| is true.
   CHECK(!is_current_main_frame || is_main_frame_);
 
-  if (!is_current_main_frame) {
-    {
-      base::AutoLock lock_scope(state_lock_);
-      if (browser_info_) {
-        is_first_complete_detach = true;
-        browser_info_ = nullptr;
-      }
-    }
-
-    // In case we never attached, clean up.
-    while (!queued_renderer_actions_.empty()) {
-      queued_renderer_actions_.pop();
-    }
-  }
-
-  if (render_frame_.is_bound()) {
+  const bool is_bound = render_frame_.is_bound();
+  if (is_bound) {
     if (VLOG_IS_ON(1)) {
       std::string reason_str;
       switch (reason) {
@@ -554,7 +537,27 @@ bool CefFrameHostImpl::Detach(DetachReason reason, bool is_current_main_frame) {
     render_frame_host_ = nullptr;
   }
 
-  return is_first_complete_detach;
+  // This method may be called multiple times (e.g. from CefBrowserInfo
+  // SetMainFrame and RemoveFrame).
+  bool is_first_complete_detach = false;
+
+  if (!is_current_main_frame) {
+    {
+      base::AutoLock lock_scope(state_lock_);
+      if (browser_info_) {
+        DVLOG(1) << __func__ << ": " << GetDebugString() << " invalidated";
+        is_first_complete_detach = true;
+        browser_info_ = nullptr;
+      }
+    }
+
+    // In case we never attached, clean up.
+    while (!queued_renderer_actions_.empty()) {
+      queued_renderer_actions_.pop();
+    }
+  }
+
+  return std::make_pair(is_bound, is_first_complete_detach);
 }
 
 void CefFrameHostImpl::DetachRenderFrame() {
@@ -564,12 +567,11 @@ void CefFrameHostImpl::DetachRenderFrame() {
       static_cast<uint32_t>(frame_util::ResetReason::kDetached), "Detached");
 }
 
-void CefFrameHostImpl::MaybeReAttach(
+void CefFrameHostImpl::MaybeAttach(
     scoped_refptr<CefBrowserInfo> browser_info,
-    content::RenderFrameHost* render_frame_host,
-    bool require_detached) {
+    content::RenderFrameHost* render_frame_host) {
   CEF_REQUIRE_UIT();
-  if (render_frame_.is_bound() && render_frame_host_ == render_frame_host) {
+  if (render_frame_host_ == render_frame_host) {
     // Nothing to do here.
     return;
   }
@@ -577,16 +579,13 @@ void CefFrameHostImpl::MaybeReAttach(
   // Should not be called for temporary frames.
   CHECK(!is_temporary());
 
-  // If |require_detached| then we expect that Detach() was called previously.
-  CHECK(!require_detached || !render_frame_.is_bound());
+  // We expect that either this frame has never attached (e.g. when swapping
+  // from speculative to non-speculative) or Detach() was called previously
+  // (e.g. when exiting the bfcache).
+  CHECK(!render_frame_.is_bound());
 
-  if (render_frame_.is_bound()) {
-    // Intentionally not clearing |queued_renderer_actions_|, as we may be
-    // changing RFH during initial browser navigation.
-    DVLOG(1) << __func__ << ": " << GetDebugString()
-             << " detached (reason=RENDER_FRAME_CHANGED)";
-    DetachRenderFrame();
-  }
+  // Intentionally not clearing |queued_renderer_actions_|, as we may be
+  // changing RFH during initial browser navigation.
 
   // The RFH may change but the frame token should remain the same.
   CHECK(*frame_token_ == render_frame_host->GetGlobalFrameToken());
@@ -652,6 +651,14 @@ void CefFrameHostImpl::SendToRenderFrame(const std::string& function_name,
 
 void CefFrameHostImpl::OnRenderFrameDisconnect() {
   CEF_REQUIRE_UIT();
+
+  DVLOG(1) << __func__ << ": " << GetDebugString();
+
+  if (auto browser_info = GetBrowserInfo()) {
+    if (auto browser = browser_info->browser()) {
+      browser_info->MaybeNotifyFrameDetached(browser, this);
+    }
+  }
 
   // Reconnect, if any, will be triggered via FrameAttached().
   render_frame_.reset();

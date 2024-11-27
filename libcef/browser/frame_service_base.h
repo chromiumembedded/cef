@@ -69,7 +69,10 @@ class CefFrameServiceBase : public Interface,
     DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 
     if (render_frame_host == render_frame_host_) {
-      DVLOG(1) << __func__ << ": RenderFrameHost destroyed.";
+      DVLOG(1) << __func__ << ": "
+               << frame_util::GetFrameDebugString(
+                      render_frame_host->GetGlobalFrameToken())
+               << " destroyed";
       if (receiver_.is_bound()) {
         receiver_.ResetWithReason(
             static_cast<uint32_t>(frame_util::ResetReason::kDeleted),
