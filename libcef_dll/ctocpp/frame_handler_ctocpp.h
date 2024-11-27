@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a571fa8b3c173d78cfb67eb3e44c8f2c3fb2e089$
+// $hash=f33fedc6d7e0d692b03fe7f35319e93c5f31b9b1$
 //
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_FRAME_HANDLER_CTOCPP_H_
@@ -36,6 +36,8 @@ class CefFrameHandlerCToCpp : public CefCToCppRefCounted<CefFrameHandlerCToCpp,
   // CefFrameHandler methods.
   void OnFrameCreated(CefRefPtr<CefBrowser> browser,
                       CefRefPtr<CefFrame> frame) override;
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override;
   void OnFrameAttached(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame,
                        bool reattached) override;

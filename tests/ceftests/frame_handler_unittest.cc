@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -16,7 +17,8 @@
 #include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
-// Set to 1 to enable verbose debugging info logging.
+// Set to 1 and add `--enable-logging --vmodule=*frame*=1 --log-file=<path>` to
+// the command-line to enable verbose debugging info logging.
 #define VERBOSE_DEBUGGING 0
 
 namespace {
@@ -33,8 +35,9 @@ struct FrameStatus {
     MAIN_FRAME_CHANGED_ASSIGNED,
     LOAD_START,
     LOAD_END,
-    BEFORE_CLOSE,
     FRAME_DETACHED,
+    BEFORE_CLOSE,
+    FRAME_DESTROYED,
     MAIN_FRAME_CHANGED_REMOVED,
     MAIN_FRAME_FINAL_REMOVED,
 
@@ -57,10 +60,12 @@ struct FrameStatus {
         return "OnLoadStart";
       case LOAD_END:
         return "OnLoadEnd";
-      case BEFORE_CLOSE:
-        return "OnBeforeClose";
       case FRAME_DETACHED:
         return "OnFrameDetached";
+      case BEFORE_CLOSE:
+        return "OnBeforeClose";
+      case FRAME_DESTROYED:
+        return "OnFrameDestroyed";
       case MAIN_FRAME_CHANGED_REMOVED:
         return "OnMainFrameChanged(changed_removed)";
       case MAIN_FRAME_FINAL_REMOVED:
@@ -133,7 +138,9 @@ struct FrameStatus {
 #endif
     return got_callback_[LOAD_END];
   }
-  bool IsDetached() const { return got_callback_[FRAME_DETACHED]; }
+  bool IsDestroyed() const { return got_callback_[FRAME_DESTROYED]; }
+
+  bool IsMain() const { return is_main_; }
 
   void SetIsFirstMain(bool val) {
     EXPECT_TRUE(is_main_);
@@ -148,17 +155,24 @@ struct FrameStatus {
     is_last_main_ = val;
   }
 
-  void SetIsTemporary(bool val) {
-    EXPECT_FALSE(is_main_);
-    is_temporary_ = val;
-  }
+  void SetIsTemporary(bool val) { is_temporary_ = val; }
   bool IsTemporary() const { return is_temporary_; }
 
   void SetAdditionalDebugInfo(const std::string& debug_info) {
     debug_info_ = debug_info;
   }
 
-  std::string GetDebugString() const { return debug_info_ + ident_str_; }
+  std::string GetDebugString(bool dump_state = false) const {
+    std::string result = debug_info_ + ident_str_;
+    if (dump_state) {
+      std::stringstream ss;
+      ss << "\nis_main=" << is_main_ << "\nis_first_main=" << is_first_main_
+         << "\nis_last_main=" << is_last_main_
+         << "\nis_temporary=" << is_temporary_;
+      result += ss.str();
+    }
+    return result;
+  }
 
   // The main frame will be reused for same-origin navigations.
   void ResetMainLoadStatus() {
@@ -200,10 +214,32 @@ struct FrameStatus {
                        CefRefPtr<CefFrame> frame) {
     EXPECT_UI_THREAD();
     VerifyBrowser(__FUNCTION__, browser);
-    // A frame is never valid after it's detached.
-    VerifyFrame(__FUNCTION__, frame, /*expect_valid=*/false);
+
+    // Don't check IsValid() here for sub-frames. Invalidation will occur during
+    // destruction and we may become detached either before or during
+    // destruction, so the value is not guaranteed.
+    std::optional<bool> expect_valid;
+
+    if (frame->IsMain()) {
+      // Check IsValid() here for main frames. It will only return true for the
+      // current main frame.
+      expect_valid =
+          frame->GetIdentifier() == browser->GetMainFrame()->GetIdentifier();
+    }
+
+    VerifyFrame(__FUNCTION__, frame, expect_valid);
 
     GotCallback(__FUNCTION__, FRAME_DETACHED);
+  }
+
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) {
+    EXPECT_UI_THREAD();
+    VerifyBrowser(__FUNCTION__, browser);
+    // A frame is never valid after it's destroyed.
+    VerifyFrame(__FUNCTION__, frame, /*expect_valid=*/false);
+
+    GotCallback(__FUNCTION__, FRAME_DESTROYED);
   }
 
   void OnMainFrameChanged(CefRefPtr<CefBrowser> browser,
@@ -257,7 +293,7 @@ struct FrameStatus {
 
   // Called for all existing frames, not just the target frame.
   // We need to track this status to know if the browser should be valid in
-  // following calls to OnFrameDetached.
+  // following calls to OnFrameDetached/OnFrameDestroyed.
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     EXPECT_UI_THREAD();
     VerifyBrowser(__FUNCTION__, browser);
@@ -325,7 +361,6 @@ struct FrameStatus {
 
     if (is_temporary_) {
       // Should not receive any queries.
-      EXPECT_FALSE(is_main_);
       EXPECT_EQ(0, delivered_query_ct_);
     } else {
       // Verify that all expected messages have been sent and received.
@@ -357,6 +392,14 @@ struct FrameStatus {
       return false;
     }
 
+    if (is_temporary_) {
+      // Temporary frames should not connect or load.
+      if (callback == FRAME_ATTACHED || callback == FRAME_DETACHED ||
+          callback == LOAD_START || callback == LOAD_END) {
+        return false;
+      }
+    }
+
     if (is_main_) {
       if ((callback == MAIN_FRAME_INITIAL_ASSIGNED ||
            callback == AFTER_CREATED) &&
@@ -373,17 +416,20 @@ struct FrameStatus {
       if (callback == MAIN_FRAME_CHANGED_REMOVED && is_last_main_) {
         return false;
       }
-    } else if (is_temporary_) {
-      // For cross-process sub-frame navigation a sub-frame is first created in
-      // the parent's renderer process. That sub-frame is then discarded after
-      // the real cross-origin sub-frame is created in a different renderer
-      // process. These discarded sub-frames will get OnFrameCreated/
-      // OnFrameAttached immediately followed by OnFrameDetached.
-      return callback == FRAME_CREATED || callback == FRAME_ATTACHED ||
-             callback == FRAME_DETACHED;
     }
 
     return true;
+  }
+
+  bool IsFlakyCallbackOrder(int callback1, int callback2) const {
+    if (callback1 == FRAME_ATTACHED &&
+        (callback2 == MAIN_FRAME_CHANGED_ASSIGNED || callback2 == LOAD_START ||
+         callback2 == LOAD_END)) {
+      // Timing of OnFrameAttached is flaky. See issue #3817.
+      return true;
+    }
+
+    return false;
   }
 
   void VerifyCallbackStatus(const std::string& func,
@@ -392,25 +438,21 @@ struct FrameStatus {
 
     for (int i = 0; i <= CALLBACK_LAST; ++i) {
       if (i < current_callback && IsExpectedCallback(i)) {
-        if (i == FRAME_ATTACHED &&
-            (current_callback == MAIN_FRAME_CHANGED_ASSIGNED ||
-             current_callback == LOAD_START || current_callback == LOAD_END)) {
-          // Timing of OnFrameAttached is flaky. See issue #3817.
+        if (IsFlakyCallbackOrder(i, current_callback)) {
           continue;
         }
         EXPECT_TRUE(got_callback_[i])
-            << "inside " << func << " should already have gotten "
-            << GetCallbackName(i);
+            << "inside " << func << "\nfor "
+            << GetDebugString(/*dump_state=*/true)
+            << "\nshould already have gotten " << GetCallbackName(i);
       } else {
-        if (current_callback == FRAME_ATTACHED &&
-            (i == MAIN_FRAME_CHANGED_ASSIGNED || i == LOAD_START ||
-             i == LOAD_END)) {
-          // Timing of OnFrameAttached is flaky. See issue #3817.
+        if (IsFlakyCallbackOrder(current_callback, i)) {
           continue;
         }
         EXPECT_FALSE(got_callback_[i])
-            << "inside " << func << " should not already have gotten "
-            << GetCallbackName(i);
+            << "inside " << func << "\nfor "
+            << GetDebugString(/*dump_state=*/true)
+            << "\nshould NOT already have gotten " << GetCallbackName(i);
       }
     }
   }
@@ -436,7 +478,8 @@ struct FrameStatus {
     // nicely with the concept that "GetMainFrame() always returns a frame that
     // can be used", which wouldn't be the case if we returned the old frame
     // when calling GetMainFrame() from inside OnFrameCreated (for the new
-    // frame), OnFrameDetached (for the old frame) or OnMainFrameChanged.
+    // frame), OnFrameDetached/OnFrameDestoyed (for the old frame) or
+    // OnMainFrameChanged.
     auto main_frame = browser->GetMainFrame();
     if (expect_valid) {
       EXPECT_TRUE(main_frame) << func;
@@ -452,11 +495,13 @@ struct FrameStatus {
 
   void VerifyFrame(const std::string& func,
                    CefRefPtr<CefFrame> frame,
-                   bool expect_valid = true) const {
-    if (expect_valid) {
-      EXPECT_TRUE(frame->IsValid()) << func;
-    } else {
-      EXPECT_FALSE(frame->IsValid()) << func;
+                   std::optional<bool> expect_valid = true) const {
+    if (expect_valid.has_value()) {
+      if (*expect_valid) {
+        EXPECT_TRUE(frame->IsValid()) << func;
+      } else {
+        EXPECT_FALSE(frame->IsValid()) << func;
+      }
     }
 
     // |frame| should be us. This checks the frame type and ID.
@@ -646,6 +691,13 @@ class OrderMainTestHandler : public RoutingTestHandler, public CefFrameHandler {
     EXPECT_UI_THREAD();
     EXPECT_TRUE(current_main_frame_);
     current_main_frame_->OnFrameDetached(browser, frame);
+  }
+
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override {
+    EXPECT_UI_THREAD();
+    EXPECT_TRUE(current_main_frame_);
+    current_main_frame_->OnFrameDestroyed(browser, frame);
   }
 
   void OnMainFrameChanged(CefRefPtr<CefBrowser> browser,
@@ -1003,14 +1055,14 @@ class FrameStatusMap {
     return true;
   }
 
-  bool AllFramesDetached() const {
+  bool AllFramesDestroyed() const {
     if (size() != expected_frame_ct_) {
       return false;
     }
 
     Map::const_iterator it = frame_map_.begin();
     for (; it != frame_map_.end(); ++it) {
-      if (!it->second->IsDetached()) {
+      if (!it->second->IsDestroyed()) {
         return false;
       }
     }
@@ -1126,20 +1178,32 @@ class OrderSubTestHandler : public NavigateOrderMainTestHandler {
   void OnFrameDetached(CefRefPtr<CefBrowser> browser,
                        CefRefPtr<CefFrame> frame) override {
     if (!frame->IsMain()) {
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
+      status->OnFrameDetached(browser, frame);
+      return;
+    }
+
+    NavigateOrderMainTestHandler::OnFrameDetached(browser, frame);
+  }
+
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override {
+    if (!frame->IsMain()) {
       // Potentially the last notification for an old sub-frame after
       // navigation.
       auto map = GetFrameMap(frame);
       auto status = map->GetFrameStatus(frame);
-      status->OnFrameDetached(browser, frame);
+      status->OnFrameDestroyed(browser, frame);
 
-      if (map->AllFramesDetached()) {
+      if (map->AllFramesDestroyed()) {
         // Verify results from the previous navigation.
         VerifyAndClearSubFrameTestResults(map);
       }
       return;
     }
 
-    NavigateOrderMainTestHandler::OnFrameDetached(browser, frame);
+    NavigateOrderMainTestHandler::OnFrameDestroyed(browser, frame);
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -1390,23 +1454,45 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
                             mode,
                             /*expected_frame_ct=*/4U) {}
 
-  void OnFrameDetached(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame) override {
+  void OnFrameCreated(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame) override {
+    OrderSubTestHandler::OnFrameCreated(browser, frame);
+
+    if (!frame->IsMain() &&
+        loaded_frame_child_ids_.find(ExtractChildId(frame->GetIdentifier())) !=
+            loaded_frame_child_ids_.end()) {
+      // Mark sub-frames in the same process as a loaded frame as temporary.
+      // See below comments in OnFrameDestroyed.
+      auto map = GetFrameMap(frame);
+      auto status = map->GetFrameStatus(frame);
+      status->SetIsTemporary(true);
+    }
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    OrderSubTestHandler::OnLoadStart(browser, frame, transition_type);
+
+    loaded_frame_child_ids_.insert(ExtractChildId(frame->GetIdentifier()));
+  }
+
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override {
     // A sub-frame is first created in the parent's renderer process. That
     // sub-frame is then discarded after the real cross-origin sub-frame is
     // created in a different renderer process. These discarded sub-frames will
-    // get OnFrameCreated/OnFrameAttached immediately followed by
-    // OnFrameDetached.
+    // get OnFrameCreated/OnFrameDestroyed.
     if (!frame->IsMain()) {
       auto map = GetFrameMap(frame);
       auto status = map->GetFrameStatus(frame);
       if (status && !status->DidGetCallback(FrameStatus::LOAD_START)) {
-        status->SetIsTemporary(true);
+        EXPECT_TRUE(status->IsTemporary());
         temp_frame_detached_ct_++;
       }
     }
 
-    OrderSubTestHandler::OnFrameDetached(browser, frame);
+    OrderSubTestHandler::OnFrameDestroyed(browser, frame);
   }
 
  protected:
@@ -1431,7 +1517,16 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
   }
 
  private:
+  // Parse the format from frame_util::MakeFrameIdentifier to return |child_id|.
+  static std::string ExtractChildId(const std::string& frame_id) {
+    const int pos = frame_id.find('-');
+    CHECK_GT(pos, 0) << frame_id;
+    return frame_id.substr(0, pos);
+  }
+
   size_t temp_frame_detached_ct_ = 0U;
+
+  std::set<std::string> loaded_frame_child_ids_;
 };
 
 }  // namespace
@@ -1523,6 +1618,7 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
       temp_main_frame_->SetAdditionalDebugInfo(GetAdditionalDebugInfo() +
                                                "temp ");
       temp_main_frame_->SetIsFirstMain(true);
+      temp_main_frame_->SetIsTemporary(true);
       temp_main_frame_->OnFrameCreated(browser, frame);
       return;
     }
@@ -1558,6 +1654,17 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
     OrderMainTestHandler::OnFrameAttached(browser, frame, reattached);
   }
 
+  void OnFrameDetached(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame) override {
+    if (temp_main_frame_ && temp_main_frame_->IsSame(frame)) {
+      EXPECT_TRUE(cross_origin_);
+      temp_main_frame_->OnFrameDetached(browser, frame);
+      return;
+    }
+
+    OrderMainTestHandler::OnFrameDetached(browser, frame);
+  }
+
   void OnMainFrameChanged(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> old_frame,
                           CefRefPtr<CefFrame> new_frame) override {
@@ -1570,8 +1677,8 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
     OrderMainTestHandler::OnMainFrameChanged(browser, old_frame, new_frame);
   }
 
-  void OnFrameDetached(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame) override {
+  void OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame) override {
     if (temp_main_frame_ && temp_main_frame_->IsSame(frame)) {
       EXPECT_TRUE(cross_origin_);
       EXPECT_FALSE(got_temp_destroyed_);
@@ -1579,28 +1686,30 @@ class PopupOrderMainTestHandler : public OrderMainTestHandler {
 
 #if VERBOSE_DEBUGGING
       LOG(INFO) << temp_main_frame_->GetDebugString()
-                << " callback OnFrameDetached(discarded)";
+                << " callback OnFrameDestroyed(discarded)";
 #endif
 
       // All of the initial main frame callbacks go to the proxy.
       EXPECT_TRUE(temp_main_frame_->DidGetCallback(FrameStatus::AFTER_CREATED));
       EXPECT_TRUE(temp_main_frame_->DidGetCallback(
           FrameStatus::MAIN_FRAME_INITIAL_ASSIGNED));
-      EXPECT_TRUE(!temp_main_frame_->DidGetCallback(FrameStatus::LOAD_START));
+      EXPECT_FALSE(temp_main_frame_->DidGetCallback(FrameStatus::LOAD_START));
+      EXPECT_FALSE(temp_main_frame_->DidGetCallback(FrameStatus::LOAD_END));
       EXPECT_TRUE(temp_main_frame_->DidGetCallback(FrameStatus::FRAME_CREATED));
-      EXPECT_TRUE(
+      EXPECT_FALSE(
           temp_main_frame_->DidGetCallback(FrameStatus::FRAME_ATTACHED));
+      EXPECT_FALSE(
+          temp_main_frame_->DidGetCallback(FrameStatus::FRAME_DETACHED));
 
-      // Should receive queries for OnFrameCreated, OnAfterCreated,
-      // OnFrameAttached.
-      EXPECT_EQ(temp_main_frame_->QueriesDeliveredCount(), 3);
+      // Temporary frames never attach.
+      EXPECT_EQ(temp_main_frame_->QueriesDeliveredCount(), 0);
 
       delete temp_main_frame_;
       temp_main_frame_ = nullptr;
       return;
     }
 
-    OrderMainTestHandler::OnFrameDetached(browser, frame);
+    OrderMainTestHandler::OnFrameDestroyed(browser, frame);
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,

@@ -316,20 +316,23 @@ void CefFrameImpl::SendProcessMessage(CefProcessId target_process,
   }
 }
 
-void CefFrameImpl::OnAttached() {
-  // Called indirectly from RenderFrameCreated.
-  ConnectBrowserFrame(ConnectReason::RENDER_FRAME_CREATED);
-}
-
 void CefFrameImpl::OnWasShown() {
-  if (browser_connection_state_ == ConnectionState::DISCONNECTED) {
-    // Reconnect a frame that has exited the bfcache.
+  if (browser_connection_state_ == ConnectionState::DISCONNECTED &&
+      did_commit_provisional_load_) {
+    // Reconnect a frame that has exited the bfcache. We ignore temporary
+    // frames that have never called DidCommitProvisionalLoad.
     ConnectBrowserFrame(ConnectReason::WAS_SHOWN);
   }
 }
 
 void CefFrameImpl::OnDidCommitProvisionalLoad() {
   did_commit_provisional_load_ = true;
+  if (browser_connection_state_ == ConnectionState::DISCONNECTED) {
+    // Connect after RenderFrameImpl::DidCommitNavigation has potentially
+    // reset the BrowserInterfaceBroker in the browser process. See related
+    // comments in OnDisconnect.
+    ConnectBrowserFrame(ConnectReason::DID_COMMIT);
+  }
   MaybeInitializeScriptContext();
 }
 
@@ -473,8 +476,8 @@ void CefFrameImpl::ConnectBrowserFrame(ConnectReason reason) {
   if (VLOG_IS_ON(1)) {
     std::string reason_str;
     switch (reason) {
-      case ConnectReason::RENDER_FRAME_CREATED:
-        reason_str = "RENDER_FRAME_CREATED";
+      case ConnectReason::DID_COMMIT:
+        reason_str = "DID_COMMIT";
         break;
       case ConnectReason::WAS_SHOWN:
         reason_str = "WAS_SHOWN";

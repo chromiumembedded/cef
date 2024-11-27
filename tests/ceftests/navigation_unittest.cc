@@ -3593,7 +3593,9 @@ class ExtraInfoNavTestHandler : public TestHandler {
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
     if (popup_opened_) {
-      DestroyTest();
+      EXPECT_FALSE(got_load_end_popup_);
+      got_load_end_popup_.yes();
+      MaybeDestroyTest();
     } else {
       GrantPopupPermission(browser->GetHost()->GetRequestContext(),
                            browser->GetMainFrame()->GetURL());
@@ -3641,9 +3643,12 @@ class ExtraInfoNavTestHandler : public TestHandler {
       EXPECT_TRUE(args->GetBool(0));
       if (popup_opened_) {
         EXPECT_TRUE(args->GetBool(1));
+        EXPECT_FALSE(got_process_message_popup_);
         got_process_message_popup_.yes();
+        MaybeDestroyTest();
       } else {
         EXPECT_FALSE(args->GetBool(1));
+        EXPECT_FALSE(got_process_message_main_);
         got_process_message_main_.yes();
       }
       return true;
@@ -3653,15 +3658,23 @@ class ExtraInfoNavTestHandler : public TestHandler {
     return false;
   }
 
- protected:
+ private:
   bool popup_opened_ = false;
   TrackCallback got_process_message_main_;
   TrackCallback got_process_message_popup_;
+  TrackCallback got_load_end_popup_;
+
+  void MaybeDestroyTest() {
+    if (got_process_message_popup_ && got_load_end_popup_) {
+      DestroyTest();
+    }
+  }
 
   void DestroyTest() override {
     // Verify test expectations.
     EXPECT_TRUE(got_process_message_main_);
     EXPECT_TRUE(got_process_message_popup_);
+    EXPECT_TRUE(got_load_end_popup_);
 
     TestHandler::DestroyTest();
   }

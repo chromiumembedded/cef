@@ -166,6 +166,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
       CefRefPtr<CefBrowserHostBase> browser,
       CefRefPtr<CefFrameHostImpl> frame,
       std::vector<CefDraggableRegion> draggable_regions);
+  void MaybeNotifyFrameDetached(CefRefPtr<CefBrowserHostBase> browser,
+                                CefRefPtr<CefFrameHostImpl> frame);
 
  private:
   friend class base::RefCountedThreadSafe<CefBrowserInfo>;
@@ -190,8 +192,8 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
                     CefRefPtr<CefFrameHostImpl> frame);
 
   void MaybeNotifyFrameCreated(CefRefPtr<CefFrameHostImpl> frame);
-  void MaybeNotifyFrameDetached(CefRefPtr<CefBrowserHostBase> browser,
-                                CefRefPtr<CefFrameHostImpl> frame);
+  void MaybeNotifyFrameDestroyed(CefRefPtr<CefBrowserHostBase> browser,
+                                 CefRefPtr<CefFrameHostImpl> frame);
   void MaybeNotifyMainFrameChanged(CefRefPtr<CefBrowserHostBase> browser,
                                    CefRefPtr<CefFrameHostImpl> old_frame,
                                    CefRefPtr<CefFrameHostImpl> new_frame);
