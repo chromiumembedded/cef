@@ -522,6 +522,14 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
   }
   return NO;
 }
+
+// Requests that any state restoration archive be created with secure encoding
+// (macOS 12+ only). See https://crrev.com/c737387656 for details. This also
+// fixes an issue with macOS default behavior incorrectly restoring windows
+// after hard reset (holding down the power button).
+- (BOOL)applicationSupportsSecureRestorableState:(NSApplication*)app {
+  return YES;
+}
 @end
 
 namespace client {
