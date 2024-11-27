@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=4a3d33abbaa00a373ea515338ed67d96708dbb9c$
+// $hash=51da21d569dd41e38cb2dc6e0f2dea0bd88dbdce$
 //
 
 #include "libcef_dll/cpptoc/frame_handler_cpptoc.h"
@@ -47,6 +47,34 @@ frame_handler_on_frame_created(struct _cef_frame_handler_t* self,
 
   // Execute
   CefFrameHandlerCppToC::Get(self)->OnFrameCreated(
+      CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame));
+}
+
+void CEF_CALLBACK
+frame_handler_on_frame_destroyed(struct _cef_frame_handler_t* self,
+                                 cef_browser_t* browser,
+                                 cef_frame_t* frame) {
+  shutdown_checker::AssertNotShutdown();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self) {
+    return;
+  }
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser) {
+    return;
+  }
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame) {
+    return;
+  }
+
+  // Execute
+  CefFrameHandlerCppToC::Get(self)->OnFrameDestroyed(
       CefBrowserCToCpp::Wrap(browser), CefFrameCToCpp::Wrap(frame));
 }
 
@@ -140,6 +168,7 @@ frame_handler_on_main_frame_changed(struct _cef_frame_handler_t* self,
 
 CefFrameHandlerCppToC::CefFrameHandlerCppToC() {
   GetStruct()->on_frame_created = frame_handler_on_frame_created;
+  GetStruct()->on_frame_destroyed = frame_handler_on_frame_destroyed;
   GetStruct()->on_frame_attached = frame_handler_on_frame_attached;
   GetStruct()->on_frame_detached = frame_handler_on_frame_detached;
   GetStruct()->on_main_frame_changed = frame_handler_on_main_frame_changed;

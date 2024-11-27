@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=0074492ed580ccc06962a05b6c72bdabae182a51$
+// $hash=14e4a39489488582d7965ae71ed1ef174a4f3b08$
 //
 
 #include "libcef_dll/ctocpp/frame_handler_ctocpp.h"
@@ -46,6 +46,34 @@ void CefFrameHandlerCToCpp::OnFrameCreated(CefRefPtr<CefBrowser> browser,
   // Execute
   _struct->on_frame_created(_struct, CefBrowserCppToC::Wrap(browser),
                             CefFrameCppToC::Wrap(frame));
+}
+
+NO_SANITIZE("cfi-icall")
+void CefFrameHandlerCToCpp::OnFrameDestroyed(CefRefPtr<CefBrowser> browser,
+                                             CefRefPtr<CefFrame> frame) {
+  shutdown_checker::AssertNotShutdown();
+
+  cef_frame_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_frame_destroyed)) {
+    return;
+  }
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get()) {
+    return;
+  }
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get()) {
+    return;
+  }
+
+  // Execute
+  _struct->on_frame_destroyed(_struct, CefBrowserCppToC::Wrap(browser),
+                              CefFrameCppToC::Wrap(frame));
 }
 
 NO_SANITIZE("cfi-icall")

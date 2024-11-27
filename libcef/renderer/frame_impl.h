@@ -81,7 +81,6 @@ class CefFrameImpl
                           CefRefPtr<CefProcessMessage> message) override;
 
   // Forwarded from CefRenderFrameObserver.
-  void OnAttached();
   void OnWasShown();
   void OnDidCommitProvisionalLoad();
   void OnDidFinishLoad();
@@ -105,7 +104,7 @@ class CefFrameImpl
                            LocalFrameAction action);
 
   enum class ConnectReason {
-    RENDER_FRAME_CREATED,
+    DID_COMMIT,
     WAS_SHOWN,
     RETRY,
   };

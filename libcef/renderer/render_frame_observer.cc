@@ -199,7 +199,6 @@ void CefRenderFrameObserver::AttachFrame(CefFrameImpl* frame) {
   DCHECK(frame);
   DCHECK(!frame_);
   frame_ = frame;
-  frame_->OnAttached();
 }
 
 void CefRenderFrameObserver::OnLoadStart() {
