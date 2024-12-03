@@ -55,10 +55,11 @@
       'include/internal/cef_time.h',
       'include/internal/cef_trace_event_internal.h',
       'include/internal/cef_types.h',
+      'include/internal/cef_types_color.h',
       'include/internal/cef_types_content_settings.h',
       'include/internal/cef_types_geometry.h',
+      'include/internal/cef_types_osr.h',
       'include/internal/cef_types_runtime.h',
-      'include/internal/cef_types_color.h',
     ],
     'includes_capi': [
       'include/capi/cef_base_capi.h',
