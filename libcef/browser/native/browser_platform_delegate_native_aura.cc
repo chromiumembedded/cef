@@ -203,8 +203,7 @@ ui::MouseWheelEvent CefBrowserPlatformDelegateNativeAura::TranslateUiWheelEvent(
   int changed_button_flags =
       TranslateUiChangedButtonFlags(mouse_event.modifiers);
 
-  return ui::MouseWheelEvent(offset, location, root_location, time_stamp,
-                             (ui::EF_PRECISION_SCROLLING_DELTA | flags),
+  return ui::MouseWheelEvent(offset, location, root_location, time_stamp, flags,
                              changed_button_flags);
 }
 
@@ -266,6 +265,13 @@ int CefBrowserPlatformDelegateNativeAura::TranslateUiEventModifiers(
   if (cef_modifiers & EVENTFLAG_IS_REPEAT) {
     result |= ui::EF_IS_REPEAT;
   }
+  if (cef_modifiers & EVENTFLAG_PRECISION_SCROLLING_DELTA) {
+    result |= ui::EF_PRECISION_SCROLLING_DELTA;
+  }
+  if (cef_modifiers & EVENTFLAG_SCROLL_BY_PAGE) {
+    result |= ui::EF_SCROLL_BY_PAGE;
+  }
+
   return result;
 }
 

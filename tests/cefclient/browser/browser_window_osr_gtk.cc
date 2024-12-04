@@ -1644,6 +1644,7 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
   DeviceToLogical(mouse_event, device_scale_factor);
   mouse_event.modifiers = GetCefStateModifiers(event->state);
+  mouse_event.modifiers |= EVENTFLAG_PRECISION_SCROLLING_DELTA;
 
   static const int scrollbarPixelsPerGtkTick = 40;
   int deltaX = 0;

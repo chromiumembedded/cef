@@ -743,6 +743,8 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
         ScreenToClient(hwnd_, &screen_point);
         int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        int deltaX = IsKeyDown(VK_SHIFT) ? delta : 0;
+        int deltaY = !IsKeyDown(VK_SHIFT) ? delta : 0;
 
         CefMouseEvent mouse_event;
         mouse_event.x = screen_point.x;
@@ -750,9 +752,17 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         ApplyPopupOffset(mouse_event.x, mouse_event.y);
         DeviceToLogical(mouse_event, device_scale_factor_);
         mouse_event.modifiers = GetCefMouseModifiers(wParam);
-        browser_host->SendMouseWheelEvent(mouse_event,
-                                          IsKeyDown(VK_SHIFT) ? delta : 0,
-                                          !IsKeyDown(VK_SHIFT) ? delta : 0);
+
+        UINT sys_info_lines;
+        if (SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &sys_info_lines,
+                                 0) &&
+            sys_info_lines == WHEEL_PAGESCROLL) {
+          mouse_event.modifiers |= EVENTFLAG_SCROLL_BY_PAGE;
+          deltaX = 0;
+          deltaY = (delta > 0) ? 1 : -1;
+        }
+
+        browser_host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
       }
       break;
   }
