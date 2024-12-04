@@ -631,11 +631,6 @@ bool CefCrashReporterClient::GetCrashDumpLocation(std::wstring* crash_dir) {
   return GetDefaultCrashDumpLocation(crash_dir, base::UTF8ToWide(app_name_));
 }
 
-bool CefCrashReporterClient::GetCrashMetricsLocation(
-    std::wstring* metrics_dir) {
-  return GetDefaultUserDataDirectory(metrics_dir, base::UTF8ToWide(app_name_));
-}
-
 #elif BUILDFLAG(IS_POSIX)
 
 void CefCrashReporterClient::GetProductNameAndVersion(const char** product_name,
