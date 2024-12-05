@@ -41,7 +41,7 @@ index ec7c90dc23958..0fa7a7110cf43 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 0d4b0fb263538..cdc472aa9f997 100644
+index 7afe8d7942faf..17c0947c5576e 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -715,10 +715,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -115,7 +115,7 @@ index 0d4b0fb263538..cdc472aa9f997 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1699,7 +1752,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1700,7 +1753,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 0d4b0fb263538..cdc472aa9f997 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1715,6 +1768,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1716,6 +1769,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 0d4b0fb263538..cdc472aa9f997 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1871,8 +1948,10 @@ void AppMenuModel::Build() {
+@@ -1872,8 +1949,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 0d4b0fb263538..cdc472aa9f997 100644
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -1968,6 +2047,11 @@ void AppMenuModel::Build() {
+@@ -1969,6 +2048,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -683,7 +683,7 @@ index 3944e4463304d..9f09d246c0b6a 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 8addda3741841..5be1d534b9bd8 100644
+index e02895e98e1ed..575b45ef62dab 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -137,11 +137,16 @@ class BrowserView : public BrowserWindow,

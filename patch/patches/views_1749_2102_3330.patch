@@ -133,10 +133,10 @@ index c579f65dce9f0..a04e0d1f66aaa 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 5b675ae814e09..bcea717c1a23b 100644
+index f17cd72dbe014..e300516f3df7c 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -585,6 +585,12 @@ void LabelButton::OnThemeChanged() {
+@@ -596,6 +596,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
