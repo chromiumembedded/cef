@@ -187,6 +187,13 @@ void ChromeBrowserFrame::Activate() {
 }
 
 void ChromeBrowserFrame::OnNativeWidgetDestroyed() {
+  // Remove the listener registration added in BrowserView::InitBrowser().
+  if (browser_view()) {
+    if (auto focus_manager = browser_view()->GetFocusManager()) {
+      focus_manager->RemoveFocusChangeListener(browser_view());
+    }
+  }
+
   window_view_ = nullptr;
   SetBrowserView(nullptr);
   BrowserFrame::OnNativeWidgetDestroyed();

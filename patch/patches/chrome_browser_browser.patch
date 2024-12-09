@@ -13,7 +13,7 @@ index 2480282a19d12..dbd1fbf8a15b5 100644
    return false;
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index faead4388ac00..ce1cc050c94b0 100644
+index 4aaba212926f4..e8aadb2c97fe9 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
 @@ -38,6 +38,7 @@
@@ -24,7 +24,7 @@ index faead4388ac00..ce1cc050c94b0 100644
  #include "chrome/browser/ui/browser_list.h"
  #include "chrome/browser/ui/browser_tabstrip.h"
  #include "chrome/browser/ui/browser_window.h"
-@@ -1230,6 +1231,13 @@ DevToolsWindow* DevToolsWindow::Create(
+@@ -1221,6 +1222,13 @@ DevToolsWindow* DevToolsWindow::Create(
          !browser->is_type_normal()) {
        can_dock = false;
      }
@@ -38,7 +38,7 @@ index faead4388ac00..ce1cc050c94b0 100644
    }
  
    // Create WebContents with devtools.
-@@ -1689,9 +1697,13 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
+@@ -1680,9 +1688,13 @@ void DevToolsWindow::OpenInNewTab(const GURL& url) {
    if (!inspected_web_contents ||
        !inspected_web_contents->OpenURL(params,
                                         /*navigation_handle_callback=*/{})) {
@@ -52,7 +52,7 @@ index faead4388ac00..ce1cc050c94b0 100644
    }
  }
  
-@@ -1854,12 +1866,28 @@ void DevToolsWindow::CreateDevToolsBrowser() {
+@@ -1845,12 +1857,28 @@ void DevToolsWindow::CreateDevToolsBrowser() {
        Browser::CreationStatus::kOk) {
      return;
    }
@@ -88,7 +88,7 @@ index faead4388ac00..ce1cc050c94b0 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index df9b0eed07761..a984511be272a 100644
+index 977b3222c8f7c..ee71bf3a1a463 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -99,7 +99,7 @@ index df9b0eed07761..a984511be272a 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//chromeos/ash/components/assistant/assistant.gni")
-@@ -297,6 +298,10 @@ static_library("ui") {
+@@ -303,6 +304,10 @@ static_library("ui") {
      "//build/config/compiler:wexit_time_destructors",
    ]
  
@@ -110,15 +110,15 @@ index df9b0eed07761..a984511be272a 100644
    public_deps = [
      # WARNING WARNING WARNING
      # New dependencies outside of //chrome/browser should be added to
-@@ -323,6 +328,7 @@ static_library("ui") {
-     "//build:chromeos_buildflags",
+@@ -331,6 +336,7 @@ static_library("ui") {
      "//build/config/chromebox_for_meetings:buildflags",
+     "//build/config/linux/dbus:buildflags",
      "//cc/paint",
 +    "//cef/libcef/features",
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -688,6 +694,10 @@ static_library("ui") {
+@@ -699,6 +705,10 @@ static_library("ui") {
      deps += [ "//components/plus_addresses/resources:vector_icons" ]
    }
  
@@ -129,7 +129,7 @@ index df9b0eed07761..a984511be272a 100644
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5479,6 +5489,7 @@ static_library("ui") {
+@@ -5487,6 +5497,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -138,10 +138,10 @@ index df9b0eed07761..a984511be272a 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index f313979ca1b0a..c1f63c4a1cda5 100644
+index a62c82aab7a35..cbd8c87aba959 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -270,6 +270,25 @@
+@@ -269,6 +269,25 @@
  #include "components/captive_portal/content/captive_portal_tab_helper.h"
  #endif
  
@@ -167,7 +167,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/extensions/extension_browser_window_helper.h"
  #endif
-@@ -559,6 +578,10 @@ Browser::Browser(const CreateParams& params)
+@@ -558,6 +577,10 @@ Browser::Browser(const CreateParams& params)
        type_(params.type),
        profile_(params.profile),
        window_(nullptr),
@@ -178,7 +178,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
        tab_strip_model_delegate_(
            std::make_unique<chrome::BrowserTabStripModelDelegate>(this)),
        tab_strip_model_(std::make_unique<TabStripModel>(
-@@ -789,6 +812,12 @@ Browser::~Browser() {
+@@ -788,6 +811,12 @@ Browser::~Browser() {
    // away so they don't try and call back to us.
    if (select_file_dialog_.get())
      select_file_dialog_->ListenerDestroyed();
@@ -191,7 +191,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  ///////////////////////////////////////////////////////////////////////////////
-@@ -1375,6 +1404,8 @@ void Browser::WindowFullscreenStateChanged() {
+@@ -1407,6 +1436,8 @@ void Browser::WindowFullscreenStateChanged() {
        ->WindowFullscreenStateChanged();
    command_controller_->FullscreenStateChanged();
    UpdateBookmarkBarState(BOOKMARK_BAR_STATE_CHANGE_TOGGLE_FULLSCREEN);
@@ -200,7 +200,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  void Browser::FullscreenTopUIStateChanged() {
-@@ -1694,6 +1725,14 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
+@@ -1726,6 +1757,14 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
    if (exclusive_access_manager_->HandleUserKeyEvent(event))
      return content::KeyboardEventProcessingResult::HANDLED;
  
@@ -215,7 +215,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    return window()->PreHandleKeyboardEvent(event);
  }
  
-@@ -1701,8 +1740,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
+@@ -1733,8 +1772,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
                                    const NativeWebKeyboardEvent& event) {
    DevToolsWindow* devtools_window =
        DevToolsWindow::GetInstanceForInspectedWebContents(source);
@@ -236,7 +236,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  bool Browser::TabsNeedBeforeUnloadFired() const {
-@@ -1795,9 +1844,14 @@ bool Browser::IsBackForwardCacheSupported(content::WebContents& web_contents) {
+@@ -1826,9 +1875,14 @@ bool Browser::IsBackForwardCacheSupported(content::WebContents& web_contents) {
  
  content::PreloadingEligibility Browser::IsPrerender2Supported(
      content::WebContents& web_contents) {
@@ -251,7 +251,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  bool Browser::ShouldShowStaleContentOnEviction(content::WebContents* source) {
-@@ -1857,6 +1911,14 @@ WebContents* Browser::OpenURLFromTab(
+@@ -1888,6 +1942,14 @@ WebContents* Browser::OpenURLFromTab(
                                    std::move(navigation_handle_callback));
    }
  
@@ -266,7 +266,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -2023,6 +2085,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -2054,6 +2116,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool should_show_loading_ui) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, should_show_loading_ui);
@@ -275,7 +275,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -2051,6 +2115,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -2082,6 +2146,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -284,7 +284,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    if (!GetStatusBubble())
      return;
  
-@@ -2058,6 +2124,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -2089,6 +2155,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
      GetStatusBubble()->SetURL(url);
  }
  
@@ -302,7 +302,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  void Browser::ContentsMouseEvent(WebContents* source, const ui::Event& event) {
    const ui::EventType type = event.type();
    const bool exited = type == ui::EventType::kMouseExited;
-@@ -2086,6 +2163,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
+@@ -2117,6 +2194,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
    return false;
  }
  
@@ -322,10 +322,10 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -2185,12 +2275,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
- 
-   // Make the tab show up in the task manager.
-   task_manager::WebContentsTags::CreateForTabContents(new_contents);
+@@ -2213,12 +2303,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+   // will later be inserted into this browser using Browser::Navigate via
+   // AddNewContents.
+   TabHelpers::AttachTabHelpers(new_contents);
 +
 +  CALL_CEF_DELEGATE(WebContentsCreated, source_contents,
 +                    opener_render_process_id, opener_render_frame_id,
@@ -347,7 +347,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    // Don't show the page hung dialog when a HTML popup hangs because
    // the dialog will take the focus and immediately close the popup.
    RenderWidgetHostView* view = render_widget_host->GetView();
-@@ -2203,6 +2305,13 @@ void Browser::RendererUnresponsive(
+@@ -2231,6 +2333,13 @@ void Browser::RendererUnresponsive(
  void Browser::RendererResponsive(
      WebContents* source,
      content::RenderWidgetHost* render_widget_host) {
@@ -361,7 +361,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    RenderWidgetHostView* view = render_widget_host->GetView();
    if (view && !render_widget_host->GetView()->IsHTMLFormPopup()) {
      TabDialogs::FromWebContents(source)->HideHungRendererDialog(
-@@ -2212,6 +2321,15 @@ void Browser::RendererResponsive(
+@@ -2240,6 +2349,15 @@ void Browser::RendererResponsive(
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
      WebContents* source) {
@@ -377,7 +377,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    return javascript_dialogs::TabModalDialogManager::FromWebContents(source);
  }
  
-@@ -2247,6 +2365,11 @@ void Browser::DraggableRegionsChanged(
+@@ -2275,6 +2393,11 @@ void Browser::DraggableRegionsChanged(
    if (app_controller_) {
      app_controller_->DraggableRegionsChanged(regions, contents);
    }
@@ -389,7 +389,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  void Browser::DidFinishNavigation(
-@@ -2327,11 +2450,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2355,11 +2478,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -405,7 +405,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2534,6 +2661,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2562,6 +2689,15 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -421,7 +421,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -3086,9 +3222,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -3114,9 +3250,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -433,7 +433,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -3096,6 +3233,12 @@ StatusBubble* Browser::GetStatusBubble() {
+@@ -3124,6 +3261,12 @@ StatusBubble* Browser::GetStatusBubble() {
    // mode, as the minimal browser UI includes the status bar.
    if (web_app::AppBrowserController::IsWebApp(this) &&
        !app_controller()->HasMinimalUiButtons()) {
@@ -446,7 +446,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
      return nullptr;
    }
  
-@@ -3241,6 +3384,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3269,6 +3412,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -455,7 +455,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3398,6 +3543,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3426,6 +3571,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {
@@ -471,7 +471,7 @@ index f313979ca1b0a..c1f63c4a1cda5 100644
      case TYPE_NORMAL:
        return NormalBrowserSupportsWindowFeature(feature, check_can_support);
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 8057f6fcc87c4..14bf2073b170b 100644
+index 1455dcab97edb..eb86532470a75 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -25,6 +25,7 @@
@@ -536,7 +536,7 @@ index 8057f6fcc87c4..14bf2073b170b 100644
    // Get the FindBarController for this browser, creating it if it does not
    // yet exist.
    FindBarController* GetFindBarController();
-@@ -961,10 +988,18 @@ class Browser : public TabStripModelObserver,
+@@ -964,10 +991,18 @@ class Browser : public TabStripModelObserver,
    void SetContentsBounds(content::WebContents* source,
                           const gfx::Rect& bounds) override;
    void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
@@ -555,7 +555,7 @@ index 8057f6fcc87c4..14bf2073b170b 100644
    void BeforeUnloadFired(content::WebContents* source,
                           bool proceed,
                           bool* proceed_to_fire_unload) override;
-@@ -1303,6 +1338,10 @@ class Browser : public TabStripModelObserver,
+@@ -1306,6 +1341,10 @@ class Browser : public TabStripModelObserver,
    // This Browser's window.
    raw_ptr<BrowserWindow, DanglingUntriaged> window_;
  
@@ -566,7 +566,7 @@ index 8057f6fcc87c4..14bf2073b170b 100644
    std::unique_ptr<TabStripModelDelegate> const tab_strip_model_delegate_;
    std::unique_ptr<TabStripModel> const tab_strip_model_;
  
-@@ -1369,6 +1408,8 @@ class Browser : public TabStripModelObserver,
+@@ -1372,6 +1411,8 @@ class Browser : public TabStripModelObserver,
    const std::string initial_workspace_;
    bool initial_visible_on_all_workspaces_state_;
  
@@ -576,10 +576,10 @@ index 8057f6fcc87c4..14bf2073b170b 100644
  
    UnloadController unload_controller_;
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index 61a46e74464e0..d5978661b222e 100644
+index d26f6e2bdefd8..6c37714cc328f 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
-@@ -271,6 +271,10 @@ std::tuple<Browser*, int> GetBrowserAndTabForDisposition(
+@@ -260,6 +260,10 @@ std::tuple<Browser*, int> GetBrowserAndTabForDisposition(
  
        browser_params.pip_options = pip_options;
  
@@ -590,10 +590,14 @@ index 61a46e74464e0..d5978661b222e 100644
        const BrowserWindow* const browser_window = params.browser->window();
        const gfx::NativeWindow native_window =
            browser_window ? browser_window->GetNativeWindow()
-@@ -561,6 +565,13 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
-   std::unique_ptr<WebContents> target_contents =
-       WebContents::Create(create_params);
+@@ -547,7 +551,17 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+   }
+ #endif
  
+-  return WebContents::Create(create_params);
++  std::unique_ptr<WebContents> target_contents =
++      WebContents::Create(create_params);
++
 +#if BUILDFLAG(ENABLE_CEF)
 +  auto cef_delegate = params.browser->cef_delegate();
 +  if (cef_delegate) {
@@ -601,9 +605,10 @@ index 61a46e74464e0..d5978661b222e 100644
 +  }
 +#endif
 +
-   // New tabs can have WebUI URLs that will make calls back to arbitrary
-   // tab helpers, so the entire set of tab helpers needs to be set up
-   // immediately.
++  return target_contents;
+ }
+ 
+ bool IsHostAllowedInIncognito(const GURL& url) {
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
 index 1f84235515463..82942fb06b5f3 100644
 --- chrome/browser/ui/browser_tabstrip.cc

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/profiles/profile_menu_view_base.cc chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-index 1f686ab2a03bd..c50f3ce1ed450 100644
+index e588c950ab897..35e54c80d34eb 100644
 --- chrome/browser/ui/views/profiles/profile_menu_view_base.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_view_base.cc
-@@ -1254,8 +1254,8 @@ int ProfileMenuViewBase::GetMaxHeight() const {
+@@ -1162,8 +1162,8 @@ int ProfileMenuViewBase::GetMaxHeight() const {
            ->GetDisplayNearestPoint(anchor_rect.CenterPoint())
            .work_area();
    int available_space = screen_space.bottom() - anchor_rect.bottom();

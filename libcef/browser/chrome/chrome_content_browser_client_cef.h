@@ -132,6 +132,7 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       const GURL& url,
       scoped_refptr<net::HttpResponseHeaders> response_headers,
       bool first_auth_attempt,
+      content::GuestPageHolder* guest,
       LoginAuthRequiredCallback auth_required_callback) override;
   void ExposeInterfacesToRenderer(
       service_manager::BinderRegistry* registry,

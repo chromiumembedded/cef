@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 47b5f2b63ecf2..fa1a3be6d5e06 100644
+index 9b258cb5dcbd0..7ebba152df594 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -35,7 +35,7 @@ index 47b5f2b63ecf2..fa1a3be6d5e06 100644
  }
  
  #if BUILDFLAG(IS_WIN)
-@@ -2542,6 +2546,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2636,6 +2640,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();

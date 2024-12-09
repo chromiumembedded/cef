@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index d20063ec5ccbe..1c3d4a64f5ab6 100644
+index b84296cc7e3bb..919dab95a6acd 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -28,9 +28,9 @@ index d20063ec5ccbe..1c3d4a64f5ab6 100644
 +#if BUILDFLAG(IS_WIN)
  void HostDisplayClient::AddChildWindowToBrowser(
      gpu::SurfaceHandle child_window) {
-   NOTREACHED_IN_MIGRATION();
+   NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 294f99f234006..9d52ca5e7b0b4 100644
+index 9e94f648060e9..a20bc1f7c0b1e 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 1db2476ae1c2a..89fe45d2ec8f3 100644
+index 2fa9063bb7c2f..9a276ac5a1aca 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -268,6 +268,8 @@ viz_component("service") {
+@@ -269,6 +269,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -93,18 +93,18 @@ index 1db2476ae1c2a..89fe45d2ec8f3 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 4be4660c007ee..a689ba262bb81 100644
+index 98e50a61cb7d9..c7fc84e1f4864 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
-@@ -18,6 +18,7 @@
+@@ -17,6 +17,7 @@
+ #include "build/build_config.h"
  #include "build/chromecast_buildflags.h"
- #include "build/chromeos_buildflags.h"
  #include "cc/base/switches.h"
 +#include "cef/libcef/browser/osr/software_output_device_proxy.h"
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/features.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
-@@ -32,6 +33,7 @@
+@@ -31,6 +32,7 @@
  #include "gpu/command_buffer/service/scheduler_sequence.h"
  #include "gpu/config/gpu_finch_features.h"
  #include "gpu/ipc/common/surface_handle.h"
@@ -112,7 +112,7 @@ index 4be4660c007ee..a689ba262bb81 100644
  #include "ui/base/ui_base_switches.h"
  
  #if BUILDFLAG(IS_WIN)
-@@ -146,6 +148,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+@@ -145,6 +147,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index c0809410472cc..8d2f98b2ab577 100644
+index ad696fdb49e00..52e5649b20847 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -32,7 +32,9 @@

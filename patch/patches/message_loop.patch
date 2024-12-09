@@ -30,7 +30,7 @@ index f28ebfee8218d..12f7539526c06 100644
    }
    if (has_msg)
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 8506e9f5b1800..43c99a9c72798 100644
+index 024422b65775b..773d856dff353 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,10 +43,10 @@ index 8506e9f5b1800..43c99a9c72798 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index 7a3e7ce2de408..2ebbd5bd8ef55 100644
+index c44d2c1417f8d..6d4c218185c65 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
-@@ -163,6 +163,12 @@ class BASE_EXPORT CurrentThread {
+@@ -165,6 +165,12 @@ class BASE_EXPORT CurrentThread {
        RegisterOnNextIdleCallbackPasskey,
        OnceClosure on_next_idle_callback);
  
@@ -59,7 +59,7 @@ index 7a3e7ce2de408..2ebbd5bd8ef55 100644
    // Enables nested task processing in scope of an upcoming native message loop.
    // Some unwanted message loops may occur when using common controls or printer
    // functions. Hence, nested task processing is disabled by default to avoid
-@@ -231,6 +237,13 @@ class BASE_EXPORT CurrentThread {
+@@ -236,6 +242,13 @@ class BASE_EXPORT CurrentThread {
    friend class web::WebTaskEnvironment;
  
    raw_ptr<sequence_manager::internal::SequenceManagerImpl> current_;

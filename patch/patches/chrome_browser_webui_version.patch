@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index 0ce1816cb372d..dfee4d62126b2 100644
+index 3c684382f63ca..f560d3c181730 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
-@@ -28,12 +28,23 @@
+@@ -29,12 +29,23 @@
  #include "ui/base/l10n/l10n_util.h"
  #include "url/gurl.h"
  
@@ -27,7 +27,7 @@ index 0ce1816cb372d..dfee4d62126b2 100644
    base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                  base::BlockingType::MAY_BLOCK);
  
-@@ -49,6 +60,19 @@ void GetFilePaths(const base::FilePath& profile_path,
+@@ -50,6 +61,19 @@ void GetFilePaths(const base::FilePath& profile_path,
      *profile_path_out = profile_path.LossyDisplayName();
    else
      *profile_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
@@ -47,7 +47,7 @@ index 0ce1816cb372d..dfee4d62126b2 100644
  }
  
  }  // namespace
-@@ -115,23 +139,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
+@@ -121,23 +145,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
    // OnGotFilePaths.
    std::u16string* exec_path_buffer = new std::u16string;
    std::u16string* profile_path_buffer = new std::u16string;
@@ -124,10 +124,10 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index d046b78cb5825..096c0c806cf85 100644
+index 6893542161a55..42238d843ce33 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
-@@ -22,6 +22,7 @@
+@@ -17,6 +17,7 @@
  #include "base/time/time.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
@@ -135,7 +135,7 @@ index d046b78cb5825..096c0c806cf85 100644
  #include "chrome/browser/browser_process_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/ui/webui/version/version_handler.h"
-@@ -70,6 +71,10 @@
+@@ -64,6 +65,10 @@
  #include "chrome/browser/ui/webui/version/version_util_win.h"
  #endif
  
@@ -146,7 +146,7 @@ index d046b78cb5825..096c0c806cf85 100644
  using content::WebUIDataSource;
  
  namespace {
-@@ -90,6 +95,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -84,6 +89,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
        {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
        {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
        {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
@@ -157,7 +157,7 @@ index d046b78cb5825..096c0c806cf85 100644
        {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
        {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
        {version_ui::kCopyVariationsLabel, IDS_VERSION_UI_COPY_VARIATIONS_LABEL},
-@@ -130,6 +139,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -115,6 +124,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
    html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
@@ -168,7 +168,7 @@ index d046b78cb5825..096c0c806cf85 100644
  }
  
  std::string GetProductModifier() {
-@@ -247,6 +260,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -232,6 +245,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string());
    html_source->AddString(version_ui::kProfilePath, std::string());
@@ -202,10 +202,10 @@ index 913cf913dca7a..d79c330989149 100644
 +  }
  }
 diff --git components/version_ui/resources/about_version.css components/version_ui/resources/about_version.css
-index 839526405ef3f..fb2d6f3a98c00 100644
+index bd41fd2492e79..04378e39332e1 100644
 --- components/version_ui/resources/about_version.css
 +++ components/version_ui/resources/about_version.css
-@@ -138,3 +138,7 @@ body {
+@@ -135,3 +135,7 @@ body {
    position: fixed;
    width: 1px;
  }
@@ -214,10 +214,10 @@ index 839526405ef3f..fb2d6f3a98c00 100644
 +  font-size: 0.8em;
 +}
 diff --git components/version_ui/resources/about_version.html components/version_ui/resources/about_version.html
-index c04197bd7b397..7e461101115b1 100644
+index 1243b0cb31f59..723f9eedd2885 100644
 --- components/version_ui/resources/about_version.html
 +++ components/version_ui/resources/about_version.html
-@@ -62,9 +62,21 @@ about:version template page
+@@ -48,9 +48,21 @@ about:version template page
          </picture>
  </if>
          <div id="company">$i18n{company}</div>
@@ -240,7 +240,7 @@ index c04197bd7b397..7e461101115b1 100644
          <tr><td class="label">$i18n{application_label}</td>
            <td class="version" id="version">
              <span id="copy-content">
-@@ -175,7 +187,15 @@ about:version template page
+@@ -158,7 +170,15 @@ about:version template page
          <tr><td class="label">$i18n{executable_path_name}</td>
            <td class="version" id="executable_path">$i18n{executable_path}</td>
          </tr>
@@ -257,7 +257,7 @@ index c04197bd7b397..7e461101115b1 100644
            <td class="version" id="profile_path">$i18n{profile_path}</td>
          </tr>
  </if>
-@@ -208,6 +228,17 @@ about:version template page
+@@ -191,6 +211,17 @@ about:version template page
            <td class="version" id="sanitizer">$i18n{sanitizer}</td>
          </tr>
        </table>
@@ -276,10 +276,10 @@ index c04197bd7b397..7e461101115b1 100644
  
      <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
 diff --git components/version_ui/resources/about_version.ts components/version_ui/resources/about_version.ts
-index 687a4c066dbc4..1f782c120ba3a 100644
+index ea5f11471acf2..f604065bbe8fe 100644
 --- components/version_ui/resources/about_version.ts
 +++ components/version_ui/resources/about_version.ts
-@@ -75,9 +75,21 @@ function handleVariationInfo(
+@@ -72,9 +72,21 @@ function handleVariationInfo(
   * @param profilePath The profile path to display.
   */
  function handlePathInfo(
@@ -301,9 +301,9 @@ index 687a4c066dbc4..1f782c120ba3a 100644
 +// </if>
  }
  
- // <if expr="chromeos_lacros or is_win">
+ // <if expr="is_win">
 diff --git components/version_ui/version_ui_constants.cc components/version_ui/version_ui_constants.cc
-index 0a28810b49c9c..dfc56e70232ff 100644
+index 1054d152285f7..73bfbb8241a98 100644
 --- components/version_ui/version_ui_constants.cc
 +++ components/version_ui/version_ui_constants.cc
 @@ -6,6 +6,7 @@
@@ -314,7 +314,7 @@ index 0a28810b49c9c..dfc56e70232ff 100644
  
  namespace version_ui {
  
-@@ -93,4 +94,15 @@ const char kVersion[] = "version";
+@@ -92,4 +93,15 @@ const char kVersion[] = "version";
  const char kVersionModifier[] = "version_modifier";
  const char kVersionProcessorVariation[] = "version_processor_variation";
  
@@ -331,7 +331,7 @@ index 0a28810b49c9c..dfc56e70232ff 100644
 +
  }  // namespace version_ui
 diff --git components/version_ui/version_ui_constants.h components/version_ui/version_ui_constants.h
-index 036b6427f56ae..2e68bc18be8c1 100644
+index 0d35047553461..a75ade64c81ad 100644
 --- components/version_ui/version_ui_constants.h
 +++ components/version_ui/version_ui_constants.h
 @@ -7,6 +7,7 @@
@@ -342,7 +342,7 @@ index 036b6427f56ae..2e68bc18be8c1 100644
  
  namespace version_ui {
  
-@@ -95,6 +96,17 @@ extern const char kVersion[];
+@@ -94,6 +95,17 @@ extern const char kVersion[];
  extern const char kVersionModifier[];
  extern const char kVersionProcessorVariation[];
  
@@ -361,7 +361,7 @@ index 036b6427f56ae..2e68bc18be8c1 100644
  
  #endif  // COMPONENTS_VERSION_UI_VERSION_UI_CONSTANTS_H_
 diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
-index 738a21ef1e4ef..7d4775a8b7ae0 100644
+index 7c3d198ccdb52..4a15d9d7f1e13 100644
 --- components/version_ui_strings.grdp
 +++ components/version_ui_strings.grdp
 @@ -76,6 +76,14 @@

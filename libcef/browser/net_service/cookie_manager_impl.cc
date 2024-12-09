@@ -305,9 +305,10 @@ bool CefCookieManagerImpl::SetCookieInternal(
       /*partition_key=*/std::nullopt, /*status=*/nullptr);
 
   if (!canonical_cookie) {
-    SetCookieCallbackImpl(
-        callback, net::CookieAccessResult(net::CookieInclusionStatus(
-                      net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR)));
+    net::CookieInclusionStatus status;
+    status.AddExclusionReason(
+        net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+    SetCookieCallbackImpl(callback, net::CookieAccessResult(std::move(status)));
     return true;
   }
 

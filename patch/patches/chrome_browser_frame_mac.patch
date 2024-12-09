@@ -33,7 +33,7 @@ index 2245c931fbe4f..761ea6b3a6afb 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 1e5c56c02cace..71e91ab4f3fb7 100644
+index ad9fe12425ad6..fa5840643f3a4 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
 @@ -184,7 +184,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
@@ -70,7 +70,7 @@ index 1e5c56c02cace..71e91ab4f3fb7 100644
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -339,11 +354,20 @@ bool BrowserFrameMac::ExecuteCommand(
+@@ -340,11 +355,20 @@ bool BrowserFrameMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {

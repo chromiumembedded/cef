@@ -12,7 +12,7 @@ index 17699e60e60be..53658b54f4fa7 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index bb144af1a7e12..2a05c5a62c941 100644
+index 0ac08110aa260..7c1d4cf7d5e78 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
 @@ -194,12 +194,12 @@ PolicyGlobal* ConfigBase::policy() {
@@ -38,7 +38,7 @@ index bb144af1a7e12..2a05c5a62c941 100644
 -std::optional<base::span<const uint8_t>> PolicyBase::delegate_data_span() {
 +std::optional<base::span<uint8_t>> PolicyBase::delegate_data_span() {
    if (delegate_data_) {
-     return base::make_span(*delegate_data_);
+     return base::span(*delegate_data_);
    }
    return std::nullopt;
  }

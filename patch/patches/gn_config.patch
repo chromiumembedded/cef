@@ -12,10 +12,10 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index d91ef0419d702..f9b612ba8ac7a 100644
+index ebd779ebd4223..e46c99c460149 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -20,6 +20,7 @@ import("//build/config/sanitizers/sanitizers.gni")
+@@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
  import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/util/generate_wrapper.gni")
@@ -23,7 +23,7 @@ index d91ef0419d702..f9b612ba8ac7a 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -288,6 +289,10 @@ group("gn_all") {
+@@ -291,6 +292,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index ca413e1286916..70379761ebd59 100644
+index 53928b9d04267..74a16ee9466c8 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -89,7 +89,7 @@ index ca413e1286916..70379761ebd59 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -479,6 +480,10 @@ template("chrome_extra_paks") {
+@@ -476,6 +477,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }
@@ -151,7 +151,7 @@ index c490d199bf51e..4c0de0d7a0822 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 79d613489bac2..869b682d453ee 100644
+index 5cf2768230fa5..f354073500d2c 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -5,7 +5,9 @@
@@ -164,10 +164,10 @@ index 79d613489bac2..869b682d453ee 100644
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
  devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
-@@ -36,6 +38,9 @@ _grit_defines = [
+@@ -38,6 +40,9 @@ _grit_defines = [
+   "use_titlecase=${is_mac}",
  
-   # Mac and iOS want Title Case strings.
-   "use_titlecase=${is_apple}",
+   "is_desktop_android=${is_desktop_android}",
 +
 +  "enable_cef=${enable_cef}",
 +  "enable_pseudolocales=${enable_pseudolocales}",

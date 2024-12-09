@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 6253416703b73..66a482b46795b 100644
+index c67463381a180..96471c063b8bf 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -114,7 +114,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -55,7 +55,7 @@ index 09d80f2ba678d..5dbff44c280a1 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 624070f85e40b..2f0a5e6501f4d 100644
+index 6ff75a6bb03e7..938113ef46a0d 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -38,6 +38,7 @@ component("controller") {

@@ -16,7 +16,6 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "media/audio/audio_device_description.h"
-#include "media/base/user_input_monitor.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 #include "third_party/blink/public/mojom/media/renderer_audio_input_stream_factory.mojom.h"
@@ -46,7 +45,7 @@ class StreamCreatedCallbackAdapter final
       mojo::PendingRemote<media::mojom::AudioInputStream> stream,
       mojo::PendingReceiver<media::mojom::AudioInputStreamClient>
           client_receiver,
-      media::mojom::ReadOnlyAudioDataPipePtr data_pipe,
+      media::mojom::ReadWriteAudioDataPipePtr data_pipe,
       bool initially_muted,
       const std::optional<base::UnguessableToken>& stream_id) override {
     DCHECK(!initially_muted);  // Loopback streams shouldn't be started muted.
@@ -90,13 +89,7 @@ void CreateSystemWideLoopbackStreamHelper(
 }  // namespace
 
 CefAudioLoopbackStreamCreator::CefAudioLoopbackStreamCreator()
-    : factory_(nullptr,
-               content::BrowserMainLoop::GetInstance()
-                   ? static_cast<media::UserInputMonitorBase*>(
-                         content::BrowserMainLoop::GetInstance()
-                             ->user_input_monitor())
-                   : nullptr,
-               content::AudioStreamBrokerFactory::CreateImpl()) {
+    : factory_(nullptr, content::AudioStreamBrokerFactory::CreateImpl()) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 }
 

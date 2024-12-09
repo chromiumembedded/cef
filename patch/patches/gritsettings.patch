@@ -1,8 +1,8 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index a5b89cfbae164..1c3532b2a8196 100644
+index 8cc75da1353df..f8d45ba53bd95 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
-@@ -1385,11 +1385,20 @@
+@@ -1403,11 +1403,20 @@
    "<(SHARED_INTERMEDIATE_DIR)/third_party/blink/public/strings/permission_element_generated_strings.grd": {
      "META": {"sizes": {"messages": [2000],}},
      "messages": [10080],

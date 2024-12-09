@@ -14,10 +14,10 @@ index 2f7f2a8f81ec0..6bea20e981df9 100644
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 24f32893160ad..3315d46b4a910 100644
+index 80e8ba9452862..77272e01247a8 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
-@@ -175,4 +175,8 @@ component("gtk") {
+@@ -174,4 +174,8 @@ component("gtk") {
  
    # TODO: This should be removed.
    deps += [ "//ui/ozone" ]

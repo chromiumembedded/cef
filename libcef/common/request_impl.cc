@@ -1165,7 +1165,8 @@ void CefPostDataElementImpl::Get(network::ResourceRequestBody& body) const {
   base::AutoLock lock_scope(lock_);
 
   if (type_ == PDE_TYPE_BYTES) {
-    body.AppendBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
+    body.AppendCopyOfBytes(
+        base::span(static_cast<uint8_t*>(data_.bytes.bytes), data_.bytes.size));
   } else if (type_ == PDE_TYPE_FILE) {
     base::FilePath path = base::FilePath(CefString(&data_.filename));
     body.AppendFileRange(path, 0, std::numeric_limits<uint64_t>::max(),

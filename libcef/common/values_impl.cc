@@ -494,7 +494,7 @@ CefRefPtr<CefBinaryValue> CefBinaryValue::Create(const void* data,
   }
 
   const auto ptr = static_cast<const uint8_t*>(data);
-  return new CefBinaryValueImpl(base::make_span(ptr, data_size));
+  return new CefBinaryValueImpl(base::span(ptr, data_size));
 }
 
 // static

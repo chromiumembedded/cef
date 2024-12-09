@@ -27,7 +27,7 @@ index 771c253082e2a..47a28fd56750e 100644
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
-index 50f3163e57544..db26d180ecb2a 100644
+index ec79b3c8e3e43..64287c4354ad7 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc
 +++ ui/ozone/platform/x11/ozone_platform_x11.cc
 @@ -64,6 +64,8 @@ namespace ui {

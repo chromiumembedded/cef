@@ -12,7 +12,7 @@ index b169371e4d42f..509e4bda85b47 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index b82cb011d2359..e224eef611704 100644
+index 34567d0940948..420d15acad367 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -102,10 +102,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -279,10 +279,10 @@ index bc119f10f749e..d81c1ce4e786f 100644
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 0777e2fe71f04..546994cad2b14 100644
+index 4b0c8249f3d91..056a5a92074e3 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
-@@ -106,13 +106,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -128,13 +128,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    // your use case.
    static Widget* CreateDialogWidget(std::unique_ptr<WidgetDelegate> delegate,
                                      gfx::NativeWindow context,
@@ -304,7 +304,7 @@ index 0777e2fe71f04..546994cad2b14 100644
  
    // Returns the dialog widget InitParams for a given |context| or |parent|.
    // If |bounds| is not empty, used to initially place the dialog, otherwise
-@@ -120,7 +125,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -142,7 +147,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    static Widget::InitParams GetDialogWidgetInitParams(WidgetDelegate* delegate,
                                                        gfx::NativeWindow context,
                                                        gfx::NativeView parent,

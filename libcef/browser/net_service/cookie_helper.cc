@@ -201,10 +201,10 @@ void SaveCookiesOnUIThread(
                        cookie));
   }
 
-  SetCanonicalCookieCallback(
-      progress, net::CanonicalCookie(),
-      net::CookieAccessResult(net::CookieInclusionStatus(
-          net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR)));
+  net::CookieInclusionStatus status;
+  status.AddExclusionReason(net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+  SetCanonicalCookieCallback(progress, net::CanonicalCookie(),
+                             net::CookieAccessResult(std::move(status)));
 }
 
 }  // namespace

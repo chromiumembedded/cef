@@ -50,11 +50,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
                                 std::wstring* channel_name) override;
   bool GetCrashDumpLocation(std::wstring* crash_dir) override;
 #elif BUILDFLAG(IS_POSIX)
-  void GetProductNameAndVersion(const char** product_name,
-                                const char** version) override;
-  void GetProductNameAndVersion(std::string* product_name,
-                                std::string* version,
-                                std::string* channel) override;
+  void GetProductInfo(ProductInfo* product_info) override;
   bool GetCrashDumpLocation(base::FilePath* crash_dir) override;
 #endif  // BUILDFLAG(IS_POSIX)
 

@@ -14,7 +14,7 @@ index cf4597e671afe..a9693c4e10d8e 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 4385d5d90f9c8..88aca5519660e 100644
+index 0b37d2e8cc60f..0ed51eebe9f76 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -28,13 +28,13 @@ index 4385d5d90f9c8..88aca5519660e 100644
 @@ -104,6 +105,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
-   if (*this == PrimaryID() ||
+   if (*this == PrimaryID() || IsDevTools() ||
 +      base::StartsWith(profile_id_, kCEFOTRProfileIDPrefix,
 +                       base::CompareCase::SENSITIVE) ||
-       base::StartsWith(profile_id_, kDevToolsOTRProfileIDPrefix,
-                        base::CompareCase::SENSITIVE) ||
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
-@@ -141,6 +144,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+                        base::CompareCase::SENSITIVE)) {
+     return true;
+@@ -144,6 +147,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -52,7 +52,7 @@ index 4385d5d90f9c8..88aca5519660e 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 8e96e47754dc7..c65184775fba7 100644
+index 2fe342e49d3c1..559b2a676dab5 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -94,6 +94,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index 8e96e47754dc7..c65184775fba7 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -506,6 +510,9 @@ class Profile : public content::BrowserContext {
+@@ -511,6 +515,9 @@ class Profile : public content::BrowserContext {
    static Profile* FromJavaObject(const jni_zero::JavaRef<jobject>& obj);
    jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject() const;
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -76,7 +76,7 @@ index 8e96e47754dc7..c65184775fba7 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -517,7 +524,6 @@ class Profile : public content::BrowserContext {
+@@ -522,7 +529,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,10 +85,10 @@ index 8e96e47754dc7..c65184775fba7 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 3dd5f9818cfa0..7b3e3697f4ce3 100644
+index 03ca7ab9c372a..524facb62c672 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1038,7 +1038,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1041,7 +1041,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  

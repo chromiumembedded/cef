@@ -84,7 +84,7 @@ index 332ab5c181ec5..4751eada85d07 100644
      return error_;
    }
  
-+  MojoResult handle_ready_result() const { 
++  MojoResult handle_ready_result() const {
 +    DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 +    return handle_ready_result_;
 +  }
@@ -184,7 +184,7 @@ index 3de514b2696ba..ac057000ea20b 100644
  
    MessagePipeHandle handle() const {
 diff --git mojo/public/cpp/bindings/lib/connector.cc mojo/public/cpp/bindings/lib/connector.cc
-index d9ec0189f1b9a..1d738ce04ff72 100644
+index ffc753b121e53..f85b7e878588c 100644
 --- mojo/public/cpp/bindings/lib/connector.cc
 +++ mojo/public/cpp/bindings/lib/connector.cc
 @@ -438,6 +438,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,

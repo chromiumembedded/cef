@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 5dee8a9226d24..a8215969e3494 100644
+index 64189952b8b44..ef392991ed526 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -43,6 +43,7 @@ import("//build/rust/rust_static_library.gni")
+@@ -42,6 +42,7 @@ import("//build/rust/rust_static_library.gni")
  import("//build/timestamp.gni")
  import("//build/util/process_version.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 5dee8a9226d24..a8215969e3494 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1483,7 +1484,11 @@ component("base") {
+@@ -1493,7 +1494,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 5dee8a9226d24..a8215969e3494 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1916,6 +1921,12 @@ component("base") {
+@@ -1935,6 +1940,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -88,7 +88,7 @@ index 2158b648ca58a..8a8cb13b2fd74 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/json/json_reader.cc base/json/json_reader.cc
-index b3db0dea0fff6..e53ff0049559a 100644
+index af1d4f46d02c9..953585804c177 100644
 --- base/json/json_reader.cc
 +++ base/json/json_reader.cc
 @@ -12,8 +12,9 @@
@@ -111,7 +111,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
  
  namespace {
  using serde_json_lenient::ContextPointer;
-@@ -134,16 +135,16 @@ JSONReader::Result DecodeJSONInRust(std::string_view json,
+@@ -129,16 +130,16 @@ JSONReader::Result DecodeJSONInRust(std::string_view json,
  
  }  // anonymous namespace
  
@@ -131,7 +131,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
    SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
    if (UsingRust()) {
      JSONReader::Result result = DecodeJSONInRust(json, options, max_depth);
-@@ -155,7 +156,7 @@ std::optional<Value> JSONReader::Read(std::string_view json,
+@@ -150,7 +151,7 @@ std::optional<Value> JSONReader::Read(std::string_view json,
      internal::JSONParser parser(options, max_depth);
      return parser.Parse(json);
    }
@@ -140,7 +140,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
  }
  
  // static
-@@ -173,7 +174,7 @@ std::optional<Value::Dict> JSONReader::ReadDict(std::string_view json,
+@@ -168,7 +169,7 @@ std::optional<Value::Dict> JSONReader::ReadDict(std::string_view json,
  JSONReader::Result JSONReader::ReadAndReturnValueWithError(
      std::string_view json,
      int options) {
@@ -149,7 +149,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
    internal::JSONParser parser(options);
    auto value = parser.Parse(json);
    if (!value) {
-@@ -185,7 +186,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+@@ -180,7 +181,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
    }
  
    return std::move(*value);
@@ -158,7 +158,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
    SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
    if (UsingRust()) {
      return DecodeJSONInRust(json, options, internal::kAbsoluteMaxDepth);
-@@ -202,7 +203,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+@@ -197,7 +198,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
  
      return std::move(*value);
    }
@@ -167,7 +167,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
  }
  
  // static
-@@ -213,7 +214,7 @@ bool JSONReader::UsingRust() {
+@@ -208,7 +209,7 @@ bool JSONReader::UsingRust() {
    if (!base::FeatureList::GetInstance()) {
      return false;
    }
@@ -177,7 +177,7 @@ index b3db0dea0fff6..e53ff0049559a 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 508ce135131aa..4158b7d5273b0 100644
+index 59826a95b518e..d6728112294fd 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -60,6 +60,7 @@

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index e96fca7585c60..5cb08115ca9f8 100644
+index b7dff19efeee6..2ff00fe179839 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1014,7 +1014,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1043,7 +1043,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -133,10 +133,10 @@ index c579f65dce9f0..a04e0d1f66aaa 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 5b675ae814e09..bcea717c1a23b 100644
+index f0ba9bff47d86..06d5803a77c3f 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -585,6 +585,12 @@ void LabelButton::OnThemeChanged() {
+@@ -611,6 +611,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -150,10 +150,10 @@ index 5b675ae814e09..bcea717c1a23b 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 7586a6f089f62..4e3a40b33f535 100644
+index 4a6ec6307fb8b..c01c1eb2f9853 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
-@@ -186,6 +186,9 @@ class VIEWS_EXPORT LabelButton : public Button,
+@@ -188,6 +188,9 @@ class VIEWS_EXPORT LabelButton : public Button,
    // widget, and the parent of the containing widget.
    ButtonState GetVisualState() const;
  
@@ -164,7 +164,7 @@ index 7586a6f089f62..4e3a40b33f535 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index d3267b9532029..9fa167d45b039 100644
+index f97a2d37d2ef5..6ef612c096dfb 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -52,12 +52,29 @@ enum LabelPropertyKey {
@@ -197,8 +197,8 @@ index d3267b9532029..9fa167d45b039 100644
  }  // namespace
  
  namespace views {
-@@ -518,6 +535,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
- #endif  // BUILDFLAG(SUPPORTS_AX_TEXT_OFFSETS)
+@@ -532,6 +549,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+   OnDisplayTextTruncation();
  }
  
 +void Label::SetDrawStringsFlags(int flags) {
@@ -211,9 +211,9 @@ index d3267b9532029..9fa167d45b039 100644
 +}
 +
  std::u16string Label::GetTooltipText() const {
-   return tooltip_text_;
+   return GetCachedTooltipText();
  }
-@@ -837,6 +863,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+@@ -863,6 +889,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
        render_text->SelectRange(stored_selection_range_);
    }
  
@@ -231,7 +231,7 @@ index d3267b9532029..9fa167d45b039 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 0bd787bbc8687..6745dcddc5829 100644
+index 7457d09c12b8c..8f320e892a571 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -246,6 +246,10 @@ class VIEWS_EXPORT Label : public View,
@@ -242,10 +242,10 @@ index 0bd787bbc8687..6745dcddc5829 100644
 +  void SetDrawStringsFlags(int flags);
 +  int GetDrawStringsFlags() const { return draw_strings_flags_; }
 +
-   // Gets/Sets the tooltip text.  Default behavior for a label (single-line) is
-   // to show the full text if it is wider than its bounds.  Calling this
-   // overrides the default behavior and lets you set a custom tooltip.  To
-@@ -540,6 +544,7 @@ class VIEWS_EXPORT Label : public View,
+   // Gets/Sets the custom local tooltip text.  Default behavior for a label
+   // (single-line) is to show the full text if it is wider than its bounds.
+   // Calling this overrides the default behavior and lets you set a custom
+@@ -548,6 +552,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -254,11 +254,11 @@ index 0bd787bbc8687..6745dcddc5829 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index eea71e213db16..5e915151d5fa4 100644
+index 3a406a6489f42..e937ca0d2890e 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -578,7 +578,8 @@ void MenuController::Run(Widget* parent,
-                          MenuAnchorPosition position,
+@@ -579,7 +579,8 @@ void MenuController::Run(Widget* parent,
+                          ui::mojom::MenuSourceType source_type,
                           bool context_menu,
                           bool is_nested_drag,
 -                         gfx::NativeView native_view_for_gestures) {
@@ -267,7 +267,7 @@ index eea71e213db16..5e915151d5fa4 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -622,6 +623,7 @@ void MenuController::Run(Widget* parent,
+@@ -629,6 +630,7 @@ void MenuController::Run(Widget* parent,
        owner_->AddObserver(this);
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index eea71e213db16..5e915151d5fa4 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2272,6 +2274,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2279,6 +2281,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index eea71e213db16..5e915151d5fa4 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -2965,8 +2968,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -2972,8 +2975,13 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -298,7 +298,7 @@ index eea71e213db16..5e915151d5fa4 100644
  
    // Show the sub-menu.
    SetSelection(item, SELECTION_OPEN_SUBMENU | SELECTION_UPDATE_IMMEDIATELY);
-@@ -2986,8 +2994,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2993,8 +3001,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -311,21 +311,20 @@ index eea71e213db16..5e915151d5fa4 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 24daa0f4c9d5d..fd7b977b597e7 100644
+index 737b5dd9a243e..44b088afd01c8 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
-@@ -138,7 +138,9 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
-            MenuAnchorPosition position,
-            bool context_menu,
-            bool is_nested_drag,
--           gfx::NativeView native_view_for_gestures = gfx::NativeView());
-+           gfx::NativeView native_view_for_gestures = gfx::NativeView(),
-+           gfx::AcceleratedWidget parent_widget =
-+               gfx::kNullAcceleratedWidget);
+@@ -140,7 +140,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+       ui::mojom::MenuSourceType source_type = ui::mojom::MenuSourceType::kNone,
+       bool context_menu = false,
+       bool is_nested_drag = false,
+-      gfx::NativeView native_view_for_gestures = gfx::NativeView());
++      gfx::NativeView native_view_for_gestures = gfx::NativeView(),
++      gfx::AcceleratedWidget parent_widget = gfx::kNullAcceleratedWidget);
  
    bool for_drop() const { return for_drop_; }
  
-@@ -738,6 +740,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -740,6 +741,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -410,10 +409,10 @@ index fc1d5fccc3845..c065cafcd537c 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 212a38af0598d..0fb02b639aefd 100644
+index b4cd3e5a49763..992314f502a0f 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1107,6 +1107,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1113,6 +1113,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -429,7 +428,7 @@ index 212a38af0598d..0fb02b639aefd 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1177,6 +1186,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1183,6 +1192,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -444,7 +443,7 @@ index 212a38af0598d..0fb02b639aefd 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index b6836ecbbeb13..56a7c14fb1f8c 100644
+index 1041002b24a7b..0216af1096281 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -455,7 +454,7 @@ index b6836ecbbeb13..56a7c14fb1f8c 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -241,6 +242,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -245,6 +246,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -553,7 +552,7 @@ index d2e0377559862..de2b0e2d2fa28 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_runner.cc ui/views/controls/menu/menu_runner.cc
-index 720cd4aed05c1..2cb6f982ae8d6 100644
+index 87739aa15210f..e785faf160c2e 100644
 --- ui/views/controls/menu/menu_runner.cc
 +++ ui/views/controls/menu/menu_runner.cc
 @@ -43,6 +43,7 @@ void MenuRunner::RunMenuAt(
@@ -567,9 +566,9 @@ index 720cd4aed05c1..2cb6f982ae8d6 100644
 @@ -90,7 +91,7 @@ void MenuRunner::RunMenuAt(
    }
  
-   impl_->RunMenuAt(parent, button_controller, bounds, anchor, run_types_,
--                   native_view_for_gestures, corners,
-+                   native_view_for_gestures, parent_widget, corners,
+   impl_->RunMenuAt(parent, button_controller, bounds, anchor, source_type,
+-                   run_types_, native_view_for_gestures, corners,
++                   run_types_, native_view_for_gestures, parent_widget, corners,
                     std::move(show_menu_host_duration_histogram));
  }
  
@@ -587,20 +586,20 @@ index 493fda82af500..38d3344d97074 100644
                   std::optional<std::string> show_menu_host_duration_histogram =
                       std::nullopt);
 diff --git ui/views/controls/menu/menu_runner_impl.cc ui/views/controls/menu/menu_runner_impl.cc
-index 0ef0f5ed80dcd..2c2fefdc1b4d2 100644
+index 13fd4d8b5b536..256b4af43b3ec 100644
 --- ui/views/controls/menu/menu_runner_impl.cc
 +++ ui/views/controls/menu/menu_runner_impl.cc
-@@ -116,6 +116,7 @@ void MenuRunnerImpl::RunMenuAt(
-     MenuAnchorPosition anchor,
+@@ -117,6 +117,7 @@ void MenuRunnerImpl::RunMenuAt(
+     ui::mojom::MenuSourceType source_type,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget parent_widget,
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
    closing_event_time_ = base::TimeTicks();
-@@ -189,7 +190,7 @@ void MenuRunnerImpl::RunMenuAt(
+@@ -190,7 +191,7 @@ void MenuRunnerImpl::RunMenuAt(
    controller->Run(parent, button_controller, menu_.get(), bounds, anchor,
-                   (run_types & MenuRunner::CONTEXT_MENU) != 0,
+                   source_type, (run_types & MenuRunner::CONTEXT_MENU) != 0,
                    (run_types & MenuRunner::NESTED_DRAG) != 0,
 -                  native_view_for_gestures);
 +                  native_view_for_gestures, parent_widget);
@@ -608,52 +607,52 @@ index 0ef0f5ed80dcd..2c2fefdc1b4d2 100644
  
  void MenuRunnerImpl::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl.h ui/views/controls/menu/menu_runner_impl.h
-index c36540ede44a1..6e60ee28bad17 100644
+index 5dbd93d7ed343..b82c2beeef701 100644
 --- ui/views/controls/menu/menu_runner_impl.h
 +++ ui/views/controls/menu/menu_runner_impl.h
-@@ -53,6 +53,7 @@ class VIEWS_EXPORT MenuRunnerImpl : public MenuRunnerImplInterface,
-                  MenuAnchorPosition anchor,
-                  int32_t run_types,
-                  gfx::NativeView native_view_for_gestures,
-+                 gfx::AcceleratedWidget parent_widget,
-                  std::optional<gfx::RoundedCornersF> corners = std::nullopt,
-                  std::optional<std::string> show_menu_host_duration_histogram =
-                      std::nullopt) override;
+@@ -56,6 +56,7 @@ class VIEWS_EXPORT MenuRunnerImpl : public MenuRunnerImplInterface,
+       ui::mojom::MenuSourceType source_type = ui::mojom::MenuSourceType::kNone,
+       int32_t run_types = MenuRunner::NO_FLAGS,
+       gfx::NativeView native_view_for_gestures = {},
++      gfx::AcceleratedWidget parent_widget = gfx::kNullAcceleratedWidget,
+       std::optional<gfx::RoundedCornersF> corners = std::nullopt,
+       std::optional<std::string> show_menu_host_duration_histogram =
+           std::nullopt) override;
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.cc ui/views/controls/menu/menu_runner_impl_adapter.cc
-index 35f1542e2162d..702ede49238af 100644
+index d23190775a306..8a1467a1f828f 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.cc
 +++ ui/views/controls/menu/menu_runner_impl_adapter.cc
-@@ -36,10 +36,11 @@ void MenuRunnerImplAdapter::RunMenuAt(
-     MenuAnchorPosition anchor,
+@@ -37,10 +37,11 @@ void MenuRunnerImplAdapter::RunMenuAt(
+     ui::mojom::MenuSourceType source_type,
      int32_t types,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget parent_widget,
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
-   impl_->RunMenuAt(parent, button_controller, bounds, anchor, types,
--                   native_view_for_gestures);
-+                   native_view_for_gestures, parent_widget);
+   impl_->RunMenuAt(parent, button_controller, bounds, anchor, source_type,
+-                   types, native_view_for_gestures);
++                   types, native_view_for_gestures, parent_widget);
  }
  
  void MenuRunnerImplAdapter::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.h ui/views/controls/menu/menu_runner_impl_adapter.h
-index 546818cef0120..8d2bccf62588e 100644
+index 16c697fcceeff..c20377c8eb10b 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.h
 +++ ui/views/controls/menu/menu_runner_impl_adapter.h
-@@ -44,6 +44,7 @@ class VIEWS_EXPORT MenuRunnerImplAdapter : public MenuRunnerImplInterface {
-                  MenuAnchorPosition anchor,
-                  int32_t types,
-                  gfx::NativeView native_view_for_gestures,
-+                 gfx::AcceleratedWidget parent_widget,
-                  std::optional<gfx::RoundedCornersF> corners = std::nullopt,
-                  std::optional<std::string> show_menu_host_duration_histogram =
-                      std::nullopt) override;
+@@ -47,6 +47,7 @@ class VIEWS_EXPORT MenuRunnerImplAdapter : public MenuRunnerImplInterface {
+       ui::mojom::MenuSourceType source_type = ui::mojom::MenuSourceType::kNone,
+       int32_t run_types = MenuRunner::NO_FLAGS,
+       gfx::NativeView native_view_for_gestures = {},
++      gfx::AcceleratedWidget parent_widget = gfx::kNullAcceleratedWidget,
+       std::optional<gfx::RoundedCornersF> corners = std::nullopt,
+       std::optional<std::string> show_menu_host_duration_histogram =
+           std::nullopt) override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.h ui/views/controls/menu/menu_runner_impl_cocoa.h
-index b0d0334939730..18a5a159ccaf4 100644
+index e315ccc4cda65..8222030bd21f9 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.h
-@@ -43,6 +43,7 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
-       MenuAnchorPosition anchor,
+@@ -44,6 +44,7 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
+       ui::mojom::MenuSourceType source_type,
        int32_t run_types,
        gfx::NativeView native_view_for_gestures,
 +      gfx::AcceleratedWidget parent_widget,
@@ -661,11 +660,11 @@ index b0d0334939730..18a5a159ccaf4 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index d9ee2469c6f5e..13bcee3f329ba 100644
+index 52f3f0bc7e703..cf0eec570bd1e 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
-@@ -70,6 +70,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
-     MenuAnchorPosition anchor,
+@@ -71,6 +71,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
+     ui::mojom::MenuSourceType source_type,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget /*parent_widget*/,
@@ -673,11 +672,11 @@ index d9ee2469c6f5e..13bcee3f329ba 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    DCHECK(!IsRunning());
 diff --git ui/views/controls/menu/menu_runner_impl_interface.h ui/views/controls/menu/menu_runner_impl_interface.h
-index 972abab3bf46f..ce6b32b1524e8 100644
+index 465f774e1ec90..c99b51b9f0eba 100644
 --- ui/views/controls/menu/menu_runner_impl_interface.h
 +++ ui/views/controls/menu/menu_runner_impl_interface.h
-@@ -47,6 +47,8 @@ class MenuRunnerImplInterface {
-       MenuAnchorPosition anchor,
+@@ -50,6 +50,8 @@ class MenuRunnerImplInterface {
+       ui::mojom::MenuSourceType source_type,
        int32_t run_types,
        gfx::NativeView native_view_for_gestures,
 +      gfx::AcceleratedWidget parent_widget =
@@ -686,11 +685,11 @@ index 972abab3bf46f..ce6b32b1524e8 100644
        std::optional<std::string> show_menu_host_duration_histogram =
            std::nullopt) = 0;
 diff --git ui/views/controls/menu/menu_runner_impl_mac.h ui/views/controls/menu/menu_runner_impl_mac.h
-index db81eab045142..ca439366e66ef 100644
+index 6b71a13002d27..da0d2bf4dc774 100644
 --- ui/views/controls/menu/menu_runner_impl_mac.h
 +++ ui/views/controls/menu/menu_runner_impl_mac.h
-@@ -40,6 +40,7 @@ class VIEWS_EXPORT MenuRunnerImplMac : public MenuRunnerImplInterface {
-       MenuAnchorPosition anchor,
+@@ -41,6 +41,7 @@ class VIEWS_EXPORT MenuRunnerImplMac : public MenuRunnerImplInterface {
+       ui::mojom::MenuSourceType source_type,
        int32_t run_types,
        gfx::NativeView native_view_for_gestures,
 +      gfx::AcceleratedWidget parent_widget,
@@ -698,34 +697,33 @@ index db81eab045142..ca439366e66ef 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_mac.mm ui/views/controls/menu/menu_runner_impl_mac.mm
-index 27f83d5eece36..27d07d70c912e 100644
+index 1b5d97c3f6b49..3da7b69d6f7d0 100644
 --- ui/views/controls/menu/menu_runner_impl_mac.mm
 +++ ui/views/controls/menu/menu_runner_impl_mac.mm
-@@ -47,6 +47,7 @@ void MenuRunnerImplMac::RunMenuAt(
-     MenuAnchorPosition anchor,
+@@ -48,6 +48,7 @@ void MenuRunnerImplMac::RunMenuAt(
+     ui::mojom::MenuSourceType source_type,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget parent_widget,
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
    if (!implementation_) {
-@@ -59,8 +60,8 @@ void MenuRunnerImplMac::RunMenuAt(
-     }
+@@ -61,7 +62,8 @@ void MenuRunnerImplMac::RunMenuAt(
    }
    implementation_->RunMenuAt(parent, button_controller, bounds, anchor,
--                             run_types, native_view_for_gestures, corners,
--                             show_menu_host_duration_histogram);
-+                             run_types, native_view_for_gestures, parent_widget,
-+                             corners, show_menu_host_duration_histogram);
+                              source_type, run_types, native_view_for_gestures,
+-                             corners, show_menu_host_duration_histogram);
++                             parent_widget, corners,
++                             show_menu_host_duration_histogram);
  }
  
  void MenuRunnerImplMac::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl_remote_cocoa.h ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
-index 7aaf6d82e09d4..c3af2bdf748fb 100644
+index 9c4a933af7836..cacf9aa1ae144 100644
 --- ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
-@@ -58,6 +58,7 @@ class VIEWS_EXPORT MenuRunnerImplRemoteCocoa
-       MenuAnchorPosition anchor,
+@@ -59,6 +59,7 @@ class VIEWS_EXPORT MenuRunnerImplRemoteCocoa
+       ui::mojom::MenuSourceType source_type,
        int32_t run_types,
        gfx::NativeView native_view_for_gestures,
 +      gfx::AcceleratedWidget parent_widget,
@@ -733,11 +731,11 @@ index 7aaf6d82e09d4..c3af2bdf748fb 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
-index e171461e28836..e137275a22a12 100644
+index da772edd48c00..43c930e932287 100644
 --- ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
-@@ -70,6 +70,7 @@ void MenuRunnerImplRemoteCocoa::RunMenuAt(
-     MenuAnchorPosition anchor,
+@@ -71,6 +71,7 @@ void MenuRunnerImplRemoteCocoa::RunMenuAt(
+     ui::mojom::MenuSourceType source_type,
      int32_t run_types,
      gfx::NativeView native_view_for_gestures,
 +    gfx::AcceleratedWidget parent_widget,
@@ -745,7 +743,7 @@ index e171461e28836..e137275a22a12 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index a1476c32d31c5..2c988a5bb3d4f 100644
+index 3dc4156dd046c..020f016ffc261 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -266,6 +266,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -785,7 +783,7 @@ index 92b86fccb3a30..964351594f1e4 100644
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index d3f42b37d06fa..fbf1b94c7e07a 100644
+index 61f50d010646c..8bf476f6f85df 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -25,6 +25,7 @@

@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
-index cbad74b559c07..f3b4f6261d7c0 100644
+index c609f9477c66c..19abd149b66dd 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
 +++ chrome/browser/policy/browser_dm_token_storage_linux.cc
 @@ -22,6 +22,7 @@
@@ -357,10 +357,10 @@ index 8dbf958c189dd..6eaccc6688eca 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index a467b25145684..8727050b93a35 100644
+index afc13e1b56f78..f80c5ed14051d 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -525,7 +525,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -527,7 +527,8 @@ bool PathProvider(int key, base::FilePath* result) {
        break;
      }
  #endif
@@ -371,7 +371,7 @@ index a467b25145684..8727050b93a35 100644
        cur = base::FilePath(policy::kPolicyPath);
        break;
 diff --git chrome/common/chrome_paths.h chrome/common/chrome_paths.h
-index fbfe597d09d9a..b8067f8d9ecd7 100644
+index 21dfe21a78eb9..20d8ea2709b99 100644
 --- chrome/common/chrome_paths.h
 +++ chrome/common/chrome_paths.h
 @@ -8,6 +8,7 @@

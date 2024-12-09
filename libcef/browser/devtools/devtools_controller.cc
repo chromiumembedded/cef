@@ -34,8 +34,8 @@ bool CefDevToolsController::SendDevToolsMessage(
     return false;
   }
 
-  agent_host_->DispatchProtocolMessage(
-      this, base::as_bytes(base::make_span(message)));
+  agent_host_->DispatchProtocolMessage(this,
+                                       base::as_bytes(base::span(message)));
   return true;
 }
 
@@ -69,7 +69,7 @@ int CefDevToolsController::ExecuteDevToolsMethod(
   }
 
   agent_host_->DispatchProtocolMessage(
-      this, base::as_bytes(base::make_span(protocol_message)));
+      this, base::as_bytes(base::span(protocol_message)));
   return message_id;
 }
 

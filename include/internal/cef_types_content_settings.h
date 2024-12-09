@@ -478,6 +478,11 @@ typedef enum {
   /// Content settings for private network access in the context of the
   /// Direct Sockets API.
   CEF_CONTENT_SETTING_TYPE_DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS,
+
+  /// Content settings for legacy cookie scope.
+  /// Checks whether cookies scope is handled according to origin-bound cookies
+  /// or legacy behavior.
+  CEF_CONTENT_SETTING_TYPE_LEGACY_COOKIE_SCOPE,
 } cef_content_setting_types_t;
 
 ///

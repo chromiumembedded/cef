@@ -40,7 +40,7 @@ void StreamCreatorHelper(
              mojo::PendingRemote<media::mojom::AudioInputStream> stream,
              mojo::PendingReceiver<media::mojom::AudioInputStreamClient>
                  client_receiver,
-             media::mojom::ReadOnlyAudioDataPipePtr data_pipe) {
+             media::mojom::ReadWriteAudioDataPipePtr data_pipe) {
             mojo::Remote<mirroring::mojom::AudioStreamCreatorClient>
                 audio_client(std::move(client));
             audio_client->StreamCreated(std::move(stream),
@@ -100,8 +100,7 @@ void CefAudioCapturer::OnCaptureStarted() {
 void CefAudioCapturer::Capture(const media::AudioBus* source,
                                base::TimeTicks audio_capture_time,
                                const media::AudioGlitchInfo& /*glitch_info*/,
-                               double /*volume*/,
-                               bool /*key_pressed*/) {
+                               double /*volume*/) {
   const int channels = source->channels();
   std::array<const float*, media::CHANNELS_MAX> data;
   DCHECK(channels == channels_);

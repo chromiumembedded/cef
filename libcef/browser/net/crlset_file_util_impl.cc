@@ -15,7 +15,7 @@ namespace {
 void UpdateCRLSet(const std::string& crl_set_bytes) {
   CEF_REQUIRE_UIT();
   content::GetCertVerifierServiceFactory()->UpdateCRLSet(
-      base::as_bytes(base::make_span(crl_set_bytes)), base::DoNothing());
+      base::as_bytes(base::span(crl_set_bytes)), base::DoNothing());
 }
 
 void LoadFromDisk(const base::FilePath& path) {

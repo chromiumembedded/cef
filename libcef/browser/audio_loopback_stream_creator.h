@@ -36,7 +36,7 @@ class CefAudioLoopbackStreamCreator final {
       mojo::PendingRemote<media::mojom::AudioInputStream> stream,
       mojo::PendingReceiver<media::mojom::AudioInputStreamClient>
           client_receiver,
-      media::mojom::ReadOnlyAudioDataPipePtr data_pipe)>;
+      media::mojom::ReadWriteAudioDataPipePtr data_pipe)>;
 
   // Creates a loopback stream that captures the audio from |loopback_source|,
   // or the default system playback if |loopback_source| is null. Local output

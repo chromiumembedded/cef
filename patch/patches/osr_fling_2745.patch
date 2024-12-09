@@ -30,7 +30,7 @@ index 76057b3e50f78..d3b63a3b07805 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index d5c125e621004..cd1177744e1a8 100644
+index 739d1f12ab1f5..e8abce61a7534 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -67,6 +67,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index e8f68eca2104c..c579cff86fbbb 100644
+index 74f2e51c7fa80..178d5bf538031 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -791,7 +791,7 @@ void RenderWidgetHostImpl::WasHidden() {
+@@ -795,7 +795,7 @@ void RenderWidgetHostImpl::WasHidden() {
  
    // Cancel pending pointer lock requests, unless there's an open user prompt.
    // Prompts should remain open and functional across tab switches.
@@ -68,7 +68,7 @@ index e8f68eca2104c..c579cff86fbbb 100644
      RejectPointerLockOrUnlockIfNecessary(
          blink::mojom::PointerLockResult::kWrongDocument);
    }
-@@ -3248,6 +3248,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+@@ -3260,6 +3260,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
  
@@ -81,10 +81,10 @@ index e8f68eca2104c..c579cff86fbbb 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 01b87c84b32c0..e6061b75d201d 100644
+index ddfae2b85cb88..87797bf82b401 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -841,6 +841,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -842,6 +842,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

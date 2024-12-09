@@ -1,10 +1,10 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index ba443f5e8838d..a3f3c250f8006 100644
+index 16f7438c6f112..c5568abce8917 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -616,6 +616,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
+@@ -607,6 +607,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
  }
- #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+ #endif  // BUILDFLAG(IS_CHROMEOS)
  
 +StartupBrowserCreator::ProcessCommandLineCallback*
 +GetProcessCommandLineCallback() {
@@ -16,7 +16,7 @@ index ba443f5e8838d..a3f3c250f8006 100644
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1479,6 +1486,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1467,6 +1474,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index ba443f5e8838d..a3f3c250f8006 100644
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1488,6 +1501,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1476,6 +1489,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
@@ -42,7 +42,7 @@ index ba443f5e8838d..a3f3c250f8006 100644
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index 919bae5ccfeae..5c2dfbf955723 100644
+index 37957dc632d0c..735819e9ceb10 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@
@@ -53,7 +53,7 @@ index 919bae5ccfeae..5c2dfbf955723 100644
  #include "base/gtest_prod_util.h"
  #include "base/memory/raw_ptr.h"
  #include "build/build_config.h"
-@@ -135,6 +136,13 @@ class StartupBrowserCreator {
+@@ -134,6 +135,13 @@ class StartupBrowserCreator {
               StartupProfileInfo profile_info,
               const Profiles& last_opened_profiles);
  
