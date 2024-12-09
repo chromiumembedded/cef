@@ -8,6 +8,7 @@
 
 #include "include/base/cef_logging.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/cef_api_hash.h"
 #include "include/cef_base.h"
 #include "libcef_dll/wrapper_types.h"
 
@@ -45,8 +46,6 @@ class CefCToCppRefCounted : public BaseName {
   // If returning the structure across the DLL boundary use Unwrap() instead.
   StructName* GetStruct() const {
     WrapperStruct* wrapperStruct = GetWrapperStruct(this);
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
     return wrapperStruct->struct_;
   }
 
@@ -55,7 +54,8 @@ class CefCToCppRefCounted : public BaseName {
   // from the other side.
   struct WrapperStruct;
 
-  static WrapperStruct* GetWrapperStruct(const BaseName* obj);
+  static WrapperStruct* GetWrapperStruct(const BaseName* obj,
+                                         bool require_exact_type = true);
 
   // Unwrap as the derived type.
   static StructName* UnwrapDerived(CefWrapperType type, BaseName* c);
@@ -119,6 +119,18 @@ CefRefPtr<BaseName> CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(
     return nullptr;
   }
 
+  const auto size = reinterpret_cast<cef_base_ref_counted_t*>(s)->size;
+  if (size != sizeof(StructName)) {
+    LOG(FATAL) << "Cannot wrap struct with invalid base.size value (got "
+               << size << ", expected " << sizeof(StructName)
+               << ") at API version "
+#if defined(WRAPPING_CEF_SHARED)
+               << CEF_API_VERSION;
+#else
+               << cef_api_version();
+#endif
+  }
+
   // Wrap their structure with the CefCToCppRefCounted object.
   WrapperStruct* wrapperStruct = new WrapperStruct;
   wrapperStruct->type_ = kWrapperType;
@@ -140,7 +152,8 @@ StructName* CefCToCppRefCounted<ClassName, BaseName, StructName>::Unwrap(
     return nullptr;
   }
 
-  WrapperStruct* wrapperStruct = GetWrapperStruct(c.get());
+  WrapperStruct* wrapperStruct =
+      GetWrapperStruct(c.get(), /*require_exact_type=*/false);
 
   // If the type does not match this object then we need to unwrap as the
   // derived type.
@@ -160,8 +173,6 @@ bool CefCToCppRefCounted<ClassName, BaseName, StructName>::Release() const {
   UnderlyingRelease();
   if (ref_count_.Release()) {
     WrapperStruct* wrapperStruct = GetWrapperStruct(this);
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
     delete wrapperStruct;
     return true;
   }
@@ -171,12 +182,20 @@ bool CefCToCppRefCounted<ClassName, BaseName, StructName>::Release() const {
 template <class ClassName, class BaseName, class StructName>
 typename CefCToCppRefCounted<ClassName, BaseName, StructName>::WrapperStruct*
 CefCToCppRefCounted<ClassName, BaseName, StructName>::GetWrapperStruct(
-    const BaseName* obj) {
+    const BaseName* obj,
+    bool require_exact_type) {
   // Offset using the WrapperStruct size instead of individual member sizes to
   // avoid problems due to platform/compiler differences in structure padding.
-  return reinterpret_cast<WrapperStruct*>(
+  auto* wrapperStruct = reinterpret_cast<WrapperStruct*>(
       reinterpret_cast<char*>(const_cast<BaseName*>(obj)) -
       (sizeof(WrapperStruct) - sizeof(ClassName)));
+
+  if (require_exact_type) {
+    // Verify that the wrapper offset was calculated correctly.
+    CHECK_EQ(kWrapperType, wrapperStruct->type_);
+  }
+
+  return wrapperStruct;
 }
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_

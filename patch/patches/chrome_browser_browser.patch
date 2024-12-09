@@ -88,7 +88,7 @@ index 4aaba212926f4..e8aadb2c97fe9 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 977b3222c8f7c..ee71bf3a1a463 100644
+index 977b3222c8f7c..e5d36a4e5921e 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -118,18 +118,21 @@ index 977b3222c8f7c..ee71bf3a1a463 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -699,6 +705,10 @@ static_library("ui") {
+@@ -699,6 +705,13 @@ static_library("ui") {
      deps += [ "//components/plus_addresses/resources:vector_icons" ]
    }
  
 +  if (enable_cef) {
-+    deps += [ "//cef:cef_resources" ]
++    deps += [
++      "//cef:cef_resources",
++      "//cef:make_version_header",
++    ]
 +  }
 +
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5487,6 +5497,7 @@ static_library("ui") {
+@@ -5487,6 +5500,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",

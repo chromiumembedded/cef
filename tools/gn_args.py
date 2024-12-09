@@ -87,9 +87,12 @@ else:
   print('Unknown operating system platform')
   sys.exit()
 
+_QUIET = False
+
 
 def msg(msg):
-  print('NOTE: ' + msg)
+  if not _QUIET:
+    print('NOTE: ' + msg)
 
 
 def NameValueListToDict(name_value_list):
@@ -591,11 +594,15 @@ def LinuxSysrootExists(cpu):
   return os.path.isdir(os.path.join(sysroot_root, sysroot_name))
 
 
-def GetAllPlatformConfigs(build_args):
+def GetAllPlatformConfigs(build_args, quiet=False):
   """
   Return a map of directory name to GN args for the current platform.
   """
   result = {}
+
+  if quiet:
+    global _QUIET
+    _QUIET = True
 
   # Merged args without validation.
   args = GetMergedArgs(build_args)

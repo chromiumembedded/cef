@@ -1,5 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
-// reserved.
+// Copyright (c) 2024 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,32 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
-#define CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
-#pragma once
+#ifndef CEF_INCLUDE_CEF_VERSION_INFO_H_
+#define CEF_INCLUDE_CEF_VERSION_INFO_H_
 
-#include "include/base/cef_build.h"
+#include "include/internal/cef_export.h"
 
-#if defined(COMPILER_MSVC)
-
-#if defined(BUILDING_CEF_SHARED)
-#define CEF_EXPORT __declspec(dllexport)
-#elif defined(USING_CEF_SHARED)
-#define CEF_EXPORT __declspec(dllimport)
-#else
-#define CEF_EXPORT
+#if !defined(GENERATING_CEF_API_HASH)
+#include "include/cef_version.h"
 #endif
 
-#elif defined(COMPILER_GCC)
-
-#define CEF_EXPORT __attribute__((visibility("default")))
-
-#endif  // COMPILER_GCC
-
-#if defined(OS_WIN)
-#define CEF_CALLBACK __stdcall
-#else
-#define CEF_CALLBACK
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif  // CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
+///
+/// Returns CEF version information for the libcef library. The |entry|
+/// parameter describes which version component will be returned:
+///
+/// 0 - CEF_VERSION_MAJOR
+/// 1 - CEF_VERSION_MINOR
+/// 2 - CEF_VERSION_PATCH
+/// 3 - CEF_COMMIT_NUMBER
+/// 4 - CHROME_VERSION_MAJOR
+/// 5 - CHROME_VERSION_MINOR
+/// 6 - CHROME_VERSION_BUILD
+/// 7 - CHROME_VERSION_PATCH
+///
+CEF_EXPORT int cef_version_info(int entry);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // CEF_INCLUDE_CEF_VERSION_INFO_H_

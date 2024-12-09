@@ -39,8 +39,8 @@
 // be included from unit test targets.
 //
 
-#ifndef CEF_INCLUDE_TEST_CEF_TEST_H_
-#define CEF_INCLUDE_TEST_CEF_TEST_H_
+#ifndef CEF_INCLUDE_TEST_CEF_TRANSLATOR_TEST_H_
+#define CEF_INCLUDE_TEST_CEF_TRANSLATOR_TEST_H_
 #pragma once
 
 #if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \
@@ -805,4 +805,4 @@ class CefTranslatorTestScopedClientChild
   virtual int GetOtherValue() = 0;
 };
 
-#endif  // CEF_INCLUDE_TEST_CEF_TEST_H_
+#endif  // CEF_INCLUDE_TEST_CEF_TRANSLATOR_TEST_H_

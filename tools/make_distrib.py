@@ -6,6 +6,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 from bazel_util import bazel_substitute, bazel_last_error, bazel_set_quiet
 from cef_version import VersionFormatter
+from clang_util import clang_format_inplace
 from date_util import *
 from exec_util import exec_cmd
 from file_util import *
@@ -226,7 +227,12 @@ def transfer_doxyfile(dst_dir, quiet):
       sys.stdout.write('Creating Doxyfile file.\n')
 
 
-def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
+def transfer_gypi_files(src_dir,
+                        gypi_paths,
+                        gypi_path_prefix,
+                        dst_dir,
+                        quiet,
+                        format=False):
   """ Transfer files from one location to another. """
   for path in gypi_paths:
     src = os.path.join(src_dir, path)
@@ -234,6 +240,11 @@ def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
     dst_path = os.path.dirname(dst)
     make_dir(dst_path, quiet)
     copy_file(src, dst, quiet)
+
+    # Apply clang-format for C/C++ files.
+    if format and os.path.splitext(dst)[1][1:] in ('c', 'cc', 'cpp', 'h'):
+      print(dst)
+      clang_format_inplace(dst)
 
 
 def extract_toolchain_cmd(build_dir,
@@ -925,17 +936,19 @@ if mode == 'standard' or mode == 'minimal':
   transfer_gypi_files(cef_dir, cef_paths2['includes_wrapper'], \
                       'include/', include_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths['autogen_cpp_includes'], \
-                      'include/', include_dir, options.quiet)
+                      'include/', include_dir, options.quiet, format=True)
   transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
-                      'include/', include_dir, options.quiet)
+                      'include/', include_dir, options.quiet, format=True)
 
   # Transfer generated include files.
   generated_includes = [
+      'cef_api_versions.h',
       'cef_color_ids.h',
       'cef_command_ids.h',
       'cef_config.h',
       'cef_pack_resources.h',
       'cef_pack_strings.h',
+      'cef_version.h',
   ]
   for include in generated_includes:
     # Debug and Release build should be the same so grab whichever exists.
@@ -953,7 +966,7 @@ if mode == 'standard' or mode == 'minimal':
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
                       'libcef_dll/', libcef_dll_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
-                      'libcef_dll/', libcef_dll_dir, options.quiet)
+                      'libcef_dll/', libcef_dll_dir, options.quiet, format=True)
 
   if mode == 'standard' or mode == 'minimal':
     # transfer additional files

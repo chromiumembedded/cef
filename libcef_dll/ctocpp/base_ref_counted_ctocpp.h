@@ -23,4 +23,7 @@ class CefBaseRefCountedCToCpp
   CefBaseRefCountedCToCpp();
 };
 
+constexpr auto CefBaseRefCountedCToCpp_Wrap = CefBaseRefCountedCToCpp::Wrap;
+constexpr auto CefBaseRefCountedCToCpp_Unwrap = CefBaseRefCountedCToCpp::Unwrap;
+
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BASE_REF_COUNTED_CTOCPP_H_

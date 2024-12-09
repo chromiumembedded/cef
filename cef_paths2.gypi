@@ -36,7 +36,6 @@
       'include/base/internal/cef_thread_checker_impl.h',
       'include/cef_api_hash.h',
       'include/cef_base.h',
-      'include/cef_version.h',
       'include/internal/cef_export.h',
       'include/internal/cef_ptr.h',
       'include/internal/cef_string_wrappers.h',
@@ -44,6 +43,8 @@
       'include/internal/cef_types_wrappers.h',
     ],
     'includes_common_capi': [
+      'include/cef_id_mappers.h',
+      'include/cef_version_info.h',
       'include/internal/cef_dump_without_crashing_internal.h',
       'include/internal/cef_logging_internal.h',
       'include/internal/cef_string.h',
@@ -483,6 +484,7 @@
       'tests/ceftests/resources/net/data/ssl/certificates/root_ca_cert.pem',
     ],
     'ceftests_sources_common': [
+      'tests/ceftests/api_version_unittest.cc',
       'tests/ceftests/audio_output_unittest.cc',
       'tests/ceftests/browser_info_map_unittest.cc',
       'tests/ceftests/certificate_error_unittest.cc',

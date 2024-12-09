@@ -285,10 +285,6 @@ follows.
 
       void CefClassCToCpp::Function(cpp_params)
       {
-        // Structure Verification
-        if (CEF_MEMBER_MISSING(struct_, function))
-          return;
-
         // Parameter Verification (Optional)
         // Verify the C++ parameter values.
         // ...
@@ -309,10 +305,6 @@ follows.
 
       cpp_retval CefClassCToCpp::Function(cpp_params)
       {
-        // Structure Verification
-        if (CEF_MEMBER_MISSING(struct_, function))
-          return default_retval; // Configured or defaulted automatically.
-
         // Parameter Verification (Optional)
         // Verify the C++ parameter values.
         // ...

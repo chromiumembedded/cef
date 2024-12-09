@@ -7,7 +7,7 @@
 
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
-#include "include/cef_command_ids.h"
+#import "include/cef_id_mappers.h"
 #import "include/wrapper/cef_library_loader.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/resource.h"
@@ -404,6 +404,24 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
 //
 // This implementation is based on Chromium's AppController class.
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
+  // Version-safe static declarations of IDC variables using names from
+  // cef_command_ids.h.
+  CEF_DECLARE_COMMAND_ID(IDC_OPEN_FILE);
+  CEF_DECLARE_COMMAND_ID(IDC_NEW_TAB);
+  CEF_DECLARE_COMMAND_ID(IDC_FOCUS_LOCATION);
+  CEF_DECLARE_COMMAND_ID(IDC_FOCUS_SEARCH);
+  CEF_DECLARE_COMMAND_ID(IDC_SHOW_HISTORY);
+  CEF_DECLARE_COMMAND_ID(IDC_SHOW_BOOKMARK_MANAGER);
+  CEF_DECLARE_COMMAND_ID(IDC_CLEAR_BROWSING_DATA);
+  CEF_DECLARE_COMMAND_ID(IDC_SHOW_DOWNLOADS);
+  CEF_DECLARE_COMMAND_ID(IDC_IMPORT_SETTINGS);
+  CEF_DECLARE_COMMAND_ID(IDC_MANAGE_EXTENSIONS);
+  CEF_DECLARE_COMMAND_ID(IDC_HELP_PAGE_VIA_MENU);
+  CEF_DECLARE_COMMAND_ID(IDC_OPTIONS);
+  CEF_DECLARE_COMMAND_ID(IDC_NEW_WINDOW);
+  CEF_DECLARE_COMMAND_ID(IDC_TASK_MANAGER);
+  CEF_DECLARE_COMMAND_ID(IDC_NEW_INCOGNITO_WINDOW);
+
   SEL action = [item action];
   BOOL enable = NO;
   // Whether opening a new browser window is allowed.
@@ -413,37 +431,26 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
   // no key window.
   if (action == @selector(commandDispatch:) ||
       action == @selector(commandDispatchUsingKeyModifiers:)) {
-    switch ([item tag]) {
+    const auto tag = [item tag];
+    if (tag == IDC_OPEN_FILE || tag == IDC_NEW_TAB ||
+        tag == IDC_FOCUS_LOCATION || tag == IDC_FOCUS_SEARCH ||
+        tag == IDC_SHOW_HISTORY || tag == IDC_SHOW_BOOKMARK_MANAGER ||
+        tag == IDC_CLEAR_BROWSING_DATA || tag == IDC_SHOW_DOWNLOADS ||
+        tag == IDC_IMPORT_SETTINGS || tag == IDC_MANAGE_EXTENSIONS ||
+        tag == IDC_HELP_PAGE_VIA_MENU || tag == IDC_OPTIONS) {
       // Browser-level items that open in new tabs or perform an action in a
       // current tab should not open if there's a window- or app-modal dialog.
-      case IDC_OPEN_FILE:
-      case IDC_NEW_TAB:
-      case IDC_FOCUS_LOCATION:
-      case IDC_FOCUS_SEARCH:
-      case IDC_SHOW_HISTORY:
-      case IDC_SHOW_BOOKMARK_MANAGER:
-      case IDC_CLEAR_BROWSING_DATA:
-      case IDC_SHOW_DOWNLOADS:
-      case IDC_IMPORT_SETTINGS:
-      case IDC_MANAGE_EXTENSIONS:
-      case IDC_HELP_PAGE_VIA_MENU:
-      case IDC_OPTIONS:
-        enable = canOpenNewBrowser && ![self keyWindowIsModal];
-        break;
+      enable = canOpenNewBrowser && ![self keyWindowIsModal];
+    } else if (tag == IDC_NEW_WINDOW) {
       // Browser-level items that open in new windows: allow the user to open
       // a new window even if there's a window-modal dialog.
-      case IDC_NEW_WINDOW:
-        enable = canOpenNewBrowser;
-        break;
-      case IDC_TASK_MANAGER:
-        enable = YES;
-        break;
-      case IDC_NEW_INCOGNITO_WINDOW:
-        enable = canOpenNewBrowser;
-        break;
-      default:
-        enable = ![self keyWindowIsModal];
-        break;
+      enable = canOpenNewBrowser;
+    } else if (tag == IDC_TASK_MANAGER) {
+      enable = YES;
+    } else if (tag == IDC_NEW_INCOGNITO_WINDOW) {
+      enable = canOpenNewBrowser;
+    } else {
+      enable = ![self keyWindowIsModal];
     }
   } else if ([self respondsToSelector:action]) {
     // All other selectors that this class implements.
@@ -469,22 +476,23 @@ void RemoveMenuItem(NSMenu* menu, SEL action_selector) {
     }
   }
 
+  // Version-safe static declarations of IDC variables using names from
+  // cef_command_ids.h.
+  CEF_DECLARE_COMMAND_ID(IDC_FIND);
+  CEF_DECLARE_COMMAND_ID(IDC_FIND_NEXT);
+  CEF_DECLARE_COMMAND_ID(IDC_FIND_PREVIOUS);
+
   // Handle specific commands where we want to make the last active browser
   // frontmost and then re-execute the command.
-  switch ([sender tag]) {
-    case IDC_FIND:
-    case IDC_FIND_NEXT:
-    case IDC_FIND_PREVIOUS:
-      if (id window = [self getActiveBrowserNSWindow]) {
-        [window makeKeyAndOrderFront:nil];
-        if ([window respondsToSelector:@selector(commandDispatch:)]) {
-          [window commandDispatch:sender];
-          return;
-        }
+  const auto tag = [sender tag];
+  if (tag == IDC_FIND || tag == IDC_FIND_NEXT || tag == IDC_FIND_PREVIOUS) {
+    if (id window = [self getActiveBrowserNSWindow]) {
+      [window makeKeyAndOrderFront:nil];
+      if ([window respondsToSelector:@selector(commandDispatch:)]) {
+        [window commandDispatch:sender];
+        return;
       }
-      break;
-    default:
-      break;
+    }
   }
 
   LOG(INFO) << "Unhandled commandDispatch: for tag " << [sender tag];

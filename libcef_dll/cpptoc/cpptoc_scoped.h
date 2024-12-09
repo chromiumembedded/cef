@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_DLL_CPPTOC_CPPTOC_SCOPED_H_
 #pragma once
 
+#include <utility>
+
 #include "include/base/cef_logging.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/cef_base.h"
@@ -52,17 +54,18 @@ class CefCppToCScoped : public CefBaseScoped {
   // For example:
   //
   // void MyMethod(MyType* obj) {
-  //   CefOwnPtr<MyTypeCppToC> MyTypeWrapper = MyTypeCppToC::WrapRaw(obj);
-  //   my_method(MyTypeWrapper->GetStruct());
+  //   [MyTypeWrapper, MyTypeStruct] = MyTypeCppToC::WrapRaw(obj);
+  //   my_method(MyTypeStruct);
   //   // MyTypeWrapper is deleted when MyMethod() goes out of scope.
   // }
   //
   // void my_method(my_type_t* struct) {
   //   // Access |struct| here but you can't delete it.
   // }
-  static CefOwnPtr<ClassName> WrapRaw(CefRawPtr<BaseName> c) {
+  static std::pair<CefOwnPtr<CefBaseScoped>, StructName*> WrapRaw(
+      CefRawPtr<BaseName> c) {
     if (!c) {
-      return CefOwnPtr<ClassName>();
+      return std::make_pair(nullptr, nullptr);
     }
 
     // Wrap our object with the CefCppToC class.
@@ -70,7 +73,9 @@ class CefCppToCScoped : public CefBaseScoped {
     wrapper->Initialize(c, false);
 
     // Return the owned wrapper object.
-    return CefOwnPtr<ClassName>(wrapper);
+    CefOwnPtr<ClassName> wrapperPtr(wrapper);
+    auto* wrapperStruct = wrapperPtr->GetStruct();
+    return std::make_pair(std::move(wrapperPtr), wrapperStruct);
   }
 
   // Retrieve the underlying object instance for a structure reference passed
@@ -87,7 +92,8 @@ class CefCppToCScoped : public CefBaseScoped {
     }
 
     // Cast our structure to the wrapper structure type.
-    WrapperStruct* wrapperStruct = GetWrapperStruct(s);
+    WrapperStruct* wrapperStruct =
+        GetWrapperStruct(s, /*require_exact_type=*/false);
 
     // If the type does not match this object then we need to unwrap as the
     // derived type.
@@ -96,8 +102,8 @@ class CefCppToCScoped : public CefBaseScoped {
     }
 
     // We should own the underlying object currently.
-    DCHECK(wrapperStruct->wrapper_->owned_);
-    DCHECK(wrapperStruct->object_);
+    CHECK(wrapperStruct->wrapper_->owned_);
+    CHECK(wrapperStruct->object_);
 
     // We're giving up ownership of the underlying object. Clear the pointer so
     // it doesn't get deleted.
@@ -123,7 +129,8 @@ class CefCppToCScoped : public CefBaseScoped {
     }
 
     // Cast our structure to the wrapper structure type.
-    WrapperStruct* wrapperStruct = GetWrapperStruct(s);
+    WrapperStruct* wrapperStruct =
+        GetWrapperStruct(s, /*require_exact_type=*/false);
 
     // If the type does not match this object then we need to unwrap as the
     // derived type.
@@ -137,12 +144,10 @@ class CefCppToCScoped : public CefBaseScoped {
 
   // Retrieve the same side wrapper associated with the structure. Ownership
   // does not change.
-  static ClassName* GetWrapper(StructName* s) {
+  static CefBaseScoped* GetWrapper(StructName* s) {
     DCHECK(s);
     WrapperStruct* wrapperStruct = GetWrapperStruct(s);
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
-    return static_cast<ClassName*>(wrapperStruct->wrapper_);
+    return wrapperStruct->wrapper_;
   }
 
   // Retrieve the underlying object instance from our own structure reference
@@ -151,8 +156,6 @@ class CefCppToCScoped : public CefBaseScoped {
   static BaseName* Get(StructName* s) {
     DCHECK(s);
     WrapperStruct* wrapperStruct = GetWrapperStruct(s);
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
     return wrapperStruct->object_;
   }
 
@@ -196,13 +199,21 @@ class CefCppToCScoped : public CefBaseScoped {
     }
   }
 
-  static WrapperStruct* GetWrapperStruct(StructName* s) {
+  static WrapperStruct* GetWrapperStruct(StructName* s,
+                                         bool require_exact_type = true) {
     // Offset using the WrapperStruct size instead of individual member sizes
     // to avoid problems due to platform/compiler differences in structure
     // padding.
-    return reinterpret_cast<WrapperStruct*>(
+    auto* wrapperStruct = reinterpret_cast<WrapperStruct*>(
         reinterpret_cast<char*>(s) -
         (sizeof(WrapperStruct) - sizeof(StructName)));
+
+    if (require_exact_type) {
+      // Verify that the wrapper offset was calculated correctly.
+      CHECK_EQ(kWrapperType, wrapperStruct->type_);
+    }
+
+    return wrapperStruct;
   }
 
   // Unwrap as the derived type.
@@ -219,11 +230,9 @@ class CefCppToCScoped : public CefBaseScoped {
 
     WrapperStruct* wrapperStruct =
         GetWrapperStruct(reinterpret_cast<StructName*>(base));
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
 
     // Should only be deleting wrappers that own the underlying object.
-    DCHECK(wrapperStruct->wrapper_->owned_);
+    CHECK(wrapperStruct->wrapper_->owned_);
     delete wrapperStruct->wrapper_;
   }
 

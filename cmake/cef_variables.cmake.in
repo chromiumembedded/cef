@@ -69,6 +69,20 @@ list(APPEND CEF_COMPILER_DEFINES
 option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
 
 
+# Optionally configure the CEF API version by adding `-D api_version=XXXXX` to the
+# cmake command-line where XXXXX is the desired version number. For background see
+# https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
+if(DEFINED api_version)
+  string(LENGTH "${api_version}" length)
+  if (NOT length EQUAL 5 OR NOT api_version MATCHES "^[0-9]+$")
+    message(FATAL_ERROR "Expected a 5 digit number for api_version, got '${api_version}'")
+  endif()
+  list(APPEND CEF_COMPILER_DEFINES
+    CEF_API_VERSION=${api_version}
+  )
+endif()
+
+
 #
 # Linux configuration.
 #

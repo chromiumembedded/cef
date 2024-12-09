@@ -4,6 +4,8 @@
 
 #include "cef/include/test/cef_translator_test.h"
 
+namespace {
+
 class CefTranslatorTestRefPtrLibraryImpl
     : public CefTranslatorTestRefPtrLibrary {
  public:
@@ -18,18 +20,21 @@ class CefTranslatorTestRefPtrLibraryImpl
 
   void SetValue(int value) override { value_ = value; }
 
- protected:
+ private:
   int value_;
 
- private:
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryImpl);
 };
+
+}  // namespace
 
 // static
 CefRefPtr<CefTranslatorTestRefPtrLibrary>
 CefTranslatorTestRefPtrLibrary::Create(int value) {
   return new CefTranslatorTestRefPtrLibraryImpl(value);
 }
+
+namespace {
 
 class CefTranslatorTestRefPtrLibraryChildImpl
     : public CefTranslatorTestRefPtrLibraryChild {
@@ -50,19 +55,22 @@ class CefTranslatorTestRefPtrLibraryChildImpl
 
   void SetOtherValue(int value) override { other_value_ = value; }
 
- protected:
+ private:
   int value_;
   int other_value_;
 
- private:
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildImpl);
 };
+
+}  // namespace
 
 // static
 CefRefPtr<CefTranslatorTestRefPtrLibraryChild>
 CefTranslatorTestRefPtrLibraryChild::Create(int value, int other_value) {
   return new CefTranslatorTestRefPtrLibraryChildImpl(value, other_value);
 }
+
+namespace {
 
 class CefTranslatorTestRefPtrLibraryChildChildImpl
     : public CefTranslatorTestRefPtrLibraryChildChild {
@@ -91,14 +99,15 @@ class CefTranslatorTestRefPtrLibraryChildChildImpl
 
   void SetOtherOtherValue(int value) override { other_other_value_ = value; }
 
- protected:
+ private:
   int value_;
   int other_value_;
   int other_other_value_;
 
- private:
   IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildChildImpl);
 };
+
+}  // namespace
 
 // static
 CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild>
@@ -108,6 +117,8 @@ CefTranslatorTestRefPtrLibraryChildChild::Create(int value,
   return new CefTranslatorTestRefPtrLibraryChildChildImpl(value, other_value,
                                                           other_other_value);
 }
+
+namespace {
 
 class CefTranslatorTestScopedLibraryImpl
     : public CefTranslatorTestScopedLibrary {
@@ -123,9 +134,11 @@ class CefTranslatorTestScopedLibraryImpl
 
   void SetValue(int value) override { value_ = value; }
 
- protected:
+ private:
   int value_;
 };
+
+}  // namespace
 
 // static
 CefOwnPtr<CefTranslatorTestScopedLibrary>
@@ -133,6 +146,8 @@ CefTranslatorTestScopedLibrary::Create(int value) {
   return CefOwnPtr<CefTranslatorTestScopedLibrary>(
       new CefTranslatorTestScopedLibraryImpl(value));
 }
+
+namespace {
 
 class CefTranslatorTestScopedLibraryChildImpl
     : public CefTranslatorTestScopedLibraryChild {
@@ -153,10 +168,12 @@ class CefTranslatorTestScopedLibraryChildImpl
 
   void SetOtherValue(int value) override { other_value_ = value; }
 
- protected:
+ private:
   int value_;
   int other_value_;
 };
+
+}  // namespace
 
 // static
 CefOwnPtr<CefTranslatorTestScopedLibraryChild>
@@ -164,6 +181,8 @@ CefTranslatorTestScopedLibraryChild::Create(int value, int other_value) {
   return CefOwnPtr<CefTranslatorTestScopedLibraryChild>(
       new CefTranslatorTestScopedLibraryChildImpl(value, other_value));
 }
+
+namespace {
 
 class CefTranslatorTestScopedLibraryChildChildImpl
     : public CefTranslatorTestScopedLibraryChildChild {
@@ -192,11 +211,13 @@ class CefTranslatorTestScopedLibraryChildChildImpl
 
   void SetOtherOtherValue(int value) override { other_other_value_ = value; }
 
- protected:
+ private:
   int value_;
   int other_value_;
   int other_other_value_;
 };
+
+}  // namespace
 
 // static
 CefOwnPtr<CefTranslatorTestScopedLibraryChildChild>
@@ -207,6 +228,8 @@ CefTranslatorTestScopedLibraryChildChild::Create(int value,
       new CefTranslatorTestScopedLibraryChildChildImpl(value, other_value,
                                                        other_other_value));
 }
+
+namespace {
 
 class CefTranslatorTestImpl : public CefTranslatorTest {
  public:
@@ -594,6 +617,8 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
  private:
   IMPLEMENT_REFCOUNTING(CefTranslatorTestImpl);
 };
+
+}  // namespace
 
 // static
 CefRefPtr<CefTranslatorTest> CefTranslatorTest::Create() {

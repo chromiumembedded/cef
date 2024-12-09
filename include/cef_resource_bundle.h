@@ -61,16 +61,19 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
 
   ///
   /// Returns the localized string for the specified |string_id| or an empty
-  /// string if the value is not found. Include cef_pack_strings.h for a listing
-  /// of valid string ID values.
+  /// string if the value is not found. Use the cef_id_for_pack_string_name()
+  /// function for version-safe mapping of string IDS names from
+  /// cef_pack_strings.h to version-specific numerical |string_id| values.
   ///
   /*--cef()--*/
   virtual CefString GetLocalizedString(int string_id) = 0;
 
   ///
   /// Returns a CefBinaryValue containing the decompressed contents of the
-  /// specified scale independent |resource_id| or NULL if not found. Include
-  /// cef_pack_resources.h for a listing of valid resource ID values.
+  /// specified scale independent |resource_id| or NULL if not found. Use the
+  /// cef_id_for_pack_resource_name() function for version-safe mapping of
+  /// resource IDR names from cef_pack_resources.h to version-specific numerical
+  /// |resource_id| values.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetDataResource(int resource_id) = 0;
@@ -79,8 +82,10 @@ class CefResourceBundle : public virtual CefBaseRefCounted {
   /// Returns a CefBinaryValue containing the decompressed contents of the
   /// specified |resource_id| nearest the scale factor |scale_factor| or NULL if
   /// not found. Use a |scale_factor| value of SCALE_FACTOR_NONE for scale
-  /// independent resources or call GetDataResource instead.Include
-  /// cef_pack_resources.h for a listing of valid resource ID values.
+  /// independent resources or call GetDataResource instead. Use the
+  /// cef_id_for_pack_resource_name() function for version-safe mapping of
+  /// resource IDR names from cef_pack_resources.h to version-specific numerical
+  /// |resource_id| values.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetDataResourceForScale(

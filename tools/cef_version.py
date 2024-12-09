@@ -7,6 +7,7 @@ from __future__ import print_function
 from file_util import *
 import git_util as git
 import os
+from version_util import read_version_last, version_parse, VERSIONS_JSON_FILE
 
 
 class VersionFormatter:
@@ -46,15 +47,18 @@ class VersionFormatter:
     if not bool(self._chrome_version):
       file_path = os.path.join(self.src_path, 'chrome', 'VERSION')
       assert os.path.isfile(file_path), file_path
-      read_version_file(file_path, self._chrome_version)
+      assert read_version_file(file_path, self._chrome_version), file_path
     return self._chrome_version
+
+  def get_chrome_major_version(self):
+    return self.get_chrome_version_components()['MAJOR']
 
   def get_cef_version_components(self):
     """ Returns CEF version components. """
     if not bool(self._cef_version):
       file_path = os.path.join(self.cef_path, 'VERSION.in')
       assert os.path.isfile(file_path), file_path
-      read_version_file(file_path, self._cef_version)
+      assert read_version_file(file_path, self._cef_version), file_path
     return self._cef_version
 
   def get_cef_commit_components(self):
@@ -75,11 +79,11 @@ class VersionFormatter:
       # branch since branching from origin/master.
       hashes = git.get_branch_hashes(self.cef_path)
       for hash in hashes:
-        # Determine if the API hash file was modified by the commit.
+        # Determine if the API versions file was modified by the commit.
         found = False
         files = git.get_changed_files(self.cef_path, hash)
         for file in files:
-          if file.find('cef_api_hash.h') >= 0:
+          if file.find(VERSIONS_JSON_FILE) >= 0:
             found = True
             break
 
@@ -88,6 +92,14 @@ class VersionFormatter:
           bugfix = 0
         else:
           bugfix += 1
+
+      last_version = read_version_last(
+          os.path.join(self.cef_path, VERSIONS_JSON_FILE))
+      if not last_version is None:
+        major, revision = version_parse(last_version)
+        if major == int(self.get_chrome_major_version()) and revision > minor:
+          # Override the computed minor version with the last specified API version.
+          minor = revision
 
       self._branch_version = {'MINOR': minor, 'PATCH': bugfix}
     return self._branch_version
@@ -149,8 +161,8 @@ class VersionFormatter:
   # - "X" is the Chromium major version (e.g. 74).
   # - "Y" is an incremental number that starts at 0 when a release branch is
   #   created and changes only when the CEF C/C++ API changes (similar to how
-  #   the CEF_API_HASH_UNIVERSAL value behaves in cef_version.h) (release branch
-  #   only).
+  #   the CEF_API_HASH_UNIVERSAL value behaves in cef_api_hash.h) (release
+  #   branch only).
   # - "Z" is an incremental number that starts at 0 when a release branch is
   #   created and changes on each commit, with reset to 0 when "Y" changes
   #   (release branch only).
@@ -186,9 +198,15 @@ class VersionFormatter:
       # if we can get the name of the branch we are on (may be just "HEAD").
       cef_branch_name = git.get_branch_name(self.cef_path).split('/')[-1]
 
+      cef_minor = cef_patch = 0
+      if cef_branch_name != 'HEAD' and cef_branch_name != 'master':
+        cef_branch = self.get_cef_branch_version_components()
+        cef_minor = cef_branch['MINOR']
+        cef_patch = cef_branch['PATCH']
+
       self._version_parts = {'MAJOR': int(chrome_major), 'MINOR': 0, 'PATCH': 0}
-      self._version_string = '%s.0.0-%s.%s+%s+%s' % \
-             (chrome_major, cef_branch_name, cef_commit['NUMBER'],
+      self._version_string = '%s.%d.%d-%s.%s+%s+%s' % \
+             (chrome_major, cef_minor, cef_patch, cef_branch_name, cef_commit['NUMBER'],
               cef_commit_hash, chrome_version_part)
     else:
       cef_branch = self.get_cef_branch_version_components()

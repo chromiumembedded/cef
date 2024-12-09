@@ -50,12 +50,13 @@ class CefCommandHandler : public virtual CefBaseRefCounted {
  public:
   ///
   /// Called to execute a Chrome command triggered via menu selection or
-  /// keyboard shortcut. Values for |command_id| can be found in the
-  /// cef_command_ids.h file. |disposition| provides information about the
-  /// intended command target. Return true if the command was handled or false
-  /// for the default implementation. For context menu commands this will be
-  /// called after CefContextMenuHandler::OnContextMenuCommand. Only used with
-  /// Chrome style.
+  /// keyboard shortcut. Use the cef_id_for_command_id_name()
+  /// function for version-safe mapping of command IDC names from
+  /// cef_command_ids.h to version-specific numerical |command_id| values.
+  /// |disposition| provides information about the intended command target.
+  /// Return true if the command was handled or false for the default
+  /// implementation. For context menu commands this will be called after
+  /// CefContextMenuHandler::OnContextMenuCommand. Only used with Chrome style.
   ///
   /*--cef()--*/
   virtual bool OnChromeCommand(CefRefPtr<CefBrowser> browser,
@@ -65,9 +66,11 @@ class CefCommandHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  /// Called to check if a Chrome app menu item should be visible. Values for
-  /// |command_id| can be found in the cef_command_ids.h file. Only called for
-  /// menu items that would be visible by default. Only used with Chrome style.
+  /// Called to check if a Chrome app menu item should be visible. Use the
+  /// cef_id_for_command_id_name() function for version-safe mapping of command
+  /// IDC names from cef_command_ids.h to version-specific numerical
+  /// |command_id| values. Only called for menu items that would be visible by
+  /// default. Only used with Chrome style.
   ///
   /*--cef()--*/
   virtual bool IsChromeAppMenuItemVisible(CefRefPtr<CefBrowser> browser,
@@ -76,9 +79,11 @@ class CefCommandHandler : public virtual CefBaseRefCounted {
   }
 
   ///
-  /// Called to check if a Chrome app menu item should be enabled. Values for
-  /// |command_id| can be found in the cef_command_ids.h file. Only called for
-  /// menu items that would be enabled by default. Only used with Chrome style.
+  /// Called to check if a Chrome app menu item should be enabled. Use the
+  /// cef_id_for_command_id_name() function for version-safe mapping of command
+  /// IDC names from cef_command_ids.h to version-specific numerical
+  /// |command_id| values. Only called for menu items that would be enabled by
+  /// default. Only used with Chrome style.
   ///
   /*--cef()--*/
   virtual bool IsChromeAppMenuItemEnabled(CefRefPtr<CefBrowser> browser,

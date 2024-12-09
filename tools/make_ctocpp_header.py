@@ -6,22 +6,25 @@ from __future__ import absolute_import
 from cef_parser import *
 
 
-def make_function_body_block(cls):
+def make_function_body_block(cls, with_versions):
   impl = '  // ' + cls.get_name() + ' methods.\n'
 
   funcs = cls.get_virtual_funcs()
   for func in funcs:
-    impl += '  ' + func.get_cpp_proto()
-    if cls.is_client_side():
-      impl += ' override;\n'
+    if func.parent.get_name() != cls.get_name():
+      # skip methods that are not directly declared in the current class
+      continue
+    if with_versions:
+      pre = post = ''
     else:
-      impl += ' override;\n'
+      pre, post = get_version_surround(func)
+    impl += pre + '  ' + func.get_cpp_proto() + ' override;\n' + post
 
   return impl
 
 
-def make_function_body(header, cls):
-  impl = make_function_body_block(cls)
+def make_function_body(header, cls, with_versions):
+  impl = make_function_body_block(cls, with_versions)
 
   cur_cls = cls
   while True:
@@ -34,7 +37,7 @@ def make_function_body(header, cls):
         raise Exception('Class does not exist: ' + parent_name)
       if len(impl) > 0:
         impl += '\n'
-      impl += make_function_body_block(parent_cls)
+      impl += make_function_body_block(parent_cls, with_versions)
     cur_cls = header.get_class(parent_name)
 
   return impl
@@ -53,8 +56,6 @@ def make_ctocpp_header(header, clsname):
     defname += directory + '_'
   defname += get_capi_name(clsname[3:], False)
   defname = defname.upper()
-
-  capiname = cls.get_capi_name()
 
   result = get_copyright()
 
@@ -75,8 +76,10 @@ def make_ctocpp_header(header, clsname):
 #endif
 """
 
+  with_versions = clientside
+
   # build the function body
-  func_body = make_function_body(header, cls)
+  func_body = make_function_body(header, cls, with_versions)
 
   # include standard headers
   if func_body.find('std::map') > 0 or func_body.find('std::multimap') > 0:
@@ -86,7 +89,7 @@ def make_ctocpp_header(header, clsname):
 
   # include the headers for this class
   result += '\n#include "include/'+cls.get_file_name()+'"'+ \
-            '\n#include "include/capi/'+cls.get_capi_file_name()+'"\n'
+            '\n#include "include/capi/'+cls.get_capi_file_name(versions=with_versions)+'"\n'
 
   # include headers for any forward declared classes that are not in the same file
   declares = cls.get_forward_declares()
@@ -94,7 +97,7 @@ def make_ctocpp_header(header, clsname):
     dcls = header.get_class(declare)
     if dcls.get_file_name() != cls.get_file_name():
       result += '#include "include/'+dcls.get_file_name()+'"\n' \
-                '#include "include/capi/'+dcls.get_capi_file_name()+'"\n'
+                '#include "include/capi/'+dcls.get_capi_file_name(versions=with_versions)+'"\n'
 
   base_class_name = header.get_base_class_name(clsname)
   base_scoped = True if base_class_name == 'CefBaseScoped' else False
@@ -106,21 +109,66 @@ def make_ctocpp_header(header, clsname):
     template_class = 'CefCToCppRefCounted'
 
   result += '#include "libcef_dll/ctocpp/' + template_file + '"'
-  result += '\n\n// Wrap a C structure with a C++ class.\n'
 
-  if clientside:
-    result += '// This class may be instantiated and accessed DLL-side only.\n'
+  if with_versions:
+    pre = post = ''
   else:
-    result += '// This class may be instantiated and accessed wrapper-side only.\n'
+    pre, post = get_version_surround(cls, long=True)
+    if len(pre) > 0:
+      result += '\n\n' + pre.strip()
 
-  result +=   'class '+clsname+'CToCpp\n'+ \
-              '    : public ' + template_class + '<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
-              ' public:\n'+ \
-              '  '+clsname+'CToCpp();\n'+ \
-              '  virtual ~'+clsname+'CToCpp();\n\n'
+  result += '\n\n'
 
-  result += func_body
-  result += '};\n\n'
+  versions = cls.get_all_versions() if with_versions else (None,)
+
+  for version in versions:
+    result += '// Wrap a C structure with a C++ class%s.\n' % \
+              ('' if version is None else ' at API version %d' % version)
+    if clientside:
+      result += '// This class may be instantiated and accessed DLL-side only.\n'
+    else:
+      result += '// This class may be instantiated and accessed wrapper-side only.\n'
+
+    capiname = cls.get_capi_name(version=version)
+    if version is None:
+      typename = clsname + 'CToCpp'
+    else:
+      typename = clsname + '_%d_CToCpp' % version
+
+    result +=   'class '+typename+'\n'+ \
+                '    : public ' + template_class + '<'+typename+', '+clsname+', '+capiname+'> {\n'+ \
+                ' public:\n'+ \
+                '  '+typename+'();\n'+ \
+                '  virtual ~'+typename+'();\n\n'
+
+    result += func_body
+    result += '};\n\n'
+
+  typename = clsname + 'CToCpp'
+  if len(versions) > 1:
+    result += '// Helpers to return objects at the globally configured API version.\n'
+    structname = cls.get_capi_name(version=versions[0])
+    if base_scoped:
+      result += 'CefOwnPtr<' + clsname + '> ' + typename + '_Wrap(' + structname + '* s);\n' + \
+                structname + '* ' + typename + '_UnwrapOwn(CefOwnPtr<' + clsname + '> c);\n' + \
+                structname + '* ' + typename + '_UnwrapRaw(CefRawPtr<' + clsname + '> c);\n\n'
+    else:
+      result += 'CefRefPtr<' + clsname + '> ' + typename + '_Wrap(' + structname + '* s);\n' + \
+                structname + '* ' + typename + '_Unwrap(CefRefPtr<' + clsname + '> c);\n\n'
+  else:
+    if versions[0] is None:
+      targetname = clsname + 'CToCpp'
+    else:
+      targetname = clsname + '_%d_CToCpp' % versions[0]
+    if base_scoped:
+      result += 'constexpr auto ' + typename + '_Wrap = ' + targetname + '::Wrap;\n' + \
+                'constexpr auto ' + typename + '_UnwrapOwn = ' + targetname + '::UnwrapOwn;\n' + \
+                'constexpr auto ' + typename + '_UnwrapRaw = ' + targetname + '::UnwrapRaw;\n\n'
+    else:
+      result += 'constexpr auto ' + typename + '_Wrap = ' + targetname + '::Wrap;\n' + \
+                'constexpr auto ' + typename + '_Unwrap = ' + targetname + '::Unwrap;\n\n'
+  if len(post) > 0:
+    result += post + '\n'
 
   result += '#endif  // CEF_LIBCEF_DLL_CTOCPP_' + defname + '_CTOCPP_H_'
 

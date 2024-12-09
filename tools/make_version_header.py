@@ -12,9 +12,6 @@ import sys
 
 
 def make_version_header(header):
-  if not git.is_checkout('.'):
-    raise Exception('Not a valid checkout')
-
   result = get_copyright(full=True, translator=False) + \
 """//
 // ---------------------------------------------------------------------------
@@ -40,33 +37,6 @@ def make_version_header(header):
 
 #define DO_MAKE_STRING(p) #p
 #define MAKE_STRING(p) DO_MAKE_STRING(p)
-
-#ifndef APSTUDIO_HIDDEN_SYMBOLS
-
-#include "include/internal/cef_export.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// Returns CEF version information for the libcef library. The |entry|
-// parameter describes which version component will be returned:
-// 0 - CEF_VERSION_MAJOR
-// 1 - CEF_VERSION_MINOR
-// 2 - CEF_VERSION_PATCH
-// 3 - CEF_COMMIT_NUMBER
-// 4 - CHROME_VERSION_MAJOR
-// 5 - CHROME_VERSION_MINOR
-// 6 - CHROME_VERSION_BUILD
-// 7 - CHROME_VERSION_PATCH
-///
-CEF_EXPORT int cef_version_info(int entry);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // APSTUDIO_HIDDEN_SYMBOLS
 
 #endif  // CEF_INCLUDE_CEF_VERSION_H_
 """

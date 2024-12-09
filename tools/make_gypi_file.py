@@ -37,6 +37,13 @@ def make_gypi_file(header):
     result += "      'include/capi/" + get_capi_file_name(filename) + "',\n"
   result += "    ],\n"
 
+  # capi version includes
+  result += "    'autogen_capi_versions_includes': [\n"
+  for filename in filenames:
+    result += "      'include/capi/" + get_capi_file_name(
+        filename, versions=True) + "',\n"
+  result += "    ],\n"
+
   classes = sorted(header.get_class_names())
 
   # library side includes

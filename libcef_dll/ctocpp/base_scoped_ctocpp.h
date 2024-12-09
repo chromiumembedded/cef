@@ -22,4 +22,8 @@ class CefBaseScopedCToCpp : public CefCToCppScoped<CefBaseScopedCToCpp,
   CefBaseScopedCToCpp();
 };
 
+constexpr auto CefBaseScopedCToCpp_Wrap = CefBaseScopedCToCpp::Wrap;
+constexpr auto CefBaseScopedCToCpp_UnwrapOwn = CefBaseScopedCToCpp::UnwrapOwn;
+constexpr auto CefBaseScopedCToCpp_UnwrapRaw = CefBaseScopedCToCpp::UnwrapRaw;
+
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BASE_SCOPED_CTOCPP_H_

@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_callback.h"
-#include "include/cef_pack_strings.h"
 #include "include/views/cef_panel.h"
 #include "include/views/cef_panel_delegate.h"
 #include "include/views/cef_scroll_view.h"

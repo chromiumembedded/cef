@@ -22,4 +22,17 @@ class CefBaseScopedCppToC : public CefCppToCScoped<CefBaseScopedCppToC,
   CefBaseScopedCppToC();
 };
 
+constexpr auto CefBaseScopedCppToC_WrapOwn = CefBaseScopedCppToC::WrapOwn;
+constexpr auto CefBaseScopedCppToC_WrapRaw = CefBaseScopedCppToC::WrapRaw;
+constexpr auto CefBaseScopedCppToC_UnwrapOwn = CefBaseScopedCppToC::UnwrapOwn;
+constexpr auto CefBaseScopedCppToC_UnwrapRaw = CefBaseScopedCppToC::UnwrapRaw;
+constexpr auto CefBaseScopedCppToC_GetWrapper = CefBaseScopedCppToC::GetWrapper;
+
+inline cef_base_scoped_t* CefBaseScopedCppToC_WrapRawAndRelease(
+    CefRawPtr<CefBaseScoped> c) {
+  auto [ownerPtr, structPtr] = CefBaseScopedCppToC_WrapRaw(c);
+  ownerPtr.release();
+  return structPtr;
+}
+
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BASE_CPPTOC_H_

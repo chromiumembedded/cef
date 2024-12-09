@@ -1,0 +1,55 @@
+*.gypcmd
+*.mk
+*.ncb
+*.opensdf
+*.props
+*.pyc
+*.rules
+*.sdf
+*.sln
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.targets
+*.user
+*.vcproj
+*.vcxproj
+*.vcxproj.filters
+*.vpj
+*.vpw
+*.vpwhistu
+*.vtg
+*.xcodeproj
+*.xcworkspace
+*_proto.xml
+*_proto_cpp.xml
+*~
+!Android.mk
+.*.sw?
+.DS_Store
+.classpath
+.cproject
+.gdb_history
+.gdbinit
+.landmines
+.metadata
+.project
+.pydevproject
+.vscode
+# Settings directory for eclipse
+/.settings
+.checkstyle
+cscope.*
+Session.vim
+tags
+Thumbs.db
+# IDE's
+.vs/
+.kdev4/
+*.kdev4
+# CEF generated directories
+/binary_distrib
+/docs
+# CEF generated files
+.ccls-cache/
+/cef_api_untracked.json

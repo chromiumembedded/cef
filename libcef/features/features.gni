@@ -11,4 +11,7 @@ declare_args() {
   # FOR OTHER CHROMIUM/CEF BUILD CONFIGURATIONS AS ITS USE MAY HAVE SIGNIFICANT
   # PERFORMANCE AND/OR SECURITY IMPLICATIONS.
   is_cef_sandbox_build = false
+
+  # Optionally configure the CEF API version. This impacts wrapper-side only.
+  cef_api_version = ""
 }

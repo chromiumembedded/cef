@@ -10,7 +10,8 @@ import os
 # Other headers that export C API functions.
 OTHER_HEADERS = [
     'cef_api_hash.h',
-    'cef_version.h',
+    'cef_id_mappers.h',
+    'cef_version_info.h',
     'internal/cef_dump_without_crashing_internal.h',
     'internal/cef_logging_internal.h',
     'internal/cef_string_list.h',
@@ -37,12 +38,11 @@ def make_libcef_dll_dylib_impl_parts(name, retval, args):
 
   declare = 'decltype(&%s) %s;\n' % (name, name)
 
-  init = '  INIT_ENTRY(%s);' % name
+  init = 'INIT_ENTRY(%s);\n' % name
 
   impl = """NO_SANITIZE("cfi-icall") %s %s(%s) {
   %sg_libcef_pointers.%s(%s);
 }
-
 """ % (retval, name, ', '.join(args), 'return '
        if retval != 'void' else '', name, arg_names)
 
@@ -70,9 +70,10 @@ def make_libcef_dll_dylib_impl(header):
   # Include required headers for global functions.
   for func in header.get_funcs():
     declare, init, impl = make_libcef_dll_dylib_impl_func(func)
-    ptr_declare += declare
-    ptr_init += init
-    ptr_impl += impl
+    pre, post = get_version_surround(func)
+    ptr_declare += pre + declare + post
+    ptr_init += pre + init + post
+    ptr_impl += pre + impl + post + '\n'
 
     filename = func.get_file_name()
     if not filename in filenames:
@@ -85,9 +86,13 @@ def make_libcef_dll_dylib_impl(header):
     funcs = cls.get_static_funcs()
     for func in funcs:
       declare, init, impl = make_libcef_dll_dylib_impl_func(func)
-      ptr_declare += declare
-      ptr_init += init
-      ptr_impl += impl
+      pre1, post1 = get_version_surround(func)
+      pre2, post2 = get_version_surround(cls)
+      pre = pre1 + pre2
+      post = post1 + post2
+      ptr_declare += pre + declare + post
+      ptr_init += pre + init + post
+      ptr_impl += pre + impl + post + '\n'
 
     if len(funcs) > 0:
       filename = cls.get_file_name()
@@ -106,7 +111,7 @@ def make_libcef_dll_dylib_impl(header):
           func['name'], func['retval'], func['args'])
       ptr_declare += declare
       ptr_init += init
-      ptr_impl += impl
+      ptr_impl += impl + '\n'
 
     includes.append('#include "include/%s"' % other)
 
@@ -202,7 +207,9 @@ if __name__ == "__main__":
   # Create the header object. Should match the logic in translator.py.
   header = obj_header()
   header.set_root_directory(cpp_header_dir)
-  excluded_files = ['cef_api_hash.h', 'cef_application_mac.h', 'cef_version.h']
+  excluded_files = [
+      'cef_api_hash.h', 'cef_application_mac.h', 'cef_version_info.h'
+  ]
   header.add_directory(cpp_header_dir, excluded_files)
   header.add_directory(os.path.join(cpp_header_dir, 'test'))
   header.add_directory(os.path.join(cpp_header_dir, 'views'))

@@ -26,85 +26,80 @@ def is_ancestor(path='.', commit1='HEAD', commit2='master'):
   return result['ret'] == 0
 
 
-def get_hash(path='.', branch='HEAD'):
-  """ Returns the git hash for the specified branch/tag/hash. """
-  cmd = "%s rev-parse %s" % (git_exe, branch)
+def exec_git_cmd(args, path='.'):
+  """ Executes a git command with the specified |args|. """
+  cmd = "%s %s" % (git_exe, args)
   result = exec_cmd(cmd, path)
   if result['out'] != '':
-    return result['out'].strip()
-  return 'Unknown'
+    out = result['out'].strip()
+    if sys.platform == 'win32':
+      # Convert to Unix line endings.
+      out = out.replace('\r\n', '\n')
+    return out
+  return None
+
+
+def get_hash(path='.', branch='HEAD'):
+  """ Returns the git hash for the specified branch/tag/hash. """
+  cmd = "rev-parse %s" % branch
+  result = exec_git_cmd(cmd, path)
+  return 'Unknown' if result is None else result
 
 
 def get_branch_name(path='.', branch='HEAD'):
   """ Returns the branch name for the specified branch/tag/hash. """
   # Returns the branch name if not in detached HEAD state, else an empty string
   # or "HEAD".
-  cmd = "%s rev-parse --abbrev-ref %s" % (git_exe, branch)
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    name = result['out'].strip()
-    if len(name) > 0 and name != 'HEAD':
-      return name
+  cmd = "rev-parse --abbrev-ref %s" % branch
+  result = exec_git_cmd(cmd, path)
+  if result is None:
+    return 'Unknown'
+  if result != 'HEAD':
+    return result
 
-    # Returns a value like "(HEAD, origin/3729, 3729)".
-    # Ubuntu 14.04 uses Git version 1.9.1 which does not support %D (which
-    # provides the same output but without the parentheses).
-    cmd = "%s log -n 1 --pretty=%%d %s" % (git_exe, branch)
-    result = exec_cmd(cmd, path)
-    if result['out'] != '':
-      return result['out'].strip()[1:-1].split(', ')[-1]
-  return 'Unknown'
+  # Returns a value like "(HEAD, origin/3729, 3729)".
+  # Ubuntu 14.04 uses Git version 1.9.1 which does not support %D (which
+  # provides the same output but without the parentheses).
+  cmd = "log -n 1 --pretty=%%d %s" % branch
+  result = exec_git_cmd(cmd, path)
+  return 'Unknown' if result is None else result[1:-1].split(', ')[-1]
 
 
 def get_url(path='.'):
   """ Returns the origin url for the specified path. """
-  cmd = "%s config --get remote.origin.url" % git_exe
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    return result['out'].strip()
-  return 'Unknown'
+  cmd = "config --get remote.origin.url"
+  result = exec_git_cmd(cmd, path)
+  return 'Unknown' if result is None else result
 
 
 def get_commit_number(path='.', branch='HEAD'):
   """ Returns the number of commits in the specified branch/tag/hash. """
-  cmd = "%s rev-list --count %s" % (git_exe, branch)
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    return result['out'].strip()
-  return '0'
+  cmd = "rev-list --count %s" % (branch)
+  result = exec_git_cmd(cmd, path)
+  return '0' if result is None else result
 
 
 def get_changed_files(path, hash):
   """ Retrieves the list of changed files. """
   if hash == 'unstaged':
-    cmd = "%s diff --name-only" % git_exe
+    cmd = "diff --name-only"
   elif hash == 'staged':
-    cmd = "%s diff --name-only --cached" % git_exe
+    cmd = "diff --name-only --cached"
   else:
-    cmd = "%s diff-tree --no-commit-id --name-only -r %s" % (git_exe, hash)
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    files = result['out']
-    if sys.platform == 'win32':
-      # Convert to Unix line endings.
-      files = files.replace('\r\n', '\n')
-    return files.strip().split("\n")
-  return []
+    cmd = "diff-tree --no-commit-id --name-only -r %s" % hash
+  result = exec_git_cmd(cmd, path)
+  return [] if result is None else result.split("\n")
 
 
 def get_branch_hashes(path='.', branch='HEAD', ref='origin/master'):
   """ Returns an ordered list of hashes for commits that have been applied since
       branching from ref. """
-  cmd = "%s cherry %s %s" % (git_exe, ref, branch)
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    hashes = result['out']
-    if sys.platform == 'win32':
-      # Convert to Unix line endings.
-      hashes = hashes.replace('\r\n', '\n')
-    # Remove the "+ " or "- " prefix.
-    return [line[2:] for line in hashes.strip().split('\n')]
-  return []
+  cmd = "cherry %s %s" % (ref, branch)
+  result = exec_git_cmd(cmd, path)
+  if result is None:
+    return []
+  # Remove the "+ " or "- " prefix.
+  return [line[2:] for line in result.split('\n')]
 
 
 def write_indented_output(output):

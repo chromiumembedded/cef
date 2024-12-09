@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import
 from cef_parser import *
+import copy
+import functools
 
 
 def make_cpptoc_impl_proto(name, func, parts):
@@ -16,27 +18,37 @@ def make_cpptoc_impl_proto(name, func, parts):
   return proto
 
 
-def make_cpptoc_function_impl_existing(cls, name, func, impl, defined_names):
+def make_cpptoc_function_impl_existing(cls, name, func, impl, defined_names,
+                                       version, version_finder):
   notify(name + ' has manual edits')
 
   # retrieve the C API prototype parts
-  parts = func.get_capi_parts(defined_names, True)
+  parts = func.get_capi_parts(
+      defined_names, True, version=version, version_finder=version_finder)
 
   changes = format_translation_changes(impl, parts)
   if len(changes) > 0:
     notify(name + ' prototype changed')
 
-  return make_cpptoc_impl_proto(
-      name, func, parts) + '{' + changes + impl['body'] + '\n}\n\n'
+  return make_cpptoc_impl_proto(name, func,
+                                parts) + '{' + changes + impl['body'] + '\n}\n'
 
 
-def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
+def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped,
+                                  version, version_finder):
+  if not version is None and isinstance(func, obj_function_virtual) and \
+    not func.exists_at_version(version):
+    raise Exception(
+        'Attempting to generate non-existing function %s at version %d' %
+        (name, version))
+
   # Special handling for the cef_shutdown global function.
   is_cef_shutdown = name == 'cef_shutdown' and isinstance(
       func.parent, obj_header)
 
   # retrieve the C API prototype parts
-  parts = func.get_capi_parts(defined_names, True)
+  parts = func.get_capi_parts(
+      defined_names, True, version=version, version_finder=version_finder)
   result = make_cpptoc_impl_proto(name, func, parts) + ' {'
 
   if isinstance(func.parent, obj_class) and \
@@ -219,31 +231,31 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
     elif arg_type == 'refptr_same' or arg_type == 'refptr_diff':
       ptr_class = arg.get_type().get_ptr_type()
       if arg_type == 'refptr_same':
-        params.append(ptr_class + 'CppToC::Unwrap(' + arg_name + ')')
+        params.append(ptr_class + 'CppToC_Unwrap(' + arg_name + ')')
       else:
-        params.append(ptr_class + 'CToCpp::Wrap(' + arg_name + ')')
+        params.append(ptr_class + 'CToCpp_Wrap(' + arg_name + ')')
     elif arg_type == 'ownptr_same' or arg_type == 'rawptr_same':
       ptr_class = arg.get_type().get_ptr_type()
       if arg_type == 'ownptr_same':
-        params.append(ptr_class + 'CppToC::UnwrapOwn(' + arg_name + ')')
+        params.append(ptr_class + 'CppToC_UnwrapOwn(' + arg_name + ')')
       else:
-        params.append(ptr_class + 'CppToC::UnwrapRaw(' + arg_name + ')')
+        params.append(ptr_class + 'CppToC_UnwrapRaw(' + arg_name + ')')
     elif arg_type == 'ownptr_diff' or arg_type == 'rawptr_diff':
       ptr_class = arg.get_type().get_ptr_type()
       result += comment+\
-                '\n  CefOwnPtr<'+ptr_class+'> '+arg_name+'Ptr('+ptr_class+'CToCpp::Wrap('+arg_name+'));'
+                '\n  CefOwnPtr<'+ptr_class+'> '+arg_name+'Ptr('+ptr_class+'CToCpp_Wrap('+arg_name+'));'
       if arg_type == 'ownptr_diff':
         params.append('std::move(' + arg_name + 'Ptr)')
       else:
         params.append(arg_name + 'Ptr.get()')
     elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
-      ptr_class = arg.get_type().get_ptr_type()
+      ptr_class = ptr_class_u = arg.get_type().get_ptr_type()
       if arg_type == 'refptr_same_byref':
-        assign = ptr_class + 'CppToC::Unwrap(*' + arg_name + ')'
+        assign = ptr_class + 'CppToC_Unwrap(*' + arg_name + ')'
       else:
-        assign = ptr_class + 'CToCpp::Wrap(*' + arg_name + ')'
+        assign = ptr_class + 'CToCpp_Wrap(*' + arg_name + ')'
       result += comment+\
-                '\n  CefRefPtr<'+ptr_class+'> '+arg_name+'Ptr;'\
+                '\n  CefRefPtr<'+ptr_class_u+'> '+arg_name+'Ptr;'\
                 '\n  if ('+arg_name+' && *'+arg_name+') {'\
                 '\n    '+arg_name+'Ptr = '+assign+';'\
                 '\n  }'\
@@ -273,10 +285,10 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
         assign = arg_name + '[i]?true:false'
       elif arg_type == 'refptr_vec_same_byref':
         ptr_class = arg.get_type().get_ptr_type()
-        assign = ptr_class + 'CppToC::Unwrap(' + arg_name + '[i])'
+        assign = ptr_class + 'CppToC_Unwrap(' + arg_name + '[i])'
       elif arg_type == 'refptr_vec_diff_byref':
         ptr_class = arg.get_type().get_ptr_type()
-        assign = ptr_class + 'CToCpp::Wrap(' + arg_name + '[i])'
+        assign = ptr_class + 'CToCpp_Wrap(' + arg_name + '[i])'
       result += comment+\
                 '\n  std::vector<'+vec_type+' > '+arg_name+'List;'\
                 '\n  if ('+arg_name+'Count && *'+arg_name+'Count > 0 && '+arg_name+') {'\
@@ -296,13 +308,13 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       else:
         ptr_class = arg.get_type().get_ptr_type()
         if arg_type == 'refptr_vec_same_byref_const':
-          assign = ptr_class + 'CppToC::Unwrap(' + arg_name + '[i])'
+          assign = ptr_class + 'CppToC_Unwrap(' + arg_name + '[i])'
         elif arg_type == 'refptr_vec_diff_byref_const':
-          assign = ptr_class + 'CToCpp::Wrap(' + arg_name + '[i])'
+          assign = ptr_class + 'CToCpp_Wrap(' + arg_name + '[i])'
         elif arg_type == 'rawptr_vec_same_byref_const':
-          assign = ptr_class + 'CppToC::UnwrapRaw(' + arg_name + '[i])'
+          assign = ptr_class + 'CppToC_UnwrapRaw(' + arg_name + '[i])'
         elif arg_type == 'rawptr_vec_diff_byref_const':
-          assign = ptr_class + 'CToCpp::Wrap(' + arg_name + '[i]).release()'
+          assign = ptr_class + 'CToCpp_Wrap(' + arg_name + '[i]).release()'
       result += comment+\
                 '\n  std::vector<'+vec_type+' > '+arg_name+'List;'\
                 '\n  if ('+arg_name+'Count > 0) {'\
@@ -334,13 +346,16 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
   if isinstance(func.parent, obj_class):
     # virtual and static class methods
     if isinstance(func, obj_function_virtual):
+      ptr_class = cls.get_name()
+      if not version_finder is None:
+        ptr_class = version_finder(ptr_class, as_cpp=True)
       if cls.get_name() == func.parent.get_name():
-        # virtual method for the current class
-        result += func.parent.get_name() + 'CppToC::Get(self)->'
+        # virtual method called for the current class
+        result += ptr_class + 'CppToC::Get(self)->'
       else:
-        # virtual method for a parent class
-        result += cls.get_name(
-        ) + 'CppToC::Get(reinterpret_cast<' + cls.get_capi_name() + '*>(self))->'
+        # virtual method called for a parent class
+        result += ptr_class + 'CppToC::Get(reinterpret_cast<' + cls.get_capi_name(
+            version) + '*>(self))->'
     else:
       result += func.parent.get_name() + '::'
   result += func.get_name() + '('
@@ -382,9 +397,9 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
     elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
       ptr_class = arg.get_type().get_ptr_type()
       if arg_type == 'refptr_same_byref':
-        assign = ptr_class + 'CppToC::Wrap(' + arg_name + 'Ptr)'
+        assign = ptr_class + 'CppToC_Wrap(' + arg_name + 'Ptr)'
       else:
-        assign = ptr_class + 'CToCpp::Unwrap(' + arg_name + 'Ptr)'
+        assign = ptr_class + 'CToCpp_Unwrap(' + arg_name + 'Ptr)'
       result += comment+\
                 '\n  if ('+arg_name+') {'\
                 '\n    if ('+arg_name+'Ptr.get()) {'\
@@ -413,10 +428,10 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
         assign = arg_name + 'List[i]'
       elif arg_type == 'refptr_vec_same_byref':
         ptr_class = arg.get_type().get_ptr_type()
-        assign = ptr_class + 'CppToC::Wrap(' + arg_name + 'List[i])'
+        assign = ptr_class + 'CppToC_Wrap(' + arg_name + 'List[i])'
       elif arg_type == 'refptr_vec_diff_byref':
         ptr_class = arg.get_type().get_ptr_type()
-        assign = ptr_class + 'CToCpp::Unwrap(' + arg_name + 'List[i])'
+        assign = ptr_class + 'CToCpp_Unwrap(' + arg_name + 'List[i])'
       result += comment+\
                 '\n  if ('+arg_name+'Count && '+arg_name+') {'\
                 '\n    *'+arg_name+'Count = std::min('+arg_name+'List.size(), *'+arg_name+'Count);'\
@@ -452,80 +467,121 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names, base_scoped):
       result += '\n  return _retval.DetachToUserFree();'
     elif retval_type == 'refptr_same':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CppToC::Wrap(_retval);'
+      result += '\n  return ' + ptr_class + 'CppToC_Wrap(_retval);'
     elif retval_type == 'refptr_diff':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CToCpp::Unwrap(_retval);'
+      result += '\n  return ' + ptr_class + 'CToCpp_Unwrap(_retval);'
     elif retval_type == 'ownptr_same':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CppToC::WrapOwn(std::move(_retval));'
+      result += '\n  return ' + ptr_class + 'CppToC_WrapOwn(std::move(_retval));'
     elif retval_type == 'ownptr_diff':
       ptr_class = retval.get_type().get_ptr_type()
-      result += '\n  return ' + ptr_class + 'CToCpp::UnwrapOwn(std::move(_retval));'
+      result += '\n  return ' + ptr_class + 'CToCpp_UnwrapOwn(std::move(_retval));'
     else:
       raise Exception('Unsupported return type %s in %s' % (retval_type, name))
 
   if len(result) != result_len:
     result += '\n'
 
-  result += '}\n\n'
+  result += '}\n'
   return result
 
 
-def make_cpptoc_function_impl(cls, funcs, existing, prefixname, defined_names,
-                              base_scoped):
+def make_cpptoc_function_impl(cls, funcs, existing, prefixname, suffixname,
+                              defined_names, base_scoped, version,
+                              version_finder):
   impl = ''
 
+  customized = False
+
   for func in funcs:
+    if not version is None and isinstance(func, obj_function_virtual) and \
+      not func.exists_at_version(version):
+      continue
+
+    name = func.get_capi_name()
     if not prefixname is None:
-      name = prefixname + '_' + func.get_capi_name()
+      name = prefixname + '_' + name
+    if not suffixname is None:
+      name += '_' + suffixname
+
+    if version is None:
+      pre, post = get_version_surround(func, long=True)
     else:
-      name = func.get_capi_name()
+      pre = post = ''
+
     value = get_next_function_impl(existing, name)
     if not value is None \
         and value['body'].find('// AUTO-GENERATED CONTENT') < 0:
       # an implementation exists that was not auto-generated
-      impl += make_cpptoc_function_impl_existing(cls, name, func, value,
-                                                 defined_names)
+      customized = True
+      impl += pre + make_cpptoc_function_impl_existing(
+          cls, name, func, value, defined_names, version,
+          version_finder) + post + '\n'
     else:
-      impl += make_cpptoc_function_impl_new(cls, name, func, defined_names,
-                                            base_scoped)
+      impl += pre + make_cpptoc_function_impl_new(
+          cls, name, func, defined_names, base_scoped, version,
+          version_finder) + post + '\n'
 
-  return impl
+  if not customized and impl.find('// COULD NOT IMPLEMENT') >= 0:
+    customized = True
+
+  return (impl, customized)
 
 
 def make_cpptoc_virtual_function_impl(header, cls, existing, prefixname,
-                                      defined_names, base_scoped):
-  funcs = []
-  funcs.extend(cls.get_virtual_funcs())
+                                      suffixname, defined_names, base_scoped,
+                                      version, version_finder):
+  # don't modify the original list
+  funcs = copy.copy(cls.get_virtual_funcs(version=version))
   cur_cls = cls
   while True:
     parent_name = cur_cls.get_parent_name()
     if is_base_class(parent_name):
       break
     else:
-      parent_cls = header.get_class(parent_name, defined_names)
+      parent_cls = header.get_class(parent_name)
       if parent_cls is None:
         raise Exception('Class does not exist: ' + parent_name)
-      funcs.extend(parent_cls.get_virtual_funcs())
-    cur_cls = header.get_class(parent_name, defined_names)
+      defined_names.append(parent_cls.get_capi_name(version))
+      funcs.extend(parent_cls.get_virtual_funcs(version=version))
+    cur_cls = header.get_class(parent_name)
+    defined_names.append(cur_cls.get_capi_name(version))
 
-  return make_cpptoc_function_impl(cls, funcs, existing, prefixname,
-                                   defined_names, base_scoped)
+  return make_cpptoc_function_impl(cls, funcs, existing, prefixname, suffixname,
+                                   defined_names, base_scoped, version,
+                                   version_finder)
 
 
-def make_cpptoc_virtual_function_assignment_block(funcs, offset, prefixname):
+def make_cpptoc_virtual_function_assignment_block(cls, offset, prefixname,
+                                                  suffixname, version):
   impl = ''
+
+  funcs = cls.get_virtual_funcs(version_order=True, version=version)
+
   for func in funcs:
-    name = func.get_capi_name()
-    impl += '  GetStruct()->' + offset + name + ' = ' + prefixname + '_' + name + ';\n'
+    # should only include methods directly declared in the current class
+    assert func.parent.get_name() == cls.get_name(), func.get_name()
+    if version is None:
+      pre, post = get_version_surround(func)
+    else:
+      if func.removed_at_version(version):
+        continue
+      pre = post = ''
+    name = oname = func.get_capi_name()
+    if not prefixname is None:
+      name = prefixname + '_' + name
+    if not suffixname is None:
+      name += '_' + suffixname
+    impl += pre + '  GetStruct()->' + offset + oname + ' = ' + name + ';\n' + post
   return impl
 
 
-def make_cpptoc_virtual_function_assignment(header, cls, prefixname,
-                                            defined_names):
-  impl = make_cpptoc_virtual_function_assignment_block(cls.get_virtual_funcs(),
-                                                       '', prefixname)
+def make_cpptoc_virtual_function_assignment(header, cls, prefixname, suffixname,
+                                            defined_names, version,
+                                            version_finder):
+  impl = make_cpptoc_virtual_function_assignment_block(cls, '', prefixname,
+                                                       suffixname, version)
 
   cur_cls = cls
   offset = ''
@@ -535,17 +591,19 @@ def make_cpptoc_virtual_function_assignment(header, cls, prefixname,
     if is_base_class(parent_name):
       break
     else:
-      parent_cls = header.get_class(parent_name, defined_names)
+      parent_cls = header.get_class(parent_name)
       if parent_cls is None:
         raise Exception('Class does not exist: ' + parent_name)
+      defined_names.append(parent_cls.get_capi_name(version))
       impl += make_cpptoc_virtual_function_assignment_block(
-          parent_cls.get_virtual_funcs(), offset, prefixname)
-    cur_cls = header.get_class(parent_name, defined_names)
+          parent_cls, offset, prefixname, suffixname, version)
+    cur_cls = header.get_class(parent_name)
+    defined_names.append(cur_cls.get_capi_name(version))
 
   return impl
 
 
-def make_cpptoc_unwrap_derived(header, cls, base_scoped):
+def make_cpptoc_unwrap_derived(header, cls, base_scoped, version):
   # identify all classes that derive from cls
   derived_classes = []
   cur_clsname = cls.get_name()
@@ -561,22 +619,180 @@ def make_cpptoc_unwrap_derived(header, cls, base_scoped):
   if base_scoped:
     impl = ['', '']
     for clsname in derived_classes:
-      impl[0] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-                 '    return '+clsname+'CppToC::UnwrapOwn(reinterpret_cast<'+\
-                 get_capi_name(clsname, True)+'*>(s));\n'+\
-                 '  }\n'
-      impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-                 '    return '+clsname+'CppToC::UnwrapRaw(reinterpret_cast<'+\
-                 get_capi_name(clsname, True)+'*>(s));\n'+\
-                 '  }\n'
+      derived_cls = header.get_class(clsname)
+      if version is None:
+        capiname = derived_cls.get_capi_name()
+        pre, post = get_version_surround(derived_cls)
+      else:
+        if not derived_cls.exists_at_version(version):
+          continue
+        capiname = derived_cls.get_capi_name(first_version=True)
+        pre = post = ''
+
+      impl[0] += pre + '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                 '    return '+clsname+'CppToC_UnwrapOwn(reinterpret_cast<'+capiname+'*>(s));\n'+\
+                 '  }\n' + post
+      impl[1] += pre + '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                 '    return '+clsname+'CppToC_UnwrapRaw(reinterpret_cast<'+capiname+'*>(s));\n'+\
+                 '  }\n' + post
   else:
     impl = ''
     for clsname in derived_classes:
-      impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-              '    return '+clsname+'CppToC::Unwrap(reinterpret_cast<'+\
-              get_capi_name(clsname, True)+'*>(s));\n'+\
-              '  }\n'
+      derived_cls = header.get_class(clsname)
+      if version is None:
+        capiname = derived_cls.get_capi_name()
+        pre, post = get_version_surround(derived_cls)
+      else:
+        if not derived_cls.exists_at_version(version):
+          continue
+        capiname = derived_cls.get_capi_name(first_version=True)
+        pre = post = ''
+
+      impl += pre + '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+              '    return '+clsname+'CppToC_Unwrap(reinterpret_cast<'+capiname+'*>(s));\n'+\
+              '  }\n' + post
   return impl
+
+
+def make_cpptoc_version_wrappers(header, cls, base_scoped, versions):
+  assert len(versions) > 0
+
+  clsname = cls.get_name()
+  typename = clsname + 'CppToC'
+  structname = cls.get_capi_name(version=versions[0])
+
+  rversions = sorted(versions, reverse=True)
+
+  notreached = format_notreached(
+      True,
+      '" called with invalid version " << version',
+      default_retval='nullptr')
+
+  impl = ''
+
+  if base_scoped:
+    impl += structname + '* ' + typename + '_WrapOwn(CefOwnPtr<' + clsname + '> c) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::WrapOwn(std::move(c));\n'
+      else:
+        impl += '    return reinterpret_cast<' + structname + '*>(' + clsname + '_' + vstr + '_CppToC::WrapOwn(std::move(c)));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n\n' + \
+            'std::pair<CefOwnPtr<CefBaseScoped>, '+ structname + '*> ' + typename + '_WrapRaw(CefRawPtr<' + clsname + '> c) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::WrapRaw(std::move(c));\n'
+      else:
+        impl += '    auto [ownPtr, structPtr] = ' + clsname + '_' + vstr + '_CppToC::WrapRaw(std::move(c));\n' + \
+                '    return std::make_pair(std::move(ownPtr), reinterpret_cast<' + structname + '*>(structPtr));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n\n' + \
+            'CefOwnPtr<' + clsname + '> ' + typename + '_UnwrapOwn('+ structname + '* s) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::UnwrapOwn(s);\n'
+      else:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::UnwrapOwn(reinterpret_cast<' + cls.get_capi_name(
+            version) + '*>(s));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n\n' + \
+            'CefRawPtr<' + clsname + '> ' + typename + '_UnwrapRaw('+ structname + '* s) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::UnwrapRaw(s);\n'
+      else:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::UnwrapRaw(reinterpret_cast<' + cls.get_capi_name(
+            version) + '*>(s));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n\n' + \
+            'CefBaseScoped* ' + typename + '_GetWrapper('+ structname + '* s) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::GetWrapper(s);\n'
+      else:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::GetWrapper(reinterpret_cast<' + cls.get_capi_name(
+            version) + '*>(s));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n'
+  else:
+    impl += structname + '* ' + typename + '_Wrap(CefRefPtr<' + clsname + '> c) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::Wrap(c);\n'
+      else:
+        impl += '    return reinterpret_cast<' + structname + '*>(' + clsname + '_' + vstr + '_CppToC::Wrap(c));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n\n' + \
+            'CefRefPtr<' + clsname + '> ' + typename + '_Unwrap('+ structname + '* s) {\n' + \
+            '  const int version = cef_api_version();\n'
+
+    for version in rversions:
+      vstr = str(version)
+      impl += '  if (version >= ' + vstr + ') {\n'
+      if versions[0] == version:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::Unwrap(s);\n'
+      else:
+        impl += '    return ' + clsname + '_' + vstr + '_CppToC::Unwrap(reinterpret_cast<' + cls.get_capi_name(
+            version) + '*>(s));\n'
+      impl += '  }\n'
+
+    impl += '  ' + notreached + '\n'+ \
+            '}\n'
+
+  return impl + '\n'
+
+
+def _version_finder(header, version, name, as_cpp=False):
+  assert version is None or isinstance(version, int), version
+  assert name[-1] != '*', name
+
+  if as_cpp:
+    cls = header.get_class(name)
+    if cls is None:
+      return name
+    return cls.get_name(version=version)
+
+  cls = header.get_capi_class(name)
+  if not cls is None:
+    return cls.get_capi_name(first_version=True)
+  return name
 
 
 def make_cpptoc_class_impl(header, clsname, impl):
@@ -584,15 +800,11 @@ def make_cpptoc_class_impl(header, clsname, impl):
   defined_names = header.get_defined_structs()
 
   # retrieve the class and populate the defined names
-  cls = header.get_class(clsname, defined_names)
+  cls = header.get_class(clsname)
   if cls is None:
     raise Exception('Class does not exist: ' + clsname)
 
-  capiname = cls.get_capi_name()
   prefixname = get_capi_name(clsname[3:], False)
-
-  # retrieve the existing virtual function implementations
-  existing = get_function_impls(impl, 'CEF_CALLBACK')
 
   base_class_name = header.get_base_class_name(clsname)
   base_scoped = True if base_class_name == 'CefBaseScoped' else False
@@ -601,80 +813,143 @@ def make_cpptoc_class_impl(header, clsname, impl):
   else:
     template_class = 'CefCppToCRefCounted'
 
-  # generate virtual functions
-  virtualimpl = make_cpptoc_virtual_function_impl(
-      header, cls, existing, prefixname, defined_names, base_scoped)
-  if len(virtualimpl) > 0:
-    virtualimpl = '\nnamespace {\n\n// MEMBER FUNCTIONS - Body may be edited by hand.\n\n' + virtualimpl + '}  // namespace'
-
-  # the current class is already defined for static functions
-  defined_names.append(cls.get_capi_name())
+  with_versions = cls.is_library_side()
+  versions = list(cls.get_all_versions()) if with_versions else (None,)
 
   # retrieve the existing static function implementations
-  existing = get_function_impls(impl, 'CEF_EXPORT')
+  existing_static = get_function_impls(impl, 'CEF_EXPORT')
 
-  # generate static functions
-  staticimpl = make_cpptoc_function_impl(cls,
-                                         cls.get_static_funcs(), existing, None,
-                                         defined_names, base_scoped)
-  if len(staticimpl) > 0:
-    staticimpl = '\n// GLOBAL FUNCTIONS - Body may be edited by hand.\n\n' + staticimpl
+  # retrieve the existing virtual function implementations
+  existing_virtual = get_function_impls(impl, 'CEF_CALLBACK')
 
-  resultingimpl = staticimpl + virtualimpl
+  staticout = virtualout = ''
+  customized = False
+  first = True
+  idx = 0
 
-  # any derived classes can be unwrapped
-  unwrapderived = make_cpptoc_unwrap_derived(header, cls, base_scoped)
+  for version in versions:
+    version_finder = functools.partial(_version_finder, header,
+                                       version) if with_versions else None
+    defined_names.append(cls.get_capi_name(version=version))
 
-  const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
-           clsname+'CppToC::'+clsname+'CppToC() {\n'
-  const += make_cpptoc_virtual_function_assignment(header, cls, prefixname,
-                                                   defined_names)
-  const += '}\n\n'+ \
-           '// DESTRUCTOR - Do not edit by hand.\n\n'+ \
-           clsname+'CppToC::~'+clsname+'CppToC() {\n'
+    if first:
+      first = False
 
-  if not cls.has_attrib('no_debugct_check') and not base_scoped:
-    const += '  shutdown_checker::AssertNotShutdown();\n'
+      # generate static functions
+      staticimpl, scustomized = make_cpptoc_function_impl(
+          cls,
+          cls.get_static_funcs(), existing_static, None, None, defined_names,
+          base_scoped, version, version_finder)
+      if len(staticimpl) > 0:
+        staticout += '// GLOBAL FUNCTIONS - Body may be edited by hand.\n\n' + staticimpl
+      if scustomized:
+        customized = True
 
-  const += '}\n\n'
+      if len(versions) > 1:
+        staticout += '// HELPER FUNCTIONS - Do not edit by hand.\n\n'
+        staticout += make_cpptoc_version_wrappers(header, cls, base_scoped,
+                                                  versions)
+
+    comment = '' if version is None else (' FOR VERSION %d' % version)
+
+    suffixname = str(version) if (len(versions) > 1 and version > 0) else None
+
+    # generate virtual functions
+    virtualimpl, vcustomized = make_cpptoc_virtual_function_impl(
+        header, cls, existing_virtual, prefixname, suffixname, defined_names,
+        base_scoped, version, version_finder)
+    if len(virtualimpl) > 0:
+      virtualout += 'namespace {\n\n// MEMBER FUNCTIONS' + comment + ' - Body may be edited by hand.\n\n' + \
+                    virtualimpl + '}  // namespace\n\n'
+    if vcustomized:
+      customized = True
+
+    # any derived classes can be unwrapped
+    unwrapderived = make_cpptoc_unwrap_derived(header, cls, base_scoped,
+                                               version)
+
+    capiname = cls.get_capi_name(version=version)
+    typename = cls.get_name(version=version) + 'CppToC'
+
+    const =  '// CONSTRUCTOR' + comment + ' - Do not edit by hand.\n\n'+ \
+             typename+'::'+typename+'() {\n'
+
+    if not version is None:
+      if idx < len(versions) - 1:
+        condition = 'version < %d || version >= %d' % (version, versions[idx
+                                                                         + 1])
+      else:
+        condition = 'version < %d' % version
+
+      const += '  const int version = cef_api_version();\n' + \
+               '  LOG_IF(FATAL, ' + condition + ') << __func__ << " called with invalid version " << version;\n\n'
+
+    const += make_cpptoc_virtual_function_assignment(header, cls, prefixname,
+                                                     suffixname, defined_names,
+                                                     version, version_finder)
+    const += '}\n\n'+ \
+             '// DESTRUCTOR' + comment + ' - Do not edit by hand.\n\n'+ \
+             typename+'::~'+typename+'() {\n'
+
+    if not cls.has_attrib('no_debugct_check') and not base_scoped:
+      const += '  shutdown_checker::AssertNotShutdown();\n'
+
+    const += '}\n\n'
+
+    parent_sig = template_class + '<' + typename + ', ' + clsname + ', ' + capiname + '>'
+    notreached = format_notreached(
+        with_versions,
+        '" called with unexpected class type " << type',
+        default_retval='nullptr')
+
+    if base_scoped:
+      const += 'template<> CefOwnPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, '+capiname+'* s) {\n' + \
+               unwrapderived[0] + \
+               '  ' + notreached + '\n'+ \
+               '}\n\n' + \
+               'template<> CefRawPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, '+capiname+'* s) {\n' + \
+               unwrapderived[1] + \
+               '  ' + notreached + '\n'+ \
+               '}\n\n'
+    else:
+      const += 'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
+               unwrapderived + \
+               '  ' + notreached + '\n'+ \
+               '}\n\n'
+
+    const += 'template<> CefWrapperType ' + parent_sig + '::kWrapperType = ' + get_wrapper_type_enum(
+        clsname) + ';\n\n'
+
+    virtualout += const
+    idx += 1
+
+  out = staticout + virtualout
 
   # determine what includes are required by identifying what translation
   # classes are being used
-  includes = format_translation_includes(header, const + resultingimpl +
-                                         (unwrapderived[0]
-                                          if base_scoped else unwrapderived))
+  includes = format_translation_includes(
+      header,
+      out + (unwrapderived[0] if base_scoped else unwrapderived),
+      with_versions=with_versions)
 
   # build the final output
   result = get_copyright()
 
-  result += includes + '\n' + resultingimpl + '\n'
+  result += includes + '\n'
 
-  parent_sig = template_class + '<' + clsname + 'CppToC, ' + clsname + ', ' + capiname + '>'
-
-  if base_scoped:
-    const += 'template<> CefOwnPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, '+capiname+'* s) {\n' + \
-             unwrapderived[0] + \
-             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
-             '  return CefOwnPtr<'+clsname+'>();\n'+ \
-             '}\n\n' + \
-             'template<> CefRawPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, '+capiname+'* s) {\n' + \
-             unwrapderived[1] + \
-             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
-             '  return nullptr;\n'+ \
-             '}\n\n'
+  if with_versions:
+    pre = post = ''
   else:
-    const += 'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
-             unwrapderived + \
-             '  DCHECK(false) << "Unexpected class type: " << type;\n'+ \
-             '  return nullptr;\n'+ \
-             '}\n\n'
+    pre, post = get_version_surround(cls, long=True)
+    if len(pre) > 0:
+      result += pre + '\n'
 
-  const += 'template<> CefWrapperType ' + parent_sig + '::kWrapperType = ' + get_wrapper_type_enum(
-      clsname) + ';'
+  result += out + '\n'
 
-  result += '\n\n' + const
+  if len(post) > 0:
+    result += post + '\n'
 
-  return result
+  return (result, customized)
 
 
 def make_cpptoc_global_impl(header, impl):
@@ -684,34 +959,36 @@ def make_cpptoc_global_impl(header, impl):
   # retrieve the existing global function implementations
   existing = get_function_impls(impl, 'CEF_EXPORT')
 
+  version_finder = functools.partial(_version_finder, header, None)
+
   # generate global functions
-  impl = make_cpptoc_function_impl(None,
-                                   header.get_funcs(), existing, None,
-                                   defined_names, False)
+  impl, customized = make_cpptoc_function_impl(None,
+                                               header.get_funcs(), existing,
+                                               None, None, defined_names, False,
+                                               None, version_finder)
   if len(impl) > 0:
     impl = '\n// GLOBAL FUNCTIONS - Body may be edited by hand.\n\n' + impl
 
   includes = ''
 
   # include required headers for global functions
-  filenames = []
+  paths = set()
   for func in header.get_funcs():
     filename = func.get_file_name()
-    if not filename in filenames:
-      includes += '#include "include/'+func.get_file_name()+'"\n' \
-                  '#include "include/capi/'+func.get_capi_file_name()+'"\n'
-      filenames.append(filename)
+    paths.add('include/' + func.get_file_name())
+    paths.add('include/capi/' + func.get_capi_file_name(versions=True))
 
   # determine what includes are required by identifying what translation
   # classes are being used
-  includes += format_translation_includes(header, impl)
+  includes += format_translation_includes(
+      header, impl, with_versions=True, other_includes=paths)
 
   # build the final output
   result = get_copyright()
 
   result += includes + '\n' + impl
 
-  return result
+  return (result, customized)
 
 
 def write_cpptoc_impl(header, clsname, dir):
@@ -725,16 +1002,22 @@ def write_cpptoc_impl(header, clsname, dir):
     dir = os.path.dirname(os.path.join(dir, cls.get_file_name()))
     file = os.path.join(dir, get_capi_name(clsname[3:], False) + '_cpptoc.cc')
 
+  set_notify_context(file)
+
   if path_exists(file):
     oldcontents = read_file(file)
   else:
     oldcontents = ''
 
   if clsname is None:
-    newcontents = make_cpptoc_global_impl(header, oldcontents)
+    newcontents, customized = make_cpptoc_global_impl(header, oldcontents)
   else:
-    newcontents = make_cpptoc_class_impl(header, clsname, oldcontents)
-  return (file, newcontents)
+    newcontents, customized = make_cpptoc_class_impl(header, clsname,
+                                                     oldcontents)
+
+  set_notify_context(None)
+
+  return (file, newcontents, customized)
 
 
 # test the module

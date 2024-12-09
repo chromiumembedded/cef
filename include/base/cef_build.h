@@ -85,7 +85,10 @@
 #endif
 
 #else  // !USING_CHROMIUM_INCLUDES
+
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/cef_config.h"
+#endif
 
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be

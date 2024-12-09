@@ -18,6 +18,7 @@
 #endif
 
 #include "include/base/cef_callback.h"
+#include "include/cef_api_hash.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/cef_thread.h"
@@ -135,6 +136,10 @@ class ScopedPlatformSetup final {
 
 int main(int argc, char* argv[]) {
   int exit_code;
+
+#if CEF_API_VERSION != CEF_EXPERIMENTAL
+  printf("Running with configured CEF API version %d\n", CEF_API_VERSION);
+#endif
 
 #if defined(OS_WIN) && defined(ARCH_CPU_32_BITS)
   // Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB

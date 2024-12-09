@@ -28,8 +28,8 @@ else:
   print('Unknown operating system platform')
   sys.exit()
 
-print("\nGenerating CEF version header file...")
-cmd = [sys.executable, 'tools/make_version_header.py', 'include/cef_version.h']
+print("\nGenerating CEF translated files...")
+cmd = [sys.executable, 'tools/version_manager.py', '-u', '--fast-check']
 RunAction(cef_dir, cmd)
 
 print("\nPatching build configuration and source files for CEF...")

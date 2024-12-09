@@ -8,33 +8,41 @@ from cef_parser import *
 
 def make_capi_global_funcs(funcs, defined_names, translate_map, indent):
   result = ''
-  first = True
   for func in funcs:
     comment = func.get_comment()
-    if first or len(comment) > 0:
-      result += '\n' + format_comment(comment, indent, translate_map)
+    pre, post = get_version_surround(func)
+    result += '\n' + pre
+    if len(comment) > 0:
+      result += format_comment(comment, indent, translate_map)
     if func.get_retval().get_type().is_result_string():
       result += indent + '// The resulting string must be freed by calling cef_string_userfree_free().\n'
-    result += indent + 'CEF_EXPORT ' + func.get_capi_proto(defined_names) + ';\n'
-    if first:
-      first = False
+    result += indent + 'CEF_EXPORT ' + func.get_capi_proto(
+        defined_names) + ';\n' + post
   return result
 
 
 def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
   result = ''
-  first = True
   for func in funcs:
     comment = func.get_comment()
-    if first or len(comment) > 0:
-      result += '\n' + format_comment(comment, indent, translate_map)
+    pre, post = get_version_surround(func)
+    result += '\n' + pre
+    if len(comment) > 0:
+      result += format_comment(comment, indent, translate_map)
     if func.get_retval().get_type().is_result_string():
       result += indent + '// The resulting string must be freed by calling cef_string_userfree_free().\n'
     parts = func.get_capi_parts()
-    result += indent+parts['retval']+' (CEF_CALLBACK *'+parts['name']+ \
-              ')('+', '.join(parts['args'])+');\n'
-    if first:
-      first = False
+    result += indent + parts['retval'] + ' (CEF_CALLBACK *' + parts['name'] + \
+              ')(' + ', '.join(parts['args']) + ');\n'
+    if len(post) > 0 and func.has_version_removed():
+      if func.has_version_added():
+        result += '#elif ' + get_version_check({
+            'added': func.get_attrib('removed')
+        })
+      else:
+        result += '#else'
+      result += '\n' + indent + 'uintptr_t ' + parts['name'] + '_removed;\n'
+    result += post
   return result
 
 
@@ -61,13 +69,16 @@ def make_capi_header(header, filename):
 #define $GUARD$
 #pragma once
 
+#if defined(BUILDING_CEF_SHARED)
+#error This file cannot be included DLL-side
+#endif
+
 """
 
   # Protect against incorrect use of test headers.
   if filename.startswith('test/'):
     result += \
-"""#if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \\
-    !defined(UNIT_TEST)
+"""#if !defined(WRAPPING_CEF_SHARED) && !defined(UNIT_TEST)
 #error This file can be included for unit tests only
 #endif
 
@@ -78,7 +89,7 @@ def make_capi_header(header, filename):
   # identify all includes and forward declarations
   translated_includes = set([])
   internal_includes = set([])
-  all_declares = set([])
+  all_declares = {}
   for cls in classes:
     includes = cls.get_includes()
     for include in includes:
@@ -87,7 +98,7 @@ def make_capi_header(header, filename):
         # translated CEF API headers.
         raise Exception('Disallowed include of %s.h from %s' % (include,
                                                                 filename))
-      elif include.startswith('internal/'):
+      elif include.startswith('internal/') or include == 'cef_api_hash':
         # internal/ headers may be C or C++. Include them as-is.
         internal_includes.add(include)
       else:
@@ -97,7 +108,10 @@ def make_capi_header(header, filename):
       declare_cls = header.get_class(declare)
       if declare_cls is None:
         raise Exception('Unknown class: %s' % declare)
-      all_declares.add(declare_cls.get_capi_name())
+      capi_name = declare_cls.get_capi_name()
+      if not capi_name in all_declares:
+        all_declares[capi_name] = declare_cls.get_version_check() \
+                                  if declare_cls.has_version() else None
 
   # output translated includes
   if len(translated_includes) > 0:
@@ -122,22 +136,39 @@ extern "C" {
 """
 
   # output forward declarations
-  if len(all_declares) > 0:
-    sorted_declares = sorted(all_declares)
+  if bool(all_declares):
+    sorted_declares = sorted(all_declares.keys())
     for declare in sorted_declares:
+      cls_version_check = all_declares[declare]
+      if not cls_version_check is None:
+        result += '#if ' + cls_version_check + '\n'
       result += 'struct _' + declare + ';\n'
+      if not cls_version_check is None:
+        result += '#endif\n'
 
   # output classes
   for cls in classes:
+    pre, post = get_version_surround(cls, long=True)
+    if len(pre) > 0:
+      result += '\n' + pre
+
+    comment = cls.get_comment()
+    add_comment = []
+    if comment[-1] != '':
+      add_comment.append('')
+    add_comment.append('NOTE: This struct is allocated %s-side.' % \
+                       ('client' if cls.is_client_side() else 'DLL'))
+    add_comment.append('')
+
     # virtual functions are inside the structure
     classname = cls.get_capi_name()
-    result += '\n' + format_comment(cls.get_comment(), '', translate_map)
+    result += '\n' + format_comment(comment + add_comment, '', translate_map)
     result += 'typedef struct _'+classname+' {\n'+\
               '  ///\n'+\
               '  /// Base structure.\n'+\
               '  ///\n'+\
               '  '+cls.get_parent_capi_name()+' base;\n'
-    funcs = cls.get_virtual_funcs()
+    funcs = cls.get_virtual_funcs(version_order=True)
     result += make_capi_member_funcs(funcs, defined_names, translate_map, '  ')
     result += '} ' + classname + ';\n\n'
 
@@ -148,6 +179,8 @@ extern "C" {
     if len(funcs) > 0:
       result += make_capi_global_funcs(funcs, defined_names, translate_map,
                                        '') + '\n'
+
+    result += post
 
   # output global functions
   funcs = header.get_funcs(filename)

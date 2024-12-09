@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_api_hash.h"
-#include "include/cef_version.h"
+#include "include/cef_version_info.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 TEST(VersionTest, VersionInfo) {
@@ -18,7 +18,7 @@ TEST(VersionTest, VersionInfo) {
 }
 
 TEST(VersionTest, ApiHash) {
-  EXPECT_STREQ(CEF_API_HASH_PLATFORM, cef_api_hash(0));
-  EXPECT_STREQ(CEF_API_HASH_UNIVERSAL, cef_api_hash(1));
-  EXPECT_STREQ(CEF_COMMIT_HASH, cef_api_hash(2));
+  EXPECT_STREQ(CEF_API_HASH_PLATFORM, cef_api_hash(CEF_API_VERSION, 0));
+  EXPECT_STREQ(CEF_API_HASH_UNIVERSAL, cef_api_hash(CEF_API_VERSION, 1));
+  EXPECT_STREQ(CEF_COMMIT_HASH, cef_api_hash(CEF_API_VERSION, 2));
 }

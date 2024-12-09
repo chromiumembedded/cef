@@ -360,6 +360,8 @@ if (is_win) {
     }
 
     deps = [
+      ":make_version_header",
+
       "//components/crash/core/common",  # crash_keys
 
       # Required by chrome_switches.cc
@@ -441,6 +443,7 @@ source_set("libcef_test_support") {
     "libcef/browser/test/test_helpers_impl.cc",
     "libcef/browser/test/test_server_impl.cc",
     "libcef/browser/test/test_server_impl.h",
+    "libcef/common/test/api_version_test_impl.cc",
     "libcef/common/test/translator_test_impl.cc",
   ]
 
@@ -450,6 +453,10 @@ source_set("libcef_test_support") {
 
     # Support for UI input events.
     "//ui/views:test_support",
+  ]
+
+  configs += [
+    ":libcef_includes_config",
   ]
 }
 
@@ -758,6 +765,7 @@ source_set("libcef_static") {
     "libcef/browser/xml_reader_impl.h",
     "libcef/browser/zip_reader_impl.cc",
     "libcef/browser/zip_reader_impl.h",
+    "libcef/common/api_version_util.h",
     "libcef/common/app_manager.cc",
     "libcef/common/app_manager.h",
     "libcef/common/base_impl.cc",
@@ -1159,6 +1167,10 @@ config("libcef_dll_wrapper_config") {
   if (is_mac) {
     cflags_objcc = [ "-std=c++17" ]
   }
+
+  if (cef_api_version != "") {
+    defines = [ "CEF_API_VERSION=$cef_api_version" ]
+  }
 }
 
 # libcef_dll_wrapper target.
@@ -1245,16 +1257,16 @@ grit("cef_resources") {
 # Helper for generating pack header files.
 template("make_pack_header") {
   assert(defined(invoker.header))
+  assert(defined(invoker.inc))
   assert(defined(invoker.inputs))
 
   action("make_pack_header_${target_name}") {
     script = "tools/make_pack_header.py"
 
     inputs = invoker.inputs
-    outputs = [ invoker.header ]
+    outputs = [ invoker.header, invoker.inc ]
 
-    args = rebase_path(outputs, root_build_dir) +
-           rebase_path(inputs, root_build_dir)
+    args = rebase_path(outputs + inputs, root_build_dir)
 
     if (defined(invoker.deps)) {
       deps = invoker.deps
@@ -1265,6 +1277,7 @@ template("make_pack_header") {
 # Generate cef_pack_resources.h.
 make_pack_header("resources") {
   header = "$root_out_dir/includes/cef/include/cef_pack_resources.h"
+  inc = "$root_gen_dir/cef/libcef_dll/cef_pack_resources.inc"
   inputs = [
     "$root_gen_dir/base/tracing/protos/grit/tracing_proto_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
@@ -1331,6 +1344,7 @@ make_pack_header("resources") {
 # Generate cef_pack_strings.h.
 make_pack_header("strings") {
   header = "$root_out_dir/includes/cef/include/cef_pack_strings.h"
+  inc = "$root_gen_dir/cef/libcef_dll/cef_pack_strings.inc"
   inputs = [
     "$root_gen_dir/cef/grit/cef_strings.h",
     "$root_gen_dir/chrome/grit/branded_strings.h",
@@ -1374,26 +1388,39 @@ make_pack_header("strings") {
 # Generate cef_command_ids.h.
 make_pack_header("command_ids") {
   header = "$root_out_dir/includes/cef/include/cef_command_ids.h"
+  inc = "$root_gen_dir/cef/libcef_dll/cef_command_ids.inc"
   inputs = [
     "//chrome/app/chrome_command_ids.h",
   ]
 }
 
-# Generate cef_api_hash.h.
-action("make_api_hash_header") {
-  script = "tools/make_api_hash_header.py"
+# Generate cef_api_versions.h.
+action("make_api_versions_header") {
+  script = "tools/make_api_versions_header.py"
 
-  # List of all C API files that will be checked for changes by cef_api_hash.py.
-  inputs = gypi_paths2.includes_common_capi +
-           gypi_paths2.includes_linux_capi +
-           gypi_paths2.includes_mac_capi +
-           gypi_paths2.includes_win_capi +
-           gypi_paths2.includes_capi +
-           gypi_paths.autogen_capi_includes
-  include_dir = [ "include" ]
-  outputs = [ "$root_out_dir/includes/cef/include/cef_api_hash.h" ]
+  inputs = [
+    "cef_api_versions.json",
+    "cef_api_untracked.json",
+  ]
+  outputs = [
+    "$root_out_dir/includes/cef/include/cef_api_versions.h",
+    "$root_gen_dir/cef/libcef_dll/cef_api_versions.inc",
+  ]
 
-  args = rebase_path(outputs + include_dir, root_build_dir)
+  args = rebase_path(outputs + inputs, root_build_dir)
+}
+
+# Generate cef_version.h.
+action("make_version_header") {
+  script = "tools/make_version_header.py"
+
+  inputs = [
+    "VERSION.stamp",
+    "//chrome/VERSION",
+  ]
+  outputs = [ "$root_out_dir/includes/cef/include/cef_version.h" ]
+
+  args = rebase_path(outputs, root_build_dir)
 }
 
 # This no-op action lists args.gn as an output, allowing it to be referenced as
@@ -1436,7 +1463,8 @@ group("cef_make_headers") {
     ":make_pack_header_resources",
     ":make_pack_header_strings",
     ":make_pack_header_command_ids",
-    ":make_api_hash_header",
+    ":make_api_versions_header",
+    ":make_version_header",
     ":make_config_header",
     ":make_colorids_header",
   ]
@@ -1446,6 +1474,28 @@ group("cef_make_headers") {
 #
 # libcef dll/framework target.
 #
+
+libcef_sources_common = includes_common +
+                        gypi_paths.autogen_cpp_includes +
+                        gypi_paths2.includes_capi +
+                        gypi_paths.autogen_capi_includes +
+                        gypi_paths.autogen_capi_versions_includes +
+                        gypi_paths2.libcef_sources_common +
+                        gypi_paths.autogen_library_side + [
+  "$root_gen_dir/cef/libcef_dll/cef_pack_resources.inc",
+  "$root_gen_dir/cef/libcef_dll/cef_pack_strings.inc",
+  "$root_gen_dir/cef/libcef_dll/cef_command_ids.inc",
+  "$root_gen_dir/cef/libcef_dll/cef_api_versions.inc",
+]
+
+libcef_deps_common = [
+  ":libcef_static",
+  ":libcef_test_support",
+  ":make_pack_header_resources",
+  ":make_pack_header_strings",
+  ":make_pack_header_command_ids",
+  ":make_api_versions_header",
+]
 
 if (is_mac) {
   cef_framework_name = "Chromium Embedded Framework"
@@ -1530,24 +1580,17 @@ if (is_mac) {
       "Resources",
     ]
 
-    sources = includes_common +
-              includes_mac +
-              gypi_paths.autogen_cpp_includes +
-              gypi_paths2.includes_capi +
-              gypi_paths.autogen_capi_includes +
-              gypi_paths2.libcef_sources_common +
-              gypi_paths.autogen_library_side
+    sources = libcef_sources_common + includes_mac
 
-    deps = [
+    deps = libcef_deps_common + [
       ":cef_framework_angle_binaries",
       ":cef_framework_resources",
       ":cef_framework_swiftshader_binaries",
-      ":libcef_static",
-      ":libcef_test_support",
     ]
 
     configs += [
       ":libcef_autogen_config",
+      ":libcef_includes_config",
     ]
 
     # We don't link the framework so just use the path from the main executable.
@@ -1586,20 +1629,13 @@ if (is_mac) {
     # Necessary because the libcef_test_support target is testonly.
     testonly = true
 
-    sources = includes_common +
-              gypi_paths.autogen_cpp_includes +
-              gypi_paths2.includes_capi +
-              gypi_paths.autogen_capi_includes +
-              gypi_paths2.libcef_sources_common +
-              gypi_paths.autogen_library_side
+    sources = libcef_sources_common
 
-    deps = [
-      ":libcef_static",
-      ":libcef_test_support",
-    ]
+    deps = libcef_deps_common
 
     configs += [
       ":libcef_autogen_config",
+      ":libcef_includes_config",
       ":pdb_larger_than_4gb",
     ]
 
