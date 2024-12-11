@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index 6223e072246c2..16e112ca96554 100644
+index 90cd61d803a58..acc73d7b702fa 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -9130,6 +9130,16 @@ void RenderFrameHostImpl::CreateNewWindow(
+@@ -9153,6 +9153,16 @@ void RenderFrameHostImpl::CreateNewWindow(
      return;
    }
  
@@ -19,7 +19,7 @@ index 6223e072246c2..16e112ca96554 100644
    // Otherwise, consume user activation before we proceed. In particular, it is
    // important to do this before we return from the |opener_suppressed| case
    // below.
-@@ -11472,6 +11482,7 @@ void RenderFrameHostImpl::CommitNavigation(
+@@ -11495,6 +11505,7 @@ void RenderFrameHostImpl::CommitNavigation(
    auto browser_calc_origin_to_commit =
        navigation_request->GetOriginToCommitWithDebugInfo();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&
@@ -27,7 +27,7 @@ index 6223e072246c2..16e112ca96554 100644
        !policy->CanAccessOrigin(
            GetProcess()->GetID(), browser_calc_origin_to_commit.first.value(),
            ChildProcessSecurityPolicyImpl::AccessType::kCanCommitNewOrigin)) {
-@@ -15455,6 +15466,7 @@ void RenderFrameHostImpl::DidCommitNavigation(
+@@ -15478,6 +15489,7 @@ void RenderFrameHostImpl::DidCommitNavigation(
  
    if (interface_params) {
      if (broker_receiver_.is_bound()) {
