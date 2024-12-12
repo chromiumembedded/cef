@@ -1520,7 +1520,7 @@ class CrossOriginOrderSubTestHandler : public OrderSubTestHandler {
   // Parse the format from frame_util::MakeFrameIdentifier to return |child_id|.
   static std::string ExtractChildId(const std::string& frame_id) {
     const auto pos = frame_id.find('-');
-    CHECK_GT(pos, 0) << frame_id;
+    CHECK_GT(pos, 0U) << frame_id;
     return frame_id.substr(0, pos);
   }
 
