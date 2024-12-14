@@ -17,9 +17,9 @@ struct HasValidSize {
   bool operator()(const T*) { return true; }
 };
 template <typename T>
-struct HasValidSize<
-    T,
-    typename std::enable_if_t<std::is_same<decltype(T::size), size_t>::value>> {
+struct HasValidSize<T,
+                    typename std::enable_if_t<
+                        std::is_same<decltype(T::size), std::size_t>::value>> {
   bool operator()(const T* s) { return s->size == sizeof(*s); }
 };
 template <typename T>
