@@ -797,17 +797,26 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
   }
 
   v8::Isolate* isolate = CefV8IsolateManager::Get()->isolate();
-  CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
+
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> v8Context = isolate->GetCurrentContext();
+  if (v8Context.IsEmpty()) {
+    return;
+  }
+
+  CefRefPtr<CefV8ContextImpl> context =
+      new CefV8ContextImpl(isolate, v8Context);
+
   v8::Local<v8::StackTrace> v8Stack = message->GetStackTrace();
   CefRefPtr<CefV8StackTrace> stackTrace =
       new CefV8StackTraceImpl(isolate, v8Stack);
 
-  CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(
-      static_cast<CefV8ContextImpl*>(context.get())->GetV8Context(), message);
+  CefRefPtr<CefV8Exception> exception =
+      new CefV8ExceptionImpl(v8Context, message);
 
   CefRefPtr<CefBrowser> browser = context->GetBrowser();
   if (browser) {
-    handler->OnUncaughtException(browser, context->GetFrame(), context,
+    handler->OnUncaughtException(browser, context->GetFrame(), context.get(),
                                  exception, stackTrace);
   }
 }

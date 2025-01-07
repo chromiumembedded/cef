@@ -2931,6 +2931,11 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
       return;
     }
 
+    if (!frame->GetV8Context()->IsSame(context)) {
+      // Only interested in the MainWorld context.
+      return;
+    }
+
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (!browser->IsPopup()) {
         app_ = app;
