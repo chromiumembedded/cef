@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=6bb6403f617d98d48362f9038b648a176b67e585$
+// $hash=18e4447ce08f0cc8003c68e3373e826f87e9fe26$
 //
 
 #include "libcef_dll/ctocpp/views/textfield_delegate_ctocpp.h"

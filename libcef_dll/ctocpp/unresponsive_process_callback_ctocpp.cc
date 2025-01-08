@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=c8f9d6f148a367be5eef1b3512ba023da0f9ac84$
+// $hash=ce6db5c517341c5fb5b03c98a2a3bafd25dc73a2$
 //
 
 #include "libcef_dll/ctocpp/unresponsive_process_callback_ctocpp.h"

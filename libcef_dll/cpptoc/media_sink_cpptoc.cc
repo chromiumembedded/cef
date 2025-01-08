@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5e9c88099be2c8d7ce3574999097423432efd220$
+// $hash=88a77516f3b8169beab1044457d10fae00915bec$
 //
 
 #include "libcef_dll/cpptoc/media_sink_cpptoc.h"

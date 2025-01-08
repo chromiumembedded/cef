@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=21a1fe189ed3ee668a6896112f00423d2c997f34$
+// $hash=02d5bd023a5d3065e4aa8cba943932e0f102fc7d$
 //
 
 #include "libcef_dll/cpptoc/v8array_buffer_release_callback_cpptoc.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5703528ee112474079bd5d04f5ca9f2f290238fa$
+// $hash=d15b5c7f110f45c272faaccd80ccc87b7f89d5ba$
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"

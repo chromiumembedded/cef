@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=227fb7d50e74e240e92a2702af12bbfff4ab4542$
+// $hash=34a6528332cf07c7fb14e0597d2e0060504dafce$
 //
 
 #include "libcef_dll/ctocpp/views/overlay_controller_ctocpp.h"
