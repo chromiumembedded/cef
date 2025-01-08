@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=5a26f2bf1cc72b53b999645e9cef73b2f6483027$
+// $hash=30210e24fb7dcf4e926f627b06f2bb490815cd75$
 //
 
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -9,7 +9,7 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
-// $hash=a81d596f4db711dd003eb237e7d748ad1df770fc$
+// $hash=b8d723dab3a7379acea7e0115ee877177f67cf00$
 //
 
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
