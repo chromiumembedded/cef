@@ -12,10 +12,10 @@ index 37cb1dac49610..6e5989c73bf08 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index ccaf9eee37f6f..cc78c1d432116 100644
+index 4cd72afe01d78..36c9286631b94 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-@@ -225,6 +225,8 @@ void MimeHandlerViewGuest::CreateInnerPage(
+@@ -226,6 +226,8 @@ void MimeHandlerViewGuest::CreateInnerPage(
      WebContents::CreateParams params(browser_context(),
                                       guest_site_instance.get());
      params.guest_delegate = this;

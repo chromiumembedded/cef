@@ -1,5 +1,5 @@
 diff --git ui/color/color_provider_manager.cc ui/color/color_provider_manager.cc
-index 452f80c94d684..671f36923741d 100644
+index aabe78905dc26..e75e6ab13d072 100644
 --- ui/color/color_provider_manager.cc
 +++ ui/color/color_provider_manager.cc
 @@ -46,6 +46,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
@@ -18,12 +18,9 @@ index 452f80c94d684..671f36923741d 100644
  ColorProviderManager::ColorProviderManager() {
    ResetColorProviderInitializerList();
  }
-@@ -86,8 +95,19 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
- }
- 
+@@ -89,6 +98,16 @@ void ColorProviderManager::ResetColorProviderInitializerList() {
  void ColorProviderManager::ResetColorProviderCache() {
--  if (!color_providers_.empty())
-+  if (!color_providers_.empty()) {
+   if (!color_providers_.empty()) {
      color_providers_.clear();
 +
 +    for (ColorProviderManagerObserver& observer : observers_) {
@@ -35,10 +32,9 @@ index 452f80c94d684..671f36923741d 100644
 +void ColorProviderManager::AfterNativeThemeUpdated() {
 +  for (ColorProviderManagerObserver& observer : observers_) {
 +    observer.OnAfterNativeThemeUpdated();
-+  }
+   }
  }
  
- void ColorProviderManager::AppendColorProviderInitializer(
 diff --git ui/color/color_provider_manager.h ui/color/color_provider_manager.h
 index 67341dd5fc3d6..ee70de7f7fd44 100644
 --- ui/color/color_provider_manager.h

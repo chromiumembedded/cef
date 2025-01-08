@@ -1,8 +1,8 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 91e4285ece39b..3396389f35360 100644
+index 7f03ff64090e5..a619186213674 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -631,6 +631,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -632,6 +632,25 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -29,7 +29,7 @@ index 91e4285ece39b..3396389f35360 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 36b4e9b449a61..f66faec1bc8e4 100644
+index 5a81a20072932..269d7904b0693 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
 @@ -210,6 +210,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
@@ -80,10 +80,10 @@ index 963ddd7d0fcce..81f37072b77fa 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 285d36e3da419..320e2f4ed0a0d 100644
+index 8d2e38ac65ca8..58599658c2e0a 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2637,17 +2637,21 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2636,17 +2636,21 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
          network_service_->network_quality_estimator());
    }
  
@@ -110,11 +110,11 @@ index 285d36e3da419..320e2f4ed0a0d 100644
  
 +  builder.SetCookieStore(std::move(cookie_store));
 +
-   if (base::FeatureList::IsEnabled(features::kPrivateStateTokens) ||
-       base::FeatureList::IsEnabled(features::kFledgePst)) {
      trust_token_store_ = std::make_unique<PendingTrustTokenStore>();
+ 
+     base::FilePath trust_token_path;
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 32c82e61a37b4..be3f377f1f60e 100644
+index 2ae706f12d920..83bad1d7c1155 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -367,6 +367,9 @@ struct NetworkContextParams {

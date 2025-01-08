@@ -35,6 +35,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "include/cef_api_hash.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"
@@ -3492,7 +3493,10 @@ typedef enum {
   CEF_CPAIT_LENS_OVERLAY,
   CEF_CPAIT_DISCOUNTS,
   CEF_CPAIT_OPTIMIZATION_GUIDE,
-  CEF_CPAIT_MAX_VALUE = CEF_CPAIT_OPTIMIZATION_GUIDE,
+#if CEF_API_ADDED(13304)
+  CEF_CPAIT_COLLABORATION_MESSAGING,
+#endif
+  CEF_CPAIT_LAST_VALUE,
 } cef_chrome_page_action_icon_type_t;
 
 ///

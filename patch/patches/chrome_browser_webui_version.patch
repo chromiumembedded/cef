@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index 3c684382f63ca..f560d3c181730 100644
+index 2d8d97e4938cf..78bbdbaa8ad69 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
 @@ -29,12 +29,23 @@
@@ -27,10 +27,10 @@ index 3c684382f63ca..f560d3c181730 100644
    base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                  base::BlockingType::MAY_BLOCK);
  
-@@ -50,6 +61,19 @@ void GetFilePaths(const base::FilePath& profile_path,
-     *profile_path_out = profile_path.LossyDisplayName();
-   else
+@@ -52,6 +63,19 @@ void GetFilePaths(const base::FilePath& profile_path,
+   } else {
      *profile_path_out = l10n_util::GetStringUTF16(IDS_VERSION_UI_PATH_NOTFOUND);
+   }
 +
 +#if BUILDFLAG(ENABLE_CEF)
 +  base::FilePath module_path;
@@ -47,7 +47,7 @@ index 3c684382f63ca..f560d3c181730 100644
  }
  
  }  // namespace
-@@ -121,23 +145,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
+@@ -123,23 +147,46 @@ void VersionHandler::HandleRequestPathInfo(const base::Value::List& args) {
    // OnGotFilePaths.
    std::u16string* exec_path_buffer = new std::u16string;
    std::u16string* profile_path_buffer = new std::u16string;
@@ -124,7 +124,7 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index 6893542161a55..42238d843ce33 100644
+index e464e50866897..6c86e5096db3b 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -17,6 +17,7 @@
@@ -180,7 +180,7 @@ index 6893542161a55..42238d843ce33 100644
  #if BUILDFLAG(IS_MAC)
    html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
 diff --git components/version_ui/BUILD.gn components/version_ui/BUILD.gn
-index 913cf913dca7a..d79c330989149 100644
+index 49f73fb885870..4f1c5fa814d5b 100644
 --- components/version_ui/BUILD.gn
 +++ components/version_ui/BUILD.gn
 @@ -2,6 +2,8 @@
@@ -192,7 +192,7 @@ index 913cf913dca7a..d79c330989149 100644
  static_library("version_ui") {
    sources = [
      "version_handler_helper.cc",
-@@ -17,4 +19,8 @@ static_library("version_ui") {
+@@ -16,4 +18,8 @@ static_library("version_ui") {
      "//components/variations/net",
      "//components/variations/service",
    ]
@@ -303,18 +303,18 @@ index ea5f11471acf2..f604065bbe8fe 100644
  
  // <if expr="is_win">
 diff --git components/version_ui/version_ui_constants.cc components/version_ui/version_ui_constants.cc
-index 1054d152285f7..73bfbb8241a98 100644
+index a4677847706a6..5ad9dc52045ce 100644
 --- components/version_ui/version_ui_constants.cc
 +++ components/version_ui/version_ui_constants.cc
-@@ -6,6 +6,7 @@
+@@ -5,6 +5,7 @@
+ #include "components/version_ui/version_ui_constants.h"
  
  #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  
  namespace version_ui {
  
-@@ -92,4 +93,15 @@ const char kVersion[] = "version";
+@@ -91,4 +92,15 @@ const char kVersion[] = "version";
  const char kVersionModifier[] = "version_modifier";
  const char kVersionProcessorVariation[] = "version_processor_variation";
  
@@ -331,18 +331,18 @@ index 1054d152285f7..73bfbb8241a98 100644
 +
  }  // namespace version_ui
 diff --git components/version_ui/version_ui_constants.h components/version_ui/version_ui_constants.h
-index 0d35047553461..a75ade64c81ad 100644
+index 5d43d7626b3c3..c61eadf18e136 100644
 --- components/version_ui/version_ui_constants.h
 +++ components/version_ui/version_ui_constants.h
-@@ -7,6 +7,7 @@
+@@ -6,6 +6,7 @@
+ #define COMPONENTS_VERSION_UI_VERSION_UI_CONSTANTS_H_
  
  #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  
  namespace version_ui {
  
-@@ -94,6 +95,17 @@ extern const char kVersion[];
+@@ -93,6 +94,17 @@ extern const char kVersion[];
  extern const char kVersionModifier[];
  extern const char kVersionProcessorVariation[];
  

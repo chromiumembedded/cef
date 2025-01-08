@@ -1,11 +1,11 @@
 diff --git ui/views/controls/textfield/textfield.cc ui/views/controls/textfield/textfield.cc
-index 1991c859c67da..b955ffd4b6fd3 100644
+index 33afc532a2929..bbc38834966c2 100644
 --- ui/views/controls/textfield/textfield.cc
 +++ ui/views/controls/textfield/textfield.cc
-@@ -3033,6 +3033,10 @@ void Textfield::OnCursorBlinkTimerFired() {
- void Textfield::OnEnabledChanged() {
-   if (GetInputMethod())
+@@ -3130,6 +3130,10 @@ void Textfield::OnEnabledChanged() {
+   if (GetInputMethod()) {
      GetInputMethod()->OnTextInputTypeChanged(this);
+   }
 +  if (GetWidget()) {
 +    SetColor(GetTextColor());
 +    UpdateBackgroundColor();

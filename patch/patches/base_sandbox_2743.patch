@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 64189952b8b44..ef392991ed526 100644
+index 5d8029ab4b82c..7c31237709944 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -42,6 +42,7 @@ import("//build/rust/rust_static_library.gni")
@@ -10,7 +10,7 @@ index 64189952b8b44..ef392991ed526 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1493,7 +1494,11 @@ component("base") {
+@@ -1491,7 +1492,11 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -23,7 +23,7 @@ index 64189952b8b44..ef392991ed526 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1935,6 +1940,12 @@ component("base") {
+@@ -1941,6 +1946,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -37,7 +37,7 @@ index 64189952b8b44..ef392991ed526 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index 3dd632a89dc90..a64cd61ddb02b 100644
+index f680f63cffc5b..9cb615bbc8a5a 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -8,6 +8,7 @@
@@ -177,7 +177,7 @@ index af1d4f46d02c9..953585804c177 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 59826a95b518e..d6728112294fd 100644
+index b67b6fbf7e4e5..fc23ed1b4477d 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -60,6 +60,7 @@
@@ -188,7 +188,7 @@ index 59826a95b518e..d6728112294fd 100644
  #include "third_party/abseil-cpp/absl/base/internal/raw_logging.h"
  #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
  
-@@ -526,7 +527,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -538,7 +539,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    }
  #endif
  
@@ -244,10 +244,10 @@ index b198a7198aab9..01bc8e9b6ad1f 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 9c2ae8389bfb2..e639a4d85b3dd 100644
+index 0b772cbae8916..b19183b34d176 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
-@@ -20,7 +20,11 @@
+@@ -15,7 +15,11 @@
  
  #include "base/check.h"
  #include "base/feature_list.h"
@@ -259,7 +259,7 @@ index 9c2ae8389bfb2..e639a4d85b3dd 100644
  
  // Prototype for ProcessPrng.
  // See: https://learn.microsoft.com/en-us/windows/win32/seccng/processprng
-@@ -32,6 +36,7 @@ namespace base {
+@@ -27,6 +31,7 @@ namespace base {
  
  namespace internal {
  
@@ -267,7 +267,7 @@ index 9c2ae8389bfb2..e639a4d85b3dd 100644
  namespace {
  
  // The BoringSSl helpers are duplicated in rand_util_fuchsia.cc and
-@@ -53,6 +58,10 @@ bool UseBoringSSLForRandBytes() {
+@@ -48,6 +53,10 @@ bool UseBoringSSLForRandBytes() {
    return g_use_boringssl.load(std::memory_order_relaxed);
  }
  
@@ -278,7 +278,7 @@ index 9c2ae8389bfb2..e639a4d85b3dd 100644
  }  // namespace internal
  
  namespace {
-@@ -70,11 +79,13 @@ decltype(&ProcessPrng) GetProcessPrng() {
+@@ -65,11 +74,13 @@ decltype(&ProcessPrng) GetProcessPrng() {
  }
  
  void RandBytesInternal(span<uint8_t> output, bool avoid_allocation) {
@@ -317,7 +317,7 @@ index ea33ca66f384c..33f4cc76f76bd 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 2f250ba9bf79d..0af427e779266 100644
+index 6b5d9b1e494b7..538c98d6676ad 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
 @@ -29,12 +29,56 @@

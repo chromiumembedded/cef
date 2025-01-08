@@ -224,7 +224,7 @@ index 14563198df62b..63b2c14420927 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index aff834c0a9371..1eadd8bf1d421 100644
+index 5d9b3bd5386ec..e5aee47e1942c 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -235,7 +235,7 @@ index aff834c0a9371..1eadd8bf1d421 100644
  #include "sandbox/linux/services/namespace_sandbox.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -168,11 +169,10 @@ bool PlatformCrashpadInitialization(
+@@ -164,11 +165,10 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetCrashDumpLocation(database_path);
      crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
  
@@ -250,7 +250,7 @@ index aff834c0a9371..1eadd8bf1d421 100644
  
      // When --use-cros-crash-reporter is set (below), the handler passes dumps
      // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
-@@ -188,8 +188,8 @@ bool PlatformCrashpadInitialization(
+@@ -184,8 +184,8 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetProductInfo(&product_info);
  
      std::map<std::string, std::string> annotations;
@@ -261,7 +261,7 @@ index aff834c0a9371..1eadd8bf1d421 100644
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
      // Empty means stable.
-@@ -206,7 +206,20 @@ bool PlatformCrashpadInitialization(
+@@ -202,7 +202,20 @@ bool PlatformCrashpadInitialization(
        annotations["channel"] = product_info.channel;
      }
  
@@ -281,9 +281,9 @@ index aff834c0a9371..1eadd8bf1d421 100644
 +#endif  // defined(ARCH_CPU_ARM_FAMILY)
 +    annotations["platform"] = platform;
  
- #if BUILDFLAG(IS_CHROMEOS_LACROS)
-     // "build_time_millis" is used on LaCros chrome to determine when to stop
-@@ -251,6 +264,12 @@ bool PlatformCrashpadInitialization(
+ #if BUILDFLAG(IS_CHROMEOS_DEVICE)
+     // Chromium OS: save board and builder path for 'tast symbolize'.
+@@ -239,6 +252,12 @@ bool PlatformCrashpadInitialization(
      }
  #endif
  

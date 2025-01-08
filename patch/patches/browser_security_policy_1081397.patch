@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index d4d1572304587..35fa3abc12213 100644
+index 01dab0910e066..4c6d6faae8ce9 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -2134,6 +2134,16 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
@@ -20,10 +20,10 @@ index d4d1572304587..35fa3abc12213 100644
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index e919dcd7acf87..93fc464c57ca5 100644
+index 5a95c24b9acc5..b8e93ae3b5881 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -8278,10 +8278,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -8243,10 +8243,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
@@ -47,7 +47,7 @@ index e919dcd7acf87..93fc464c57ca5 100644
    }
  
    return origin_and_debug_info;
-@@ -8389,11 +8401,20 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+@@ -8354,11 +8366,20 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  

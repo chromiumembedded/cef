@@ -22,6 +22,8 @@ void CefBrowserManager::ExposeInterfacesToRenderer(
     service_manager::BinderRegistry* registry,
     blink::AssociatedInterfaceRegistry* associated_registry,
     content::RenderProcessHost* host) {
+  // TODO: Change to content::ChildProcessId usage once supported by
+  // GlobalRenderFrameHostToken. See https://crbug.com/379869738.
   registry->AddInterface<cef::mojom::BrowserManager>(base::BindRepeating(
       [](int render_process_id,
          mojo::PendingReceiver<cef::mojom::BrowserManager> receiver) {
@@ -29,7 +31,7 @@ void CefBrowserManager::ExposeInterfacesToRenderer(
             std::make_unique<CefBrowserManager>(render_process_id),
             std::move(receiver));
       },
-      host->GetID()));
+      host->GetDeprecatedID()));
 }
 
 // static

@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index a8cb8f5dfff83..c8ed0a8d39a26 100644
+index 384a829d6a4f5..e1290c8446954 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -21,6 +21,7 @@
@@ -21,7 +21,7 @@ index a8cb8f5dfff83..c8ed0a8d39a26 100644
  namespace embedder_support {
  
  namespace {
-@@ -331,6 +336,14 @@ blink::UserAgentBrandList ShuffleBrandList(
+@@ -321,6 +326,14 @@ blink::UserAgentBrandList ShuffleBrandList(
  
  std::string GetProductAndVersion(
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {

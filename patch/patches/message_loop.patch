@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index f28ebfee8218d..12f7539526c06 100644
+index 5b9e417927870..f74cf332e6093 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -9,8 +9,8 @@ index f28ebfee8218d..12f7539526c06 100644
 +#include "base/task/current_thread.h"
  #include "base/message_loop/message_pump_win.h"
  
- #include <winbase.h>
-@@ -572,7 +573,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+ #include <windows.h>
+@@ -584,7 +585,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
                  ctx.event()->set_chrome_message_pump();
              msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
            });
@@ -28,7 +28,7 @@ index f28ebfee8218d..12f7539526c06 100644
 +      }
      }
    }
-   if (has_msg)
+   if (has_msg) {
 diff --git base/task/current_thread.cc base/task/current_thread.cc
 index 024422b65775b..773d856dff353 100644
 --- base/task/current_thread.cc

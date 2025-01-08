@@ -631,7 +631,9 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
 
   host->RemoveObserver(this);
 
-  const int render_process_id = host->GetID();
+  // TODO: Change to content::ChildProcessId usage once supported by
+  // GlobalRenderFrameHostToken. See https://crbug.com/379869738.
+  const int render_process_id = host->GetDeprecatedID();
   DCHECK_GT(render_process_id, 0);
 
   // Remove all pending requests that reference the destroyed host.

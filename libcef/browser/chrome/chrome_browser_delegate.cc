@@ -333,7 +333,7 @@ bool ChromeBrowserDelegate::IsAppMenuItemEnabled(int command_id) {
 bool ChromeBrowserDelegate::IsPageActionIconVisible(
     PageActionIconType icon_type) {
   // Verify that our enum matches Chromium's values.
-  static_assert(static_cast<int>(CEF_CPAIT_MAX_VALUE) ==
+  static_assert(static_cast<int>(CEF_CPAIT_LAST_VALUE) - 1 ==
                     static_cast<int>(PageActionIconType::kMaxValue),
                 "enum mismatch");
 

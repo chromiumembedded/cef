@@ -77,7 +77,7 @@ index 0e0cad6032f6d..9dd09d26cdcc3 100644
  }  // namespace mojo
  
 diff --git mojo/public/cpp/bindings/connector.h mojo/public/cpp/bindings/connector.h
-index 332ab5c181ec5..4751eada85d07 100644
+index 332ab5c181ec5..d4ccf2e023cd3 100644
 --- mojo/public/cpp/bindings/connector.h
 +++ mojo/public/cpp/bindings/connector.h
 @@ -146,6 +146,11 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {

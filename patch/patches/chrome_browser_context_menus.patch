@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 419bf206081ba..d0b299714a5eb 100644
+index 3e36390382b9b..bf0aacb0eb08e 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -359,6 +359,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -21,7 +21,7 @@ index 419bf206081ba..d0b299714a5eb 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -627,6 +639,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -629,6 +641,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index 419bf206081ba..d0b299714a5eb 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -931,6 +947,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -919,6 +935,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -47,7 +47,7 @@ index 419bf206081ba..d0b299714a5eb 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1387,6 +1411,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1376,6 +1400,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,7 +60,7 @@ index 419bf206081ba..d0b299714a5eb 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3656,6 +3686,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
+@@ -3603,6 +3633,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
    execute_plugin_action_callback_ = std::move(cb);
  }
  
@@ -88,10 +88,10 @@ index 419bf206081ba..d0b299714a5eb 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index e31912f931c11..dac994a1958b1 100644
+index a57ce5f206298..2b6fc94cca039 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -155,7 +155,21 @@ class RenderViewContextMenu
+@@ -154,7 +154,21 @@ class RenderViewContextMenu
    }
  #endif
  
@@ -113,7 +113,7 @@ index e31912f931c11..dac994a1958b1 100644
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -481,6 +495,9 @@ class RenderViewContextMenu
+@@ -475,6 +489,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -136,10 +136,10 @@ index cb51224f9892c..b5a3946999d8f 100644
   private:
    // RenderViewContextMenuViewsMac:
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
-index 9070be4403de1..a449c46246acd 100644
+index 5e266a42d3df6..e57211944d6a6 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
-@@ -68,6 +68,10 @@ RenderViewContextMenuMacCocoa::~RenderViewContextMenuMacCocoa() {
+@@ -70,6 +70,10 @@ RenderViewContextMenuMacCocoa::~RenderViewContextMenuMacCocoa() {
  }
  
  void RenderViewContextMenuMacCocoa::Show() {
@@ -150,7 +150,7 @@ index 9070be4403de1..a449c46246acd 100644
    views::Widget* widget = views::Widget::GetTopLevelWidgetForNativeView(
        source_web_contents_->GetNativeView());
  
-@@ -93,6 +97,10 @@ void RenderViewContextMenuMacCocoa::Show() {
+@@ -95,6 +99,10 @@ void RenderViewContextMenuMacCocoa::Show() {
                        views::ElementTrackerViews::GetContextForWidget(widget));
  }
  
@@ -189,10 +189,10 @@ index 9f6c5fd44f206..dc50bc909897f 100644
    runner_->Cancel();
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index a0a564cbef528..f804cffc6944f 100644
+index 995a9c9c8ca22..b743c01bc6ebb 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-@@ -149,6 +149,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
+@@ -150,6 +150,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
  bool RenderViewContextMenuViews::GetAcceleratorForCommandId(
      int command_id,
      ui::Accelerator* accel) const {
@@ -202,7 +202,7 @@ index a0a564cbef528..f804cffc6944f 100644
    // There are no formally defined accelerators we can query so we assume
    // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
    switch (command_id) {
-@@ -383,6 +386,10 @@ void RenderViewContextMenuViews::AppendPlatformEditableItems() {
+@@ -366,6 +369,10 @@ void RenderViewContextMenuViews::AppendPlatformEditableItems() {
  }
  
  void RenderViewContextMenuViews::Show() {
@@ -210,10 +210,10 @@ index a0a564cbef528..f804cffc6944f 100644
 +    return;
 +  }
 +
-   if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kKioskMode))
+   if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kKioskMode)) {
      return;
- 
-@@ -425,6 +432,11 @@ void RenderViewContextMenuViews::Show() {
+   }
+@@ -412,6 +419,11 @@ void RenderViewContextMenuViews::Show() {
    }
  }
  
@@ -238,10 +238,10 @@ index 8433cdc9c88b7..aea62cda5cd22 100644
   protected:
    RenderViewContextMenuViews(content::RenderFrameHost& render_frame_host,
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
-index eb855deeb6040..3ff97b28fa4c6 100644
+index d46f3ec0eec9c..c1e166725f526 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
-@@ -91,6 +91,10 @@ void ChromeWebContentsViewDelegateViews::ShowMenu(
+@@ -92,6 +92,10 @@ void ChromeWebContentsViewDelegateViews::ShowMenu(
    context_menu_->Show();
  }
  
@@ -253,7 +253,7 @@ index eb855deeb6040..3ff97b28fa4c6 100644
      content::RenderFrameHost& render_frame_host,
      const content::ContextMenuParams& params) {
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
-index 97c98c8738965..96c142806d7b2 100644
+index 427c68bd89910..1632f7bbfd0c2 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
 @@ -55,6 +55,7 @@ class ChromeWebContentsViewDelegateViews
@@ -277,10 +277,10 @@ index 07e5b3613a2df..293282690bd5a 100644
   private:
    content::RenderWidgetHostView* GetActiveRenderWidgetHostView() const;
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
-index 0e2cf71973741..e8d9c38b49b6c 100644
+index 065e21f80dbe5..013403577470c 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
-@@ -131,6 +131,10 @@ void ChromeWebContentsViewDelegateViewsMac::ShowMenu(
+@@ -133,6 +133,10 @@ void ChromeWebContentsViewDelegateViewsMac::ShowMenu(
    context_menu_->Show();
  }
  
@@ -305,10 +305,10 @@ index 042428f77f4ad..e4efd98ca45d5 100644
    raw_ptr<content::WebContents> web_contents_ = nullptr;
  };
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index 2c4065b89fd0b..b978ebc839209 100644
+index 10f9eecb49c31..64d6cc54f0940 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
-@@ -396,6 +396,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
+@@ -395,6 +395,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
    return false;
  }
  

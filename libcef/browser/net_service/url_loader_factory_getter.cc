@@ -36,10 +36,12 @@ scoped_refptr<URLLoaderFactoryGetter> URLLoaderFactoryGetter::Create(
 
   network::URLLoaderFactoryBuilder factory_builder;
 
+  // TODO: Change to content::ChildProcessId usage once supported by
+  // WillCreateURLLoaderFactory. See https://crbug.com/379869738.
   int render_process_id = -1;
 
   if (render_frame_host) {
-    render_process_id = render_frame_host->GetProcess()->GetID();
+    render_process_id = render_frame_host->GetProcess()->GetDeprecatedID();
 
     // Allow DevTools to potentially inject itself into the proxy pipe.
     content::devtools_instrumentation::WillCreateURLLoaderFactoryParams::

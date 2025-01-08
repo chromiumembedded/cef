@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index ebd779ebd4223..e46c99c460149 100644
+index 09eeeee99b2e6..747d7f9e75d0e 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -23,7 +23,7 @@ index ebd779ebd4223..e46c99c460149 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -291,6 +292,10 @@ group("gn_all") {
+@@ -292,6 +293,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 53928b9d04267..74a16ee9466c8 100644
+index 75a2ccaebf8b5..676f21d56caa2 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -89,7 +89,7 @@ index 53928b9d04267..74a16ee9466c8 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -476,6 +477,10 @@ template("chrome_extra_paks") {
+@@ -480,6 +481,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }
@@ -151,23 +151,23 @@ index c490d199bf51e..4c0de0d7a0822 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 5cf2768230fa5..f354073500d2c 100644
+index 20b2ffa87c31a..0c919d103eab5 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
-@@ -5,7 +5,9 @@
- import("//build/config/chrome_build.gni")
+@@ -6,7 +6,9 @@ import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/devtools.gni")
+ import("//build/config/features.gni")
 +import("//build/config/locales.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
  devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
-@@ -38,6 +40,9 @@ _grit_defines = [
-   "use_titlecase=${is_mac}",
- 
+@@ -41,6 +43,9 @@ _grit_defines = [
    "is_desktop_android=${is_desktop_android}",
+ 
+   "enable_glic=${enable_glic}",
 +
 +  "enable_cef=${enable_cef}",
 +  "enable_pseudolocales=${enable_pseudolocales}",

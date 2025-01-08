@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/chrome_views_delegate_linux.cc chrome/browser/ui/views/chrome_views_delegate_linux.cc
-index 090cacaa913a3..da1ad444325ee 100644
+index 9fc4b34838710..215eb51cd04d5 100644
 --- chrome/browser/ui/views/chrome_views_delegate_linux.cc
 +++ chrome/browser/ui/views/chrome_views_delegate_linux.cc
 @@ -65,6 +65,8 @@ NativeWidgetType GetNativeWidgetTypeForInitParams(
@@ -12,12 +12,12 @@ index 090cacaa913a3..da1ad444325ee 100644
            params.type != views::Widget::InitParams::TYPE_TOOLTIP)
               ? NativeWidgetType::NATIVE_WIDGET_AURA
 diff --git ui/views/test/desktop_test_views_delegate_aura.cc ui/views/test/desktop_test_views_delegate_aura.cc
-index 110eab7eec92a..2bfc96b6c439d 100644
+index 18281d9a30026..5e86ab38b9e35 100644
 --- ui/views/test/desktop_test_views_delegate_aura.cc
 +++ ui/views/test/desktop_test_views_delegate_aura.cc
 @@ -27,7 +27,8 @@ void DesktopTestViewsDelegate::OnBeforeWidgetInit(
-   if (params->native_widget)
      return;
+   }
  
 -  if (params->parent && params->type != views::Widget::InitParams::TYPE_MENU &&
 +  if (params->parent && params->child &&

@@ -25,10 +25,10 @@ index cdabcf3e5b2c7..2a12480efb68c 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index 021bcad8c3084..a37406d408718 100644
+index c3879262996c5..955fd0a375f60 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
-@@ -127,7 +127,7 @@ bool LoadDefaultEGLGLES2Bindings(
+@@ -135,7 +135,7 @@ bool LoadDefaultEGLGLES2Bindings(
    if (implementation.gl == gl::kGLImplementationEGLANGLE) {
      base::FilePath module_path;
  #if !BUILDFLAG(IS_FUCHSIA)

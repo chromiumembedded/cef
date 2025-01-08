@@ -1403,8 +1403,10 @@ std::unique_ptr<InterceptedRequestHandler> CreateInterceptedRequestHandler(
 
   // Default to handlers for the same process in case |frame| doesn't have an
   // associated CefBrowserHost.
-  content::GlobalRenderFrameHostId global_id(frame->GetProcess()->GetID(),
-                                             MSG_ROUTING_NONE);
+  // TODO: Change to content::ChildProcessId usage once supported by
+  // GlobalRenderFrameHostId. See https://crbug.com/379869738.
+  content::GlobalRenderFrameHostId global_id(
+      frame->GetProcess()->GetDeprecatedID(), MSG_ROUTING_NONE);
 
   browserPtr = CefBrowserHostBase::GetBrowserForHost(frame);
   if (browserPtr) {

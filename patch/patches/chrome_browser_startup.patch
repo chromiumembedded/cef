@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index 16f7438c6f112..c5568abce8917 100644
+index d26f0998c81fc..098282f9ca599 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -607,6 +607,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
+@@ -626,6 +626,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
  }
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -16,7 +16,7 @@ index 16f7438c6f112..c5568abce8917 100644
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1467,6 +1474,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1500,6 +1507,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index 16f7438c6f112..c5568abce8917 100644
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1476,6 +1489,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1509,6 +1522,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
@@ -42,7 +42,7 @@ index 16f7438c6f112..c5568abce8917 100644
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index 37957dc632d0c..735819e9ceb10 100644
+index a8c47297e36b7..5f0e5a4a98c81 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@

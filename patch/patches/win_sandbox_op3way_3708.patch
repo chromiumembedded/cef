@@ -1,10 +1,10 @@
 diff --git base/time/time.h base/time/time.h
-index 36b7d12bf5b8e..6b07c2bb11b4c 100644
+index da5c4c967b4ac..769f856c220af 100644
 --- base/time/time.h
 +++ base/time/time.h
 @@ -134,6 +134,13 @@ constexpr bool isnan(double d) {
  
- }
+ }  // namespace
  
 +// Clang compiler is unable to eliminate a "dead" function call to an undefined
 +// `std::_Literal_zero_is_expected()` function that MSVC uses to allow
@@ -16,7 +16,7 @@ index 36b7d12bf5b8e..6b07c2bb11b4c 100644
  // TimeDelta ------------------------------------------------------------------
  
  class BASE_EXPORT TimeDelta {
-@@ -320,8 +327,17 @@ class BASE_EXPORT TimeDelta {
+@@ -322,8 +329,17 @@ class BASE_EXPORT TimeDelta {
  
    // Comparison operators.
    friend constexpr bool operator==(TimeDelta, TimeDelta) = default;
@@ -34,7 +34,7 @@ index 36b7d12bf5b8e..6b07c2bb11b4c 100644
  
    // Returns this delta, ceiled/floored/rounded-away-from-zero to the nearest
    // multiple of |interval|.
-@@ -472,8 +488,17 @@ class TimeBase {
+@@ -480,8 +496,17 @@ class TimeBase {
  
    // Comparison operators
    friend constexpr bool operator==(const TimeBase&, const TimeBase&) = default;

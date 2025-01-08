@@ -1,5 +1,5 @@
 diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
-index 73d6ad5e9bb36..6c450e79c0f94 100644
+index daecebb507070..aed51c2e6b06e 100644
 --- base/win/dark_mode_support.cc
 +++ base/win/dark_mode_support.cc
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index 73d6ad5e9bb36..6c450e79c0f94 100644
  #include "base/native_library.h"
  #include "base/win/win_util.h"
  #include "base/win/windows_version.h"
-@@ -89,11 +90,20 @@ const DarkModeSupport& GetDarkModeSupport() {
+@@ -85,11 +86,20 @@ const DarkModeSupport& GetDarkModeSupport() {
    return dark_mode_support;
  }
  
@@ -67,7 +67,7 @@ index 184939bdb8b3d..bb13d7c74e20b 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 728069cfdba9a..3561f49631e5c 100644
+index aa2d789b3aec5..f84090947a345 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -78,7 +78,7 @@ index 728069cfdba9a..3561f49631e5c 100644
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -288,6 +289,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -289,6 +290,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,10 +93,10 @@ index 728069cfdba9a..3561f49631e5c 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index b2a7455c7e005..77170b90189c8 100644
+index 4c8e8c2b171fc..4c0ac7cfee394 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -610,6 +610,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -624,6 +624,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Calculates and returns the use overlay scrollbar setting.
    static bool CalculateUseOverlayScrollbar();
  
@@ -107,10 +107,10 @@ index b2a7455c7e005..77170b90189c8 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index dc1224ca2fa27..b2a0ce01b4611 100644
+index 36d8e38eb0b07..0b96dd332363a 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
-@@ -585,11 +585,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -631,11 +631,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -129,30 +129,31 @@ index dc1224ca2fa27..b2a0ce01b4611 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 1b098cbb291fe..fc8f22b7db5a3 100644
+index d34f90e8a6b93..5d77885591ea2 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -676,14 +676,17 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -685,7 +685,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
--  if (InForcedColorsMode() && !IsForcedDarkMode())
+-  if (InForcedColorsMode() && !IsForcedDarkMode()) {
 +  if (supports_windows_dark_mode_ && IsForcedDarkMode()) {
 +    return true;
 +  }
-+  if (InForcedColorsMode())
++  if (InForcedColorsMode()) {
      return false;
+   }
    return NativeTheme::ShouldUseDarkColors();
- }
+@@ -693,7 +696,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
--  if (!InForcedColorsMode())
-+  if (!InForcedColorsMode() || !supports_windows_dark_mode_)
+-  if (!InForcedColorsMode()) {
++  if (!InForcedColorsMode() || !supports_windows_dark_mode_) {
      return NativeTheme::CalculatePreferredColorScheme();
+   }
  
-   // According to the spec, the preferred color scheme for web content is 'dark'
-@@ -1653,8 +1656,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1678,8 +1681,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

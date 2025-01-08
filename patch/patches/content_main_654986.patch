@@ -1,5 +1,5 @@
 diff --git base/process/set_process_title.cc base/process/set_process_title.cc
-index 79ba3ac1913f8..46bcb4366d2f8 100644
+index edd8c78fb1537..49622b9c05dc0 100644
 --- base/process/set_process_title.cc
 +++ base/process/set_process_title.cc
 @@ -54,7 +54,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
@@ -9,13 +9,13 @@ index 79ba3ac1913f8..46bcb4366d2f8 100644
 -  DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
 +  // DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
  
-   if (main_argv)
+   if (main_argv) {
      setproctitle_init(main_argv);
 diff --git content/app/content_main.cc content/app/content_main.cc
-index c37f18d794ae2..fd360f7698bcf 100644
+index 6cb1ea690dce9..cfadae04565be 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -194,11 +194,8 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -193,16 +193,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -27,11 +27,6 @@ index c37f18d794ae2..fd360f7698bcf 100644
 +int ContentMainInitialize(ContentMainParams params,
 +                          ContentMainRunner* content_main_runner) {
    base::FeatureList::FailOnFeatureAccessWithoutFeatureList();
- #if BUILDFLAG(IS_CHROMEOS_LACROS)
-   // Lacros is launched with inherited priority. Revert to normal priority
-@@ -206,9 +203,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
-   base::PlatformThread::SetCurrentThreadType(base::ThreadType::kDefault);
- #endif
    int exit_code = -1;
 -#if BUILDFLAG(IS_MAC)
 -  base::apple::ScopedNSAutoreleasePool autorelease_pool;
@@ -39,7 +34,7 @@ index c37f18d794ae2..fd360f7698bcf 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -287,7 +281,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -281,7 +275,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -50,7 +45,7 @@ index c37f18d794ae2..fd360f7698bcf 100644
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -295,14 +291,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -289,14 +285,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -65,7 +60,7 @@ index c37f18d794ae2..fd360f7698bcf 100644
      InitializeMac();
  #endif
  
-@@ -353,12 +341,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -345,12 +333,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -112,7 +107,7 @@ index c37f18d794ae2..fd360f7698bcf 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 74d648de9172e..25be08486a085 100644
+index 8c20f50669a20..8a2c458c1e2ef 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -52,6 +52,7 @@
@@ -123,7 +118,7 @@ index 74d648de9172e..25be08486a085 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1350,6 +1351,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1332,6 +1333,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

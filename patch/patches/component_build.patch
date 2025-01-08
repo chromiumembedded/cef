@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index c67463381a180..96471c063b8bf 100644
+index 1e4c380032c3a..41e992e99a123 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -114,7 +114,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -116,7 +116,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      std::optional<blink::UserAgentMetadata>* override_out);
  
@@ -55,7 +55,7 @@ index 09d80f2ba678d..5dbff44c280a1 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 6ff75a6bb03e7..938113ef46a0d 100644
+index 555c721f4db1d..515b9c7373a89 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -38,6 +38,7 @@ component("controller") {
