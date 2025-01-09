@@ -88,7 +88,7 @@ index 964c47b090cb1..1917dc314c3ae 100644
  }
  
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index c8b65faa2d65b..687f4cff4ea64 100644
+index c8b65faa2d65b..2ec88972acec2 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
@@ -114,7 +114,7 @@ index c8b65faa2d65b..687f4cff4ea64 100644
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc/paint",
-+    "//cef/libcef/features",
++    "//cef/libcef/features:buildflags",
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
@@ -125,7 +125,7 @@ index c8b65faa2d65b..687f4cff4ea64 100644
 +  if (enable_cef) {
 +    deps += [
 +      "//cef:cef_resources",
-+      "//cef:make_version_header",
++      "//cef/libcef/features:deps",
 +    ]
 +  }
 +
@@ -141,7 +141,7 @@ index c8b65faa2d65b..687f4cff4ea64 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index e0582db3e8e88..1c61a24136933 100644
+index e0582db3e8e88..3d7ccab3a9804 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -270,6 +270,25 @@

@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 968f2f959882a..96c32bd78f9b0 100644
+index 968f2f959882a..e96fca4f0e130 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -14,7 +14,7 @@ index 968f2f959882a..96c32bd78f9b0 100644
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
-+    "//cef/libcef/features",
++    "//cef/libcef/features:buildflags",
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",

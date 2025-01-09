@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index a6072f97ed578..25a64c29e9c34 100644
+index a6072f97ed578..945fed3bf0276 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -24,7 +24,7 @@ index a6072f97ed578..25a64c29e9c34 100644
      ":hook_util",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
-+    "//cef/libcef/features",
++    "//cef/libcef/features:buildflags",
      "//chrome/install_static:install_static_util",
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
@@ -34,8 +34,8 @@ index a6072f97ed578..25a64c29e9c34 100644
    ]
 +
 +  if (enable_cef) {
++    configs += [ "//cef/libcef/features:config" ]
 +    deps += [ "//cef:chrome_elf_set" ]
-+    include_dirs = [ "//cef" ]
 +  } else {
 +    sources += [
 +      "//chrome/app/chrome_crash_reporter_client_win.cc",

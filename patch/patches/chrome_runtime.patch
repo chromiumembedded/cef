@@ -198,14 +198,14 @@ index 521d5710b6387..8a5f3e6a312d2 100644
  #if BUILDFLAG(IS_CHROMEOS_LACROS)
    std::unique_ptr<chromeos::LacrosService> lacros_service_;
 diff --git chrome/app_shim/BUILD.gn chrome/app_shim/BUILD.gn
-index db17714f74137..23f9f2eb3eb8b 100644
+index db17714f74137..7119e5dba649a 100644
 --- chrome/app_shim/BUILD.gn
 +++ chrome/app_shim/BUILD.gn
 @@ -24,6 +24,7 @@ source_set("app_shim") {
    deps = [
      "//base/allocator:early_zone_registration_apple",
      "//build:chromeos_buildflags",
-+    "//cef/libcef/features",
++    "//cef/libcef/features:buildflags",
      "//chrome:strings",
      "//chrome/app:command_ids",
      "//chrome/browser/renderer_host:history_swiper",

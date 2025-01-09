@@ -146,7 +146,7 @@ index 39b2de869d225..5a4e621c650ee 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 104e8502908e2..45b0a92bb9d80 100644
+index 104e8502908e2..9086d7b9e00fd 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -157,10 +157,17 @@ index 104e8502908e2..45b0a92bb9d80 100644
  import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -61,6 +62,17 @@ static_library("handler") {
-     ]
-   }
+@@ -76,11 +77,23 @@ static_library("handler") {
+     "../snapshot",
+     "../third_party/mini_chromium:chromeos_buildflags",
+     "../tools:tool_support",
++    "//cef/libcef/features:buildflags",
+   ]
  
+   if (crashpad_is_win) {
+     cflags = [ "/wd4201" ]  # nonstandard extension used : nameless struct/union
+   }
++
 +  if (enable_cef) {
 +    sources += [
 +      "//cef/libcef/common/cef_crash_report_upload_thread.cc",
@@ -171,18 +178,9 @@ index 104e8502908e2..45b0a92bb9d80 100644
 +
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
-+
-   public_configs = [ "..:crashpad_config" ]
+ }
  
-   public_deps = [
-@@ -76,6 +88,7 @@ static_library("handler") {
-     "../snapshot",
-     "../third_party/mini_chromium:chromeos_buildflags",
-     "../tools:tool_support",
-+    "//cef/libcef/features",
-   ]
- 
-   if (crashpad_is_win) {
+ if (crashpad_is_android) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 index 8350d0761ac18..9fc26214c4c0a 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc

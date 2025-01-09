@@ -55,26 +55,33 @@ index 09d80f2ba678d..5dbff44c280a1 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 555c721f4db1d..515b9c7373a89 100644
+index 555c721f4db1d..bf0dc7a83adb4 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
-@@ -38,6 +38,7 @@ component("controller") {
-   }
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
  
-   configs += [
-+    "//cef/libcef/features:config",
-     "//third_party/blink/renderer:config",
-     "//third_party/blink/renderer:inside_blink",
-     "//third_party/blink/renderer:non_test_config",
-@@ -67,6 +68,8 @@ component("controller") {
-     "performance_manager/v8_detailed_memory_reporter_impl.h",
-     "performance_manager/v8_worker_memory_reporter.cc",
+ import("//build/config/ui.gni")
++import("//cef/libcef/features/features.gni")
+ import("//testing/test.gni")
+ import("//third_party/blink/renderer/bindings/bindings.gni")
+ import("//third_party/blink/renderer/config.gni")
+@@ -69,6 +70,15 @@ component("controller") {
      "performance_manager/v8_worker_memory_reporter.h",
-+    "//cef/libcef/renderer/blink_glue.cc",
-+    "//cef/libcef/renderer/blink_glue.h",
    ]
  
++  if (enable_cef) {
++    sources += [
++      "//cef/libcef/renderer/blink_glue.cc",
++      "//cef/libcef/renderer/blink_glue.h",
++    ]
++    configs += [ "//cef/libcef/features:config" ]
++    deps += [ "//cef/libcef/features:deps" ]
++  }
++
    if (is_linux || is_chromeos) {
+     sources += [
+       "memory_usage_monitor_posix.cc",
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
 index 4f4fbfb769cf8..a794da2d8343b 100644
 --- ui/events/keycodes/BUILD.gn

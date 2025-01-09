@@ -878,7 +878,7 @@ source_set("libcef_static") {
 
   public_deps = [
     # Bring in feature flag defines.
-    "//cef/libcef/features",
+    "//cef/libcef/features:buildflags",
     # Support relative include paths.
     "//base",
     "//third_party/abseil-cpp:absl",
@@ -1207,7 +1207,7 @@ if (is_win) {
     configs += [ ":libcef_includes_config" ]
     deps = [
       ":make_config_header",
-      "libcef/features",
+      "libcef/features:buildflags",
       "//sandbox",
     ]
   }

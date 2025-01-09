@@ -25,8 +25,8 @@ import("//cef/libcef/features/features.gni")
 #      sources = [ ... ]
 #
 #      deps = [
-#        # Always include the CEF features.
-#        "//cef/libcef/features",
+#        # Always include the CEF buildflags.
+#        "//cef/libcef/features:buildflags",
 #        ...
 #      ]
 #
@@ -47,6 +47,9 @@ import("//cef/libcef/features/features.gni")
 #
 #        # Always include the CEF configuration.
 #        configs += [ "//cef/libcef/features:config" ]
+#
+#        # Maybe include other CEF targets.
+#        deps += [ "//cef/libcef/features:deps" ]
 #     }
 #     ...
 #   }
@@ -76,7 +79,7 @@ import("//cef/libcef/features/features.gni")
 #    ...
 #
 
-buildflag_header("features") {
+buildflag_header("buildflags") {
   header = "features.h"
 
   flags = [
@@ -94,10 +97,20 @@ config("config") {
 
     # CEF generated header files that also need to be discoverable.
     # These #includes from library-side code will always be prefixed with cef/.
-    "$root_build_dir/includes",
+    "$root_out_dir/includes",
+    # These #includes from cef/include/ directory will not be prefixed.
+    "$root_out_dir/includes/cef",
   ]
   defines = [
     "BUILDING_CEF_SHARED",
     "USING_CHROMIUM_INCLUDES",
+  ]
+}
+
+group("deps") {
+  deps = [
+    # CEF targets that generate header files.
+    "//cef:make_api_versions_header",
+    "//cef:make_version_header",
   ]
 }

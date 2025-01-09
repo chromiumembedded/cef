@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 5d8029ab4b82c..7c31237709944 100644
+index 5d8029ab4b82c..3fd3b54866cf7 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -42,6 +42,7 @@ import("//build/rust/rust_static_library.gni")
@@ -10,20 +10,22 @@ index 5d8029ab4b82c..7c31237709944 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1491,7 +1492,11 @@ component("base") {
+@@ -1491,7 +1492,13 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
 -  if (is_nacl) {
-+  deps += [ "//cef/libcef/features" ]
++
++  deps += [ "//cef/libcef/features:buildflags" ]
 +  if (enable_cef) {
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
++
 +  if (is_nacl || is_cef_sandbox_build) {
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1941,6 +1946,12 @@ component("base") {
+@@ -1941,6 +1948,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
