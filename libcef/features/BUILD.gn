@@ -95,11 +95,9 @@ config("config") {
     # cef/include/ directory uses #includes relative to the cef/ directory.
     "//cef",
 
-    # CEF generated header files that also need to be discoverable.
-    # These #includes from library-side code will always be prefixed with cef/.
-    "$root_out_dir/includes",
-    # These #includes from cef/include/ directory will not be prefixed.
-    "$root_out_dir/includes/cef",
+    # CEF generated header files that also need to be discoverable relative
+    # to the cef/ directory.
+    "$root_gen_dir/cef",
   ]
   defines = [
     "BUILDING_CEF_SHARED",

@@ -1128,7 +1128,7 @@ config("libcef_includes_config") {
     # CEF generated header files that also need to be discoverable.
     # These #includes from client-side code will not be prefixed with cef/.
     # They will be copied to the include/ directory in the binary distribution.
-    "$root_out_dir/includes/cef",
+    "$root_gen_dir/cef",
   ]
 }
 
@@ -1276,7 +1276,7 @@ template("make_pack_header") {
 
 # Generate cef_pack_resources.h.
 make_pack_header("resources") {
-  header = "$root_out_dir/includes/cef/include/cef_pack_resources.h"
+  header = "$root_gen_dir/cef/include/cef_pack_resources.h"
   inc = "$root_gen_dir/cef/libcef_dll/cef_pack_resources.inc"
   inputs = [
     "$root_gen_dir/base/tracing/protos/grit/tracing_proto_resources.h",
@@ -1343,7 +1343,7 @@ make_pack_header("resources") {
 
 # Generate cef_pack_strings.h.
 make_pack_header("strings") {
-  header = "$root_out_dir/includes/cef/include/cef_pack_strings.h"
+  header = "$root_gen_dir/cef/include/cef_pack_strings.h"
   inc = "$root_gen_dir/cef/libcef_dll/cef_pack_strings.inc"
   inputs = [
     "$root_gen_dir/cef/grit/cef_strings.h",
@@ -1387,7 +1387,7 @@ make_pack_header("strings") {
 
 # Generate cef_command_ids.h.
 make_pack_header("command_ids") {
-  header = "$root_out_dir/includes/cef/include/cef_command_ids.h"
+  header = "$root_gen_dir/cef/include/cef_command_ids.h"
   inc = "$root_gen_dir/cef/libcef_dll/cef_command_ids.inc"
   inputs = [
     "//chrome/app/chrome_command_ids.h",
@@ -1403,7 +1403,7 @@ action("make_api_versions_header") {
     "cef_api_untracked.json",
   ]
   outputs = [
-    "$root_out_dir/includes/cef/include/cef_api_versions.h",
+    "$root_gen_dir/cef/include/cef_api_versions.h",
     "$root_gen_dir/cef/libcef_dll/cef_api_versions.inc",
   ]
 
@@ -1418,7 +1418,7 @@ action("make_version_header") {
     "VERSION.stamp",
     "//chrome/VERSION",
   ]
-  outputs = [ "$root_out_dir/includes/cef/include/cef_version.h" ]
+  outputs = [ "$root_gen_dir/cef/include/cef_version.h" ]
 
   args = rebase_path(outputs, root_build_dir)
 }
@@ -1438,7 +1438,7 @@ action("make_config_header") {
   deps = [ ":args_gn_source" ]
 
   inputs = [ "$root_out_dir/args.gn" ]
-  outputs = [ "$root_out_dir/includes/cef/include/cef_config.h" ]
+  outputs = [ "$root_gen_dir/cef/include/cef_config.h" ]
 
   args = rebase_path(outputs + inputs, root_build_dir)
 }
@@ -1452,7 +1452,7 @@ action("make_colorids_header") {
     "//components/color/color_id.h",
     "//chrome/browser/ui/color/chrome_color_id.h",
   ]
-  outputs = [ "$root_out_dir/includes/cef/include/cef_color_ids.h" ]
+  outputs = [ "$root_gen_dir/cef/include/cef_color_ids.h" ]
 
   args = rebase_path(outputs + inputs, root_build_dir)
 }

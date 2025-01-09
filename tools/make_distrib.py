@@ -952,7 +952,7 @@ if mode == 'standard' or mode == 'minimal':
   ]
   for include in generated_includes:
     # Debug and Release build should be the same so grab whichever exists.
-    rel_path = os.path.join('includes', 'cef', 'include', include)
+    rel_path = os.path.join('gen', 'cef', 'include', include)
     src_path = os.path.join(build_dir_release, rel_path)
     if not os.path.exists(src_path):
       src_path = os.path.join(build_dir_debug, rel_path)
