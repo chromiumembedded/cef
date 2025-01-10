@@ -236,7 +236,6 @@ if(OS_LINUX)
     libGLESv2.so
     libvk_swiftshader.so
     libvulkan.so.1
-    snapshot_blob.bin
     v8_context_snapshot.bin
     vk_swiftshader_icd.json
     )
@@ -564,7 +563,6 @@ if(OS_WINDOWS)
     libcef.dll
     libEGL.dll
     libGLESv2.dll
-    snapshot_blob.bin
     v8_context_snapshot.bin
     vk_swiftshader.dll
     vk_swiftshader_icd.json

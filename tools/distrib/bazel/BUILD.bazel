@@ -249,7 +249,6 @@ filegroup(
 filegroup(
     name = "resources_opt",
     srcs = [
-        "Release/snapshot_blob.bin",
         "Release/v8_context_snapshot.bin",
         "Release/vk_swiftshader_icd.json",
         "@cef//:resources_common",
@@ -259,7 +258,6 @@ filegroup(
 filegroup(
     name = "resources_dbg",
     srcs = [
-        "Debug/snapshot_blob.bin",
         "Debug/v8_context_snapshot.bin",
         "Debug/vk_swiftshader_icd.json",
         "@cef//:resources_common",

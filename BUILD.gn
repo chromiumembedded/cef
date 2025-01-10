@@ -1525,13 +1525,13 @@ if (is_mac) {
     sources += [ "//ui/gl/resources/angle-metal/gpu_shader_cache.bin" ]
 
     if (v8_use_external_startup_data) {
-      sources += [
-        "$root_out_dir/snapshot_blob.bin",
-      ]
       public_deps += [ "//v8" ]
       if (use_v8_context_snapshot) {
-        sources += [ "$root_out_dir/$v8_context_snapshot_filename" ]
+        sources += [ "$root_build_dir/$v8_context_snapshot_filename" ]
         public_deps += [ "//tools/v8_context_snapshot" ]
+      }
+      if (!use_v8_context_snapshot || include_both_v8_snapshots) {
+        sources += [ "$root_build_dir/snapshot_blob.bin" ]
       }
     }
 

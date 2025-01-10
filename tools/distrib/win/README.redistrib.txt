@@ -17,7 +17,6 @@ The following components are required. CEF will not function without them.
   * icudtl.dat
 
 * V8 snapshot data.
-  * snapshot_blob.bin
   * v8_context_snapshot.bin
 
 Optional components:

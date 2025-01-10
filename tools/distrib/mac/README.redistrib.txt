@@ -25,7 +25,7 @@ cefclient.app/
           resources.pak          <=^
           gpu_shader_cache.bin <= ANGLE-Metal shader cache
           icudtl.dat <= unicode support
-          snapshot_blob.bin, v8_context_snapshot.[x86_64|arm64].bin <= V8 initial snapshot
+          v8_context_snapshot.[x86_64|arm64].bin <= V8 initial snapshot
           en.lproj/, ... <= locale-specific resources and strings
           Info.plist
       cefclient Helper.app/
@@ -63,7 +63,6 @@ The following components are required. CEF will not function without them.
   * Chromium Embedded Framework.framework/Resources/icudtl.dat
 
 * V8 snapshot data.
-  * Chromium Embedded Framework.framework/Resources/snapshot_blob.bin
   * Chromium Embedded Framework.framework/Resources/v8_context_snapshot.bin
 
 Optional components:

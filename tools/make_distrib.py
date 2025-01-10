@@ -1108,8 +1108,7 @@ elif platform == 'windows':
       {'path': libcef_dll},
       {'path': 'libEGL.dll'},
       {'path': 'libGLESv2.dll'},
-      {'path': 'snapshot_blob.bin', 'conditional': True},
-      {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      {'path': 'v8_context_snapshot.bin'},
       {'path': 'vk_swiftshader.dll'},
       {'path': 'vk_swiftshader_icd.json'},
       {'path': 'vulkan-1.dll'},
@@ -1432,8 +1431,7 @@ elif platform == 'linux':
       {'path': 'libGLESv2.so'},
       {'path': 'libvk_swiftshader.so'},
       {'path': 'libvulkan.so.1'},
-      {'path': 'snapshot_blob.bin', 'conditional': True},
-      {'path': 'v8_context_snapshot.bin', 'conditional': True},
+      {'path': 'v8_context_snapshot.bin'},
       {'path': 'vk_swiftshader_icd.json'},
   ]
   # yapf: enable
