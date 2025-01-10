@@ -221,6 +221,31 @@ index 83e3cee2579ab..8238767ab9126 100644
  uint32_t Crc32(uint32_t sum, span<const uint8_t> data) {
    if (data.empty()) {
      return sum;
+diff --git base/process/memory.h base/process/memory.h
+index 5d11d4a1560b1..242a93bcca8ed 100644
+--- base/process/memory.h
++++ base/process/memory.h
+@@ -29,7 +29,7 @@ BASE_EXPORT void EnableTerminationOnOutOfMemory();
+ #if PA_BUILDFLAG(USE_PARTITION_ALLOC)
+ using partition_alloc::TerminateBecauseOutOfMemory;
+ #else
+-inline void TerminateBecauseOutOfMemory(size_t) {
++[[noreturn]] inline void TerminateBecauseOutOfMemory(size_t) {
+   logging::RawCheckFailure("Out of memory");
+ }
+ #endif
+@@ -58,7 +58,11 @@ bool ReleaseAddressSpaceReservation();
+ #if BUILDFLAG(IS_WIN)
+ namespace win {
+ 
++#if PA_BUILDFLAG(USE_PARTITION_ALLOC)
+ using partition_alloc::win::kOomExceptionCode;
++#else
++const DWORD kOomExceptionCode = 0xe0000008;
++#endif
+ 
+ }  // namespace win
+ #endif
 diff --git base/rand_util.h base/rand_util.h
 index b198a7198aab9..01bc8e9b6ad1f 100644
 --- base/rand_util.h
@@ -379,3 +404,24 @@ index 6b5d9b1e494b7..538c98d6676ad 100644
  template <typename Iterator>
  Sid FromSubAuthorities(const SID_IDENTIFIER_AUTHORITY& identifier_authority,
                         size_t sub_authority_count,
+diff --git build_overrides/dawn.gni build_overrides/dawn.gni
+index cec3df3e50b6e..309b4e6a4fe0d 100644
+--- build_overrides/dawn.gni
++++ build_overrides/dawn.gni
+@@ -2,11 +2,15 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
++import("//base/allocator/partition_allocator/partition_alloc.gni")
++
+ # The paths to Dawn's dependencies
+ dawn_angle_dir = "//third_party/angle"
+ dawn_glfw_dir = "//third_party/dawn/third_party/glfw"
+ dawn_googletest_dir = "//third_party/googletest/src"
+-dawn_partition_alloc_dir = "//base/allocator/partition_allocator"
++if (use_partition_alloc) {
++  dawn_partition_alloc_dir = "//base/allocator/partition_allocator"
++}
+ dawn_jinja2_dir = "//third_party/jinja2"
+ dawn_jsoncpp_dir = "//third_party/jsoncpp"
+ dawn_spirv_tools_dir = "//third_party/spirv-tools/src"
