@@ -45,6 +45,9 @@ std::string TaskTypeToString(cef_task_type_t type) {
       return "Shared Worker";
     case CEF_TASK_TYPE_SERVICE_WORKER:
       return "Service Worker";
+    case CEF_TASK_TYPE_NUM_VALUES:
+      NOTREACHED();
+      break;
   }
   return "Unknown";
 }

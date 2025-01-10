@@ -31,6 +31,7 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_
 #pragma once
 
+#include <algorithm>
 #include <limits>
 
 #include "include/internal/cef_string.h"
@@ -38,16 +39,16 @@
 #include "include/internal/cef_types.h"
 
 ///
-/// Template class that provides common functionality for CEF structure
-/// wrapping. Use only with non-POD types that benefit from referencing unowned
-/// members.
+/// Template class that provides common functionality for complex CEF structure
+/// wrapping. Use only with non-POD types that begin with a `size_t size` member
+/// and can benefit from referencing unowned members.
 ///
 template <class traits>
 class CefStructBase : public traits::struct_type {
  public:
   using struct_type = typename traits::struct_type;
 
-  CefStructBase() : attached_to_(NULL) { Init(); }
+  CefStructBase() { Init(); }
   virtual ~CefStructBase() {
     // Only clear this object's data if it isn't currently attached to a
     // structure.
@@ -79,8 +80,12 @@ class CefStructBase : public traits::struct_type {
     // This object is now attached to the new structure.
     attached_to_ = &source;
 
-    // Transfer ownership of the values from the source structure.
-    memcpy(static_cast<struct_type*>(this), &source, sizeof(struct_type));
+    // Source structure may be smaller size.
+    const size_t source_size = std::min(source.size, sizeof(struct_type));
+
+    // Reference values from the source structure, and keep the same size.
+    memcpy(static_cast<struct_type*>(this), &source, source_size);
+    this->size = source_size;
   }
 
   ///
@@ -93,10 +98,20 @@ class CefStructBase : public traits::struct_type {
       Clear(&target);
     }
 
-    // Transfer ownership of the values to the target structure.
-    memcpy(&target, static_cast<struct_type*>(this), sizeof(struct_type));
+    // Target structure may be smaller size.
+    const size_t target_size = std::min(target.size, sizeof(struct_type));
 
-    // Remove the references from this object.
+    // Transfer ownership of the values to the target structure.
+    memcpy(&target, static_cast<struct_type*>(this), target_size);
+
+    if (target_size < sizeof(struct_type)) {
+      // Zero the transferred portion and clear the remainder.
+      memset(static_cast<struct_type*>(this), 0, target_size);
+      this->size = sizeof(struct_type);
+      Clear(this);
+    }
+
+    // Zero everything. We return to the default size.
     Init();
   }
 
@@ -105,6 +120,10 @@ class CefStructBase : public traits::struct_type {
   /// will be copied instead of referenced.
   ///
   void Set(const struct_type& source, bool copy) {
+    if (source.size < sizeof(struct_type)) {
+      // Clear newer members that won't be set.
+      Clear(this);
+    }
     traits::set(&source, this, copy);
   }
 
@@ -126,7 +145,25 @@ class CefStructBase : public traits::struct_type {
 
   static void Clear(struct_type* s) { traits::clear(s); }
 
-  struct_type* attached_to_;
+  struct_type* attached_to_ = nullptr;
+};
+
+///
+/// Template class that provides common functionality for simple CEF structure
+/// wrapping. Use only with POD types that begin with a `size_t size` member.
+///
+template <class struct_type>
+class CefStructBaseSimple final : public struct_type {
+ public:
+  CefStructBaseSimple() : struct_type{sizeof(struct_type)} {}
+  CefStructBaseSimple(const struct_type& r) { *this = r; }
+
+  CefStructBaseSimple& operator=(const struct_type& r) {
+    memcpy(static_cast<struct_type*>(this), &r,
+           std::min(r.size, sizeof(struct_type)));
+    this->size = sizeof(struct_type);
+    return *this;
+  }
 };
 
 ///
@@ -291,16 +328,29 @@ inline bool operator!=(const CefDraggableRegion& a,
 ///
 class CefScreenInfo : public cef_screen_info_t {
  public:
-  CefScreenInfo() : cef_screen_info_t{} {}
-  CefScreenInfo(const cef_screen_info_t& r) : cef_screen_info_t(r) {}
+  CefScreenInfo() : cef_screen_info_t{sizeof(cef_screen_info_t)} {}
+  CefScreenInfo(const cef_screen_info_t& r) { *this = r; }
+
+  CefScreenInfo& operator=(const cef_screen_info_t& r) {
+    memcpy(static_cast<cef_screen_info_t*>(this), &r,
+           std::min(r.size, sizeof(cef_screen_info_t)));
+    this->size = sizeof(cef_screen_info_t);
+    return *this;
+  }
+
   CefScreenInfo(float device_scale_factor,
                 int depth,
                 int depth_per_component,
                 bool is_monochrome,
                 const cef_rect_t& rect,
                 const cef_rect_t& available_rect)
-      : cef_screen_info_t{device_scale_factor, depth, depth_per_component,
-                          is_monochrome,       rect,  available_rect} {}
+      : cef_screen_info_t{sizeof(cef_screen_info_t),
+                          device_scale_factor,
+                          depth,
+                          depth_per_component,
+                          is_monochrome,
+                          rect,
+                          available_rect} {}
 
   void Set(float device_scale_factor_val,
            int depth_val,
@@ -320,11 +370,7 @@ class CefScreenInfo : public cef_screen_info_t {
 ///
 /// Class representing a a keyboard event.
 ///
-class CefKeyEvent : public cef_key_event_t {
- public:
-  CefKeyEvent() : cef_key_event_t{} {}
-  CefKeyEvent(const cef_key_event_t& r) : cef_key_event_t(r) {}
-};
+using CefKeyEvent = CefStructBaseSimple<cef_key_event_t>;
 
 ///
 /// Class representing a mouse event.
@@ -347,11 +393,7 @@ class CefTouchEvent : public cef_touch_event_t {
 ///
 /// Class representing popup window features.
 ///
-class CefPopupFeatures : public cef_popup_features_t {
- public:
-  CefPopupFeatures() : cef_popup_features_t{} {}
-  CefPopupFeatures(const cef_popup_features_t& r) : cef_popup_features_t(r) {}
-};
+using CefPopupFeatures = CefStructBaseSimple<cef_popup_features_t>;
 
 struct CefSettingsTraits {
   using struct_type = cef_settings_t;
@@ -553,7 +595,7 @@ using CefBrowserSettings = CefStructBase<CefBrowserSettingsTraits>;
 struct CefURLPartsTraits {
   using struct_type = cef_urlparts_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->spec);
@@ -595,17 +637,12 @@ using CefURLParts = CefStructBase<CefURLPartsTraits>;
 ///
 /// Class representing the state of a touch handle.
 ///
-class CefTouchHandleState : public cef_touch_handle_state_t {
- public:
-  CefTouchHandleState() : cef_touch_handle_state_t{} {}
-  CefTouchHandleState(const cef_touch_handle_state_t& r)
-      : cef_touch_handle_state_t(r) {}
-};
+using CefTouchHandleState = CefStructBaseSimple<cef_touch_handle_state_t>;
 
 struct CefCookieTraits {
   using struct_type = cef_cookie_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->name);
@@ -649,7 +686,7 @@ class CefCursorInfo : public cef_cursor_info_t {
 struct CefPdfPrintSettingsTraits {
   using struct_type = cef_pdf_print_settings_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->page_ranges);
@@ -697,37 +734,35 @@ using CefPdfPrintSettings = CefStructBase<CefPdfPrintSettingsTraits>;
 ///
 class CefBoxLayoutSettings : public cef_box_layout_settings_t {
  public:
-  CefBoxLayoutSettings() : cef_box_layout_settings_t{} {
+  CefBoxLayoutSettings()
+      : cef_box_layout_settings_t{sizeof(cef_box_layout_settings_t)} {
     cross_axis_alignment = CEF_AXIS_ALIGNMENT_STRETCH;
   }
-  CefBoxLayoutSettings(const cef_box_layout_settings_t& r)
-      : cef_box_layout_settings_t(r) {}
+  CefBoxLayoutSettings(const cef_box_layout_settings_t& r) { *this = r; }
+
+  CefBoxLayoutSettings& operator=(const cef_box_layout_settings_t& r) {
+    memcpy(static_cast<cef_box_layout_settings_t*>(this), &r,
+           std::min(r.size, sizeof(cef_box_layout_settings_t)));
+    this->size = sizeof(cef_box_layout_settings_t);
+    return *this;
+  }
 };
 
 ///
 /// Class representing IME composition underline.
 ///
-class CefCompositionUnderline : public cef_composition_underline_t {
- public:
-  CefCompositionUnderline() : cef_composition_underline_t{} {}
-  CefCompositionUnderline(const cef_composition_underline_t& r)
-      : cef_composition_underline_t(r) {}
-};
+using CefCompositionUnderline =
+    CefStructBaseSimple<cef_composition_underline_t>;
 
 ///
 /// Class representing CefAudioParameters settings
 ///
-class CefAudioParameters : public cef_audio_parameters_t {
- public:
-  CefAudioParameters() : cef_audio_parameters_t{} {}
-  CefAudioParameters(const cef_audio_parameters_t& r)
-      : cef_audio_parameters_t(r) {}
-};
+using CefAudioParameters = CefStructBaseSimple<cef_audio_parameters_t>;
 
 struct CefMediaSinkDeviceInfoTraits {
   using struct_type = cef_media_sink_device_info_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->ip_address);
@@ -753,17 +788,13 @@ using CefMediaSinkDeviceInfo = CefStructBase<CefMediaSinkDeviceInfoTraits>;
 ///
 /// Class representing accelerated paint info.
 ///
-class CefAcceleratedPaintInfo : public cef_accelerated_paint_info_t {
- public:
-  CefAcceleratedPaintInfo() : cef_accelerated_paint_info_t{} {}
-  CefAcceleratedPaintInfo(const cef_accelerated_paint_info_t& r)
-      : cef_accelerated_paint_info_t(r) {}
-};
+using CefAcceleratedPaintInfo =
+    CefStructBaseSimple<cef_accelerated_paint_info_t>;
 
 struct CefTaskInfoTraits {
   using struct_type = cef_task_info_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) { cef_string_clear(&s->title); }
 
@@ -790,7 +821,7 @@ using CefTaskInfo = CefStructBase<CefTaskInfoTraits>;
 struct CefLinuxWindowPropertiesTraits {
   using struct_type = cef_linux_window_properties_t;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->wayland_app_id);

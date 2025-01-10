@@ -130,6 +130,12 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
     return nullptr;
   }
 
+  // Verify that the settings structure is a valid size.
+  if (!CEF_MEMBER_EXISTS(&settings, cookieable_schemes_exclude_defaults)) {
+    DCHECK(false) << "invalid CefRequestContextSettings structure size";
+    return nullptr;
+  }
+
   CefRequestContextImpl::Config config;
   config.settings = settings;
   config.handler = handler;

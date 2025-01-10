@@ -292,9 +292,10 @@ bool ChromeBrowserDelegate::ShowStatusBubble(bool show_by_default) {
 bool ChromeBrowserDelegate::HandleCommand(int command_id,
                                           WindowOpenDisposition disposition) {
   // Verify that our enum matches Chromium's values.
-  static_assert(static_cast<int>(CEF_WOD_MAX_VALUE) ==
+  static_assert(static_cast<int>(CEF_WOD_NUM_VALUES) - 1 ==
                     static_cast<int>(WindowOpenDisposition::MAX_VALUE),
-                "enum mismatch");
+                "Enum values in cef_window_open_disposition_t must match "
+                "WindowOpenDisposition");
 
   if (auto browser = ChromeBrowserHostImpl::GetBrowserForBrowser(browser_)) {
     if (auto client = browser->GetClient()) {
@@ -333,9 +334,10 @@ bool ChromeBrowserDelegate::IsAppMenuItemEnabled(int command_id) {
 bool ChromeBrowserDelegate::IsPageActionIconVisible(
     PageActionIconType icon_type) {
   // Verify that our enum matches Chromium's values.
-  static_assert(static_cast<int>(CEF_CPAIT_LAST_VALUE) - 1 ==
+  static_assert(static_cast<int>(CEF_CPAIT_NUM_VALUES) - 1 ==
                     static_cast<int>(PageActionIconType::kMaxValue),
-                "enum mismatch");
+                "Enum values in cef_chrome_page_action_icon_type_t must match "
+                "PageActionIconType");
 
   if (auto client = create_params_.client) {
     if (auto handler = client->GetCommandHandler()) {
@@ -349,9 +351,10 @@ bool ChromeBrowserDelegate::IsPageActionIconVisible(
 bool ChromeBrowserDelegate::IsToolbarButtonVisible(
     ToolbarButtonType button_type) {
   // Verify that our enum matches BrowserDelegate's values.
-  static_assert(static_cast<int>(CEF_CTBT_MAX_VALUE) ==
+  static_assert(static_cast<int>(CEF_CTBT_NUM_VALUES) - 1 ==
                     static_cast<int>(ToolbarButtonType::kMaxValue),
-                "enum mismatch");
+                "Enum values in cef_chrome_toolbar_button_type_t must match "
+                "ToolbarButtonType");
 
   if (auto client = create_params_.client) {
     if (auto handler = client->GetCommandHandler()) {

@@ -40,6 +40,11 @@
 ///
 typedef struct _cef_accelerated_paint_info_common_t {
   ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
   /// Timestamp of the frame in microseconds since capture start.
   ///
   uint64_t timestamp;

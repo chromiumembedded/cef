@@ -67,6 +67,11 @@ typedef struct _cef_main_args_t {
 /// Structure representing window information.
 ///
 typedef struct _cef_window_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   // Standard parameters required by CreateWindowEx()
   DWORD ex_style;
   cef_string_t window_name;
@@ -121,6 +126,11 @@ typedef struct _cef_window_info_t {
 /// the callback returns from client code.
 ///
 typedef struct _cef_accelerated_paint_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Handle for the shared texture. The shared texture is instantiated
   /// without a keyed mutex.

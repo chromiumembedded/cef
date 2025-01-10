@@ -225,7 +225,7 @@ class CefMenuModelImpl : public CefMenuModel {
   std::unique_ptr<ui::MenuModel> model_;
 
   // Style information.
-  cef_color_t default_colors_[CEF_MENU_COLOR_COUNT] = {0};
+  cef_color_t default_colors_[CEF_MENU_COLOR_NUM_VALUES] = {0};
   gfx::FontList default_font_list_;
   bool has_default_font_list_ = false;
 

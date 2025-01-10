@@ -18,7 +18,7 @@ media::ChannelLayoutConfig TranslateChannelLayout(
   // between those enums and existing values don't ever change, so it's enough
   // to check that there are no new ones added.
   static_assert(
-      static_cast<int>(CEF_CHANNEL_LAYOUT_MAX) ==
+      static_cast<int>(CEF_CHANNEL_NUM_VALUES) - 1 ==
           static_cast<int>(media::CHANNEL_LAYOUT_MAX),
       "cef_channel_layout_t must match the ChannelLayout enum in Chromium");
 

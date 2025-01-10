@@ -200,6 +200,9 @@ class CefTestServerImpl::Context {
         case CEF_TEST_CERT_EXPIRED:
           test_server_->SetSSLConfig(EmbeddedTestServer::CERT_EXPIRED);
           break;
+        case CEF_TEST_CERT_NUM_VALUES:
+          DCHECK(false);
+          return false;
       }
     }
 

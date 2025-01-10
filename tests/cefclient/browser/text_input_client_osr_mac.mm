@@ -47,6 +47,7 @@ void ExtractUnderlines(NSAttributedString* string,
             [colorAttr colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace]);
       }
       cef_composition_underline_t line = {
+          sizeof(cef_composition_underline_t),
           {static_cast<uint32_t>(range.location),
            static_cast<uint32_t>(NSMaxRange(range))},
           color,
@@ -145,7 +146,8 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
     ExtractUnderlines(aString, &underlines_);
   } else {
     // Use a thin black underline by default.
-    cef_composition_underline_t line = {{0, length}, ColorBLACK, 0, false};
+    cef_composition_underline_t line = {
+        sizeof(cef_composition_underline_t), {0, length}, ColorBLACK, 0, false};
     underlines_.push_back(line);
   }
 

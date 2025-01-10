@@ -183,9 +183,10 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 
 CefRequestImpl::CefRequestImpl() {
   // Verify that our enum matches Chromium's values.
-  static_assert(static_cast<int>(REFERRER_POLICY_LAST_VALUE) ==
-                    static_cast<int>(net::ReferrerPolicy::MAX),
-                "enum mismatch");
+  static_assert(
+      static_cast<int>(REFERRER_POLICY_NUM_VALUES) - 1 ==
+          static_cast<int>(net::ReferrerPolicy::MAX),
+      "Enum values in cef_referrer_policy_t must match net::ReferrerPolicy");
 
   base::AutoLock lock_scope(lock_);
   Reset();
@@ -751,6 +752,8 @@ CefRequestImpl::NetReferrerPolicyToBlinkReferrerPolicy(
       return network::mojom::ReferrerPolicy::kStrictOrigin;
     case REFERRER_POLICY_NO_REFERRER:
       return network::mojom::ReferrerPolicy::kNever;
+    case REFERRER_POLICY_NUM_VALUES:
+      break;
   }
   DCHECK(false);
   return network::mojom::ReferrerPolicy::kDefault;

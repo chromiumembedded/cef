@@ -118,6 +118,9 @@ void RunWindowShow(cef_show_state_t initial_show_state,
       break;
     case CEF_SHOW_STATE_HIDDEN:
       break;
+    case CEF_SHOW_STATE_NUM_VALUES:
+      NOTREACHED();
+      break;
   }
 }
 

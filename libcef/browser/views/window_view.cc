@@ -471,6 +471,9 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
           params.show_state = ui::mojom::WindowShowState::kMinimized;
 #endif
           break;
+        case CEF_SHOW_STATE_NUM_VALUES:
+          DCHECK(false);
+          break;
       }
 
       bool is_menu = false;

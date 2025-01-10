@@ -120,6 +120,12 @@ class CefRegistrationImpl : public CefRegistration,
 
   static CefMediaObserver::ConnectionState ToConnectionState(
       blink::mojom::PresentationConnectionState state) {
+    static_assert(static_cast<int>(CEF_MRCS_NUM_VALUES) - 1 ==
+                      static_cast<int>(
+                          blink::mojom::PresentationConnectionState::kMaxValue),
+                  "Enum values in cef_media_route_connection_state_t must "
+                  "match blink::mojom::PresentationConnectionState");
+
     switch (state) {
       case blink::mojom::PresentationConnectionState::CONNECTING:
         return CEF_MRCS_CONNECTING;
@@ -284,6 +290,12 @@ void CefMediaRouterImpl::NotifyCurrentRoutesInternal() {
 void CefMediaRouterImpl::CreateRouteCallback(
     CefRefPtr<CefMediaRouteCreateCallback> callback,
     const media_router::RouteRequestResult& result) {
+  static_assert(static_cast<int>(CEF_MRCR_NUM_VALUES) - 1 ==
+                    static_cast<int>(
+                        media_router::mojom::RouteRequestResultCode::kMaxValue),
+                "Enum values in cef_media_route_create_result_t must match "
+                "media_router::mojom::RouteRequestResultCode");
+
   DCHECK(ValidContext());
 
   if (result.result_code() != media_router::mojom::RouteRequestResultCode::OK) {

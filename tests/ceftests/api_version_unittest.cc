@@ -866,3 +866,244 @@ TEST(ApiVersionTest, RawPtrClientList) {
   // Only one reference to the object should exist.
   EXPECT_TRUE(obj->HasOneRef());
 }
+
+namespace {
+
+// Example of the same struct at different versions.
+struct test_struct_v1_t {
+  size_t size;
+  int val1;
+};
+
+struct test_struct_v2_t {
+  size_t size;
+  int val1;
+  cef_string_t val2;
+};
+
+// Example of a simple struct wrapper without traits.
+using TestClassV1 = CefStructBaseSimple<test_struct_v1_t>;
+
+// Same example with traits.
+struct TestClassV1Traits {
+  using struct_type = test_struct_v1_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->val1 = src->val1;
+  }
+};
+
+using TestClassV1Ex = CefStructBase<TestClassV1Traits>;
+
+// Structs containing strings require traits.
+struct TestClassV2Traits {
+  using struct_type = test_struct_v2_t;
+
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
+
+  static inline void clear(struct_type* s) { cef_string_clear(&s->val2); }
+
+  static inline void set(const struct_type* src,
+                         struct_type* target,
+                         bool copy) {
+    target->val1 = src->val1;
+
+    // Need to check that the newer member exists before accessing.
+    if (CEF_MEMBER_EXISTS(src, val2)) {
+      cef_string_set(src->val2.str, src->val2.length, &target->val2, copy);
+    }
+  }
+};
+
+using TestClassV2 = CefStructBase<TestClassV2Traits>;
+
+}  // namespace
+
+// Test usage of struct and wrapper at the same version.
+TEST(ApiVersionTest, StructVersionSame) {
+  TestClassV1 classv1;
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 0);
+
+  test_struct_v1_t structv1{sizeof(test_struct_v1_t), 10};
+  EXPECT_EQ(structv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(structv1.val1, 10);
+
+  classv1 = structv1;
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 10);
+
+  TestClassV2 classv2;
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 0);
+  EXPECT_EQ(classv2.val2.length, 0U);
+
+  const std::string testStr = "Test";
+
+  test_struct_v2_t structv2{sizeof(test_struct_v2_t), 10};
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.length, 0U);
+
+  CefString(&(structv2.val2)) = testStr;
+  const auto* testStrPtr = structv2.val2.str;
+
+  classv2.AttachTo(structv2);
+
+  // Both |classv2| and |structv2| reference the same thing.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 10);
+  EXPECT_EQ(classv2.val2.str, testStrPtr);
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.str, testStrPtr);
+
+  classv2.DetachTo(structv2);
+
+  // Now only |structv2| references it.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 0);
+  EXPECT_EQ(classv2.val2.length, 0U);
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.str, testStrPtr);
+
+  classv2 = structv2;
+
+  // Now |classv2| has a copy of the string.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 10);
+  EXPECT_GT(classv2.val2.length, 0U);
+  EXPECT_NE(classv2.val2.str, testStrPtr);
+  EXPECT_STREQ(testStr.c_str(), CefString(&(classv2.val2)).ToString().c_str());
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.str, testStrPtr);
+
+  // Cleanup the struct.
+  cef_string_clear(&(structv2.val2));
+}
+
+// Test usage of older wrapper with newer struct.
+TEST(ApiVersionTest, StructVersionNewer) {
+  // V1 starts at V1 size.
+  TestClassV1 classv1;
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 0);
+
+  // V2 starts at V2 size.
+  test_struct_v2_t structv2{sizeof(test_struct_v2_t), 10};
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.length, 0U);
+
+  const std::string testStr = "Test";
+  CefString(&(structv2.val2)) = testStr;
+
+  classv1 = reinterpret_cast<test_struct_v1_t&>(structv2);
+
+  // Now |classv1| has the same value (up to V1 size).
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 10);
+
+  // Cleanup the struct.
+  cef_string_clear(&(structv2.val2));
+}
+
+// Same as above, but with traits.
+TEST(ApiVersionTest, StructVersionNewerEx) {
+  // V1 starts at V1 size.
+  TestClassV1Ex classv1;
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 0);
+
+  // V2 starts at V2 size.
+  test_struct_v2_t structv2{sizeof(test_struct_v2_t), 10};
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.length, 0U);
+
+  const std::string testStr = "Test";
+  CefString(&(structv2.val2)) = testStr;
+  const auto* testStrPtr = structv2.val2.str;
+
+  classv1.AttachTo(reinterpret_cast<test_struct_v1_t&>(structv2));
+
+  // Both |classv1| and |structv2| now reference the same thing (up to V1 size).
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 10);
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.str, testStrPtr);
+
+  classv1.DetachTo(reinterpret_cast<test_struct_v1_t&>(structv2));
+
+  // Now only |structv1| references it (up to V1 size), and the rest is left
+  // alone.
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 0);
+  EXPECT_EQ(structv2.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(structv2.val1, 10);
+  EXPECT_EQ(structv2.val2.str, testStrPtr);
+
+  classv1 = reinterpret_cast<test_struct_v1_t&>(structv2);
+
+  // Now |classv1| has the same value (up to V1 size).
+  EXPECT_EQ(classv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv1.val1, 10);
+
+  // Cleanup the struct.
+  cef_string_clear(&(structv2.val2));
+}
+
+// Test usage of newer wrapper with older struct.
+TEST(ApiVersionTest, StructVersionOlder) {
+  // V1 starts at V1 size.
+  test_struct_v1_t structv1{sizeof(test_struct_v1_t), 10};
+  EXPECT_EQ(structv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(structv1.val1, 10);
+
+  // V2 starts at V2 size.
+  TestClassV2 classv2;
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 0);
+  EXPECT_EQ(classv2.val2.length, 0U);
+
+  const std::string testStr = "Test";
+  CefString(&(classv2.val2)) = testStr;
+
+  classv2.AttachTo(reinterpret_cast<test_struct_v2_t&>(structv1));
+
+  // Both |classv2| and |structv1| now reference the same thing (up to V1 size),
+  // and the rest is cleared.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(classv2.val1, 10);
+  EXPECT_EQ(classv2.val2.length, 0U);
+  EXPECT_EQ(structv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(structv1.val1, 10);
+
+  classv2.DetachTo(reinterpret_cast<test_struct_v2_t&>(structv1));
+
+  // Now only |structv1| references it (up to V1 size). Note that |classv2| is
+  // back to V2 size.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 0);
+  EXPECT_EQ(classv2.val2.length, 0U);
+  EXPECT_EQ(structv1.size, sizeof(test_struct_v1_t));
+  EXPECT_EQ(structv1.val1, 10);
+
+  CefString(&(classv2.val2)) = testStr;
+
+  classv2 = reinterpret_cast<test_struct_v2_t&>(structv1);
+
+  // Now |classv1| has the same value (up to V1 size), and the rest is cleared.
+  EXPECT_EQ(classv2.size, sizeof(test_struct_v2_t));
+  EXPECT_EQ(classv2.val1, 10);
+  EXPECT_EQ(classv2.val2.length, 0U);
+}

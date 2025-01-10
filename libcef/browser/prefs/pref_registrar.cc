@@ -58,6 +58,9 @@ class CefPreferenceRegistrarImpl : public CefPreferenceRegistrar {
       case VTYPE_LIST:
         RegisterComplexPref(nameStr, default_value);
         return true;
+      case VTYPE_NUM_VALUES:
+        DCHECK(false);
+        return false;
     };
 
     LOG(ERROR) << "Invalid value type for preference: " << nameStr;

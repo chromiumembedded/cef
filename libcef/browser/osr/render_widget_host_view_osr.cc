@@ -178,6 +178,8 @@ ui::ImeTextSpan::UnderlineStyle GetImeUnderlineStyle(
       return ui::ImeTextSpan::UnderlineStyle::kDash;
     case CEF_CUS_NONE:
       return ui::ImeTextSpan::UnderlineStyle::kNone;
+    case CEF_CUS_NUM_VALUES:
+      break;
   }
 
   DCHECK(false);
@@ -1474,7 +1476,7 @@ void CefRenderWidgetHostViewOSR::OnUpdateTextInputStateCalled(
   CefRenderHandler::TextInputMode mode = CEF_TEXT_INPUT_MODE_NONE;
   if (state && state->type != ui::TEXT_INPUT_TYPE_NONE) {
     static_assert(
-        static_cast<int>(CEF_TEXT_INPUT_MODE_MAX) ==
+        static_cast<int>(CEF_TEXT_INPUT_MODE_NUM_VALUES) - 1 ==
             static_cast<int>(ui::TEXT_INPUT_MODE_MAX),
         "Enum values in cef_text_input_mode_t must match ui::TextInputMode");
     mode = static_cast<CefRenderHandler::TextInputMode>(state->mode);

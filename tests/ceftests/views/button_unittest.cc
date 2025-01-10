@@ -338,7 +338,7 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     model->AddItem(kMenuItemID, kMenuItemLabel);
 
     // Verify color accessors.
-    for (int i = 0; i < CEF_MENU_COLOR_COUNT; ++i) {
+    for (int i = 0; i < CEF_MENU_COLOR_NUM_VALUES; ++i) {
       cef_menu_color_type_t color_type = static_cast<cef_menu_color_type_t>(i);
       cef_color_t color_out;
       cef_color_t color = CefColorSetARGB(255, 255, 255, i);

@@ -393,6 +393,10 @@ void ClientDialogHandlerGtk::OnJSDialogContinue(const OnJSDialogParams& params,
       gtk_message_type = GTK_MESSAGE_QUESTION;
       title = "JavaScript Prompt";
       break;
+
+    case JSDIALOGTYPE_NUM_VALUES:
+      NOTREACHED();
+      return;
   }
 
   js_dialog_callback_ = params.callback;

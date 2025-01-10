@@ -208,7 +208,12 @@ net::CookieSameSite MakeCookieSameSite(cef_cookie_same_site_t value) {
       return net::CookieSameSite::LAX_MODE;
     case CEF_COOKIE_SAME_SITE_STRICT_MODE:
       return net::CookieSameSite::STRICT_MODE;
+    case CEF_COOKIE_SAME_SITE_NUM_VALUES:
+      break;
   }
+
+  DCHECK(false);
+  return net::CookieSameSite::UNSPECIFIED;
 }
 
 net::CookiePriority MakeCookiePriority(cef_cookie_priority_t value) {

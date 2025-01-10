@@ -775,6 +775,8 @@ std::string GetErrorString(cef_termination_status_t status) {
       return "LAUNCH_FAILED";
     case TS_INTEGRITY_FAILURE:
       return "INTEGRITY_FAILURE";
+    case TS_NUM_VALUES:
+      break;
   }
   NOTREACHED();
   return std::string();

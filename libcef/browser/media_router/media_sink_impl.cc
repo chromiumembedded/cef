@@ -105,9 +105,10 @@ CefString CefMediaSinkImpl::GetName() {
 
 CefMediaSink::IconType CefMediaSinkImpl::GetIconType() {
   // Verify that our enum matches Chromium's values.
-  static_assert(static_cast<int>(CEF_MSIT_TOTAL_COUNT) ==
+  static_assert(static_cast<int>(CEF_MSIT_NUM_VALUES) ==
                     static_cast<int>(media_router::SinkIconType::TOTAL_COUNT),
-                "enum mismatch");
+                "Enum values in cef_media_sink_icon_type_t must match "
+                "media_router::SinkIconType");
 
   return static_cast<CefMediaSink::IconType>(sink_.icon_type());
 }

@@ -137,7 +137,8 @@ void CefVideoConsumerOSR::OnFrameCaptured(
                             : CEF_COLOR_TYPE_BGRA_8888;
 
     // Build extra common info.
-    cef_accelerated_paint_info_common_t extra = {};
+    cef_accelerated_paint_info_common_t extra = {
+        sizeof(cef_accelerated_paint_info_common_t)};
     extra.timestamp = info->timestamp.InMicroseconds();
     extra.coded_size = {info->coded_size.width(), info->coded_size.height()};
     extra.visible_rect = {info->visible_rect.x(), info->visible_rect.y(),

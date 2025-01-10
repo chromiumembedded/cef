@@ -300,6 +300,9 @@ void CefFileDialogManager::RunFileDialog(
     case FILE_DIALOG_SAVE:
       params.mode = blink::mojom::FileChooserParams::Mode::kSave;
       break;
+    case FILE_DIALOG_NUM_VALUES:
+      DCHECK(false);
+      return;
   }
 
   params.title = title;

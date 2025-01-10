@@ -53,7 +53,7 @@ class CefMainArgs : public cef_main_args_t {
 struct CefWindowInfoTraits {
   typedef cef_window_info_t struct_type;
 
-  static inline void init(struct_type* s) {}
+  static inline void init(struct_type* s) { s->size = sizeof(struct_type); }
 
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->window_name);

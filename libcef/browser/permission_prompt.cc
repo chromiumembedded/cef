@@ -154,6 +154,9 @@ class CefPermissionPrompt : public permissions::PermissionPrompt {
       case CEF_PERMISSION_RESULT_IGNORE:
         delegate_->Ignore();
         break;
+      case CEF_PERMISSION_RESULT_NUM_VALUES:
+        DCHECK(false);
+        return;
     }
   }
 

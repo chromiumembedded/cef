@@ -57,7 +57,7 @@ bool CefBrowserHost::CreateBrowser(
   }
 
   // Verify that the settings structure is a valid size.
-  if (settings.size != sizeof(cef_browser_settings_t)) {
+  if (!CEF_MEMBER_EXISTS(&settings, chrome_zoom_bubble)) {
     DCHECK(false) << "invalid CefBrowserSettings structure size";
     return false;
   }
@@ -115,7 +115,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   }
 
   // Verify that the settings structure is a valid size.
-  if (settings.size != sizeof(cef_browser_settings_t)) {
+  if (!CEF_MEMBER_EXISTS(&settings, chrome_zoom_bubble)) {
     DCHECK(false) << "invalid CefBrowserSettings structure size";
     return nullptr;
   }

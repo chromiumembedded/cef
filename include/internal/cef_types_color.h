@@ -48,6 +48,8 @@ typedef enum {
   /// BGRA with 8 bits per pixel (32bits total).
   ///
   CEF_COLOR_TYPE_BGRA_8888,
+
+  CEF_COLOR_TYPE_NUM_VALUES,
 } cef_color_type_t;
 
 #ifdef __cplusplus

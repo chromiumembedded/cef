@@ -315,7 +315,7 @@ bool CefInitialize(const CefMainArgs& args,
     return true;
   }
 
-  if (settings.size != sizeof(cef_settings_t)) {
+  if (!CEF_MEMBER_EXISTS(&settings, disable_signal_handlers)) {
     DCHECK(false) << "invalid CefSettings structure size";
     return false;
   }

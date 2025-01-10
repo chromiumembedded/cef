@@ -87,6 +87,11 @@ typedef struct _cef_main_args_t {
 ///
 typedef struct _cef_window_info_t {
   ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
   /// The initial title of the window, to be set when the window is created.
   /// Some layout managers (e.g., Compiz) can look at the window title
   /// in order to decide where to place the window when it is
@@ -174,6 +179,11 @@ typedef struct _cef_accelerated_paint_native_pixmap_plane_info_t {
 /// the callback returns from client code.
 ///
 typedef struct _cef_accelerated_paint_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Planes of the shared texture, usually file descriptors of dmabufs.
   ///

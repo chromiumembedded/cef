@@ -186,6 +186,8 @@ if(OS_LINUX)
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     list(APPEND CEF_CXX_COMPILER_FLAGS
       -Wno-attributes             # The cfi-icall attribute is not supported by the GNU C++ compiler
+      -Wno-array-bounds           # Silence "is partly outside array bounds" errors with runtime size check in wrapper
+      -Wno-stringop-overflow      # Silence "overflows the destination" errors with runtime size check in wrapper
       )
   endif()
 

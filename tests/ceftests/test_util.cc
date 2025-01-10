@@ -219,6 +219,9 @@ void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
       case VTYPE_LIST:
         TestListEqual(val1->GetList(key), val2->GetList(key));
         break;
+      case VTYPE_NUM_VALUES:
+        NOTREACHED();
+        break;
     }
   }
 }
@@ -260,6 +263,9 @@ void TestListEqual(CefRefPtr<CefListValue> val1, CefRefPtr<CefListValue> val2) {
         break;
       case VTYPE_LIST:
         TestListEqual(val1->GetList(i), val2->GetList(i));
+        break;
+      case VTYPE_NUM_VALUES:
+        NOTREACHED();
         break;
     }
   }

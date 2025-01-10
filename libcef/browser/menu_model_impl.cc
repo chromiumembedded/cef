@@ -240,7 +240,7 @@ struct CefMenuModelImpl::Item {
   bool ctrl_pressed_ = false;
   bool alt_pressed_ = false;
 
-  cef_color_t colors_[CEF_MENU_COLOR_COUNT] = {0};
+  cef_color_t colors_[CEF_MENU_COLOR_NUM_VALUES] = {0};
   gfx::FontList font_list_;
   bool has_font_list_ = false;
 };
@@ -744,7 +744,7 @@ bool CefMenuModelImpl::SetColorAt(int index,
     return false;
   }
 
-  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT) {
+  if (color_type < 0 || color_type >= CEF_MENU_COLOR_NUM_VALUES) {
     return false;
   }
 
@@ -775,7 +775,7 @@ bool CefMenuModelImpl::GetColorAt(int index,
     return false;
   }
 
-  if (color_type < 0 || color_type >= CEF_MENU_COLOR_COUNT) {
+  if (color_type < 0 || color_type >= CEF_MENU_COLOR_NUM_VALUES) {
     return false;
   }
 

@@ -351,7 +351,7 @@ SkColor GetColor(const views::View* view, ui::ColorId id) {
   // Verify that our enum matches Chromium's values.
   static_assert(static_cast<int>(CEF_ChromeColorsEnd) ==
                     static_cast<int>(kChromeColorsEnd),
-                "enum mismatch");
+                "Enum values in cef_color_id_t must match ChromeColorIds");
 
   // |color_provider| will be nullptr if |view| has not yet been added to a
   // Widget.

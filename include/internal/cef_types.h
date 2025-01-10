@@ -83,6 +83,13 @@ typedef uint32_t cef_color_t;
 #define CefInt64GetHigh(int64_val) \
   static_cast<int32_t>((static_cast<int64_t>(int64_val) >> 32) & 0xFFFFFFFFL)
 
+// Check that the structure |s|, which is defined with a `size_t size` member
+// at the top, is large enough to contain the specified member |f|.
+#define CEF_MEMBER_EXISTS(s, f)                                     \
+  (reinterpret_cast<intptr_t>(&((s)->f)) -                          \
+       reinterpret_cast<intptr_t>(&((s)->size)) + sizeof((s)->f) <= \
+   (s)->size)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -727,6 +734,11 @@ typedef enum {
 ///
 typedef struct _cef_urlparts_t {
   ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
   /// The complete URL specification.
   ///
   cef_string_t spec;
@@ -798,12 +810,18 @@ typedef enum {
   CEF_COOKIE_SAME_SITE_NO_RESTRICTION,
   CEF_COOKIE_SAME_SITE_LAX_MODE,
   CEF_COOKIE_SAME_SITE_STRICT_MODE,
+  CEF_COOKIE_SAME_SITE_NUM_VALUES,
 } cef_cookie_same_site_t;
 
 ///
 /// Cookie information.
 ///
 typedef struct _cef_cookie_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// The cookie name.
   ///
@@ -899,6 +917,8 @@ typedef enum {
   /// On Windows, the OS terminated the process due to code integrity failure.
   ///
   TS_INTEGRITY_FAILURE,
+
+  TS_NUM_VALUES,
 } cef_termination_status_t;
 
 ///
@@ -953,6 +973,8 @@ typedef enum {
   /// CefSettings.resources_dir_path.
   ///
   PK_DIR_RESOURCES,
+
+  PK_NUM_VALUES,
 } cef_path_key_t;
 
 ///
@@ -1104,6 +1126,8 @@ typedef enum {
   CEF_RESULT_CODE_SANDBOX_FATAL_BROKER_SHUTDOWN_HUNG,
 
   CEF_RESULT_CODE_SANDBOX_FATAL_LAST,
+
+  CEF_RESULT_CODE_NUM_VALUES,
 } cef_resultcode_t;
 
 ///
@@ -1174,7 +1198,7 @@ typedef enum {
   ///
   CEF_WOD_NEW_PICTURE_IN_PICTURE,
 
-  CEF_WOD_MAX_VALUE = CEF_WOD_NEW_PICTURE_IN_PICTURE,
+  CEF_WOD_NUM_VALUES,
 } cef_window_open_disposition_t;
 
 ///
@@ -1209,7 +1233,7 @@ typedef enum {
   CEF_TEXT_INPUT_MODE_DECIMAL,
   CEF_TEXT_INPUT_MODE_SEARCH,
 
-  CEF_TEXT_INPUT_MODE_MAX = CEF_TEXT_INPUT_MODE_SEARCH,
+  CEF_TEXT_INPUT_MODE_NUM_VALUES,
 } cef_text_input_mode_t;
 
 ///
@@ -1244,6 +1268,8 @@ typedef enum {
   PDE_TYPE_EMPTY = 0,
   PDE_TYPE_BYTES,
   PDE_TYPE_FILE,
+
+  PDF_TYPE_NUM_VALUES,
 } cef_postdataelement_type_t;
 
 ///
@@ -1351,6 +1377,8 @@ typedef enum {
   /// A sub-frame service worker navigation preload request.
   ///
   RT_NAVIGATION_PRELOAD_SUB_FRAME,
+
+  RT_NUM_VALUES,
 } cef_resource_type_t;
 
 ///
@@ -1363,20 +1391,20 @@ typedef enum {
   /// also the default value for requests like sub-resource loads that are not
   /// navigations.
   ///
-  TT_LINK = 0,
+  TT_LINK,
 
   ///
   /// Source is some other "explicit" navigation. This is the default value for
   /// navigations where the actual type is unknown. See also
   /// TT_DIRECT_LOAD_FLAG.
   ///
-  TT_EXPLICIT = 1,
+  TT_EXPLICIT,
 
   ///
   /// User got to this page through a suggestion in the UI (for example, via the
   /// destinations page). Chrome style only.
   ///
-  TT_AUTO_BOOKMARK = 2,
+  TT_AUTO_BOOKMARK,
 
   ///
   /// Source is a subframe navigation. This is any content that is automatically
@@ -1385,7 +1413,7 @@ typedef enum {
   /// The user may not even realize the content in these pages is a separate
   /// frame, so may not care about the URL.
   ///
-  TT_AUTO_SUBFRAME = 3,
+  TT_AUTO_SUBFRAME,
 
   ///
   /// Source is a subframe navigation explicitly requested by the user that will
@@ -1394,7 +1422,7 @@ typedef enum {
   /// the background because the user probably cares about the fact that this
   /// link was loaded.
   ///
-  TT_MANUAL_SUBFRAME = 4,
+  TT_MANUAL_SUBFRAME,
 
   ///
   /// User got to this page by typing in the URL bar and selecting an entry
@@ -1404,7 +1432,7 @@ typedef enum {
   /// didn't type or see the destination URL. Chrome style only.
   /// See also TT_KEYWORD.
   ///
-  TT_GENERATED = 5,
+  TT_GENERATED,
 
   ///
   /// This is a toplevel navigation. This is any content that is automatically
@@ -1413,21 +1441,21 @@ typedef enum {
   /// browsing warning, opening web-based dialog boxes are examples of
   /// AUTO_TOPLEVEL navigations. Chrome style only.
   ///
-  TT_AUTO_TOPLEVEL = 6,
+  TT_AUTO_TOPLEVEL,
 
   ///
   /// Source is a form submission by the user. NOTE: In some situations
   /// submitting a form does not result in this transition type. This can happen
   /// if the form uses a script to submit the contents.
   ///
-  TT_FORM_SUBMIT = 7,
+  TT_FORM_SUBMIT,
 
   ///
   /// Source is a "reload" of the page via the Reload function or by re-visiting
   /// the same URL. NOTE: This is distinct from the concept of whether a
   /// particular load uses "reload semantics" (i.e. bypasses cached data).
   ///
-  TT_RELOAD = 8,
+  TT_RELOAD,
 
   ///
   /// The url was generated from a replaceable keyword other than the default
@@ -1440,13 +1468,15 @@ typedef enum {
   /// TT_KEYWORD, and TemplateURLModel generates a visit for 'wikipedia.org'
   /// with a transition type of TT_KEYWORD_GENERATED. Chrome style only.
   ///
-  TT_KEYWORD = 9,
+  TT_KEYWORD,
 
   ///
   /// Corresponds to a visit generated for a keyword. See description of
   /// TT_KEYWORD for more details. Chrome style only.
   ///
-  TT_KEYWORD_GENERATED = 10,
+  TT_KEYWORD_GENERATED,
+
+  TT_NUM_VALUES,
 
   ///
   /// General mask defining the bits used for the source values.
@@ -1586,7 +1616,7 @@ typedef enum {
   ///
   /// Unknown status.
   ///
-  UR_UNKNOWN = 0,
+  UR_UNKNOWN,
 
   ///
   /// Request succeeded.
@@ -1608,6 +1638,8 @@ typedef enum {
   /// Request failed for some reason.
   ///
   UR_FAILED,
+
+  UR_NUM_VALUES,
 } cef_urlrequest_status_t;
 
 /// Structure representing a draggable region.
@@ -1707,6 +1739,8 @@ typedef enum {
   /// time without warning).
   ///
   TID_RENDERER,
+
+  TID_NUM_VALUES,
 } cef_thread_id_t;
 
 ///
@@ -1732,6 +1766,8 @@ typedef enum {
   /// Suitable for low-latency, glitch-resistant audio.
   ///
   TP_REALTIME_AUDIO,
+
+  TP_NUM_VALUES,
 } cef_thread_priority_t;
 
 ///
@@ -1753,6 +1789,8 @@ typedef enum {
   /// Supports tasks, timers and asynchronous IO events.
   ///
   ML_TYPE_IO,
+
+  ML_NUM_VALUES,
 } cef_message_loop_type_t;
 
 ///
@@ -1780,7 +1818,7 @@ typedef enum {
 /// Supported value types.
 ///
 typedef enum {
-  VTYPE_INVALID = 0,
+  VTYPE_INVALID,
   VTYPE_NULL,
   VTYPE_BOOL,
   VTYPE_INT,
@@ -1789,15 +1827,19 @@ typedef enum {
   VTYPE_BINARY,
   VTYPE_DICTIONARY,
   VTYPE_LIST,
+
+  VTYPE_NUM_VALUES,
 } cef_value_type_t;
 
 ///
 /// Supported JavaScript dialog types.
 ///
 typedef enum {
-  JSDIALOGTYPE_ALERT = 0,
+  JSDIALOGTYPE_ALERT,
   JSDIALOGTYPE_CONFIRM,
   JSDIALOGTYPE_PROMPT,
+
+  JSDIALOGTYPE_NUM_VALUES,
 } cef_jsdialog_type_t;
 
 ///
@@ -1806,6 +1848,11 @@ typedef enum {
 /// filled in by the client.
 ///
 typedef struct _cef_screen_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Device scale factor. Specifies the ratio between physical and logical
   /// pixels.
@@ -1863,6 +1910,11 @@ typedef struct _cef_screen_info_t {
 /// display the application's information (e.g., icons).
 ///
 typedef struct _cef_linux_window_properties_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Main window's Wayland's app_id
   ///
@@ -2157,6 +2209,8 @@ typedef enum {
   /// A plugin node is selected.
   ///
   CM_MEDIATYPE_PLUGIN,
+
+  CM_MEDIATYPE_NUM_VALUES,
 } cef_context_menu_media_type_t;
 
 ///
@@ -2244,6 +2298,11 @@ typedef enum {
 ///
 typedef struct _cef_key_event_t {
   ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
   /// The type of keyboard event.
   ///
   cef_key_event_type_t type;
@@ -2299,23 +2358,26 @@ typedef enum {
   ///
   /// The source is explicit navigation via the API (LoadURL(), etc).
   ///
-  FOCUS_SOURCE_NAVIGATION = 0,
+  FOCUS_SOURCE_NAVIGATION,
   ///
   /// The source is a system-generated focus event.
   ///
   FOCUS_SOURCE_SYSTEM,
+
+  FOCUS_SOURCE_NUM_VALUES,
 } cef_focus_source_t;
 
 ///
 /// Navigation types.
 ///
 typedef enum {
-  NAVIGATION_LINK_CLICKED = 0,
+  NAVIGATION_LINK_CLICKED,
   NAVIGATION_FORM_SUBMITTED,
   NAVIGATION_BACK_FORWARD,
   NAVIGATION_RELOAD,
   NAVIGATION_FORM_RESUBMITTED,
   NAVIGATION_OTHER,
+  NAVIGATION_NUM_VALUES,
 } cef_navigation_type_t;
 
 ///
@@ -2325,18 +2387,19 @@ typedef enum {
 /// decoder is available then that decoder will be used automatically.
 ///
 typedef enum {
-  XML_ENCODING_NONE = 0,
+  XML_ENCODING_NONE,
   XML_ENCODING_UTF8,
   XML_ENCODING_UTF16LE,
   XML_ENCODING_UTF16BE,
   XML_ENCODING_ASCII,
+  XML_ENCODING_NUM_VALUES,
 } cef_xml_encoding_type_t;
 
 ///
 /// XML node types.
 ///
 typedef enum {
-  XML_NODE_UNSUPPORTED = 0,
+  XML_NODE_UNSUPPORTED,
   XML_NODE_PROCESSING_INSTRUCTION,
   XML_NODE_DOCUMENT_TYPE,
   XML_NODE_ELEMENT_START,
@@ -2347,12 +2410,18 @@ typedef enum {
   XML_NODE_ENTITY_REFERENCE,
   XML_NODE_WHITESPACE,
   XML_NODE_COMMENT,
+  XML_NODE_NUM_VALUES,
 } cef_xml_node_type_t;
 
 ///
 /// Popup window features.
 ///
 typedef struct _cef_popup_features_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   int x;
   int xSet;
   int y;
@@ -2362,7 +2431,9 @@ typedef struct _cef_popup_features_t {
   int height;
   int heightSet;
 
+  ///
   /// True (1) if browser interface elements should be hidden.
+  ///
   int isPopup;
 } cef_popup_features_t;
 
@@ -2370,10 +2441,11 @@ typedef struct _cef_popup_features_t {
 /// DOM document types.
 ///
 typedef enum {
-  DOM_DOCUMENT_TYPE_UNKNOWN = 0,
+  DOM_DOCUMENT_TYPE_UNKNOWN,
   DOM_DOCUMENT_TYPE_HTML,
   DOM_DOCUMENT_TYPE_XHTML,
   DOM_DOCUMENT_TYPE_PLUGIN,
+  DOM_DOCUMENT_TYPE_NUM_VALUES,
 } cef_dom_document_type_t;
 
 ///
@@ -2403,17 +2475,18 @@ typedef enum {
 /// DOM event processing phases.
 ///
 typedef enum {
-  DOM_EVENT_PHASE_UNKNOWN = 0,
+  DOM_EVENT_PHASE_UNKNOWN,
   DOM_EVENT_PHASE_CAPTURING,
   DOM_EVENT_PHASE_AT_TARGET,
   DOM_EVENT_PHASE_BUBBLING,
+  DOM_EVENT_PHASE_NUM_VALUES,
 } cef_dom_event_phase_t;
 
 ///
 /// DOM node types.
 ///
 typedef enum {
-  DOM_NODE_TYPE_UNSUPPORTED = 0,
+  DOM_NODE_TYPE_UNSUPPORTED,
   DOM_NODE_TYPE_ELEMENT,
   DOM_NODE_TYPE_ATTRIBUTE,
   DOM_NODE_TYPE_TEXT,
@@ -2423,6 +2496,7 @@ typedef enum {
   DOM_NODE_TYPE_DOCUMENT,
   DOM_NODE_TYPE_DOCUMENT_TYPE,
   DOM_NODE_TYPE_DOCUMENT_FRAGMENT,
+  DOM_NODE_TYPE_NUM_VALUES,
 } cef_dom_node_type_t;
 
 ///
@@ -2430,7 +2504,7 @@ typedef enum {
 /// blink::mojom::FormControlType type.
 ///
 typedef enum {
-  DOM_FORM_CONTROL_TYPE_UNSUPPORTED = 0,
+  DOM_FORM_CONTROL_TYPE_UNSUPPORTED,
   DOM_FORM_CONTROL_TYPE_BUTTON_BUTTON,
   DOM_FORM_CONTROL_TYPE_BUTTON_SUBMIT,
   DOM_FORM_CONTROL_TYPE_BUTTON_RESET,
@@ -2462,6 +2536,7 @@ typedef enum {
   DOM_FORM_CONTROL_TYPE_SELECT_ONE,
   DOM_FORM_CONTROL_TYPE_SELECT_MULTIPLE,
   DOM_FORM_CONTROL_TYPE_TEXT_AREA,
+  DOM_FORM_CONTROL_TYPE_NUM_VALUES,
 } cef_dom_form_control_type_t;
 
 ///
@@ -2471,7 +2546,7 @@ typedef enum {
   ///
   /// Requires that the file exists before allowing the user to pick it.
   ///
-  FILE_DIALOG_OPEN = 0,
+  FILE_DIALOG_OPEN,
 
   ///
   /// Like Open, but allows picking multiple files to open.
@@ -2488,6 +2563,8 @@ typedef enum {
   /// already exists.
   ///
   FILE_DIALOG_SAVE,
+
+  FILE_DIALOG_NUM_VALUES,
 } cef_file_dialog_mode_t;
 
 ///
@@ -2515,6 +2592,7 @@ typedef enum {
   COLOR_MODEL_PROCESSCOLORMODEL_CMYK,       // Used in canon printer ppds.
   COLOR_MODEL_PROCESSCOLORMODEL_GREYSCALE,  // Used in canon printer ppds.
   COLOR_MODEL_PROCESSCOLORMODEL_RGB,        // Used in canon printer ppds
+  COLOR_MODEL_NUM_VALUES,
 } cef_color_model_t;
 
 ///
@@ -2525,13 +2603,14 @@ typedef enum {
   DUPLEX_MODE_SIMPLEX,
   DUPLEX_MODE_LONG_EDGE,
   DUPLEX_MODE_SHORT_EDGE,
+  DUPLEX_MODE_NUM_VALUES,
 } cef_duplex_mode_t;
 
 ///
 /// Cursor type values.
 ///
 typedef enum {
-  CT_POINTER = 0,
+  CT_POINTER,
   CT_CROSS,
   CT_HAND,
   CT_IBEAM,
@@ -2581,6 +2660,7 @@ typedef enum {
   CT_DND_MOVE,
   CT_DND_COPY,
   CT_DND_LINK,
+  CT_NUM_VALUES,
 } cef_cursor_type_t;
 
 ///
@@ -2722,6 +2802,11 @@ typedef enum {
 ///
 typedef struct _cef_pdf_print_settings_t {
   ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
+  ///
   /// Set to true (1) for landscape mode or false (0) for portrait mode.
   ///
   int landscape;
@@ -2823,7 +2908,7 @@ typedef struct _cef_pdf_print_settings_t {
 /// can be used for any scale factors (such as wallpapers).
 ///
 typedef enum {
-  SCALE_FACTOR_NONE = 0,
+  SCALE_FACTOR_NONE,
   SCALE_FACTOR_100P,
   SCALE_FACTOR_125P,
   SCALE_FACTOR_133P,
@@ -2833,6 +2918,7 @@ typedef enum {
   SCALE_FACTOR_200P,
   SCALE_FACTOR_250P,
   SCALE_FACTOR_300P,
+  SCALE_FACTOR_NUM_VALUES,
 } cef_scale_factor_t;
 
 ///
@@ -2893,7 +2979,7 @@ typedef enum {
   REFERRER_POLICY_NO_REFERRER,
 
   /// Always the last value in this enumeration.
-  REFERRER_POLICY_LAST_VALUE = REFERRER_POLICY_NO_REFERRER,
+  REFERRER_POLICY_NUM_VALUES,
 } cef_referrer_policy_t;
 
 ///
@@ -2947,6 +3033,7 @@ typedef enum {
   CEF_TEXT_STYLE_STRIKE,
   CEF_TEXT_STYLE_DIAGONAL_STRIKE,
   CEF_TEXT_STYLE_UNDERLINE,
+  CEF_TEXT_STYLE_NUM_VALUES,
 } cef_text_style_t;
 
 ///
@@ -2965,12 +3052,19 @@ typedef enum {
 
   /// Child views will be stretched to fit.
   CEF_AXIS_ALIGNMENT_STRETCH,
+
+  CEF_AXIS_ALIGNMENT_NUM_VALUES,
 } cef_axis_alignment_t;
 
 ///
 /// Settings used when initializing a CefBoxLayout.
 ///
 typedef struct _cef_box_layout_settings_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// If true (1) the layout will be horizontal, otherwise the layout will be
   /// vertical.
@@ -3033,6 +3127,7 @@ typedef enum {
   CEF_BUTTON_STATE_HOVERED,
   CEF_BUTTON_STATE_PRESSED,
   CEF_BUTTON_STATE_DISABLED,
+  CEF_BUTTON_STATE_NUM_VALUES,
 } cef_button_state_t;
 
 ///
@@ -3063,6 +3158,7 @@ typedef enum {
   CEF_MENU_ANCHOR_TOPLEFT,
   CEF_MENU_ANCHOR_TOPRIGHT,
   CEF_MENU_ANCHOR_BOTTOMCENTER,
+  CEF_MENU_ANCHOR_NUM_VALUES,
 } cef_menu_anchor_position_t;
 
 ///
@@ -3075,20 +3171,22 @@ typedef enum {
   CEF_MENU_COLOR_TEXT_ACCELERATOR_HOVERED,
   CEF_MENU_COLOR_BACKGROUND,
   CEF_MENU_COLOR_BACKGROUND_HOVERED,
-  CEF_MENU_COLOR_COUNT,
+  CEF_MENU_COLOR_NUM_VALUES,
 } cef_menu_color_type_t;
 
 /// Supported SSL version values. See net/ssl/ssl_connection_status_flags.h
 /// for more information.
 typedef enum {
-  SSL_CONNECTION_VERSION_UNKNOWN = 0,  // Unknown SSL version.
-  SSL_CONNECTION_VERSION_SSL2 = 1,
-  SSL_CONNECTION_VERSION_SSL3 = 2,
-  SSL_CONNECTION_VERSION_TLS1 = 3,
-  SSL_CONNECTION_VERSION_TLS1_1 = 4,
-  SSL_CONNECTION_VERSION_TLS1_2 = 5,
-  SSL_CONNECTION_VERSION_TLS1_3 = 6,
-  SSL_CONNECTION_VERSION_QUIC = 7,
+  /// Unknown SSL version.
+  SSL_CONNECTION_VERSION_UNKNOWN,
+  SSL_CONNECTION_VERSION_SSL2,
+  SSL_CONNECTION_VERSION_SSL3,
+  SSL_CONNECTION_VERSION_TLS1,
+  SSL_CONNECTION_VERSION_TLS1_1,
+  SSL_CONNECTION_VERSION_TLS1_2,
+  SSL_CONNECTION_VERSION_TLS1_3,
+  SSL_CONNECTION_VERSION_QUIC,
+  SSL_CONNECTION_VERSION_NUM_VALUES,
 } cef_ssl_version_t;
 
 /// Supported SSL content status flags. See content/public/common/ssl_status.h
@@ -3200,6 +3298,7 @@ typedef enum {
   CEF_CUS_DOT,
   CEF_CUS_DASH,
   CEF_CUS_NONE,
+  CEF_CUS_NUM_VALUES,
 } cef_composition_underline_style_t;
 
 ///
@@ -3208,6 +3307,11 @@ typedef enum {
 /// sync with that.
 ///
 typedef struct _cef_composition_underline_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Underline character range.
   ///
@@ -3240,122 +3344,121 @@ typedef struct _cef_composition_underline_t {
 /// See media\base\channel_layout.h
 ///
 typedef enum {
-  CEF_CHANNEL_LAYOUT_NONE = 0,
-  CEF_CHANNEL_LAYOUT_UNSUPPORTED = 1,
+  CEF_CHANNEL_LAYOUT_NONE,
+  CEF_CHANNEL_LAYOUT_UNSUPPORTED,
 
   /// Front C
-  CEF_CHANNEL_LAYOUT_MONO = 2,
+  CEF_CHANNEL_LAYOUT_MONO,
 
   /// Front L, Front R
-  CEF_CHANNEL_LAYOUT_STEREO = 3,
+  CEF_CHANNEL_LAYOUT_STEREO,
 
   /// Front L, Front R, Back C
-  CEF_CHANNEL_LAYOUT_2_1 = 4,
+  CEF_CHANNEL_LAYOUT_2_1,
 
   /// Front L, Front R, Front C
-  CEF_CHANNEL_LAYOUT_SURROUND = 5,
+  CEF_CHANNEL_LAYOUT_SURROUND,
 
   /// Front L, Front R, Front C, Back C
-  CEF_CHANNEL_LAYOUT_4_0 = 6,
+  CEF_CHANNEL_LAYOUT_4_0,
 
   /// Front L, Front R, Side L, Side R
-  CEF_CHANNEL_LAYOUT_2_2 = 7,
+  CEF_CHANNEL_LAYOUT_2_2,
 
   /// Front L, Front R, Back L, Back R
-  CEF_CHANNEL_LAYOUT_QUAD = 8,
+  CEF_CHANNEL_LAYOUT_QUAD,
 
   /// Front L, Front R, Front C, Side L, Side R
-  CEF_CHANNEL_LAYOUT_5_0 = 9,
+  CEF_CHANNEL_LAYOUT_5_0,
 
   /// Front L, Front R, Front C, LFE, Side L, Side R
-  CEF_CHANNEL_LAYOUT_5_1 = 10,
+  CEF_CHANNEL_LAYOUT_5_1,
 
   /// Front L, Front R, Front C, Back L, Back R
-  CEF_CHANNEL_LAYOUT_5_0_BACK = 11,
+  CEF_CHANNEL_LAYOUT_5_0_BACK,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R
-  CEF_CHANNEL_LAYOUT_5_1_BACK = 12,
+  CEF_CHANNEL_LAYOUT_5_1_BACK,
 
   /// Front L, Front R, Front C, Back L, Back R, Side L, Side R
-  CEF_CHANNEL_LAYOUT_7_0 = 13,
+  CEF_CHANNEL_LAYOUT_7_0,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R, Side L, Side R
-  CEF_CHANNEL_LAYOUT_7_1 = 14,
+  CEF_CHANNEL_LAYOUT_7_1,
 
   /// Front L, Front R, Front C, LFE, Front LofC, Front RofC, Side L, Side R
-  CEF_CHANNEL_LAYOUT_7_1_WIDE = 15,
+  CEF_CHANNEL_LAYOUT_7_1_WIDE,
 
   /// Front L, Front R
-  CEF_CHANNEL_LAYOUT_STEREO_DOWNMIX = 16,
+  CEF_CHANNEL_LAYOUT_STEREO_DOWNMIX,
 
   /// Front L, Front R, LFE
-  CEF_CHANNEL_LAYOUT_2POINT1 = 17,
+  CEF_CHANNEL_LAYOUT_2POINT1,
 
   /// Front L, Front R, Front C, LFE
-  CEF_CHANNEL_LAYOUT_3_1 = 18,
+  CEF_CHANNEL_LAYOUT_3_1,
 
   /// Front L, Front R, Front C, LFE, Back C
-  CEF_CHANNEL_LAYOUT_4_1 = 19,
+  CEF_CHANNEL_LAYOUT_4_1,
 
   /// Front L, Front R, Front C, Back C, Side L, Side R
-  CEF_CHANNEL_LAYOUT_6_0 = 20,
+  CEF_CHANNEL_LAYOUT_6_0,
 
   /// Front L, Front R, Front LofC, Front RofC, Side L, Side R
-  CEF_CHANNEL_LAYOUT_6_0_FRONT = 21,
+  CEF_CHANNEL_LAYOUT_6_0_FRONT,
 
   /// Front L, Front R, Front C, Back L, Back R, Back C
-  CEF_CHANNEL_LAYOUT_HEXAGONAL = 22,
+  CEF_CHANNEL_LAYOUT_HEXAGONAL,
 
   /// Front L, Front R, Front C, LFE, Back C, Side L, Side R
-  CEF_CHANNEL_LAYOUT_6_1 = 23,
+  CEF_CHANNEL_LAYOUT_6_1,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R, Back C
-  CEF_CHANNEL_LAYOUT_6_1_BACK = 24,
+  CEF_CHANNEL_LAYOUT_6_1_BACK,
 
   /// Front L, Front R, LFE, Front LofC, Front RofC, Side L, Side R
-  CEF_CHANNEL_LAYOUT_6_1_FRONT = 25,
+  CEF_CHANNEL_LAYOUT_6_1_FRONT,
 
   /// Front L, Front R, Front C, Front LofC, Front RofC, Side L, Side R
-  CEF_CHANNEL_LAYOUT_7_0_FRONT = 26,
+  CEF_CHANNEL_LAYOUT_7_0_FRONT,
 
   /// Front L, Front R, Front C, LFE, Back L, Back R, Front LofC, Front RofC
-  CEF_CHANNEL_LAYOUT_7_1_WIDE_BACK = 27,
+  CEF_CHANNEL_LAYOUT_7_1_WIDE_BACK,
 
   /// Front L, Front R, Front C, Back L, Back R, Back C, Side L, Side R
-  CEF_CHANNEL_LAYOUT_OCTAGONAL = 28,
+  CEF_CHANNEL_LAYOUT_OCTAGONAL,
 
   /// Channels are not explicitly mapped to speakers.
-  CEF_CHANNEL_LAYOUT_DISCRETE = 29,
+  CEF_CHANNEL_LAYOUT_DISCRETE,
 
   /// Deprecated, but keeping the enum value for UMA consistency.
   /// Front L, Front R, Front C. Front C contains the keyboard mic audio. This
   /// layout is only intended for input for WebRTC. The Front C channel
   /// is stripped away in the WebRTC audio input pipeline and never seen outside
   /// of that.
-  CEF_CHANNEL_LAYOUT_STEREO_AND_KEYBOARD_MIC = 30,
+  CEF_CHANNEL_LAYOUT_STEREO_AND_KEYBOARD_MIC,
 
   /// Front L, Front R, LFE, Side L, Side R
-  CEF_CHANNEL_LAYOUT_4_1_QUAD_SIDE = 31,
+  CEF_CHANNEL_LAYOUT_4_1_QUAD_SIDE,
 
   /// Actual channel layout is specified in the bitstream and the actual channel
   /// count is unknown at Chromium media pipeline level (useful for audio
   /// pass-through mode).
-  CEF_CHANNEL_LAYOUT_BITSTREAM = 32,
+  CEF_CHANNEL_LAYOUT_BITSTREAM,
 
   /// Front L, Front R, Front C, LFE, Side L, Side R,
   /// Front Height L, Front Height R, Rear Height L, Rear Height R
   /// Will be represented as six channels (5.1) due to eight channel limit
   /// kMaxConcurrentChannels
-  CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX = 33,
+  CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX,
 
   /// Front C, LFE
-  CEF_CHANNEL_LAYOUT_1_1 = 34,
+  CEF_CHANNEL_LAYOUT_1_1,
 
   /// Front L, Front R, LFE, Back C
-  CEF_CHANNEL_LAYOUT_3_1_BACK = 35,
+  CEF_CHANNEL_LAYOUT_3_1_BACK,
 
-  /// Max value, must always equal the largest entry ever logged.
-  CEF_CHANNEL_LAYOUT_MAX = CEF_CHANNEL_LAYOUT_3_1_BACK
+  CEF_CHANNEL_NUM_VALUES,
 } cef_channel_layout_t;
 
 ///
@@ -3363,6 +3466,11 @@ typedef enum {
 /// handler.
 ///
 typedef struct _cef_audio_parameters_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Layout of the audio channels
   ///
@@ -3384,27 +3492,35 @@ typedef struct _cef_audio_parameters_t {
 /// Chromium's media_router::mojom::RouteRequestResultCode type.
 ///
 typedef enum {
-  CEF_MRCR_UNKNOWN_ERROR = 0,
-  CEF_MRCR_OK = 1,
-  CEF_MRCR_TIMED_OUT = 2,
-  CEF_MRCR_ROUTE_NOT_FOUND = 3,
-  CEF_MRCR_SINK_NOT_FOUND = 4,
-  CEF_MRCR_INVALID_ORIGIN = 5,
-  CEF_MRCR_NO_SUPPORTED_PROVIDER = 7,
-  CEF_MRCR_CANCELLED = 8,
-  CEF_MRCR_ROUTE_ALREADY_EXISTS = 9,
-  CEF_MRCR_ROUTE_ALREADY_TERMINATED = 11,
+  CEF_MRCR_UNKNOWN_ERROR,
+  CEF_MRCR_OK,
+  CEF_MRCR_TIMED_OUT,
+  CEF_MRCR_ROUTE_NOT_FOUND,
+  CEF_MRCR_SINK_NOT_FOUND,
+  CEF_MRCR_INVALID_ORIGIN,
+  CEF_MRCR_OFF_THE_RECORD_MISMATCH_DEPRECATED,
+  CEF_MRCR_NO_SUPPORTED_PROVIDER,
+  CEF_MRCR_CANCELLED,
+  CEF_MRCR_ROUTE_ALREADY_EXISTS,
+  CEF_MRCR_DESKTOP_PICKER_FAILED,
+  CEF_MRCR_ROUTE_ALREADY_TERMINATED,
+  CEF_MRCR_REDUNDANT_REQUEST,
+  CEF_MRCR_USER_NOT_ALLOWED,
+  CEF_MRCR_NOTIFICATION_DISABLED,
+  CEF_MRCR_NUM_VALUES,
 } cef_media_route_create_result_t;
 
 ///
-/// Connection state for a MediaRoute object.
+/// Connection state for a MediaRoute object. Should be kept in sync with
+/// Chromium's blink::mojom::PresentationConnectionState type.
 ///
 typedef enum {
-  CEF_MRCS_UNKNOWN,
+  CEF_MRCS_UNKNOWN = -1,
   CEF_MRCS_CONNECTING,
   CEF_MRCS_CONNECTED,
   CEF_MRCS_CLOSED,
   CEF_MRCS_TERMINATED,
+  CEF_MRCS_NUM_VALUES,
 } cef_media_route_connection_state_t;
 
 ///
@@ -3420,38 +3536,48 @@ typedef enum {
   CEF_MSIT_EDUCATION,
   CEF_MSIT_WIRED_DISPLAY,
   CEF_MSIT_GENERIC,
-
-  CEF_MSIT_TOTAL_COUNT,  // The total number of values.
+  CEF_MSIT_NUM_VALUES,
 } cef_media_sink_icon_type_t;
 
 ///
 /// Device information for a MediaSink object.
 ///
 typedef struct _cef_media_sink_device_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   cef_string_t ip_address;
   int port;
   cef_string_t model_name;
 } cef_media_sink_device_info_t;
 
 ///
-/// Represents commands available to TextField.
+/// Represents commands available to TextField. Should be kept in sync with
+/// Chromium's views::TextField::MenuCommands type.
 ///
 typedef enum {
-  CEF_TFC_CUT = 1,
+  CEF_TFC_UNKNOWN,
+  CEF_TFC_CUT,
   CEF_TFC_COPY,
   CEF_TFC_PASTE,
+  CEF_TFC_SELECT_ALL,
+  CEF_TFC_SELECT_WORD,
   CEF_TFC_UNDO,
   CEF_TFC_DELETE,
-  CEF_TFC_SELECT_ALL,
+  CEF_TFC_NUM_VALUES,
 } cef_text_field_commands_t;
 
 ///
 /// Chrome toolbar types.
 ///
 typedef enum {
-  CEF_CTT_NONE = 1,
+  CEF_CTT_UNKNOWN,
+  CEF_CTT_NONE,
   CEF_CTT_NORMAL,
   CEF_CTT_LOCATION,
+  CEF_CTT_NUM_VALUES,
 } cef_chrome_toolbar_type_t;
 
 ///
@@ -3459,7 +3585,7 @@ typedef enum {
 /// PageActionIconType type.
 ///
 typedef enum {
-  CEF_CPAIT_BOOKMARK_STAR = 0,
+  CEF_CPAIT_BOOKMARK_STAR,
   CEF_CPAIT_CLICK_TO_CALL,
   CEF_CPAIT_COOKIE_CONTROLS,
   CEF_CPAIT_FILE_SYSTEM_ACCESS,
@@ -3494,7 +3620,7 @@ typedef enum {
 #if CEF_API_ADDED(13304)
   CEF_CPAIT_COLLABORATION_MESSAGING,
 #endif
-  CEF_CPAIT_LAST_VALUE,
+  CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 
 ///
@@ -3502,22 +3628,23 @@ typedef enum {
 /// ToolbarButtonType type.
 ///
 typedef enum {
-  CEF_CTBT_CAST = 0,
+  CEF_CTBT_CAST,
   CEF_CTBT_DOWNLOAD,
   CEF_CTBT_SEND_TAB_TO_SELF,
   CEF_CTBT_SIDE_PANEL,
-  CEF_CTBT_MAX_VALUE = CEF_CTBT_SIDE_PANEL,
+  CEF_CTBT_NUM_VALUES,
 } cef_chrome_toolbar_button_type_t;
 
 ///
 /// Docking modes supported by CefWindow::AddOverlay.
 ///
 typedef enum {
-  CEF_DOCKING_MODE_TOP_LEFT = 1,
+  CEF_DOCKING_MODE_TOP_LEFT,
   CEF_DOCKING_MODE_TOP_RIGHT,
   CEF_DOCKING_MODE_BOTTOM_LEFT,
   CEF_DOCKING_MODE_BOTTOM_RIGHT,
   CEF_DOCKING_MODE_CUSTOM,
+  CEF_DOCKING_MODE_NUM_VALUES,
 } cef_docking_mode_t;
 
 ///
@@ -3525,7 +3652,7 @@ typedef enum {
 ///
 typedef enum {
   // Show the window as normal.
-  CEF_SHOW_STATE_NORMAL = 1,
+  CEF_SHOW_STATE_NORMAL,
 
   // Show the window as minimized.
   CEF_SHOW_STATE_MINIMIZED,
@@ -3539,6 +3666,8 @@ typedef enum {
   // Show the window as hidden (no dock thumbnail).
   // Only supported on MacOS.
   CEF_SHOW_STATE_HIDDEN,
+
+  CEF_SHOW_STATE_NUM_VALUES,
 } cef_show_state_t;
 
 ///
@@ -3553,6 +3682,11 @@ typedef enum {
 } cef_touch_handle_state_flags_t;
 
 typedef struct _cef_touch_handle_state_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   ///
   /// Touch handle id. Increments for each new touch handle.
   ///
@@ -3676,6 +3810,8 @@ typedef enum {
   /// UI) then any related promises may remain unresolved.
   ///
   CEF_PERMISSION_RESULT_IGNORE,
+
+  CEF_PERMISSION_RESULT_NUM_VALUES,
 } cef_permission_request_result_t;
 
 ///
@@ -3693,6 +3829,8 @@ typedef enum {
 
   /// Expired certificate. Loads the "expired_cert.pem" file.
   CEF_TEST_CERT_EXPIRED,
+
+  CEF_TEST_CERT_NUM_VALUES,
 } cef_test_cert_type_t;
 
 ///
@@ -3706,6 +3844,8 @@ typedef enum {
   /// Request context preferences registered each time a new CefRequestContext
   /// is created.
   CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
+
+  CEF_PREFERENCES_TYPE_NUM_VALUES,
 } cef_preferences_type_t;
 
 ///
@@ -3854,6 +3994,7 @@ typedef enum {
   CEF_COLOR_VARIANT_NEUTRAL,
   CEF_COLOR_VARIANT_VIBRANT,
   CEF_COLOR_VARIANT_EXPRESSIVE,
+  CEF_COLOR_VARIANT_NUM_VALUES,
 } cef_color_variant_t;
 
 ///
@@ -3861,7 +4002,7 @@ typedef enum {
 /// Should be kept in sync with Chromium's task_manager::Task::Type type.
 ///
 typedef enum {
-  CEF_TASK_TYPE_UNKNOWN = 0,
+  CEF_TASK_TYPE_UNKNOWN,
   /// The main browser process.
   CEF_TASK_TYPE_BROWSER,
   /// A graphics process.
@@ -3886,12 +4027,19 @@ typedef enum {
   CEF_TASK_TYPE_SHARED_WORKER,
   /// A service worker running on the renderer process.
   CEF_TASK_TYPE_SERVICE_WORKER,
+
+  CEF_TASK_TYPE_NUM_VALUES,
 } cef_task_type_t;
 
 ///
 /// Structure representing task information provided by CefTaskManager.
 ///
 typedef struct _cef_task_info_t {
+  ///
+  /// Size of this structure.
+  ///
+  size_t size;
+
   /// The task ID.
   int64_t id;
   /// The task type.

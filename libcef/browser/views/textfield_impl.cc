@@ -7,22 +7,36 @@
 #include "cef/libcef/browser/thread_util.h"
 
 namespace {
+
 static int CefCommandIdToChromeId(cef_text_field_commands_t command_id) {
+  static_assert(static_cast<int>(CEF_TFC_NUM_VALUES) - 1 ==
+                    static_cast<int>(views::Textfield::kLastCommandId),
+                "Enum values in cef_text_field_commands_t must match "
+                "views::Textfield::MenuCommands");
   switch (command_id) {
-    case cef_text_field_commands_t::CEF_TFC_CUT:
+    case CEF_TFC_UNKNOWN:
+      return 0;
+    case CEF_TFC_CUT:
       return views::Textfield::kCut;
-    case cef_text_field_commands_t::CEF_TFC_COPY:
+    case CEF_TFC_COPY:
       return views::Textfield::kCopy;
-    case cef_text_field_commands_t::CEF_TFC_PASTE:
+    case CEF_TFC_PASTE:
       return views::Textfield::kPaste;
-    case cef_text_field_commands_t::CEF_TFC_UNDO:
-      return views::Textfield::kUndo;
-    case cef_text_field_commands_t::CEF_TFC_DELETE:
-      return views::Textfield::kDelete;
-    case cef_text_field_commands_t::CEF_TFC_SELECT_ALL:
+    case CEF_TFC_SELECT_ALL:
       return views::Textfield::kSelectAll;
+    case CEF_TFC_SELECT_WORD:
+      return views::Textfield::kSelectWord;
+    case CEF_TFC_UNDO:
+      return views::Textfield::kUndo;
+    case CEF_TFC_DELETE:
+      return views::Textfield::kDelete;
+    case CEF_TFC_NUM_VALUES:
+      break;
   }
+  DCHECK(false) << "Unsupported command ID " << command_id;
+  return 0;
 }
+
 }  // namespace
 
 // static
