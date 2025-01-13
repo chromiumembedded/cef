@@ -362,6 +362,8 @@ def exec_check(cpp_header_dir, api_versions_file, api_untracked_file, debug_dir,
       print('WARNING: This change can break back/forward binary compatibility.')
   else:
     sys.stderr.write('ERROR: %d hashes checked and failed\n' % len_failed)
+    sys.stderr.write('\nFor debugging tips/tricks see\n' +
+                     'https://github.com/chromiumembedded/cef/issues/3836#issuecomment-2587767028\n\n')
 
   print('%d hashes checked and match (%d/%d versioned, %d/%d untracked).' %
         (len(versions) - len_failed,
