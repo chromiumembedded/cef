@@ -176,7 +176,9 @@ class cef_api_hash:
         if debug_enabled:
           self.__write_debug_file(
               debug_dir, 'clang-' + filename.replace('/', '-'), content)
-        content_objects = self.__parse_objects(content)
+
+        # content must always start with newline as required by __parse_objects()
+        content_objects = self.__parse_objects('\n' + content)
         self.__prepare_objects(filename, content_objects)
       else:
         content_objects = self.filecontentobjs.get(filename, None)
@@ -226,7 +228,10 @@ class cef_api_hash:
         r"\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;",
         content,
         flags=re.DOTALL):
-      object = {"name": m.group(2), "text": m.group(0).strip()}
+      text = m.group(0).strip()
+      # remove 'CEF_CALLBACK' to normalize cross-platform clang output
+      text = text.replace('CEF_CALLBACK', '')
+      object = {"name": m.group(2), "text": text}
       objects.append(object)
 
     # enums
