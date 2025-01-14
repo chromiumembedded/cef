@@ -80,14 +80,9 @@ struct CefWindowInfoTraits {
 ///
 class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
  public:
-  typedef CefStructBase<CefWindowInfoTraits> parent;
-
-  CefWindowInfo() : parent() {}
-  explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
-  explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
-
-  CefWindowInfo& operator=(const CefWindowInfo&) = default;
-  CefWindowInfo& operator=(CefWindowInfo&&) = default;
+  using base_type = CefStructBase<CefWindowInfoTraits>;
+  using base_type::CefStructBase;
+  using base_type::operator=;
 
   ///
   /// Create the browser as a child view.

@@ -49,7 +49,7 @@ class CefStructBase : public traits::struct_type {
   using struct_type = typename traits::struct_type;
 
   CefStructBase() { Init(); }
-  virtual ~CefStructBase() {
+  ~CefStructBase() {
     // Only clear this object's data if it isn't currently attached to a
     // structure.
     if (!attached_to_) {
@@ -153,7 +153,7 @@ class CefStructBase : public traits::struct_type {
 /// wrapping. Use only with POD types that begin with a `size_t size` member.
 ///
 template <class struct_type>
-class CefStructBaseSimple final : public struct_type {
+class CefStructBaseSimple : public struct_type {
  public:
   CefStructBaseSimple() : struct_type{sizeof(struct_type)} {}
   CefStructBaseSimple(const struct_type& r) { *this = r; }
@@ -326,31 +326,21 @@ inline bool operator!=(const CefDraggableRegion& a,
 /// Class representing the virtual screen information for use when window
 /// rendering is disabled.
 ///
-class CefScreenInfo : public cef_screen_info_t {
+class CefScreenInfo : public CefStructBaseSimple<cef_screen_info_t> {
  public:
-  CefScreenInfo() : cef_screen_info_t{sizeof(cef_screen_info_t)} {}
-  CefScreenInfo(const cef_screen_info_t& r) { *this = r; }
-
-  CefScreenInfo& operator=(const cef_screen_info_t& r) {
-    memcpy(static_cast<cef_screen_info_t*>(this), &r,
-           std::min(r.size, sizeof(cef_screen_info_t)));
-    this->size = sizeof(cef_screen_info_t);
-    return *this;
-  }
+  using base_type = CefStructBaseSimple<cef_screen_info_t>;
+  using base_type::CefStructBaseSimple;
+  using base_type::operator=;
 
   CefScreenInfo(float device_scale_factor,
                 int depth,
                 int depth_per_component,
                 bool is_monochrome,
                 const cef_rect_t& rect,
-                const cef_rect_t& available_rect)
-      : cef_screen_info_t{sizeof(cef_screen_info_t),
-                          device_scale_factor,
-                          depth,
-                          depth_per_component,
-                          is_monochrome,
-                          rect,
-                          available_rect} {}
+                const cef_rect_t& available_rect) {
+    Set(device_scale_factor, depth, depth_per_component, is_monochrome, rect,
+        available_rect);
+  }
 
   void Set(float device_scale_factor_val,
            int depth_val,
@@ -732,20 +722,14 @@ using CefPdfPrintSettings = CefStructBase<CefPdfPrintSettingsTraits>;
 ///
 /// Class representing CefBoxLayout settings.
 ///
-class CefBoxLayoutSettings : public cef_box_layout_settings_t {
+class CefBoxLayoutSettings
+    : public CefStructBaseSimple<cef_box_layout_settings_t> {
  public:
-  CefBoxLayoutSettings()
-      : cef_box_layout_settings_t{sizeof(cef_box_layout_settings_t)} {
-    cross_axis_alignment = CEF_AXIS_ALIGNMENT_STRETCH;
-  }
-  CefBoxLayoutSettings(const cef_box_layout_settings_t& r) { *this = r; }
+  using base_type = CefStructBaseSimple<cef_box_layout_settings_t>;
+  using base_type::CefStructBaseSimple;
+  using base_type::operator=;
 
-  CefBoxLayoutSettings& operator=(const cef_box_layout_settings_t& r) {
-    memcpy(static_cast<cef_box_layout_settings_t*>(this), &r,
-           std::min(r.size, sizeof(cef_box_layout_settings_t)));
-    this->size = sizeof(cef_box_layout_settings_t);
-    return *this;
-  }
+  CefBoxLayoutSettings() { cross_axis_alignment = CEF_AXIS_ALIGNMENT_STRETCH; }
 };
 
 ///
