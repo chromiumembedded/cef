@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 7ba8c01db7e93..0888ecebf8d6f 100644
+index 3b450b572c3ef..a1b4835cc10f5 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -818,7 +818,7 @@ void RenderWidgetHostImpl::WasHidden() {
+@@ -820,7 +820,7 @@ void RenderWidgetHostImpl::WasHidden() {
  
    // Cancel pending pointer lock requests, unless there's an open user prompt.
    // Prompts should remain open and functional across tab switches.
@@ -68,7 +68,7 @@ index 7ba8c01db7e93..0888ecebf8d6f 100644
      RejectPointerLockOrUnlockIfNecessary(
          blink::mojom::PointerLockResult::kWrongDocument);
    }
-@@ -3289,6 +3289,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
+@@ -3293,6 +3293,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
    }
  }
  
@@ -81,10 +81,10 @@ index 7ba8c01db7e93..0888ecebf8d6f 100644
      const WebInputEvent& event) {
    if ((base::FeatureList::IsEnabled(
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 56670ed68f85f..f4ec82b6c3941 100644
+index 82d6357c3006b..48cf3141004ff 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -844,6 +844,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -847,6 +847,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

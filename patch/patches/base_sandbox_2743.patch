@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 5d8029ab4b82c..3fd3b54866cf7 100644
+index e0c6828f0cd7f..40e3d558dfda3 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -42,6 +42,7 @@ import("//build/rust/rust_static_library.gni")
