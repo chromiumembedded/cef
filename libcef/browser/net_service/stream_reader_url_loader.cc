@@ -584,10 +584,6 @@ void StreamReaderURLLoader::FollowRedirect(
 void StreamReaderURLLoader::SetPriority(net::RequestPriority priority,
                                         int intra_priority_value) {}
 
-void StreamReaderURLLoader::PauseReadingBodyFromNet() {}
-
-void StreamReaderURLLoader::ResumeReadingBodyFromNet() {}
-
 void StreamReaderURLLoader::OnInputStreamOpened(
     std::unique_ptr<StreamReaderURLLoader::Delegate> returned_delegate,
     std::unique_ptr<InputStream> input_stream) {

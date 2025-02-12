@@ -37,8 +37,13 @@ bool GetCookieDomain(const GURL& url,
     domain_string = pc.Domain();
   }
   net::CookieInclusionStatus status;
-  return net::cookie_util::GetCookieDomainWithString(url, domain_string, status,
-                                                     result);
+  const auto& retval =
+      net::cookie_util::GetCookieDomainWithString(url, domain_string, status);
+  if (retval.has_value()) {
+    *result = *retval;
+    return true;
+  }
+  return false;
 }
 
 cef_cookie_same_site_t MakeCefCookieSameSite(net::CookieSameSite value) {

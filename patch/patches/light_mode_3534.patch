@@ -48,10 +48,10 @@ index 963360a3247e1..18e6a1db9a73e 100644
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index 184939bdb8b3d..bb13d7c74e20b 100644
+index a28c128deecd3..e8c8a9825b0fe 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
-@@ -156,9 +156,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
+@@ -157,9 +157,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
    // have a light variant and aren't affected by the setting.  Because of this,
    // experimentally check if the theme is dark by checking if the window
    // background color is dark.
@@ -67,7 +67,7 @@ index 184939bdb8b3d..bb13d7c74e20b 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index aa2d789b3aec5..f84090947a345 100644
+index 95876b4040844..2f4480cacade6 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -78,7 +78,7 @@ index aa2d789b3aec5..f84090947a345 100644
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -289,6 +290,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -294,6 +295,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,10 +93,10 @@ index aa2d789b3aec5..f84090947a345 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 4c8e8c2b171fc..4c0ac7cfee394 100644
+index 4e825d649919c..ff1af10d30758 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -624,6 +624,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -636,6 +636,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
    // Calculates and returns the use overlay scrollbar setting.
    static bool CalculateUseOverlayScrollbar();
  
@@ -129,7 +129,7 @@ index 36d8e38eb0b07..0b96dd332363a 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index d34f90e8a6b93..5d77885591ea2 100644
+index 2b2a12cd9d1ac..00c034b7f81f7 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
 @@ -685,7 +685,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
@@ -153,13 +153,15 @@ index d34f90e8a6b93..5d77885591ea2 100644
      return NativeTheme::CalculatePreferredColorScheme();
    }
  
-@@ -1678,8 +1681,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1679,9 +1682,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {
 -  bool dark_mode_enabled = false;
+-  bool system_dark_mode_enabled = false;
 -  if (hkcu_themes_regkey_.Valid()) {
 +  bool dark_mode_enabled = ShouldUseDarkColors();
++  bool system_dark_mode_enabled = ShouldUseDarkColors();
 +  if (supports_windows_dark_mode_ && !IsForcedDarkMode() &&
 +      hkcu_themes_regkey_.Valid()) {
      DWORD apps_use_light_theme = 1;

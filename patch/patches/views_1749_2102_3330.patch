@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 5e2d67e449c1c..899cccce610e4 100644
+index 7ba0c60b24d16..ff05f077ddbad 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1044,7 +1044,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -58,10 +58,10 @@ index ecd8177fd48cb..63d94b6f39a7b 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index ec4c6eb4e76dd..1b74741b8b2ff 100644
+index 4bc53765f907a..021dfd43f735a 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -707,6 +707,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
+@@ -711,6 +711,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
    }
  }
  
@@ -76,7 +76,7 @@ index ec4c6eb4e76dd..1b74741b8b2ff 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2144,6 +2152,18 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2148,6 +2156,18 @@ void RenderText::OnTextAttributeChanged() {
    text_elided_ = false;
  
    layout_text_up_to_date_ = false;
@@ -150,7 +150,7 @@ index 07e805f154bd3..5bba98ef7d774 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index fdfc7ccde54a6..5fc509b447d65 100644
+index eed04364a8c09..a3c7cf6275838 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -192,6 +192,9 @@ class VIEWS_EXPORT LabelButton : public Button,
@@ -164,7 +164,7 @@ index fdfc7ccde54a6..5fc509b447d65 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index ec4f1bf85c51e..6899f9b4ff955 100644
+index 9ad8685569d46..00cf319a53a10 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -52,12 +52,29 @@ enum LabelPropertyKey {
@@ -210,10 +210,10 @@ index ec4f1bf85c51e..6899f9b4ff955 100644
 +                    kPropertyEffectsPreferredSizeChanged);
 +}
 +
- std::u16string Label::GetTooltipText() const {
-   return GetCachedTooltipText();
- }
-@@ -906,6 +932,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
+ void Label::SetCustomTooltipText(const std::u16string& tooltip_text) {
+   custom_tooltip_text_ = tooltip_text;
+ 
+@@ -898,6 +924,16 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText() const {
      }
    }
  
@@ -231,7 +231,7 @@ index ec4f1bf85c51e..6899f9b4ff955 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 9bea99bc86fc3..91356c7109a06 100644
+index a860b46db4ab7..f2650f8d241ad 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -241,6 +241,10 @@ class VIEWS_EXPORT Label : public View,
@@ -242,10 +242,10 @@ index 9bea99bc86fc3..91356c7109a06 100644
 +  void SetDrawStringsFlags(int flags);
 +  int GetDrawStringsFlags() const { return draw_strings_flags_; }
 +
-   // Gets/Sets the custom local tooltip text.  Default behavior for a label
+   // Sets the custom local tooltip text.  Default behavior for a label
    // (single-line) is to show the full text if it is wider than its bounds.
    // Calling this overrides the default behavior and lets you set a custom
-@@ -552,6 +556,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -551,6 +555,7 @@ class VIEWS_EXPORT Label : public View,
    int max_width_ = 0;
    // This is used in single-line mode.
    int max_width_single_line_ = 0;
@@ -254,10 +254,10 @@ index 9bea99bc86fc3..91356c7109a06 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 3c062fd914935..e46e4b83694cf 100644
+index fb9d5cab9629f..19273c599c4d3 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -589,7 +589,8 @@ void MenuController::Run(Widget* parent,
+@@ -588,7 +588,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           bool context_menu,
                           bool is_nested_drag,
@@ -267,7 +267,7 @@ index 3c062fd914935..e46e4b83694cf 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -658,6 +659,7 @@ void MenuController::Run(Widget* parent,
+@@ -657,6 +658,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index 3c062fd914935..e46e4b83694cf 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2386,6 +2388,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2378,6 +2380,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index 3c062fd914935..e46e4b83694cf 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3097,7 +3100,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3089,7 +3092,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index 3c062fd914935..e46e4b83694cf 100644
      return;
    }
  
-@@ -3122,6 +3129,7 @@ void MenuController::CloseSubmenu() {
+@@ -3114,6 +3121,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -403,10 +403,10 @@ index fc1d5fccc3845..c065cafcd537c 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 9e948231f2a57..f88c0a1cf2660 100644
+index dbb066801e1d0..58573b54dea0b 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1138,6 +1138,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1157,6 +1157,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      spilling_rect.set_y(spilling_rect.y() - corner_radius_);
      spilling_rect.set_height(spilling_rect.height() + corner_radius_);
      canvas->DrawRoundRect(spilling_rect, corner_radius_, flags);
@@ -422,7 +422,7 @@ index 9e948231f2a57..f88c0a1cf2660 100644
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1208,6 +1217,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1227,6 +1236,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -437,7 +437,7 @@ index 9e948231f2a57..f88c0a1cf2660 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index 1041002b24a7b..0216af1096281 100644
+index eb1e758622f07..1522287097515 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -448,7 +448,7 @@ index 1041002b24a7b..0216af1096281 100644
  #include <list>
  #include <memory>
  #include <utility>
-@@ -245,6 +246,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
+@@ -251,6 +252,71 @@ bool MenuModelAdapter::IsItemChecked(int id) const {
    return model->IsItemCheckedAt(index);
  }
  
@@ -521,7 +521,7 @@ index 1041002b24a7b..0216af1096281 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*,
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index d2e0377559862..de2b0e2d2fa28 100644
+index 7f561eab31316..96b0a16b877a2 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -93,6 +93,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -654,7 +654,7 @@ index f5b0936aac647..20f476c9abd93 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index e1e3f0d4c54dd..f8afecca2016b 100644
+index 05322e627acab..a866a76c50372 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -72,6 +72,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
@@ -765,7 +765,7 @@ index 1da213198d5de..9961b0c503f0a 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 92b86fccb3a30..964351594f1e4 100644
+index 548bd04490964..9772363322649 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -789,10 +789,10 @@ index 92b86fccb3a30..964351594f1e4 100644
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index 61f50d010646c..8bf476f6f85df 100644
+index 8dcbed75a834b..d3507ba0d9903 100644
 --- ui/views/view.h
 +++ ui/views/view.h
-@@ -25,6 +25,7 @@
+@@ -26,6 +26,7 @@
  #include "base/memory/raw_ptr.h"
  #include "base/memory/safety_checks.h"
  #include "base/observer_list.h"
@@ -800,7 +800,7 @@ index 61f50d010646c..8bf476f6f85df 100644
  #include "base/types/pass_key.h"
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -289,7 +290,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -290,7 +291,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,
@@ -810,7 +810,7 @@ index 61f50d010646c..8bf476f6f85df 100644
    // Do not remove this macro!
    // The macro is maintained by the memory safety team.
    ADVANCED_MEMORY_SAFETY_CHECKS();
-@@ -609,7 +611,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -613,7 +615,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
  
    // Return the preferred height for a specific width. It is a helper function
    // of GetPreferredSize(SizeBounds(w, SizeBound())).height().

@@ -30,7 +30,7 @@ index 76057b3e50f78..d3b63a3b07805 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index 469148c58889e..ec78b8abc9c05 100644
+index cb570463e9651..a3e9726f58b16 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -68,6 +68,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 7ba8c01db7e93..0888ecebf8d6f 100644
+index 130fb82767d53..952b34877fa89 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -818,7 +818,7 @@ void RenderWidgetHostImpl::WasHidden() {
+@@ -801,7 +801,7 @@ void RenderWidgetHostImpl::WasHidden() {
  
    // Cancel pending pointer lock requests, unless there's an open user prompt.
    // Prompts should remain open and functional across tab switches.
@@ -68,8 +68,8 @@ index 7ba8c01db7e93..0888ecebf8d6f 100644
      RejectPointerLockOrUnlockIfNecessary(
          blink::mojom::PointerLockResult::kWrongDocument);
    }
-@@ -3289,6 +3289,11 @@ void RenderWidgetHostImpl::DecrementInFlightEventCount(
-   }
+@@ -3681,6 +3681,11 @@ void RenderWidgetHostImpl::StopFling() {
+   GetRenderInputRouter()->StopFling();
  }
  
 +void RenderWidgetHostImpl::SetCompositorForFlingScheduler(
@@ -77,14 +77,14 @@ index 7ba8c01db7e93..0888ecebf8d6f 100644
 +  GetRenderInputRouter()->fling_scheduler()->SetCompositor(compositor);
 +}
 +
- void RenderWidgetHostImpl::AddPendingUserActivation(
-     const WebInputEvent& event) {
-   if ((base::FeatureList::IsEnabled(
+ void RenderWidgetHostImpl::SetScreenOrientationForTesting(
+     uint16_t angle,
+     display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 56670ed68f85f..f4ec82b6c3941 100644
+index 286e3d89a6c24..1276618de2e56 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -844,6 +844,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -838,6 +838,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

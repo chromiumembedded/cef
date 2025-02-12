@@ -175,7 +175,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
     cef_accelerated_paint_info_t paint_info;
     paint_info.extra = extra;
-    paint_info.shared_texture_handle = gmb_handle.dxgi_handle.Get();
+    paint_info.shared_texture_handle = gmb_handle.dxgi_handle().buffer_handle();
     paint_info.format = pixel_format;
     view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #elif BUILDFLAG(IS_APPLE)

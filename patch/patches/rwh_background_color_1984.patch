@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 06686841d7394..eacc7a61749a1 100644
+index 612d67d06d766..5102758c7f398 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -6,6 +6,7 @@
@@ -18,24 +18,17 @@ index 06686841d7394..eacc7a61749a1 100644
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -753,10 +755,12 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -753,6 +755,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
--  SkColor color = *GetBackgroundColor();
--  bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
--  window_->layer()->SetFillsBoundsOpaquely(opaque);
--  window_->layer()->SetColor(color);
-+  if (window_) {
-+    SkColor color = *GetBackgroundColor();
-+    bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
-+    window_->layer()->SetFillsBoundsOpaquely(opaque);
-+    window_->layer()->SetColor(color);
++  if (!window_) {
++    return;
 +  }
+   SkColor color = *GetBackgroundColor();
+   window_->layer()->SetColor(color);
  }
- 
- #if BUILDFLAG(IS_WIN)
-@@ -2628,6 +2632,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2642,6 +2647,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();

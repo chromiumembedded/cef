@@ -258,7 +258,8 @@ def GetRecommendedDefaultArgs():
     # Disable QT by default because we don't want to introduce the build
     # dependencies at this time. For background see
     # https://groups.google.com/a/chromium.org/g/chromium-packagers/c/-2VGexQAK6w/m/5K5ppK9WBAAJ
-    result['use_qt'] = False
+    result['use_qt5'] = False
+    result['use_qt6'] = False
 
   return result
 

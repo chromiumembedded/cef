@@ -1,8 +1,8 @@
 diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
-index 54cf4bbb6c1dc..312a603e6c639 100644
+index fa1a9aec7cca6..ec0d65954fe0a 100644
 --- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 +++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
-@@ -25,12 +25,31 @@
+@@ -26,12 +26,31 @@
  #include "extensions/renderer/guest_view/mime_handler_view/post_message_support.h"
  #endif  // BUILDFLAG(ENABLE_PDF)
  
@@ -33,10 +33,10 @@ index 54cf4bbb6c1dc..312a603e6c639 100644
 +  g_next_print_preview_enabled = enabled;
 +}
 +
- // Return the PDF object element if `frame` is the out of process PDF extension
- // or its child frame.
+ // Returns the PDF object element if the parent of `frame` is the PDF extension
+ // frame.
  blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
-@@ -47,6 +66,10 @@ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
+@@ -54,6 +73,10 @@ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
  }
  
  bool ChromePrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {

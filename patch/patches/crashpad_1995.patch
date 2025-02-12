@@ -81,10 +81,10 @@ index 30a2c1adc4509..b60a7afaf1e5e 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index d9c721376c855..e72b67e2a1a50 100644
+index 36f846b0dfe29..98979130c36cc 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
-@@ -12,6 +12,8 @@
+@@ -8,6 +8,8 @@
  #include <deque>
  #include <string_view>
  
@@ -93,7 +93,7 @@ index d9c721376c855..e72b67e2a1a50 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -110,8 +112,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -106,8 +108,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -102,10 +102,10 @@ index d9c721376c855..e72b67e2a1a50 100644
  // Return true if we DON'T want to upload this flag to the crash server.
 -bool IsBoringSwitch(const std::string& flag) {
 +bool IsBoringChromeSwitch(const std::string& flag) {
-   static const std::string_view kIgnoreSwitches[] = {
-     kStringAnnotationsSwitch,
-     switches::kEnableLogging,
-@@ -171,6 +175,8 @@ bool IsBoringSwitch(const std::string& flag) {
+   static const auto kIgnoreSwitches = std::to_array<std::string_view>({
+       kStringAnnotationsSwitch,
+       switches::kEnableLogging,
+@@ -167,6 +171,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -114,7 +114,7 @@ index d9c721376c855..e72b67e2a1a50 100644
  std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
    static base::NoDestructor<std::deque<CrashKeyWithName>>
        command_line_string_annotations;
-@@ -216,7 +222,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
+@@ -215,7 +221,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
    SetStringAnnotations(command_line);
    HandleEnableDisableFeatures(command_line);
@@ -210,10 +210,10 @@ index 7c890b331be4a..75d22156605d3 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 14563198df62b..63b2c14420927 100644
+index b63e5c28a63a6..3bf12a61a34d2 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -127,7 +127,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -132,7 +132,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.

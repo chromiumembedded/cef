@@ -92,7 +92,7 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
 
   canvas_ = skia::CreatePlatformCanvasWithPixels(
       viewport_pixel_size_.width(), viewport_pixel_size_.height(), false,
-      static_cast<uint8_t*>(shm_.memory()), skia::CRASH_ON_FAILURE);
+      static_cast<uint8_t*>(shm_.memory()), 0U, skia::CRASH_ON_FAILURE);
 #else
   canvas_ = skia::CreatePlatformCanvasWithSharedSection(
       viewport_pixel_size_.width(), viewport_pixel_size_.height(), false,

@@ -307,7 +307,7 @@ bool CefCookieManagerImpl::SetCookieInternal(
   if (!canonical_cookie) {
     net::CookieInclusionStatus status;
     status.AddExclusionReason(
-        net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+        net::CookieInclusionStatus::ExclusionReason::EXCLUDE_UNKNOWN_ERROR);
     SetCookieCallbackImpl(callback, net::CookieAccessResult(std::move(status)));
     return true;
   }

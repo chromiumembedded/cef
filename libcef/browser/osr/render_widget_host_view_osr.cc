@@ -238,8 +238,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   root_layer_ = std::make_unique<ui::Layer>(ui::LAYER_SOLID_COLOR);
 
-  bool opaque = SkColorGetA(background_color_) == SK_AlphaOPAQUE;
-  GetRootLayer()->SetFillsBoundsOpaquely(opaque);
+  // Opacity of SOLID_COLOR layer is determined by the color's alpha channel.
   GetRootLayer()->SetColor(background_color_);
 
   external_begin_frame_enabled_ = use_external_begin_frame;

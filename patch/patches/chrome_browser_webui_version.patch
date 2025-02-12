@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index 2d8d97e4938cf..78bbdbaa8ad69 100644
+index e503ac10c0eaa..dacd96a06e870 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
 @@ -29,12 +29,23 @@
@@ -124,18 +124,18 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index e464e50866897..6c86e5096db3b 100644
+index 7919a35b990e8..67cbd0aa3360e 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
-@@ -17,6 +17,7 @@
+@@ -16,6 +16,7 @@
+ #include "base/strings/utf_string_conversions.h"
  #include "base/time/time.h"
  #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/browser_process_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/ui/webui/version/version_handler.h"
-@@ -64,6 +65,10 @@
+@@ -63,6 +64,10 @@
  #include "chrome/browser/ui/webui/version/version_util_win.h"
  #endif
  
@@ -146,7 +146,7 @@ index e464e50866897..6c86e5096db3b 100644
  using content::WebUIDataSource;
  
  namespace {
-@@ -84,6 +89,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -83,6 +88,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
        {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
        {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
        {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
@@ -157,7 +157,7 @@ index e464e50866897..6c86e5096db3b 100644
        {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
        {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
        {version_ui::kCopyVariationsLabel, IDS_VERSION_UI_COPY_VARIATIONS_LABEL},
-@@ -115,6 +124,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -114,6 +123,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
    html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
@@ -168,7 +168,7 @@ index e464e50866897..6c86e5096db3b 100644
  }
  
  std::string GetProductModifier() {
-@@ -232,6 +245,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -231,6 +244,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string());
    html_source->AddString(version_ui::kProfilePath, std::string());
@@ -179,20 +179,39 @@ index e464e50866897..6c86e5096db3b 100644
  
  #if BUILDFLAG(IS_MAC)
    html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
-diff --git components/version_ui/BUILD.gn components/version_ui/BUILD.gn
-index 49f73fb885870..4f1c5fa814d5b 100644
---- components/version_ui/BUILD.gn
-+++ components/version_ui/BUILD.gn
+diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
+index 7c3d198ccdb52..4a15d9d7f1e13 100644
+--- components/version_ui_strings.grdp
++++ components/version_ui_strings.grdp
+@@ -76,6 +76,14 @@
+   <message name="IDS_VERSION_UI_PROFILE_PATH" desc="label for the profile path on the about:version page">
+     Profile Path
+   </message>
++  <if expr="enable_cef">
++    <message name="IDS_VERSION_UI_MODULE_PATH" desc="label for the module path on the about:version page">
++      Module Path
++    </message>
++    <message name="IDS_VERSION_UI_USER_DATA_PATH" desc="label for the user data path on the about:version page">
++      User Data Path
++    </message>
++  </if>
+   <message name="IDS_VERSION_UI_PATH_NOTFOUND" desc="label for the non-existent path on the about:version page">
+     No such file or directory
+   </message>
+diff --git components/webui/version/BUILD.gn components/webui/version/BUILD.gn
+index 2193019afd18e..42ec99b0a4673 100644
+--- components/webui/version/BUILD.gn
++++ components/webui/version/BUILD.gn
 @@ -2,6 +2,8 @@
  # Use of this source code is governed by a BSD-style license that can be
  # found in the LICENSE file.
  
 +import("//cef/libcef/features/features.gni")
 +
- static_library("version_ui") {
+ static_library("version") {
    sources = [
      "version_handler_helper.cc",
-@@ -16,4 +18,8 @@ static_library("version_ui") {
+@@ -16,4 +18,8 @@ static_library("version") {
      "//components/variations/net",
      "//components/variations/service",
    ]
@@ -201,10 +220,10 @@ index 49f73fb885870..4f1c5fa814d5b 100644
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
  }
-diff --git components/version_ui/resources/about_version.css components/version_ui/resources/about_version.css
+diff --git components/webui/version/resources/about_version.css components/webui/version/resources/about_version.css
 index bd41fd2492e79..04378e39332e1 100644
---- components/version_ui/resources/about_version.css
-+++ components/version_ui/resources/about_version.css
+--- components/webui/version/resources/about_version.css
++++ components/webui/version/resources/about_version.css
 @@ -135,3 +135,7 @@ body {
    position: fixed;
    width: 1px;
@@ -213,10 +232,10 @@ index bd41fd2492e79..04378e39332e1 100644
 +#footnote {
 +  font-size: 0.8em;
 +}
-diff --git components/version_ui/resources/about_version.html components/version_ui/resources/about_version.html
+diff --git components/webui/version/resources/about_version.html components/webui/version/resources/about_version.html
 index 1243b0cb31f59..723f9eedd2885 100644
---- components/version_ui/resources/about_version.html
-+++ components/version_ui/resources/about_version.html
+--- components/webui/version/resources/about_version.html
++++ components/webui/version/resources/about_version.html
 @@ -48,9 +48,21 @@ about:version template page
          </picture>
  </if>
@@ -275,10 +294,10 @@ index 1243b0cb31f59..723f9eedd2885 100644
      </div>
  
      <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
-diff --git components/version_ui/resources/about_version.ts components/version_ui/resources/about_version.ts
+diff --git components/webui/version/resources/about_version.ts components/webui/version/resources/about_version.ts
 index ea5f11471acf2..f604065bbe8fe 100644
---- components/version_ui/resources/about_version.ts
-+++ components/version_ui/resources/about_version.ts
+--- components/webui/version/resources/about_version.ts
++++ components/webui/version/resources/about_version.ts
 @@ -72,9 +72,21 @@ function handleVariationInfo(
   * @param profilePath The profile path to display.
   */
@@ -302,12 +321,12 @@ index ea5f11471acf2..f604065bbe8fe 100644
  }
  
  // <if expr="is_win">
-diff --git components/version_ui/version_ui_constants.cc components/version_ui/version_ui_constants.cc
-index a4677847706a6..5ad9dc52045ce 100644
---- components/version_ui/version_ui_constants.cc
-+++ components/version_ui/version_ui_constants.cc
+diff --git components/webui/version/version_ui_constants.cc components/webui/version/version_ui_constants.cc
+index 146817785885f..313ebec9d923f 100644
+--- components/webui/version/version_ui_constants.cc
++++ components/webui/version/version_ui_constants.cc
 @@ -5,6 +5,7 @@
- #include "components/version_ui/version_ui_constants.h"
+ #include "components/webui/version/version_ui_constants.h"
  
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
@@ -330,12 +349,12 @@ index a4677847706a6..5ad9dc52045ce 100644
 +#endif
 +
  }  // namespace version_ui
-diff --git components/version_ui/version_ui_constants.h components/version_ui/version_ui_constants.h
-index 5d43d7626b3c3..c61eadf18e136 100644
---- components/version_ui/version_ui_constants.h
-+++ components/version_ui/version_ui_constants.h
+diff --git components/webui/version/version_ui_constants.h components/webui/version/version_ui_constants.h
+index 86d7317ddcee5..45523e445c4b0 100644
+--- components/webui/version/version_ui_constants.h
++++ components/webui/version/version_ui_constants.h
 @@ -6,6 +6,7 @@
- #define COMPONENTS_VERSION_UI_VERSION_UI_CONSTANTS_H_
+ #define COMPONENTS_WEBUI_VERSION_VERSION_UI_CONSTANTS_H_
  
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
@@ -359,23 +378,4 @@ index 5d43d7626b3c3..c61eadf18e136 100644
 +
  }  // namespace version_ui
  
- #endif  // COMPONENTS_VERSION_UI_VERSION_UI_CONSTANTS_H_
-diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
-index 7c3d198ccdb52..4a15d9d7f1e13 100644
---- components/version_ui_strings.grdp
-+++ components/version_ui_strings.grdp
-@@ -76,6 +76,14 @@
-   <message name="IDS_VERSION_UI_PROFILE_PATH" desc="label for the profile path on the about:version page">
-     Profile Path
-   </message>
-+  <if expr="enable_cef">
-+    <message name="IDS_VERSION_UI_MODULE_PATH" desc="label for the module path on the about:version page">
-+      Module Path
-+    </message>
-+    <message name="IDS_VERSION_UI_USER_DATA_PATH" desc="label for the user data path on the about:version page">
-+      User Data Path
-+    </message>
-+  </if>
-   <message name="IDS_VERSION_UI_PATH_NOTFOUND" desc="label for the non-existent path on the about:version page">
-     No such file or directory
-   </message>
+ #endif  // COMPONENTS_WEBUI_VERSION_VERSION_UI_CONSTANTS_H_

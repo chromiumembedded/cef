@@ -31,6 +31,8 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_CONTENT_SETTINGS_H_
 #pragma once
 
+#include "include/cef_api_hash.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -483,6 +485,15 @@ typedef enum {
   /// Checks whether cookies scope is handled according to origin-bound cookies
   /// or legacy behavior.
   CEF_CONTENT_SETTING_TYPE_LEGACY_COOKIE_SCOPE,
+
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Website setting to indicate whether the user has allowlisted suspicious
+  /// notifications for the origin.
+  CEF_CONTENT_SETTING_TYPE_ARE_SUSPICIOUS_NOTIFICATIONS_ALLOWLISTED_BY_USER,
+
+  /// Content settings for access to the Controlled Frame API.
+  CEF_CONTENT_SETTING_TYPE_CONTROLLED_FRAME,
+#endif
 
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,
 } cef_content_setting_types_t;

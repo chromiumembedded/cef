@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 44a11ec90ec9b..4c35b35a97f28 100644
+index 3f65718281973..66580417cc79e 100644
 --- .gn
 +++ .gn
-@@ -158,6 +158,8 @@ exec_script_whitelist =
+@@ -158,6 +158,8 @@ exec_script_allowlist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,7 +12,7 @@ index 44a11ec90ec9b..4c35b35a97f28 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 09eeeee99b2e6..747d7f9e75d0e 100644
+index a05810690041d..cac7f91fc271d 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 75a2ccaebf8b5..676f21d56caa2 100644
+index 4a4b18b2715c3..efacf2ddeafcc 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
@@ -89,7 +89,7 @@ index 75a2ccaebf8b5..676f21d56caa2 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -480,6 +481,10 @@ template("chrome_extra_paks") {
+@@ -487,6 +488,10 @@ template("chrome_extra_paks") {
        ]
        deps += [ "//extensions:extensions_resources" ]
      }
@@ -101,7 +101,7 @@ index 75a2ccaebf8b5..676f21d56caa2 100644
        sources += [ "$root_gen_dir/chrome/extensions_resources.pak" ]
        deps += [ "//chrome/browser/resources/extensions:resources" ]
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 0ec0aa2c8efb3..be510257b243c 100644
+index c3b77e3653933..21f42ddf85a3b 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -112,7 +112,7 @@ index 0ec0aa2c8efb3..be510257b243c 100644
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -109,6 +110,10 @@ template("chrome_repack_locales") {
+@@ -106,6 +107,10 @@ template("chrome_repack_locales") {
        source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
        deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }
@@ -151,23 +151,23 @@ index c490d199bf51e..4c0de0d7a0822 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 20b2ffa87c31a..0c919d103eab5 100644
+index 5cf2768230fa5..f354073500d2c 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
-@@ -6,7 +6,9 @@ import("//build/config/chrome_build.gni")
+@@ -5,7 +5,9 @@
+ import("//build/config/chrome_build.gni")
  import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/devtools.gni")
- import("//build/config/features.gni")
 +import("//build/config/locales.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
  devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
-@@ -41,6 +43,9 @@ _grit_defines = [
-   "is_desktop_android=${is_desktop_android}",
+@@ -38,6 +40,9 @@ _grit_defines = [
+   "use_titlecase=${is_mac}",
  
-   "enable_glic=${enable_glic}",
+   "is_desktop_android=${is_desktop_android}",
 +
 +  "enable_cef=${enable_cef}",
 +  "enable_pseudolocales=${enable_pseudolocales}",

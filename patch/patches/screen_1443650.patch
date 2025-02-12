@@ -19,10 +19,10 @@ index 6fa7119d30df8..224d2113000fb 100644
  
  bool Screen::GetDisplayWithDisplayId(int64_t display_id,
 diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
-index 931443a2ef517..4352a30879c04 100644
+index 0d277625e3b82..4e648418c360e 100644
 --- ui/display/win/screen_win.cc
 +++ ui/display/win/screen_win.cc
-@@ -633,7 +633,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd, const gfx::Rect& pixel_bounds) {
+@@ -632,7 +632,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd, const gfx::Rect& pixel_bounds) {
        gfx::PointF(pixel_bounds.origin()), screen_win_display));
    const float scale_factor =
        1.0f / screen_win_display.display().device_scale_factor();
@@ -31,7 +31,7 @@ index 931443a2ef517..4352a30879c04 100644
  }
  
  // static
-@@ -648,7 +648,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd, const gfx::Rect& dip_bounds) {
+@@ -647,7 +647,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd, const gfx::Rect& dip_bounds) {
    const gfx::Point origin =
        display::win::DIPToScreenPoint(dip_bounds.origin(), screen_win_display);
    const float scale_factor = screen_win_display.display().device_scale_factor();

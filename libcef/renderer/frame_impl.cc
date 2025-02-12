@@ -373,8 +373,7 @@ void CefFrameImpl::OnDraggableRegionsChanged() {
     return;
   }
 
-  blink::WebVector<blink::WebDraggableRegion> webregions =
-      frame_->GetDocument().DraggableRegions();
+  auto webregions = frame_->GetDocument().DraggableRegions();
   std::vector<cef::mojom::DraggableRegionEntryPtr> regions;
   if (!webregions.empty()) {
     auto render_frame = content::RenderFrameImpl::FromWebFrame(frame_);

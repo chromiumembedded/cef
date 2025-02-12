@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_policy_container_builder.cc content/browser/renderer_host/navigation_policy_container_builder.cc
-index 5695fd36ce0e0..b109cefdeef6f 100644
+index c2d7f5c2f7abc..512125a22dfc8 100644
 --- content/browser/renderer_host/navigation_policy_container_builder.cc
 +++ content/browser/renderer_host/navigation_policy_container_builder.cc
-@@ -43,7 +43,6 @@ std::unique_ptr<PolicyContainerPolicies> GetInitiatorPolicies(
+@@ -45,7 +45,6 @@ std::unique_ptr<PolicyContainerPolicies> GetInitiatorPolicies(
        RenderFrameHostImpl::GetPolicyContainerHost(
            frame_token, initiator_process_id, storage_partition);
  

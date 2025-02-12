@@ -88,10 +88,10 @@ index f5191b804bc07..aadb7d66ba4c3 100644
 +
  #endif  // BASE_TEST_TEST_TRACE_PROCESSOR_EXPORT_H_
 diff --git content/shell/BUILD.gn content/shell/BUILD.gn
-index ce28d886a26d2..3d044d223fac5 100644
+index 34ae648c14c93..0a481969e9417 100644
 --- content/shell/BUILD.gn
 +++ content/shell/BUILD.gn
-@@ -909,7 +909,6 @@ if (is_mac) {
+@@ -910,7 +910,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]

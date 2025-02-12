@@ -1,5 +1,5 @@
 diff --git build/config/compiler/BUILD.gn build/config/compiler/BUILD.gn
-index 88109264ea962..6f7255b07f159 100644
+index ffbd381f00929..d03d101656711 100644
 --- build/config/compiler/BUILD.gn
 +++ build/config/compiler/BUILD.gn
 @@ -132,6 +132,9 @@ declare_args() {
@@ -12,7 +12,7 @@ index 88109264ea962..6f7255b07f159 100644
    # Initialize all local variables with a pattern. This flag will fill
    # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
    # rest with 0xAA. This makes behavior of uninitialized memory bugs consistent,
-@@ -2315,6 +2318,7 @@ config("export_dynamic") {
+@@ -2287,6 +2290,7 @@ config("export_dynamic") {
  # 2. Remove the thin_archive config, so that the .a file actually contains all
  #    .o files, instead of just references to .o files in the build directoy
  config("thin_archive") {
@@ -20,7 +20,7 @@ index 88109264ea962..6f7255b07f159 100644
    if ((is_apple && use_lld) || (is_linux && !is_clang)) {
      # The macOS and iOS linker ld64.ldd doesn't support thin archive without
      # symbol table, gcc on linux also throws the error `archive has no index`.
-@@ -2332,6 +2336,7 @@ config("thin_archive") {
+@@ -2304,6 +2308,7 @@ config("thin_archive") {
    } else if (is_win && use_lld) {
      arflags = [ "/llvmlibthin" ]
    }

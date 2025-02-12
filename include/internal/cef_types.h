@@ -3622,6 +3622,9 @@ typedef enum {
 #if CEF_API_ADDED(13304)
   CEF_CPAIT_COLLABORATION_MESSAGING,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_CHANGE_PASSWORD,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 

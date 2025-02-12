@@ -33,7 +33,7 @@ index 2245c931fbe4f..761ea6b3a6afb 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index b540a7a995fbc..e411aa8c235d9 100644
+index 29ba0f48f559a..07887ae9ec11c 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
 @@ -185,7 +185,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {

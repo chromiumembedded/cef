@@ -21,8 +21,7 @@ bool CefMenuRunnerMac::RunContextMenu(
   // Create a menu controller based on the model.
   MenuControllerCocoa* menu_controller =
       [[MenuControllerCocoa alloc] initWithModel:model->model()
-                                        delegate:nil
-                          useWithPopUpButtonCell:NO];
+                                        delegate:nil];
 
   menu_controller_ = menu_controller;
 

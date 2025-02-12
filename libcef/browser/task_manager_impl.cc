@@ -4,8 +4,9 @@
 
 #include "cef/libcef/browser/task_manager_impl.h"
 
+#include <ranges>
+
 #include "base/check.h"
-#include "base/ranges/algorithm.h"
 #include "base/system/sys_info.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/context.h"
@@ -27,7 +28,6 @@ CefTaskManager::TaskType toCefTaskType(task_manager::Task::Type type) {
     case task_manager::Task::CROSTINI:
     case task_manager::Task::PLUGIN_VM:
     case task_manager::Task::NACL:
-    case task_manager::Task::LACROS:
       return CEF_TASK_TYPE_UNKNOWN;
     case task_manager::Task::BROWSER:
       return CEF_TASK_TYPE_BROWSER;
@@ -85,7 +85,7 @@ void CefTaskManagerImpl::OnTaskAdded(int64_t id) {
 }
 
 void CefTaskManagerImpl::OnTaskToBeRemoved(int64_t id) {
-  auto index = base::ranges::find(tasks_, id);
+  auto index = std::ranges::find(tasks_, id);
   if (index != tasks_.end()) {
     tasks_.erase(index);
   }
@@ -166,7 +166,7 @@ int64_t CefTaskManagerImpl::GetTaskIdForBrowserId(int browser_id) {
 }
 
 bool CefTaskManagerImpl::IsValidTaskId(int64_t task_id) const {
-  return base::ranges::find(tasks_, task_id) != tasks_.end();
+  return std::ranges::find(tasks_, task_id) != tasks_.end();
 }
 
 CefRefPtr<CefTaskManager> CefTaskManager::GetTaskManager() {

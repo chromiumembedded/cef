@@ -462,12 +462,12 @@ void GetCefString(v8::Isolate* isolate,
 
 #if defined(CEF_STRING_TYPE_WIDE)
   // Allocate enough space for a worst-case conversion.
-  int len = str->Utf8Length();
+  size_t len = str->Utf8LengthV2();
   if (len == 0) {
     return;
   }
   char* buf = new char[len + 1];
-  str->WriteUtf8(isolate, buf, len + 1);
+  str->WriteUtf8V2(isolate, buf, len, v8::String::WriteFlags::kNullTerminate);
 
   // Perform conversion to the wide type.
   cef_string_t* retws = out.GetWritableStruct();
@@ -481,15 +481,16 @@ void GetCefString(v8::Isolate* isolate,
     return;
   }
   char16_t* buf = new char16_t[len + 1];
-  str->Write(isolate, reinterpret_cast<uint16_t*>(buf), 0, len + 1);
+  str->WriteV2(isolate, 0, len, reinterpret_cast<uint16_t*>(buf),
+               v8::String::WriteFlags::kNullTerminate);
 #else
   // Allocate enough space for a worst-case conversion.
-  int len = str->Utf8Length();
+  size_t len = str->Utf8LengthV2();
   if (len == 0) {
     return;
   }
   char* buf = new char[len + 1];
-  str->WriteUtf8(isolate, buf, len + 1);
+  str->WriteUtf8V2(isolate, buf, len, v8::String::WriteFlags::kNullTerminate);
 #endif
 
   // Don't perform an extra string copy.

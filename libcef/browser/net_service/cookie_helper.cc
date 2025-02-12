@@ -202,7 +202,8 @@ void SaveCookiesOnUIThread(
   }
 
   net::CookieInclusionStatus status;
-  status.AddExclusionReason(net::CookieInclusionStatus::EXCLUDE_UNKNOWN_ERROR);
+  status.AddExclusionReason(
+      net::CookieInclusionStatus::ExclusionReason::EXCLUDE_UNKNOWN_ERROR);
   SetCanonicalCookieCallback(progress, net::CanonicalCookie(),
                              net::CookieAccessResult(std::move(status)));
 }

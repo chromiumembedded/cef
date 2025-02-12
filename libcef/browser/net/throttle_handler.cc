@@ -18,8 +18,13 @@ namespace throttle {
 
 namespace {
 
-bool NavigationOnUIThread(content::NavigationHandle* navigation_handle) {
+void NavigationOnUIThread(
+    content::NavigationHandle* navigation_handle,
+    bool should_run_async,
+    navigation_interception::InterceptNavigationThrottle::ResultCallback
+        result_callback) {
   CEF_REQUIRE_UIT();
+  CHECK(!should_run_async);
 
   const bool is_main_frame = navigation_handle->IsInMainFrame();
   const auto global_id = frame_util::GetGlobalId(navigation_handle);
@@ -45,7 +50,8 @@ bool NavigationOnUIThread(content::NavigationHandle* navigation_handle) {
           navigation_handle->GetWebContents()->GetPrimaryMainFrame(),
           open_params, browser)) {
     // Cancel the navigation.
-    return true;
+    std::move(result_callback).Run(true);
+    return;
   }
 
   bool ignore_navigation = false;
@@ -81,7 +87,7 @@ bool NavigationOnUIThread(content::NavigationHandle* navigation_handle) {
     }
   }
 
-  return ignore_navigation;
+  std::move(result_callback).Run(ignore_navigation);
 }
 
 }  // namespace
@@ -95,7 +101,7 @@ void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
           navigation_handle, base::BindRepeating(&NavigationOnUIThread),
-          navigation_interception::SynchronyMode::kSync);
+          navigation_interception::SynchronyMode::kSync, std::nullopt);
 
   // Always execute our throttle first.
   throttles.emplace(throttles.begin(), std::move(throttle));

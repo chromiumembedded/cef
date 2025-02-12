@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index f8a0507c92c..dc55d2379d2 100644
+index 94147651f9b..c243a8ed9cf 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/mips.gni")
@@ -10,17 +10,17 @@ index f8a0507c92c..dc55d2379d2 100644
  import("//third_party/icu/config.gni")
  
  import("gni/snapshot_toolchain.gni")
-@@ -467,6 +468,9 @@ declare_args() {
-   # Some fuzzers depend on fuzzing functionality linked into the v8 library.
-   # For binary size reasons this functionality is not always available.
-   v8_wasm_random_fuzzers = ""
+@@ -483,6 +484,9 @@ declare_args() {
+ 
+   # Experimental testing mode where various limits are artificially set lower.
+   v8_lower_limits_mode = false
 +
 +  # Set to true if V8 will be used in a shared library.
 +  v8_used_in_shared_library = enable_cef
  }
  
  # Derived defaults.
-@@ -820,6 +824,10 @@ config("internal_config") {
+@@ -835,6 +839,10 @@ config("internal_config") {
      defines += [ "BUILDING_V8_SHARED" ]
    }
  

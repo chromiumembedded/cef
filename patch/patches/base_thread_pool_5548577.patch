@@ -1,10 +1,10 @@
 diff --git base/task/thread_pool/thread_pool_impl.cc base/task/thread_pool/thread_pool_impl.cc
-index 44872d0f8c7c4..a374b12919609 100644
+index 33deee9fff103..1b2a4c1482ac0 100644
 --- base/task/thread_pool/thread_pool_impl.cc
 +++ base/task/thread_pool/thread_pool_impl.cc
-@@ -103,6 +103,10 @@ ThreadPoolImpl::ThreadPoolImpl(std::string_view histogram_label,
-             : kForegroundPoolEnvironmentParams.thread_type_hint,
-         task_tracker_->GetTrackedRef(), tracked_ref_factory_.GetTrackedRef());
+@@ -108,6 +108,10 @@ ThreadPoolImpl::ThreadPoolImpl(std::string_view histogram_label,
+         ThreadGroupType::BACKGROUND, task_tracker_->GetTrackedRef(),
+         tracked_ref_factory_.GetTrackedRef());
    }
 +
 +  // After https://crrev.com/e2e090c363 the ThreadPool is being created earlier

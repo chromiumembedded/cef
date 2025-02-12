@@ -1284,7 +1284,6 @@ make_pack_header("resources") {
     "$root_gen_dir/chrome/grit/browser_resources.h",
     "$root_gen_dir/chrome/grit/common_resources.h",
     "$root_gen_dir/chrome/grit/component_extension_resources.h",
-    "$root_gen_dir/chrome/grit/dev_ui_browser_resources.h",
     "$root_gen_dir/chrome/grit/pdf_resources.h",
     "$root_gen_dir/chrome/grit/renderer_resources.h",
     "$root_gen_dir/components/grit/components_resources.h",
@@ -1312,7 +1311,6 @@ make_pack_header("resources") {
   deps = [
     ":cef_resources",
     "//base/tracing/protos:chrome_track_event_resources",
-    "//chrome/browser:dev_ui_browser_resources",
     "//chrome/browser:resources",
     "//chrome/browser/resources:component_extension_resources",
     "//chrome/browser/resources/pdf:resources",

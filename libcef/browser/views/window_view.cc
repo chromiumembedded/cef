@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/views/window_view.h"
 
 #include <memory>
+#include <ranges>
 
 #include "base/memory/raw_ptr.h"
 
@@ -16,7 +17,6 @@
 #endif
 #endif
 
-#include "base/ranges/algorithm.h"
 #include "cef/libcef/browser/geometry_util.h"
 #include "cef/libcef/browser/image_impl.h"
 #include "cef/libcef/browser/views/widget.h"
@@ -887,7 +887,7 @@ void CefWindowView::RemoveOverlayView(CefOverlayViewHost* host,
   DCHECK_EQ(host_view->parent(), this);
   RemoveChildView(host_view);
 
-  const auto it = base::ranges::find_if(
+  const auto it = std::ranges::find_if(
       overlay_hosts_,
       [host](CefOverlayViewHost* current) { return current == host; });
   DCHECK(it != overlay_hosts_.end());

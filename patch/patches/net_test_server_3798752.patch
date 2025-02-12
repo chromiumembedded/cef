@@ -1,8 +1,8 @@
 diff --git net/test/embedded_test_server/embedded_test_server.cc net/test/embedded_test_server/embedded_test_server.cc
-index 51ef03bcf6a24..f92ce7987cf37 100644
+index fb9d8d1d33042..e1f46a36f435e 100644
 --- net/test/embedded_test_server/embedded_test_server.cc
 +++ net/test/embedded_test_server/embedded_test_server.cc
-@@ -1121,7 +1121,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWait(base::OnceClosure closure) {
+@@ -1120,7 +1120,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWait(base::OnceClosure closure) {
    if (!base::CurrentThread::Get())
      temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
  
@@ -11,7 +11,7 @@ index 51ef03bcf6a24..f92ce7987cf37 100644
    if (!io_thread_->task_runner()->PostTaskAndReply(
            FROM_HERE, std::move(closure), run_loop.QuitClosure())) {
      return false;
-@@ -1148,7 +1148,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWaitWithResult(
+@@ -1147,7 +1147,7 @@ bool EmbeddedTestServer::PostTaskToIOThreadAndWaitWithResult(
    if (!base::CurrentThread::Get())
      temporary_loop = std::make_unique<base::SingleThreadTaskExecutor>();
  

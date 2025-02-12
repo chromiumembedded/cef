@@ -98,7 +98,7 @@ index aa43742055b04..e84f21ab963cc 100644
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index 3ba9c2e2971ad..f01e59a731f5e 100644
+index 67c6ca1c23ef2..b11c4ac515a1f 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
 @@ -506,25 +506,7 @@ bool CheckAndResolveLocale(const std::string& locale,

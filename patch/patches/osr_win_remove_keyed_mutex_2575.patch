@@ -1,5 +1,5 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index a7742298af440..a7dab9f4f770b 100644
+index f51591d21a0ce..6393280a99f38 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 @@ -178,7 +178,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
@@ -24,10 +24,10 @@ index a7742298af440..a7dab9f4f770b 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 55756afa319d8..6291e6fad5dbc 100644
+index 4f216eb88e51c..e216283028864 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -193,7 +193,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
+@@ -194,7 +194,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
  bool FrameResources::Initialize() {
    auto* context = pool_->GetContext();
  
@@ -36,7 +36,7 @@ index 55756afa319d8..6291e6fad5dbc 100644
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
        gfx::BufferUsage::SCANOUT_VEA_CPU_READ
  #else
-@@ -207,6 +207,23 @@ bool FrameResources::Initialize() {
+@@ -208,6 +208,23 @@ bool FrameResources::Initialize() {
    const gfx::Size buffer_size_in_pixels =
        GetBufferSizeInPixelsForVideoPixelFormat(format_, coded_size_);
  
@@ -57,15 +57,15 @@ index 55756afa319d8..6291e6fad5dbc 100644
 +  }
 +#endif
 +
-   constexpr gpu::SharedImageUsageSet kSharedImageUsage =
+   gpu::SharedImageUsageSet usage =
  #if BUILDFLAG(IS_MAC)
        gpu::SHARED_IMAGE_USAGE_MACOS_VIDEO_TOOLBOX |
-@@ -231,7 +248,7 @@ bool FrameResources::Initialize() {
+@@ -248,7 +265,7 @@ bool FrameResources::Initialize() {
        viz::GetSharedImageFormat(buffer_format);
  
    shared_image_ =
 -      context->CreateSharedImage(buffer_size_in_pixels, kBufferUsage, si_format,
 +      context->CreateSharedImage(buffer_size_in_pixels, buffer_usage, si_format,
-                                  color_space_, kSharedImageUsage, sync_token_);
+                                  color_space_, usage, sync_token_);
    if (!shared_image_) {
      DLOG(ERROR) << "Failed to allocate shared image for frame: coded_size="

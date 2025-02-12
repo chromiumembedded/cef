@@ -375,12 +375,14 @@ void ChromeContentBrowserClientCef::CreateWindowResult(
   CefBrowserInfoManager::GetInstance()->CreateWindowResult(opener, success);
 }
 
-void ChromeContentBrowserClientCef::OverrideWebkitPrefs(
+void ChromeContentBrowserClientCef::OverrideWebPreferences(
     content::WebContents* web_contents,
+    content::SiteInstance& main_frame_site,
     blink::web_pref::WebPreferences* prefs) {
   renderer_prefs::SetDefaultPrefs(*prefs);
 
-  ChromeContentBrowserClient::OverrideWebkitPrefs(web_contents, prefs);
+  ChromeContentBrowserClient::OverrideWebPreferences(web_contents,
+                                                     main_frame_site, prefs);
 
   SkColor base_background_color;
   auto browser = CefBrowserHostBase::GetBrowserForContents(web_contents);

@@ -1,5 +1,5 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index 220f6b5fb0213..3dc6077ec69b8 100644
+index 15b01b6562a41..240ceee90a405 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
 @@ -977,7 +977,8 @@ class ChannelAssociatedGroupController

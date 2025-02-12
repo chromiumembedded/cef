@@ -256,10 +256,10 @@ index c7acd9b05fbb8..3e95e4125fa24 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index 416c1bb5503ef..a6705c94c0dc2 100644
+index 5da67cfb7362d..6e618083bc851 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
-@@ -104,6 +104,10 @@ void SelectFileDialogImpl::SelectFileImpl(
+@@ -105,6 +105,10 @@ void SelectFileDialogImpl::SelectFileImpl(
      mojo_window->CreateSelectFileDialog(std::move(receiver));
    } else {
      NSWindow* ns_window = gfx_window.GetNativeNSWindow();
