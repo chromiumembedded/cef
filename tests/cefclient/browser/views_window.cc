@@ -1054,12 +1054,9 @@ void ViewsWindow::OnWindowChanged(CefRefPtr<CefView> view, bool added) {
       overlay_controls_->Destroy();
       overlay_controls_ = nullptr;
       location_bar_ = nullptr;
-    } else if (use_bottom_controls_) {
-      if (toolbar_) {
-        window_->RemoveChildView(toolbar_);
-        toolbar_ = nullptr;
-        location_bar_ = nullptr;
-      }
+    } else if (toolbar_) {
+      toolbar_ = nullptr;
+      location_bar_ = nullptr;
     }
     if (overlay_browser_) {
       overlay_browser_->Destroy();

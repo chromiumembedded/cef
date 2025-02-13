@@ -397,7 +397,7 @@ index 3d8a15049d4d2..66c4789581fe1 100644
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 127aa3ef3ba70..abf812438c04d 100644
+index 127aa3ef3ba70..506cb33978bed 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -363,10 +363,6 @@ using web_modal::WebContentsModalDialogHost;
@@ -510,7 +510,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
  
    // These are raw pointers to child views, so they need to be set to null
    // before `RemoveAllChildViews()` is called to avoid dangling.
-@@ -1800,6 +1826,16 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
+@@ -1800,6 +1826,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
        ThemeProperties::kFrameHeightAboveTabs - browser_view_origin.y());
  }
  
@@ -520,14 +520,26 @@ index 127aa3ef3ba70..abf812438c04d 100644
 +  // child views and it is an observer for avatar toolbar button if any.
 +  autofill_bubble_handler_.reset();
 +
-+  toolbar_ = nullptr;
 +  toolbar_button_provider_ = nullptr;
++  if (GetBrowserViewLayout()) {
++    GetBrowserViewLayout()->reset_toolbar();
++  }
++
++  if (toolbar_ && toolbar_->parent()) {
++    // Remove now instead of waiting for RemoveAllChildViews(), as there is
++    // otherwise no guarantee that the Toolbar will be removed before the
++    // BrowserView is removed (and destroyed).
++    toolbar_->parent()->RemoveChildView(toolbar_);
++    toolbar_.ClearAndDelete();
++  } else {
++    toolbar_ = nullptr;
++  }
 +}
 +
  // static:
  BrowserView::DevToolsDockedPlacement BrowserView::GetDevToolsDockedPlacement(
      const gfx::Rect& contents_webview_bounds,
-@@ -2220,7 +2256,13 @@ void BrowserView::OnExclusiveAccessUserInput() {
+@@ -2220,7 +2268,13 @@ void BrowserView::OnExclusiveAccessUserInput() {
  
  bool BrowserView::ShouldHideUIForFullscreen() const {
    // Immersive mode needs UI for the slide-down top panel.
@@ -542,7 +554,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
      return false;
    }
  
-@@ -3459,7 +3501,9 @@ DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
+@@ -3459,7 +3513,9 @@ DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
      }
      return nullptr;
    }
@@ -553,7 +565,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
    if (auto* download_button = toolbar_button_provider_->GetDownloadButton()) {
      return download_button->bubble_controller();
    }
-@@ -4089,7 +4133,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -4089,7 +4145,8 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
      return;
    }
  
@@ -563,7 +575,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -4607,11 +4652,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4607,11 +4664,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -604,7 +616,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4620,7 +4692,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4620,7 +4704,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -613,7 +625,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -4734,8 +4806,10 @@ void BrowserView::Layout(PassKey) {
+@@ -4734,8 +4818,10 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -626,7 +638,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -4802,6 +4876,11 @@ void BrowserView::AddedToWidget() {
+@@ -4802,6 +4888,11 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -638,7 +650,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
    toolbar_->Init();
    if (download::IsDownloadBubbleEnabled() &&
        features::IsToolbarPinningEnabled() &&
-@@ -4849,14 +4928,10 @@ void BrowserView::AddedToWidget() {
+@@ -4849,14 +4940,10 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -656,7 +668,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -5252,7 +5327,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
+@@ -5252,7 +5339,8 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -666,7 +678,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
  }
  
  void BrowserView::RequestFullscreen(bool fullscreen, int64_t display_id) {
-@@ -5748,6 +5824,8 @@ Profile* BrowserView::GetProfile() {
+@@ -5748,6 +5836,8 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -675,7 +687,7 @@ index 127aa3ef3ba70..abf812438c04d 100644
    frame()->GetFrameView()->UpdateFullscreenTopUI();
  }
  
-@@ -5777,6 +5855,8 @@ bool BrowserView::CanUserEnterFullscreen() const {
+@@ -5777,6 +5867,8 @@ bool BrowserView::CanUserEnterFullscreen() const {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
@@ -814,6 +826,28 @@ index 1376fdf933420..336391e29944c 100644
    int browser_view_width = vertical_layout_rect_.width();
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
+diff --git chrome/browser/ui/views/frame/browser_view_layout.h chrome/browser/ui/views/frame/browser_view_layout.h
+index f5203245ab9ec..de060d33fcf16 100644
+--- chrome/browser/ui/views/frame/browser_view_layout.h
++++ chrome/browser/ui/views/frame/browser_view_layout.h
+@@ -90,6 +90,8 @@ class BrowserViewLayout : public views::LayoutManager {
+     contents_border_widget_ = contents_border_widget;
+   }
+ 
++  void reset_toolbar() { toolbar_ = nullptr; }
++
+   views::Widget* contents_border_widget() { return contents_border_widget_; }
+ 
+   // Sets the bounds for the contents border.
+@@ -186,7 +188,7 @@ class BrowserViewLayout : public views::LayoutManager {
+   const raw_ptr<WebAppFrameToolbarView> web_app_frame_toolbar_;
+   const raw_ptr<views::Label> web_app_window_title_;
+   const raw_ptr<TabStripRegionView> tab_strip_region_view_;
+-  const raw_ptr<views::View> toolbar_;
++  raw_ptr<views::View> toolbar_;
+   const raw_ptr<InfoBarContainerView> infobar_container_;
+   const raw_ptr<views::View> contents_container_;
+   const raw_ptr<views::View> left_aligned_side_panel_separator_;
 diff --git chrome/browser/ui/views/frame/browser_view_layout_delegate.h chrome/browser/ui/views/frame/browser_view_layout_delegate.h
 index 451c5ad63337b..66f946c95b9b4 100644
 --- chrome/browser/ui/views/frame/browser_view_layout_delegate.h
