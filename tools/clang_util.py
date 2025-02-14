@@ -59,9 +59,17 @@ def clang_eval(file_name,
     lang += '-header'
   # The -P option removes unnecessary line markers and whitespace.
   format = '/EP' if sys.platform == 'win32' else '-E -P'
-  cmd = "%s -x %s %s %s %s -" % (clang_exe, lang, format,
-                                 ' '.join(['-D' + v for v in defines]),
-                                 ' '.join(['-I' + v for v in includes]))
+
+  sdkroot = ''
+  if sys.platform == 'darwin':
+    result = exec_cmd('xcrun --show-sdk-path', '.')
+    if result['ret'] == 0:
+      sdkroot = " -isysroot %s" % result['out'].strip()
+
+  cmd = "%s -x %s %s %s %s %s -" % (clang_exe, lang, format,
+                                    ' '.join(['-D' + v for v in defines]),
+                                    ' '.join(['-I' + v
+                                              for v in includes]), sdkroot)
   if verbose:
     print('--- Running "%s" in "%s"' % (cmd, cef_dir))
 
