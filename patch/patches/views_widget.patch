@@ -61,7 +61,7 @@ index 971e5273f1b05..a5d847f7f9d60 100644
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 51f836176bf92..9171a879fca77 100644
+index fc70d927f9692..ae66251a93264 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -591,6 +591,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -80,7 +80,7 @@ index 51f836176bf92..9171a879fca77 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 2a2edc6063b49..66860109f4191 100644
+index 581a829a37786..820fb97508ea2 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -70,6 +70,7 @@ namespace content {
@@ -91,7 +91,7 @@ index 2a2edc6063b49..66860109f4191 100644
  class ScopedViewTransitionResources;
  class TextInputManager;
  class TouchSelectionControllerClientManager;
-@@ -151,6 +152,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -152,6 +153,9 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    float GetDeviceScaleFactor() const final;
    bool IsPointerLocked() override;
  
@@ -101,7 +101,7 @@ index 2a2edc6063b49..66860109f4191 100644
    // Identical to `CopyFromSurface()`, except that this method issues the
    // `viz::CopyOutputRequest` against the exact `viz::Surface` currently
    // embedded by this View, while `CopyFromSurface()` may return a copy of any
-@@ -212,6 +216,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -213,6 +217,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // Called when screen information or native widget bounds change.
    virtual void UpdateScreenInfo();
  
@@ -112,7 +112,7 @@ index 2a2edc6063b49..66860109f4191 100644
    // Called by the TextInputManager to notify the view about being removed from
    // the list of registered views, i.e., TextInputManager is no longer tracking
    // TextInputState from this view. The RWHV should reset |text_input_manager_|
-@@ -339,6 +347,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -340,6 +348,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
                             const gfx::Rect& bounds,
                             const gfx::Rect& anchor_rect) = 0;
  
@@ -125,7 +125,7 @@ index 2a2edc6063b49..66860109f4191 100644
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -595,6 +609,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -596,6 +610,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index 2a2edc6063b49..66860109f4191 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -616,10 +634,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -617,10 +635,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -196,10 +196,10 @@ index 41b34a27176a3..bdf5f9d4bb61e 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 7cd4d56bb2ac2..19034a43949b1 100644
+index 027dd27577fdc..cee885246b3e1 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
-@@ -254,6 +254,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
+@@ -255,6 +255,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
    // This must always return the same device scale factor as GetScreenInfo.
    virtual float GetDeviceScaleFactor() const = 0;
  

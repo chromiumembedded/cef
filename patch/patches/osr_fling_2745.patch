@@ -56,7 +56,7 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 130fb82767d53..952b34877fa89 100644
+index be489f36aa63d..b5a60cf8f515d 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
 @@ -801,7 +801,7 @@ void RenderWidgetHostImpl::WasHidden() {
@@ -68,7 +68,7 @@ index 130fb82767d53..952b34877fa89 100644
      RejectPointerLockOrUnlockIfNecessary(
          blink::mojom::PointerLockResult::kWrongDocument);
    }
-@@ -3681,6 +3681,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3684,6 +3684,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -81,7 +81,7 @@ index 130fb82767d53..952b34877fa89 100644
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 286e3d89a6c24..1276618de2e56 100644
+index 9aaac362d0b38..37c54dd78ffea 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
 @@ -838,6 +838,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl

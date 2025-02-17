@@ -58,10 +58,10 @@ index 3f0be99e0e145..0462ebbe9bedc 100644
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 963ddd7d0fcce..81f37072b77fa 100644
+index 95f73bcb9fb40..e17a93f69c089 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -347,14 +347,9 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -355,14 +355,9 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
