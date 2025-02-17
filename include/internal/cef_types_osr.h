@@ -31,7 +31,14 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_OSR_H_
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "include/internal/cef_types_geometry.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
 /// Structure containing shared texture common metadata.
@@ -106,5 +113,9 @@ typedef struct _cef_accelerated_paint_info_common_t {
   uint8_t has_capture_counter;
 
 } cef_accelerated_paint_info_common_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_OSR_H_
