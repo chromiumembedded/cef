@@ -993,9 +993,11 @@ typedef enum {
   // No error.
   ERR_NONE = 0,
 
+#if !defined(GENERATING_CEF_API_HASH)
 #define NET_ERROR(label, value) ERR_##label = value,
 #include "include/base/internal/cef_net_error_list.h"
 #undef NET_ERROR
+#endif
 
 } cef_errorcode_t;
 
