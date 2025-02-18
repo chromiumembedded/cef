@@ -102,6 +102,10 @@ def make_ctocpp_function_impl_new(cls, name, func, base_scoped, version,
       result += '\n  auto* _struct = reinterpret_cast<'+\
                 func.parent.get_capi_name(version=version)+'*>(GetStruct());'
 
+    result += '\n  if (!_struct->' + func.get_capi_name() + ') {'\
+              '\n    return' + retval_default + ';'\
+              '\n  }\n'
+
   # add API hash check
   if func.has_attrib('api_hash_check'):
     result += '\n  const char* api_hash = cef_api_hash(CEF_API_VERSION, 0);'\
