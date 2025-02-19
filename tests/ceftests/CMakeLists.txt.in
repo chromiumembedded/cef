@@ -260,4 +260,9 @@ if(OS_WINDOWS)
     "resources/"
     )
   COPY_RESOURCES("${CEF_TARGET}" "${UNITTESTS_DATA_RESOURCES_SRCS}" "${PREFIXES}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}/ceftests_files")
+
+  if(USE_SANDBOX)
+    # Set LPAC ACLs required for Windows sandbox support.
+    SET_LPAC_ACLS("${CEF_TARGET}")
+  endif()
 endif()
