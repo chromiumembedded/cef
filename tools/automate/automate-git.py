@@ -1020,15 +1020,15 @@ if not options.nodepottoolsupdate:
 
 # Determine the executables to use.
 if platform == 'windows':
-  # Force use of the version bundled with depot_tools.
-  git_exe = os.path.join(depot_tools_dir, 'git.bat')
+  # Force use of the system installed Git version.
+  git_exe = 'git.exe'
+  # Force use of the Python version bundled with depot_tools.
   python_bat = 'python.bat' if is_python2 else 'python3.bat'
   python_exe = os.path.join(depot_tools_dir, python_bat)
-  if options.dryrun and not os.path.exists(git_exe):
+  if options.dryrun and not os.path.exists(python_exe):
     sys.stdout.write("WARNING: --dry-run assumes that depot_tools" \
                      " is already in your PATH. If it isn't\nplease" \
                      " specify a --depot-tools-dir value.\n")
-    git_exe = 'git.bat'
     python_exe = python_bat
 else:
   git_exe = 'git'
