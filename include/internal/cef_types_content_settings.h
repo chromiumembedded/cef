@@ -486,7 +486,7 @@ typedef enum {
   /// or legacy behavior.
   CEF_CONTENT_SETTING_TYPE_LEGACY_COOKIE_SCOPE,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13400)
   /// Website setting to indicate whether the user has allowlisted suspicious
   /// notifications for the origin.
   CEF_CONTENT_SETTING_TYPE_ARE_SUSPICIOUS_NOTIFICATIONS_ALLOWLISTED_BY_USER,
