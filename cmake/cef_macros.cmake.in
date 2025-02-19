@@ -271,6 +271,17 @@ macro(ADD_WINDOWS_MANIFEST manifest_path target extension)
     )
 endmacro()
 
+# Set LPAC ACLs required for Windows sandbox support.
+# See https://github.com/chromiumembedded/cef/issues/3791#issuecomment-2664128961
+macro(SET_LPAC_ACLS target)
+  add_custom_command(
+    TARGET ${target}
+    POST_BUILD
+    COMMAND "icacls" "${CEF_TARGET_OUT_DIR}" "/grant" "*S-1-15-2-2:(OI)(CI)(RX)"
+    COMMENT "Setting LPAC ACLs..."
+    )
+endmacro()
+
 endif(OS_WINDOWS)
 
 
