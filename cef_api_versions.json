@@ -34,8 +34,15 @@
       "mac": "32af7e8f8828b04cf2908de9857940faa54deb8a",
       "universal": "131b720865dd5c54c72041c0fbfb7c9bbfee8e0b",
       "windows": "979b48138012378192dac7ee972fa731e9c0dae9"
+    },
+    "13400": {
+      "comment": "Added February 19, 2025.",
+      "linux": "342696aa818bc9a512cc965ed4c19ba705d2c839",
+      "mac": "7a20d0f7dc388406111461d6b1addd329b4be567",
+      "universal": "65de718ba0e0693dfc3b26e7e6a4814bbeeb10be",
+      "windows": "afe73f64f156154ff5b099c36186cbc03136172d"
     }
   },
-  "last": "13304",
+  "last": "13400",
   "min": "13300"
 }
