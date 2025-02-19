@@ -8,8 +8,8 @@ import os
 import sys
 
 if sys.platform == 'win32':
-  # Force use of the git version bundled with depot_tools.
-  git_exe = 'git.bat'
+  # Force use of the system installed Git version.
+  git_exe = 'git.exe'
 else:
   git_exe = 'git'
 
@@ -30,6 +30,15 @@ def exec_git_cmd(args, path='.'):
   """ Executes a git command with the specified |args|. """
   cmd = "%s %s" % (git_exe, args)
   result = exec_cmd(cmd, path)
+  if result['ret'] != 0:
+    sys.stderr.write('Command \"%s\" exited with retval %d\n' % (cmd,
+                                                                 result['ret']))
+    if result['err'] != '':
+      err = result['err'].strip()
+      if sys.platform == 'win32':
+        # Convert to Unix line endings.
+        err = err.replace('\r\n', '\n')
+      sys.stderr.write(err + '\n')
   if result['out'] != '':
     out = result['out'].strip()
     if sys.platform == 'win32':
