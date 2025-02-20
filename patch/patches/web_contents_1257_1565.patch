@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5ff43afce429c..587130d6d4f2a 100644
+index 94917dc412682..308bcea0b770d 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3830,6 +3830,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -60,7 +60,7 @@ index 5ff43afce429c..587130d6d4f2a 100644
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 5e89cbf0ed5fd..49a6449c46fad 100644
+index 24afa41509bec..560f83dea80de 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -116,10 +116,12 @@ class BrowserPluginGuestDelegate;

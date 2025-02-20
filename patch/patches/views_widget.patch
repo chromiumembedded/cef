@@ -80,7 +80,7 @@ index fc70d927f9692..ae66251a93264 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 581a829a37786..820fb97508ea2 100644
+index deb5325b14ef8..5f5cbf472adf9 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -70,6 +70,7 @@ namespace content {
@@ -125,7 +125,7 @@ index 581a829a37786..820fb97508ea2 100644
    // Indicates whether the page has finished loading.
    virtual void SetIsLoading(bool is_loading) = 0;
  
-@@ -596,6 +610,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -599,6 +613,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
    // to all displays.
    gfx::Size system_cursor_size_;
  
@@ -136,7 +136,7 @@ index 581a829a37786..820fb97508ea2 100644
   private:
    FRIEND_TEST_ALL_PREFIXES(
        BrowserSideFlingBrowserTest,
-@@ -617,10 +635,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
+@@ -620,10 +638,6 @@ class CONTENT_EXPORT RenderWidgetHostViewBase
  
    void SynchronizeVisualProperties();
  
@@ -500,10 +500,10 @@ index 932351e288f37..7897f4b72f605 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index 89247a9ed3522..2d997ff8fda51 100644
+index a616400ddaa71..90d424a854c13 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
-@@ -699,6 +699,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
+@@ -702,6 +702,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
        break;
      case ui::mojom::WindowShowState::kMaximized:
      case ui::mojom::WindowShowState::kFullscreen:
@@ -512,7 +512,7 @@ index 89247a9ed3522..2d997ff8fda51 100644
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index a4c1dba98b0d2..b8f9b62260637 100644
+index 6853d63ce96bd..1327b1e3cbaac 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -234,8 +234,8 @@ bool Widget::InitParams::ShouldInitAsHeadless() const {
@@ -565,7 +565,7 @@ index a4c1dba98b0d2..b8f9b62260637 100644
      }
    }
  
-@@ -1922,10 +1933,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1923,10 +1934,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -582,7 +582,7 @@ index a4c1dba98b0d2..b8f9b62260637 100644
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -2206,7 +2223,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
+@@ -2207,7 +2224,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ ||
        show_state == ui::mojom::WindowShowState::kInactive ||
