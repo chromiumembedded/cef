@@ -27,7 +27,7 @@ else:
 def clang_format(file_name, file_contents):
   # -assume-filename is necessary to find the .clang-format file and determine
   # the language when specifying contents via stdin.
-  result = exec_cmd("%s -assume-filename=%s" % (clang_format_exe, file_name), \
+  result = exec_cmd("%s -assume-filename=%s" % (clang_format_exe, file_name),
                     cef_dir, file_contents.encode('utf-8'))
   if result['err'] != '':
     sys.stderr.write("clang-format error: %s\n" % result['err'])
@@ -48,40 +48,28 @@ def clang_format_inplace(file_name):
   return True
 
 
-def clang_eval(file_name,
-               file_contents,
-               defines=[],
-               includes=[],
-               as_cpp=True,
-               verbose=False):
-  lang = 'c++' if as_cpp else 'c'
+def clang_eval(file_name, file_contents, defines, includes, verbose):
+  lang = 'c'
   if file_name.lower().endswith('.h'):
     lang += '-header'
   # The -P option removes unnecessary line markers and whitespace.
   format = '/EP' if sys.platform == 'win32' else '-E -P'
 
-  sdkroot = ''
-  if sys.platform == 'darwin':
-    result = exec_cmd('xcrun --show-sdk-path', '.')
-    if result['ret'] == 0:
-      sdkroot = " -isysroot %s" % result['out'].strip()
-
-  cmd = "%s -x %s %s %s %s %s -" % (clang_exe, lang, format,
-                                    ' '.join(['-D' + v for v in defines]),
-                                    ' '.join(['-I' + v
-                                              for v in includes]), sdkroot)
+  cmd = "%s -x %s %s %s %s -" % (clang_exe, lang, format,
+                                 ' '.join(['-D' + v for v in defines]),
+                                 ' '.join(['-I' + v for v in includes]))
   if verbose:
-    print('--- Running "%s" in "%s"' % (cmd, cef_dir))
+    print(f'--- Running "{cmd}" in "{cef_dir}"')
 
   result = exec_cmd(cmd, cef_dir, file_contents.encode('utf-8'))
-  if result['err'] != '':
-    err = result['err'].replace('<stdin>', file_name)
-    sys.stderr.write("clang error: %s\n" % err)
+  if result['err'] != '' or result['ret'] != 0:
+    error = result['err'].replace('<stdin>', file_name)
+    return_code = result['ret']
+    sys.stderr.write(f'clang {return_code=} {error=}\n')
     return None
-  if result['out'] != '':
-    output = result['out']
-    if sys.platform == 'win32':
-      # Convert to Unix line endings.
-      output = output.replace("\r", "")
-    return output
-  return None
+
+  output = result['out']
+  if output and sys.platform == 'win32':
+    # Convert to Unix line endings.
+    output = output.replace("\r", "")
+  return output

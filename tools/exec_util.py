@@ -13,29 +13,25 @@ def exec_cmd(cmd, path, input_string=None):
   err = ''
   ret = -1
   parts = cmd.split()
-  try:
-    if input_string is None:
-      process = Popen(
-          parts,
-          cwd=path,
-          stdout=PIPE,
-          stderr=PIPE,
-          shell=(sys.platform == 'win32'))
-      out, err = process.communicate()
-      ret = process.returncode
-    else:
-      process = Popen(
-          parts,
-          cwd=path,
-          stdin=PIPE,
-          stdout=PIPE,
-          stderr=PIPE,
-          shell=(sys.platform == 'win32'))
-      out, err = process.communicate(input=input_string)
-      ret = process.returncode
-  except IOError as e:
-    (errno, strerror) = e.args
-    raise
-  except:
-    raise
+
+  if input_string is None:
+    process = Popen(
+        parts,
+        cwd=path,
+        stdout=PIPE,
+        stderr=PIPE,
+        shell=(sys.platform == 'win32'))
+    out, err = process.communicate()
+    ret = process.returncode
+  else:
+    process = Popen(
+        parts,
+        cwd=path,
+        stdin=PIPE,
+        stdout=PIPE,
+        stderr=PIPE,
+        shell=(sys.platform == 'win32'))
+    out, err = process.communicate(input=input_string)
+    ret = process.returncode
+
   return {'out': out.decode('utf-8'), 'err': err.decode('utf-8'), 'ret': ret}
