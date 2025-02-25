@@ -92,7 +92,7 @@ def read_version_files(api_versions_file,
       }
       initialized = True
     else:
-      json_version = None
+      json_versions = None
   else:
     assert 'hashes' in json_versions, api_versions_file
     assert 'last' in json_versions, api_versions_file

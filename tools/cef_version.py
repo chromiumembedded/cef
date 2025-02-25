@@ -161,7 +161,7 @@ class VersionFormatter:
   # - "X" is the Chromium major version (e.g. 74).
   # - "Y" is an incremental number that starts at 0 when a release branch is
   #   created and changes only when the CEF C/C++ API changes (similar to how
-  #   the CEF_API_HASH_UNIVERSAL value behaves in cef_api_hash.h) (release
+  #   the CEF_API_HASH_PLATFORM value behaves in cef_api_hash.h) (release
   #   branch only).
   # - "Z" is an incremental number that starts at 0 when a release branch is
   #   created and changes on each commit, with reset to 0 when "Y" changes

@@ -31,22 +31,21 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_WIN_H_
 #pragma once
 
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/base/cef_build.h"
+#endif
 
 #if defined(OS_WIN)
+
+#if !defined(GENERATING_CEF_API_HASH)
 #include <windows.h>
+#endif
 
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_types_color.h"
 #include "include/internal/cef_types_geometry.h"
 #include "include/internal/cef_types_osr.h"
 #include "include/internal/cef_types_runtime.h"
-
-// Handle types.
-#define cef_cursor_handle_t HCURSOR
-#define cef_event_handle_t MSG*
-#define cef_window_handle_t HWND
-#define cef_shared_texture_handle_t HANDLE
 
 #define kNullCursorHandle NULL
 #define kNullEventHandle NULL
@@ -55,6 +54,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Handle types.
+typedef HCURSOR cef_cursor_handle_t;
+typedef MSG* cef_event_handle_t;
+typedef HWND cef_window_handle_t;
+typedef HANDLE cef_shared_texture_handle_t;
 
 ///
 /// Structure representing CefExecuteProcess arguments.

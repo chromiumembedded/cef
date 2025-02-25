@@ -31,7 +31,10 @@
 #define CEF_INCLUDE_CEF_SANDBOX_MAC_H_
 #pragma once
 
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/base/cef_build.h"
+#endif
+
 #include "include/internal/cef_export.h"
 
 #if defined(OS_MAC)

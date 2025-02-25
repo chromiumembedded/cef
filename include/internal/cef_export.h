@@ -32,7 +32,9 @@
 #define CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
 #pragma once
 
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/base/cef_build.h"
+#endif
 
 #if defined(COMPILER_MSVC)
 
