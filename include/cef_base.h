@@ -31,8 +31,11 @@
 #define CEF_INCLUDE_CEF_BASE_H_
 #pragma once
 
-#include "include/base/cef_atomic_ref_count.h"
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/base/cef_build.h"
+#endif
+
+#include "include/base/cef_atomic_ref_count.h"
 #include "include/base/cef_macros.h"
 
 // Bring in common C++ type definitions used by CEF consumers.

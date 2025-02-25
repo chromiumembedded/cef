@@ -35,8 +35,11 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#if !defined(GENERATING_CEF_API_HASH)
 #include <time.h>
+#endif
+
+#include <stdint.h>
 
 #include "include/internal/cef_export.h"
 

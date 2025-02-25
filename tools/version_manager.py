@@ -4,7 +4,8 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from cef_api_hash import cef_api_hash
+from typing import Dict
+from cef_api_hash import CefApiHasher
 from cef_version import VersionFormatter
 from date_util import get_date
 from file_util import read_file, read_json_file, write_file, write_json_file
@@ -41,49 +42,37 @@ def get_next_api_revision(api_versions_file, major_version):
   return 0
 
 
-_CALC = None
-
-
-def compute_api_hashes(cpp_header_dir, api_version, next_allowed, debug_dir,
-                       verbose):
-  """ Computes API hashes for the specified |api_version|.
-  """
-  if not debug_dir is None:
-    debug_dir = os.path.join(debug_dir, api_version)
-
+def compute_api_hashes(api_version: str,
+                       hasher: CefApiHasher,
+                       next_allowed: bool) -> Dict[str, str]:
+  """ Computes API hashes for the specified |api_version|. """
   if not next_allowed:
     # Next usage is banned with explicit API versions.
-    assert not api_version in UNTRACKED_VERSIONS, api_version
+    assert api_version not in UNTRACKED_VERSIONS, api_version
     added_defines = [
         # Using CEF_API_VERSION_NEXT is an error.
         'CEF_API_VERSION_NEXT="Please_specify_an_exact_CEF_version"',
     ]
   else:
-    added_defines = None
+    added_defines = []
 
-  global _CALC
-  if _CALC is None:
-    _CALC = cef_api_hash(cpp_header_dir, verbose=verbose)
-
-  hashes = _CALC.calculate(api_version, debug_dir, added_defines)
-  if bool(hashes):
+  hashes = hasher.calculate(api_version, added_defines)
+  if hashes:
     if api_version in UNTRACKED_VERSIONS:
       label = version_label(api_version)
       label = label[0:1].upper() + label[1:]
-      hashes['comment'] = '%s last updated %s.' % (label, get_date())
+      hashes['comment'] = f'{label} last updated {get_date()}.'
     else:
-      hashes['comment'] = 'Added %s.' % get_date()
+      hashes['comment'] = f'Added {get_date()}.'
   return hashes
 
 
 def same_api_hashes(hashes1, hashes2):
-  for key in ('universal', 'linux', 'mac', 'windows'):
-    if hashes1[key] != hashes2[key]:
-      return False
-  return True
+  return all(hashes1[key] == hashes2[key]
+             for key in ['linux', 'mac', 'windows'])
 
 
-def compute_next_api_verson(api_versions_file):
+def compute_next_api_version(api_versions_file):
   """ Computes the next available API version number.
   """
   major_version = int(VersionFormatter().get_chrome_major_version())
@@ -207,8 +196,11 @@ def find_replace_next_usage(cpp_header_dir, next_version):
   return 0
 
 
-def exec_apply(cpp_header_dir, api_versions_file, api_untracked_file,
-               next_version, debug_dir, apply_next, verbose):
+def exec_apply(api_versions_file,
+               api_untracked_file,
+               next_version,
+               apply_next,
+               hasher: CefApiHasher) -> int:
   """ Updates untracked API hashes if necessary.
       Saves the hash for the next API version if |apply_next| is true.
   """
@@ -222,9 +214,8 @@ def exec_apply(cpp_header_dir, api_versions_file, api_untracked_file,
   untracked_changed = False
   for version in UNTRACKED_VERSIONS:
     label = version_label(version)
-    hashes = compute_api_hashes(cpp_header_dir, version, True, debug_dir,
-                                verbose)
-    if not bool(hashes):
+    hashes = compute_api_hashes(version, hasher, next_allowed=True)
+    if not hashes:
       sys.stderr.write('ERROR: Failed to process %s\n' % label)
       return 1
 
@@ -240,9 +231,8 @@ def exec_apply(cpp_header_dir, api_versions_file, api_untracked_file,
   if apply_next:
     next_label = version_label(next_version)
 
-    hashes = compute_api_hashes(cpp_header_dir, next_version, False, debug_dir,
-                                verbose)
-    if not bool(hashes):
+    hashes = compute_api_hashes(next_version, hasher, next_allowed=False)
+    if not hashes:
       sys.stderr.write('ERROR: Failed to process %s\n' % next_label)
       return 1
 
@@ -278,29 +268,33 @@ def exec_apply(cpp_header_dir, api_versions_file, api_untracked_file,
   return 0
 
 
-def exec_check(cpp_header_dir, api_versions_file, api_untracked_file, debug_dir,
-               fast_check, force_update, skip_untracked, verbose):
+def exec_check(api_versions_file,
+               api_untracked_file,
+               fast_check,
+               force_update,
+               skip_untracked,
+               hasher: CefApiHasher) -> int:
   """ Checks existing API version hashes.
       Resaves all API hashes if |force_update| is true. Otherwise, hash
       changes are considered an error.
   """
   assert not (fast_check and force_update)
 
-  json_versions, json_untracked, initialized = \
-      read_version_files(api_versions_file, api_untracked_file, False)
+  json_versions, json_untracked, initialized = read_version_files(
+      api_versions_file, api_untracked_file, initialize=False)
   assert not initialized
 
   versions = []
   len_versioned_existing = len_versioned_checked = len_versioned_failed = 0
   len_untracked_existing = len_untracked_checked = len_untracked_failed = 0
 
-  if not json_versions is None:
+  if json_versions is not None:
     keys = json_versions['hashes'].keys()
     len_versioned_existing = len(keys)
     if len_versioned_existing > 0:
       if fast_check:
         # Only checking a subset of versions.
-        for key in ('last', 'min'):
+        for key in ['last', 'min']:
           if key in json_versions:
             version = json_versions[key]
             assert version in json_versions['hashes'], version
@@ -310,14 +304,14 @@ def exec_check(cpp_header_dir, api_versions_file, api_untracked_file, debug_dir,
         versions.extend(keys)
         len_versioned_checked = len_versioned_existing
 
-  if not json_untracked is None:
+  if json_untracked is not None:
     keys = json_untracked['hashes'].keys()
     len_untracked_existing = len(keys)
     if len_untracked_existing > 0 and not skip_untracked:
       versions.extend(keys)
       len_untracked_checked = len_untracked_existing
 
-  if len(versions) == 0:
+  if not versions:
     print('No hashes to check.')
     return 0
 
@@ -331,8 +325,7 @@ def exec_check(cpp_header_dir, api_versions_file, api_untracked_file, debug_dir,
     else:
       stored_hashes = json_versions['hashes'][version]
     label = version_label(version)
-    computed_hashes = compute_api_hashes(cpp_header_dir, version, True,
-                                         debug_dir, verbose)
+    computed_hashes = compute_api_hashes(version, hasher, next_allowed=True)
     if not bool(computed_hashes):
       sys.stderr.write('ERROR: Failed to process %s\n' % label)
       return 1
@@ -417,7 +410,7 @@ https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
   parser = CustomParser(description=desc, epilog=epilog)
   parser.add_option(
       '--debug-dir',
-      dest='debugdir',
+      dest='debug_dir',
       metavar='DIR',
       help='intermediate directory for easy debugging')
   parser.add_option(
@@ -477,7 +470,7 @@ https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
   parser.add_option(
       '--force-update',
       action='store_true',
-      dest='forceupdate',
+      dest='force_update',
       default=False,
       help='force update all API hashes (use with -c)')
   (options, args) = parser.parse_args()
@@ -501,7 +494,7 @@ https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
     parser.print_help(sys.stdout)
     sys.exit(1)
 
-  next_version = compute_next_api_verson(api_versions_file)
+  next_version = compute_next_api_version(api_versions_file)
   if next_version is None:
     sys.exit(1)
 
@@ -527,17 +520,13 @@ https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
   changed = translate(cef_dir, verbose=options.verbose) > 0
   skip_untracked = False
 
+  hasher = CefApiHasher(cpp_header_dir, options.debug_dir, options.verbose)
+
   if options.update or will_apply_next or changed or not os.path.isfile(
       api_untracked_file):
     skip_untracked = True
-    if exec_apply(
-        cpp_header_dir,
-        api_versions_file,
-        api_untracked_file,
-        next_version,
-        options.debugdir,
-        apply_next=options.apply,
-        verbose=options.verbose) > 0:
+    if exec_apply(api_versions_file, api_untracked_file, next_version,
+                  options.apply, hasher) > 0:
       # Apply failed.
       sys.exit(1)
   elif not options.check:
@@ -545,12 +534,6 @@ https://bitbucket.org/chromiumembedded/cef/wiki/ApiVersioning.md
     sys.exit(0)
 
   sys.exit(
-      exec_check(
-          cpp_header_dir,
-          api_versions_file,
-          api_untracked_file,
-          options.debugdir,
-          options.fastcheck and not options.forceupdate,
-          options.check and options.forceupdate,
-          skip_untracked,
-          verbose=options.verbose))
+      exec_check(api_versions_file, api_untracked_file, options.fastcheck and
+                 not options.force_update, options.check and
+                 options.force_update, skip_untracked, hasher))

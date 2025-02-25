@@ -48,23 +48,23 @@ CEF_EXPORT int cef_version_info(int entry) {
 #include "cef/libcef_dll/cef_api_versions.inc"
 
 CEF_EXPORT const char* cef_api_hash(int version, int entry) {
-  static const ApiVersionHash* hash = nullptr;
+  static const ApiVersionHash* current_version_hash = nullptr;
 
   // Initialize on the first successful lookup.
-  if (!hash) {
-    for (size_t i = 0; i < kApiVersionHashesSize; ++i) {
-      if (version == kApiVersionHashes[i].version) {
-        hash = &kApiVersionHashes[i];
+  if (!current_version_hash) {
+    for (const auto& version_hash : kApiVersionHashes) {
+      if (version == version_hash.version) {
+        current_version_hash = &version_hash;
         break;
       }
     }
 
-    if (hash) {
+    if (current_version_hash) {
       g_version = version;
     }
   }
 
-  if (!hash) {
+  if (!current_version_hash) {
     LOG(ERROR) << "Request for unsupported CEF API version " << version;
     return nullptr;
   }
@@ -76,9 +76,8 @@ CEF_EXPORT const char* cef_api_hash(int version, int entry) {
 
   switch (entry) {
     case 0:
-      return hash->platform;
     case 1:
-      return hash->universal;
+      return current_version_hash->hash;
     case 2:
       return CEF_COMMIT_HASH;
     default:
@@ -97,9 +96,8 @@ CEF_EXPORT int cef_id_for_pack_resource_name(const char* name) {
 
   // Initialize on the first call.
   if (string_to_id_map->empty()) {
-    for (size_t i = 0; i < kIdNamesPackResourcesSize; ++i) {
-      (*string_to_id_map)[kIdNamesPackResources[i].name] =
-          kIdNamesPackResources[i].id;
+    for (const auto& pack_resource : kIdNamesPackResources) {
+      (*string_to_id_map)[pack_resource.name] = pack_resource.id;
     }
   }
 
@@ -119,9 +117,8 @@ CEF_EXPORT int cef_id_for_pack_string_name(const char* name) {
 
   // Initialize on the first call.
   if (string_to_id_map->empty()) {
-    for (size_t i = 0; i < kIdNamesPackStringsSize; ++i) {
-      (*string_to_id_map)[kIdNamesPackStrings[i].name] =
-          kIdNamesPackStrings[i].id;
+    for (const auto& pack_string : kIdNamesPackStrings) {
+      (*string_to_id_map)[pack_string.name] = pack_string.id;
     }
   }
 
@@ -141,9 +138,8 @@ CEF_EXPORT int cef_id_for_command_id_name(const char* name) {
 
   // Initialize on the first call.
   if (string_to_id_map->empty()) {
-    for (size_t i = 0; i < kIdNamesCommandIdsSize; ++i) {
-      (*string_to_id_map)[kIdNamesCommandIds[i].name] =
-          kIdNamesCommandIds[i].id;
+    for (const auto& command : kIdNamesCommandIds) {
+      (*string_to_id_map)[command.name] = command.id;
     }
   }
 

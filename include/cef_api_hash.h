@@ -77,19 +77,15 @@
 #endif
 #endif
 
-#define _CEF_AH_PASTE(a, b, c) a##_##b##_##c
-#define _CEF_AH_EVAL(a, b, c) _CEF_AH_PASTE(a, b, c)
-#define _CEF_AH_DECLARE(version, suffix) \
-  _CEF_AH_EVAL(CEF_API_HASH, version, suffix)
+#define _CEF_AH_PASTE(a, b) a##_##b
+#define _CEF_AH_EVAL(a, b) _CEF_AH_PASTE(a, b)
+#define _CEF_AH_DECLARE(version) _CEF_AH_EVAL(CEF_API_HASH, version)
 
 // API hashes for the selected CEF_API_VERSION. API hashes are created for
 // each version by analyzing CEF header files for C API type definitions. The
 // hash value will change when header files are modified in a way that may
-// cause binary incompatibility with other builds. The universal hash value
-// will change if any platform is affected whereas the platform hash values
-// will change only if that particular platform is affected.
-#define CEF_API_HASH_UNIVERSAL _CEF_AH_DECLARE(CEF_API_VERSION, UNIVERSAL)
-#define CEF_API_HASH_PLATFORM _CEF_AH_DECLARE(CEF_API_VERSION, PLATFORM)
+// cause binary incompatibility with other builds.
+#define CEF_API_HASH_PLATFORM _CEF_AH_DECLARE(CEF_API_VERSION)
 
 #if defined(BUILDING_CEF_SHARED)
 
@@ -132,7 +128,7 @@ extern "C" {
 /// parameter describes which hash value will be returned:
 ///
 /// 0 - CEF_API_HASH_PLATFORM
-/// 1 - CEF_API_HASH_UNIVERSAL
+/// 1 - CEF_API_HASH_UNIVERSAL (deprecated, same as CEF_API_HASH_PLATFORM)
 /// 2 - CEF_COMMIT_HASH (from cef_version.h)
 ///
 CEF_EXPORT const char* cef_api_hash(int version, int entry);

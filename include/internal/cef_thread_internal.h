@@ -31,11 +31,13 @@
 #define CEF_INCLUDE_INTERNAL_CEF_THREAD_INTERNAL_H_
 #pragma once
 
+#if !defined(GENERATING_CEF_API_HASH)
 #if defined(OS_WIN)
 #include <windows.h>
 #elif defined(OS_POSIX)
 #include <pthread.h>
 #include <unistd.h>
+#endif
 #endif
 
 #include "include/internal/cef_export.h"

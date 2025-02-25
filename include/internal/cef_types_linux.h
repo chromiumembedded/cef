@@ -31,14 +31,11 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_LINUX_H_
 #pragma once
 
+#if !defined(GENERATING_CEF_API_HASH)
 #include "include/base/cef_build.h"
+#endif
 
 #if defined(OS_LINUX)
-
-#if defined(CEF_X11)
-typedef union _XEvent XEvent;
-typedef struct _XDisplay XDisplay;
-#endif
 
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
@@ -47,17 +44,6 @@ typedef struct _XDisplay XDisplay;
 #include "include/internal/cef_types_osr.h"
 #include "include/internal/cef_types_runtime.h"
 
-// Handle types.
-#if defined(CEF_X11)
-#define cef_cursor_handle_t unsigned long
-#define cef_event_handle_t XEvent*
-#else
-#define cef_cursor_handle_t void*
-#define cef_event_handle_t void*
-#endif
-
-#define cef_window_handle_t unsigned long
-
 #define kNullCursorHandle 0
 #define kNullEventHandle NULL
 #define kNullWindowHandle 0
@@ -65,6 +51,20 @@ typedef struct _XDisplay XDisplay;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if defined(CEF_X11)
+typedef union _XEvent XEvent;
+typedef struct _XDisplay XDisplay;
+
+// Handle types.
+typedef unsigned long cef_cursor_handle_t;
+typedef XEvent* cef_event_handle_t;
+#else
+typedef void* cef_cursor_handle_t;
+typedef void* cef_event_handle_t;
+#endif
+
+typedef unsigned long cef_window_handle_t;
 
 ///
 /// Return the singleton X11 display shared with Chromium. The display is not

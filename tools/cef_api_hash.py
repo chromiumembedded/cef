@@ -4,343 +4,380 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+from typing import Dict, List
 from clang_util import clang_eval
 from file_util import *
 import hashlib
-import itertools
 import os
 import re
-import string
 import sys
-import time
 from version_util import EXP_VERSION
 
-# Determines string type for python 2 and python 3.
-if sys.version_info[0] == 3:
-  string_type = str
-else:
-  string_type = basestring
+API_TOKEN = '#if CEF_API'
+OS_TOKEN = '#if defined(OS_'
+INCLUDE_START_MARKER = 'int begin_includes_tag;\n'
+INCLUDE_DIRS = [
+    '.',  # Includes relative to the 'src/cef' directory.
+    '..',  # Includes relative to the 'src' directory.
+]
+PLATFORM_DEFINES = {
+    'windows': ['OS_WIN', 'ARCH_CPU_X86_64'],
+    'mac': ['OS_MAC', 'OS_POSIX', 'ARCH_CPU_ARM64'],
+    'linux': ['OS_LINUX', 'OS_POSIX', 'CEF_X11', 'ARCH_CPU_X86_64'],
+}
+
+SYSTEM_INCLUDES_PATTERN = re.compile(r'(#include <[^>]+>)')
+FUNCTION_DECLARATION_PATTERN = re.compile(
+    r'\nCEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;', re.DOTALL)
+STRUCT_PATTERN = re.compile(
+    r'\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;', re.DOTALL)
+ENUM_PATTERN = re.compile(r'\ntypedef\s+?enum\s+?\{.*?\}\s+?(\w+)\s*?;',
+                          re.DOTALL)
+TYPEDEF_PATTERN = re.compile(r'\ntypedef\s+?.*?\s+(\w+);')
+WHITESPACE_PATTERN = re.compile(r'\s+')
+PARENTHESIS_PATTERN = re.compile(r'\(\s+')
+SINGLE_LINE_COMMENT_PATTERN = re.compile(r'//.*\n')
+CEF_STRING_TYPE_PATTERN = re.compile(
+    r'\n\s*?#\s*?define\s+?(CEF_STRING_TYPE_\w+)\s+?.*?\n')
+DEFINE_PATTERN = re.compile(r'#define\s+?.*?')
 
 
-def _run_clang_eval(filename, content, api_version, added_defines, verbose):
-  # Add a tag so we know where the header-specific output begins.
-  tag = 'int begin_includes_tag;\n'
+def _prepare_content(content: str) -> str:
+  """
+  Add a marker to the content to indicate where the header-specific output
+  begins and replace system includes with a placeholder
+  """
   find = '#ifdef __cplusplus\nextern "C" {'
   pos = content.find(find)
-  assert pos > 0, filename
-  content = content[0:pos] + tag + content[pos:]
+  assert pos > 0, f'Cannot find "{find}" in {content}'
+  content = content[0:pos] + INCLUDE_START_MARKER + content[pos:]
 
-  defines = [
-      # Makes sure CEF_EXPORT is defined.
-      'USING_CEF_SHARED',
+  content = DEFINE_PATTERN.sub('//DEFINE_PLACEHOLDER//', content)
+  return SYSTEM_INCLUDES_PATTERN.sub('//INCLUDE_PLACEHOLDER//', content)
 
-      # Avoid include of generated headers.
-      'GENERATING_CEF_API_HASH',
-  ]
 
-  if filename.find('test/') >= 0:
-    # Avoids errors parsing test includes.
-    defines.append('UNIT_TEST')
-
-  # Not the experimental version.
-  api_version = int(api_version)
-  if api_version != EXP_VERSION:
-    # Specify the exact version.
-    defines.append('CEF_API_VERSION=%d' % api_version)
-
-  if not added_defines is None:
-    defines.extend(added_defines)
-
-  includes = [
-      # Includes relative to the 'src/cef' directory.
-      '.',
-      # Includes relative to the 'src' directory.
-      '..',
-  ]
-
-  result = clang_eval(
-      filename,
-      content,
-      defines=defines,
-      includes=includes,
-      as_cpp=False,
-      verbose=verbose)
-  if result is None:
-    return None
-
-  pos = result.find(tag)
-  assert pos > 0, filename
-  result = result[pos + len(tag):]
+def _process_result(result: str) -> str:
+  """
+  Remove the non header-specific output and undo substitutions from cef_export.h
+  """
+  pos = result.find(INCLUDE_START_MARKER)
+  if pos == -1:
+    return result
+  result = result[pos + len(INCLUDE_START_MARKER):]
 
   replacements = [
-      # Undo substitutions from cef_export.h
       ['__declspec(dllimport)', 'CEF_EXPORT'],
       ['__attribute__((visibility("default")))', 'CEF_EXPORT'],
       ['__stdcall', ''],
   ]
-
   for find, replace in replacements:
     result = result.replace(find, replace)
+  # Must always start with newline as required by _parse_objects()
+  return '\n' + result
 
-  return result
+
+def _get_defines(filename: str, added_defines: list) -> List[str]:
+  defines = [
+      # Makes sure CEF_EXPORT is defined.
+      'USING_CEF_SHARED',
+      # Avoid include of generated headers.
+      'GENERATING_CEF_API_HASH',
+  ]
+
+  # Avoids errors parsing test includes.
+  if filename.find('test/') >= 0:
+    defines.append('UNIT_TEST')
+
+  defines.extend(added_defines)
+  return defines
 
 
-class cef_api_hash:
+def parse_versioned_content(filename: str,
+                            content: str,
+                            api_version: str,
+                            added_defines: list,
+                            debug_dir,
+                            verbose) -> list:
+  """
+  Parse the header file content using clang with the specified API version
+  Used for files that are version-specific but not platform-specific
+  """
+  content = _prepare_content(content)
+  defines = _get_defines(filename, added_defines)
+
+  if api_version != EXP_VERSION:
+    # Specify the exact version.
+    defines.append(f'CEF_API_VERSION={api_version}')
+
+  result = clang_eval(filename, content, defines, INCLUDE_DIRS, verbose)
+  assert result, f'clang failed to eval {filename} with {api_version=}'
+
+  result = _process_result(result)
+
+  if debug_dir:
+    _write_debug_file(debug_dir, 'clang-' + filename.replace('/', '-'), result)
+
+  return _parse_objects(filename, result, 'universal')
+
+
+def parse_platformed_content(filename: str,
+                             content: str,
+                             debug_dir,
+                             verbose,
+                             api_version,
+                             added_defines: list) -> list:
+  """
+  Parse the header file content using clang for every supported platform
+  with the specified API version. Used for files that are both version-specific
+  and platform-specific.
+  """
+  content = _prepare_content(content)
+  defines = _get_defines(filename, added_defines)
+
+  if api_version and api_version != EXP_VERSION:
+    # Specify the exact version.
+    defines.append(f'CEF_API_VERSION={api_version}')
+
+  content_objects = []
+  for platform, platform_defines in PLATFORM_DEFINES.items():
+    result = clang_eval(filename, content, defines + platform_defines,
+                        INCLUDE_DIRS, verbose)
+    assert result, f'clang failed to eval {filename} on {platform=}'
+
+    result = _process_result(result)
+    if debug_dir:
+      _write_debug_file(
+          debug_dir, f'clang-{platform}-' + filename.replace('/', '-'), result)
+
+    objects = _parse_objects(filename, result, platform)
+    content_objects.extend(objects)
+
+  return content_objects
+
+
+def _write_debug_file(debug_dir, filename, content) -> None:
+  make_dir(debug_dir)
+  outfile = os.path.join(debug_dir, filename)
+  dir = os.path.dirname(outfile)
+  make_dir(dir)
+  if not isinstance(content, str):
+    content = '\n'.join(content)
+  write_file(outfile, content)
+
+
+def _parse_objects(filename: str, content: str, platform: str) -> list:
+  objects = []
+  content = SINGLE_LINE_COMMENT_PATTERN.sub('', content)
+
+  for m in FUNCTION_DECLARATION_PATTERN.finditer(content):
+    objects.append({
+        'filename': filename,
+        'name': m.group(1),
+        'platform': platform,
+        'text': _prepare_text(m.group(0))
+    })
+
+  for m in STRUCT_PATTERN.finditer(content):
+    # Remove 'CEF_CALLBACK' to normalize cross-platform clang output
+    objects.append({
+        'filename': filename,
+        'name': m.group(2),
+        'platform': platform,
+        'text': _prepare_text(m.group(0).replace('CEF_CALLBACK', ''))
+    })
+
+  for m in ENUM_PATTERN.finditer(content):
+    objects.append({
+        'filename': filename,
+        'name': m.group(1),
+        'platform': platform,
+        'text': _prepare_text(m.group(0))
+    })
+
+  for m in TYPEDEF_PATTERN.finditer(content):
+    if m.group(1) == 'char16_t':
+      # Skip char16_t typedefs to avoid platform-specific differences.
+      continue
+
+    objects.append({
+        'filename': filename,
+        'name': m.group(1),
+        'platform': platform,
+        'text': _prepare_text(m.group(0))
+    })
+
+  return objects
+
+
+def _prepare_text(text: str) -> str:
+  """ Normalize text for hashing. """
+  text = WHITESPACE_PATTERN.sub(' ', text.strip())
+  return PARENTHESIS_PATTERN.sub('(', text)
+
+
+def _parse_string_type(filename: str, content: str) -> list:
+  """ Grab defined CEF_STRING_TYPE_xxx """
+  objects = []
+  for m in CEF_STRING_TYPE_PATTERN.finditer(content):
+    objects.append({
+        'filename': filename,
+        'name': m.group(1),
+        'text': _prepare_text(m.group(0)),
+        'platform': 'universal'
+    })
+  return objects
+
+
+def _get_final_sig(objects, platform) -> str:
+  return '\n'.join(o['text'] for o in objects
+                   if o['platform'] == 'universal' or o['platform'] == platform)
+
+
+def _get_filenames(header_dir) -> List[str]:
+  """ Return file names to be processed, relative to header_dir """
+  cef_dir = os.path.abspath(os.path.join(header_dir, os.pardir))
+
+  # Read the variables list from the autogenerated cef_paths.gypi file.
+  cef_paths = eval_file(os.path.join(cef_dir, 'cef_paths.gypi'))
+  cef_paths = cef_paths['variables']
+  # Read the variables list from the manually edited cef_paths2.gypi file.
+  cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
+  cef_paths2 = cef_paths2['variables']
+
+  # List of all C API include/ files.
+  paths = cef_paths2['includes_capi'] + cef_paths2['includes_common_capi'] + \
+      cef_paths2['includes_linux_capi'] + cef_paths2['includes_mac_capi'] + \
+      cef_paths2['includes_win_capi'] + cef_paths['autogen_capi_includes']
+
+  return [
+      os.path.relpath(os.path.join(cef_dir, filename), header_dir).replace(
+          '\\', '/').lower() for filename in paths
+  ]
+
+
+def _save_objects_to_file(debug_dir: str, objects: list) -> None:
+  name_len = max([len(o['name']) for o in objects])
+  filename_len = max([len(o['filename']) for o in objects])
+  platform_len = max([len(o['platform']) for o in objects])
+  dump_sig = [
+      f"{o['name']:<{name_len}}|{o['filename']:<{filename_len}}|{o['platform']:<{platform_len}}|{o['text']}"
+      for o in objects
+  ]
+  _write_debug_file(debug_dir, 'objects.txt', dump_sig)
+
+
+class CefApiHasher:
   """ CEF API hash calculator """
 
-  def __init__(self, headerdir, verbose=False):
-    if headerdir is None or len(headerdir) == 0:
-      raise AssertionError("headerdir is not specified")
+  def __init__(self, header_dir, debug_dir, verbose=False):
+    if header_dir is None or len(header_dir) == 0:
+      raise AssertionError('header_dir is not specified')
 
-    self.__headerdir = headerdir
-    self.__verbose = verbose
-
-    self.platforms = ["windows", "mac", "linux"]
-
-    cef_dir = os.path.abspath(os.path.join(self.__headerdir, os.pardir))
-
-    # Read the variables list from the autogenerated cef_paths.gypi file.
-    cef_paths = eval_file(os.path.join(cef_dir, 'cef_paths.gypi'))
-    cef_paths = cef_paths['variables']
-
-    # Read the variables list from the manually edited cef_paths2.gypi file.
-    cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
-    cef_paths2 = cef_paths2['variables']
-
-    # Excluded files (paths relative to the include/ directory).
-    excluded_files = []
-
-    # List of platform-specific C API include/ files.
-    self.platform_files = {
-        "windows":
-            self.__get_filenames(cef_dir, cef_paths2['includes_win_capi'],
-                                 excluded_files),
-        "mac":
-            self.__get_filenames(cef_dir, cef_paths2['includes_mac_capi'],
-                                 excluded_files),
-        "linux":
-            self.__get_filenames(cef_dir, cef_paths2['includes_linux_capi'],
-                                 excluded_files)
-    }
-
-    # List of all C API include/ files.
-    paths = cef_paths2['includes_capi'] + cef_paths2['includes_common_capi'] + \
-        cef_paths2['includes_linux_capi'] + cef_paths2['includes_mac_capi'] + \
-        cef_paths2['includes_win_capi'] + cef_paths['autogen_capi_includes']
-    self.filenames = self.__get_filenames(cef_dir, paths, excluded_files)
-
-    self.filecontents = {}
-    self.filecontentobjs = {}
+    self.filenames = _get_filenames(header_dir)
+    self.debug_dir = debug_dir
+    self.verbose = verbose
+    self.versioned_contents = {}
+    self.platformed_contents = {}
+    self.file_content_objs = {}
 
     # Cache values that will not change between calls to calculate().
     for filename in self.filenames:
-      if self.__verbose:
-        print("Processing " + filename + "...")
+      self.print(f'Processing {filename} ...')
 
-      assert not filename in self.filecontents, filename
-      assert not filename in self.filecontentobjs, filename
+      if filename in self.versioned_contents \
+          or filename in self.platformed_contents \
+              or filename in self.file_content_objs:
+        self.print(f'{filename} already processed, skipping...')
+        continue
 
-      content = read_file(os.path.join(self.__headerdir, filename), True)
+      content = read_file(os.path.join(header_dir, filename), normalize=True)
       content_objects = None
 
-      # Parse cef_string.h happens in special case: grab only defined CEF_STRING_TYPE_xxx declaration
-      if filename == "internal/cef_string.h":
-        content_objects = self.__parse_string_type(content)
-      elif content.find('#if CEF_API') >= 0:
-        # Needs to be passed to clang with version-specific defines.
-        self.filecontents[filename] = content
+      is_platform_specific = OS_TOKEN in content
+      is_version_specific = API_TOKEN in content
+
+      # Special case for parsing cef_string.h:
+      # Only extract declarations of the form #define CEF_STRING_TYPE_xxx
+      if filename == 'internal/cef_string.h':
+        content_objects = _parse_string_type(filename, content)
+      elif is_platform_specific and not is_version_specific:
+        # Parse once and cache for all platforms
+        content_objects = parse_platformed_content(
+            filename,
+            content,
+            debug_dir,
+            verbose,
+            api_version=None,
+            added_defines=[])
+      elif is_platform_specific and is_version_specific:
+        # Needs to be passed to clang with version and platform defines.
+        self.platformed_contents[filename] = content
+      elif is_version_specific:
+        # Needs to be passed to clang with version defines.
+        self.versioned_contents[filename] = content
       else:
-        content_objects = self.__parse_objects(content)
+        content_objects = _parse_objects(filename, content, 'universal')
 
-      if not content_objects is None:
-        self.__prepare_objects(filename, content_objects)
-        self.filecontentobjs[filename] = content_objects
+      if content_objects is not None:
+        self.file_content_objs[filename] = content_objects
 
-  def calculate(self, api_version, debug_dir=None, added_defines=None):
-    debug_enabled = not (debug_dir is None) and len(debug_dir) > 0
+  def calculate(self, api_version: str, added_defines: list) -> Dict[str, str]:
+    """ Calculate the API hash per platform for the specified API version """
+    debug_dir = os.path.join(self.debug_dir,
+                             api_version) if self.debug_dir else None
 
     objects = []
     for filename in self.filenames:
-      if self.__verbose:
-        print("Processing " + filename + "...")
+      self.print(f'Processing {filename}...')
 
-      content = self.filecontents.get(filename, None)
-      if not content is None:
-        assert content.find('#if CEF_API') >= 0, filename
-        content = _run_clang_eval(filename, content, api_version, added_defines,
-                                  self.__verbose)
-        if content is None:
-          sys.stderr.write(
-              'ERROR: Failed to compute API hash for %s\n' % filename)
-          return False
-        if debug_enabled:
-          self.__write_debug_file(
-              debug_dir, 'clang-' + filename.replace('/', '-'), content)
-
-        # content must always start with newline as required by __parse_objects()
-        content_objects = self.__parse_objects('\n' + content)
-        self.__prepare_objects(filename, content_objects)
+      if filename in self.versioned_contents:
+        content = self.versioned_contents.get(filename, None)
+        content_objects = parse_versioned_content(filename, content,
+                                                  api_version, added_defines,
+                                                  debug_dir, self.verbose)
+      elif filename in self.platformed_contents:
+        content = self.platformed_contents.get(filename, None)
+        content_objects = parse_platformed_content(filename, content, debug_dir,
+                                                   self.verbose, api_version,
+                                                   added_defines)
       else:
-        content_objects = self.filecontentobjs.get(filename, None)
+        content_objects = self.file_content_objs.get(filename, None)
 
-      assert not content_objects is None, filename
+      assert content_objects, f'content_objects is None for {filename}'
       objects.extend(content_objects)
 
-    # objects will be sorted including filename, to make stable universal hashes
-    objects = sorted(objects, key=lambda o: o["name"] + "@" + o["filename"])
+    # objects will be sorted including filename to make stable hashes
+    objects = sorted(objects, key=lambda o: f"{o['name']}@{o['filename']}")
 
-    if debug_enabled:
-      namelen = max([len(o["name"]) for o in objects])
-      filenamelen = max([len(o["filename"]) for o in objects])
-      dumpsig = []
-      for o in objects:
-        dumpsig.append(
-            format(o["name"], str(namelen) + "s") + "|" + format(
-                o["filename"], "" + str(filenamelen) + "s") + "|" + o["text"])
-      self.__write_debug_file(debug_dir, "objects.txt", dumpsig)
+    if debug_dir:
+      _save_objects_to_file(debug_dir, objects)
 
-    revisions = {}
+    hashes = {}
+    for platform in PLATFORM_DEFINES.keys():
+      sig = _get_final_sig(objects, platform)
+      if debug_dir:
+        _write_debug_file(debug_dir, f'{platform}.sig', sig)
+      hashes[platform] = hashlib.sha1(sig.encode('utf-8')).hexdigest()
 
-    for platform in itertools.chain(["universal"], self.platforms):
-      sig = self.__get_final_sig(objects, platform)
-      if debug_enabled:
-        self.__write_debug_file(debug_dir, platform + ".sig", sig)
-      revstr = hashlib.sha1(sig.encode('utf-8')).hexdigest()
-      revisions[platform] = revstr
+    return hashes
 
-    return revisions
-
-  def __parse_objects(self, content):
-    """ Returns array of objects in content file. """
-    objects = []
-    content = re.sub(r"//.*\n", "", content)
-
-    # function declarations
-    for m in re.finditer(
-        r"\nCEF_EXPORT\s+?.*?\s+?(\w+)\s*?\(.*?\)\s*?;",
-        content,
-        flags=re.DOTALL):
-      object = {"name": m.group(1), "text": m.group(0).strip()}
-      objects.append(object)
-
-    # structs
-    for m in re.finditer(
-        r"\ntypedef\s+?struct\s+?(\w+)\s+?\{.*?\}\s+?(\w+)\s*?;",
-        content,
-        flags=re.DOTALL):
-      text = m.group(0).strip()
-      # remove 'CEF_CALLBACK' to normalize cross-platform clang output
-      text = text.replace('CEF_CALLBACK', '')
-      object = {"name": m.group(2), "text": text}
-      objects.append(object)
-
-    # enums
-    for m in re.finditer(
-        r"\ntypedef\s+?enum\s+?\{.*?\}\s+?(\w+)\s*?;", content,
-        flags=re.DOTALL):
-      object = {"name": m.group(1), "text": m.group(0).strip()}
-      objects.append(object)
-
-    # typedefs
-    for m in re.finditer(r"\ntypedef\s+?.*?\s+(\w+);", content, flags=0):
-      object = {"name": m.group(1), "text": m.group(0).strip()}
-      objects.append(object)
-
-    return objects
-
-  def __prepare_objects(self, filename, objects):
-    platforms = list(
-        [p for p in self.platforms if self.__is_platform_filename(filename, p)])
-    for o in objects:
-      o["text"] = self.__prepare_text(o["text"])
-      o["platforms"] = platforms
-      o["filename"] = filename
-
-  def __parse_string_type(self, content):
-    """ Grab defined CEF_STRING_TYPE_xxx """
-    objects = []
-    for m in re.finditer(
-        r"\n\s*?#\s*?define\s+?(CEF_STRING_TYPE_\w+)\s+?.*?\n",
-        content,
-        flags=0):
-      object = {
-          "name": m.group(1),
-          "text": m.group(0),
-      }
-      objects.append(object)
-    return objects
-
-  def __prepare_text(self, text):
-    text = text.strip()
-    text = re.sub(r"\s+", " ", text)
-    text = re.sub(r"\(\s+", "(", text)
-    return text
-
-  def __get_final_sig(self, objects, platform):
-    sig = []
-
-    for o in objects:
-      if platform == "universal" or platform in o["platforms"]:
-        sig.append(o["text"])
-
-    return "\n".join(sig)
-
-  def __get_filenames(self, cef_dir, paths, excluded_files):
-    """ Returns file names to be processed, relative to headerdir """
-    filenames = [
-        os.path.relpath(os.path.join(cef_dir, filename),
-                        self.__headerdir).replace('\\', '/').lower()
-        for filename in paths
-    ]
-
-    if len(excluded_files) == 0:
-      return filenames
-
-    return [
-        filename for filename in filenames if not filename in excluded_files
-    ]
-
-  def __is_platform_filename(self, filename, platform):
-    if platform == "universal":
-      return True
-    if not platform in self.platform_files:
-      return False
-    listed = False
-    for p in self.platforms:
-      if filename in self.platform_files[p]:
-        if p == platform:
-          return True
-        else:
-          listed = True
-    return not listed
-
-  def __write_debug_file(self, debug_dir, filename, content):
-    make_dir(debug_dir)
-    outfile = os.path.join(debug_dir, filename)
-    dir = os.path.dirname(outfile)
-    make_dir(dir)
-    if not isinstance(content, string_type):
-      content = "\n".join(content)
-    write_file(outfile, content)
+  def print(self, msg):
+    if self.verbose:
+      print(msg)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   from optparse import OptionParser
-  import time
 
-  disc = """
-    This utility calculates CEF API hash.
-    """
-
-  parser = OptionParser(description=disc)
+  parser = OptionParser(description='This utility calculates CEF API hash')
   parser.add_option(
       '--cpp-header-dir',
-      dest='cppheaderdir',
+      dest='cpp_header_dir',
       metavar='DIR',
       help='input directory for C++ header files [required]')
   parser.add_option(
       '--debug-dir',
-      dest='debugdir',
+      dest='debug_dir',
       metavar='DIR',
       help='intermediate directory for easy debugging')
   parser.add_option(
@@ -352,28 +389,16 @@ if __name__ == "__main__":
       help='output detailed status information')
   (options, args) = parser.parse_args()
 
-  # the cppheader option is required
-  if options.cppheaderdir is None:
+  # the cpp_header_dir option is required
+  if options.cpp_header_dir is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-  # calculate
-  c_start_time = time.time()
+  calc = CefApiHasher(options.cpp_header_dir, options.debug_dir,
+                      options.verbose)
+  revisions = calc.calculate(EXP_VERSION, [])
 
-  calc = cef_api_hash(options.cppheaderdir, options.debugdir, options.verbose)
-  revisions = calc.calculate(api_version=EXP_VERSION)
-
-  c_completed_in = time.time() - c_start_time
-
-  if bool(revisions):
-    print("{")
-    for k in sorted(revisions.keys()):
-      print(format("\"" + k + "\"", ">12s") + ": \"" + revisions[k] + "\"")
-    print("}")
-
-  # print
-  # print 'Completed in: ' + str(c_completed_in)
-  # print
-
-  # print "Press any key to continue...";
-  # sys.stdin.readline();
+  print('{')
+  for k in sorted(revisions.keys()):
+    print(format('"' + k + '"', '>12s') + ': "' + revisions[k] + '"')
+  print('}')
