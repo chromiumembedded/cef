@@ -30,6 +30,7 @@ const char kNameValueSet[] = "preferences_set";
 const char kNameValueState[] = "preferences_state";
 
 // Used with "preferences_get" messages.
+const char kGlobalPrefsKey[] = "global_prefs";
 const char kIncludeDefaultsKey[] = "include_defaults";
 
 // Used with "preferences_set" messages.
@@ -73,30 +74,34 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     if (message_name == kNameValueGet) {
       // JavaScript is requesting a JSON representation of the preferences tree.
 
-      // Verify the "include_defaults" key.
-      if (!VerifyKey(request_dict, kIncludeDefaultsKey, VTYPE_BOOL, callback)) {
+      // Verify the "global_prefs" and "include_defaults" keys.
+      if (!VerifyKey(request_dict, kGlobalPrefsKey, VTYPE_BOOL, callback) ||
+          !VerifyKey(request_dict, kIncludeDefaultsKey, VTYPE_BOOL, callback)) {
         return true;
       }
 
+      const bool global_prefs = request_dict->GetBool(kGlobalPrefsKey);
       const bool include_defaults = request_dict->GetBool(kIncludeDefaultsKey);
 
-      OnPreferencesGet(browser, include_defaults, callback);
+      OnPreferencesGet(browser, global_prefs, include_defaults, callback);
 
       return true;
     } else if (message_name == kNameValueSet) {
       // JavaScript is requesting that preferences be updated to match the
       // specified JSON representation.
 
-      // Verify the "preferences" key.
-      if (!VerifyKey(request_dict, kPreferencesKey, VTYPE_DICTIONARY,
+      // Verify the "global_prefs" and "preferences" keys.
+      if (!VerifyKey(request_dict, kGlobalPrefsKey, VTYPE_BOOL, callback) ||
+          !VerifyKey(request_dict, kPreferencesKey, VTYPE_DICTIONARY,
                      callback)) {
         return true;
       }
 
+      const bool global_prefs = request_dict->GetBool(kGlobalPrefsKey);
       CefRefPtr<CefDictionaryValue> preferences =
           request_dict->GetDictionary(kPreferencesKey);
 
-      OnPreferencesSet(browser, preferences, callback);
+      OnPreferencesSet(browser, global_prefs, preferences, callback);
 
       return true;
     } else if (message_name == kNameValueState) {
@@ -113,14 +118,19 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
  private:
   // Execute |callback| with the preferences dictionary as a JSON string.
   static void OnPreferencesGet(CefRefPtr<CefBrowser> browser,
+                               bool global_prefs,
                                bool include_defaults,
                                CefRefPtr<Callback> callback) {
-    CefRefPtr<CefRequestContext> context =
-        browser->GetHost()->GetRequestContext();
+    CefRefPtr<CefPreferenceManager> pref_manager;
+    if (global_prefs) {
+      pref_manager = CefPreferenceManager::GetGlobalPreferenceManager();
+    } else {
+      pref_manager = browser->GetHost()->GetRequestContext();
+    }
 
     // Retrieve all preference values.
     CefRefPtr<CefDictionaryValue> prefs =
-        context->GetAllPreferences(include_defaults);
+        pref_manager->GetAllPreferences(include_defaults);
 
     // Serialize the preferences to JSON and return to the JavaScript caller.
     callback->Success(GetJSON(prefs));
@@ -129,10 +139,15 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Set preferences based on the contents of |preferences|. Execute |callback|
   // with a descriptive result message.
   static void OnPreferencesSet(CefRefPtr<CefBrowser> browser,
+                               bool global_prefs,
                                CefRefPtr<CefDictionaryValue> preferences,
                                CefRefPtr<Callback> callback) {
-    CefRefPtr<CefRequestContext> context =
-        browser->GetHost()->GetRequestContext();
+    CefRefPtr<CefPreferenceManager> pref_manager;
+    if (global_prefs) {
+      pref_manager = CefPreferenceManager::GetGlobalPreferenceManager();
+    } else {
+      pref_manager = browser->GetHost()->GetRequestContext();
+    }
 
     CefRefPtr<CefValue> value = CefValue::Create();
     value->SetDictionary(preferences);
@@ -142,7 +157,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Apply preferences. This may result in errors.
     const bool success =
-        ApplyPrefs(context, std::string(), value, error, changed_names);
+        ApplyPrefs(pref_manager, std::string(), value, error, changed_names);
 
     // Create a message that accurately represents the result.
     std::string message;
@@ -245,14 +260,14 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // Apply preferences. Returns true on success. Returns false and sets |error|
   // to a descriptive error string on failure. |changed_names| is the list of
   // preferences that were successfully changed.
-  static bool ApplyPrefs(CefRefPtr<CefRequestContext> context,
+  static bool ApplyPrefs(CefRefPtr<CefPreferenceManager> pref_manager,
                          const std::string& name,
                          CefRefPtr<CefValue> value,
                          std::string& error,
                          NameVector& changed_names) {
-    if (!name.empty() && context->HasPreference(name)) {
+    if (!name.empty() && pref_manager->HasPreference(name)) {
       // The preference exists. Set the value.
-      return SetPref(context, name, value, error, changed_names);
+      return SetPref(pref_manager, name, value, error, changed_names);
     }
 
     if (value->GetType() == VTYPE_DICTIONARY) {
@@ -265,7 +280,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       for (const auto& i : keys) {
         const std::string& key = i;
         const std::string& current_name = name.empty() ? key : name + "." + key;
-        if (!ApplyPrefs(context, current_name, dict->GetValue(key), error,
+        if (!ApplyPrefs(pref_manager, current_name, dict->GetValue(key), error,
                         changed_names)) {
           return false;
         }
@@ -282,12 +297,12 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
   // successfully or has not changed. If the value has changed then |name| will
   // be added to |changed_names|. Returns false and sets |error| to a
   // descriptive error string on failure.
-  static bool SetPref(CefRefPtr<CefRequestContext> context,
+  static bool SetPref(CefRefPtr<CefPreferenceManager> pref_manager,
                       const std::string& name,
                       CefRefPtr<CefValue> value,
                       std::string& error,
                       NameVector& changed_names) {
-    CefRefPtr<CefValue> existing_value = context->GetPreference(name);
+    CefRefPtr<CefValue> existing_value = pref_manager->GetPreference(name);
     DCHECK(existing_value);
 
     if (value->GetType() == VTYPE_STRING &&
@@ -322,7 +337,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
     // Attempt to set the preference.
     CefString error_str;
-    if (!context->SetPreference(name, value, error_str)) {
+    if (!pref_manager->SetPreference(name, value, error_str)) {
       error = error_str.ToString() + ": " + name;
       return false;
     }

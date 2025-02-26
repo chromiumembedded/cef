@@ -96,7 +96,8 @@
       <tr>
         <td align="left">
           <input type="button" value="Refresh" onClick="refreshEditor()"/>
-          <input type="checkbox" id="hide_defaults"/> Show modified preferences only
+          <input type="checkbox" id="global_prefs" onChange="refreshEditor()"/> Show global preferences
+          <input type="checkbox" id="hide_defaults" onChange="refreshEditor()"/> Show modified preferences only
         </td>
         <td align="right">
           <input type="button" value="Apply Changes" onClick="applyEditorChanges()"/>
@@ -161,10 +162,11 @@
 
     // Get the preferences and execute |onSuccessCallback| with the resulting
     // JSON object.
-    function getPreferences(include_defaults, onSuccessCallback) {
+    function getPreferences(global_prefs, include_defaults, onSuccessCallback) {
       // Create the request object.
       var request = {};
       request.name = "preferences_get";
+      request.global_prefs = global_prefs;
       request.include_defaults = include_defaults;
 
       // Send the request to C++.
@@ -177,10 +179,11 @@
     }
 
     // Set the preferences.
-    function setPreferences(preferences) {
+    function setPreferences(global_prefs, preferences) {
       // Create the request object.
       var request = {};
       request.name = "preferences_set";
+      request.global_prefs = global_prefs;
       request.preferences = preferences;
 
       // Send the request to C++.
@@ -214,8 +217,9 @@
 
     // Refresh the editor view contents.
     function refreshEditor() {
+      global_prefs = document.getElementById("global_prefs").checked;
       include_defaults = !document.getElementById("hide_defaults").checked;
-      getPreferences(include_defaults, function(response) {
+      getPreferences(global_prefs, include_defaults, function(response) {
         // Set the JSON in the editor.
         editor.set(response);
       });
@@ -223,12 +227,13 @@
 
     // Apply changes from the editor view.
     function applyEditorChanges() {
-      setPreferences(editor.get());
+      global_prefs = document.getElementById("global_prefs").checked;
+      setPreferences(global_prefs, editor.get());
     }
 
     // Refresh the simple view contents.
     function refreshSimple() {
-      getPreferences(true, function(response) {
+      getPreferences(false, true, function(response) {
         // Spellcheck settings.
         if (preferences_state.spellcheck_disabled) {
           // Cannot enable spell checking when disabled via the command-line.
@@ -318,7 +323,7 @@
       }
 
       if (has_preferences)
-        setPreferences(preferences);
+        setPreferences(false, preferences);
     }
 
     // Called when the proxy type is changed.
