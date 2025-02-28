@@ -1352,9 +1352,14 @@ class obj_class:
 
     # Clamp to class versions, if specified.
     if self.has_version_added():
-      versions = [x for x in versions if x >= self.get_version_added()]
+      version_added = self.get_version_added()
+      versions = [x for x in versions if x >= version_added]
+      if not version_added in versions:
+        versions.append(version_added)
     if self.has_version_removed():
       versions = [x for x in versions if x < self.get_version_removed()]
+
+    assert len(versions) > 0, self.get_name()
 
     self.allversions = sorted(versions)
     return self.allversions
