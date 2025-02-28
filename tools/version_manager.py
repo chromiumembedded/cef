@@ -84,7 +84,7 @@ def compute_next_api_version(api_versions_file):
 
 
 def git_grep_next(cef_dir):
-  cmd = "grep --no-color -n -E (CEF_NEXT|CEF_NEXT)|=next -- :!include/cef_api_hash.h *.h"
+  cmd = "grep --no-color -n -E (CEF_NEXT|CEF_NEXT)|=next -- :!include/cef_api_hash.h *.h *.cc"
   if sys.platform == 'win32':
     # Pass the pipe (|) character as a literal argument.
     cmd = cmd.replace('|', '^|')
@@ -97,7 +97,7 @@ def find_next_usage(cpp_header_dir):
   if result is None:
     return False
 
-  sys.stderr.write('ERROR: NEXT usage found in CEF headers:\n\n' + result +
+  sys.stderr.write('ERROR: NEXT usage found in CEF source files:\n\n' + result +
                    '\n\nFix manually or run with --replace-next.\n')
   return True
 
