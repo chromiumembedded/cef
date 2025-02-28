@@ -43,7 +43,7 @@ def make_capi_versions_header(header, filename):
   translate_map = header.get_capi_translations()
 
   # header string
-  result = get_copyright(full=True, translator=False) + \
+  result = get_copyright(full=False, translator=False) + \
 """//
 // ---------------------------------------------------------------------------
 //
