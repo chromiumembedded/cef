@@ -343,8 +343,9 @@ class CefApiHasher:
       else:
         content_objects = self.file_content_objs.get(filename, None)
 
-      assert content_objects, f'content_objects is None for {filename}'
-      objects.extend(content_objects)
+      # May be None if the full contents of the file are excluded at certain API versions.
+      if not content_objects is None:
+        objects.extend(content_objects)
 
     # objects will be sorted including filename to make stable hashes
     objects = sorted(objects, key=lambda o: f"{o['name']}@{o['filename']}")
