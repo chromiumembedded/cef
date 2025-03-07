@@ -115,6 +115,8 @@ parser.add_option(
 (options, args) = parser.parse_args()
 
 if not options.patchfile is None:
-  apply_patch_file(options.patchfile, options.patchdir)
+  result = apply_patch_file(options.patchfile, options.patchdir)
+  if result == 'fail':
+    sys.exit(1)
 else:
   apply_patch_config()
