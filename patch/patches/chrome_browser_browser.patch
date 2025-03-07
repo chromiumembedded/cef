@@ -648,3 +648,59 @@ index f12ba73369a65..23c43dcb1dd24 100644
    NavigateParams params(browser, std::move(new_contents));
    params.source_contents = source_contents;
    params.url = target_url;
+diff --git chrome/browser/ui/browser_window/browser_window_features.cc chrome/browser/ui/browser_window/browser_window_features.cc
+index e584d77d67bda..a38a8504abd85 100644
+--- chrome/browser/ui/browser_window/browser_window_features.cc
++++ chrome/browser/ui/browser_window/browser_window_features.cc
+@@ -67,6 +67,14 @@ BrowserWindowFeatures::BrowserWindowFeaturesFactory& GetFactory() {
+   return *factory;
+ }
+ 
++bool IsNormalBrowser(Browser* browser) {
++  // CEF normal browsers have TYPE_POPUP.
++  if (browser->is_type_popup() && browser->cef_delegate()) {
++    return true;
++  }
++  return browser->is_type_normal();
++}
++
+ }  // namespace
+ 
+ // static
+@@ -153,10 +161,12 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
+ }
+ 
+ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
++  const bool supports_toolbar = IsNormalBrowser(browser);
++
+   // Features that are only enabled for normal browser windows (e.g. a window
+   // with an omnibox and a tab strip). By default most features should be
+   // instantiated in this block.
+-  if (browser->is_type_normal()) {
++  if (supports_toolbar) {
+     if (IsChromeLabsEnabled()) {
+       chrome_labs_coordinator_ =
+           std::make_unique<ChromeLabsCoordinator>(browser);
+@@ -198,7 +208,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+     }
+   }
+ 
+-  if ((browser->is_type_normal() || browser->is_type_app()) &&
++  if ((supports_toolbar || browser->is_type_app()) &&
+       base::FeatureList::IsEnabled(toast_features::kToastFramework)) {
+     toast_service_ = std::make_unique<ToastService>(browser);
+   }
+@@ -231,10 +241,12 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+           browser_view->browser(),
+           side_panel_coordinator_->GetWindowRegistry());
+ 
++  const bool supports_toolbar = IsNormalBrowser(browser_view->browser());
++
+   // Memory Saver mode is default off but is available to turn on.
+   // The controller relies on performance manager which isn't initialized in
+   // some unit tests without browser view.
+-  if (browser_view->GetIsNormalType()) {
++  if (supports_toolbar) {
+     memory_saver_opt_in_iph_controller_ =
+         std::make_unique<MemorySaverOptInIPHController>(
+             browser_view->browser());
