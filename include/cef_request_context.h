@@ -67,13 +67,13 @@ class CefResolveCallback : public virtual CefBaseRefCounted {
       const std::vector<CefString>& resolved_ips) = 0;
 };
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13401)
 ///
 /// Implemented by the client to observe content and website setting changes and
 /// registered via CefRequestContext::AddSettingObserver. The methods of this
 /// class will be called on the browser process UI thread.
 ///
-/*--cef(source=client,added=next)--*/
+/*--cef(source=client,added=13401)--*/
 class CefSettingObserver : public virtual CefBaseRefCounted {
  public:
   ///
@@ -314,13 +314,13 @@ class CefRequestContext : public CefPreferenceManager {
                                  cef_content_setting_types_t content_type,
                                  cef_content_setting_values_t value) = 0;
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13401)
   ///
   /// Add an observer for content and website setting changes. The observer will
   /// remain registered until the returned Registration object is destroyed.
   /// This method must be called on the browser process UI thread.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=13401)--*/
   virtual CefRefPtr<CefRegistration> AddSettingObserver(
       CefRefPtr<CefSettingObserver> observer) = 0;
 #endif

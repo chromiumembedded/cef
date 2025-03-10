@@ -62,7 +62,7 @@ CefRefPtr<CefRegistration>
 CefGlobalPreferenceManagerImpl::AddPreferenceObserver(
     const CefString& name,
     CefRefPtr<CefPreferenceObserver> observer) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(13401);
   CEF_REQUIRE_UIT_RETURN(nullptr);
   return CefContext::Get()->GetPrefRegistrar()->AddObserver(name, observer);
 }
@@ -70,7 +70,7 @@ CefGlobalPreferenceManagerImpl::AddPreferenceObserver(
 // static
 void CefPreferenceManager::GetChromeVariationsAsSwitches(
     std::vector<CefString>& switches) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(13401);
 
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -98,7 +98,7 @@ void CefPreferenceManager::GetChromeVariationsAsSwitches(
 // static
 void CefPreferenceManager::GetChromeVariationsAsStrings(
     std::vector<CefString>& strings) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(13401);
 
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
