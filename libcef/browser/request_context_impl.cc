@@ -464,7 +464,7 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
 CefRefPtr<CefRegistration> CefRequestContextImpl::AddPreferenceObserver(
     const CefString& name,
     CefRefPtr<CefPreferenceObserver> observer) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(13401);
   if (!VerifyBrowserContext()) {
     return nullptr;
   }
@@ -608,7 +608,7 @@ void CefRequestContextImpl::SetContentSetting(
 
 CefRefPtr<CefRegistration> CefRequestContextImpl::AddSettingObserver(
     CefRefPtr<CefSettingObserver> observer) {
-  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  CEF_API_REQUIRE_ADDED(13401);
   if (!VerifyBrowserContext()) {
     return nullptr;
   }
