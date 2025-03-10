@@ -247,6 +247,8 @@
       'tests/cefclient/browser/client_prefs.cc',
       'tests/cefclient/browser/client_prefs.h',
       'tests/cefclient/browser/client_types.h',
+      'tests/cefclient/browser/config_test.cc',
+      'tests/cefclient/browser/config_test.h',
       'tests/cefclient/browser/default_client_handler.cc',
       'tests/cefclient/browser/default_client_handler.h',
       'tests/cefclient/browser/dialog_test.cc',
@@ -324,6 +326,7 @@
     'cefclient_sources_resources': [
       'tests/cefclient/resources/binary_transfer.html',
       'tests/cefclient/resources/binding.html',
+      'tests/cefclient/resources/config.html',
       'tests/cefclient/resources/dialogs.html',
       'tests/cefclient/resources/draggable.html',
       'tests/cefclient/resources/hang.html',

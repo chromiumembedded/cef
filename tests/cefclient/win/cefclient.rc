@@ -31,6 +31,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDS_BINARY_TRANSFER_HTML BINARY "tests\\cefclient\\resources\\binary_transfer.html"
 IDS_BINDING_HTML BINARY "tests\\cefclient\\resources\\binding.html"
+IDS_CONFIG_HTML BINARY "tests\\cefclient\\resources\\config.html"
 IDS_DIALOGS_HTML BINARY "tests\\cefclient\\resources\\dialogs.html"
 IDS_DRAGGABLE_HTML BINARY "tests\\cefclient\\resources\\draggable.html"
 IDS_HANG_HTML BINARY "tests\\cefclient\\resources\\hang.html"

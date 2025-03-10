@@ -16,6 +16,10 @@
 #include "cef/libcef/browser/main_runner.h"
 #include "third_party/skia/include/core/SkColor.h"
 
+namespace pref_helper {
+class Registrar;
+}
+
 class CefBrowserInfoManager;
 class CefTraceSubscriber;
 
@@ -73,6 +77,7 @@ class CefContext {
                              cef_state_t windowless_state) const;
 
   CefTraceSubscriber* GetTraceSubscriber();
+  pref_helper::Registrar* GetPrefRegistrar();
 
   // Populate request context settings for the global system context based on
   // CefSettings and command-line flags.
@@ -112,6 +117,7 @@ class CefContext {
 
   std::unique_ptr<CefMainRunner> main_runner_;
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
+  std::unique_ptr<pref_helper::Registrar> pref_registrar_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
 
   // Observers that want to be notified of changes to this object.

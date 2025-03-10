@@ -10,7 +10,9 @@
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/prefs/pref_helper.h"
+#include "cef/libcef/browser/setting_helper.h"
 #include "cef/libcef/browser/thread_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/app_manager.h"
 #include "cef/libcef/common/task_runner_impl.h"
 #include "cef/libcef/common/values_impl.h"
@@ -459,6 +461,22 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
   return pref_helper::SetPreference(pref_service, name, value, error);
 }
 
+CefRefPtr<CefRegistration> CefRequestContextImpl::AddPreferenceObserver(
+    const CefString& name,
+    CefRefPtr<CefPreferenceObserver> observer) {
+  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  if (!VerifyBrowserContext()) {
+    return nullptr;
+  }
+
+  if (!pref_registrar_) {
+    pref_registrar_ = std::make_unique<pref_helper::Registrar>();
+    pref_registrar_->Init(browser_context()->AsProfile()->GetPrefs());
+  }
+
+  return pref_registrar_->AddObserver(name, observer);
+}
+
 void CefRequestContextImpl::ClearCertificateExceptions(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
@@ -586,6 +604,26 @@ void CefRequestContextImpl::SetContentSetting(
       content::GetUIThreadTaskRunner({}),
       base::BindOnce(&CefRequestContextImpl::SetContentSettingInternal, this,
                      requesting_url, top_level_url, content_type, value));
+}
+
+CefRefPtr<CefRegistration> CefRequestContextImpl::AddSettingObserver(
+    CefRefPtr<CefSettingObserver> observer) {
+  CEF_API_REQUIRE_ADDED(CEF_NEXT);
+  if (!VerifyBrowserContext()) {
+    return nullptr;
+  }
+
+  if (!setting_registrar_) {
+    auto* settings_map = HostContentSettingsMapFactory::GetForProfile(
+        browser_context()->AsProfile());
+    if (!settings_map) {
+      return nullptr;
+    }
+    setting_registrar_ = std::make_unique<setting_helper::Registrar>();
+    setting_registrar_->Init(settings_map);
+  }
+
+  return setting_registrar_->AddObserver(observer);
 }
 
 void CefRequestContextImpl::SetChromeColorScheme(cef_color_variant_t variant,

@@ -12,10 +12,12 @@
 #include "base/task/current_thread.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/libcef/browser/browser_info_manager.h"
+#include "cef/libcef/browser/prefs/pref_helper.h"
 #include "cef/libcef/browser/request_context_impl.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/trace_subscriber.h"
 #include "cef/libcef/common/cef_switches.h"
+#include "chrome/browser/browser_process_impl.h"
 #include "components/network_session_configurator/common/network_switches.h"
 #include "ui/base/ui_base_switches.h"
 
@@ -570,10 +572,22 @@ CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   if (shutting_down_) {
     return nullptr;
   }
-  if (!trace_subscriber_.get()) {
+  if (!trace_subscriber_) {
     trace_subscriber_ = std::make_unique<CefTraceSubscriber>();
   }
   return trace_subscriber_.get();
+}
+
+pref_helper::Registrar* CefContext::GetPrefRegistrar() {
+  CEF_REQUIRE_UIT();
+  if (shutting_down_) {
+    return nullptr;
+  }
+  if (!pref_registrar_) {
+    pref_registrar_ = std::make_unique<pref_helper::Registrar>();
+    pref_registrar_->Init(g_browser_process->local_state());
+  }
+  return pref_registrar_.get();
 }
 
 void CefContext::PopulateGlobalRequestContextSettings(
@@ -645,12 +659,15 @@ void CefContext::ShutdownOnUIThread() {
     observer.OnContextDestroyed();
   }
 
-  if (trace_subscriber_.get()) {
-    trace_subscriber_.reset(nullptr);
+  if (trace_subscriber_) {
+    trace_subscriber_.reset();
+  }
+  if (pref_registrar_) {
+    pref_registrar_.reset();
   }
 }
 
 void CefContext::FinalizeShutdown() {
-  browser_info_manager_.reset(nullptr);
+  browser_info_manager_.reset();
   application_ = nullptr;
 }

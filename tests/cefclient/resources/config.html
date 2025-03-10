@@ -1,0 +1,703 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Configuration Test</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+
+  <style>
+    body {
+      font-family: Verdana, Arial;
+      font-size: 12px;
+    }
+    #message {
+      color: red;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .desc {
+      font-size: 14px;
+    }
+    .foot {
+      font-size: 11px;
+    }
+    .mono {
+      font-family: monospace;
+    }
+    .cat_header_0 {
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .cat_header_1 {
+      font-weight: bold;
+    }
+    .cat_header_2 {
+      font-family: Verdana, Arial;
+    }
+    .cat_body {
+      font-family: monospace;
+      white-space: pre;
+      margin-left: 10px;
+    }
+    #temp-message {
+      display: none;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .hr-container {
+      display: flex;
+      align-items: center;
+      text-align: center;
+    }
+    .hr-line {
+      border-top: 1px solid black;
+      width: 100%;
+      margin: 0 3px;
+    }
+    .hr-text {
+      padding: 0;
+      white-space: nowrap;
+    }
+  </style>
+
+  <script>
+    function onLoad() {
+      if (location.hostname != 'tests') {
+        onCefError(0, 'This page can only be run from tests.');
+
+        // Disable all form elements.
+        var elements = document.getElementById("form").elements;
+        for (var i = 0, element; element = elements[i++]; ) {
+          element.disabled = true;
+        }
+
+        return;
+      }
+
+      getGlobalConfig();
+      updateFilter();
+      startSubscription();
+    }
+
+    function onUnload() {
+      stopSubscription();
+    }
+
+    function onCefError(code, message) {
+      val = 'ERROR: ' + message;
+      if (code !== 0) {
+        val += ' (' + code + ')';
+      }
+      document.getElementById('message').innerHTML = val + '<br/><br/>';
+    }
+
+    function sendCefQuery(payload, onSuccess, onFailure=onCefError, persistent=false) {
+      // Results in a call to the OnQuery method in config_test.cc
+      return window.cefQuery({
+        request: JSON.stringify(payload),
+        onSuccess: onSuccess,
+        onFailure: onFailure,
+        persistent: persistent
+      });
+    }
+
+    // Request the global configuration.
+    function getGlobalConfig() {
+      sendCefQuery(
+        {name: 'global_config'},
+        (message) => onGlobalConfigMessage(JSON.parse(message)),
+      );
+    }
+
+    // Display the global configuration response.
+    function onGlobalConfigMessage(message) {
+      document.getElementById('global_switches').innerHTML =
+          message.switches !== null ? message.switches.join('<br/>') : '(none)';
+      if (message.strings !== null) {
+        document.getElementById('global_strings').innerHTML = message.strings.join('<br/>');
+        document.getElementById('global_strings_ct').textContent = message.strings.length;
+      }
+    }
+
+    var currentSubscriptionId = null;
+
+    // Subscribe to ongoing message notifications from the native code.
+    function startSubscription() {
+      currentSubscriptionId = sendCefQuery(
+        {name: 'subscribe'},
+        (message) => onSubscriptionMessage(JSON.parse(message)),
+        (code, message) => {
+          onCefError(code, message);
+          currentSubscriptionId = null;
+        },
+        true
+      );
+    }
+
+    // Unsubscribe from message notifications.
+    function stopSubscription() {
+      if (currentSubscriptionId !== null) {
+        // Results in a call to the OnQueryCanceled method in config_test.cc
+        window.cefQueryCancel(currentSubscriptionId);
+      }
+    }
+ 
+    // Returns a nice timestamp for display purposes.
+    function getNiceTimestamp() {
+      const now = new Date();
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    var paused = false;
+    var paused_messages = [];
+    var first_after_pause = false;
+
+    // Toggle whether messages are displayed or queued.
+    function togglePause() {
+      paused = !paused;
+      document.getElementById("pause_button").value = paused ? "Resume" : "Pause";
+
+      if (!paused) {
+        first_after_pause = true;
+        while (paused_messages.length > 0) {
+          onSubscriptionMessage(paused_messages.shift());
+        }
+      }
+    }
+
+    function doPause() {
+      if (!paused) {
+        togglePause();
+        showTempMessage('Event processing is paused. Click Resume to continue.');
+      }
+    }
+
+    var filter = {}
+    var filtered_ct = 0;
+    var filter_updating = false;
+
+    // Populate |filter| based on form control state.
+    function updateFilter() {
+      if (filter_updating) {
+        // Ignore changes triggered from individual elements while we're updating multiple.
+        return;
+      }
+
+      filter.text = document.getElementById("filter_text").value.trim().toLowerCase();
+      filter.global_prefs = document.getElementById("filter_global_prefs").checked;
+      filter.context_prefs = document.getElementById("filter_context_prefs").checked;
+      filter.context_settings = document.getElementById("filter_context_settings").checked;
+    }
+
+    function doFilter(type, text, global=false) {
+      filter_updating = true;
+
+      document.getElementById("filter_text").value = text;
+
+      var checked = '';
+      if (type === 'preference') {
+        checked = global ? 'filter_global_prefs' : 'filter_context_prefs';
+      } else if (type === 'setting') {
+        checked = 'filter_context_settings';
+      }
+
+      ['filter_global_prefs', 'filter_context_prefs', 'filter_context_settings'].forEach(function(id) {
+        document.getElementById(id).checked = id === checked;
+      });
+
+      filter_updating = false;
+      updateFilter();
+    }
+
+    function doFilterReset() {
+      filter_updating = true;
+      document.getElementById("filtered_ct").textContent = 0;
+      document.getElementById("filter_text").value = '';
+      document.getElementById("filter_global_prefs").checked = true;
+      document.getElementById("filter_context_prefs").checked = true;
+      document.getElementById("filter_context_settings").checked = true;
+      filter_updating = false;
+      updateFilter();
+    }
+
+    // Returns true if the message should be displayed based on the current filter settings.
+    function passesFilter(message) {
+      if (message.type === 'preference') {
+        if (message.global) {
+          if (!filter.global_prefs) {
+            return false;
+          }
+        } else if (!filter.context_prefs) {
+          return false;
+        }
+      } else if (message.type === 'setting' && !filter.context_settings) {
+        return false;
+      }
+
+      if (filter.text.length > 0) {
+        var check_text = JSON.stringify(message).toLowerCase();
+        if (message.type === 'setting') {
+          check_text += ' ' + getSettingTypeLabel(message.content_type).toLowerCase();
+        }
+        if (check_text.indexOf(filter.text) < 0) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Match the cef_value_type_t values from include/internal/cef_types.h
+    const value_types = [
+      'INVALID',
+      'NULL',
+      'BOOL',
+      'INT',
+      'DOUBLE',
+      'STRING',
+      'BINARY',
+      'DICTIONARY',
+      'LIST',
+    ]
+
+    function getValueType(index) {
+      if (index < 0 || index >= value_types.length) {
+        return 'UNKNOWN';
+      }
+      return value_types[index];
+    }
+
+    // Match the cef_content_setting_types_t values from include/internal/cef_types_content_settings.h
+    const setting_types = [
+      "COOKIES",
+      "IMAGES",
+      "JAVASCRIPT",
+      "POPUPS",
+      "GEOLOCATION",
+      "NOTIFICATIONS",
+      "AUTO_SELECT_CERTIFICATE",
+      "MIXEDSCRIPT",
+      "MEDIASTREAM_MIC",
+      "MEDIASTREAM_CAMERA",
+      "PROTOCOL_HANDLERS",
+      "DEPRECATED_PPAPI_BROKER",
+      "AUTOMATIC_DOWNLOADS",
+      "MIDI_SYSEX",
+      "SSL_CERT_DECISIONS",
+      "PROTECTED_MEDIA_IDENTIFIER",
+      "APP_BANNER",
+      "SITE_ENGAGEMENT",
+      "DURABLE_STORAGE",
+      "USB_CHOOSER_DATA",
+      "BLUETOOTH_GUARD",
+      "BACKGROUND_SYNC",
+      "AUTOPLAY",
+      "IMPORTANT_SITE_INFO",
+      "PERMISSION_AUTOBLOCKER_DATA",
+      "ADS",
+      "ADS_DATA",
+      "MIDI",
+      "PASSWORD_PROTECTION",
+      "MEDIA_ENGAGEMENT",
+      "SOUND",
+      "CLIENT_HINTS",
+      "SENSORS",
+      "DEPRECATED_ACCESSIBILITY_EVENTS",
+      "PAYMENT_HANDLER",
+      "USB_GUARD",
+      "BACKGROUND_FETCH",
+      "INTENT_PICKER_DISPLAY",
+      "IDLE_DETECTION",
+      "SERIAL_GUARD",
+      "SERIAL_CHOOSER_DATA",
+      "PERIODIC_BACKGROUND_SYNC",
+      "BLUETOOTH_SCANNING",
+      "HID_GUARD",
+      "HID_CHOOSER_DATA",
+      "WAKE_LOCK_SCREEN",
+      "WAKE_LOCK_SYSTEM",
+      "LEGACY_COOKIE_ACCESS",
+      "FILE_SYSTEM_WRITE_GUARD",
+      "NFC",
+      "BLUETOOTH_CHOOSER_DATA",
+      "CLIPBOARD_READ_WRITE",
+      "CLIPBOARD_SANITIZED_WRITE",
+      "SAFE_BROWSING_URL_CHECK_DATA",
+      "VR",
+      "AR",
+      "FILE_SYSTEM_READ_GUARD",
+      "STORAGE_ACCESS",
+      "CAMERA_PAN_TILT_ZOOM",
+      "WINDOW_MANAGEMENT",
+      "INSECURE_PRIVATE_NETWORK",
+      "LOCAL_FONTS",
+      "PERMISSION_AUTOREVOCATION_DATA",
+      "FILE_SYSTEM_LAST_PICKED_DIRECTORY",
+      "DISPLAY_CAPTURE",
+      "FILE_SYSTEM_ACCESS_CHOOSER_DATA",
+      "FEDERATED_IDENTITY_SHARING",
+      "JAVASCRIPT_JIT",
+      "HTTP_ALLOWED",
+      "FORMFILL_METADATA",
+      "DEPRECATED_FEDERATED_IDENTITY_ACTIVE_SESSION",
+      "AUTO_DARK_WEB_CONTENT",
+      "REQUEST_DESKTOP_SITE",
+      "FEDERATED_IDENTITY_API",
+      "NOTIFICATION_INTERACTIONS",
+      "REDUCED_ACCEPT_LANGUAGE",
+      "NOTIFICATION_PERMISSION_REVIEW",
+      "PRIVATE_NETWORK_GUARD",
+      "PRIVATE_NETWORK_CHOOSER_DATA",
+      "FEDERATED_IDENTITY_IDENTITY_PROVIDER_SIGNIN_STATUS",
+      "REVOKED_UNUSED_SITE_PERMISSIONS",
+      "TOP_LEVEL_STORAGE_ACCESS",
+      "FEDERATED_IDENTITY_AUTO_REAUTHN_PERMISSION",
+      "FEDERATED_IDENTITY_IDENTITY_PROVIDER_REGISTRATION",
+      "ANTI_ABUSE",
+      "THIRD_PARTY_STORAGE_PARTITIONING",
+      "HTTPS_ENFORCED",
+      "ALL_SCREEN_CAPTURE",
+      "COOKIE_CONTROLS_METADATA",
+      "TPCD_HEURISTICS_GRANTS",
+      "TPCD_METADATA_GRANTS",
+      "TPCD_TRIAL",
+      "TOP_LEVEL_TPCD_TRIAL",
+      "TOP_LEVEL_TPCD_ORIGIN_TRIAL",
+      "AUTO_PICTURE_IN_PICTURE",
+      "FILE_SYSTEM_ACCESS_EXTENDED_PERMISSION",
+      "FILE_SYSTEM_ACCESS_RESTORE_PERMISSION",
+      "CAPTURED_SURFACE_CONTROL",
+      "SMART_CARD_GUARD",
+      "SMART_CARD_DATA",
+      "WEB_PRINTING",
+      "AUTOMATIC_FULLSCREEN",
+      "SUB_APP_INSTALLATION_PROMPTS",
+      "SPEAKER_SELECTION",
+      "DIRECT_SOCKETS",
+      "KEYBOARD_LOCK",
+      "POINTER_LOCK",
+      "REVOKED_ABUSIVE_NOTIFICATION_PERMISSIONS",
+      "TRACKING_PROTECTION",
+      "DISPLAY_MEDIA_SYSTEM_AUDIO",
+      "JAVASCRIPT_OPTIMIZER",
+      "STORAGE_ACCESS_HEADER_ORIGIN_TRIAL",
+      "HAND_TRACKING",
+      "WEB_APP_INSTALLATION",
+      "DIRECT_SOCKETS_PRIVATE_NETWORK_ACCESS",
+      "LEGACY_COOKIE_SCOPE",
+      "ARE_SUSPICIOUS_NOTIFICATIONS_ALLOWLISTED_BY_USER",
+      "CONTROLLED_FRAME",
+    ];
+
+    function getSettingType(index) {
+      if (index < 0 || index >= setting_types.length) {
+        return 'UNKNOWN';
+      }
+      return setting_types[index];
+    }
+
+    function getSettingTypeLabel(type) {
+      return getSettingType(type) + ' (' + type + ')'
+    }
+
+    function makeDetails(summaryHTML, summaryClass, contentHTML, contentClass, contentId=null, open=false) {
+      const newDetails = document.createElement('details');
+      if (open) {
+        newDetails.open = true;
+      }
+
+      const newSummary = document.createElement('summary');
+      newSummary.innerHTML = summaryHTML;
+      if (summaryClass !== null) {
+        newSummary.className = summaryClass;
+      }
+      newDetails.append(newSummary);
+
+      const newContent = document.createElement('p');
+      newContent.innerHTML = contentHTML
+      if (contentClass !== null) {
+        newContent.className = contentClass;
+      }
+      if (contentId !== null) {
+        newContent.id = contentId;
+      }
+      newDetails.append(newContent);
+
+      const newP = document.createElement('p');
+      newP.append(newDetails);
+
+      return newP;
+    }
+
+    function makeValueExample(value, value_type) {
+      code = '\n// Create a CefValue object programmatically:\n' +
+             'auto value = CefValue::Create();\n';
+      if (value === null || getValueType(value_type) == 'NULL') {
+        code += 'value->SetNull();\n';
+      } else if (typeof value === 'boolean' || getValueType(value_type) == 'BOOL') {
+        code += 'value->SetBool(' + (value ? 'true' : 'false') + ');\n';
+      } else if (Number.isInteger(value) || getValueType(value_type) == 'INT') {
+        code += 'value->SetInt(' + value + ');\n';
+      } else if (typeof value === 'number' || getValueType(value_type) == 'DOUBLE') {
+        code += 'value->SetDouble(' + value + ');\n';
+      } else if (typeof value === 'string' || getValueType(value_type) == 'STRING') {
+        code += 'value->SetString("' + value + '");\n';
+      } else if (Array.isArray(value) || getValueType(value_type) == 'LIST') {
+        code += 'auto listValue = CefListValue::Create();\n';
+        if (value.length > 0) {
+          code += '\n// TODO: Populate |listValue| using CefListValue::Set* methods.\n\n';
+        }
+        code += 'value->SetList(listValue);\n';
+        if (value.length > 0) {
+          code += '\n// ALTERNATELY: Create a CefValue object by parsing a JSON string:\n' +
+                  'auto value = CefParseJSON("[ ... ]", JSON_PARSER_RFC);\n';
+        }
+      } else if (typeof value === 'object' || getValueType(value_type) == 'DICTIONARY') {
+        code += 'auto dictValue = CefDictionaryValue::Create();\n';
+        const has_value = Object.keys(value).length > 0;
+        if (has_value) {
+          code += '\n// TODO: Populate |dictValue| using CefDictionaryValue::Set* methods.\n\n';
+        }
+        code += 'value->SetDictionary(dictValue);\n';
+        if (has_value) {
+          code += '\n// ALTERNATELY: Create a CefValue object by parsing a JSON string:\n' +
+                  'auto value = CefParseJSON("{ ... }", JSON_PARSER_RFC);\n';
+        }
+      } else {
+        code += '\n//TODO: Populate |value|.\n\n';
+      }
+      return code;
+    }
+
+    function makeCopyLink(elem_id) {
+      return '<a href="#" onMouseDown="copyToClipboard(\'' + elem_id + '\')" onClick="return false">[copy to clipboard]</a>';
+    }
+
+    function makeContent(elem_id, content) {
+      const content_id = 'cn-' + elem_id;
+      return makeDetails('Content ' + makeCopyLink(content_id), 'cat_header_2', content, 'cat_body', content_id, true);
+    }
+
+    function makeHR(label) {
+       const container = document.createElement('div');
+      container.className = 'hr-container';
+      const line1 = document.createElement('div');
+      line1.className = 'hr-line';
+      container.append(line1);
+      const text = document.createElement('span');
+      text.className = 'hr-text';
+      text.innerHTML = label;
+      container.append(text);
+      const line2 = document.createElement('div');
+      line2.className = 'hr-line';
+      container.append(line2);
+      return container;
+    }
+
+    function makeCodeExample(elem_id, message) {
+      const example_id = 'ex-' + elem_id;
+      var code = '// Code must be executed on the browser process UI thread.\n\n';
+
+      if (message.type === "preference") {
+        if (message.global) {
+          code += 'auto pref_manager = CefPreferenceManager::GetGlobalPreferenceManager();\n';
+        } else {
+          code += '// |browser| is an existing CefBrowser instance.\n' +
+                  'auto pref_manager = browser->GetHost()->GetRequestContext();\n';
+        }
+        code += makeValueExample(message.value, message.value_type) + '\n' +
+                'CefString error;\n' +
+                'bool success = pref_manager->SetPreference("' + message.name + '", value, error);\n' +
+                'if (!success) {\n' +
+                '  // TODO: Use |error| to diagnose the failure.\n' +
+                '}\n';
+      } else if (message.type === "setting") {
+        const type = getSettingType(message.content_type);
+        const content_type = type !== 'UNKNOWN' ? 'CEF_CONTENT_SETTING_TYPE_' + type : message.content_type;
+
+        code += '// |browser| is an existing CefBrowser instance.\n' +
+                'auto context = browser->GetHost()->GetRequestContext();\n' +
+                makeValueExample(message.value, message.value_type) + '\n' +
+                'context->SetWebsiteSetting("' + message.requesting_url + '", "' + message.top_level_url +
+                '", '+ content_type +', value);\n';
+      }
+
+      return makeDetails('C++ Code Example ' + makeCopyLink(example_id), 'cat_header_2', code, 'cat_body', example_id, false);
+    }
+
+    var message_ct = 0;
+
+    // A new message has arrived. It may be queued, filtered out or displayed.
+    function onSubscriptionMessage(message) {
+      if (paused) {
+        // Queue the message until the user clicks Resume.
+        message.timestamp = getNiceTimestamp();
+        paused_messages.push(message);
+        document.getElementById("pause_button").value = 'Resume (' + paused_messages.length + ')';
+        return;
+      }
+
+      if (!passesFilter(message)) {
+        // Filter out the message.
+        filtered_ct++;
+        document.getElementById("filtered_ct").innerHTML = filtered_ct;
+        return;
+      }
+
+      // Use the arrival timestamp for queued messages.
+      var timestamp;
+      if (message.timestamp) {
+        timestamp = message.timestamp;
+        delete message.timestamp;
+      } else {
+        timestamp = getNiceTimestamp();
+      }
+
+      // Display the message.
+      var label = timestamp + ': ';
+      var content = 'value_type=' + getValueType(message.value_type);
+      var search = '';
+      var filter = '';
+
+      if (message.type === "preference") {
+        label += 'Preference (' + (message.global ? 'Global' : 'Profile') +
+                 ') <span class="mono">' + message.name + '</span>';
+        search = '%5C%22' + message.name + '%5C%22';
+        filter = "'preference', '" + message.name + "', " + (message.global ? 'true' : 'false');
+      } else if (message.type === "setting") {
+        label += 'Setting <span class="mono">' + getSettingTypeLabel(message.content_type) + '</span>';
+        const setting_type = getSettingType(message.content_type);
+        search = 'ContentSettingsType::' + setting_type;
+        filter = "'setting', '" + setting_type + "'";
+        content = 'requesting_url=' + message.requesting_url +
+                  '\ntop_level_url=' + message.top_level_url +
+                  '\n' + content;
+      }
+      content += '\nvalue=' + JSON.stringify(message.value, null, 1);
+      label += ' <a href="#" onMouseDown="doFilter(' + filter + ')" onClick="return false">[filter]</a>' +
+               ' <a href="https://source.chromium.org/search?q=' + search + '" target="_blank">[search &#x1F517]</a>';
+
+      const messages = document.getElementById('messages');
+      
+      if (first_after_pause) {
+        messages.prepend(makeHR('RESUMED'));
+        first_after_pause = false;
+      }
+
+      const elem_id = message_ct++;
+      const newDetails = makeDetails(label, null, makeContent(elem_id, content).outerHTML +
+                                                  makeCodeExample(elem_id, message).outerHTML, 'cat_body');
+      messages.prepend(newDetails);
+    }
+
+    // Clear filter count and displayed/pending messages.
+    function doClear() {
+      filtered_ct = 0;
+      document.getElementById("filtered_ct").textContent = 0;
+      document.getElementById('messages').innerHTML = '';
+      if (paused) {
+        paused_messages = [];
+        document.getElementById("pause_button").value = 'Resume';
+      }
+      message_ct = 0;
+    }
+
+    function showTempMessage(msg) {
+      const element = document.getElementById("temp-message");
+      element.innerHTML = msg;
+      element.style.display = "block";
+
+      setTimeout(function() {
+        element.style.display = "none";
+      }, 3000);
+    }
+
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      if (!element) {
+        return;
+      }
+
+      // Make all parent details nodes are open, otherwise nothing will be copied to the clipboard.
+      var parent = element.parentNode;
+      while (parent) {
+        if (parent.nodeName === 'DETAILS') {
+          if (!parent.open) {
+            parent.open = true;
+          }
+        }
+        parent = parent.parentNode;
+      }
+
+      navigator.clipboard.writeText(element.outerText)
+        .then(() => {
+          showTempMessage('Text copied to clipboard.');
+        })
+        .catch(err => {
+          showTempMessage('Failed to copy text to clipboard!');
+          console.error('Failed to copy text: ', err);
+        });
+    }
+  </script>
+</head>
+<body bgcolor="white" onload="onLoad()" onunload="onUnload()">
+  <div id="message"></div>
+  <details open>
+    <summary class="cat_header_0">Startup configuration</summary>
+    <p class="desc">
+       This section displays the global configuration (Chrome Variations) that was applied at startup.
+       Chrome Variations can be configured via chrome://flags <sup>[*]</sup>, via the below command-line switches, or via field trials (disabled in Official builds).
+       The Active Variations section below is the human-readable equivalent of the "Active Variations" section of chrome://version.
+       See <a href="https://developer.chrome.com/docs/web-platform/chrome-variations" target="_blank">Chrome Variations docs</a> for background.
+    </p>
+    <p class="foot">
+      * Flags are stored in the global <span class="mono">browser.enabled_labs_experiments</span> preference.
+    </p>
+    <p class="cat_header_1">Command-Line Switches:</p>
+    <p class="cat_body" id="global_switches"></p>
+    <details>
+      <summary class="cat_header_1">Active Variations (<span id="global_strings_ct">0</span>)</summary>
+      <p class="cat_body" id="global_strings"></p>
+    </details>
+  </details>
+  <br/>
+  <details open>
+    <summary class="cat_header_0">Runtime configuration</summary>
+    <p class="desc">
+       This section displays preference and site settings changes that occur during runtime.
+       Chromium stores both global and Profile-specific preferences.
+       See <a href="https://www.chromium.org/developers/design-documents/preferences/" target="_blank">Preferences docs</a> for background.
+       To view a snapshot of all preferences go <a href="https://tests/preferences#advanced">here</a> instead.
+    </p>
+    <p id="filter">
+      <form id="form">
+        Text Contains: <input type="text" id="filter_text"/> <input type="button" onclick="updateFilter();" value="Apply"/>
+        <br/>Show: <input type="checkbox" id="filter_global_prefs" onChange="updateFilter()" checked /> Global preferences
+        <input type="checkbox" id="filter_context_prefs" onChange="updateFilter()" checked /> Profile-specific preferences
+        <input type="checkbox" id="filter_context_settings" onChange="updateFilter()" checked /> Site settings <sup>[*]</sup>
+        <br/><input type="button" id="clear_button" onclick="doClear()" value="Clear"/>
+        <input type="button" id="pause_button" onclick="togglePause()" value="Pause"/> <sup>[**]</sup> Filtered out: <span id="filtered_ct">0</span>
+        <input type="button" id="reset_button" onclick="doFilterReset()" value="Reset"/>
+        <p class="foot">
+          * Site settings are stored in the Profile-specific <span class="mono">profile.content_settings</span> preference and can be modified via chrome://settings/content.
+          <br/>** Events will not be displayed or filtered out while processing is paused.
+        </p>
+      </form>
+    </p>
+    <div id="messages" onMouseDown="doPause()"></div>
+    <div id="temp-message"></div>
+  </details>
+</body>
+</html>
