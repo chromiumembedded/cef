@@ -27,6 +27,9 @@ class CefGlobalPreferenceManagerImpl : public CefPreferenceManager {
   bool SetPreference(const CefString& name,
                      CefRefPtr<CefValue> value,
                      CefString& error) override;
+  CefRefPtr<CefRegistration> AddPreferenceObserver(
+      const CefString& name,
+      CefRefPtr<CefPreferenceObserver> observer) override;
 
  private:
   IMPLEMENT_REFCOUNTING(CefGlobalPreferenceManagerImpl);

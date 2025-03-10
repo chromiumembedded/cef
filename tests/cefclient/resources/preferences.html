@@ -13,8 +13,12 @@
 
   <script>
     function setup() {
-      if (location.hostname == 'tests' || location.hostname == 'localhost')
+      if (location.hostname === 'tests' || location.hostname === 'localhost') {
+        if (location.hash === '#advanced') {
+          toggleView();
+        }
         return;
+      }
 
       alert('This page can only be run from tests or localhost.');
 

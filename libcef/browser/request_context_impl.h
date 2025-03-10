@@ -17,6 +17,14 @@ namespace content {
 struct GlobalRenderFrameHostId;
 }
 
+namespace pref_helper {
+class Registrar;
+}
+
+namespace setting_helper {
+class Registrar;
+}
+
 class CefBrowserContext;
 
 // Implementation of the CefRequestContext interface. All methods are thread-
@@ -80,6 +88,20 @@ class CefRequestContextImpl : public CefRequestContext {
       scoped_refptr<base::SingleThreadTaskRunner> task_runner,
       BrowserContextCallback callback);
 
+  // CefPreferenceManager methods.
+  bool HasPreference(const CefString& name) override;
+  CefRefPtr<CefValue> GetPreference(const CefString& name) override;
+  CefRefPtr<CefDictionaryValue> GetAllPreferences(
+      bool include_defaults) override;
+  bool CanSetPreference(const CefString& name) override;
+  bool SetPreference(const CefString& name,
+                     CefRefPtr<CefValue> value,
+                     CefString& error) override;
+  CefRefPtr<CefRegistration> AddPreferenceObserver(
+      const CefString& name,
+      CefRefPtr<CefPreferenceObserver> observer) override;
+
+  // CefRequestContext methods.
   bool IsSame(CefRefPtr<CefRequestContext> other) override;
   bool IsSharingWith(CefRefPtr<CefRequestContext> other) override;
   bool IsGlobal() override;
@@ -92,14 +114,6 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) override;
   bool ClearSchemeHandlerFactories() override;
-  bool HasPreference(const CefString& name) override;
-  CefRefPtr<CefValue> GetPreference(const CefString& name) override;
-  CefRefPtr<CefDictionaryValue> GetAllPreferences(
-      bool include_defaults) override;
-  bool CanSetPreference(const CefString& name) override;
-  bool SetPreference(const CefString& name,
-                     CefRefPtr<CefValue> value,
-                     CefString& error) override;
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) override;
   void ClearHttpAuthCredentials(
@@ -125,6 +139,8 @@ class CefRequestContextImpl : public CefRequestContext {
                          const CefString& top_level_url,
                          cef_content_setting_types_t content_type,
                          cef_content_setting_values_t value) override;
+  CefRefPtr<CefRegistration> AddSettingObserver(
+      CefRefPtr<CefSettingObserver> observer) override;
   void SetChromeColorScheme(cef_color_variant_t variant,
                             cef_color_t user_color) override;
   cef_color_variant_t GetChromeColorSchemeMode() override;
@@ -217,6 +233,9 @@ class CefRequestContextImpl : public CefRequestContext {
   raw_ptr<CefBrowserContext> browser_context_ = nullptr;
 
   Config config_;
+
+  std::unique_ptr<pref_helper::Registrar> pref_registrar_;
+  std::unique_ptr<setting_helper::Registrar> setting_registrar_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
 };

@@ -41,6 +41,7 @@
 #include <vector>
 
 #include "include/cef_base.h"
+#include "include/cef_registration.h"
 #include "include/cef_values.h"
 
 ///
@@ -65,6 +66,24 @@ class CefPreferenceRegistrar : public CefBaseScoped {
                              CefRefPtr<CefValue> default_value) = 0;
 };
 
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Implemented by the client to observe preference changes and registered via
+/// CefPreferenceManager::AddPreferenceObserver. The methods of this class will
+/// be called on the browser process UI thread.
+///
+/*--cef(source=client,added=next)--*/
+class CefPreferenceObserver : public virtual CefBaseRefCounted {
+ public:
+  ///
+  /// Called when a preference has changed. The new value can be retrieved using
+  /// CefPreferenceManager::GetPreference.
+  ///
+  /*--cef()--*/
+  virtual void OnPreferenceChanged(const CefString& name) = 0;
+};
+#endif
+
 ///
 /// Manage access to preferences. Many built-in preferences are registered by
 /// Chromium. Custom preferences can be registered in
@@ -73,6 +92,36 @@ class CefPreferenceRegistrar : public CefBaseScoped {
 /*--cef(source=library,no_debugct_check)--*/
 class CefPreferenceManager : public virtual CefBaseRefCounted {
  public:
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Returns the current Chrome Variations configuration (combination of field
+  /// trials and chrome://flags) as equivalent command-line switches
+  /// (`--[enable|disable]-features=XXXX`, etc). These switches can be used to
+  /// apply the same configuration when launching a CEF-based application. See
+  /// https://developer.chrome.com/docs/web-platform/chrome-variations for
+  /// background and details. Note that field trial tests are disabled by
+  /// default in Official CEF builds (via the
+  /// `disable_fieldtrial_testing_config=true` GN flag). This method must be
+  /// called on the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  static void GetChromeVariationsAsSwitches(std::vector<CefString>& switches);
+
+  ///
+  /// Returns the current Chrome Variations configuration (combination of field
+  /// trials and chrome://flags) as human-readable strings. This is the
+  /// human-readable equivalent of the "Active Variations" section of
+  /// chrome://version. See
+  /// https://developer.chrome.com/docs/web-platform/chrome-variations for
+  /// background and details. Note that field trial tests are disabled by
+  /// default in Official CEF builds (via the
+  /// `disable_fieldtrial_testing_config=true` GN flag). This method must be
+  /// called on the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  static void GetChromeVariationsAsStrings(std::vector<CefString>& strings);
+#endif
+
   ///
   /// Returns the global preference manager object.
   ///
@@ -129,6 +178,21 @@ class CefPreferenceManager : public virtual CefBaseRefCounted {
   virtual bool SetPreference(const CefString& name,
                              CefRefPtr<CefValue> value,
                              CefString& error) = 0;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Add an observer for preference changes. |name| is the name of the
+  /// preference to observe. If |name| is empty then all preferences will
+  /// be observed. Observing all preferences has performance consequences and
+  /// is not recommended outside of testing scenarios. The observer will remain
+  /// registered until the returned Registration object is destroyed. This
+  /// method must be called on the browser process UI thread.
+  ///
+  /*--cef(optional_param=name,added=next)--*/
+  virtual CefRefPtr<CefRegistration> AddPreferenceObserver(
+      const CefString& name,
+      CefRefPtr<CefPreferenceObserver> observer) = 0;
+#endif
 };
 
 #endif  // CEF_INCLUDE_CEF_PREFERENCE_H_

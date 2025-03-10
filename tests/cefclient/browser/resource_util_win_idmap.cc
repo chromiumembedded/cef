@@ -15,6 +15,7 @@ int GetResourceId(const char* resource_name) {
     int id;
   } resource_map[] = {{"binary_transfer.html", IDS_BINARY_TRANSFER_HTML},
                       {"binding.html", IDS_BINDING_HTML},
+                      {"config.html", IDS_CONFIG_HTML},
                       {"dialogs.html", IDS_DIALOGS_HTML},
                       {"draggable.html", IDS_DRAGGABLE_HTML},
                       {"hang.html", IDS_HANG_HTML},

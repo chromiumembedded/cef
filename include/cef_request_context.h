@@ -44,6 +44,7 @@
 #include "include/cef_cookie.h"
 #include "include/cef_media_router.h"
 #include "include/cef_preference.h"
+#include "include/cef_registration.h"
 #include "include/cef_values.h"
 
 class CefRequestContextHandler;
@@ -65,6 +66,27 @@ class CefResolveCallback : public virtual CefBaseRefCounted {
       cef_errorcode_t result,
       const std::vector<CefString>& resolved_ips) = 0;
 };
+
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Implemented by the client to observe content and website setting changes and
+/// registered via CefRequestContext::AddSettingObserver. The methods of this
+/// class will be called on the browser process UI thread.
+///
+/*--cef(source=client,added=next)--*/
+class CefSettingObserver : public virtual CefBaseRefCounted {
+ public:
+  ///
+  /// Called when a content or website setting has changed. The new value can be
+  /// retrieved using CefRequestContext::GetContentSetting or
+  /// CefRequestContext::GetWebsiteSetting.
+  ///
+  /*--cef(optional_param=requesting_url,optional_param=top_level_url)--*/
+  virtual void OnSettingChanged(const CefString& requesting_url,
+                                const CefString& top_level_url,
+                                cef_content_setting_types_t content_type) = 0;
+};
+#endif
 
 ///
 /// A request context provides request handling for a set of related browser
@@ -291,6 +313,17 @@ class CefRequestContext : public CefPreferenceManager {
                                  const CefString& top_level_url,
                                  cef_content_setting_types_t content_type,
                                  cef_content_setting_values_t value) = 0;
+
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Add an observer for content and website setting changes. The observer will
+  /// remain registered until the returned Registration object is destroyed.
+  /// This method must be called on the browser process UI thread.
+  ///
+  /*--cef(added=next)--*/
+  virtual CefRefPtr<CefRegistration> AddSettingObserver(
+      CefRefPtr<CefSettingObserver> observer) = 0;
+#endif
 
   ///
   /// Sets the Chrome color scheme for all browsers that share this request
