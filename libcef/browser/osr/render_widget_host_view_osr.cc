@@ -1864,8 +1864,7 @@ void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
-    const std::optional<std::vector<gfx::Rect>>& character_bounds,
-    const std::optional<std::vector<gfx::Rect>>& line_bounds) {
+    const std::optional<std::vector<gfx::Rect>>& character_bounds) {
   if (browser_impl_.get()) {
     CefRange cef_range(range.start(), range.end());
     CefRenderHandler::RectList rcList;

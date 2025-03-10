@@ -246,7 +246,8 @@ void CefBrowserContext::RemoveCefRequestContext(
     Shutdown();
 
     // Allow the current call stack to unwind before deleting |this|.
-    content::BrowserThread::DeleteSoon(CEF_UIT, FROM_HERE, this);
+    content::BrowserThread::GetTaskRunnerForThread(CEF_UIT)->DeleteSoon(
+        FROM_HERE, this);
   }
 }
 

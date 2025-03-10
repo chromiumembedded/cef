@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index a6072f97ed578..945fed3bf0276 100644
+index 335a734e4f454..ef5101aed9e0d 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -20,8 +20,8 @@ index a6072f97ed578..945fed3bf0276 100644
      "crash/crash_helper.cc",
      "crash/crash_helper.h",
    ]
-@@ -111,6 +109,7 @@ static_library("crash") {
-     ":hook_util",
+@@ -110,6 +108,7 @@ static_library("crash") {
+     ":constants",
      "//base",  # This needs to go.  DEP of app, crash_keys, client.
      "//base:base_static",  # pe_image
 +    "//cef/libcef/features:buildflags",
@@ -29,7 +29,7 @@ index a6072f97ed578..945fed3bf0276 100644
      "//components/crash/core/app",
      "//components/crash/core/common",  # crash_keys
 @@ -118,6 +117,17 @@ static_library("crash") {
-     "//content/public/common:result_codes",
+     "//sandbox/policy:win_hook_util",
      "//third_party/crashpad/crashpad/client",  # DumpWithoutCrash
    ]
 +
@@ -47,7 +47,7 @@ index a6072f97ed578..945fed3bf0276 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index 30a2c1adc4509..b60a7afaf1e5e 100644
+index 975ad7d990fe9..1d75a1250afb7 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
 @@ -12,12 +12,17 @@
@@ -56,9 +56,9 @@ index 30a2c1adc4509..b60a7afaf1e5e 100644
  
 +#include "cef/libcef/features/features.h"
  #include "chrome/app/chrome_crash_reporter_client_win.h"
- #include "chrome/chrome_elf/hook_util/hook_util.h"
  #include "components/crash/core/app/crashpad.h"
  #include "components/crash/core/common/crash_keys.h"
+ #include "sandbox/policy/win/hook_util/hook_util.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -70,7 +70,7 @@ index 30a2c1adc4509..b60a7afaf1e5e 100644
  // Crash handling from elf is only enabled for the chrome.exe process.
 @@ -78,7 +83,11 @@ bool InitializeCrashReporting() {
    g_crash_reports = new std::vector<crash_reporter::Report>;
-   g_set_unhandled_exception_filter = new elf_hook::IATHook();
+   g_set_unhandled_exception_filter = new sandbox::policy::IATHook();
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  CefCrashReporterClient::InitializeCrashReportingForProcess();
@@ -81,7 +81,7 @@ index 30a2c1adc4509..b60a7afaf1e5e 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 36f846b0dfe29..98979130c36cc 100644
+index b5d093b5415be..d9be58aa3a7ad 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -8,6 +8,8 @@
@@ -93,7 +93,7 @@ index 36f846b0dfe29..98979130c36cc 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -106,8 +108,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
+@@ -105,8 +107,10 @@ void HandleEnableDisableFeatures(const base::CommandLine& command_line) {
        "commandline-disabled-feature");
  }
  
@@ -105,7 +105,7 @@ index 36f846b0dfe29..98979130c36cc 100644
    static const auto kIgnoreSwitches = std::to_array<std::string_view>({
        kStringAnnotationsSwitch,
        switches::kEnableLogging,
-@@ -167,6 +171,8 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -166,6 +170,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -114,7 +114,7 @@ index 36f846b0dfe29..98979130c36cc 100644
  std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
    static base::NoDestructor<std::deque<CrashKeyWithName>>
        command_line_string_annotations;
-@@ -215,7 +221,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
+@@ -214,7 +220,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
    SetStringAnnotations(command_line);
    HandleEnableDisableFeatures(command_line);

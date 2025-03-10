@@ -1,8 +1,8 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 854457658bbdc..823f50e53821d 100644
+index da6b76717d7b7..d536c8329e732 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
-@@ -42,6 +42,7 @@ import("//build/rust/rust_static_library.gni")
+@@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
  import("//build/timestamp.gni")
  import("//build/util/process_version.gni")
  import("//build_overrides/build.gni")
@@ -10,7 +10,7 @@ index 854457658bbdc..823f50e53821d 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1492,7 +1493,13 @@ component("base") {
+@@ -1509,7 +1510,13 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -25,7 +25,7 @@ index 854457658bbdc..823f50e53821d 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1942,6 +1949,12 @@ component("base") {
+@@ -1959,6 +1966,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -59,28 +59,6 @@ index f680f63cffc5b..9cb615bbc8a5a 100644
      DCHECK([&] {
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
-diff --git base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr.h base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr.h
-index c3ac11523410f..2a3d3bc4d1f34 100644
---- base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr.h
-+++ base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr.h
-@@ -1271,7 +1271,7 @@ template <typename T,
-           typename TQ,
-           template <typename>
-           typename UQ>
--struct std::basic_common_reference<raw_ptr<T, Traits>, T*, TQ, UQ> {
-+struct basic_common_reference<raw_ptr<T, Traits>, T*, TQ, UQ> {
-   using type = T*;
- };
- 
-@@ -1281,7 +1281,7 @@ template <typename T,
-           typename TQ,
-           template <typename>
-           typename UQ>
--struct std::basic_common_reference<T*, raw_ptr<T, Traits>, TQ, UQ> {
-+struct basic_common_reference<T*, raw_ptr<T, Traits>, TQ, UQ> {
-   using type = T*;
- };
- 
 diff --git base/hash/md5.h base/hash/md5.h
 index 215d636fec275..922e88f31b999 100644
 --- base/hash/md5.h
@@ -112,7 +90,7 @@ index 2158b648ca58a..8a8cb13b2fd74 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/json/json_reader.cc base/json/json_reader.cc
-index af1d4f46d02c9..953585804c177 100644
+index 32d8707d3ad5d..12b8ccda8fc30 100644
 --- base/json/json_reader.cc
 +++ base/json/json_reader.cc
 @@ -12,8 +12,9 @@
@@ -164,7 +142,7 @@ index af1d4f46d02c9..953585804c177 100644
  }
  
  // static
-@@ -168,7 +169,7 @@ std::optional<Value::Dict> JSONReader::ReadDict(std::string_view json,
+@@ -179,7 +180,7 @@ std::optional<Value::List> JSONReader::ReadList(std::string_view json,
  JSONReader::Result JSONReader::ReadAndReturnValueWithError(
      std::string_view json,
      int options) {
@@ -173,7 +151,7 @@ index af1d4f46d02c9..953585804c177 100644
    internal::JSONParser parser(options);
    auto value = parser.Parse(json);
    if (!value) {
-@@ -180,7 +181,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+@@ -191,7 +192,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
    }
  
    return std::move(*value);
@@ -182,7 +160,7 @@ index af1d4f46d02c9..953585804c177 100644
    SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
    if (UsingRust()) {
      return DecodeJSONInRust(json, options, internal::kAbsoluteMaxDepth);
-@@ -197,7 +198,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
+@@ -208,7 +209,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
  
      return std::move(*value);
    }
@@ -191,7 +169,7 @@ index af1d4f46d02c9..953585804c177 100644
  }
  
  // static
-@@ -208,7 +209,7 @@ bool JSONReader::UsingRust() {
+@@ -219,7 +220,7 @@ bool JSONReader::UsingRust() {
    if (!base::FeatureList::GetInstance()) {
      return false;
    }
@@ -201,18 +179,18 @@ index af1d4f46d02c9..953585804c177 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 4511af700c1be..dbd50c28455be 100644
+index e996f8c614266..7bd52b676cc92 100644
 --- base/logging.cc
 +++ base/logging.cc
-@@ -56,6 +56,7 @@
+@@ -51,6 +51,7 @@
+ #include "base/trace_event/base_tracing.h"
  #include "base/vlog.h"
  #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "third_party/abseil-cpp/absl/base/internal/raw_logging.h"
  #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
  
-@@ -534,7 +535,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -530,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    }
  #endif
  
@@ -269,7 +247,7 @@ index 5d11d4a1560b1..242a93bcca8ed 100644
  }  // namespace win
  #endif
 diff --git base/rand_util.h base/rand_util.h
-index 716222897d140..2d1053085630c 100644
+index da48b37857aa3..3ff683247ab2a 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -23,8 +23,9 @@

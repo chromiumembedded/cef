@@ -602,7 +602,7 @@ ChromeContentBrowserClientCef::CreateLoginDelegate(
     scoped_refptr<net::HttpResponseHeaders> response_headers,
     bool first_auth_attempt,
     content::GuestPageHolder* guest,
-    LoginAuthRequiredCallback auth_required_callback) {
+    content::LoginDelegate::LoginAuthRequiredCallback auth_required_callback) {
   // |web_contents| is nullptr for CefURLRequests without an associated frame.
   if (!web_contents || base::CommandLine::ForCurrentProcess()->HasSwitch(
                            switches::kDisableChromeLoginPrompt)) {

@@ -1,21 +1,22 @@
 diff --git base/process/set_process_title.cc base/process/set_process_title.cc
-index edd8c78fb1537..49622b9c05dc0 100644
+index b6389523952a4..f9c709624cd0e 100644
 --- base/process/set_process_title.cc
 +++ base/process/set_process_title.cc
-@@ -54,7 +54,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
+@@ -54,9 +54,6 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
    bool have_argv0 = false;
  
  #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
--  DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
-+  // DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
- 
+-  DCHECK_EQ(base::PlatformThread::CurrentId(),
+-            base::PlatformThreadId(getpid()));
+-
    if (main_argv) {
      setproctitle_init(main_argv);
+   }
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 54dfbaa6df693..b3a4093c076a3 100644
+index ffc5c37742800..82e1c22b0f073 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -198,16 +198,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -199,16 +199,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -34,7 +35,7 @@ index 54dfbaa6df693..b3a4093c076a3 100644
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -286,7 +280,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -287,7 +281,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -45,7 +46,7 @@ index 54dfbaa6df693..b3a4093c076a3 100644
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -294,14 +290,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -295,14 +291,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -60,7 +61,7 @@ index 54dfbaa6df693..b3a4093c076a3 100644
      InitializeMac();
  #endif
  
-@@ -350,12 +338,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -356,12 +344,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -107,10 +108,10 @@ index 54dfbaa6df693..b3a4093c076a3 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 93cbe4e3b64d4..a4356c3ccf4eb 100644
+index 82e5123e35509..437c5d080cf24 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -48,6 +48,7 @@
+@@ -49,6 +49,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -118,7 +119,7 @@ index 93cbe4e3b64d4..a4356c3ccf4eb 100644
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/build_config.h"
-@@ -1329,6 +1330,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1336,6 +1337,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

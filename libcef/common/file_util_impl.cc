@@ -62,7 +62,7 @@ bool CefCreateTempDirectoryInDirectory(const CefString& base_dir,
   base::FilePath result;
   base::FilePath::StringType prefix_str = prefix;
   if (base::CreateTemporaryDirInDir(
-          base_dir, base::FilePath::StringPieceType(prefix_str), &result)) {
+          base_dir, base::FilePath::StringViewType(prefix_str), &result)) {
     new_dir = result.value();
     return true;
   }

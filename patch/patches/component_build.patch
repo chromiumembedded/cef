@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index 51da615ed2e56..fb7d3b21c759a 100644
+index a10ce7680779f..df174ce52288b 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -116,7 +116,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -55,7 +55,7 @@ index 09d80f2ba678d..5dbff44c280a1 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index e202f66106af0..64a316dc80348 100644
+index 1cec8375b6d86..e3aa20e8aea63 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@
@@ -66,7 +66,7 @@ index e202f66106af0..64a316dc80348 100644
  import("//testing/test.gni")
  import("//third_party/blink/renderer/bindings/bindings.gni")
  import("//third_party/blink/renderer/config.gni")
-@@ -69,6 +70,15 @@ component("controller") {
+@@ -71,6 +72,15 @@ component("controller") {
      "performance_manager/v8_worker_memory_reporter.h",
    ]
  

@@ -146,7 +146,7 @@ index 39b2de869d225..5a4e621c650ee 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 104e8502908e2..9086d7b9e00fd 100644
+index 368fef0540317..d8ec71b69dc77 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -157,9 +157,9 @@ index 104e8502908e2..9086d7b9e00fd 100644
  import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -76,11 +77,23 @@ static_library("handler") {
+@@ -75,11 +76,23 @@ static_library("handler") {
+     "../minidump",
      "../snapshot",
-     "../third_party/mini_chromium:chromeos_buildflags",
      "../tools:tool_support",
 +    "//cef/libcef/features:buildflags",
    ]
@@ -246,18 +246,18 @@ index 22bb26e31893b..87c80604e5f7a 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 7e908c0a305be..e35414a131f07 100644
+index 6eca8415eb10e..346836adb4477 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
-@@ -39,6 +39,7 @@
+@@ -38,6 +38,7 @@
+ #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
- #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
  #include "client/crashpad_info.h"
-@@ -89,6 +90,10 @@
+@@ -88,6 +89,10 @@
  #include "util/win/session_end_watcher.h"
  #endif  // BUILDFLAG(IS_APPLE)
  
@@ -268,27 +268,27 @@ index 7e908c0a305be..e35414a131f07 100644
  namespace crashpad {
  
  namespace {
-@@ -248,6 +253,9 @@ struct Options {
+@@ -247,6 +252,9 @@ struct Options {
    bool periodic_tasks;
    bool rate_limit;
    bool upload_gzip;
 +  int max_uploads;
 +  int max_database_size;
 +  int max_database_age;
- #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
+ #if BUILDFLAG(IS_CHROMEOS)
    bool use_cros_crash_reporter = false;
    base::FilePath minidump_dir_for_tests;
-@@ -622,6 +630,9 @@ int HandlerMain(int argc,
+@@ -621,6 +629,9 @@ int HandlerMain(int argc,
      kOptionTraceParentWithException,
  #endif
      kOptionURL,
 +    kOptionMaxUploads,
 +    kOptionMaxDatabaseSize,
 +    kOptionMaxDatabaseAge,
- #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
+ #if BUILDFLAG(IS_CHROMEOS)
      kOptionUseCrosCrashReporter,
      kOptionMinidumpDirForTests,
-@@ -722,6 +733,9 @@ int HandlerMain(int argc,
+@@ -721,6 +732,9 @@ int HandlerMain(int argc,
  #endif  // BUILDFLAG(IS_ANDROID)
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -298,7 +298,7 @@ index 7e908c0a305be..e35414a131f07 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -879,6 +893,27 @@ int HandlerMain(int argc,
+@@ -878,6 +892,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -323,10 +323,10 @@ index 7e908c0a305be..e35414a131f07 100644
 +        }
 +        break;
 +      }
- #if BUILDFLAG(IS_CHROMEOS_ASH) || BUILDFLAG(IS_CHROMEOS_LACROS)
+ #if BUILDFLAG(IS_CHROMEOS)
        case kOptionUseCrosCrashReporter: {
          options.use_cros_crash_reporter = true;
-@@ -1028,11 +1063,20 @@ int HandlerMain(int argc,
+@@ -1027,11 +1062,20 @@ int HandlerMain(int argc,
      upload_thread_options.upload_gzip = options.upload_gzip;
      upload_thread_options.watch_pending_reports = options.periodic_tasks;
  
@@ -347,7 +347,7 @@ index 7e908c0a305be..e35414a131f07 100644
      upload_thread.Get()->Start();
    }
  
-@@ -1103,7 +1147,8 @@ int HandlerMain(int argc,
+@@ -1102,7 +1146,8 @@ int HandlerMain(int argc,
    ScopedStoppable prune_thread;
    if (options.periodic_tasks) {
      prune_thread.Reset(new PruneCrashReportThread(

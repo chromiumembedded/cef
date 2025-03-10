@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 58add8ca095aa..9fe7728f8ccad 100644
+index d73cefd1f7df0..f69a7771cc61f 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -352,6 +352,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -32,7 +32,7 @@ index 58add8ca095aa..9fe7728f8ccad 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -882,6 +898,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -895,6 +911,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -47,7 +47,7 @@ index 58add8ca095aa..9fe7728f8ccad 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1339,6 +1363,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1352,6 +1376,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,8 +60,8 @@ index 58add8ca095aa..9fe7728f8ccad 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3577,6 +3607,26 @@ void RenderViewContextMenu::RegisterExecutePluginActionCallbackForTesting(
-   execute_plugin_action_callback_ = std::move(cb);
+@@ -3631,6 +3661,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+   observers_.RemoveObserver(observer);
  }
  
 +// static
@@ -88,12 +88,12 @@ index 58add8ca095aa..9fe7728f8ccad 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index e58e041b3ff58..e06b6ef140f36 100644
+index f9c86beaffb8e..a330e66b1970e 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
-@@ -155,7 +155,21 @@ class RenderViewContextMenu
-   }
- #endif
+@@ -158,7 +158,21 @@ class RenderViewContextMenu
+   void AddObserverForTesting(RenderViewContextMenuObserver* observer);
+   void RemoveObserverForTesting(RenderViewContextMenuObserver* observer);
  
 +  // Registers a callback that will be called each time a context menu is
 +  // created.
@@ -113,7 +113,7 @@ index e58e041b3ff58..e06b6ef140f36 100644
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -479,6 +493,9 @@ class RenderViewContextMenu
+@@ -482,6 +496,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  
@@ -368,7 +368,7 @@ index 9fdda1636003d..538bd05a41296 100644
 +  return false;
 +}
 diff --git components/renderer_context_menu/render_view_context_menu_observer.h components/renderer_context_menu/render_view_context_menu_observer.h
-index 05efbd822ab0a..f3dff27cdfd19 100644
+index b2aa338c76cd3..233c34003bbc5 100644
 --- components/renderer_context_menu/render_view_context_menu_observer.h
 +++ components/renderer_context_menu/render_view_context_menu_observer.h
 @@ -11,6 +11,10 @@ namespace content {

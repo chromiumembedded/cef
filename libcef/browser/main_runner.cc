@@ -117,8 +117,7 @@ bool CefMainRunner::Initialize(CefSettings* settings,
   if (exit_code_ != content::RESULT_CODE_NORMAL_EXIT) {
     // Some exit codes are used to exit early, but are otherwise a normal
     // result. Don't log for those codes.
-    if (!chrome::IsNormalResultCode(
-            static_cast<chrome::ResultCode>(exit_code_))) {
+    if (!IsNormalResultCode(static_cast<ResultCode>(exit_code_))) {
       LOG(ERROR) << "ContentMainRun failed with exit code " << exit_code_;
     }
     return false;
@@ -460,7 +459,7 @@ void CefMainRunner::FinishShutdownOnUIThread() {
     ChromeProcessSingleton::DeleteInstance();
   }
 
-   static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
+  static_cast<content::ContentMainRunnerImpl*>(main_runner_.get())
       ->ShutdownOnUIThread();
 }
 

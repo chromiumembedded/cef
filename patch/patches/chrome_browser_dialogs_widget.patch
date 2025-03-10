@@ -210,7 +210,7 @@ index 51ed6bcf6b540..c6e1161140655 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 7d1c482562bef..30de35e14e826 100644
+index bc2b5ccf9e66f..78b8f5c123d8a 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -87,10 +87,12 @@ DialogDelegate::DialogDelegate() {
@@ -278,10 +278,10 @@ index 7d1c482562bef..30de35e14e826 100644
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index 4b0c8249f3d91..056a5a92074e3 100644
+index aed5714f0e767..75ee4f236b084 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
-@@ -128,13 +128,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -129,13 +129,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    // your use case.
    static Widget* CreateDialogWidget(std::unique_ptr<WidgetDelegate> delegate,
                                      gfx::NativeWindow context,
@@ -303,7 +303,7 @@ index 4b0c8249f3d91..056a5a92074e3 100644
  
    // Returns the dialog widget InitParams for a given |context| or |parent|.
    // If |bounds| is not empty, used to initially place the dialog, otherwise
-@@ -142,7 +147,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
+@@ -143,7 +148,9 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {
    static Widget::InitParams GetDialogWidgetInitParams(WidgetDelegate* delegate,
                                                        gfx::NativeWindow context,
                                                        gfx::NativeView parent,

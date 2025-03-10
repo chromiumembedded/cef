@@ -29,7 +29,7 @@ class LoginDelegate : public content::LoginDelegate {
                 content::WebContents* web_contents,
                 const content::GlobalRequestID& request_id,
                 const GURL& origin_url,
-                LoginAuthRequiredCallback callback);
+                content::LoginDelegate::LoginAuthRequiredCallback callback);
 
   void Continue(const CefString& username, const CefString& password);
   void Cancel();
@@ -40,7 +40,7 @@ class LoginDelegate : public content::LoginDelegate {
              const content::GlobalRequestID& request_id,
              const GURL& origin_url);
 
-  LoginAuthRequiredCallback callback_;
+  content::LoginDelegate::LoginAuthRequiredCallback callback_;
   base::WeakPtrFactory<LoginDelegate> weak_ptr_factory_;
 };
 

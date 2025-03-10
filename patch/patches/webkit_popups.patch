@@ -11,10 +11,10 @@ index b1689844282d6..a8f3b3432517d 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index 972603d6408bd..d5c3f76e1222f 100644
+index fd5c0566b6f51..7f891bb6040a5 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -257,8 +257,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -255,8 +255,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index 972603d6408bd..d5c3f76e1222f 100644
  }
  
  namespace {
-@@ -615,6 +620,7 @@ WebViewImpl::WebViewImpl(
+@@ -613,6 +618,7 @@ WebViewImpl::WebViewImpl(
            blink::ZoomFactorToZoomLevel(kMinimumBrowserZoomFactor)),
        maximum_zoom_level_(
            blink::ZoomFactorToZoomLevel(kMaximumBrowserZoomFactor)),

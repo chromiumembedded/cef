@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 1856966f2b913..6d7ecb4549502 100644
+index 64f9e50f60186..d97a8a461ffcb 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -21,6 +21,7 @@
@@ -10,26 +10,25 @@ index 1856966f2b913..6d7ecb4549502 100644
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -41,6 +42,10 @@
+@@ -38,6 +39,10 @@
  #include "base/win/windows_version.h"
  #endif  // BUILDFLAG(IS_WIN)
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#include "cef/libcef/common/cef_switches.h"
++constexpr char kUserAgentProductAndVersion[] = "user-agent-product";
 +#endif
 +
  namespace embedder_support {
  
  namespace {
-@@ -315,6 +320,14 @@ blink::UserAgentBrandList ShuffleBrandList(
+@@ -299,6 +304,13 @@ blink::UserAgentBrandList ShuffleBrandList(
  
  std::string GetProductAndVersion(
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {
 +#if BUILDFLAG(ENABLE_CEF)
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-+  if (command_line->HasSwitch(switches::kUserAgentProductAndVersion)) {
-+    return command_line->GetSwitchValueASCII(
-+        switches::kUserAgentProductAndVersion);
++  if (command_line->HasSwitch(kUserAgentProductAndVersion)) {
++    return command_line->GetSwitchValueASCII(kUserAgentProductAndVersion);
 +  }
 +#endif
 +

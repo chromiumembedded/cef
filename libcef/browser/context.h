@@ -110,7 +110,7 @@ class CefContext {
   int exit_code_ = -1;
 
   // The thread on which the context was initialized.
-  base::PlatformThreadId init_thread_id_ = 0;
+  base::PlatformThreadId init_thread_id_;
 
   CefSettings settings_;
   CefRefPtr<CefApp> application_;

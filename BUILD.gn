@@ -340,7 +340,7 @@ if (is_win) {
       # to maintain.
       "//chrome/common/crash_keys.cc",
       "//chrome/common/chrome_switches.cc",
-      "//components/flags_ui/flags_ui_switches.cc",
+      "//components/webui/flags/flags_ui_switches.cc",
       "//content/public/common/content_switches.cc",
     ]
 

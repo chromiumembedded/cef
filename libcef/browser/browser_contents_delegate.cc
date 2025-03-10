@@ -378,11 +378,11 @@ void CefBrowserContentsDelegate::RenderViewReady() {
 void CefBrowserContentsDelegate::PrimaryMainFrameRenderProcessGone(
     base::TerminationStatus status) {
   static_assert(static_cast<int>(CEF_RESULT_CODE_CHROME_FIRST) ==
-                    static_cast<int>(chrome::RESULT_CODE_CHROME_START),
+                    static_cast<int>(CHROME_RESULT_CODE_CHROME_START),
                 "CEF_RESULT_CODE_CHROME_FIRST must match "
                 "chrome::RESULT_CODE_CHROME_START");
   static_assert(static_cast<int>(CEF_RESULT_CODE_CHROME_LAST) ==
-                    static_cast<int>(chrome::RESULT_CODE_CHROME_LAST_CODE),
+                    static_cast<int>(CHROME_RESULT_CODE_CHROME_LAST_CODE),
                 "CEF_RESULT_CODE_CHROME_LAST must match "
                 "chrome::RESULT_CODE_CHROME_LAST_CODE");
 

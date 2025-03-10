@@ -134,7 +134,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       scoped_refptr<net::HttpResponseHeaders> response_headers,
       bool first_auth_attempt,
       content::GuestPageHolder* guest,
-      LoginAuthRequiredCallback auth_required_callback) override;
+      content::LoginDelegate::LoginAuthRequiredCallback auth_required_callback)
+      override;
   void ExposeInterfacesToRenderer(
       service_manager::BinderRegistry* registry,
       blink::AssociatedInterfaceRegistry* associated_registry,

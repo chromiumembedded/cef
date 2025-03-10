@@ -11,6 +11,7 @@
 #include "cef/include/internal/cef_logging_internal.h"
 #include "cef/include/internal/cef_thread_internal.h"
 #include "cef/include/internal/cef_trace_event_internal.h"
+#include "cef/libcef/common/api_version_util.h"
 
 namespace {
 
@@ -218,13 +219,13 @@ CEF_EXPORT void cef_log(const char* file,
 }
 
 CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id() {
-  return base::PlatformThread::CurrentId();
+  return base::PlatformThread::CurrentId().raw();
 }
 
 CEF_EXPORT cef_platform_thread_handle_t
 cef_get_current_platform_thread_handle() {
 #if BUILDFLAG(IS_WIN)
-  return base::PlatformThread::CurrentId();
+  return base::PlatformThread::CurrentId().raw();
 #else
   return base::PlatformThread::CurrentHandle().platform_handle();
 #endif
@@ -240,5 +241,7 @@ CEF_EXPORT int cef_dump_without_crashing(long long mseconds_between_dumps,
 }
 
 CEF_EXPORT int cef_dump_without_crashing_unthrottled() {
-  return base::debug::DumpWithoutCrashingUnthrottled();
+  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  NOTIMPLEMENTED();
+  return 0;
 }

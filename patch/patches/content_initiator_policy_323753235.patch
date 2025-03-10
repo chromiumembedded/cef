@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/navigation_policy_container_builder.cc content/browser/renderer_host/navigation_policy_container_builder.cc
-index c2d7f5c2f7abc..512125a22dfc8 100644
+index 4ec9c72f01480..7b033e2f9db11 100644
 --- content/browser/renderer_host/navigation_policy_container_builder.cc
 +++ content/browser/renderer_host/navigation_policy_container_builder.cc
 @@ -45,7 +45,6 @@ std::unique_ptr<PolicyContainerPolicies> GetInitiatorPolicies(

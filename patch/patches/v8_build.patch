@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index 94147651f9b..c243a8ed9cf 100644
+index bc75d8130b4..f15faf2d9c5 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/mips.gni")
@@ -10,17 +10,17 @@ index 94147651f9b..c243a8ed9cf 100644
  import("//third_party/icu/config.gni")
  
  import("gni/snapshot_toolchain.gni")
-@@ -483,6 +484,9 @@ declare_args() {
- 
+@@ -484,6 +485,9 @@ declare_args() {
    # Experimental testing mode where various limits are artificially set lower.
    v8_lower_limits_mode = false
-+
+ 
 +  # Set to true if V8 will be used in a shared library.
 +  v8_used_in_shared_library = enable_cef
- }
- 
- # Derived defaults.
-@@ -835,6 +839,10 @@ config("internal_config") {
++
+   # Enables the use of partition_alloc as the default allocator for standalone
+   # V8. This should be used for benchmarking and testing purposes to more
+   # closely mimic in-browser behavior.
+@@ -849,6 +853,10 @@ config("internal_config") {
      defines += [ "BUILDING_V8_SHARED" ]
    }
  

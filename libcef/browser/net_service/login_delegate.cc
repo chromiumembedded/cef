@@ -111,11 +111,12 @@ void RunCallbackOnIOThread(
 }
 }  // namespace
 
-LoginDelegate::LoginDelegate(const net::AuthChallengeInfo& auth_info,
-                             content::WebContents* web_contents,
-                             const content::GlobalRequestID& request_id,
-                             const GURL& origin_url,
-                             LoginAuthRequiredCallback callback)
+LoginDelegate::LoginDelegate(
+    const net::AuthChallengeInfo& auth_info,
+    content::WebContents* web_contents,
+    const content::GlobalRequestID& request_id,
+    const GURL& origin_url,
+    content::LoginDelegate::LoginAuthRequiredCallback callback)
     : callback_(std::move(callback)), weak_ptr_factory_(this) {
   CEF_REQUIRE_UIT();
 

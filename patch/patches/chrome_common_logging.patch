@@ -1,8 +1,8 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index 3d82d96a32ad9..1abf381036167 100644
+index 1078abe8b3665..88be445f788d6 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
-@@ -7,6 +7,7 @@ import("//build/config/chromeos/ui_mode.gni")
+@@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
  import("//build/config/compiler/compiler.gni")
  import("//build/config/dcheck_always_on.gni")
  import("//build/config/features.gni")
@@ -10,7 +10,7 @@ index 3d82d96a32ad9..1abf381036167 100644
  import("//components/compose/features.gni")
  import("//components/nacl/features.gni")
  import("//components/safe_browsing/buildflags.gni")
-@@ -32,7 +33,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
+@@ -31,7 +32,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
  declare_args() {
    # Enables the build to have logging enabled by default.
    # This is intended for use only in developer builds.
@@ -19,7 +19,7 @@ index 3d82d96a32ad9..1abf381036167 100644
  
    # Platforms for which Chrome supports a certificate management UI that
    # shows the Chrome Root Store. This is specific to the v2 UI that is
-@@ -67,11 +68,13 @@ declare_args() {
+@@ -66,11 +67,13 @@ declare_args() {
    # optimize_webui was moved to ui/base/ui_features.gni
  }
  
@@ -32,4 +32,4 @@ index 3d82d96a32ad9..1abf381036167 100644
 +}
  
  # Use brlapi from brltty for braille display support.
- use_brlapi = is_chromeos_ash
+ use_brlapi = is_chromeos

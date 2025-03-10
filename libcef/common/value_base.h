@@ -159,7 +159,7 @@ class CefValueControllerThreadSafe : public CefValueController {
     locked_thread_id_ = base::PlatformThread::CurrentId();
   }
   void unlock() override NO_THREAD_SAFETY_ANALYSIS {
-    locked_thread_id_ = 0;
+    locked_thread_id_ = base::PlatformThreadId();
     lock_.Release();
   }
   bool locked() override {
@@ -169,7 +169,7 @@ class CefValueControllerThreadSafe : public CefValueController {
 
  private:
   base::Lock lock_;
-  base::PlatformThreadId locked_thread_id_ = 0;
+  base::PlatformThreadId locked_thread_id_;
 };
 
 // Non-thread-safe access control implementation.

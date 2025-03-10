@@ -197,7 +197,7 @@ struct PopulateAxNodeAttributes {
       case ax::mojom::IntAttribute::kAriaNotificationPriorityDeprecated: {
         auto state =
             static_cast<ax::mojom::AriaNotificationPriority>(attr.second);
-        if (ax::mojom::AriaNotificationPriority::kNone != state) {
+        if (ax::mojom::AriaNotificationPriority::kNormal != state) {
           attributes->SetString(ToString(attr.first), ToString(state));
         }
       } break;

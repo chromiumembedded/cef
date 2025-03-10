@@ -103,8 +103,8 @@ class ResourceContextData : public base::SupportsUserData::Data {
     // Maybe the browser was destroyed while AddProxyOnUIThread was pending.
     if (!web_contents) {
       // Delete on the IO thread as expected by mojo bindings.
-      content::BrowserThread::DeleteSoon(content::BrowserThread::IO, FROM_HERE,
-                                         proxy);
+      content::BrowserThread::GetTaskRunnerForThread(CEF_IOT)->DeleteSoon(
+          FROM_HERE, proxy);
       return;
     }
 

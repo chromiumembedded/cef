@@ -47,17 +47,23 @@
 #define CEF_INCLUDE_BASE_CEF_DUMP_WITHOUT_CRASHING_H_
 #pragma once
 
+#include "include/cef_api_hash.h"
+
 constexpr long long kOneDayInMilliseconds = 86400000;
 
 ///
-/// CefDumpWithoutCrashing allows for generating crash dumps with a throttling
+/// This function allows for generating of crash dumps with a throttling
 /// mechanism, preventing frequent dumps from being generated in a short period
-/// of time from the same location. The |function_name|, |file_name|, and
-/// |line_number| determine the location of the dump. The
+/// of time from the same location. If should only be called after CefInitialize
+/// has been successfully called. The |function_name|, |file_name|, and
+/// |line_number| parameters specify the origin location of the dump. The
 /// |mseconds_between_dumps| is an interval between consecutive dumps in
 /// milliseconds from the same location.
 ///
 /// Returns true if the dump was successfully generated, false otherwise.
+///
+/// For detailed behavior, usage instructions, and considerations, refer to the
+/// documentation of DumpWithoutCrashing in base/debug/dump_without_crashing.h.
 ///
 bool CefDumpWithoutCrashing(
     long long mseconds_between_dumps = kOneDayInMilliseconds,
@@ -65,12 +71,22 @@ bool CefDumpWithoutCrashing(
     const char* file_name = __builtin_FILE(),
     int line_number = __builtin_LINE());
 
+#if CEF_API_REMOVED(CEF_NEXT)
 ///
-/// CefDumpWithoutCrashingUnthrottled allows for immediate crash dumping without
-/// any throttling constraints.
+/// This function allows for generating of crash dumps without any throttling
+/// constraints. If should also only be called after CefInitialize has been
+/// successfully called.
 ///
 /// Returns true if the dump was successfully generated, false otherwise.
 ///
+/// For detailed behavior, usage instructions, and considerations, refer to the
+/// documentation of DumpWithoutCrashingUnthrottled in
+/// base/debug/dump_without_crashing.h.
+///
+/// This function is removed in API version 13500. Use CefDumpWithoutCrashing()
+/// instead.
+///
 bool CefDumpWithoutCrashingUnthrottled();
+#endif
 
 #endif  // CEF_INCLUDE_BASE_CEF_DUMP_WITHOUT_CRASHING_H_

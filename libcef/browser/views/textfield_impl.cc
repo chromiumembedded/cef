@@ -77,12 +77,12 @@ bool CefTextfieldImpl::IsReadOnly() {
 
 CefString CefTextfieldImpl::GetText() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  return root_view()->GetText();
+  return std::u16string(root_view()->GetText());
 }
 
 void CefTextfieldImpl::SetText(const CefString& text) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetText(text);
+  root_view()->SetText(text.ToString16());
 }
 
 void CefTextfieldImpl::AppendText(const CefString& text) {
@@ -102,7 +102,7 @@ bool CefTextfieldImpl::HasSelection() {
 
 CefString CefTextfieldImpl::GetSelectedText() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  return root_view()->GetSelectedText();
+  return std::u16string(root_view()->GetSelectedText());
 }
 
 void CefTextfieldImpl::SelectAll(bool reversed) {
@@ -208,12 +208,12 @@ void CefTextfieldImpl::ClearEditHistory() {
 
 void CefTextfieldImpl::SetPlaceholderText(const CefString& text) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetPlaceholderText(text);
+  root_view()->SetPlaceholderText(text.ToString16());
 }
 
 CefString CefTextfieldImpl::GetPlaceholderText() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  return root_view()->GetPlaceholderText();
+  return std::u16string(root_view()->GetPlaceholderText());
 }
 
 void CefTextfieldImpl::SetPlaceholderTextColor(cef_color_t color) {

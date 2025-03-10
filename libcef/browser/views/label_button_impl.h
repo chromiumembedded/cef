@@ -62,12 +62,12 @@ CEF_LABEL_BUTTON_IMPL_T class CefLabelButtonImpl : public CEF_BUTTON_IMPL_D {
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetText(
     const CefString& text) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  ParentClass::root_view()->SetText(text);
+  ParentClass::root_view()->SetText(text.ToString16());
 }
 
 CEF_LABEL_BUTTON_IMPL_T CefString CEF_LABEL_BUTTON_IMPL_D::GetText() {
   CEF_REQUIRE_VALID_RETURN(CefString());
-  return ParentClass::root_view()->GetText();
+  return std::u16string(ParentClass::root_view()->GetText());
 }
 
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetImage(

@@ -114,7 +114,7 @@ bool CefThreadImpl::Create(const CefString& display_name,
   }
 
   thread_task_runner_ = new CefTaskRunnerImpl(thread_->task_runner());
-  thread_id_ = thread_->GetThreadId();
+  thread_id_ = thread_->GetThreadId().raw();
   return true;
 }
 

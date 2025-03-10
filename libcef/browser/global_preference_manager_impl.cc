@@ -12,8 +12,8 @@
 #include "cef/libcef/common/api_version_util.h"
 #include "chrome/browser/about_flags.h"
 #include "chrome/browser/browser_process.h"
-#include "components/flags_ui/pref_service_flags_storage.h"
 #include "components/variations/synthetic_trials_active_group_id_provider.h"
+#include "components/webui/flags/pref_service_flags_storage.h"
 
 namespace {
 

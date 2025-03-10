@@ -185,8 +185,7 @@ class CefRenderWidgetHostViewOSR
   viz::SurfaceId GetCurrentSurfaceId() const override;
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
-      const std::optional<std::vector<gfx::Rect>>& character_bounds,
-      const std::optional<std::vector<gfx::Rect>>& line_bounds) override;
+      const std::optional<std::vector<gfx::Rect>>& character_bounds) override;
   std::unique_ptr<content::SyntheticGestureTarget>
   CreateSyntheticGestureTarget() override;
   bool TransformPointToCoordSpaceForView(
