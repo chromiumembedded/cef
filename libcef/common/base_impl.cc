@@ -241,7 +241,7 @@ CEF_EXPORT int cef_dump_without_crashing(long long mseconds_between_dumps,
 }
 
 CEF_EXPORT int cef_dump_without_crashing_unthrottled() {
-  CEF_API_REQUIRE_REMOVED(CEF_NEXT);
+  CEF_API_REQUIRE_REMOVED(13500);
   NOTIMPLEMENTED();
   return 0;
 }

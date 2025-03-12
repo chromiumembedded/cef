@@ -495,7 +495,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_CONTROLLED_FRAME,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13500)
   /// Website setting which is used for UnusedSitePermissionsService to
   /// store revoked notification permissions of disruptive sites.
   CEF_CONTENT_SETTING_TYPE_REVOKED_DISRUPTIVE_NOTIFICATION_PERMISSIONS,

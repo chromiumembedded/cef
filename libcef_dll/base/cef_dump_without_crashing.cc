@@ -15,7 +15,7 @@ bool CefDumpWithoutCrashing(long long mseconds_between_dumps,
                                    file_name, line_number);
 }
 
-#if CEF_API_REMOVED(CEF_NEXT)
+#if CEF_API_REMOVED(13500)
 bool CefDumpWithoutCrashingUnthrottled() {
   return cef_dump_without_crashing_unthrottled();
 }

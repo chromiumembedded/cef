@@ -71,7 +71,7 @@ bool CefDumpWithoutCrashing(
     const char* file_name = __builtin_FILE(),
     int line_number = __builtin_LINE());
 
-#if CEF_API_REMOVED(CEF_NEXT)
+#if CEF_API_REMOVED(13500)
 ///
 /// This function allows for generating of crash dumps without any throttling
 /// constraints. If should also only be called after CefInitialize has been
