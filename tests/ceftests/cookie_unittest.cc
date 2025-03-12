@@ -1248,11 +1248,7 @@ class CookieAccessSchemeHandlerFactory : public CefSchemeHandlerFactory,
   }
 
   void Shutdown(base::OnceClosure complete_callback) {
-    if (!CefCurrentlyOn(TID_IO)) {
-      CefPostTask(TID_IO, base::BindOnce(std::move(complete_callback)));
-      return;
-    }
-
+    EXPECT_IO_THREAD();
     std::move(complete_callback).Run();
   }
 
@@ -1587,6 +1583,7 @@ class CookieAccessTestHandler : public RoutingTestHandler,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
     if (test_backend_ == RESOURCE_HANDLER && scheme_factory_) {
       return scheme_factory_->Create(browser, frame, scheme_, request);
     }
@@ -1810,6 +1807,13 @@ class CookieAccessTestHandler : public RoutingTestHandler,
   }
 
   void ShutdownSchemeHandler(base::OnceClosure complete_callback) {
+    if (!CefCurrentlyOn(TID_IO)) {
+      CefPostTask(TID_IO, base::BindOnce(
+                              &CookieAccessTestHandler::ShutdownSchemeHandler,
+                              this, std::move(complete_callback)));
+      return;
+    }
+
     EXPECT_TRUE(scheme_factory_);
 
     if (test_backend_ == SCHEME_HANDLER) {
