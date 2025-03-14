@@ -80,10 +80,10 @@ index 95f73bcb9fb40..e17a93f69c089 100644
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index ca2df1e67d756..d2e963efdf1d8 100644
+index 85e8de6a7ce8e..30da6c19d6ef5 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2785,22 +2785,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2815,22 +2815,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -127,7 +127,7 @@ index ca2df1e67d756..d2e963efdf1d8 100644
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index be45c88ba8571..536e92b4e9497 100644
+index 46204bc820cf8..e96ab8e3674ba 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -360,6 +360,9 @@ struct NetworkContextParams {

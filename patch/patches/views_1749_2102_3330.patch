@@ -164,7 +164,7 @@ index 8efaccff40e09..e420e2f4e80ec 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index af3ef923d50ce..263a178888e18 100644
+index e2bdc42003fa3..fb060e6a6cc5f 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -56,12 +56,29 @@ enum LabelPropertyKey {
