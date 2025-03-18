@@ -20,6 +20,12 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "third_party/blink/public/mojom/context_menu/context_menu.mojom.h"
 
+#if BUILDFLAG(IS_WIN)
+#include "chrome/browser/spellchecker/spellcheck_factory.h"
+#include "chrome/browser/spellchecker/spellcheck_service.h"
+#include "components/spellcheck/browser/spellcheck_platform.h"
+#endif
+
 namespace {
 
 CefString GetLabel(int message_id) {
@@ -120,8 +126,8 @@ bool CefMenuManager::IsShowingContextMenu() {
   return web_contents()->IsShowingContextMenu();
 }
 
-bool CefMenuManager::CreateContextMenu(
-    const content::ContextMenuParams& params) {
+bool CefMenuManager::CreateContextMenu(const content::ContextMenuParams& params,
+                                       bool query_spellcheck) {
   // The renderer may send the "show context menu" message multiple times, one
   // for each right click mouse event it receives. Normally, this doesn't happen
   // because mouse events are not forwarded once the context menu is showing.
@@ -134,6 +140,24 @@ bool CefMenuManager::CreateContextMenu(
   }
 
   params_ = params;
+
+#if BUILDFLAG(IS_WIN)
+  // System spellcheck suggestions need to be queried asynchronously.
+  if (query_spellcheck && !params_.misspelled_word.empty() &&
+      params_.dictionary_suggestions.empty()) {
+    SpellcheckService* spellcheck_service =
+        SpellcheckServiceFactory::GetForContext(
+            browser_->web_contents()->GetBrowserContext());
+    if (spellcheck_service) {
+      spellcheck_platform::GetPerLanguageSuggestions(
+          spellcheck_service->platform_spell_checker(), params_.misspelled_word,
+          base::BindOnce(&CefMenuManager::OnGetPlatformSuggestionsComplete,
+                         weak_ptr_factory_.GetWeakPtr()));
+    }
+    return true;
+  }
+#endif
+
   model_->Clear();
 
   // Create the default menu model.
@@ -511,3 +535,18 @@ bool CefMenuManager::IsCustomContextMenuCommand(int command_id) {
   }
   return false;
 }
+
+#if BUILDFLAG(IS_WIN)
+void CefMenuManager::OnGetPlatformSuggestionsComplete(
+    const spellcheck::PerLanguageSuggestions&
+        platform_per_language_suggestions) {
+  std::vector<std::u16string> combined_suggestions;
+  spellcheck::FillSuggestions(platform_per_language_suggestions,
+                              &combined_suggestions);
+
+  params_.dictionary_suggestions = combined_suggestions;
+
+  // Now that we have spelling suggestions, call CreateContextMenu again.
+  CreateContextMenu(params_, /*query_spellcheck=*/false);
+}
+#endif
