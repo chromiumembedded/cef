@@ -249,7 +249,7 @@ class CefPdfPrintCallback : public virtual CefBaseRefCounted {
   /// is the output path. |ok| will be true if the printing completed
   /// successfully or false otherwise.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=path)--*/
   virtual void OnPdfPrintFinished(const CefString& path, bool ok) = 0;
 };
 
