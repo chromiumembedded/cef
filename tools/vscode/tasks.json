@@ -1,0 +1,175 @@
+{
+  "version": "2.0.0",
+  "runner": "terminal",
+  // The default problem matcher matches build output, which is useful for most tasks.
+  "problemMatcher": [
+    // Matches output from clang.
+    {
+      "owner": "cpp",
+      "fileLocation": ["relative", "${config:cef.outputDirDefault}"],
+      "pattern": {
+        "regexp": "^(gen/.*):(\\d+):(\\d+):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
+      }
+    },
+    {
+      "owner": "cpp",
+      "fileLocation": ["relative", "${workspaceFolder}"],
+      "pattern": {
+        "regexp": "^../../(.*):(\\d+):(\\d+):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
+      }
+    },
+    // Matches output from clang-cl / msvc.
+    {
+      "owner": "cpp",
+      "fileLocation": [
+        "relative",
+        "${config:cef.outputDirDefault}"
+      ],
+      "pattern": {
+        "regexp": "^(gen/.*)\\((\\d+),(\\d+)\\):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1,
+        "line": 2,
+        "column": 3,
+        "severity": 4,
+        "message": 5
+      }
+    },
+    {
+      "owner": "cpp",
+      "fileLocation": [
+        "relative",
+        "${workspaceFolder}"
+      ],
+      "pattern": {
+        "regexp": "^../../(.*)\\((\\d+),(\\d+)\\):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1,
+        "line": 2,
+        "column": 3,
+        "severity": 4,
+        "message": 5
+      }
+    },
+    {
+      "owner": "cpp",
+      "fileLocation": ["relative", "${config:cef.outputDirDefault}"],
+      "pattern": {
+        "regexp": "^(gen/.*?):(.*):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1, "severity": 3, "message": 4
+      }
+    },
+    {
+      "owner": "cpp",
+      "fileLocation": ["relative", "${workspaceFolder}"],
+      "pattern": {
+        "regexp": "^../../(.*?):(.*):\\s+(warning|\\w*\\s?error):\\s+(.*)$",
+        "file": 1, "severity": 3, "message": 4
+      }
+    }
+  ],
+  "options": {
+    // It's important to set the CWD to the output directory so that file paths
+    // are linked correctly in the terminal output.
+    "cwd": "${config:cef.outputDirDefault}",
+    "env": {
+      // If depot_tools aren't already available in the PATH provided to vscode,
+      // you can configure it in the next line.
+      // "PATH": "<DEPOT_TOOLS_LOCATION>:${env:PATH}"
+      // Alternatively, if you have configured depot_tools for ChromiumIDE, you
+      // can just uncomment the following line:
+      // "PATH": "${config:chromiumide.paths.depotTools}:${env:PATH}"
+    }
+  },
+
+  "inputs": [
+    {
+      "type": "pickString",
+      "id": "cefOutputDir",
+      "description": "CEF output directory:",
+      // Configure this to point to all the output directories you use (as a
+      // relative path from ${workspaceFolder}).
+      "options": [
+        "${config:cef.outputDirDebugRelative}",
+        "${config:cef.outputDirReleaseRelative}"
+      ]
+    }
+  ],
+  "tasks": [
+    // * If you want to be prompted for the output directory each
+    //   time you run a command, replace
+    //     ${config:cef.outputDir[Debug|Release]}
+    //   with
+    //     ${input:cefOutputDir}
+    //
+    // * If you want to have different tasks for different output directories,
+    //   just create duplicate tasks and hard-code the output directory used.
+    {
+      "label": "1-build_cef_debug",
+      "type": "shell",
+      "command": "autoninja",
+      "args": [
+        "-C",
+        "${config:cef.outputDirDebug}",
+        "cef"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "2-build_cef_release",
+      "type": "shell",
+      "command": "autoninja",
+      "args": [
+        "-C",
+        "${config:cef.outputDirRelease}",
+        "cef"
+      ],
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "3-build_current_file_debug",
+      "type": "shell",
+      "command": "compile_single_file",
+      "args": [
+        "--build-dir=${config:cef.outputDirDebug}",
+        "--file-path=${file}"
+      ]
+    },
+    {
+      "label": "4-build_current_file_release",
+      "type": "shell",
+      "command": "compile_single_file",
+      "args": [
+        "--build-dir=${config:cef.outputDirRelease}",
+        "--file-path=${file}"
+      ]
+    },
+    {
+      "label": "5-build_tests_debug",
+      "type": "shell",
+      "command": "autoninja",
+      "args": [
+        "-C",
+        "${config:cef.outputDirDebug}",
+        "ceftests",
+        "libcef_static_unittests"
+      ]
+    },
+    {
+      "label": "6-build_tests_release",
+      "type": "shell",
+      "command": "autoninja",
+      "args": [
+        "-C",
+        "${config:cef.outputDirRelease}",
+        "ceftests",
+        "libcef_static_unittests"
+      ]
+    }
+  ]
+}

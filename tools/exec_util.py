@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 import sys
 
 
-def exec_cmd(cmd, path, input_string=None):
+def exec_cmd(cmd, path, input_string=None, output_file=None):
   """ Execute the specified command and return the result. """
   out = ''
   err = ''
@@ -18,7 +18,7 @@ def exec_cmd(cmd, path, input_string=None):
     process = Popen(
         parts,
         cwd=path,
-        stdout=PIPE,
+        stdout=PIPE if output_file is None else output_file,
         stderr=PIPE,
         shell=(sys.platform == 'win32'))
     out, err = process.communicate()
@@ -28,10 +28,14 @@ def exec_cmd(cmd, path, input_string=None):
         parts,
         cwd=path,
         stdin=PIPE,
-        stdout=PIPE,
+        stdout=PIPE if output_file is None else output_file,
         stderr=PIPE,
         shell=(sys.platform == 'win32'))
     out, err = process.communicate(input=input_string)
     ret = process.returncode
 
-  return {'out': out.decode('utf-8'), 'err': err.decode('utf-8'), 'ret': ret}
+  return {
+      'out': out.decode('utf-8') if output_file is None else None,
+      'err': err.decode('utf-8'),
+      'ret': ret
+  }

@@ -38,7 +38,7 @@ def write_file(path, data, overwrite=True, quiet=True):
     return False
 
   if not quiet:
-    print('Writing file %s' % path)
+    print('Writing %s file.' % path)
 
   try:
     with open(path, 'w', encoding='utf-8', newline='\n') as f:
