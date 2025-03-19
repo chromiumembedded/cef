@@ -913,6 +913,16 @@ out_dir = os.path.join(src_dir, 'out')
 build_dir_debug = os.path.join(out_dir, 'Debug' + build_dir_suffix)
 build_dir_release = os.path.join(out_dir, 'Release' + build_dir_suffix)
 
+# Transfer the about_credits.html file.
+# Debug and Release build should be the same so grab whichever exists.
+rel_path = os.path.join('gen', 'components', 'resources', 'about_credits.html')
+src_path = os.path.join(build_dir_release, rel_path)
+if not os.path.exists(src_path):
+  src_path = os.path.join(build_dir_debug, rel_path)
+  if not os.path.exists(src_path):
+    raise Exception('Missing generated resources file: %s' % rel_path)
+copy_file(src_path, os.path.join(output_dir, 'CREDITS.html'), options.quiet)
+
 if mode == 'standard' or mode == 'minimal':
   # create the include directory
   include_dir = os.path.join(output_dir, 'include')
