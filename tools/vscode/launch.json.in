@@ -1,0 +1,122 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CEF Debug",
+      "type": "{{DEBUGGER}}",  // "cppdbg" for GDB/LLDB, "cppvsdbg" for Windows Visual Studio debugger
+      "request": "launch",
+      "program": "${config:cef.outputDirDebug}/${config:cef.launchSampleApp}",
+      "args": [], // Optional command line args
+      "preLaunchTask": "1-build_cef_debug",
+      "stopAtEntry": false,
+      "cwd": "${config:cef.outputDirDebug}/",
+      "environment": [],
+      "console": false,
+      "linux": {
+        "setupCommands": [
+          {
+            "description": "Enable pretty printing for gdb",
+            "text": "-enable-pretty-printing"
+          },
+          {
+            "description": "Load Chromium gdb configuration",
+            "text": "-interpreter-exec console \"source -v ${workspaceFolder}/tools/gdb/gdbinit\""
+          },
+          {
+            "description": "Load Blink gdb configuration",
+            "text": "-interpreter-exec console \"python import sys; sys.path.insert(0, '${workspaceFolder}/third_party/blink/tools/gdb'); import blink\""
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb",
+        "setupCommands": [
+          {
+            "description": "Load lldbinit file",
+            "text": "command source ${workspaceFolder}/.lldbinit",
+            "ignoreFailures": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "CEF Release",
+      "type": "{{DEBUGGER}}",  // "cppdbg" for GDB/LLDB, "cppvsdbg" for Windows Visual Studio debugger
+      "request": "launch",
+      "program": "${config:cef.outputDirRelease}/${config:cef.launchSampleApp}",
+      "args": [], // Optional command line args
+      "preLaunchTask": "2-build_cef_release",
+      "stopAtEntry": false,
+      "cwd": "${config:cef.outputDirRelease}/",
+      "environment": [],
+      "console": false,
+      "linux": {
+        "setupCommands": [
+          {
+            "description": "Enable pretty printing for gdb",
+            "text": "-enable-pretty-printing"
+          },
+          {
+            "description": "Load Chromium gdb configuration",
+            "text": "-interpreter-exec console \"source -v ${workspaceFolder}/tools/gdb/gdbinit\""
+          },
+          {
+            "description": "Load Blink gdb configuration",
+            "text": "-interpreter-exec console \"python import sys; sys.path.insert(0, '${workspaceFolder}/third_party/blink/tools/gdb'); import blink\""
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb",
+        "setupCommands": [
+          {
+            "description": "Load lldbinit file",
+            "text": "command source ${workspaceFolder}/.lldbinit",
+            "ignoreFailures": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Custom Tests Debug",
+      "type": "{{DEBUGGER}}",  // "cppdbg" for GDB/LLDB, "cppvsdbg" for Windows Visual Studio debugger
+      "request": "launch",
+      "program": "${config:cef.outputDirDebug}/${config:cef.launchTestsApp}",
+      "args": [
+        "--use-views",
+        "--gtest_filter=*"
+      ],
+      "preLaunchTask": "5-build_tests_debug",
+      "stopAtEntry": false,
+      "cwd": "${config:cef.outputDirDebug}/",
+      "environment": [],
+      "console": true,
+      "linux": {
+        "setupCommands": [
+          {
+            "description": "Enable pretty printing for gdb",
+            "text": "-enable-pretty-printing"
+          },
+          {
+            "description": "Load Chromium gdb configuration",
+            "text": "-interpreter-exec console \"source -v ${workspaceFolder}/tools/gdb/gdbinit\""
+          },
+          {
+            "description": "Load Blink gdb configuration",
+            "text": "-interpreter-exec console \"python import sys; sys.path.insert(0, '${workspaceFolder}/third_party/blink/tools/gdb'); import blink\""
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb",
+        "setupCommands": [
+          {
+            "description": "Load lldbinit file",
+            "text": "command source ${workspaceFolder}/.lldbinit",
+            "ignoreFailures": false
+          }
+        ]
+      }
+    }
+  ]
+}
