@@ -173,10 +173,11 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
                  window_info_.parent_window, window_info_.menu,
                  ::GetModuleHandle(nullptr), this);
 
-  // It's possible for CreateWindowEx to fail if the parent window was
-  // destroyed between the call to CreateBrowser and the above one.
-  DCHECK(window_info_.window);
-  if (!window_info_.window) {
+  // It's possible for CreateWindowEx to fail if the parent window was destroyed
+  // between the call to CreateBrowser and the above one. It's also possible
+  // that |browser_| will be nullptr if BrowserDestroyed() was called during
+  // this time.
+  if (!window_info_.window || !browser_) {
     return false;
   }
 
@@ -569,10 +570,14 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
         // Clear the user data pointer.
         gfx::SetWindowUserData(hwnd, nullptr);
 
-        // Force the browser to be destroyed. This will result in a call to
-        // BrowserDestroyed() that will release the reference added in
-        // CreateHostWindow().
-        AlloyBrowserHostImpl::FromBaseChecked(browser)->WindowDestroyed();
+        // |browser| may be nullptr if the window was destroyed during browser
+        // creation (e.g. CreateHostWindow() returned false).
+        if (browser) {
+          // Force the browser to be destroyed. This will result in a call to
+          // BrowserDestroyed() that will release the reference added in
+          // CreateHostWindow().
+          AlloyBrowserHostImpl::FromBaseChecked(browser)->WindowDestroyed();
+        }
       }
       break;
 
