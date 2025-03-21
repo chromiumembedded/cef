@@ -262,6 +262,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
                             bool current_only) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
+  void SetAudioMuted(bool mute) override;
+  bool IsAudioMuted() override;
   void NotifyMoveOrResizeStarted() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;

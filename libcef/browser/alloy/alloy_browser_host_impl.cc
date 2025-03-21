@@ -901,29 +901,6 @@ void AlloyBrowserHostImpl::DragSourceEndedAt(
   }
 }
 
-void AlloyBrowserHostImpl::SetAudioMuted(bool mute) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::BindOnce(&AlloyBrowserHostImpl::SetAudioMuted,
-                                          this, mute));
-    return;
-  }
-  if (!web_contents()) {
-    return;
-  }
-  web_contents()->SetAudioMuted(mute);
-}
-
-bool AlloyBrowserHostImpl::IsAudioMuted() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    DCHECK(false) << "called on invalid thread";
-    return false;
-  }
-  if (!web_contents()) {
-    return false;
-  }
-  return web_contents()->IsAudioMuted();
-}
-
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
 
