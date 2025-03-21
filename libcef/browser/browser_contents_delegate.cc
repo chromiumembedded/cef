@@ -629,6 +629,17 @@ void CefBrowserContentsDelegate::OnFocusChangedInPage(
       details->is_editable_node;
 }
 
+bool CefBrowserContentsDelegate::TakeFocus(content::WebContents* source,
+                                           bool reverse) {
+  if (auto c = client()) {
+    if (auto handler = c->GetFocusHandler()) {
+      handler->OnTakeFocus(browser(), !reverse);
+    }
+  }
+
+  return false;
+}
+
 void CefBrowserContentsDelegate::WebContentsDestroyed() {
   auto wc = web_contents();
   ObserveWebContents(nullptr);

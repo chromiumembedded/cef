@@ -1057,14 +1057,7 @@ void AlloyBrowserHostImpl::BeforeUnloadFired(content::WebContents* source,
 
 bool AlloyBrowserHostImpl::TakeFocus(content::WebContents* source,
                                      bool reverse) {
-  if (client_.get()) {
-    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-    if (handler.get()) {
-      handler->OnTakeFocus(this, !reverse);
-    }
-  }
-
-  return false;
+  return contents_delegate_.TakeFocus(source, reverse);
 }
 
 void AlloyBrowserHostImpl::CanDownload(
