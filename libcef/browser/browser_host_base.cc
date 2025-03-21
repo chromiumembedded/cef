@@ -783,6 +783,28 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostBase::GetVisibleNavigationEntry() {
   return new CefNavigationEntryImpl(entry);
 }
 
+void CefBrowserHostBase::SetAudioMuted(bool mute) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT, base::BindOnce(&CefBrowserHostBase::SetAudioMuted,
+                                          this, mute));
+    return;
+  }
+  if (auto web_contents = GetWebContents()) {
+    web_contents->SetAudioMuted(mute);
+  }
+}
+
+bool CefBrowserHostBase::IsAudioMuted() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    DCHECK(false) << "called on invalid thread";
+    return false;
+  }
+  if (auto web_contents = GetWebContents()) {
+    return web_contents->IsAudioMuted();
+  }
+  return false;
+}
+
 void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
 #if BUILDFLAG(IS_WIN) || (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC))
   if (!CEF_CURRENTLY_ON_UIT()) {

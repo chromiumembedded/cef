@@ -327,15 +327,6 @@ void ChromeBrowserHostImpl::DragSourceEndedAt(int x,
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::SetAudioMuted(bool mute) {
-  NOTIMPLEMENTED();
-}
-
-bool ChromeBrowserHostImpl::IsAudioMuted() {
-  NOTIMPLEMENTED();
-  return false;
-}
-
 void ChromeBrowserHostImpl::SetAutoResizeEnabled(bool enabled,
                                                  const CefSize& min_size,
                                                  const CefSize& max_size) {
