@@ -141,7 +141,7 @@ index 0ed6e9e434350..5c8bcd5c45ede 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index fafd84d08e336..a17aad8f37537 100644
+index fafd84d08e336..0985c4cd9ebf0 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -268,6 +268,25 @@
@@ -149,16 +149,16 @@ index fafd84d08e336..a17aad8f37537 100644
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
-+#define CALL_CEF_DELEGATE(name, ...) \
-+  if (cef_browser_delegate_) { \
++#define CALL_CEF_DELEGATE(name, ...)          \
++  if (cef_browser_delegate_) {                \
 +    cef_browser_delegate_->name(__VA_ARGS__); \
 +  }
-+#define CALL_CEF_DELEGATE_RETURN(name, ...) \
-+  if (cef_browser_delegate_) { \
++#define CALL_CEF_DELEGATE_RETURN(name, ...)          \
++  if (cef_browser_delegate_) {                       \
 +    return cef_browser_delegate_->name(__VA_ARGS__); \
 +  }
-+#define CALL_CEF_DELEGATE_RESULT(name, result, ...) \
-+  if (cef_browser_delegate_) { \
++#define CALL_CEF_DELEGATE_RESULT(name, result, ...)    \
++  if (cef_browser_delegate_) {                         \
 +    result = cef_browser_delegate_->name(__VA_ARGS__); \
 +  }
 +#else  // !BUILDFLAG(ENABLE_CEF)
@@ -203,22 +203,23 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  void Browser::FullscreenTopUIStateChanged() {
-@@ -1752,6 +1783,14 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
+@@ -1752,6 +1783,15 @@ content::KeyboardEventProcessingResult Browser::PreHandleKeyboardEvent(
      return content::KeyboardEventProcessingResult::HANDLED;
    }
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (cef_browser_delegate_) {
 +    auto result = cef_browser_delegate_->PreHandleKeyboardEvent(source, event);
-+    if (result != content::KeyboardEventProcessingResult::NOT_HANDLED)
++    if (result != content::KeyboardEventProcessingResult::NOT_HANDLED) {
 +      return result;
++    }
 +  }
 +#endif
 +
    return window()->PreHandleKeyboardEvent(event);
  }
  
-@@ -1759,8 +1798,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
+@@ -1759,8 +1799,18 @@ bool Browser::HandleKeyboardEvent(content::WebContents* source,
                                    const NativeWebKeyboardEvent& event) {
    DevToolsWindow* devtools_window =
        DevToolsWindow::GetInstanceForInspectedWebContents(source);
@@ -239,7 +240,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  bool Browser::TabsNeedBeforeUnloadFired() const {
-@@ -1855,9 +1904,14 @@ bool Browser::IsBackForwardCacheSupported(content::WebContents& web_contents) {
+@@ -1855,9 +1905,14 @@ bool Browser::IsBackForwardCacheSupported(content::WebContents& web_contents) {
  content::PreloadingEligibility Browser::IsPrerender2Supported(
      content::WebContents& web_contents,
      content::PreloadingTriggerType trigger_type) {
@@ -254,7 +255,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  bool Browser::ShouldShowStaleContentOnEviction(content::WebContents* source) {
-@@ -1920,6 +1974,14 @@ WebContents* Browser::OpenURLFromTab(
+@@ -1920,6 +1975,14 @@ WebContents* Browser::OpenURLFromTab(
                                    std::move(navigation_handle_callback));
    }
  
@@ -269,7 +270,7 @@ index fafd84d08e336..a17aad8f37537 100644
    NavigateParams nav_params(this, params.url, params.transition);
    nav_params.FillNavigateParamsFromOpenURLParams(params);
    nav_params.source_contents = source;
-@@ -2093,6 +2155,8 @@ void Browser::LoadingStateChanged(WebContents* source,
+@@ -2093,6 +2156,8 @@ void Browser::LoadingStateChanged(WebContents* source,
                                    bool should_show_loading_ui) {
    ScheduleUIUpdate(source, content::INVALIDATE_TYPE_LOAD);
    UpdateWindowForLoadingStateChanged(source, should_show_loading_ui);
@@ -278,7 +279,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -2122,6 +2186,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -2122,6 +2187,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -287,7 +288,7 @@ index fafd84d08e336..a17aad8f37537 100644
    if (!GetStatusBubble()) {
      return;
    }
-@@ -2131,6 +2197,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -2131,6 +2198,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
    }
  }
  
@@ -305,7 +306,11 @@ index fafd84d08e336..a17aad8f37537 100644
  void Browser::ContentsMouseEvent(WebContents* source, const ui::Event& event) {
    const ui::EventType type = event.type();
    const bool exited = type == ui::EventType::kMouseExited;
-@@ -2159,6 +2236,19 @@ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
+@@ -2156,9 +2234,23 @@ void Browser::ContentsZoomChange(bool zoom_in) {
+ }
+ 
+ bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
++  CALL_CEF_DELEGATE_RETURN(TakeFocus, source, reverse);
    return false;
  }
  
@@ -325,7 +330,7 @@ index fafd84d08e336..a17aad8f37537 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -2271,12 +2361,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -2271,12 +2363,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
    // to track `new_contents` after it is added to its TabModel this override can
    // be removed.
    CreateSessionServiceTabHelper(new_contents);
@@ -350,7 +355,7 @@ index fafd84d08e336..a17aad8f37537 100644
    // Don't show the page hung dialog when a HTML popup hangs because
    // the dialog will take the focus and immediately close the popup.
    RenderWidgetHostView* view = render_widget_host->GetView();
-@@ -2289,6 +2391,13 @@ void Browser::RendererUnresponsive(
+@@ -2289,6 +2393,13 @@ void Browser::RendererUnresponsive(
  void Browser::RendererResponsive(
      WebContents* source,
      content::RenderWidgetHost* render_widget_host) {
@@ -364,7 +369,7 @@ index fafd84d08e336..a17aad8f37537 100644
    RenderWidgetHostView* view = render_widget_host->GetView();
    if (view && !render_widget_host->GetView()->IsHTMLFormPopup()) {
      TabDialogs::FromWebContents(source)->HideHungRendererDialog(
-@@ -2298,6 +2407,15 @@ void Browser::RendererResponsive(
+@@ -2298,6 +2409,15 @@ void Browser::RendererResponsive(
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
      WebContents* source) {
@@ -380,7 +385,7 @@ index fafd84d08e336..a17aad8f37537 100644
    return javascript_dialogs::TabModalDialogManager::FromWebContents(source);
  }
  
-@@ -2333,6 +2451,11 @@ void Browser::DraggableRegionsChanged(
+@@ -2333,6 +2453,11 @@ void Browser::DraggableRegionsChanged(
    if (app_controller_) {
      app_controller_->DraggableRegionsChanged(regions, contents);
    }
@@ -392,7 +397,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  void Browser::DidFinishNavigation(
-@@ -2415,11 +2538,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2415,11 +2540,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -408,7 +413,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2629,6 +2756,15 @@ void Browser::RequestMediaAccessPermission(
+@@ -2629,6 +2758,16 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -416,15 +421,16 @@ index fafd84d08e336..a17aad8f37537 100644
 +  if (cef_browser_delegate_) {
 +    callback = cef_browser_delegate_->RequestMediaAccessPermissionEx(
 +        web_contents, request, std::move(callback));
-+    if (callback.is_null())
++    if (callback.is_null()) {
 +      return;
++    }
 +  }
 +#endif
 +
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -3211,9 +3347,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -3211,9 +3350,10 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  StatusBubble* Browser::GetStatusBubble() {
@@ -436,7 +442,7 @@ index fafd84d08e336..a17aad8f37537 100644
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -3221,6 +3358,12 @@ StatusBubble* Browser::GetStatusBubble() {
+@@ -3221,6 +3361,12 @@ StatusBubble* Browser::GetStatusBubble() {
    // mode, as the minimal browser UI includes the status bar.
    if (web_app::AppBrowserController::IsWebApp(this) &&
        !app_controller()->HasMinimalUiButtons()) {
@@ -449,7 +455,7 @@ index fafd84d08e336..a17aad8f37537 100644
      return nullptr;
    }
  
-@@ -3370,6 +3513,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3370,6 +3516,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -458,7 +464,7 @@ index fafd84d08e336..a17aad8f37537 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3530,6 +3675,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3530,6 +3678,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {

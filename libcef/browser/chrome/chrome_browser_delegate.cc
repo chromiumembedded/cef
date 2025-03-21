@@ -476,6 +476,14 @@ void ChromeBrowserDelegate::DraggableRegionsChanged(
   }
 }
 
+bool ChromeBrowserDelegate::TakeFocus(content::WebContents* source,
+                                      bool reverse) {
+  if (auto delegate = GetDelegateForWebContents(source)) {
+    return delegate->TakeFocus(source, reverse);
+  }
+  return false;
+}
+
 void ChromeBrowserDelegate::WindowFullscreenStateChanged() {
   // Use a synchronous callback for notification on Windows/Linux. MacOS gets
   // notified asynchronously via CefNativeWidgetMac callbacks.

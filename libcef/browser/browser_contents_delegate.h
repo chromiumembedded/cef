@@ -144,6 +144,7 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
   void OnFocusChangedInPage(content::FocusedNodeDetails* details) override;
+  bool TakeFocus(content::WebContents* source, bool reverse) override;
   void WebContentsDestroyed() override;
 
   // Accessors for state information. Changes will be signaled to

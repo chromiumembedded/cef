@@ -127,6 +127,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   void DraggableRegionsChanged(
       const std::vector<blink::mojom::DraggableRegionPtr>& regions,
       content::WebContents* contents) override;
+  bool TakeFocus(content::WebContents* source, bool reverse) override;
 
   Browser* browser() const { return browser_; }
 
