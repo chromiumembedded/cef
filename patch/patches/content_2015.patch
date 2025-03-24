@@ -47,7 +47,7 @@ index 8e47cbb36a8cb..5165aea10332e 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index eacc673508fde..86a9600c75188 100644
+index 79490d0d3d622..537ac2d9763e6 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1166,7 +1166,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,7 +68,7 @@ index eacc673508fde..86a9600c75188 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 9746621c4fa96..ef3fa93b6b917 100644
+index f0ac298846f7e..75ee3b0e6df86 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1360,6 +1360,12 @@ class CONTENT_EXPORT ContentBrowserClient {

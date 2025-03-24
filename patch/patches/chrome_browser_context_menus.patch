@@ -136,7 +136,7 @@ index cb51224f9892c..b5a3946999d8f 100644
   private:
    // RenderViewContextMenuViewsMac:
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
-index 2e34cf104fbe6..850489d12a458 100644
+index 5e266a42d3df6..e57211944d6a6 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
 @@ -70,6 +70,10 @@ RenderViewContextMenuMacCocoa::~RenderViewContextMenuMacCocoa() {
@@ -150,7 +150,7 @@ index 2e34cf104fbe6..850489d12a458 100644
    views::Widget* widget = views::Widget::GetTopLevelWidgetForNativeView(
        source_web_contents_->GetNativeView());
  
-@@ -94,6 +98,10 @@ void RenderViewContextMenuMacCocoa::Show() {
+@@ -95,6 +99,10 @@ void RenderViewContextMenuMacCocoa::Show() {
                        views::ElementTrackerViews::GetContextForWidget(widget));
  }
  

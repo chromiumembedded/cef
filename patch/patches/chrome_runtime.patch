@@ -433,7 +433,7 @@ index e26e3625c99c8..c0d4a95607e37 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
+index 2e672ca49c04c..a3acfecc15898 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -47,6 +47,7 @@
@@ -529,7 +529,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 2b5748cd55d4c..c80ed07d3b623 100644
+index 6642110b906e1..691ab69fe0757 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -159,6 +159,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -550,7 +550,7 @@ index 2b5748cd55d4c..c80ed07d3b623 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1343,7 +1345,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1345,7 +1347,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;

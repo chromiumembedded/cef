@@ -654,7 +654,7 @@ index f5b0936aac647..20f476c9abd93 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 05322e627acab..a866a76c50372 100644
+index e1e3f0d4c54dd..f8afecca2016b 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -72,6 +72,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
