@@ -11,6 +11,8 @@ def make_ctocpp_impl_proto(clsname, name, func, parts):
   const = ''
 
   proto = 'NO_SANITIZE("cfi-icall") '
+  if func.has_attrib('no_stack_protector'):
+    proto += 'NO_STACK_PROTECTOR '
   if clsname is None:
     proto += 'CEF_GLOBAL ' + parts['retval'] + ' '
   else:
