@@ -313,6 +313,30 @@
 #define STACK_UNINITIALIZED
 #endif
 
+// Attribute "no_stack_protector" disables -fstack-protector for the specified
+// function.
+//
+// "stack_protector" is enabled on most POSIX builds. The flag adds a canary
+// to each stack frame, which on function return is checked against a reference
+// canary. If the canaries do not match, it's likely that a stack buffer
+// overflow has occurred, so immediately crashing will prevent exploitation in
+// many cases.
+//
+// In some cases it's desirable to remove this, e.g. on hot functions, or if
+// we have purposely changed the reference canary.
+//
+// On Linux systems the reference canary will be purposely changed when forking
+// sub-processes (see https://crbug.com/40181003). To avoid sub-process shutdown
+// crashes the NO_STACK_PROTECTOR annotation must be added to all functions in
+// the call stack leading to CefExecuteProcess(). Applications that cannot add
+// this annotation must instead pass the `--change-stack-guard-on-fork=disable`
+// command-line flag.
+#if defined(COMPILER_GCC) || defined(__clang__)
+#define NO_STACK_PROTECTOR __attribute__((no_stack_protector))
+#else
+#define NO_STACK_PROTECTOR
+#endif
+
 // The ANALYZER_ASSUME_TRUE(bool arg) macro adds compiler-specific hints
 // to Clang which control what code paths are statically analyzed,
 // and is meant to be used in conjunction with assert & assert-like functions.

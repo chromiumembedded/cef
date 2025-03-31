@@ -522,9 +522,9 @@ def dict_to_str(dict):
 # Attribute keys allowed in CEF metadata comments.
 COMMON_ATTRIB_KEYS = ('added', 'removed')
 CLASS_ATTRIB_KEYS = COMMON_ATTRIB_KEYS + ('no_debugct_check', 'source')
-FUNCTION_ATTRIB_KEYS = COMMON_ATTRIB_KEYS + ('api_hash_check', 'capi_name',
-                                             'count_func', 'default_retval',
-                                             'index_param', 'optional_param')
+FUNCTION_ATTRIB_KEYS = COMMON_ATTRIB_KEYS + (
+    'api_hash_check', 'capi_name', 'count_func', 'default_retval',
+    'index_param', 'no_stack_protector', 'optional_param')
 
 # regex for matching comment-formatted attributes
 _cre_attrib = r'/\*--cef\(([A-Za-z0-9_ ,=:\n]{0,})\)--\*/'

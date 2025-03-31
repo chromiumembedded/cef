@@ -31,6 +31,7 @@ int XIOErrorHandlerImpl(Display* display) {
 #endif  // defined(CEF_X11)
 
 // Entry point function for all processes.
+NO_STACK_PROTECTOR
 int main(int argc, char* argv[]) {
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(argc, argv);

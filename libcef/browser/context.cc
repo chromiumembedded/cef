@@ -291,6 +291,7 @@ int RunMainWithPreferredStackSize(FiberState& fiber_state) {
 
 }  // namespace
 
+NO_STACK_PROTECTOR
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
