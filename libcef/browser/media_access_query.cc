@@ -215,8 +215,10 @@ class CefMediaAccessQuery {
             content::DesktopMediaID(content::DesktopMediaID::TYPE_SCREEN,
                                     -1 /* webrtc::kFullDesktopScreenId */);
       }
-      video_devices.emplace_back(request_.video_type, media_id.ToString(),
-                                 "Screen");
+      if (media_id.type != content::DesktopMediaID::TYPE_NONE) {
+        video_devices.emplace_back(request_.video_type, media_id.ToString(),
+                                   "Screen");
+      }
     }
 
     blink::mojom::StreamDevicesSetPtr stream_devices_set =
