@@ -206,6 +206,7 @@ void CefMainRunner::QuitMessageLoop() {
 }
 
 // static
+NO_STACK_PROTECTOR
 int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
                                       CefRefPtr<CefApp> application,
                                       void* windows_sandbox_info) {

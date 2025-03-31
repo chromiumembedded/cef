@@ -48,6 +48,7 @@ void TerminationSignalHandler(int signatl) {
   MainContext::Get()->GetRootWindowManager()->CloseAllWindows(true);
 }
 
+NO_STACK_PROTECTOR
 int RunMain(int argc, char* argv[]) {
   // Create a copy of |argv| on Linux because Chromium mangles the value
   // internally (see issue #620).
@@ -158,6 +159,7 @@ int RunMain(int argc, char* argv[]) {
 }  // namespace client
 
 // Program entry point function.
+NO_STACK_PROTECTOR
 int main(int argc, char* argv[]) {
   return client::RunMain(argc, argv);
 }

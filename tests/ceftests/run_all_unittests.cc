@@ -134,6 +134,7 @@ class ScopedPlatformSetup final {
 
 }  // namespace
 
+NO_STACK_PROTECTOR
 int main(int argc, char* argv[]) {
   int exit_code;
 
