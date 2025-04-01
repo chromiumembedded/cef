@@ -1069,10 +1069,10 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
     }
   }
 
-  void OnRequestComplete(
-      int32_t request_id,
-      const network::ResourceRequest& request,
-      const network::URLLoaderCompletionStatus& status) override {
+  void OnRequestComplete(int32_t request_id,
+                         const network::ResourceRequest& request,
+                         const network::URLLoaderCompletionStatus& status,
+                         bool& handled_externally) override {
     CEF_REQUIRE_IOT();
 
     RequestState* state = GetState(request_id);
@@ -1116,6 +1116,7 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
             init_state_->browser_, init_state_->frame_,
             state->pending_request_.get(), allow_os_execution);
         if (allow_os_execution && init_state_->unhandled_request_callback_) {
+          handled_externally = true;
           CEF_POST_TASK(TID_UI, init_state_->unhandled_request_callback_);
         }
       }

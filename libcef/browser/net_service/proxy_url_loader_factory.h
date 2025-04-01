@@ -121,7 +121,8 @@ class InterceptedRequestHandler {
   virtual void OnRequestComplete(
       int32_t request_id,
       const network::ResourceRequest& request,
-      const network::URLLoaderCompletionStatus& status) {}
+      const network::URLLoaderCompletionStatus& status,
+      bool& handled_externally) {}
 
   // Called on error.
   virtual void OnRequestError(int32_t request_id,
