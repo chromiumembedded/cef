@@ -132,7 +132,7 @@ void HandleExternalProtocolHelper(
     ChromeContentBrowserClientCef* self,
     content::WebContents::Getter web_contents_getter,
     content::FrameTreeNodeId frame_tree_node_id,
-    content::NavigationUIData* navigation_data,
+    std::unique_ptr<content::NavigationUIData> navigation_data,
     bool is_primary_main_frame,
     bool is_in_fenced_frame_tree,
     network::mojom::WebSandboxFlags sandbox_flags,
@@ -153,7 +153,7 @@ void HandleExternalProtocolHelper(
   // NavigationURLLoaderImpl::PrepareForNonInterceptedRequest.
   self->HandleExternalProtocol(
       resource_request.url, web_contents_getter, frame_tree_node_id,
-      navigation_data, is_primary_main_frame, is_in_fenced_frame_tree,
+      navigation_data.get(), is_primary_main_frame, is_in_fenced_frame_tree,
       sandbox_flags,
       static_cast<ui::PageTransition>(resource_request.transition_type),
       resource_request.has_user_gesture, initiating_origin, initiator_rfh,
@@ -544,10 +544,10 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
       web_contents_getter, frame_tree_node_id, request,
       base::BindRepeating(HandleExternalProtocolHelper, base::Unretained(this),
                           web_contents_getter, frame_tree_node_id,
-                          navigation_data, is_primary_main_frame,
-                          is_in_fenced_frame_tree, sandbox_flags, request,
-                          initiating_origin, std::move(weak_initiator_document),
-                          isolation_info));
+                          base::Passed(navigation_data->Clone()),
+                          is_primary_main_frame, is_in_fenced_frame_tree,
+                          sandbox_flags, request, initiating_origin,
+                          std::move(weak_initiator_document), isolation_info));
 
   net_service::ProxyURLLoaderFactory::CreateProxy(
       web_contents_getter, std::move(receiver), std::move(request_handler));

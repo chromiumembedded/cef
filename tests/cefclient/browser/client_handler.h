@@ -240,11 +240,6 @@ class ClientHandler : public BaseClientHandler,
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override;
-  void OnLoadError(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame,
-                   ErrorCode errorCode,
-                   const CefString& errorText,
-                   const CefString& failedUrl) override;
 
   // CefPermissionHandler methods
   bool OnRequestMediaAccessPermission(

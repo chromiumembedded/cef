@@ -1074,28 +1074,6 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
   NotifyLoadingState(isLoading, canGoBack, canGoForward);
 }
 
-void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                ErrorCode errorCode,
-                                const CefString& errorText,
-                                const CefString& failedUrl) {
-  CEF_REQUIRE_UI_THREAD();
-
-  // Don't display an error for downloaded files.
-  if (errorCode == ERR_ABORTED) {
-    return;
-  }
-
-  // Don't display an error for external protocols that we allow the OS to
-  // handle. See OnProtocolExecution().
-  if (errorCode == ERR_UNKNOWN_URL_SCHEME) {
-    std::string urlStr = frame->GetURL();
-    if (urlStr.find("spotify:") == 0) {
-      return;
-    }
-  }
-}
-
 bool ClientHandler::OnRequestMediaAccessPermission(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,

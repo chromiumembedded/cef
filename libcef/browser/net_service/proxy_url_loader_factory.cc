@@ -341,6 +341,7 @@ class InterceptedRequest : public network::mojom::URLLoader,
 
   network::URLLoaderCompletionStatus status_;
   bool got_loader_error_ = false;
+  bool completed_ = false;
 
   // Used for rate limiting OnUploadProgress callbacks.
   bool waiting_for_upload_progress_ack_ = false;
@@ -1141,7 +1142,17 @@ void InterceptedRequest::OnDestroy() {
   // We don't want any callbacks after this point.
   weak_factory_.InvalidateWeakPtrs();
 
-  factory_->request_handler_->OnRequestComplete(id_, request_, status_);
+  bool handled_externally = false;
+  factory_->request_handler_->OnRequestComplete(id_, request_, status_,
+                                                handled_externally);
+
+  // Don't call OnComplete() if an unhandled request might be handled
+  // externally. The request will instead be canceled implicitly with
+  // ERR_ABORTED.
+  if (!handled_externally && target_client_ && !completed_) {
+    target_client_->OnComplete(status_);
+    completed_ = true;
+  }
 
   // Destroys |this|.
   factory_->RemoveRequest(this);
@@ -1193,6 +1204,7 @@ void InterceptedRequest::CallOnComplete(
 
   if (target_client_) {
     target_client_->OnComplete(status);
+    completed_ = true;
   }
 
   if (proxied_loader_receiver_.is_bound() &&
@@ -1227,7 +1239,6 @@ void InterceptedRequest::SendErrorStatusAndCompleteImmediately(
     const network::URLLoaderCompletionStatus& status) {
   status_ = status;
   SendErrorCallback(status_.error_code, false);
-  target_client_->OnComplete(status_);
   OnDestroy();
 }
 
