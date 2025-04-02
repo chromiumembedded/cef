@@ -1,0 +1,79 @@
+diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
+index 39012b26b2fd6..1b6cf3097ba40 100644
+--- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
++++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <utility>
+ 
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/browser_finder.h"
+ #include "chrome/browser/ui/browser_list.h"
+@@ -28,6 +29,22 @@
+ #include "chrome/browser/safe_browsing/user_interaction_observer.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
++#endif
++
++namespace {
++
++bool IsAlloyContents(content::WebContents* web_contents) {
++#if BUILDFLAG(ENABLE_CEF)
++  return cef::IsAlloyContents(web_contents, /*primary_only=*/true);
++#else
++  return false;
++#endif
++}
++
++}  // namespace
++
+ JavaScriptTabModalDialogManagerDelegateDesktop::
+     JavaScriptTabModalDialogManagerDelegateDesktop(
+         content::WebContents* web_contents)
+@@ -77,6 +94,9 @@ void JavaScriptTabModalDialogManagerDelegateDesktop::SetTabNeedsAttention(
+ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+   Browser* browser = BrowserList::GetInstance()->GetLastActive();
+   if (!browser) {
++    if (IsAlloyContents(web_contents_)) {
++      return true;
++    }
+     // It's rare, but there are crashes from where sites are trying to show
+     // dialogs in the split second of time between when their Browser is gone
+     // and they're gone. In that case, bail. https://crbug.com/1142806
+@@ -92,7 +112,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
+ }
+ 
+ bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {
+-  tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
++  tabs::TabInterface* tab =
++      tabs::TabInterface::MaybeGetFromContents(web_contents_);
++  if (!tab && IsAlloyContents(web_contents_)) {
++    return true;
++  }
+   return tab && tab->CanShowModalUI();
+ }
+ 
+diff --git chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
+index 3c56e658d05c4..980caca1469bd 100644
+--- chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
++++ chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
+@@ -79,10 +79,13 @@ JavaScriptTabModalDialogViewViews::JavaScriptTabModalDialogViewViews(
+       default_prompt_text_(default_prompt_text),
+       dialog_callback_(std::move(dialog_callback)),
+       dialog_force_closed_callback_(std::move(dialog_force_closed_callback)) {
++  // Will be nullptr with CEF Alloy style browsers.
+   tabs::TabInterface* tab =
+-      tabs::TabInterface::GetFromContents(parent_web_contents);
+-  CHECK(tab && tab->CanShowModalUI());
+-  scoped_tab_modal_ui_ = tab->ShowModalUI();
++      tabs::TabInterface::MaybeGetFromContents(parent_web_contents);
++  if (tab) {
++    CHECK(tab->CanShowModalUI());
++    scoped_tab_modal_ui_ = tab->ShowModalUI();
++  }
+ 
+   SetModalType(ui::mojom::ModalType::kChild);
+   SetDefaultButton(static_cast<int>(ui::mojom::DialogButton::kOk));
