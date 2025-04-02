@@ -1,8 +1,8 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 5974cdb9b3a8b..5ab669f302ce8 100644
+index 345d2729f1802..10d3294221f3b 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
-@@ -42,6 +42,7 @@
+@@ -43,6 +43,7 @@
  #include "base/timer/timer.h"
  #include "base/trace_event/trace_event_impl.h"
  #include "build/build_config.h"
@@ -158,10 +158,10 @@ index 5974cdb9b3a8b..5ab669f302ce8 100644
 +      .Initialize(*memory_system_);
  }
 diff --git chrome/app/chrome_main_delegate.h chrome/app/chrome_main_delegate.h
-index 4c70555277148..63300fe191e5e 100644
+index 18b33015ee4b6..e17447cb922e9 100644
 --- chrome/app/chrome_main_delegate.h
 +++ chrome/app/chrome_main_delegate.h
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "chrome/common/chrome_content_client.h"
  #include "components/memory_system/memory_system.h"
  #include "content/public/app/content_main_delegate.h"
@@ -169,7 +169,7 @@ index 4c70555277148..63300fe191e5e 100644
  
  namespace base {
  class CommandLine;
-@@ -50,6 +51,8 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
+@@ -51,6 +52,8 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
  
    ~ChromeMainDelegate() override;
  
@@ -178,7 +178,7 @@ index 4c70555277148..63300fe191e5e 100644
   protected:
    // content::ContentMainDelegate:
    std::optional<int> BasicStartupComplete() override;
-@@ -94,13 +97,17 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
+@@ -95,13 +98,17 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
  
    void InitializeMemorySystem();
  
@@ -433,10 +433,10 @@ index e26e3625c99c8..c0d4a95607e37 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
+index 5b8b1bf1bc86e..8d2274c606ef4 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
-@@ -47,6 +47,7 @@
+@@ -48,6 +48,7 @@
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
  #include "build/config/chromebox_for_meetings/buildflags.h"  // PLATFORM_CFM
@@ -444,7 +444,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1490,6 +1491,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1494,6 +1495,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -453,7 +453,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1527,6 +1530,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1531,6 +1534,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -465,7 +465,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4731,9 +4739,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4792,9 +4800,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -477,7 +477,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6809,7 +6819,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6876,7 +6886,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
    }
  }
  
@@ -486,7 +486,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6827,6 +6837,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6894,6 +6904,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -495,7 +495,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
  }
  
  std::vector<base::FilePath>
-@@ -7956,11 +7968,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -8032,11 +8044,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -509,7 +509,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7982,7 +7994,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -8058,7 +8070,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -519,7 +519,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8160,7 +8173,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8236,7 +8249,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -529,7 +529,7 @@ index c9d3bbcf2a0b1..2dd6a7ecf6a84 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index 2b5748cd55d4c..c80ed07d3b623 100644
+index 3542dd8ea5593..dfd89fec1e4a6 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -159,6 +159,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -541,7 +541,7 @@ index 2b5748cd55d4c..c80ed07d3b623 100644
    // TODO(crbug.com/41356866): This file is about calls from content/ out
    // to chrome/ to get values or notify about events, but both of these
    // functions are from chrome/ to chrome/ and don't involve content/ at all.
-@@ -727,7 +729,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -730,7 +732,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
        override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
@@ -550,7 +550,7 @@ index 2b5748cd55d4c..c80ed07d3b623 100644
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1343,7 +1345,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1358,7 +1360,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
@@ -560,7 +560,7 @@ index 2b5748cd55d4c..c80ed07d3b623 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index c95fca6d405cd..ecec59e7ee2b7 100644
+index 7393b3400afe4..e19f464f67640 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -15,6 +15,7 @@
@@ -571,7 +571,7 @@ index c95fca6d405cd..ecec59e7ee2b7 100644
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/invert_bubble_prefs.h"
-@@ -209,6 +210,10 @@
+@@ -208,6 +209,10 @@
  #include "extensions/browser/pref_names.h"
  #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  
@@ -582,7 +582,7 @@ index c95fca6d405cd..ecec59e7ee2b7 100644
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1842,6 +1847,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1830,6 +1835,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -594,7 +594,7 @@ index c95fca6d405cd..ecec59e7ee2b7 100644
  }
  
  // Register prefs applicable to all profiles.
-@@ -2281,6 +2291,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2271,6 +2281,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

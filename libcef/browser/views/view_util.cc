@@ -377,7 +377,7 @@ std::optional<SkColor> GetBackgroundColor(const views::View* view,
                                           bool allow_transparent) {
   // Return the configured background color, if any.
   if (view->background()) {
-    return view->background()->get_color();
+    return view->background()->color().GetSkColor();
   }
 
   // If the containing Widget is an overlay then it has a transparent background

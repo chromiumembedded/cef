@@ -108,18 +108,18 @@ index ffc5c37742800..82e1c22b0f073 100644
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 82e5123e35509..437c5d080cf24 100644
+index e81e89be0e190..a369b2086fa22 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -49,6 +49,7 @@
+@@ -50,6 +50,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
 +#include "base/threading/thread_restrictions.h"
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
- #include "build/build_config.h"
-@@ -1336,6 +1337,11 @@ void ContentMainRunnerImpl::Shutdown() {
+ #include "build/branding_buildflags.h"
+@@ -1338,6 +1339,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

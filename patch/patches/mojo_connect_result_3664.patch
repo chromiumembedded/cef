@@ -184,7 +184,7 @@ index 3de514b2696ba..ac057000ea20b 100644
  
    MessagePipeHandle handle() const {
 diff --git mojo/public/cpp/bindings/lib/connector.cc mojo/public/cpp/bindings/lib/connector.cc
-index ffc753b121e53..f85b7e878588c 100644
+index 6127288d3fbbc..9713b21569bf3 100644
 --- mojo/public/cpp/bindings/lib/connector.cc
 +++ mojo/public/cpp/bindings/lib/connector.cc
 @@ -438,6 +438,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,
@@ -197,7 +197,7 @@ index ffc753b121e53..f85b7e878588c 100644
      // No more messages on the pipe and the peer is closed.
      HandleError(false /* force_pipe_reset */, false /* force_async_handler */);
 diff --git mojo/public/cpp/bindings/lib/interface_endpoint_client.cc mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
-index 8001dffa21977..87e318fd1334e 100644
+index 9615abc747135..face0222f6023 100644
 --- mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 +++ mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 @@ -731,7 +731,8 @@ bool InterfaceEndpointClient::HandleIncomingMessage(Message* message) {

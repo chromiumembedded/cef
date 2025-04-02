@@ -146,7 +146,7 @@ index 39b2de869d225..5a4e621c650ee 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 368fef0540317..d8ec71b69dc77 100644
+index 99f4701555ae9..446c77758540b 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -157,7 +157,7 @@ index 368fef0540317..d8ec71b69dc77 100644
  import("../build/crashpad_buildconfig.gni")
  
  static_library("handler") {
-@@ -75,11 +76,23 @@ static_library("handler") {
+@@ -73,11 +74,23 @@ static_library("handler") {
      "../minidump",
      "../snapshot",
      "../tools:tool_support",

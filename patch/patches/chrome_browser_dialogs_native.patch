@@ -1,8 +1,8 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index c3d8a9929e1f3..db4806237472f 100644
+index f03a163dd1e2d..128f3b80d3684 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -311,6 +311,12 @@ void FileSelectHelper::OnListDone(int error) {
+@@ -310,6 +310,12 @@ void FileSelectHelper::OnListDone(int error) {
    }
  
    if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
@@ -15,7 +15,7 @@ index c3d8a9929e1f3..db4806237472f 100644
      auto model = CreateConfirmationDialog(
          entry->display_name_, std::move(chooser_files),
          base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-@@ -509,31 +515,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -508,31 +514,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -71,7 +71,7 @@ index c3d8a9929e1f3..db4806237472f 100644
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -550,12 +576,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -549,12 +575,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -104,7 +104,7 @@ index c3d8a9929e1f3..db4806237472f 100644
    }
  
    return file_type;
-@@ -565,7 +607,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -564,7 +606,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -114,7 +114,7 @@ index c3d8a9929e1f3..db4806237472f 100644
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -573,6 +616,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -572,6 +615,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -123,7 +123,7 @@ index c3d8a9929e1f3..db4806237472f 100644
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index f007afe754be8..36f8ae45c5ee1 100644
+index e5b8c7d6e7b0a..6fcbf246159ae 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -143,9 +143,9 @@ index f007afe754be8..36f8ae45c5ee1 100644
 +  // Set to true if this dialog was triggered via CEF.
 +  bool run_from_cef_ = false;
 +
- #if BUILDFLAG(IS_CHROMEOS_ASH)
+ #if BUILDFLAG(IS_CHROMEOS)
    base::WeakPtrFactory<FileSelectHelper> weak_ptr_factory_{this};
- #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
+ #endif  // BUILDFLAG(IS_CHROMEOS)
 diff --git chrome/browser/ui/chrome_select_file_policy.h chrome/browser/ui/chrome_select_file_policy.h
 index 49272553c7c53..5ba90c9a06ecf 100644
 --- chrome/browser/ui/chrome_select_file_policy.h

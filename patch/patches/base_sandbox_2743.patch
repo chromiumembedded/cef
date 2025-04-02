@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index da6b76717d7b7..d536c8329e732 100644
+index 50893c5653a42..75dd03c3df9a8 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
@@ -10,7 +10,7 @@ index da6b76717d7b7..d536c8329e732 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1509,7 +1510,13 @@ component("base") {
+@@ -1518,7 +1519,13 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -25,7 +25,7 @@ index da6b76717d7b7..d536c8329e732 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1959,6 +1966,12 @@ component("base") {
+@@ -1968,6 +1975,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -90,7 +90,7 @@ index 2158b648ca58a..8a8cb13b2fd74 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/json/json_reader.cc base/json/json_reader.cc
-index 32d8707d3ad5d..12b8ccda8fc30 100644
+index 48a9b893d3f9d..a5a2223b2a0fa 100644
 --- base/json/json_reader.cc
 +++ base/json/json_reader.cc
 @@ -12,8 +12,9 @@
@@ -104,7 +104,7 @@ index 32d8707d3ad5d..12b8ccda8fc30 100644
  #include "base/strings/string_view_rust.h"
  #include "third_party/rust/serde_json_lenient/v0_2/wrapper/functions.h"
  #include "third_party/rust/serde_json_lenient/v0_2/wrapper/lib.rs.h"
-@@ -23,7 +24,7 @@ namespace base {
+@@ -21,7 +22,7 @@
  
  // TODO(crbug.com/40811643): Move the C++ parser into components/nacl to just
  // run in-process there. Don't compile base::JSONReader on NaCL at all.
@@ -112,15 +112,8 @@ index 32d8707d3ad5d..12b8ccda8fc30 100644
 +#if !(BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
  
  namespace {
- using serde_json_lenient::ContextPointer;
-@@ -129,16 +130,16 @@ JSONReader::Result DecodeJSONInRust(std::string_view json,
- 
- }  // anonymous namespace
- 
--#endif  // !BUILDFLAG(IS_NACL)
-+#endif  // !(BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
- 
- // static
+ const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
+@@ -138,7 +139,7 @@ namespace base {
  std::optional<Value> JSONReader::Read(std::string_view json,
                                        int options,
                                        size_t max_depth) {
@@ -128,21 +121,8 @@ index 32d8707d3ad5d..12b8ccda8fc30 100644
 +#if (BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
    internal::JSONParser parser(options, max_depth);
    return parser.Parse(json);
--#else   // BUILDFLAG(IS_NACL)
-+#else   // (BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
-   SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
-   if (UsingRust()) {
-     JSONReader::Result result = DecodeJSONInRust(json, options, max_depth);
-@@ -150,7 +151,7 @@ std::optional<Value> JSONReader::Read(std::string_view json,
-     internal::JSONParser parser(options, max_depth);
-     return parser.Parse(json);
-   }
--#endif  // BUILDFLAG(IS_NACL)
-+#endif  // (BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
- }
- 
- // static
-@@ -179,7 +180,7 @@ std::optional<Value::List> JSONReader::ReadList(std::string_view json,
+ #else   // BUILDFLAG(IS_NACL)
+@@ -183,7 +184,7 @@ std::optional<Value::List> JSONReader::ReadList(std::string_view json,
  JSONReader::Result JSONReader::ReadAndReturnValueWithError(
      std::string_view json,
      int options) {
@@ -151,25 +131,7 @@ index 32d8707d3ad5d..12b8ccda8fc30 100644
    internal::JSONParser parser(options);
    auto value = parser.Parse(json);
    if (!value) {
-@@ -191,7 +192,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
-   }
- 
-   return std::move(*value);
--#else   // BUILDFLAG(IS_NACL)
-+#else   // (BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
-   SCOPED_UMA_HISTOGRAM_TIMER_MICROS(kSecurityJsonParsingTime);
-   if (UsingRust()) {
-     return DecodeJSONInRust(json, options, internal::kAbsoluteMaxDepth);
-@@ -208,7 +209,7 @@ JSONReader::Result JSONReader::ReadAndReturnValueWithError(
- 
-     return std::move(*value);
-   }
--#endif  // BUILDFLAG(IS_NACL)
-+#endif  // (BUILDFLAG(IS_NACL) || BUILDFLAG(IS_CEF_SANDBOX_BUILD))
- }
- 
- // static
-@@ -219,7 +220,7 @@ bool JSONReader::UsingRust() {
+@@ -224,7 +225,7 @@ bool JSONReader::UsingRust() {
    if (!base::FeatureList::GetInstance()) {
      return false;
    }
@@ -179,7 +141,7 @@ index 32d8707d3ad5d..12b8ccda8fc30 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index e996f8c614266..7bd52b676cc92 100644
+index 22aa478001fb5..e799d8da52589 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -51,6 +51,7 @@
@@ -190,7 +152,7 @@ index e996f8c614266..7bd52b676cc92 100644
  #include "third_party/abseil-cpp/absl/base/internal/raw_logging.h"
  #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
  
-@@ -530,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -538,7 +539,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    }
  #endif
  
@@ -247,7 +209,7 @@ index 5d11d4a1560b1..242a93bcca8ed 100644
  }  // namespace win
  #endif
 diff --git base/rand_util.h base/rand_util.h
-index da48b37857aa3..3ff683247ab2a 100644
+index d650943a7b75a..abd5217f8ceed 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -23,8 +23,9 @@
@@ -261,7 +223,7 @@ index da48b37857aa3..3ff683247ab2a 100644
  #include "third_party/boringssl/src/include/openssl/rand.h"
  #endif
  
-@@ -185,7 +186,7 @@ class RandomBitGenerator {
+@@ -189,7 +190,7 @@ class RandomBitGenerator {
    ~RandomBitGenerator() = default;
  };
  

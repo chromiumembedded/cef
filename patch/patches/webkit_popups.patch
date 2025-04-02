@@ -11,10 +11,10 @@ index b1689844282d6..a8f3b3432517d 100644
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index fd5c0566b6f51..7f891bb6040a5 100644
+index 1af1fa035b3da..f92d9b70fbd32 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -255,8 +255,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
+@@ -257,8 +257,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
    g_should_use_external_popup_menus = use_external_popup_menus;
  }
  
@@ -30,7 +30,7 @@ index fd5c0566b6f51..7f891bb6040a5 100644
  }
  
  namespace {
-@@ -613,6 +618,7 @@ WebViewImpl::WebViewImpl(
+@@ -615,6 +620,7 @@ WebViewImpl::WebViewImpl(
            blink::ZoomFactorToZoomLevel(kMinimumBrowserZoomFactor)),
        maximum_zoom_level_(
            blink::ZoomFactorToZoomLevel(kMaximumBrowserZoomFactor)),
@@ -62,10 +62,10 @@ index 06f7cf79b4526..58ad11da45137 100644
    gfx::Transform device_emulation_transform_;
  
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 1f966108642e8..3a549c0231f44 100644
+index e3888bb31414a..78dfff2048a67 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc
 +++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -971,7 +971,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
+@@ -1002,7 +1002,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    NotifyPopupOpeningObservers();
  

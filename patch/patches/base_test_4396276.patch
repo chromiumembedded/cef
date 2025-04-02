@@ -1,8 +1,8 @@
 diff --git base/test/BUILD.gn base/test/BUILD.gn
-index 82fab133d08d6..72857b99268eb 100644
+index 5beef03e5fd94..0b12fd3afc8fc 100644
 --- base/test/BUILD.gn
 +++ base/test/BUILD.gn
-@@ -208,11 +208,6 @@ static_library("test_support") {
+@@ -212,11 +212,6 @@ static_library("test_support") {
  
    if (enable_base_tracing) {
      public_deps += [ "//third_party/perfetto:perfetto_test_support" ]
@@ -14,7 +14,7 @@ index 82fab133d08d6..72857b99268eb 100644
      deps += [
        ":amalgamated_perfetto_sql_stdlib",
        ":gen_cc_chrome_track_event_descriptor",
-@@ -607,7 +602,7 @@ if (enable_base_tracing) {
+@@ -611,7 +606,7 @@ if (enable_base_tracing) {
    # processor depends on dev_sqlite. The two share the same symbols but have
    # different implementations, so we need to hide dev_sqlite in this shared
    # library even in non-component builds to prevent duplicate symbols.
@@ -23,7 +23,7 @@ index 82fab133d08d6..72857b99268eb 100644
    if (is_ios) {
      _target_type = "ios_framework_bundle"
    }
-@@ -616,6 +611,8 @@ if (enable_base_tracing) {
+@@ -620,6 +615,8 @@ if (enable_base_tracing) {
      defines = [ "TEST_TRACE_PROCESSOR_IMPL" ]
      testonly = true
      sources = [
@@ -32,7 +32,7 @@ index 82fab133d08d6..72857b99268eb 100644
        "test_trace_processor_export.h",
        "test_trace_processor_impl.cc",
        "test_trace_processor_impl.h",
-@@ -633,33 +630,6 @@ if (enable_base_tracing) {
+@@ -637,33 +634,6 @@ if (enable_base_tracing) {
        output_name = "TestTraceProcessor"
        bundle_deps_filter = [ "//third_party/icu:icudata" ]
      }
@@ -88,10 +88,10 @@ index f5191b804bc07..aadb7d66ba4c3 100644
 +
  #endif  // BASE_TEST_TEST_TRACE_PROCESSOR_EXPORT_H_
 diff --git content/shell/BUILD.gn content/shell/BUILD.gn
-index 95ef6926fc4cb..abb780c6d52c2 100644
+index f4288459097cd..c48696020414c 100644
 --- content/shell/BUILD.gn
 +++ content/shell/BUILD.gn
-@@ -920,7 +920,6 @@ if (is_mac) {
+@@ -926,7 +926,6 @@ if (is_mac) {
        # Specify a sensible install_name for static builds. The library is
        # dlopen()ed so this is not used to resolve the module.
        ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index 39012b26b2fd6..1b6cf3097ba40 100644
+index 8b3ce4e53ef25..7fcec86f074e3 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -6,6 +6,7 @@

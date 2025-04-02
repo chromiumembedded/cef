@@ -67,7 +67,7 @@ index a28c128deecd3..e8c8a9825b0fe 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 95876b4040844..2f4480cacade6 100644
+index 3f8801c6042ef..c1bcab30a63aa 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -78,7 +78,7 @@ index 95876b4040844..2f4480cacade6 100644
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -294,6 +295,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -293,6 +294,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,10 +93,10 @@ index 95876b4040844..2f4480cacade6 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 4e825d649919c..ff1af10d30758 100644
+index 97cceb20da0fc..7c2282840ff56 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -636,6 +636,9 @@ class NATIVE_THEME_EXPORT NativeTheme {
+@@ -636,6 +636,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
    // Calculates and returns the use overlay scrollbar setting.
    static bool CalculateUseOverlayScrollbar();
  
@@ -107,10 +107,10 @@ index 4e825d649919c..ff1af10d30758 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index 36d8e38eb0b07..0b96dd332363a 100644
+index e41728dd81663..a6396a778cae6 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
-@@ -631,11 +631,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -632,11 +632,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -129,10 +129,10 @@ index 36d8e38eb0b07..0b96dd332363a 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 2b2a12cd9d1ac..00c034b7f81f7 100644
+index dcf2d14d92f8b..ec99022b1f2ae 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -685,7 +685,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -693,7 +693,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -144,7 +144,7 @@ index 2b2a12cd9d1ac..00c034b7f81f7 100644
      return false;
    }
    return NativeTheme::ShouldUseDarkColors();
-@@ -693,7 +696,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -701,7 +704,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
@@ -153,7 +153,7 @@ index 2b2a12cd9d1ac..00c034b7f81f7 100644
      return NativeTheme::CalculatePreferredColorScheme();
    }
  
-@@ -1679,9 +1682,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1687,9 +1690,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

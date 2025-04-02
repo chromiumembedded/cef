@@ -128,7 +128,7 @@ class CefSelectFileDialog final : public ui::SelectFileDialog {
   }
 
  private:
-  gfx::NativeWindow owning_window_ = nullptr;
+  gfx::NativeWindow owning_window_ = gfx::NativeWindow();
   bool has_multiple_file_choices_ = false;
 
   CefRefPtr<CefBrowserHostBase> browser_;

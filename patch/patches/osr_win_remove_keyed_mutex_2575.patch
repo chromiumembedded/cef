@@ -24,10 +24,10 @@ index f51591d21a0ce..6393280a99f38 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 4f216eb88e51c..e216283028864 100644
+index 7c90eca71d395..9c40397be51f1 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -194,7 +194,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
+@@ -196,7 +196,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(
  bool FrameResources::Initialize() {
    auto* context = pool_->GetContext();
  
@@ -36,7 +36,7 @@ index 4f216eb88e51c..e216283028864 100644
  #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
        gfx::BufferUsage::SCANOUT_VEA_CPU_READ
  #else
-@@ -208,6 +208,23 @@ bool FrameResources::Initialize() {
+@@ -210,6 +210,23 @@ bool FrameResources::Initialize() {
    const gfx::Size buffer_size_in_pixels =
        GetBufferSizeInPixelsForVideoPixelFormat(format_, coded_size_);
  
@@ -60,7 +60,7 @@ index 4f216eb88e51c..e216283028864 100644
    gpu::SharedImageUsageSet usage =
  #if BUILDFLAG(IS_MAC)
        gpu::SHARED_IMAGE_USAGE_MACOS_VIDEO_TOOLBOX |
-@@ -248,7 +265,7 @@ bool FrameResources::Initialize() {
+@@ -250,7 +267,7 @@ bool FrameResources::Initialize() {
        viz::GetSharedImageFormat(buffer_format);
  
    shared_image_ =

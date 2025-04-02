@@ -1,18 +1,18 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 64f9e50f60186..d97a8a461ffcb 100644
+index 941788ea3ea81..c98e054107123 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -21,6 +21,7 @@
- #include "base/version.h"
+@@ -28,6 +28,7 @@
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
+ #include "build/util/chromium_git_revision.h"
 +#include "cef/libcef/features/features.h"
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -38,6 +39,10 @@
- #include "base/win/windows_version.h"
- #endif  // BUILDFLAG(IS_WIN)
+@@ -56,6 +57,10 @@
+ #include <sys/utsname.h>
+ #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
 +constexpr char kUserAgentProductAndVersion[] = "user-agent-product";
@@ -21,7 +21,7 @@ index 64f9e50f60186..d97a8a461ffcb 100644
  namespace embedder_support {
  
  namespace {
-@@ -299,6 +304,13 @@ blink::UserAgentBrandList ShuffleBrandList(
+@@ -465,6 +470,13 @@ std::string BuildOSCpuInfo(
  
  std::string GetProductAndVersion(
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {

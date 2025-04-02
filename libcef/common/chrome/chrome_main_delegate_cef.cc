@@ -463,7 +463,7 @@ std::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
   const auto result = ChromeMainDelegate::PostEarlyInitialization(invoked_in);
   if (!result) {
     const auto* invoked_in_browser =
-        absl::get_if<InvokedInBrowserProcess>(&invoked_in);
+        std::get_if<InvokedInBrowserProcess>(&invoked_in);
     if (invoked_in_browser) {
       // At this point local_state has been created but ownership has not yet
       // been passed to BrowserProcessImpl (g_browser_process is nullptr).
@@ -479,7 +479,7 @@ std::optional<int> ChromeMainDelegateCef::PostEarlyInitialization(
   return result;
 }
 
-absl::variant<int, content::MainFunctionParams>
+std::variant<int, content::MainFunctionParams>
 ChromeMainDelegateCef::RunProcess(
     const std::string& process_type,
     content::MainFunctionParams main_function_params) {

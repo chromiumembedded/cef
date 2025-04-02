@@ -42,7 +42,7 @@ index d26f0998c81fc..098282f9ca599 100644
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index a8c47297e36b7..5f0e5a4a98c81 100644
+index 7f3adc69c404c..68f5a01e3bab4 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@

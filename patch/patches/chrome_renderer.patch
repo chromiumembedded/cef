@@ -1,16 +1,16 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index 15957beb86998..fa0a5a1b76b9d 100644
+index 948d6c41cdede..80039133de468 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
-@@ -5,6 +5,7 @@
+@@ -4,6 +4,7 @@
+ 
  import("//build/config/buildflags_paint_preview.gni")
- import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/features.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//components/nacl/features.gni")
  import("//components/offline_pages/buildflags/features.gni")
-@@ -136,6 +137,7 @@ static_library("renderer") {
+@@ -133,6 +134,7 @@ static_library("renderer") {
      ":process_state",
      "//base/allocator:buildflags",
      "//build:chromeos_buildflags",
@@ -18,8 +18,8 @@ index 15957beb86998..fa0a5a1b76b9d 100644
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -249,6 +251,10 @@ static_library("renderer") {
-     ]
+@@ -250,6 +252,10 @@ static_library("renderer") {
+     deps += [ "//chrome/renderer/actor" ]
    }
  
 +  if (enable_cef) {

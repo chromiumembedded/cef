@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 3f65718281973..66580417cc79e 100644
+index 54d2631ec2032..b5bc7d4e97a91 100644
 --- .gn
 +++ .gn
-@@ -158,6 +158,8 @@ exec_script_allowlist =
+@@ -159,6 +159,8 @@ exec_script_allowlist =
        "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
        "//chrome/version.gni",
  
@@ -12,12 +12,12 @@ index 3f65718281973..66580417cc79e 100644
        # https://crbug.com/474506.
        "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index cf65a66212b8f..0a614a78f9907 100644
+index f7307e92c4e94..8d4a80cef7997 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -19,6 +19,7 @@ import("//build/config/sanitizers/sanitizers.gni")
- import("//build/config/ui.gni")
+@@ -19,6 +19,7 @@ import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
+ import("//build/toolchain/rbe.gni")
  import("//build/util/generate_wrapper.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
@@ -78,18 +78,18 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 8f146e28971a7..42d1674c280de 100644
+index f9741697fdc82..f956cc3421255 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -6,6 +6,7 @@ import("//ash/ambient/resources/resources.gni")
+@@ -5,6 +5,7 @@
+ import("//ash/ambient/resources/resources.gni")
  import("//build/config/chrome_build.gni")
- import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/locales.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -480,6 +481,11 @@ template("chrome_extra_paks") {
+@@ -478,6 +479,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  
@@ -102,18 +102,18 @@ index 8f146e28971a7..42d1674c280de 100644
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index c3b77e3653933..21f42ddf85a3b 100644
+index 3588fa340be0c..7fcb9072c2392 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
-@@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
- import("//build/config/chromeos/ui_mode.gni")
+@@ -5,6 +5,7 @@
+ import("//build/config/chrome_build.gni")
  import("//build/config/features.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -106,6 +107,10 @@ template("chrome_repack_locales") {
+@@ -104,6 +105,10 @@ template("chrome_repack_locales") {
        source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
        deps += [ "//components/strings:search_engine_descriptions_strings" ]
      }
@@ -125,7 +125,7 @@ index c3b77e3653933..21f42ddf85a3b 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index be48771397da4..334808a723442 100644
+index 7e49b4e449981..b01e5db88a51e 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/features.gni")
@@ -136,9 +136,9 @@ index be48771397da4..334808a723442 100644
  import("//chrome/process_version_rc_template.gni")
  import("//third_party/dawn/scripts/dawn_features.gni")
  import("//third_party/ffmpeg/ffmpeg_options.gni")
-@@ -145,11 +146,13 @@ action("mini_installer_archive") {
-   inputs = [
+@@ -146,11 +147,13 @@ action("mini_installer_archive") {
      "$root_out_dir/chrome.dll",
+     "$root_out_dir/chrome_elf.dll",
      "$root_out_dir/chrome.exe",
 -    "$root_out_dir/locales/en-US.pak",
      "$root_out_dir/setup.exe",
@@ -152,12 +152,12 @@ index be48771397da4..334808a723442 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 904edbc9fbf04..c6e830faa2556 100644
+index 8df7cb1eb8e8c..6c21b1aaa9286 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
-@@ -5,7 +5,9 @@
+@@ -4,7 +4,9 @@
+ 
  import("//build/config/chrome_build.gni")
- import("//build/config/chromeos/ui_mode.gni")
  import("//build/config/devtools.gni")
 +import("//build/config/locales.gni")
  import("//build/config/ui.gni")
@@ -165,7 +165,7 @@ index 904edbc9fbf04..c6e830faa2556 100644
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
  devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
-@@ -37,6 +39,9 @@ _grit_defines = [
+@@ -36,6 +38,9 @@ _grit_defines = [
    "use_titlecase=${is_mac}",
  
    "is_desktop_android=${is_desktop_android}",

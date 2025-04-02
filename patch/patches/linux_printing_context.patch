@@ -100,7 +100,7 @@ index 3ab395e3b0b45..c012641a5dc7e 100644
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index 090e770ac2f8e..a57f9695bc377 100644
+index 15db1bd5271cd..cb2d4090c7655 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -20,6 +20,10 @@
@@ -114,9 +114,9 @@ index 090e770ac2f8e..a57f9695bc377 100644
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -62,9 +66,27 @@ class TextEditCommandAuraLinux;
- class WindowButtonOrderObserver;
+@@ -62,9 +66,27 @@ class WindowButtonOrderObserver;
  class WindowFrameProvider;
+ enum class TextEditCommand;
  
 +class COMPONENT_EXPORT(LINUX_UI) PrintingContextLinuxDelegate {
 + public:

@@ -56,10 +56,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index f4475e34d3d6c..ad06b50a46a9d 100644
+index 573269ba54150..a51715e7dc6cc 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3733,6 +3733,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3718,6 +3718,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -72,7 +72,7 @@ index f4475e34d3d6c..ad06b50a46a9d 100644
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 99fe44aab8599..5af702180004e 100644
+index c201cff9e5c3b..900af39ae4b09 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
 @@ -843,6 +843,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl

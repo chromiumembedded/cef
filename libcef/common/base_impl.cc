@@ -208,7 +208,7 @@ CEF_EXPORT int cef_get_min_log_level() {
 }
 
 CEF_EXPORT int cef_get_vlog_level(const char* file_start, size_t N) {
-  return logging::GetVlogLevelHelper(file_start, N);
+  return logging::GetVlogLevelHelper(std::string_view(file_start, N));
 }
 
 CEF_EXPORT void cef_log(const char* file,

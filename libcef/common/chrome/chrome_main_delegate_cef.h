@@ -43,7 +43,7 @@ class ChromeMainDelegateCef : public ChromeMainDelegate,
   void SandboxInitialized(const std::string& process_type) override;
   std::optional<int> PreBrowserMain() override;
   std::optional<int> PostEarlyInitialization(InvokedIn invoked_in) override;
-  absl::variant<int, content::MainFunctionParams> RunProcess(
+  std::variant<int, content::MainFunctionParams> RunProcess(
       const std::string& process_type,
       content::MainFunctionParams main_function_params) override;
 #if BUILDFLAG(IS_LINUX)

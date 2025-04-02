@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 43e388d5517d1..b16a6961232fd 100644
+index 15a2e6f3eac5f..d1db608df307f 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1044,7 +1044,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1043,7 +1043,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -120,7 +120,7 @@ index 55d05c746eb00..7883a183f274d 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index e5135719b8df9..fe88f01136990 100644
+index 26734958c1faa..10a5d50190834 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
 @@ -194,6 +194,8 @@ class VIEWS_EXPORT InkDropHost {
@@ -133,10 +133,10 @@ index e5135719b8df9..fe88f01136990 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index ccbd45bf8bba7..2a2f403e8fe01 100644
+index 74c21a8d33b5e..4dadf74b6097d 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -604,6 +604,12 @@ void LabelButton::OnThemeChanged() {
+@@ -605,6 +605,12 @@ void LabelButton::OnThemeChanged() {
    SchedulePaint();
  }
  
@@ -164,7 +164,7 @@ index 8efaccff40e09..e420e2f4e80ec 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index af3ef923d50ce..263a178888e18 100644
+index 774640f711d13..54325afd0b1a5 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -56,12 +56,29 @@ enum LabelPropertyKey {
@@ -254,10 +254,10 @@ index b4cb7c83a3e4c..562e096930147 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 6337d0d70f247..8ee49d582cbf8 100644
+index c5f3700f8f04b..84b0d56977dbd 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -588,7 +588,8 @@ void MenuController::Run(Widget* parent,
+@@ -589,7 +589,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           bool context_menu,
                           bool is_nested_drag,
@@ -267,7 +267,7 @@ index 6337d0d70f247..8ee49d582cbf8 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -657,6 +658,7 @@ void MenuController::Run(Widget* parent,
+@@ -658,6 +659,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index 6337d0d70f247..8ee49d582cbf8 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2380,6 +2382,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2386,6 +2388,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index 6337d0d70f247..8ee49d582cbf8 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3091,7 +3094,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3099,7 +3102,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index 6337d0d70f247..8ee49d582cbf8 100644
      return;
    }
  
-@@ -3116,6 +3123,7 @@ void MenuController::CloseSubmenu() {
+@@ -3124,6 +3131,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -367,10 +367,10 @@ index ea82da6dc2f45..575bd9484c2bf 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index a462f65d2eb0e..4ae344a2b355a 100644
+index 84c5e0c9e5091..4d4cc966670e5 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
-@@ -148,6 +148,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -153,6 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
                                         : gfx::NativeWindow();
    params.bounds = init_params.bounds;
  
@@ -379,7 +379,7 @@ index a462f65d2eb0e..4ae344a2b355a 100644
  #if defined(USE_AURA)
    params.init_properties_container.SetProperty(aura::client::kOwnedWindowAnchor,
                                                 init_params.owned_window_anchor);
-@@ -155,7 +157,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
+@@ -160,7 +162,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
    // If MenuHost has no parent widget, it needs to be marked
    // Activatable, so that calling Show in ShowMenuHost will
    // get keyboard focus.
@@ -403,7 +403,7 @@ index fc1d5fccc3845..c065cafcd537c 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index 03dddd5040a34..442bbfdb3f6f5 100644
+index 75433da75bee3..351c209cb21c8 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1158,6 +1158,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
@@ -749,7 +749,7 @@ index da772edd48c00..43c930e932287 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 265c4713b41e0..8204af77e97fb 100644
+index e997f21d56ce8..ca69158a8dbfa 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -273,6 +273,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)

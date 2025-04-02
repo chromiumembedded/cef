@@ -99,8 +99,8 @@ class BrowserDelegate : public content::WebContentsDelegate {
 
   enum class ToolbarButtonType {
     kCast = 0,
-    kDownload,
-    kSendTabToSelf,
+    kDownload_DEPRECATED,
+    kSendTabToSelf_DEPRECATED,
     kSidePanel,
     kMaxValue = kSidePanel,
   };

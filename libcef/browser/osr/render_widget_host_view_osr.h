@@ -132,7 +132,8 @@ class CefRenderWidgetHostViewOSR
   std::optional<SkColor> GetBackgroundColor() override;
   void UpdateBackgroundColor() override;
   std::optional<content::DisplayFeature> GetDisplayFeature() override;
-  void SetDisplayFeatureForTesting(
+  void DisableDisplayFeatureOverrideForEmulation() override;
+  void OverrideDisplayFeatureForEmulation(
       const content::DisplayFeature* display_feature) override;
   blink::mojom::PointerLockResult LockPointer(
       bool request_unadjusted_movement) override;

@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index f61ec524109fe..92ca490728855 100644
+index 0ac0d2fae56a9..4c55cfe1a52d7 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -15,6 +15,7 @@
@@ -21,7 +21,7 @@ index f61ec524109fe..92ca490728855 100644
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -309,7 +314,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -310,7 +315,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,10 +34,10 @@ index f61ec524109fe..92ca490728855 100644
  
  WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 344b810811bfb..a6e4a909eed24 100644
+index dad67c2ce98a8..71b27628f7827 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1686,7 +1686,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1687,7 +1687,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
      }
  
@@ -46,7 +46,7 @@ index 344b810811bfb..a6e4a909eed24 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1700,7 +1700,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1701,7 +1701,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
      }
  
      bool highlighted = *params->update_properties.highlighted;
@@ -55,7 +55,7 @@ index 344b810811bfb..a6e4a909eed24 100644
        tab_strip->ToggleSelectionAt(tab_index);
      }
    }
-@@ -1712,7 +1712,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1713,7 +1713,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
    }
  
@@ -64,7 +64,7 @@ index 344b810811bfb..a6e4a909eed24 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1747,7 +1747,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1748,7 +1748,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -73,7 +73,7 @@ index 344b810811bfb..a6e4a909eed24 100644
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -1768,7 +1768,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1769,7 +1769,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -83,7 +83,7 @@ index 344b810811bfb..a6e4a909eed24 100644
          !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-@@ -1783,7 +1784,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1784,7 +1785,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
@@ -164,18 +164,3 @@ index 63848c93738ce..0358e098c7339 100644
    // FYI: Do NOT add any more friends here. The functions above are the ONLY
    // ones that need to call AttachTabHelpers; if you think you do, re-read the
    // design document linked above, especially the section "Reusing tab helpers".
-diff --git chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-index 767a3b368e93d..d206384a0e20c 100644
---- chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-+++ chrome/browser/ui/views/download/bubble/download_toolbar_button_view.cc
-@@ -820,6 +820,10 @@ void DownloadToolbarButtonView::ShowPendingDownloadStartedAnimation() {
-   if (!gfx::Animation::ShouldRenderRichAnimation()) {
-     return;
-   }
-+  if (!IsDrawn()) {
-+    // Don't animate with a hidden download button.
-+    return;
-+  }
-   content::WebContents* const web_contents =
-       browser_->tab_strip_model()->GetActiveWebContents();
-   if (!web_contents ||

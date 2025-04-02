@@ -245,6 +245,8 @@ cef_permission_request_types_t GetCefRequestType(
       return CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT;
     case permissions::RequestType::kFileSystemAccess:
       return CEF_PERMISSION_TYPE_FILE_SYSTEM_ACCESS;
+    case permissions::RequestType::kLocalNetworkAccess:
+      return CEF_PERMISSION_TYPE_LOCAL_NETWORK_ACCESS;
   }
 
   DCHECK(false);

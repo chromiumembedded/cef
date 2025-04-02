@@ -1,16 +1,16 @@
 diff --git BUILD.gn BUILD.gn
-index bc75d8130b4..f15faf2d9c5 100644
+index 9a2b2cdd94f..dd05f318329 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -11,6 +11,7 @@ import("//build/config/mips.gni")
- import("//build/config/riscv.gni")
+@@ -12,6 +12,7 @@ import("//build/config/riscv.gni")
+ import("//build/config/rust.gni")
  import("//build/config/sanitizers/sanitizers.gni")
  import("//build_overrides/build.gni")
 +import("//cef/libcef/features/features.gni")
  import("//third_party/icu/config.gni")
  
  import("gni/snapshot_toolchain.gni")
-@@ -484,6 +485,9 @@ declare_args() {
+@@ -496,6 +497,9 @@ declare_args() {
    # Experimental testing mode where various limits are artificially set lower.
    v8_lower_limits_mode = false
  
@@ -20,7 +20,7 @@ index bc75d8130b4..f15faf2d9c5 100644
    # Enables the use of partition_alloc as the default allocator for standalone
    # V8. This should be used for benchmarking and testing purposes to more
    # closely mimic in-browser behavior.
-@@ -849,6 +853,10 @@ config("internal_config") {
+@@ -875,6 +879,10 @@ config("internal_config") {
      defines += [ "BUILDING_V8_SHARED" ]
    }
  

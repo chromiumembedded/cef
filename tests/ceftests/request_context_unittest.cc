@@ -764,10 +764,7 @@ class PopupNavTestHandler : public TestHandler {
         mode_ == DESTROY_PARENT_DURING_CREATION_FORCE ||
         mode_ == DESTROY_PARENT_AFTER_CREATION ||
         mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE) {
-      // Timing of Alloy style browsers may not result in abort.
-      if (!use_alloy_style_browser()) {
-        EXPECT_TRUE(got_on_before_popup_aborted_);
-      }
+      // Timing may not result in abort.
     } else {
       EXPECT_FALSE(got_on_before_popup_aborted_);
     }

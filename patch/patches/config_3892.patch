@@ -1,5 +1,5 @@
 diff --git components/prefs/pref_service.h components/prefs/pref_service.h
-index f1856d6ee4419..413b77e80d84d 100644
+index 0a360f45e89d9..c88c7ea9177e5 100644
 --- components/prefs/pref_service.h
 +++ components/prefs/pref_service.h
 @@ -52,6 +52,10 @@ namespace base {
@@ -13,7 +13,7 @@ index f1856d6ee4419..413b77e80d84d 100644
  namespace prefs {
  class ScopedDictionaryPrefUpdate;
  }
-@@ -441,6 +445,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
+@@ -432,6 +436,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
    // declared as a friend, too.
    friend class PrefChangeRegistrar;
    friend class subtle::PrefMemberBase;

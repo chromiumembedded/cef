@@ -501,7 +501,11 @@ CefRenderWidgetHostViewOSR::GetDisplayFeature() {
   return std::nullopt;
 }
 
-void CefRenderWidgetHostViewOSR::SetDisplayFeatureForTesting(
+void CefRenderWidgetHostViewOSR::DisableDisplayFeatureOverrideForEmulation() {
+  DCHECK(false);
+}
+
+void CefRenderWidgetHostViewOSR::OverrideDisplayFeatureForEmulation(
     const content::DisplayFeature* display_feature) {
   DCHECK(false);
 }

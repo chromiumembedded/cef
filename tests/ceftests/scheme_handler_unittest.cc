@@ -1498,8 +1498,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOrigin) {
       "Access to fetch at 'customstdfetch://test2/fetch.html' from origin "
       "'customstdfetch://test1' has been blocked by CORS policy: No "
       "'Access-Control-Allow-Origin' header is present on the requested "
-      "resource. If an opaque response serves your needs, set the request's "
-      "mode to 'no-cors' to fetch the resource with CORS disabled.");
+      "resource.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
   handler->ExecuteTest();
@@ -1737,9 +1736,7 @@ TEST(SchemeHandlerTest, HttpFetchDifferentOriginAsync) {
       "Access to fetch at 'https://test2/fetch.html' from origin "
       "'https://test1' "
       "has been blocked by CORS policy: No 'Access-Control-Allow-Origin' "
-      "header is present on the requested resource. If an opaque response "
-      "serves your needs, set the request's mode to 'no-cors' to fetch the "
-      "resource with CORS disabled.");
+      "header is present on the requested resource.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
   handler->ExecuteTest();
@@ -2376,8 +2373,7 @@ TEST(SchemeHandlerTest, CustomStandardFetchDifferentOriginRedirect) {
       "'customstdfetch://test1/fetch.html') from origin "
       "'customstdfetch://test1' has been blocked by CORS policy: No "
       "'Access-Control-Allow-Origin' header is present on the requested "
-      "resource. If an opaque response serves your needs, set the request's "
-      "mode to 'no-cors' to fetch the resource with CORS disabled.");
+      "resource.");
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&test_results);
   handler->ExecuteTest();

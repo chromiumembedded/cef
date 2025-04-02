@@ -107,7 +107,7 @@ void PrintToPDF(content::WebContents* web_contents,
     }
   }
 
-  absl::variant<printing::mojom::PrintPagesParamsPtr, std::string>
+  std::variant<printing::mojom::PrintPagesParamsPtr, std::string>
       print_pages_params = print_to_pdf::GetPrintPagesParams(
           web_contents->GetPrimaryMainFrame()->GetLastCommittedURL(),
           !!settings.landscape, display_header_footer,
@@ -117,14 +117,14 @@ void PrintToPDF(content::WebContents* web_contents,
           CefString(&settings.footer_template), !!settings.prefer_css_page_size,
           !!settings.generate_tagged_pdf, !!settings.generate_document_outline);
 
-  if (absl::holds_alternative<std::string>(print_pages_params)) {
+  if (std::holds_alternative<std::string>(print_pages_params)) {
     LOG(ERROR) << "PrintToPDF failed with error: "
-               << absl::get<std::string>(print_pages_params);
+               << std::get<std::string>(print_pages_params);
     callback->OnPdfPrintFinished(CefString(), false);
     return;
   }
 
-  DCHECK(absl::holds_alternative<printing::mojom::PrintPagesParamsPtr>(
+  DCHECK(std::holds_alternative<printing::mojom::PrintPagesParamsPtr>(
       print_pages_params));
 
   if (auto* print_manager =

@@ -356,10 +356,10 @@ index 8dbf958c189dd..6eaccc6688eca 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 6476c59ba6378..090eeaf9924a6 100644
+index 05825d36640d0..ab007a1f05fde 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -500,7 +500,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -504,7 +504,8 @@ bool PathProvider(int key, base::FilePath* result) {
        break;
      }
  #endif
