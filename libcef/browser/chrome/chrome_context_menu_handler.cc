@@ -82,7 +82,8 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
                          CefRefPtr<CefBrowserHostBase> browser,
                          CefRefPtr<CefContextMenuHandler> handler)
       : context_menu_(context_menu), browser_(browser), handler_(handler) {
-    // This remains valid until the next time a context menu is created.
+    // Association remains valid until the next time a context menu is created,
+    // or this Observer is destroyed.
     browser_->set_context_menu_observer(this);
   }
 
@@ -163,6 +164,7 @@ class CefContextMenuObserver : public RenderViewContextMenuObserver,
 
     // Clear stored state because this object won't be deleted until a new
     // context menu is created or the associated browser is destroyed.
+    browser_->clear_context_menu_observer(this);
     browser_ = nullptr;
     handler_ = nullptr;
     params_ = nullptr;
