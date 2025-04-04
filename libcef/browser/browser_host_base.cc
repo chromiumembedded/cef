@@ -1420,6 +1420,19 @@ CefDevToolsWindowRunner* CefBrowserHostBase::GetDevToolsWindowRunner() {
   return devtools_window_runner_.get();
 }
 
+void CefBrowserHostBase::set_context_menu_observer(
+    RenderViewContextMenuObserver* observer) {
+  context_menu_observer_ = observer;
+}
+
+void CefBrowserHostBase::clear_context_menu_observer(
+    RenderViewContextMenuObserver* observer) {
+  // Don't clear if a new Observer has already been assigned.
+  if (context_menu_observer_ == observer) {
+    context_menu_observer_ = nullptr;
+  }
+}
+
 views::Widget* CefBrowserHostBase::GetWindowWidget() const {
   CEF_REQUIRE_UIT();
   if (!platform_delegate_) {

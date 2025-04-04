@@ -392,9 +392,8 @@ class CefBrowserHostBase : public CefBrowserHost,
   RenderViewContextMenuObserver* context_menu_observer() const {
     return context_menu_observer_;
   }
-  void set_context_menu_observer(RenderViewContextMenuObserver* observer) {
-    context_menu_observer_ = observer;
-  }
+  void set_context_menu_observer(RenderViewContextMenuObserver* observer);
+  void clear_context_menu_observer(RenderViewContextMenuObserver* observer);
 
   // Returns the Widget owner for the browser window. Only used with windowed
   // browsers.
