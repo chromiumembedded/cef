@@ -98,7 +98,7 @@
   "tasks": [
     // * If you want to be prompted for the output directory each
     //   time you run a command, replace
-    //     ${config:cef.outputDir[Debug|Release]}
+    //     ${config:cef.outputDir[Debug|Release]Relative}
     //   with
     //     ${input:cefOutputDir}
     //
@@ -110,9 +110,12 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirDebug}",
+        "${config:cef.outputDirDebugRelative}",
         "cef"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "group": {
         "kind": "build",
         "isDefault": true
@@ -124,9 +127,12 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirRelease}",
+        "${config:cef.outputDirReleaseRelative}",
         "cef"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "group": {
         "kind": "build"
       }
@@ -136,18 +142,24 @@
       "type": "shell",
       "command": "compile_single_file",
       "args": [
-        "--build-dir=${config:cef.outputDirDebug}",
+        "--build-dir=${config:cef.outputDirDebugRelative}",
         "--file-path=${file}"
-      ]
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
       "label": "4-build_current_file_release",
       "type": "shell",
       "command": "compile_single_file",
       "args": [
-        "--build-dir=${config:cef.outputDirRelease}",
+        "--build-dir=${config:cef.outputDirReleaseRelative}",
         "--file-path=${file}"
-      ]
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
       "label": "5-build_tests_debug",
@@ -155,10 +167,13 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirDebug}",
+        "${config:cef.outputDirDebugRelative}",
         "ceftests",
         "libcef_static_unittests"
-      ]
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     },
     {
       "label": "6-build_tests_release",
@@ -166,10 +181,13 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirRelease}",
+        "${config:cef.outputDirReleaseRelative}",
         "ceftests",
         "libcef_static_unittests"
-      ]
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
     }
   ]
 }
