@@ -501,7 +501,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_REVOKED_DISRUPTIVE_NOTIFICATION_PERMISSIONS,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13600)
   /// Content setting for whether the site is allowed to make local network
   /// requests.
   CEF_CONTENT_SETTING_TYPE_LOCAL_NETWORK_ACCESS,
