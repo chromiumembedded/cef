@@ -47,7 +47,7 @@ index 085e9a60031ea..15e8ba49573e9 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 47750f538148c..3260524e74306 100644
+index e2382e9769cb7..f5738329609c9 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1181,7 +1181,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,10 +68,10 @@ index 47750f538148c..3260524e74306 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index b7864a93b53a3..5b6174340e2cc 100644
+index 9b75a6c3c222a..30cf0e43f3f09 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -1379,6 +1379,12 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1380,6 +1380,12 @@ class CONTENT_EXPORT ContentBrowserClient {
        bool opener_suppressed,
        bool* no_javascript_access);
  
@@ -84,7 +84,7 @@ index b7864a93b53a3..5b6174340e2cc 100644
    // Allows the embedder to return a delegate for the SpeechRecognitionManager.
    // The delegate will be owned by the manager. It's valid to return nullptr.
    virtual SpeechRecognitionManagerDelegate*
-@@ -2230,7 +2236,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2231,7 +2237,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -93,7 +93,7 @@ index b7864a93b53a3..5b6174340e2cc 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2472,6 +2478,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2473,6 +2479,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -116,7 +116,7 @@ index b7864a93b53a3..5b6174340e2cc 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2537,6 +2559,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2538,6 +2560,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
