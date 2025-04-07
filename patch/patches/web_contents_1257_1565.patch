@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index f80d8ecc385df..e8c41051b0fa4 100644
+index f80d8ecc385df..b879741c441af 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3916,6 +3916,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -59,6 +59,66 @@ index f80d8ecc385df..e8c41051b0fa4 100644
  }
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
+@@ -10411,6 +10433,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+   OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::Resize");
+ #if defined(USE_AURA)
+   aura::Window* window = GetNativeView();
++  if (!window) {
++    // Will be nullptr with CEF OSR.
++    NOTIMPLEMENTED();
++    return;
++  }
+   window->SetBounds(gfx::Rect(window->bounds().origin(), new_bounds.size()));
+ #elif BUILDFLAG(IS_ANDROID)
+   content::RenderWidgetHostView* view = GetRenderWidgetHostView();
+@@ -10423,6 +10450,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+ gfx::Size WebContentsImpl::GetSize() {
+ #if defined(USE_AURA)
+   aura::Window* window = GetNativeView();
++  if (!window) {
++    // Will be nullptr with CEF OSR.
++    NOTIMPLEMENTED();
++    return gfx::Size();
++  }
+   return window->bounds().size();
+ #elif BUILDFLAG(IS_ANDROID)
+   ui::ViewAndroid* view_android = GetNativeView();
+diff --git content/browser/web_contents/web_contents_impl_mac.mm content/browser/web_contents/web_contents_impl_mac.mm
+index f1105a13aa0eb..d1dba26bbac1f 100644
+--- content/browser/web_contents/web_contents_impl_mac.mm
++++ content/browser/web_contents/web_contents_impl_mac.mm
+@@ -6,6 +6,7 @@
+ 
+ #import <Cocoa/Cocoa.h>
+ 
++#include "base/notimplemented.h"
+ #include "content/public/browser/web_contents.h"
+ #include "ui/gfx/geometry/size.h"
+ 
+@@ -13,6 +14,11 @@ namespace content {
+ 
+ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+   NSView* view = GetNativeView().GetNativeNSView();
++  if (!view) {
++    // Will be nullptr with CEF OSR.
++    NOTIMPLEMENTED();
++    return;
++  }
+   NSRect old_wcv_frame = view.frame;
+   CGFloat new_x = old_wcv_frame.origin.x;
+   CGFloat new_y = old_wcv_frame.origin.y +
+@@ -24,6 +30,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+ 
+ gfx::Size WebContentsImpl::GetSize() {
+   NSView* view = GetNativeView().GetNativeNSView();
++  if (!view) {
++    // Will be nullptr with CEF OSR.
++    NOTIMPLEMENTED();
++    return gfx::Size();
++  }
+   NSRect frame = view.frame;
+   return gfx::Size(NSWidth(frame), NSHeight(frame));
+ }
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
 index 4cf7eef3b54bb..620bfe54841d2 100644
 --- content/public/browser/web_contents.h
