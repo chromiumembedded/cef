@@ -1059,7 +1059,7 @@ index 98d97b84906bd..d63bab08e8098 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index f5ca2195a1784..bd4aa99b00427 100644
+index fd5dcdf1f352f..44c30ba50ef38 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -185,7 +185,7 @@ class TabstripLikeBackground : public views::Background {
@@ -1127,7 +1127,7 @@ index f5ca2195a1784..bd4aa99b00427 100644
        !base::FeatureList::IsEnabled(features::kPinnableDownloadsButton)) {
      download_button =
          std::make_unique<DownloadToolbarButtonView>(browser_view_);
-@@ -368,7 +384,8 @@ void ToolbarView::Init() {
+@@ -373,7 +389,8 @@ void ToolbarView::Init() {
    }
    std::unique_ptr<media_router::CastToolbarButton> cast;
    if (!base::FeatureList::IsEnabled(features::kPinnedCastButton)) {
@@ -1137,7 +1137,7 @@ index f5ca2195a1784..bd4aa99b00427 100644
        cast = media_router::CastToolbarButton::Create(browser_);
      }
    }
-@@ -382,7 +399,8 @@ void ToolbarView::Init() {
+@@ -387,7 +404,8 @@ void ToolbarView::Init() {
  
    std::unique_ptr<send_tab_to_self::SendTabToSelfToolbarIconView>
        send_tab_to_self_button;
@@ -1147,7 +1147,7 @@ index f5ca2195a1784..bd4aa99b00427 100644
      send_tab_to_self_button =
          std::make_unique<send_tab_to_self::SendTabToSelfToolbarIconView>(
              browser_view_);
-@@ -840,7 +858,8 @@ void ToolbarView::Layout(PassKey) {
+@@ -845,7 +863,8 @@ void ToolbarView::Layout(PassKey) {
  
    if (display_mode_ == DisplayMode::NORMAL) {
      LayoutCommon();
