@@ -130,12 +130,12 @@ class CefBrowserViewDelegate : public CefViewDelegate {
     return false;
   }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13601)
   ///
   /// Return true to allow the use of JavaScript moveTo/By() and resizeTo/By()
   /// (without user activation) with Document picture-in-picture popups.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=13601)--*/
   virtual bool AllowMoveForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) {
     return false;

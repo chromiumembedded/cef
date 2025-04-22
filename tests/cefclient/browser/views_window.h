@@ -145,7 +145,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
       CefRefPtr<CefBrowserView> browser_view) override;
   bool UseFramelessWindowForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) override;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13601)
   bool AllowMoveForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) override;
 #endif

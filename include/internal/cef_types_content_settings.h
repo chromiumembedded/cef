@@ -387,7 +387,7 @@ typedef enum {
   /// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
   ///                  blocked otherwise).
   /// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13601)
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL,
 #else
   CEF_CONTENT_SETTING_TOP_LEVEL_TPCD_ORIGIN_TRIAL,

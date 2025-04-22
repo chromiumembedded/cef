@@ -530,7 +530,7 @@ bool ViewsWindow::UseFramelessWindowForPictureInPicture(
   return hide_pip_frame_;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13601)
 bool ViewsWindow::AllowMoveForPictureInPicture(
     CefRefPtr<CefBrowserView> browser_view) {
   return move_pip_enabled_;
