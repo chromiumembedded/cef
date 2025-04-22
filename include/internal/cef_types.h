@@ -1271,7 +1271,11 @@ typedef enum {
   PDE_TYPE_BYTES,
   PDE_TYPE_FILE,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  PDE_TYPE_NUM_VALUES,
+#else
   PDF_TYPE_NUM_VALUES,
+#endif
 } cef_postdataelement_type_t;
 
 ///

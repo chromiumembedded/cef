@@ -387,7 +387,11 @@ typedef enum {
   /// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
   ///                  blocked otherwise).
   /// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL,
+#else
   CEF_CONTENT_SETTING_TOP_LEVEL_TPCD_ORIGIN_TRIAL,
+#endif
 
   /// Content setting used to indicate whether entering picture-in-picture
   /// automatically should be enabled.
