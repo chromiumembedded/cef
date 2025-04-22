@@ -298,7 +298,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
       bool own_web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<AlloyBrowserHostImpl> opener,
-      bool is_devtools_popup,
       CefRefPtr<CefRequestContextImpl> request_context,
       std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
 

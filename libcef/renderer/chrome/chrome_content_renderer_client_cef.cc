@@ -46,20 +46,19 @@ void ChromeContentRendererClientCef::RenderFrameCreated(
       new CefRenderFrameObserver(render_frame);
 
   bool browser_created;
-  std::optional<bool> is_windowless;
-  std::optional<bool> print_preview_enabled;
+  std::optional<cef::BrowserConfig> config;
   render_manager_->RenderFrameCreated(render_frame, render_frame_observer,
-                                      browser_created, is_windowless,
-                                      print_preview_enabled);
+                                      browser_created, config);
   if (browser_created) {
-    OnBrowserCreated(render_frame->GetWebView(), is_windowless);
+    CHECK(config.has_value());
+    OnBrowserCreated(render_frame->GetWebView(), *config);
   }
 
-  if (print_preview_enabled.has_value()) {
-    // This value will be used when the when ChromeContentRendererClient
+  if (config.has_value()) {
+    // This value will be used when the ChromeContentRendererClient
     // creates the new ChromePrintRenderFrameHelperDelegate below.
     ChromePrintRenderFrameHelperDelegate::SetNextPrintPreviewEnabled(
-        *print_preview_enabled);
+        (*config).print_preview_enabled);
   }
 
   ChromeContentRendererClient::RenderFrameCreated(render_frame);
@@ -73,12 +72,11 @@ void ChromeContentRendererClientCef::WebViewCreated(
                                               outermost_origin);
 
   bool browser_created;
-  std::optional<bool> is_windowless;
-  std::optional<bool> print_preview_enabled;
-  render_manager_->WebViewCreated(web_view, browser_created, is_windowless,
-                                  print_preview_enabled);
+  std::optional<cef::BrowserConfig> config;
+  render_manager_->WebViewCreated(web_view, browser_created, config);
   if (browser_created) {
-    OnBrowserCreated(web_view, is_windowless);
+    CHECK(config.has_value());
+    OnBrowserCreated(web_view, *config);
   }
 }
 
@@ -117,14 +115,9 @@ void ChromeContentRendererClientCef::ExposeInterfacesToBrowser(
 
 void ChromeContentRendererClientCef::OnBrowserCreated(
     blink::WebView* web_view,
-    std::optional<bool> is_windowless) {
+    const cef::BrowserConfig& config) {
 #if BUILDFLAG(IS_MAC)
-  const bool windowless = is_windowless.has_value() && *is_windowless;
-
-  // FIXME: It would be better if this API would be a callback from the
-  // WebKit layer, or if it would be exposed as an WebView instance method; the
-  // current implementation uses a static variable, and WebKit needs to be
-  // patched in order to make it work for each WebView instance
-  web_view->SetUseExternalPopupMenusThisInstance(!windowless);
+  web_view->SetUseExternalPopupMenusThisInstance(!config.is_windowless);
 #endif
+  web_view->SetMovePictureInPictureEnabled(config.move_pip_enabled);
 }

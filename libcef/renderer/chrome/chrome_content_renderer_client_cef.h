@@ -12,6 +12,10 @@
 #include "base/task/single_thread_task_runner.h"
 #include "chrome/renderer/chrome_content_renderer_client.h"
 
+namespace cef {
+struct BrowserConfig;
+}
+
 class CefRenderManager;
 
 // CEF override of ChromeContentRendererClient.
@@ -48,7 +52,7 @@ class ChromeContentRendererClientCef : public ChromeContentRendererClient {
 
  private:
   void OnBrowserCreated(blink::WebView* web_view,
-                        std::optional<bool> is_windowless);
+                        const cef::BrowserConfig& config);
 
   std::unique_ptr<CefRenderManager> render_manager_;
 

@@ -53,11 +53,10 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   static CefBrowserInfoManager* GetInstance();
 
   // Called immediately before a new CefBrowserHost implementation is created
-  // directly. In this case |is_popup| will be true only for DevTools browsers.
+  // directly.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo(
-      bool is_popup,
-      bool is_windowless,
-      bool print_preview_enabled,
+      bool is_devtools_popup,
+      const cef::BrowserConfig& config,
       CefRefPtr<CefDictionaryValue> extra_info);
 
   // Called from WebContentsDelegate::WebContentsCreated when a new browser is
@@ -66,8 +65,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // response will be sent when this method is called.
   scoped_refptr<CefBrowserInfo> CreatePopupBrowserInfo(
       content::WebContents* new_contents,
-      bool is_windowless,
-      bool print_preview_enabled,
+      const cef::BrowserConfig& config,
       CefRefPtr<CefDictionaryValue> extra_info);
 
   // Called from ContentBrowserClient::CanCreateWindow. See comments on

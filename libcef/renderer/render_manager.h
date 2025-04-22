@@ -12,6 +12,7 @@
 
 #include "cef/include/internal/cef_ptr.h"
 #include "cef/libcef/common/mojom/cef.mojom.h"
+#include "cef/libcef/renderer/browser_config.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote.h"
@@ -52,12 +53,10 @@ class CefRenderManager : public cef::mojom::RenderManager {
   void RenderFrameCreated(content::RenderFrame* render_frame,
                           CefRenderFrameObserver* render_frame_observer,
                           bool& browser_created,
-                          std::optional<bool>& is_windowless,
-                          std::optional<bool>& print_preview_enabled);
+                          std::optional<cef::BrowserConfig>& config);
   void WebViewCreated(blink::WebView* web_view,
                       bool& browser_created,
-                      std::optional<bool>& is_windowless,
-                      std::optional<bool>& print_preview_enabled);
+                      std::optional<cef::BrowserConfig>& config);
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
   void ExposeInterfacesToBrowser(mojo::BinderMap* binders);
@@ -94,9 +93,8 @@ class CefRenderManager : public cef::mojom::RenderManager {
   CefRefPtr<CefBrowserImpl> MaybeCreateBrowser(
       blink::WebView* web_view,
       content::RenderFrame* render_frame,
-      bool* browser_created,
-      std::optional<bool>* is_windowless,
-      std::optional<bool>* print_preview_enabled);
+      bool& browser_created,
+      std::optional<cef::BrowserConfig>& config);
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);

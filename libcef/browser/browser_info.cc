@@ -28,13 +28,11 @@ CefBrowserInfo::FrameInfo::~FrameInfo() {
 
 CefBrowserInfo::CefBrowserInfo(int browser_id,
                                bool is_popup,
-                               bool is_windowless,
-                               bool print_preview_enabled,
+                               const cef::BrowserConfig& config,
                                CefRefPtr<CefDictionaryValue> extra_info)
     : browser_id_(browser_id),
       is_popup_(is_popup),
-      is_windowless_(is_windowless),
-      print_preview_enabled_(print_preview_enabled),
+      config_(config),
       extra_info_(extra_info) {
   DCHECK_GT(browser_id, 0);
 

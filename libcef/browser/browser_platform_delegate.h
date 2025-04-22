@@ -15,6 +15,7 @@
 #include "cef/include/cef_drag_data.h"
 #include "cef/include/internal/cef_types.h"
 #include "cef/include/views/cef_browser_view.h"
+#include "cef/libcef/renderer/browser_config.h"
 #include "third_party/blink/public/common/page/drag_operation.h"
 #include "third_party/blink/public/mojom/drag/drag.mojom-forward.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -369,6 +370,12 @@ class CefBrowserPlatformDelegate {
                     bool matchCase,
                     bool findNext);
   virtual void StopFinding(bool clearSelection);
+
+  virtual bool IsMovePictureInPictureEnabled() const;
+
+  // CefBrowser configuration determined prior to CefBrowserHost creation and
+  // passed to the renderer process via the GetNewBrowserInfo Mojo request.
+  cef::BrowserConfig GetBrowserConfig() const;
 
  protected:
   // Allow deletion via std::unique_ptr only.

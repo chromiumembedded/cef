@@ -567,6 +567,15 @@ bool CefBrowserPlatformDelegate::IsPrintPreviewSupported() const {
   return true;
 }
 
+bool CefBrowserPlatformDelegate::IsMovePictureInPictureEnabled() const {
+  return false;
+}
+
+cef::BrowserConfig CefBrowserPlatformDelegate::GetBrowserConfig() const {
+  return {IsWindowless(), IsPrintPreviewSupported(),
+          IsMovePictureInPictureEnabled()};
+}
+
 void CefBrowserPlatformDelegate::Find(const CefString& searchText,
                                       bool forward,
                                       bool matchCase,
