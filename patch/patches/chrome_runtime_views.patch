@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 99056d7aff8c7..2741155416953 100644
+index 3fcd374a0223f..37a4d0a0b2fe4 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -441,6 +441,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -40,22 +40,6 @@ index 99056d7aff8c7..2741155416953 100644
  }
  
  void BrowserCommandController::InitCommandState() {
-@@ -1523,11 +1533,12 @@ void BrowserCommandController::InitCommandState() {
- #if BUILDFLAG(ENABLE_GLIC)
-   // Glic commands.
-   command_updater_.UpdateCommandEnabled(
--      IDC_GLIC_TOGGLE_PIN, glic::GlicEnabling::IsProfileEligible(profile()));
-+      IDC_GLIC_TOGGLE_PIN, glic::GlicEnabling::IsEnabledForProfile(profile()));
-   command_updater_.UpdateCommandEnabled(
--      IDC_OPEN_GLIC, glic::GlicEnabling::IsProfileEligible(profile()));
-+      IDC_OPEN_GLIC, glic::GlicEnabling::IsEnabledForProfile(profile()));
-   command_updater_.UpdateCommandEnabled(
--      IDC_GLIC_TOGGLE_FOCUS, glic::GlicEnabling::IsProfileEligible(profile()));
-+      IDC_GLIC_TOGGLE_FOCUS,
-+      glic::GlicEnabling::IsEnabledForProfile(profile()));
- #endif
- 
-   // Initialize other commands whose state changes based on various conditions.
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
 index 3dc212eb62ae8..4191ffa5f52a8 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
@@ -776,7 +760,7 @@ index 7a2f7b5d43762..ef55ed7e6cd43 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index 7cfadb577326f..5d97370b499c7 100644
+index 88b786fa68fa5..3d1136f57be04 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -53,6 +53,10 @@
@@ -1036,7 +1020,7 @@ index c0d519f033713..6df5e004f43d2 100644
        case PageActionIconType::kPaymentsOfferNotification:
          add_page_action_icon(
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 9454a78b72cc3..e3aab475b2465 100644
+index ff62541aa946d..3c3258e36ad3f 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 @@ -698,29 +698,41 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
@@ -1082,7 +1066,7 @@ index 9454a78b72cc3..e3aab475b2465 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index af3d65c89950b..f04c923a37be9 100644
+index 62da5fee718a1..8a4a5a62d640f 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -185,7 +185,7 @@ class TabstripLikeBackground : public views::Background {
@@ -1144,7 +1128,7 @@ index af3d65c89950b..f04c923a37be9 100644
    // Make sure the toolbar shows by default.
    size_animation_.Reset(1);
  
-@@ -350,7 +366,8 @@ void ToolbarView::Init() {
+@@ -354,7 +370,8 @@ void ToolbarView::Init() {
    }
    std::unique_ptr<media_router::CastToolbarButton> cast;
    if (!base::FeatureList::IsEnabled(features::kPinnedCastButton)) {
@@ -1154,7 +1138,7 @@ index af3d65c89950b..f04c923a37be9 100644
        cast = media_router::CastToolbarButton::Create(browser_);
      }
    }
-@@ -814,7 +831,8 @@ void ToolbarView::Layout(PassKey) {
+@@ -818,7 +835,8 @@ void ToolbarView::Layout(PassKey) {
  
    if (display_mode_ == DisplayMode::NORMAL) {
      LayoutCommon();

@@ -500,10 +500,10 @@ index 2ee5e4b4673f4..62a6776b27ad9 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index ac690f3f12836..9457f936fd96d 100644
+index 4aa1343bd447f..f0e7cf3988e9d 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
-@@ -718,6 +718,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
+@@ -719,6 +719,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
        break;
      case ui::mojom::WindowShowState::kMaximized:
      case ui::mojom::WindowShowState::kFullscreen:
@@ -593,7 +593,7 @@ index b294759923814..719686b4db165 100644
      // focus when the window is restored.
      if (v) {
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 4d1c7d95c338b..f2b45e10dc831 100644
+index 44c9248daecd6..db3ef6ebdf91a 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -437,6 +437,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 50893c5653a42..75dd03c3df9a8 100644
+index 57a6af0061615..d18a8a8a4559d 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
@@ -10,7 +10,7 @@ index 50893c5653a42..75dd03c3df9a8 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1518,7 +1519,13 @@ component("base") {
+@@ -1519,7 +1520,13 @@ component("base") {
      "hash/md5_constexpr_internal.h",
      "hash/sha1.h",
    ]
@@ -25,7 +25,7 @@ index 50893c5653a42..75dd03c3df9a8 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1968,6 +1975,12 @@ component("base") {
+@@ -1969,6 +1976,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -141,7 +141,7 @@ index 48a9b893d3f9d..a5a2223b2a0fa 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 22aa478001fb5..e799d8da52589 100644
+index 26ba1a286e451..99b2ce6feb274 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -51,6 +51,7 @@
@@ -152,7 +152,7 @@ index 22aa478001fb5..e799d8da52589 100644
  #include "third_party/abseil-cpp/absl/base/internal/raw_logging.h"
  #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
  
-@@ -538,7 +539,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -530,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    }
  #endif
  
