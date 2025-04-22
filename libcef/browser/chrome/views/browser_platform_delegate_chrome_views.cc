@@ -130,6 +130,16 @@ bool CefBrowserPlatformDelegateChromeViews::IsViewsHosted() const {
   return true;
 }
 
+bool CefBrowserPlatformDelegateChromeViews::IsMovePictureInPictureEnabled()
+    const {
+  if (browser_view_) {
+    if (auto* delegate = browser_view_->delegate()) {
+      return delegate->AllowMoveForPictureInPicture(browser_view_.get());
+    }
+  }
+  return false;
+}
+
 CefWindowImpl* CefBrowserPlatformDelegateChromeViews::GetWindowImpl() const {
   if (auto* widget = GetWindowWidget()) {
     CefRefPtr<CefWindow> window = view_util::GetWindowFor(widget);

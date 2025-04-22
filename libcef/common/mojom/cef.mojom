@@ -111,12 +111,19 @@ struct NewRenderThreadInfo {
   array<CrossOriginWhiteListEntry>? cross_origin_whitelist_entries;
 };
 
+struct NewBrowserConfig {
+  bool is_popup;
+
+  // Values from cef::BrowserConfig.
+  bool is_windowless;
+  bool print_preview_enabled;
+  bool move_pip_enabled;
+};
+
 struct NewBrowserInfo {
   int32 browser_id;
-  bool? is_popup;
-  bool? is_windowless;
-  bool? print_preview_enabled;
   bool is_excluded;
+  NewBrowserConfig? config;
   mojo_base.mojom.DictionaryValue? extra_info;
 };
 

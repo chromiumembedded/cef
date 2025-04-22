@@ -19,6 +19,7 @@
 #include "base/values.h"
 #include "cef/include/internal/cef_ptr.h"
 #include "cef/libcef/common/values_impl.h"
+#include "cef/libcef/renderer/browser_config.h"
 #include "content/public/browser/global_routing_id.h"
 #include "content/public/browser/render_frame_host.h"
 
@@ -36,8 +37,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
  public:
   CefBrowserInfo(int browser_id,
                  bool is_popup,
-                 bool is_windowless,
-                 bool print_preview_enabled,
+                 const cef::BrowserConfig& config,
                  CefRefPtr<CefDictionaryValue> extra_info);
 
   CefBrowserInfo(const CefBrowserInfo&) = delete;
@@ -45,8 +45,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
-  bool is_windowless() const { return is_windowless_; }
-  bool print_preview_enabled() const { return print_preview_enabled_; }
+  const cef::BrowserConfig& config() const { return config_; }
   CefRefPtr<CefDictionaryValue> extra_info() const { return extra_info_; }
 
   // May return nullptr if the browser has not yet been created (before
@@ -202,8 +201,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   const int browser_id_;
   const bool is_popup_;
-  const bool is_windowless_;
-  const bool print_preview_enabled_;
+  const cef::BrowserConfig config_;
   CefRefPtr<CefDictionaryValue> extra_info_;
 
   // Navigation will be blocked while |navigation_lock_| exists.

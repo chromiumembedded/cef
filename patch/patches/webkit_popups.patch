@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index b1689844282d6..a8f3b3432517d 100644
+index b1689844282d6..a4288bf5d3ba2 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
 @@ -344,6 +344,7 @@ class BLINK_EXPORT WebView {
@@ -10,6 +10,18 @@ index b1689844282d6..a8f3b3432517d 100644
  
    // Cancels and hides the current popup (datetime, select...) if any.
    virtual void CancelPagePopup() = 0;
+@@ -486,6 +487,11 @@ class BLINK_EXPORT WebView {
+   virtual void SetPageAttributionSupport(
+       network::mojom::AttributionSupport support) = 0;
+ 
++  // Sets whether to allow the use of JavaScript moveTo/By() and resizeTo/By()
++  // (without user activation) with Document picture-in-picture popups.
++  virtual void SetMovePictureInPictureEnabled(bool enabled) = 0;
++  virtual bool MovePictureInPictureEnabled() const = 0;
++
+  protected:
+   ~WebView() = default;
+ };
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
 index 1af1fa035b3da..f92d9b70fbd32 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
@@ -39,7 +51,7 @@ index 1af1fa035b3da..f92d9b70fbd32 100644
        fullscreen_controller_(std::make_unique<FullscreenController>(this)),
        page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 06f7cf79b4526..58ad11da45137 100644
+index 06f7cf79b4526..e0d395867f552 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -140,7 +140,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
@@ -52,7 +64,21 @@ index 06f7cf79b4526..58ad11da45137 100644
  
    // Returns whether frames under this WebView are backed by a compositor.
    bool does_composite() const { return does_composite_; }
-@@ -882,6 +883,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -326,6 +327,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+   void UpdateColorProviders(
+       const ColorProviderColorMaps& color_provider_colors) override;
+ 
++  void SetMovePictureInPictureEnabled(bool enabled) override {
++    move_pip_enabled_ = enabled;
++  }
++  bool MovePictureInPictureEnabled() const override {
++    return move_pip_enabled_;
++  }
++
+   void DispatchPersistedPageshow(base::TimeTicks navigation_start);
+   void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
+   void HookBackForwardCacheEviction(bool hook);
+@@ -882,6 +890,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    float fake_page_scale_animation_page_scale_factor_ = 0.f;
    bool fake_page_scale_animation_use_anchor_ = false;
  
@@ -61,6 +87,115 @@ index 06f7cf79b4526..58ad11da45137 100644
    float compositor_device_scale_factor_override_ = 0.f;
    gfx::Transform device_emulation_transform_;
  
+@@ -1011,6 +1021,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+   // CSS property.
+   bool supports_draggable_regions_ = false;
+ 
++  bool move_pip_enabled_ = false;
++
+   // All the registered observers.
+   base::ObserverList<WebViewObserver> observers_;
+ };
+diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
+index f4a1ed78679c5..711b072977662 100644
+--- third_party/blink/renderer/core/frame/local_dom_window.cc
++++ third_party/blink/renderer/core/frame/local_dom_window.cc
+@@ -52,6 +52,7 @@
+ #include "third_party/blink/public/platform/task_type.h"
+ #include "third_party/blink/public/platform/web_string.h"
+ #include "third_party/blink/public/web/web_picture_in_picture_window_options.h"
++#include "third_party/blink/public/web/web_view.h"
+ #include "third_party/blink/renderer/bindings/core/v8/binding_security.h"
+ #include "third_party/blink/renderer/bindings/core/v8/capture_source_location.h"
+ #include "third_party/blink/renderer/bindings/core/v8/isolated_world_csp.h"
+@@ -110,6 +111,7 @@
+ #include "third_party/blink/renderer/core/frame/settings.h"
+ #include "third_party/blink/renderer/core/frame/viewport_data.h"
+ #include "third_party/blink/renderer/core/frame/visual_viewport.h"
++#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+ #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
+ #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
+ #include "third_party/blink/renderer/core/html/forms/form_controller.h"
+@@ -1914,8 +1916,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+     return;
+   }
+ 
+-  if (IsPictureInPictureWindow())
++  if (IsPictureInPictureWindow() && !MovePictureInPictureEnabled()) {
+     return;
++  }
+ 
+   LocalFrame* frame = GetFrame();
+   Page* page = frame->GetPage();
+@@ -1935,8 +1938,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+     return;
+   }
+ 
+-  if (IsPictureInPictureWindow())
++  if (IsPictureInPictureWindow() && !MovePictureInPictureEnabled()) {
+     return;
++  }
+ 
+   LocalFrame* frame = GetFrame();
+   Page* page = frame->GetPage();
+@@ -1959,7 +1963,8 @@ void LocalDOMWindow::resizeBy(int x,
+   }
+ 
+   if (IsPictureInPictureWindow()) {
+-    if (!LocalFrame::ConsumeTransientUserActivation(GetFrame())) {
++    if (!MovePictureInPictureEnabled() &&
++        !LocalFrame::ConsumeTransientUserActivation(GetFrame())) {
+       exception_state.ThrowDOMException(
+           DOMExceptionCode::kNotAllowedError,
+           "resizeBy() requires user activation in document picture-in-picture");
+@@ -1987,7 +1992,8 @@ void LocalDOMWindow::resizeTo(int width,
+   }
+ 
+   if (IsPictureInPictureWindow()) {
+-    if (!LocalFrame::ConsumeTransientUserActivation(GetFrame())) {
++    if (!MovePictureInPictureEnabled() &&
++        !LocalFrame::ConsumeTransientUserActivation(GetFrame())) {
+       exception_state.ThrowDOMException(
+           DOMExceptionCode::kNotAllowedError,
+           "resizeTo() requires user activation in document picture-in-picture");
+@@ -2456,6 +2462,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+       To<LocalDOMWindow>(result.frame->DomWindow());
+   pip_dom_window->SetIsPictureInPictureWindow();
+ 
++  if (WebLocalFrameImpl::FromFrame(entered_window->GetFrame())
++          ->View()
++          ->MovePictureInPictureEnabled()) {
++    pip_dom_window->SetMovePictureInPictureEnabled(true);
++  }
++
+   // Ensure that we're using the same compatibility mode as the opener document.
+   pip_dom_window->document()->SetCompatibilityMode(
+       entered_window->document()->GetCompatibilityMode());
+diff --git third_party/blink/renderer/core/frame/local_dom_window.h third_party/blink/renderer/core/frame/local_dom_window.h
+index 615d1851fa041..a97811623a2e2 100644
+--- third_party/blink/renderer/core/frame/local_dom_window.h
++++ third_party/blink/renderer/core/frame/local_dom_window.h
+@@ -566,6 +566,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+ 
+   void SetIsPictureInPictureWindow();
+ 
++  void SetMovePictureInPictureEnabled(bool enabled) {
++    move_pip_enabled_ = enabled;
++  }
++  bool MovePictureInPictureEnabled() const { return move_pip_enabled_; }
++
+   // Return the viewport size including scrollbars.
+   gfx::Size GetViewportSize() const;
+ 
+@@ -668,6 +673,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+   // https://wicg.github.io/document-picture-in-picture/
+   bool is_picture_in_picture_window_ = false;
+ 
++  bool move_pip_enabled_ = false;
++
+   // The navigation id of a document is to identify navigation of special types
+   // like bfcache navigation or soft navigation. It changes when navigations
+   // of these types occur.
 diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
 index e3888bb31414a..78dfff2048a67 100644
 --- third_party/blink/renderer/core/page/chrome_client_impl.cc

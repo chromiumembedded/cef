@@ -16,6 +16,7 @@
 
 #include "cef/include/cef_browser.h"
 #include "cef/include/cef_client.h"
+#include "cef/libcef/renderer/browser_config.h"
 #include "cef/libcef/renderer/frame_impl.h"
 #include "third_party/blink/public/common/tokens/tokens.h"
 #include "third_party/blink/public/web/web_view_observer.h"
@@ -66,8 +67,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   CefBrowserImpl(blink::WebView* web_view,
                  int browser_id,
                  bool is_popup,
-                 bool is_windowless,
-                 bool print_preview_enabled);
+                 const cef::BrowserConfig& config);
 
   CefBrowserImpl(const CefBrowserImpl&) = delete;
   CefBrowserImpl& operator=(const CefBrowserImpl&) = delete;
@@ -80,8 +80,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
-  bool is_windowless() const { return is_windowless_; }
-  bool print_preview_enabled() const { return print_preview_enabled_; }
+  const cef::BrowserConfig& config() const { return config_; }
 
   // blink::WebViewObserver methods.
   void OnDestruct() override;
@@ -96,8 +95,7 @@ class CefBrowserImpl : public CefBrowser, public blink::WebViewObserver {
   // same browser ID.
   const int browser_id_;
   const bool is_popup_;
-  const bool is_windowless_;
-  const bool print_preview_enabled_;
+  const cef::BrowserConfig config_;
 
   // Map of unique frame tokens to CefFrameImpl references.
   using FrameMap = std::map<blink::LocalFrameToken, CefRefPtr<CefFrameImpl>>;

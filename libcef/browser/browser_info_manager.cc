@@ -69,15 +69,13 @@ CefBrowserInfoManager* CefBrowserInfoManager::GetInstance() {
 }
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
-    bool is_popup,
-    bool is_windowless,
-    bool print_preview_enabled,
+    bool is_devtools_popup,
+    const cef::BrowserConfig& config,
     CefRefPtr<CefDictionaryValue> extra_info) {
   base::AutoLock lock_scope(browser_info_lock_);
 
-  scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, is_popup, is_windowless,
-                         print_preview_enabled, extra_info);
+  scoped_refptr<CefBrowserInfo> browser_info = new CefBrowserInfo(
+      ++next_browser_id_, is_devtools_popup, config, extra_info);
   browser_info_list_.push_back(browser_info);
 
   return browser_info;
@@ -85,8 +83,7 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreateBrowserInfo(
 
 scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
     content::WebContents* new_contents,
-    bool is_windowless,
-    bool print_preview_enabled,
+    const cef::BrowserConfig& config,
     CefRefPtr<CefDictionaryValue> extra_info) {
   CEF_REQUIRE_UIT();
 
@@ -95,8 +92,8 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   scoped_refptr<CefBrowserInfo> browser_info;
   {
     base::AutoLock lock_scope(browser_info_lock_);
-    browser_info = new CefBrowserInfo(++next_browser_id_, true, is_windowless,
-                                      print_preview_enabled, extra_info);
+    browser_info =
+        new CefBrowserInfo(++next_browser_id_, true, config, extra_info);
     browser_info_list_.push_back(browser_info);
   }
 
@@ -777,9 +774,14 @@ void CefBrowserInfoManager::SendNewBrowserInfoResponse(
 
   if (browser_info) {
     params->browser_id = browser_info->browser_id();
-    params->is_windowless = browser_info->is_windowless();
-    params->is_popup = browser_info->is_popup();
-    params->print_preview_enabled = browser_info->print_preview_enabled();
+
+    auto config = cef::mojom::NewBrowserConfig::New();
+    config->is_popup = browser_info->is_popup();
+    config->is_windowless = browser_info->config().is_windowless;
+    config->print_preview_enabled =
+        browser_info->config().print_preview_enabled;
+    config->move_pip_enabled = browser_info->config().move_pip_enabled;
+    params->config = std::move(config);
 
     auto extra_info = browser_info->extra_info();
     if (extra_info) {

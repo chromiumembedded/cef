@@ -145,6 +145,10 @@ class ViewsWindow : public CefBrowserViewDelegate,
       CefRefPtr<CefBrowserView> browser_view) override;
   bool UseFramelessWindowForPictureInPicture(
       CefRefPtr<CefBrowserView> browser_view) override;
+#if CEF_API_ADDED(CEF_NEXT)
+  bool AllowMoveForPictureInPicture(
+      CefRefPtr<CefBrowserView> browser_view) override;
+#endif
   cef_runtime_style_t GetBrowserRuntimeStyle() override;
 
   // CefButtonDelegate methods:
@@ -271,6 +275,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   bool use_window_modal_dialog_;
   bool use_bottom_controls_;
   bool hide_pip_frame_;
+  bool move_pip_enabled_;
   bool accepts_first_mouse_;
   CefRefPtr<CefWindow> window_;
 

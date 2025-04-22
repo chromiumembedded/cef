@@ -276,13 +276,11 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
 CefBrowserImpl::CefBrowserImpl(blink::WebView* web_view,
                                int browser_id,
                                bool is_popup,
-                               bool is_windowless,
-                               bool print_preview_enabled)
+                               const cef::BrowserConfig& config)
     : blink::WebViewObserver(web_view),
       browser_id_(browser_id),
       is_popup_(is_popup),
-      is_windowless_(is_windowless),
-      print_preview_enabled_(print_preview_enabled) {}
+      config_(config) {}
 
 CefBrowserImpl::~CefBrowserImpl() = default;
 

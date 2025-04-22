@@ -260,8 +260,8 @@ void ChromeBrowserDelegate::SetAsDelegate(content::WebContents* web_contents,
   CHECK(platform_delegate->IsChromeStyle());
 
   auto browser_info = CefBrowserInfoManager::GetInstance()->CreateBrowserInfo(
-      is_devtools_popup, /*is_windowless=*/false,
-      platform_delegate->IsPrintPreviewSupported(), create_params_.extra_info);
+      is_devtools_popup, platform_delegate->GetBrowserConfig(),
+      create_params_.extra_info);
 
   auto request_context_impl =
       CefRequestContextImpl::GetOrCreateForRequestContext(
@@ -759,8 +759,7 @@ ChromeBrowserDelegate::CreateBrowserHostForPopup(
 
   auto browser_info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(
-          web_contents, /*is_windowless=*/false,
-          platform_delegate->IsPrintPreviewSupported(), extra_info);
+          web_contents, platform_delegate->GetBrowserConfig(), extra_info);
   CHECK(browser_info->is_popup());
 
   // Popups must share the same RequestContext as the parent.

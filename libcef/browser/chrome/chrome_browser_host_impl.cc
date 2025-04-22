@@ -500,8 +500,7 @@ void ChromeBrowserHostImpl::Attach(content::WebContents* web_contents,
         is_devtools_popup);
   }
 
-  platform_delegate_->WebContentsCreated(web_contents,
-                                         /*own_web_contents=*/false);
+  platform_delegate_->WebContentsCreated(web_contents, /*owned=*/false);
   contents_delegate_.ObserveWebContents(web_contents);
 
   // Associate the platform delegate with this browser.

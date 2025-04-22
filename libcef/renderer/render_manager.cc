@@ -56,25 +56,17 @@ class CefExcludedView : public blink::WebViewObserver {
  public:
   CefExcludedView(CefRenderManager* manager,
                   blink::WebView* web_view,
-                  std::optional<bool> is_windowless,
-                  std::optional<bool> print_preview_enabled)
-      : blink::WebViewObserver(web_view),
-        manager_(manager),
-        is_windowless_(is_windowless),
-        print_preview_enabled_(print_preview_enabled) {}
+                  const std::optional<cef::BrowserConfig>& config)
+      : blink::WebViewObserver(web_view), manager_(manager), config_(config) {}
 
-  std::optional<bool> is_windowless() const { return is_windowless_; }
-  std::optional<bool> print_preview_enabled() const {
-    return print_preview_enabled_;
-  }
+  const std::optional<cef::BrowserConfig>& config() const { return config_; }
 
  private:
   // RenderViewObserver methods.
   void OnDestruct() override { manager_->OnExcludedViewDestroyed(this); }
 
   CefRenderManager* const manager_;
-  const std::optional<bool> is_windowless_;
-  const std::optional<bool> print_preview_enabled_;
+  const std::optional<cef::BrowserConfig> config_;
 };
 
 CefRenderManager::CefRenderManager() {
@@ -110,11 +102,9 @@ void CefRenderManager::RenderFrameCreated(
     content::RenderFrame* render_frame,
     CefRenderFrameObserver* render_frame_observer,
     bool& browser_created,
-    std::optional<bool>& is_windowless,
-    std::optional<bool>& print_preview_enabled) {
+    std::optional<cef::BrowserConfig>& config) {
   auto browser = MaybeCreateBrowser(render_frame->GetWebView(), render_frame,
-                                    &browser_created, &is_windowless,
-                                    &print_preview_enabled);
+                                    browser_created, config);
   if (browser) {
     // Attach the frame to the observer for message routing purposes.
     render_frame_observer->AttachFrame(
@@ -130,16 +120,14 @@ void CefRenderManager::RenderFrameCreated(
 void CefRenderManager::WebViewCreated(
     blink::WebView* web_view,
     bool& browser_created,
-    std::optional<bool>& is_windowless,
-    std::optional<bool>& print_preview_enabled) {
+    std::optional<cef::BrowserConfig>& config) {
   content::RenderFrame* render_frame = nullptr;
   if (web_view->MainFrame()->IsWebLocalFrame()) {
     render_frame = content::RenderFrame::FromWebFrame(
         web_view->MainFrame()->ToWebLocalFrame());
   }
 
-  MaybeCreateBrowser(web_view, render_frame, &browser_created, &is_windowless,
-                     &print_preview_enabled);
+  MaybeCreateBrowser(web_view, render_frame, browser_created, config);
 }
 
 void CefRenderManager::DevToolsAgentAttached() {
@@ -294,12 +282,9 @@ void CefRenderManager::WebKitInitialized() {
 CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     blink::WebView* web_view,
     content::RenderFrame* render_frame,
-    bool* browser_created,
-    std::optional<bool>* is_windowless,
-    std::optional<bool>* print_preview_enabled) {
-  if (browser_created) {
-    *browser_created = false;
-  }
+    bool& browser_created,
+    std::optional<cef::BrowserConfig>& config) {
+  browser_created = false;
 
   if (!web_view || !render_frame) {
     return nullptr;
@@ -307,25 +292,13 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
 
   // Don't create another browser or excluded view object if one already exists
   // for the view.
-  auto browser = GetBrowserForView(web_view);
-  if (browser) {
-    if (is_windowless) {
-      *is_windowless = browser->is_windowless();
-    }
-    if (print_preview_enabled) {
-      *print_preview_enabled = browser->print_preview_enabled();
-    }
+  if (auto browser = GetBrowserForView(web_view)) {
+    config = browser->config();
     return browser;
   }
 
-  auto excluded_view = GetExcludedViewForView(web_view);
-  if (excluded_view) {
-    if (is_windowless) {
-      *is_windowless = excluded_view->is_windowless();
-    }
-    if (print_preview_enabled) {
-      *print_preview_enabled = excluded_view->print_preview_enabled();
-    }
+  if (auto excluded_view = GetExcludedViewForView(web_view)) {
+    config = excluded_view->config();
     return nullptr;
   }
 
@@ -338,11 +311,10 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     return nullptr;
   }
 
-  if (is_windowless) {
-    *is_windowless = params->is_windowless;
-  }
-  if (print_preview_enabled) {
-    *print_preview_enabled = params->print_preview_enabled;
+  if (params->config) {
+    config = cef::BrowserConfig{params->config->is_windowless,
+                                params->config->print_preview_enabled,
+                                params->config->move_pip_enabled};
   }
 
   if (params->is_excluded || params->browser_id < 0) {
@@ -350,15 +322,13 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     // extension or print preview dialog), or if the new browser info response
     // has timed out.
     excluded_views_.insert(std::make_pair(
-        web_view,
-        std::make_unique<CefExcludedView>(this, web_view, params->is_windowless,
-                                          params->print_preview_enabled)));
+        web_view, std::make_unique<CefExcludedView>(this, web_view, config)));
     return nullptr;
   }
 
-  browser = new CefBrowserImpl(web_view, params->browser_id, *params->is_popup,
-                               *params->is_windowless,
-                               *params->print_preview_enabled);
+  CHECK(params->config);
+  CefRefPtr<CefBrowserImpl> browser = new CefBrowserImpl(
+      web_view, params->browser_id, params->config->is_popup, *config);
   browsers_.insert(std::make_pair(web_view, browser));
 
   // Notify the render process handler.
@@ -377,9 +347,7 @@ CefRefPtr<CefBrowserImpl> CefRenderManager::MaybeCreateBrowser(
     }
   }
 
-  if (browser_created) {
-    *browser_created = true;
-  }
+  browser_created = true;
 
   return browser;
 }
