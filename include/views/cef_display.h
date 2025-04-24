@@ -50,6 +50,9 @@
 /// indicated. Methods must be called on the browser process UI thread unless
 /// otherwise indicated.
 ///
+/// For details on coordinate systems and usage see
+/// https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-coordinate-systems
+///
 /*--cef(source=library)--*/
 class CefDisplay : public CefBaseRefCounted {
  public:
@@ -129,7 +132,9 @@ class CefDisplay : public CefBaseRefCounted {
   /// Returns this Display's device pixel scale factor. This specifies how much
   /// the UI should be scaled when the actual output has more pixels than
   /// standard displays (which is around 100~120dpi). The potential return
-  /// values differ by platform.
+  /// values differ by platform. Windowed browsers with 1.0 zoom will have a
+  /// JavaScript `window.devicePixelRatio` value matching the associated
+  /// Display's GetDeviceScaleFactor() value.
   ///
   /*--cef()--*/
   virtual float GetDeviceScaleFactor() = 0;

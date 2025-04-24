@@ -239,6 +239,8 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
 void MainContextImpl::PopulateOsrSettings(OsrRendererSettings* settings) {
   settings->show_update_rect =
       command_line_->HasSwitch(switches::kShowUpdateRect);
+  settings->real_screen_bounds =
+      !command_line_->HasSwitch(switches::kFakeScreenBounds);
 
   settings->shared_texture_enabled = shared_texture_enabled_;
   settings->external_begin_frame_enabled = external_begin_frame_enabled_;

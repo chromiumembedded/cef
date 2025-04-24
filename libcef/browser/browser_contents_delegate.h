@@ -87,6 +87,10 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       base::OnceCallback<void(content::NavigationHandle&)>&
           navigation_handle_callback);
 
+  // Same as SetContentsBounds but returning false if unhandled.
+  bool SetContentsBoundsEx(content::WebContents* source,
+                           const gfx::Rect& bounds);
+
   // WebContentsDelegate methods:
   void LoadingStateChanged(content::WebContents* source,
                            bool should_show_loading_ui) override;

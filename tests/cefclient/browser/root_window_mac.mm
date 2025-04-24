@@ -14,7 +14,10 @@
 #include "tests/cefclient/browser/browser_window_std_mac.h"
 #include "tests/cefclient/browser/client_prefs.h"
 #include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
+#include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/temp_window.h"
+#include "tests/cefclient/browser/util_mac.h"
 #include "tests/cefclient/browser/window_test_runner_mac.h"
 #include "tests/shared/browser/main_message_loop.h"
 #include "tests/shared/common/client_switches.h"
@@ -65,40 +68,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   return button;
 }
 
-// Returns the current DIP screen bounds for a visible window in the
-// restored position, or nullopt if the window is currently minimized or
-// fullscreen.
-std::optional<CefRect> GetWindowBoundsInScreen(NSWindow* window) {
-  if ([window isMiniaturized] or [window isZoomed]) {
-    return std::nullopt;
-  }
-
-  auto screen = [window screen];
-  if (screen == nil) {
-    screen = [NSScreen mainScreen];
-  }
-
-  const auto bounds = [window frame];
-  const auto screen_bounds = [screen frame];
-
-  if (NSEqualRects(bounds, screen_bounds)) {
-    // Don't include windows that are transitioning to fullscreen.
-    return std::nullopt;
-  }
-
-  CefRect dip_bounds{static_cast<int>(bounds.origin.x),
-                     static_cast<int>(bounds.origin.y),
-                     static_cast<int>(bounds.size.width),
-                     static_cast<int>(bounds.size.height)};
-
-  // Convert from macOS coordinates (bottom-left origin) to DIP coordinates
-  // (top-left origin).
-  dip_bounds.y = static_cast<int>(screen_bounds.size.height) -
-                 dip_bounds.height - dip_bounds.y;
-
-  return dip_bounds;
-}
-
 // Keep the frame bounds inside the display work area.
 NSRect ClampNSBoundsToWorkArea(const NSRect& frame_bounds,
                                const CefRect& display_bounds,
@@ -142,6 +111,7 @@ NSRect ClampNSBoundsToWorkArea(const NSRect& frame_bounds,
 void GetNSBoundsInDisplay(const CefRect& dip_bounds,
                           bool input_content_bounds,
                           NSWindowStyleMask style_mask,
+                          bool add_controls,
                           NSRect& frame_rect,
                           NSRect& content_rect) {
   // Identify the closest display.
@@ -158,18 +128,24 @@ void GetNSBoundsInDisplay(const CefRect& dip_bounds,
   requested_rect.origin.y = display_bounds.height - requested_rect.size.height -
                             requested_rect.origin.y;
 
+  bool changed_content_bounds = false;
+
   // Calculate the equivalent frame and content bounds.
   if (input_content_bounds) {
     // Compute frame rect from content rect. Keep the requested origin.
     content_rect = requested_rect;
     frame_rect = [NSWindow frameRectForContentRect:content_rect
                                          styleMask:style_mask];
+    if (add_controls) {
+      frame_rect.size.height += URLBAR_HEIGHT;
+    }
     frame_rect.origin = requested_rect.origin;
   } else {
     // Compute content rect from frame rect.
     frame_rect = requested_rect;
     content_rect = [NSWindow contentRectForFrameRect:frame_rect
                                            styleMask:style_mask];
+    changed_content_bounds = true;
   }
 
   // Keep the frame inside the display work area.
@@ -179,6 +155,12 @@ void GetNSBoundsInDisplay(const CefRect& dip_bounds,
     frame_rect = new_frame_rect;
     content_rect = [NSWindow contentRectForFrameRect:frame_rect
                                            styleMask:style_mask];
+    changed_content_bounds = true;
+  }
+
+  if (changed_content_bounds && add_controls) {
+    content_rect.origin.y -= URLBAR_HEIGHT;
+    content_rect.size.height -= URLBAR_HEIGHT;
   }
 }
 
@@ -211,10 +193,15 @@ class RootWindowMacImpl
                    CefBrowserSettings& settings);
   void Show(RootWindow::ShowMode mode);
   void Hide();
-  void SetBounds(int x, int y, size_t width, size_t height);
+  void SetBounds(int x,
+                 int y,
+                 size_t width,
+                 size_t height,
+                 bool content_bounds);
+  bool DefaultToContentBounds() const;
   void Close(bool force);
   void SetDeviceScaleFactor(float device_scale_factor);
-  float GetDeviceScaleFactor() const;
+  std::optional<float> GetDeviceScaleFactor() const;
   CefRefPtr<CefBrowser> GetBrowser() const;
   ClientWindowHandle GetWindowHandle() const;
   bool WithWindowlessRendering() const;
@@ -236,6 +223,7 @@ class RootWindowMacImpl
   RootWindowMac& root_window_;
   bool with_controls_ = false;
   bool with_osr_ = false;
+  OsrRendererSettings osr_settings_;
   bool is_popup_ = false;
   CefRect initial_bounds_;
   cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
@@ -390,7 +378,11 @@ void RootWindowMacImpl::Hide() {
   [window_ orderOut:nil];
 }
 
-void RootWindowMacImpl::SetBounds(int x, int y, size_t width, size_t height) {
+void RootWindowMacImpl::SetBounds(int x,
+                                  int y,
+                                  size_t width,
+                                  size_t height,
+                                  bool content_bounds) {
   REQUIRE_MAIN_THREAD();
 
   if (!window_) {
@@ -399,13 +391,27 @@ void RootWindowMacImpl::SetBounds(int x, int y, size_t width, size_t height) {
 
   const CefRect dip_bounds(x, y, static_cast<int>(width),
                            static_cast<int>(height));
+  const bool add_controls = WithWindowlessRendering() || with_controls_;
 
   // Calculate the equivalent frame and content area bounds.
   NSRect frame_rect, content_rect;
-  GetNSBoundsInDisplay(dip_bounds, /*input_content_bounds=*/true,
-                       [window_ styleMask], frame_rect, content_rect);
+  GetNSBoundsInDisplay(dip_bounds, content_bounds, [window_ styleMask],
+                       add_controls, frame_rect, content_rect);
 
   [window_ setFrame:frame_rect display:YES];
+}
+
+bool RootWindowMacImpl::DefaultToContentBounds() const {
+  if (!WithWindowlessRendering()) {
+    // The root NSWindow will be queried by default.
+    return false;
+  }
+  if (osr_settings_.real_screen_bounds) {
+    // Root NSWindow bounds are provided via GetRootWindowRect.
+    return false;
+  }
+  // The root NSWindow will not be queried by default.
+  return true;
 }
 
 void RootWindowMacImpl::Close(bool force) {
@@ -426,15 +432,14 @@ void RootWindowMacImpl::SetDeviceScaleFactor(float device_scale_factor) {
   }
 }
 
-float RootWindowMacImpl::GetDeviceScaleFactor() const {
+std::optional<float> RootWindowMacImpl::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
   if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
   }
 
-  NOTREACHED();
-  return 0.0f;
+  return std::nullopt;
 }
 
 CefRefPtr<CefBrowser> RootWindowMacImpl::GetBrowser() const {
@@ -453,6 +458,7 @@ ClientWindowHandle RootWindowMacImpl::GetWindowHandle() const {
 
 bool RootWindowMacImpl::WithWindowlessRendering() const {
   REQUIRE_MAIN_THREAD();
+  DCHECK(root_window_.initialized_);
   return with_osr_;
 }
 
@@ -464,10 +470,9 @@ void RootWindowMacImpl::OnNativeWindowClosed() {
 
 void RootWindowMacImpl::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    OsrRendererSettings settings = {};
-    MainContext::Get()->PopulateOsrSettings(&settings);
+    MainContext::Get()->PopulateOsrSettings(&osr_settings_);
     browser_window_.reset(new BrowserWindowOsrMac(&root_window_, with_controls_,
-                                                  startup_url, settings));
+                                                  startup_url, osr_settings_));
   } else {
     browser_window_.reset(
         new BrowserWindowStdMac(&root_window_, with_controls_, startup_url));
@@ -501,10 +506,12 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
       (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
        NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable);
 
-  // Calculate the equivalent frame and content area bounds.
+  // Calculate the equivalent frame and content area bounds. Controls, if any,
+  // are already included in the desired size.
   NSRect frame_rect, content_rect;
   GetNSBoundsInDisplay(dip_bounds, /*input_content_bounds=*/is_popup_,
-                       style_mask, frame_rect, content_rect);
+                       style_mask, /*add_controls=*/false, frame_rect,
+                       content_rect);
 
   // Create the main window.
   window_ = [[NSWindow alloc] initWithContentRect:content_rect
@@ -605,6 +612,25 @@ void RootWindowMacImpl::CreateRootWindow(const CefBrowserSettings& settings,
   // Place the window at the target point. This is required for proper placement
   // if the point is on a secondary display.
   [window_ setFrameOrigin:frame_rect.origin];
+
+  if (with_osr_) {
+    std::optional<float> parent_scale_factor;
+    if (is_popup_) {
+      if (auto parent_window =
+              MainContext::Get()->GetRootWindowManager()->GetWindowForBrowser(
+                  root_window_.opener_browser_id())) {
+        parent_scale_factor = parent_window->GetDeviceScaleFactor();
+      }
+    }
+
+    if (parent_scale_factor) {
+      browser_window_->SetDeviceScaleFactor(*parent_scale_factor);
+    } else {
+      auto display = CefDisplay::GetDisplayMatchingBounds(
+          dip_bounds, /*input_pixel_coords=*/false);
+      browser_window_->SetDeviceScaleFactor(display->GetDeviceScaleFactor());
+    }
+  }
 
   if (!is_popup_) {
     // Create the browser window.
@@ -709,14 +735,20 @@ void RootWindowMacImpl::OnAutoResize(const CefSize& new_size) {
     return;
   }
 
-  // Desired content rectangle.
-  NSRect content_rect;
-  content_rect.size.width = static_cast<int>(new_size.width);
-  content_rect.size.height =
-      static_cast<int>(new_size.height) + (with_controls_ ? URLBAR_HEIGHT : 0);
+  CefRect dip_bounds(0, 0, static_cast<int>(new_size.width),
+                     static_cast<int>(new_size.height));
 
-  // Convert to a frame rectangle.
-  NSRect frame_rect = [window_ frameRectForContentRect:content_rect];
+  if (auto screen_bounds = GetWindowBoundsInScreen(window_)) {
+    dip_bounds.x = (*screen_bounds).x;
+    dip_bounds.y = (*screen_bounds).y;
+  }
+
+  // Calculate the equivalent frame and content area bounds.
+  NSRect frame_rect, content_rect;
+  GetNSBoundsInDisplay(dip_bounds, /*input_content_bounds=*/true,
+                       [window_ styleMask], with_controls_, frame_rect,
+                       content_rect);
+
   // Don't change the origin.
   frame_rect.origin = window_.frame.origin;
 
@@ -775,6 +807,10 @@ RootWindow::Delegate* RootWindowMac::delegate() const {
   return delegate_;
 }
 
+const OsrRendererSettings* RootWindowMac::osr_settings() const {
+  return &impl_->osr_settings_;
+}
+
 void RootWindowMac::Init(RootWindow::Delegate* delegate,
                          std::unique_ptr<RootWindowConfig> config,
                          const CefBrowserSettings& settings) {
@@ -804,8 +840,16 @@ void RootWindowMac::Hide() {
   impl_->Hide();
 }
 
-void RootWindowMac::SetBounds(int x, int y, size_t width, size_t height) {
-  impl_->SetBounds(x, y, width, height);
+void RootWindowMac::SetBounds(int x,
+                              int y,
+                              size_t width,
+                              size_t height,
+                              bool content_bounds) {
+  impl_->SetBounds(x, y, width, height, content_bounds);
+}
+
+bool RootWindowMac::DefaultToContentBounds() const {
+  return impl_->DefaultToContentBounds();
 }
 
 void RootWindowMac::Close(bool force) {
@@ -816,7 +860,7 @@ void RootWindowMac::SetDeviceScaleFactor(float device_scale_factor) {
   impl_->SetDeviceScaleFactor(device_scale_factor);
 }
 
-float RootWindowMac::GetDeviceScaleFactor() const {
+std::optional<float> RootWindowMac::GetDeviceScaleFactor() const {
   return impl_->GetDeviceScaleFactor();
 }
 
@@ -1004,6 +1048,16 @@ void RootWindowMac::OnNativeWindowClosed() {
   const auto dip_bounds = client::GetWindowBoundsInScreen(window_);
   if (dip_bounds) {
     last_visible_bounds_ = dip_bounds;
+  }
+
+  if (root_window_->WithWindowlessRendering() &&
+      root_window_->osr_settings()->real_screen_bounds) {
+    // Send the new root window bounds to the renderer.
+    if (auto* browser_window = root_window_->browser_window()) {
+      if (auto browser = browser_window->GetBrowser()) {
+        browser->GetHost()->NotifyScreenInfoChanged();
+      }
+    }
   }
 }
 

@@ -18,6 +18,7 @@
 #include "tests/cefclient/browser/client_prefs.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
+#include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/temp_window.h"
 #include "tests/cefclient/browser/window_test_runner_win.h"
 #include "tests/shared/browser/geometry_util.h"
@@ -85,6 +86,8 @@ bool IsProcessPerMonitorDpiAware() {
 // DPI value for 1x scale factor.
 #define DPI_1X 96.0f
 
+// WARNING: Only use this value for scaling native controls. DIP coordinates
+// originating from the browser should be converted using GetScreenPixelBounds.
 float GetWindowScaleFactor(HWND hwnd) {
   if (hwnd && IsProcessPerMonitorDpiAware()) {
     typedef UINT(WINAPI * GetDpiForWindowPtr)(HWND);
@@ -104,6 +107,104 @@ int GetButtonWidth(HWND hwnd) {
 
 int GetURLBarHeight(HWND hwnd) {
   return LogicalToDevice(URLBAR_HEIGHT, GetWindowScaleFactor(hwnd));
+}
+
+float GetScaleFactor(const CefRect& bounds,
+                     const std::optional<float>& device_scale_factor,
+                     bool pixel_bounds) {
+  if (device_scale_factor.has_value()) {
+    return *device_scale_factor;
+  }
+  auto display = CefDisplay::GetDisplayMatchingBounds(
+      bounds, /*input_pixel_coords=*/pixel_bounds);
+  return display->GetDeviceScaleFactor();
+}
+
+// Keep the bounds inside the closest display work area.
+CefRect ClampBoundsToDisplay(const CefRect& pixel_bounds) {
+  auto display = CefDisplay::GetDisplayMatchingBounds(
+      pixel_bounds, /*input_pixel_coords=*/true);
+  CefRect work_area =
+      CefDisplay::ConvertScreenRectToPixels(display->GetWorkArea());
+
+  CefRect bounds = pixel_bounds;
+  ConstrainWindowBounds(work_area, bounds);
+
+  return bounds;
+}
+
+// Convert DIP screen coordinates originating from the browser to device screen
+// (pixel) coordinates. |device_scale_factor| will be specified with off-screen
+// rendering.
+CefRect GetScreenPixelBounds(const CefRect& dip_bounds,
+                             const std::optional<float>& device_scale_factor) {
+  if (device_scale_factor.has_value()) {
+    return LogicalToDevice(dip_bounds, *device_scale_factor);
+  }
+  return CefDisplay::ConvertScreenRectToPixels(dip_bounds);
+}
+
+// |content_bounds| is the browser content area bounds in DIP screen
+// coordinates. Convert to device screen (pixel) coordinates and then expand to
+// frame bounds. Keep the resulting bounds inside the closest display work area.
+// |device_scale_factor| will be specified with off-screen rendering.
+CefRect GetFrameBoundsInDisplay(
+    HWND hwnd,
+    const CefRect& content_bounds,
+    bool with_controls,
+    const std::optional<float>& device_scale_factor) {
+  CefRect pixel_bounds =
+      GetScreenPixelBounds(content_bounds, device_scale_factor);
+  if (with_controls) {
+    // Expand the bounds to include native controls.
+    const int urlbar_height = GetURLBarHeight(hwnd);
+    pixel_bounds.y -= urlbar_height;
+    pixel_bounds.height += urlbar_height;
+  }
+
+  RECT rect = {pixel_bounds.x, pixel_bounds.y,
+               pixel_bounds.x + pixel_bounds.width,
+               pixel_bounds.y + pixel_bounds.height};
+  DWORD style = GetWindowLong(hwnd, GWL_STYLE);
+  DWORD ex_style = GetWindowLong(hwnd, GWL_EXSTYLE);
+  bool has_menu = !(style & WS_CHILD) && (GetMenu(hwnd) != nullptr);
+
+  // Calculate the frame size based on the current style.
+  AdjustWindowRectEx(&rect, style, has_menu, ex_style);
+
+  return ClampBoundsToDisplay(
+      {rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top});
+}
+
+// Execute calls on the required threads.
+void GetPixelBoundsAndContinue(HWND hwnd,
+                               const CefRect& dip_bounds,
+                               bool content_bounds,
+                               bool with_controls,
+                               const std::optional<float>& device_scale_factor,
+                               base::OnceCallback<void(const CefRect&)> next) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI,
+                base::BindOnce(&GetPixelBoundsAndContinue, hwnd, dip_bounds,
+                               content_bounds, with_controls,
+                               device_scale_factor, std::move(next)));
+    return;
+  }
+
+  CefRect pixel_bounds;
+  if (content_bounds) {
+    pixel_bounds = GetFrameBoundsInDisplay(hwnd, dip_bounds, with_controls,
+                                           device_scale_factor);
+  } else {
+    pixel_bounds = ClampBoundsToDisplay(
+        GetScreenPixelBounds(dip_bounds, device_scale_factor));
+  }
+
+  if (CURRENTLY_ON_MAIN_THREAD()) {
+    std::move(next).Run(pixel_bounds);
+  } else {
+    MAIN_POST_CLOSURE(base::BindOnce(std::move(next), pixel_bounds));
+  }
 }
 
 }  // namespace
@@ -165,8 +266,17 @@ void RootWindowWin::ContinueInitOnUIThread(
     }
   }
 
-  MAIN_POST_CLOSURE(base::BindOnce(&RootWindowWin::ContinueInitOnMainThread,
-                                   this, std::move(config), settings));
+  if (with_osr_) {
+    initial_scale_factor_ =
+        GetScaleFactor(initial_bounds_, std::nullopt, /*pixel_bounds=*/true);
+  }
+
+  if (CURRENTLY_ON_MAIN_THREAD()) {
+    ContinueInitOnMainThread(std::move(config), settings);
+  } else {
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowWin::ContinueInitOnMainThread,
+                                     this, std::move(config), settings));
+  }
 }
 
 void RootWindowWin::ContinueInitOnMainThread(
@@ -196,6 +306,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   with_osr_ = with_osr;
   is_popup_ = true;
 
+  // NOTE: This will be the size for the whole window including frame.
   if (popupFeatures.xSet) {
     initial_bounds_.x = popupFeatures.x;
   }
@@ -207,6 +318,13 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   }
   if (popupFeatures.heightSet) {
     initial_bounds_.height = popupFeatures.height;
+  }
+  initial_bounds_ = ClampBoundsToDisplay(
+      CefDisplay::ConvertScreenRectToPixels(initial_bounds_));
+
+  if (with_osr_) {
+    initial_scale_factor_ =
+        GetScaleFactor(initial_bounds_, std::nullopt, /*pixel_bounds=*/true);
   }
 
   CreateBrowserWindow(std::string());
@@ -256,13 +374,51 @@ void RootWindowWin::Hide() {
   }
 }
 
-void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
+void RootWindowWin::SetBounds(int x,
+                              int y,
+                              size_t width,
+                              size_t height,
+                              bool content_bounds) {
   REQUIRE_MAIN_THREAD();
 
-  if (hwnd_) {
-    SetWindowPos(hwnd_, nullptr, x, y, static_cast<int>(width),
-                 static_cast<int>(height), SWP_NOZORDER);
+  if (!hwnd_) {
+    return;
   }
+
+  CefRect dip_bounds = {x, y, static_cast<int>(width),
+                        static_cast<int>(height)};
+  GetWindowBoundsAndContinue(
+      dip_bounds, content_bounds,
+      base::BindOnce(
+          [](HWND hwnd, const CefRect& pixel_bounds) {
+            SetWindowPos(hwnd, nullptr, pixel_bounds.x, pixel_bounds.y,
+                         pixel_bounds.width, pixel_bounds.height, SWP_NOZORDER);
+          },
+          hwnd_));
+}
+
+bool RootWindowWin::DefaultToContentBounds() const {
+  if (!WithWindowlessRendering()) {
+    // The root HWND will be queried by default.
+    return false;
+  }
+  if (osr_settings_.real_screen_bounds) {
+    // Root HWND bounds are provided via GetRootWindowRect.
+    return false;
+  }
+  // The root HWND will not be queried by default.
+  return true;
+}
+
+void RootWindowWin::GetWindowBoundsAndContinue(
+    const CefRect& dip_bounds,
+    bool content_bounds,
+    base::OnceCallback<void(const CefRect&)> next) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(hwnd_);
+
+  GetPixelBoundsAndContinue(hwnd_, dip_bounds, content_bounds, with_controls_,
+                            GetDeviceScaleFactor(), std::move(next));
 }
 
 void RootWindowWin::Close(bool force) {
@@ -285,15 +441,14 @@ void RootWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
   }
 }
 
-float RootWindowWin::GetDeviceScaleFactor() const {
+std::optional<float> RootWindowWin::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
   if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
   }
 
-  NOTREACHED();
-  return 0.0f;
+  return std::nullopt;
 }
 
 CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
@@ -312,15 +467,15 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
 
 bool RootWindowWin::WithWindowlessRendering() const {
   REQUIRE_MAIN_THREAD();
+  DCHECK(initialized_);
   return with_osr_;
 }
 
 void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    OsrRendererSettings settings = {};
-    MainContext::Get()->PopulateOsrSettings(&settings);
+    MainContext::Get()->PopulateOsrSettings(&osr_settings_);
     browser_window_ = std::make_unique<BrowserWindowOsrWin>(
-        this, with_controls_, startup_url, settings);
+        this, with_controls_, startup_url, osr_settings_);
   } else {
     browser_window_ = std::make_unique<BrowserWindowStdWin>(
         this, with_controls_, startup_url);
@@ -771,20 +926,36 @@ void RootWindowWin::OnSize(bool minimized) {
     // Size the browser window to the whole client area.
     browser_window_->SetBounds(0, 0, rect.right, rect.bottom);
   }
+
+  MaybeNotifyScreenInfoChanged();
 }
 
 void RootWindowWin::OnMove() {
   // Notify the browser of move events so that popup windows are displayed
   // in the correct location and dismissed when the window moves.
-  CefRefPtr<CefBrowser> browser = GetBrowser();
-  if (browser) {
+  if (auto browser = GetBrowser()) {
     browser->GetHost()->NotifyMoveOrResizeStarted();
+  }
+
+  MaybeNotifyScreenInfoChanged();
+}
+
+void RootWindowWin::MaybeNotifyScreenInfoChanged() {
+  if (!DefaultToContentBounds()) {
+    // Send the new root window bounds to the renderer.
+    if (auto browser = GetBrowser()) {
+      browser->GetHost()->NotifyScreenInfoChanged();
+    }
   }
 }
 
 void RootWindowWin::OnDpiChanged(WPARAM wParam, LPARAM lParam) {
   if (LOWORD(wParam) != HIWORD(wParam)) {
     NOTIMPLEMENTED() << "Received non-square scaling factors";
+    return;
+  }
+
+  if (!hwnd_) {
     return;
   }
 
@@ -797,8 +968,8 @@ void RootWindowWin::OnDpiChanged(WPARAM wParam, LPARAM lParam) {
 
   // Suggested size and position of the current window scaled for the new DPI.
   const RECT* rect = reinterpret_cast<RECT*>(lParam);
-  SetBounds(rect->left, rect->top, rect->right - rect->left,
-            rect->bottom - rect->top);
+  SetWindowPos(hwnd_, nullptr, rect->left, rect->top, rect->right - rect->left,
+               rect->bottom - rect->top, SWP_NOZORDER);
 }
 
 bool RootWindowWin::OnEraseBkgnd() {
@@ -999,42 +1170,37 @@ void RootWindowWin::OnCreate(LPCREATESTRUCT lpCreateStruct) {
     ::SetMenu(hwnd_, nullptr);
   }
 
-  const float device_scale_factor = GetWindowScaleFactor(hwnd_);
-
   if (with_osr_) {
-    browser_window_->SetDeviceScaleFactor(device_scale_factor);
+    std::optional<float> parent_scale_factor;
+    if (is_popup_) {
+      if (auto parent_window =
+              MainContext::Get()->GetRootWindowManager()->GetWindowForBrowser(
+                  opener_browser_id())) {
+        parent_scale_factor = parent_window->GetDeviceScaleFactor();
+      }
+    }
+
+    browser_window_->SetDeviceScaleFactor(
+        parent_scale_factor.value_or(initial_scale_factor_));
   }
 
+  CefRect bounds(rect.left, rect.top, rect.right - rect.left,
+                 rect.bottom - rect.top);
   if (!is_popup_) {
     // Create the browser window.
-    CefRect cef_rect(rect.left, rect.top, rect.right - rect.left,
-                     rect.bottom - rect.top);
-    browser_window_->CreateBrowser(hwnd_, cef_rect, browser_settings_, nullptr,
+    browser_window_->CreateBrowser(hwnd_, bounds, browser_settings_, nullptr,
                                    delegate_->GetRequestContext());
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.
-    browser_window_->ShowPopup(hwnd_, rect.left, rect.top,
-                               rect.right - rect.left, rect.bottom - rect.top);
+    browser_window_->ShowPopup(hwnd_, bounds.x, bounds.y, bounds.width,
+                               bounds.height);
   }
 
   window_created_ = true;
 }
 
 bool RootWindowWin::OnClose() {
-  if (browser_window_ && !browser_window_->IsClosing()) {
-    CefRefPtr<CefBrowser> browser = GetBrowser();
-    if (browser) {
-      // Notify the browser window that we would like to close it. This
-      // will result in a call to ClientHandler::DoClose() if the
-      // JavaScript 'onbeforeunload' event handler allows it.
-      browser->GetHost()->CloseBrowser(false);
-
-      // Cancel the close.
-      return true;
-    }
-  }
-
   // Retrieve current window placement information.
   WINDOWPLACEMENT placement;
   ::GetWindowPlacement(hwnd_, &placement);
@@ -1045,6 +1211,20 @@ bool RootWindowWin::OnClose() {
     CefPostTask(
         TID_UI,
         base::BindOnce(&RootWindowWin::SaveWindowRestoreOnUIThread, placement));
+  }
+
+  if (browser_window_ && !browser_window_->IsClosing()) {
+    CefRefPtr<CefBrowser> browser = GetBrowser();
+    if (browser) {
+      // Notify the browser window that we would like to close it. With Alloy
+      // style this will result in a call to ClientHandler::DoClose() if the
+      // JavaScript 'onbeforeunload' event handler allows it. With Chrome style
+      // this will close the window indirectly via browser destruction.
+      browser->GetHost()->CloseBrowser(false);
+
+      // Cancel the close.
+      return true;
+    }
   }
 
   // Allow the close.
@@ -1124,29 +1304,18 @@ void RootWindowWin::OnAutoResize(const CefSize& new_size) {
     return;
   }
 
-  int new_width = new_size.width;
+  CefRect dip_bounds = {0, 0, new_size.width, new_size.height};
 
-  // Make the window wide enough to drag by the top menu bar.
-  if (new_width < 200) {
-    new_width = 200;
-  }
-
-  const float device_scale_factor = GetWindowScaleFactor(hwnd_);
-  RECT rect = {0, 0, LogicalToDevice(new_width, device_scale_factor),
-               LogicalToDevice(new_size.height, device_scale_factor)};
-  DWORD style = GetWindowLong(hwnd_, GWL_STYLE);
-  DWORD ex_style = GetWindowLong(hwnd_, GWL_EXSTYLE);
-  bool has_menu = !(style & WS_CHILD) && (GetMenu(hwnd_) != nullptr);
-
-  // The size value is for the client area. Calculate the whole window size
-  // based on the current style.
-  AdjustWindowRectEx(&rect, style, has_menu, ex_style);
-
-  // Size the window. The left/top values may be negative.
-  // Also show the window if it's not currently visible.
-  SetWindowPos(hwnd_, nullptr, 0, 0, rect.right - rect.left,
-               rect.bottom - rect.top,
-               SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+  GetWindowBoundsAndContinue(
+      dip_bounds, /*content_bounds=*/true,
+      base::BindOnce(
+          [](HWND hwnd, const CefRect& pixel_bounds) {
+            // Size the window and show if it's not currently visible.
+            SetWindowPos(
+                hwnd, nullptr, 0, 0, pixel_bounds.width, pixel_bounds.height,
+                SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+          },
+          hwnd_));
 }
 
 void RootWindowWin::OnSetLoadingState(bool isLoading,

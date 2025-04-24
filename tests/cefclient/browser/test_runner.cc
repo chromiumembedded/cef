@@ -146,7 +146,9 @@ void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
 
 void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
-      "window.open('https://www.google.com');", "about:blank", 0);
+      "window.open('https://www.google.com', 'google', "
+      "'left=100,top=100,width=600,height=400');",
+      "about:blank", 0);
 }
 
 void RunDialogWindowTest(CefRefPtr<CefBrowser> browser) {
@@ -269,8 +271,8 @@ void PromptDSF(CefRefPtr<CefBrowser> browser) {
 
   // Format the default value string.
   std::stringstream ss;
-  ss << RootWindow::GetForBrowser(browser->GetIdentifier())
-            ->GetDeviceScaleFactor();
+  ss << *RootWindow::GetForBrowser(browser->GetIdentifier())
+             ->GetDeviceScaleFactor();
 
   Prompt(browser, kPromptDSF, "Enter Device Scale Factor", ss.str());
 }

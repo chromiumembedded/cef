@@ -12,6 +12,7 @@
 #include <string>
 
 #include "tests/cefclient/browser/browser_window.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
 #include "tests/cefclient/browser/root_window.h"
 
 namespace client {
@@ -38,15 +39,25 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
                    CefBrowserSettings& settings) override;
   void Show(ShowMode mode) override;
   void Hide() override;
-  void SetBounds(int x, int y, size_t width, size_t height) override;
+  void SetBounds(int x,
+                 int y,
+                 size_t width,
+                 size_t height,
+                 bool content_bounds) override;
+  bool DefaultToContentBounds() const override;
   void Close(bool force) override;
   void SetDeviceScaleFactor(float device_scale_factor) override;
-  float GetDeviceScaleFactor() const override;
+  std::optional<float> GetDeviceScaleFactor() const override;
   CefRefPtr<CefBrowser> GetBrowser() const override;
   ClientWindowHandle GetWindowHandle() const override;
   bool WithWindowlessRendering() const override;
 
  private:
+  void ContinueInitOnUIThread(std::unique_ptr<RootWindowConfig> config,
+                              const CefBrowserSettings& settings);
+  void ContinueInitOnMainThread(std::unique_ptr<RootWindowConfig> config,
+                                const CefBrowserSettings& settings);
+
   void CreateBrowserWindow(const std::string& startup_url);
   void CreateRootWindow(const CefBrowserSettings& settings,
                         bool initially_hidden);
@@ -60,11 +71,21 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   void OnSetTitle(const std::string& title) override;
   void OnSetFullscreen(bool fullscreen) override;
   void OnAutoResize(const CefSize& new_size) override;
+  void OnContentsBounds(const CefRect& new_bounds) override {
+    RootWindow::SetBounds(new_bounds,
+                          /*content_bounds=*/DefaultToContentBounds());
+  }
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) override;
   void OnSetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) override;
+  bool GetRootWindowScreenRect(CefRect& rect) override;
+
+  void GetWindowBoundsAndContinue(
+      const CefRect& dip_bounds,
+      bool content_bounds,
+      base::OnceCallback<void(const CefRect& /*pixel_bounds*/)> next);
 
   void NotifyMoveOrResizeStarted();
   void NotifySetFocus();
@@ -77,6 +98,8 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   void NotifyForceClose();
   void NotifyCloseBrowser();
   void NotifyDestroyedIfDone(bool window_destroyed, bool browser_destroyed);
+
+  void MaybeNotifyScreenInfoChanged();
 
   GtkWidget* CreateMenuBar();
   GtkWidget* CreateMenu(GtkWidget* menu_bar, const char* text);
@@ -128,8 +151,11 @@ class RootWindowGtk : public RootWindow, public BrowserWindow::Delegate {
   bool with_controls_;
   bool always_on_top_;
   bool with_osr_;
+  OsrRendererSettings osr_settings_;
   bool is_popup_;
   CefRect start_rect_;
+  cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
+  float initial_scale_factor_ = 1.0;
   std::unique_ptr<BrowserWindow> browser_window_;
 
   // Main window.

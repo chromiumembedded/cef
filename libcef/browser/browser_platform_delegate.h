@@ -306,7 +306,7 @@ class CefBrowserPlatformDelegate {
   virtual bool IsHidden() const;
 
   // Notify the browser that screen information has changed. Only used with
-  // windowless rendering.
+  // windowless rendering and external (client-provided) root window.
   virtual void NotifyScreenInfoChanged();
 
   // Invalidate the view. Only used with windowless rendering.

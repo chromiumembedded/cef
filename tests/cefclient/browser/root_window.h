@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 
@@ -185,8 +186,23 @@ class RootWindow
   // Hide the window.
   virtual void Hide() = 0;
 
-  // Set the window bounds in screen coordinates.
-  virtual void SetBounds(int x, int y, size_t width, size_t height) = 0;
+  // Set bounds in DIP screen coordinates. If |content_bounds| is true then the
+  // specified bounds are for the browser's content area and will be expanded to
+  // appropriate containing window bounds. Otherwise, the specified bounds are
+  // for the containing window directly. Bounds will be constrained to the
+  // containing display work area. Specific behavioral expectations depend on
+  // platform and run mode. See the https://tests/window example for details.
+  virtual void SetBounds(int x,
+                         int y,
+                         size_t width,
+                         size_t height,
+                         bool content_bounds) = 0;
+  void SetBounds(const CefRect& bounds, bool content_bounds) {
+    SetBounds(bounds.x, bounds.y, bounds.width, bounds.height, content_bounds);
+  }
+
+  // Returns true if this RootWindow should default to sizing by content bounds.
+  virtual bool DefaultToContentBounds() const = 0;
 
   // Close the window. If |force| is true onunload handlers will not be
   // executed.
@@ -198,7 +214,7 @@ class RootWindow
 
   // Returns the device scale factor. Only used in combination with off-screen
   // rendering.
-  virtual float GetDeviceScaleFactor() const = 0;
+  virtual std::optional<float> GetDeviceScaleFactor() const = 0;
 
   // Returns the browser that this window contains, if any.
   virtual CefRefPtr<CefBrowser> GetBrowser() const = 0;

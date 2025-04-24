@@ -14,6 +14,10 @@
 #include "ui/views/win/hwnd_util.h"
 #endif
 
+#if defined(USE_AURA)
+#include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
+#endif
+
 namespace {
 
 gfx::AcceleratedWidget GetParentWidget(const CefWindowInfo& window_info) {
@@ -61,6 +65,9 @@ class ChildWindowDelegate : public CefWindowDelegate {
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
     browser_view_ = nullptr;
     window_ = nullptr;
+#if BUILDFLAG(IS_WIN)
+    native_delegate_ = nullptr;
+#endif
   }
 
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override {
@@ -71,22 +78,38 @@ class ChildWindowDelegate : public CefWindowDelegate {
     return initial_bounds;
   }
 
+#if defined(USE_AURA)
+  void OnWindowBoundsChanged(CefRefPtr<CefWindow> window,
+                             const CefRect& new_bounds) override {
+    if (native_delegate_) {
+      // Send new bounds to the renderer process and trigger the resize event.
+      native_delegate_->NotifyScreenInfoChanged();
+    }
+  }
+#endif
+
+ private:
   void ShowWindow() {
+#if defined(USE_AURA)
+    auto browser = CefBrowserHostBase::FromBrowser(browser_view_->GetBrowser());
+    auto platform_delegate = browser->platform_delegate();
+    DCHECK(platform_delegate->IsViewsHosted());
+    auto chrome_delegate =
+        static_cast<CefBrowserPlatformDelegateChromeViews*>(platform_delegate);
+    native_delegate_ = static_cast<CefBrowserPlatformDelegateNativeAura*>(
+        chrome_delegate->native_delegate());
+    native_delegate_->InstallRootWindowBoundsCallback();
+
 #if BUILDFLAG(IS_WIN)
     auto widget = static_cast<CefWindowImpl*>(window_.get())->widget();
     DCHECK(widget);
     const HWND widget_hwnd = HWNDForWidget(widget);
     DCHECK(widget_hwnd);
 
-    // The native delegate needs state to perform some actions.
-    auto browser = CefBrowserHostBase::FromBrowser(browser_view_->GetBrowser());
-    auto platform_delegate = browser->platform_delegate();
-    DCHECK(platform_delegate->IsViewsHosted());
-    auto chrome_delegate =
-        static_cast<CefBrowserPlatformDelegateChromeViews*>(platform_delegate);
-    auto native_delegate = static_cast<CefBrowserPlatformDelegateNativeWin*>(
-        chrome_delegate->native_delegate());
-    native_delegate->set_widget(widget, widget_hwnd);
+    // The Windows delegate needs state to perform some actions.
+    auto* delegate_win =
+        static_cast<CefBrowserPlatformDelegateNativeWin*>(native_delegate_);
+    delegate_win->set_widget(widget, widget_hwnd);
 
     if (window_info_.ex_style & WS_EX_NOACTIVATE) {
       const DWORD widget_ex_styles = GetWindowLongPtr(widget_hwnd, GWL_EXSTYLE);
@@ -105,6 +128,7 @@ class ChildWindowDelegate : public CefWindowDelegate {
       return;
     }
 #endif  // BUILDFLAG(IS_WIN)
+#endif  // defined(USE_AURA)
 
     window_->Show();
 
@@ -112,7 +136,6 @@ class ChildWindowDelegate : public CefWindowDelegate {
     browser_view_->RequestFocus();
   }
 
- private:
   ChildWindowDelegate(CefRefPtr<CefBrowserView> browser_view,
                       const CefWindowInfo& window_info)
       : browser_view_(browser_view), window_info_(window_info) {}
@@ -121,6 +144,11 @@ class ChildWindowDelegate : public CefWindowDelegate {
   const CefWindowInfo window_info_;
 
   CefRefPtr<CefWindow> window_;
+
+#if defined(USE_AURA)
+  base::raw_ptr<CefBrowserPlatformDelegateNativeAura> native_delegate_ =
+      nullptr;
+#endif
 
   IMPLEMENT_REFCOUNTING(ChildWindowDelegate);
 };

@@ -84,7 +84,6 @@ class ChromeBrowserHostImpl : public CefBrowserHostBase {
   bool IsWindowRenderingDisabled() override { return false; }
   void WasResized() override;
   void WasHidden(bool hidden) override;
-  void NotifyScreenInfoChanged() override;
   void Invalidate(PaintElementType type) override;
   void SendExternalBeginFrame() override;
   void SendTouchEvent(const CefTouchEvent& event) override;

@@ -42,4 +42,21 @@ void DeviceToLogical(CefTouchEvent& value, float device_scale_factor) {
   value.y = DeviceToLogical(value.y, device_scale_factor);
 }
 
+void ConstrainWindowBounds(const CefRect& display, CefRect& window) {
+  if (window.x < display.x) {
+    window.x = display.x;
+  }
+  if (window.y < display.y) {
+    window.y = display.y;
+  }
+  window.width = std::clamp(window.width, 100, display.width);
+  window.height = std::clamp(window.height, 100, display.height);
+  if (window.x + window.width >= display.x + display.width) {
+    window.x = display.x + display.width - window.width;
+  }
+  if (window.y + window.height >= display.y + display.height) {
+    window.y = display.y + display.height - window.height;
+  }
+}
+
 }  // namespace client

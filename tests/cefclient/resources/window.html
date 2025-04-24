@@ -7,6 +7,12 @@
 :fullscreen {
   background: pink;
 }
+.bold {
+  font-weight: bold;
+}
+.mono {
+  font-family: monospace;
+}
 </style>
 <script>
 function setup() {
@@ -74,11 +80,66 @@ function setTitlebarHeight() {
   else
     send_message('TitlebarHeight', height);
 }
+
+function execWindowAction() {
+  const dx = parseInt(document.getElementById('window_dx').value);
+  const dy = parseInt(document.getElementById('window_dy').value);
+  if (isNaN(dx) || isNaN(dy)) {
+    alert('Please specify a valid numeric value.');
+    return;
+  }
+
+  const e = document.getElementById("window_action");
+  const option = e.options[e.selectedIndex].text;
+  switch (option) {
+    case "moveTo":
+      return window.moveTo(dx, dy);
+    case "moveBy":
+      return window.moveBy(dx, dy);
+    case "resizeTo":
+      return window.resizeTo(dx, dy);
+    case "resizeBy":
+      return window.resizeBy(dx, dy);
+  }
+}
 </script>
 </head>
 <body bgcolor="white" onload="setup()">
 <form id="form">
-Click a button to perform the associated window action.
+<p class="bold">Click a button to perform the associated window action.</p>
+<p>Input values are in DIP coordinates. See <a href="https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage#markdown-header-coordinate-systems" target="_new">here</a> for important details about coordinate systems and window behavior.</p>
+<details>
+<summary>Implementation details for cefclient (click to expand).</summary>
+<ul>
+<li>The below actions will configure window size (<span class="mono">window.outerWidth/Height</span>) and position (<span class="mono">window.screenX/Y</span>) as reported by browser content (see "Current window settings" below).</li>
+<li>Whether this calculation includes the window frame will depend on what information is known/provided to CEF.</li>
+<ul>
+<li>Views-hosted windows are sized/positioned relative to the CefWindow frame.</li>
+<li>Native windows (<span class="mono">--use-native</span>) are sized/positioned relative to the cefclient window frame.</li>
+<ul>
+<li>MacOS windows are sized/positioned relative to the parent NSWindow frame (default behavior).</li>
+<li>Windows windows are sized/positioned relative to the root HWND frame (default behavior).</li>
+<li>Linux windows are sized/positioned relative to CefDisplayHandler::GetRootWindowScreenRect.</li>
+</ul>
+<li>Windowless (off-screen) windows (<span class="mono">--off-screen-rendering-enabled</span>) are sized/positioned relative to CefRenderHandler::GetRootScreenRect.</li>
+<ul>
+<li>Pass <span class="mono">--fake-screen-bounds</span> to instead size/position relative to the browser content area.
+This will also report (0,0) for position.</li>
+</ul>
+</ul>
+<li>Exiting and relaunching cefclient will save/restore window bounds as DIP coordinates in all modes.</li>
+<li>The <span class="mono">window.devicePixelRatio</span> value is a combination of device scale factor and browser zoom (if not 100%).</li>
+<ul>
+<li>Default device scale factor will match the associated display (e.g. user/system-level display settings).</li>
+<li>Device scale factor can be configured via command-line (<span class="mono">--force-device-scale-factor=[float]</span>) or the "Tests &gt; Set Scale Factor" menu option with windowless rendering.</li>
+<ul>
+<li>MacOS custom device scale factor will impact rendering quality only. DIP coordinates are not impacted.</li>
+<li>Windows/Linux custom device scale factor will impact rendering quality and DIP coordinates.</li>
+</ul>
+<li>Browser zoom can be configured via the Chrome menu or "Tests &gt; Zoom In/Out/Reset" menu options.
+</ul>
+</ul>
+</details>
 <br/><input type="button" onclick="minimize();" value="Minimize">
 <br/><input type="button" onclick="maximize();" value="Maximize">
 <br/><input type="button" onclick="restore();" value="Restore"> (minimizes and then restores the window as topmost)
@@ -86,11 +147,55 @@ Click a button to perform the associated window action.
 <br/><input type="button" onclick="fullscreenBrowser();" value="Toggle Browser Fullscreen"> (uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API" target="_new">Fullscreen API</a>; background turns pink)
 <br/><input type="button" onclick="position();" value="Set Position">
 X: <input type="text" size="4" id="x" value="200">
-Y: <input type="text" size="4" id="y" value="100">
+Y: <input type="text" size="4" id="y" value="200">
 Width: <input type="text" size="4" id="width" value="800">
 Height: <input type="text" size="4" id="height" value="600">
 <br/><input type="button" onclick="setTitlebarHeight();" value="Set Titlebar Height">
 <input type="number" min="0" max="100" id="title_bar_height" value="50"> (works on macOS with Views)
+<br/><input type="button" onclick="execWindowAction();" value="Execute JavaScript"> window.<select id="window_action">
+<option>moveTo</option>
+<option>moveBy</option>
+<option>resizeTo</option>
+<option>resizeBy</option>
+</select>(<input type="text" size="4" id="window_dx" value="200">,<input type="text" size="4" id="window_dy" value="200">) (calls CefDisplayHandler::OnContentsBoundsChange)
 </form>
+<p class="bold">Current window settings:</p>
+<div id="size"></div>
+<script>
+function reportDimensions() {
+  document.getElementById('size').innerHTML =
+      `DIP coordinates:` +
+      `<br/>window.screen.width/height: ${window.screen.width} x ${window.screen.height}` +
+      `<br/>window.outerWidth/Height: ${window.outerWidth} x ${window.outerHeight}` +
+      `<br/>window.screenX/Y: x=${window.screenX}, y=${window.screenY}` +
+      `<br/><br/>CSS pixels:` +
+      `<br/>window.innerWidth/Height: ${window.innerWidth} x ${window.innerHeight}` +
+      `<br/>window.devicePixelRatio: ${window.devicePixelRatio.toFixed(2)}`;
+}
+
+// Observe window resize events.
+window.addEventListener('resize', function() { console.log('resize'); reportDimensions(); });
+
+if (window.onmove) {
+  // Observe window move events.
+  // Only available with --enable-experimental-web-platform-features.
+  window.addEventListener('move', reportDimensions);
+} else {
+  // Poll for window movement.
+  var last_x = window.screenX;
+  var last_y = window.screenY;
+  setInterval(function() {
+    const x = window.screenX;
+    const y = window.screenY;
+    if (x != last_x || y != last_y) {
+      last_x = x;
+      last_y = y;
+      reportDimensions();
+    }
+  }, 500);
+}
+
+reportDimensions();
+</script>
 </body>
 </html>

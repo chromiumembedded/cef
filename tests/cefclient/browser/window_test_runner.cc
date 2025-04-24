@@ -4,35 +4,21 @@
 
 #include "tests/cefclient/browser/window_test_runner.h"
 
+#include "tests/cefclient/browser/root_window.h"
+
 namespace client::window_test {
 
-// static
-void WindowTestRunner::ModifyBounds(const CefRect& display, CefRect& window) {
-  window.x += display.x;
-  window.y += display.y;
+void WindowTestRunner::SetPos(CefRefPtr<CefBrowser> browser,
+                              int x,
+                              int y,
+                              int width,
+                              int height) {
+  REQUIRE_MAIN_THREAD();
 
-  if (window.x < display.x) {
-    window.x = display.x;
-  }
-  if (window.y < display.y) {
-    window.y = display.y;
-  }
-  if (window.width < 100) {
-    window.width = 100;
-  } else if (window.width >= display.width) {
-    window.width = display.width;
-  }
-  if (window.height < 100) {
-    window.height = 100;
-  } else if (window.height >= display.height) {
-    window.height = display.height;
-  }
-  if (window.x + window.width >= display.x + display.width) {
-    window.x = display.x + display.width - window.width;
-  }
-  if (window.y + window.height >= display.y + display.height) {
-    window.y = display.y + display.height - window.height;
-  }
+  auto root_window = RootWindow::GetForBrowser(browser->GetIdentifier());
+  root_window->SetBounds(
+      x, y, width, height,
+      /*content_bounds=*/root_window->DefaultToContentBounds());
 }
 
 void WindowTestRunner::Fullscreen(CefRefPtr<CefBrowser> browser) {

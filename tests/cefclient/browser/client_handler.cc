@@ -571,12 +571,7 @@ ClientHandler::ClientHandler(Delegate* delegate,
 }
 
 void ClientHandler::DetachDelegate() {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    // Execute this method on the main thread.
-    MAIN_POST_CLOSURE(base::BindOnce(&ClientHandler::DetachDelegate, this));
-    return;
-  }
-
+  REQUIRE_MAIN_THREAD();
   DCHECK(delegate_);
   delegate_ = nullptr;
 }
@@ -868,6 +863,24 @@ bool ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
   // Return true to disable default handling of cursor changes.
   return mouse_cursor_change_disabled_;
 }
+
+#if CEF_API_ADDED(CEF_NEXT)
+bool ClientHandler::OnContentsBoundsChange(CefRefPtr<CefBrowser> browser,
+                                           const CefRect& new_bounds) {
+  CEF_REQUIRE_UI_THREAD();
+  NotifyContentsBounds(new_bounds);
+  return true;
+}
+
+bool ClientHandler::GetRootWindowScreenRect(CefRefPtr<CefBrowser> browser,
+                                            CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  if (delegate_) {
+    return delegate_->GetRootWindowScreenRect(rect);
+  }
+  return false;
+}
+#endif
 
 bool ClientHandler::CanDownload(CefRefPtr<CefBrowser> browser,
                                 const CefString& url,
@@ -1462,6 +1475,19 @@ void ClientHandler::NotifyAutoResize(const CefSize& new_size) {
 
   if (delegate_) {
     delegate_->OnAutoResize(new_size);
+  }
+}
+
+void ClientHandler::NotifyContentsBounds(const CefRect& new_bounds) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::BindOnce(&ClientHandler::NotifyContentsBounds, this, new_bounds));
+    return;
+  }
+
+  if (delegate_) {
+    delegate_->OnContentsBounds(new_bounds);
   }
 }
 

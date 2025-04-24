@@ -416,24 +416,6 @@ void AlloyBrowserHostImpl::WasHidden(bool hidden) {
   }
 }
 
-void AlloyBrowserHostImpl::NotifyScreenInfoChanged() {
-  if (!IsWindowless()) {
-    DCHECK(false) << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::BindOnce(&AlloyBrowserHostImpl::NotifyScreenInfoChanged, this));
-    return;
-  }
-
-  if (platform_delegate_) {
-    platform_delegate_->NotifyScreenInfoChanged();
-  }
-}
-
 void AlloyBrowserHostImpl::Invalidate(PaintElementType type) {
   if (!IsWindowless()) {
     DCHECK(false) << "Window rendering is not disabled";
@@ -996,6 +978,11 @@ void AlloyBrowserHostImpl::CloseContents(content::WebContents* source) {
   } else if (destruction_state_ != DESTRUCTION_STATE_NONE) {
     destruction_state_ = DESTRUCTION_STATE_NONE;
   }
+}
+
+void AlloyBrowserHostImpl::SetContentsBounds(content::WebContents* source,
+                                             const gfx::Rect& bounds) {
+  contents_delegate_.SetContentsBoundsEx(source, bounds);
 }
 
 void AlloyBrowserHostImpl::UpdateTargetURL(content::WebContents* source,

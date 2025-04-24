@@ -427,6 +427,27 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
       const_cast<CHROME_MSG*>(&event.os_event->native_event()));
 }
 
+std::optional<gfx::Rect>
+CefBrowserPlatformDelegateNativeWin::GetRootWindowBounds() {
+  if (window_widget_) {
+    if (HWND hwnd = GetHostWindowHandle()) {
+      if (HWND root_hwnd = ::GetAncestor(hwnd, GA_ROOT)) {
+        RECT root_rect = {};
+        if (::GetWindowRect(root_hwnd, &root_rect)) {
+          auto* top_level =
+              window_widget_->GetNativeWindow()->GetToplevelWindow();
+          gfx::Rect bounds(root_rect);
+          bounds = display::Screen::GetScreen()->ScreenToDIPRectInWindow(
+              top_level, bounds);
+          return bounds;
+        }
+      }
+    }
+  }
+
+  return std::nullopt;
+}
+
 ui::KeyEvent CefBrowserPlatformDelegateNativeWin::TranslateUiKeyEvent(
     const CefKeyEvent& key_event) const {
   int flags = TranslateUiEventModifiers(key_event.modifiers);
@@ -596,8 +617,8 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
 
     case WM_MOVING:
     case WM_MOVE:
-      if (browser) {
-        browser->NotifyMoveOrResizeStarted();
+      if (platform_delegate) {
+        platform_delegate->NotifyMoveOrResizeStarted();
       }
       return 0;
 

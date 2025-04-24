@@ -137,11 +137,18 @@ void RootWindowViews::Hide() {
   }
 }
 
-void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
+void RootWindowViews::SetBounds(int x,
+                                int y,
+                                size_t width,
+                                size_t height,
+                                bool content_bounds) {
+  // We always expect Window bounds with Views-hosted browsers.
+  DCHECK(!content_bounds);
+
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI, base::BindOnce(&RootWindowViews::SetBounds, this, x, y,
-                                       width, height));
+                                       width, height, content_bounds));
     return;
   }
 
@@ -149,6 +156,11 @@ void RootWindowViews::SetBounds(int x, int y, size_t width, size_t height) {
     window_->SetBounds(
         CefRect(x, y, static_cast<int>(width), static_cast<int>(height)));
   }
+}
+
+bool RootWindowViews::DefaultToContentBounds() const {
+  // Views-hosted browsers always receive CefWindow bounds.
+  return false;
 }
 
 void RootWindowViews::Close(bool force) {
@@ -169,11 +181,11 @@ void RootWindowViews::SetDeviceScaleFactor(float device_scale_factor) {
   NOTREACHED();
 }
 
-float RootWindowViews::GetDeviceScaleFactor() const {
+std::optional<float> RootWindowViews::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
   // Windowless rendering is not supported.
   NOTREACHED();
-  return 0.0;
+  return std::nullopt;
 }
 
 CefRefPtr<CefBrowser> RootWindowViews::GetBrowser() const {

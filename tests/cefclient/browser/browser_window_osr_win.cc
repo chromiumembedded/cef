@@ -103,7 +103,7 @@ void BrowserWindowOsrWin::SetDeviceScaleFactor(float device_scale_factor) {
   }
 
   // Apply some sanity checks.
-  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f) {
+  if (device_scale_factor < 0.5f || device_scale_factor > 4.0f) {
     return;
   }
 

@@ -9,14 +9,18 @@
 #include <OpenGL/gl.h>
 #import <objc/runtime.h>
 
+#include <optional>
+
 #include "include/base/cef_logging.h"
 #include "include/cef_parser.h"
+#include "include/views/cef_display.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/bytes_write_handler.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/osr_accessibility_helper.h"
 #include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/text_input_client_osr_mac.h"
+#include "tests/cefclient/browser/util_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
 
@@ -784,7 +788,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification {
   // This delegate method is only called on 10.7 and later, so don't worry about
   // other backing changes calling it on 10.6 or earlier
-  [self resetDeviceScaleFactor];
+  [self resetDeviceScaleFactor:std::nullopt];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -1210,11 +1214,13 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   return viewPoint;
 }
 
-- (void)resetDeviceScaleFactor {
-  float device_scale_factor = 1.0f;
-  NSWindow* window = [self window];
-  if (window) {
-    device_scale_factor = [window backingScaleFactor];
+- (void)resetDeviceScaleFactor:(std::optional<float>)requested_scale_factor {
+  float device_scale_factor = requested_scale_factor.value_or(1.0f);
+  if (!requested_scale_factor.has_value()) {
+    NSWindow* window = [self window];
+    if (window) {
+      device_scale_factor = [window backingScaleFactor];
+    }
   }
   [self setDeviceScaleFactor:device_scale_factor];
 }
@@ -1225,7 +1231,7 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   }
 
   // Apply some sanity checks.
-  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f) {
+  if (device_scale_factor < 0.5f || device_scale_factor > 4.0f) {
     return;
   }
 
@@ -1417,6 +1423,7 @@ class BrowserWindowOsrMacImpl {
   // The below members will only be accessed on the main thread which should be
   // the same as the CEF UI thread.
   OsrRenderer renderer_;
+  std::optional<float> initial_scale_factor_;
   BrowserOpenGLView* native_browser_view_;
   bool hidden_;
   bool painting_popup_;
@@ -1542,7 +1549,7 @@ void BrowserWindowOsrMacImpl::SetBounds(int x,
                                         size_t width,
                                         size_t height) {
   REQUIRE_MAIN_THREAD();
-  // Nothing to do here. GTK will take care of positioning in the container.
+  // Nothing to do here. Cocoa will take care of positioning in the container.
 }
 
 void BrowserWindowOsrMacImpl::SetFocus(bool focus) {
@@ -1556,6 +1563,8 @@ void BrowserWindowOsrMacImpl::SetDeviceScaleFactor(float device_scale_factor) {
   REQUIRE_MAIN_THREAD();
   if (native_browser_view_) {
     [native_browser_view_ setDeviceScaleFactor:device_scale_factor];
+  } else {
+    initial_scale_factor_ = device_scale_factor;
   }
 }
 
@@ -1564,7 +1573,7 @@ float BrowserWindowOsrMacImpl::GetDeviceScaleFactor() const {
   if (native_browser_view_) {
     return [native_browser_view_ getDeviceScaleFactor];
   }
-  return 1.0f;
+  return initial_scale_factor_.value_or(1.0f);
 }
 
 ClientWindowHandle BrowserWindowOsrMacImpl::GetWindowHandle() const {
@@ -1590,7 +1599,25 @@ void BrowserWindowOsrMacImpl::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 bool BrowserWindowOsrMacImpl::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                                 CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  return false;
+  if (!renderer_.settings().real_screen_bounds) {
+    return false;
+  }
+
+  if (!native_browser_view_) {
+    return false;
+  }
+
+  if (auto screen_rect =
+          GetWindowBoundsInScreen([native_browser_view_ window])) {
+    rect = *screen_rect;
+  }
+  if (rect.width == 0) {
+    rect.width = 1;
+  }
+  if (rect.height == 0) {
+    rect.height = 1;
+  }
+  return true;
 }
 
 void BrowserWindowOsrMacImpl::GetViewRect(CefRefPtr<CefBrowser> browser,
@@ -1598,6 +1625,7 @@ void BrowserWindowOsrMacImpl::GetViewRect(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 
+  // Keep (0,0) origin for proper layout on macOS.
   rect.x = rect.y = 0;
 
   if (!native_browser_view_) {
@@ -1614,12 +1642,12 @@ void BrowserWindowOsrMacImpl::GetViewRect(CefRefPtr<CefBrowser> browser,
   // Convert to device coordinates.
   bounds = [native_browser_view_ convertRectToBackingInternal:bounds];
 
-  // Convert to browser view coordinates.
+  // Convert to DIP coordinates.
   rect.width = DeviceToLogical(bounds.size.width, device_scale_factor);
+  rect.height = DeviceToLogical(bounds.size.height, device_scale_factor);
   if (rect.width == 0) {
     rect.width = 1;
   }
-  rect.height = DeviceToLogical(bounds.size.height, device_scale_factor);
   if (rect.height == 0) {
     rect.height = 1;
   }
@@ -1639,7 +1667,7 @@ bool BrowserWindowOsrMacImpl::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
   const float device_scale_factor = [native_browser_view_ getDeviceScaleFactor];
 
-  // (viewX, viewX) is in browser view coordinates.
+  // (viewX, viewX) is in browser DIP coordinates.
   // Convert to device coordinates.
   NSPoint view_pt = NSMakePoint(LogicalToDevice(viewX, device_scale_factor),
                                 LogicalToDevice(viewY, device_scale_factor));
@@ -1670,16 +1698,24 @@ bool BrowserWindowOsrMacImpl::GetScreenInfo(CefRefPtr<CefBrowser> browser,
     return false;
   }
 
-  CefRect view_rect;
-  GetViewRect(browser, view_rect);
-
   screen_info.device_scale_factor = [native_browser_view_ getDeviceScaleFactor];
 
-  // The screen info rectangles are used by the renderer to create and position
-  // popups. Keep popups inside the view rectangle.
-  screen_info.rect = view_rect;
-  screen_info.available_rect = view_rect;
+  if (renderer_.settings().real_screen_bounds) {
+    CefRect root_rect;
+    GetRootScreenRect(browser, root_rect);
 
+    auto display = CefDisplay::GetDisplayMatchingBounds(
+        root_rect, /*input_pixel_coords=*/false);
+    screen_info.rect = display->GetBounds();
+    screen_info.available_rect = display->GetWorkArea();
+  } else {
+    CefRect view_rect;
+    GetViewRect(browser, view_rect);
+
+    // Keep HTML select popups inside the view rectangle.
+    screen_info.rect = view_rect;
+    screen_info.available_rect = view_rect;
+  }
   return true;
 }
 
@@ -1892,7 +1928,7 @@ void BrowserWindowOsrMacImpl::Create(ClientWindowHandle parent_handle,
       addSubview:native_browser_view_];
 
   // Determine the default scale factor.
-  [native_browser_view_ resetDeviceScaleFactor];
+  [native_browser_view_ resetDeviceScaleFactor:initial_scale_factor_];
 
   [[NSNotificationCenter defaultCenter]
       addObserver:native_browser_view_

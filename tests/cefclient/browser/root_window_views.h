@@ -44,10 +44,15 @@ class RootWindowViews : public RootWindow,
                    CefBrowserSettings& settings) override;
   void Show(ShowMode mode) override;
   void Hide() override;
-  void SetBounds(int x, int y, size_t width, size_t height) override;
+  void SetBounds(int x,
+                 int y,
+                 size_t width,
+                 size_t height,
+                 bool content_bounds) override;
+  bool DefaultToContentBounds() const override;
   void Close(bool force) override;
   void SetDeviceScaleFactor(float device_scale_factor) override;
-  float GetDeviceScaleFactor() const override;
+  std::optional<float> GetDeviceScaleFactor() const override;
   CefRefPtr<CefBrowser> GetBrowser() const override;
   ClientWindowHandle GetWindowHandle() const override;
   bool WithWindowlessRendering() const override { return false; }
@@ -80,6 +85,10 @@ class RootWindowViews : public RootWindow,
   void OnSetFavicon(CefRefPtr<CefImage> image) override;
   void OnSetFullscreen(bool fullscreen) override;
   void OnAutoResize(const CefSize& new_size) override;
+  void OnContentsBounds(const CefRect& new_bounds) override {
+    RootWindow::SetBounds(new_bounds,
+                          /*content_bounds=*/DefaultToContentBounds());
+  }
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) override;

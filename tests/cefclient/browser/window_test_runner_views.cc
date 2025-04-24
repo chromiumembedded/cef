@@ -10,6 +10,7 @@
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/root_window_views.h"
 #include "tests/cefclient/browser/views_window.h"
+#include "tests/shared/browser/geometry_util.h"
 
 namespace client::window_test {
 
@@ -28,46 +29,39 @@ CefRefPtr<CefWindow> GetWindow(const CefRefPtr<CefBrowser>& browser) {
   return window;
 }
 
-void SetTitlebarHeight(const CefRefPtr<CefBrowser>& browser,
-                       const std::optional<float>& height) {
-  CEF_REQUIRE_UI_THREAD();
-  auto root_window = RootWindow::GetForBrowser(browser->GetIdentifier());
-  DCHECK(root_window.get());
+void MinimizeImpl(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&MinimizeImpl, browser));
+    return;
+  }
 
-  auto root_window_views = static_cast<RootWindowViews*>(root_window.get());
-  root_window_views->SetTitlebarHeight(height);
-}
-
-}  // namespace
-
-WindowTestRunnerViews::WindowTestRunnerViews() = default;
-
-void WindowTestRunnerViews::SetPos(CefRefPtr<CefBrowser> browser,
-                                   int x,
-                                   int y,
-                                   int width,
-                                   int height) {
-  CefRefPtr<CefWindow> window = GetWindow(browser);
-
-  CefRect window_bounds(x, y, width, height);
-  ModifyBounds(window->GetDisplay()->GetWorkArea(), window_bounds);
-
-  window->SetBounds(window_bounds);
-}
-
-void WindowTestRunnerViews::Minimize(CefRefPtr<CefBrowser> browser) {
   GetWindow(browser)->Minimize();
 }
 
-void WindowTestRunnerViews::Maximize(CefRefPtr<CefBrowser> browser) {
+void MaximizeImpl(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&MaximizeImpl, browser));
+    return;
+  }
+
   GetWindow(browser)->Maximize();
 }
 
-void WindowTestRunnerViews::Restore(CefRefPtr<CefBrowser> browser) {
+void RestoreImpl(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&RestoreImpl, browser));
+    return;
+  }
+
   GetWindow(browser)->Restore();
 }
 
-void WindowTestRunnerViews::Fullscreen(CefRefPtr<CefBrowser> browser) {
+void FullscreenImpl(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&FullscreenImpl, browser));
+    return;
+  }
+
   auto window = GetWindow(browser);
 
   // Results in a call to ViewsWindow::OnWindowFullscreenTransition().
@@ -78,10 +72,34 @@ void WindowTestRunnerViews::Fullscreen(CefRefPtr<CefBrowser> browser) {
   }
 }
 
+}  // namespace
+
+WindowTestRunnerViews::WindowTestRunnerViews() = default;
+
+void WindowTestRunnerViews::Minimize(CefRefPtr<CefBrowser> browser) {
+  MinimizeImpl(browser);
+}
+
+void WindowTestRunnerViews::Maximize(CefRefPtr<CefBrowser> browser) {
+  MaximizeImpl(browser);
+}
+
+void WindowTestRunnerViews::Restore(CefRefPtr<CefBrowser> browser) {
+  RestoreImpl(browser);
+}
+
+void WindowTestRunnerViews::Fullscreen(CefRefPtr<CefBrowser> browser) {
+  FullscreenImpl(browser);
+}
+
 void WindowTestRunnerViews::SetTitleBarHeight(
     CefRefPtr<CefBrowser> browser,
     const std::optional<float>& height) {
-  SetTitlebarHeight(browser, height);
+  REQUIRE_MAIN_THREAD();
+
+  auto root_window = RootWindow::GetForBrowser(browser->GetIdentifier());
+  auto root_window_views = static_cast<RootWindowViews*>(root_window.get());
+  root_window_views->SetTitlebarHeight(height);
 }
 
 }  // namespace client::window_test

@@ -244,8 +244,7 @@ void CefBrowserPlatformDelegate::PopupBrowserCreated(
     return;
   }
 
-  CefRefPtr<CefBrowserView> new_browser_view =
-      CefBrowserView::GetForBrowser(new_browser);
+  auto new_browser_view = new_browser->GetBrowserView();
   CHECK(new_browser_view);
 
   bool popup_handled = false;
@@ -389,9 +388,7 @@ bool CefBrowserPlatformDelegate::IsHidden() const {
   return false;
 }
 
-void CefBrowserPlatformDelegate::NotifyScreenInfoChanged() {
-  DCHECK(false);
-}
+void CefBrowserPlatformDelegate::NotifyScreenInfoChanged() {}
 
 void CefBrowserPlatformDelegate::Invalidate(cef_paint_element_type_t type) {
   DCHECK(false);

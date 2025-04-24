@@ -817,7 +817,28 @@ void CefBrowserHostBase::NotifyMoveOrResizeStarted() {
   if (platform_delegate_) {
     platform_delegate_->NotifyMoveOrResizeStarted();
   }
+#else
+  LOG(WARNING)
+      << "Incorrect usage of CefBrowserHost::NotifyMoveOrResizeStarted";
 #endif
+}
+
+void CefBrowserHostBase::NotifyScreenInfoChanged() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(
+        CEF_UIT,
+        base::BindOnce(&CefBrowserHostBase::NotifyScreenInfoChanged, this));
+    return;
+  }
+
+  if (platform_delegate_) {
+    if (IsWindowless() || platform_delegate_->HasExternalParent()) {
+      platform_delegate_->NotifyScreenInfoChanged();
+    } else {
+      LOG(WARNING)
+          << "Incorrect usage of CefBrowserHost::NotifyScreenInfoChanged";
+    }
+  }
 }
 
 bool CefBrowserHostBase::IsFullscreen() {

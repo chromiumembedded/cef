@@ -250,10 +250,6 @@ void ChromeBrowserHostImpl::WasHidden(bool hidden) {
   NOTIMPLEMENTED();
 }
 
-void ChromeBrowserHostImpl::NotifyScreenInfoChanged() {
-  NOTIMPLEMENTED();
-}
-
 void ChromeBrowserHostImpl::Invalidate(PaintElementType type) {
   NOTIMPLEMENTED();
 }

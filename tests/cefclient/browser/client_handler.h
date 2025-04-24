@@ -71,6 +71,9 @@ class ClientHandler : public BaseClientHandler,
     // Auto-resize contents.
     virtual void OnAutoResize(const CefSize& new_size) = 0;
 
+    // Set contents bounds.
+    virtual void OnContentsBounds(const CefRect& new_bounds) = 0;
+
     // Set the loading state.
     virtual void OnSetLoadingState(bool isLoading,
                                    bool canGoBack,
@@ -89,6 +92,9 @@ class ClientHandler : public BaseClientHandler,
     // Called on the UI thread before a context menu is displayed.
     virtual void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {}
 
+    // Called on the UI thread to retrieve root window bounds.
+    virtual bool GetRootWindowScreenRect(CefRect& rect) { return false; }
+
    protected:
     virtual ~Delegate() = default;
   };
@@ -101,7 +107,8 @@ class ClientHandler : public BaseClientHandler,
                 const std::string& startup_url);
 
   // This object may outlive the Delegate object so it's necessary for the
-  // Delegate to detach itself before destruction.
+  // Delegate to detach itself before destruction. Called on the main thread
+  // after the browser has closed.
   void DetachDelegate();
 
   // CefClient methods
@@ -176,6 +183,12 @@ class ClientHandler : public BaseClientHandler,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info) override;
+#if CEF_API_ADDED(CEF_NEXT)
+  bool OnContentsBoundsChange(CefRefPtr<CefBrowser> browser,
+                              const CefRect& new_bounds) override;
+  bool GetRootWindowScreenRect(CefRefPtr<CefBrowser> browser,
+                               CefRect& rect) override;
+#endif
 
   // CefDownloadHandler methods
   bool CanDownload(CefRefPtr<CefBrowser> browser,
@@ -345,6 +358,7 @@ class ClientHandler : public BaseClientHandler,
   void NotifyFavicon(CefRefPtr<CefImage> image);
   void NotifyFullscreen(bool fullscreen);
   void NotifyAutoResize(const CefSize& new_size);
+  void NotifyContentsBounds(const CefRect& new_bounds);
   void NotifyLoadingState(bool isLoading, bool canGoBack, bool canGoForward);
   void NotifyDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   void NotifyTakeFocus(bool next);
@@ -396,11 +410,7 @@ class ClientHandler : public BaseClientHandler,
   CefRefPtr<ClientPrintHandlerGtk> print_handler_;
 #endif
 
-  // MAIN THREAD MEMBERS
-  // The following members will only be accessed on the main thread. This will
-  // be the same as the CEF UI thread except when using multi-threaded message
-  // loop mode on Windows.
-
+  // Safe to access from any thread during browser lifetime.
   Delegate* delegate_;
 
   // UI THREAD MEMBERS

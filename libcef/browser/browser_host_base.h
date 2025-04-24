@@ -265,6 +265,7 @@ class CefBrowserHostBase : public CefBrowserHost,
   void SetAudioMuted(bool mute) override;
   bool IsAudioMuted() override;
   void NotifyMoveOrResizeStarted() override;
+  void NotifyScreenInfoChanged() override;
   bool IsFullscreen() override;
   void ExitFullscreen(bool will_cause_resize) override;
   bool IsRenderProcessUnresponsive() override;

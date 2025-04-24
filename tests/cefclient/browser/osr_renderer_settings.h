@@ -16,6 +16,14 @@ struct OsrRendererSettings {
   // If true draw a border around update rectangles.
   bool show_update_rect = false;
 
+  // If true return real screen bounds from GetRootScreenRect/GetScreenInfo.
+  // - Allows window.outerWidth/Height and window.screenX/Y to return correct
+  //   values.
+  // - Allows JavaScript window.moveTo/By() and window.resizeTo/By() to provide
+  //   bounds that include the window frame.
+  // - Causes HTML select popups to be cropped (limitation of cefclient impl).
+  bool real_screen_bounds = true;
+
   // Background color. Enables transparency if the alpha component is 0.
   cef_color_t background_color = 0;
 

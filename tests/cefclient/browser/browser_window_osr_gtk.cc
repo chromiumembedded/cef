@@ -20,6 +20,7 @@
 
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
+#include "include/views/cef_display.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/util_gtk.h"
 #include "tests/shared/browser/geometry_util.h"
@@ -1092,7 +1093,7 @@ void BrowserWindowOsrGtk::SetDeviceScaleFactor(float device_scale_factor) {
     }
 
     // Apply some sanity checks.
-    if (device_scale_factor < 1.0f || device_scale_factor > 4.0f) {
+    if (device_scale_factor < 0.5f || device_scale_factor > 4.0f) {
       return;
     }
 
@@ -1142,14 +1143,35 @@ void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 bool BrowserWindowOsrGtk::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
                                             CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-  return false;
+
+  if (!renderer_.settings().real_screen_bounds) {
+    return false;
+  }
+
+  if (!glarea_) {
+    return false;
+  }
+
+  float device_scale_factor;
+  {
+    base::AutoLock lock_scope(lock_);
+    device_scale_factor = device_scale_factor_;
+  }
+
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+
+  GtkWidget* toplevel = gtk_widget_get_toplevel(glarea_);
+
+  // Convert to DIP coordinates.
+  rect = DeviceToLogical(
+      GetWindowBounds(GTK_WINDOW(toplevel), /*include_frame=*/true),
+      device_scale_factor);
+  return true;
 }
 
 void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
                                       CefRect& rect) {
   CEF_REQUIRE_UI_THREAD();
-
-  rect.x = rect.y = 0;
 
   if (!glarea_) {
     // Never return an empty rectangle.
@@ -1163,17 +1185,23 @@ void BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
     device_scale_factor = device_scale_factor_;
   }
 
-  // The simulated screen and view rectangle are the same. This is necessary
-  // for popup menus to be located and sized inside the view.
-  GtkAllocation allocation;
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+
+  GtkAllocation allocation = {};
   gtk_widget_get_allocation(glarea_, &allocation);
-  rect.width = DeviceToLogical(allocation.width, device_scale_factor);
+
+  // Convert to DIP coordinates.
+  rect = DeviceToLogical(
+      {allocation.x, allocation.y, allocation.width, allocation.height},
+      device_scale_factor);
   if (rect.width == 0) {
     rect.width = 1;
   }
-  rect.height = DeviceToLogical(allocation.height, device_scale_factor);
   if (rect.height == 0) {
     rect.height = 1;
+  }
+  if (!renderer_.settings().real_screen_bounds) {
+    rect.x = rect.y = 0;
   }
 }
 
@@ -1204,9 +1232,6 @@ bool BrowserWindowOsrGtk::GetScreenInfo(CefRefPtr<CefBrowser> browser,
                                         CefScreenInfo& screen_info) {
   CEF_REQUIRE_UI_THREAD();
 
-  CefRect view_rect;
-  GetViewRect(browser, view_rect);
-
   float device_scale_factor;
   {
     base::AutoLock lock_scope(lock_);
@@ -1215,10 +1240,23 @@ bool BrowserWindowOsrGtk::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 
   screen_info.device_scale_factor = device_scale_factor;
 
-  // The screen info rectangles are used by the renderer to create and position
-  // popups. Keep popups inside the view rectangle.
-  screen_info.rect = view_rect;
-  screen_info.available_rect = view_rect;
+  if (renderer_.settings().real_screen_bounds) {
+    CefRect root_rect;
+    GetRootScreenRect(browser, root_rect);
+
+    auto display = CefDisplay::GetDisplayMatchingBounds(
+        root_rect, /*input_pixel_coords=*/false);
+    screen_info.rect = display->GetBounds();
+    screen_info.available_rect = display->GetWorkArea();
+  } else {
+    CefRect view_rect;
+    GetViewRect(browser, view_rect);
+
+    // Keep HTML select popups inside the view rectangle.
+    screen_info.rect = view_rect;
+    screen_info.available_rect = view_rect;
+  }
+
   return true;
 }
 

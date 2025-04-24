@@ -83,6 +83,16 @@ void BrowserWindow::OnAutoResize(const CefSize& new_size) {
   delegate_->OnAutoResize(new_size);
 }
 
+void BrowserWindow::OnContentsBounds(const CefRect& new_bounds) {
+  REQUIRE_MAIN_THREAD();
+  delegate_->OnContentsBounds(new_bounds);
+}
+
+bool BrowserWindow::GetRootWindowScreenRect(CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  return delegate_->GetRootWindowScreenRect(rect);
+}
+
 void BrowserWindow::OnSetLoadingState(bool isLoading,
                                       bool canGoBack,
                                       bool canGoForward) {

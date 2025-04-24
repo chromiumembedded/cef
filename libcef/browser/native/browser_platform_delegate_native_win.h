@@ -32,6 +32,7 @@ class CefBrowserPlatformDelegateNativeWin
   bool HandleKeyboardEvent(const input::NativeWebKeyboardEvent& event) override;
   CefEventHandle GetEventHandle(
       const input::NativeWebKeyboardEvent& event) const override;
+  std::optional<gfx::Rect> GetRootWindowBounds() override;
 
   // CefBrowserPlatformDelegateNativeAura methods:
   ui::KeyEvent TranslateUiKeyEvent(const CefKeyEvent& key_event) const override;

@@ -173,6 +173,12 @@ class BrowserDelegate : public content::WebContentsDelegate {
           navigation_handle_callback) {
     return true;
   }
+
+  // Same as SetContentsBounds but returning false if unhandled.
+  virtual bool SetContentsBoundsEx(content::WebContents* source,
+                                   const gfx::Rect& bounds) {
+    return false;
+  }
 };
 
 }  // namespace cef

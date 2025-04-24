@@ -573,6 +573,14 @@ bool ChromeBrowserDelegate::OpenURLFromTabEx(
   return true;
 }
 
+bool ChromeBrowserDelegate::SetContentsBoundsEx(content::WebContents* source,
+                                                const gfx::Rect& bounds) {
+  if (auto delegate = GetDelegateForWebContents(source)) {
+    return delegate->SetContentsBoundsEx(source, bounds);
+  }
+  return false;
+}
+
 void ChromeBrowserDelegate::LoadingStateChanged(content::WebContents* source,
                                                 bool should_show_loading_ui) {
   if (auto delegate = GetDelegateForWebContents(source)) {

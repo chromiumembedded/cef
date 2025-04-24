@@ -20,6 +20,10 @@ CefRect DeviceToLogical(const CefRect& value, float device_scale_factor);
 void DeviceToLogical(CefMouseEvent& value, float device_scale_factor);
 void DeviceToLogical(CefTouchEvent& value, float device_scale_factor);
 
+// Fit |window| inside |display|. Coordinates are relative to the upper-left
+// corner of the display.
+void ConstrainWindowBounds(const CefRect& display, CefRect& window);
+
 }  // namespace client
 
 #endif  // CEF_TESTS_SHARED_BROWSER_GEOMETRY_UTIL_H_

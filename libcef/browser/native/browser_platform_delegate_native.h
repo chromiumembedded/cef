@@ -32,6 +32,7 @@ class CefBrowserPlatformDelegateNative
   // CefBrowserPlatformDelegate methods:
   SkColor GetBackgroundColor() const override;
   void WasResized() override;
+  void NotifyScreenInfoChanged() override;
 
   // Translate CEF events to Chromium/Blink Web events.
   virtual input::NativeWebKeyboardEvent TranslateWebKeyEvent(

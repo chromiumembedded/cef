@@ -17,6 +17,7 @@
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/views_style.h"
+#include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/common/client_switches.h"
 
 #if !defined(OS_WIN)
@@ -229,7 +230,9 @@ void ViewsWindow::Maximize() {
 void ViewsWindow::SetBounds(const CefRect& bounds) {
   CEF_REQUIRE_UI_THREAD();
   if (window_) {
-    window_->SetBounds(bounds);
+    auto window_bounds = bounds;
+    ConstrainWindowBounds(window_->GetDisplay()->GetWorkArea(), window_bounds);
+    window_->SetBounds(window_bounds);
   }
 }
 

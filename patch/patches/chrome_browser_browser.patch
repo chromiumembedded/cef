@@ -136,7 +136,7 @@ index 51c55cb054ae7..df9aa9bc45a67 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index d45f8f1713c87..7d69f3d8bd4cc 100644
+index d45f8f1713c87..de476f1ed4081 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -272,6 +272,25 @@
@@ -285,7 +285,21 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  }
  
  void Browser::CloseContents(WebContents* source) {
-@@ -2177,6 +2246,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
+@@ -2157,6 +2226,13 @@ void Browser::CloseContents(WebContents* source) {
+ }
+ 
+ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
++#if BUILDFLAG(ENABLE_CEF)
++  if (cef_browser_delegate_ &&
++      cef_browser_delegate_->SetContentsBoundsEx(source, bounds)) {
++    return;
++  }
++#endif
++
+   if (is_type_normal()) {
+     return;
+   }
+@@ -2177,6 +2253,8 @@ void Browser::SetContentsBounds(WebContents* source, const gfx::Rect& bounds) {
  }
  
  void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
@@ -294,7 +308,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    std::vector<StatusBubble*> status_bubbles = GetStatusBubbles();
    for (StatusBubble* status_bubble : status_bubbles) {
      StatusBubbleViews* status_bubble_views =
-@@ -2190,6 +2261,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
+@@ -2190,6 +2268,17 @@ void Browser::UpdateTargetURL(WebContents* source, const GURL& url) {
    }
  }
  
@@ -312,7 +326,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  void Browser::ContentsMouseEvent(WebContents* source, const ui::Event& event) {
    const ui::EventType type = event.type();
    const bool exited = type == ui::EventType::kMouseExited;
-@@ -2223,9 +2305,23 @@ void Browser::ContentsZoomChange(bool zoom_in) {
+@@ -2223,9 +2312,23 @@ void Browser::ContentsZoomChange(bool zoom_in) {
  }
  
  bool Browser::TakeFocus(content::WebContents* source, bool reverse) {
@@ -336,7 +350,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  void Browser::BeforeUnloadFired(WebContents* web_contents,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) {
-@@ -2338,12 +2434,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
+@@ -2338,12 +2441,24 @@ void Browser::WebContentsCreated(WebContents* source_contents,
    // to track `new_contents` after it is added to its TabModel this override can
    // be removed.
    CreateSessionServiceTabHelper(new_contents);
@@ -361,7 +375,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    // Don't show the page hung dialog when a HTML popup hangs because
    // the dialog will take the focus and immediately close the popup.
    RenderWidgetHostView* view = render_widget_host->GetView();
-@@ -2356,6 +2464,13 @@ void Browser::RendererUnresponsive(
+@@ -2356,6 +2471,13 @@ void Browser::RendererUnresponsive(
  void Browser::RendererResponsive(
      WebContents* source,
      content::RenderWidgetHost* render_widget_host) {
@@ -375,7 +389,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    RenderWidgetHostView* view = render_widget_host->GetView();
    if (view && !render_widget_host->GetView()->IsHTMLFormPopup()) {
      TabDialogs::FromWebContents(source)->HideHungRendererDialog(
-@@ -2365,6 +2480,15 @@ void Browser::RendererResponsive(
+@@ -2365,6 +2487,15 @@ void Browser::RendererResponsive(
  
  content::JavaScriptDialogManager* Browser::GetJavaScriptDialogManager(
      WebContents* source) {
@@ -391,7 +405,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    return javascript_dialogs::TabModalDialogManager::FromWebContents(source);
  }
  
-@@ -2400,6 +2524,11 @@ void Browser::DraggableRegionsChanged(
+@@ -2400,6 +2531,11 @@ void Browser::DraggableRegionsChanged(
    if (app_controller_) {
      app_controller_->DraggableRegionsChanged(regions, contents);
    }
@@ -403,7 +417,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  }
  
  std::vector<blink::mojom::RelatedApplicationPtr>
-@@ -2514,11 +2643,15 @@ void Browser::EnterFullscreenModeForTab(
+@@ -2514,11 +2650,15 @@ void Browser::EnterFullscreenModeForTab(
      const blink::mojom::FullscreenOptions& options) {
    exclusive_access_manager_->fullscreen_controller()->EnterFullscreenModeForTab(
        requesting_frame, options.display_id);
@@ -419,7 +433,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  }
  
  bool Browser::IsFullscreenForTabOrPending(const WebContents* web_contents) {
-@@ -2728,6 +2861,16 @@ void Browser::RequestMediaAccessPermission(
+@@ -2728,6 +2868,16 @@ void Browser::RequestMediaAccessPermission(
      content::WebContents* web_contents,
      const content::MediaStreamRequest& request,
      content::MediaResponseCallback callback) {
@@ -436,7 +450,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    const extensions::Extension* extension =
        GetExtensionForOrigin(profile_, request.security_origin);
    MediaCaptureDevicesDispatcher::GetInstance()->ProcessMediaAccessRequest(
-@@ -3313,9 +3456,11 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
+@@ -3313,9 +3463,11 @@ void Browser::RemoveScheduledUpdatesFor(WebContents* contents) {
  // Browser, Getters for UI (private):
  
  std::vector<StatusBubble*> Browser::GetStatusBubbles() {
@@ -449,7 +463,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
    }
  
    // We hide the status bar for web apps windows as this matches native
-@@ -3323,6 +3468,12 @@ std::vector<StatusBubble*> Browser::GetStatusBubbles() {
+@@ -3323,6 +3475,12 @@ std::vector<StatusBubble*> Browser::GetStatusBubbles() {
    // mode, as the minimal browser UI includes the status bar.
    if (web_app::AppBrowserController::IsWebApp(this) &&
        !app_controller()->HasMinimalUiButtons()) {
@@ -462,7 +476,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
      return {};
    }
  
-@@ -3476,6 +3627,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
+@@ -3476,6 +3634,8 @@ void Browser::SetAsDelegate(WebContents* web_contents, bool set_delegate) {
      BookmarkTabHelper::FromWebContents(web_contents)->RemoveObserver(this);
      web_contents_collection_.StopObserving(web_contents);
    }
@@ -471,7 +485,7 @@ index d45f8f1713c87..7d69f3d8bd4cc 100644
  }
  
  void Browser::TabDetachedAtImpl(content::WebContents* contents,
-@@ -3637,6 +3790,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
+@@ -3637,6 +3797,14 @@ bool Browser::PictureInPictureBrowserSupportsWindowFeature(
  
  bool Browser::SupportsWindowFeatureImpl(WindowFeature feature,
                                          bool check_can_support) const {

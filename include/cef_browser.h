@@ -707,12 +707,24 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void WasHidden(bool hidden) = 0;
 
   ///
-  /// Send a notification to the browser that the screen info has changed. The
-  /// browser will then call CefRenderHandler::GetScreenInfo to update the
-  /// screen information with the new values. This simulates moving the webview
-  /// window from one display to another, or changing the properties of the
-  /// current display. This method is only used when window rendering is
-  /// disabled.
+  /// Notify the browser that screen information has changed. Updated
+  /// information will be sent to the renderer process to configure screen size
+  /// and position values used by CSS and JavaScript (window.deviceScaleFactor,
+  /// window.screenX/Y, window.outerWidth/Height, etc.). For background see
+  /// https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage.md#markdown-header-coordinate-systems
+  ///
+  /// This method is used with (a) windowless rendering and (b) windowed
+  /// rendering with external (client-provided) root window.
+  ///
+  /// With windowless rendering the browser will call
+  /// CefRenderHandler::GetScreenInfo, CefRenderHandler::GetRootScreenRect and
+  /// CefRenderHandler::GetViewRect. This simulates moving or resizing the root
+  /// window in the current display, moving the root window from one display to
+  /// another, or changing the properties of the current display.
+  ///
+  /// With windowed rendering the browser will call
+  /// CefDisplayHandler::GetRootWindowScreenRect and use the associated
+  /// display properties.
   ///
   /*--cef()--*/
   virtual void NotifyScreenInfoChanged() = 0;

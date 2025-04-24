@@ -14,11 +14,14 @@
 #include "include/cef_app.h"
 #include "tests/cefclient/browser/browser_window_osr_gtk.h"
 #include "tests/cefclient/browser/browser_window_std_gtk.h"
+#include "tests/cefclient/browser/client_prefs.h"
 #include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
+#include "tests/cefclient/browser/root_window_manager.h"
 #include "tests/cefclient/browser/temp_window.h"
 #include "tests/cefclient/browser/util_gtk.h"
 #include "tests/cefclient/browser/window_test_runner_gtk.h"
+#include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
 #include "tests/shared/common/client_switches.h"
 
@@ -59,23 +62,139 @@ void UseDefaultX11VisualForGtk(GtkWidget* widget) {
 #endif
 }
 
-bool IsWindowMaximized(GtkWindow* window) {
-  GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
-  gint state = gdk_window_get_state(gdk_window);
-  return (state & GDK_WINDOW_STATE_MAXIMIZED) ? true : false;
+// Keep the bounds inside the closest display work area.
+CefRect ClampBoundsToDisplay(const CefRect& pixel_bounds) {
+  auto display = CefDisplay::GetDisplayMatchingBounds(
+      pixel_bounds, /*input_pixel_coords=*/true);
+  CefRect work_area =
+      LogicalToDevice(display->GetWorkArea(), display->GetDeviceScaleFactor());
+
+  CefRect bounds = pixel_bounds;
+  ConstrainWindowBounds(work_area, bounds);
+
+  return bounds;
 }
 
-void MinimizeWindow(GtkWindow* window) {
-  // Unmaximize the window before minimizing so restore behaves correctly.
-  if (IsWindowMaximized(window)) {
-    gtk_window_unmaximize(window);
+float GetScaleFactor(const CefRect& bounds,
+                     const std::optional<float>& device_scale_factor,
+                     bool pixel_bounds) {
+  if (device_scale_factor.has_value()) {
+    return *device_scale_factor;
+  }
+  auto display = CefDisplay::GetDisplayMatchingBounds(
+      bounds, /*input_pixel_coords=*/pixel_bounds);
+  return display->GetDeviceScaleFactor();
+}
+
+CefRect GetScreenPixelBounds(const CefRect& dip_bounds,
+                             const std::optional<float>& device_scale_factor) {
+  const auto scale_factor =
+      GetScaleFactor(dip_bounds, device_scale_factor, /*pixel_bounds=*/false);
+  return LogicalToDevice(dip_bounds, scale_factor);
+}
+
+CefRect GetScreenDIPBounds(const CefRect& pixel_bounds,
+                           const std::optional<float>& device_scale_factor) {
+  const auto scale_factor =
+      GetScaleFactor(pixel_bounds, device_scale_factor, /*pixel_bounds=*/true);
+  return DeviceToLogical(pixel_bounds, scale_factor);
+}
+
+// Existing window measurements in root window (pixel) coordinates.
+struct BoundsInfo {
+  CefRect frame;
+  CefRect window;
+  CefRect browser;
+};
+
+// |content_bounds| is the browser content area bounds in DIP screen
+// coordinates. Convert to root window (pixel) coordinates and then expand to
+// frame bounds. Keep the resulting bounds inside the closest display work area.
+// |device_scale_factor| will be specified with off-screen rendering.
+CefRect GetFrameBoundsInDisplay(
+    const CefRect& content_bounds,
+    const BoundsInfo& bounds_info,
+    const std::optional<float>& device_scale_factor) {
+  CefRect pixel_bounds =
+      GetScreenPixelBounds(content_bounds, device_scale_factor);
+
+  // Expand the new bounds based on relative offsets for the current bounds.
+  // - Position includes the frame.
+  pixel_bounds.x -=
+      bounds_info.window.x + bounds_info.browser.x - bounds_info.frame.x;
+  pixel_bounds.y -=
+      bounds_info.window.y + bounds_info.browser.y - bounds_info.frame.y;
+  // - Size does not include the frame.
+  pixel_bounds.width += bounds_info.window.width - bounds_info.browser.width;
+  pixel_bounds.height += bounds_info.window.height - bounds_info.browser.height;
+
+  return ClampBoundsToDisplay(pixel_bounds);
+}
+
+// Execute calls on the required threads.
+void GetPixelBoundsAndContinue(const CefRect& dip_bounds,
+                               const std::optional<BoundsInfo>& bounds_info,
+                               const std::optional<float>& device_scale_factor,
+                               base::OnceCallback<void(const CefRect&)> next) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&GetPixelBoundsAndContinue, dip_bounds,
+                                       bounds_info, device_scale_factor,
+                                       std::move(next)));
+    return;
   }
 
-  gtk_window_iconify(window);
+  CefRect pixel_bounds;
+  if (bounds_info.has_value()) {
+    pixel_bounds =
+        GetFrameBoundsInDisplay(dip_bounds, *bounds_info, device_scale_factor);
+  } else {
+    pixel_bounds = ClampBoundsToDisplay(
+        GetScreenPixelBounds(dip_bounds, device_scale_factor));
+  }
+
+  if (CURRENTLY_ON_MAIN_THREAD()) {
+    std::move(next).Run(pixel_bounds);
+  } else {
+    MAIN_POST_CLOSURE(base::BindOnce(std::move(next), pixel_bounds));
+  }
 }
 
-void MaximizeWindow(GtkWindow* window) {
-  gtk_window_maximize(window);
+void SaveWindowRestoreContinue(
+    cef_show_state_t show_state,
+    const CefRect& pixel_bounds,
+    const std::optional<float>& device_scale_factor) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::BindOnce(&SaveWindowRestoreContinue, show_state,
+                                       pixel_bounds, device_scale_factor));
+    return;
+  }
+
+  CefRect dip_bounds;
+  if (show_state == CEF_SHOW_STATE_NORMAL) {
+    dip_bounds = GetScreenDIPBounds(pixel_bounds, device_scale_factor);
+  }
+
+  prefs::SaveWindowRestorePreferences(show_state, dip_bounds);
+}
+
+void SaveWindowRestore(GtkWidget* widget,
+                       const std::optional<float>& device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+
+  GtkWindow* window = GTK_WINDOW(widget);
+
+  cef_show_state_t show_state = CEF_SHOW_STATE_NORMAL;
+  CefRect pixel_bounds;
+
+  if (!gtk_widget_get_visible(widget)) {
+    show_state = CEF_SHOW_STATE_MINIMIZED;
+  } else if (IsWindowMaximized(window)) {
+    show_state = CEF_SHOW_STATE_MAXIMIZED;
+  } else {
+    pixel_bounds = GetWindowBounds(window, /*include_frame=*/true);
+  }
+
+  SaveWindowRestoreContinue(show_state, pixel_bounds, device_scale_factor);
 }
 
 }  // namespace
@@ -117,9 +236,53 @@ void RootWindowGtk::Init(RootWindow::Delegate* delegate,
   with_controls_ = config->with_controls;
   always_on_top_ = config->always_on_top;
   with_osr_ = config->with_osr;
-  start_rect_ = config->bounds;
 
   CreateBrowserWindow(config->url);
+
+  if (CefCurrentlyOn(TID_UI)) {
+    ContinueInitOnUIThread(std::move(config), settings);
+  } else {
+    CefPostTask(TID_UI, base::BindOnce(&RootWindowGtk::ContinueInitOnUIThread,
+                                       this, std::move(config), settings));
+  }
+}
+
+void RootWindowGtk::ContinueInitOnUIThread(
+    std::unique_ptr<RootWindowConfig> config,
+    const CefBrowserSettings& settings) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!config->bounds.IsEmpty()) {
+    // Initial state was specified via the config object.
+    start_rect_ = config->bounds;
+    initial_show_state_ = config->show_state;
+  } else {
+    // Initial state may be specified via the command-line or global
+    // preferences.
+    std::optional<CefRect> bounds;
+    if (prefs::LoadWindowRestorePreferences(initial_show_state_, bounds) &&
+        bounds) {
+      start_rect_ = GetScreenPixelBounds(*bounds, std::nullopt);
+    }
+  }
+
+  if (with_osr_) {
+    initial_scale_factor_ =
+        GetScaleFactor(start_rect_, std::nullopt, /*pixel_bounds=*/true);
+  }
+
+  if (CURRENTLY_ON_MAIN_THREAD()) {
+    ContinueInitOnMainThread(std::move(config), settings);
+  } else {
+    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::ContinueInitOnMainThread,
+                                     this, std::move(config), settings));
+  }
+}
+
+void RootWindowGtk::ContinueInitOnMainThread(
+    std::unique_ptr<RootWindowConfig> config,
+    const CefBrowserSettings& settings) {
+  REQUIRE_MAIN_THREAD();
 
   initialized_ = true;
 
@@ -135,6 +298,8 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
                                 CefWindowInfo& windowInfo,
                                 CefRefPtr<CefClient>& client,
                                 CefBrowserSettings& settings) {
+  CEF_REQUIRE_UI_THREAD();
+
   DCHECK(delegate);
   DCHECK(!initialized_);
 
@@ -143,6 +308,7 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
   with_osr_ = with_osr;
   is_popup_ = true;
 
+  // NOTE: This will be the size for the whole window including frame.
   if (popupFeatures.xSet) {
     start_rect_.x = popupFeatures.x;
   }
@@ -154,6 +320,13 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
   }
   if (popupFeatures.heightSet) {
     start_rect_.height = popupFeatures.height;
+  }
+  start_rect_ =
+      ClampBoundsToDisplay(GetScreenPixelBounds(start_rect_, std::nullopt));
+
+  if (with_osr_) {
+    initial_scale_factor_ =
+        GetScaleFactor(start_rect_, std::nullopt, /*pixel_bounds=*/true);
   }
 
   CreateBrowserWindow(std::string());
@@ -203,26 +376,74 @@ void RootWindowGtk::Hide() {
   }
 }
 
-void RootWindowGtk::SetBounds(int x, int y, size_t width, size_t height) {
+void RootWindowGtk::SetBounds(int x,
+                              int y,
+                              size_t width,
+                              size_t height,
+                              bool content_bounds) {
   REQUIRE_MAIN_THREAD();
 
   if (!window_) {
     return;
   }
 
+  CefRect dip_bounds{x, y, static_cast<int>(width), static_cast<int>(height)};
+
+  GetWindowBoundsAndContinue(
+      dip_bounds, content_bounds,
+      base::BindOnce(
+          [](GtkWidget* window, const CefRect& pixel_bounds) {
+            ScopedGdkThreadsEnter scoped_gdk_threads;
+            GdkWindow* gdk_window = gtk_widget_get_window(window);
+            gdk_window_move_resize(gdk_window, pixel_bounds.x, pixel_bounds.y,
+                                   pixel_bounds.width, pixel_bounds.height);
+          },
+          base::Unretained(window_)));
+}
+
+bool RootWindowGtk::DefaultToContentBounds() const {
+  if (!WithWindowlessRendering()) {
+    // Root GtkWindow bounds are provided via GetRootWindowScreenRect.
+    return false;
+  }
+  if (osr_settings_.real_screen_bounds) {
+    // Root GtkWindow bounds are provided via GetRootScreenRect.
+    return false;
+  }
+  // The root GtkWindow will not be queried by default.
+  return true;
+}
+
+void RootWindowGtk::GetWindowBoundsAndContinue(
+    const CefRect& dip_bounds,
+    bool content_bounds,
+    base::OnceCallback<void(const CefRect& /*pixel_bounds*/)> next) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(window_);
+
   ScopedGdkThreadsEnter scoped_gdk_threads;
 
   GtkWindow* window = GTK_WINDOW(window_);
-  GdkWindow* gdk_window = gtk_widget_get_window(window_);
 
-  // Make sure the window isn't minimized or maximized.
-  if (IsWindowMaximized(window)) {
-    gtk_window_unmaximize(window);
-  } else {
-    gtk_window_present(window);
+  // Make sure the window isn't minimized or maximized. It must also be
+  // presented before we can retrieve bounds information.
+  RestoreWindow(window);
+
+  std::optional<BoundsInfo> bounds_info;
+
+  if (content_bounds) {
+    // Existing measurements in root window (pixel) coordinates.
+    GdkWindow* gdk_window = gtk_widget_get_window(window_);
+    GdkRectangle frame_rect = {};
+    gdk_window_get_frame_extents(gdk_window, &frame_rect);
+    bounds_info = {
+        {frame_rect.x, frame_rect.y, frame_rect.width, frame_rect.height},
+        GetWindowBounds(window, /*include_frame=*/false),
+        browser_bounds_};
   }
 
-  gdk_window_move_resize(gdk_window, x, y, width, height);
+  GetPixelBoundsAndContinue(dip_bounds, bounds_info, GetDeviceScaleFactor(),
+                            std::move(next));
 }
 
 void RootWindowGtk::Close(bool force) {
@@ -246,15 +467,14 @@ void RootWindowGtk::SetDeviceScaleFactor(float device_scale_factor) {
   }
 }
 
-float RootWindowGtk::GetDeviceScaleFactor() const {
+std::optional<float> RootWindowGtk::GetDeviceScaleFactor() const {
   REQUIRE_MAIN_THREAD();
 
   if (browser_window_ && with_osr_) {
     return browser_window_->GetDeviceScaleFactor();
   }
 
-  NOTREACHED();
-  return 0.0f;
+  return std::nullopt;
 }
 
 CefRefPtr<CefBrowser> RootWindowGtk::GetBrowser() const {
@@ -273,15 +493,15 @@ ClientWindowHandle RootWindowGtk::GetWindowHandle() const {
 
 bool RootWindowGtk::WithWindowlessRendering() const {
   REQUIRE_MAIN_THREAD();
+  DCHECK(initialized_);
   return with_osr_;
 }
 
 void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    OsrRendererSettings settings = {};
-    MainContext::Get()->PopulateOsrSettings(&settings);
-    browser_window_.reset(
-        new BrowserWindowOsrGtk(this, with_controls_, startup_url, settings));
+    MainContext::Get()->PopulateOsrSettings(&osr_settings_);
+    browser_window_.reset(new BrowserWindowOsrGtk(this, with_controls_,
+                                                  startup_url, osr_settings_));
   } else {
     browser_window_.reset(
         new BrowserWindowStdGtk(this, with_controls_, startup_url));
@@ -329,7 +549,7 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
                    G_CALLBACK(&RootWindowGtk::WindowDelete), this);
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
-  GdkRGBA rgba = {0};
+  GdkRGBA rgba = {};
   rgba.red = CefColorGetR(background_color) * 65535 / 255;
   rgba.green = CefColorGetG(background_color) * 65535 / 255;
   rgba.blue = CefColorGetB(background_color) * 65535 / 255;
@@ -432,6 +652,20 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings,
         ->set_xdisplay(xdisplay);
   }
 
+  if (with_osr_) {
+    std::optional<float> parent_scale_factor;
+    if (is_popup_) {
+      if (auto parent_window =
+              MainContext::Get()->GetRootWindowManager()->GetWindowForBrowser(
+                  opener_browser_id())) {
+        parent_scale_factor = parent_window->GetDeviceScaleFactor();
+      }
+    }
+
+    browser_window_->SetDeviceScaleFactor(
+        parent_scale_factor.value_or(initial_scale_factor_));
+  }
+
   if (!is_popup_) {
     // Create the browser window.
     browser_window_->CreateBrowser(parent, browser_bounds_, settings, nullptr,
@@ -525,19 +759,18 @@ void RootWindowGtk::OnAutoResize(const CefSize& new_size) {
     return;
   }
 
-  ScopedGdkThreadsEnter scoped_gdk_threads;
+  CefRect dip_bounds{0, 0, new_size.width, new_size.height};
 
-  GtkWindow* window = GTK_WINDOW(window_);
-  GdkWindow* gdk_window = gtk_widget_get_window(window_);
-
-  // Make sure the window isn't minimized or maximized.
-  if (IsWindowMaximized(window)) {
-    gtk_window_unmaximize(window);
-  } else {
-    gtk_window_present(window);
-  }
-
-  gdk_window_resize(gdk_window, new_size.width, new_size.height);
+  GetWindowBoundsAndContinue(
+      dip_bounds, /*content_bounds=*/true,
+      base::BindOnce(
+          [](GtkWidget* window, const CefRect& pixel_bounds) {
+            ScopedGdkThreadsEnter scoped_gdk_threads;
+            GdkWindow* gdk_window = gtk_widget_get_window(window);
+            gdk_window_resize(gdk_window, pixel_bounds.width,
+                              pixel_bounds.height);
+          },
+          base::Unretained(window_)));
 }
 
 void RootWindowGtk::OnSetLoadingState(bool isLoading,
@@ -561,29 +794,46 @@ void RootWindowGtk::OnSetDraggableRegions(
   // TODO(cef): Implement support for draggable regions on this platform.
 }
 
-void RootWindowGtk::NotifyMoveOrResizeStarted() {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(
-        base::BindOnce(&RootWindowGtk::NotifyMoveOrResizeStarted, this));
-    return;
+bool RootWindowGtk::GetRootWindowScreenRect(CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!window_) {
+    return false;
   }
 
+  ScopedGdkThreadsEnter scoped_gdk_threads;
+  GtkWindow* window = GTK_WINDOW(window_);
+  CefRect pixel_bounds = GetWindowBounds(window, /*include_frame=*/true);
+  rect = GetScreenDIPBounds(pixel_bounds, std::nullopt);
+  return true;
+}
+
+void RootWindowGtk::NotifyMoveOrResizeStarted() {
+  REQUIRE_MAIN_THREAD();
+
   // Called when size, position or stack order changes.
-  CefRefPtr<CefBrowser> browser = GetBrowser();
-  if (browser.get()) {
+  if (auto browser = GetBrowser()) {
     // Notify the browser of move/resize events so that:
     // - Popup windows are displayed in the correct location and dismissed
     //   when the window moves.
     // - Drag&drop areas are updated accordingly.
     browser->GetHost()->NotifyMoveOrResizeStarted();
   }
+
+  MaybeNotifyScreenInfoChanged();
+}
+
+void RootWindowGtk::MaybeNotifyScreenInfoChanged() {
+  if (!DefaultToContentBounds()) {
+    // Send the new root window bounds to the renderer.
+    if (auto browser = GetBrowser()) {
+      browser->GetHost()->NotifyScreenInfoChanged();
+    }
+  }
 }
 
 void RootWindowGtk::NotifySetFocus() {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifySetFocus, this));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   if (!browser_window_.get()) {
     return;
@@ -594,11 +844,7 @@ void RootWindowGtk::NotifySetFocus() {
 }
 
 void RootWindowGtk::NotifyVisibilityChange(bool show) {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(
-        base::BindOnce(&RootWindowGtk::NotifyVisibilityChange, this, show));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   if (!browser_window_.get()) {
     return;
@@ -646,10 +892,7 @@ void RootWindowGtk::NotifyContentBounds(int x, int y, int width, int height) {
 }
 
 void RootWindowGtk::NotifyLoadURL(const std::string& url) {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyLoadURL, this, url));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser.get()) {
@@ -658,11 +901,7 @@ void RootWindowGtk::NotifyLoadURL(const std::string& url) {
 }
 
 void RootWindowGtk::NotifyButtonClicked(int id) {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(
-        base::BindOnce(&RootWindowGtk::NotifyButtonClicked, this, id));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (!browser.get()) {
@@ -688,10 +927,7 @@ void RootWindowGtk::NotifyButtonClicked(int id) {
 }
 
 void RootWindowGtk::NotifyMenuItem(int id) {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyMenuItem, this, id));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   // Run the test.
   if (delegate_) {
@@ -700,19 +936,13 @@ void RootWindowGtk::NotifyMenuItem(int id) {
 }
 
 void RootWindowGtk::NotifyForceClose() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(&RootWindowGtk::NotifyForceClose, this));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   force_close_ = true;
 }
 
 void RootWindowGtk::NotifyCloseBrowser() {
-  if (!CURRENTLY_ON_MAIN_THREAD()) {
-    MAIN_POST_CLOSURE(base::BindOnce(&RootWindowGtk::NotifyCloseBrowser, this));
-    return;
-  }
+  REQUIRE_MAIN_THREAD();
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser) {
@@ -798,15 +1028,18 @@ gboolean RootWindowGtk::WindowDelete(GtkWidget* widget,
                                      RootWindowGtk* self) {
   REQUIRE_MAIN_THREAD();
 
+  SaveWindowRestore(widget, self->GetDeviceScaleFactor());
+
   // Called to query whether the root window should be closed.
   if (self->force_close_) {
     return FALSE;  // Allow the close.
   }
 
   if (!self->is_closing_) {
-    // Notify the browser window that we would like to close it. This
-    // will result in a call to ClientHandler::DoClose() if the
-    // JavaScript 'onbeforeunload' event handler allows it.
+    // Notify the browser window that we would like to close it. With Alloy
+    // style this will result in a call to ClientHandler::DoClose() if the
+    // JavaScript 'onbeforeunload' event handler allows it. With Chrome style
+    // this will close the window indirectly via browser destruction.
     self->NotifyCloseBrowser();
 
     // Cancel the close.

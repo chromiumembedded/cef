@@ -94,6 +94,8 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
                         const content::OpenURLParams& params,
                         base::OnceCallback<void(content::NavigationHandle&)>&
                             navigation_handle_callback) override;
+  bool SetContentsBoundsEx(content::WebContents* source,
+                           const gfx::Rect& bounds) override;
 
   // WebContentsDelegate methods:
   void WebContentsCreated(content::WebContents* source_contents,

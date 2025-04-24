@@ -142,6 +142,18 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTabEx(
   return nullptr;
 }
 
+bool CefBrowserContentsDelegate::SetContentsBoundsEx(
+    content::WebContents* source,
+    const gfx::Rect& bounds) {
+  if (auto c = client()) {
+    if (auto handler = c->GetDisplayHandler()) {
+      return handler->OnContentsBoundsChange(
+          browser(), {bounds.x(), bounds.y(), bounds.width(), bounds.height()});
+    }
+  }
+  return false;
+}
+
 void CefBrowserContentsDelegate::LoadingStateChanged(
     content::WebContents* source,
     bool should_show_loading_ui) {

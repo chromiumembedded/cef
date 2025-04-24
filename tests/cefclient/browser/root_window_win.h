@@ -14,6 +14,7 @@
 #include <string>
 
 #include "tests/cefclient/browser/browser_window.h"
+#include "tests/cefclient/browser/osr_renderer_settings.h"
 #include "tests/cefclient/browser/root_window.h"
 
 namespace client {
@@ -40,10 +41,15 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
                    CefBrowserSettings& settings) override;
   void Show(ShowMode mode) override;
   void Hide() override;
-  void SetBounds(int x, int y, size_t width, size_t height) override;
+  void SetBounds(int x,
+                 int y,
+                 size_t width,
+                 size_t height,
+                 bool content_bounds) override;
+  bool DefaultToContentBounds() const override;
   void Close(bool force) override;
   void SetDeviceScaleFactor(float device_scale_factor) override;
-  float GetDeviceScaleFactor() const override;
+  std::optional<float> GetDeviceScaleFactor() const override;
   CefRefPtr<CefBrowser> GetBrowser() const override;
   ClientWindowHandle GetWindowHandle() const override;
   bool WithWindowlessRendering() const override;
@@ -57,6 +63,11 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   void CreateBrowserWindow(const std::string& startup_url);
   void CreateRootWindow(const CefBrowserSettings& settings,
                         bool initially_hidden);
+
+  void GetWindowBoundsAndContinue(
+      const CefRect& dip_bounds,
+      bool content_bounds,
+      base::OnceCallback<void(const CefRect& /*pixel_bounds*/)> next);
 
   // Register the root window class.
   static void RegisterRootClass(HINSTANCE hInstance,
@@ -106,6 +117,10 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   void OnSetTitle(const std::string& title) override;
   void OnSetFullscreen(bool fullscreen) override;
   void OnAutoResize(const CefSize& new_size) override;
+  void OnContentsBounds(const CefRect& new_bounds) override {
+    RootWindow::SetBounds(new_bounds,
+                          /*content_bounds=*/DefaultToContentBounds());
+  }
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) override;
@@ -114,6 +129,8 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
 
   void NotifyDestroyedIfDone();
 
+  void MaybeNotifyScreenInfoChanged();
+
   static void SaveWindowRestoreOnUIThread(const WINDOWPLACEMENT& placement);
 
   // After initialization all members are only accessed on the main thread.
@@ -121,9 +138,11 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   bool with_controls_ = false;
   bool always_on_top_ = false;
   bool with_osr_ = false;
+  OsrRendererSettings osr_settings_;
   bool is_popup_ = false;
   CefRect initial_bounds_;
   cef_show_state_t initial_show_state_ = CEF_SHOW_STATE_NORMAL;
+  float initial_scale_factor_ = 1.0;
   std::unique_ptr<BrowserWindow> browser_window_;
   CefBrowserSettings browser_settings_;
 

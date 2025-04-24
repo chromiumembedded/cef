@@ -13,6 +13,7 @@
 #include "include/views/cef_browser_view.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/root_window.h"
 #include "tests/cefclient/browser/test_runner.h"
 #include "tests/cefclient/browser/window_test_runner.h"
 #include "tests/cefclient/browser/window_test_runner_views.h"
@@ -40,7 +41,8 @@ const char kMessageTitlebarHeightName[] = "WindowTest.TitlebarHeight";
 // Create the appropriate platform test runner object.
 std::unique_ptr<WindowTestRunner> CreateWindowTestRunner(
     CefRefPtr<CefBrowser> browser) {
-  if (CefBrowserView::GetForBrowser(browser)) {
+  auto root_window = RootWindow::GetForBrowser(browser->GetIdentifier());
+  if (root_window->IsViewsHosted()) {
     // Browser is Views-hosted.
     return std::make_unique<WindowTestRunnerViews>();
   }
@@ -99,6 +101,20 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       return false;
     }
 
+    RunOnMainThread(browser, request, callback);
+    return true;
+  }
+
+ private:
+  static void RunOnMainThread(CefRefPtr<CefBrowser> browser,
+                              const CefString& request,
+                              CefRefPtr<Callback> callback) {
+    if (!CURRENTLY_ON_MAIN_THREAD()) {
+      MAIN_POST_CLOSURE(base::BindOnce(&Handler::RunOnMainThread, browser,
+                                       request, callback));
+      return;
+    }
+
     auto runner = CreateWindowTestRunner(browser);
 
     const std::string& message_name = request;
@@ -123,7 +139,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     }
 
     callback->Success("");
-    return true;
   }
 };
 

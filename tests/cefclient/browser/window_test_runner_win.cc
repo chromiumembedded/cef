@@ -27,52 +27,13 @@ void Toggle(HWND root_hwnd, UINT nCmdShow) {
   }
 }
 
-void SetPosImpl(CefRefPtr<CefBrowser> browser,
-                int x,
-                int y,
-                int width,
-                int height) {
-  HWND root_hwnd = GetRootHwnd(browser);
-  if (!root_hwnd) {
-    return;
-  }
+}  // namespace
 
-  // Retrieve current window placement information.
-  WINDOWPLACEMENT placement;
-  ::GetWindowPlacement(root_hwnd, &placement);
+WindowTestRunnerWin::WindowTestRunnerWin() = default;
 
-  // Retrieve information about the display that contains the window.
-  HMONITOR monitor =
-      MonitorFromRect(&placement.rcNormalPosition, MONITOR_DEFAULTTONEAREST);
-  MONITORINFO info;
-  info.cbSize = sizeof(info);
-  GetMonitorInfo(monitor, &info);
+void WindowTestRunnerWin::Minimize(CefRefPtr<CefBrowser> browser) {
+  REQUIRE_MAIN_THREAD();
 
-  // Make sure the window is inside the display.
-  CefRect display_rect(info.rcWork.left, info.rcWork.top,
-                       info.rcWork.right - info.rcWork.left,
-                       info.rcWork.bottom - info.rcWork.top);
-  CefRect window_rect(x, y, width, height);
-  WindowTestRunner::ModifyBounds(display_rect, window_rect);
-
-  if (placement.showCmd == SW_SHOWMINIMIZED ||
-      placement.showCmd == SW_SHOWMAXIMIZED) {
-    // The window is currently minimized or maximized. Restore it to the desired
-    // position.
-    placement.rcNormalPosition.left = window_rect.x;
-    placement.rcNormalPosition.right = window_rect.x + window_rect.width;
-    placement.rcNormalPosition.top = window_rect.y;
-    placement.rcNormalPosition.bottom = window_rect.y + window_rect.height;
-    ::SetWindowPlacement(root_hwnd, &placement);
-    ::ShowWindow(root_hwnd, SW_RESTORE);
-  } else {
-    // Set the window position.
-    ::SetWindowPos(root_hwnd, nullptr, window_rect.x, window_rect.y,
-                   window_rect.width, window_rect.height, SWP_NOZORDER);
-  }
-}
-
-void MinimizeImpl(CefRefPtr<CefBrowser> browser) {
   HWND root_hwnd = GetRootHwnd(browser);
   if (!root_hwnd) {
     return;
@@ -80,7 +41,9 @@ void MinimizeImpl(CefRefPtr<CefBrowser> browser) {
   Toggle(root_hwnd, SW_MINIMIZE);
 }
 
-void MaximizeImpl(CefRefPtr<CefBrowser> browser) {
+void WindowTestRunnerWin::Maximize(CefRefPtr<CefBrowser> browser) {
+  REQUIRE_MAIN_THREAD();
+
   HWND root_hwnd = GetRootHwnd(browser);
   if (!root_hwnd) {
     return;
@@ -88,56 +51,14 @@ void MaximizeImpl(CefRefPtr<CefBrowser> browser) {
   Toggle(root_hwnd, SW_MAXIMIZE);
 }
 
-void RestoreImpl(CefRefPtr<CefBrowser> browser) {
+void WindowTestRunnerWin::Restore(CefRefPtr<CefBrowser> browser) {
+  REQUIRE_MAIN_THREAD();
+
   HWND root_hwnd = GetRootHwnd(browser);
   if (!root_hwnd) {
     return;
   }
   ::ShowWindow(root_hwnd, SW_RESTORE);
-}
-
-}  // namespace
-
-WindowTestRunnerWin::WindowTestRunnerWin() = default;
-
-void WindowTestRunnerWin::SetPos(CefRefPtr<CefBrowser> browser,
-                                 int x,
-                                 int y,
-                                 int width,
-                                 int height) {
-  if (CURRENTLY_ON_MAIN_THREAD()) {
-    SetPosImpl(browser, x, y, width, height);
-  } else {
-    // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::BindOnce(SetPosImpl, browser, x, y, width, height));
-  }
-}
-
-void WindowTestRunnerWin::Minimize(CefRefPtr<CefBrowser> browser) {
-  if (CURRENTLY_ON_MAIN_THREAD()) {
-    MinimizeImpl(browser);
-  } else {
-    // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::BindOnce(MinimizeImpl, browser));
-  }
-}
-
-void WindowTestRunnerWin::Maximize(CefRefPtr<CefBrowser> browser) {
-  if (CURRENTLY_ON_MAIN_THREAD()) {
-    MaximizeImpl(browser);
-  } else {
-    // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::BindOnce(MaximizeImpl, browser));
-  }
-}
-
-void WindowTestRunnerWin::Restore(CefRefPtr<CefBrowser> browser) {
-  if (CURRENTLY_ON_MAIN_THREAD()) {
-    RestoreImpl(browser);
-  } else {
-    // Execute on the main application thread.
-    MAIN_POST_CLOSURE(base::BindOnce(RestoreImpl, browser));
-  }
 }
 
 }  // namespace client::window_test

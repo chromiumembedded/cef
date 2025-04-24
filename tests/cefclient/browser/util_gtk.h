@@ -6,8 +6,11 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_UTIL_GTK_H_
 #pragma once
 
+#include <gtk/gtk.h>
+
 #include "include/base/cef_macros.h"
 #include "include/base/cef_platform_thread.h"
+#include "include/internal/cef_types_wrappers.h"
 
 namespace client {
 
@@ -35,6 +38,16 @@ class ScopedGdkThreadsEnter {
 
   DISALLOW_COPY_AND_ASSIGN(ScopedGdkThreadsEnter);
 };
+
+// Returns the window bounds in root window (pixel) coordinates.
+CefRect GetWindowBounds(GtkWindow* window, bool include_frame);
+
+bool IsWindowMaximized(GtkWindow* window);
+void MinimizeWindow(GtkWindow* window);
+void MaximizeWindow(GtkWindow* window);
+
+// Make sure the window isn't minimized or maximized.
+void RestoreWindow(GtkWindow* window);
 
 }  // namespace client
 
