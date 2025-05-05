@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index f80d8ecc385df..b879741c441af 100644
+index 2896b2b15d9c2..8e12c2134117c 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -3916,6 +3916,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3922,6 +3922,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index f80d8ecc385df..b879741c441af 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -3926,6 +3932,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -3932,6 +3938,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index f80d8ecc385df..b879741c441af 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -4136,6 +4143,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -4142,6 +4149,9 @@ void WebContentsImpl::RenderWidgetCreated(
                          "render_widget_host", render_widget_host);
    CHECK(!created_widgets_.contains(render_widget_host->GetFrameSinkId()));
    created_widgets_[render_widget_host->GetFrameSinkId()] = render_widget_host;
@@ -33,7 +33,7 @@ index f80d8ecc385df..b879741c441af 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -5055,6 +5065,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -5061,6 +5071,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index f80d8ecc385df..b879741c441af 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -9764,6 +9783,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -9777,6 +9796,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -59,7 +59,7 @@ index f80d8ecc385df..b879741c441af 100644
  }
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
-@@ -10411,6 +10433,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10424,6 +10446,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
    OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::Resize");
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -71,7 +71,7 @@ index f80d8ecc385df..b879741c441af 100644
    window->SetBounds(gfx::Rect(window->bounds().origin(), new_bounds.size()));
  #elif BUILDFLAG(IS_ANDROID)
    content::RenderWidgetHostView* view = GetRenderWidgetHostView();
-@@ -10423,6 +10450,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10436,6 +10463,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
  gfx::Size WebContentsImpl::GetSize() {
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -179,10 +179,10 @@ index da319cb207331..bcd4de085fa6b 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 9f9f4cc755886..305095e5ef2f2 100644
+index e06a02965a79f..0f587338a513e 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -255,6 +255,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -259,6 +259,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // to forwardGestures(), whichever the case ends up being.
    virtual void OnCapturedSurfaceControl() {}
  
@@ -192,7 +192,7 @@ index 9f9f4cc755886..305095e5ef2f2 100644
    // This method is invoked when the `blink::WebView` of the current
    // RenderViewHost is ready, e.g. because we recreated it after a crash.
    virtual void RenderViewReady() {}
-@@ -949,6 +952,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -953,6 +956,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

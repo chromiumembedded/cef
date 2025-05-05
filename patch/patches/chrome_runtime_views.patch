@@ -41,7 +41,7 @@ index 3fcd374a0223f..37a4d0a0b2fe4 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 3dc212eb62ae8..4191ffa5f52a8 100644
+index 4afe64b8b2f33..d1997e0ff5485 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -736,10 +736,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -115,7 +115,7 @@ index 3dc212eb62ae8..4191ffa5f52a8 100644
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1748,7 +1801,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1747,7 +1800,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 3dc212eb62ae8..4191ffa5f52a8 100644
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1764,6 +1817,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1763,6 +1816,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 3dc212eb62ae8..4191ffa5f52a8 100644
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1919,8 +1996,10 @@ void AppMenuModel::Build() {
+@@ -1918,8 +1995,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 3dc212eb62ae8..4191ffa5f52a8 100644
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -2028,6 +2107,11 @@ void AppMenuModel::Build() {
+@@ -2027,6 +2106,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
