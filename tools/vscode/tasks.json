@@ -110,11 +110,11 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirDebugRelative}",
+        ".",
         "cef"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirDebugRelative}"
       },
       "group": {
         "kind": "build",
@@ -127,11 +127,11 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirReleaseRelative}",
+        ".",
         "cef"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirReleaseRelative}"
       },
       "group": {
         "kind": "build"
@@ -146,7 +146,7 @@
         "--file-path=${file}"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirDebugRelative}"
       }
     },
     {
@@ -158,7 +158,7 @@
         "--file-path=${file}"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirReleaseRelative}"
       }
     },
     {
@@ -167,12 +167,12 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirDebugRelative}",
+        ".",
         "ceftests",
         "libcef_static_unittests"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirDebugRelative}"
       }
     },
     {
@@ -181,12 +181,12 @@
       "command": "autoninja",
       "args": [
         "-C",
-        "${config:cef.outputDirReleaseRelative}",
+        ".",
         "ceftests",
         "libcef_static_unittests"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}/${config:cef.outputDirReleaseRelative}"
       }
     }
   ]
