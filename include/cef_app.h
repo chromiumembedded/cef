@@ -72,8 +72,8 @@ int CefExecuteProcess(const CefMainArgs& args,
 /// early exit is desired (for example, due to process singleton relaunch
 /// behavior). If this function returns false then the application should exit
 /// immediately without calling any other CEF functions except, optionally,
-/// CefGetErrorCode. The |windows_sandbox_info| parameter is only used on
-/// Windows and may be NULL (see cef_sandbox_win.h for details).
+/// CefGetExitCode. The |windows_sandbox_info| parameter is only used on Windows
+/// and may be NULL (see cef_sandbox_win.h for details).
 ///
 /*--cef(api_hash_check,optional_param=application,
         optional_param=windows_sandbox_info)--*/
