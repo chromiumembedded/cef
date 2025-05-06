@@ -1,8 +1,16 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 274e997b7c3c4..fc2f8b5e17680 100644
+index b914ce39d47f8..bbacc1e021d3d 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
-@@ -668,6 +668,25 @@ void CookieMonster::SetCookieableSchemes(
+@@ -55,6 +55,7 @@
+ #include <set>
+ #include <string_view>
+ #include <tuple>
++#include <unordered_set>
+ #include <utility>
+ #include <vector>
+ 
+@@ -669,6 +670,50 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -18,9 +26,34 @@ index 274e997b7c3c4..fc2f8b5e17680 100644
 +    return;
 +  }
 +
++  for (const auto& element : schemes) {
++    if (std::find(cookieable_schemes_.begin(), cookieable_schemes_.end(),
++                  element) == cookieable_schemes_.end()) {
++      cookieable_schemes_.push_back(element);
++    }
++  }
++  MaybeRunCookieCallback(std::move(callback), true);
++}
++
++void CookieMonster::RemoveCookieableSchemes(
++    const std::vector<std::string>& schemes,
++    SetCookieableSchemesCallback callback) {
++  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
++
++  // Calls to this method will have no effect if made after a WebView or
++  // CookieManager instance has been created.
++  if (initialized_) {
++    MaybeRunCookieCallback(std::move(callback), false);
++    return;
++  }
++
 +  if (!schemes.empty()) {
-+    cookieable_schemes_.insert(cookieable_schemes_.begin(), schemes.begin(),
-+                               schemes.end());
++    std::unordered_set<std::string> set(schemes.begin(), schemes.end());
++    auto it = std::remove_if(
++        cookieable_schemes_.begin(),
++        cookieable_schemes_.end(),
++        [&](const auto& s) { return set.count(s); });
++    cookieable_schemes_.erase(it, cookieable_schemes_.end());
 +  }
 +  MaybeRunCookieCallback(std::move(callback), true);
 +}
@@ -29,23 +62,25 @@ index 274e997b7c3c4..fc2f8b5e17680 100644
  void CookieMonster::SetPersistSessionCookies(bool persist_session_cookies) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
 diff --git net/cookies/cookie_monster.h net/cookies/cookie_monster.h
-index 66fc28e1eae7c..243fd76546952 100644
+index df271609ba4a2..151e7627b8230 100644
 --- net/cookies/cookie_monster.h
 +++ net/cookies/cookie_monster.h
-@@ -238,6 +238,8 @@ class NET_EXPORT CookieMonster : public CookieStore {
+@@ -238,6 +238,10 @@ class NET_EXPORT CookieMonster : public CookieStore {
    CookieChangeDispatcher& GetChangeDispatcher() override;
-   void SetCookieableSchemes(const std::vector<std::string>& schemes,
+   void SetCookieableSchemes(std::vector<std::string> schemes,
                              SetCookieableSchemesCallback callback) override;
 +  void AddCookieableSchemes(const std::vector<std::string>& schemes,
 +                            SetCookieableSchemesCallback callback) override;
++  void RemoveCookieableSchemes(const std::vector<std::string>& schemes,
++                               SetCookieableSchemesCallback callback) override;
    std::optional<bool> SiteHasCookieInOtherPartition(
        const net::SchemefulSite& site,
-       const std::optional<CookiePartitionKey>& partition_key) const override;
+       const CookiePartitionKey& partition_key) const override;
 diff --git net/cookies/cookie_store.h net/cookies/cookie_store.h
-index 7c76c93f798b2..09f62ad48ccb4 100644
+index 441765abb8cd8..1c927eb59cc2a 100644
 --- net/cookies/cookie_store.h
 +++ net/cookies/cookie_store.h
-@@ -171,6 +171,11 @@ class NET_EXPORT CookieStore {
+@@ -171,6 +171,17 @@ class NET_EXPORT CookieStore {
    // Transfer ownership of a CookieAccessDelegate.
    void SetCookieAccessDelegate(std::unique_ptr<CookieAccessDelegate> delegate);
  
@@ -54,36 +89,43 @@ index 7c76c93f798b2..09f62ad48ccb4 100644
 +  virtual void AddCookieableSchemes(const std::vector<std::string>& schemes,
 +                                    SetCookieableSchemesCallback callback) = 0;
 +
++  // Removes from the list of cookieable schemes. Does nothing if called after
++  // first use of the instance (i.e. after the instance initialization process).
++  virtual void RemoveCookieableSchemes(
++      const std::vector<std::string>& schemes,
++      SetCookieableSchemesCallback callback) = 0;
++
    // This may be null if no delegate has been set yet, or the delegate has been
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index 95f73bcb9fb40..e17a93f69c089 100644
+index fb47ecfba4a4d..0896266df56e7 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -355,14 +355,9 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -342,13 +342,13 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
--  std::vector<std::string> cookieable_schemes(
--      net::CookieMonster::kDefaultCookieableSchemes,
--      net::CookieMonster::kDefaultCookieableSchemes +
--          net::CookieMonster::kDefaultCookieableSchemesCount);
--  if (allow) {
--    cookieable_schemes.push_back(url::kFileScheme);
--  }
--  cookie_store_->SetCookieableSchemes(cookieable_schemes, std::move(callback));
-+  if (!allow)
-+    return;
-+  cookie_store_->AddCookieableSchemes({url::kFileScheme}, std::move(callback));
+-  std::vector<std::string> cookieable_schemes =
+-      net::CookieMonster::GetDefaultCookieableSchemes();
+   if (allow) {
+-    cookieable_schemes.emplace_back(url::kFileScheme);
++    cookie_store_->AddCookieableSchemes({url::kFileScheme},
++                                        std::move(callback));
++  } else {
++    cookie_store_->RemoveCookieableSchemes({url::kFileScheme},
++                                           std::move(callback));
+   }
+-  cookie_store_->SetCookieableSchemes(std::move(cookieable_schemes),
+-                                      std::move(callback));
  }
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 8014bb16d8108..bc8e80e9eb9c3 100644
+index 616f639ce1cad..685178b2fbd5d 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2821,22 +2821,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2807,22 +2807,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -127,10 +169,10 @@ index 8014bb16d8108..bc8e80e9eb9c3 100644
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index a9c82bcf9a4eb..61afe5bf737ce 100644
+index 4ea464b2b6c00..accfb976c960b 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -361,6 +361,9 @@ struct NetworkContextParams {
+@@ -362,6 +362,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

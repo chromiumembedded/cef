@@ -550,10 +550,11 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     std::unique_ptr<base::Environment> env(base::Environment::Create());
     std::string val_str;
 
-    if (env->GetVar("CEF_CRASH_REPORTER_SERVER_URL", &val_str)) {
+    if (const auto& var_str = env->GetVar("CEF_CRASH_REPORTER_SERVER_URL")) {
       ParseURL(val_str, &server_url_);
     }
-    if (env->GetVar("CEF_CRASH_REPORTER_RATE_LIMIT_ENABLED", &val_str)) {
+    if (const auto& var_str =
+            env->GetVar("CEF_CRASH_REPORTER_RATE_LIMIT_ENABLED")) {
       rate_limit_ = ParseBool(val_str);
     }
   }
@@ -642,11 +643,9 @@ bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   // By setting the BREAKPAD_DUMP_LOCATION environment variable, an alternate
   // location to write breakpad crash dumps can be set.
   std::unique_ptr<base::Environment> env(base::Environment::Create());
-  std::string alternate_crash_dump_location;
-  if (env->GetVar("BREAKPAD_DUMP_LOCATION", &alternate_crash_dump_location)) {
-    base::FilePath crash_dumps_dir_path =
-        base::FilePath::FromUTF8Unsafe(alternate_crash_dump_location);
-    base::PathService::Override(chrome::DIR_CRASH_DUMPS, crash_dumps_dir_path);
+  if (const auto& val = env->GetVar("BREAKPAD_DUMP_LOCATION")) {
+    base::PathService::Override(chrome::DIR_CRASH_DUMPS,
+                                base::FilePath::FromUTF8Unsafe(*val));
   }
   return base::PathService::Get(chrome::DIR_CRASH_DUMPS, crash_dir);
 }
@@ -726,8 +725,7 @@ bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
 // storage for each key size and later substituting the actual key name during
 // crash dump processing.
 
-#define IDKEY(name) \
-  { name, IDKey::Tag::kArray }
+#define IDKEY(name) {name, IDKey::Tag::kArray}
 
 #define IDKEY_ENTRIES(n)                                                     \
   IDKEY(n "-A"), IDKEY(n "-B"), IDKEY(n "-C"), IDKEY(n "-D"), IDKEY(n "-E"), \

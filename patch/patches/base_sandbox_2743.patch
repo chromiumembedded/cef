@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 50893c5653a42..75dd03c3df9a8 100644
+index 59721ed3c9e26..c0ee7567a534c 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
@@ -10,8 +10,8 @@ index 50893c5653a42..75dd03c3df9a8 100644
  import("//testing/libfuzzer/fuzzer_test.gni")
  import("//testing/test.gni")
  
-@@ -1518,7 +1519,13 @@ component("base") {
-     "hash/md5_constexpr_internal.h",
+@@ -1531,7 +1532,13 @@ component("base") {
+     "hash/md5.h",
      "hash/sha1.h",
    ]
 -  if (is_nacl) {
@@ -25,7 +25,7 @@ index 50893c5653a42..75dd03c3df9a8 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1968,6 +1975,12 @@ component("base") {
+@@ -1982,6 +1989,12 @@ component("base") {
        defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
      }
  
@@ -60,7 +60,7 @@ index f680f63cffc5b..9cb615bbc8a5a 100644
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
-index 215d636fec275..922e88f31b999 100644
+index 4d358570d81c5..09bf13a965541 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -11,8 +11,9 @@
@@ -90,7 +90,7 @@ index 2158b648ca58a..8a8cb13b2fd74 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/json/json_reader.cc base/json/json_reader.cc
-index 48a9b893d3f9d..a5a2223b2a0fa 100644
+index f32622d353f1d..def35a3ae1c5c 100644
 --- base/json/json_reader.cc
 +++ base/json/json_reader.cc
 @@ -12,8 +12,9 @@
@@ -113,7 +113,7 @@ index 48a9b893d3f9d..a5a2223b2a0fa 100644
  
  namespace {
  const char kSecurityJsonParsingTime[] = "Security.JSONParser.ParsingTime";
-@@ -138,7 +139,7 @@ namespace base {
+@@ -137,7 +138,7 @@ namespace base {
  std::optional<Value> JSONReader::Read(std::string_view json,
                                        int options,
                                        size_t max_depth) {
@@ -122,7 +122,7 @@ index 48a9b893d3f9d..a5a2223b2a0fa 100644
    internal::JSONParser parser(options, max_depth);
    return parser.Parse(json);
  #else   // BUILDFLAG(IS_NACL)
-@@ -183,7 +184,7 @@ std::optional<Value::List> JSONReader::ReadList(std::string_view json,
+@@ -182,7 +183,7 @@ std::optional<Value::List> JSONReader::ReadList(std::string_view json,
  JSONReader::Result JSONReader::ReadAndReturnValueWithError(
      std::string_view json,
      int options) {
@@ -131,7 +131,7 @@ index 48a9b893d3f9d..a5a2223b2a0fa 100644
    internal::JSONParser parser(options);
    auto value = parser.Parse(json);
    if (!value) {
-@@ -224,7 +225,7 @@ bool JSONReader::UsingRust() {
+@@ -223,7 +224,7 @@ bool JSONReader::UsingRust() {
    if (!base::FeatureList::GetInstance()) {
      return false;
    }
@@ -141,7 +141,7 @@ index 48a9b893d3f9d..a5a2223b2a0fa 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 22aa478001fb5..e799d8da52589 100644
+index 26ba1a286e451..99b2ce6feb274 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -51,6 +51,7 @@
@@ -152,7 +152,7 @@ index 22aa478001fb5..e799d8da52589 100644
  #include "third_party/abseil-cpp/absl/base/internal/raw_logging.h"
  #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
  
-@@ -538,7 +539,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+@@ -530,7 +531,7 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
    }
  #endif
  

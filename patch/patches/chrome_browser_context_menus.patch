@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 60543740c1b66..0f76b20df356a 100644
+index a333dcbe56bd2..cf34318b16f04 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -351,6 +351,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -60,7 +60,7 @@ index 60543740c1b66..0f76b20df356a 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3643,6 +3673,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -3648,6 +3678,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  

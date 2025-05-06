@@ -32,10 +32,10 @@ index daecebb507070..aed51c2e6b06e 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 963360a3247e1..18e6a1db9a73e 100644
+index 8eca0f15ad724..214eb82df050d 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-@@ -56,7 +56,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
+@@ -58,7 +58,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
      ui::CursorFactory::GetInstance()->ObserveThemeChanges();
    }
  #if BUILDFLAG(USE_DBUS)
@@ -129,10 +129,10 @@ index e41728dd81663..a6396a778cae6 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index dcf2d14d92f8b..ec99022b1f2ae 100644
+index 0c6d689295a03..dd63350a153c5 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -693,7 +693,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -694,7 +694,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -144,7 +144,7 @@ index dcf2d14d92f8b..ec99022b1f2ae 100644
      return false;
    }
    return NativeTheme::ShouldUseDarkColors();
-@@ -701,7 +704,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -702,7 +705,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
@@ -153,7 +153,7 @@ index dcf2d14d92f8b..ec99022b1f2ae 100644
      return NativeTheme::CalculatePreferredColorScheme();
    }
  
-@@ -1687,9 +1690,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1688,9 +1691,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {

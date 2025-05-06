@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index 617b7a582f133..8abc1bf0e6366 100644
+index fa4beef133fd9..bc19a7b8bcc84 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
-@@ -838,6 +838,11 @@ class BLINK_PLATFORM_EXPORT Platform {
+@@ -837,6 +837,11 @@ class BLINK_PLATFORM_EXPORT Platform {
    }
  #endif
  

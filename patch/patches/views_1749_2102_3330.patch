@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 15a2e6f3eac5f..d1db608df307f 100644
+index ff43c838c27b0..fb6c69c99c3cf 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1043,7 +1043,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -58,10 +58,10 @@ index ecd8177fd48cb..63d94b6f39a7b 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index f015a54360dd9..6e579c1b7ad9e 100644
+index 8221222fba3d7..bf4ebd91d14b6 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -686,6 +686,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
+@@ -682,6 +682,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
    }
  }
  
@@ -76,7 +76,7 @@ index f015a54360dd9..6e579c1b7ad9e 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -2156,6 +2164,18 @@ void RenderText::OnTextAttributeChanged() {
+@@ -2152,6 +2160,18 @@ void RenderText::OnTextAttributeChanged() {
    text_elided_ = false;
  
    layout_text_up_to_date_ = false;
@@ -164,7 +164,7 @@ index 8efaccff40e09..e420e2f4e80ec 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 774640f711d13..54325afd0b1a5 100644
+index a4982c41f94e5..2301912c6991f 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -56,12 +56,29 @@ enum LabelPropertyKey {
@@ -254,7 +254,7 @@ index b4cb7c83a3e4c..562e096930147 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index c5f3700f8f04b..84b0d56977dbd 100644
+index a777b6b4c61c2..456e2b04848fc 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -589,7 +589,8 @@ void MenuController::Run(Widget* parent,
@@ -283,7 +283,7 @@ index c5f3700f8f04b..84b0d56977dbd 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3099,7 +3102,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3100,7 +3103,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index c5f3700f8f04b..84b0d56977dbd 100644
      return;
    }
  
-@@ -3124,6 +3131,7 @@ void MenuController::CloseSubmenu() {
+@@ -3125,6 +3132,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -749,10 +749,10 @@ index da772edd48c00..43c930e932287 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index e997f21d56ce8..ca69158a8dbfa 100644
+index 32ad737090b8d..4b9372a4b82c0 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
-@@ -273,6 +273,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+@@ -274,6 +274,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
    scroll_down_button_ = background_view_->AddChildView(
        std::make_unique<MenuScrollButton>(content_view, false));
  
@@ -789,7 +789,7 @@ index 548bd04490964..9772363322649 100644
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index cca938ad25cda..e7f12dedfe565 100644
+index ae7eab37f12ba..a21fb91688c0c 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@
@@ -800,7 +800,7 @@ index cca938ad25cda..e7f12dedfe565 100644
  #include "base/types/pass_key.h"
  #include "build/build_config.h"
  #include "third_party/skia/include/core/SkPath.h"
-@@ -290,7 +291,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -316,7 +317,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::EventTarget,
                            public ui::EventHandler,
                            public ui::PropertyHandler,
@@ -810,7 +810,7 @@ index cca938ad25cda..e7f12dedfe565 100644
    // Do not remove this macro!
    // The macro is maintained by the memory safety team.
    ADVANCED_MEMORY_SAFETY_CHECKS();
-@@ -615,7 +617,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -669,7 +671,7 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
  
    // Return the preferred height for a specific width. It is a helper function
    // of GetPreferredSize(SizeBounds(w, SizeBound())).height().

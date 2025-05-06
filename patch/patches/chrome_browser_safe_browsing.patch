@@ -1,5 +1,5 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index 50c6735fe6074..749fb1ff46146 100644
+index 7b88f06c0d08a..b5ff530eae6fa 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
 @@ -37,6 +37,7 @@ static_library("safe_browsing") {
@@ -10,3 +10,11 @@ index 50c6735fe6074..749fb1ff46146 100644
      "//components/keyed_service/content",
      "//components/language/core/browser",
      "//components/no_state_prefetch/browser",
+@@ -217,6 +218,7 @@ static_library("safe_browsing") {
+       "//chrome/browser/content_settings:content_settings_factory",
+       "//chrome/browser/download",
+       "//chrome/browser/enterprise/connectors/analysis:features",
++      "//chrome/browser/permissions:permissions_proto",
+       "//chrome/browser/profiles:profile",
+       "//chrome/browser/ui/safety_hub",
+       "//chrome/common/safe_browsing:archive_analyzer_results",

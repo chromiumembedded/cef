@@ -218,7 +218,7 @@ display::Display GetDisplayNearestPoint(const gfx::Point& point,
 #if BUILDFLAG(IS_WIN)
   if (input_pixel_coords) {
     find_point = gfx::ToFlooredPoint(
-        display::win::ScreenWin::ScreenToDIPPoint(gfx::PointF(point)));
+        display::win::GetScreenWin()->ScreenToDIPPoint(gfx::PointF(point)));
   }
 #endif
   return display::Screen::GetScreen()->GetDisplayNearestPoint(find_point);
@@ -230,7 +230,7 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
 #if BUILDFLAG(IS_WIN)
   if (input_pixel_coords) {
     find_bounds =
-        display::win::ScreenWin::ScreenToDIPRect(nullptr, find_bounds);
+        display::win::GetScreenWin()->ScreenToDIPRect(nullptr, find_bounds);
   }
 #endif
   return display::Screen::GetScreen()->GetDisplayMatching(find_bounds);
@@ -249,19 +249,19 @@ void ConvertPointToPixels(gfx::Point* point, float device_scale_factor) {
 #if BUILDFLAG(IS_WIN)
 gfx::Point ConvertPointFromPixels(const gfx::Point& point) {
   return gfx::ToFlooredPoint(
-      display::win::ScreenWin::ScreenToDIPPoint(gfx::PointF(point)));
+      display::win::GetScreenWin()->ScreenToDIPPoint(gfx::PointF(point)));
 }
 
 gfx::Point ConvertPointToPixels(const gfx::Point& point) {
-  return display::win::ScreenWin::DIPToScreenPoint(point);
+  return display::win::GetScreenWin()->DIPToScreenPoint(point);
 }
 
 gfx::Rect ConvertRectFromPixels(const gfx::Rect& rect) {
-  return display::win::ScreenWin::ScreenToDIPRect(nullptr, rect);
+  return display::win::GetScreenWin()->ScreenToDIPRect(nullptr, rect);
 }
 
 gfx::Rect ConvertRectToPixels(const gfx::Rect& rect) {
-  return display::win::ScreenWin::DIPToScreenRect(nullptr, rect);
+  return display::win::GetScreenWin()->DIPToScreenRect(nullptr, rect);
 }
 #endif  // BUILDFLAG(IS_WIN)
 

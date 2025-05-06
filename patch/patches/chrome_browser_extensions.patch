@@ -1,17 +1,17 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 0ac0d2fae56a9..4c55cfe1a52d7 100644
+index acd5954b3423a..215edaa4badc5 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
-@@ -15,6 +15,7 @@
- #include "base/strings/string_util.h"
+@@ -16,6 +16,7 @@
+ #include "base/task/single_thread_task_runner.h"
  #include "build/build_config.h"
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
  #include "chrome/browser/extensions/api/chrome_device_permissions_prompt.h"
  #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
-@@ -86,6 +87,10 @@
- #include "chrome/browser/extensions/clipboard_extension_helper_chromeos.h"
+@@ -90,6 +91,10 @@
+ #include "chromeos/ash/components/settings/cros_settings.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -21,7 +21,7 @@ index 0ac0d2fae56a9..4c55cfe1a52d7 100644
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -310,7 +315,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -317,7 +322,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -32,12 +32,12 @@ index 0ac0d2fae56a9..4c55cfe1a52d7 100644
 +#endif
  }
  
- WebViewGuestDelegate* ChromeExtensionsAPIClient::CreateWebViewGuestDelegate(
+ std::unique_ptr<WebViewGuestDelegate>
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index dad67c2ce98a8..71b27628f7827 100644
+index 4ac2686025ef0..94aa0016881b6 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -1687,7 +1687,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1714,7 +1714,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
      }
  
@@ -46,16 +46,7 @@ index dad67c2ce98a8..71b27628f7827 100644
        tab_strip->ActivateTabAt(tab_index);
        DCHECK_EQ(contents, tab_strip->GetActiveWebContents());
      }
-@@ -1701,7 +1701,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
-     }
- 
-     bool highlighted = *params->update_properties.highlighted;
--    if (highlighted != tab_strip->IsTabSelected(tab_index)) {
-+    if (tab_strip && highlighted != tab_strip->IsTabSelected(tab_index)) {
-       tab_strip->ToggleSelectionAt(tab_index);
-     }
-   }
-@@ -1713,7 +1713,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1741,7 +1741,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
    }
  
@@ -64,7 +55,7 @@ index dad67c2ce98a8..71b27628f7827 100644
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -1748,7 +1748,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1776,7 +1776,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -73,7 +64,7 @@ index dad67c2ce98a8..71b27628f7827 100644
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -1769,7 +1769,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1797,7 +1797,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -83,7 +74,7 @@ index dad67c2ce98a8..71b27628f7827 100644
          !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-@@ -1784,7 +1785,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -1812,7 +1813,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(std::move(error)));
      }
  
@@ -93,7 +84,7 @@ index dad67c2ce98a8..71b27628f7827 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 8a2e378aac255..456c542044eb3 100644
+index fc375bf87a2d1..5f32c45dc2fa6 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -38,6 +38,7 @@
@@ -104,7 +95,7 @@ index 8a2e378aac255..456c542044eb3 100644
  #include "chrome/browser/browser_process.h"  // nogncheck
  #include "chrome/browser/extensions/browser_extension_window_controller.h"
  #include "chrome/browser/extensions/chrome_extension_function_details.h"
-@@ -84,6 +85,10 @@
+@@ -87,6 +88,10 @@
  #include "url/url_constants.h"
  #endif
  
@@ -115,7 +106,7 @@ index 8a2e378aac255..456c542044eb3 100644
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -735,6 +740,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -738,6 +743,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  

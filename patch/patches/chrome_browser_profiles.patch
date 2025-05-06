@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 3357c7926a48f..77c27c7883f27 100644
+index f2719532b3517..573cd8ec4b8ce 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -655,7 +655,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -659,7 +659,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,7 +14,7 @@ index 3357c7926a48f..77c27c7883f27 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index a490fefce8c79..2a066c47ef96d 100644
+index 363a7c4ac583f..1c263547c8f54 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -85,7 +85,7 @@ index c8d72ed59252f..d785187710a79 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index a27c5368517b0..54f2f1572b7ad 100644
+index 22445800c6ac8..bd17582782117 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -1023,7 +1023,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,

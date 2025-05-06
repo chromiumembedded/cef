@@ -1,8 +1,8 @@
 diff --git ui/display/screen.cc ui/display/screen.cc
-index a3accb800e24a..61d4b48d43707 100644
+index 1ee1f561eb03a..13a86d95bff9d 100644
 --- ui/display/screen.cc
 +++ ui/display/screen.cc
-@@ -108,13 +108,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
+@@ -104,13 +104,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
  gfx::Rect Screen::ScreenToDIPRectInWindow(gfx::NativeWindow window,
                                            const gfx::Rect& screen_rect) const {
    float scale = GetDisplayNearestWindow(window).device_scale_factor();
@@ -19,10 +19,10 @@ index a3accb800e24a..61d4b48d43707 100644
  
  bool Screen::GetDisplayWithDisplayId(int64_t display_id,
 diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
-index 3a0dc73315d90..aa645eb1ba974 100644
+index fc36188c6ae47..06a07b3fd85e8 100644
 --- ui/display/win/screen_win.cc
 +++ ui/display/win/screen_win.cc
-@@ -633,7 +633,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd, const gfx::Rect& pixel_bounds) {
+@@ -692,7 +692,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd,
        gfx::PointF(pixel_bounds.origin()), screen_win_display));
    const float scale_factor =
        1.0f / screen_win_display.display().device_scale_factor();
@@ -30,8 +30,8 @@ index 3a0dc73315d90..aa645eb1ba974 100644
 +  return {origin, ScaleToRoundedRect(pixel_bounds, scale_factor).size()};
  }
  
- // static
-@@ -648,7 +648,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd, const gfx::Rect& dip_bounds) {
+ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd,
+@@ -707,7 +707,7 @@ gfx::Rect ScreenWin::DIPToScreenRect(HWND hwnd,
    const gfx::Point origin =
        display::win::DIPToScreenPoint(dip_bounds.origin(), screen_win_display);
    const float scale_factor = screen_win_display.display().device_scale_factor();
@@ -39,4 +39,4 @@ index 3a0dc73315d90..aa645eb1ba974 100644
 +  return {origin, ScaleToRoundedRect(dip_bounds, scale_factor).size()};
  }
  
- // static
+ gfx::Rect ScreenWin::ClientToDIPRect(HWND hwnd,

@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index 4f2e70c243550..59257dc71304b 100644
+index 4b1775f4a882f..44d128154335a 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
 @@ -125,6 +125,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
@@ -11,10 +11,10 @@ index 4f2e70c243550..59257dc71304b 100644
  
  PrinterQuery::~PrinterQuery() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 63f170c950504..962e60d23da59 100644
+index 3a98838e27621..f5cbe1c561189 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
-@@ -215,6 +215,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+@@ -217,6 +217,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
    void SetJobId(int job_id);
  #endif
  
@@ -26,9 +26,9 @@ index 63f170c950504..962e60d23da59 100644
 +  int render_frame_id() const { return render_frame_id_; }
 +
   protected:
-   PrintingContext(Delegate* delegate, ProcessBehavior process_behavior);
- 
-@@ -248,6 +255,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
+   PrintingContext(Delegate* delegate,
+                   OutOfProcessBehavior out_of_process_behavior);
+@@ -251,6 +258,10 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {
    // management.
    int job_id_ = kNoPrintJobId;
  
@@ -37,5 +37,5 @@ index 63f170c950504..962e60d23da59 100644
 +  int render_frame_id_ = 0;
 +
   private:
-   const ProcessBehavior process_behavior_;
+   const OutOfProcessBehavior out_of_process_behavior_;
  };

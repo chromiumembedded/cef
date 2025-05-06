@@ -329,7 +329,7 @@ typedef enum {
   /// HTTP header.
   CEF_CONTENT_SETTING_TYPE_FEDERATED_IDENTITY_IDENTITY_PROVIDER_SIGNIN_STATUS,
 
-  /// Website setting which is used for UnusedSitePermissionsService to
+  /// Website setting which is used for RevokedPermissionsService to
   /// store revoked permissions of unused sites from unused site permissions
   /// feature.
   CEF_CONTENT_SETTING_TYPE_REVOKED_UNUSED_SITE_PERMISSIONS,
@@ -382,11 +382,11 @@ typedef enum {
   /// a requesting-origin/top-level-site combination and persistent.
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_TRIAL,
 
-  /// Content Setting for a first-party origin trial that allows websites to
-  /// enable third-party cookie deprecation.
-  /// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
-  ///                  blocked otherwise).
-  /// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
+/// Content Setting for a first-party origin trial that allows websites to
+/// enable third-party cookie deprecation.
+/// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
+///                  blocked otherwise).
+/// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
 #if CEF_API_ADDED(13601)
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL,
 #else
@@ -442,7 +442,7 @@ typedef enum {
   /// access to mouse inputs.
   CEF_CONTENT_SETTING_TYPE_POINTER_LOCK,
 
-  /// Website setting which is used for UnusedSitePermissionsService to store
+  /// Website setting which is used for RevokedPermissionsService to store
   /// auto-revoked notification permissions from abusive sites.
   CEF_CONTENT_SETTING_TYPE_REVOKED_ABUSIVE_NOTIFICATION_PERMISSIONS,
 
@@ -500,7 +500,7 @@ typedef enum {
 #endif
 
 #if CEF_API_ADDED(13500)
-  /// Website setting which is used for UnusedSitePermissionsService to
+  /// Website setting which is used for RevokedPermissionsService to
   /// store revoked notification permissions of disruptive sites.
   CEF_CONTENT_SETTING_TYPE_REVOKED_DISRUPTIVE_NOTIFICATION_PERMISSIONS,
 #endif

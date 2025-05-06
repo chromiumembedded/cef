@@ -97,7 +97,7 @@ index 06f7cf79b4526..e0d395867f552 100644
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index f4a1ed78679c5..711b072977662 100644
+index de39a688207f8..41e5ffcfd5e09 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
 @@ -52,6 +52,7 @@
@@ -116,7 +116,7 @@ index f4a1ed78679c5..711b072977662 100644
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
  #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
  #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -1914,8 +1916,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -1922,8 +1924,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -127,7 +127,7 @@ index f4a1ed78679c5..711b072977662 100644
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -1935,8 +1938,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -1943,8 +1946,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -138,7 +138,7 @@ index f4a1ed78679c5..711b072977662 100644
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -1959,7 +1963,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -1967,7 +1971,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -148,7 +148,7 @@ index f4a1ed78679c5..711b072977662 100644
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -1987,7 +1992,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -1995,7 +2000,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -158,7 +158,7 @@ index f4a1ed78679c5..711b072977662 100644
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2456,6 +2462,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2464,6 +2470,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  

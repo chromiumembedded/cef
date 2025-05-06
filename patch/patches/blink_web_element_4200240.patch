@@ -1,8 +1,8 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index 1547a5ee8178c..e3bc0e82b1c66 100644
+index 5fef13808a906..57f16de69e1c7 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
-@@ -81,6 +81,9 @@ class BLINK_EXPORT WebElement : public WebNode {
+@@ -83,6 +83,9 @@ class BLINK_EXPORT WebElement : public WebNode {
    WebString TextContent() const;
    WebString TextContentAbridged(unsigned int max_length) const;
    WebString InnerHTML() const;
@@ -10,13 +10,13 @@ index 1547a5ee8178c..e3bc0e82b1c66 100644
 +  WebString AttributeValue(unsigned index) const;
 +  unsigned AttributeCount() const;
  
-   // Returns true if the element's computed writing suggestions value is true.
-   // https://html.spec.whatwg.org/#writing-suggestions:computed-writing-suggestions-value
+   void Focus();
+ 
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 8baa5193bfbe0..98c3b930a0498 100644
+index 2ec717ac9c654..85fb4e44aa4a0 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -119,6 +119,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -122,6 +122,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

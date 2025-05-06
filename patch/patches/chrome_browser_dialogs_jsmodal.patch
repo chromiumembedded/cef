@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index 8b3ce4e53ef25..7fcec86f074e3 100644
+index 8c06a19a64e5d..2b9429f7b2bab 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -6,6 +6,7 @@
@@ -57,7 +57,7 @@ index 8b3ce4e53ef25..7fcec86f074e3 100644
  }
  
 diff --git chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
-index 3c56e658d05c4..980caca1469bd 100644
+index e0c7c6df6f415..171f042d712e4 100644
 --- chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
 +++ chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
 @@ -79,10 +79,13 @@ JavaScriptTabModalDialogViewViews::JavaScriptTabModalDialogViewViews(

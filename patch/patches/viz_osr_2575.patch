@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 2abb9b96124ad..c85d92e72b849 100644
+index e522423645bf3..8e2ebe681241c 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -273,6 +273,8 @@ viz_component("service") {
+@@ -274,6 +274,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -150,10 +150,10 @@ index f0aca972c4a81..87b40c9ded9df 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 7839f5afb9ac1..fbb798ec211f3 100644
+index 8e2ddfa9337b5..99f9da6929afb 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -431,8 +431,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -389,8 +389,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -191,10 +191,10 @@ index 9cabc57b4a561..54a1515c6f689 100644
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index 3046e60995bce..2cc660b4d2d08 100644
+index afdda5292ce89..cd82387967c66 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -119,13 +119,15 @@ interface DisplayPrivate {
+@@ -117,13 +117,15 @@ interface DisplayPrivate {
  
  // DisplayClient allows privileged clients to receive events from the Display.
  interface DisplayClient {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index c802f9aae242c..a8b22d05aff27 100644
+index 385074e896f4a..0583165a8f19d 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@
@@ -261,7 +261,7 @@ index c802f9aae242c..a8b22d05aff27 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -629,6 +642,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -631,6 +644,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

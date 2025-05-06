@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.h chrome/browser/ui/views/frame/browser_frame_mac.h
-index 2245c931fbe4f..761ea6b3a6afb 100644
+index bda8a68545a80..275a75f841422 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.h
 +++ chrome/browser/ui/views/frame/browser_frame_mac.h
 @@ -11,6 +11,7 @@
@@ -10,7 +10,7 @@ index 2245c931fbe4f..761ea6b3a6afb 100644
  class BrowserFrame;
  class BrowserView;
  @class BrowserWindowTouchBarController;
-@@ -54,6 +55,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
+@@ -55,6 +56,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
    bool ShouldUseInitialVisibleOnAllWorkspaces() const override;
    void AnnounceTextInInProcessWindow(const std::u16string& text) override;
  
@@ -33,7 +33,7 @@ index 2245c931fbe4f..761ea6b3a6afb 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 29ba0f48f559a..07887ae9ec11c 100644
+index 9f478e1478d41..fadc6f000b87e 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
 @@ -185,7 +185,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {

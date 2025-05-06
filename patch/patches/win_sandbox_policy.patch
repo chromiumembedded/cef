@@ -12,10 +12,10 @@ index 17699e60e60be..53658b54f4fa7 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 0ac08110aa260..7c1d4cf7d5e78 100644
+index 8ca78708c537e..b8c427ba67d87 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
-@@ -194,12 +194,12 @@ PolicyGlobal* ConfigBase::policy() {
+@@ -197,12 +197,12 @@ PolicyGlobal* ConfigBase::policy() {
    return policy_;
  }
  
@@ -31,7 +31,7 @@ index 0ac08110aa260..7c1d4cf7d5e78 100644
    }
    return std::nullopt;
  }
-@@ -785,14 +785,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
+@@ -790,14 +790,14 @@ bool PolicyBase::SetupHandleCloser(TargetProcess& target) {
    return (SBOX_ALL_OK == rc);
  }
  

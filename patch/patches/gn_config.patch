@@ -1,18 +1,18 @@
 diff --git .gn .gn
-index 54d2631ec2032..b5bc7d4e97a91 100644
+index ae58a0b0a64ae..35e01ee64e5d7 100644
 --- .gn
 +++ .gn
-@@ -159,6 +159,8 @@ exec_script_allowlist =
-       "//chrome/android/webapk/shell_apk/prepare_upload_dir/BUILD.gn",
-       "//chrome/version.gni",
+@@ -156,6 +156,8 @@ exec_script_allowlist =
+       # in the Chromium repo outside of //build.
+       "//build_overrides/build.gni",
  
 +      "//cef/BUILD.gn",
 +
-       # TODO(dgn): Layer violation but breaks the build otherwise, see
-       # https://crbug.com/474506.
-       "//clank/java/BUILD.gn",
+       "//chrome/version.gni",
+ 
+       "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index f7307e92c4e94..8d4a80cef7997 100644
+index c0a9639d27232..e1cfab3d24c4f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index f9741697fdc82..f956cc3421255 100644
+index 845b473d56165..d1ffe4a9e54b1 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index f9741697fdc82..f956cc3421255 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -478,6 +479,11 @@ template("chrome_extra_paks") {
+@@ -479,6 +480,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  

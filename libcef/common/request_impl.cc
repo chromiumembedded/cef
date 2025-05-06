@@ -568,8 +568,7 @@ void CefRequestImpl::Get(const cef::mojom::RequestParamsPtr& params,
 
   CefRequest::HeaderMap headerMap;
   if (!params->headers.empty()) {
-    for (net::HttpUtil::HeadersIterator i(params->headers.begin(),
-                                          params->headers.end(), "\n\r");
+    for (net::HttpUtil::HeadersIterator i(params->headers, "\n\r");
          i.GetNext();) {
       request.AddHttpHeaderField(blink::WebString::FromUTF8(i.name()),
                                  blink::WebString::FromUTF8(i.values()));

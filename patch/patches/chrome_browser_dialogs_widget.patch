@@ -12,7 +12,7 @@ index cc58a303a78b6..7755e58c8651c 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 8251a54246126..ebf7da47ed642 100644
+index 6e91ffc4b8bfe..a1616f77c87ae 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -103,10 +103,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -121,7 +121,28 @@ index 8251a54246126..ebf7da47ed642 100644
      return;
    }
  
-@@ -304,8 +299,12 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -197,11 +192,18 @@ class BrowserModalHelper {
+  public:
+   static views::Widget* Show(std::unique_ptr<ui::DialogModel> dialog_model,
+                              gfx::NativeWindow parent) {
++    gfx::NativeView parent_view =
++        parent ? CurrentBrowserModalClient()->GetDialogHostView(parent) :
++                 gfx::NativeView();
++    // Use with CEF windowless rendering.
++    gfx::AcceleratedWidget parent_widget =
++        parent ? CurrentBrowserModalClient()->GetModalDialogHost(parent)->
++            GetAcceleratedWidget() : gfx::kNullAcceleratedWidget;
++
+     // TODO(crbug.com/41493925): Remove will_use_custom_frame once native frame
+     // dialogs support autosize.
+     bool will_use_custom_frame = views::DialogDelegate::CanSupportCustomFrame(
+-        parent ? CurrentBrowserModalClient()->GetDialogHostView(parent)
+-               : gfx::NativeView());
++        parent_view, parent_widget);
+     auto dialog = views::BubbleDialogModelHost::CreateModal(
+         std::move(dialog_model), ui::mojom::ModalType::kWindow,
+         will_use_custom_frame);
+@@ -326,8 +328,12 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
    gfx::NativeView parent_view =
        parent ? CurrentBrowserModalClient()->GetDialogHostView(parent)
               : gfx::NativeView();
@@ -135,7 +156,7 @@ index 8251a54246126..ebf7da47ed642 100644
    widget->SetNativeWindowProperty(
        views::kWidgetIdentifierKey,
        const_cast<void*>(kConstrainedWindowWidgetIdentifier));
-@@ -322,8 +321,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
+@@ -344,8 +350,7 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
      return widget;
  
    ModalDialogHost* host =
@@ -145,27 +166,6 @@ index 8251a54246126..ebf7da47ed642 100644
    if (host) {
      DCHECK_EQ(parent_view, host->GetHostView());
      std::unique_ptr<ModalDialogHostObserver> observer =
-@@ -340,11 +338,18 @@ views::Widget* CreateBrowserModalDialogViews(views::DialogDelegate* dialog,
- 
- views::Widget* ShowBrowserModal(std::unique_ptr<ui::DialogModel> dialog_model,
-                                 gfx::NativeWindow parent) {
-+  gfx::NativeView parent_view =
-+      parent ? CurrentBrowserModalClient()->GetDialogHostView(parent) :
-+               gfx::NativeView();
-+  // Use with CEF windowless rendering.
-+  gfx::AcceleratedWidget parent_widget =
-+      parent ? CurrentBrowserModalClient()->GetModalDialogHost(parent)->
-+          GetAcceleratedWidget() : gfx::kNullAcceleratedWidget;
-+
-   // TODO(crbug.com/41493925): Remove will_use_custom_frame once native frame
-   // dialogs support autosize.
-   bool will_use_custom_frame = views::DialogDelegate::CanSupportCustomFrame(
--      parent ? CurrentBrowserModalClient()->GetDialogHostView(parent)
--             : gfx::NativeView());
-+      parent_view, parent_widget);
-   auto dialog = views::BubbleDialogModelHost::CreateModal(
-       std::move(dialog_model), ui::mojom::ModalType::kWindow,
-       will_use_custom_frame);
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 index 2b495a8ab092c..01a28aca853d0 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
@@ -210,10 +210,10 @@ index 51ed6bcf6b540..c6e1161140655 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
    // Returns whether a dialog currently about to be shown should be activated.
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index 0fc878fd920e9..a7595a9b4af86 100644
+index 7b22be3acdb6c..5e8ac69f52691 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
-@@ -88,10 +88,12 @@ DialogDelegate::DialogDelegate() {
+@@ -89,10 +89,12 @@ DialogDelegate::DialogDelegate() {
  // static
  Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
                                             gfx::NativeWindow context,
@@ -228,7 +228,7 @@ index 0fc878fd920e9..a7595a9b4af86 100644
    widget->Init(std::move(params));
    return widget;
  }
-@@ -100,15 +102,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
+@@ -101,15 +103,17 @@ Widget* DialogDelegate::CreateDialogWidget(WidgetDelegate* delegate,
  Widget* DialogDelegate::CreateDialogWidget(
      std::unique_ptr<WidgetDelegate> delegate,
      gfx::NativeWindow context,
@@ -250,7 +250,7 @@ index 0fc878fd920e9..a7595a9b4af86 100644
  #else
    return true;
  #endif
-@@ -119,7 +123,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -120,7 +124,8 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
      WidgetDelegate* delegate,
      gfx::NativeWindow context,
      gfx::NativeView parent,
@@ -260,7 +260,7 @@ index 0fc878fd920e9..a7595a9b4af86 100644
    DialogDelegate* dialog = delegate->AsDialogDelegate();
  
    views::Widget::InitParams params(
-@@ -129,7 +134,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -130,7 +135,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    params.bounds = bounds;
  
    if (dialog) {
@@ -269,7 +269,7 @@ index 0fc878fd920e9..a7595a9b4af86 100644
    }
  
    if (!dialog || dialog->use_custom_frame()) {
-@@ -143,6 +148,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
+@@ -144,6 +149,7 @@ Widget::InitParams DialogDelegate::GetDialogWidgetInitParams(
    }
    params.context = context;
    params.parent = parent;

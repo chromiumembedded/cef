@@ -216,8 +216,9 @@ void CefOverlayViewHost::Init(views::View* host_view,
 
   // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
   // registered DeleteDelegate callback.
-  SetOwnedByWidget(true);
+  SetOwnedByWidget(OwnedByWidgetPassKey());
   RegisterDeleteDelegateCallback(
+      RegisterDeleteCallbackPassKey(),
       base::BindOnce(&CefOverlayViewHost::Cleanup, base::Unretained(this)));
 
   if (window_view_->IsChromeStyle()) {

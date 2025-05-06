@@ -253,7 +253,7 @@ index 910f29ac13deb..680507379632e 100644
          base::ThreadPool::CreateSequencedTaskRunner(
              {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
 diff --git chrome/browser/policy/chrome_browser_policy_connector.h chrome/browser/policy/chrome_browser_policy_connector.h
-index dc552834ff821..6b290da791ccd 100644
+index fbc5a3f9fab7b..747c44589eaf7 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.h
 +++ chrome/browser/policy/chrome_browser_policy_connector.h
 @@ -22,6 +22,10 @@

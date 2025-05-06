@@ -1,8 +1,8 @@
 diff --git base/time/time.h base/time/time.h
-index 44921db485328..ae521c59ae388 100644
+index ad554e5e3f904..a31d584b1fc0d 100644
 --- base/time/time.h
 +++ base/time/time.h
-@@ -136,6 +136,13 @@ constexpr bool isnan(double d) {
+@@ -137,6 +137,13 @@ constexpr bool isnan(double d) {
  
  }  // namespace
  
@@ -16,7 +16,7 @@ index 44921db485328..ae521c59ae388 100644
  // TimeDelta ------------------------------------------------------------------
  
  class BASE_EXPORT TimeDelta {
-@@ -324,8 +331,17 @@ class BASE_EXPORT TimeDelta {
+@@ -325,8 +332,17 @@ class BASE_EXPORT TimeDelta {
  
    // Comparison operators.
    friend constexpr bool operator==(TimeDelta, TimeDelta) = default;
@@ -34,7 +34,7 @@ index 44921db485328..ae521c59ae388 100644
  
    // Returns this delta, ceiled/floored/rounded-away-from-zero to the nearest
    // multiple of |interval|.
-@@ -482,8 +498,17 @@ class TimeBase {
+@@ -483,8 +499,17 @@ class TimeBase {
  
    // Comparison operators
    friend constexpr bool operator==(const TimeBase&, const TimeBase&) = default;

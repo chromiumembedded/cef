@@ -1,5 +1,5 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index f51591d21a0ce..6393280a99f38 100644
+index c821349f35116..7ab80c7464b49 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 @@ -178,7 +178,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(

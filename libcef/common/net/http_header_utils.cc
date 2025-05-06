@@ -36,9 +36,7 @@ std::string GenerateHeaders(const HeaderMap& map) {
 
 void ParseHeaders(const std::string& header_str, HeaderMap& map) {
   // Parse the request header values
-  for (net::HttpUtil::HeadersIterator i(header_str.begin(), header_str.end(),
-                                        "\n\r");
-       i.GetNext();) {
+  for (net::HttpUtil::HeadersIterator i(header_str, "\n\r"); i.GetNext();) {
     map.insert(std::make_pair(i.name(), i.values()));
   }
 }

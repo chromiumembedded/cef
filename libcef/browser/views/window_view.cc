@@ -110,7 +110,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
     // Convert from DIP to pixel coordinates using a method that can handle
     // multiple displays with different DPI.
     const auto screen_rect =
-        display::win::ScreenWin::DIPToScreenRect(window, client_bounds);
+        display::win::GetScreenWin()->DIPToScreenRect(window, client_bounds);
 
     RECT rect = {screen_rect.x(), screen_rect.y(),
                  screen_rect.x() + screen_rect.width(),
@@ -123,7 +123,7 @@ class NativeFrameViewEx : public views::NativeFrameView {
                          rect.right - rect.left, rect.bottom - rect.top);
 
     // Convert back to DIP.
-    return display::win::ScreenWin::ScreenToDIPRect(window, pixel_rect);
+    return display::win::GetScreenWin()->ScreenToDIPRect(window, pixel_rect);
 #else
     // Use the default implementation.
     return views::NativeFrameView::GetWindowBoundsForClientBounds(
@@ -420,8 +420,9 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
 
   // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
   // registered DeleteDelegate callback.
-  SetOwnedByWidget(true);
+  SetOwnedByWidget(OwnedByWidgetPassKey());
   RegisterDeleteDelegateCallback(
+      RegisterDeleteCallbackPassKey(),
       base::BindOnce(&CefWindowView::DeleteDelegate, base::Unretained(this)));
 
   if (cef_delegate()) {

@@ -9,6 +9,7 @@
 #include "base/notreached.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "chrome/browser/ui/permission_bubble/permission_prompt.h"
+#include "components/permissions/permission_request.h"
 
 namespace permission_prompt {
 

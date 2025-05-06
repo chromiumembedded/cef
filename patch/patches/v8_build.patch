@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index 9a2b2cdd94f..dd05f318329 100644
+index 818f13802c6..4aa889bc3ad 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/riscv.gni")
@@ -10,7 +10,7 @@ index 9a2b2cdd94f..dd05f318329 100644
  import("//third_party/icu/config.gni")
  
  import("gni/snapshot_toolchain.gni")
-@@ -496,6 +497,9 @@ declare_args() {
+@@ -495,6 +496,9 @@ declare_args() {
    # Experimental testing mode where various limits are artificially set lower.
    v8_lower_limits_mode = false
  

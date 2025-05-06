@@ -68,8 +68,10 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
   DCHECK(widget->widget_delegate()->CanActivate());
 
   // WidgetDelegate::DeleteDelegate() will execute the registered callback.
-  RegisterDeleteDelegateCallback(base::BindOnce(
-      &CefWindowDelegateView::DeleteDelegate, base::Unretained(this)));
+  RegisterDeleteDelegateCallback(
+      RegisterDeleteCallbackPassKey(),
+      base::BindOnce(&CefWindowDelegateView::DeleteDelegate,
+                     base::Unretained(this)));
 }
 
 void CefWindowDelegateView::InitContent() {

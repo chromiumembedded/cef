@@ -124,7 +124,7 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index c021991c04f77..aa6ad561dfd80 100644
+index f9c2e60204369..98026fd57457f 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -16,6 +16,7 @@
@@ -158,9 +158,9 @@ index c021991c04f77..aa6ad561dfd80 100644
        {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
        {version_ui::kCopyVariationsLabel, IDS_VERSION_UI_COPY_VARIATIONS_LABEL},
 @@ -114,6 +123,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+   html_source->AddResourcePath("images/product_logo_white.png",
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
-   html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
 +
 +#if BUILDFLAG(ENABLE_CEF)
 +  html_source->AddString(version_ui::kCefVersion, CEF_VERSION);
@@ -233,10 +233,10 @@ index bd41fd2492e79..04378e39332e1 100644
 +  font-size: 0.8em;
 +}
 diff --git components/webui/version/resources/about_version.html components/webui/version/resources/about_version.html
-index 40c7cc51fc863..b3ee7e7978e93 100644
+index bd2914d8bc19a..f3176886fd96b 100644
 --- components/webui/version/resources/about_version.html
 +++ components/webui/version/resources/about_version.html
-@@ -48,9 +48,21 @@ about:version template page
+@@ -49,9 +49,21 @@ about:version template page
          </picture>
  </if>
          <div id="company">$i18n{company}</div>
@@ -259,7 +259,7 @@ index 40c7cc51fc863..b3ee7e7978e93 100644
          <tr><td class="label">$i18n{application_label}</td>
            <td class="version" id="version">
              <span id="copy-content">
-@@ -158,7 +170,15 @@ about:version template page
+@@ -159,7 +171,15 @@ about:version template page
          <tr><td class="label">$i18n{executable_path_name}</td>
            <td class="version" id="executable_path">$i18n{executable_path}</td>
          </tr>
@@ -276,7 +276,7 @@ index 40c7cc51fc863..b3ee7e7978e93 100644
            <td class="version" id="profile_path">$i18n{profile_path}</td>
          </tr>
  </if>
-@@ -191,6 +211,17 @@ about:version template page
+@@ -192,6 +212,17 @@ about:version template page
            <td class="version" id="sanitizer">$i18n{sanitizer}</td>
          </tr>
        </table>

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/sad_tab_view.cc chrome/browser/ui/views/sad_tab_view.cc
-index 845dc1067447c..7927dd29fac6f 100644
+index 944ce2e3bfaea..6db63a7858b0e 100644
 --- chrome/browser/ui/views/sad_tab_view.cc
 +++ chrome/browser/ui/views/sad_tab_view.cc
 @@ -707,6 +707,11 @@ void SadTabView::OnBoundsChanged(const gfx::Rect& previous_bounds) {

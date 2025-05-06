@@ -1,13 +1,14 @@
 diff --git components/input/fling_scheduler_base.h components/input/fling_scheduler_base.h
-index 76057b3e50f78..d3b63a3b07805 100644
+index 6e331ee24bddf..ab6c61c2e57ac 100644
 --- components/input/fling_scheduler_base.h
 +++ components/input/fling_scheduler_base.h
-@@ -5,14 +5,26 @@
+@@ -5,9 +5,14 @@
  #ifndef COMPONENTS_INPUT_FLING_SCHEDULER_BASE_H_
  #define COMPONENTS_INPUT_FLING_SCHEDULER_BASE_H_
  
 +#include "base/memory/raw_ptr.h"
  #include "components/input/fling_controller.h"
+ #include "components/viz/common/frame_sinks/begin_frame_source.h"
  
 +namespace ui {
 +class Compositor;
@@ -16,9 +17,10 @@ index 76057b3e50f78..d3b63a3b07805 100644
  namespace input {
  
  class FlingSchedulerBase : public FlingControllerSchedulerClient {
-  public:
-   virtual void ProgressFlingOnBeginFrameIfneeded(
-       base::TimeTicks current_time) = 0;
+@@ -19,6 +24,13 @@ class FlingSchedulerBase : public FlingControllerSchedulerClient {
+   // in Viz currently, but in future we would want to migrate browser's
+   // implementations to use this to progress flings.
+   virtual void SetBeginFrameSource(viz::BeginFrameSource* begin_frame_source) {}
 +  
 +  void SetCompositor(ui::Compositor* compositor) {
 +    compositor_ = compositor;
@@ -30,7 +32,7 @@ index 76057b3e50f78..d3b63a3b07805 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index 09111425370d3..900b325dce683 100644
+index d29c03fddd2a5..f855afb39deb7 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -68,6 +68,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -42,7 +44,7 @@ index 09111425370d3..900b325dce683 100644
    void SetForceEnableZoom(bool);
    void SetDeviceScaleFactor(float device_scale_factor);
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index f1030a744809c..c222a209949e6 100644
+index 477389a1cb1d3..b7b7edbfbdf5d 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -56,10 +58,10 @@ index f1030a744809c..c222a209949e6 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 573269ba54150..a51715e7dc6cc 100644
+index 7b11077760d2a..1f67d3ccbe94d 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3718,6 +3718,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3727,6 +3727,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -72,10 +74,10 @@ index 573269ba54150..a51715e7dc6cc 100644
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index c201cff9e5c3b..900af39ae4b09 100644
+index c11b7183397d2..61a20efe04f7a 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -843,6 +843,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -844,6 +844,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

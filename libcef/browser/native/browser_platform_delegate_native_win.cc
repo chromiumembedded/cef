@@ -73,7 +73,7 @@ CefRect GetScreenFrameRectFromDIPContentRect(HWND window,
   // Convert from DIP using a method that can handle multiple displays with
   // different DPI. If |window| is nullptr the closest display will be used.
   const auto screen_rect =
-      display::win::ScreenWin::DIPToScreenRect(window, dip_rect);
+      display::win::GetScreenWin()->DIPToScreenRect(window, dip_rect);
 
   RECT rect = {screen_rect.x(), screen_rect.y(),
                screen_rect.x() + screen_rect.width(),
@@ -109,7 +109,7 @@ CefRect GetAdjustedScreenFrameRect(CefRect screen_rect,
 
   // Convert to DIP using a method that can handle multiple displays with
   // different DPI.
-  const auto dip_rect = display::win::ScreenWin::ScreenToDIPRect(
+  const auto dip_rect = display::win::GetScreenWin()->ScreenToDIPRect(
       nullptr, gfx::Rect(screen_rect.x, screen_rect.y, screen_rect.width,
                          screen_rect.height));
   const auto visible_dip_rect = MakeVisibleOnScreenRect(
@@ -206,7 +206,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   // Convert to DIP using a method that can handle multiple displays with
   // different DPI. Client coordinates always have origin (0,0).
-  const gfx::Rect dip_rect = display::win::ScreenWin::ScreenToDIPRect(
+  const gfx::Rect dip_rect = display::win::GetScreenWin()->ScreenToDIPRect(
       window_info_.window, gfx::Rect(0, 0, cr.right, cr.bottom));
 
   // Stay on top if top-most window hosting the web view is topmost.
