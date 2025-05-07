@@ -183,7 +183,7 @@ class ClientHandler : public BaseClientHandler,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info) override;
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13700)
   bool OnContentsBoundsChange(CefRefPtr<CefBrowser> browser,
                               const CefRect& new_bounds) override;
   bool GetRootWindowScreenRect(CefRefPtr<CefBrowser> browser,

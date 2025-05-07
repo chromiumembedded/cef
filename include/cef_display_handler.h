@@ -164,7 +164,7 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
                                    bool has_video_access,
                                    bool has_audio_access) {}
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13700)
   ///
   /// Called when JavaScript is requesting new bounds via window.moveTo/By() or
   /// window.resizeTo/By(). |new_bounds| are in DIP screen coordinates.
@@ -184,7 +184,7 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   /// Default move/resize behavior is only provided with Views-hosted Chrome
   /// style browsers.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=13700)--*/
   virtual bool OnContentsBoundsChange(CefRefPtr<CefBrowser> browser,
                                       const CefRect& new_bounds) {
     return false;
@@ -197,7 +197,7 @@ class CefDisplayHandler : public virtual CefBaseRefCounted {
   /// root window bounds on Windows or the browser content bounds on Linux. For
   /// additional usage details see CefBrowserHost::NotifyScreenInfoChanged.
   ///
-  /*--cef(added=next)--*/
+  /*--cef(added=13700)--*/
   virtual bool GetRootWindowScreenRect(CefRefPtr<CefBrowser> browser,
                                        CefRect& rect) {
     return false;

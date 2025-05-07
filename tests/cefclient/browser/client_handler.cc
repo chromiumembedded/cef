@@ -864,7 +864,7 @@ bool ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
   return mouse_cursor_change_disabled_;
 }
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13700)
 bool ClientHandler::OnContentsBoundsChange(CefRefPtr<CefBrowser> browser,
                                            const CefRect& new_bounds) {
   CEF_REQUIRE_UI_THREAD();
