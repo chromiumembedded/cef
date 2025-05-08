@@ -561,10 +561,7 @@ def get_undefined_symbols(file):
 def combine_libs(platform, build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
   intermediate_obj = None
-  if platform == 'windows':
-    cmdline = 'msvs_env.bat win%s "%s" combine_libs.py -b "%s" -o "%s"' % (
-        platform_arch, sys.executable, build_dir, dest_lib)
-  elif platform == 'mac':
+  if platform == 'mac':
     # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
     # Export only symbols that include these strings.
     symbol_match = [
@@ -589,14 +586,14 @@ def combine_libs(platform, build_dir, libs, dest_lib):
     cmdline = 'ld -arch %s -r -o "%s"' % (arch, intermediate_obj)
     for symbol in symbols:
       cmdline += ' -exported_symbol %s' % symbol
+  else:
+    raise Exception('Unsupported platform for combine_libs: %s' % platform)
 
   for lib in libs:
     lib_path = os.path.join(build_dir, lib)
     for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
       if not path_exists(path):
         raise Exception('File not found: ' + path)
-      if platform == 'windows':
-        path = os.path.relpath(path, build_dir)
       cmdline += ' "%s"' % path
   run(cmdline, os.path.join(cef_dir, 'tools'))
 
@@ -746,7 +743,7 @@ parser.add_option(
     action='store_true',
     dest='sandbox',
     default=False,
-    help='include only the cef_sandbox static library (macOS and Windows only)')
+    help='include only the cef_sandbox static library (macOS only)')
 parser.add_option(
     '--tools',
     action='store_true',
@@ -794,8 +791,8 @@ if options.armbuild and platform != 'linux':
   print_error('--arm-build is only supported on Linux.')
   sys.exit()
 
-if options.sandbox and not platform in ('mac', 'windows'):
-  print_error('--sandbox is only supported on macOS and Windows.')
+if options.sandbox and platform != 'mac':
+  print_error('--sandbox is only supported on macOS.')
   sys.exit()
 
 if not options.ninjabuild:
@@ -1130,6 +1127,8 @@ elif platform == 'windows':
       {'path': 'vulkan-1.dll'},
   ]
   pdb_files = [
+      {'path': 'bootstrap.exe.pdb'},
+      {'path': 'bootstrapc.exe.pdb'},
       {'path': 'chrome_elf.dll.pdb'},
       {'path': 'dxcompiler.dll.pdb', 'conditional': True},
       {'path': '%s.pdb' % libcef_dll},
@@ -1145,7 +1144,13 @@ elif platform == 'windows':
         'path': 'cefsimple.exe' if platform_arch == 'arm64' else 'cefclient.exe'
     })
   else:
-    binaries.append({'path': '%s.lib' % libcef_dll, 'out_path': 'libcef.lib'})
+    # yapf: disable
+    binaries.extend([
+        {'path': 'bootstrap.exe'},
+        {'path': 'bootstrapc.exe'},
+        {'path': '%s.lib' % libcef_dll, 'out_path': 'libcef.lib'},
+    ])
+    # yapf: enable
 
   # yapf: disable
   resources = [
@@ -1156,43 +1161,6 @@ elif platform == 'windows':
       {'path': 'locales', 'delete': '*.info'},
   ]
   # yapf: enable
-
-  cef_sandbox_lib = 'obj\\cef\\cef_sandbox.lib'
-  sandbox_libs = [
-      'obj\\base\\base.lib',
-      'obj\\base\\base_static.lib',
-      'obj\\base\\third_party\\cityhash\\cityhash\\*.obj',
-      'obj\\base\\third_party\\double_conversion\\double_conversion.lib',
-      'obj\\base\\third_party\\superfasthash\\superfasthash\\*.obj',
-      'obj\\base\\win\\pe_image.lib',
-      cef_sandbox_lib,
-      'obj\\sandbox\\common\\*.obj',
-      'obj\\sandbox\\win\\sandbox.lib',
-      'obj\\sandbox\\win\\service_resolver\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\base\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\debugging\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\numeric\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\strings\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\synchronization\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\time\\**\\*.obj',
-      'obj\\third_party\\abseil-cpp\\absl\\types\\**\\*.obj',
-  ]
-
-  # Generate the cef_sandbox.lib merged library. A separate *_sandbox build
-  # should exist when GN is_official_build=true.
-  if mode in ('standard', 'minimal', 'sandbox') and not options.nosandbox:
-    dirs = {
-        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
-        'Release': (build_dir_release + '_sandbox', build_dir_release)
-    }
-    for dir_name in dirs.keys():
-      for src_dir in dirs[dir_name]:
-        if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
-          dst_dir = os.path.join(output_dir, dir_name)
-          make_dir(dst_dir, options.quiet)
-          combine_libs(platform, src_dir, sandbox_libs,
-                       os.path.join(dst_dir, 'cef_sandbox.lib'))
-          break
 
   valid_build_dir = None
 
@@ -1214,23 +1182,22 @@ elif platform == 'windows':
     else:
       sys.stdout.write("No Debug build files.\n")
 
-  if mode != 'sandbox':
-    # transfer Release files
-    build_dir = build_dir_release
-    if not options.allowpartial or path_exists(
-        os.path.join(build_dir, libcef_dll)):
-      valid_build_dir = build_dir
-      dst_dir = os.path.join(output_dir, 'Release')
-      copy_files_list(build_dir, dst_dir, binaries)
+  # transfer Release files
+  build_dir = build_dir_release
+  if not options.allowpartial or path_exists(
+      os.path.join(build_dir, libcef_dll)):
+    valid_build_dir = build_dir
+    dst_dir = os.path.join(output_dir, 'Release')
+    copy_files_list(build_dir, dst_dir, binaries)
 
-      if not options.nosymbols:
-        # create the symbol output directory
-        symbol_output_dir = create_output_dir(
-            output_dir_name + '_release_symbols', options.outputdir)
-        # transfer contents
-        copy_files_list(build_dir, symbol_output_dir, pdb_files)
-    else:
-      sys.stdout.write("No Release build files.\n")
+    if not options.nosymbols:
+      # create the symbol output directory
+      symbol_output_dir = create_output_dir(
+          output_dir_name + '_release_symbols', options.outputdir)
+      # transfer contents
+      copy_files_list(build_dir, symbol_output_dir, pdb_files)
+  else:
+    sys.stdout.write("No Release build files.\n")
 
   if not valid_build_dir is None:
     # transfer resource files

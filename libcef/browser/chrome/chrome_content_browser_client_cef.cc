@@ -50,6 +50,10 @@
 #include "cef/libcef/browser/chrome/chrome_web_contents_view_delegate_cef.h"
 #endif
 
+#if BUILDFLAG(IS_WIN)
+#include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
+#endif
+
 namespace {
 
 class CefSelectClientCertificateCallbackImpl
@@ -213,6 +217,17 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames);
   }
+
+#if BUILDFLAG(IS_WIN)
+  {
+    const auto& module_value = bootstrap_util::GetValidatedModuleValue(
+        *browser_cmd, bootstrap_util::GetExePath());
+    if (!module_value.empty()) {
+      command_line->AppendSwitchNative(bootstrap_util::switches::kModule,
+                                       module_value);
+    }
+  }
+#endif
 
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);

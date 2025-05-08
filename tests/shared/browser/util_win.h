@@ -40,6 +40,10 @@ bool IsKeyDown(WPARAM wparam);
 // return 2.0.
 float GetDeviceScaleFactor();
 
+// Returns the module handle that contains this code. When built as a DLL this
+// will be the DLL handle instead of the EXE handle.
+HINSTANCE GetCodeModuleHandle();
+
 }  // namespace client
 
 #endif  // CEF_TESTS_SHARED_BROWSER_UTIL_WIN_H_

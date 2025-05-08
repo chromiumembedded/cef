@@ -487,7 +487,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   REQUIRE_MAIN_THREAD();
   DCHECK(!hwnd_);
 
-  HINSTANCE hInstance = GetModuleHandle(nullptr);
+  HINSTANCE hInstance = GetCodeModuleHandle();
 
   // Load strings from the resource file.
   const std::wstring& window_title = GetResourceString(IDS_APP_TITLE);
@@ -1079,7 +1079,7 @@ void RootWindowWin::OnFindEvent() {
 
 void RootWindowWin::OnAbout() {
   // Show the about box.
-  DialogBox(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
+  DialogBox(GetCodeModuleHandle(), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
             AboutWndProc);
 }
 

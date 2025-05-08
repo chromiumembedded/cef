@@ -550,17 +550,6 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       'is_cef_sandbox_build': True,
   }
 
-  if platform == 'windows':
-    # Avoid Debug build linker errors caused by custom libc++.
-    add_args['use_custom_libcxx'] = False
-
-    # Avoid dependency on //third_party/perfetto:libperfetto which fails to
-    # build with MSVC libc++.
-    add_args['enable_base_tracing'] = False
-
-    # Allow non-component Debug builds for the sandbox.
-    add_args['forbid_non_component_debug_builds'] = False
-
   if not is_debug:
     # Disable DCHECKs in Release builds.
     add_args['dcheck_always_on'] = False
@@ -647,8 +636,7 @@ def GetAllPlatformConfigs(build_args, quiet=False):
       result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
     result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
 
-    if platform in ('windows', 'mac') and GetArgValue(args,
-                                                      'is_official_build'):
+    if platform == 'mac' and GetArgValue(args, 'is_official_build'):
       # Build cef_sandbox.lib with a different configuration.
       if create_debug:
         result['Debug_GN_' + cpu + '_sandbox'] = GetConfigArgsSandbox(

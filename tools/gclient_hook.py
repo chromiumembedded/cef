@@ -66,12 +66,6 @@ if platform == 'windows':
   #
   #   set WIN_CUSTOM_TOOLCHAIN=1
   #
-  # o Used by tools/msvs_env.bat to configure the MSVS tools environment.
-  #   Should be set to "none" because VC variables for CEF will be set via
-  #   INCLUDE/LIB/PATH.
-  #
-  #   set CEF_VCVARS=none
-  #
   # o Used by the following scripts:
   #   (a) build/vs_toolchain.py SetEnvironmentAndGetRuntimeDllDirs when
   #   determining whether to copy VS runtime binaries to the output directory.

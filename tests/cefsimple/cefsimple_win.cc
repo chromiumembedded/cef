@@ -8,52 +8,13 @@
 #include "include/cef_sandbox_win.h"
 #include "tests/cefsimple/simple_app.h"
 
-// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
-// automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
-// to the CMake command-line to disable use of the sandbox.
-// Uncomment this line to manually enable sandbox support.
-// #define CEF_USE_SANDBOX 1
+namespace {
 
-#if defined(CEF_USE_SANDBOX)
-// The cef_sandbox.lib static library may not link successfully with all VS
-// versions.
-#pragma comment(lib, "cef_sandbox.lib")
-#endif
-
-// Entry point function for all processes.
-int APIENTRY wWinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPTSTR lpCmdLine,
-                      int nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
-
+int RunMain(HINSTANCE hInstance,
+            LPTSTR lpCmdLine,
+            int nCmdShow,
+            void* sandbox_info) {
   int exit_code;
-
-#if defined(ARCH_CPU_32_BITS)
-  // Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB
-  // stack size. This function must be called at the top of the executable entry
-  // point function (`main()` or `wWinMain()`). It is used in combination with
-  // the initial stack size of 0.5MiB configured via the `/STACK:0x80000` linker
-  // flag on executable targets. This saves significant memory on threads (like
-  // those in the Windows thread pool, and others) whose stack size can only be
-  // controlled via the linker flag.
-  exit_code = CefRunWinMainWithPreferredStackSize(wWinMain, hInstance,
-                                                  lpCmdLine, nCmdShow);
-  if (exit_code >= 0) {
-    // The fiber has completed so return here.
-    return exit_code;
-  }
-#endif
-
-  void* sandbox_info = nullptr;
-
-#if defined(CEF_USE_SANDBOX)
-  // Manage the life span of the sandbox information object. This is necessary
-  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-  CefScopedSandboxInfo scoped_sandbox;
-  sandbox_info = scoped_sandbox.sandbox_info();
-#endif
 
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(hInstance);
@@ -74,9 +35,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify CEF global settings here.
   CefSettings settings;
 
-#if !defined(CEF_USE_SANDBOX)
-  settings.no_sandbox = true;
-#endif
+  if (!sandbox_info) {
+    settings.no_sandbox = true;
+  }
 
   // SimpleApp implements application-level callbacks for the browser process.
   // It will create the first browser instance in OnContextInitialized() after
@@ -99,3 +60,55 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   return 0;
 }
+
+}  // namespace
+
+#if defined(CEF_USE_BOOTSTRAP)
+
+// Entry point called by bootstrap.exe when built as a DLL.
+CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
+                                    LPTSTR lpCmdLine,
+                                    int nCmdShow,
+                                    void* sandbox_info) {
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
+}
+
+#else  // !defined(CEF_USE_BOOTSTRAP)
+
+// Entry point function for all processes.
+int APIENTRY wWinMain(HINSTANCE hInstance,
+                      HINSTANCE hPrevInstance,
+                      LPTSTR lpCmdLine,
+                      int nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+
+#if defined(ARCH_CPU_32_BITS)
+  // Run the main thread on 32-bit Windows using a fiber with the preferred 4MiB
+  // stack size. This function must be called at the top of the executable entry
+  // point function (`main()` or `wWinMain()`). It is used in combination with
+  // the initial stack size of 0.5MiB configured via the `/STACK:0x80000` linker
+  // flag on executable targets. This saves significant memory on threads (like
+  // those in the Windows thread pool, and others) whose stack size can only be
+  // controlled via the linker flag.
+  int exit_code = CefRunWinMainWithPreferredStackSize(wWinMain, hInstance,
+                                                      lpCmdLine, nCmdShow);
+  if (exit_code >= 0) {
+    // The fiber has completed so return here.
+    return exit_code;
+  }
+#endif
+
+  void* sandbox_info = nullptr;
+
+#if defined(CEF_USE_SANDBOX)
+  // Manage the life span of the sandbox information object. This is necessary
+  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+  CefScopedSandboxInfo scoped_sandbox;
+  sandbox_info = scoped_sandbox.sandbox_info();
+#endif
+
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
+}
+
+#endif  // !defined(CEF_USE_BOOTSTRAP)

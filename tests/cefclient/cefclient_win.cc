@@ -20,32 +20,11 @@
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/renderer/client_app_renderer.h"
 
-// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
-// automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
-// to the CMake command-line to disable use of the sandbox.
-// Uncomment this line to manually enable sandbox support.
-// #define CEF_USE_SANDBOX 1
-
-#if defined(CEF_USE_SANDBOX)
-// The cef_sandbox.lib static library may not link successfully with all VS
-// versions.
-#pragma comment(lib, "cef_sandbox.lib")
-#endif
-
 namespace client {
 namespace {
 
-int RunMain(HINSTANCE hInstance, int nCmdShow) {
+int RunMain(HINSTANCE hInstance, int nCmdShow, void* sandbox_info) {
   CefMainArgs main_args(hInstance);
-
-  void* sandbox_info = nullptr;
-
-#if defined(CEF_USE_SANDBOX)
-  // Manage the life span of the sandbox information object. This is necessary
-  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-  CefScopedSandboxInfo scoped_sandbox;
-  sandbox_info = scoped_sandbox.sandbox_info();
-#endif
 
   // Parse command-line arguments.
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
@@ -73,9 +52,9 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 
   CefSettings settings;
 
-#if !defined(CEF_USE_SANDBOX)
-  settings.no_sandbox = true;
-#endif
+  if (!sandbox_info) {
+    settings.no_sandbox = true;
+  }
 
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
@@ -131,6 +110,18 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 }  // namespace
 }  // namespace client
 
+#if defined(CEF_USE_BOOTSTRAP)
+
+// Entry point called by bootstrap.exe when built as a DLL.
+CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
+                                    LPTSTR lpCmdLine,
+                                    int nCmdShow,
+                                    void* sandbox_info) {
+  return client::RunMain(hInstance, nCmdShow, sandbox_info);
+}
+
+#else  // !defined(CEF_USE_BOOTSTRAP)
+
 // Program entry point function.
 int APIENTRY wWinMain(HINSTANCE hInstance,
                       HINSTANCE hPrevInstance,
@@ -155,5 +146,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   }
 #endif
 
-  return client::RunMain(hInstance, nCmdShow);
+  void* sandbox_info = nullptr;
+
+#if defined(CEF_USE_SANDBOX)
+  // Manage the life span of the sandbox information object. This is necessary
+  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+  CefScopedSandboxInfo scoped_sandbox;
+  sandbox_info = scoped_sandbox.sandbox_info();
+#endif
+
+  return client::RunMain(hInstance, nCmdShow, sandbox_info);
 }
+
+#endif  // !defined(CEF_USE_BOOTSTRAP)

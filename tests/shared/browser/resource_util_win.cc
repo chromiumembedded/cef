@@ -8,13 +8,14 @@
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_byte_read_handler.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "tests/shared/browser/util_win.h"
 
 namespace client {
 
 namespace {
 
 bool LoadBinaryResource(int binaryId, DWORD& dwSize, LPBYTE& pBytes) {
-  HINSTANCE hInst = GetModuleHandle(nullptr);
+  HINSTANCE hInst = GetCodeModuleHandle();
   HRSRC hRes =
       FindResource(hInst, MAKEINTRESOURCE(binaryId), MAKEINTRESOURCE(256));
   if (hRes) {

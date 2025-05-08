@@ -319,6 +319,16 @@ group("cef") {
     ":libcef_static_unittests",
   ]
 
+  if (is_win) {
+    deps += [
+      ":bootstrap",
+      ":bootstrapc",
+      ":cefclient_dll",
+      ":cefsimple_dll",
+      ":ceftests_dll",
+    ]
+  }
+
   if (!is_linux || ozone_platform_x11) {
     deps += [ ":cefclient" ]
   }
@@ -992,6 +1002,9 @@ source_set("libcef_static") {
       "libcef/browser/native/browser_platform_delegate_native_win.h",
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
+      "libcef/browser/preferred_stack_size_win.inc",
+      "libcef_dll/bootstrap/bootstrap_util_win.cc",
+      "libcef_dll/bootstrap/bootstrap_util_win.h",
     ]
 
     deps += [
@@ -1224,6 +1237,73 @@ if (is_mac) {
       ":make_config_header",
       "//build/config:executable_deps",
       "//sandbox/mac:seatbelt",
+    ]
+  }
+}
+
+#
+# bootstrap target.
+#
+
+if (is_win) {
+  bootstrap_sources = includes_common +
+                      includes_win + [
+    "libcef_dll/bootstrap/bootstrap_util_win.cc",
+    "libcef_dll/bootstrap/bootstrap_util_win.h",
+    "libcef_dll/bootstrap/bootstrap_win.cc",
+    "libcef_dll/bootstrap/win/bootstrap.rc",
+    "libcef_dll/bootstrap/win/resource.h",
+    "libcef/browser/preferred_stack_size_win.inc",
+  ]
+
+  bootstrap_deps = [
+    ":cef_sandbox",
+    ":make_version_header",
+    "//base",
+    "//build/win:default_exe_manifest",
+  ]
+
+  # Windows application that initializes the sandbox and then passes
+  # execution to a client-provided DLL.
+  executable("bootstrap") {
+    # Necessary because the libcef target is testonly.
+    testonly = true
+
+    sources = bootstrap_sources
+    deps = bootstrap_deps
+
+    configs += [ ":libcef_includes_config" ]
+
+    # Set /SUBSYSTEM:WINDOWS.
+    configs -= [ "//build/config/win:console" ]
+    configs += [ "//build/config/win:windowed" ]
+
+    # Delay-load as many DLLs as possible for sandbox and startup perf
+    # improvements.
+    configs += [ "//build/config/win:delayloads" ]
+
+    defines = [
+      "CEF_BUILD_BOOTSTRAP",
+    ]
+  }
+
+  # Like "bootstrap", but as a console application.
+  executable("bootstrapc") {
+    # Necessary because the libcef target is testonly.
+    testonly = true
+
+    sources = bootstrap_sources
+    deps = bootstrap_deps
+
+    configs += [ ":libcef_includes_config" ]
+
+    # Delay-load as many DLLs as possible for sandbox and startup perf
+    # improvements.
+    configs += [ "//build/config/win:delayloads" ]
+
+    defines = [
+      "CEF_BUILD_BOOTSTRAP",
+      "CEF_BUILD_BOOTSTRAP_CONSOLE",
     ]
   }
 }
@@ -2224,6 +2304,66 @@ if (is_mac) {
     }
   }
 
+  if (is_win) {
+    # Like the "cefclient" executable target, but building a DLL to be loaded by
+    # bootstrap.exe.
+    shared_library("cefclient_dll") {
+      # Necessary because the libcef target is testonly.
+      testonly = true
+
+      output_name = "cefclient"
+
+      sources = includes_common +
+                includes_win +
+                gypi_paths2.includes_wrapper +
+                gypi_paths2.shared_sources_browser +
+                gypi_paths2.shared_sources_common +
+                gypi_paths2.shared_sources_renderer +
+                gypi_paths2.shared_sources_win +
+                gypi_paths2.cefclient_sources_browser +
+                gypi_paths2.cefclient_sources_common +
+                gypi_paths2.cefclient_sources_renderer +
+                gypi_paths2.cefclient_sources_win +
+                gypi_paths2.cefclient_sources_resources_win_rc
+
+      deps = [
+        ":bootstrap",
+        ":libcef",
+        ":libcef_dll_wrapper",
+      ]
+
+      defines = [
+        "CEF_USE_ATL",
+        "CEF_USE_BOOTSTRAP",
+      ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
+
+      libs = [
+        "comctl32.lib",
+        "d3d11.lib",
+        "imm32.lib",
+        "oleacc.lib",
+        "rpcrt4.lib",
+        "shlwapi.lib",
+      ]
+
+      if (target_cpu != "arm64") {
+        libs += [
+          "glu32.lib",
+          "opengl32.lib",
+        ]
+        ldflags = [
+          "/DELAYLOAD:glu32.dll",
+          "/DELAYLOAD:oleaut32.dll",
+          "/DELAYLOAD:opengl32.dll",
+        ]
+      }
+    }
+  }
+
 
   #
   # cefsimple targets.
@@ -2285,6 +2425,44 @@ if (is_mac) {
         # Set rpath to find our own libfreetype even in a non-component build.
         configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
       }
+    }
+  }
+
+  if (is_win) {
+    # Like the "cefsimple" executable target, but building a DLL to be loaded by
+    # bootstrap.exe.
+    shared_library("cefsimple_dll") {
+      # Necessary because the libcef target is testonly.
+      testonly = true
+
+      output_name = "cefsimple"
+
+      sources = includes_common +
+                includes_win +
+                gypi_paths2.includes_wrapper +
+                gypi_paths2.cefsimple_sources_common +
+                gypi_paths2.cefsimple_sources_win +
+                gypi_paths2.cefsimple_sources_resources_win_rc
+
+      deps = [
+        ":bootstrap",
+        ":libcef",
+        ":libcef_dll_wrapper",
+      ]
+
+      defines = [
+        "CEF_USE_BOOTSTRAP",
+      ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
+
+      libs = [
+        "comctl32.lib",
+        "shlwapi.lib",
+        "rpcrt4.lib",
+      ]
     }
   }
 
@@ -2359,6 +2537,43 @@ if (is_mac) {
     if (is_linux && !is_component_build) {
       # Set rpath to find our own libfreetype even in a non-component build.
       configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+    }
+  }
+
+  if (is_win) {
+    # Like the "ceftests" executable target, but building a DLL to be loaded by
+    # bootstrapc.exe.
+    shared_library("ceftests_dll") {
+      testonly = true
+
+      output_name = "ceftests"
+
+      sources = includes_common +
+                gypi_paths2.includes_wrapper +
+                gypi_paths2.shared_sources_browser +
+                gypi_paths2.shared_sources_common +
+                gypi_paths2.shared_sources_renderer +
+                gypi_paths2.shared_sources_win +
+                gypi_paths2.ceftests_sources_common +
+                gypi_paths2.ceftests_sources_win +
+                gypi_paths2.ceftests_sources_resources_win_rc
+
+      deps = [
+        ":bootstrapc",
+        ":libcef",
+        ":libcef_dll_wrapper",
+        ":gtest_teamcity",
+        "//testing/gtest",
+      ]
+
+      defines = [
+        "CEF_USE_BOOTSTRAP",
+        "CEF_TESTS_IN_SRC_DIRECTORY",
+      ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [ "//build/config/win:delayloads" ]
     }
   }
 }

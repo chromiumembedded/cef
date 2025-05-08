@@ -44,7 +44,7 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
 std::wstring GetResourceString(UINT id) {
 #define MAX_LOADSTRING 100
   TCHAR buff[MAX_LOADSTRING] = {0};
-  LoadString(::GetModuleHandle(nullptr), id, buff, MAX_LOADSTRING);
+  LoadString(GetCodeModuleHandle(), id, buff, MAX_LOADSTRING);
   return buff;
 }
 
@@ -189,6 +189,15 @@ float GetDeviceScaleFactor() {
   }
 
   return scale_factor;
+}
+
+HINSTANCE GetCodeModuleHandle() {
+  HMODULE hModule = nullptr;
+  CHECK(::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                            reinterpret_cast<LPCWSTR>(GetCodeModuleHandle),
+                            &hModule));
+  return hModule;
 }
 
 }  // namespace client

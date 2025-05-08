@@ -21,8 +21,10 @@
 #elif defined(OS_LINUX)
 #include <X11/keysym.h>
 #elif defined(OS_WIN)
+#include "tests/shared/browser/util_win.h"
+
 // Required for resource_util_win, which uses this as an extern
-HINSTANCE hInst = ::GetModuleHandle(nullptr);
+HINSTANCE hInst = client::GetCodeModuleHandle();
 #endif
 
 // Set to 1 to enable verbose debugging info logging.

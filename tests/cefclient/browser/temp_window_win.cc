@@ -7,6 +7,7 @@
 #include <windows.h>
 
 #include "include/base/cef_logging.h"
+#include "tests/shared/browser/util_win.h"
 
 namespace client {
 
@@ -16,7 +17,7 @@ const wchar_t kWndClass[] = L"Client_TempWindow";
 
 // Create the temp window.
 HWND CreateTempWindow() {
-  HINSTANCE hInstance = ::GetModuleHandle(nullptr);
+  HINSTANCE hInstance = GetCodeModuleHandle();
 
   WNDCLASSEX wc = {0};
   wc.cbSize = sizeof(wc);

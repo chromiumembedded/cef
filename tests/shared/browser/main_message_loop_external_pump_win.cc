@@ -51,7 +51,7 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
 };
 
 MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin() {
-  HINSTANCE hInstance = GetModuleHandle(nullptr);
+  HINSTANCE hInstance = GetCodeModuleHandle();
   const wchar_t* const kClassName = L"CEFMainTargetHWND";
 
   WNDCLASSEX wcex = {};
