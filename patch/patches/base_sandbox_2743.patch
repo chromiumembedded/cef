@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 59721ed3c9e26..c0ee7567a534c 100644
+index 59721ed3c9e26..05926d66bb49b 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
@@ -25,19 +25,6 @@ index 59721ed3c9e26..c0ee7567a534c 100644
      sources += [
        "hash/md5_nacl.cc",
        "hash/md5_nacl.h",
-@@ -1982,6 +1989,12 @@ component("base") {
-       defines += [ "COM_INIT_CHECK_HOOK_DISABLED" ]
-     }
- 
-+    if (!use_custom_libcxx) {
-+      # Enable the VS 2015 Update 2 fix when building with the MSVC standard
-+      # library.
-+      defines += [ "_ENABLE_ATOMIC_ALIGNMENT_FIX" ]
-+    }
-+
-     libs += [
-       "cfgmgr32.lib",
-       "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
 index f680f63cffc5b..9cb615bbc8a5a 100644
 --- base/allocator/dispatcher/dispatcher.cc
@@ -305,67 +292,6 @@ index ea33ca66f384c..33f4cc76f76bd 100644
    // BoringSSL is unavailable for NaCl builds so it remains timing dependent.
    return lhs.token_ == rhs.token_;
  #else
-diff --git base/win/sid.cc base/win/sid.cc
-index 6a91e984f5161..4433591d96c99 100644
---- base/win/sid.cc
-+++ base/win/sid.cc
-@@ -29,12 +29,56 @@
- #include "base/win/scoped_handle.h"
- #include "base/win/scoped_localalloc.h"
- #include "base/win/windows_version.h"
-+#include "cef/libcef/features/features.h"
-+
-+#if !BUILDFLAG(IS_CEF_SANDBOX_BUILD)
- #include "third_party/boringssl/src/include/openssl/sha.h"
-+#else
-+#include <wincrypt.h>
-+#endif
- 
- namespace base::win {
- 
- namespace {
- 
-+#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-+
-+#define SHA256_DIGEST_LENGTH 32
-+
-+bool SHA256(const uint8_t* InData, size_t InDataLen, uint8_t* OutHash) {
-+  HCRYPTPROV hProv = 0;
-+  HCRYPTHASH hHash = 0;
-+
-+  if (!CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES,
-+                           CRYPT_VERIFYCONTEXT)) {
-+    return false;
-+  }
-+
-+  if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
-+    CryptReleaseContext(hProv, 0);
-+    return false;
-+  }
-+
-+  if (!CryptHashData(hHash, InData, static_cast<DWORD>(InDataLen), 0)) {
-+    CryptDestroyHash(hHash);
-+    CryptReleaseContext(hProv, 0);
-+    return false;
-+  }
-+
-+  DWORD dwHashLen = SHA256_DIGEST_LENGTH;
-+  if (!CryptGetHashParam(hHash, HP_HASHVAL, OutHash, &dwHashLen, 0)) {
-+    CryptDestroyHash(hHash);
-+    CryptReleaseContext(hProv, 0);
-+    return false;
-+  }
-+
-+  CryptDestroyHash(hHash);
-+  CryptReleaseContext(hProv, 0);
-+  return true;
-+}
-+
-+#endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-+
- template <typename Iterator>
- Sid FromSubAuthorities(const SID_IDENTIFIER_AUTHORITY& identifier_authority,
-                        size_t sub_authority_count,
 diff --git build_overrides/dawn.gni build_overrides/dawn.gni
 index cec3df3e50b6e..309b4e6a4fe0d 100644
 --- build_overrides/dawn.gni
