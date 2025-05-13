@@ -47,7 +47,6 @@ def declare_exe(name, srcs, manifest_srcs, rc_file, resources_srcs, resources_de
         srcs = srcs,
         deps = [
             "@cef//:cef_wrapper",
-            "@cef//:cef_sandbox",
         ] + deps,
         linkopts = [
             "$(location @cef//:cef_lib)",

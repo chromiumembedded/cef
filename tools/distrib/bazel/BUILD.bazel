@@ -12,8 +12,7 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//bazel:library_helpers.bzl", "declare_cc_library", "declare_objc_library")
 load("//bazel/win:variables.bzl",
      WIN_DLLS="DLLS",
-     WIN_DLLS_X64="DLLS_X64",
-     WIN_SANDBOX_LIBS="SANDBOX_LIBS")
+     WIN_DLLS_X64="DLLS_X64")
 load("//bazel/linux:variables.bzl",
      LINUX_SOS="SOS")
 load("//bazel/mac:variables.bzl",
@@ -153,14 +152,11 @@ declare_cc_library(
            }),
 )
 
-# Only available on MacOS/Windows.
+# Only available on MacOS.
 declare_cc_library(
     name = "cef_sandbox_linkflags",
     linkopts = select({
         "@platforms//os:macos": ["-lsandbox"],
-        "@platforms//os:windows": [
-            "/DEFAULTLIB:{}".format(lib) for lib in WIN_SANDBOX_LIBS
-        ],
         "//conditions:default": [],
     }),
 )
@@ -169,7 +165,6 @@ cc_import(
     name = "cef_sandbox_debug",
     static_library = select({
         "@platforms//os:macos": "Debug/cef_sandbox.a",
-        "@platforms//os:windows": "Debug/cef_sandbox.lib",
         "//conditions:default": None,
     }),
     deps = [":cef_sandbox_linkflags"],
@@ -179,7 +174,6 @@ cc_import(
     name = "cef_sandbox_release",
     static_library = select({
         "@platforms//os:macos": "Release/cef_sandbox.a",
-        "@platforms//os:windows": "Release/cef_sandbox.lib",
         "//conditions:default": None,
     }),
     deps = [":cef_sandbox_linkflags"],

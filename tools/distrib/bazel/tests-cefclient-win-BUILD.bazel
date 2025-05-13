@@ -22,6 +22,7 @@ LINK_LIBS = [
     "glu32.lib",
     "imm32.lib",
     "opengl32.lib",
+    "shell32.lib",
 ]
 
 DELAYLOAD_DLLS = [
