@@ -396,15 +396,6 @@ if(OS_WINDOWS)
     set(CMAKE_CXX_FLAGS_RELEASE "")
   endif()
 
-  if(USE_SANDBOX)
-    # Check if the current MSVC version is compatible with the cef_sandbox.lib
-    # static library. We require VS2015 or newer.
-    if(MSVC_VERSION LESS 1900)
-      message(WARNING "CEF sandbox is not compatible with the current MSVC version (${MSVC_VERSION})")
-      set(USE_SANDBOX OFF)
-    endif()
-  endif()
-
   # Consumers who run into LNK4099 warnings can pass /Z7 instead (see issue #385).
   set(CEF_DEBUG_INFO_FLAG "/Zi" CACHE STRING "Optional flag specifying specific /Z flag to use")
 
@@ -449,10 +440,7 @@ if(OS_WINDOWS)
   list(APPEND CEF_LINKER_FLAGS_DEBUG
     /DEBUG        # Generate debug information
     )
-  list(APPEND CEF_EXE_LINKER_FLAGS
-    /MANIFEST:NO        # No default manifest (see ADD_WINDOWS_MANIFEST macro usage)
-    /LARGEADDRESSAWARE  # Allow 32-bit processes to access 3GB of RAM
-
+  set(CEF_DELAYLOAD_FLAGS
     # Delayload most libraries as the dlls are simply not required at startup (or
     # at all, depending on the process type). Some dlls open handles when they are
     # loaded, and we may not want them to be loaded in renderers or other sandboxed
@@ -503,6 +491,16 @@ if(OS_WINDOWS)
     /DELAYLOAD:wsock32.dll
     /DELAYLOAD:wtsapi32.dll
     )
+  list(APPEND CEF_EXE_LINKER_FLAGS
+    # For executable targets.
+    /MANIFEST:NO        # No default manifest (see ADD_WINDOWS_MANIFEST macro usage)
+    /LARGEADDRESSAWARE  # Allow 32-bit processes to access 3GB of RAM
+    ${CEF_DELAYLOAD_FLAGS}
+    )
+  list(APPEND CEF_SHARED_LINKER_FLAGS
+    # For shared library targets.
+    ${CEF_DELAYLOAD_FLAGS}
+    )
   list(APPEND CEF_COMPILER_DEFINES
     WIN32 _WIN32 _WINDOWS             # Windows platform
     UNICODE _UNICODE                  # Unicode build
@@ -540,6 +538,7 @@ if(OS_WINDOWS)
   # Standard libraries.
   set(CEF_STANDARD_LIBS
     comctl32.lib
+    delayimp.lib
     gdi32.lib
     rpcrt4.lib
     shlwapi.lib
@@ -587,36 +586,8 @@ if(OS_WINDOWS)
 
   if(USE_SANDBOX)
     list(APPEND CEF_COMPILER_DEFINES
-      PSAPI_VERSION=1   # Required by cef_sandbox.lib
-      CEF_USE_SANDBOX   # Used by apps to test if the sandbox is enabled
+      CEF_USE_BOOTSTRAP   # Used by apps to test if the bootstrap is enabled
       )
-    list(APPEND CEF_COMPILER_DEFINES_DEBUG
-      _HAS_ITERATOR_DEBUGGING=0   # Disable iterator debugging
-      )
-
-    # Libraries required by cef_sandbox.lib.
-    set(CEF_SANDBOX_STANDARD_LIBS
-      Advapi32.lib
-      dbghelp.lib
-      Delayimp.lib
-      ntdll.lib
-      OleAut32.lib
-      PowrProf.lib
-      Propsys.lib
-      psapi.lib
-      SetupAPI.lib
-      Shell32.lib
-      Shcore.lib
-      Userenv.lib
-      version.lib
-      wbemuuid.lib
-      WindowsApp.lib
-      winmm.lib
-      )
-
-    # CEF sandbox library paths.
-    set(CEF_SANDBOX_LIB_DEBUG "${CEF_BINARY_DIR_DEBUG}/cef_sandbox.lib")
-    set(CEF_SANDBOX_LIB_RELEASE "${CEF_BINARY_DIR_RELEASE}/cef_sandbox.lib")
   endif()
 
   # Configure use of ATL.
