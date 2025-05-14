@@ -26,11 +26,11 @@ def is_ancestor(path='.', commit1='HEAD', commit2='master'):
   return result['ret'] == 0
 
 
-def exec_git_cmd(args, path='.'):
+def exec_git_cmd(args, path='.', quiet=False):
   """ Executes a git command with the specified |args|. """
   cmd = "%s %s" % (git_exe, args)
   result = exec_cmd(cmd, path)
-  if result['ret'] != 0:
+  if result['ret'] != 0 and not quiet:
     sys.stderr.write('Command \"%s\" exited with retval %d\n' % (cmd,
                                                                  result['ret']))
     if result['err'] != '':
@@ -96,7 +96,7 @@ def get_changed_files(path, hash):
     cmd = "diff --name-only --cached"
   else:
     cmd = "diff-tree --no-commit-id --name-only -r %s" % hash
-  result = exec_git_cmd(cmd, path)
+  result = exec_git_cmd(cmd, path, quiet=True)
   return [] if result is None else result.split("\n")
 
 
