@@ -893,7 +893,7 @@ if not branch_is_master:
   # Verify the minimum supported branch number.
   if int(cef_branch) < 5060:
     print('The requested branch (%s) is too old to build using this tool. ' +
-          'The minimum supported branch is 3071.' % cef_branch)
+          'The minimum supported branch is 5060.' % cef_branch)
     sys.exit(1)
 
 # True if the requested branch is 7151 or older.
@@ -911,13 +911,20 @@ if platform == 'mac' and not (options.x64build or options.arm64build):
         'Add --x64-build or --arm64-build flag to generate a 64-bit build.')
   sys.exit(1)
 
-# Platforms that build a cef_sandbox library.
+# Platforms that build a cef_sandbox library in a separate output directory.
 sandbox_lib_platforms = ['mac']
-if branch_is_7151_or_older:
-  sandbox_lib_platforms.append('win')
 
-if not platform in sandbox_lib_platforms and (options.sandboxdistrib or
-                                              options.sandboxdistribonly):
+# Platforms that build a bootstrap executable in the same output directory.
+bootstrap_exe_platforms = []
+
+if branch_is_7151_or_older:
+  sandbox_lib_platforms.append('windows')
+else:
+  bootstrap_exe_platforms.append('windows')
+
+if not platform in sandbox_lib_platforms and \
+   not platform in bootstrap_exe_platforms and \
+   (options.sandboxdistrib or options.sandboxdistribonly):
   print('The sandbox distribution is not supported on this platform.')
   sys.exit(1)
 
@@ -1342,7 +1349,7 @@ if not options.nobuild and (chromium_checkout_changed or \
     target += ' ' + options.testtarget
   if platform == 'linux':
     target += ' chrome_sandbox'
-  if platform == 'windows' and not branch_is_7151_or_older:
+  if platform in bootstrap_exe_platforms:
     target += ' bootstrap bootstrapc'
 
   # Make a CEF Debug build.

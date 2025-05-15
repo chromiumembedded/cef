@@ -743,7 +743,7 @@ parser.add_option(
     action='store_true',
     dest='sandbox',
     default=False,
-    help='include only the cef_sandbox static library (macOS only)')
+    help='include only the cef_sandbox static library (macOS) or bootstrap executables (Windows)')
 parser.add_option(
     '--tools',
     action='store_true',
@@ -791,8 +791,8 @@ if options.armbuild and platform != 'linux':
   print_error('--arm-build is only supported on Linux.')
   sys.exit()
 
-if options.sandbox and platform != 'mac':
-  print_error('--sandbox is only supported on macOS.')
+if options.sandbox and not platform in ('mac', 'windows'):
+  print_error('--sandbox is only supported on macOS and Windows.')
   sys.exit()
 
 if not options.ninjabuild:
@@ -1127,8 +1127,6 @@ elif platform == 'windows':
       {'path': 'vulkan-1.dll'},
   ]
   pdb_files = [
-      {'path': 'bootstrap.exe.pdb'},
-      {'path': 'bootstrapc.exe.pdb'},
       {'path': 'chrome_elf.dll.pdb'},
       {'path': 'dxcompiler.dll.pdb', 'conditional': True},
       {'path': '%s.pdb' % libcef_dll},
@@ -1144,13 +1142,24 @@ elif platform == 'windows':
         'path': 'cefsimple.exe' if platform_arch == 'arm64' else 'cefclient.exe'
     })
   else:
+    if mode == 'sandbox':
+      # Only include the sandbox binaries.
+      binaries = []
+      pdb_files = []
+
     # yapf: disable
     binaries.extend([
         {'path': 'bootstrap.exe'},
         {'path': 'bootstrapc.exe'},
-        {'path': '%s.lib' % libcef_dll, 'out_path': 'libcef.lib'},
+    ])
+    pdb_files.extend([
+        {'path': 'bootstrap.exe.pdb'},
+        {'path': 'bootstrapc.exe.pdb'},
     ])
     # yapf: enable
+
+    if mode != 'sandbox':
+      binaries.append({'path': '%s.lib' % libcef_dll, 'out_path': 'libcef.lib'})
 
   # yapf: disable
   resources = [
@@ -1164,7 +1173,7 @@ elif platform == 'windows':
 
   valid_build_dir = None
 
-  if mode == 'standard':
+  if mode == 'standard' or mode == 'sandbox':
     # transfer Debug files
     build_dir = build_dir_debug
     if not options.allowpartial or path_exists(
@@ -1199,7 +1208,7 @@ elif platform == 'windows':
   else:
     sys.stdout.write("No Release build files.\n")
 
-  if not valid_build_dir is None:
+  if mode != 'sandbox' and not valid_build_dir is None:
     # transfer resource files
     build_dir = valid_build_dir
     if mode == 'client':

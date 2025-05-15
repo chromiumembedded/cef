@@ -1,9 +1,9 @@
 CONTENTS
 --------
 
-Debug       Contains the Debug build of cef_sandbox.lib.
+Debug       Contains the Debug build of bootstrap.exe and bootstrapc.exe.
 
-Release     Contains the Release build of cef_sandbox.lib.
+Release     Contains the Release build of bootstrap.exe and bootstrapc.exe.
 
 
 USAGE
@@ -11,4 +11,4 @@ USAGE
 
 Please visit the CEF Website for usage information.
 
-https://bitbucket.org/chromiumembedded/cef/
+https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md
