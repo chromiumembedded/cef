@@ -72,10 +72,10 @@ index 573269ba54150..a51715e7dc6cc 100644
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index c201cff9e5c3b..900af39ae4b09 100644
+index 3b3eec99c80a8..b07e1d00d4a1e 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -843,6 +843,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -847,6 +847,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();
