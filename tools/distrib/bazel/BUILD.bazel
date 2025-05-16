@@ -105,26 +105,26 @@ selects.config_setting_group(
 #
 
 # Public headers for cef_wrapper here.
-# Seperated from the actual cef_wrapper since the *.mm file needs access to these as well.
 declare_cc_library(
     name = "cef_wrapper_headers",
     hdrs = glob(
         [
             "include/**/*.h",
         ],
-        exclude = [
-            "include/base/internal/**/*.*",
-            "include/internal/**/*.*",
-        ],
     ),
+    defines = [
+        "WRAPPING_CEF_SHARED",
+    ],
 )
 
 declare_objc_library(
     name = "cef_wrapper_apple",
-    srcs = [
-        "libcef_dll/wrapper/cef_library_loader_mac.mm",
-    ],
-    implementation_deps = [":cef_wrapper_headers"],
+    srcs = glob(
+        [
+            "libcef_dll/**/*.mm",
+        ]
+    ),
+    deps = [":cef_wrapper_headers"],
 )
 
 declare_cc_library(
@@ -133,58 +133,15 @@ declare_cc_library(
         [
             "libcef_dll/**/*.cc",
             "libcef_dll/**/*.h",
-            "libcef_dll_wrapper/**/*.cc",
-            "libcef_dll_wrapper/**/*.h",
-            "include/base/internal/**/*.h",
-            "include/base/internal/**/*.inc",
-            "include/internal/**/*.h",
-            "include/test/*.h",
+            "include/**/*.inc",
         ],
     ),
-    defines = [
-        "WRAPPING_CEF_SHARED",
-    ],
     deps = [":cef_wrapper_headers"] +
            select({
                "@platforms//os:macos": [":cef_wrapper_apple"],
                "@platforms//os:windows": [":cef"],
                "//conditions:default": None,
            }),
-)
-
-# Only available on MacOS.
-declare_cc_library(
-    name = "cef_sandbox_linkflags",
-    linkopts = select({
-        "@platforms//os:macos": ["-lsandbox"],
-        "//conditions:default": [],
-    }),
-)
-
-cc_import(
-    name = "cef_sandbox_debug",
-    static_library = select({
-        "@platforms//os:macos": "Debug/cef_sandbox.a",
-        "//conditions:default": None,
-    }),
-    deps = [":cef_sandbox_linkflags"],
-)
-
-cc_import(
-    name = "cef_sandbox_release",
-    static_library = select({
-        "@platforms//os:macos": "Release/cef_sandbox.a",
-        "//conditions:default": None,
-    }),
-    deps = [":cef_sandbox_linkflags"],
-)
-
-alias(
-    name = "cef_sandbox",
-    actual = select({
-        "@cef//:dbg": "@cef//:cef_sandbox_debug",
-        "//conditions:default": "@cef//:cef_sandbox_release",
-    }),
 )
 
 filegroup(

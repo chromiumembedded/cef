@@ -43,9 +43,7 @@ def _declare_helper_app(name, info_plist, deps, helper_base_name, helper_suffix,
         bundle_id = "{}.{}.helper{}".format(MACOS_BUNDLE_ID_BASE, name.lower(), bundle_id_suffix),
         infoplists = [":{}_InfoPList".format(helper_base_name)],
         minimum_os_version = MACOS_DEPLOYMENT_TARGET,
-        deps = [
-            "@cef//:cef_sandbox",
-        ] + deps,
+        deps = deps,
         **kwargs,
     )
 
