@@ -50,37 +50,8 @@ extern "C" {
 /// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
 /// directly accessing system resources. This helps to protect the user from
 /// untrusted and potentially malicious Web content. See
-/// http://www.chromium.org/developers/design-documents/sandbox for complete
+/// https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md for usage
 /// details.
-///
-/// To enable the sandbox on Windows the same executable must be used for all
-/// processes (browser process and sub-processes). This executable must link the
-/// cef_sandbox static library and initialize the sandbox by calling
-/// cef_sandbox_info_create. The resulting |sandbox_info| value must then be
-/// passed to CefExecuteProcess and CefInitialize.
-///
-/// Beginning with M138 the cef_sandbox static library can only be linked with
-/// applications built as part of the CEF/Chromium build. This is due to
-/// unavoidable dependencies on Chromium's bundled Clang/LLVM/libc++ toolchain.
-/// Client applications therefore have 3 options for sandbox integration:
-///
-/// 1. Build the client application (or a custom bootstrap executable) as part
-///    of the CEF/Chromium build using Chromium's bundled Clang/LLVM/libc++
-///    toolchain. For details of this option see
-///    https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md
-/// 2. Build the client application as a DLL using any toolchain and run using
-///    the provided bootstrap.exe or bootstrapc.exe. The DLL implements
-///    RunWinMain or RunConsoleMain respectively and gets passed the
-///    |sandbox_info| parameter which it then forwards to CefExecuteProcess
-///    and CefInitialize. The provided bootstrap executables can optionally be
-///    renamed or modified [1] to meet client branding needs.
-/// 3. Build the client application as an executable using any toolchain with
-///    the sandbox disabled. Pass nullptr as the |sandbox_info| parameter to
-///    CefExecuteProcess and CefInitialize.
-///
-/// [1] Embedded executable resources such as icons and file properties can be
-///     modified using Visual Studio or Resource Hacker tools. Be sure to code
-///     sign all binaries after modification and before distribution to users.
 ///
 
 ///
@@ -101,7 +72,7 @@ void cef_sandbox_info_destroy(void* sandbox_info);
 ///
 /// Manages the life span of a sandbox information object.
 ///
-class CefScopedSandboxInfo {
+class CefScopedSandboxInfo final {
  public:
   CefScopedSandboxInfo() { sandbox_info_ = cef_sandbox_info_create(); }
   ~CefScopedSandboxInfo() { cef_sandbox_info_destroy(sandbox_info_); }

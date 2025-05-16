@@ -84,7 +84,8 @@ int cef_unload_library(void);
 ///   #include "include/wrapper/cef_library_loader.h"
 ///
 ///   int main(int argc, char* argv[]) {
-///     // Initialize the macOS sandbox for this helper process.
+///     // Dynamically load and initialize the macOS sandbox for this helper
+///     // process.
 ///     CefScopedSandboxContext sandbox_context;
 ///     if (!sandbox_context.Initialize(argc, argv))
 ///       return 1;

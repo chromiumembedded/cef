@@ -47,19 +47,3 @@ void cef_sandbox_destroy(void* sandbox_context) {
   delete static_cast<sandbox::SeatbeltExecServer::CreateFromArgumentsResult*>(
       sandbox_context);
 }
-
-CefScopedSandboxContext::CefScopedSandboxContext() : sandbox_context_(NULL) {}
-
-CefScopedSandboxContext::~CefScopedSandboxContext() {
-  if (sandbox_context_) {
-    cef_sandbox_destroy(sandbox_context_);
-  }
-}
-
-bool CefScopedSandboxContext::Initialize(int argc, char** argv) {
-  if (sandbox_context_) {
-    return false;
-  }
-  sandbox_context_ = cef_sandbox_initialize(argc, argv);
-  return !!sandbox_context_;
-}

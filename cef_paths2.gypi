@@ -166,6 +166,7 @@
     ],
     'libcef_dll_wrapper_sources_mac': [
       'libcef_dll/wrapper/cef_library_loader_mac.mm',
+      'libcef_dll/wrapper/cef_scoped_sandbox_context_mac.mm',
       'libcef_dll/wrapper/libcef_dll_dylib.cc',
     ],
     'shared_sources_browser': [

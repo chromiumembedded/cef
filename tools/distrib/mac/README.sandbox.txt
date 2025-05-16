@@ -1,9 +1,9 @@
 CONTENTS
 --------
 
-Debug       Contains the Debug build of cef_sandbox.a.
+Debug       Contains the Debug build of libcef_sandbox.dylib
 
-Release     Contains the Release build of cef_sandbox.a.
+Release     Contains the Release build of libcef_sandbox.dylib
 
 
 USAGE
@@ -11,4 +11,4 @@ USAGE
 
 Please visit the CEF Website for usage information.
 
-https://bitbucket.org/chromiumembedded/cef/
+https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md

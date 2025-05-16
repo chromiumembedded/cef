@@ -165,8 +165,12 @@ def create_readme():
                    'licensing terms and conditions.'
   elif mode == 'sandbox':
     distrib_type = 'Sandbox'
-    distrib_desc = 'This distribution contains only the cef_sandbox static library. Please see\n' \
-                   'the LICENSING section of this document for licensing terms and conditions.'
+    if platform == 'windows':
+      distrib_desc = 'This distribution contains only the bootstrap executables. Please see\n' \
+                     'the LICENSING section of this document for licensing terms and conditions.'
+    elif platform == 'mac':
+      distrib_desc = 'This distribution contains only the cef_sandbox dynamic library. Please see\n' \
+                     'the LICENSING section of this document for licensing terms and conditions.'
   elif mode == 'tools':
     distrib_type = 'Tools'
     distrib_desc = 'This distribution contains additional tools for building CEF-based applications.'
@@ -518,113 +522,6 @@ def copy_files_list(build_dir, dst_dir, paths):
         sys.stdout.write('Missing conditional path: %s.\n' % source_path)
       else:
         raise Exception('Missing required path: %s' % source_path)
-
-
-def get_exported_symbols(file):
-  """ Returns the global symbols exported by |file|. """
-  symbols = []
-
-  # Each symbol line has a value like:
-  # 0000000000000000 T _cef_sandbox_initialize
-  cmdline = 'nm -g -U %s' % file
-  result = exec_cmd(cmdline, os.path.join(cef_dir, 'tools'))
-  if len(result['err']) > 0:
-    raise Exception('ERROR: nm failed: %s' % result['err'])
-  for line in result['out'].split('\n'):
-    if line.find(' T ') < 0:
-      continue
-    symbol = line[line.rfind(' ') + 1:]
-    symbols.append(symbol)
-
-  return symbols
-
-
-def get_undefined_symbols(file):
-  """ Returns the undefined symbols imported by |file|. """
-  symbols = []
-
-  # Each symbol line has a value like:
-  # cef_sandbox.a:cef_sandbox.o: _memcpy
-  cmdline = 'nm -u -A %s' % file
-  result = exec_cmd(cmdline, os.path.join(cef_dir, 'tools'))
-  if len(result['err']) > 0:
-    raise Exception('ERROR: nm failed: %s' % result['err'])
-  for line in result['out'].split('\n'):
-    if line.find(': ') < 0:
-      continue
-    symbol = line[line.rfind(': ') + 2:]
-    symbols.append(symbol)
-
-  return symbols
-
-
-def combine_libs(platform, build_dir, libs, dest_lib):
-  """ Combine multiple static libraries into a single static library. """
-  intermediate_obj = None
-  if platform == 'mac':
-    # Find CEF_EXPORT symbols from libcef_sandbox.a (include/cef_sandbox_mac.h)
-    # Export only symbols that include these strings.
-    symbol_match = [
-        '_cef_',  # C symbols
-        'Cef',  # C++ symbols
-    ]
-
-    print('Finding exported symbols...')
-    assert 'libcef_sandbox.a' in libs[0], libs[0]
-    symbols = []
-    for symbol in get_exported_symbols(os.path.join(build_dir, libs[0])):
-      for match in symbol_match:
-        if symbol.find(match) >= 0:
-          symbols.append(symbol)
-          break
-    assert len(symbols) > 0
-
-    # Create an intermediate object file that combines all other object files.
-    # Symbols not identified above will be made private (local).
-    intermediate_obj = os.path.splitext(dest_lib)[0] + '.o'
-    arch = 'arm64' if options.arm64build else 'x86_64'
-    cmdline = 'ld -arch %s -r -o "%s"' % (arch, intermediate_obj)
-    for symbol in symbols:
-      cmdline += ' -exported_symbol %s' % symbol
-  else:
-    raise Exception('Unsupported platform for combine_libs: %s' % platform)
-
-  for lib in libs:
-    lib_path = os.path.join(build_dir, lib)
-    for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
-      if not path_exists(path):
-        raise Exception('File not found: ' + path)
-      cmdline += ' "%s"' % path
-  run(cmdline, os.path.join(cef_dir, 'tools'))
-
-  if not intermediate_obj is None:
-    # Create an archive file containing the new object file.
-    cmdline = 'libtool -static -o "%s" "%s"' % (dest_lib, intermediate_obj)
-    run(cmdline, os.path.join(cef_dir, 'tools'))
-    remove_file(intermediate_obj)
-
-    # Verify that only the expected symbols are exported from the archive file.
-    print('Verifying exported symbols...')
-    result_symbols = get_exported_symbols(dest_lib)
-    if set(symbols) != set(result_symbols):
-      print('Expected', symbols)
-      print('Got', result_symbols)
-      raise Exception('Failure verifying exported symbols')
-
-    # Verify that no C++ symbols are imported by the archive file. If the
-    # archive imports C++ symbols and the client app links an incompatible C++
-    # library, the result will be undefined behavior.
-    # For example, to avoid importing libc++ symbols the cef_sandbox target
-    # should have a dependency on libc++abi. This dependency can be verified
-    # with the following command:
-    # gn path out/[config] //cef:cef_sandbox //buildtools/third_party/libc++abi
-    print('Verifying imported (undefined) symbols...')
-    undefined_symbols = get_undefined_symbols(dest_lib)
-    cpp_symbols = list(
-        filter(lambda symbol: symbol.startswith('__Z'), undefined_symbols))
-    if cpp_symbols:
-      print('Found C++ symbols:', cpp_symbols)
-      raise Exception('Failure verifying imported (undefined) symbols')
 
 
 def run(command_line, working_dir):
@@ -1255,15 +1152,6 @@ elif platform == 'mac':
   framework_name = 'Chromium Embedded Framework'
   cefclient_app = 'cefclient.app'
 
-  cef_sandbox_lib = 'obj/cef/libcef_sandbox.a'
-  sandbox_libs = [
-      cef_sandbox_lib,
-      'obj/sandbox/mac/libseatbelt.a',
-      'obj/sandbox/mac/libseatbelt_proto.a',
-      'obj/third_party/protobuf/libprotobuf_lite.a',
-      'obj/buildtools/third_party/libc++/libc++/*.o',
-      'obj/buildtools/third_party/libc++abi/libc++abi/*.o',
-  ]
   dsym_dirs = [
       '%s.dSYM' % framework_name,
       'libEGL.dylib.dSYM',
@@ -1271,25 +1159,15 @@ elif platform == 'mac':
       'libvk_swiftshader.dylib.dSYM',
   ]
 
-  # Generate the cef_sandbox.a merged library. A separate *_sandbox build
-  # should exist when GN is_official_build=true.
-  if mode in ('standard', 'minimal', 'sandbox') and not options.nosandbox:
-    dirs = {
-        'Debug': (build_dir_debug + '_sandbox', build_dir_debug),
-        'Release': (build_dir_release + '_sandbox', build_dir_release)
-    }
-    for dir_name in dirs.keys():
-      for src_dir in dirs[dir_name]:
-        if path_exists(os.path.join(src_dir, cef_sandbox_lib)):
-          dst_dir = os.path.join(output_dir, dir_name)
-          make_dir(dst_dir, options.quiet)
-          combine_libs(platform, src_dir, sandbox_libs,
-                       os.path.join(dst_dir, 'cef_sandbox.a'))
-          break
+  sandbox_lib = 'libcef_sandbox.dylib'
+  if mode == 'sandbox':
+    # Only transfer the sandbox dSYM.
+    dsym_dirs = []
+  dsym_dirs.append('%s.dSYM' % sandbox_lib)
 
   valid_build_dir = None
 
-  if mode == 'standard':
+  if mode == 'standard' or mode == 'sandbox':
     # transfer Debug files
     build_dir = build_dir_debug
     if not options.allowpartial or path_exists(
@@ -1300,8 +1178,16 @@ elif platform == 'mac':
       framework_src_dir = os.path.join(
           build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
           (cefclient_app, framework_name))
-      framework_dst_dir = os.path.join(dst_dir, '%s.framework' % framework_name)
-      copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
+
+      if mode == 'sandbox':
+        # Only transfer the sandbox library.
+        copy_file(
+            os.path.join(framework_src_dir, 'Libraries', sandbox_lib), dst_dir,
+            options.quiet)
+      else:
+        framework_dst_dir = os.path.join(dst_dir,
+                                         '%s.framework' % framework_name)
+        copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -1318,17 +1204,23 @@ elif platform == 'mac':
     else:
       sys.stdout.write("No Debug build files.\n")
 
-  if mode != 'sandbox':
-    # transfer Release files
-    build_dir = build_dir_release
-    if not options.allowpartial or path_exists(
-        os.path.join(build_dir, cefclient_app)):
-      valid_build_dir = build_dir
-      dst_dir = os.path.join(output_dir, 'Release')
-      make_dir(dst_dir, options.quiet)
-      framework_src_dir = os.path.join(
-          build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
-          (cefclient_app, framework_name))
+  # transfer Release files
+  build_dir = build_dir_release
+  if not options.allowpartial or path_exists(
+      os.path.join(build_dir, cefclient_app)):
+    valid_build_dir = build_dir
+    dst_dir = os.path.join(output_dir, 'Release')
+    make_dir(dst_dir, options.quiet)
+    framework_src_dir = os.path.join(
+        build_dir, '%s/Contents/Frameworks/%s.framework/Versions/A' %
+        (cefclient_app, framework_name))
+
+    if mode == 'sandbox':
+      # Only transfer the sandbox library.
+      copy_file(
+          os.path.join(framework_src_dir, 'Libraries', sandbox_lib), dst_dir,
+          options.quiet)
+    else:
       if mode != 'client':
         framework_dst_dir = os.path.join(dst_dir,
                                          '%s.framework' % framework_name)
@@ -1343,20 +1235,20 @@ elif platform == 'mac':
         remove_dir(framework_dst_dir, options.quiet)
       copy_dir(framework_src_dir, framework_dst_dir, options.quiet)
 
-      if not options.nosymbols:
-        # create the symbol output directory
-        symbol_output_dir = create_output_dir(
-            output_dir_name + '_release_symbols', options.outputdir)
+    if not options.nosymbols:
+      # create the symbol output directory
+      symbol_output_dir = create_output_dir(
+          output_dir_name + '_release_symbols', options.outputdir)
 
-        # The real dSYM already exists, just copy it to the output directory.
-        # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
-        # See //build/config/mac/symbols.gni.
-        for dsym in dsym_dirs:
-          copy_dir(
-              os.path.join(build_dir, dsym),
-              os.path.join(symbol_output_dir, dsym), options.quiet)
-    else:
-      sys.stdout.write("No Release build files.\n")
+      # The real dSYM already exists, just copy it to the output directory.
+      # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
+      # See //build/config/mac/symbols.gni.
+      for dsym in dsym_dirs:
+        copy_dir(
+            os.path.join(build_dir, dsym),
+            os.path.join(symbol_output_dir, dsym), options.quiet)
+  else:
+    sys.stdout.write("No Release build files.\n")
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files

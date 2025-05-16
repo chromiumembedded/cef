@@ -518,47 +518,6 @@ def GetConfigArgs(args, is_debug, cpu):
   return result
 
 
-def GetConfigArgsSandbox(platform, args, is_debug, cpu):
-  """
-  Return merged GN args for the cef_sandbox configuration and validate.
-  """
-  add_args = {
-      # Avoid libucrt.lib linker errors.
-      'use_allocator_shim': False,
-
-      # PartitionAlloc is selected as the default allocator in some cases.
-      # We can't use it because it requires use_allocator_shim=true.
-      'use_partition_alloc_as_malloc': False,
-      'use_partition_alloc': False,
-
-      # These require use_partition_alloc_as_malloc=true, so disable them.
-      'enable_backup_ref_ptr_support': False,
-      'enable_dangling_raw_ptr_checks': False,
-      'enable_dangling_raw_ptr_feature_flag': False,
-
-      # Avoid /LTCG linker warnings and generate smaller lib files.
-      'is_official_build': False,
-
-      # Disable use of thin archives with lld. Thin archives contain just the
-      # symbol table and the path to find the original .o files. They are
-      # generally incompatible with default platform ld/link versions and
-      # shouldn't be distributed due to the external .o file dependencies.
-      'use_thin_archives': False,
-  }
-
-  if not is_debug:
-    # Disable DCHECKs in Release builds.
-    add_args['dcheck_always_on'] = False
-
-  result = MergeDicts(args, add_args, {
-      'is_debug': is_debug,
-      'target_cpu': cpu,
-  })
-
-  ValidateArgs(result, is_debug)
-  return result
-
-
 def LinuxSysrootExists(cpu):
   """
   Returns true if the sysroot for the specified |cpu| architecture exists.
@@ -631,14 +590,6 @@ def GetAllPlatformConfigs(build_args, quiet=False):
     if create_debug:
       result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
     result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
-
-    if platform == 'mac' and GetArgValue(args, 'is_official_build'):
-      # Build cef_sandbox.lib with a different configuration.
-      if create_debug:
-        result['Debug_GN_' + cpu + '_sandbox'] = GetConfigArgsSandbox(
-            platform, args, True, cpu)
-      result['Release_GN_' + cpu + '_sandbox'] = GetConfigArgsSandbox(
-          platform, args, False, cpu)
 
   out_configs = os.environ.get('GN_OUT_CONFIGS', None)
   if not out_configs is None:

@@ -48,14 +48,8 @@ extern "C" {
 /// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
 /// directly accessing system resources. This helps to protect the user from
 /// untrusted and potentially malicious Web content. See
-/// http://www.chromium.org/developers/design-documents/sandbox for complete
-/// details.
-///
-/// To enable the sandbox on macOS the following requirements must be met:
-/// 1. Link the helper process executable with the cef_sandbox static library.
-/// 2. Call the cef_sandbox_initialize() function at the beginning of the
-///    helper executable main() function and before loading the CEF framework
-///    library. See include/wrapper/cef_library_loader.h for example usage.
+/// https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md for usage
+/// details. See include/wrapper/cef_library_loader.h for example usage.
 ///
 
 ///
@@ -76,7 +70,7 @@ CEF_EXPORT void cef_sandbox_destroy(void* sandbox_context);
 ///
 /// Scoped helper for managing the life span of a sandbox context handle.
 ///
-class CEF_EXPORT CefScopedSandboxContext {
+class CefScopedSandboxContext final {
  public:
   CefScopedSandboxContext();
   ~CefScopedSandboxContext();
@@ -87,7 +81,8 @@ class CEF_EXPORT CefScopedSandboxContext {
   bool Initialize(int argc, char** argv);
 
  private:
-  void* sandbox_context_;
+  void* library_handle_ = nullptr;
+  void* sandbox_context_ = nullptr;
 };
 #endif  // __cplusplus
 

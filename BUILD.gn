@@ -1229,7 +1229,7 @@ if (is_win) {
 }
 
 if (is_mac) {
-  static_library("cef_sandbox") {
+  shared_library("cef_sandbox") {
     sources = [ "libcef_dll/sandbox/sandbox_mac.mm" ]
     configs += [ ":libcef_includes_config" ]
     deps = [
@@ -1634,6 +1634,33 @@ if (is_mac) {
     ]
   }
 
+  # We need to copy the CEF libraries so that the bundle_data dependencies have
+  # a "copy" target type. Otherwise for "shared_library" target types it will
+  # try to link things into the CEF Framework when we want to keep the libraries
+  # separate instead.
+  copy("cef_library_copy") {
+    sources = [
+      "$root_out_dir/libcef_sandbox.dylib",
+    ]
+    outputs = [ "$root_out_dir/cef_intermediates/{{source_file_part}}" ]
+    deps = [
+      ":cef_sandbox",
+    ]
+  }
+
+  # Add the CEF .dylibs in the MODULE_DIR of the Framework app bundle.
+  bundle_data("cef_framework_cef_binaries") {
+    sources = [
+      "$root_out_dir/cef_intermediates/libcef_sandbox.dylib",
+    ]
+    outputs = [
+      "{{bundle_contents_dir}}/Libraries/{{source_file_part}}",
+    ]
+    public_deps = [
+      ":cef_library_copy",
+    ]
+  }
+
   # Add the SwiftShader .dylibs in the MODULE_DIR of the Framework app bundle.
   bundle_data("cef_framework_swiftshader_binaries") {
     sources = [
@@ -1664,6 +1691,7 @@ if (is_mac) {
 
     deps = libcef_deps_common + [
       ":cef_framework_angle_binaries",
+      ":cef_framework_cef_binaries",
       ":cef_framework_resources",
       ":cef_framework_swiftshader_binaries",
     ]
@@ -1828,7 +1856,6 @@ if (is_mac) {
 
         deps = [
           ":cef_make_headers",
-          ":cef_sandbox",
           ":libcef_dll_wrapper",
         ]
         if (defined(invoker.helper_deps)) {

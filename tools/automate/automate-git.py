@@ -757,13 +757,13 @@ parser.add_option(
     action='store_true',
     dest='sandboxdistrib',
     default=False,
-    help='Create a cef_sandbox static library distribution.')
+    help='Create a sandbox distribution.')
 parser.add_option(
     '--sandbox-distrib-only',
     action='store_true',
     dest='sandboxdistribonly',
     default=False,
-    help='Create a cef_sandbox static library distribution only.')
+    help='Create a sandbox distribution only.')
 parser.add_option(
     '--tools-distrib',
     action='store_true',
@@ -911,18 +911,23 @@ if platform == 'mac' and not (options.x64build or options.arm64build):
         'Add --x64-build or --arm64-build flag to generate a 64-bit build.')
   sys.exit(1)
 
-# Platforms that build a cef_sandbox library in a separate output directory.
-sandbox_lib_platforms = ['mac']
+# Platforms that build a cef_sandbox static library in a separate output directory.
+sandbox_static_platforms = []
+
+# Platforms that build a cef_sandbox shared library in the same output directory.
+sandbox_shared_platforms = []
 
 # Platforms that build a bootstrap executable in the same output directory.
 bootstrap_exe_platforms = []
 
 if branch_is_7151_or_older:
-  sandbox_lib_platforms.append('windows')
+  sandbox_static_platforms.extend(['windows', 'mac'])
 else:
   bootstrap_exe_platforms.append('windows')
+  sandbox_shared_platforms.append('mac')
 
-if not platform in sandbox_lib_platforms and \
+if not platform in sandbox_static_platforms and \
+   not platform in sandbox_shared_platforms and \
    not platform in bootstrap_exe_platforms and \
    (options.sandboxdistrib or options.sandboxdistribonly):
   print('The sandbox distribution is not supported on this platform.')
@@ -1362,7 +1367,7 @@ if not options.nobuild and (chromium_checkout_changed or \
         os.path.join(download_dir, 'build-%s-debug.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
-    if platform in sandbox_lib_platforms:
+    if platform in sandbox_static_platforms:
       # Make the separate cef_sandbox build when GN is_official_build=true.
       build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
@@ -1383,7 +1388,7 @@ if not options.nobuild and (chromium_checkout_changed or \
         os.path.join(download_dir, 'build-%s-release.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
-    if platform in sandbox_lib_platforms:
+    if platform in sandbox_static_platforms:
       # Make the separate cef_sandbox build when GN is_official_build=true.
       build_path += '_sandbox'
       if os.path.exists(os.path.join(chromium_src_dir, build_path)):
