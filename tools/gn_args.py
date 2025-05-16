@@ -544,10 +544,6 @@ def GetConfigArgsSandbox(platform, args, is_debug, cpu):
       # generally incompatible with default platform ld/link versions and
       # shouldn't be distributed due to the external .o file dependencies.
       'use_thin_archives': False,
-
-      # Enable base target customizations necessary for distribution of the
-      # cef_sandbox static library.
-      'is_cef_sandbox_build': True,
   }
 
   if not is_debug:

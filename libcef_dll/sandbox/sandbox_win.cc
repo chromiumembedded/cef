@@ -5,7 +5,6 @@
 #include "sandbox/win/src/sandbox.h"
 
 #include "base/notreached.h"
-#include "cef/libcef/features/features.h"
 #include "include/cef_sandbox_win.h"
 #include "sandbox/win/src/sandbox_factory.h"
 
@@ -39,19 +38,3 @@ void* cef_sandbox_info_create() {
 void cef_sandbox_info_destroy(void* sandbox_info) {
   delete static_cast<sandbox::SandboxInterfaceInfo*>(sandbox_info);
 }
-
-#if BUILDFLAG(IS_CEF_SANDBOX_BUILD)
-
-// Avoid bringing in partition_alloc dependencies.
-namespace partition_alloc {
-bool ReleaseReservation() {
-  DCHECK(false);
-  return false;
-}
-
-void TerminateBecauseOutOfMemory(size_t size) {
-  DCHECK(false);
-}
-}  // namespace partition_alloc
-
-#endif  // BUILDFLAG(IS_CEF_SANDBOX_BUILD)

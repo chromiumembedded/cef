@@ -5,13 +5,6 @@
 declare_args() {
   enable_cef = true
 
-  # Enables base target customizations necessary for distribution of the
-  # cef_sandbox static library. This value will be set via gn_args.py for the
-  # official sandbox build configurations only. DO NOT SET THIS VALUE MANUALLY
-  # FOR OTHER CHROMIUM/CEF BUILD CONFIGURATIONS AS ITS USE MAY HAVE SIGNIFICANT
-  # PERFORMANCE AND/OR SECURITY IMPLICATIONS.
-  is_cef_sandbox_build = false
-
   # Optionally configure the CEF API version. This impacts wrapper-side only.
   cef_api_version = ""
 }
