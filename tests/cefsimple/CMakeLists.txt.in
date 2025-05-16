@@ -105,11 +105,6 @@ if(OS_MAC)
   set(EXECUTABLE_NAME "${CEF_TARGET}")
   set(PRODUCT_NAME "${CEF_TARGET}")
 
-  if(USE_SANDBOX)
-    # Logical target used to link the cef_sandbox library.
-    ADD_LOGICAL_TARGET("cef_sandbox_lib" "${CEF_SANDBOX_LIB_DEBUG}" "${CEF_SANDBOX_LIB_RELEASE}")
-  endif()
-
   # Main app bundle target.
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${CEFSIMPLE_RESOURCES_SRCS} ${CEFSIMPLE_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
@@ -161,10 +156,6 @@ if(OS_MAC)
       MACOSX_BUNDLE_INFO_PLIST ${_helper_info_plist}
       OUTPUT_NAME ${_helper_output_name}
       )
-
-    if(USE_SANDBOX)
-      target_link_libraries(${_helper_target} cef_sandbox_lib)
-    endif()
 
     # Add the Helper as a dependency of the main executable target.
     add_dependencies(${CEF_TARGET} "${_helper_target}")
