@@ -22,6 +22,18 @@ index 0a360f45e89d9..c88c7ea9177e5 100644
  
    // These are protected so they can only be accessed by the friend
    // classes listed above.
+diff --git components/variations/BUILD.gn components/variations/BUILD.gn
+index 913e7120b3a1e..323975990c8ea 100644
+--- components/variations/BUILD.gn
++++ components/variations/BUILD.gn
+@@ -131,6 +131,7 @@ component("variations") {
+     ":buildflags",
+     ":variations_mojom",
+     "proto",
++    "//cef/libcef/features:buildflags",
+     "//components/crash/core/common:crash_key",
+     "//components/prefs",
+     "//components/version_info",
 diff --git components/variations/synthetic_trials_active_group_id_provider.cc components/variations/synthetic_trials_active_group_id_provider.cc
 index bd51697297471..3e669cd080457 100644
 --- components/variations/synthetic_trials_active_group_id_provider.cc
