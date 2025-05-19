@@ -67,16 +67,39 @@ std::wstring GetDefaultModuleValue(const base::FilePath& exe_path) {
   return NamePart(exe_path);
 }
 
-bool IsModulePathAllowed(HMODULE module, const base::FilePath& exe_path) {
+bool IsModulePathAllowed(const base::FilePath& module_path,
+                         const base::FilePath& exe_path) {
   // Allow any module path if the bootstrap executable has the default name.
   if (IsDefaultExeName(NamePart(exe_path))) {
     return true;
   }
 
-  const auto& module_path = GetModulePath(module);
-
   // Module must be at the same path as the executable.
   return module_path.DirName() == exe_path.DirName();
+}
+
+std::wstring GetLastErrorAsString() {
+  std::wstring error_message;
+
+  DWORD error_message_id = ::GetLastError();
+  if (error_message_id == 0) {
+    return error_message;
+  }
+
+  LPWSTR message_buffer = NULL;
+
+  DWORD size = FormatMessage(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+          FORMAT_MESSAGE_IGNORE_INSERTS,
+      NULL, error_message_id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      (LPWSTR)&message_buffer, 0, NULL);
+
+  if (message_buffer) {
+    error_message = std::wstring(message_buffer, size);
+    LocalFree(message_buffer);
+  }
+
+  return error_message;
 }
 
 }  // namespace bootstrap_util

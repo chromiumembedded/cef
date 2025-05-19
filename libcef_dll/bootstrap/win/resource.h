@@ -12,6 +12,7 @@
 #define IDS_ERROR_NO_PROC_EXPORT 103
 #define IDS_ERROR_INVALID_LOCATION 104
 #define IDS_ERROR_LOAD_FAILED 105
+#define IDS_ERROR_INVALID_CERT 106
 
 // Next default values for new objects
 //

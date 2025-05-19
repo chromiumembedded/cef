@@ -85,9 +85,10 @@ BEGIN
     IDS_ERROR_TITLE            "Runtime Error: $1"
     IDS_ERROR_EXTRA_INFO       "\nTry reinstalling the application to fix this error."
     IDS_ERROR_NO_MODULE_NAME   "Missing module name"
-    IDS_ERROR_NO_PROC_EXPORT   "Failed to find $3 in $1.dll (error $2)"
+    IDS_ERROR_NO_PROC_EXPORT   "Failed to find $3 in $1.dll\n$2"
     IDS_ERROR_INVALID_LOCATION "Found $1.dll in an unexpected location"
-    IDS_ERROR_LOAD_FAILED      "Failed to load $1.dll (error $2)"
+    IDS_ERROR_LOAD_FAILED      "Failed to load $1.dll\n$2"
+    IDS_ERROR_INVALID_CERT     "Failed certificate validation for $1\n$2"
 END
 
 #endif    // English (U.S.) resources

@@ -15,6 +15,7 @@
 #include "cef/include/cef_sandbox_win.h"
 #include "cef/libcef/browser/preferred_stack_size_win.inc"
 #include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
+#include "cef/libcef_dll/bootstrap/certificate_util_win.h"
 #include "cef/libcef_dll/bootstrap/win/resource.h"
 
 namespace {
@@ -96,6 +97,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   std::wstring dll_name;
   base::FilePath exe_path;
+  certificate_util::ThumbprintsInfo exe_thumbprints;
 
   if (is_sandboxed) {
     // Running as a sandboxed sub-process. May already be locked down, so we
@@ -124,6 +126,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       ShowError(LoadString(IDS_ERROR_NO_MODULE_NAME));
       return 1;
     }
+
+    certificate_util::GetClientThumbprints(
+        exe_path.value(), /*verify_binary=*/true, exe_thumbprints);
+
+    // The executable must either be unsigned or have all valid signatures.
+    if (!exe_thumbprints.IsUnsignedOrValid()) {
+      // Some part of the certificate validation process failed.
+      const auto subst = std::to_array<std::u16string>(
+          {base::WideToUTF16(exe_path.BaseName().value()),
+           base::WideToUTF16(exe_thumbprints.errors)});
+      ShowError(FormatErrorString(IDS_ERROR_INVALID_CERT, subst));
+      return 1;
+    }
   }
 
   // Manage the life span of the sandbox information object. This is necessary
@@ -142,8 +157,33 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   std::wstring error;
 
   if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
-    if (is_sandboxed ||
-        bootstrap_util::IsModulePathAllowed(hModule, exe_path)) {
+    if (!is_sandboxed) {
+      const auto& dll_path = bootstrap_util::GetModulePath(hModule);
+
+      if (!bootstrap_util::IsModulePathAllowed(dll_path, exe_path)) {
+        const auto subst =
+            std::to_array<std::u16string>({base::WideToUTF16(dll_name)});
+        error = FormatErrorString(IDS_ERROR_INVALID_LOCATION, subst);
+      }
+
+      if (error.empty()) {
+        certificate_util::ThumbprintsInfo dll_thumbprints;
+        certificate_util::GetClientThumbprints(
+            dll_path.value(), /*verify_binary=*/true, dll_thumbprints);
+
+        // The DLL and EXE must either both be unsigned or both have all valid
+        // signatures and the same primary thumbprint.
+        if (!dll_thumbprints.IsSame(exe_thumbprints, /*allow_unsigned=*/true)) {
+          // Some part of the certificate validation process failed.
+          const auto subst = std::to_array<std::u16string>(
+              {base::WideToUTF16(dll_name + TEXT(".dll")),
+               base::WideToUTF16(dll_thumbprints.errors)});
+          error = FormatErrorString(IDS_ERROR_INVALID_CERT, subst);
+        }
+      }
+    }
+
+    if (error.empty()) {
       if (auto* pFunc = (kProcType)::GetProcAddress(hModule, kProcName)) {
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
         return pFunc(argc, argv, sandbox_info);
@@ -153,20 +193,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       } else if (!is_sandboxed) {
         const auto subst = std::to_array<std::u16string>(
             {base::WideToUTF16(dll_name),
-             base::NumberToString16(::GetLastError()),
+             base::WideToUTF16(bootstrap_util::GetLastErrorAsString()),
              base::ASCIIToUTF16(std::string(kProcName))});
         error = FormatErrorString(IDS_ERROR_NO_PROC_EXPORT, subst);
       }
-    } else if (!is_sandboxed) {
-      const auto subst =
-          std::to_array<std::u16string>({base::WideToUTF16(dll_name)});
-      error = FormatErrorString(IDS_ERROR_INVALID_LOCATION, subst);
     }
+
     FreeLibrary(hModule);
   } else if (!is_sandboxed) {
     const auto subst = std::to_array<std::u16string>(
         {base::WideToUTF16(dll_name),
-         base::NumberToString16(::GetLastError())});
+         base::WideToUTF16(bootstrap_util::GetLastErrorAsString())});
     error = FormatErrorString(IDS_ERROR_LOAD_FAILED, subst);
   }
 

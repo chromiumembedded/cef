@@ -1250,6 +1250,8 @@ if (is_win) {
     "libcef_dll/bootstrap/bootstrap_util_win.cc",
     "libcef_dll/bootstrap/bootstrap_util_win.h",
     "libcef_dll/bootstrap/bootstrap_win.cc",
+    "libcef_dll/bootstrap/certificate_util_win.cc",
+    "libcef_dll/bootstrap/certificate_util_win.h",
     "libcef_dll/bootstrap/win/bootstrap.rc",
     "libcef_dll/bootstrap/win/resource.h",
     "libcef/browser/preferred_stack_size_win.inc",
@@ -1262,6 +1264,20 @@ if (is_win) {
     "//build/win:default_exe_manifest",
   ]
 
+  bootstrap_libs = [
+    "crypt32.lib",
+    "wintrust.lib",
+  ]
+
+  bootstrap_configs = [
+    ":libcef_includes_config",
+
+    # Delay-load as many DLLs as possible for sandbox and startup perf
+    # improvements.
+    "//build/config/win:delayloads",
+    "//build/config/win:delayloads_not_for_child_dll",
+  ]
+
   # Windows application that initializes the sandbox and then passes
   # execution to a client-provided DLL.
   executable("bootstrap") {
@@ -1270,16 +1286,12 @@ if (is_win) {
 
     sources = bootstrap_sources
     deps = bootstrap_deps
-
-    configs += [ ":libcef_includes_config" ]
+    libs = bootstrap_libs
+    configs += bootstrap_configs
 
     # Set /SUBSYSTEM:WINDOWS.
     configs -= [ "//build/config/win:console" ]
     configs += [ "//build/config/win:windowed" ]
-
-    # Delay-load as many DLLs as possible for sandbox and startup perf
-    # improvements.
-    configs += [ "//build/config/win:delayloads" ]
 
     defines = [
       "CEF_BUILD_BOOTSTRAP",
@@ -1293,12 +1305,8 @@ if (is_win) {
 
     sources = bootstrap_sources
     deps = bootstrap_deps
-
-    configs += [ ":libcef_includes_config" ]
-
-    # Delay-load as many DLLs as possible for sandbox and startup perf
-    # improvements.
-    configs += [ "//build/config/win:delayloads" ]
+    libs = bootstrap_libs
+    configs += bootstrap_configs
 
     defines = [
       "CEF_BUILD_BOOTSTRAP",

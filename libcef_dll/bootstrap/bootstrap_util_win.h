@@ -43,8 +43,11 @@ std::wstring GetValidatedModuleValue(const base::CommandLine& command_line,
 // Returns the default module name (executable name without extension).
 std::wstring GetDefaultModuleValue(const base::FilePath& exe_path);
 
-// Returns true if loading |module| is allowed.
-bool IsModulePathAllowed(HMODULE module, const base::FilePath& exe_path);
+// Returns true if loading |module_path| is allowed.
+bool IsModulePathAllowed(const base::FilePath& module_path,
+                         const base::FilePath& exe_path);
+
+std::wstring GetLastErrorAsString();
 
 }  // namespace bootstrap_util
 
