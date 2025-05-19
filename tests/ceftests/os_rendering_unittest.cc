@@ -1669,6 +1669,10 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   void SendTouchEvents(std::vector<CefTouchEvent> touch_events) {
+    if (!GetBrowser() || !GetBrowser()->GetHost()) {
+      return;
+    }
+
     auto host = GetBrowser()->GetHost();
     for (const auto& te : touch_events) {
       host->SendTouchEvent(te);
