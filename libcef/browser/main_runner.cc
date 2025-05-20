@@ -224,10 +224,15 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
 
   // If no process type is specified then it represents the browser process and
   // we do nothing.
+  if (!command_line.HasSwitch(switches::kProcessType)) {
+    return -1;
+  }
+
   const std::string& process_type =
       command_line.GetSwitchValueASCII(switches::kProcessType);
   if (process_type.empty()) {
-    return -1;
+    // Early exit on invalid process type.
+    return CEF_RESULT_CODE_BAD_PROCESS_TYPE;
   }
 
   auto main_delegate = std::make_unique<ChromeMainDelegateCef>(

@@ -13,6 +13,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cef/include/cef_sandbox_win.h"
+#include "cef/include/internal/cef_types.h"
 #include "cef/libcef/browser/preferred_stack_size_win.inc"
 #include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
 #include "cef/libcef_dll/bootstrap/certificate_util_win.h"
@@ -89,10 +90,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   const base::CommandLine command_line =
       base::CommandLine::FromString(::GetCommandLineW());
 
+  constexpr char kProcessType[] = "type";
+  const bool is_subprocess = command_line.HasSwitch(kProcessType);
+  if (is_subprocess && command_line.GetSwitchValueASCII(kProcessType).empty()) {
+    // Early exit on invalid process type.
+    return CEF_RESULT_CODE_BAD_PROCESS_TYPE;
+  }
+
   // True if this is a sandboxed sub-process. Uses similar logic to
   // Sandbox::IsProcessSandboxed.
   const bool is_sandboxed =
-      command_line.HasSwitch("type") &&
+      is_subprocess &&
       base::GetCurrentProcessIntegrityLevel() < base::MEDIUM_INTEGRITY;
 
   std::wstring dll_name;
@@ -124,7 +132,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
     if (bootstrap_util::IsDefaultExeName(dll_name)) {
       ShowError(LoadString(IDS_ERROR_NO_MODULE_NAME));
-      return 1;
+      return CEF_RESULT_CODE_KILLED;
     }
 
     certificate_util::GetClientThumbprints(
@@ -137,7 +145,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
           {base::WideToUTF16(exe_path.BaseName().value()),
            base::WideToUTF16(exe_thumbprints.errors)});
       ShowError(FormatErrorString(IDS_ERROR_INVALID_CERT, subst));
-      return 1;
+      return CEF_RESULT_CODE_KILLED;
     }
   }
 
@@ -212,5 +220,5 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     ShowError(error);
   }
 
-  return 1;
+  return CEF_RESULT_CODE_KILLED;
 }

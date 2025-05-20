@@ -1061,6 +1061,11 @@ typedef enum {
 
   CEF_RESULT_CODE_CHROME_FIRST,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// The process is of an unknown type.
+  CEF_RESULT_CODE_BAD_PROCESS_TYPE = 6,
+#endif
+
   /// A critical chrome file is missing.
   CEF_RESULT_CODE_MISSING_DATA = 7,
 
