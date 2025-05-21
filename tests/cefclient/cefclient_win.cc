@@ -4,10 +4,14 @@
 
 #include <windows.h>
 
+#include <algorithm>
 #include <memory>
 
 #include "include/cef_command_line.h"
 #include "include/cef_sandbox_win.h"
+#include "include/wrapper/cef_certificate_util_win.h"
+#include "include/wrapper/cef_library_loader.h"
+#include "include/wrapper/cef_util_win.h"
 #include "tests/cefclient/browser/main_context_impl.h"
 #include "tests/cefclient/browser/main_message_loop_multithreaded_win.h"
 #include "tests/cefclient/browser/resource.h"
@@ -16,6 +20,7 @@
 #include "tests/shared/browser/client_app_browser.h"
 #include "tests/shared/browser/main_message_loop_external_pump.h"
 #include "tests/shared/browser/main_message_loop_std.h"
+#include "tests/shared/browser/util_win.h"
 #include "tests/shared/common/client_app_other.h"
 #include "tests/shared/common/client_switches.h"
 #include "tests/shared/renderer/client_app_renderer.h"
@@ -23,8 +28,100 @@
 namespace client {
 namespace {
 
+// Configure code signing requirements. For a code signing example see
+// https://github.com/chromiumembedded/cef/issues/3824#issuecomment-2892139995
+
+// TODO(client): Optionally require that the primary certificate match a
+// specific thumbprint by setting this value to the SHA1 hash (e.g. 40 character
+// upper-case hex-encoded value). If this valus is empty and |kAllowUnsigned| is
+// false then any valid signature will be allowed. This is the "Thumbprint"
+// output reported by some Windows PowerShell commands. It can also be retrieved
+// directly with a PowerShell command like: > (Get-ChildItem
+// Cert:\CurrentUser\My -CodeSigningCert)[0].Thumbprint
+constexpr char kRequiredThumbprint[] = "";
+
+// TODO(client): Optionally disallow unsigned binaries by setting this value to
+// false. This value is disregarded if |kRequiredThumbprint| is specified.
+constexpr bool kAllowUnsigned = true;
+
+// TODO(client): Optionally require that all binaries be signed with the same
+// primary thumbprint. This value is ignored when |kRequiredThumbprint| is
+// specified or if |kAllowUnsigned| is true.
+constexpr bool kRequireMatchingThumbprints = false;
+
+static_assert(sizeof(kRequiredThumbprint) == 1 ||
+                  sizeof(kRequiredThumbprint) ==
+                      cef_certificate_util::kThumbprintLength + 1,
+              "invalid size for kRequiredThumbprint");
+
+const char* RequiredThumbprint(std::string* exe_thumbprint) {
+  if constexpr (sizeof(kRequiredThumbprint) ==
+                cef_certificate_util::kThumbprintLength + 1) {
+    return kRequiredThumbprint;
+  }
+
+  if (!kAllowUnsigned && kRequireMatchingThumbprints && exe_thumbprint &&
+      exe_thumbprint->length() == cef_certificate_util::kThumbprintLength) {
+    return exe_thumbprint->c_str();
+  }
+
+  return nullptr;
+}
+
+bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader) {
+  // Enable early logging support (required before libcef is loaded).
+  // The *Assert() calls below will output a FATAL error and crash on failure.
+  cef::logging::ScopedEarlySupport scoped_logging({});
+
+  if (library_loader.LoadInSubProcessAssert()) {
+    // Running as a sub-process. We may be sandboxed. Nothing more to be done.
+    return true;
+  }
+
+  std::string exe_thumbprint;
+
+  // Check signatures for the already loaded executable. This may be the
+  // bootstrap, or the client executable if not using the bootstrap.
+  const std::wstring& exe_path = cef_util::GetExePath();
+  cef_certificate_util::ThumbprintsInfo exe_info;
+  cef_certificate_util::ValidateCodeSigningAssert(
+      exe_path, RequiredThumbprint(nullptr), kAllowUnsigned, &exe_info);
+  if (exe_info.IsSignedAndValid()) {
+    exe_thumbprint = exe_info.valid_thumbprints[0];
+    CHECK_EQ(cef_certificate_util::kThumbprintLength, exe_thumbprint.length());
+  }
+
+#if defined(CEF_USE_BOOTSTRAP)
+  // Using a separate bootstrap executable that loaded a client DLL. Check
+  // signatures for the already loaded client DLL.
+  const std::wstring& client_dll_path =
+      cef_util::GetModulePath(client::GetCodeModuleHandle());
+  cef_certificate_util::ValidateCodeSigningAssert(
+      client_dll_path, RequiredThumbprint(&exe_thumbprint), kAllowUnsigned);
+#endif  // defined(CEF_USE_BOOTSTRAP)
+
+  // Require libcef.dll in the same directory as the executable.
+  auto sep_pos = exe_path.find_last_of(L"/\\");
+  CHECK(sep_pos != std::wstring::npos);
+  const auto& libcef_dll_path = exe_path.substr(0, sep_pos + 1) + L"libcef.dll";
+
+  // Validate code signing requirements for libcef.dll before loading, and
+  // then load.
+  return library_loader.LoadInMainAssert(libcef_dll_path.c_str(),
+                                         RequiredThumbprint(&exe_thumbprint),
+                                         kAllowUnsigned);
+}
+
 int RunMain(HINSTANCE hInstance, int nCmdShow, void* sandbox_info) {
   CefMainArgs main_args(hInstance);
+
+  // Dynamically load the CEF library after code signing verification.
+  CefScopedLibraryLoader library_loader;
+  if (!VerifyCodeSigningAndLoad(library_loader)) {
+    return CEF_RESULT_CODE_KILLED;
+  }
+
+  // The CEF library (libcef) is loaded at this point.
 
   // Parse command-line arguments.
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();

@@ -432,15 +432,20 @@ if(OS_WINDOWS)
   list(APPEND CEF_LINKER_FLAGS_DEBUG
     /DEBUG        # Generate debug information
     )
+
+  # Delayload most libraries as the dlls are simply not required at startup (or
+  # at all, depending on the process type). Some dlls open handles when they are
+  # loaded, and we may not want them to be loaded in renderers or other sandboxed
+  # processes. Conversely, some dlls must be loaded before sandbox lockdown. In
+  # unsandboxed processes they will load when first needed. The linker will
+  # automatically ignore anything which is not linked to the binary at all (it is
+  # harmless to have an unmatched /delayload). Lists should be kept in sync with
+  # targets from Chromium's //build/config/win/BUILD.gn file.
   set(CEF_DELAYLOAD_FLAGS
-    # Delayload most libraries as the dlls are simply not required at startup (or
-    # at all, depending on the process type). Some dlls open handles when they are
-    # loaded, and we may not want them to be loaded in renderers or other sandboxed
-    # processes. Conversely, some dlls must be loaded before sandbox lockdown. In
-    # unsandboxed processes they will load when first needed. The linker will
-    # automatically ignore anything which is not linked to the binary at all (it is
-    # harmless to have an unmatched /delayload). This list should be kept in sync
-    # with Chromium's "delayloads" target from the //build/config/win/BUILD.gn file.
+    # Required to support CefScopedLibraryLoader.
+    /DELAYLOAD:libcef.dll
+
+    # "delayloads" target.
     /DELAYLOAD:api-ms-win-core-winrt-error-l1-1-0.dll
     /DELAYLOAD:api-ms-win-core-winrt-l1-1-0.dll
     /DELAYLOAD:api-ms-win-core-winrt-string-l1-1-0.dll
@@ -482,6 +487,21 @@ if(OS_WINDOWS)
     /DELAYLOAD:winusb.dll
     /DELAYLOAD:wsock32.dll
     /DELAYLOAD:wtsapi32.dll
+
+    # "delayloads_not_for_child_dll" target.
+    /DELAYLOAD:crypt32.dll
+    /DELAYLOAD:dbghelp.dll
+    /DELAYLOAD:dhcpcsvc.dll
+    /DELAYLOAD:dwrite.dll
+    /DELAYLOAD:iphlpapi.dll
+    /DELAYLOAD:oleaut32.dll
+    /DELAYLOAD:secur32.dll
+    /DELAYLOAD:userenv.dll
+    /DELAYLOAD:winhttp.dll
+    /DELAYLOAD:winmm.dll
+    /DELAYLOAD:winspool.drv
+    /DELAYLOAD:wintrust.dll
+    /DELAYLOAD:ws2_32.dll
     )
   list(APPEND CEF_EXE_LINKER_FLAGS
     # For executable targets.
@@ -530,10 +550,12 @@ if(OS_WINDOWS)
   # Standard libraries.
   set(CEF_STANDARD_LIBS
     comctl32.lib
+    crypt32.lib
     delayimp.lib
     gdi32.lib
     rpcrt4.lib
     shlwapi.lib
+    wintrust.lib
     ws2_32.lib
     )
 

@@ -33,11 +33,11 @@
 
 #include "include/base/cef_build.h"
 
-#ifdef __cplusplus
-#include <string>
+#if defined(OS_MAC)
 
+#ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif
 
 ///
 /// Load the CEF library at the specified |path|. Returns true (1) on
@@ -53,6 +53,12 @@ int cef_unload_library(void);
 
 #ifdef __cplusplus
 }
+#endif
+
+#endif  // defined(OS_MAC)
+
+#ifdef __cplusplus
+#include <string>
 
 #if defined(OS_MAC)
 
@@ -99,7 +105,7 @@ int cef_unload_library(void);
 ///   }
 /// </pre>
 ///
-class CefScopedLibraryLoader {
+class CefScopedLibraryLoader final {
  public:
   CefScopedLibraryLoader();
 
@@ -125,10 +131,81 @@ class CefScopedLibraryLoader {
  private:
   bool Load(bool helper);
 
-  bool loaded_;
+  bool loaded_ = false;
 };
 
-#endif  // defined(OS_MAC)
+#elif defined(OS_WIN)
+#include <windows.h>
+
+///
+/// Scoped helper for loading and unloading the CEF library at runtime from the
+/// specific location on disk, with optional code signing verification. Must be
+/// used in combination with the "/DELAYLOAD:libcef.dll" linker flag.
+///
+/// Example usage:
+///
+/// <pre>
+///   #include "include/wrapper/cef_library_loader.h"
+///
+///   int APIENTRY wWinMain(HINSTANCE hInstance,
+///                         HINSTANCE hPrevInstance,
+///                         LPTSTR lpCmdLine,
+///                         int nCmdShow)
+///     // Dynamically load the CEF library.
+///     CefScopedLibraryLoader library_loader;
+///     if (!library_loader.LoadInSubProcess() &&
+///         !library_loader.LoadInMain(L"C:\Program Files\CEF\libcef.dll")) {
+///       return 1;
+///     }
+///
+///     // Continue with CEF initialization...
+///   }
+/// </pre>
+///
+class CefScopedLibraryLoader final {
+ public:
+  CefScopedLibraryLoader();
+
+  CefScopedLibraryLoader(const CefScopedLibraryLoader&) = delete;
+  CefScopedLibraryLoader& operator=(const CefScopedLibraryLoader&) = delete;
+
+  ~CefScopedLibraryLoader();
+
+  ///
+  /// Load the CEF library (libcef.dll) in the main process from the specified
+  /// absolute path. If libcef.dll is code signed then all signatures must be
+  /// valid. If |thumbprint| is a SHA1 hash (e.g. 40 character upper-case
+  /// hex-encoded value) then the primary signature must match that thumbprint.
+  /// If |allow_unsigned| is true and |thumbprint| is nullptr then libcef.dll
+  /// may be unsigned, otherwise it must be validly signed. Failure of code
+  /// signing requirements or DLL loading will result in a FATAL error and
+  /// application termination. Returns true if the load succeeds. Usage must be
+  /// protected by cef::logging::ScopedEarlySupport.
+  ///
+  bool LoadInMainAssert(const wchar_t* dll_path,
+                        const char* thumbprint,
+                        bool allow_unsigned);
+
+  ///
+  /// Load the CEF library (libcef.dll) in a sub-process that may be sandboxed.
+  /// The path will be determined based on command-line arguments for the
+  /// current process. Failure of DLL loading will result in a FATAL error and
+  /// application termination. Returns true if the load succeeds. Usage must be
+  /// protected by cef::logging::ScopedEarlySupport.
+  ///
+  bool LoadInSubProcessAssert();
+
+ private:
+  HMODULE handle_ = nullptr;
+};
+
+namespace switches {
+// Changes to this value require rebuilding libcef.dll.
+inline constexpr char kLibcefPath[] = "libcef-path";
+inline constexpr wchar_t kLibcefPathW[] = L"libcef-path";
+}  // namespace switches
+
+#endif  // defined(OS_WIN)
 #endif  // __cplusplus
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_LIBRARY_LOADER_H_

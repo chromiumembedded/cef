@@ -1169,6 +1169,9 @@ config("libcef_dll_wrapper_config") {
       # Increase the initial stack size to 8MiB from the default 1MiB.
       ldflags = [ "/STACK:0x800000" ]
     }
+
+    # Required to support CefScopedLibraryLoader.
+    ldflags += [ "/DELAYLOAD:libcef.dll" ]
   }
 
   # Build using the minimum C++ version supported by the CEF binary distribution.
@@ -1202,6 +1205,14 @@ static_library("libcef_dll_wrapper") {
 
   if (is_mac) {
     sources += gypi_paths2.libcef_dll_wrapper_sources_mac
+  }
+
+  if (is_win) {
+    sources += gypi_paths2.libcef_dll_wrapper_sources_win
+    libs = [
+      "crypt32.lib",
+      "wintrust.lib",
+    ]
   }
 
   defines = [ "WRAPPING_CEF_SHARED" ]
@@ -1247,13 +1258,15 @@ if (is_mac) {
 if (is_win) {
   bootstrap_sources = includes_common +
                       includes_win + [
+    "include/wrapper/cef_certificate_util_win.h",
+    "include/wrapper/cef_util_win.h",
     "libcef_dll/bootstrap/bootstrap_util_win.cc",
     "libcef_dll/bootstrap/bootstrap_util_win.h",
     "libcef_dll/bootstrap/bootstrap_win.cc",
-    "libcef_dll/bootstrap/certificate_util_win.cc",
-    "libcef_dll/bootstrap/certificate_util_win.h",
     "libcef_dll/bootstrap/win/bootstrap.rc",
     "libcef_dll/bootstrap/win/resource.h",
+    "libcef_dll/wrapper/cef_certificate_util_win.cc",
+    "libcef_dll/wrapper/cef_util_win.cc",
     "libcef/browser/preferred_stack_size_win.inc",
   ]
 
@@ -1768,7 +1781,8 @@ if (is_mac) {
       ]
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
-      # improvements.
+      # improvements. Don't use "delayloads_not_for_child_dll" here because
+      # we need some DLLs loaded in child processes before sandbox lockdown.
       configs += [ "//build/config/win:delayloads" ]
 
       libs = [
@@ -2264,6 +2278,7 @@ if (is_mac) {
 
     if (is_win) {
       sources += includes_win +
+                 gypi_paths2.includes_wrapper_win +
                  gypi_paths2.shared_sources_win +
                  gypi_paths2.cefclient_sources_win +
                  gypi_paths2.cefclient_sources_resources_win_rc
@@ -2274,7 +2289,10 @@ if (is_mac) {
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
 
       defines += [
         "CEF_USE_ATL",
@@ -2350,6 +2368,7 @@ if (is_mac) {
       sources = includes_common +
                 includes_win +
                 gypi_paths2.includes_wrapper +
+                gypi_paths2.includes_wrapper_win +
                 gypi_paths2.shared_sources_browser +
                 gypi_paths2.shared_sources_common +
                 gypi_paths2.shared_sources_renderer +
@@ -2373,7 +2392,10 @@ if (is_mac) {
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
 
       libs = [
         "comctl32.lib",
@@ -2422,6 +2444,7 @@ if (is_mac) {
 
     if (is_win) {
       sources += includes_win +
+                 gypi_paths2.includes_wrapper_win +
                  gypi_paths2.cefsimple_sources_win +
                  gypi_paths2.cefsimple_sources_resources_win_rc
 
@@ -2431,7 +2454,10 @@ if (is_mac) {
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
 
       deps += [
         ":cef_sandbox",
@@ -2474,6 +2500,7 @@ if (is_mac) {
       sources = includes_common +
                 includes_win +
                 gypi_paths2.includes_wrapper +
+                gypi_paths2.includes_wrapper_win +
                 gypi_paths2.cefsimple_sources_common +
                 gypi_paths2.cefsimple_sources_win +
                 gypi_paths2.cefsimple_sources_resources_win_rc
@@ -2490,7 +2517,10 @@ if (is_mac) {
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
 
       libs = [
         "comctl32.lib",
@@ -2535,13 +2565,17 @@ if (is_mac) {
     ]
 
     if (is_win) {
-      sources += gypi_paths2.shared_sources_win +
+      sources += gypi_paths2.includes_wrapper_win +
+                 gypi_paths2.shared_sources_win +
                  gypi_paths2.ceftests_sources_win +
                  gypi_paths2.ceftests_sources_resources_win_rc
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
 
       deps += [
         ":cef_sandbox",
@@ -2584,6 +2618,7 @@ if (is_mac) {
 
       sources = includes_common +
                 gypi_paths2.includes_wrapper +
+                gypi_paths2.includes_wrapper_win +
                 gypi_paths2.shared_sources_browser +
                 gypi_paths2.shared_sources_common +
                 gypi_paths2.shared_sources_renderer +
@@ -2607,7 +2642,10 @@ if (is_mac) {
 
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
-      configs += [ "//build/config/win:delayloads" ]
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
     }
   }
 }

@@ -32,9 +32,13 @@ DLLS_X64 = [
 # processes. Conversely, some DLLs must be loaded before sandbox lockdown. In
 # unsandboxed processes they will load when first needed. The linker will
 # automatically ignore anything which is not linked to the binary at all (it is
-# harmless to have an unmatched /delayload). This list should be kept in sync
-# with Chromium's "delayloads" target from the //build/config/win/BUILD.gn file.
+# harmless to have an unmatched /delayload). Lists should be kept in sync with
+# targets from Chromium's //build/config/win/BUILD.gn file.
 DELAYLOAD_DLLS = [
+    # Required to support CefScopedLibraryLoader.
+    "libcef.dll"
+
+    # "delayloads" target.
     "api-ms-win-core-winrt-error-l1-1-0.dll",
     "api-ms-win-core-winrt-l1-1-0.dll",
     "api-ms-win-core-winrt-string-l1-1-0.dll",
@@ -76,16 +80,33 @@ DELAYLOAD_DLLS = [
     "winusb.dll",
     "wsock32.dll",
     "wtsapi32.dll",
+
+    # "delayloads_not_for_child_dll" target.
+    "crypt32.dll",
+    "dbghelp.dll",
+    "dhcpcsvc.dll",
+    "dwrite.dll",
+    "iphlpapi.dll",
+    "oleaut32.dll",
+    "secur32.dll",
+    "userenv.dll",
+    "winhttp.dll",
+    "winmm.dll",
+    "winspool.drv",
+    "wintrust.dll",
+    "ws2_32.dll",
 ]
 
 # Standard link libraries.
 STANDARD_LIBS = [
     "comctl32.lib",
+    "crypt32.lib",
     "delayimp.lib",
     "gdi32.lib",
     "rpcrt4.lib",
     "shlwapi.lib",
     "user32.lib",
+    "wintrust.lib",
     "ws2_32.lib",
 ]
 

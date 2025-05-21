@@ -2,14 +2,14 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/wrapper/cef_library_loader.h"
-
 #include <libgen.h>
 #include <mach-o/dyld.h>
 #include <stdio.h>
 
 #include <memory>
 #include <sstream>
+
+#include "include/wrapper/cef_library_loader.h"
 
 namespace {
 
@@ -46,7 +46,7 @@ std::string GetFrameworkPath(bool helper) {
 
 }  // namespace
 
-CefScopedLibraryLoader::CefScopedLibraryLoader() : loaded_(false) {}
+CefScopedLibraryLoader::CefScopedLibraryLoader() = default;
 
 bool CefScopedLibraryLoader::Load(bool helper) {
   if (loaded_) {

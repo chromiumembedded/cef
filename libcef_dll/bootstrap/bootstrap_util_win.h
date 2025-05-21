@@ -19,8 +19,9 @@ class CommandLine;
 namespace bootstrap_util {
 
 namespace switches {
+// Changes to this value require rebuilding libcef.dll.
 inline constexpr char kModule[] = "module";
-}
+}  // namespace switches
 
 // Returns true if |name| is one of the default bootstrap executable names.
 bool IsDefaultExeName(const std::wstring& name);
@@ -46,8 +47,6 @@ std::wstring GetDefaultModuleValue(const base::FilePath& exe_path);
 // Returns true if loading |module_path| is allowed.
 bool IsModulePathAllowed(const base::FilePath& module_path,
                          const base::FilePath& exe_path);
-
-std::wstring GetLastErrorAsString();
 
 }  // namespace bootstrap_util
 

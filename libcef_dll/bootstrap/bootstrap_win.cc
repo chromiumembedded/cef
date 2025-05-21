@@ -14,9 +14,10 @@
 #include "base/strings/utf_string_conversions.h"
 #include "cef/include/cef_sandbox_win.h"
 #include "cef/include/internal/cef_types.h"
+#include "cef/include/wrapper/cef_certificate_util_win.h"
+#include "cef/include/wrapper/cef_util_win.h"
 #include "cef/libcef/browser/preferred_stack_size_win.inc"
 #include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
-#include "cef/libcef_dll/bootstrap/certificate_util_win.h"
 #include "cef/libcef_dll/bootstrap/win/resource.h"
 
 namespace {
@@ -105,7 +106,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   std::wstring dll_name;
   base::FilePath exe_path;
-  certificate_util::ThumbprintsInfo exe_thumbprints;
+  cef_certificate_util::ThumbprintsInfo exe_thumbprints;
 
   if (is_sandboxed) {
     // Running as a sandboxed sub-process. May already be locked down, so we
@@ -135,7 +136,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       return CEF_RESULT_CODE_KILLED;
     }
 
-    certificate_util::GetClientThumbprints(
+    cef_certificate_util::GetClientThumbprints(
         exe_path.value(), /*verify_binary=*/true, exe_thumbprints);
 
     // The executable must either be unsigned or have all valid signatures.
@@ -175,8 +176,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       }
 
       if (error.empty()) {
-        certificate_util::ThumbprintsInfo dll_thumbprints;
-        certificate_util::GetClientThumbprints(
+        cef_certificate_util::ThumbprintsInfo dll_thumbprints;
+        cef_certificate_util::GetClientThumbprints(
             dll_path.value(), /*verify_binary=*/true, dll_thumbprints);
 
         // The DLL and EXE must either both be unsigned or both have all valid
@@ -201,7 +202,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       } else if (!is_sandboxed) {
         const auto subst = std::to_array<std::u16string>(
             {base::WideToUTF16(dll_name),
-             base::WideToUTF16(bootstrap_util::GetLastErrorAsString()),
+             base::WideToUTF16(cef_util::GetLastErrorAsString()),
              base::ASCIIToUTF16(std::string(kProcName))});
         error = FormatErrorString(IDS_ERROR_NO_PROC_EXPORT, subst);
       }
@@ -211,7 +212,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   } else if (!is_sandboxed) {
     const auto subst = std::to_array<std::u16string>(
         {base::WideToUTF16(dll_name),
-         base::WideToUTF16(bootstrap_util::GetLastErrorAsString())});
+         base::WideToUTF16(cef_util::GetLastErrorAsString())});
     error = FormatErrorString(IDS_ERROR_LOAD_FAILED, subst);
   }
 

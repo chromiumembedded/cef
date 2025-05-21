@@ -29,6 +29,7 @@ set(CEF_TARGET libcef_dll_wrapper)
     'autogen_capi_includes',
     'includes_wrapper',
     'includes_wrapper_mac:MAC',
+    'includes_wrapper_win:WINDOWS',
     'includes_win:WINDOWS',
     'includes_win_capi:WINDOWS',
     'includes_mac:MAC',
@@ -38,6 +39,7 @@ set(CEF_TARGET libcef_dll_wrapper)
     'libcef_dll_wrapper_sources_base',
     'libcef_dll_wrapper_sources_common',
     'libcef_dll_wrapper_sources_mac:MAC',
+    'libcef_dll_wrapper_sources_win:WINDOWS',
     'autogen_client_side',
   ],
 }}

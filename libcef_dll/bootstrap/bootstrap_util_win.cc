@@ -11,6 +11,7 @@ namespace bootstrap_util {
 
 namespace {
 
+// Changes to these values require rebuilding libcef.dll.
 constexpr wchar_t kWindowsSelfName[] = TEXT("bootstrap");
 constexpr wchar_t kConsoleSelfName[] = TEXT("bootstrapc");
 
@@ -76,30 +77,6 @@ bool IsModulePathAllowed(const base::FilePath& module_path,
 
   // Module must be at the same path as the executable.
   return module_path.DirName() == exe_path.DirName();
-}
-
-std::wstring GetLastErrorAsString() {
-  std::wstring error_message;
-
-  DWORD error_message_id = ::GetLastError();
-  if (error_message_id == 0) {
-    return error_message;
-  }
-
-  LPWSTR message_buffer = NULL;
-
-  DWORD size = FormatMessage(
-      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL, error_message_id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      (LPWSTR)&message_buffer, 0, NULL);
-
-  if (message_buffer) {
-    error_message = std::wstring(message_buffer, size);
-    LocalFree(message_buffer);
-  }
-
-  return error_message;
 }
 
 }  // namespace bootstrap_util

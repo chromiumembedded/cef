@@ -2,19 +2,26 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cef/libcef_dll/bootstrap/certificate_util_win.h"
+#include "include/wrapper/cef_certificate_util_win.h"
 
 #include <windows.h>
 
 #include <Softpub.h>
+#include <stdio.h>
 #include <wincrypt.h>
 #include <wintrust.h>
 
-#include "base/strings/stringprintf.h"
-#include "base/strings/utf_string_conversions.h"
-#include "cef/libcef_dll/bootstrap/bootstrap_util_win.h"
+#include <algorithm>
 
-namespace certificate_util {
+#include "include/wrapper/cef_util_win.h"
+
+#if defined(CEF_BUILD_BOOTSTRAP)
+#include "base/logging.h"
+#else
+#include "include/base/cef_logging.h"
+#endif
+
+namespace cef_certificate_util {
 
 namespace {
 
@@ -37,16 +44,34 @@ bool InitCryptProviderStructs(WINTRUST_DATA& win_trust_data,
   return false;
 }
 
-std::string BytesToHexString(const void* bytes, size_t length) {
-  const unsigned char* bytes_c = reinterpret_cast<const unsigned char*>(bytes);
-
+// Returns bytes as an upper-case hex string.
+std::string BytesToHexString(const BYTE* bytes, size_t length) {
   std::string hex_string;
-  hex_string.reserve(length * 2);
+  hex_string.resize(length * 2);
   for (size_t index = 0; index < length; ++index) {
-    hex_string.append(base::StringPrintf("%02x", bytes_c[index]));
+    sprintf_s(&hex_string[2 * index], 3, "%02X", bytes[index]);
   }
 
   return hex_string;
+}
+
+std::wstring ErrorPrefix(DWORD i) {
+  return L"\nCertificate " + std::to_wstring(i) + L": ";
+}
+
+std::wstring NormalizeError(const std::wstring& err) {
+  std::wstring str = err;
+  // Replace newlines.
+  std::replace(str.begin(), str.end(), L'\n', L' ');
+  return str;
+}
+
+std::wstring GetBinaryName(const std::wstring& path) {
+  auto sep_pos = path.find_last_of(L"/\\");
+  if (sep_pos == std::wstring::npos) {
+    return path;
+  }
+  return path.substr(0, sep_pos);
 }
 
 }  // namespace
@@ -54,6 +79,8 @@ std::string BytesToHexString(const void* bytes, size_t length) {
 void GetClientThumbprints(const std::wstring& binary_path,
                           bool verify_binary,
                           ThumbprintsInfo& info) {
+  info = {};
+
   const HWND wvt_handle = static_cast<HWND>(INVALID_HANDLE_VALUE);
   GUID wvt_policy = WINTRUST_ACTION_GENERIC_VERIFY_V2;
 
@@ -71,9 +98,6 @@ void GetClientThumbprints(const std::wstring& binary_path,
   // After the first WinVerifyTrust call succeeds, we will continue inspecting
   // the rest of the signatures.
   for (DWORD i = 0; i < sig_settings.cSecondarySigs + 1; ++i) {
-    const auto& error_prefix =
-        base::ASCIIToWide(base::StringPrintf("\nCertificate %d: ", i));
-
     WINTRUST_DATA win_trust_data = {0};
     win_trust_data.cbStruct = sizeof(win_trust_data);
     win_trust_data.dwUIChoice = WTD_UI_NONE;
@@ -102,8 +126,8 @@ void GetClientThumbprints(const std::wstring& binary_path,
         }
       }
 
-      info.errors += error_prefix + TEXT("WinVerifyTrust failed: ") +
-                     bootstrap_util::GetLastErrorAsString();
+      info.errors += ErrorPrefix(i) + L"WinVerifyTrust failed: " +
+                     cef_util::GetLastErrorAsString();
 
       // WinVerifyTrust will fail if the signing certificates can't be verified,
       // but it will still provide information about them in the StateData
@@ -120,7 +144,7 @@ void GetClientThumbprints(const std::wstring& binary_path,
     }
 
     if (!win_trust_data.hWVTStateData) {
-      info.errors += error_prefix + TEXT("No WinVerifyTrust data");
+      info.errors += ErrorPrefix(i) + L"No WinVerifyTrust data";
       continue;
     }
 
@@ -149,12 +173,12 @@ void GetClientThumbprints(const std::wstring& binary_path,
         thumbprints.emplace_back(
             BytesToHexString(sha1_bytes, sha1_bytes_count));
       } else {
-        info.errors += error_prefix +
-                       TEXT("CertGetCertificateContextProperty failed: ") +
-                       bootstrap_util::GetLastErrorAsString();
+        info.errors += ErrorPrefix(i) +
+                       L"CertGetCertificateContextProperty failed: " +
+                       cef_util::GetLastErrorAsString();
       }
     } else {
-      info.errors += error_prefix + TEXT("Invalid WinVerifyTrust data");
+      info.errors += ErrorPrefix(i) + L"Invalid WinVerifyTrust data";
     }
 
     win_trust_data.dwStateAction = WTD_STATEACTION_CLOSE;
@@ -164,4 +188,56 @@ void GetClientThumbprints(const std::wstring& binary_path,
   info.has_signature = true;
 }
 
-}  // namespace certificate_util
+bool ValidateCodeSigning(const std::wstring& binary_path,
+                         const char* thumbprint,
+                         bool allow_unsigned,
+                         ThumbprintsInfo& info) {
+  GetClientThumbprints(binary_path.data(), /*verify_binary=*/true, info);
+  if (!info.errors.empty()) {
+    // The binary is signed, but one or more of the signatures failed
+    // validation.
+    return false;
+  }
+
+  const bool thumbprint_required =
+      thumbprint && std::strlen(thumbprint) == kThumbprintLength;
+  allow_unsigned &= !thumbprint_required;
+
+  if (thumbprint_required) {
+    if (!info.HasPrimaryThumbprint(thumbprint)) {
+      // The DLL is unsigned or the primary signature does not match the
+      // required thumbprint.
+      return false;
+    }
+  } else if (!allow_unsigned && !info.has_signature) {
+    // The DLL in unsigned which is not allowed.
+    return false;
+  }
+
+  return true;
+}
+
+void ValidateCodeSigningAssert(const std::wstring& binary_path,
+                               const char* thumbprint,
+                               bool allow_unsigned,
+                               ThumbprintsInfo* info) {
+  cef_certificate_util::ThumbprintsInfo thumbprints;
+  bool valid = cef_certificate_util::ValidateCodeSigning(
+      binary_path.data(), thumbprint, allow_unsigned, thumbprints);
+  if (!thumbprints.errors.empty()) {
+    // The DLL is signed, but one or more of the signatures failed validation.
+    LOG(FATAL) << "Failed " << GetBinaryName(binary_path)
+               << " certificate validation: "
+               << NormalizeError(thumbprints.errors);
+  }
+  if (!valid) {
+    // Failed other requirements.
+    LOG(FATAL) << "Failed " << GetBinaryName(binary_path)
+               << " validation requirements.";
+  }
+  if (info) {
+    *info = thumbprints;
+  }
+}
+
+}  // namespace cef_certificate_util

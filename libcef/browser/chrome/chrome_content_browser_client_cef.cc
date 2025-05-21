@@ -9,6 +9,7 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "cef/include/wrapper/cef_library_loader.h"
 #include "cef/libcef/browser/browser_frame.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_info_manager.h"
@@ -164,6 +165,18 @@ void HandleExternalProtocolHelper(
       isolation_info, nullptr);
 }
 
+#if BUILDFLAG(IS_WIN)
+// Returns the module handle that contains this code (e.g. libcef.dll).
+HINSTANCE GetCodeModuleHandle() {
+  HMODULE hModule = nullptr;
+  CHECK(::GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                            reinterpret_cast<LPCWSTR>(GetCodeModuleHandle),
+                            &hModule));
+  return hModule;
+}
+#endif
+
 }  // namespace
 
 ChromeContentBrowserClientCef::ChromeContentBrowserClientCef() = default;
@@ -220,11 +233,17 @@ void ChromeContentBrowserClientCef::AppendExtraCommandLineSwitches(
 
 #if BUILDFLAG(IS_WIN)
   {
-    const auto& module_value = bootstrap_util::GetValidatedModuleValue(
-        *browser_cmd, bootstrap_util::GetExePath());
+    const auto& exe_path = bootstrap_util::GetExePath();
+    const auto& module_value =
+        bootstrap_util::GetValidatedModuleValue(*browser_cmd, exe_path);
     if (!module_value.empty()) {
       command_line->AppendSwitchNative(bootstrap_util::switches::kModule,
                                        module_value);
+    }
+    const auto& libcef_path =
+        bootstrap_util::GetModulePath(GetCodeModuleHandle());
+    if (libcef_path.DirName() != exe_path.DirName()) {
+      command_line->AppendSwitchPath(switches::kLibcefPath, libcef_path);
     }
   }
 #endif
