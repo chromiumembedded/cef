@@ -51,7 +51,6 @@ inline constexpr size_t kThumbprintLength = 40U;
 /// Structure populated by GetClientThumbprints().
 ///
 struct ThumbprintsInfo {
- public:
   ///
   /// True if one or more signatures exist and all are valid.
   ///

@@ -165,8 +165,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   std::wstring error;
 
-  if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
-    if (!is_sandboxed) {
+  if (!is_sandboxed) {
+    // Load the client DLL as untrusted (e.g. without executing DllMain or
+    // loading additional modules) so that we can first check requirements.
+    // LoadLibrary's "default search order" is tricky and we don't want to guess
+    // about what DLL it will load. DONT_RESOLVE_DLL_REFERENCES is the only
+    // option that doesn't execute DllMain while still allowing us retrieve the
+    // path using GetModuleFileName. No execution of the DLL should be attempted
+    // while loaded in this mode.
+    if (HMODULE hModule = ::LoadLibraryEx(dll_name.c_str(), nullptr,
+                                          DONT_RESOLVE_DLL_REFERENCES)) {
       const auto& dll_path = bootstrap_util::GetModulePath(hModule);
 
       if (!bootstrap_util::IsModulePathAllowed(dll_path, exe_path)) {
@@ -190,9 +198,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
           error = FormatErrorString(IDS_ERROR_INVALID_CERT, subst);
         }
       }
-    }
 
-    if (error.empty()) {
+      FreeLibrary(hModule);
+    } else {
+      const auto subst = std::to_array<std::u16string>(
+          {base::WideToUTF16(dll_name),
+           base::WideToUTF16(cef_util::GetLastErrorAsString())});
+      error = FormatErrorString(IDS_ERROR_LOAD_FAILED, subst);
+    }
+  }
+
+  if (error.empty()) {
+    // Load the client DLL normally.
+    if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
       if (auto* pFunc = (kProcType)::GetProcAddress(hModule, kProcName)) {
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
         return pFunc(argc, argv, sandbox_info);
@@ -206,14 +224,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
              base::ASCIIToUTF16(std::string(kProcName))});
         error = FormatErrorString(IDS_ERROR_NO_PROC_EXPORT, subst);
       }
-    }
 
-    FreeLibrary(hModule);
-  } else if (!is_sandboxed) {
-    const auto subst = std::to_array<std::u16string>(
-        {base::WideToUTF16(dll_name),
-         base::WideToUTF16(cef_util::GetLastErrorAsString())});
-    error = FormatErrorString(IDS_ERROR_LOAD_FAILED, subst);
+      FreeLibrary(hModule);
+    } else if (!is_sandboxed) {
+      const auto subst = std::to_array<std::u16string>(
+          {base::WideToUTF16(dll_name),
+           base::WideToUTF16(cef_util::GetLastErrorAsString())});
+      error = FormatErrorString(IDS_ERROR_LOAD_FAILED, subst);
+    }
   }
 
   // Don't try to show errors while sandboxed.
