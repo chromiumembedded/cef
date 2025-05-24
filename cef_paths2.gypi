@@ -17,6 +17,7 @@
       'include/base/cef_cancelable_callback.h',
       'include/base/cef_compiler_specific.h',
       'include/base/cef_dump_without_crashing.h',
+      'include/base/cef_immediate_crash.h',
       'include/base/cef_lock.h',
       'include/base/cef_logging.h',
       'include/base/cef_macros.h',

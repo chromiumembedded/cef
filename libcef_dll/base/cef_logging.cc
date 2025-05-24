@@ -9,13 +9,26 @@
 #include <windows.h>
 
 #include <algorithm>
-#include <sstream>
 #elif defined(OS_POSIX)
 #include <errno.h>
+#include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
 #endif
 
+#if defined(OS_APPLE)
+#include <mach/mach_time.h>
+#endif
+
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+#include "include/base/cef_immediate_crash.h"
 #include "include/internal/cef_string_types.h"
 
 namespace cef {
@@ -130,7 +143,253 @@ std::string safe_strerror(int err) {
 }
 #endif  // defined(OS_POSIX)
 
+const internal::Implementation* g_impl_override = nullptr;
+
+const char* const log_severity_names[] = {"INFO", "WARNING", "ERROR", "FATAL"};
+static_assert(LOG_NUM_SEVERITIES == std::size(log_severity_names),
+              "Incorrect number of log_severity_names");
+
+const char* log_severity_name(int severity) {
+  if (severity >= 0 && severity < LOG_NUM_SEVERITIES) {
+    return log_severity_names[severity];
+  }
+  return "UNKNOWN";
+}
+
+#if !defined(NDEBUG) && defined(OS_WIN)
+bool IsUser32AndGdi32Available() {
+  static const bool is_user32_and_gdi32_available = [] {
+    // If win32k syscalls aren't disabled, then user32 and gdi32 are available.
+    PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY policy = {};
+    if (::GetProcessMitigationPolicy(GetCurrentProcess(),
+                                     ProcessSystemCallDisablePolicy, &policy,
+                                     sizeof(policy))) {
+      return policy.DisallowWin32kSystemCalls == 0;
+    }
+
+    return true;
+  }();
+  return is_user32_and_gdi32_available;
+}
+
+std::wstring UTF8ToWide(const std::string& utf8) {
+  if (utf8.empty()) {
+    return {};
+  }
+  int size = MultiByteToWideChar(CP_UTF8, 0, utf8.data(),
+                                 static_cast<int>(utf8.size()), nullptr, 0);
+  if (size <= 0) {
+    return {};
+  }
+  std::wstring utf16(size, L'\0');
+  if (MultiByteToWideChar(CP_UTF8, 0, utf8.data(),
+                          static_cast<int>(utf8.size()), &utf16[0],
+                          size) != size) {
+    return {};
+  }
+  return utf16;
+}
+
+// Displays a message box to the user with the error message in it. Used for
+// fatal messages, where we close the app simultaneously. This is for developers
+// only; we don't use this in circumstances (like release builds) where users
+// could see it, since users don't understand these messages anyway.
+void DisplayDebugMessageInDialog(const std::string& message) {
+  if (IsUser32AndGdi32Available()) {
+    MessageBoxW(nullptr, UTF8ToWide(message).c_str(), L"Fatal error",
+                MB_OK | MB_ICONHAND | MB_TOPMOST);
+  } else {
+    OutputDebugStringW(UTF8ToWide(message).c_str());
+  }
+}
+#endif  // !defined(NDEBUG) && defined(OS_WIN)
+
+[[noreturn]] void HandleFatal(const std::string& message) {
+  // Don't display assertions to the user in release mode. The enduser can't do
+  // anything with this information, and displaying message boxes when the
+  // application is hosed can cause additional problems. We intentionally don't
+  // implement a dialog on other platforms. You can just look at stderr.
+#if !defined(NDEBUG) && defined(OS_WIN)
+  if (!::IsDebuggerPresent()) {
+    // Displaying a dialog is unnecessary when debugging and can complicate
+    // debugging.
+    DisplayDebugMessageInDialog(message);
+  }
+#endif
+
+  // Crash the process to generate a dump.
+  base::ImmediateCrash();
+}
+
+uint64_t TickCount() {
+#if defined(OS_WIN)
+  return ::GetTickCount();
+#elif defined(OS_APPLE)
+  return mach_absolute_time();
+#elif defined(OS_POSIX)
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+
+  uint64_t absolute_micro = static_cast<uint64_t>(ts.tv_sec) * 1000000 +
+                            static_cast<uint64_t>(ts.tv_nsec) / 1000;
+
+  return absolute_micro;
+#else
+#error Unsupported platform
+#endif
+}
+
 }  // namespace
+
+namespace internal {
+
+const Implementation* GetImplementation() {
+  if (g_impl_override) {
+    return g_impl_override;
+  }
+  static constexpr Implementation default_impl = {
+      &cef_get_min_log_level, &cef_get_vlog_level, &cef_log};
+  return &default_impl;
+}
+
+ScopedImplementation::~ScopedImplementation() {
+  g_impl_override = previous_;
+}
+
+ScopedImplementation::ScopedImplementation() = default;
+
+void ScopedImplementation::Init(const Implementation* impl) {
+  previous_ = g_impl_override;
+  g_impl_override = impl;
+}
+
+}  // namespace internal
+
+ScopedEarlySupport::ScopedEarlySupport(const Config& config)
+    : impl_{{&ScopedEarlySupport::get_min_log_level,
+             &ScopedEarlySupport::get_vlog_level, &ScopedEarlySupport::log},
+            config} {
+  Init(&impl_.ptrs);
+}
+
+// static
+const ScopedEarlySupport::Config& ScopedEarlySupport::GetConfig() {
+  return reinterpret_cast<const ScopedEarlySupport::Impl*>(g_impl_override)
+      ->config;
+}
+
+// static
+int ScopedEarlySupport::get_min_log_level() {
+  return GetConfig().min_log_level;
+}
+
+// static
+int ScopedEarlySupport::get_vlog_level(const char* file_start, size_t N) {
+  return GetConfig().vlog_level;
+}
+
+// static
+void ScopedEarlySupport::log(const char* file,
+                             int line,
+                             int severity,
+                             const char* message) {
+  const Config& config = GetConfig();
+
+  // Most logging initializes `file` from __FILE__. Unfortunately, because we
+  // build from out/Foo we get a `../../` (or \) prefix for all of our
+  // __FILE__s. This isn't true for base::Location::Current() which already does
+  // the stripping (and is used for some logging, especially CHECKs).
+  //
+  // Here we strip the first 6 (../../ or ..\..\) characters if `file` starts
+  // with `.` but defensively clamp to strlen(file) just in case.
+  const std::string_view filename =
+      file[0] == '.' ? std::string_view(file).substr(
+                           std::min(std::size_t{6}, strlen(file)))
+                     : file;
+
+  std::stringstream stream;
+
+  stream << '[';
+  if (config.log_prefix) {
+    stream << config.log_prefix << ':';
+  }
+  if (config.log_process_id) {
+#if defined(OS_WIN)
+    stream << ::GetCurrentProcessId() << ':';
+#elif defined(OS_POSIX)
+    stream << getpid() << ':';
+#else
+#error Unsupported platform
+#endif
+  }
+  if (config.log_thread_id) {
+#if defined(OS_WIN)
+    stream << ::GetCurrentThreadId() << ':';
+#elif defined(OS_APPLE)
+    uint64_t tid;
+    if (pthread_threadid_np(nullptr, &tid) == 0) {
+      stream << tid << ':';
+    }
+#elif defined(OS_POSIX)
+    stream << pthread_self() << ':';
+#else
+#error Unsupported platform
+#endif
+  }
+  if (config.log_timestamp) {
+#if defined(OS_WIN)
+    SYSTEMTIME local_time;
+    GetLocalTime(&local_time);
+    stream << std::setfill('0') << std::setw(2) << local_time.wMonth
+           << std::setw(2) << local_time.wDay << '/' << std::setw(2)
+           << local_time.wHour << std::setw(2) << local_time.wMinute
+           << std::setw(2) << local_time.wSecond << '.' << std::setw(3)
+           << local_time.wMilliseconds << ':';
+#elif defined(OS_POSIX)
+    timeval tv;
+    gettimeofday(&tv, nullptr);
+    time_t t = tv.tv_sec;
+    struct tm local_time;
+    localtime_r(&t, &local_time);
+    struct tm* tm_time = &local_time;
+    stream << std::setfill('0') << std::setw(2) << 1 + tm_time->tm_mon
+           << std::setw(2) << tm_time->tm_mday << '/' << std::setw(2)
+           << tm_time->tm_hour << std::setw(2) << tm_time->tm_min
+           << std::setw(2) << tm_time->tm_sec << '.' << std::setw(6)
+           << tv.tv_usec << ':';
+#else
+#error Unsupported platform
+#endif
+  }
+  if (config.log_tickcount) {
+    stream << TickCount() << ':';
+  }
+  if (severity >= 0) {
+    stream << log_severity_name(severity);
+  } else {
+    stream << "VERBOSE" << -severity;
+  }
+  stream << ":" << filename << ":" << line << "] " << message;
+
+  const std::string& log_line = stream.str();
+
+  if (!config.formatted_log_handler ||
+      !config.formatted_log_handler(log_line.c_str())) {
+    // Log to stderr.
+    std::cerr << log_line << std::endl;
+
+#if !defined(NDEBUG) && defined(OS_WIN)
+    if (severity < LOG_FATAL) {
+      // Log to the debugger console in debug builds.
+      OutputDebugStringW(UTF8ToWide(log_line).c_str());
+    }
+#endif
+  }
+
+  if (severity == LOG_FATAL) {
+    HandleFatal(log_line);
+  }
+}
 
 // MSVC doesn't like complex extern templates and DLLs.
 #if !defined(COMPILER_MSVC)
@@ -184,7 +443,8 @@ LogMessage::LogMessage(const char* file,
 
 LogMessage::~LogMessage() {
   std::string str_newline(stream_.str());
-  cef_log(file_, line_, severity_, str_newline.c_str());
+  internal::GetImplementation()->log(file_, line_, severity_,
+                                     str_newline.c_str());
 }
 
 #if defined(OS_WIN)

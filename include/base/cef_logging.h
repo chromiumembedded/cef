@@ -189,16 +189,50 @@
 namespace cef {
 namespace logging {
 
+class ScopedEarlySupport;
+
+namespace internal {
+
+// Structure defining the baseline logging implementation used by client
+// and wrapper code that links libcef_dll_wrapper.
+struct Implementation {
+  decltype(&cef_get_min_log_level) get_min_log_level;
+  decltype(&cef_get_vlog_level) get_vlog_level;
+  decltype(&cef_log) log;
+};
+
+// Returns the currently configured logging implementation.
+const Implementation* GetImplementation();
+
+// Change the logging implementation for the lifespan of this scoped object.
+// See ScopedEarlySupport for usage.
+class ScopedImplementation {
+ public:
+  ScopedImplementation(const ScopedImplementation&) = delete;
+  ScopedImplementation& operator=(const ScopedImplementation&) = delete;
+
+ private:
+  friend class logging::ScopedEarlySupport;
+
+  ScopedImplementation();
+  ~ScopedImplementation();
+  void Init(const Implementation* impl);
+
+  const Implementation* previous_ = nullptr;
+};
+
+}  // namespace internal
+
 // Gets the current log level.
 inline int GetMinLogLevel() {
-  return cef_get_min_log_level();
+  return internal::GetImplementation()->get_min_log_level();
 }
 
 // Gets the current vlog level for the given file (usually taken from
 // __FILE__). Note that |N| is the size *with* the null terminator.
 template <size_t N>
 int GetVlogLevel(const char (&file)[N]) {
-  return cef_get_vlog_level(file, N);
+  return internal::GetImplementation()->get_vlog_level(file, N);
 }
 
 typedef int LogSeverity;
@@ -217,6 +251,64 @@ const LogSeverity LOG_DFATAL = LOG_ERROR;
 #else
 const LogSeverity LOG_DFATAL = LOG_FATAL;
 #endif
+
+///
+/// Support the use of CEF logging macros during early application startup,
+/// prior to loading libcef. Not for use during or after CEF initialization.
+/// Support is scoped to this object's lifespan. This implementation is not
+/// thread-safe and should not be used for logging from multiple threads.
+///
+class ScopedEarlySupport final : public internal::ScopedImplementation {
+ public:
+  ///
+  /// Logging configuration.
+  ///
+  struct Config {
+    ///
+    /// Configure logging level.
+    ///
+    int min_log_level = LOG_ERROR;
+    int vlog_level = 0;
+
+    ///
+    /// Configure log line formatting.
+    ///
+    const char* log_prefix = nullptr;
+    bool log_process_id = true;
+    bool log_thread_id = true;
+    bool log_timestamp = true;
+    bool log_tickcount = true;
+
+    ///
+    /// Optionally override the default handling of formatted log lines. For
+    /// example, this callback could be used to write |log_line| to a file.
+    /// Return false to proceed with the default behavior of writing to stderr
+    /// or debugger console. FATAL errors will still intentionally crash the
+    /// application.
+    ///
+    bool (*formatted_log_handler)(const char* /*log_line*/) = nullptr;
+  };
+
+  explicit ScopedEarlySupport(const Config& config);
+
+  ScopedEarlySupport(const ScopedEarlySupport&) = delete;
+  ScopedEarlySupport& operator=(const ScopedEarlySupport&) = delete;
+
+ private:
+  static const Config& GetConfig();
+
+  static int get_min_log_level();
+  static int get_vlog_level(const char* file_start, size_t N);
+  static void log(const char* file,
+                  int line,
+                  int severity,
+                  const char* message);
+
+  const struct Impl {
+    internal::Implementation ptrs;
+    Config config;
+  } impl_;
+};
 
 // A few definitions of macros that don't generate much code. These are used
 // by LOG() and LOG_IF, etc. Since these are used all over our code, it's
