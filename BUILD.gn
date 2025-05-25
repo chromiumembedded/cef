@@ -558,6 +558,8 @@ source_set("libcef_static") {
     "libcef/browser/context.h",
     "libcef/browser/context_menu_params_impl.cc",
     "libcef/browser/context_menu_params_impl.h",
+    "libcef/browser/crashpad_runner.cc",
+    "libcef/browser/crashpad_runner.h",
     "libcef/browser/devtools/devtools_controller.cc",
     "libcef/browser/devtools/devtools_controller.h",
     "libcef/browser/devtools/devtools_protocol_manager.cc",
@@ -1267,7 +1269,13 @@ if (is_win) {
     "libcef_dll/bootstrap/win/resource.h",
     "libcef_dll/wrapper/cef_certificate_util_win.cc",
     "libcef_dll/wrapper/cef_util_win.cc",
+    "libcef/browser/crashpad_runner.cc",
+    "libcef/browser/crashpad_runner.h",
     "libcef/browser/preferred_stack_size_win.inc",
+    "//chrome/app/delay_load_failure_hook_win.cc",
+    "//chrome/app/delay_load_failure_hook_win.h",
+    "//chrome/common/win/delay_load_failure_support.cc",
+    "//chrome/common/win/delay_load_failure_support.h",
   ]
 
   bootstrap_deps = [
@@ -1275,6 +1283,9 @@ if (is_win) {
     ":make_version_header",
     "//base",
     "//build/win:default_exe_manifest",
+    "//chrome/install_static:secondary_module",
+    "//chrome/chrome_elf",
+    "//third_party/crashpad/crashpad/handler",
   ]
 
   bootstrap_libs = [
