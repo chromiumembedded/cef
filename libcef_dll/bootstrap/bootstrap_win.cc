@@ -50,6 +50,12 @@ void SetCwdForBrowserProcess() {
           .DirName());
 }
 
+#if DCHECK_IS_ON()
+// Displays a message to the user with the error message. Used for fatal
+// messages, where we close the app simultaneously. This is for developers only;
+// we don't use this in circumstances (like release builds) where users could
+// see it, since users don't understand these messages anyway.
+
 // Load a string from the string table in bootstrap.rc.
 std::wstring LoadString(int string_id) {
   const int kMaxSize = 100;
@@ -76,10 +82,16 @@ void ShowError(const std::wstring& error) {
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
   std::wcerr << title.c_str() << ": " << error << extra_info;
 #else
-  const std::wstring& msg = error + extra_info;
-  ::MessageBox(nullptr, msg.c_str(), title.c_str(), MB_ICONERROR | MB_OK);
+  if (!::IsDebuggerPresent()) {
+    // Displaying a dialog is unnecessary when debugging and can complicate
+    // debugging.
+    const std::wstring& msg = error + extra_info;
+    ::MessageBox(nullptr, msg.c_str(), title.c_str(), MB_ICONERROR | MB_OK);
+  }
 #endif
 }
+
+#endif  // DCHECK_IS_ON()
 
 std::wstring NormalizeError(const std::wstring& err) {
   std::wstring str = err;
@@ -100,10 +112,12 @@ void CheckDllCodeSigning(
   // signatures and the same primary thumbprint.
   if (!dll_thumbprints.IsSame(exe_thumbprints, /*allow_unsigned=*/true)) {
     // Some part of the certificate validation process failed.
+#if DCHECK_IS_ON()
     const auto subst = std::to_array<std::u16string>(
         {base::WideToUTF16(dll_path.BaseName().value()),
          base::WideToUTF16(dll_thumbprints.errors)});
     ShowError(FormatErrorString(IDS_ERROR_INVALID_CERT, subst));
+#endif
     if (dll_thumbprints.errors.empty()) {
       LOG(FATAL) << "Failed " << dll_path.value()
                  << " certificate requirements";
@@ -213,7 +227,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     }
 
     if (bootstrap_util::IsDefaultExeName(dll_name)) {
+#if DCHECK_IS_ON()
       ShowError(LoadString(IDS_ERROR_NO_MODULE_NAME));
+#endif
       LOG(FATAL) << "Missing module name";
     }
 
@@ -223,10 +239,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     // The executable must either be unsigned or have all valid signatures.
     if (!exe_thumbprints.IsUnsignedOrValid()) {
       // Some part of the certificate validation process failed.
+#if DCHECK_IS_ON()
       const auto subst = std::to_array<std::u16string>(
           {base::WideToUTF16(exe_path.BaseName().value()),
            base::WideToUTF16(exe_thumbprints.errors)});
       ShowError(FormatErrorString(IDS_ERROR_INVALID_CERT, subst));
+#endif
       if (exe_thumbprints.errors.empty()) {
         LOG(FATAL) << "Failed " << exe_path.value()
                    << " certificate requirements";
@@ -245,8 +263,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
       // Must be in the same directory as the EXE.
       if (dll_path.DirName() != exe_path.DirName()) {
+#if DCHECK_IS_ON()
         const auto subst = std::to_array<std::u16string>({u"chrome_elf"});
         ShowError(FormatErrorString(IDS_ERROR_INVALID_LOCATION, subst));
+#endif
         LOG(FATAL) << "Invalid location: " << dll_path.value();
       }
 
@@ -270,9 +290,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       const auto& dll_path = bootstrap_util::GetModulePath(hModule);
 
       if (!bootstrap_util::IsModulePathAllowed(dll_path, exe_path)) {
+#if DCHECK_IS_ON()
         const auto subst =
             std::to_array<std::u16string>({base::WideToUTF16(dll_name)});
         ShowError(FormatErrorString(IDS_ERROR_INVALID_LOCATION, subst));
+#endif
         LOG(FATAL) << "Invalid location: " << dll_path.value();
       }
 
@@ -280,10 +302,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
       FreeLibrary(hModule);
     } else {
+#if DCHECK_IS_ON()
       const auto subst = std::to_array<std::u16string>(
           {base::WideToUTF16(dll_name),
            base::WideToUTF16(cef_util::GetLastErrorAsString())});
       ShowError(FormatErrorString(IDS_ERROR_LOAD_FAILED, subst));
+#endif
       LOG(FATAL) << "Failed to load " << dll_name << ".dll with error "
                  << ::GetLastError();
     }
@@ -314,6 +338,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       result_code = pFunc(hInstance, lpCmdLine, nCmdShow, sandbox_info);
 #endif
     } else {
+#if DCHECK_IS_ON()
       if (!is_sandboxed) {
         const auto subst = std::to_array<std::u16string>(
             {base::WideToUTF16(dll_name),
@@ -321,6 +346,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
              base::ASCIIToUTF16(std::string(kProcName))});
         ShowError(FormatErrorString(IDS_ERROR_NO_PROC_EXPORT, subst));
       }
+#endif
 
       LOG(FATAL) << "Failed to find " << kProcName << " in " << dll_name
                  << ".dll with error " << ::GetLastError();
@@ -328,12 +354,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
     FreeLibrary(hModule);
   } else {
+#if DCHECK_IS_ON()
     if (!is_sandboxed) {
       const auto subst = std::to_array<std::u16string>(
           {base::WideToUTF16(dll_name),
            base::WideToUTF16(cef_util::GetLastErrorAsString())});
       ShowError(FormatErrorString(IDS_ERROR_LOAD_FAILED, subst));
     }
+#endif
 
     LOG(FATAL) << "Failed to load " << dll_name << ".dll with error "
                << ::GetLastError();
