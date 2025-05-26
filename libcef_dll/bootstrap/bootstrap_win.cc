@@ -26,6 +26,10 @@
 #include "chrome/app/delay_load_failure_hook_win.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/install_static/initialize_from_primary_module.h"
+#include "content/public/app/sandbox_helper_win.h"
+#include "sandbox/policy/mojom/sandbox.mojom.h"
+#include "sandbox/policy/sandbox_type.h"
+#include "sandbox/win/src/sandbox.h"
 
 namespace {
 
@@ -193,11 +197,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     return crashpad_runner::RunAsCrashpadHandler(command_line);
   }
 
-  // True if this is a sandboxed sub-process. Uses similar logic to
-  // Sandbox::IsProcessSandboxed.
+  // IsUnsandboxedSandboxType() can't be used here because its result can be
+  // gated behind a feature flag, which are not yet initialized.
+  // Match the logic in MainDllLoader::Launch.
   const bool is_sandboxed =
-      is_subprocess &&
-      base::GetCurrentProcessIntegrityLevel() < base::MEDIUM_INTEGRITY;
+      sandbox::policy::SandboxTypeFromCommandLine(command_line) !=
+      sandbox::mojom::Sandbox::kNoSandbox;
 
   std::wstring dll_name;
   base::FilePath exe_path;
@@ -326,16 +331,23 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Load the client DLL normally.
   if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
     if (auto* pFunc = (kProcType)::GetProcAddress(hModule, kProcName)) {
-      // Manage the life span of the sandbox information object. This is
-      // necessary for sandbox support on Windows. See cef_sandbox_win.h for
-      // complete details.
-      CefScopedSandboxInfo scoped_sandbox;
-      void* sandbox_info = scoped_sandbox.sandbox_info();
+      // Initialize the sandbox services.
+      // Match the logic in MainDllLoader::Launch.
+      sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
+      if (!is_subprocess || is_sandboxed) {
+        // For child processes that are running as --no-sandbox, don't
+        // initialize the sandbox info, otherwise they'll be treated as brokers
+        // (as if they were the browser).
+        content::InitializeSandboxInfo(
+            &sandbox_info, IsExtensionPointDisableSet()
+                               ? sandbox::MITIGATION_EXTENSION_POINT_DISABLE
+                               : 0);
+      }
 
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
-      result_code = pFunc(argc, argv, sandbox_info);
+      result_code = pFunc(argc, argv, &sandbox_info);
 #else
-      result_code = pFunc(hInstance, lpCmdLine, nCmdShow, sandbox_info);
+      result_code = pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info);
 #endif
     } else {
 #if DCHECK_IS_ON()

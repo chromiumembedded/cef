@@ -1276,15 +1276,19 @@ if (is_win) {
     "//chrome/app/delay_load_failure_hook_win.h",
     "//chrome/common/win/delay_load_failure_support.cc",
     "//chrome/common/win/delay_load_failure_support.h",
+    "//content/app/sandbox_helper_win.cc",
+    "//content/public/app/sandbox_helper_win.h",
   ]
 
   bootstrap_deps = [
-    ":cef_sandbox",
+    ":make_config_header",
     ":make_version_header",
     "//base",
     "//build/win:default_exe_manifest",
     "//chrome/install_static:secondary_module",
     "//chrome/chrome_elf",
+    "//sandbox",
+    "//sandbox/policy",
     "//third_party/crashpad/crashpad/handler",
   ]
 
