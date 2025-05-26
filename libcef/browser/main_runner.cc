@@ -18,6 +18,7 @@
 #include "cef/libcef/common/cef_switches.h"
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/chrome_process_singleton.h"
+#include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/common/chrome_result_codes.h"
 #include "components/crash/core/app/crash_switches.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
@@ -35,6 +36,8 @@
 #include <memory>
 
 #include "content/public/app/sandbox_helper_win.h"
+#include "sandbox/policy/mojom/sandbox.mojom.h"
+#include "sandbox/policy/sandbox_type.h"
 #include "sandbox/win/src/sandbox_types.h"
 #endif
 
@@ -241,9 +244,29 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
   // Execute the secondary process.
   content::ContentMainParams main_params(main_delegate.get());
 #if BUILDFLAG(IS_WIN)
+  // Initialize the sandbox services.
+  // Match the logic in MainDllLoader::Launch.
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
-  if (windows_sandbox_info == nullptr) {
-    content::InitializeSandboxInfo(&sandbox_info);
+
+  // IsUnsandboxedSandboxType() can't be used here because its result can be
+  // gated behind a feature flag, which are not yet initialized.
+  const bool is_sandboxed =
+      sandbox::policy::SandboxTypeFromCommandLine(command_line) !=
+      sandbox::mojom::Sandbox::kNoSandbox;
+
+  // When using cef_sandbox_info_create() the sandbox info will always be
+  // initialized. This is incorrect for cases where the sandbox is disabled, and
+  // we adjust for that here.
+  if (!is_sandboxed || windows_sandbox_info == nullptr) {
+    if (is_sandboxed) {
+      // For child processes that are running as --no-sandbox, don't
+      // initialize the sandbox info, otherwise they'll be treated as brokers
+      // (as if they were the browser).
+      content::InitializeSandboxInfo(
+          &sandbox_info, IsExtensionPointDisableSet()
+                             ? sandbox::MITIGATION_EXTENSION_POINT_DISABLE
+                             : 0);
+    }
     windows_sandbox_info = &sandbox_info;
   }
 
