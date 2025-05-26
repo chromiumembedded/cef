@@ -20,7 +20,8 @@ bool IsEqualIgnoringCase(const std::wstring& str1, const std::wstring& str2) {
 HMODULE Load(const std::wstring& dll_path,
              const char* thumbprint,
              bool allow_unsigned,
-             bool is_subprocess) {
+             bool is_subprocess,
+             cef_version_info_t* version_info) {
   if (!is_subprocess) {
     // Load the client DLL as untrusted (e.g. without executing DllMain or
     // loading additional modules) so that we can first check requirements.
@@ -50,6 +51,25 @@ HMODULE Load(const std::wstring& dll_path,
   // Load normally.
   if (HMODULE hModule = ::LoadLibraryEx(dll_path.data(), nullptr,
                                         LOAD_WITH_ALTERED_SEARCH_PATH)) {
+    // libcef functions should now be callable via the /DELAYLOAD handler.
+    if (version_info) {
+      // Compare Chromium version for the client/bootstrap and libcef.dll. This
+      // strict version check is necessary because both sandbox info and
+      // chrome_elf introduce Chromium version dependencies, and we don't know
+      // which non-matching versions are compatible.
+      cef_version_info_t dll_info = {};
+      dll_info.size = sizeof(cef_version_info_t);
+      cef_version_info_all(&dll_info);
+      if (dll_info.chrome_version_major != version_info->chrome_version_major ||
+          dll_info.chrome_version_patch != version_info->chrome_version_patch) {
+        LOG(FATAL) << "Failed libcef.dll version check; expected "
+                   << version_info->chrome_version_major << "."
+                   << version_info->chrome_version_major << ", got "
+                   << dll_info.chrome_version_major << "."
+                   << dll_info.chrome_version_major;
+      }
+    }
+
     return hModule;
   }
 
@@ -61,15 +81,18 @@ HMODULE Load(const std::wstring& dll_path,
 
 CefScopedLibraryLoader::CefScopedLibraryLoader() = default;
 
-bool CefScopedLibraryLoader::LoadInMainAssert(const wchar_t* dll_path,
-                                              const char* thumbprint,
-                                              bool allow_unsigned) {
+bool CefScopedLibraryLoader::LoadInMainAssert(
+    const wchar_t* dll_path,
+    const char* thumbprint,
+    bool allow_unsigned,
+    cef_version_info_t* version_info) {
   CHECK(!handle_);
-  handle_ = Load(dll_path, thumbprint, allow_unsigned, false);
+  handle_ = Load(dll_path, thumbprint, allow_unsigned, false, version_info);
   return handle_ != nullptr;
 }
 
-bool CefScopedLibraryLoader::LoadInSubProcessAssert() {
+bool CefScopedLibraryLoader::LoadInSubProcessAssert(
+    cef_version_info_t* version_info) {
   CHECK(!handle_);
 
   constexpr wchar_t kProcessTypeW[] = L"type";
@@ -90,7 +113,7 @@ bool CefScopedLibraryLoader::LoadInSubProcessAssert() {
     return true;
   }
 
-  handle_ = Load(dll_path, nullptr, true, true);
+  handle_ = Load(dll_path, nullptr, true, true, version_info);
   return handle_ != nullptr;
 }
 

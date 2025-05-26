@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "include/base/cef_build.h"
+#include "include/cef_version_info.h"
 
 #if defined(OS_LINUX) && defined(CEF_X11)
 #include <X11/Xlib.h>
@@ -126,7 +127,10 @@ class ScopedPlatformSetup final {
 };
 #endif  // defined(OS_MAC)
 
-int RunMain(int argc, char* argv[], void* sandbox_info) {
+int RunMain(int argc,
+            char* argv[],
+            void* sandbox_info,
+            cef_version_info_t* /*version_info*/) {
   int exit_code;
 
 #if CEF_API_VERSION != CEF_EXPERIMENTAL
@@ -284,8 +288,9 @@ int RunMain(int argc, char* argv[], void* sandbox_info) {
 // Entry point called by bootstrapc.exe when built as a DLL.
 CEF_BOOTSTRAP_EXPORT int RunConsoleMain(int argc,
                                         char* argv[],
-                                        void* sandbox_info) {
-  return ::RunMain(argc, argv, sandbox_info);
+                                        void* sandbox_info,
+                                        cef_version_info_t* version_info) {
+  return ::RunMain(argc, argv, sandbox_info, version_info);
 }
 
 #else  // !(defined(OS_WIN) && defined(CEF_USE_BOOTSTRAP))
@@ -316,7 +321,10 @@ int main(int argc, char* argv[]) {
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  return ::RunMain(argc, argv, sandbox_info);
+  cef_version_info_t version_info = {};
+  CEF_POPULATE_VERSION_INFO(&version_info);
+
+  return ::RunMain(argc, argv, sandbox_info, &version_info);
 }
 
 #endif  // !(defined(OS_WIN) && defined(CEF_USE_BOOTSTRAP))

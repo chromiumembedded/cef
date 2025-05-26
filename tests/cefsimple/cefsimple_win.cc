@@ -6,6 +6,7 @@
 
 #include "include/cef_command_line.h"
 #include "include/cef_sandbox_win.h"
+#include "include/cef_version_info.h"
 #include "tests/cefsimple/simple_app.h"
 
 namespace {
@@ -13,7 +14,8 @@ namespace {
 int RunMain(HINSTANCE hInstance,
             LPTSTR lpCmdLine,
             int nCmdShow,
-            void* sandbox_info) {
+            void* sandbox_info,
+            cef_version_info_t* /*version_info*/) {
   int exit_code;
 
   // Provide CEF with command-line arguments.
@@ -69,8 +71,9 @@ int RunMain(HINSTANCE hInstance,
 CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
                                     LPTSTR lpCmdLine,
                                     int nCmdShow,
-                                    void* sandbox_info) {
-  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
+                                    void* sandbox_info,
+                                    cef_version_info_t* version_info) {
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info, version_info);
 }
 
 #else  // !defined(CEF_USE_BOOTSTRAP)
@@ -108,7 +111,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
+  cef_version_info_t version_info = {};
+  CEF_POPULATE_VERSION_INFO(&version_info);
+
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info, &version_info);
 }
 
 #endif  // !defined(CEF_USE_BOOTSTRAP)

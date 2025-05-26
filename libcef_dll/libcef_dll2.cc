@@ -45,6 +45,17 @@ CEF_EXPORT int cef_version_info(int entry) {
   }
 }
 
+CEF_EXPORT void cef_version_info_all(cef_version_info_t* info) {
+  info->cef_version_major = CEF_VERSION_MAJOR;
+  info->cef_version_minor = CEF_VERSION_MINOR;
+  info->cef_version_patch = CEF_VERSION_PATCH;
+  info->cef_commit_number = CEF_COMMIT_NUMBER;
+  info->chrome_version_major = CHROME_VERSION_MAJOR;
+  info->chrome_version_minor = CHROME_VERSION_MINOR;
+  info->chrome_version_build = CHROME_VERSION_BUILD;
+  info->chrome_version_patch = CHROME_VERSION_PATCH;
+}
+
 #include "cef/libcef_dll/cef_api_versions.inc"
 
 CEF_EXPORT const char* cef_api_hash(int version, int entry) {

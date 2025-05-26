@@ -37,6 +37,8 @@
 
 #if defined(OS_WIN)
 
+#include "include/cef_version_info.h"
+
 #if !defined(GENERATING_CEF_API_HASH)
 #include <windows.h>
 #endif
@@ -101,7 +103,8 @@ extern "C" {
 CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
                                     LPTSTR lpCmdLine,
                                     int nCmdShow,
-                                    void* sandbox_info);
+                                    void* sandbox_info,
+                                    cef_version_info_t* version_info);
 
 ///
 /// Entry point to be implemented by client DLLs using bootstrapc.exe for
@@ -109,7 +112,8 @@ CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
 ///
 CEF_BOOTSTRAP_EXPORT int RunConsoleMain(int argc,
                                         char* argv[],
-                                        void* sandbox_info);
+                                        void* sandbox_info,
+                                        cef_version_info_t* version_info);
 
 #ifdef __cplusplus
 }

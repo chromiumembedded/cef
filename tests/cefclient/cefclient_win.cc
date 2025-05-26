@@ -68,12 +68,13 @@ const char* RequiredThumbprint(std::string* exe_thumbprint) {
   return nullptr;
 }
 
-bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader) {
+bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader,
+                              cef_version_info_t* version_info) {
   // Enable early logging support (required before libcef is loaded).
   // The *Assert() calls below will output a FATAL error and crash on failure.
   cef::logging::ScopedEarlySupport scoped_logging({});
 
-  if (library_loader.LoadInSubProcessAssert()) {
+  if (library_loader.LoadInSubProcessAssert(version_info)) {
     // Running as a sub-process. We may be sandboxed. Nothing more to be done.
     return true;
   }
@@ -109,15 +110,20 @@ bool VerifyCodeSigningAndLoad(CefScopedLibraryLoader& library_loader) {
   // then load.
   return library_loader.LoadInMainAssert(libcef_dll_path.c_str(),
                                          RequiredThumbprint(&exe_thumbprint),
-                                         kAllowUnsigned);
+                                         kAllowUnsigned, version_info);
 }
 
-int RunMain(HINSTANCE hInstance, int nCmdShow, void* sandbox_info) {
+int RunMain(HINSTANCE hInstance,
+            int nCmdShow,
+            void* sandbox_info,
+            cef_version_info_t* version_info) {
   CefMainArgs main_args(hInstance);
 
   // Dynamically load the CEF library after code signing verification.
   CefScopedLibraryLoader library_loader;
-  if (!VerifyCodeSigningAndLoad(library_loader)) {
+  if (!VerifyCodeSigningAndLoad(library_loader, version_info)) {
+    // The verification or load failed. We'll crash before reaching this line.
+    NOTREACHED();
     return CEF_RESULT_CODE_KILLED;
   }
 
@@ -213,8 +219,9 @@ int RunMain(HINSTANCE hInstance, int nCmdShow, void* sandbox_info) {
 CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
                                     LPTSTR lpCmdLine,
                                     int nCmdShow,
-                                    void* sandbox_info) {
-  return client::RunMain(hInstance, nCmdShow, sandbox_info);
+                                    void* sandbox_info,
+                                    cef_version_info_t* version_info) {
+  return client::RunMain(hInstance, nCmdShow, sandbox_info, version_info);
 }
 
 #else  // !defined(CEF_USE_BOOTSTRAP)
@@ -252,7 +259,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  return client::RunMain(hInstance, nCmdShow, sandbox_info);
+  cef_version_info_t version_info = {};
+  CEF_POPULATE_VERSION_INFO(&version_info);
+
+  return client::RunMain(hInstance, nCmdShow, sandbox_info, &version_info);
 }
 
 #endif  // !defined(CEF_USE_BOOTSTRAP)

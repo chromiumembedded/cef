@@ -16,6 +16,8 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cef/include/cef_sandbox_win.h"
+#include "cef/include/cef_version.h"
+#include "cef/include/cef_version_info.h"
 #include "cef/include/internal/cef_types.h"
 #include "cef/include/wrapper/cef_certificate_util_win.h"
 #include "cef/include/wrapper/cef_util_win.h"
@@ -344,10 +346,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
                                : 0);
       }
 
+      cef_version_info_t version_info = {};
+      CEF_POPULATE_VERSION_INFO(&version_info);
+
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
-      result_code = pFunc(argc, argv, &sandbox_info);
+      result_code = pFunc(argc, argv, &sandbox_info, &version_info);
 #else
-      result_code = pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info);
+      result_code =
+          pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info, &version_info);
 #endif
     } else {
 #if DCHECK_IS_ON()
