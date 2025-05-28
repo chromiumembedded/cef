@@ -328,8 +328,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   using kProcType = decltype(&RunWinMain);
 #endif
 
-  int result_code;
-
   // Load the client DLL normally.
   if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
     if (auto* pFunc = (kProcType)::GetProcAddress(hModule, kProcName)) {
@@ -349,11 +347,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       cef_version_info_t version_info = {};
       CEF_POPULATE_VERSION_INFO(&version_info);
 
+      // Return immediately without calling FreeLibrary() to avoid an illegal
+      // access during shutdown. The sandbox broker owns objects created inside
+      // libcef.dll (SandboxWin::InitBrokerServices) and cleanup is triggered
+      // via an _onexit handler (SingletonBase::OnExit) called after wWinMain
+      // exits.
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
-      result_code = pFunc(argc, argv, &sandbox_info, &version_info);
+      return pFunc(argc, argv, &sandbox_info, &version_info);
 #else
-      result_code =
-          pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info, &version_info);
+      return pFunc(hInstance, lpCmdLine, nCmdShow, &sandbox_info,
+                   &version_info);
 #endif
     } else {
 #if DCHECK_IS_ON()
@@ -369,8 +372,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       LOG(FATAL) << "Failed to find " << kProcName << " in " << dll_name
                  << ".dll with error " << ::GetLastError();
     }
-
-    FreeLibrary(hModule);
   } else {
 #if DCHECK_IS_ON()
     if (!is_sandboxed) {
@@ -385,7 +386,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
                << ::GetLastError();
   }
 
-  // LOG(FATAL) is [[noreturn]], so we only reach this point if everything
-  // succeeded.
-  return result_code;
+  // LOG(FATAL) is [[noreturn]], so we never reach this point.
+  NOTREACHED();
 }
