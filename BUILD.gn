@@ -383,6 +383,10 @@ if (is_win) {
       # Required by content_switches.cc
       "//media:media_buildflags",
 
+      # Required by crash_keys.cc
+      "//content/public/common:buildflags",
+      "//tools/v8_context_snapshot:buildflags",
+
       # Required by crash_keys.cc (from base/stl_util.h)
       "//third_party/abseil-cpp:absl",
     ]
@@ -1281,6 +1285,7 @@ if (is_win) {
   ]
 
   bootstrap_deps = [
+    ":make_api_versions_header",
     ":make_config_header",
     ":make_version_header",
     "//base",
