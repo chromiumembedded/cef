@@ -322,9 +322,6 @@ if(OS_WINDOWS)
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
   target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} d3d11.lib glu32.lib imm32.lib opengl32.lib)
 
-  # Add additional /DELAYLOADs that are missing from CEF_EXE_LINKER_FLAGS.
-  set_property(TARGET ${CEF_TARGET} PROPERTY LINK_FLAGS "/DELAYLOAD:glu32.dll /DELAYLOAD:oleaut32.dll /DELAYLOAD:opengl32.dll")
-
   if(USE_ATL)
     # Required by VS2013 to link accessibility API functions.
     target_link_libraries(${CEF_TARGET} oleacc.lib)
