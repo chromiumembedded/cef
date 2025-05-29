@@ -528,6 +528,7 @@
       'tests/ceftests/permission_prompt_unittest.cc',
       'tests/ceftests/preference_unittest.cc',
       'tests/ceftests/print_unittest.cc',
+      'tests/ceftests/print_to_pdf_unittest.cc',
       'tests/ceftests/process_message_unittest.cc',
       'tests/ceftests/request_context_unittest.cc',
       'tests/ceftests/request_handler_unittest.cc',
