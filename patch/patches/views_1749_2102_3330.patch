@@ -254,12 +254,12 @@ index b4cb7c83a3e4c..562e096930147 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index a777b6b4c61c2..456e2b04848fc 100644
+index 0072453f5ba55..55b994b982a9e 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -589,7 +589,8 @@ void MenuController::Run(Widget* parent,
+@@ -599,7 +599,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
-                          bool context_menu,
+                          MenuType menu_type,
                           bool is_nested_drag,
 -                         gfx::NativeView native_view_for_gestures) {
 +                         gfx::NativeView native_view_for_gestures,
@@ -267,7 +267,7 @@ index a777b6b4c61c2..456e2b04848fc 100644
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -658,6 +659,7 @@ void MenuController::Run(Widget* parent,
+@@ -668,6 +669,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index a777b6b4c61c2..456e2b04848fc 100644
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2386,6 +2388,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2396,6 +2398,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index a777b6b4c61c2..456e2b04848fc 100644
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3100,7 +3103,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3120,7 +3123,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index a777b6b4c61c2..456e2b04848fc 100644
      return;
    }
  
-@@ -3125,6 +3132,7 @@ void MenuController::CloseSubmenu() {
+@@ -3145,6 +3152,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -305,12 +305,12 @@ index a777b6b4c61c2..456e2b04848fc 100644
    }
    if (item->SubmenuIsShowing()) {
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 737b5dd9a243e..44b088afd01c8 100644
+index 2a42f071fcfad..3de8c2be46058 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
-@@ -140,7 +140,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -146,7 +146,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
        ui::mojom::MenuSourceType source_type = ui::mojom::MenuSourceType::kNone,
-       bool context_menu = false,
+       MenuType menu_type = MenuType::kNormal,
        bool is_nested_drag = false,
 -      gfx::NativeView native_view_for_gestures = gfx::NativeView());
 +      gfx::NativeView native_view_for_gestures = gfx::NativeView(),
@@ -318,7 +318,7 @@ index 737b5dd9a243e..44b088afd01c8 100644
  
    bool for_drop() const { return for_drop_; }
  
-@@ -740,6 +741,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -746,6 +747,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -567,10 +567,10 @@ index 87739aa15210f..e785faf160c2e 100644
  }
  
 diff --git ui/views/controls/menu/menu_runner.h ui/views/controls/menu/menu_runner.h
-index c60b13df53aae..2e2b9174938f7 100644
+index cb9d9d46eea37..a9ffb74761fce 100644
 --- ui/views/controls/menu/menu_runner.h
 +++ ui/views/controls/menu/menu_runner.h
-@@ -160,6 +160,8 @@ class VIEWS_EXPORT MenuRunner {
+@@ -164,6 +164,8 @@ class VIEWS_EXPORT MenuRunner {
                   MenuAnchorPosition anchor,
                   ui::mojom::MenuSourceType source_type,
                   gfx::NativeView native_view_for_gestures = gfx::NativeView(),
@@ -580,7 +580,7 @@ index c60b13df53aae..2e2b9174938f7 100644
                   std::optional<std::string> show_menu_host_duration_histogram =
                       std::nullopt);
 diff --git ui/views/controls/menu/menu_runner_impl.cc ui/views/controls/menu/menu_runner_impl.cc
-index bf7f7c6d8d31e..b7054a59a8876 100644
+index 3793390d203db..d56aa411470ab 100644
 --- ui/views/controls/menu/menu_runner_impl.cc
 +++ ui/views/controls/menu/menu_runner_impl.cc
 @@ -119,6 +119,7 @@ void MenuRunnerImpl::RunMenuAt(
@@ -591,9 +591,9 @@ index bf7f7c6d8d31e..b7054a59a8876 100644
      std::optional<gfx::RoundedCornersF> corners,
      std::optional<std::string> show_menu_host_duration_histogram) {
    closing_event_time_ = base::TimeTicks();
-@@ -193,7 +194,7 @@ void MenuRunnerImpl::RunMenuAt(
+@@ -199,7 +200,7 @@ void MenuRunnerImpl::RunMenuAt(
    controller->Run(parent, button_controller, menu_.get(), bounds, anchor,
-                   source_type, (run_types & MenuRunner::CONTEXT_MENU) != 0,
+                   source_type, menu_type,
                    (run_types & MenuRunner::NESTED_DRAG) != 0,
 -                  native_view_for_gestures);
 +                  native_view_for_gestures, parent_widget);

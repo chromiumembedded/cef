@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index d5e652efef5df..a4cc11790658c 100644
+index 6f2feda3e7920..83650e01ce8a2 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -442,6 +442,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -458,6 +458,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index d5e652efef5df..a4cc11790658c 100644
      return false;
    }
  
-@@ -459,6 +460,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -475,6 +476,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index d5e652efef5df..a4cc11790658c 100644
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1297,11 +1305,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1313,11 +1321,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -397,10 +397,10 @@ index 3d8a15049d4d2..66c4789581fe1 100644
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 43650702e865b..4f814d29ef136 100644
+index 3c0e53b5ade77..d7ca16e2c41cc 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
-@@ -366,10 +366,6 @@ using web_modal::WebContentsModalDialogHost;
+@@ -368,10 +368,6 @@ using web_modal::WebContentsModalDialogHost;
  
  namespace {
  
@@ -411,7 +411,7 @@ index 43650702e865b..4f814d29ef136 100644
  // The visible height of the shadow above the tabs. Clicks in this area are
  // treated as clicks to the frame, rather than clicks to the tab.
  const int kTabShadowSize = 2;
-@@ -811,6 +807,14 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
+@@ -813,6 +809,14 @@ class BrowserViewLayoutDelegateImpl : public BrowserViewLayoutDelegate {
      return browser_view_->frame()->GetTopInset() - browser_view_->y();
    }
  
@@ -426,7 +426,7 @@ index 43650702e865b..4f814d29ef136 100644
    bool IsToolbarVisible() const override {
      return browser_view_->IsToolbarVisible();
    }
-@@ -935,11 +939,21 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
+@@ -937,11 +941,21 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
  ///////////////////////////////////////////////////////////////////////////////
  // BrowserView, public:
  
@@ -449,7 +449,7 @@ index 43650702e865b..4f814d29ef136 100644
    SetShowIcon(::ShouldShowWindowIcon(
        browser_.get(), AppUsesWindowControlsOverlay(), AppUsesTabbed()));
  
-@@ -1089,8 +1103,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -1091,8 +1105,15 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
        lens_overlay_view_, contents_scrim_view_, nullptr, watermark_view_));
  #endif
  
@@ -467,7 +467,7 @@ index 43650702e865b..4f814d29ef136 100644
  
    contents_separator_ =
        top_container_->AddChildView(std::make_unique<ContentsSeparator>());
-@@ -1156,18 +1177,22 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
+@@ -1158,18 +1179,22 @@ BrowserView::BrowserView(std::unique_ptr<Browser> browser)
  }
  
  BrowserView::~BrowserView() {
@@ -490,7 +490,7 @@ index 43650702e865b..4f814d29ef136 100644
  
    tab_search_bubble_host_.reset();
  
-@@ -1175,9 +1200,11 @@ BrowserView::~BrowserView() {
+@@ -1177,9 +1202,11 @@ BrowserView::~BrowserView() {
    // tabstrip model and the browser frame.
    top_controls_slide_controller_.reset();
  
@@ -502,7 +502,7 @@ index 43650702e865b..4f814d29ef136 100644
  
    // Stop the animation timer explicitly here to avoid running it in a nested
    // message loop, which may run by Browser destructor.
-@@ -1186,17 +1213,18 @@ BrowserView::~BrowserView() {
+@@ -1188,17 +1215,18 @@ BrowserView::~BrowserView() {
    // Immersive mode may need to reparent views before they are removed/deleted.
    immersive_mode_controller_.reset();
  
@@ -525,7 +525,7 @@ index 43650702e865b..4f814d29ef136 100644
  
    // These are raw pointers to child views, so they need to be set to null
    // before `RemoveAllChildViews()` is called to avoid dangling.
-@@ -1897,6 +1925,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
+@@ -1899,6 +1927,28 @@ gfx::Point BrowserView::GetThemeOffsetFromBrowserView() const {
        ThemeProperties::kFrameHeightAboveTabs - browser_view_origin.y());
  }
  
@@ -554,7 +554,7 @@ index 43650702e865b..4f814d29ef136 100644
  // static:
  BrowserView::DevToolsDockedPlacement BrowserView::GetDevToolsDockedPlacement(
      const gfx::Rect& contents_webview_bounds,
-@@ -2343,7 +2393,13 @@ void BrowserView::OnExclusiveAccessUserInput() {
+@@ -2345,7 +2395,13 @@ void BrowserView::OnExclusiveAccessUserInput() {
  
  bool BrowserView::ShouldHideUIForFullscreen() const {
    // Immersive mode needs UI for the slide-down top panel.
@@ -569,7 +569,7 @@ index 43650702e865b..4f814d29ef136 100644
      return false;
    }
  
-@@ -3574,6 +3630,9 @@ views::View* BrowserView::GetLensOverlayView() {
+@@ -3576,6 +3632,9 @@ views::View* BrowserView::GetLensOverlayView() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -579,7 +579,7 @@ index 43650702e865b..4f814d29ef136 100644
      if (auto* download_controller =
              browser_->GetFeatures().download_toolbar_ui_controller()) {
        return download_controller->bubble_controller();
-@@ -4319,7 +4378,9 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -4341,7 +4400,9 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
      return;
    }
  
@@ -589,7 +589,7 @@ index 43650702e865b..4f814d29ef136 100644
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -4860,11 +4921,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4882,11 +4943,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -630,7 +630,7 @@ index 43650702e865b..4f814d29ef136 100644
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4873,7 +4961,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4895,7 +4983,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -639,7 +639,7 @@ index 43650702e865b..4f814d29ef136 100644
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -5105,8 +5193,11 @@ void BrowserView::Layout(PassKey) {
+@@ -5127,8 +5215,11 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -652,7 +652,7 @@ index 43650702e865b..4f814d29ef136 100644
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -5173,6 +5264,12 @@ void BrowserView::AddedToWidget() {
+@@ -5195,6 +5286,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -665,7 +665,7 @@ index 43650702e865b..4f814d29ef136 100644
    toolbar_->Init();
  
    if (GetIsNormalType()) {
-@@ -5232,12 +5329,6 @@ void BrowserView::AddedToWidget() {
+@@ -5254,12 +5351,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -678,7 +678,7 @@ index 43650702e865b..4f814d29ef136 100644
    if (download::IsDownloadBubbleEnabled()) {
      browser_->GetFeatures().download_toolbar_ui_controller()->Init();
    }
-@@ -5248,7 +5339,9 @@ void BrowserView::AddedToWidget() {
+@@ -5270,7 +5361,9 @@ void BrowserView::AddedToWidget() {
    }
  
    frame_->OnBrowserViewInitViewsComplete();
@@ -688,7 +688,7 @@ index 43650702e865b..4f814d29ef136 100644
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -5670,7 +5763,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
+@@ -5692,7 +5785,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -698,7 +698,7 @@ index 43650702e865b..4f814d29ef136 100644
  }
  
  void BrowserView::RequestFullscreen(bool fullscreen, int64_t display_id) {
-@@ -6182,7 +6277,9 @@ Profile* BrowserView::GetProfile() {
+@@ -6204,7 +6299,9 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -708,7 +708,7 @@ index 43650702e865b..4f814d29ef136 100644
  }
  
  WebContents* BrowserView::GetWebContentsForExclusiveAccess() {
-@@ -6211,6 +6308,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
+@@ -6233,6 +6330,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {

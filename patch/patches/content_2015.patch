@@ -12,7 +12,7 @@ index a28237bf93ef4..9a01b185e76f4 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index a65b70e7ac2e1..9b11bf620cdbd 100644
+index 1a800194b97da..b92a789494fea 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -978,7 +978,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(

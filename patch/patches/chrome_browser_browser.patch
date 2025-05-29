@@ -83,7 +83,7 @@ index 720839ed7b796..0d14fe57d841d 100644
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index b24f97d12db79..55ed091b2c91c 100644
+index 93096ad92c1a3..9f6ad01bb1cc6 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -684,10 +684,10 @@ index 83a510defbda5..f4305701c5f5a 100644
    params.source_contents = source_contents;
    params.url = target_url;
 diff --git chrome/browser/ui/browser_window/browser_window_features.cc chrome/browser/ui/browser_window/browser_window_features.cc
-index 7b158e39c965a..dc4d385a2c1a9 100644
+index db33c12d1d71b..af0c2f5203e0d 100644
 --- chrome/browser/ui/browser_window/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/browser_window_features.cc
-@@ -100,6 +100,15 @@ BrowserWindowFeatures::CreateBrowserWindowFeatures() {
+@@ -99,6 +99,15 @@ BrowserWindowFeatures::CreateBrowserWindowFeatures() {
  
  BrowserWindowFeatures::~BrowserWindowFeatures() = default;
  
@@ -703,7 +703,7 @@ index 7b158e39c965a..dc4d385a2c1a9 100644
  // static
  void BrowserWindowFeatures::ReplaceBrowserWindowFeaturesForTesting(
      BrowserWindowFeaturesFactory factory) {
-@@ -190,10 +199,12 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
+@@ -189,10 +198,12 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
  }
  
  void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
@@ -717,7 +717,7 @@ index 7b158e39c965a..dc4d385a2c1a9 100644
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -235,7 +246,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -234,7 +245,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
      }
    }
  
@@ -726,7 +726,7 @@ index 7b158e39c965a..dc4d385a2c1a9 100644
        base::FeatureList::IsEnabled(toast_features::kToastFramework)) {
      toast_service_ = std::make_unique<ToastService>(browser);
    }
-@@ -277,10 +288,12 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -267,10 +278,12 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
            browser_view->browser(),
            side_panel_coordinator_->GetWindowRegistry());
  
@@ -741,10 +741,10 @@ index 7b158e39c965a..dc4d385a2c1a9 100644
      if (glic::GlicEnabling::IsProfileEligible(
              browser_view->browser()->profile())) {
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 5ba81ee463c84..c56a89c8d1911 100644
+index 0da8c64756ee2..2566fff471c8e 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
-@@ -91,6 +91,8 @@ class BrowserWindowFeatures {
+@@ -90,6 +90,8 @@ class BrowserWindowFeatures {
    static std::unique_ptr<BrowserWindowFeatures> CreateBrowserWindowFeatures();
    virtual ~BrowserWindowFeatures();
  

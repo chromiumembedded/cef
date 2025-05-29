@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index a333dcbe56bd2..cf34318b16f04 100644
+index 49c051ea6eabc..b98a2bfc2d131 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -351,6 +351,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -352,6 +352,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -21,7 +21,7 @@ index a333dcbe56bd2..cf34318b16f04 100644
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -623,6 +635,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -624,6 +636,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index a333dcbe56bd2..cf34318b16f04 100644
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -894,6 +910,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -895,6 +911,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -47,7 +47,7 @@ index a333dcbe56bd2..cf34318b16f04 100644
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1352,6 +1376,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1353,6 +1377,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,7 +60,7 @@ index a333dcbe56bd2..cf34318b16f04 100644
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3648,6 +3678,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -3649,6 +3679,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
