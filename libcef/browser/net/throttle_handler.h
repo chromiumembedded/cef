@@ -6,21 +6,14 @@
 #define CEF_LIBCEF_BROWSER_NET_THROTTLE_HANDLER_H_
 #pragma once
 
-#include <memory>
-#include <vector>
-
 namespace content {
-class NavigationHandle;
-class NavigationThrottle;
+class NavigationThrottleRegistry;
 }  // namespace content
 
 namespace throttle {
 
-using NavigationThrottleList =
-    std::vector<std::unique_ptr<content::NavigationThrottle>>;
-
-void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
-                                  NavigationThrottleList& throttles);
+void CreateThrottlesForNavigation(
+    content::NavigationThrottleRegistry& registry);
 
 }  // namespace throttle
 

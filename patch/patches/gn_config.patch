@@ -12,7 +12,7 @@ index ae58a0b0a64ae..35e01ee64e5d7 100644
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index c0a9639d27232..e1cfab3d24c4f 100644
+index e32e31565b7cc..464bdcf2c95e3 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -23,7 +23,7 @@ index c0a9639d27232..e1cfab3d24c4f 100644
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
  import("//components/nacl/features.gni")
-@@ -293,6 +294,10 @@ group("gn_all") {
+@@ -292,6 +293,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 845b473d56165..d1ffe4a9e54b1 100644
+index 388b83742657c..54a0bac5b6ad6 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 845b473d56165..d1ffe4a9e54b1 100644
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -479,6 +480,11 @@ template("chrome_extra_paks") {
+@@ -497,6 +498,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  

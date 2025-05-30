@@ -1,11 +1,11 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index 342b54311138a..037a8da0884ec 100644
+index 2f4ab49cbe968..5e78796e1820b 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
-@@ -1508,11 +1508,18 @@
-   "<(SHARED_INTERMEDIATE_DIR)/third_party/blink/public/strings/permission_element_generated_strings.grd": {
-     "META": {"sizes": {"messages": [2000],}},
-     "messages": [10080],
+@@ -1532,11 +1532,18 @@
+ 
+   "third_party/search_engines_data/resources/search_engines_scaled_resources.grd": {
+     "structures": [10100],
 -  }
 +  },
  

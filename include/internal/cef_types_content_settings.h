@@ -43,11 +43,12 @@ extern "C" {
 /// ContentSettingsType type.
 ///
 typedef enum {
-  // This setting governs whether cookies are enabled by the user in the
+  /// This setting governs whether cookies are enabled by the user in the
   /// provided context. However, it may be overridden by other settings. This
   /// enum should NOT be read directly to determine whether cookies are enabled;
   /// the client should instead rely on the CookieSettings API.
   CEF_CONTENT_SETTING_TYPE_COOKIES,
+
   CEF_CONTENT_SETTING_TYPE_IMAGES,
   CEF_CONTENT_SETTING_TYPE_JAVASCRIPT,
 
@@ -235,11 +236,15 @@ typedef enum {
   /// screens. See also: https://w3c.github.io/window-placement
   CEF_CONTENT_SETTING_TYPE_WINDOW_MANAGEMENT,
 
-  /// Stores whether to allow insecure websites to make private network
-  /// requests.
-  /// See also: https://wicg.github.io/cors-rfc1918
-  /// Set through enterprise policies only.
+/// Stores whether to allow insecure websites to make private network
+/// requests.
+/// See also: https://wicg.github.io/cors-rfc1918
+/// Set through enterprise policies only.
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_INSECURE_PRIVATE_NETWORK_DEPRECATED,
+#else
   CEF_CONTENT_SETTING_TYPE_INSECURE_PRIVATE_NETWORK,
+#endif
 
   /// Content setting which stores whether or not a site can access low-level
   /// locally installed font data using the Local Fonts Access API.
@@ -509,6 +514,21 @@ typedef enum {
   /// Content setting for whether the site is allowed to make local network
   /// requests.
   CEF_CONTENT_SETTING_TYPE_LOCAL_NETWORK_ACCESS,
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Stores information on-device language packs for which a site has
+  /// installed using the Web Speech API.
+  CEF_CONTENT_SETTING_TYPE_ON_DEVICE_SPEECH_RECOGNITION_LANGUAGES_DOWNLOADED,
+
+  /// Stores which Translator API language packs the site has initialized.
+  CEF_CONTENT_SETTING_TYPE_INITIALIZED_TRANSLATIONS,
+
+  /// Stores a list of notification ids where content detection found the
+  /// notification to be suspicious and a warning has already been shown for the
+  /// site. Used for recovering notification contents from the database if the
+  /// user decides they would like to see all of these notifications.
+  CEF_CONTENT_SETTING_TYPE_SUSPICIOUS_NOTIFICATION_IDS,
 #endif
 
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,

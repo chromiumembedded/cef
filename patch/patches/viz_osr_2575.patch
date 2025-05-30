@@ -80,10 +80,10 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index e522423645bf3..8e2ebe681241c 100644
+index ccee45644b385..19012698e0f3f 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -274,6 +274,8 @@ viz_component("service") {
+@@ -276,6 +276,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -150,10 +150,10 @@ index f0aca972c4a81..87b40c9ded9df 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 8e2ddfa9337b5..99f9da6929afb 100644
+index 130067b91baa3..44b8e274ef3d4 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -389,8 +389,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -387,8 +387,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -170,10 +170,10 @@ index 8e2ddfa9337b5..99f9da6929afb 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index 9cabc57b4a561..54a1515c6f689 100644
+index c608918dfbf9a..49012891abbf6 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
-@@ -42,6 +42,7 @@ class Compositor;
+@@ -41,6 +41,7 @@ class Compositor;
  }  // namespace ui
  
  namespace viz {
@@ -181,7 +181,7 @@ index 9cabc57b4a561..54a1515c6f689 100644
  class GpuHostImpl;
  class HostFrameSinkManager;
  class HostGpuMemoryBufferManager;
-@@ -112,6 +113,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
+@@ -111,6 +112,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) SyncCallRestrictions {
    // SynchronousCompositorHost is used for Android webview.
    friend class content::SynchronousCompositorHost;
    friend class mojo::ScopedAllowSyncCallForTesting;
@@ -191,10 +191,10 @@ index 9cabc57b4a561..54a1515c6f689 100644
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index afdda5292ce89..cd82387967c66 100644
+index e063835e87f08..ec1de608884dc 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -117,13 +117,15 @@ interface DisplayPrivate {
+@@ -113,13 +113,15 @@ interface DisplayPrivate {
  
  // DisplayClient allows privileged clients to receive events from the Display.
  interface DisplayClient {

@@ -1,8 +1,8 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index 15b01b6562a41..240ceee90a405 100644
+index e60b3b9462479..b90ebf85c1099 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
-@@ -977,7 +977,8 @@ class ChannelAssociatedGroupController
+@@ -976,7 +976,8 @@ class ChannelAssociatedGroupController
            endpoint->disconnect_reason());
  
        base::AutoUnlock unlocker(lock_);
@@ -316,10 +316,10 @@ index 8d51fbad3832e..a2eff11227539 100644
    // Resets this Receiver to an unbound state. An unbound Receiver will NEVER
    // schedule method calls or disconnection notifications, and any pending tasks
 diff --git mojo/public/cpp/bindings/receiver_set.cc mojo/public/cpp/bindings/receiver_set.cc
-index ede8e5973b576..6f22981831ede 100644
+index 642984d7c4376..b7ba0ed435384 100644
 --- mojo/public/cpp/bindings/receiver_set.cc
 +++ mojo/public/cpp/bindings/receiver_set.cc
-@@ -69,9 +69,10 @@ void ReceiverSetState::Entry::DidDispatchOrReject() {
+@@ -68,9 +68,10 @@ void ReceiverSetState::Entry::DidDispatchOrReject() {
  }
  
  void ReceiverSetState::Entry::OnDisconnect(uint32_t custom_reason_code,
@@ -332,7 +332,7 @@ index ede8e5973b576..6f22981831ede 100644
  }
  
  ReceiverSetState::ReceiverSetState() = default;
-@@ -81,12 +82,21 @@ ReceiverSetState::~ReceiverSetState() = default;
+@@ -80,12 +81,21 @@ ReceiverSetState::~ReceiverSetState() = default;
  void ReceiverSetState::set_disconnect_handler(base::RepeatingClosure handler) {
    disconnect_handler_ = std::move(handler);
    disconnect_with_reason_handler_.Reset();
@@ -354,7 +354,7 @@ index ede8e5973b576..6f22981831ede 100644
  }
  
  ReportBadMessageCallback ReceiverSetState::GetBadMessageCallback() {
-@@ -159,7 +169,8 @@ void ReceiverSetState::SetDispatchContext(void* context,
+@@ -158,7 +168,8 @@ void ReceiverSetState::SetDispatchContext(void* context,
  
  void ReceiverSetState::OnDisconnect(ReceiverId id,
                                      uint32_t custom_reason_code,
@@ -362,9 +362,9 @@ index ede8e5973b576..6f22981831ede 100644
 +                                    const std::string& description,
 +                                    MojoResult error_result) {
    auto it = entries_.find(id);
-   CHECK(it != entries_.end(), base::NotFatalUntil::M130);
+   CHECK(it != entries_.end());
  
-@@ -171,6 +182,10 @@ void ReceiverSetState::OnDisconnect(ReceiverId id,
+@@ -170,6 +181,10 @@ void ReceiverSetState::OnDisconnect(ReceiverId id,
      disconnect_handler_.Run();
    else if (disconnect_with_reason_handler_)
      disconnect_with_reason_handler_.Run(custom_reason_code, description);

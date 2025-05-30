@@ -124,7 +124,7 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index f9c2e60204369..98026fd57457f 100644
+index c10d6937f6ef4..738ba66437829 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -16,6 +16,7 @@
@@ -233,7 +233,7 @@ index bd41fd2492e79..04378e39332e1 100644
 +  font-size: 0.8em;
 +}
 diff --git components/webui/version/resources/about_version.html components/webui/version/resources/about_version.html
-index bd2914d8bc19a..f3176886fd96b 100644
+index e4ad426e42bca..13e754cbffbf3 100644
 --- components/webui/version/resources/about_version.html
 +++ components/webui/version/resources/about_version.html
 @@ -49,9 +49,21 @@ about:version template page
@@ -259,7 +259,7 @@ index bd2914d8bc19a..f3176886fd96b 100644
          <tr><td class="label">$i18n{application_label}</td>
            <td class="version" id="version">
              <span id="copy-content">
-@@ -159,7 +171,15 @@ about:version template page
+@@ -155,7 +167,15 @@ about:version template page
          <tr><td class="label">$i18n{executable_path_name}</td>
            <td class="version" id="executable_path">$i18n{executable_path}</td>
          </tr>
@@ -276,7 +276,7 @@ index bd2914d8bc19a..f3176886fd96b 100644
            <td class="version" id="profile_path">$i18n{profile_path}</td>
          </tr>
  </if>
-@@ -192,6 +212,17 @@ about:version template page
+@@ -188,6 +208,17 @@ about:version template page
            <td class="version" id="sanitizer">$i18n{sanitizer}</td>
          </tr>
        </table>
@@ -322,7 +322,7 @@ index ea5f11471acf2..f604065bbe8fe 100644
  
  // <if expr="is_win">
 diff --git components/webui/version/version_ui_constants.cc components/webui/version/version_ui_constants.cc
-index 7c9bd75c4de1b..4ab5265b5f2c0 100644
+index 3828e8e25bbcd..afd115b6eb82e 100644
 --- components/webui/version/version_ui_constants.cc
 +++ components/webui/version/version_ui_constants.cc
 @@ -5,6 +5,7 @@
@@ -333,7 +333,7 @@ index 7c9bd75c4de1b..4ab5265b5f2c0 100644
  
  namespace version_ui {
  
-@@ -92,4 +93,15 @@ const char kVersionSuffix[] = "version_suffix";
+@@ -90,4 +91,15 @@ const char kVersionSuffix[] = "version_suffix";
  const char kVersionModifier[] = "version_modifier";
  const char kVersionProcessorVariation[] = "version_processor_variation";
  

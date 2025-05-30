@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index add20a2f81d66..97071092ff768 100644
+index 75cafbe0dbd7d..337a10d6a90c3 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
-@@ -191,7 +191,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
+@@ -190,7 +190,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
  base::File OpenFileToShare(const base::FilePath& path,
                             base::MemoryMappedFile::Region* region) {
    base::FilePath exe_dir;
@@ -25,11 +25,11 @@ index f3a6d25be41ed..c826aa9e9ab6c 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index c3879262996c5..955fd0a375f60 100644
+index 92b2a6da7828f..bf318d19255e0 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
-@@ -135,7 +135,7 @@ bool LoadDefaultEGLGLES2Bindings(
-   if (implementation.gl == gl::kGLImplementationEGLANGLE) {
+@@ -149,7 +149,7 @@ bool LoadDefaultEGLGLES2Bindings(
+ #else
      base::FilePath module_path;
  #if !BUILDFLAG(IS_FUCHSIA)
 -    if (!base::PathService::Get(base::DIR_MODULE, &module_path))

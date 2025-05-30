@@ -443,7 +443,9 @@ void CefRenderWidgetHostViewOSR::Hide() {
   }
 
   if (render_widget_host_) {
-    render_widget_host_->WasHidden();
+    if (render_widget_host_->delegate()) {
+      render_widget_host_->WasHidden();
+    }
 
     auto provider = content::RenderWidgetHostImpl::From(render_widget_host_)
                         ->render_frame_metadata_provider();

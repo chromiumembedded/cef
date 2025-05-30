@@ -567,7 +567,9 @@ struct CefBrowserSettingsTraits {
     target->text_area_resize = src->text_area_resize;
     target->tab_to_links = src->tab_to_links;
     target->local_storage = src->local_storage;
+#if !CEF_API_ADDED(CEF_NEXT)
     target->databases = src->databases;
+#endif
     target->webgl = src->webgl;
 
     target->background_color = src->background_color;

@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_resource_bundle_helper.cc chrome/browser/chrome_resource_bundle_helper.cc
-index d1e99bf112b20..fee8571fab728 100644
+index 2c437e5229bc1..f10ddd1dca48d 100644
 --- chrome/browser/chrome_resource_bundle_helper.cc
 +++ chrome/browser/chrome_resource_bundle_helper.cc
-@@ -63,8 +63,10 @@ extern void InitializeLocalState(
+@@ -62,8 +62,10 @@ extern void InitializeLocalState(
  
  // Initializes the shared instance of ResourceBundle and returns the application
  // locale. An empty |actual_locale| value indicates failure.
@@ -13,10 +13,10 @@ index d1e99bf112b20..fee8571fab728 100644
 +    ui::ResourceBundle::Delegate* resource_bundle_delegate,
 +    bool is_running_tests) {
  #if BUILDFLAG(IS_ANDROID)
-   // In order for SetLoadSecondaryLocalePaks() to work ResourceBundle must
-   // not have been created yet.
-@@ -77,16 +79,8 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
-            .empty());
+   // In order for DetectAndSetLoadSecondaryLocalePaks() to work ResourceBundle
+   // must not have been created yet.
+@@ -71,23 +73,16 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+   ui::DetectAndSetLoadSecondaryLocalePaks();
  #endif
  
 -  std::string preferred_locale;
@@ -31,9 +31,8 @@ index d1e99bf112b20..fee8571fab728 100644
        local_state->GetString(language::prefs::kApplicationLocale);
 -#endif
  
- #if BUILDFLAG(IS_CHROMEOS)
-   ui::ResourceBundle::SetLottieParsingFunctions(
-@@ -98,7 +92,8 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+   TRACE_EVENT0("startup",
+                "ChromeBrowserMainParts::InitResourceBundleAndDetermineLocale");
    // On a POSIX OS other than ChromeOS, the parameter that is passed to the
    // method InitSharedInstance is ignored.
    std::string actual_locale = ui::ResourceBundle::InitSharedInstanceWithLocale(
@@ -43,7 +42,7 @@ index d1e99bf112b20..fee8571fab728 100644
    CHECK(!actual_locale.empty())
        << "Locale could not be found for " << preferred_locale;
  
-@@ -131,6 +126,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
+@@ -120,6 +115,7 @@ std::string InitResourceBundleAndDetermineLocale(PrefService* local_state,
  
  std::string LoadLocalState(
      ChromeFeatureListCreator* chrome_feature_list_creator,
@@ -51,7 +50,7 @@ index d1e99bf112b20..fee8571fab728 100644
      bool is_running_tests) {
    base::FilePath user_data_dir;
    if (!base::PathService::Get(chrome::DIR_USER_DATA, &user_data_dir))
-@@ -142,5 +138,6 @@ std::string LoadLocalState(
+@@ -131,5 +127,6 @@ std::string LoadLocalState(
        new ChromeCommandLinePrefStore(base::CommandLine::ForCurrentProcess()));
  
    return InitResourceBundleAndDetermineLocale(

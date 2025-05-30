@@ -1,8 +1,8 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 30440d1b5ba07..c16bda68afbd2 100644
+index 09b5f1a0165ca..441bcedb3ac8b 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
-@@ -355,6 +355,10 @@ component("platform") {
+@@ -357,6 +357,10 @@ component("platform") {
        if (use_gio) {
          configs += [ "//build/linux:gio_config" ]
        }
@@ -14,10 +14,10 @@ index 30440d1b5ba07..c16bda68afbd2 100644
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 539cc383b43be..574a7a48787fe 100644
+index dc98ce8281066..31a1eac703aba 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
-@@ -173,4 +173,8 @@ component("gtk") {
+@@ -175,4 +175,8 @@ component("gtk") {
  
    # TODO: This should be removed.
    deps += [ "//ui/ozone" ]

@@ -1,8 +1,8 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index dbd35f1300604..1c890c637d852 100644
+index 9ff15341473af..73b969cabd81e 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
-@@ -116,7 +116,7 @@ bool ApplyUserAgentMetadataOverrides(
+@@ -114,7 +114,7 @@ bool ApplyUserAgentMetadataOverrides(
      FrameTreeNode* frame_tree_node,
      std::optional<blink::UserAgentMetadata>* override_out);
  

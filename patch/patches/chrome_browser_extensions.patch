@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index acd5954b3423a..215edaa4badc5 100644
+index 7101a6c177bca..852f80543db32 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -8,9 +8,9 @@ index acd5954b3423a..215edaa4badc5 100644
  #include "build/chromeos_buildflags.h"
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
- #include "chrome/browser/extensions/api/chrome_device_permissions_prompt.h"
  #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
-@@ -90,6 +91,10 @@
+ #include "chrome/browser/extensions/api/declarative_content/default_content_predicate_evaluators.h"
+@@ -82,6 +83,10 @@
  #include "chromeos/ash/components/settings/cros_settings.h"
  #endif
  
@@ -21,7 +21,7 @@ index acd5954b3423a..215edaa4badc5 100644
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -317,7 +322,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -298,7 +303,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,7 +34,7 @@ index acd5954b3423a..215edaa4badc5 100644
  
  std::unique_ptr<WebViewGuestDelegate>
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index 4ac2686025ef0..94aa0016881b6 100644
+index ad1f4b4c3e979..55657d976c405 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1714,7 +1714,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -84,10 +84,10 @@ index 4ac2686025ef0..94aa0016881b6 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index fc375bf87a2d1..5f32c45dc2fa6 100644
+index 959e848a6e9b4..5f73667a599e7 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -38,6 +38,7 @@
+@@ -39,6 +39,7 @@
  #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/types/expected_macros.h"
@@ -95,7 +95,7 @@ index fc375bf87a2d1..5f32c45dc2fa6 100644
  #include "chrome/browser/browser_process.h"  // nogncheck
  #include "chrome/browser/extensions/browser_extension_window_controller.h"
  #include "chrome/browser/extensions/chrome_extension_function_details.h"
-@@ -87,6 +88,10 @@
+@@ -88,6 +89,10 @@
  #include "url/url_constants.h"
  #endif
  
@@ -106,9 +106,9 @@ index fc375bf87a2d1..5f32c45dc2fa6 100644
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -738,6 +743,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
-     }
+@@ -774,6 +779,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
    }
+ #endif  // BUILDFLAG(IS_ANDROID)
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (cef::GetAlloyTabById(tab_id, profile, include_incognito, out_contents)) {
@@ -122,7 +122,7 @@ index fc375bf87a2d1..5f32c45dc2fa6 100644
      // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
      // the tab id exists as a prerendering tab, and the API will returns
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index 63848c93738ce..0358e098c7339 100644
+index ec26ac19c0780..928536d17dbb1 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@
@@ -144,7 +144,7 @@ index 63848c93738ce..0358e098c7339 100644
  // A "tab contents" is a WebContents that is used as a tab in a browser window
  // (or the equivalent on Android). The TabHelpers class allows specific classes
  // to attach the set of tab helpers that is used for tab contents.
-@@ -79,6 +84,10 @@ class TabHelpers {
+@@ -80,6 +85,10 @@ class TabHelpers {
    // Link Preview shows a preview of a page, then promote it as a new tab.
    friend class PreviewTab;
  

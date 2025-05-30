@@ -48,7 +48,7 @@ void OverrideBaseBundleID() {
   std::string bundle_id = GetMainBundleID();
   DCHECK(!bundle_id.empty());
 
-  base::apple::SetBaseBundleID(bundle_id.c_str());
+  base::apple::SetBaseBundleIDOverride(bundle_id);
 }
 
 base::FilePath GetNormalChildProcessPath() {

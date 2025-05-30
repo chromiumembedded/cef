@@ -588,13 +588,10 @@ bool ChromeContentBrowserClientCef::HandleExternalProtocol(
   return true;
 }
 
-std::vector<std::unique_ptr<content::NavigationThrottle>>
-ChromeContentBrowserClientCef::CreateThrottlesForNavigation(
-    content::NavigationHandle* navigation_handle) {
-  auto throttles = ChromeContentBrowserClient::CreateThrottlesForNavigation(
-      navigation_handle);
-  throttle::CreateThrottlesForNavigation(navigation_handle, throttles);
-  return throttles;
+void ChromeContentBrowserClientCef::CreateThrottlesForNavigation(
+    content::NavigationThrottleRegistry& registry) {
+  ChromeContentBrowserClient::CreateThrottlesForNavigation(registry);
+  throttle::CreateThrottlesForNavigation(registry);
 }
 
 bool ChromeContentBrowserClientCef::ConfigureNetworkContextParams(

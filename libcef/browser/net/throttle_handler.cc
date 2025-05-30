@@ -92,19 +92,19 @@ void NavigationOnUIThread(
 
 }  // namespace
 
-void CreateThrottlesForNavigation(content::NavigationHandle* navigation_handle,
-                                  NavigationThrottleList& throttles) {
+void CreateThrottlesForNavigation(
+    content::NavigationThrottleRegistry& registry) {
   CEF_REQUIRE_UIT();
 
   // Must use SynchronyMode::kSync to ensure that OnBeforeBrowse is always
   // called before OnBeforeResourceLoad.
   std::unique_ptr<content::NavigationThrottle> throttle =
       std::make_unique<navigation_interception::InterceptNavigationThrottle>(
-          navigation_handle, base::BindRepeating(&NavigationOnUIThread),
+          registry, base::BindRepeating(&NavigationOnUIThread),
           navigation_interception::SynchronyMode::kSync, std::nullopt);
 
   // Always execute our throttle first.
-  throttles.emplace(throttles.begin(), std::move(throttle));
+  registry.AddThrottle(std::move(throttle), /*first=*/true);
 }
 
 }  // namespace throttle

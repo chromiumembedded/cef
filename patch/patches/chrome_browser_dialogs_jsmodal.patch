@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index 8c06a19a64e5d..2b9429f7b2bab 100644
+index dc7205b1011d6..f3106cdd120a2 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -6,6 +6,7 @@
@@ -8,8 +8,8 @@ index 8c06a19a64e5d..2b9429f7b2bab 100644
  
 +#include "cef/libcef/features/features.h"
  #include "chrome/browser/ui/browser.h"
- #include "chrome/browser/ui/browser_finder.h"
  #include "chrome/browser/ui/browser_list.h"
+ #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 @@ -28,6 +29,22 @@
  #include "chrome/browser/safe_browsing/user_interaction_observer.h"
  #endif
@@ -33,7 +33,7 @@ index 8c06a19a64e5d..2b9429f7b2bab 100644
  JavaScriptTabModalDialogManagerDelegateDesktop::
      JavaScriptTabModalDialogManagerDelegateDesktop(
          content::WebContents* web_contents)
-@@ -77,6 +94,9 @@ void JavaScriptTabModalDialogManagerDelegateDesktop::SetTabNeedsAttention(
+@@ -78,6 +95,9 @@ void JavaScriptTabModalDialogManagerDelegateDesktop::SetTabNeedsAttention(
  bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
    Browser* browser = BrowserList::GetInstance()->GetLastActive();
    if (!browser) {
@@ -43,7 +43,7 @@ index 8c06a19a64e5d..2b9429f7b2bab 100644
      // It's rare, but there are crashes from where sites are trying to show
      // dialogs in the split second of time between when their Browser is gone
      // and they're gone. In that case, bail. https://crbug.com/1142806
-@@ -92,7 +112,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
+@@ -96,7 +116,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {

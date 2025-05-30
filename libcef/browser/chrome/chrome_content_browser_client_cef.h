@@ -113,9 +113,8 @@ class ChromeContentBrowserClientCef : public ChromeContentBrowserClient {
       const net::IsolationInfo& isolation_info,
       mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory)
       override;
-  std::vector<std::unique_ptr<content::NavigationThrottle>>
-  CreateThrottlesForNavigation(
-      content::NavigationHandle* navigation_handle) override;
+  void CreateThrottlesForNavigation(
+      content::NavigationThrottleRegistry& registry) override;
   bool ConfigureNetworkContextParams(
       content::BrowserContext* context,
       bool in_memory,

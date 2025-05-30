@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index a28237bf93ef4..9a01b185e76f4 100644
+index 9bbf031144ff0..f99b7fa035187 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -588,7 +588,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -12,10 +12,10 @@ index a28237bf93ef4..9a01b185e76f4 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index a65b70e7ac2e1..9b11bf620cdbd 100644
+index 287d602c11e35..f755b7af6ce71 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
-@@ -978,7 +978,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -982,7 +982,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
    mojo::PendingRemote<network::mojom::URLLoaderFactory>
        terminal_external_protocol;
    bool handled = GetContentClient()->browser()->HandleExternalProtocol(
@@ -24,7 +24,7 @@ index a65b70e7ac2e1..9b11bf620cdbd 100644
        frame_tree_node->frame_tree_node_id(), navigation_ui_data,
        request_info.is_primary_main_frame,
        frame_tree_node->IsInFencedFrameTree(), request_info.sandbox_flags,
-@@ -990,6 +990,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
+@@ -994,6 +994,21 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
                  *request_info.initiator_document_token)
            : nullptr,
        request_info.isolation_info, &terminal_external_protocol);
@@ -47,10 +47,10 @@ index a65b70e7ac2e1..9b11bf620cdbd 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 9c36ad70531bd..3546f7f9faf4e 100644
+index 4a377944faaf9..e994ae8b1e944 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -1180,7 +1180,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -1204,7 +1204,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -59,7 +59,7 @@ index 9c36ad70531bd..3546f7f9faf4e 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -1189,6 +1189,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -1213,6 +1213,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -68,10 +68,10 @@ index 9c36ad70531bd..3546f7f9faf4e 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index f1fee091b84ae..8c9feee790c91 100644
+index 0d0d957b353e0..c2a6efbbb3c0d 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -1381,6 +1381,12 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1413,6 +1413,12 @@ class CONTENT_EXPORT ContentBrowserClient {
        bool opener_suppressed,
        bool* no_javascript_access);
  
@@ -84,7 +84,7 @@ index f1fee091b84ae..8c9feee790c91 100644
    // Allows the embedder to return a delegate for the SpeechRecognitionManager.
    // The delegate will be owned by the manager. It's valid to return nullptr.
    virtual SpeechRecognitionManagerDelegate*
-@@ -2226,7 +2232,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2258,7 +2264,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -93,7 +93,7 @@ index f1fee091b84ae..8c9feee790c91 100644
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2468,6 +2474,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2500,6 +2506,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -116,7 +116,7 @@ index f1fee091b84ae..8c9feee790c91 100644
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2533,6 +2555,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2565,6 +2587,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  
@@ -153,10 +153,10 @@ index 7a2d251ba2d13..68297ee6f118f 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 0a5556cb6eac8..cecc0ae19bc62 100644
+index 790bf3bdfc489..c339cbd763417 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
-@@ -593,6 +593,8 @@ void RenderThreadImpl::Init() {
+@@ -590,6 +590,8 @@ void RenderThreadImpl::Init() {
        GetContentClient()->renderer()->CreateURLLoaderThrottleProvider(
            blink::URLLoaderThrottleProviderType::kFrame);
  
@@ -166,10 +166,10 @@ index 0a5556cb6eac8..cecc0ae19bc62 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 5747f94527887..d54aeac829007 100644
+index 45cbe16e4582c..401b59c0f3490 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
-@@ -1049,6 +1049,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
+@@ -1058,6 +1058,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
  
  //------------------------------------------------------------------------------
  
@@ -186,7 +186,7 @@ index 5747f94527887..d54aeac829007 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 206b8df48273a..e10852779c209 100644
+index 2b6f49b635456..6d1221d8663ca 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -250,6 +250,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
@@ -200,10 +200,10 @@ index 206b8df48273a..e10852779c209 100644
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
 diff --git content/shell/browser/shell_content_browser_client.cc content/shell/browser/shell_content_browser_client.cc
-index 3993da6d53843..78784b4dd8842 100644
+index a907bcc2eab8d..64ebf54ffd494 100644
 --- content/shell/browser/shell_content_browser_client.cc
 +++ content/shell/browser/shell_content_browser_client.cc
-@@ -820,7 +820,7 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
+@@ -819,7 +819,7 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
  #endif
  }
  
@@ -212,7 +212,7 @@ index 3993da6d53843..78784b4dd8842 100644
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -829,6 +829,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
+@@ -828,6 +828,7 @@ void ShellContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    ConfigureNetworkContextParamsForShell(context, network_context_params,
                                          cert_verifier_creation_params);
@@ -221,10 +221,10 @@ index 3993da6d53843..78784b4dd8842 100644
  
  std::vector<base::FilePath>
 diff --git content/shell/browser/shell_content_browser_client.h content/shell/browser/shell_content_browser_client.h
-index 29f0d888bcc9a..d870ed9844bb7 100644
+index e608835c3d16f..1d767a2ee4c09 100644
 --- content/shell/browser/shell_content_browser_client.h
 +++ content/shell/browser/shell_content_browser_client.h
-@@ -161,7 +161,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
+@@ -162,7 +162,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
    GetGeolocationSystemPermissionManager() override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
@@ -234,10 +234,10 @@ index 29f0d888bcc9a..d870ed9844bb7 100644
        bool in_memory,
        const base::FilePath& relative_partition_path,
 diff --git headless/lib/browser/headless_content_browser_client.cc headless/lib/browser/headless_content_browser_client.cc
-index 3ca4381bcf4df..2ac7cea3f12bc 100644
+index 26f73ac1df741..13214f607471f 100644
 --- headless/lib/browser/headless_content_browser_client.cc
 +++ headless/lib/browser/headless_content_browser_client.cc
-@@ -394,7 +394,7 @@ bool HeadlessContentBrowserClient::IsCookieDeprecationLabelAllowedForContext(
+@@ -423,7 +423,7 @@ bool HeadlessContentBrowserClient::IsCookieDeprecationLabelAllowedForContext(
    return true;
  }
  
@@ -246,7 +246,7 @@ index 3ca4381bcf4df..2ac7cea3f12bc 100644
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -404,6 +404,7 @@ void HeadlessContentBrowserClient::ConfigureNetworkContextParams(
+@@ -433,6 +433,7 @@ void HeadlessContentBrowserClient::ConfigureNetworkContextParams(
    HeadlessBrowserContextImpl::From(context)->ConfigureNetworkContextParams(
        in_memory, relative_partition_path, network_context_params,
        cert_verifier_creation_params);
@@ -255,10 +255,10 @@ index 3ca4381bcf4df..2ac7cea3f12bc 100644
  
  std::string HeadlessContentBrowserClient::GetProduct() {
 diff --git headless/lib/browser/headless_content_browser_client.h headless/lib/browser/headless_content_browser_client.h
-index 30af5588cd71d..29940a43ce09f 100644
+index 4234c1259f4b0..8b4e308ce94af 100644
 --- headless/lib/browser/headless_content_browser_client.h
 +++ headless/lib/browser/headless_content_browser_client.h
-@@ -113,7 +113,7 @@ class HeadlessContentBrowserClient : public content::ContentBrowserClient {
+@@ -114,7 +114,7 @@ class HeadlessContentBrowserClient : public content::ContentBrowserClient {
        content::BrowserContext* browser_context,
        const url::Origin& top_frame_origin,
        const url::Origin& context_origin) override;

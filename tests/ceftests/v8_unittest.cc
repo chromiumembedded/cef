@@ -439,7 +439,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> value = CefV8Value::CreateDouble(12.1223);
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsDouble());
-    EXPECT_EQ(12.1223, value->GetDoubleValue());
+    EXPECT_DOUBLE_EQ(12.1223, value->GetDoubleValue());
 
     EXPECT_FALSE(value->IsUndefined());
     EXPECT_FALSE(value->IsArray());

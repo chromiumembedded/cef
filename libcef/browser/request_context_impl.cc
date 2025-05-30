@@ -530,14 +530,18 @@ CefRefPtr<CefValue> CefRequestContextImpl::GetWebsiteSetting(
     return nullptr;
   }
 
+  const auto setting_type = setting_helper::FromCefType(content_type);
+  if (!setting_type) {
+    return nullptr;
+  }
+
   // Either or both URLs may be invalid.
   GURL requesting_gurl(requesting_url.ToString());
   GURL top_level_gurl(top_level_url.ToString());
 
   content_settings::SettingInfo info;
   base::Value value = settings_map->GetWebsiteSetting(
-      requesting_gurl, top_level_gurl,
-      static_cast<ContentSettingsType>(content_type), &info);
+      requesting_gurl, top_level_gurl, *setting_type, &info);
   if (value.is_none()) {
     return nullptr;
   }
@@ -576,19 +580,22 @@ cef_content_setting_values_t CefRequestContextImpl::GetContentSetting(
     return CEF_CONTENT_SETTING_VALUE_DEFAULT;
   }
 
+  const auto setting_type = setting_helper::FromCefType(content_type);
+  if (!setting_type) {
+    return CEF_CONTENT_SETTING_VALUE_DEFAULT;
+  }
+
   ContentSetting value = ContentSetting::CONTENT_SETTING_DEFAULT;
 
   if (requesting_url.empty() && top_level_url.empty()) {
-    value = settings_map->GetDefaultContentSetting(
-        static_cast<ContentSettingsType>(content_type),
-        /*provider_id=*/nullptr);
+    value = settings_map->GetDefaultContentSetting(*setting_type,
+                                                   /*provider_id=*/nullptr);
   } else {
     GURL requesting_gurl(requesting_url.ToString());
     GURL top_level_gurl(top_level_url.ToString());
     if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
-      value = settings_map->GetContentSetting(
-          requesting_gurl, top_level_gurl,
-          static_cast<ContentSettingsType>(content_type));
+      value = settings_map->GetContentSetting(requesting_gurl, top_level_gurl,
+                                              *setting_type);
     }
   }
 
@@ -901,6 +908,11 @@ void CefRequestContextImpl::SetWebsiteSettingInternal(
     return;
   }
 
+  const auto setting_type = setting_helper::FromCefType(content_type);
+  if (!setting_type) {
+    return;
+  }
+
   // Starts as a NONE value.
   base::Value new_value;
   if (value && value->IsValid()) {
@@ -910,14 +922,13 @@ void CefRequestContextImpl::SetWebsiteSettingInternal(
   if (requesting_url.empty() && top_level_url.empty()) {
     settings_map->SetWebsiteSettingCustomScope(
         ContentSettingsPattern::Wildcard(), ContentSettingsPattern::Wildcard(),
-        static_cast<ContentSettingsType>(content_type), std::move(new_value));
+        *setting_type, std::move(new_value));
   } else {
     GURL requesting_gurl(requesting_url.ToString());
     GURL top_level_gurl(top_level_url.ToString());
     if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
       settings_map->SetWebsiteSettingDefaultScope(
-          requesting_gurl, top_level_gurl,
-          static_cast<ContentSettingsType>(content_type), std::move(new_value));
+          requesting_gurl, top_level_gurl, *setting_type, std::move(new_value));
     }
   }
 }
@@ -939,17 +950,20 @@ void CefRequestContextImpl::SetContentSettingInternal(
     return;
   }
 
+  const auto setting_type = setting_helper::FromCefType(content_type);
+  if (!setting_type) {
+    return;
+  }
+
   if (requesting_url.empty() && top_level_url.empty()) {
-    settings_map->SetDefaultContentSetting(
-        static_cast<ContentSettingsType>(content_type),
-        static_cast<ContentSetting>(value));
+    settings_map->SetDefaultContentSetting(*setting_type,
+                                           static_cast<ContentSetting>(value));
   } else {
     GURL requesting_gurl(requesting_url.ToString());
     GURL top_level_gurl(top_level_url.ToString());
     if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
       settings_map->SetContentSettingDefaultScope(
-          requesting_gurl, top_level_gurl,
-          static_cast<ContentSettingsType>(content_type),
+          requesting_gurl, top_level_gurl, *setting_type,
           static_cast<ContentSetting>(value));
     }
   }

@@ -672,7 +672,11 @@ typedef struct _cef_browser_settings_t {
   /// Controls whether databases can be used. Also configurable using the
   /// "disable-databases" command-line switch.
   ///
+#if CEF_API_ADDED(CEF_NEXT)
+  cef_state_t databases_deprecated;
+#else
   cef_state_t databases;
+#endif
 
   ///
   /// Controls whether WebGL can be used. Note that WebGL requires hardware
@@ -1098,7 +1102,16 @@ typedef enum {
   /// system state can't be recovered and will be unstable.
   CEF_RESULT_CODE_SYSTEM_RESOURCE_EXHAUSTED = 37,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// The browser process exited because it was re-launched without elevation.
+  CEF_RESULT_CODE_NORMAL_EXIT_AUTO_DE_ELEVATED = 38,
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_RESULT_CODE_CHROME_LAST = 39,
+#else
   CEF_RESULT_CODE_CHROME_LAST = 38,
+#endif
 
   // The following values should be kept in sync with Chromium's
   // sandbox::TerminationCodes type.
@@ -3633,6 +3646,9 @@ typedef enum {
 #endif
 #if CEF_API_ADDED(13400)
   CEF_CPAIT_CHANGE_PASSWORD,
+#endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_LENS_OVERLAY_HOMEWORK,
 #endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;

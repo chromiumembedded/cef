@@ -52,7 +52,7 @@ index 363a7c4ac583f..1c263547c8f54 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index c8d72ed59252f..d785187710a79 100644
+index 7e700d9b9ed86..99f8cb55f7c9e 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -93,6 +93,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index c8d72ed59252f..d785187710a79 100644
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -509,6 +513,9 @@ class Profile : public content::BrowserContext {
+@@ -502,6 +506,9 @@ class Profile : public content::BrowserContext {
    static Profile* FromJavaObject(const jni_zero::JavaRef<jobject>& obj);
    jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject() const;
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -76,7 +76,7 @@ index c8d72ed59252f..d785187710a79 100644
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -520,7 +527,6 @@ class Profile : public content::BrowserContext {
+@@ -513,7 +520,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,10 +85,10 @@ index c8d72ed59252f..d785187710a79 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 22445800c6ac8..bd17582782117 100644
+index 88a274f8b05f7..7adeedad98ac2 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1023,7 +1023,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1022,7 +1022,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  

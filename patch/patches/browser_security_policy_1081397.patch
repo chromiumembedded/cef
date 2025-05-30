@@ -1,8 +1,8 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 53a73d6c75b7a..05290de4c03a0 100644
+index 4316d8b8bc09d..d6927a4e71460 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
-@@ -2146,6 +2146,16 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
+@@ -2145,6 +2145,16 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
          if (actual_process_lock.matches_scheme(url::kDataScheme)) {
            return true;
          }
@@ -20,53 +20,79 @@ index 53a73d6c75b7a..05290de4c03a0 100644
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 4c78563c29ce9..029b8c5c30ef4 100644
+index 32affd3a936bd..9d0723139658c 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
-@@ -8557,10 +8557,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(
+@@ -8601,7 +8601,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
+ }
+ 
+ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
+-    network::mojom::WebSandboxFlags sandbox_flags) {
++    network::mojom::WebSandboxFlags sandbox_flags,
++    bool* cef_nonstandard) {
+   // Calculate an approximation of the origin. The sandbox/csp are ignored.
+   url::Origin origin = GetOriginForURLLoaderFactoryUnchecked();
+ 
+@@ -8618,6 +8619,17 @@ url::Origin NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponse(
    bool use_opaque_origin =
        (sandbox_flags & network::mojom::WebSandboxFlags::kOrigin) ==
        network::mojom::WebSandboxFlags::kOrigin;
-+  if (use_opaque_origin) {
-+    origin_and_debug_info.second += ", sandbox_flags";
-+  }
 +
-+  if (!origin_and_debug_info.first.GetURL().IsStandard()) {
++  if (!origin.GetURL().IsStandard()) {
 +    // Always return an opaque origin for non-standard URLs. Otherwise, the
-+    // CanAccessDataForOrigin() check may fail for unregistered custom scheme
-+    // requests in CEF.
++    // CanAccessDataForOrigin() check may fail for unregistered custom
++    // scheme requests in CEF.
 +    use_opaque_origin = true;
-+    origin_and_debug_info.second += ", cef_nonstandard";
++    if (cef_nonstandard) {
++      *cef_nonstandard = true;
++    }
 +  }
 +
    if (use_opaque_origin) {
-     origin_and_debug_info =
-         std::pair(origin_and_debug_info.first.DeriveNewOpaqueOrigin(),
--                  origin_and_debug_info.second + ", sandbox_flags");
-+                  origin_and_debug_info.second);
+     origin = origin.DeriveNewOpaqueOrigin();
+   }
+@@ -8677,8 +8689,9 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
+     return GetRenderFrameHost()->GetLastCommittedOrigin();
    }
  
-   return origin_and_debug_info;
-@@ -8668,11 +8680,20 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponseWithDebugInfo() {
+-  url::Origin origin =
+-      GetOriginForURLLoaderFactoryBeforeResponse(SandboxFlagsToCommit());
++  bool cef_nonstandard = false;
++  url::Origin origin = GetOriginForURLLoaderFactoryBeforeResponse(
++      SandboxFlagsToCommit(), &cef_nonstandard);
+ 
+   SCOPED_CRASH_KEY_BOOL("Bug1454273", "is_in_main_frame", IsInMainFrame());
+   SCOPED_CRASH_KEY_STRING256(
+@@ -8713,10 +8726,17 @@ NavigationRequest::GetOriginForURLLoaderFactoryAfterResponse() {
        DetermineInitiatorRelationship(initiator_rfh,
                                       frame_tree_node_->current_frame_host()));
  
-+  if (origin_with_debug_info.first.opaque() &&
-+      origin_with_debug_info.second.find("cef_nonstandard") !=
-+          std::string::npos) {
++  if (origin.opaque() && cef_nonstandard) {
 +    // Always return an opaque origin for non-standard URLs. Otherwise, the
-+    // below CanAccessDataForOrigin() check may fail for unregistered custom
-+    // scheme requests in CEF.
-+    return origin_with_debug_info;
++    // below CanAccessOrigin() check may fail for unregistered custom scheme
++    // requests in CEF.
++    return origin;
 +  }
 +
    // MHTML documents should commit as an opaque origin. They should not be able
    // to make network request on behalf of the real origin.
    // TODO(crbug.com/370979008): Migrate to CHECK.
--  DUMP_WILL_BE_CHECK(!IsMhtmlOrSubframe() ||
--                     origin_with_debug_info.first.opaque());
-+  // DUMP_WILL_BE_CHECK(!IsMhtmlOrSubframe() ||
-+  //                    origin_with_debug_info.first.opaque());
+-  DUMP_WILL_BE_CHECK(!IsMhtmlOrSubframe() || origin.opaque());
++  // DUMP_WILL_BE_CHECK(!IsMhtmlOrSubframe() || origin.opaque());
  
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
+diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
+index 70321378be68d..b60791ca6bb88 100644
+--- content/browser/renderer_host/navigation_request.h
++++ content/browser/renderer_host/navigation_request.h
+@@ -2311,7 +2311,8 @@ class CONTENT_EXPORT NavigationRequest
+   // situations where the final frame host hasn't been determined but the origin
+   // is needed to create URLLoaderFactory.
+   url::Origin GetOriginForURLLoaderFactoryBeforeResponse(
+-      network::mojom::WebSandboxFlags sandbox_flags);
++      network::mojom::WebSandboxFlags sandbox_flags,
++      bool* cef_nonstandard = nullptr);
+ 
+   // Superset of GetOriginForURLLoaderFactoryBeforeResponse(). Calculates
+   // the origin with information from the final frame host. Can be called only

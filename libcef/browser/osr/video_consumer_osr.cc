@@ -187,7 +187,7 @@ void CefVideoConsumerOSR::OnFrameCaptured(
     view_->OnAcceleratedPaint(damage_rect, info->coded_size, paint_info);
 #elif BUILDFLAG(IS_LINUX)
     auto& gmb_handle = data->get_gpu_memory_buffer_handle();
-    auto& native_pixmap = gmb_handle.native_pixmap_handle;
+    auto& native_pixmap = gmb_handle.native_pixmap_handle();
     CHECK(native_pixmap.planes.size() <= kAcceleratedPaintMaxPlanes);
 
     cef_accelerated_paint_info_t paint_info;

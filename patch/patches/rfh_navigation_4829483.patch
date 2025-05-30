@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_frame_host_impl.cc content/browser/renderer_host/render_frame_host_impl.cc
-index ebf407904b9b9..2bfdce0253d62 100644
+index 23cd457563d7d..5fe363a9455ec 100644
 --- content/browser/renderer_host/render_frame_host_impl.cc
 +++ content/browser/renderer_host/render_frame_host_impl.cc
-@@ -9788,6 +9788,16 @@ void RenderFrameHostImpl::CreateNewWindow(
+@@ -9735,6 +9735,16 @@ void RenderFrameHostImpl::CreateNewWindow(
      return;
    }
  
@@ -19,11 +19,11 @@ index ebf407904b9b9..2bfdce0253d62 100644
    // Otherwise, consume user activation before we proceed. In particular, it is
    // important to do this before we return from the |opener_suppressed| case
    // below.
-@@ -12205,6 +12215,7 @@ void RenderFrameHostImpl::CommitNavigation(
-   auto browser_calc_origin_to_commit =
-       navigation_request->GetOriginToCommitWithDebugInfo();
+@@ -12165,6 +12175,7 @@ void RenderFrameHostImpl::CommitNavigation(
+       ProcessLock::FromSiteInfo(GetSiteInstance()->GetSiteInfo());
+   auto browser_calc_origin_to_commit = navigation_request->GetOriginToCommit();
    if (!process_lock.is_error_page() && !is_mhtml_subframe &&
 +      common_params->url.IsStandard() &&
        !policy->CanAccessOrigin(
            GetProcess()->GetDeprecatedID(),
-           browser_calc_origin_to_commit.first.value(),
+           browser_calc_origin_to_commit.value(),

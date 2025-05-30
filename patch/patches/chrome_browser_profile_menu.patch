@@ -59,10 +59,10 @@ index affba30438a4a..bdf433d20b97c 100644
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 133b80d279bf6..be46fc65f890d 100644
+index 81f886e9fb712..8c919733f1818 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -60,7 +60,9 @@ void ProfileMenuCoordinator::Show(
+@@ -54,7 +54,9 @@ void ProfileMenuCoordinator::Show(
  
    std::unique_ptr<ProfileMenuViewBase> bubble;
    bool is_incognito = browser.profile()->IsIncognitoProfile();

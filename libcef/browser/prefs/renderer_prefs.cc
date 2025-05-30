@@ -93,7 +93,6 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.text_area_resize, web.text_areas_are_resizable);
   SET_STATE(cef.tab_to_links, web.tabs_to_links);
   SET_STATE(cef.local_storage, web.local_storage_enabled);
-  SET_STATE(cef.databases, web.databases_enabled);
 
   // Never explicitly enable GPU-related functions in this method because the
   // GPU blacklist is not being checked here.
