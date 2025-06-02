@@ -129,8 +129,7 @@ class ScopedPlatformSetup final {
 
 int RunMain(int argc,
             char* argv[],
-            void* sandbox_info,
-            cef_version_info_t* /*version_info*/) {
+            void* sandbox_info) {
   int exit_code;
 
 #if CEF_API_VERSION != CEF_EXPERIMENTAL
@@ -289,8 +288,8 @@ int RunMain(int argc,
 CEF_BOOTSTRAP_EXPORT int RunConsoleMain(int argc,
                                         char* argv[],
                                         void* sandbox_info,
-                                        cef_version_info_t* version_info) {
-  return ::RunMain(argc, argv, sandbox_info, version_info);
+                                        cef_version_info_t* /*version_info*/) {
+  return ::RunMain(argc, argv, sandbox_info);
 }
 
 #else  // !(defined(OS_WIN) && defined(CEF_USE_BOOTSTRAP))
@@ -321,10 +320,7 @@ int main(int argc, char* argv[]) {
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  cef_version_info_t version_info = {};
-  CEF_POPULATE_VERSION_INFO(&version_info);
-
-  return ::RunMain(argc, argv, sandbox_info, &version_info);
+  return ::RunMain(argc, argv, sandbox_info);
 }
 
 #endif  // !(defined(OS_WIN) && defined(CEF_USE_BOOTSTRAP))

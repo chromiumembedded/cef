@@ -14,8 +14,7 @@ namespace {
 int RunMain(HINSTANCE hInstance,
             LPTSTR lpCmdLine,
             int nCmdShow,
-            void* sandbox_info,
-            cef_version_info_t* /*version_info*/) {
+            void* sandbox_info) {
   int exit_code;
 
   // Provide CEF with command-line arguments.
@@ -72,8 +71,8 @@ CEF_BOOTSTRAP_EXPORT int RunWinMain(HINSTANCE hInstance,
                                     LPTSTR lpCmdLine,
                                     int nCmdShow,
                                     void* sandbox_info,
-                                    cef_version_info_t* version_info) {
-  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info, version_info);
+                                    cef_version_info_t* /*version_info*/) {
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
 }
 
 #else  // !defined(CEF_USE_BOOTSTRAP)
@@ -111,10 +110,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  cef_version_info_t version_info = {};
-  CEF_POPULATE_VERSION_INFO(&version_info);
-
-  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info, &version_info);
+  return ::RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);
 }
 
 #endif  // !defined(CEF_USE_BOOTSTRAP)
