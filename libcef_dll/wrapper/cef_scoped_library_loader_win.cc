@@ -59,7 +59,7 @@ HMODULE Load(const std::wstring& dll_path,
       // which non-matching versions are compatible.
       cef_version_info_t dll_info = {};
       dll_info.size = sizeof(cef_version_info_t);
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
       cef_version_info_all(&dll_info);
 #else
       // Only populating the members that are used below.

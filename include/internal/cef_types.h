@@ -672,7 +672,7 @@ typedef struct _cef_browser_settings_t {
   /// Controls whether databases can be used. Also configurable using the
   /// "disable-databases" command-line switch.
   ///
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   cef_state_t databases_deprecated;
 #else
   cef_state_t databases;
@@ -1065,7 +1065,7 @@ typedef enum {
 
   CEF_RESULT_CODE_CHROME_FIRST,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   /// The process is of an unknown type.
   CEF_RESULT_CODE_BAD_PROCESS_TYPE = 6,
 #endif
@@ -1102,12 +1102,12 @@ typedef enum {
   /// system state can't be recovered and will be unstable.
   CEF_RESULT_CODE_SYSTEM_RESOURCE_EXHAUSTED = 37,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   /// The browser process exited because it was re-launched without elevation.
   CEF_RESULT_CODE_NORMAL_EXIT_AUTO_DE_ELEVATED = 38,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   CEF_RESULT_CODE_CHROME_LAST = 39,
 #else
   CEF_RESULT_CODE_CHROME_LAST = 38,
@@ -3647,7 +3647,7 @@ typedef enum {
 #if CEF_API_ADDED(13400)
   CEF_CPAIT_CHANGE_PASSWORD,
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   CEF_CPAIT_LENS_OVERLAY_HOMEWORK,
 #endif
   CEF_CPAIT_NUM_VALUES,

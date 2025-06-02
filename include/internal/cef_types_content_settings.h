@@ -240,7 +240,7 @@ typedef enum {
 /// requests.
 /// See also: https://wicg.github.io/cors-rfc1918
 /// Set through enterprise policies only.
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   CEF_CONTENT_SETTING_TYPE_INSECURE_PRIVATE_NETWORK_DEPRECATED,
 #else
   CEF_CONTENT_SETTING_TYPE_INSECURE_PRIVATE_NETWORK,
@@ -516,7 +516,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_LOCAL_NETWORK_ACCESS,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
   /// Stores information on-device language packs for which a site has
   /// installed using the Web Speech API.
   CEF_CONTENT_SETTING_TYPE_ON_DEVICE_SPEECH_RECOGNITION_LANGUAGES_DOWNLOADED,

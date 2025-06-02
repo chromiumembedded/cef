@@ -58,7 +58,7 @@ extern "C" {
 ///
 CEF_EXPORT int cef_version_info(int entry);
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(13800)
 
 ///
 /// Structure representing all CEF version information.
