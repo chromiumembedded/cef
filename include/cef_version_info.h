@@ -30,6 +30,8 @@
 #ifndef CEF_INCLUDE_CEF_VERSION_INFO_H_
 #define CEF_INCLUDE_CEF_VERSION_INFO_H_
 
+#include <stddef.h>
+
 #include "include/cef_api_hash.h"
 #include "include/internal/cef_export.h"
 
@@ -82,6 +84,26 @@ typedef struct _cef_version_info_t {
 ///
 CEF_EXPORT void cef_version_info_all(cef_version_info_t* info);
 
+#elif !defined(GENERATING_CEF_API_HASH)
+
+// Unversioned definition to support use of the bootstrap and
+// CefScopedLibraryLoader with older API versions.
+typedef struct _cef_version_info_t {
+  // Size of this structure.
+  size_t size;
+
+  int cef_version_major;
+  int cef_version_minor;
+  int cef_version_patch;
+  int cef_commit_number;
+  int chrome_version_major;
+  int chrome_version_minor;
+  int chrome_version_build;
+  int chrome_version_patch;
+} cef_version_info_t;
+
+#endif  // !defined(GENERATING_CEF_API_HASH)
+
 ///
 /// Populate CEF version information for the client library.
 ///
@@ -95,8 +117,6 @@ CEF_EXPORT void cef_version_info_all(cef_version_info_t* info);
   (info)->chrome_version_minor = CHROME_VERSION_MINOR; \
   (info)->chrome_version_build = CHROME_VERSION_BUILD; \
   (info)->chrome_version_patch = CHROME_VERSION_PATCH
-
-#endif  // CEF_API_ADDED(CEF_NEXT)
 
 #ifdef __cplusplus
 }

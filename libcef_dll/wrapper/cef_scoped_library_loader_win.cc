@@ -59,7 +59,13 @@ HMODULE Load(const std::wstring& dll_path,
       // which non-matching versions are compatible.
       cef_version_info_t dll_info = {};
       dll_info.size = sizeof(cef_version_info_t);
+#if CEF_API_ADDED(CEF_NEXT)
       cef_version_info_all(&dll_info);
+#else
+      // Only populating the members that are used below.
+      dll_info.chrome_version_major = cef_version_info(4);
+      dll_info.chrome_version_patch = cef_version_info(7);
+#endif
       if (dll_info.chrome_version_major != version_info->chrome_version_major ||
           dll_info.chrome_version_patch != version_info->chrome_version_patch) {
         LOG(FATAL) << "Failed libcef.dll version check; expected "
