@@ -548,14 +548,12 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
   // Allow override of some values via environment variables.
   {
     std::unique_ptr<base::Environment> env(base::Environment::Create());
-    std::string val_str;
-
     if (const auto& var_str = env->GetVar("CEF_CRASH_REPORTER_SERVER_URL")) {
-      ParseURL(val_str, &server_url_);
+      ParseURL(*var_str, &server_url_);
     }
     if (const auto& var_str =
             env->GetVar("CEF_CRASH_REPORTER_RATE_LIMIT_ENABLED")) {
-      rate_limit_ = ParseBool(val_str);
+      rate_limit_ = ParseBool(*var_str);
     }
   }
 
