@@ -7,5 +7,5 @@
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 
 {
-  'chromium_checkout': 'refs/tags/137.0.7151.56'
+  'chromium_checkout': 'refs/tags/137.0.7151.69'
 }
