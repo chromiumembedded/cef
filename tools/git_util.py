@@ -10,8 +10,10 @@ import sys
 if sys.platform == 'win32':
   # Force use of the system installed Git version.
   git_exe = 'git.exe'
+  patch_exe = 'patch.exe'
 else:
   git_exe = 'git'
+  patch_exe = 'patch'
 
 
 def is_checkout(path):
@@ -122,6 +124,28 @@ def write_indented_output(output):
     sys.stdout.write('\t%s\n' % line)
 
 
+def _patch_apply_patch_string(patch_dir, patch_string):
+  """ Fallback to using the patch tool. """
+  config = '-p0 --ignore-whitespace --force'
+
+  # Reverse check to see if the patch has already been applied.
+  cmd = '%s %s --reverse --dry-run' % (patch_exe, config)
+  result = exec_cmd(cmd, patch_dir, patch_string)
+  if result['ret'] == 0:
+    sys.stdout.write('... already applied (skipping).\n')
+    return 'skip'
+
+  # Apply the patch file.
+  cmd = '%s %s' % (patch_exe, config)
+  result = exec_cmd(cmd, patch_dir, patch_string)
+  write_indented_output(result['out'])
+  if result['ret'] == 0:
+    sys.stdout.write('... successfully applied.\n')
+    return 'apply'
+  sys.stdout.write('... failed to apply:\n')
+  return 'fail'
+
+
 def git_apply_patch_file(patch_path, patch_dir):
   """ Apply |patch_path| to files in |patch_dir|. """
   patch_name = os.path.basename(patch_path)
@@ -138,9 +162,9 @@ def git_apply_patch_file(patch_path, patch_dir):
     patch_string = patch_string.replace(b'\r\n', b'\n')
 
   # Git apply fails silently if not run relative to a respository root.
+  # Fallback to using the patch tool in that case.
   if not is_checkout(patch_dir):
-    sys.stdout.write('... patch directory is not a repository root.\n')
-    return 'fail'
+    return _patch_apply_patch_string(patch_dir, patch_string)
 
   config = '-p0 --ignore-whitespace'
 
