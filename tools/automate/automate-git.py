@@ -169,6 +169,21 @@ def get_git_url(path):
   return 'Unknown'
 
 
+def git_log_has_content(path, content):
+  """ Returns True if the top log message contains |content|. """
+  cmd = "%s log -1" % (git_exe)
+  result = exec_cmd(cmd, path)
+  if result['out'] != '':
+    str = result['out']
+    if sys.platform == 'win32':
+      # Convert to Unix line endings.
+      str = str.replace('\r\n', '\n')
+    if str.find(content) >= 0:
+      return True
+    msg('Failed to find "%s" in `%s`:\n\n%s' % (content, cmd, str))
+  return False
+
+
 def download_and_extract(src, target):
   """ Extracts the contents of src, which may be a URL or local file, to the
       target directory. """
@@ -519,6 +534,12 @@ parser.add_option('--chromium-checkout', dest='chromiumcheckout',
                        'branch/hash/tag). This overrides the value specified '+\
                        'by CEF in CHROMIUM_BUILD_COMPATIBILITY.txt.',
                   default='')
+parser.add_option(
+    '--no-chromium-history',
+    action='store_true',
+    dest='nochromiumhistory',
+    default=False,
+    help='Checkout Chromium without history.')
 
 # Miscellaneous options.
 parser.add_option(
@@ -834,6 +855,8 @@ if (options.forceclean and options.fastupdate):
   invalid_options_combination('--force-clean', '--fast-update')
 if (options.forcecleandeps and options.fastupdate):
   invalid_options_combination('--force-clean-deps', '--fast-update')
+if (options.nochromiumhistory and options.logchromiumchanges):
+  invalid_options_combination('--no-chromium-history', '--log-chromium-changes')
 
 if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
@@ -1100,6 +1123,13 @@ else:
 
 build_compat_versions = get_build_compat_versions()
 
+# Determine the Chromium checkout options required by CEF.
+chromium_compat_version = build_compat_versions['chromium_checkout']
+if len(options.chromiumcheckout) > 0:
+  chromium_checkout = options.chromiumcheckout
+else:
+  chromium_checkout = chromium_compat_version
+
 if not options.nodepottoolsupdate and \
     'depot_tools_checkout' in build_compat_versions:
   # Update the depot_tools checkout.
@@ -1130,40 +1160,59 @@ msg("CEF Output Directory: %s" % (out_dir))
 # Create the chromium directory if necessary.
 create_directory(chromium_dir)
 
+gclient_file = os.path.join(chromium_dir, '.gclient')
+force_config = not os.path.exists(gclient_file) or options.forceconfig
+
+if options.nochromiumhistory and os.path.exists(chromium_src_dir) and \
+  is_git_checkout(chromium_src_dir):
+  # When using no history the Chromium checkout must be correct, or it must be deleted/replaced.
+  # We don't have tags in this case, so inspect the log message contents instead.
+  if chromium_checkout.endswith('.0'):
+    # First version in the branch doesn't have the 'Incrementing' message.
+    content = 'Cr-Commit-Position: refs/branch-heads/%s@{#1}' % chromium_checkout.split(
+        '.')[2]
+  else:
+    content = 'Incrementing VERSION to %s\n' % chromium_checkout
+  if not git_log_has_content(chromium_src_dir, content):
+    error = ''
+    if options.nochromiumupdate:
+      error += ' Remove --no-chromium-update.'
+    if not force_change:
+      error += ' Add --force-clean or --force-update.'
+    if len(error) > 0:
+      raise Exception(
+          'Current Chromium checkout with --no-chromium-history is incorrect.' +
+          error)
+
+    remove_directory(chromium_src_dir)
+    force_config = True
+
 if options.chromiumurl != '':
   chromium_url = options.chromiumurl
 else:
   chromium_url = 'https://chromium.googlesource.com/chromium/src.git'
 
+if options.nochromiumhistory:
+  # Add <version> from a value like 'refs/tags/<version>'.
+  chromium_url += '@' + chromium_checkout.split('/')[2]
+
 # Create gclient configuration file.
-gclient_file = os.path.join(chromium_dir, '.gclient')
-if not os.path.exists(gclient_file) or options.forceconfig:
-  # Exclude unnecessary directories. Intentionally written without newlines.
-  gclient_spec = \
-      "solutions = [{"+\
-        "'managed': False,"+\
-        "'name': 'src', "+\
-        "'url': '" + chromium_url + "', "+\
-        "'custom_vars': {"+\
-          "'checkout_pgo_profiles': " + ('True' if options.withpgoprofiles else 'False') + ", "+\
-        "}, "+\
-        "'custom_deps': {"+\
-          "'build': None, "+\
-          "'build/scripts/command_wrapper/bin': None, "+\
-          "'build/scripts/gsd_generate_index': None, "+\
-          "'build/scripts/private/data/reliability': None, "+\
-          "'build/scripts/tools/deps2git': None, "+\
-          "'build/third_party/lighttpd': None, "+\
-          "'commit-queue': None, "+\
-          "'depot_tools': None, "+\
-          "'src/chrome_frame/tools/test/reference_build/chrome': None, "+\
-          "'src/chrome/tools/test/reference_build/chrome_linux': None, "+\
-          "'src/chrome/tools/test/reference_build/chrome_mac': None, "+\
-          "'src/chrome/tools/test/reference_build/chrome_win': None, "+\
-        "}, "+\
-        "'deps_file': '" + deps_file + "', "+\
-        "'safesync_url': ''"+\
+if force_config:
+  # yapf: disable
+  gclient_spec = (
+      "solutions = [{"+
+        "'managed': False, "+
+        "'name': 'src', "+
+        "'url': '" + chromium_url + "', "+
+        "'custom_vars': {"+
+          "'checkout_pgo_profiles': " + ('True' if options.withpgoprofiles else 'False') + ", "+
+        "}, "+
+        "'custom_deps': {}, "+
+        "'deps_file': '" + deps_file + "', "+
+        "'safesync_url': ''"+
       "}]"
+  )
+  # yapf: disable
 
   msg('Writing %s' % gclient_file)
   if not options.dryrun:
@@ -1173,7 +1222,8 @@ if not os.path.exists(gclient_file) or options.forceconfig:
 # Initial Chromium checkout.
 if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
   chromium_checkout_new = True
-  run("gclient sync --nohooks --with_branch_heads --jobs 16", \
+  run("gclient sync --nohooks " +
+      ('--no-history' if options.nochromiumhistory else '--with_branch_heads'),
       chromium_dir, depot_tools_dir)
 else:
   chromium_checkout_new = False
@@ -1185,33 +1235,30 @@ if not options.dryrun and not is_git_checkout(chromium_src_dir):
 if os.path.exists(chromium_src_dir):
   msg("Chromium URL: %s" % (get_git_url(chromium_src_dir)))
 
-# Fetch Chromium changes so that we can perform the necessary calculations using
-# local history.
-if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
-  # Fetch updated sources.
-  run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
-  # Also fetch tags, which are required for release branch builds.
-  run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
-
-# Determine the Chromium checkout options required by CEF.
-chromium_compat_version = build_compat_versions['chromium_checkout']
-if len(options.chromiumcheckout) > 0:
-  chromium_checkout = options.chromiumcheckout
+if options.nochromiumhistory:
+  chromium_checkout_changed = chromium_checkout_new
+  msg("Chromium Checkout (no history): %s" % chromium_checkout)
 else:
-  chromium_checkout = chromium_compat_version
+  # Fetch Chromium changes so that we can perform the necessary calculations using
+  # local history.
+  if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
+    # Fetch updated sources.
+    run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
+    # Also fetch tags, which are required for release branch builds.
+    run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
-# Determine if the Chromium checkout needs to change.
-if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
-  chromium_current_hash = get_git_hash(chromium_src_dir, 'HEAD')
-  chromium_desired_hash = get_git_hash(chromium_src_dir, chromium_checkout)
-  chromium_checkout_changed = chromium_checkout_new or force_change or \
-                              chromium_current_hash != chromium_desired_hash
+  # Determine if the Chromium checkout needs to change.
+  if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
+    chromium_current_hash = get_git_hash(chromium_src_dir, 'HEAD')
+    chromium_desired_hash = get_git_hash(chromium_src_dir, chromium_checkout)
+    chromium_checkout_changed = chromium_checkout_new or force_change or \
+                                chromium_current_hash != chromium_desired_hash
 
-  msg("Chromium Current Checkout: %s" % (chromium_current_hash))
-  msg("Chromium Desired Checkout: %s (%s)" % \
-      (chromium_desired_hash, chromium_checkout))
-else:
-  chromium_checkout_changed = options.dryrun
+    msg("Chromium Current Checkout: %s" % (chromium_current_hash))
+    msg("Chromium Desired Checkout: %s (%s)" % \
+        (chromium_desired_hash, chromium_checkout))
+  else:
+    chromium_checkout_changed = options.dryrun
 
 if cef_checkout_changed:
   if cef_dir != cef_src_dir and os.path.exists(cef_src_dir):
@@ -1238,32 +1285,34 @@ if os.path.exists(out_src_dir):
 
 # Update the Chromium checkout.
 if chromium_checkout_changed:
-  if not chromium_checkout_new and not options.fastupdate:
-    if options.forceclean and options.forcecleandeps:
-      # Remove all local changes including third-party git checkouts managed by
-      # gclient.
-      run("%s clean -dffx" % (git_exe), chromium_src_dir, depot_tools_dir)
-    else:
-      # Revert all changes in the Chromium checkout.
-      run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
+  if not options.nochromiumhistory:
+    if not chromium_checkout_new and not options.fastupdate:
+      if options.forceclean and options.forcecleandeps:
+        # Remove all local changes including third-party git checkouts managed by
+        # gclient.
+        run("%s clean -dffx" % (git_exe), chromium_src_dir, depot_tools_dir)
+      else:
+        # Revert all changes in the Chromium checkout.
+        run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
 
-  # Checkout the requested branch.
-  run("%s checkout %s%s" % \
-    (git_exe, '--force ' if discard_local_changes else '', chromium_checkout), \
-    chromium_src_dir, depot_tools_dir)
+    # Checkout the requested branch.
+    run("%s checkout %s%s" % \
+      (git_exe, '--force ' if discard_local_changes else '', chromium_checkout), \
+      chromium_src_dir, depot_tools_dir)
 
   # Patch the Chromium DEPS file if necessary.
   apply_deps_patch()
 
-  # Update third-party dependencies including branch/tag information.
-  run("gclient sync %s--nohooks --with_branch_heads --jobs 16" % \
-      ('--reset ' if discard_local_changes else ''), chromium_dir, depot_tools_dir)
+  if not options.nochromiumhistory:
+    # Update third-party dependencies including branch/tag information.
+    run("gclient sync %s--nohooks --with_branch_heads" % \
+        ('--reset ' if discard_local_changes else ''), chromium_dir, depot_tools_dir)
 
   # Patch the Chromium runhooks scripts if necessary.
   apply_runhooks_patch()
 
   # Runs hooks for files that have been modified in the local working copy.
-  run("gclient runhooks --jobs 16", chromium_dir, depot_tools_dir)
+  run("gclient runhooks", chromium_dir, depot_tools_dir)
 
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
