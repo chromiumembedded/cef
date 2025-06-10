@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_runner.cc content/browser/renderer_host/navigation_throttle_runner.cc
-index 58da260893bf5..f54b5d1d6dcfd 100644
+index 419ed61a65b56..74e5cb3619aeb 100644
 --- content/browser/renderer_host/navigation_throttle_runner.cc
 +++ content/browser/renderer_host/navigation_throttle_runner.cc
-@@ -149,17 +149,23 @@ NavigationHandle& NavigationThrottleRunner::GetNavigationHandle() {
+@@ -150,17 +150,23 @@ NavigationHandle& NavigationThrottleRunner::GetNavigationHandle() {
  }
  
  void NavigationThrottleRunner::AddThrottle(

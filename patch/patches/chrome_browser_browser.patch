@@ -83,7 +83,7 @@ index e8fda706fb348..c98ef9e3f6f4d 100644
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 13941994fd5df..831c19f2fa275 100644
+index 8392975cdde4e..5418e23c945c2 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -127,7 +127,7 @@ index 13941994fd5df..831c19f2fa275 100644
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5506,6 +5519,7 @@ static_library("ui") {
+@@ -5509,6 +5522,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",

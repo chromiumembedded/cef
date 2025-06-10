@@ -23,7 +23,7 @@ index 7c1eb9baabfb9..30761c0906087 100644
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index feba9635b4066..c512154ada654 100644
+index 97141017fa2ca..bc9380ab84524 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ third_party/blink/renderer/core/exported/web_view_impl.cc
 @@ -258,8 +258,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
