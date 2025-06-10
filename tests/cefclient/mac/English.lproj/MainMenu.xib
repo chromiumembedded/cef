@@ -428,6 +428,18 @@
                                     <action selector="menuTestsPrintToPdf:" target="-2" id="f8B-MA-teX"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Mute Audio" id="hc4-nZ-uyc">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuTestsMuteAudio:" target="-2" id="pbR-06-dnb"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Unmute Audio" id="DJs-C5-ULv">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuTestsUnmuteAudio:" target="-2" id="vLj-9e-eFm"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Other Tests" id="7VD-bm-EOX">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
