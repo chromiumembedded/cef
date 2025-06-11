@@ -1,0 +1,23 @@
+diff --git gclient.py gclient.py
+index ee205ec2..895b950d 100755
+--- gclient.py
++++ gclient.py
+@@ -1001,7 +1001,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+         if self.git_dependencies_state == gclient_eval.SUBMODULES:
+             deps.update(self.ParseGitSubmodules())
+ 
+-        if self.git_dependencies_state != gclient_eval.DEPS:
++        if not self.get_vars().get('source_tarball', False) and \
++           self.git_dependencies_state != gclient_eval.DEPS:
+             # Git submodules are used - get their state.
+             self._known_dependency_diff = self.CreateSCM().GetSubmoduleDiff()
+             self._dependency_index_state = self.CreateSCM(
+@@ -1219,7 +1220,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+             self.FuzzyMatchUrl(revision_overrides), None)
+         if not revision_override and not self.managed:
+             revision_override = 'unmanaged'
+-        if run_scm and self.url:
++        if not self.get_vars().get('source_tarball', False) and run_scm and self.url:
+             # Create a shallow copy to mutate revision.
+             options = copy.copy(options)
+             options.revision = revision_override
