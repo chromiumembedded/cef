@@ -13,6 +13,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import zipfile
 
@@ -169,33 +170,27 @@ def get_git_url(path):
   return 'Unknown'
 
 
-def git_log_has_content(path, content):
-  """ Returns True if the top log message contains |content|. """
-  cmd = "%s log -1" % (git_exe)
-  result = exec_cmd(cmd, path)
-  if result['out'] != '':
-    str = result['out']
-    if sys.platform == 'win32':
-      # Convert to Unix line endings.
-      str = str.replace('\r\n', '\n')
-    if str.find(content) >= 0:
-      return True
-    msg('Failed to find "%s" in `%s`:\n\n%s' % (content, cmd, str))
-  return False
-
-
-def download_and_extract(src, target):
+def download_and_extract(src, target, strip_components=0):
   """ Extracts the contents of src, which may be a URL or local file, to the
       target directory. """
   temporary = False
 
+  extension = None
+  for ext in ('.zip', '.tar.bz2', '.tar.xz'):
+    if src.lower().endswith(ext):
+      extension = ext
+      break
+  if extension is None:
+    raise Exception('Unsupported file extension for: ' + src)
+
   if src[:4] == 'http':
     # Attempt to download a URL.
+    msg('Downloading %s' % src)
     opener = FancyURLopener({})
     response = opener.open(src)
 
     temporary = True
-    handle, archive_path = tempfile.mkstemp(suffix='.zip')
+    handle, archive_path = tempfile.mkstemp(suffix=extension)
     os.write(handle, response.read())
     os.close(handle)
   elif os.path.exists(src):
@@ -204,18 +199,75 @@ def download_and_extract(src, target):
   else:
     raise Exception('Path type is unsupported or does not exist: ' + src)
 
-  if not zipfile.is_zipfile(archive_path):
-    raise Exception('Not a valid zip archive: ' + src)
+  msg('Extracting ' + archive_path)
 
-  # Attempt to extract the archive file.
-  try:
-    os.makedirs(target)
-    zf = zipfile.ZipFile(archive_path, 'r')
-    zf.extractall(target)
-  except:
-    shutil.rmtree(target, onerror=onerror)
-    raise
-  zf.close()
+  if extension == '.zip':
+    if not zipfile.is_zipfile(archive_path):
+      raise Exception('Not a valid zip archive: ' + src)
+
+    # Attempt to extract the archive file.
+    try:
+      os.makedirs(target)
+      zf = zipfile.ZipFile(archive_path, 'r')
+      zf.extractall(target)
+    except:
+      shutil.rmtree(target, onerror=onerror)
+      raise
+    zf.close()
+  elif extension.startswith('.tar'):
+    if sys.platform == 'win32' and sys.getwindowsversion().build < 22000:
+      # Windows versions prior to Windows 11 do not have a reliable tar command.
+      # Use the builtin Python tar support instead.
+      assert strip_components <= 1, strip_components
+
+      def get_first_directory(path):
+        """ Returns the full path of the first directory found within |path|. """
+        for entry in os.scandir(path):
+          if entry.is_dir():
+            return os.path.join(path, entry.name)
+        return None
+
+      mode = ''
+      if extension.endswith('.bz2'):
+        mode = 'bz2'
+      elif extension.endswith('.xz'):
+        mode = 'xz'
+      # Use a temp directory on the same filesystem to support atomic move.
+      tmp_path = target + '.tmp'
+      try:
+        with tarfile.open(archive_path, 'r:' + mode) as tar:
+          if strip_components == 0:
+            # Extract directly to the target directory.
+            os.makedirs(target)
+            tar.extractall(path=target)
+          elif strip_components == 1:
+            # Extract to a temp directory and then move the first sub-folder
+            # to the target directory.
+            tar.extractall(path=tmp_path)
+            tmp_subdir_path = get_first_directory(tmp_path)
+            if not tmp_subdir_path is None:
+              shutil.move(tmp_subdir_path, target)
+      except:
+        shutil.rmtree(target, onerror=onerror)
+        raise
+      if os.path.isdir(tmp_path):
+        shutil.rmtree(tmp_path, onerror=onerror)
+    else:
+      mode = ''
+      if extension.endswith('.bz2'):
+        mode = 'j'
+      elif extension.endswith('.xz'):
+        mode = 'J'
+      # TODO: Add support for utilizing multiple cores.
+      cmd = 'tar x%sf "%s" -C "%s"' % (mode, archive_path, target)
+      if strip_components > 0:
+        cmd += ' --strip-components=%d' % strip_components
+      try:
+        os.makedirs(target)
+        run(cmd, target)
+      except:
+        shutil.rmtree(target, onerror=onerror)
+        raise
 
   # Delete the archive file if temporary.
   if temporary and os.path.exists(archive_path):
@@ -271,14 +323,42 @@ def write_branch_config_file(path, branch):
     write_config_file(config_file, {'branch': branch})
 
 
-def apply_patch(name):
+def read_version_file(path):
+  """ Read and parse a version file (key=value pairs, one per line). """
+  contents = read_file(path)
+  if contents is None:
+    return None
+  result = {}
+  lines = contents.split("\n")
+  for line in lines:
+    parts = line.split('=', 1)
+    if len(parts) == 2:
+      result[parts[0]] = parts[1]
+  return result
+
+
+def read_chrome_version_file(src_path):
+  path = os.path.join(src_path, 'chrome', 'VERSION')
+  parts = read_version_file(path)
+  if parts is None:
+    raise Exception('Failed to read %s' % path)
+  return '%s.%s.%s.%s' % (parts['MAJOR'], parts['MINOR'], parts['BUILD'],
+                          parts['PATCH'])
+
+
+def apply_patch(name, patch_dir=None, required=False):
   patch_file = os.path.join(cef_dir, 'patch', 'patches', name)
-  if os.path.exists(patch_file + ".patch"):
+  if patch_dir is None:
+    patch_dir = chromium_src_dir
+  patch_path = patch_file + ".patch"
+  if os.path.exists(patch_path):
     # Attempt to apply the patch file.
     patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
-    run('%s %s --patch-file "%s" --patch-dir "%s"' %
-        (python_exe, patch_tool, patch_file,
-         chromium_src_dir), chromium_src_dir, depot_tools_dir)
+    run('%s %s --patch-file "%s" --patch-dir "%s"' % (python_exe, patch_tool,
+                                                      patch_file, patch_dir),
+        chromium_src_dir, depot_tools_dir)
+  elif required:
+    raise Exception('Required patch file does not exist: ' + patch_path)
 
 
 def apply_deps_patch():
@@ -508,9 +588,11 @@ parser.add_option(
     metavar='DIR',
     help='Download directory for depot_tools.',
     default='')
-parser.add_option('--depot-tools-archive', dest='depottoolsarchive',
-                  help='Zip archive file that contains a single top-level '+\
-                       'depot_tools directory.', default='')
+parser.add_option(
+    '--depot-tools-archive',
+    dest='depottoolsarchive',
+    help='Archive file that contains a single top-level depot_tools directory.',
+    default='')
 parser.add_option('--branch', dest='branch',
                   help='Branch of CEF to build (master, 3987, ...). This '+\
                        'will be used to name the CEF download directory and '+\
@@ -540,6 +622,11 @@ parser.add_option(
     dest='nochromiumhistory',
     default=False,
     help='Checkout Chromium without history.')
+parser.add_option(
+    '--chromium-archive',
+    dest='chromiumarchive',
+    help='Archive file that contains a single top-level chromium src directory.',
+    default='')
 
 # Miscellaneous options.
 parser.add_option(
@@ -840,6 +927,9 @@ if options.noupdate:
   options.nochromiumupdate = True
   options.nodepottoolsupdate = True
 
+if options.chromiumarchive != '':
+  options.nochromiumhistory = True
+
 if options.runtests:
   options.buildtests = True
 
@@ -1012,8 +1102,7 @@ if not os.path.exists(depot_tools_dir):
 
   if options.depottoolsarchive != '':
     # Extract depot_tools from an archive file.
-    msg('Extracting %s to %s.' % \
-        (options.depottoolsarchive, depot_tools_dir))
+    msg('Extracting %s to %s' % (options.depottoolsarchive, depot_tools_dir))
     if not options.dryrun:
       download_and_extract(options.depottoolsarchive, depot_tools_dir)
   else:
@@ -1163,17 +1252,13 @@ create_directory(chromium_dir)
 gclient_file = os.path.join(chromium_dir, '.gclient')
 force_config = not os.path.exists(gclient_file) or options.forceconfig
 
-if options.nochromiumhistory and os.path.exists(chromium_src_dir) and \
-  is_git_checkout(chromium_src_dir):
+# Extract <version> from a value like 'refs/tags/<version>'.
+chromium_version = chromium_checkout.split('/')[2]
+
+if options.nochromiumhistory and os.path.exists(chromium_src_dir):
   # When using no history the Chromium checkout must be correct, or it must be deleted/replaced.
-  # We don't have tags in this case, so inspect the log message contents instead.
-  if chromium_checkout.endswith('.0'):
-    # First version in the branch doesn't have the 'Incrementing' message.
-    content = 'Cr-Commit-Position: refs/branch-heads/%s@{#1}' % chromium_checkout.split(
-        '.')[2]
-  else:
-    content = 'Incrementing VERSION to %s\n' % chromium_checkout
-  if not git_log_has_content(chromium_src_dir, content):
+  current_version = read_chrome_version_file(chromium_src_dir)
+  if current_version != chromium_version:
     error = ''
     if options.nochromiumupdate:
       error += ' Remove --no-chromium-update.'
@@ -1193,8 +1278,7 @@ else:
   chromium_url = 'https://chromium.googlesource.com/chromium/src.git'
 
 if options.nochromiumhistory:
-  # Add <version> from a value like 'refs/tags/<version>'.
-  chromium_url += '@' + chromium_checkout.split('/')[2]
+  chromium_url += '@' + chromium_version
 
 # Create gclient configuration file.
 if force_config:
@@ -1206,6 +1290,7 @@ if force_config:
         "'url': '" + chromium_url + "', "+
         "'custom_vars': {"+
           "'checkout_pgo_profiles': " + ('True' if options.withpgoprofiles else 'False') + ", "+
+          "'source_tarball': " + ('True' if options.chromiumarchive != '' else 'False') + ", "+
         "}, "+
         "'custom_deps': {}, "+
         "'deps_file': '" + deps_file + "', "+
@@ -1222,18 +1307,38 @@ if force_config:
 # Initial Chromium checkout.
 if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
   chromium_checkout_new = True
-  run("gclient sync --nohooks " +
-      ('--no-history' if options.nochromiumhistory else '--with_branch_heads'),
-      chromium_dir, depot_tools_dir)
+  sync_args = '--nohooks '
+
+  if options.chromiumarchive != '':
+    msg('Extracting %s to %s' % (options.chromiumarchive, chromium_src_dir))
+    if not options.dryrun:
+      # Extract without the top-level directory, which has the same name as the archive file.
+      download_and_extract(options.chromiumarchive, chromium_src_dir, strip_components=1)
+
+    # Apply patches required for source tarball support.
+    apply_patch('tarball_deps', chromium_src_dir, required=True)
+    apply_patch('tarball_gclient', depot_tools_dir, required=True)
+  elif options.nochromiumhistory:
+    sync_args += '--no-history'
+  else:
+    sync_args += '--with_branch_heads'
+
+  run("gclient sync %s" % sync_args, chromium_dir, depot_tools_dir)
 else:
   chromium_checkout_new = False
 
 # Verify the Chromium checkout.
-if not options.dryrun and not is_git_checkout(chromium_src_dir):
-  raise Exception('Not a valid git checkout: %s' % (chromium_src_dir))
+if options.chromiumarchive:
+  current_version = read_chrome_version_file(chromium_src_dir)
+  if current_version != chromium_version:
+    raise Exception('Found Chromium version %s, expected %s at: %s' %
+                    (current_version, chromium_version, chromium_src_dir))
+else:
+  if not options.dryrun and not is_git_checkout(chromium_src_dir):
+    raise Exception('Not a valid git checkout: %s' % (chromium_src_dir))
 
-if os.path.exists(chromium_src_dir):
-  msg("Chromium URL: %s" % (get_git_url(chromium_src_dir)))
+  if os.path.exists(chromium_src_dir):
+    msg("Chromium URL: %s" % (get_git_url(chromium_src_dir)))
 
 if options.nochromiumhistory:
   chromium_checkout_changed = chromium_checkout_new
