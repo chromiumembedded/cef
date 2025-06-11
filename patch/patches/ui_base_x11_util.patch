@@ -1,5 +1,5 @@
 diff --git ui/base/x/x11_util.h ui/base/x/x11_util.h
-index ff12f942b61b7..97d17c3a46309 100644
+index ff12f942b6..97d17c3a46 100644
 --- ui/base/x/x11_util.h
 +++ ui/base/x/x11_util.h
 @@ -245,8 +245,9 @@ x11::Future<void> SendClientMessage(

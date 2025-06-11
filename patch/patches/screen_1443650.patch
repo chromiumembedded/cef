@@ -1,5 +1,5 @@
 diff --git ui/display/screen.cc ui/display/screen.cc
-index 1ee1f561eb03a..13a86d95bff9d 100644
+index 1ee1f561eb..13a86d95bf 100644
 --- ui/display/screen.cc
 +++ ui/display/screen.cc
 @@ -104,13 +104,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
@@ -19,7 +19,7 @@ index 1ee1f561eb03a..13a86d95bff9d 100644
  
  bool Screen::GetDisplayWithDisplayId(int64_t display_id,
 diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
-index fc36188c6ae47..06a07b3fd85e8 100644
+index fc36188c6a..06a07b3fd8 100644
 --- ui/display/win/screen_win.cc
 +++ ui/display/win/screen_win.cc
 @@ -692,7 +692,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd,

@@ -1,5 +1,5 @@
 diff --git base/win/dark_mode_support.cc base/win/dark_mode_support.cc
-index daecebb507070..aed51c2e6b06e 100644
+index daecebb507..aed51c2e6b 100644
 --- base/win/dark_mode_support.cc
 +++ base/win/dark_mode_support.cc
 @@ -7,6 +7,7 @@
@@ -32,7 +32,7 @@ index daecebb507070..aed51c2e6b06e 100644
    return (dark_mode_support.allow_dark_mode_for_app ||
            dark_mode_support.set_preferred_app_mode) &&
 diff --git chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
-index 8eca0f15ad724..214eb82df050d 100644
+index 8eca0f15ad..214eb82df0 100644
 --- chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 +++ chrome/browser/ui/views/chrome_browser_main_extra_parts_views_linux.cc
 @@ -58,7 +58,10 @@ void ChromeBrowserMainExtraPartsViewsLinux::ToolkitInitialized() {
@@ -48,7 +48,7 @@ index 8eca0f15ad724..214eb82df050d 100644
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index a28c128deecd3..e8c8a9825b0fe 100644
+index a28c128dee..e8c8a9825b 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
 @@ -157,9 +157,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
@@ -67,7 +67,7 @@ index a28c128deecd3..e8c8a9825b0fe 100644
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 3f8801c6042ef..c1bcab30a63aa 100644
+index 3f8801c604..c1bcab30a6 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
 @@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
@@ -93,7 +93,7 @@ index 3f8801c6042ef..c1bcab30a63aa 100644
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 97cceb20da0fc..7c2282840ff56 100644
+index 97cceb20da..7c2282840f 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
 @@ -636,6 +636,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
@@ -107,7 +107,7 @@ index 97cceb20da0fc..7c2282840ff56 100644
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index e41728dd81663..a6396a778cae6 100644
+index e41728dd81..a6396a778c 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
 @@ -632,11 +632,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
@@ -129,7 +129,7 @@ index e41728dd81663..a6396a778cae6 100644
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 0c6d689295a03..dd63350a153c5 100644
+index 0c6d689295..dd63350a15 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
 @@ -694,7 +694,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {

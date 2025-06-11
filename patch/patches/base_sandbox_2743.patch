@@ -1,5 +1,5 @@
 diff --git base/BUILD.gn base/BUILD.gn
-index 59721ed3c9e26..c0ee7567a534c 100644
+index 59721ed3c9..c0ee7567a5 100644
 --- base/BUILD.gn
 +++ base/BUILD.gn
 @@ -41,6 +41,7 @@ import("//build/rust/rust_static_library.gni")
@@ -39,7 +39,7 @@ index 59721ed3c9e26..c0ee7567a534c 100644
        "cfgmgr32.lib",
        "ntdll.lib",
 diff --git base/allocator/dispatcher/dispatcher.cc base/allocator/dispatcher/dispatcher.cc
-index f680f63cffc5b..9cb615bbc8a5a 100644
+index f680f63cff..9cb615bbc8 100644
 --- base/allocator/dispatcher/dispatcher.cc
 +++ base/allocator/dispatcher/dispatcher.cc
 @@ -8,6 +8,7 @@
@@ -60,7 +60,7 @@ index f680f63cffc5b..9cb615bbc8a5a 100644
        auto const was_set = is_initialized_check_flag_.test_and_set();
        is_initialized_check_flag_.clear();
 diff --git base/hash/md5.h base/hash/md5.h
-index 4d358570d81c5..09bf13a965541 100644
+index 4d358570d8..09bf13a965 100644
 --- base/hash/md5.h
 +++ base/hash/md5.h
 @@ -11,8 +11,9 @@
@@ -75,7 +75,7 @@ index 4d358570d81c5..09bf13a965541 100644
  #else
  #include "base/hash/md5_boringssl.h"
 diff --git base/hash/sha1.h base/hash/sha1.h
-index 2158b648ca58a..8a8cb13b2fd74 100644
+index 2158b648ca..8a8cb13b2f 100644
 --- base/hash/sha1.h
 +++ base/hash/sha1.h
 @@ -15,7 +15,9 @@
@@ -90,7 +90,7 @@ index 2158b648ca58a..8a8cb13b2fd74 100644
  #else
  #include "base/hash/sha1_boringssl.h"
 diff --git base/json/json_reader.cc base/json/json_reader.cc
-index f32622d353f1d..def35a3ae1c5c 100644
+index f32622d353..def35a3ae1 100644
 --- base/json/json_reader.cc
 +++ base/json/json_reader.cc
 @@ -12,8 +12,9 @@
@@ -141,7 +141,7 @@ index f32622d353f1d..def35a3ae1c5c 100644
  #else
    return base::FeatureList::IsEnabled(base::features::kUseRustJsonParser);
 diff --git base/logging.cc base/logging.cc
-index 26ba1a286e451..99b2ce6feb274 100644
+index 26ba1a286e..99b2ce6feb 100644
 --- base/logging.cc
 +++ base/logging.cc
 @@ -51,6 +51,7 @@
@@ -162,7 +162,7 @@ index 26ba1a286e451..99b2ce6feb274 100644
    internal::init_rust_log_crate();
  #endif
 diff --git base/metrics/crc32.cc base/metrics/crc32.cc
-index 83e3cee2579ab..8238767ab9126 100644
+index 83e3cee257..8238767ab9 100644
 --- base/metrics/crc32.cc
 +++ base/metrics/crc32.cc
 @@ -3,14 +3,15 @@
@@ -184,7 +184,7 @@ index 83e3cee2579ab..8238767ab9126 100644
    if (data.empty()) {
      return sum;
 diff --git base/process/memory.h base/process/memory.h
-index 5d11d4a1560b1..242a93bcca8ed 100644
+index 5d11d4a156..242a93bcca 100644
 --- base/process/memory.h
 +++ base/process/memory.h
 @@ -29,7 +29,7 @@ BASE_EXPORT void EnableTerminationOnOutOfMemory();
@@ -209,7 +209,7 @@ index 5d11d4a1560b1..242a93bcca8ed 100644
  }  // namespace win
  #endif
 diff --git base/rand_util.h base/rand_util.h
-index d650943a7b75a..abd5217f8ceed 100644
+index d650943a7b..abd5217f8c 100644
 --- base/rand_util.h
 +++ base/rand_util.h
 @@ -23,8 +23,9 @@
@@ -233,7 +233,7 @@ index d650943a7b75a..abd5217f8ceed 100644
   public:
    using result_type = uint64_t;
 diff --git base/rand_util_win.cc base/rand_util_win.cc
-index 0b772cbae8916..b19183b34d176 100644
+index 0b772cbae8..b19183b34d 100644
 --- base/rand_util_win.cc
 +++ base/rand_util_win.cc
 @@ -15,7 +15,11 @@
@@ -282,7 +282,7 @@ index 0b772cbae8916..b19183b34d176 100644
    static decltype(&ProcessPrng) process_prng_fn = GetProcessPrng();
    BOOL success =
 diff --git base/unguessable_token.cc base/unguessable_token.cc
-index ea33ca66f384c..33f4cc76f76bd 100644
+index ea33ca66f3..33f4cc76f7 100644
 --- base/unguessable_token.cc
 +++ base/unguessable_token.cc
 @@ -11,8 +11,9 @@
@@ -306,7 +306,7 @@ index ea33ca66f384c..33f4cc76f76bd 100644
    return lhs.token_ == rhs.token_;
  #else
 diff --git base/win/sid.cc base/win/sid.cc
-index 6a91e984f5161..4433591d96c99 100644
+index 6a91e984f5..4433591d96 100644
 --- base/win/sid.cc
 +++ base/win/sid.cc
 @@ -29,12 +29,56 @@
@@ -367,7 +367,7 @@ index 6a91e984f5161..4433591d96c99 100644
  Sid FromSubAuthorities(const SID_IDENTIFIER_AUTHORITY& identifier_authority,
                         size_t sub_authority_count,
 diff --git build_overrides/dawn.gni build_overrides/dawn.gni
-index cec3df3e50b6e..309b4e6a4fe0d 100644
+index cec3df3e50..309b4e6a4f 100644
 --- build_overrides/dawn.gni
 +++ build_overrides/dawn.gni
 @@ -2,11 +2,15 @@

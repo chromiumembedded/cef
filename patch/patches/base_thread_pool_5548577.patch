@@ -1,5 +1,5 @@
 diff --git base/task/thread_pool/thread_pool_impl.cc base/task/thread_pool/thread_pool_impl.cc
-index d7f9c33417f64..a6561d3dad060 100644
+index d7f9c33417..a6561d3dad 100644
 --- base/task/thread_pool/thread_pool_impl.cc
 +++ base/task/thread_pool/thread_pool_impl.cc
 @@ -108,6 +108,10 @@ ThreadPoolImpl::ThreadPoolImpl(std::string_view histogram_label,

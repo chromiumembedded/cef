@@ -1,5 +1,5 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 95bdbe6ae04af..913719635a342 100644
+index 95bdbe6ae0..913719635a 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
 @@ -31,6 +31,7 @@
@@ -27,7 +27,7 @@ index 95bdbe6ae04af..913719635a342 100644
            &GtkUi::OnCursorThemeNameChanged);
    connect(settings, "notify::gtk-cursor-theme-size",
 diff --git ui/ozone/platform/x11/ozone_platform_x11.cc ui/ozone/platform/x11/ozone_platform_x11.cc
-index 14a38b11d595c..84174ea74f7d2 100644
+index 14a38b11d5..84174ea74f 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.cc
 +++ ui/ozone/platform/x11/ozone_platform_x11.cc
 @@ -64,6 +64,8 @@ namespace ui {
@@ -66,7 +66,7 @@ index 14a38b11d595c..84174ea74f7d2 100644
 +
  }  // namespace ui
 diff --git ui/ozone/platform/x11/ozone_platform_x11.h ui/ozone/platform/x11/ozone_platform_x11.h
-index fd71ca6c81b7a..f1b7464b71e9d 100644
+index fd71ca6c81..f1b7464b71 100644
 --- ui/ozone/platform/x11/ozone_platform_x11.h
 +++ ui/ozone/platform/x11/ozone_platform_x11.h
 @@ -5,6 +5,8 @@

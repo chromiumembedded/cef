@@ -1,5 +1,5 @@
 diff --git chrome/browser/win/app_icon.cc chrome/browser/win/app_icon.cc
-index db721b75aad6f..fac8b38c7dde7 100644
+index db721b75aa..fac8b38c7d 100644
 --- chrome/browser/win/app_icon.cc
 +++ chrome/browser/win/app_icon.cc
 @@ -18,13 +18,26 @@ int GetAppIconResourceId() {
@@ -76,7 +76,7 @@ index db721b75aad6f..fac8b38c7dde7 100644
 +      GetModuleHandle(chrome::kBrowserResourcesDll), icon_id);
  }
 diff --git chrome/browser/win/app_icon.h chrome/browser/win/app_icon.h
-index db8209bbcc214..b50bce7fae5b5 100644
+index db8209bbcc..b50bce7fae 100644
 --- chrome/browser/win/app_icon.h
 +++ chrome/browser/win/app_icon.h
 @@ -14,6 +14,8 @@ class ImageFamily;
@@ -89,7 +89,7 @@ index db8209bbcc214..b50bce7fae5b5 100644
  HICON GetSmallAppIcon();
  
 diff --git chrome/common/chrome_constants.cc chrome/common/chrome_constants.cc
-index 298138e77b9f6..cce479212b682 100644
+index 298138e77b..cce479212b 100644
 --- chrome/common/chrome_constants.cc
 +++ chrome/common/chrome_constants.cc
 @@ -6,6 +6,7 @@

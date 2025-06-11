@@ -1,5 +1,5 @@
 diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
-index fa1a9aec7cca6..ec0d65954fe0a 100644
+index fa1a9aec7c..ec0d65954f 100644
 --- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 +++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 @@ -26,12 +26,31 @@
@@ -48,7 +48,7 @@ index fa1a9aec7cca6..ec0d65954fe0a 100644
    return !command_line->HasSwitch(switches::kDisablePrintPreview);
  }
 diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
-index ab12b010c13d9..48850a94ae255 100644
+index ab12b010c1..48850a94ae 100644
 --- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
 +++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.h
 @@ -5,12 +5,15 @@

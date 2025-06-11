@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 544832152c8b1..ffd5f32eeff14 100644
+index 544832152c..ffd5f32eef 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -3952,6 +3952,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -84,7 +84,7 @@ index 544832152c8b1..ffd5f32eeff14 100644
  #elif BUILDFLAG(IS_ANDROID)
    ui::ViewAndroid* view_android = GetNativeView();
 diff --git content/browser/web_contents/web_contents_impl_mac.mm content/browser/web_contents/web_contents_impl_mac.mm
-index f1105a13aa0eb..d1dba26bbac1f 100644
+index f1105a13aa..d1dba26bba 100644
 --- content/browser/web_contents/web_contents_impl_mac.mm
 +++ content/browser/web_contents/web_contents_impl_mac.mm
 @@ -6,6 +6,7 @@
@@ -120,7 +120,7 @@ index f1105a13aa0eb..d1dba26bbac1f 100644
    return gfx::Size(NSWidth(frame), NSHeight(frame));
  }
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 404f12c976dca..e09af607cfa98 100644
+index 404f12c976..e09af607cf 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -121,10 +121,12 @@ class BrowserPluginGuestDelegate;
@@ -148,7 +148,7 @@ index 404f12c976dca..e09af607cfa98 100644
      // the value that'll be returned by GetLastActiveTimeTicks(). If this is
      // left default initialized then the value is not passed on to the
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index da319cb207331..bcd4de085fa6b 100644
+index da319cb207..bcd4de085f 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -101,9 +101,11 @@ class EyeDropperListener;
@@ -179,7 +179,7 @@ index da319cb207331..bcd4de085fa6b 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 4f97e13f9125e..1946f9909803b 100644
+index 4f97e13f91..1946f99098 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -255,6 +255,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {

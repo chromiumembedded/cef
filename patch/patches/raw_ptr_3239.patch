@@ -1,5 +1,5 @@
 diff --git net/base/directory_lister.cc net/base/directory_lister.cc
-index 58cce49353856..33b00235918c3 100644
+index 58cce49353..33b0023591 100644
 --- net/base/directory_lister.cc
 +++ net/base/directory_lister.cc
 @@ -200,7 +200,7 @@ void DirectoryLister::OnListFile(const DirectoryListerData& data) {
@@ -12,7 +12,7 @@ index 58cce49353856..33b00235918c3 100644
  
  }  // namespace net
 diff --git net/base/directory_lister.h net/base/directory_lister.h
-index 7dfb7f451e936..8d0d35e500fdc 100644
+index 7dfb7f451e..8d0d35e500 100644
 --- net/base/directory_lister.h
 +++ net/base/directory_lister.h
 @@ -133,7 +133,7 @@ class NET_EXPORT DirectoryLister  {

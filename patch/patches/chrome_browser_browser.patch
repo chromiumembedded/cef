@@ -1,5 +1,5 @@
 diff --git chrome/browser/browser_about_handler.cc chrome/browser/browser_about_handler.cc
-index 7603c2662b8dc..9a38d816bdc40 100644
+index 7603c2662b..9a38d816bd 100644
 --- chrome/browser/browser_about_handler.cc
 +++ chrome/browser/browser_about_handler.cc
 @@ -69,6 +69,9 @@ bool HandleNonNavigationAboutURL(const GURL& url) {
@@ -13,7 +13,7 @@ index 7603c2662b8dc..9a38d816bdc40 100644
    return false;
  }
 diff --git chrome/browser/devtools/devtools_window.cc chrome/browser/devtools/devtools_window.cc
-index 720839ed7b796..0d14fe57d841d 100644
+index 720839ed7b..0d14fe57d8 100644
 --- chrome/browser/devtools/devtools_window.cc
 +++ chrome/browser/devtools/devtools_window.cc
 @@ -39,6 +39,7 @@
@@ -83,7 +83,7 @@ index 720839ed7b796..0d14fe57d841d 100644
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 93096ad92c1a3..9f6ad01bb1cc6 100644
+index 907c3fef9b..4fccbad622 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -127,7 +127,7 @@ index 93096ad92c1a3..9f6ad01bb1cc6 100644
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5539,6 +5552,7 @@ static_library("ui") {
+@@ -5540,6 +5553,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -136,7 +136,7 @@ index 93096ad92c1a3..9f6ad01bb1cc6 100644
      ]
    }
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 435235c067f70..63d2b0381c277 100644
+index 435235c067..63d2b0381c 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -273,6 +273,25 @@
@@ -501,7 +501,7 @@ index 435235c067f70..63d2b0381c277 100644
      case TYPE_NORMAL:
        return NormalBrowserSupportsWindowFeature(feature, check_can_support);
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index c4cea0b6e8c4c..2beda8338cb08 100644
+index c4cea0b6e8..2beda8338c 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -24,6 +24,7 @@
@@ -614,7 +614,7 @@ index c4cea0b6e8c4c..2beda8338cb08 100644
  
    UnloadController unload_controller_;
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index 474e4ba66d7af..ca68cd989693e 100644
+index 474e4ba66d..ca68cd9896 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
 @@ -255,6 +255,10 @@ std::tuple<Browser*, int> GetBrowserAndTabForDisposition(
@@ -648,7 +648,7 @@ index 474e4ba66d7af..ca68cd989693e 100644
  
  bool IsHostAllowedInIncognito(const GURL& url) {
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
-index 83a510defbda5..f4305701c5f5a 100644
+index 83a510defb..f4305701c5 100644
 --- chrome/browser/ui/browser_tabstrip.cc
 +++ chrome/browser/ui/browser_tabstrip.cc
 @@ -33,9 +33,13 @@ content::WebContents* AddAndReturnTabAt(
@@ -684,7 +684,7 @@ index 83a510defbda5..f4305701c5f5a 100644
    params.source_contents = source_contents;
    params.url = target_url;
 diff --git chrome/browser/ui/browser_window/browser_window_features.cc chrome/browser/ui/browser_window/browser_window_features.cc
-index db33c12d1d71b..af0c2f5203e0d 100644
+index db33c12d1d..af0c2f5203 100644
 --- chrome/browser/ui/browser_window/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/browser_window_features.cc
 @@ -99,6 +99,15 @@ BrowserWindowFeatures::CreateBrowserWindowFeatures() {
@@ -741,7 +741,7 @@ index db33c12d1d71b..af0c2f5203e0d 100644
      if (glic::GlicEnabling::IsProfileEligible(
              browser_view->browser()->profile())) {
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 0da8c64756ee2..2566fff471c8e 100644
+index 0da8c64756..2566fff471 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -90,6 +90,8 @@ class BrowserWindowFeatures {
@@ -754,7 +754,7 @@ index 0da8c64756ee2..2566fff471c8e 100644
    BrowserWindowFeatures& operator=(const BrowserWindowFeatures&) = delete;
  
 diff --git chrome/browser/ui/browser_window/public/browser_window_interface.h chrome/browser/ui/browser_window/public/browser_window_interface.h
-index d1862cd7b90b2..fcaa4b4ac3ade 100644
+index d1862cd7b9..fcaa4b4ac3 100644
 --- chrome/browser/ui/browser_window/public/browser_window_interface.h
 +++ chrome/browser/ui/browser_window/public/browser_window_interface.h
 @@ -211,6 +211,10 @@ class BrowserWindowInterface : public content::PageNavigator {
@@ -769,7 +769,7 @@ index d1862cd7b90b2..fcaa4b4ac3ade 100644
    // user education. The remainder of functionality is provided directly by the
    // UserEducationService, which can be retrieved directly from the profile.
 diff --git chrome/browser/ui/views/frame/tab_strip_region_view.cc chrome/browser/ui/views/frame/tab_strip_region_view.cc
-index cd93e66f918eb..dda28d11241d7 100644
+index cd93e66f91..dda28d1124 100644
 --- chrome/browser/ui/views/frame/tab_strip_region_view.cc
 +++ chrome/browser/ui/views/frame/tab_strip_region_view.cc
 @@ -118,8 +118,7 @@ TabStripRegionView::TabStripRegionView(std::unique_ptr<TabStrip> tab_strip)

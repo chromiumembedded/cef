@@ -1,5 +1,5 @@
 diff --git base/trace_event/builtin_categories.h base/trace_event/builtin_categories.h
-index 5e0f05804e814..2ac172b386c8b 100644
+index 5e0f05804e..2ac172b386 100644
 --- base/trace_event/builtin_categories.h
 +++ base/trace_event/builtin_categories.h
 @@ -69,6 +69,8 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(

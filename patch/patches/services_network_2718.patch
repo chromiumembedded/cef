@@ -1,5 +1,5 @@
 diff --git content/browser/storage_partition_impl.cc content/browser/storage_partition_impl.cc
-index 2b63e244ddaae..7d3e5017cf125 100644
+index 2b63e244dd..7d3e5017cf 100644
 --- content/browser/storage_partition_impl.cc
 +++ content/browser/storage_partition_impl.cc
 @@ -3498,9 +3498,12 @@ void StoragePartitionImpl::InitNetworkContext() {

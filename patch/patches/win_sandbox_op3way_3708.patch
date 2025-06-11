@@ -1,5 +1,5 @@
 diff --git base/time/time.h base/time/time.h
-index ad554e5e3f904..a31d584b1fc0d 100644
+index ad554e5e3f..a31d584b1f 100644
 --- base/time/time.h
 +++ base/time/time.h
 @@ -137,6 +137,13 @@ constexpr bool isnan(double d) {

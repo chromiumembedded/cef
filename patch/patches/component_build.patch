@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index dbd35f1300604..1c890c637d852 100644
+index dbd35f1300..1c890c637d 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -116,7 +116,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -12,7 +12,7 @@ index dbd35f1300604..1c890c637d852 100644
  
   public:
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index d69f9d4641613..e88aaf8617c52 100644
+index d69f9d4641..e88aaf8617 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -9,6 +9,7 @@
@@ -33,7 +33,7 @@ index d69f9d4641613..e88aaf8617c52 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 09d80f2ba678d..5dbff44c280a1 100644
+index 09d80f2ba6..5dbff44c28 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -8,6 +8,7 @@
@@ -55,7 +55,7 @@ index 09d80f2ba678d..5dbff44c280a1 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 1cec8375b6d86..e3aa20e8aea63 100644
+index 1cec8375b6..e3aa20e8ae 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@
@@ -83,7 +83,7 @@ index 1cec8375b6d86..e3aa20e8aea63 100644
      sources += [
        "memory_usage_monitor_posix.cc",
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 4f4fbfb769cf8..a794da2d8343b 100644
+index 4f4fbfb769..a794da2d83 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {
@@ -96,7 +96,7 @@ index 4f4fbfb769cf8..a794da2d8343b 100644
      "//base",
      "//ui/events:dom_keycode_converter",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index 5693e3a1c4bc4..88c0cc6d59098 100644
+index 5693e3a1c4..88c0cc6d59 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
 @@ -9,6 +9,7 @@

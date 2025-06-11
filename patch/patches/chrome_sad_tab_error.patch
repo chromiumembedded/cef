@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/sad_tab_view.cc chrome/browser/ui/views/sad_tab_view.cc
-index 944ce2e3bfaea..6db63a7858b0e 100644
+index 944ce2e3bf..6db63a7858 100644
 --- chrome/browser/ui/views/sad_tab_view.cc
 +++ chrome/browser/ui/views/sad_tab_view.cc
 @@ -707,6 +707,11 @@ void SadTabView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
@@ -15,7 +15,7 @@ index 944ce2e3bfaea..6db63a7858b0e 100644
    return new SadTabView(web_contents, kind);
  }
 diff --git chrome/browser/ui/views/sad_tab_view.h chrome/browser/ui/views/sad_tab_view.h
-index d6cb0e1a28eb2..59aca7bbb17c3 100644
+index d6cb0e1a28..59aca7bbb1 100644
 --- chrome/browser/ui/views/sad_tab_view.h
 +++ chrome/browser/ui/views/sad_tab_view.h
 @@ -56,6 +56,8 @@ class SadTabView : public SadTab, public views::View {

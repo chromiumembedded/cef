@@ -1,5 +1,5 @@
 diff --git components/prefs/pref_service.h components/prefs/pref_service.h
-index 0a360f45e89d9..c88c7ea9177e5 100644
+index 0a360f45e8..c88c7ea917 100644
 --- components/prefs/pref_service.h
 +++ components/prefs/pref_service.h
 @@ -52,6 +52,10 @@ namespace base {
@@ -23,7 +23,7 @@ index 0a360f45e89d9..c88c7ea9177e5 100644
    // These are protected so they can only be accessed by the friend
    // classes listed above.
 diff --git components/variations/synthetic_trials_active_group_id_provider.cc components/variations/synthetic_trials_active_group_id_provider.cc
-index bd51697297471..3e669cd080457 100644
+index bd51697297..3e669cd080 100644
 --- components/variations/synthetic_trials_active_group_id_provider.cc
 +++ components/variations/synthetic_trials_active_group_id_provider.cc
 @@ -27,7 +27,7 @@ SyntheticTrialsActiveGroupIdProvider::GetActiveGroupIds() {
@@ -54,7 +54,7 @@ index bd51697297471..3e669cd080457 100644
  #endif  // !defined(NDEBUG)
    }
 diff --git components/variations/synthetic_trials_active_group_id_provider.h components/variations/synthetic_trials_active_group_id_provider.h
-index b4a999731d996..0bbac173fddf1 100644
+index b4a999731d..0bbac173fd 100644
 --- components/variations/synthetic_trials_active_group_id_provider.h
 +++ components/variations/synthetic_trials_active_group_id_provider.h
 @@ -10,6 +10,7 @@
