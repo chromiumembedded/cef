@@ -717,12 +717,26 @@ cef_url = git.get_url(cef_dir)
 cef_rev = git.get_hash(cef_dir)
 cef_commit_number = git.get_commit_number(cef_dir)
 
-if not git.is_checkout(src_dir):
-  raise Exception('Not a valid checkout: %s' % (src_dir))
-
 # retrieve information for Chromium
-chromium_url = git.get_url(src_dir)
-chromium_rev = git.get_hash(src_dir)
+if git.is_checkout(src_dir):
+  chromium_url = git.get_url(src_dir)
+  chromium_rev = git.get_hash(src_dir)
+else:
+  # Using a source tarball. Assume the default URL.
+  chromium_url = 'https://chromium.googlesource.com/chromium/src.git'
+
+  # Extract <hash> from a value like:
+  # LASTCHANGE=<hash>-refs/branch-heads/<branch>@{#<count>}
+  chromium_rev = None
+  lastchange_path = os.path.join(src_dir, 'build', 'util', 'LASTCHANGE')
+  with open(lastchange_path, 'r') as infile:
+    for line in infile:
+      key, val = line.strip().split('=', 2)
+      if key == 'LASTCHANGE':
+        chromium_rev = val.split('-')[0]
+        break
+  if chromium_rev is None:
+    raise Exception('Failed to read Chromium hash from %s' % lastchange_path)
 
 date = get_date()
 
