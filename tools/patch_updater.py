@@ -303,7 +303,7 @@ for patch in patches:
 
       # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
-      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
+      cmd = 'git diff --no-prefix --relative --full-index %s' % patch_paths_str
       result = exec_cmd(cmd, patch_root_abs)
       if result['err'] != '' and result['err'].find('warning:') != 0:
         raise Exception('Failed to create patch file: %s' % result['err'])
