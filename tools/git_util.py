@@ -143,6 +143,7 @@ def _patch_apply_patch_string(patch_dir, patch_string):
     sys.stdout.write('... successfully applied.\n')
     return 'apply'
   sys.stdout.write('... failed to apply:\n')
+  write_indented_output(result['err'])
   return 'fail'
 
 
