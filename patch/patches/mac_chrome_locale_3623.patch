@@ -1,5 +1,5 @@
 diff --git chrome/browser/chrome_resource_bundle_helper.cc chrome/browser/chrome_resource_bundle_helper.cc
-index 2c437e5229..f10ddd1dca 100644
+index 2c437e5229bc11077cd465ecb463aebcfad1d2cb..f10ddd1dca48d00e1b74605e2a1bdc0b5a5816ee 100644
 --- chrome/browser/chrome_resource_bundle_helper.cc
 +++ chrome/browser/chrome_resource_bundle_helper.cc
 @@ -62,8 +62,10 @@ extern void InitializeLocalState(
@@ -59,7 +59,7 @@ index 2c437e5229..f10ddd1dca 100644
 +      is_running_tests);
  }
 diff --git chrome/browser/chrome_resource_bundle_helper.h chrome/browser/chrome_resource_bundle_helper.h
-index 0b22e445bc..1d7c6b319b 100644
+index 0b22e445bc3fffdf4f15123f754b316dcc39edb8..1d7c6b319ba4b6ee8c95a24a90bded6bc63dbb57 100644
 --- chrome/browser/chrome_resource_bundle_helper.h
 +++ chrome/browser/chrome_resource_bundle_helper.h
 @@ -7,12 +7,15 @@
@@ -79,7 +79,7 @@ index 0b22e445bc..1d7c6b319b 100644
  
  #endif  // CHROME_BROWSER_CHROME_RESOURCE_BUNDLE_HELPER_H_
 diff --git components/language/core/browser/locale_util.cc components/language/core/browser/locale_util.cc
-index aa43742055..e84f21ab96 100644
+index aa43742055b04c70bcb60bd21f61897b3c6b79a6..e84f21ab963ccf6e54afcb659f5ceccdecbc9919 100644
 --- components/language/core/browser/locale_util.cc
 +++ components/language/core/browser/locale_util.cc
 @@ -17,11 +17,11 @@ std::string GetApplicationLocale(PrefService* local_state) {
@@ -97,7 +97,7 @@ index aa43742055..e84f21ab96 100644
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index 67c6ca1c23..b11c4ac515 100644
+index 67c6ca1c23ef2eac04524728e7693d3e5318897a..b11c4ac515a1fbbbe30f2bcd46696255d3bf45e4 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
 @@ -506,25 +506,7 @@ bool CheckAndResolveLocale(const std::string& locale,

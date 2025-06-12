@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/print_backend_service_manager.cc chrome/browser/printing/print_backend_service_manager.cc
-index 0895786023..b4b0a7abe4 100644
+index 089578602393b9e8a998cd93413497b64d6af2ec..b4b0a7abe48227e94976ad4d59be9b34002b74f0 100644
 --- chrome/browser/printing/print_backend_service_manager.cc
 +++ chrome/browser/printing/print_backend_service_manager.cc
 @@ -75,7 +75,15 @@ PrintBackendServiceManager* g_print_backend_service_manager_singleton = nullptr;

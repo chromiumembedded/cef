@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 37cb1dac49..6e5989c73b 100644
+index 37cb1dac496107cf09116781af5a3a0451f63400..6e5989c73bf08186e90e88989444921169188da0 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -26,7 +26,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index 37cb1dac49..6e5989c73b 100644
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 0bba5f4b0a..59d04826eb 100644
+index 0bba5f4b0abdaa55b7e406d39ccf3de33bf53194..59d04826eb87d0236f7a7679baa611120712a444 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -226,6 +226,8 @@ void MimeHandlerViewGuest::CreateInnerPage(
@@ -25,7 +25,7 @@ index 0bba5f4b0a..59d04826eb 100644
                              WebContents::CreateWithSessionStorage(
                                  params, owner_web_contents()
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index 2fb8a60c1f..edd275135e 100644
+index 2fb8a60c1f56d01ae5853fd5c92afd3e61106c80..edd275135e60d47ad45d3063508544a0d1003dca 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -7,6 +7,8 @@

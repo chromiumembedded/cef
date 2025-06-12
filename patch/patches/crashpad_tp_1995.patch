@@ -1,5 +1,5 @@
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
-index 927ed6010f..1a36ae5d41 100644
+index 927ed6010f36e61abaaad3c32f37bf3a94b0cb0b..1a36ae5d41d1fc7192168bfcbd9d2c7ee224b2e0 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.cc
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -75,13 +75,19 @@ size_t PruneCrashReportDatabase(CrashReportDatabase* database,
@@ -26,7 +26,7 @@ index 927ed6010f..1a36ae5d41 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
-index b362e0aadb..1588232a6e 100644
+index b362e0aadbadd8d0f812d86cd5024c3ea9cf7dda..1588232a6e4d418d4f338d64a3bdf6da565f4533 100644
 --- third_party/crashpad/crashpad/client/prune_crash_reports.h
 +++ third_party/crashpad/crashpad/client/prune_crash_reports.h
 @@ -58,7 +58,8 @@ class PruneCondition {
@@ -40,7 +40,7 @@ index b362e0aadb..1588232a6e 100644
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 76d77c8607..9cb6be87eb 100644
+index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d9ae6bdf4 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
 @@ -122,7 +122,7 @@ struct Settings::Data {
@@ -130,7 +130,7 @@ index 76d77c8607..9cb6be87eb 100644
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      const internal::MakeScopedLockedFileHandleOptions& options,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index 39b2de869d..5a4e621c65 100644
+index 39b2de869d225877b9582400dfeab64318a3f9b5..5a4e621c650eeb0b89533707ef507a83387ed2e8 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
 @@ -156,6 +156,11 @@ class Settings {
@@ -146,7 +146,7 @@ index 39b2de869d..5a4e621c65 100644
    struct Data;
  
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index 99f4701555..446c777585 100644
+index 99f4701555ae9cbd979b71659c29b669e4badf8f..446c77758540b6a30900d43a160e2427d9b231a5 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -182,7 +182,7 @@ index 99f4701555..446c777585 100644
  
  if (crashpad_is_android) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 8350d0761a..9fc26214c4 100644
+index 8350d0761ac186eb725c153dc9abe903267e1031..9fc26214c4c0a5967eae24a719098029f9a4ab45 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 @@ -296,6 +296,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
@@ -195,7 +195,7 @@ index 8350d0761a..9fc26214c4 100644
  
    if (!reader->SeekSet(start_offset)) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
-index 22bb26e318..87c80604e5 100644
+index 22bb26e31893b167a27edc23c7c6ae5a10164bf8..87c80604e5f7a78b5e134c3073f107fa0d60e887 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -16,6 +16,7 @@
@@ -246,7 +246,7 @@ index 22bb26e318..87c80604e5 100644
    //! \brief Calls ProcessPendingReports() in response to ReportPending() having
    //!     been called on any thread, as well as periodically on a timer.
 diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
-index 6eca8415eb..346836adb4 100644
+index 6eca8415eb10ed7d318eba4b1b7b7ca8c653613c..346836adb4477e1b2e59e992c0b65850496a730c 100644
 --- third_party/crashpad/crashpad/handler/handler_main.cc
 +++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -38,6 +38,7 @@

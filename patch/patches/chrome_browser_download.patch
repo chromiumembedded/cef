@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index 00082efc27..d655775a48 100644
+index 00082efc27bd6c572c1a615a452bf21e326af5a2..d655775a482e224d2fbbd474caa208c96de3a83b 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
 @@ -29,6 +29,7 @@
@@ -72,7 +72,7 @@ index 00082efc27..d655775a48 100644
        net::FilePathToFileURL(download->GetTargetFilePath()),
        content::Referrer(), WindowOpenDisposition::NEW_FOREGROUND_TAB,
 diff --git chrome/browser/download/chrome_download_manager_delegate.h chrome/browser/download/chrome_download_manager_delegate.h
-index c9f4aeab7e..84b975aab4 100644
+index c9f4aeab7ebff2ae12577ddd01d1a829ec0935d3..84b975aab4579ac2f2a85395023c9dc657c46e6c 100644
 --- chrome/browser/download/chrome_download_manager_delegate.h
 +++ chrome/browser/download/chrome_download_manager_delegate.h
 @@ -19,6 +19,7 @@

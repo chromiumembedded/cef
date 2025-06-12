@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index eaaab56c72..6122e12186 100644
+index eaaab56c72145b2a47f2d8e89e45e2d45106670c..6122e12186952c0d34be5da406fc504c01aaf7ed 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -358,6 +358,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -88,7 +88,7 @@ index eaaab56c72..6122e12186 100644
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 912be87540..ea077beb2c 100644
+index 912be87540a05c2a64ec2997ccc6ba77e258a80b..ea077beb2c3599efaaf03784bb09518f9643e37a 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -159,7 +159,21 @@ class RenderViewContextMenu
@@ -124,7 +124,7 @@ index 912be87540..ea077beb2c 100644
    // "Use enhanced spell check" items.
    std::unique_ptr<SpellingMenuObserver> spelling_suggestions_menu_observer_;
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.h chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.h
-index cb51224f98..b5a3946999 100644
+index cb51224f9892c26fba26a059798242e319b57d38..b5a3946999d8f4e06443312441f70f93a488d706 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.h
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.h
 @@ -29,6 +29,7 @@ class RenderViewContextMenuMacCocoa : public RenderViewContextMenuMac {
@@ -136,7 +136,7 @@ index cb51224f98..b5a3946999 100644
   private:
    // RenderViewContextMenuViewsMac:
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
-index 2e34cf104f..850489d12a 100644
+index 2e34cf104fbe68248486c33c99a831ff046d42d2..850489d12a4582923c113f4a4ec6e1fe42d4291c 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_cocoa.mm
 @@ -70,6 +70,10 @@ RenderViewContextMenuMacCocoa::~RenderViewContextMenuMacCocoa() {
@@ -162,7 +162,7 @@ index 2e34cf104f..850489d12a 100644
    [menu_controller_ cancel];
  }
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
-index fb86992cee..fe674fe471 100644
+index fb86992cee93f8c4225db01a40b5ef031052f475..fe674fe471cc46cdff420beaeccfa1694b51afee 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
 @@ -27,6 +27,7 @@ class RenderViewContextMenuMacRemoteCocoa : public RenderViewContextMenuMac {
@@ -174,7 +174,7 @@ index fb86992cee..fe674fe471 100644
   private:
    // RenderViewContextMenuViewsMac:
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.mm chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.mm
-index 9f6c5fd44f..dc50bc9098 100644
+index 9f6c5fd44f206fc73e7013ab329e92cfddd12119..dc50bc909897f9feae4ce37f48d44d31f3da9d74 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.mm
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.mm
 @@ -42,6 +42,10 @@ void RenderViewContextMenuMacRemoteCocoa::Show() {
@@ -189,7 +189,7 @@ index 9f6c5fd44f..dc50bc9098 100644
    runner_->Cancel();
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
-index 995a9c9c8c..b743c01bc6 100644
+index 995a9c9c8ca222481dfad5e7e1007ab609c40338..b743c01bc6ebb61e58ad108904ffb0dc17ef6083 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc
 @@ -150,6 +150,9 @@ void RenderViewContextMenuViews::RunMenuAt(views::Widget* parent,
@@ -226,7 +226,7 @@ index 995a9c9c8c..b743c01bc6 100644
    return views::Widget::GetTopLevelWidgetForNativeView(GetActiveNativeView());
  }
 diff --git chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
-index 8433cdc9c8..aea62cda5c 100644
+index 8433cdc9c88b716170df529d6a88eeaacf786b29..aea62cda5cd22458afed447389305593d7f204bf 100644
 --- chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
 +++ chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.h
 @@ -45,6 +45,7 @@ class RenderViewContextMenuViews : public RenderViewContextMenu {
@@ -238,7 +238,7 @@ index 8433cdc9c8..aea62cda5c 100644
   protected:
    RenderViewContextMenuViews(content::RenderFrameHost& render_frame_host,
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
-index d46f3ec0ee..c1e166725f 100644
+index d46f3ec0eec9cc0e3d4b2ff49142133f69cff9ba..c1e166725f526d1c10b9d0e53ae214a05a04d9fb 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.cc
 @@ -92,6 +92,10 @@ void ChromeWebContentsViewDelegateViews::ShowMenu(
@@ -253,7 +253,7 @@ index d46f3ec0ee..c1e166725f 100644
      content::RenderFrameHost& render_frame_host,
      const content::ContextMenuParams& params) {
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
-index 427c68bd89..1632f7bbfd 100644
+index 427c68bd899104d779a3d32933df5b6b2fae00c9..1632f7bbfd0c2a5804ad3831776822001d395fd9 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views.h
 @@ -55,6 +55,7 @@ class ChromeWebContentsViewDelegateViews
@@ -265,7 +265,7 @@ index 427c68bd89..1632f7bbfd 100644
   private:
    // The context menu is reset every time we show it, but we keep a pointer to
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
-index 07e5b3613a..293282690b 100644
+index 07e5b3613a2df3a7117dcc1c2947dca70fff204f..293282690bd5a29a8c5ebbf8b5fa3db63900ece0 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.h
 @@ -55,6 +55,7 @@ class ChromeWebContentsViewDelegateViewsMac
@@ -277,7 +277,7 @@ index 07e5b3613a..293282690b 100644
   private:
    content::RenderWidgetHostView* GetActiveRenderWidgetHostView() const;
 diff --git chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
-index cd47821f35..9a1924dea9 100644
+index cd47821f3545084ad78141ef891e0ac14a6471b0..9a1924dea979c4cab8b186138f6c996827118181 100644
 --- chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
 +++ chrome/browser/ui/views/tab_contents/chrome_web_contents_view_delegate_views_mac.mm
 @@ -133,6 +133,10 @@ void ChromeWebContentsViewDelegateViewsMac::ShowMenu(
@@ -292,7 +292,7 @@ index cd47821f35..9a1924dea9 100644
  ChromeWebContentsViewDelegateViewsMac::GetActiveRenderWidgetHostView() const {
    return web_contents_->GetTopLevelRenderWidgetHostView();
 diff --git components/renderer_context_menu/context_menu_delegate.h components/renderer_context_menu/context_menu_delegate.h
-index 042428f77f..e4efd98ca4 100644
+index 042428f77f4ad021d82db228772d82dc9cd9216c..e4efd98ca45d5be49b17d75533719b3ac157767d 100644
 --- components/renderer_context_menu/context_menu_delegate.h
 +++ components/renderer_context_menu/context_menu_delegate.h
 @@ -45,6 +45,8 @@ class ContextMenuDelegate {
@@ -305,7 +305,7 @@ index 042428f77f..e4efd98ca4 100644
    raw_ptr<content::WebContents> web_contents_ = nullptr;
  };
 diff --git components/renderer_context_menu/render_view_context_menu_base.cc components/renderer_context_menu/render_view_context_menu_base.cc
-index 10f9eecb49..64d6cc54f0 100644
+index 10f9eecb49c3115facce53136be5766d71d9f986..64d6cc54f0940923c86f5184e946fd0d5ab32569 100644
 --- components/renderer_context_menu/render_view_context_menu_base.cc
 +++ components/renderer_context_menu/render_view_context_menu_base.cc
 @@ -395,6 +395,17 @@ bool RenderViewContextMenuBase::IsCommandIdChecked(int id) const {
@@ -327,7 +327,7 @@ index 10f9eecb49..64d6cc54f0 100644
    command_executed_ = true;
    RecordUsedItem(id);
 diff --git components/renderer_context_menu/render_view_context_menu_base.h components/renderer_context_menu/render_view_context_menu_base.h
-index cd028ee83b..c5d382eb8a 100644
+index cd028ee83b6e85e64fa991868aba87f8bc22341a..c5d382eb8a2cecc13e70c932adf898909088b4cc 100644
 --- components/renderer_context_menu/render_view_context_menu_base.h
 +++ components/renderer_context_menu/render_view_context_menu_base.h
 @@ -85,8 +85,13 @@ class RenderViewContextMenuBase : public ui::SimpleMenuModel::Delegate,
@@ -355,7 +355,7 @@ index cd028ee83b..c5d382eb8a 100644
    void OnMenuWillShow(ui::SimpleMenuModel* source) override;
    void MenuClosed(ui::SimpleMenuModel* source) override;
 diff --git components/renderer_context_menu/render_view_context_menu_observer.cc components/renderer_context_menu/render_view_context_menu_observer.cc
-index 9fdda16360..538bd05a41 100644
+index 9fdda1636003df5f0981f6073bc459fa5b5056ae..538bd05a412961e54214833fad915de7104b5154 100644
 --- components/renderer_context_menu/render_view_context_menu_observer.cc
 +++ components/renderer_context_menu/render_view_context_menu_observer.cc
 @@ -15,3 +15,8 @@ bool RenderViewContextMenuObserver::IsCommandIdChecked(int command_id) {
@@ -368,7 +368,7 @@ index 9fdda16360..538bd05a41 100644
 +  return false;
 +}
 diff --git components/renderer_context_menu/render_view_context_menu_observer.h components/renderer_context_menu/render_view_context_menu_observer.h
-index b2aa338c76..233c34003b 100644
+index b2aa338c76cd36031abe49190c1f43db4e2b6f03..233c34003bbc5a3e3588bdd60b3ba6ea4c426ea9 100644
 --- components/renderer_context_menu/render_view_context_menu_observer.h
 +++ components/renderer_context_menu/render_view_context_menu_observer.h
 @@ -11,6 +11,10 @@ namespace content {
@@ -392,7 +392,7 @@ index b2aa338c76..233c34003b 100644
    // only called when the observer returns true for IsCommandIdSupported()
    // for that |command_id|.
 diff --git components/renderer_context_menu/views/toolkit_delegate_views.cc components/renderer_context_menu/views/toolkit_delegate_views.cc
-index 0be2640c81..8bfdc61856 100644
+index 0be2640c8173c86720b44a8ad4ab10fdf9e6686e..8bfdc6185690fbe01ba0aaab8c7bc6973a78a37c 100644
 --- components/renderer_context_menu/views/toolkit_delegate_views.cc
 +++ components/renderer_context_menu/views/toolkit_delegate_views.cc
 @@ -31,6 +31,10 @@ void ToolkitDelegateViews::RunMenuAt(views::Widget* parent,
@@ -407,7 +407,7 @@ index 0be2640c81..8bfdc61856 100644
    menu_adapter_ = std::make_unique<views::MenuModelAdapter>(menu_model);
    std::unique_ptr<views::MenuItemView> menu_view = menu_adapter_->CreateMenu();
 diff --git components/renderer_context_menu/views/toolkit_delegate_views.h components/renderer_context_menu/views/toolkit_delegate_views.h
-index 7762b3e667..5bd1544aaa 100644
+index 7762b3e6673d91edd01858bfd325ee57e3d9f766..5bd1544aaaa6229bd20955e0e0ded1360d1395b2 100644
 --- components/renderer_context_menu/views/toolkit_delegate_views.h
 +++ components/renderer_context_menu/views/toolkit_delegate_views.h
 @@ -39,6 +39,7 @@ class ToolkitDelegateViews : public RenderViewContextMenuBase::ToolkitDelegate {

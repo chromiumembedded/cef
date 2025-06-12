@@ -1,5 +1,5 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index c821349f35..7ab80c7464 100644
+index c821349f35116f07988b2b58a6521e73a514548c..7ab80c7464b49bfedb135f0986de99206e179115 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 @@ -178,7 +178,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateGpuMemoryBuffer(
@@ -24,7 +24,7 @@ index c821349f35..7ab80c7464 100644
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 7c90eca71d..9c40397be5 100644
+index 7c90eca71d39521ec1968a946b6c68c9a564d225..9c40397be51f1ce30cbe73d8c6fc0bb279c95d7a 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 @@ -196,7 +196,7 @@ gfx::Size GetBufferSizeInPixelsForVideoPixelFormat(

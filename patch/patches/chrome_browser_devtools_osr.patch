@@ -1,5 +1,5 @@
 diff --git chrome/browser/devtools/chrome_devtools_manager_delegate.cc chrome/browser/devtools/chrome_devtools_manager_delegate.cc
-index 15a0b7ed9a..f5d9805ef1 100644
+index 15a0b7ed9aa0210c80dcc06350fcb8eecf15a549..f5d9805ef14891040ea7a3791adc3654eceac020 100644
 --- chrome/browser/devtools/chrome_devtools_manager_delegate.cc
 +++ chrome/browser/devtools/chrome_devtools_manager_delegate.cc
 @@ -13,6 +13,7 @@

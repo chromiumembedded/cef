@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_launcher_helper_linux.cc content/browser/child_process_launcher_helper_linux.cc
-index 75cafbe0db..337a10d6a9 100644
+index 75cafbe0dbd7d4b3dca4c8fe56e17cd836123588..337a10d6a90c38540d4bc02d8f53a31e54c85199 100644
 --- content/browser/child_process_launcher_helper_linux.cc
 +++ content/browser/child_process_launcher_helper_linux.cc
 @@ -190,7 +190,7 @@ ZygoteCommunication* ChildProcessLauncherHelper::GetZygoteForLaunch() {
@@ -12,7 +12,7 @@ index 75cafbe0db..337a10d6a9 100644
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index f3a6d25be4..c826aa9e9a 100644
+index f3a6d25be41ed911d5bb64d4cd62df1aa174e11e..c826aa9e9ab6c0efeacc92054094f5db6bd70935 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
 @@ -131,7 +131,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
@@ -25,7 +25,7 @@ index f3a6d25be4..c826aa9e9a 100644
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index 92b2a6da78..bf318d1925 100644
+index 92b2a6da7828fb8865deacbc7f9441d5385f835b..bf318d19255e04ca74ad5ab65c5b7c7c00db06ee 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
 @@ -149,7 +149,7 @@ bool LoadDefaultEGLGLES2Bindings(

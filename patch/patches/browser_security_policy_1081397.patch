@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 4316d8b8bc..d6927a4e71 100644
+index 4316d8b8bc09d00f9568b8bb6af09fe0aa5f5f4e..d6927a4e7146063e8080d841d46f615b81843fc4 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -2145,6 +2145,16 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
@@ -20,7 +20,7 @@ index 4316d8b8bc..d6927a4e71 100644
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index 17bf91944a..8180e467f6 100644
+index 17bf91944a4b3c09a17bf91153e360bb5e151f87..8180e467f6b0d16512c5b9af9d34143b74d26d86 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -8610,7 +8610,8 @@ std::optional<url::Origin> NavigationRequest::GetOriginToCommit() {
@@ -83,7 +83,7 @@ index 17bf91944a..8180e467f6 100644
    // If the target of this navigation will be rendered in a RenderFrameHost,
    // then verify that the chosen origin is allowed to be accessed from that
 diff --git content/browser/renderer_host/navigation_request.h content/browser/renderer_host/navigation_request.h
-index 70321378be..b60791ca6b 100644
+index 70321378be68d8c1b8e182028c7938224c6aa3c9..b60791ca6bb881d6e93e9291aaeba3c88f7c9f63 100644
 --- content/browser/renderer_host/navigation_request.h
 +++ content/browser/renderer_host/navigation_request.h
 @@ -2311,7 +2311,8 @@ class CONTENT_EXPORT NavigationRequest

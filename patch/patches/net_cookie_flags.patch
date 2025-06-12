@@ -1,5 +1,5 @@
 diff --git net/base/load_flags_list.h net/base/load_flags_list.h
-index aeb79b46f5..bd57e874c1 100644
+index aeb79b46f5d219b55669ce71850d04478dcedcdd..bd57e874c1240e7eceb2eed75d8d40423f000583 100644
 --- net/base/load_flags_list.h
 +++ net/base/load_flags_list.h
 @@ -115,3 +115,6 @@ LOAD_FLAG(DISABLE_SHARED_DICTIONARY_AFTER_CROSS_ORIGIN_REDIRECT, 1 << 18)
@@ -10,7 +10,7 @@ index aeb79b46f5..bd57e874c1 100644
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 20)
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index 55efc2c177..1f3ec2e004 100644
+index 55efc2c177d94d6d1f7649c3dd300980f3c8b49e..1f3ec2e004e9cbd2ae6dd3dad86d4661ff16ed82 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
 @@ -2141,7 +2141,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
@@ -24,7 +24,7 @@ index 55efc2c177..1f3ec2e004 100644
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
-index 0becf4f375..b0c0167849 100644
+index 0becf4f37532fb7acfdf4d516a72f7048e98c550..b0c016784992aeb13308f0d21f023f64e04f5b20 100644
 --- services/network/public/cpp/resource_request.cc
 +++ services/network/public/cpp/resource_request.cc
 @@ -354,7 +354,8 @@ bool ResourceRequest::EqualsForTesting(const ResourceRequest& request) const {

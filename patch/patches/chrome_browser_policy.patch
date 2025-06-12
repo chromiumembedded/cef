@@ -1,5 +1,5 @@
 diff --git chrome/browser/policy/browser_dm_token_storage_linux.cc chrome/browser/policy/browser_dm_token_storage_linux.cc
-index c609f9477c..19abd149b6 100644
+index c609f9477c66c4311b25818f79d46b2992f34705..19abd149b66dd4cfe8531e0351055faaed3f2a98 100644
 --- chrome/browser/policy/browser_dm_token_storage_linux.cc
 +++ chrome/browser/policy/browser_dm_token_storage_linux.cc
 @@ -22,6 +22,7 @@
@@ -33,7 +33,7 @@ index c609f9477c..19abd149b6 100644
    }
  
 diff --git chrome/browser/policy/browser_dm_token_storage_mac.mm chrome/browser/policy/browser_dm_token_storage_mac.mm
-index d8fda08453..466718e824 100644
+index d8fda08453256d5bd30210ffa6b71c7a0c8dc280..466718e824503f3d6979cfd6afcac869bbced8f5 100644
 --- chrome/browser/policy/browser_dm_token_storage_mac.mm
 +++ chrome/browser/policy/browser_dm_token_storage_mac.mm
 @@ -27,6 +27,7 @@
@@ -105,7 +105,7 @@ index d8fda08453..466718e824 100644
    }
  
 diff --git chrome/browser/policy/chrome_browser_policy_connector.cc chrome/browser/policy/chrome_browser_policy_connector.cc
-index 910f29ac13..6805073796 100644
+index 910f29ac13deb68660c5d5076745c36d3a0de500..680507379632e990c5d7d96222bb3b17151197b8 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ chrome/browser/policy/chrome_browser_policy_connector.cc
 @@ -13,10 +13,13 @@
@@ -253,7 +253,7 @@ index 910f29ac13..6805073796 100644
          base::ThreadPool::CreateSequencedTaskRunner(
              {base::MayBlock(), base::TaskPriority::BEST_EFFORT}),
 diff --git chrome/browser/policy/chrome_browser_policy_connector.h chrome/browser/policy/chrome_browser_policy_connector.h
-index fbc5a3f9fa..747c44589e 100644
+index fbc5a3f9fab7bb4c99d8eeda95c0e00e8ad53da0..747c44589eaf79b0ff7ef3c70cbcb09d7d432f47 100644
 --- chrome/browser/policy/chrome_browser_policy_connector.h
 +++ chrome/browser/policy/chrome_browser_policy_connector.h
 @@ -22,6 +22,10 @@
@@ -294,7 +294,7 @@ index fbc5a3f9fa..747c44589e 100644
    void SetDeviceAffiliatedIdsForTesting(
        const base::flat_set<std::string>& device_affiliation_ids);
 diff --git chrome/browser/policy/policy_path_parser_mac.mm chrome/browser/policy/policy_path_parser_mac.mm
-index 1a2e78c347..5d1bd95a15 100644
+index 1a2e78c3472ec065410699503d9695fdb21dd716..5d1bd95a15113471c01854b478570fbdd688b6b6 100644
 --- chrome/browser/policy/policy_path_parser_mac.mm
 +++ chrome/browser/policy/policy_path_parser_mac.mm
 @@ -16,6 +16,7 @@
@@ -327,7 +327,7 @@ index 1a2e78c347..5d1bd95a15 100644
    base::apple::ScopedCFTypeRef<CFStringRef> key =
        base::SysUTF8ToCFStringRef(policy::key::kUserDataDir);
 diff --git chrome/browser/policy/policy_path_parser_win.cc chrome/browser/policy/policy_path_parser_win.cc
-index 8dbf958c18..6eaccc6688 100644
+index 8dbf958c189ddbbf1b6271b0215c796a992d694c..6eaccc6688eca9d6c00d4f746df7e42998b18f74 100644
 --- chrome/browser/policy/policy_path_parser_win.cc
 +++ chrome/browser/policy/policy_path_parser_win.cc
 @@ -12,6 +12,7 @@
@@ -356,7 +356,7 @@ index 8dbf958c18..6eaccc6688 100644
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index 05825d3664..ab007a1f05 100644
+index 05825d36640d06414a802066c283b20b307c9acd..ab007a1f05fde422a1c3895a53178a015cf17367 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
 @@ -504,7 +504,8 @@ bool PathProvider(int key, base::FilePath* result) {
@@ -370,7 +370,7 @@ index 05825d3664..ab007a1f05 100644
        cur = base::FilePath(policy::kPolicyPath);
        break;
 diff --git chrome/common/chrome_paths.h chrome/common/chrome_paths.h
-index e9c18e829e..9ed452be61 100644
+index e9c18e829eff932b4a230edfb55d3544497aa221..9ed452be61adf2cbefd64fa1dd2be78e091cc89e 100644
 --- chrome/common/chrome_paths.h
 +++ chrome/common/chrome_paths.h
 @@ -7,6 +7,7 @@
@@ -391,7 +391,7 @@ index e9c18e829e..9ed452be61 100644
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/BUILD.gn components/policy/BUILD.gn
-index b9d5654a20..5b91b567e4 100644
+index b9d5654a206d2bae12b6e7b9e6e3635e99568b3c..5b91b567e45ff40197caf150445518a52e19b333 100644
 --- components/policy/BUILD.gn
 +++ components/policy/BUILD.gn
 @@ -263,6 +263,7 @@ static_library("generated") {
@@ -403,7 +403,7 @@ index b9d5654a20..5b91b567e4 100644
      "//components/policy/proto:policy_common_definitions_compile_proto",
      "//third_party/protobuf:protobuf_lite",
 diff --git components/policy/tools/generate_policy_source.py components/policy/tools/generate_policy_source.py
-index 41f2f032ee..cd191b61b9 100755
+index 41f2f032eeaa6d30893fc5f55c0466151c36653f..cd191b61b9c1eda702de9e5779ad257ce24b0a37 100755
 --- components/policy/tools/generate_policy_source.py
 +++ components/policy/tools/generate_policy_source.py
 @@ -465,6 +465,7 @@ def _WritePolicyConstantHeader(all_policies, policy_atomic_groups,

@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/navigation_throttle_runner.cc content/browser/renderer_host/navigation_throttle_runner.cc
-index 419ed61a65..74e5cb3619 100644
+index 419ed61a65b56964b4453c7d27c355043c5a51d1..74e5cb3619aeb405687c5047b891eb6b3a501dad 100644
 --- content/browser/renderer_host/navigation_throttle_runner.cc
 +++ content/browser/renderer_host/navigation_throttle_runner.cc
 @@ -150,17 +150,23 @@ NavigationHandle& NavigationThrottleRunner::GetNavigationHandle() {
@@ -31,7 +31,7 @@ index 419ed61a65..74e5cb3619 100644
  }
  
 diff --git content/browser/renderer_host/navigation_throttle_runner.h content/browser/renderer_host/navigation_throttle_runner.h
-index 21f7fb2b6c..6f369d7e32 100644
+index 21f7fb2b6c46b438c68932819ccc23b5747b8c91..6f369d7e3222a97dad50cb80f8f41f48729ba8d9 100644
 --- content/browser/renderer_host/navigation_throttle_runner.h
 +++ content/browser/renderer_host/navigation_throttle_runner.h
 @@ -75,9 +75,11 @@ class CONTENT_EXPORT NavigationThrottleRunner
@@ -49,7 +49,7 @@ index 21f7fb2b6c..6f369d7e32 100644
    // Will call the appropriate NavigationThrottle function based on |event| on
    // all NavigationThrottles owned by this NavigationThrottleRunner.
 diff --git content/public/browser/navigation_throttle_registry.h content/public/browser/navigation_throttle_registry.h
-index 4a212401c6..b77c15736b 100644
+index 4a212401c67a896cf054b8f4fdce21d4c3deed4a..b77c15736b1776dbff01a4b6ca3b6f4d27fab61d 100644
 --- content/public/browser/navigation_throttle_registry.h
 +++ content/public/browser/navigation_throttle_registry.h
 @@ -29,9 +29,11 @@ class CONTENT_EXPORT NavigationThrottleRegistry {

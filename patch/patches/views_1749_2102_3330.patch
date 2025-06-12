@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index bc911ad76c..7a927bfedd 100644
+index bc911ad76cd93a79eb13e9f3d2e4378c1659220b..7a927bfedde631af3f9132bf2c647a17435efcbf 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1042,7 +1042,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -14,7 +14,7 @@ index bc911ad76c..7a927bfedd 100644
  }
  
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index ecd8177fd4..63d94b6f39 100644
+index ecd8177fd48cb8db4447184466d06ad5fceb5a71..63d94b6f39a7bd2830deda7c5e6b20deda37bbf9 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -17,8 +17,11 @@
@@ -58,7 +58,7 @@ index ecd8177fd4..63d94b6f39 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 8221222fba..bf4ebd91d1 100644
+index 8221222fba3d71dda9848f3c64023e9373c396a1..bf4ebd91d14b670cda85d3c4f8a8e13cf1b18d0d 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
 @@ -682,6 +682,14 @@ void RenderText::SetWhitespaceElision(std::optional<bool> whitespace_elision) {
@@ -96,7 +96,7 @@ index 8221222fba..bf4ebd91d1 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 55d05c746e..7883a183f2 100644
+index 55d05c746eb00bf81df7665f466f5ce9ad3079e8..7883a183f274df9c27afd8b3ada4a2b1648edecf 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -378,6 +378,10 @@ class COMPONENT_EXPORT(GFX) RenderText {
@@ -120,7 +120,7 @@ index 55d05c746e..7883a183f2 100644
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index 26734958c1..10a5d50190 100644
+index 26734958c1faa868010eddfab6b59f262dbbfca8..10a5d5019083455cefa51bc4bab3cf3bfca717cc 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
 @@ -194,6 +194,8 @@ class VIEWS_EXPORT InkDropHost {
@@ -133,7 +133,7 @@ index 26734958c1..10a5d50190 100644
    friend class test::InkDropHostTestApi;
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 440cb4b8a3..f5b58c9680 100644
+index 440cb4b8a356a479586c80df63f80ea295cd5ce1..f5b58c96804af00678b6ce6314036a591264a08a 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -616,6 +616,12 @@ void LabelButton::OnThemeChanged() {
@@ -150,7 +150,7 @@ index 440cb4b8a3..f5b58c9680 100644
    Button::StateChanged(old_state);
    ResetLabelEnabledColor();
 diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
-index 8efaccff40..e420e2f4e8 100644
+index 8efaccff40e09e2f9fab9fec3066e16697d7aff9..e420e2f4e80ec0365b1631fcce33399aa6ba7736 100644
 --- ui/views/controls/button/label_button.h
 +++ ui/views/controls/button/label_button.h
 @@ -184,6 +184,9 @@ class VIEWS_EXPORT LabelButton : public Button,
@@ -164,7 +164,7 @@ index 8efaccff40..e420e2f4e8 100644
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index a4982c41f9..2301912c69 100644
+index a4982c41f94e574e58ae4139d3af5cb737923250..2301912c6991f38db570076c6df8d268500fe52f 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -56,12 +56,29 @@ enum LabelPropertyKey {
@@ -231,7 +231,7 @@ index a4982c41f9..2301912c69 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index b4cb7c83a3..562e096930 100644
+index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e7439a0b5c25 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -241,6 +241,10 @@ class VIEWS_EXPORT Label : public View,
@@ -254,7 +254,7 @@ index b4cb7c83a3..562e096930 100644
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 05dfc40b27..f6f7c57733 100644
+index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d71bea0771 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -599,7 +599,8 @@ void MenuController::Run(Widget* parent,
@@ -305,7 +305,7 @@ index 05dfc40b27..f6f7c57733 100644
    }
    if (item->SubmenuIsShowing()) {
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 1fab281427..1ae277c2b6 100644
+index 1fab28142791bf52124b1032786678264c61b628..1ae277c2b6d66ae8eaf18326438d76bdf56762f3 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -146,7 +146,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -328,7 +328,7 @@ index 1fab281427..1ae277c2b6 100644
    bool possible_drag_ = false;
  
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index ea82da6dc2..575bd9484c 100644
+index ea82da6dc2f45625c9e8fe958715399e127699d8..575bd9484c2bf3bb72577136e2afae0ea4f84f66 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
 @@ -73,6 +73,22 @@ class VIEWS_EXPORT MenuDelegate {
@@ -367,7 +367,7 @@ index ea82da6dc2..575bd9484c 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 84c5e0c9e5..4d4cc96667 100644
+index 84c5e0c9e509137ffec9e8534659b072c668c6c9..4d4cc966670e521585dd6c2aa53ff04a63690966 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
 @@ -153,6 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
@@ -390,7 +390,7 @@ index 84c5e0c9e5..4d4cc96667 100644
    }
  
 diff --git ui/views/controls/menu/menu_host.h ui/views/controls/menu/menu_host.h
-index fc1d5fccc3..c065cafcd5 100644
+index fc1d5fccc3845b204d2a85bc5e00c0ffb4aee0d7..c065cafcd537c4e28a633569e170d65cde97b0b8 100644
 --- ui/views/controls/menu/menu_host.h
 +++ ui/views/controls/menu/menu_host.h
 @@ -57,6 +57,8 @@ class MenuHost : public Widget, public WidgetObserver {
@@ -403,7 +403,7 @@ index fc1d5fccc3..c065cafcd5 100644
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index a2fe435a88..f1108ff49d 100644
+index a2fe435a88ac0a1d065c4fba5cf7eeb89327085f..f1108ff49dfe67656f634e605ba077370be7f7f7 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
 @@ -1169,6 +1169,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
@@ -437,7 +437,7 @@ index a2fe435a88..f1108ff49d 100644
    // use the default color.
    if (!paint_as_selected && foreground_color_id_.has_value()) {
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index eb1e758622..1522287097 100644
+index eb1e758622f07c83332e77563ae10d232766c673..1522287097515e764b1c4b27e4dde6f9deac26fd 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
 @@ -4,6 +4,7 @@
@@ -521,7 +521,7 @@ index eb1e758622..1522287097 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*,
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index 7f561eab31..96b0a16b87 100644
+index 7f561eab31316bd36d626ab19c7b0f3a7822ffbf..96b0a16b877a2acc22ab521556c447f830faea68 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
 @@ -93,6 +93,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate,
@@ -546,7 +546,7 @@ index 7f561eab31..96b0a16b87 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu) override;
 diff --git ui/views/controls/menu/menu_runner.cc ui/views/controls/menu/menu_runner.cc
-index 87739aa152..e785faf160 100644
+index 87739aa15210faf8666d28199f393532ec580a57..e785faf160c2ef01bd0b1bcf3d734e8f1e72e270 100644
 --- ui/views/controls/menu/menu_runner.cc
 +++ ui/views/controls/menu/menu_runner.cc
 @@ -43,6 +43,7 @@ void MenuRunner::RunMenuAt(
@@ -567,7 +567,7 @@ index 87739aa152..e785faf160 100644
  }
  
 diff --git ui/views/controls/menu/menu_runner.h ui/views/controls/menu/menu_runner.h
-index cb9d9d46ee..a9ffb74761 100644
+index cb9d9d46eea37694b93514ad08c39fa7542953cf..a9ffb74761fce1069142464be76e63922a9d43ba 100644
 --- ui/views/controls/menu/menu_runner.h
 +++ ui/views/controls/menu/menu_runner.h
 @@ -164,6 +164,8 @@ class VIEWS_EXPORT MenuRunner {
@@ -580,7 +580,7 @@ index cb9d9d46ee..a9ffb74761 100644
                   std::optional<std::string> show_menu_host_duration_histogram =
                       std::nullopt);
 diff --git ui/views/controls/menu/menu_runner_impl.cc ui/views/controls/menu/menu_runner_impl.cc
-index 3793390d20..d56aa41147 100644
+index 3793390d203dbde3aa5928d99cf36fac804d5af2..d56aa411470ab046b6c603279295d488c6163f23 100644
 --- ui/views/controls/menu/menu_runner_impl.cc
 +++ ui/views/controls/menu/menu_runner_impl.cc
 @@ -119,6 +119,7 @@ void MenuRunnerImpl::RunMenuAt(
@@ -601,7 +601,7 @@ index 3793390d20..d56aa41147 100644
  
  void MenuRunnerImpl::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl.h ui/views/controls/menu/menu_runner_impl.h
-index 539eb9e729..9435bf2b08 100644
+index 539eb9e7294f933b4de4415609a758e6bd9fdfe0..9435bf2b08eb376b2f4ebbac45cdd8ff2f64503b 100644
 --- ui/views/controls/menu/menu_runner_impl.h
 +++ ui/views/controls/menu/menu_runner_impl.h
 @@ -57,6 +57,7 @@ class VIEWS_EXPORT MenuRunnerImpl : public MenuRunnerImplInterface,
@@ -613,7 +613,7 @@ index 539eb9e729..9435bf2b08 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.cc ui/views/controls/menu/menu_runner_impl_adapter.cc
-index d23190775a..8a1467a1f8 100644
+index d23190775a306c3db4bed95398bc8c525e4b20e5..8a1467a1f828f5b3b27533bebed28ba96a42768d 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.cc
 +++ ui/views/controls/menu/menu_runner_impl_adapter.cc
 @@ -37,10 +37,11 @@ void MenuRunnerImplAdapter::RunMenuAt(
@@ -630,7 +630,7 @@ index d23190775a..8a1467a1f8 100644
  
  void MenuRunnerImplAdapter::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl_adapter.h ui/views/controls/menu/menu_runner_impl_adapter.h
-index 2390a23fb3..1dea074a16 100644
+index 2390a23fb35fa16fadd48c691856bc04a44c1835..1dea074a16a580b7b14f14d4f2122efa8c684665 100644
 --- ui/views/controls/menu/menu_runner_impl_adapter.h
 +++ ui/views/controls/menu/menu_runner_impl_adapter.h
 @@ -47,6 +47,7 @@ class VIEWS_EXPORT MenuRunnerImplAdapter : public MenuRunnerImplInterface {
@@ -642,7 +642,7 @@ index 2390a23fb3..1dea074a16 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.h ui/views/controls/menu/menu_runner_impl_cocoa.h
-index f5b0936aac..20f476c9ab 100644
+index f5b0936aac647f931aad9a83fcc80812d84e98c5..20f476c9abd93e89ad1e79729371660fdad3a193 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.h
 @@ -45,6 +45,7 @@ class VIEWS_EXPORT MenuRunnerImplCocoa : public MenuRunnerImplInterface {
@@ -654,7 +654,7 @@ index f5b0936aac..20f476c9ab 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_cocoa.mm ui/views/controls/menu/menu_runner_impl_cocoa.mm
-index 05322e627a..a866a76c50 100644
+index 05322e627acabef3dd9c498b9fea4ee07cd1799a..a866a76c5037276de78ce1f1efdf9ce7d5a20553 100644
 --- ui/views/controls/menu/menu_runner_impl_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_cocoa.mm
 @@ -72,6 +72,7 @@ void MenuRunnerImplCocoa::RunMenuAt(
@@ -666,7 +666,7 @@ index 05322e627a..a866a76c50 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    DCHECK(!IsRunning());
 diff --git ui/views/controls/menu/menu_runner_impl_interface.h ui/views/controls/menu/menu_runner_impl_interface.h
-index e217fa433b..45c46ad8de 100644
+index e217fa433b71e62a16e8adb5072dab853f8ee3b6..45c46ad8de76a06da40c7d825f4f59fb9463e0df 100644
 --- ui/views/controls/menu/menu_runner_impl_interface.h
 +++ ui/views/controls/menu/menu_runner_impl_interface.h
 @@ -50,6 +50,7 @@ class MenuRunnerImplInterface {
@@ -691,7 +691,7 @@ index e217fa433b..45c46ad8de 100644
  
    // Hides and cancels the menu.
 diff --git ui/views/controls/menu/menu_runner_impl_mac.h ui/views/controls/menu/menu_runner_impl_mac.h
-index 6b71a13002..da0d2bf4dc 100644
+index 6b71a13002d27a8523bdef9dd1224b29d04f1f47..da0d2bf4dc774f7ed11c38923de3b3bfcff32e0f 100644
 --- ui/views/controls/menu/menu_runner_impl_mac.h
 +++ ui/views/controls/menu/menu_runner_impl_mac.h
 @@ -41,6 +41,7 @@ class VIEWS_EXPORT MenuRunnerImplMac : public MenuRunnerImplInterface {
@@ -703,7 +703,7 @@ index 6b71a13002..da0d2bf4dc 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_mac.mm ui/views/controls/menu/menu_runner_impl_mac.mm
-index 1b5d97c3f6..3da7b69d6f 100644
+index 1b5d97c3f6b49dbd4daa6dff81e44b1e3d56e283..3da7b69d6f7d073d6a9a3812f829ee661762c7d7 100644
 --- ui/views/controls/menu/menu_runner_impl_mac.mm
 +++ ui/views/controls/menu/menu_runner_impl_mac.mm
 @@ -48,6 +48,7 @@ void MenuRunnerImplMac::RunMenuAt(
@@ -725,7 +725,7 @@ index 1b5d97c3f6..3da7b69d6f 100644
  
  void MenuRunnerImplMac::Cancel() {
 diff --git ui/views/controls/menu/menu_runner_impl_remote_cocoa.h ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
-index 9c4a933af7..cacf9aa1ae 100644
+index 9c4a933af7836b944d6313bdf54f12ddc0ba0122..cacf9aa1ae144ba4f94bf5ccea0262fc9e9a038e 100644
 --- ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
 +++ ui/views/controls/menu/menu_runner_impl_remote_cocoa.h
 @@ -59,6 +59,7 @@ class VIEWS_EXPORT MenuRunnerImplRemoteCocoa
@@ -737,7 +737,7 @@ index 9c4a933af7..cacf9aa1ae 100644
        std::optional<std::string> show_menu_host_duration_histogram) override;
    void Cancel() override;
 diff --git ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
-index da772edd48..43c930e932 100644
+index da772edd48c0029b2672e3af0a07e1e695d383e6..43c930e932287a4ee597c5c8b6a35a3e5bd30a22 100644
 --- ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
 +++ ui/views/controls/menu/menu_runner_impl_remote_cocoa.mm
 @@ -71,6 +71,7 @@ void MenuRunnerImplRemoteCocoa::RunMenuAt(
@@ -749,7 +749,7 @@ index da772edd48..43c930e932 100644
      std::optional<std::string> show_menu_host_duration_histogram) {
    RunMenu(parent, bounds.CenterPoint());
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 63f5dad7e4..a1e03a81d7 100644
+index 63f5dad7e49661ca9b31c092b72daf0b3411b6cf..a1e03a81d7d78b1519eeafc7850de090bcaf6eec 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -275,6 +275,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
@@ -765,7 +765,7 @@ index 63f5dad7e4..a1e03a81d7 100644
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 548bd04490..9772363322 100644
+index 548bd044909645407e7b6d5175ffbd7164828e6c..977236332264975cf9408ca1c77dc4e60e4c6c51 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -789,7 +789,7 @@ index 548bd04490..9772363322 100644
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index 0dbbd7979a..c33fb43ea5 100644
+index 0dbbd7979ad79a7a74681222fcf36a315f0634ce..c33fb43ea52cbe139e558af90d1f9df22a332ea2 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@

@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index e4537f6dcd..70d48bd860 100644
+index e4537f6dcdfe70125649c1a83a9f7eef5dcb4d90..70d48bd8603895e5d4a9932a44ac105da99336bc 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -4,6 +4,7 @@

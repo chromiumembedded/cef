@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index dc7205b101..f3106cdd12 100644
+index dc7205b1011d6bc3b195a3315c7cd7396f994948..f3106cdd120a272ef58732e4f92e4c5f4093931f 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -6,6 +6,7 @@
@@ -57,7 +57,7 @@ index dc7205b101..f3106cdd12 100644
  }
  
 diff --git chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
-index e0c7c6df6f..106cf8d8b9 100644
+index e0c7c6df6f4159e600d470a13b592c473808d26b..106cf8d8b998a9310179dd51c409f45c28d5edd9 100644
 --- chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
 +++ chrome/browser/ui/views/javascript_tab_modal_dialog_view_views.cc
 @@ -49,9 +49,13 @@ views::View* JavaScriptTabModalDialogViewViews::GetInitiallyFocusedView() {
