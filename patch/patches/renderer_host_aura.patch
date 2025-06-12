@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index e6235611a2ae6..61cc0e5f23c85 100644
+index e6235611a2ae643f4c968fcc0dcd5b47baa0a081..61cc0e5f23c85d96fcb97089ab9dc77fbd3c9996 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -59,7 +59,7 @@ index e6235611a2ae6..61cc0e5f23c85 100644
  
  void RenderWidgetHostViewAura::UpdateFrameSinkIdRegistration() {
 diff --git content/browser/renderer_host/render_widget_host_view_aura.h content/browser/renderer_host/render_widget_host_view_aura.h
-index 33d9c06d52f0e..85a37269f20b7 100644
+index 33d9c06d52f0ec72caad1866ef97c5fdced1b55b..85a37269f20b7a7c0bfc085b58d7e421bebc3037 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.h
 +++ content/browser/renderer_host/render_widget_host_view_aura.h
 @@ -451,6 +451,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura

@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index d4f8a4fc16463..ae8beed827a9e 100644
+index d4f8a4fc1646350891cf16355eccc40fc287219e..ae8beed827a9e8de144d446d809eeeb2eb988469 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")

@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index e65fddc7cc743..6febaf75842fa 100644
+index e65fddc7cc743cf71bcc1351f1a17bfc2deb4c63..6febaf75842fab00d84c38aa17ea67365c4c6dc1 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -43,6 +43,7 @@
@@ -158,7 +158,7 @@ index e65fddc7cc743..6febaf75842fa 100644
 +      .Initialize(*memory_system_);
  }
 diff --git chrome/app/chrome_main_delegate.h chrome/app/chrome_main_delegate.h
-index fa692d8fbfa5a..d7745793dcf96 100644
+index fa692d8fbfa5a64868fb6338c98df3765f64983a..d7745793dcf96038f55bdf12ad47850b28a28ab4 100644
 --- chrome/app/chrome_main_delegate.h
 +++ chrome/app/chrome_main_delegate.h
 @@ -17,6 +17,7 @@
@@ -198,7 +198,7 @@ index fa692d8fbfa5a..d7745793dcf96 100644
  #if !BUILDFLAG(IS_ANDROID)
    // The sampling profiler exists until the `ChromeContentBrowserClient` is
 diff --git chrome/app_shim/BUILD.gn chrome/app_shim/BUILD.gn
-index db17714f74137..7119e5dba649a 100644
+index db17714f74137a81bd4a9bb540d55b49a2dd5427..7119e5dba649a9aa94d7f93cfb30a2e8f82650cd 100644
 --- chrome/app_shim/BUILD.gn
 +++ chrome/app_shim/BUILD.gn
 @@ -24,6 +24,7 @@ source_set("app_shim") {
@@ -210,7 +210,7 @@ index db17714f74137..7119e5dba649a 100644
      "//chrome/app:command_ids",
      "//chrome/browser/renderer_host:history_swiper",
 diff --git chrome/app_shim/chrome_main_app_mode_mac.mm chrome/app_shim/chrome_main_app_mode_mac.mm
-index 72eb096075a05..d3866aae87c60 100644
+index 72eb096075a059b986e968916885b39745514fe1..d3866aae87c60976d22a7a67438b1bbeaf92b736 100644
 --- chrome/app_shim/chrome_main_app_mode_mac.mm
 +++ chrome/app_shim/chrome_main_app_mode_mac.mm
 @@ -35,6 +35,7 @@
@@ -232,7 +232,7 @@ index 72eb096075a05..d3866aae87c60 100644
  
      base::PathService::OverrideAndCreateIfNeeded(
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index ee9e6e9208043..05c87c3e35352 100644
+index ee9e6e9208043d25c98386c76780984ec87129bf..05c87c3e353521c70d8a89e5df1e9e2f13d9ce8d 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -28,6 +28,7 @@
@@ -388,7 +388,7 @@ index ee9e6e9208043..05c87c3e35352 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index e26e3625c99c8..c0d4a95607e37 100644
+index e26e3625c99c839a49620f29196ea9811c9d82bd..c0d4a95607e377e7c68072d80a22d54fe746f26b 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -20,6 +20,7 @@
@@ -424,7 +424,7 @@ index e26e3625c99c8..c0d4a95607e37 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index e856d9cf62853..c6d489a87e760 100644
+index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95a14ed04e 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -48,6 +48,7 @@
@@ -520,7 +520,7 @@ index e856d9cf62853..c6d489a87e760 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index f29c2ed251c81..4886ddac92dcd 100644
+index f29c2ed251c81ec4a48c2f9d8d353b54253f3767..4886ddac92dcd9249545382b0548a9217351b08b 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -160,6 +160,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -551,7 +551,7 @@ index f29c2ed251c81..4886ddac92dcd 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 1ade93d9ea505..aa1360c4f31fe 100644
+index 1ade93d9ea505de2245b30aa771b3f46592c7b3b..aa1360c4f31fead2730625eb0502306833219548 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -15,6 +15,7 @@

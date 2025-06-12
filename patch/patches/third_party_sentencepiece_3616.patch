@@ -1,5 +1,5 @@
 diff --git third_party/sentencepiece/src/src/util.cc third_party/sentencepiece/src/src/util.cc
-index c5e5289807a0c..e10880abc17eb 100644
+index c5e5289807a0c1693d9fba28f1cd598b0cc5991f..e10880abc17ebe61bff904cbba4cb5f817863c8b 100644
 --- third_party/sentencepiece/src/src/util.cc
 +++ third_party/sentencepiece/src/src/util.cc
 @@ -16,6 +16,7 @@

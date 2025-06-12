@@ -1,5 +1,5 @@
 diff --git ui/events/keycodes/keyboard_code_conversion_mac.mm ui/events/keycodes/keyboard_code_conversion_mac.mm
-index 36053a7db4dd2..bbf6bc41edec3 100644
+index 36053a7db4dd2f01bb84da848a8076f313214e4a..bbf6bc41edec3859ee4e6f9e9d8870eb04220f56 100644
 --- ui/events/keycodes/keyboard_code_conversion_mac.mm
 +++ ui/events/keycodes/keyboard_code_conversion_mac.mm
 @@ -895,7 +895,7 @@ DomKey DomKeyFromNSEvent(NSEvent* event) {

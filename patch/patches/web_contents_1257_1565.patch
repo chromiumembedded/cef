@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index e57951543e9f2..a28de9c75366a 100644
+index e57951543e9f2b0be5164dde3d4b629b081457cc..a28de9c75366a3b16358972bbfe622a13b9b307c 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -4103,6 +4103,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -84,7 +84,7 @@ index e57951543e9f2..a28de9c75366a 100644
  #elif BUILDFLAG(IS_ANDROID)
    ui::ViewAndroid* view_android = GetNativeView();
 diff --git content/browser/web_contents/web_contents_impl_mac.mm content/browser/web_contents/web_contents_impl_mac.mm
-index f1105a13aa0eb..d1dba26bbac1f 100644
+index f1105a13aa0eb6239cf5d00caa5c3ef7d2473cf1..d1dba26bbac1f4195b444879ff081e04a366c169 100644
 --- content/browser/web_contents/web_contents_impl_mac.mm
 +++ content/browser/web_contents/web_contents_impl_mac.mm
 @@ -6,6 +6,7 @@
@@ -120,7 +120,7 @@ index f1105a13aa0eb..d1dba26bbac1f 100644
    return gfx::Size(NSWidth(frame), NSHeight(frame));
  }
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ab2df2fac2358..b1e45af82d261 100644
+index ab2df2fac23584574ca75a30084b3a47c626a1a1..b1e45af82d261bbf927c5c4a982f4cbff71c2ed5 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -121,11 +121,13 @@ class BrowserPluginGuestDelegate;
@@ -149,7 +149,7 @@ index ab2df2fac2358..b1e45af82d261 100644
      // the value that'll be returned by GetLastActiveTimeTicks(). If this is
      // left default initialized then the value is not passed on to the
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index d33274984bf65..47e79413dab7f 100644
+index d33274984bf6523beeb3ab5ee586499d224bff3c..47e79413dab7f9463b07149ba6f2c0ea3b3d911a 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -101,9 +101,11 @@ class EyeDropperListener;
@@ -180,7 +180,7 @@ index d33274984bf65..47e79413dab7f 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 7e0dd469a7059..25c2b9e2c54ff 100644
+index 7e0dd469a7059ea38120cfd6cd17469a3c06c1fa..25c2b9e2c54ff3737c05f2b4a990ab0e5b5ca1b3 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -255,6 +255,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {

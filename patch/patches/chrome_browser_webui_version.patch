@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/version/version_handler.cc chrome/browser/ui/webui/version/version_handler.cc
-index e503ac10c0eaa..dacd96a06e870 100644
+index e503ac10c0eaa6e528c8835a87947916f49a8a1a..dacd96a06e870aa12d5a4e4873e3f875de85ad4a 100644
 --- chrome/browser/ui/webui/version/version_handler.cc
 +++ chrome/browser/ui/webui/version/version_handler.cc
 @@ -29,12 +29,23 @@
@@ -98,7 +98,7 @@ index e503ac10c0eaa..dacd96a06e870 100644
    ResolveJavascriptCallback(base::Value(callback_id), response);
  }
 diff --git chrome/browser/ui/webui/version/version_handler.h chrome/browser/ui/webui/version/version_handler.h
-index 2f8162d7491d1..b00f0d5bf26ae 100644
+index 2f8162d7491d1f78c540565333ad01589221c8e7..b00f0d5bf26aeede35a95ccbb08ad4eac99fcd4d 100644
 --- chrome/browser/ui/webui/version/version_handler.h
 +++ chrome/browser/ui/webui/version/version_handler.h
 @@ -9,6 +9,7 @@
@@ -124,7 +124,7 @@ index 2f8162d7491d1..b00f0d5bf26ae 100644
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index c10d6937f6ef4..738ba66437829 100644
+index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab144958ab50 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
 @@ -16,6 +16,7 @@
@@ -180,7 +180,7 @@ index c10d6937f6ef4..738ba66437829 100644
  #if BUILDFLAG(IS_MAC)
    html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
 diff --git components/version_ui_strings.grdp components/version_ui_strings.grdp
-index 7c3d198ccdb52..4a15d9d7f1e13 100644
+index 7c3d198ccdb52b57884c6d8aa2aeac0438425642..4a15d9d7f1e13bbe3fad265b60b1f85179c38cbf 100644
 --- components/version_ui_strings.grdp
 +++ components/version_ui_strings.grdp
 @@ -76,6 +76,14 @@
@@ -199,7 +199,7 @@ index 7c3d198ccdb52..4a15d9d7f1e13 100644
      No such file or directory
    </message>
 diff --git components/webui/version/BUILD.gn components/webui/version/BUILD.gn
-index 2193019afd18e..42ec99b0a4673 100644
+index 2193019afd18eac09e7812737dc2de3533c2f404..42ec99b0a4673f9ba7c8bbd568a18fa888efe96e 100644
 --- components/webui/version/BUILD.gn
 +++ components/webui/version/BUILD.gn
 @@ -2,6 +2,8 @@
@@ -221,7 +221,7 @@ index 2193019afd18e..42ec99b0a4673 100644
 +  }
  }
 diff --git components/webui/version/resources/about_version.css components/webui/version/resources/about_version.css
-index bd41fd2492e79..04378e39332e1 100644
+index bd41fd2492e79b9dad3197f91e22885f13edcfe2..04378e39332e19aaa883d04abea6292d4fa84fb7 100644
 --- components/webui/version/resources/about_version.css
 +++ components/webui/version/resources/about_version.css
 @@ -135,3 +135,7 @@ body {
@@ -233,7 +233,7 @@ index bd41fd2492e79..04378e39332e1 100644
 +  font-size: 0.8em;
 +}
 diff --git components/webui/version/resources/about_version.html components/webui/version/resources/about_version.html
-index e4ad426e42bca..13e754cbffbf3 100644
+index e4ad426e42bca8340ade73291fc2e02fc3e8a576..13e754cbffbf3b86dad450f463d880d1bb474442 100644
 --- components/webui/version/resources/about_version.html
 +++ components/webui/version/resources/about_version.html
 @@ -49,9 +49,21 @@ about:version template page
@@ -295,7 +295,7 @@ index e4ad426e42bca..13e754cbffbf3 100644
  
      <div id="messages" role="alert" aria-live="polite" aria-relevant="additions">
 diff --git components/webui/version/resources/about_version.ts components/webui/version/resources/about_version.ts
-index ea5f11471acf2..f604065bbe8fe 100644
+index ea5f11471acf26622b2f286d26bf47bceb6137ac..f604065bbe8feec78b9f029ac513a1aa6203fe14 100644
 --- components/webui/version/resources/about_version.ts
 +++ components/webui/version/resources/about_version.ts
 @@ -72,9 +72,21 @@ function handleVariationInfo(
@@ -322,7 +322,7 @@ index ea5f11471acf2..f604065bbe8fe 100644
  
  // <if expr="is_win">
 diff --git components/webui/version/version_ui_constants.cc components/webui/version/version_ui_constants.cc
-index 3828e8e25bbcd..afd115b6eb82e 100644
+index 3828e8e25bbcdbfe232d6feacb1b72f66d8cc79e..afd115b6eb82ea7043866f7c45f15bda4c115fdb 100644
 --- components/webui/version/version_ui_constants.cc
 +++ components/webui/version/version_ui_constants.cc
 @@ -5,6 +5,7 @@
@@ -350,7 +350,7 @@ index 3828e8e25bbcd..afd115b6eb82e 100644
 +
  }  // namespace version_ui
 diff --git components/webui/version/version_ui_constants.h components/webui/version/version_ui_constants.h
-index a3a92aa75848d..4dedc4390e85c 100644
+index a3a92aa75848dd0763cb389a8029fc5e2c8647bf..4dedc4390e85c6a36857b1c33b12be776e92cb4f 100644
 --- components/webui/version/version_ui_constants.h
 +++ components/webui/version/version_ui_constants.h
 @@ -6,6 +6,7 @@

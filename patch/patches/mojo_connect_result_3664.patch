@@ -1,5 +1,5 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index e60b3b9462479..b90ebf85c1099 100644
+index e60b3b946247920364f3fffb64fca8ab6d95ac58..b90ebf85c10999940427715c442674892bccd57c 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
 @@ -976,7 +976,8 @@ class ChannelAssociatedGroupController
@@ -13,7 +13,7 @@ index e60b3b9462479..b90ebf85c1099 100644
        endpoint->task_runner()->PostTask(
            FROM_HERE,
 diff --git mojo/public/cpp/bindings/associated_receiver.h mojo/public/cpp/bindings/associated_receiver.h
-index 76065029e088c..73a4eb914dca1 100644
+index 76065029e088c48b7c43433e562c13d286b7aafa..73a4eb914dca1055dfc65ab56ed74e6271180824 100644
 --- mojo/public/cpp/bindings/associated_receiver.h
 +++ mojo/public/cpp/bindings/associated_receiver.h
 @@ -46,6 +46,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) AssociatedReceiverBase {
@@ -34,7 +34,7 @@ index 76065029e088c..73a4eb914dca1 100644
    // Resets this AssociatedReceiver on disconnect. Note that this replaces any
    // previously set disconnection handler. Must be called on a bound
 diff --git mojo/public/cpp/bindings/associated_remote.h mojo/public/cpp/bindings/associated_remote.h
-index 7e8b0144b528a..80a2ed85d1739 100644
+index 7e8b0144b528ad2019a6ae8a8b8b7c579584412b..80a2ed85d1739f85a5503e5b2f63c66da33510d6 100644
 --- mojo/public/cpp/bindings/associated_remote.h
 +++ mojo/public/cpp/bindings/associated_remote.h
 @@ -153,6 +153,11 @@ class AssociatedRemote {
@@ -50,7 +50,7 @@ index 7e8b0144b528a..80a2ed85d1739 100644
    // A convenient helper that resets this AssociatedRemote on disconnect. Note
    // that this replaces any previously set disconnection handler. Must be called
 diff --git mojo/public/cpp/bindings/connection_error_callback.h mojo/public/cpp/bindings/connection_error_callback.h
-index 0e0cad6032f6d..9dd09d26cdcc3 100644
+index 0e0cad6032f6d8e19d425431f8c35e44a0b11ebc..9dd09d26cdcc34ce889386eec17d39b9df6393cd 100644
 --- mojo/public/cpp/bindings/connection_error_callback.h
 +++ mojo/public/cpp/bindings/connection_error_callback.h
 @@ -6,6 +6,7 @@
@@ -77,7 +77,7 @@ index 0e0cad6032f6d..9dd09d26cdcc3 100644
  }  // namespace mojo
  
 diff --git mojo/public/cpp/bindings/connector.h mojo/public/cpp/bindings/connector.h
-index 332ab5c181ec5..d4ccf2e023cd3 100644
+index 332ab5c181ec5aa29ec68450a0cbba4d26ba9de7..d4ccf2e023cd3cee4983c01917d54d86bb2c556a 100644
 --- mojo/public/cpp/bindings/connector.h
 +++ mojo/public/cpp/bindings/connector.h
 @@ -146,6 +146,11 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) Connector : public MessageReceiver {
@@ -101,7 +101,7 @@ index 332ab5c181ec5..d4ccf2e023cd3 100644
    bool enforce_errors_from_incoming_receiver_ = true;
  
 diff --git mojo/public/cpp/bindings/interface_endpoint_client.h mojo/public/cpp/bindings/interface_endpoint_client.h
-index f683feadb176d..e67b8b41d4efe 100644
+index f683feadb176d4259cbbb49862042ea39f9d57a6..e67b8b41d4efeb6a459eb98f6b638fd8f78fe742 100644
 --- mojo/public/cpp/bindings/interface_endpoint_client.h
 +++ mojo/public/cpp/bindings/interface_endpoint_client.h
 @@ -77,6 +77,7 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) InterfaceEndpointClient
@@ -148,7 +148,7 @@ index f683feadb176d..e67b8b41d4efe 100644
  
    const scoped_refptr<base::SequencedTaskRunner> task_runner_;
 diff --git mojo/public/cpp/bindings/lib/associated_receiver.cc mojo/public/cpp/bindings/lib/associated_receiver.cc
-index 7134c119865e9..a53beb998abc2 100644
+index 7134c119865e9108f08c3572cca1582254e7dde1..a53beb998abc2a2a41689badf36b1fa1d38b3eee 100644
 --- mojo/public/cpp/bindings/lib/associated_receiver.cc
 +++ mojo/public/cpp/bindings/lib/associated_receiver.cc
 @@ -55,6 +55,13 @@ void AssociatedReceiverBase::set_disconnect_with_reason_handler(
@@ -166,7 +166,7 @@ index 7134c119865e9..a53beb998abc2 100644
    DCHECK(is_bound());
    set_disconnect_handler(
 diff --git mojo/public/cpp/bindings/lib/binding_state.h mojo/public/cpp/bindings/lib/binding_state.h
-index 60544ea4c9fbb..83da55f4c50b9 100644
+index 60544ea4c9fbb820dd65f703d04260943ea700d5..83da55f4c50b925adfcf056cea4daf72c919c03d 100644
 --- mojo/public/cpp/bindings/lib/binding_state.h
 +++ mojo/public/cpp/bindings/lib/binding_state.h
 @@ -65,6 +65,13 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) BindingStateBase {
@@ -184,7 +184,7 @@ index 60544ea4c9fbb..83da55f4c50b9 100644
  
    MessagePipeHandle handle() const {
 diff --git mojo/public/cpp/bindings/lib/connector.cc mojo/public/cpp/bindings/lib/connector.cc
-index d2606acaabd0a..8bf169d246b6b 100644
+index d2606acaabd0abcab0624a366017eb6b5a9692a5..8bf169d246b6b35164af9625905a2f729e21afde 100644
 --- mojo/public/cpp/bindings/lib/connector.cc
 +++ mojo/public/cpp/bindings/lib/connector.cc
 @@ -436,6 +436,8 @@ void Connector::OnSyncHandleWatcherHandleReady(const char* interface_name,
@@ -197,7 +197,7 @@ index d2606acaabd0a..8bf169d246b6b 100644
      // No more messages on the pipe and the peer is closed.
      HandleError(false /* force_pipe_reset */, false /* force_async_handler */);
 diff --git mojo/public/cpp/bindings/lib/interface_endpoint_client.cc mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
-index 0ecfee48e474e..6d2309659c9e0 100644
+index 0ecfee48e474e10102933ebcc8c88e24ec9441fa..6d2309659c9e0870776790b2ba386d8e51250800 100644
 --- mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 +++ mojo/public/cpp/bindings/lib/interface_endpoint_client.cc
 @@ -738,7 +738,8 @@ bool InterfaceEndpointClient::HandleIncomingMessage(Message* message) {
@@ -236,7 +236,7 @@ index 0ecfee48e474e..6d2309659c9e0 100644
  }
  
 diff --git mojo/public/cpp/bindings/lib/interface_ptr_state.h mojo/public/cpp/bindings/lib/interface_ptr_state.h
-index 0cff2435770ed..648678e152338 100644
+index 0cff2435770edb7a2d913cf37e3118ecc3fda815..648678e152338791296249c678b74a1fcee16fa4 100644
 --- mojo/public/cpp/bindings/lib/interface_ptr_state.h
 +++ mojo/public/cpp/bindings/lib/interface_ptr_state.h
 @@ -225,6 +225,15 @@ class InterfacePtrState : public InterfacePtrStateBase {
@@ -256,7 +256,7 @@ index 0cff2435770ed..648678e152338 100644
                          base::RepeatingClosure handler) {
      ConfigureProxyIfNecessary();
 diff --git mojo/public/cpp/bindings/lib/multiplex_router.cc mojo/public/cpp/bindings/lib/multiplex_router.cc
-index 09ca485ab9ec2..9ec966e561a6a 100644
+index 09ca485ab9ec2641aa783dbdc1800d18239687b0..9ec966e561a6ac6bbccc2af7b6f9c860a8b119d8 100644
 --- mojo/public/cpp/bindings/lib/multiplex_router.cc
 +++ mojo/public/cpp/bindings/lib/multiplex_router.cc
 @@ -89,6 +89,12 @@ class MultiplexRouter::InterfaceEndpoint
@@ -299,7 +299,7 @@ index 09ca485ab9ec2..9ec966e561a6a 100644
    return true;
  }
 diff --git mojo/public/cpp/bindings/receiver.h mojo/public/cpp/bindings/receiver.h
-index 8d51fbad3832e..a2eff11227539 100644
+index 8d51fbad3832ee831e19ef7cc575da989ddaa43f..a2eff11227539d71e7cf0a90165d4d3dbc208f90 100644
 --- mojo/public/cpp/bindings/receiver.h
 +++ mojo/public/cpp/bindings/receiver.h
 @@ -106,6 +106,12 @@ class Receiver {
@@ -316,7 +316,7 @@ index 8d51fbad3832e..a2eff11227539 100644
    // Resets this Receiver to an unbound state. An unbound Receiver will NEVER
    // schedule method calls or disconnection notifications, and any pending tasks
 diff --git mojo/public/cpp/bindings/receiver_set.cc mojo/public/cpp/bindings/receiver_set.cc
-index 642984d7c4376..b7ba0ed435384 100644
+index 642984d7c437671372a270b74adc5ac212de5ee1..b7ba0ed43538484dd04b916169075f435dd70b15 100644
 --- mojo/public/cpp/bindings/receiver_set.cc
 +++ mojo/public/cpp/bindings/receiver_set.cc
 @@ -68,9 +68,10 @@ void ReceiverSetState::Entry::DidDispatchOrReject() {
@@ -376,7 +376,7 @@ index 642984d7c4376..b7ba0ed435384 100644
  
  }  // namespace mojo
 diff --git mojo/public/cpp/bindings/receiver_set.h mojo/public/cpp/bindings/receiver_set.h
-index 8d3062f40b887..d1364cbf14323 100644
+index 8d3062f40b8879db0022e2da0bc1a0f75b461d4b..d1364cbf1432393f5b4cafba9ebcf99b8c154330 100644
 --- mojo/public/cpp/bindings/receiver_set.h
 +++ mojo/public/cpp/bindings/receiver_set.h
 @@ -72,7 +72,8 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS) ReceiverSetState {
@@ -442,7 +442,7 @@ index 8d3062f40b887..d1364cbf14323 100644
      }
  
 diff --git mojo/public/cpp/bindings/remote.h mojo/public/cpp/bindings/remote.h
-index e912da6086552..7119a8d35f242 100644
+index e912da608655256d6b202718dd29f0eb9eb0a9b2..7119a8d35f242c2fa4bf4c4d77dd1be96e857f3f 100644
 --- mojo/public/cpp/bindings/remote.h
 +++ mojo/public/cpp/bindings/remote.h
 @@ -155,6 +155,11 @@ class Remote {

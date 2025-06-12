@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/permission_bubble/permission_prompt.h chrome/browser/ui/permission_bubble/permission_prompt.h
-index fbce13c16ad10..0512b2f09937e 100644
+index fbce13c16ad10420f3f8e0df521e3be6979271d1..0512b2f09937ed0410f23d321b57f77d200cde74 100644
 --- chrome/browser/ui/permission_bubble/permission_prompt.h
 +++ chrome/browser/ui/permission_bubble/permission_prompt.h
 @@ -11,6 +11,13 @@ namespace content {
@@ -17,7 +17,7 @@ index fbce13c16ad10..0512b2f09937e 100644
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 13f978218b7a8..6bf2339ae2fd2 100644
+index 13f978218b7a89efeb30c1dd5481018ff1205ac9..6bf2339ae2fd226f09f6bf4c5d9922098de4ef34 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 @@ -222,11 +222,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
