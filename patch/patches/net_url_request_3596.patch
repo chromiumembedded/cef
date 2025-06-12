@@ -1,5 +1,5 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index 8bdef06e92..4821bbb7f5 100644
+index 8bdef06e92c8508e9fb31939dd3eed09ea15115c..4821bbb7f53e2ecf15a759e41d9f932e76a2e2cc 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -38,6 +38,7 @@

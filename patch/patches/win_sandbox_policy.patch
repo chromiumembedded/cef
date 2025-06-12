@@ -1,5 +1,5 @@
 diff --git sandbox/win/src/sandbox_policy.h sandbox/win/src/sandbox_policy.h
-index 17699e60e6..53658b54f4 100644
+index 17699e60e60be97e54614dd38b6afa63c7170a18..53658b54f4fa74dfa2054a012489e47e8a51ad78 100644
 --- sandbox/win/src/sandbox_policy.h
 +++ sandbox/win/src/sandbox_policy.h
 @@ -282,7 +282,7 @@ class [[clang::lto_visibility_public]] TargetPolicy {
@@ -12,7 +12,7 @@ index 17699e60e6..53658b54f4 100644
  
  }  // namespace sandbox
 diff --git sandbox/win/src/sandbox_policy_base.cc sandbox/win/src/sandbox_policy_base.cc
-index 8ca78708c5..b8c427ba67 100644
+index 8ca78708c537e384e1251b584b6e83a1d6389d73..b8c427ba67d878bd8fb4663b90cd94240ea0caa4 100644
 --- sandbox/win/src/sandbox_policy_base.cc
 +++ sandbox/win/src/sandbox_policy_base.cc
 @@ -197,12 +197,12 @@ PolicyGlobal* ConfigBase::policy() {
@@ -49,7 +49,7 @@ index 8ca78708c5..b8c427ba67 100644
    // Can only set this once - as there is only one region sent to the child.
    CHECK(!delegate_data_);
 diff --git sandbox/win/src/sandbox_policy_base.h sandbox/win/src/sandbox_policy_base.h
-index af905fba23..cba2426b09 100644
+index af905fba23ac172387b7fde5fb969874d22dc095..cba2426b098a88e505b5db1de11239f13dab70dc 100644
 --- sandbox/win/src/sandbox_policy_base.h
 +++ sandbox/win/src/sandbox_policy_base.h
 @@ -117,7 +117,7 @@ class ConfigBase final : public TargetConfig {

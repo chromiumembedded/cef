@@ -1,5 +1,5 @@
 diff --git chrome/browser/printing/printer_query.cc chrome/browser/printing/printer_query.cc
-index 4b1775f4a8..44d1281543 100644
+index 4b1775f4a882fbabfe65df7784baebe6d8bee788..44d128154335a4759b6aff5cc98d3da6cbe38e6f 100644
 --- chrome/browser/printing/printer_query.cc
 +++ chrome/browser/printing/printer_query.cc
 @@ -125,6 +125,7 @@ PrinterQuery::PrinterQuery(content::GlobalRenderFrameHostId rfh_id)
@@ -11,7 +11,7 @@ index 4b1775f4a8..44d1281543 100644
  
  PrinterQuery::~PrinterQuery() {
 diff --git printing/printing_context.h printing/printing_context.h
-index 3a98838e27..f5cbe1c561 100644
+index 3a98838e27621e34ab050a0f5dce7110f0d88641..f5cbe1c561189bf8d0621262d3610822013c36ab 100644
 --- printing/printing_context.h
 +++ printing/printing_context.h
 @@ -217,6 +217,13 @@ class COMPONENT_EXPORT(PRINTING) PrintingContext {

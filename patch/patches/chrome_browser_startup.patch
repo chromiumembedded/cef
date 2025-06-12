@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index d26f0998c8..098282f9ca 100644
+index d26f0998c81fcf4c846450116eaf0160de567275..098282f9ca599cadd4536516db29a4355d3195e6 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
 @@ -626,6 +626,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
@@ -42,7 +42,7 @@ index d26f0998c8..098282f9ca 100644
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index 7f3adc69c4..68f5a01e3b 100644
+index 7f3adc69c404c951db6ad08893b966d08bdc31e7..68f5a01e3bab4626fbf6a04b88b3d6f74c7f691e 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@

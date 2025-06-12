@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_window_property_manager_win.cc chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
-index 1a62480aee..9da572856c 100644
+index 1a62480aee22c86dc9f570fc2d1406dc37b92e0e..9da572856c03b310a675e45318ae9ffe8bd55601 100644
 --- chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 +++ chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
 @@ -8,6 +8,7 @@

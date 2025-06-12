@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 6f2feda3e7..83650e01ce 100644
+index 6f2feda3e79204fbaa5b20f3392d6911b90aec57..83650e01ce8a21ef4764592e963ae9327d4bb42a 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -458,6 +458,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -41,7 +41,7 @@ index 6f2feda3e7..83650e01ce 100644
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 0ac99f7c90..41edc0a895 100644
+index 0ac99f7c90ac8d3c6f005bcd74e9edc8d9d61386..41edc0a895a44230625b6336b0bbbde31aefe860 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -722,10 +722,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -179,7 +179,7 @@ index 0ac99f7c90..41edc0a895 100644
  }
  
 diff --git chrome/browser/ui/toolbar/app_menu_model.h chrome/browser/ui/toolbar/app_menu_model.h
-index ec1f1a15c6..2316307869 100644
+index ec1f1a15c682ead6de1696b627e3d34a75718518..23163078693fbcd24ff26aa7e5e4eb2ce9fd0235 100644
 --- chrome/browser/ui/toolbar/app_menu_model.h
 +++ chrome/browser/ui/toolbar/app_menu_model.h
 @@ -233,6 +233,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
@@ -200,7 +200,7 @@ index ec1f1a15c6..2316307869 100644
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/find_bar_host.cc chrome/browser/ui/views/find_bar_host.cc
-index 603a95238c..dd397451be 100644
+index 603a95238c5628e867365a4996c56f27854fee25..dd397451bed5a9a55c88ae1753fc828f2fe2d2b2 100644
 --- chrome/browser/ui/views/find_bar_host.cc
 +++ chrome/browser/ui/views/find_bar_host.cc
 @@ -608,6 +608,14 @@ gfx::Rect FindBarHost::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
@@ -219,7 +219,7 @@ index 603a95238c..dd397451be 100644
      return gfx::Rect();
    }
 diff --git chrome/browser/ui/views/frame/browser_frame.cc chrome/browser/ui/views/frame/browser_frame.cc
-index 1556caf117..aa859c8ec0 100644
+index 1556caf117746b9fbb7a1ed8b92e7fc67864d147..aa859c8ec0c2276869d7f3a19923d4d516eeb789 100644
 --- chrome/browser/ui/views/frame/browser_frame.cc
 +++ chrome/browser/ui/views/frame/browser_frame.cc
 @@ -112,15 +112,25 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
@@ -344,7 +344,7 @@ index 1556caf117..aa859c8ec0 100644
    return browser_view_->browser()->profile()->IsIncognitoProfile();
  }
 diff --git chrome/browser/ui/views/frame/browser_frame.h chrome/browser/ui/views/frame/browser_frame.h
-index 3d8a15049d..66c4789581 100644
+index 3d8a15049d4d2286bbcfefa0e7d9778d69ce4696..66c4789581fe1b54d587466a3fdd51971fa7d815 100644
 --- chrome/browser/ui/views/frame/browser_frame.h
 +++ chrome/browser/ui/views/frame/browser_frame.h
 @@ -59,6 +59,7 @@ enum class TabDragKind {
@@ -397,7 +397,7 @@ index 3d8a15049d..66c4789581 100644
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index f96bac3e04..173f427e5a 100644
+index f96bac3e04dc6806ae6ccbc38c54a3294cf129b6..173f427e5a33635ef53d95b075bb130bdc9f3b19 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -368,10 +368,6 @@ using web_modal::WebContentsModalDialogHost;
@@ -719,7 +719,7 @@ index f96bac3e04..173f427e5a 100644
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 8a06d49d2a..7874429a9a 100644
+index 8a06d49d2abe1258a3c6723fcfe682e68cc90fe0..7874429a9a0906ba3d89e03e57cdc9f4ad249a97 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -148,11 +148,16 @@ class BrowserView : public BrowserWindow,
@@ -760,7 +760,7 @@ index 8a06d49d2a..7874429a9a 100644
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
 diff --git chrome/browser/ui/views/frame/browser_view_layout.cc chrome/browser/ui/views/frame/browser_view_layout.cc
-index 39fc0f21ff..4b575fd387 100644
+index 39fc0f21ff96ce739550aef86c8b3ab4bd7bf3d2..4b575fd3877d5c30d56ead14fe7b040ed3f3b601 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.cc
 +++ chrome/browser/ui/views/frame/browser_view_layout.cc
 @@ -53,6 +53,10 @@
@@ -849,7 +849,7 @@ index 39fc0f21ff..4b575fd387 100644
    bool toolbar_visible = delegate_->IsToolbarVisible();
    int height = toolbar_visible ? toolbar_->GetPreferredSize().height() : 0;
 diff --git chrome/browser/ui/views/frame/browser_view_layout.h chrome/browser/ui/views/frame/browser_view_layout.h
-index a4602bd1f5..1c0435c03d 100644
+index a4602bd1f5d01f1cab888bc5e045d1b8ad394c6a..1c0435c03d323d2e1ba6e6fbb40d986e56bd932c 100644
 --- chrome/browser/ui/views/frame/browser_view_layout.h
 +++ chrome/browser/ui/views/frame/browser_view_layout.h
 @@ -87,6 +87,8 @@ class BrowserViewLayout : public views::LayoutManager {
@@ -871,7 +871,7 @@ index a4602bd1f5..1c0435c03d 100644
    const raw_ptr<views::View> contents_container_;
    const raw_ptr<views::View> left_aligned_side_panel_separator_;
 diff --git chrome/browser/ui/views/frame/browser_view_layout_delegate.h chrome/browser/ui/views/frame/browser_view_layout_delegate.h
-index 9f393a42d1..8597a655c4 100644
+index 9f393a42d16557582867691b92aa2afbc3bbe60c..8597a655c4faca8d404394847f963edece90cc2d 100644
 --- chrome/browser/ui/views/frame/browser_view_layout_delegate.h
 +++ chrome/browser/ui/views/frame/browser_view_layout_delegate.h
 @@ -28,6 +28,7 @@ class BrowserViewLayoutDelegate {
@@ -883,7 +883,7 @@ index 9f393a42d1..8597a655c4 100644
    virtual bool IsBookmarkBarVisible() const = 0;
    virtual bool IsContentsSeparatorEnabled() const = 0;
 diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
-index d80ac44127..f09f382e24 100644
+index d80ac44127421eb0dd65650f5716323a2f470aae..f09f382e2434441743481f8df95b21ca1ccd922c 100644
 --- chrome/browser/ui/views/frame/contents_web_view.cc
 +++ chrome/browser/ui/views/frame/contents_web_view.cc
 @@ -35,6 +35,12 @@ ContentsWebView::ContentsWebView(content::BrowserContext* browser_context)
@@ -900,7 +900,7 @@ index d80ac44127..f09f382e24 100644
  
  ContentsWebView::~ContentsWebView() = default;
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-index 919f2496b0..f541e3836f 100644
+index 919f2496b089ddfb55325ba512723a4e32265449..f541e3836f4fd867e06b37a1181a692dc6cae2dd 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 +++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 @@ -605,6 +605,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
@@ -987,7 +987,7 @@ index 919f2496b0..f541e3836f 100644
  
  gfx::Size PictureInPictureBrowserFrameView::GetNonClientViewAreaSize() const {
 diff --git chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
-index 33c6444869..d74818698d 100644
+index 33c644486937523ddca9ae5efb09ed484802b84e..d74818698d81a762c91185e62e05935696ad2061 100644
 --- chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
 +++ chrome/browser/ui/views/omnibox/omnibox_popup_closer.cc
 @@ -27,7 +27,8 @@ OmniboxPopupCloser::OmniboxPopupCloser(BrowserView* browser_view)
@@ -1001,7 +1001,7 @@ index 33c6444869..d74818698d 100644
      LocationBarView* location_bar_view = browser_view_->GetLocationBarView();
      CHECK(location_bar_view);
 diff --git chrome/browser/ui/views/page_action/page_action_icon_controller.cc chrome/browser/ui/views/page_action/page_action_icon_controller.cc
-index 20c0861c46..8cd44c0d95 100644
+index 20c0861c46610b2212e4ff501cd2848323cd8b16..8cd44c0d95a17e14d0ef5e0ec06ba3acd4be39a7 100644
 --- chrome/browser/ui/views/page_action/page_action_icon_controller.cc
 +++ chrome/browser/ui/views/page_action/page_action_icon_controller.cc
 @@ -109,6 +109,14 @@ void PageActionIconController::Init(const PageActionIconParams& params,
@@ -1020,7 +1020,7 @@ index 20c0861c46..8cd44c0d95 100644
        case PageActionIconType::kPaymentsOfferNotification:
          add_page_action_icon(
 diff --git chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
-index 6083cd2c41..1da3e78810 100644
+index 6083cd2c41420a6efec778e7ff3af2a74ebb8570..1da3e7881016d9f5055b28734a60aa00dd569436 100644
 --- chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 +++ chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc
 @@ -720,29 +720,41 @@ gfx::Range BrowserTabStripController::ListTabsInGroup(
@@ -1066,7 +1066,7 @@ index 6083cd2c41..1da3e78810 100644
  }
  
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.cc chrome/browser/ui/views/toolbar/toolbar_view.cc
-index ab1b0d88b5..4e776a93ee 100644
+index ab1b0d88b5a3792ab5ed11e640e0063e5d445931..4e776a93ee8e22f162832895ca19da9cf3af3ae4 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.cc
 +++ chrome/browser/ui/views/toolbar/toolbar_view.cc
 @@ -187,7 +187,7 @@ class TabstripLikeBackground : public views::Background {
@@ -1149,7 +1149,7 @@ index ab1b0d88b5..4e776a93ee 100644
  
    if (toolbar_controller_) {
 diff --git chrome/browser/ui/views/toolbar/toolbar_view.h chrome/browser/ui/views/toolbar/toolbar_view.h
-index b34fdea7f9..58e65bb7af 100644
+index b34fdea7f98b4bc60c15683c2c22da7bff8bd9c0..58e65bb7aff07070d3bab3c401315935d0f6aa24 100644
 --- chrome/browser/ui/views/toolbar/toolbar_view.h
 +++ chrome/browser/ui/views/toolbar/toolbar_view.h
 @@ -97,7 +97,8 @@ class ToolbarView : public views::AccessiblePaneView,

@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_http_handler.cc content/browser/devtools/devtools_http_handler.cc
-index a28237bf93..9a01b185e7 100644
+index a28237bf93ef4bab4e7f980dc0503e7da87c2ef1..9a01b185e76f47bdad9f1fb040acf9c6d7ee98f5 100644
 --- content/browser/devtools/devtools_http_handler.cc
 +++ content/browser/devtools/devtools_http_handler.cc
 @@ -588,7 +588,7 @@ void DevToolsHttpHandler::OnJsonRequest(
@@ -12,7 +12,7 @@ index a28237bf93..9a01b185e7 100644
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 1a800194b9..b92a789494 100644
+index 1a800194b97da57b9fbd750c5ec66fe7a32e3699..b92a789494fea62c0b64af543626bdfa2c521f67 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -978,7 +978,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
@@ -47,7 +47,7 @@ index 1a800194b9..b92a789494 100644
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 9c36ad7053..3546f7f9fa 100644
+index 9c36ad70531bd8c31158c741ab23763ea00bc068..3546f7f9faf4edba0b7ffc22ef4122404bb7bf3d 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1180,7 +1180,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,7 +68,7 @@ index 9c36ad7053..3546f7f9fa 100644
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index f1fee091b8..8c9feee790 100644
+index f1fee091b84aec20f1e15dcc90917e50bb47d1c6..8c9feee790c910b31fd86e16fc3487bf68acd8fd 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1381,6 +1381,12 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -128,7 +128,7 @@ index f1fee091b8..8c9feee790 100644
    virtual std::string GetUserAgent();
  
 diff --git content/public/renderer/content_renderer_client.h content/public/renderer/content_renderer_client.h
-index 7a2d251ba2..68297ee6f1 100644
+index 7a2d251ba2d13d0a34df176111e6524a27b87f55..68297ee6f118fd824138fd6ce20acd84930a2df7 100644
 --- content/public/renderer/content_renderer_client.h
 +++ content/public/renderer/content_renderer_client.h
 @@ -109,6 +109,9 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -153,7 +153,7 @@ index 7a2d251ba2..68297ee6f1 100644
    // started.
    virtual void SetRuntimeFeaturesDefaultsBeforeBlinkInitialization() {}
 diff --git content/renderer/render_thread_impl.cc content/renderer/render_thread_impl.cc
-index 0a5556cb6e..cecc0ae19b 100644
+index 0a5556cb6eac8be8af3a1691687205e683157794..cecc0ae19bc627d9b52eaf0e6b9e271381ef2ac6 100644
 --- content/renderer/render_thread_impl.cc
 +++ content/renderer/render_thread_impl.cc
 @@ -593,6 +593,8 @@ void RenderThreadImpl::Init() {
@@ -166,7 +166,7 @@ index 0a5556cb6e..cecc0ae19b 100644
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 5747f94527..d54aeac829 100644
+index 5747f9452788737375f0e67e588f98e9b89b381c..d54aeac829007b39a86c94831641d3ce485c8773 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
 @@ -1049,6 +1049,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
@@ -186,7 +186,7 @@ index 5747f94527..d54aeac829 100644
  RendererBlinkPlatformImpl::CreateWebV8ValueConverter() {
    return std::make_unique<V8ValueConverterImpl>();
 diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
-index 206b8df482..e10852779c 100644
+index 206b8df48273a041ff7fd18f5d71e7e128f6da7d..e10852779c20947cd9a7f514a02edd7c5f677f61 100644
 --- content/renderer/renderer_blink_platform_impl.h
 +++ content/renderer/renderer_blink_platform_impl.h
 @@ -250,6 +250,9 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
@@ -200,7 +200,7 @@ index 206b8df482..e10852779c 100644
    // plus eTLD+1, such as https://google.com), or to a more specific origin.
    void SetIsLockedToSite();
 diff --git content/shell/browser/shell_content_browser_client.cc content/shell/browser/shell_content_browser_client.cc
-index 3993da6d53..78784b4dd8 100644
+index 3993da6d5384350a40d88f4640ce680c2ac29233..78784b4dd8842f95e818e509fb6d35577602e804 100644
 --- content/shell/browser/shell_content_browser_client.cc
 +++ content/shell/browser/shell_content_browser_client.cc
 @@ -820,7 +820,7 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
@@ -221,7 +221,7 @@ index 3993da6d53..78784b4dd8 100644
  
  std::vector<base::FilePath>
 diff --git content/shell/browser/shell_content_browser_client.h content/shell/browser/shell_content_browser_client.h
-index 29f0d888bc..d870ed9844 100644
+index 29f0d888bcc9a6d0177613504e27865ba3ef327b..d870ed9844bb7e8d8ac7e1f9b507eb92e8407156 100644
 --- content/shell/browser/shell_content_browser_client.h
 +++ content/shell/browser/shell_content_browser_client.h
 @@ -161,7 +161,7 @@ class ShellContentBrowserClient : public ContentBrowserClient {
@@ -234,7 +234,7 @@ index 29f0d888bc..d870ed9844 100644
        bool in_memory,
        const base::FilePath& relative_partition_path,
 diff --git headless/lib/browser/headless_content_browser_client.cc headless/lib/browser/headless_content_browser_client.cc
-index 3ca4381bcf..2ac7cea3f1 100644
+index 3ca4381bcf4df016313a287b35e9cf380afd4ab4..2ac7cea3f12bcab22acffe6d408f84a9444d3d71 100644
 --- headless/lib/browser/headless_content_browser_client.cc
 +++ headless/lib/browser/headless_content_browser_client.cc
 @@ -394,7 +394,7 @@ bool HeadlessContentBrowserClient::IsCookieDeprecationLabelAllowedForContext(
@@ -255,7 +255,7 @@ index 3ca4381bcf..2ac7cea3f1 100644
  
  std::string HeadlessContentBrowserClient::GetProduct() {
 diff --git headless/lib/browser/headless_content_browser_client.h headless/lib/browser/headless_content_browser_client.h
-index 30af5588cd..29940a43ce 100644
+index 30af5588cd71d8f3ae62baadde083a071879151e..29940a43ce09feb870869082e15299a961eed5d3 100644
 --- headless/lib/browser/headless_content_browser_client.h
 +++ headless/lib/browser/headless_content_browser_client.h
 @@ -113,7 +113,7 @@ class HeadlessContentBrowserClient : public content::ContentBrowserClient {

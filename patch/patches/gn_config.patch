@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index ae58a0b0a6..35e01ee64e 100644
+index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d1bc96352 100644
 --- .gn
 +++ .gn
 @@ -156,6 +156,8 @@ exec_script_allowlist =
@@ -12,7 +12,7 @@ index ae58a0b0a6..35e01ee64e 100644
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index c0a9639d27..e1cfab3d24 100644
+index c0a9639d27232a9ccd9ed61b4d9f8604a38e4bf1..e1cfab3d24c4f2884e7043501ae53fae1a8afd89 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -35,7 +35,7 @@ index c0a9639d27..e1cfab3d24 100644
        deps += [ "//printing:printing_unittests" ]
      }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index bd41166938..fba7843d79 100644
+index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c72ecaea34 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -5,15 +5,14 @@
@@ -78,7 +78,7 @@ index bd41166938..fba7843d79 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 845b473d56..d1ffe4a9e5 100644
+index 845b473d56165888771ef36fb3bebfbb52fb73dd..d1ffe4a9e54b1d3491dfebfb8041d9806c6dd5f0 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -102,7 +102,7 @@ index 845b473d56..d1ffe4a9e5 100644
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 3588fa340b..7fcb9072c2 100644
+index 3588fa340be0c0bc975d6aeaa9aac7ee659c5bd3..7fcb9072c2392a6609356f49cd3bba9791eed6b2 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -5,6 +5,7 @@
@@ -125,7 +125,7 @@ index 3588fa340b..7fcb9072c2 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7e49b4e449..b01e5db88a 100644
+index 7e49b4e44998193f92c54619878cc9709d19d371..b01e5db88a51e745c3bd4b78322dc15f3fd5a12b 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/features.gni")
@@ -152,7 +152,7 @@ index 7e49b4e449..b01e5db88a 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 8df7cb1eb8..6c21b1aaa9 100644
+index 8df7cb1eb8e8c23a7a57c26645407eefa6d76ca3..6c21b1aaa9286bb6010717c13607e89d46982fb2 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -4,7 +4,9 @@

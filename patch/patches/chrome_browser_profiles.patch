@@ -1,5 +1,5 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index f2719532b3..573cd8ec4b 100644
+index f2719532b35172377d7604f712c4f675e672a816..573cd8ec4b8ce30e1921cfa1f29e07313b11ce2f 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
 @@ -659,7 +659,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
@@ -14,7 +14,7 @@ index f2719532b3..573cd8ec4b 100644
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 363a7c4ac5..1c263547c8 100644
+index 363a7c4ac583f6d19afdbb5af5f1fdbbcf2a9475..1c263547c8f549a34343f848939d7130db98218e 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
 @@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
@@ -52,7 +52,7 @@ index 363a7c4ac5..1c263547c8 100644
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index c8d72ed592..d785187710 100644
+index c8d72ed59252f9a0d9ce3922624d4307cf82875f..d785187710a79182fcfc5d22ddfdb022a26102df 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -93,6 +93,10 @@ class Profile : public content::BrowserContext {
@@ -85,7 +85,7 @@ index c8d72ed592..d785187710 100644
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 22445800c6..bd17582782 100644
+index 22445800c6ac81e48757d30faa872b1ef61b1899..bd17582782117db249f1e99fda1f063227c8b3bf 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -1023,7 +1023,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,

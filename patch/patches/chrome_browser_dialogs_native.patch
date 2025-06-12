@@ -1,5 +1,5 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index f03a163dd1..128f3b80d3 100644
+index f03a163dd1e2d0bdbe2e2f52fd70ec5e661f3948..128f3b80d36849ec9444bbf9c72ff500f8e594bc 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
 @@ -310,6 +310,12 @@ void FileSelectHelper::OnListDone(int error) {
@@ -123,7 +123,7 @@ index f03a163dd1..128f3b80d3 100644
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index e5b8c7d6e7..6fcbf24615 100644
+index e5b8c7d6e7b0a6032900d1323cd2d451ea2fb394..6fcbf246159ae05417a9619b96d4a5c7ebc5516c 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
 @@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
@@ -147,7 +147,7 @@ index e5b8c7d6e7..6fcbf24615 100644
    base::WeakPtrFactory<FileSelectHelper> weak_ptr_factory_{this};
  #endif  // BUILDFLAG(IS_CHROMEOS)
 diff --git chrome/browser/ui/chrome_select_file_policy.h chrome/browser/ui/chrome_select_file_policy.h
-index 49272553c7..5ba90c9a06 100644
+index 49272553c7c53a91bc79677884217881fd405653..5ba90c9a06ecf72c28b84cbb62ae3cbb3d12e1e2 100644
 --- chrome/browser/ui/chrome_select_file_policy.h
 +++ chrome/browser/ui/chrome_select_file_policy.h
 @@ -30,6 +30,8 @@ class ChromeSelectFilePolicy : public ui::SelectFilePolicy {
@@ -160,7 +160,7 @@ index 49272553c7..5ba90c9a06 100644
    raw_ptr<content::WebContents, AcrossTasksDanglingUntriaged> source_contents_;
  };
 diff --git ui/shell_dialogs/select_file_dialog.cc ui/shell_dialogs/select_file_dialog.cc
-index f9c0d03193..f32f02d216 100644
+index f9c0d03193a6373437b1509b882a93855c58bd8d..f32f02d216120f0f954be712f706b5696b78d722 100644
 --- ui/shell_dialogs/select_file_dialog.cc
 +++ ui/shell_dialogs/select_file_dialog.cc
 @@ -88,8 +88,10 @@ void SelectFileDialog::SetFactory(
@@ -177,7 +177,7 @@ index f9c0d03193..f32f02d216 100644
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index eb3d997598..e3002e471e 100644
+index eb3d997598631b220c3566748f23a5cdac3e4692..e3002e471e8420d88d2f11ab3c367010eb79ed1b 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -96,7 +96,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -243,7 +243,7 @@ index eb3d997598..e3002e471e 100644
  
  SelectFileDialog* CreateSelectFileDialog(
 diff --git ui/shell_dialogs/select_file_dialog_factory.h ui/shell_dialogs/select_file_dialog_factory.h
-index c7acd9b05f..3e95e4125f 100644
+index c7acd9b05fbb8c94c37a03c9b7e170548cb3dfbb..3e95e4125fa245e9671437e847058a865a52876a 100644
 --- ui/shell_dialogs/select_file_dialog_factory.h
 +++ ui/shell_dialogs/select_file_dialog_factory.h
 @@ -24,6 +24,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialogFactory {
@@ -256,7 +256,7 @@ index c7acd9b05f..3e95e4125f 100644
  
  }  // namespace ui
 diff --git ui/shell_dialogs/select_file_dialog_mac.mm ui/shell_dialogs/select_file_dialog_mac.mm
-index 5da67cfb73..6e618083bc 100644
+index 5da67cfb7362d01fac8d0be4565d319087ec3cf9..6e618083bc851ba2d9a11adebfeb8ac1afffa89c 100644
 --- ui/shell_dialogs/select_file_dialog_mac.mm
 +++ ui/shell_dialogs/select_file_dialog_mac.mm
 @@ -105,6 +105,10 @@ void SelectFileDialogImpl::SelectFileImpl(
@@ -271,7 +271,7 @@ index 5da67cfb73..6e618083bc 100644
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index e3bd03f336..afc421d991 100644
+index e3bd03f336eddcab530a5dd8b31503dcaa92027e..afc421d99112f5cf6ec34edaa5f4b29789e1b267 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
 @@ -251,6 +251,8 @@ void SelectFileDialogImpl::SelectFileImpl(

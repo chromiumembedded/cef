@@ -1,5 +1,5 @@
 diff --git content/browser/devtools/devtools_instrumentation.h content/browser/devtools/devtools_instrumentation.h
-index dbd35f1300..1c890c637d 100644
+index dbd35f130060428d23fd622e446901fd08b282ef..1c890c637d852263d2bb4a95c0834a0825b3de1c 100644
 --- content/browser/devtools/devtools_instrumentation.h
 +++ content/browser/devtools/devtools_instrumentation.h
 @@ -116,7 +116,7 @@ bool ApplyUserAgentMetadataOverrides(
@@ -12,7 +12,7 @@ index dbd35f1300..1c890c637d 100644
  
   public:
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index d69f9d4641..e88aaf8617 100644
+index d69f9d4641613651e840d53833754f08db33ec77..e88aaf8617c526e615c23822dda938bf2f7f9453 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -9,6 +9,7 @@
@@ -33,7 +33,7 @@ index d69f9d4641..e88aaf8617 100644
    MouseWheelPhaseHandler(RenderWidgetHostViewBase* const host_view);
  
 diff --git content/browser/renderer_host/input/synthetic_gesture_target_base.h content/browser/renderer_host/input/synthetic_gesture_target_base.h
-index 09d80f2ba6..5dbff44c28 100644
+index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620fc18db54c 100644
 --- content/browser/renderer_host/input/synthetic_gesture_target_base.h
 +++ content/browser/renderer_host/input/synthetic_gesture_target_base.h
 @@ -8,6 +8,7 @@
@@ -55,7 +55,7 @@ index 09d80f2ba6..5dbff44c28 100644
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 1cec8375b6..e3aa20e8ae 100644
+index 1cec8375b6d86a2df337d4d5fe2266756744be62..e3aa20e8aea63c400ac7e9c5a816dc55aa662392 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@
@@ -83,7 +83,7 @@ index 1cec8375b6..e3aa20e8ae 100644
      sources += [
        "memory_usage_monitor_posix.cc",
 diff --git ui/events/keycodes/BUILD.gn ui/events/keycodes/BUILD.gn
-index 4f4fbfb769..a794da2d83 100644
+index 4f4fbfb769cf8d7a8a10c6772f39b2eef8362b53..a794da2d8343bb8aafe59dd8e60d2c3d2dfd62e3 100644
 --- ui/events/keycodes/BUILD.gn
 +++ ui/events/keycodes/BUILD.gn
 @@ -19,6 +19,8 @@ source_set("xkb") {
@@ -96,7 +96,7 @@ index 4f4fbfb769..a794da2d83 100644
      "//base",
      "//ui/events:dom_keycode_converter",
 diff --git ui/events/keycodes/keyboard_code_conversion_xkb.h ui/events/keycodes/keyboard_code_conversion_xkb.h
-index 5693e3a1c4..88c0cc6d59 100644
+index 5693e3a1c4bc4c5b4277fd20f6aaf1290f5efe35..88c0cc6d590987f7834c53b6069ac9576a1eeb2f 100644
 --- ui/events/keycodes/keyboard_code_conversion_xkb.h
 +++ ui/events/keycodes/keyboard_code_conversion_xkb.h
 @@ -9,6 +9,7 @@

@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/about/about_ui.cc chrome/browser/ui/webui/about/about_ui.cc
-index 0939e62b45..ca2ac8ce23 100644
+index 0939e62b45530deb2f1213aaf4204073c0bded6f..ca2ac8ce2374905458af7a7d96a59c4c7ebd4a37 100644
 --- chrome/browser/ui/webui/about/about_ui.cc
 +++ chrome/browser/ui/webui/about/about_ui.cc
 @@ -86,6 +86,10 @@
@@ -43,7 +43,7 @@ index 0939e62b45..ca2ac8ce23 100644
    FinishDataRequest(response, std::move(callback));
  }
 diff --git chrome/browser/ui/webui/about/about_ui.h chrome/browser/ui/webui/about/about_ui.h
-index 46103729d3..fbc400e602 100644
+index 46103729d33a79a3710f44db727a25100c194f7f..fbc400e60239b5420b9df3d1872abfc1e0383c97 100644
 --- chrome/browser/ui/webui/about/about_ui.h
 +++ chrome/browser/ui/webui/about/about_ui.h
 @@ -11,6 +11,7 @@
@@ -69,7 +69,7 @@ index 46103729d3..fbc400e602 100644
  // chrome://terms
  class TermsUIConfig : public AboutUIConfigBase {
 diff --git chrome/browser/ui/webui/chrome_web_ui_configs.cc chrome/browser/ui/webui/chrome_web_ui_configs.cc
-index cbcdde4afa..3507ff26fa 100644
+index cbcdde4afa71bd124a4abd0d72aeb8111a1ed217..3507ff26fa3a0380d3659c25ee51ee451bea8002 100644
 --- chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_configs.cc
 @@ -6,6 +6,7 @@
@@ -91,7 +91,7 @@ index cbcdde4afa..3507ff26fa 100644
    map.AddWebUIConfig(std::make_unique<CrashesUIConfig>());
    map.AddWebUIConfig(std::make_unique<commerce::CommerceInternalsUIConfig>());
 diff --git chrome/common/webui_url_constants.cc chrome/common/webui_url_constants.cc
-index e5e724a22d..fcb15d2344 100644
+index e5e724a22d015235b3f8dcbe7eed56c272e6c471..fcb15d234483f5f1cfe464fcc60dde55f0517f0e 100644
 --- chrome/common/webui_url_constants.cc
 +++ chrome/common/webui_url_constants.cc
 @@ -96,6 +96,9 @@ base::span<const base::cstring_view> ChromeURLHosts() {
@@ -105,7 +105,7 @@ index e5e724a22d..fcb15d2344 100644
  #if !BUILDFLAG(IS_ANDROID)
        kChromeUIManagementHost,
 diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
-index d2e895dbc4..abe7ba3d26 100644
+index d2e895dbc4a162297d77b5489c8c87754dd1c04d..abe7ba3d26f50e101fa49957e9bd0dc5884dee0d 100644
 --- chrome/common/webui_url_constants.h
 +++ chrome/common/webui_url_constants.h
 @@ -18,6 +18,7 @@

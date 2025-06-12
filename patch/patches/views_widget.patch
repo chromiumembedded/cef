@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/sessions/sessions_api.cc chrome/browser/extensions/api/sessions/sessions_api.cc
-index 25c3c2d6ed..0f7388e14e 100644
+index 25c3c2d6ed3af10752ba2075e1e38c15c8c3ad49..0f7388e14ebe258b58ad52c0c815deff8a4da23c 100644
 --- chrome/browser/extensions/api/sessions/sessions_api.cc
 +++ chrome/browser/extensions/api/sessions/sessions_api.cc
 @@ -341,6 +341,7 @@ SessionsGetDevicesFunction::CreateWindowModel(
@@ -11,7 +11,7 @@ index 25c3c2d6ed..0f7388e14e 100644
        break;
      case ui::mojom::WindowShowState::kMaximized:
 diff --git chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
-index dc3a54ce29..1a57a27234 100644
+index dc3a54ce29e7dfcee330955233759fe4504c2529..1a57a272348697edde8fd43b44f68cf6d97b2ecb 100644
 --- chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
 +++ chrome/browser/ui/views/apps/chrome_native_app_window_views_aura.cc
 @@ -37,6 +37,7 @@ ui::mojom::WindowShowState ChromeNativeAppWindowViewsAura::GetRestorableState(
@@ -23,7 +23,7 @@ index dc3a54ce29..1a57a27234 100644
      case ui::mojom::WindowShowState::kEnd:
        return ui::mojom::WindowShowState::kNormal;
 diff --git components/sessions/core/session_service_commands.cc components/sessions/core/session_service_commands.cc
-index 35c1d3e925..aacbbe895c 100644
+index 35c1d3e925c3a2ca31d31f13b5d196f92ee7c0ee..aacbbe895c29870a2745ea01c4aa5a152b15d8f9 100644
 --- components/sessions/core/session_service_commands.cc
 +++ components/sessions/core/session_service_commands.cc
 @@ -172,9 +172,10 @@ enum PersistedWindowShowState {
@@ -49,7 +49,7 @@ index 35c1d3e925..aacbbe895c 100644
      case ui::mojom::WindowShowState::kMaximized:
        return PERSISTED_SHOW_STATE_MAXIMIZED;
 diff --git components/sessions/core/tab_restore_service_impl.cc components/sessions/core/tab_restore_service_impl.cc
-index 971e5273f1..a5d847f7f9 100644
+index 971e5273f1b05307bc30d1efac4f0a9b5babc8d7..a5d847f7f9d60150cf1ba9a699de2a01b3f790be 100644
 --- components/sessions/core/tab_restore_service_impl.cc
 +++ components/sessions/core/tab_restore_service_impl.cc
 @@ -203,6 +203,7 @@ int SerializeWindowShowState(ui::mojom::WindowShowState show_state) {
@@ -61,7 +61,7 @@ index 971e5273f1..a5d847f7f9 100644
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index bb7475f1f8..522c7a8e74 100644
+index bb7475f1f8be4038c77d2dc68b09a7ac2338b160..522c7a8e74640c5e202ae903f1e4e06128e6335a 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -603,6 +603,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
@@ -80,7 +80,7 @@ index bb7475f1f8..522c7a8e74 100644
    if (!GetMouseWheelPhaseHandler())
      return;
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index faed571e32..4b33792b4f 100644
+index faed571e3232545cdba8fc113c039d3432441448..4b33792b4f233a235219298c0ab8c025c303e416 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -73,6 +73,7 @@ namespace content {
@@ -148,7 +148,7 @@ index faed571e32..4b33792b4f 100644
    // renderer process changes. This method is called before notifying
    // RenderWidgetHostImpl in order to allow the view to allocate a new
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 41b34a2717..bdf5f9d4bb 100644
+index 41b34a27176a3d83ab3e83120b470695f80a3345..bdf5f9d4bb61e0b562c65cea512a40275eff2b29 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -52,6 +52,10 @@ namespace {
@@ -196,7 +196,7 @@ index 41b34a2717..bdf5f9d4bb 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 1c6b2efc65..15003a27cd 100644
+index 1c6b2efc652eee48c8109dbc3edbf4689b6b0ebc..15003a27cd0db0f80d60aeb331e24033777fb638 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -255,6 +255,14 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -215,7 +215,7 @@ index 1c6b2efc65..15003a27cd 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/aura/native_window_occlusion_tracker_win.cc ui/aura/native_window_occlusion_tracker_win.cc
-index f7ac6accd9..068861af46 100644
+index f7ac6accd990a33f9f47d1d6cfcc87238916a84b..068861af469f955d7f787c3c5ac5d42e3681dc52 100644
 --- ui/aura/native_window_occlusion_tracker_win.cc
 +++ ui/aura/native_window_occlusion_tracker_win.cc
 @@ -102,6 +102,13 @@ void NativeWindowOcclusionTrackerWin::Enable(Window* window) {
@@ -233,7 +233,7 @@ index f7ac6accd9..068861af46 100644
    // Remember this mapping from hwnd to Window*.
    hwnd_root_window_map_[root_window_hwnd] = window;
 diff --git ui/base/mojom/window_show_state.mojom ui/base/mojom/window_show_state.mojom
-index aeaf8e35f7..4b7cc3f03d 100644
+index aeaf8e35f7eda89598149117fe8508d197bf2610..4b7cc3f03d3cf9c91ac8efe11ae820cf2b34b8b0 100644
 --- ui/base/mojom/window_show_state.mojom
 +++ ui/base/mojom/window_show_state.mojom
 @@ -20,6 +20,7 @@ enum WindowShowState {
@@ -246,7 +246,7 @@ index aeaf8e35f7..4b7cc3f03d 100644
 +  [MinVersion=1] kEnd = 7,
  };
 diff --git ui/ozone/platform/x11/x11_window.cc ui/ozone/platform/x11/x11_window.cc
-index 8ddea1c9ed..7e92ecf2c5 100644
+index 8ddea1c9ed5ee4c8223424fd478baa4d4fa13b8c..7e92ecf2c5a5f396a4c1f6ed48fb92eeb0d3f657 100644
 --- ui/ozone/platform/x11/x11_window.cc
 +++ ui/ozone/platform/x11/x11_window.cc
 @@ -1834,7 +1834,8 @@ void X11Window::CreateXWindow(const PlatformWindowInitProperties& properties) {
@@ -260,7 +260,7 @@ index 8ddea1c9ed..7e92ecf2c5 100644
    req.y = last_set_bounds_px_.y();
    req.width = last_set_bounds_px_.width();
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index 0778559790..69f369b06c 100644
+index 077855979045d4862abd099ec16befa0fcecff65..69f369b06c29e65dead98a52cc8b743ee81b2b7c 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -27,6 +27,8 @@ DesktopScreenWin::~DesktopScreenWin() {
@@ -273,7 +273,7 @@ index 0778559790..69f369b06c 100644
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index a5114063ad..e8254548b7 100644
+index a5114063ad7426a9c675e4f69aeba4bf55a213cf..e8254548b7d62fc9371ea8c0e5be0fc9d364718c 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 @@ -193,6 +193,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
@@ -307,7 +307,7 @@ index a5114063ad..e8254548b7 100644
    properties->x11_extension_delegate = this;
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
-index 5c57268b37..e844ce5a4c 100644
+index 5c57268b37e2acdb30b09dd525a0eefc11f39112..e844ce5a4cd3aa9144065cfbefa9db4d5478ec61 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.h
 @@ -63,6 +63,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostLinux
@@ -339,7 +339,7 @@ index 5c57268b37..e844ce5a4c 100644
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 2150c34407..feb1abf159 100644
+index 2150c344075c7c66da5bda5e6086ff91ac8da7e2..feb1abf159d5174a6b2aa8b757eb2a1ec7f6cece 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -280,8 +280,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -354,7 +354,7 @@ index 2150c34407..feb1abf159 100644
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 98f2570c45..b3aedbd992 100644
+index 98f2570c45ab01ffc1c63ba32037003791cf45df..b3aedbd9929252b7ab4d5d3abc7900847d3d3a77 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -24,6 +24,7 @@
@@ -493,7 +493,7 @@ index 98f2570c45..b3aedbd992 100644
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 6fae2decd3..d95b77bd76 100644
+index 6fae2decd386792d32036c05ce07862095dca05c..d95b77bd7671debf677489f7894720f55481d685 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -347,6 +347,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
@@ -512,7 +512,7 @@ index 6fae2decd3..d95b77bd76 100644
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index 16790a4b9d..7d5f11cdb3 100644
+index 16790a4b9d155eb8ff88fafd2d7bc00938bb3724..7d5f11cdb3a532a1c921d4727c49c5678676b4a5 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
 @@ -717,6 +717,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
@@ -524,7 +524,7 @@ index 16790a4b9d..7d5f11cdb3 100644
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 5270118d8f..98f974c108 100644
+index 5270118d8f8dc1057b4fc9e353f05278ce1e8ad4..98f974c10834ad1987e780086241869740f7878b 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -233,8 +233,8 @@ bool Widget::InitParams::ShouldInitAsHeadless() const {
@@ -605,7 +605,7 @@ index 5270118d8f..98f974c108 100644
      // focus when the window is restored.
      if (v) {
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 65154f18c7..67c626d78e 100644
+index 65154f18c7ce737ea1b48ebd9308896d8a13f622..67c626d78e5d31a603aed96fcdeadfb6cf4a52db 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -437,6 +437,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
@@ -627,7 +627,7 @@ index 65154f18c7..67c626d78e 100644
    // Deactivates the widget, making the next window in the Z order the active
    // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index 89de188e6a..e87a2f25c8 100644
+index 89de188e6a0139a236a824b189f1048613d6f457..e87a2f25c8f4342aa99bbc97676ae6c4a8bbeabf 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
 @@ -24,6 +24,9 @@
@@ -687,7 +687,7 @@ index 89de188e6a..e87a2f25c8 100644
  };
  
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index fe68bce385..c5fcee907f 100644
+index fe68bce38527ba27d57ad85c8bdf1bb003d5a020..c5fcee907f34fc8af7fb71f511d48e8eb962e7ee 100644
 --- ui/views/widget/widget_hwnd_utils.cc
 +++ ui/views/widget/widget_hwnd_utils.cc
 @@ -79,7 +79,8 @@ WindowStyles CalculateWindowStylesFromInitParams(
@@ -701,7 +701,7 @@ index fe68bce385..c5fcee907f 100644
  
        if (native_widget_delegate->IsDialogBox()) {
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 316f1bc768..8981317647 100644
+index 316f1bc768af4c468d63dda139d8b43088a4a45f..898131764777039e8f2e1184190f49171428b172 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -797,7 +797,11 @@ bool HWNDMessageHandler::IsVisible() const {

@@ -1,5 +1,5 @@
 diff --git DEPS DEPS
-index cc78d6d67b0d6..a70e57f1af4ba 100644
+index cc78d6d67b0d6eeeb70498feb869cf41bb2acd46..a70e57f1af4ba5d214b4d8d1345ac1fb9279bb65 100644
 --- DEPS
 +++ DEPS
 @@ -5182,6 +5182,7 @@ hooks = [

@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index 1078abe8b3..88be445f78 100644
+index 1078abe8b366543d96ac248dbaa385a44b750f0c..88be445f788d6fdca20fd8ab5347080a2692f6ce 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")

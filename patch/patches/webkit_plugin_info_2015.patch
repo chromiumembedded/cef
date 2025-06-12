@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/platform/platform.h third_party/blink/public/platform/platform.h
-index fa4beef133..bc19a7b8bc 100644
+index fa4beef133fd9bec1f1dc5fefdfbb240cec28621..bc19a7b8bcc844ffbe2c2c28b16814264c082ddb 100644
 --- third_party/blink/public/platform/platform.h
 +++ third_party/blink/public/platform/platform.h
 @@ -837,6 +837,11 @@ class BLINK_PLATFORM_EXPORT Platform {
@@ -15,7 +15,7 @@ index fa4beef133..bc19a7b8bc 100644
    static void InitializeMainThreadCommon(
        std::unique_ptr<MainThread> main_thread);
 diff --git third_party/blink/renderer/core/inspector/devtools_session.cc third_party/blink/renderer/core/inspector/devtools_session.cc
-index 07602d73ab..ea90041293 100644
+index 07602d73abf5eb66da2d26802d1486b69508242c..ea90041293da8afd878b780d5b6c17998a567258 100644
 --- third_party/blink/renderer/core/inspector/devtools_session.cc
 +++ third_party/blink/renderer/core/inspector/devtools_session.cc
 @@ -13,6 +13,7 @@

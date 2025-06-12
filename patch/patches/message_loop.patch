@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 1a263dc22f..09fa613e35 100644
+index 1a263dc22f472bc12c95f819066b3b4bf0b3eab7..09fa613e35649f85aec1f2b6a5479c4f4639eaab 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -30,7 +30,7 @@ index 1a263dc22f..09fa613e35 100644
    }
    if (has_msg) {
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 53a6213a76..2177265e9b 100644
+index 53a6213a76b92da1f859ac0b90c42756fbf6b785..2177265e9b1b23cae610628945312998bcad92a7 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,7 +43,7 @@ index 53a6213a76..2177265e9b 100644
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index b6e265e2d7..d072fae0fd 100644
+index b6e265e2d7628cdd3e671fbf7b6d4096863ab4d5..d072fae0fd58846f62c4fbd49e61739efd12c7b7 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -165,6 +165,12 @@ class BASE_EXPORT CurrentThread {

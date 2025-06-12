@@ -1,5 +1,5 @@
 diff --git content/browser/child_process_security_policy_impl.cc content/browser/child_process_security_policy_impl.cc
-index 53a73d6c75..05290de4c0 100644
+index 53a73d6c75b7aa2a008bd57d86c0f6d34a5cca6f..05290de4c03a0325856882c996bdc244629d73eb 100644
 --- content/browser/child_process_security_policy_impl.cc
 +++ content/browser/child_process_security_policy_impl.cc
 @@ -2146,6 +2146,16 @@ bool ChildProcessSecurityPolicyImpl::PerformJailAndCitadelChecks(
@@ -20,7 +20,7 @@ index 53a73d6c75..05290de4c0 100644
  
        // Make an exception to allow most visited tiles to commit in third-party
 diff --git content/browser/renderer_host/navigation_request.cc content/browser/renderer_host/navigation_request.cc
-index ac9fd53f8f..3624ea2a10 100644
+index ac9fd53f8fc22917f78cbeb2da1a05efa0bd26b7..3624ea2a10a3e729f9084644c94aa541eaf317f6 100644
 --- content/browser/renderer_host/navigation_request.cc
 +++ content/browser/renderer_host/navigation_request.cc
 @@ -8622,10 +8622,22 @@ NavigationRequest::GetOriginForURLLoaderFactoryBeforeResponseWithDebugInfo(

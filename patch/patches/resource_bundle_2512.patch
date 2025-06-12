@@ -1,5 +1,5 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 92f2c53333..114c89aa67 100644
+index 92f2c53333fd5955d59198c09972e3a8ceee74b9..114c89aa6717b5aeaf1f86830f99f3c62757f5d1 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
 @@ -947,6 +947,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
@@ -28,7 +28,7 @@ index 92f2c53333..114c89aa67 100644
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == nullptr) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index 5c91532db0..97bb235e4c 100644
+index 5c91532db08be067ee9b6ebf9b7575a35a880c27..97bb235e4cf816477689b242cc9a909e1605cf5c 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
 @@ -224,6 +224,11 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {

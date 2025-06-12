@@ -1,5 +1,5 @@
 diff --git base/third_party/double_conversion/BUILD.gn base/third_party/double_conversion/BUILD.gn
-index 8380f58d99..c0755bf987 100644
+index 8380f58d995bca8f4483082cecbee5d16aea702b..c0755bf9870b40f191202fc5c7d26e7ed26e1742 100644
 --- base/third_party/double_conversion/BUILD.gn
 +++ base/third_party/double_conversion/BUILD.gn
 @@ -9,6 +9,11 @@ config("config") {
@@ -15,7 +15,7 @@ index 8380f58d99..c0755bf987 100644
  
  static_library("double_conversion") {
 diff --git base/win/BUILD.gn base/win/BUILD.gn
-index d915a93207..5661652c9b 100644
+index d915a9320750c51aba1c93f3fcb4e8163de86f39..5661652c9b2da18ca6feb2d24a9946d7fa741d62 100644
 --- base/win/BUILD.gn
 +++ base/win/BUILD.gn
 @@ -33,4 +33,7 @@ static_library("pe_image") {
