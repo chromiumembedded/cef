@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from datetime import datetime
+import hashlib
 from io import open
 from optparse import OptionParser
 import os
@@ -170,7 +171,25 @@ def get_git_url(path):
   return 'Unknown'
 
 
-def download_and_extract(src, target, strip_components=0):
+def is_valid_sha256(hash_string):
+  """ Returns true if |value| is a valid hex-encoded SHA256 hash. """
+  if len(hash_string) != 64:
+    return False
+  if not re.fullmatch(r'[0-9a-fA-F]+', hash_string):
+    return False
+  return True
+
+
+def sha256_of_file(file_path):
+  """ Returns the lower-case hex-encoded SHA256 hash for |file_path| contents. """
+  sha256_hash = hashlib.sha256()
+  with open(file_path, "rb") as f:
+    for chunk in iter(lambda: f.read(4096), b""):
+      sha256_hash.update(chunk)
+  return sha256_hash.hexdigest()
+
+
+def download_and_extract(src, target, strip_components=0, sha256_hash=''):
   """ Extracts the contents of src, which may be a URL or local file, to the
       target directory. """
   temporary = False
@@ -199,11 +218,17 @@ def download_and_extract(src, target, strip_components=0):
   else:
     raise Exception('Path type is unsupported or does not exist: ' + src)
 
+  if len(sha256_hash) == 64:
+    hash = sha256_of_file(archive_path)
+    if hash != sha256_hash.lower():
+      raise Exception('SHA256 hash check failed for: ' + archive_path)
+    msg('SHA56 hash %s verified for %s' % (sha256_hash, archive_path))
+
   msg('Extracting ' + archive_path)
 
   if extension == '.zip':
     if not zipfile.is_zipfile(archive_path):
-      raise Exception('Not a valid zip archive: ' + src)
+      raise Exception('Not a valid zip archive: ' + archive_path)
 
     # Attempt to extract the archive file.
     try:
@@ -593,6 +618,11 @@ parser.add_option(
     dest='depottoolsarchive',
     help='Archive file that contains a single top-level depot_tools directory.',
     default='')
+parser.add_option(
+    '--depot-tools-archive-sha256',
+    dest='depottoolsarchivesha256',
+    help='SHA256 hex-encoded hash for the file passed to --depot-tools-archive.',
+    default='')
 parser.add_option('--branch', dest='branch',
                   help='Branch of CEF to build (master, 3987, ...). This '+\
                        'will be used to name the CEF download directory and '+\
@@ -626,6 +656,11 @@ parser.add_option(
     '--chromium-archive',
     dest='chromiumarchive',
     help='Archive file that contains a single top-level chromium src directory.',
+    default='')
+parser.add_option(
+    '--chromium-archive-sha256',
+    dest='chromiumarchivesha256',
+    help='SHA256 hex-encoded hash for the file passed to --chromium-archive.',
     default='')
 
 # Miscellaneous options.
@@ -930,6 +965,18 @@ if options.noupdate:
 if options.chromiumarchive != '':
   options.nochromiumhistory = True
 
+if options.depottoolsarchivesha256 != '' and \
+   not is_valid_sha256(options.depottoolsarchivesha256):
+  print('Invalid --depot-tools-archive-sha256 value.')
+  parser.print_help(sys.stderr)
+  sys.exit(1)
+
+if options.chromiumarchivesha256 != '' and \
+   not is_valid_sha256(options.chromiumarchivesha256):
+  print('Invalid --chromium-archive-sha256 value.')
+  parser.print_help(sys.stderr)
+  sys.exit(1)
+
 if options.runtests:
   options.buildtests = True
 
@@ -1104,7 +1151,10 @@ if not os.path.exists(depot_tools_dir):
     # Extract depot_tools from an archive file.
     msg('Extracting %s to %s' % (options.depottoolsarchive, depot_tools_dir))
     if not options.dryrun:
-      download_and_extract(options.depottoolsarchive, depot_tools_dir)
+      download_and_extract(
+          options.depottoolsarchive,
+          depot_tools_dir,
+          sha256_hash=options.depottoolsarchivesha256)
   else:
     # On Linux and OS X check out depot_tools using Git.
     run('git clone ' + depot_tools_url + ' ' + depot_tools_dir, download_dir)
@@ -1313,7 +1363,8 @@ if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
     msg('Extracting %s to %s' % (options.chromiumarchive, chromium_src_dir))
     if not options.dryrun:
       # Extract without the top-level directory, which has the same name as the archive file.
-      download_and_extract(options.chromiumarchive, chromium_src_dir, strip_components=1)
+      download_and_extract(options.chromiumarchive, chromium_src_dir, strip_components=1,
+                           sha256_hash=options.chromiumarchivesha256)
 
     # Apply patches required for source tarball support.
     apply_patch('tarball_deps', chromium_src_dir, required=True)
