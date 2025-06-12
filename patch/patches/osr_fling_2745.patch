@@ -1,5 +1,5 @@
 diff --git components/input/fling_scheduler_base.h components/input/fling_scheduler_base.h
-index 6e331ee24bddf..ab6c61c2e57ac 100644
+index 6e331ee24b..ab6c61c2e5 100644
 --- components/input/fling_scheduler_base.h
 +++ components/input/fling_scheduler_base.h
 @@ -5,9 +5,14 @@
@@ -32,7 +32,7 @@ index 6e331ee24bddf..ab6c61c2e57ac 100644
  
  }  // namespace input
 diff --git components/input/render_input_router.h components/input/render_input_router.h
-index f9b608527a252..ec64323db09be 100644
+index f9b608527a..ec64323db0 100644
 --- components/input/render_input_router.h
 +++ components/input/render_input_router.h
 @@ -68,6 +68,7 @@ class COMPONENT_EXPORT(INPUT) RenderInputRouter
@@ -44,7 +44,7 @@ index f9b608527a252..ec64323db09be 100644
    void SetForceEnableZoom(bool);
    void SetDeviceScaleFactor(float device_scale_factor);
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 477389a1cb1d3..b7b7edbfbdf5d 100644
+index 477389a1cb..b7b7edbfbd 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -58,10 +58,10 @@ index 477389a1cb1d3..b7b7edbfbdf5d 100644
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index 52f772876a887..fb14424865660 100644
+index 252edf0bb4..759fb1cf40 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3759,6 +3759,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3769,6 +3769,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -74,10 +74,10 @@ index 52f772876a887..fb14424865660 100644
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index 0bc94f2246a93..20fbaaf347d58 100644
+index f24d02054c..e40453cd2c 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -848,6 +848,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -852,6 +852,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

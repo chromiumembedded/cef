@@ -1,5 +1,5 @@
 diff --git third_party/blink/renderer/platform/heap/thread_local.h third_party/blink/renderer/platform/heap/thread_local.h
-index a672ba785ac06..13d794dc15c16 100644
+index a672ba785a..13d794dc15 100644
 --- third_party/blink/renderer/platform/heap/thread_local.h
 +++ third_party/blink/renderer/platform/heap/thread_local.h
 @@ -37,7 +37,7 @@

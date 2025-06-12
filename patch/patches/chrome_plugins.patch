@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_embedder.h content/browser/browser_plugin/browser_plugin_embedder.h
-index ea2891a279371..595e5b8eb2cb6 100644
+index ea2891a279..595e5b8eb2 100644
 --- content/browser/browser_plugin/browser_plugin_embedder.h
 +++ content/browser/browser_plugin/browser_plugin_embedder.h
 @@ -15,6 +15,7 @@
@@ -20,7 +20,7 @@ index ea2891a279371..595e5b8eb2cb6 100644
    BrowserPluginEmbedder(const BrowserPluginEmbedder&) = delete;
    BrowserPluginEmbedder& operator=(const BrowserPluginEmbedder&) = delete;
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 9c2b92be1dd07..adfda85e74ea8 100644
+index 9c2b92be1d..adfda85e74 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -49,6 +49,8 @@ std::unique_ptr<WebContentsImpl> BrowserPluginGuest::CreateNewGuestWindow(
@@ -33,7 +33,7 @@ index 9c2b92be1dd07..adfda85e74ea8 100644
        GetWebContents()->GetPrimaryMainFrame()->GetRenderWidgetHost();
    DCHECK(rwhi);
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index 7f3083029d45e..94a5cbed96a10 100644
+index 7f3083029d..94a5cbed96 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
 @@ -70,6 +70,8 @@ class BrowserPluginGuest : public WebContentsObserver {

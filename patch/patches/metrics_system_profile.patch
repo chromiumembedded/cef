@@ -1,5 +1,5 @@
 diff --git components/metrics/persistent_system_profile.cc components/metrics/persistent_system_profile.cc
-index 5ffc5ec97f90a..d322d2a26264a 100644
+index 5ffc5ec97f..d322d2a262 100644
 --- components/metrics/persistent_system_profile.cc
 +++ components/metrics/persistent_system_profile.cc
 @@ -415,6 +415,10 @@ bool PersistentSystemProfile::GetSystemProfile(
@@ -14,7 +14,7 @@ index 5ffc5ec97f90a..d322d2a26264a 100644
  void PersistentSystemProfile::MergeUpdateRecords(
      const base::PersistentMemoryAllocator& memory_allocator,
 diff --git components/metrics/persistent_system_profile.h components/metrics/persistent_system_profile.h
-index 426ed30d15be2..088fffc40f8a0 100644
+index 426ed30d15..088fffc40f 100644
 --- components/metrics/persistent_system_profile.h
 +++ components/metrics/persistent_system_profile.h
 @@ -64,6 +64,10 @@ class PersistentSystemProfile {

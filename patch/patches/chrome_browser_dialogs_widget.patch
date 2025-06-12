@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
-index cc58a303a78b6..7755e58c8651c 100644
+index cc58a303a7..7755e58c86 100644
 --- chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 +++ chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 @@ -99,7 +99,7 @@ javascript_dialogs::AppModalDialogView* CreateViewsJavaScriptDialog(
@@ -12,7 +12,7 @@ index cc58a303a78b6..7755e58c8651c 100644
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 4421cf1ad1bf1..136c93d146813 100644
+index 4421cf1ad1..136c93d146 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -103,10 +103,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -167,7 +167,7 @@ index 4421cf1ad1bf1..136c93d146813 100644
      DCHECK_EQ(parent_view, host->GetHostView());
      std::unique_ptr<ModalDialogHostObserver> observer =
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-index 2b495a8ab092c..01a28aca853d0 100644
+index 2b495a8ab0..01a28aca85 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 +++ components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 @@ -190,9 +190,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
@@ -195,7 +195,7 @@ index 2b495a8ab092c..01a28aca853d0 100644
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index c618c00223779..05b2b1e5d8865 100644
+index c618c00223..05b2b1e5d8 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
 @@ -35,6 +35,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {
@@ -212,7 +212,7 @@ index c618c00223779..05b2b1e5d8865 100644
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index fa171a2990d47..3b170e3d6a920 100644
+index fa171a2990..3b170e3d6a 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -90,10 +90,12 @@ DialogDelegate::DialogDelegate() {
@@ -280,7 +280,7 @@ index fa171a2990d47..3b170e3d6a920 100644
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index df267c8c3d6b9..ee4856c998c9e 100644
+index df267c8c3d..ee4856c998 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -308,13 +308,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

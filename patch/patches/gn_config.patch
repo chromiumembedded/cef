@@ -1,5 +1,5 @@
 diff --git .gn .gn
-index ae58a0b0a64ae..35e01ee64e5d7 100644
+index ae58a0b0a6..35e01ee64e 100644
 --- .gn
 +++ .gn
 @@ -156,6 +156,8 @@ exec_script_allowlist =
@@ -12,7 +12,7 @@ index ae58a0b0a64ae..35e01ee64e5d7 100644
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index e32e31565b7cc..464bdcf2c95e3 100644
+index e32e31565b..464bdcf2c9 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -35,7 +35,7 @@ index e32e31565b7cc..464bdcf2c95e3 100644
        deps += [ "//printing:printing_unittests" ]
      }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index bd41166938952..fba7843d79796 100644
+index bd41166938..fba7843d79 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -5,15 +5,14 @@
@@ -78,7 +78,7 @@ index bd41166938952..fba7843d79796 100644
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 388b83742657c..54a0bac5b6ad6 100644
+index eddc45b064..7291e9fe0d 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -102,7 +102,7 @@ index 388b83742657c..54a0bac5b6ad6 100644
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 3588fa340be0c..7fcb9072c2392 100644
+index 3588fa340b..7fcb9072c2 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -5,6 +5,7 @@
@@ -125,7 +125,7 @@ index 3588fa340be0c..7fcb9072c2392 100644
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7e49b4e449981..b01e5db88a51e 100644
+index 7e49b4e449..b01e5db88a 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/features.gni")
@@ -152,7 +152,7 @@ index 7e49b4e449981..b01e5db88a51e 100644
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 8df7cb1eb8e8c..6c21b1aaa9286 100644
+index 8df7cb1eb8..6c21b1aaa9 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -4,7 +4,9 @@

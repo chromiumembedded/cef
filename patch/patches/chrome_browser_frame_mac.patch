@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.h chrome/browser/ui/views/frame/browser_frame_mac.h
-index bda8a68545a80..275a75f841422 100644
+index bda8a68545..275a75f841 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.h
 +++ chrome/browser/ui/views/frame/browser_frame_mac.h
 @@ -11,6 +11,7 @@
@@ -33,7 +33,7 @@ index bda8a68545a80..275a75f841422 100644
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 9f478e1478d41..fadc6f000b87e 100644
+index 9f478e1478..fadc6f000b 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
 @@ -185,7 +185,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {

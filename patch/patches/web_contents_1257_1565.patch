@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index e57951543e9f2..a28de9c75366a 100644
+index f3204a3925..624c3caa30 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -4103,6 +4103,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -4079,6 +4079,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
        params.main_frame_name, GetOpener(), primary_main_frame_policy,
        base::UnguessableToken::Create());
  
@@ -15,7 +15,7 @@ index e57951543e9f2..a28de9c75366a 100644
    std::unique_ptr<WebContentsViewDelegate> delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -4113,6 +4119,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
+@@ -4089,6 +4095,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
      view_ = CreateWebContentsView(this, std::move(delegate),
                                    &render_view_host_delegate_view_);
    }
@@ -23,7 +23,7 @@ index e57951543e9f2..a28de9c75366a 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -4325,6 +4332,9 @@ void WebContentsImpl::RenderWidgetCreated(
+@@ -4301,6 +4308,9 @@ void WebContentsImpl::RenderWidgetCreated(
                          "render_widget_host", render_widget_host);
    CHECK(!created_widgets_.contains(render_widget_host->GetFrameSinkId()));
    created_widgets_[render_widget_host->GetFrameSinkId()] = render_widget_host;
@@ -33,7 +33,7 @@ index e57951543e9f2..a28de9c75366a 100644
  }
  
  void WebContentsImpl::RenderWidgetDeleted(
-@@ -5274,6 +5284,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
+@@ -5250,6 +5260,15 @@ FrameTree* WebContentsImpl::CreateNewWindow(
      create_params.picture_in_picture_options = *(params.pip_options);
    }
  
@@ -49,7 +49,7 @@ index e57951543e9f2..a28de9c75366a 100644
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -10092,6 +10111,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -9992,6 +10011,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -59,7 +59,7 @@ index e57951543e9f2..a28de9c75366a 100644
  }
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
-@@ -10742,6 +10764,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10642,6 +10664,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
    OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::Resize");
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -71,7 +71,7 @@ index e57951543e9f2..a28de9c75366a 100644
    window->SetBounds(gfx::Rect(window->bounds().origin(), new_bounds.size()));
  #elif BUILDFLAG(IS_ANDROID)
    content::RenderWidgetHostView* view = GetRenderWidgetHostView();
-@@ -10754,6 +10781,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10654,6 +10681,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
  gfx::Size WebContentsImpl::GetSize() {
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -84,7 +84,7 @@ index e57951543e9f2..a28de9c75366a 100644
  #elif BUILDFLAG(IS_ANDROID)
    ui::ViewAndroid* view_android = GetNativeView();
 diff --git content/browser/web_contents/web_contents_impl_mac.mm content/browser/web_contents/web_contents_impl_mac.mm
-index f1105a13aa0eb..d1dba26bbac1f 100644
+index f1105a13aa..d1dba26bba 100644
 --- content/browser/web_contents/web_contents_impl_mac.mm
 +++ content/browser/web_contents/web_contents_impl_mac.mm
 @@ -6,6 +6,7 @@
@@ -120,7 +120,7 @@ index f1105a13aa0eb..d1dba26bbac1f 100644
    return gfx::Size(NSWidth(frame), NSHeight(frame));
  }
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ab2df2fac2358..b1e45af82d261 100644
+index ab2df2fac2..b1e45af82d 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -121,11 +121,13 @@ class BrowserPluginGuestDelegate;
@@ -149,7 +149,7 @@ index ab2df2fac2358..b1e45af82d261 100644
      // the value that'll be returned by GetLastActiveTimeTicks(). If this is
      // left default initialized then the value is not passed on to the
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index d33274984bf65..47e79413dab7f 100644
+index d33274984b..47e79413da 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -101,9 +101,11 @@ class EyeDropperListener;
@@ -180,7 +180,7 @@ index d33274984bf65..47e79413dab7f 100644
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 7e0dd469a7059..25c2b9e2c54ff 100644
+index 7e0dd469a7..25c2b9e2c5 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
 @@ -255,6 +255,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {

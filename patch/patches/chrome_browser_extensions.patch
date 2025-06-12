@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 7101a6c177bca..852f80543db32 100644
+index 7101a6c177..852f80543d 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -34,7 +34,7 @@ index 7101a6c177bca..852f80543db32 100644
  
  std::unique_ptr<WebViewGuestDelegate>
 diff --git chrome/browser/extensions/api/tabs/tabs_api.cc chrome/browser/extensions/api/tabs/tabs_api.cc
-index ad1f4b4c3e979..55657d976c405 100644
+index ad1f4b4c3e..55657d976c 100644
 --- chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api.cc
 @@ -1714,7 +1714,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
@@ -84,7 +84,7 @@ index ad1f4b4c3e979..55657d976c405 100644
                               current_url, updated_url, js_callstack());
    }
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 959e848a6e9b4..5f73667a599e7 100644
+index 959e848a6e..5f73667a59 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
 @@ -39,6 +39,7 @@
@@ -122,7 +122,7 @@ index 959e848a6e9b4..5f73667a599e7 100644
      // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
      // the tab id exists as a prerendering tab, and the API will returns
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
-index ec26ac19c0780..928536d17dbb1 100644
+index ec26ac19c0..928536d17d 100644
 --- chrome/browser/ui/tab_helpers.h
 +++ chrome/browser/ui/tab_helpers.h
 @@ -6,6 +6,7 @@

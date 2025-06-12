@@ -1,5 +1,5 @@
 diff --git ui/color/color_provider_manager.cc ui/color/color_provider_manager.cc
-index aabe78905dc26..e75e6ab13d072 100644
+index aabe78905d..e75e6ab13d 100644
 --- ui/color/color_provider_manager.cc
 +++ ui/color/color_provider_manager.cc
 @@ -46,6 +46,15 @@ std::optional<GlobalManager>& GetGlobalManager() {
@@ -36,7 +36,7 @@ index aabe78905dc26..e75e6ab13d072 100644
  }
  
 diff --git ui/color/color_provider_manager.h ui/color/color_provider_manager.h
-index 67341dd5fc3d6..ee70de7f7fd44 100644
+index 67341dd5fc..ee70de7f7f 100644
 --- ui/color/color_provider_manager.h
 +++ ui/color/color_provider_manager.h
 @@ -15,6 +15,7 @@

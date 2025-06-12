@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index e65fddc7cc743..6febaf75842fa 100644
+index e65fddc7cc..6febaf7584 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -43,6 +43,7 @@
@@ -158,7 +158,7 @@ index e65fddc7cc743..6febaf75842fa 100644
 +      .Initialize(*memory_system_);
  }
 diff --git chrome/app/chrome_main_delegate.h chrome/app/chrome_main_delegate.h
-index fa692d8fbfa5a..d7745793dcf96 100644
+index fa692d8fbf..d7745793dc 100644
 --- chrome/app/chrome_main_delegate.h
 +++ chrome/app/chrome_main_delegate.h
 @@ -17,6 +17,7 @@
@@ -198,7 +198,7 @@ index fa692d8fbfa5a..d7745793dcf96 100644
  #if !BUILDFLAG(IS_ANDROID)
    // The sampling profiler exists until the `ChromeContentBrowserClient` is
 diff --git chrome/app_shim/BUILD.gn chrome/app_shim/BUILD.gn
-index db17714f74137..7119e5dba649a 100644
+index db17714f74..7119e5dba6 100644
 --- chrome/app_shim/BUILD.gn
 +++ chrome/app_shim/BUILD.gn
 @@ -24,6 +24,7 @@ source_set("app_shim") {
@@ -210,7 +210,7 @@ index db17714f74137..7119e5dba649a 100644
      "//chrome/app:command_ids",
      "//chrome/browser/renderer_host:history_swiper",
 diff --git chrome/app_shim/chrome_main_app_mode_mac.mm chrome/app_shim/chrome_main_app_mode_mac.mm
-index 72eb096075a05..d3866aae87c60 100644
+index 72eb096075..d3866aae87 100644
 --- chrome/app_shim/chrome_main_app_mode_mac.mm
 +++ chrome/app_shim/chrome_main_app_mode_mac.mm
 @@ -35,6 +35,7 @@
@@ -232,7 +232,7 @@ index 72eb096075a05..d3866aae87c60 100644
  
      base::PathService::OverrideAndCreateIfNeeded(
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index ee9e6e9208043..05c87c3e35352 100644
+index ee9e6e9208..05c87c3e35 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -28,6 +28,7 @@
@@ -388,7 +388,7 @@ index ee9e6e9208043..05c87c3e35352 100644
  #endif  // BUILDFLAG(IS_ANDROID)
  
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index e26e3625c99c8..c0d4a95607e37 100644
+index e26e3625c9..c0d4a95607 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
 @@ -20,6 +20,7 @@
@@ -424,7 +424,7 @@ index e26e3625c99c8..c0d4a95607e37 100644
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index e856d9cf62853..c6d489a87e760 100644
+index e856d9cf62..c6d489a87e 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -48,6 +48,7 @@
@@ -520,7 +520,7 @@ index e856d9cf62853..c6d489a87e760 100644
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index f29c2ed251c81..4886ddac92dcd 100644
+index f29c2ed251..4886ddac92 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
 @@ -160,6 +160,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
@@ -551,7 +551,7 @@ index f29c2ed251c81..4886ddac92dcd 100644
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 1ade93d9ea505..aa1360c4f31fe 100644
+index 1ade93d9ea..aa1360c4f3 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -15,6 +15,7 @@

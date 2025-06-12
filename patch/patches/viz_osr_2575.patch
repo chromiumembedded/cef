@@ -1,5 +1,5 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index b84296cc7e3bb..919dab95a6acd 100644
+index b84296cc7e..919dab95a6 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
 @@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
@@ -30,7 +30,7 @@ index b84296cc7e3bb..919dab95a6acd 100644
      gpu::SurfaceHandle child_window) {
    NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 9e94f648060e9..a20bc1f7c0b1e 100644
+index 9e94f64806..a20bc1f7c0 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -54,7 +54,7 @@ index 9e94f648060e9..a20bc1f7c0b1e 100644
  #endif
  
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
-index 8f726bde2cb5d..0737835d1e9d1 100644
+index 8f726bde2c..0737835d1e 100644
 --- components/viz/host/layered_window_updater_impl.cc
 +++ components/viz/host/layered_window_updater_impl.cc
 @@ -46,7 +46,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
@@ -67,7 +67,7 @@ index 8f726bde2cb5d..0737835d1e9d1 100644
  
    if (!canvas_) {
 diff --git components/viz/host/layered_window_updater_impl.h components/viz/host/layered_window_updater_impl.h
-index 8af69cac78b74..9f74e511c263d 100644
+index 8af69cac78..9f74e511c2 100644
 --- components/viz/host/layered_window_updater_impl.h
 +++ components/viz/host/layered_window_updater_impl.h
 @@ -38,7 +38,7 @@ class VIZ_HOST_EXPORT LayeredWindowUpdaterImpl
@@ -80,7 +80,7 @@ index 8af69cac78b74..9f74e511c263d 100644
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index ccee45644b385..19012698e0f3f 100644
+index ccee45644b..19012698e0 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -276,6 +276,8 @@ viz_component("service") {
@@ -93,7 +93,7 @@ index ccee45644b385..19012698e0f3f 100644
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 07502f4ff2afd..cfcabb11cf001 100644
+index 07502f4ff2..cfcabb11cf 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -134,7 +134,7 @@ index 07502f4ff2afd..cfcabb11cf001 100644
    HWND child_hwnd;
    auto device = CreateSoftwareOutputDeviceWin(
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index f0aca972c4a81..87b40c9ded9df 100644
+index f0aca972c4..87b40c9ded 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -156,8 +156,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
@@ -150,7 +150,7 @@ index f0aca972c4a81..87b40c9ded9df 100644
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 130067b91baa3..44b8e274ef3d4 100644
+index 130067b91b..44b8e274ef 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
 @@ -387,8 +387,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
@@ -170,7 +170,7 @@ index 130067b91baa3..44b8e274ef3d4 100644
        compositor_data.display_client->GetBoundRemote(resize_task_runner_);
    mojo::AssociatedRemote<viz::mojom::ExternalBeginFrameController>
 diff --git mojo/public/cpp/bindings/sync_call_restrictions.h mojo/public/cpp/bindings/sync_call_restrictions.h
-index c608918dfbf9a..49012891abbf6 100644
+index c608918dfb..49012891ab 100644
 --- mojo/public/cpp/bindings/sync_call_restrictions.h
 +++ mojo/public/cpp/bindings/sync_call_restrictions.h
 @@ -41,6 +41,7 @@ class Compositor;
@@ -191,7 +191,7 @@ index c608918dfbf9a..49012891abbf6 100644
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index e063835e87f08..ec1de608884dc 100644
+index e063835e87..ec1de60888 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
 @@ -113,13 +113,15 @@ interface DisplayPrivate {
@@ -212,7 +212,7 @@ index e063835e87f08..ec1de608884dc 100644
  
    // Sends the created child window to the browser process so that it can be
 diff --git services/viz/privileged/mojom/compositing/layered_window_updater.mojom services/viz/privileged/mojom/compositing/layered_window_updater.mojom
-index 2f462f0deb5fc..695869b83cefa 100644
+index 2f462f0deb..695869b83c 100644
 --- services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 +++ services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 @@ -26,5 +26,5 @@ interface LayeredWindowUpdater {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc..695869b83cefa 100644
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 385074e896f4a..0583165a8f19d 100644
+index 385074e896..0583165a8f 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@

@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 335a734e4f454..ef5101aed9e0d 100644
+index 335a734e4f..ef5101aed9 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -47,7 +47,7 @@ index 335a734e4f454..ef5101aed9e0d 100644
  
  source_set("dll_hash") {
 diff --git chrome/chrome_elf/crash/crash_helper.cc chrome/chrome_elf/crash/crash_helper.cc
-index 975ad7d990fe9..1d75a1250afb7 100644
+index 975ad7d990..1d75a1250a 100644
 --- chrome/chrome_elf/crash/crash_helper.cc
 +++ chrome/chrome_elf/crash/crash_helper.cc
 @@ -12,12 +12,17 @@
@@ -81,7 +81,7 @@ index 975ad7d990fe9..1d75a1250afb7 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index b5d093b5415be..d9be58aa3a7ad 100644
+index b5d093b541..d9be58aa3a 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -8,6 +8,8 @@
@@ -124,7 +124,7 @@ index b5d093b5415be..d9be58aa3a7ad 100644
  
  }  // namespace crash_keys
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index a274b3e364084..3d995cf643399 100644
+index a274b3e364..3d995cf643 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -5,6 +5,7 @@
@@ -147,7 +147,7 @@ index a274b3e364084..3d995cf643399 100644
  // on the given `command_line`. For non-browser processes, allocates crash keys
  // from the switch value set by AppendStringAnnotationsCommandLineSwitch().
 diff --git components/crash/core/app/crash_reporter_client.cc components/crash/core/app/crash_reporter_client.cc
-index b6a2910848c66..b58c359697cfe 100644
+index b6a2910848..b58c359697 100644
 --- components/crash/core/app/crash_reporter_client.cc
 +++ components/crash/core/app/crash_reporter_client.cc
 @@ -119,6 +119,23 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
@@ -175,7 +175,7 @@ index b6a2910848c66..b58c359697cfe 100644
  unsigned int CrashReporterClient::GetCrashDumpPercentage() {
    return 100;
 diff --git components/crash/core/app/crash_reporter_client.h components/crash/core/app/crash_reporter_client.h
-index 7c890b331be4a..75d22156605d3 100644
+index 7c890b331b..75d2215660 100644
 --- components/crash/core/app/crash_reporter_client.h
 +++ components/crash/core/app/crash_reporter_client.h
 @@ -7,7 +7,9 @@
@@ -210,7 +210,7 @@ index 7c890b331be4a..75d22156605d3 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 99218d8687f29..26dcd6cae208b 100644
+index 99218d8687..26dcd6cae2 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
 @@ -132,7 +132,8 @@ bool InitializeCrashpadImpl(bool initial_client,
@@ -224,7 +224,7 @@ index 99218d8687f29..26dcd6cae208b 100644
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index 5d9b3bd5386ec..e5aee47e1942c 100644
+index 5d9b3bd538..e5aee47e19 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -297,7 +297,7 @@ index 5d9b3bd5386ec..e5aee47e1942c 100644
                                annotations, arguments, false, false));
    } else {
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 42fe73aefe44f..9f150e30336ef 100644
+index 42fe73aefe..9f150e3033 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -17,10 +17,13 @@
@@ -398,7 +398,7 @@ index 42fe73aefe44f..9f150e30336ef 100644
            handler_path, *database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index 5b811cbbc5154..e35f8f663b92e 100644
+index 5b811cbbc5..e35f8f663b 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -38,8 +38,8 @@ void GetPlatformCrashpadAnnotations(
