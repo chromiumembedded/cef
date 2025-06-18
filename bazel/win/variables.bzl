@@ -36,7 +36,7 @@ DLLS_X64 = [
 # targets from Chromium's //build/config/win/BUILD.gn file.
 DELAYLOAD_DLLS = [
     # Required to support CefScopedLibraryLoader.
-    "libcef.dll"
+    "libcef.dll",
 
     # "delayloads" target.
     "api-ms-win-core-winrt-error-l1-1-0.dll",
