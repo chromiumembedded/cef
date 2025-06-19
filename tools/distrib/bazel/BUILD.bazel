@@ -171,18 +171,50 @@ alias(
 )
 
 alias(
+    name = "bootstrap.exe_opt",
+    actual = select({
+        "@platforms//os:windows": "Release/bootstrap.exe",
+        "//conditions:default": None,
+    })
+)
+
+alias(
+    name = "bootstrap.exe_dbg",
+    actual = select({
+        "@platforms//os:windows": "Debug/bootstrap.exe",
+        "//conditions:default": None,
+    })
+)
+
+alias(
     name = "bootstrap.exe",
     actual = select({
-        "@cef//:dbg": "Debug/bootstrap.exe",
-        "//conditions:default": "Release/bootstrap.exe",
+        "@cef//:dbg": "@cef//:bootstrap.exe_dbg",
+        "//conditions:default": "@cef//:bootstrap.exe_opt",
+    })
+)
+
+alias(
+    name = "bootstrapc.exe_opt",
+    actual = select({
+        "@platforms//os:windows": "Release/bootstrapc.exe",
+        "//conditions:default": None,
+    })
+)
+
+alias(
+    name = "bootstrapc.exe_dbg",
+    actual = select({
+        "@platforms//os:windows": "Debug/bootstrapc.exe",
+        "//conditions:default": None,
     })
 )
 
 alias(
     name = "bootstrapc.exe",
     actual = select({
-        "@cef//:dbg": "Debug/bootstrapc.exe",
-        "//conditions:default": "Release/bootstrapc.exe",
+        "@cef//:dbg": "@cef//:bootstrapc.exe_dbg",
+        "//conditions:default": "@cef//:bootstrapc.exe_opt",
     })
 )
 
