@@ -10,12 +10,6 @@ package(default_visibility = [
     "{}:__pkg__".format(PKG_NAME),
 ])
 
-load("//bazel/win:exe_helpers.bzl", "declare_exe")
-
-#
-# Windows executable target.
-#
-
 LINK_LIBS = [
     "comdlg32.lib",
     "d3d11.lib",
@@ -32,17 +26,19 @@ DELAYLOAD_DLLS = [
     "opengl32.dll",
 ]
 
-declare_exe(
+#
+# Windows DLL target (sandbox enabled).
+#
+
+load("//bazel/win:exe_helpers.bzl", "declare_dll")
+
+declare_dll(
     name = PRODUCT_NAME,
     srcs = [
         "{}:SrcsWin".format(PKG_NAME),
         "//tests/shared:SrcsWin",
     ],
     rc_file = "{}.rc".format(PRODUCT_NAME),
-    manifest_srcs = [
-        "compatibility.manifest",
-        "{}.exe.manifest".format(PRODUCT_NAME),
-    ],
     resources_srcs = [
         "{}:Resources".format(PKG_NAME),
         "{}.ico".format(PRODUCT_NAME),
@@ -53,10 +49,47 @@ declare_exe(
         "{}:ResourceH".format(PKG_NAME),
     ],
     linkopts = [
-        "/SUBSYSTEM:WINDOWS",
-    ] + [
         "/DEFAULTLIB:{}".format(lib) for lib in LINK_LIBS
     ] + [
         "/DELOAYLOAD:{}".format(lib) for lib in DELAYLOAD_DLLS
     ],
+    local_defines = [
+        # Enable use of the bootstrap executable.
+        "CEF_USE_BOOTSTRAP",
+    ],
 )
+
+#
+# Windows executable target (sandbox disabled).
+#
+
+# load("//bazel/win:exe_helpers.bzl", "declare_exe")
+#
+# declare_exe(
+#     name = PRODUCT_NAME,
+#     srcs = [
+#         "{}:SrcsWin".format(PKG_NAME),
+#         "//tests/shared:SrcsWin",
+#     ],
+#     rc_file = "{}.rc".format(PRODUCT_NAME),
+#     manifest_srcs = [
+#         "compatibility.manifest",
+#         "{}.exe.manifest".format(PRODUCT_NAME),
+#     ],
+#     resources_srcs = [
+#         "{}:Resources".format(PKG_NAME),
+#         "{}.ico".format(PRODUCT_NAME),
+#         "small.ico",
+#         "//tests/shared:Resources",
+#     ],
+#     resources_deps = [
+#         "{}:ResourceH".format(PKG_NAME),
+#     ],
+#     linkopts = [
+#         "/SUBSYSTEM:WINDOWS",
+#     ] + [
+#         "/DEFAULTLIB:{}".format(lib) for lib in LINK_LIBS
+#     ] + [
+#         "/DELOAYLOAD:{}".format(lib) for lib in DELAYLOAD_DLLS
+#     ],
+# )

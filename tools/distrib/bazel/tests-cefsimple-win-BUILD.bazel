@@ -10,22 +10,18 @@ package(default_visibility = [
     "{}:__pkg__".format(PKG_NAME),
 ])
 
-load("//bazel/win:exe_helpers.bzl", "declare_exe")
-
 #
-# Windows executable target.
+# Windows DLL target (sandbox enabled).
 #
 
-declare_exe(
+load("//bazel/win:exe_helpers.bzl", "declare_dll")
+
+declare_dll(
     name = PRODUCT_NAME,
     srcs = [
         "{}:SrcsWin".format(PKG_NAME),
     ],
     rc_file = "{}.rc".format(PRODUCT_NAME),
-    manifest_srcs = [
-        "compatibility.manifest",
-        "{}.exe.manifest".format(PRODUCT_NAME),
-    ],
     resources_srcs = [
         "{}.ico".format(PRODUCT_NAME),
         "small.ico",
@@ -33,7 +29,36 @@ declare_exe(
     resources_deps = [
         "{}:ResourceH".format(PKG_NAME),
     ],
-    linkopts = [
-        "/SUBSYSTEM:WINDOWS",
+    local_defines = [
+        # Enable use of the bootstrap executable.
+        "CEF_USE_BOOTSTRAP",
     ],
 )
+
+#
+# Windows executable target (sandbox disabled).
+#
+
+# load("//bazel/win:exe_helpers.bzl", "declare_exe")
+#
+# declare_exe(
+#     name = PRODUCT_NAME,
+#     srcs = [
+#         "{}:SrcsWin".format(PKG_NAME),
+#     ],
+#     rc_file = "{}.rc".format(PRODUCT_NAME),
+#     manifest_srcs = [
+#         "compatibility.manifest",
+#         "{}.exe.manifest".format(PRODUCT_NAME),
+#     ],
+#     resources_srcs = [
+#         "{}.ico".format(PRODUCT_NAME),
+#         "small.ico",
+#     ],
+#     resources_deps = [
+#         "{}:ResourceH".format(PKG_NAME),
+#     ],
+#     linkopts = [
+#         "/SUBSYSTEM:WINDOWS",
+#     ],
+# )

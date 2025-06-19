@@ -11,11 +11,6 @@ package(default_visibility = [
 ])
 
 load("//bazel:copy_filegroups.bzl", "copy_filegroups")
-load("//bazel/win:exe_helpers.bzl", "declare_exe")
-
-#
-# Windows executable target.
-#
 
 # Copy resources into the current project.
 copy_target = "{}_resources".format(PRODUCT_NAME)
@@ -30,7 +25,13 @@ copy_filegroups(
     add_prefix = "ceftests_files",
 )
 
-declare_exe(
+#
+# Windows DLL target (sandbox enabled).
+#
+
+load("//bazel/win:exe_helpers.bzl", "declare_dll")
+
+declare_dll(
     name = PRODUCT_NAME,
     srcs = [
         "{}:SrcsWin".format(PKG_NAME),
@@ -40,10 +41,6 @@ declare_exe(
         "//tests/gtest",
     ],
     rc_file = "{}.rc".format(PRODUCT_NAME),
-    manifest_srcs = [
-        "compatibility.manifest",
-        "{}.exe.manifest".format(PRODUCT_NAME),
-    ],
     resources_srcs = [
         "{}.ico".format(PRODUCT_NAME),
         "small.ico",
@@ -52,10 +49,49 @@ declare_exe(
     resources_deps = [
         "{}:ResourceH".format(PKG_NAME),
     ],
-    linkopts = [
-        "/SUBSYSTEM:CONSOLE",
-    ],
     data = [
         ":{}".format(copy_target),
     ],
+    local_defines = [
+        # Enable use of the bootstrap executable.
+        "CEF_USE_BOOTSTRAP",
+    ],
+    # Console application.
+    bootstrap_suffix = 'c',
 )
+
+#
+# Windows executable target (sandbox disabled).
+#
+
+# load("//bazel/win:exe_helpers.bzl", "declare_exe")
+#
+# declare_exe(
+#     name = PRODUCT_NAME,
+#     srcs = [
+#         "{}:SrcsWin".format(PKG_NAME),
+#         "//tests/shared:SrcsWin",
+#     ],
+#     deps = [
+#         "//tests/gtest",
+#     ],
+#     rc_file = "{}.rc".format(PRODUCT_NAME),
+#     manifest_srcs = [
+#         "compatibility.manifest",
+#         "{}.exe.manifest".format(PRODUCT_NAME),
+#     ],
+#     resources_srcs = [
+#         "{}.ico".format(PRODUCT_NAME),
+#         "small.ico",
+#         "//tests/shared:Resources",
+#     ],
+#     resources_deps = [
+#         "{}:ResourceH".format(PKG_NAME),
+#     ],
+#     linkopts = [
+#         "/SUBSYSTEM:CONSOLE",
+#     ],
+#     data = [
+#         ":{}".format(copy_target),
+#     ],
+# )
