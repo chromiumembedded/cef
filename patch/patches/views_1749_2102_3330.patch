@@ -254,7 +254,7 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d71bea0771 100644
+index d3e06148b22f06e6676bcda5fd8907595389887e..b3b449bfb97c920b6e6c3a853bb83278777daab9 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -599,7 +599,8 @@ void MenuController::Run(Widget* parent,
@@ -275,7 +275,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2409,6 +2411,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2395,6 +2397,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3133,7 +3136,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3119,7 +3122,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
      return;
    }
  
-@@ -3158,6 +3165,7 @@ void MenuController::CloseSubmenu() {
+@@ -3144,6 +3151,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -305,7 +305,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
    }
    if (item->SubmenuIsShowing()) {
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 1fab28142791bf52124b1032786678264c61b628..1ae277c2b6d66ae8eaf18326438d76bdf56762f3 100644
+index 2a42f071fcfad98a3ba0f63ccffcaaba69956d47..3de8c2be460582f1860a98319d26f50bedda46bf 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -146,7 +146,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -318,7 +318,7 @@ index 1fab28142791bf52124b1032786678264c61b628..1ae277c2b6d66ae8eaf18326438d76bd
  
    bool for_drop() const { return for_drop_; }
  
-@@ -748,6 +749,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -746,6 +747,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
