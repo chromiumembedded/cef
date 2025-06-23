@@ -241,6 +241,10 @@ def GetRecommendedDefaultArgs():
     # the computation of the CDM storage ID.
     result['alternate_cdm_storage_id_key'] = '968b476909da4373b08903c28e859454'
 
+  if platform == 'windows':
+    # Disable siso usage on Windows due to initialization errors.
+    result['use_siso'] = False
+
   if platform != 'windows':
     # Only allow non-component Debug builds on non-Windows platforms. These
     # builds will fail on Windows due to linker issues (running out of memory,
