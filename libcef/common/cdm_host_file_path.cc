@@ -58,6 +58,17 @@ void AddCdmHostFilePaths(
     cdm_host_file_paths->emplace_back(cef_exe, cef_exe_sig);
   }
 
+  // Client DLL may be next to the executable with the same name when using the
+  // bootstrap.
+  const auto& cef_dll = cef_exe.ReplaceExtension(FILE_PATH_LITERAL("dll"));
+  const auto cef_dll_sig = GetSigFilePath(cef_dll);
+  DVLOG(2) << __func__ << ": dll_path=" << cef_dll.value()
+           << ", signature_path=" << cef_dll_sig.value();
+
+  if (FileExists(cef_dll_sig)) {
+    cdm_host_file_paths->emplace_back(cef_dll, cef_dll_sig);
+  }
+
   // Find the full path to the module. This may be the same as the executable if
   // libcef is statically linked.
   base::FilePath cef_module;
