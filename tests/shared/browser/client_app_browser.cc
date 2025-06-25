@@ -73,6 +73,20 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
     command_line->AppendSwitch("use-mock-keychain");
 #endif
 
+#if defined(OS_LINUX)
+    // On Linux, in off screen rendering (OSR) shared texture mode, we must
+    // ensure that ANGLE uses the EGL backend. Without this, DMABUF-based
+    // rendering will fail. The Chromium fallback path uses X11 pixmaps, which
+    // only work on Mesa drivers (e.g., AMD and Intel). While Mesa supports
+    // DMABUFs via both EGL and pixmaps, the EGL/DMABUF path is more robust and
+    // is required for compatibility with other drivers like NVIDIA that do not
+    // support pixmaps.
+    if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled) &&
+        command_line->HasSwitch(switches::kSharedTextureEnabled)) {
+      command_line->AppendSwitchWithValue("use-angle", "gl-egl");
+    }
+#endif
+
     DelegateSet::iterator it = delegates_.begin();
     for (; it != delegates_.end(); ++it) {
       (*it)->OnBeforeCommandLineProcessing(this, command_line);
