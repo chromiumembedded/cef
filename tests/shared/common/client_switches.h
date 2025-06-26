@@ -55,6 +55,8 @@ extern const char kAcceptsFirstMouse[];
 extern const char kUseAlloyStyle[];
 extern const char kUseChromeStyleWindow[];
 extern const char kShowOverlayBrowser[];
+extern const char kUseAngle[];
+extern const char kOzonePlatform[];
 
 }  // namespace client::switches
 
