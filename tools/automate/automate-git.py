@@ -9,6 +9,7 @@ import hashlib
 from io import open
 from optparse import OptionParser
 import os
+import queue
 import re
 import shlex
 import shutil
@@ -16,6 +17,8 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
+import time
 import zipfile
 
 if sys.version_info.major != 3:
@@ -41,7 +44,117 @@ cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
 script_dir = os.path.dirname(__file__)
 
 ##
-# Helper functions.
+# Helper functions for parallel execution.
+##
+
+_COLOR_RED = '\033[31m'
+_COLOR_BOLD = '\033[1m'
+_COLOR_RESET = '\033[0m'
+
+
+def _stderr_msg(msg):
+  return _COLOR_RED + _COLOR_BOLD + msg + _COLOR_RESET
+
+
+def _printer_thread(q):
+  """ Serializes printing to stdout. """
+  while True:
+    message = q.get()
+
+    # Use a sentinel value to signal termination.
+    if message is None:
+      break
+    print(message)
+
+    # Indicate that the task is complete.
+    q.task_done()
+
+
+def _read_stdout_thread(process, name, q):
+  """ Reads output from a process's stdout and prints it with a process identifier. """
+  start_time = time.time()
+
+  for line in iter(process.stdout.readline, b''):
+    q.put(f"[{name}] {line.decode().strip()}")
+
+  # The pipe has closed so the process should be exiting.
+  process.wait()
+
+  elapsed_time = time.time() - start_time
+
+  returncode = process.returncode
+  if returncode == 0:
+    q.put(f"[{name}] Exited with code 0")
+  else:
+    q.put(_stderr_msg(f"[{name}] ERROR Exited with code {returncode}"))
+
+  q.put(f"[{name}] Execution time: {elapsed_time:.4f} seconds")
+
+
+def _read_stderr_thread(process, name, q):
+  """ Reads output from a process's stdout and prints it with a process identifier. """
+  for line in iter(process.stderr.readline, b''):
+    q.put(_stderr_msg(f"[{name}] {line.decode().strip()}"))
+
+
+def run_parallel(commands):
+  """ Run multiple commands (command_line, working_dir pairs) in parallel.
+      Returns the number of commands that succeeded (returned exit code 0). """
+  assert len(commands) > 1
+
+  if options.dryrun:
+    for i, command in enumerate(commands):
+      print(f"[Process {i+1}] Running \"{command[0]}\" in \"{command[1]}\"")
+    return len(commands)
+
+  processes = []
+  threads = []
+
+  print_queue = queue.Queue()
+
+  # Start the printer thread.
+  printer = threading.Thread(target=_printer_thread, args=(print_queue,))
+  printer.daemon = True
+  printer.start()
+
+  # Start processes and create threads to read output.
+  for i, command in enumerate(commands):
+    name = f"Process {i+1}"
+    cmd = command[0]
+    cwd = command[1]
+
+    print(f"[{name}] Running \"{cmd}\" in \"{cwd}\"")
+
+    args = shlex.split(cmd.replace('\\', '\\\\'))
+    process = subprocess.Popen(
+        args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    processes.append(process)
+
+    thread = threading.Thread(
+        target=_read_stdout_thread, args=(process, name, print_queue))
+    thread.daemon = True
+    thread.start()
+    threads.append(thread)
+
+    thread = threading.Thread(
+        target=_read_stderr_thread, args=(process, name, print_queue))
+    thread.daemon = True
+    thread.start()
+    threads.append(thread)
+
+  # Wait for all threads to finish.
+  for thread in threads:
+    thread.join()
+
+  # Signal the printer thread to terminate.
+  print_queue.put(None)
+  printer.join()
+
+  return sum([process.returncode == 0 for process in processes])
+
+
+##
+# Helper functions for serial execution.
 ##
 
 
@@ -50,13 +163,8 @@ def msg(message):
   sys.stdout.write('--> ' + message + "\n")
 
 
-def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
+def run(command_line, working_dir, output_file=None):
   """ Runs the specified command. """
-  # add depot_tools to the path
-  env = os.environ
-  if not depot_tools_dir is None:
-    env['PATH'] = depot_tools_dir + os.pathsep + env['PATH']
-
   sys.stdout.write('-------- Running "'+command_line+'" in "'+\
                    working_dir+'"...'+"\n")
   if not options.dryrun:
@@ -64,19 +172,18 @@ def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
 
     if not output_file:
       return subprocess.check_call(
-          args, cwd=working_dir, env=env, shell=(sys.platform == 'win32'))
+          args, cwd=working_dir, shell=(sys.platform == 'win32'))
     try:
       msg('Writing %s' % output_file)
       with open(output_file, 'w', encoding='utf-8') as fp:
         return subprocess.check_call(
             args,
             cwd=working_dir,
-            env=env,
             shell=(sys.platform == 'win32'),
             stderr=subprocess.STDOUT,
             stdout=fp)
     except subprocess.CalledProcessError:
-      msg('ERROR Run failed. See %s for output.' % output_file)
+      msg(_stderr_msg('ERROR Run failed. See %s for output.' % output_file))
       raise
 
 
@@ -122,7 +229,9 @@ def move_directory(source, target, allow_overwrite=False):
         # or if files in |source| are currently locked.
         os.rename(source, target)
       except OSError:
-        msg('ERROR Failed to move directory %s to %s' % (source, target))
+        msg(
+            _stderr_msg('ERROR Failed to move directory %s to %s' % (source,
+                                                                     target)))
         raise
 
 
@@ -379,9 +488,8 @@ def apply_patch(name, patch_dir=None, required=False):
   if os.path.exists(patch_path):
     # Attempt to apply the patch file.
     patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
-    run('%s %s --patch-file "%s" --patch-dir "%s"' % (python_exe, patch_tool,
-                                                      patch_file, patch_dir),
-        chromium_src_dir, depot_tools_dir)
+    run('%s %s --patch-file "%s" --patch-dir "%s"' %
+        (python_exe, patch_tool, patch_file, patch_dir), chromium_src_dir)
   elif required:
     raise Exception('Required patch file does not exist: ' + patch_path)
 
@@ -406,8 +514,7 @@ def run_patch_updater(args='', output_file=None):
   tool = os.path.join(cef_src_dir, 'tools', 'patch_updater.py')
   if len(args) > 0:
     args = ' ' + args
-  run('%s %s%s' % (python_exe, tool, args), cef_src_dir, depot_tools_dir,
-      output_file)
+  run('%s %s%s' % (python_exe, tool, args), cef_src_dir, output_file)
 
 
 def onerror(func, path, exc_info):
@@ -568,7 +675,7 @@ def check_pattern_matches(output_file=None):
 
     if not output_file is None:
       if has_output:
-        msg('ERROR Matches found. See %s for output.' % out_file)
+        msg(_stderr_msg('ERROR Matches found. See %s for output.' % out_file))
       else:
         fp.write('Good news! No matches.\n')
       fp.close()
@@ -920,6 +1027,12 @@ parser.add_option(
     default=False,
     help='Create a tools distribution only.')
 parser.add_option(
+    '--no-distrib-symbols',
+    action='store_true',
+    dest='nodistribsymbols',
+    default=False,
+    help="Don't create CEF symbol output directories.")
+parser.add_option(
     '--no-distrib-docs',
     action='store_true',
     dest='nodistribdocs',
@@ -1159,14 +1272,18 @@ if not os.path.exists(depot_tools_dir):
     # On Linux and OS X check out depot_tools using Git.
     run('git clone ' + depot_tools_url + ' ' + depot_tools_dir, download_dir)
 
+# Add depot_tools to the PATH. This will be inherited by all subprocess calls.
+assert os.path.isdir(depot_tools_dir), depot_tools_dir
+os.environ['PATH'] = depot_tools_dir + os.pathsep + os.environ['PATH']
+
 if not options.nodepottoolsupdate:
   # Update depot_tools.
   # On Windows this will download required python and git binaries.
   msg('Updating depot_tools')
   if platform == 'windows':
-    run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir)
+    run('update_depot_tools.bat', depot_tools_dir)
   else:
-    run('update_depot_tools', depot_tools_dir, depot_tools_dir)
+    run('update_depot_tools', depot_tools_dir)
 
 # Determine the executables to use.
 if platform == 'windows':
@@ -1226,8 +1343,7 @@ else:
 # Create the CEF checkout if necessary.
 if not options.nocefupdate and not os.path.exists(cef_dir):
   cef_checkout_new = True
-  run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir,
-      depot_tools_dir)
+  run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir)
 else:
   cef_checkout_new = False
 
@@ -1237,7 +1353,7 @@ if not options.nocefupdate and os.path.exists(cef_dir):
 
   if not cef_checkout_new:
     # Fetch updated sources.
-    run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
+    run('%s fetch' % (git_exe), cef_dir)
 
   cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
   cef_checkout_changed = cef_checkout_new or force_change or \
@@ -1254,9 +1370,9 @@ if not options.nocefupdate and os.path.exists(cef_dir):
       run_patch_updater("--backup --revert")
 
     # Update the CEF checkout.
-    run('%s checkout %s%s' %
-      (git_exe, '--force ' if discard_local_changes else '', cef_checkout), \
-      cef_dir, depot_tools_dir)
+    run('%s checkout %s%s' % (git_exe, '--force '
+                              if discard_local_changes else '', cef_checkout),
+        cef_dir)
 else:
   cef_checkout_changed = False
 
@@ -1273,9 +1389,9 @@ if not options.nodepottoolsupdate and \
     'depot_tools_checkout' in build_compat_versions:
   # Update the depot_tools checkout.
   depot_tools_compat_version = build_compat_versions['depot_tools_checkout']
-  run('%s checkout %s%s' %
-      (git_exe, '--force ' if discard_local_changes else '', depot_tools_compat_version), \
-      depot_tools_dir, depot_tools_dir)
+  run('%s checkout %s%s' % (git_exe, '--force '
+                            if discard_local_changes else '',
+                            depot_tools_compat_version), depot_tools_dir)
 
 # Disable further depot_tools updates.
 os.environ['DEPOT_TOOLS_UPDATE'] = '0'
@@ -1374,7 +1490,7 @@ if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
   else:
     sync_args += '--with_branch_heads'
 
-  run("gclient sync %s" % sync_args, chromium_dir, depot_tools_dir)
+  run("gclient sync %s" % sync_args, chromium_dir)
 else:
   chromium_checkout_new = False
 
@@ -1399,9 +1515,9 @@ else:
   # local history.
   if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
     # Fetch updated sources.
-    run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
+    run("%s fetch" % (git_exe), chromium_src_dir)
     # Also fetch tags, which are required for release branch builds.
-    run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
+    run("%s fetch --tags" % (git_exe), chromium_src_dir)
 
   # Determine if the Chromium checkout needs to change.
   if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
@@ -1446,29 +1562,29 @@ if chromium_checkout_changed:
       if options.forceclean and options.forcecleandeps:
         # Remove all local changes including third-party git checkouts managed by
         # gclient.
-        run("%s clean -dffx" % (git_exe), chromium_src_dir, depot_tools_dir)
+        run("%s clean -dffx" % (git_exe), chromium_src_dir)
       else:
         # Revert all changes in the Chromium checkout.
-        run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
+        run("gclient revert --nohooks", chromium_dir)
 
     # Checkout the requested branch.
-    run("%s checkout %s%s" % \
-      (git_exe, '--force ' if discard_local_changes else '', chromium_checkout), \
-      chromium_src_dir, depot_tools_dir)
+    run("%s checkout %s%s" %
+      (git_exe, '--force ' if discard_local_changes else '', chromium_checkout),
+      chromium_src_dir)
 
   # Patch the Chromium DEPS file if necessary.
   apply_deps_patch()
 
   if not options.nochromiumhistory:
     # Update third-party dependencies including branch/tag information.
-    run("gclient sync %s--nohooks --with_branch_heads" % \
-        ('--reset ' if discard_local_changes else ''), chromium_dir, depot_tools_dir)
+    run("gclient sync %s--nohooks --with_branch_heads" %
+        ('--reset ' if discard_local_changes else ''), chromium_dir)
 
   # Patch the Chromium runhooks scripts if necessary.
   apply_runhooks_patch()
 
   # Runs hooks for files that have been modified in the local working copy.
-  run("gclient runhooks", chromium_dir, depot_tools_dir)
+  run("gclient runhooks", chromium_dir)
 
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
@@ -1545,7 +1661,7 @@ if not options.nobuild and (chromium_checkout_changed or \
 
   # Generate project files.
   tool = os.path.join(cef_src_dir, 'tools', 'gclient_hook.py')
-  run('%s %s' % (python_exe, tool), cef_src_dir, depot_tools_dir)
+  run('%s %s' % (python_exe, tool), cef_src_dir)
 
   # Build using autoninja for automatic `-j (#cores)` configuration.
   command = 'autoninja '
@@ -1568,8 +1684,8 @@ if not options.nobuild and (chromium_checkout_changed or \
     args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
     msg(args_path + ' contents:\n' + read_file(args_path))
 
-    run(command + build_path + target, chromium_src_dir, depot_tools_dir,
-        os.path.join(download_dir, 'build-%s-debug.log' % (cef_branch)) \
+    run(command + build_path + target, chromium_src_dir,
+        os.path.join(download_dir, 'build-%s-debug.log' % (cef_branch))
           if options.buildlogfile else None)
 
     if platform in sandbox_static_platforms:
@@ -1579,8 +1695,8 @@ if not options.nobuild and (chromium_checkout_changed or \
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
         msg(args_path + ' contents:\n' + read_file(args_path))
 
-        run(command + build_path + ' cef_sandbox', chromium_src_dir, depot_tools_dir,
-            os.path.join(download_dir, 'build-%s-debug-sandbox.log' % (cef_branch)) \
+        run(command + build_path + ' cef_sandbox', chromium_src_dir,
+            os.path.join(download_dir, 'build-%s-debug-sandbox.log' % (cef_branch))
               if options.buildlogfile else None)
 
   # Make a CEF Release build.
@@ -1589,8 +1705,8 @@ if not options.nobuild and (chromium_checkout_changed or \
     args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
     msg(args_path + ' contents:\n' + read_file(args_path))
 
-    run(command + build_path + target, chromium_src_dir, depot_tools_dir,
-        os.path.join(download_dir, 'build-%s-release.log' % (cef_branch)) \
+    run(command + build_path + target, chromium_src_dir,
+        os.path.join(download_dir, 'build-%s-release.log' % (cef_branch))
           if options.buildlogfile else None)
 
     if platform in sandbox_static_platforms:
@@ -1600,8 +1716,8 @@ if not options.nobuild and (chromium_checkout_changed or \
         args_path = os.path.join(chromium_src_dir, build_path, 'args.gn')
         msg(args_path + ' contents:\n' + read_file(args_path))
 
-        run(command + build_path + ' cef_sandbox', chromium_src_dir, depot_tools_dir,
-            os.path.join(download_dir, 'build-%s-release-sandbox.log' % (cef_branch)) \
+        run(command + build_path + ' cef_sandbox', chromium_src_dir,
+            os.path.join(download_dir, 'build-%s-release-sandbox.log' % (cef_branch))
               if options.buildlogfile else None)
 
 elif not options.nobuild:
@@ -1633,7 +1749,7 @@ if options.runtests:
     build_path = os.path.join(out_src_dir, get_build_directory_name(True))
     test_path = os.path.join(build_path, test_exe)
     if os.path.exists(test_path):
-      run(test_prefix + test_path + test_args, build_path, depot_tools_dir)
+      run(test_prefix + test_path + test_args, build_path)
     else:
       msg('Not running debug tests. Missing executable: %s' % test_path)
 
@@ -1641,7 +1757,7 @@ if options.runtests:
     build_path = os.path.join(out_src_dir, get_build_directory_name(False))
     test_path = os.path.join(build_path, test_exe)
     if os.path.exists(test_path):
-      run(test_prefix + test_path + test_args, build_path, depot_tools_dir)
+      run(test_prefix + test_path + test_args, build_path)
     else:
       msg('Not running release tests. Missing executable: %s' % test_path)
 
@@ -1651,10 +1767,11 @@ if options.runtests:
 
 if not options.nodistrib and (chromium_checkout_changed or \
                               cef_checkout_changed or options.forcedistrib):
+  artifacts_path = os.path.join(cef_src_dir, 'binary_distrib')
   if not options.forceclean and options.cleanartifacts:
     # Clean the artifacts output directory.
-    artifacts_path = os.path.join(cef_src_dir, 'binary_distrib')
     delete_directory(artifacts_path)
+  create_directory(artifacts_path)
 
   # Determine the requested distribution types.
   distrib_types = []
@@ -1679,14 +1796,16 @@ if not options.nodistrib and (chromium_checkout_changed or \
 
   cef_tools_dir = os.path.join(cef_src_dir, 'tools')
 
+  commands = []
+
   # Create the requested distribution types.
   first_type = True
   for type in distrib_types:
-    path = '%s make_distrib.py --output-dir=../binary_distrib/' % python_exe
+    path = '%s make_distrib.py --output-dir="%s"' % (python_exe, artifacts_path)
 
     if options.nodebugbuild or options.noreleasebuild or type != 'standard':
       path += ' --allow-partial'
-    path = path + ' --ninja-build'
+    path += ' --ninja-build'
     if options.x64build:
       path += ' --x64-build'
     elif options.armbuild:
@@ -1703,15 +1822,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
     elif type == 'tools':
       path += ' --tools'
 
-    if first_type:
-      if options.nodistribdocs:
-        path += ' --no-docs'
-      if options.nodistribarchive:
-        path += ' --no-archive'
-      first_type = False
-    else:
-      # Don't create the symbol archives or documentation more than once.
-      path += ' --no-symbols --no-docs'
+    if options.nodistribarchive:
+      path += ' --no-archive'
 
     # Override the subdirectory name of binary_distrib if the caller requested.
     if options.distribsubdir != '':
@@ -1719,5 +1831,40 @@ if not options.nodistrib and (chromium_checkout_changed or \
     if options.distribsubdirsuffix != '':
       path += ' --distrib-subdir-suffix=' + options.distribsubdirsuffix
 
+    if platform in ('windows', 'mac') and type in ('standard','sandbox') and \
+       not branch_is_7151_or_older:
+      if not options.nodistribsymbols:
+        # Duplicate the command to create symbols-only distributions.
+        if not options.nodebugbuild:
+          commands.append((path + ' --debug-symbols-only --no-docs', cef_tools_dir))
+        if not options.noreleasebuild:
+          commands.append((path + ' --release-symbols-only --no-docs', cef_tools_dir))
+
+      # No symbols for the original command.
+      path += ' --no-symbols'
+
+    # 'standard' type will always be first, if specified.
+    if first_type:
+      if options.nodistribdocs:
+        path += ' --no-docs'
+      if options.nodistribsymbols and branch_is_7151_or_older:
+        path += ' --no-symbols'
+      first_type = False
+    else:
+      # Don't create the documentation or symbols more than once.
+      path += ' --no-docs'
+      if not ' --no-symbols' in path:
+        path += ' --no-symbols'
+
     # Create the distribution.
-    run(path, cef_tools_dir, depot_tools_dir)
+    commands.append((path, cef_tools_dir))
+
+  commands_ct = len(commands)
+  if commands_ct == 1:
+    command = commands[0]
+    run(command[0], command[1])
+  elif commands_ct > 1:
+    success_ct = run_parallel(commands)
+    if success_ct != commands_ct:
+      print(_stderr_msg(f'ERROR {commands_ct-success_ct} of {commands_ct} commands failed!'))
+      sys.exit(1)
