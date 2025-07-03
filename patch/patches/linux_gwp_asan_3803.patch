@@ -1,0 +1,33 @@
+diff --git components/gwp_asan/client/BUILD.gn components/gwp_asan/client/BUILD.gn
+index 75458d86033097376e1c4b63cde74ecdec7ffd44..795feae4f984ccde7fe5febf3f17cf83cc50df71 100644
+--- components/gwp_asan/client/BUILD.gn
++++ components/gwp_asan/client/BUILD.gn
+@@ -91,6 +91,7 @@ component("client") {
+     ":features",
+     "//base",
+     "//base/allocator:buildflags",
++    "//cef/libcef/features:buildflags",
+     "//components/crash/core/common:crash_key",
+     "//components/gwp_asan/common",
+     "//components/gwp_asan/common:crash_keys",
+diff --git components/gwp_asan/client/thread_local_state.h components/gwp_asan/client/thread_local_state.h
+index 707b58256d449e56cffc83c9d278b0d553abf683..e2b976cb8e4a78a637c255834b27065ea9a5c894 100644
+--- components/gwp_asan/client/thread_local_state.h
++++ components/gwp_asan/client/thread_local_state.h
+@@ -8,6 +8,7 @@
+ #include "base/check.h"
+ #include "base/compiler_specific.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ 
+ #if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_ANDROID)
+ // On macOS and Android (before Q), the first use of a `thread_local` variable
+@@ -15,7 +16,7 @@
+ // Also, `thread_local` goes through `emutls` on Android, which is slower than
+ // `pthread_getspecific`.
+ #define THREAD_LOCAL_STATE_USES_PARTITION_ALLOC_TLS
+-#elif BUILDFLAG(IS_POSIX) && defined(COMPONENT_BUILD)
++#elif BUILDFLAG(IS_POSIX) && (defined(COMPONENT_BUILD) || BUILDFLAG(ENABLE_CEF))
+ // On POSIX platforms when built as component build, use of a `thread_local`
+ // variable may or may not cause a call to `free()` depending on an
+ // implementation of TLS. At least in case of glibc/glibc/elf/dl-tls.c,
