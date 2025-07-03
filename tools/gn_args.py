@@ -261,6 +261,10 @@ def GetRecommendedDefaultArgs():
     result['use_qt5'] = False
     result['use_qt6'] = False
 
+    # Set the blink TLS model to local-dynamic.
+    # https://github.com/chromiumembedded/cef/issues/3803#issuecomment-2980423520
+    result['blink_heap_inside_shared_library'] = True
+
   return result
 
 
