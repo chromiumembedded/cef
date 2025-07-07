@@ -1,5 +1,5 @@
 diff --git chrome/common/features.gni chrome/common/features.gni
-index 1078abe8b366543d96ac248dbaa385a44b750f0c..88be445f788d6fdca20fd8ab5347080a2692f6ce 100644
+index e70f85b5851f6936ccd74fb13072200ddeea8e5c..074c92ae99697b1fed76e85f9d28d346b3588a00 100644
 --- chrome/common/features.gni
 +++ chrome/common/features.gni
 @@ -6,6 +6,7 @@ import("//build/config/chrome_build.gni")
@@ -8,9 +8,9 @@ index 1078abe8b366543d96ac248dbaa385a44b750f0c..88be445f788d6fdca20fd8ab5347080a
  import("//build/config/features.gni")
 +import("//cef/libcef/features/features.gni")
  import("//components/compose/features.gni")
- import("//components/nacl/features.gni")
  import("//components/safe_browsing/buildflags.gni")
-@@ -31,7 +32,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
+ import("//components/sharing_message/buildflags.gni")
+@@ -30,7 +31,7 @@ assert(use_blink, "Chromium without blink shouldn't use anything in //chrome")
  declare_args() {
    # Enables the build to have logging enabled by default.
    # This is intended for use only in developer builds.
@@ -19,7 +19,7 @@ index 1078abe8b366543d96ac248dbaa385a44b750f0c..88be445f788d6fdca20fd8ab5347080a
  
    # Platforms for which Chrome supports a certificate management UI that
    # shows the Chrome Root Store. This is specific to the v2 UI that is
-@@ -66,11 +67,13 @@ declare_args() {
+@@ -67,11 +68,13 @@ declare_args() {
    # optimize_webui was moved to ui/base/ui_features.gni
  }
  

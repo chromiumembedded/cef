@@ -2,7 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-MACOS_DEPLOYMENT_TARGET="11.0"
+MACOS_DEPLOYMENT_TARGET="12.0"
 MACOS_BUNDLE_ID_BASE="org.cef"
 CEF_FRAMEWORK_NAME="Chromium Embedded Framework"
 

@@ -12,7 +12,7 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index e32e31565b7cc6266943defab2b6a7a26ed8f7da..464bdcf2c95e305f343bd3b44ff56cf4e4841a26 100644
+index 24c0b4e0fe20830a77f40cee237256b62286d2ff..80e964d36a622a3d37f4b30aaccd69da7084dd7d 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 388b83742657c04359514b8dc397ac0a49632c55..54a0bac5b6ad64c6ede873d86a0ed98146268f9c 100644
+index 836fc187c9c5916156660fcf910de089e2fee2a3..29c8c4029cc2098a74cbb7ee68e417bc3740c4d0 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 388b83742657c04359514b8dc397ac0a49632c55..54a0bac5b6ad64c6ede873d86a0ed981
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -497,6 +498,11 @@ template("chrome_extra_paks") {
+@@ -498,6 +499,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  
@@ -125,7 +125,7 @@ index 3588fa340be0c0bc975d6aeaa9aac7ee659c5bd3..7fcb9072c2392a6609356f49cd3bba97
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 7e49b4e44998193f92c54619878cc9709d19d371..b01e5db88a51e745c3bd4b78322dc15f3fd5a12b 100644
+index a427371dbe18bcb259a5d0954cee4a084ef453ee..de79612d15df41ba97f66e03b64feae2df5f4fea 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/features.gni")

@@ -36,18 +36,17 @@ index aabe78905dc2626617a617b9c9b09d9b3ec4b793..e75e6ab13d072795ee90df30152ab2d7
  }
  
 diff --git ui/color/color_provider_manager.h ui/color/color_provider_manager.h
-index 67341dd5fc3d671b915470a73f759cae0deeb5d6..ee70de7f7fd444dd1d8700e605ddc9b56c7a4e49 100644
+index 0e210b91ffa28fb93fe91b95215e0d9498b4c1f0..d5085a2374c3515589de4a3029875463cfa28dbc 100644
 --- ui/color/color_provider_manager.h
 +++ ui/color/color_provider_manager.h
-@@ -15,6 +15,7 @@
+@@ -13,12 +13,26 @@
+ #include "base/component_export.h"
  #include "base/containers/flat_map.h"
  #include "base/functional/callback.h"
- #include "base/memory/weak_ptr.h"
 +#include "base/observer_list.h"
- #include "third_party/skia/include/core/SkColor.h"
  #include "ui/color/color_provider_key.h"
- #include "ui/color/system_theme.h"
-@@ -24,6 +25,19 @@ namespace ui {
+ 
+ namespace ui {
  
  class ColorProvider;
  
@@ -67,7 +66,7 @@ index 67341dd5fc3d671b915470a73f759cae0deeb5d6..ee70de7f7fd444dd1d8700e605ddc9b5
  // Manages and provides color providers.
  //
  // In most cases, use ColorProviderManager::Get() to obtain an instance to the
-@@ -48,6 +62,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
+@@ -43,6 +57,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
    // Clears the ColorProviders stored in `color_providers_`.
    void ResetColorProviderCache();
  
@@ -77,7 +76,7 @@ index 67341dd5fc3d671b915470a73f759cae0deeb5d6..ee70de7f7fd444dd1d8700e605ddc9b5
    // Appends `initializer` to the end of the current `initializer_list_`.
    void AppendColorProviderInitializer(
        ColorProviderInitializerList::CallbackType Initializer);
-@@ -59,6 +76,10 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
+@@ -54,6 +71,10 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
      return num_providers_initialized_;
    }
  
@@ -88,7 +87,7 @@ index 67341dd5fc3d671b915470a73f759cae0deeb5d6..ee70de7f7fd444dd1d8700e605ddc9b5
   protected:
    ColorProviderManager();
    virtual ~ColorProviderManager();
-@@ -76,6 +97,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
+@@ -71,6 +92,9 @@ class COMPONENT_EXPORT(COLOR) ColorProviderManager {
    // Tracks the number of ColorProviders constructed and initialized by the
    // manager for metrics purposes.
    size_t num_providers_initialized_ = 0;

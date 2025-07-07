@@ -6,6 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/notimplemented.h"
 #include "cef/include/views/cef_window.h"
 #include "cef/include/views/cef_window_delegate.h"
 #include "cef/libcef/browser/browser_host_base.h"

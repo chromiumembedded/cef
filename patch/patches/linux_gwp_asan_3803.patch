@@ -1,8 +1,8 @@
 diff --git components/gwp_asan/client/BUILD.gn components/gwp_asan/client/BUILD.gn
-index 75458d86033097376e1c4b63cde74ecdec7ffd44..795feae4f984ccde7fe5febf3f17cf83cc50df71 100644
+index dff099bdcc4b11ec7ab384d982f044d6a17c7e5b..11653ad7c3e455a5261a07e8d7194406c86e922b 100644
 --- components/gwp_asan/client/BUILD.gn
 +++ components/gwp_asan/client/BUILD.gn
-@@ -91,6 +91,7 @@ component("client") {
+@@ -93,6 +93,7 @@ component("client") {
      ":features",
      "//base",
      "//base/allocator:buildflags",

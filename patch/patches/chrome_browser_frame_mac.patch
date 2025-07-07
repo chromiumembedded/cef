@@ -33,10 +33,10 @@ index bda8a68545a80deb373c1369b5e42bb0434db2b3..275a75f841422c350fb2445d5f5585f5
    ~BrowserFrameMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 9f478e1478d4128c196ea9eacac00141cd5f110c..fadc6f000b87e9596f835461047de09896d75c2c 100644
+index da2843cdf62d9e7aad6da199978810ad8d4c0263..ebd3b7ead47eb799c2708c8a6738ded3c7cd2444 100644
 --- chrome/browser/ui/views/frame/browser_frame_mac.mm
 +++ chrome/browser/ui/views/frame/browser_frame_mac.mm
-@@ -185,7 +185,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
+@@ -187,7 +187,14 @@ void BrowserFrameMac::OnWindowFullscreenTransitionComplete() {
  void BrowserFrameMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -52,7 +52,7 @@ index 9f478e1478d4128c196ea9eacac00141cd5f110c..fadc6f000b87e9596f835461047de098
    if (!chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -308,8 +315,16 @@ bool BrowserFrameMac::WillExecuteCommand(
+@@ -317,8 +324,16 @@ bool BrowserFrameMac::WillExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -70,7 +70,7 @@ index 9f478e1478d4128c196ea9eacac00141cd5f110c..fadc6f000b87e9596f835461047de098
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -341,13 +356,21 @@ bool BrowserFrameMac::ExecuteCommand(
+@@ -350,13 +365,21 @@ bool BrowserFrameMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {

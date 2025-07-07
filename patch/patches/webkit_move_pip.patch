@@ -1,16 +1,8 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index 7c1eb9baabfb9e0f3645421b5cbe467862252638..30761c0906087bcfcb65a305ba356dc17a706772 100644
+index f5d921fb5de6d5decc53815d959d91f8c7e8c5dc..a6f9ae3d9f140a0f8d892187ccb5ba8543db1d22 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -343,6 +343,7 @@ class BLINK_EXPORT WebView {
- 
-   // Sets whether select popup menus should be rendered by the browser.
-   static void SetUseExternalPopupMenus(bool);
-+  virtual void SetUseExternalPopupMenusThisInstance(bool) = 0;
- 
-   // Cancels and hides the current popup (datetime, select...) if any.
-   virtual void CancelPagePopup() = 0;
-@@ -485,6 +486,11 @@ class BLINK_EXPORT WebView {
+@@ -470,6 +470,11 @@ class BLINK_EXPORT WebView {
    virtual void SetPageAttributionSupport(
        network::mojom::AttributionSupport support) = 0;
  
@@ -22,49 +14,11 @@ index 7c1eb9baabfb9e0f3645421b5cbe467862252638..30761c0906087bcfcb65a305ba356dc1
   protected:
    ~WebView() = default;
  };
-diff --git third_party/blink/renderer/core/exported/web_view_impl.cc third_party/blink/renderer/core/exported/web_view_impl.cc
-index feba9635b40664b1db83ab727798a34b98e5e0b8..c512154ada6549a738ddc366efb684b1a10f88cf 100644
---- third_party/blink/renderer/core/exported/web_view_impl.cc
-+++ third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -258,8 +258,13 @@ void WebView::SetUseExternalPopupMenus(bool use_external_popup_menus) {
-   g_should_use_external_popup_menus = use_external_popup_menus;
- }
- 
--bool WebViewImpl::UseExternalPopupMenus() {
--  return g_should_use_external_popup_menus;
-+void WebViewImpl::SetUseExternalPopupMenusThisInstance(
-+    bool use_external_popup_menus) {
-+  should_use_external_popup_menus_ = use_external_popup_menus;
-+}
-+
-+bool WebViewImpl::UseExternalPopupMenus() const {
-+  return should_use_external_popup_menus_;
- }
- 
- namespace {
-@@ -616,6 +621,7 @@ WebViewImpl::WebViewImpl(
-           blink::ZoomFactorToZoomLevel(kMinimumBrowserZoomFactor)),
-       maximum_zoom_level_(
-           blink::ZoomFactorToZoomLevel(kMaximumBrowserZoomFactor)),
-+      should_use_external_popup_menus_(g_should_use_external_popup_menus),
-       does_composite_(does_composite),
-       fullscreen_controller_(std::make_unique<FullscreenController>(this)),
-       page_base_background_color_(
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index eaa593b41ec2e9a12fca53eb9925e6b868a4d9f1..25328ea602056fd0d1d997683dcaa8bfaaa09a36 100644
+index 607f8b3db1be6ff04434a42399f153e2da0f0127..c3cad99a11e62eb57cc5c702c7014b952f34d398 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -139,7 +139,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
-   static HashSet<WebViewImpl*>& AllInstances();
-   // Returns true if popup menus should be rendered by the browser, false if
-   // they should be rendered by WebKit (which is the default).
--  static bool UseExternalPopupMenus();
-+  void SetUseExternalPopupMenusThisInstance(bool) override;
-+  bool UseExternalPopupMenus() const;
- 
-   // Returns whether frames under this WebView are backed by a compositor.
-   bool does_composite() const { return does_composite_; }
-@@ -326,6 +327,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -321,6 +321,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    void UpdateColorProviders(
        const ColorProviderColorMaps& color_provider_colors) override;
  
@@ -78,16 +32,7 @@ index eaa593b41ec2e9a12fca53eb9925e6b868a4d9f1..25328ea602056fd0d1d997683dcaa8bf
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -882,6 +890,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
-   float fake_page_scale_animation_page_scale_factor_ = 0.f;
-   bool fake_page_scale_animation_use_anchor_ = false;
- 
-+  bool should_use_external_popup_menus_;
-+
-   float compositor_device_scale_factor_override_ = 0.f;
-   gfx::Transform device_emulation_transform_;
- 
-@@ -1011,6 +1021,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1006,6 +1013,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // CSS property.
    bool supports_draggable_regions_ = false;
  
@@ -97,7 +42,7 @@ index eaa593b41ec2e9a12fca53eb9925e6b868a4d9f1..25328ea602056fd0d1d997683dcaa8bf
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5eed1a6353e 100644
+index 47d4a455aec76c00d51d11fb2b678b0d4d52b5ca..c0eeba80aa5d25790fad8cb00667bf2288d103db 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
 @@ -52,6 +52,7 @@
@@ -116,7 +61,7 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
  #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
  #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -1960,8 +1962,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -1959,8 +1961,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -127,7 +72,7 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -1981,8 +1984,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -1980,8 +1983,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -138,7 +83,7 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -2005,7 +2009,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -2004,7 +2008,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -148,7 +93,7 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -2033,7 +2038,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -2032,7 +2037,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -158,7 +103,7 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2502,6 +2508,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2501,6 +2507,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  
@@ -172,10 +117,10 @@ index 23e8b0820df2546e0097d667758c818ef725a2e7..bcccbe2d61b96506cd7ef7d04922f5ee
    pip_dom_window->document()->SetCompatibilityMode(
        entered_window->document()->GetCompatibilityMode());
 diff --git third_party/blink/renderer/core/frame/local_dom_window.h third_party/blink/renderer/core/frame/local_dom_window.h
-index 6856371c0729b184fa1daa082620aa085357927a..c851a94235306a7bc8b0b38acbad593863bda48a 100644
+index da73e12724038d3ac39994e7c651da3b83b745e0..9c45a29e0033668a4e8bd5516bc18f7681a87018 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.h
 +++ third_party/blink/renderer/core/frame/local_dom_window.h
-@@ -582,6 +582,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -579,6 +579,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
  
    void SetIsPictureInPictureWindow();
  
@@ -187,7 +132,7 @@ index 6856371c0729b184fa1daa082620aa085357927a..c851a94235306a7bc8b0b38acbad5938
    // Return the viewport size including scrollbars.
    gfx::Size GetViewportSize() const;
  
-@@ -686,6 +691,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -683,6 +688,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
    // https://wicg.github.io/document-picture-in-picture/
    bool is_picture_in_picture_window_ = false;
  
@@ -196,16 +141,3 @@ index 6856371c0729b184fa1daa082620aa085357927a..c851a94235306a7bc8b0b38acbad5938
    // The navigation id of a document is to identify navigation of special types
    // like bfcache navigation or soft navigation. It changes when navigations
    // of these types occur.
-diff --git third_party/blink/renderer/core/page/chrome_client_impl.cc third_party/blink/renderer/core/page/chrome_client_impl.cc
-index 72629f0c1af117912990a03983d6e4959da1f49b..6100502a214acc5ead71194cf4e4326cb37c31ea 100644
---- third_party/blink/renderer/core/page/chrome_client_impl.cc
-+++ third_party/blink/renderer/core/page/chrome_client_impl.cc
-@@ -1002,7 +1002,7 @@ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
-                                            HTMLSelectElement& select) {
-   NotifyPopupOpeningObservers();
- 
--  if (WebViewImpl::UseExternalPopupMenus()) {
-+  if (web_view_->UseExternalPopupMenus()) {
-     return MakeGarbageCollected<ExternalPopupMenu>(frame, select);
-   }
- 

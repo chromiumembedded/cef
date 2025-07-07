@@ -12,7 +12,7 @@
 # distribution include:
 #
 # Linux:      Ninja, GCC 7.5.0+, Unix Makefiles
-# MacOS:      Ninja, Xcode 12.2 to 15.0
+# MacOS:      Ninja, Xcode 13.3 to 16.4
 # Windows:    Ninja, Visual Studio 2022
 #
 # Ninja is a cross-platform open-source tool for running fast builds using
@@ -48,7 +48,7 @@
 #     libgtk3.0-dev     (required by the cefclient target only)
 #
 # - MacOS requirements:
-#   Xcode 12.2 to 15.4 building on MacOS 11.0 (Big Sur) or newer. The Xcode
+#   Xcode 13.5 to 16.4 building on MacOS 12.0 (Monterey) or newer. The Xcode
 #   command-line tools must also be installed. Newer Xcode versions may not have
 #   been been tested and are not recommended.
 #

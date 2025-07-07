@@ -12,6 +12,7 @@
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/memory/weak_ptr.h"
+#include "base/notimplemented.h"
 #include "base/strings/string_util.h"
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/frame_host_impl.h"
@@ -231,8 +232,8 @@ class CefBrowserURLRequest::Context
       url_loader_network_observer =
           static_cast<content::StoragePartitionImpl*>(
               browser_context->GetDefaultStoragePartition())
-              ->CreateAuthCertObserverForServiceWorker(
-                  content::ChildProcessHost::kInvalidUniqueID);
+              ->CreateURLLoaderNetworkObserverForServiceWorker(
+                  content::ChildProcessHost::kInvalidUniqueID, url::Origin());
     }
 
     task_runner->PostTask(

@@ -1,16 +1,16 @@
-diff --git content/browser/renderer_host/navigation_throttle_runner.cc content/browser/renderer_host/navigation_throttle_runner.cc
-index 58da260893bf523996306c614b663685872e2dd9..f54b5d1d6dcfd8f0b36753214af4bd008671feb7 100644
---- content/browser/renderer_host/navigation_throttle_runner.cc
-+++ content/browser/renderer_host/navigation_throttle_runner.cc
-@@ -149,17 +149,23 @@ NavigationHandle& NavigationThrottleRunner::GetNavigationHandle() {
+diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
+index 41f3d8bf9e60edd283792e68850a902f7411a1cd..80dba42bb628b150c12bb9c0269baab62c0b7330 100644
+--- content/browser/renderer_host/navigation_throttle_registry_impl.cc
++++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
+@@ -164,11 +164,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
- void NavigationThrottleRunner::AddThrottle(
+ void NavigationThrottleRegistryImpl::AddThrottle(
 -    std::unique_ptr<NavigationThrottle> navigation_throttle) {
 +    std::unique_ptr<NavigationThrottle> navigation_throttle,
 +    bool first) {
    CHECK(navigation_throttle);
-   TRACE_EVENT1("navigation", "NavigationThrottleRunner::AddThrottle",
+   TRACE_EVENT1("navigation", "NavigationThrottleRegistryImpl::AddThrottle",
                 "navigation_throttle", navigation_throttle->GetNameForLogging());
 -  throttles_.push_back(std::move(navigation_throttle));
 +  if (first) {
@@ -20,49 +20,32 @@ index 58da260893bf523996306c614b663685872e2dd9..f54b5d1d6dcfd8f0b36753214af4bd00
 +  }
  }
  
- void NavigationThrottleRunner::MaybeAddThrottle(
--    std::unique_ptr<NavigationThrottle> navigation_throttle) {
-+    std::unique_ptr<NavigationThrottle> navigation_throttle,
-+    bool first) {
-   if (navigation_throttle) {
--    AddThrottle(std::move(navigation_throttle));
-+    AddThrottle(std::move(navigation_throttle), first);
-   }
- }
- 
-diff --git content/browser/renderer_host/navigation_throttle_runner.h content/browser/renderer_host/navigation_throttle_runner.h
-index 21f7fb2b6c46b438c68932819ccc23b5747b8c91..6f369d7e3222a97dad50cb80f8f41f48729ba8d9 100644
---- content/browser/renderer_host/navigation_throttle_runner.h
-+++ content/browser/renderer_host/navigation_throttle_runner.h
-@@ -75,9 +75,11 @@ class CONTENT_EXPORT NavigationThrottleRunner
+ bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
+diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
+index fb94e73de38ae34bd7bb29667f7c36010fd3a082..fd6a550464dbbb2620487062cce00fe56b9a43d4 100644
+--- content/browser/renderer_host/navigation_throttle_registry_impl.h
++++ content/browser/renderer_host/navigation_throttle_registry_impl.h
+@@ -84,7 +84,8 @@ class NavigationThrottleRegistryImpl : public NavigationThrottleRegistryBase {
    // Implements NavigationThrottleRegistry:
    NavigationHandle& GetNavigationHandle() override;
    void AddThrottle(
 -      std::unique_ptr<NavigationThrottle> navigation_throttle) override;
 +      std::unique_ptr<NavigationThrottle> navigation_throttle,
 +      bool first = false) override;
-   void MaybeAddThrottle(
--      std::unique_ptr<NavigationThrottle> navigation_throttle) override;
-+      std::unique_ptr<NavigationThrottle> navigation_throttle,
-+      bool first = false) override;
+   bool HasThrottle(const std::string& name) override;
+   bool EraseThrottleForTesting(const std::string& name) override;
  
-   // Will call the appropriate NavigationThrottle function based on |event| on
-   // all NavigationThrottles owned by this NavigationThrottleRunner.
 diff --git content/public/browser/navigation_throttle_registry.h content/public/browser/navigation_throttle_registry.h
-index 4a212401c67a896cf054b8f4fdce21d4c3deed4a..b77c15736b1776dbff01a4b6ca3b6f4d27fab61d 100644
+index d541287beae6717847de91d53f3cf1f5c084f2fa..3132993cf0bd518d3c0c7575676c40ede0ba39da 100644
 --- content/public/browser/navigation_throttle_registry.h
 +++ content/public/browser/navigation_throttle_registry.h
-@@ -29,9 +29,11 @@ class CONTENT_EXPORT NavigationThrottleRegistry {
-   // pass a nullptr, use MaybeAddThrottle() instead. It just ignores calls with
-   // a nullptr.
+@@ -28,7 +28,8 @@ class CONTENT_EXPORT NavigationThrottleRegistry {
+   // be called on `navigation_throttle`.
+   // AddThrottle() disallows `navigation_throttle` to be nullptr.
    virtual void AddThrottle(
 -      std::unique_ptr<NavigationThrottle> navigation_throttle) = 0;
 +      std::unique_ptr<NavigationThrottle> navigation_throttle,
 +      bool first = false) = 0;
-   virtual void MaybeAddThrottle(
--      std::unique_ptr<NavigationThrottle> navigation_throttle) = 0;
-+      std::unique_ptr<NavigationThrottle> navigation_throttle,
-+      bool first = false) = 0;
- };
  
- }  // namespace content
+   // Checks if the registry contains a throttle with the given name. Returns
+   // true if the throttle is found.

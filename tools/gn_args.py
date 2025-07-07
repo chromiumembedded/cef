@@ -212,9 +212,6 @@ def GetRecommendedDefaultArgs():
   # the defaults.
 
   result = {
-      # Enable NaCL. Default is true. False is recommended for faster builds.
-      'enable_nacl': False,
-
       # Disable component builds. Default depends on the platform. True results
       # in faster local builds but False is required to create a CEF binary
       # distribution.

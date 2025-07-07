@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index c46e9c7daf645cb7d94ecae1392bbbb511f56e54..48fd182eae15e508f2db29645f19dac8dec28bd7 100644
+index f6f46c4dc501f9f8b0cc72267e78a611452d97cd..8fcb5ad464e9529305ca69dd735073fd6dc732b9 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
 @@ -626,6 +626,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
@@ -16,7 +16,7 @@ index c46e9c7daf645cb7d94ecae1392bbbb511f56e54..48fd182eae15e508f2db29645f19dac8
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1506,6 +1513,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1502,6 +1509,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index c46e9c7daf645cb7d94ecae1392bbbb511f56e54..48fd182eae15e508f2db29645f19dac8
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1515,6 +1528,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1511,6 +1524,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  

@@ -85,10 +85,10 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 88a274f8b05f7c998e6cd0289eb968a95a90d81d..7adeedad98ac27de089a86af5d6c43e97260cb29 100644
+index 9e7ac544ab2ba1dc06a03f7563b4d6d8852f0a5d..a6947bfb5e591512e0275f0be61fe9942b9107df 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1022,7 +1022,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1017,7 +1017,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  

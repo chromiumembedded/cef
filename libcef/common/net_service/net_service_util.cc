@@ -32,10 +32,7 @@ namespace {
 bool GetCookieDomain(const GURL& url,
                      const net::ParsedCookie& pc,
                      std::string* result) {
-  std::string domain_string;
-  if (pc.HasDomain()) {
-    domain_string = pc.Domain();
-  }
+  const auto& domain_string = pc.Domain().value_or(std::string_view());
   net::CookieInclusionStatus status;
   const auto& retval =
       net::cookie_util::GetCookieDomainWithString(url, domain_string, status);
@@ -265,14 +262,11 @@ bool MakeCefCookie(const GURL& url,
     return false;
   }
 
-  std::string path_string;
-  if (pc.HasPath()) {
-    path_string = pc.Path();
-  }
-  std::string cookie_path =
+  const auto& path_string = pc.Path().value_or(std::string_view());
+  const auto& cookie_path =
       net::cookie_util::CanonPathWithString(url, path_string);
-  base::Time creation_time = base::Time::Now();
-  base::Time cookie_expires =
+  const auto& creation_time = base::Time::Now();
+  const auto& cookie_expires =
       net::CanonicalCookie::ParseExpiration(pc, creation_time, creation_time);
 
   CefString(&cookie.name).FromString(pc.Name());

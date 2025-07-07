@@ -1,14 +1,8 @@
 diff --git tools/gritsettings/resource_ids.spec tools/gritsettings/resource_ids.spec
-index 2f4ab49cbe968ec8a47d72a08fefbbc938fb41c8..5e78796e1820b891ecc9e4b349312e0ac3a26222 100644
+index f78fa04ff6bfc43d2554ea833945e89b08e8ec14..8f1699ef615f1f2459c5cfd268ac70102b07cf0c 100644
 --- tools/gritsettings/resource_ids.spec
 +++ tools/gritsettings/resource_ids.spec
-@@ -1532,11 +1532,18 @@
- 
-   "third_party/search_engines_data/resources/search_engines_scaled_resources.grd": {
-     "structures": [10100],
--  }
-+  },
- 
+@@ -1544,6 +1544,13 @@
    # END "everything else" section.
    # Everything but chrome/, components/, content/, and ios/
  

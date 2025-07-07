@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "base/logging.h"
+#include "base/notimplemented.h"
 #include "cef/grit/cef_strings.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/context_menu_params_impl.h"

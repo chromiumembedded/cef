@@ -4,7 +4,7 @@
 
 #include "cef/libcef/browser/alloy/dialogs/alloy_web_contents_dialog_helper.h"
 
-#include "base/notreached.h"
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "chrome/browser/platform_util.h"
 #include "components/web_modal/web_contents_modal_dialog_manager.h"

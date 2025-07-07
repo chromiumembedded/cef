@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
 
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"

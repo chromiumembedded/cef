@@ -14,10 +14,10 @@ index 6a1b3f5267b0d82d6763743f85815686942daa7e..d9cfa012c97564a4bb905b46c0c4d97f
               ? profile_metrics::BrowserProfileType::kRegular
               : profile_metrics::BrowserProfileType::kIncognito;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index 4116021bc0316d70205b93057f3707b422302f65..34a870636fa7cc1e865dcdbb2c9d8c01e9adb238 100644
+index 594214f3f917b6e152b0908e3d1c3b84951ea00c..110b9d640f67ed8adecf51616aeb8a355415a8aa 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-@@ -32,7 +32,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
+@@ -31,7 +31,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(
        dialog_type_(type),
        incognito_profile_(incognito_profile) {
    DCHECK(incognito_profile_);
@@ -44,32 +44,32 @@ index 1cf20c6206d60d06b4c1935c1e2f9086cedbf071..9140d51cb79bd7b3f39dfcb850581d6f
        avatar_toolbar_button, GetBrowser().profile(), type);
    DCHECK_EQ(nullptr, bubble_tracker_.view());
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index affba30438a4a3bc5a04ff22897d216f58f415d2..bdf433d20b97c452fd094f5a604e9c47b2f46b42 100644
+index d9defcaa7da0c1deb2b5e6afd71ab96e77651c95..36e4e7799fab1d69b6fafb95557ba2cb8519406c 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -30,7 +30,9 @@
  IncognitoMenuView::IncognitoMenuView(views::Button* anchor_button,
                                       Browser* browser)
      : ProfileMenuViewBase(anchor_button, browser) {
--  DCHECK(browser->profile()->IsIncognitoProfile());
-+  DCHECK(browser->profile()->IsIncognitoProfile() ||
-+         (browser->profile()->IsOffTheRecord() &&
-+          browser->profile()->GetOTRProfileID().IsUniqueForCEF()));
+-  CHECK(profile().IsIncognitoProfile());
++  CHECK(profile().IsIncognitoProfile() ||
++        (profile().IsOffTheRecord() &&
++         profile().GetOTRProfileID().IsUniqueForCEF()));
    GetViewAccessibility().SetName(GetAccessibleWindowTitle(),
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 81f886e9fb712e16d9fd15dd9f051e3c08a5faaa..8c919733f1818d067390f1682de10129a70f23b6 100644
+index d34758a415fedaf430d925a1278aabbeaa82cd90..df1112c82665abaeace2385f5110e1256b5721ee 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -54,7 +54,9 @@ void ProfileMenuCoordinator::Show(
+@@ -55,7 +55,9 @@ void ProfileMenuCoordinator::Show(
  
    std::unique_ptr<ProfileMenuViewBase> bubble;
-   bool is_incognito = browser.profile()->IsIncognitoProfile();
+   const bool is_incognito = profile_->IsIncognitoProfile();
 -  if (is_incognito) {
 +  if (is_incognito ||
-+         (browser.profile()->IsOffTheRecord() &&
-+          browser.profile()->GetOTRProfileID().IsUniqueForCEF())) {
++         (profile_->IsOffTheRecord() &&
++          profile_->GetOTRProfileID().IsUniqueForCEF())) {
      bubble =
-         std::make_unique<IncognitoMenuView>(avatar_toolbar_button, &browser);
+         std::make_unique<IncognitoMenuView>(avatar_toolbar_button, browser);
    } else {

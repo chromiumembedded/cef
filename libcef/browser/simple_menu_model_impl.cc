@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/common/task_runner_impl.h"
 

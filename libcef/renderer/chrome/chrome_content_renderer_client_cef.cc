@@ -5,6 +5,7 @@
 
 #include "cef/libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 
+#include "cef/libcef/renderer/blink_glue.h"
 #include "cef/libcef/renderer/render_frame_observer.h"
 #include "cef/libcef/renderer/render_manager.h"
 #include "cef/libcef/renderer/thread_util.h"
@@ -117,7 +118,7 @@ void ChromeContentRendererClientCef::OnBrowserCreated(
     blink::WebView* web_view,
     const cef::BrowserConfig& config) {
 #if BUILDFLAG(IS_MAC)
-  web_view->SetUseExternalPopupMenusThisInstance(!config.is_windowless);
+  blink_glue::SetUseExternalPopupMenus(web_view, !config.is_windowless);
 #endif
   web_view->SetMovePictureInPictureEnabled(config.move_pip_enabled);
 }

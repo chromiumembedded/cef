@@ -121,6 +121,9 @@ BLINK_EXPORT bool HasPluginFrameOwner(blink::WebLocalFrame* frame);
 BLINK_EXPORT void StartNavigation(blink::WebLocalFrame* frame,
                                   const blink::WebURLRequest& request);
 
+// Sets whether select popup menus should be rendered by the browser.
+BLINK_EXPORT void SetUseExternalPopupMenus(blink::WebView* view, bool value);
+
 }  // namespace blink_glue
 
 #endif  // CEF_LIBCEF_RENDERER_BLINK_GLUE_H_

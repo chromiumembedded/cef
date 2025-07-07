@@ -1,8 +1,8 @@
 diff --git ipc/ipc_mojo_bootstrap.cc ipc/ipc_mojo_bootstrap.cc
-index e60b3b946247920364f3fffb64fca8ab6d95ac58..b90ebf85c10999940427715c442674892bccd57c 100644
+index 75056be9b688fa7cb4eb2fec7e324eb7d5da7be5..b8f773cffd0b8b3d1fd18a941104e701a676bfa0 100644
 --- ipc/ipc_mojo_bootstrap.cc
 +++ ipc/ipc_mojo_bootstrap.cc
-@@ -976,7 +976,8 @@ class ChannelAssociatedGroupController
+@@ -977,7 +977,8 @@ class ChannelAssociatedGroupController
            endpoint->disconnect_reason());
  
        base::AutoUnlock unlocker(lock_);

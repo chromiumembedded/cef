@@ -29,6 +29,7 @@
 #include "third_party/blink/renderer/core/frame/settings.h"
 #include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
 #include "third_party/blink/renderer/core/loader/frame_load_request.h"
+#include "third_party/blink/renderer/core/page/chrome_client.h"
 #include "third_party/blink/renderer/core/page/page.h"
 #include "third_party/blink/renderer/core/script/classic_script.h"
 #include "third_party/blink/renderer/platform/bindings/script_forbidden_scope.h"
@@ -80,7 +81,8 @@ void GoBack(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(-1, /*has_user_gesture=*/true, std::nullopt);
+          .GoToEntryAtOffset(-1, /*has_user_gesture=*/true,
+                             base::TimeTicks::Now(), std::nullopt);
     }
   }
 }
@@ -96,7 +98,8 @@ void GoForward(blink::WebView* view) {
       blink::Frame* core_frame = blink::WebFrame::ToCoreFrame(*main_frame);
       blink::To<blink::LocalFrame>(core_frame)
           ->GetLocalFrameHostRemote()
-          .GoToEntryAtOffset(1, /*has_user_gesture=*/true, std::nullopt);
+          .GoToEntryAtOffset(1, /*has_user_gesture=*/true,
+                             base::TimeTicks::Now(), std::nullopt);
     }
   }
 }
@@ -312,6 +315,13 @@ void StartNavigation(blink::WebLocalFrame* frame,
   blink::To<blink::LocalFrame>(core_frame)
       ->Loader()
       .StartNavigation(frame_load_request, blink::WebFrameLoadType::kStandard);
+}
+
+void SetUseExternalPopupMenus(blink::WebView* view, bool value) {
+  static_cast<blink::WebViewImpl*>(view)
+      ->GetPage()
+      ->GetChromeClient()
+      .SetUseExternalPopupMenusForTesting(value);
 }
 
 }  // namespace blink_glue

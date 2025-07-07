@@ -11,6 +11,7 @@
 #include "content/public/common/javascript_dialog_type.h"
 
 class CefBrowserHostBase;
+class GURL;
 
 class CefJavaScriptDialogRunner {
  public:

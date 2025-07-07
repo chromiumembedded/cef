@@ -124,10 +124,10 @@ index 2f8162d7491d1f78c540565333ad01589221c8e7..b00f0d5bf26aeede35a95ccbb08ad4ea
    // Factory for the creating refs in callbacks.
    base::WeakPtrFactory<VersionHandler> weak_ptr_factory_{this};
 diff --git chrome/browser/ui/webui/version/version_ui.cc chrome/browser/ui/webui/version/version_ui.cc
-index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab144958ab50 100644
+index 2ed5e0925fe9e7deda0dcfe314b17e0277cbc379..6db5229e2309c0d577b82aafec29861b6e4d0369 100644
 --- chrome/browser/ui/webui/version/version_ui.cc
 +++ chrome/browser/ui/webui/version/version_ui.cc
-@@ -16,6 +16,7 @@
+@@ -17,6 +17,7 @@
  #include "base/strings/utf_string_conversions.h"
  #include "base/time/time.h"
  #include "build/build_config.h"
@@ -135,7 +135,7 @@ index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab14
  #include "chrome/browser/browser_process_impl.h"
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/browser/ui/webui/version/version_handler.h"
-@@ -63,6 +64,10 @@
+@@ -64,6 +65,10 @@
  #include "chrome/browser/ui/webui/version/version_util_win.h"
  #endif
  
@@ -146,7 +146,7 @@ index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab14
  using content::WebUIDataSource;
  
  namespace {
-@@ -83,6 +88,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -84,6 +89,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
        {version_ui::kCommandLineName, IDS_VERSION_UI_COMMAND_LINE},
        {version_ui::kExecutablePathName, IDS_VERSION_UI_EXECUTABLE_PATH},
        {version_ui::kProfilePathName, IDS_VERSION_UI_PROFILE_PATH},
@@ -157,7 +157,7 @@ index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab14
        {version_ui::kVariationsName, IDS_VERSION_UI_VARIATIONS},
        {version_ui::kVariationsCmdName, IDS_VERSION_UI_VARIATIONS_CMD},
        {version_ui::kCopyVariationsLabel, IDS_VERSION_UI_COPY_VARIATIONS_LABEL},
-@@ -114,6 +123,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
+@@ -115,6 +124,10 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
    html_source->AddResourcePath("images/product_logo_white.png",
                                 IDR_PRODUCT_LOGO_WHITE);
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -168,7 +168,7 @@ index c10d6937f6ef4f0fafc02fa0e4009b5beef04c18..738ba66437829f32f22bd529a3a1ab14
  }
  
  std::string GetProductModifier() {
-@@ -242,6 +255,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
+@@ -243,6 +256,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
    // blank.
    html_source->AddString(version_ui::kExecutablePath, std::string_view());
    html_source->AddString(version_ui::kProfilePath, std::string_view());

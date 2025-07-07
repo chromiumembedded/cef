@@ -1,8 +1,8 @@
 diff --git ui/base/x/x11_util.h ui/base/x/x11_util.h
-index ff12f942b61b73e173b6ddb5666364f862f6f61d..97d17c3a46309095d879736c2bf8ff2c21ad5420 100644
+index d45396238fc802444b5db1bb3d56c9aab6309f05..327f1d2c7da171479afab4643b570384a9e69b08 100644
 --- ui/base/x/x11_util.h
 +++ ui/base/x/x11_util.h
-@@ -245,8 +245,9 @@ x11::Future<void> SendClientMessage(
+@@ -246,8 +246,9 @@ x11::Future<void> SendClientMessage(
      x11::Window target,
      x11::Atom type,
      const std::array<uint32_t, 5> data,

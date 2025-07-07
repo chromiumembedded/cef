@@ -1,5 +1,5 @@
 diff --git chrome/browser/safe_browsing/BUILD.gn chrome/browser/safe_browsing/BUILD.gn
-index d92165e685f68dafac22b55f050c82fef468ec11..03d0a99b77f4dd5a36452729cabcfe275fa950bd 100644
+index 4404910c2b53534e69c005571eea980f1c031a4c..4eb27e480e354e3c92eb740ef5d625a60dfe9d5a 100644
 --- chrome/browser/safe_browsing/BUILD.gn
 +++ chrome/browser/safe_browsing/BUILD.gn
 @@ -26,6 +26,7 @@ static_library("safe_browsing") {

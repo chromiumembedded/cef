@@ -1,8 +1,8 @@
 diff --git DEPS DEPS
-index 0ac8a008827a8e1aa67137fe3073f5100c4b3e18..593c697679408461c5422ad188897bef039c5ca2 100644
+index 8db0e55bac38dd0862352a0e885a7b57df287bff..f66d6211de5b7bf101825691b90d08c7b8729d0b 100644
 --- DEPS
 +++ DEPS
-@@ -5144,6 +5144,7 @@ hooks = [
+@@ -5175,6 +5175,7 @@ hooks = [
      # Update LASTCHANGE.
      'name': 'lastchange',
      'pattern': '.',
@@ -10,7 +10,7 @@ index 0ac8a008827a8e1aa67137fe3073f5100c4b3e18..593c697679408461c5422ad188897bef
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-o', 'src/build/util/LASTCHANGE'],
    },
-@@ -5151,7 +5152,7 @@ hooks = [
+@@ -5182,7 +5183,7 @@ hooks = [
      # Update lastchange_commit_position.h (only for CrOS).
      'name': 'lastchange_commit_position_cros',
      'pattern': '.',
@@ -19,7 +19,7 @@ index 0ac8a008827a8e1aa67137fe3073f5100c4b3e18..593c697679408461c5422ad188897bef
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'CHROMIUM',
                 '--commit-position-header',
-@@ -5161,6 +5162,7 @@ hooks = [
+@@ -5192,6 +5193,7 @@ hooks = [
      # Update GPU lists version string (for gpu/config).
      'name': 'gpu_lists_version',
      'pattern': '.',
@@ -27,7 +27,7 @@ index 0ac8a008827a8e1aa67137fe3073f5100c4b3e18..593c697679408461c5422ad188897bef
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'GPU_LISTS_VERSION',
                 '--revision-id-only',
-@@ -5170,6 +5172,7 @@ hooks = [
+@@ -5201,6 +5203,7 @@ hooks = [
      # Update skia_commit_hash.h.
      'name': 'lastchange_skia',
      'pattern': '.',
@@ -35,7 +35,7 @@ index 0ac8a008827a8e1aa67137fe3073f5100c4b3e18..593c697679408461c5422ad188897bef
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'SKIA_COMMIT_HASH',
                 '-s', 'src/third_party/skia',
-@@ -5179,6 +5182,7 @@ hooks = [
+@@ -5210,6 +5213,7 @@ hooks = [
      # Update dawn_version.h.
      'name': 'lastchange_dawn',
      'pattern': '.',

@@ -5,7 +5,7 @@
 #include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
 
 #include "base/logging.h"
-#include "base/notreached.h"
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
 #include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"

@@ -13,10 +13,10 @@ index b6389523952a468c6eec59dcf14ee5e7542ab6c2..f9c709624cd0e26edb24945d212e73bd
      setproctitle_init(main_argv);
    }
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 36248b2a3e099674467a095cb4902d89914a51d8..4dcfe54abccefa3793d500324e867643f4927cf5 100644
+index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d426323601327006 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -205,16 +205,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -198,16 +198,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -35,7 +35,7 @@ index 36248b2a3e099674467a095cb4902d89914a51d8..4dcfe54abccefa3793d500324e867643
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -293,7 +287,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -286,7 +280,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -46,7 +46,7 @@ index 36248b2a3e099674467a095cb4902d89914a51d8..4dcfe54abccefa3793d500324e867643
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -301,14 +297,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -294,14 +290,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -61,7 +61,7 @@ index 36248b2a3e099674467a095cb4902d89914a51d8..4dcfe54abccefa3793d500324e867643
      InitializeMac();
  #endif
  
-@@ -371,12 +359,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -359,12 +347,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -108,10 +108,10 @@ index 36248b2a3e099674467a095cb4902d89914a51d8..4dcfe54abccefa3793d500324e867643
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 48363b920c780064a6d49f4a521b476bda5ac27b..920db94bb1738a19b287aeff6d006806d3e9cae0 100644
+index f182b856369cb701bd2c5494a8a675e98f50632e..f4b755e810d46729b28553868ad5587560e3847d 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
-@@ -50,6 +50,7 @@
+@@ -51,6 +51,7 @@
  #include "base/task/thread_pool/thread_pool_instance.h"
  #include "base/threading/hang_watcher.h"
  #include "base/threading/platform_thread.h"
@@ -119,7 +119,7 @@ index 48363b920c780064a6d49f4a521b476bda5ac27b..920db94bb1738a19b287aeff6d006806
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/branding_buildflags.h"
-@@ -1366,6 +1367,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1381,6 +1382,11 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

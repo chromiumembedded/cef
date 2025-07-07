@@ -1,8 +1,8 @@
 diff --git ui/base/resource/resource_bundle.cc ui/base/resource/resource_bundle.cc
-index 8de43eb2f6ddac05805b48d9f672fc1326750ab8..71b697b1fba506660251161ffe6ace805033a2eb 100644
+index d868b4d3a8a98db7d8b10eb2316758aee309dfec..e89308a79d0c251c28d34c9080970fdf20e26a07 100644
 --- ui/base/resource/resource_bundle.cc
 +++ ui/base/resource/resource_bundle.cc
-@@ -989,6 +989,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
+@@ -1022,6 +1022,12 @@ ResourceBundle::ResourceBundle(Delegate* delegate)
      : delegate_(delegate),
        locale_resources_data_lock_(new base::Lock),
        max_scale_factor_(k100Percent) {
@@ -15,7 +15,7 @@ index 8de43eb2f6ddac05805b48d9f672fc1326750ab8..71b697b1fba506660251161ffe6ace80
    mangle_localized_strings_ = base::CommandLine::ForCurrentProcess()->HasSwitch(
        switches::kMangleLocalizedStrings);
  }
-@@ -998,6 +1004,11 @@ ResourceBundle::~ResourceBundle() {
+@@ -1031,6 +1037,11 @@ ResourceBundle::~ResourceBundle() {
    UnloadLocaleResources();
  }
  
@@ -28,10 +28,10 @@ index 8de43eb2f6ddac05805b48d9f672fc1326750ab8..71b697b1fba506660251161ffe6ace80
  void ResourceBundle::InitSharedInstance(Delegate* delegate) {
    DCHECK(g_shared_instance_ == nullptr) << "ResourceBundle initialized twice";
 diff --git ui/base/resource/resource_bundle.h ui/base/resource/resource_bundle.h
-index 796bd94ec8453f6f240acd76d3128b6ccb864dee..d1bf0c93a64fb4bd813ce0916b031a97810a3ce0 100644
+index 88b59d0b14258738a99e615345a6f062d2fb33bc..2da8f76e441718143cb85ce1a0e448a6d15cd746 100644
 --- ui/base/resource/resource_bundle.h
 +++ ui/base/resource/resource_bundle.h
-@@ -213,6 +213,11 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {
+@@ -269,6 +269,11 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {
    ResourceBundle(const ResourceBundle&) = delete;
    ResourceBundle& operator=(const ResourceBundle&) = delete;
  
@@ -41,5 +41,5 @@ index 796bd94ec8453f6f240acd76d3128b6ccb864dee..d1bf0c93a64fb4bd813ce0916b031a97
 +  void CleanupOnUIThread();
 +
    // Loads a secondary locale data pack using the given file region.
-   void LoadSecondaryLocaleDataWithPakFileRegion(
+   void LoadAdditionalLocaleDataWithPakFileRegion(
        base::File pak_file,

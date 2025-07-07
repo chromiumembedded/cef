@@ -962,7 +962,6 @@ source_set("libcef_static") {
     "//extensions/common/api",
     "//extensions/common:core_api_provider",
     "//extensions/renderer",
-    "//gpu",
     "//ipc",
     "//media",
     "//net",

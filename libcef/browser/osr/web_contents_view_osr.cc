@@ -5,6 +5,7 @@
 
 #include "cef/libcef/browser/osr/web_contents_view_osr.h"
 
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
 #include "cef/libcef/browser/osr/touch_selection_controller_client_osr.h"

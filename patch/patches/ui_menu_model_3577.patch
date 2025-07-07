@@ -1,16 +1,16 @@
 diff --git ui/menus/simple_menu_model.cc ui/menus/simple_menu_model.cc
-index 9f56505d9502c685f66ab082b60eaae4011e76b7..509d93ae1fa22c0fe578d74b8528af4a01250240 100644
+index 1e43ac04035446ea68a6aa3b1b252f8bc9e22099..b221908fd6152d22bbf6d12e7a0a63d489bb0347 100644
 --- ui/menus/simple_menu_model.cc
 +++ ui/menus/simple_menu_model.cc
-@@ -11,6 +11,7 @@
- #include "base/functional/bind.h"
+@@ -12,6 +12,7 @@
  #include "base/location.h"
+ #include "base/notimplemented.h"
  #include "base/task/single_thread_task_runner.h"
 +#include "cef/libcef/features/features.h"
  #include "ui/base/l10n/l10n_util.h"
  #include "ui/base/models/image_model.h"
  #include "ui/gfx/image/image.h"
-@@ -171,8 +172,10 @@ void SimpleMenuModel::AddSeparator(MenuSeparatorType separator_type) {
+@@ -172,8 +173,10 @@ void SimpleMenuModel::AddSeparator(MenuSeparatorType separator_type) {
      }
  
      if (items_.at(last_visible_item).type == TYPE_SEPARATOR) {

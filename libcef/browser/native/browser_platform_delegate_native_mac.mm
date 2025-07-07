@@ -10,6 +10,7 @@
 #include "base/apple/owned_objc.h"
 #include "base/apple/scoped_nsautorelease_pool.h"
 #include "base/memory/ptr_util.h"
+#include "base/notimplemented.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/include/internal/cef_types_mac.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"

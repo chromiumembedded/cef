@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "base/memory/raw_ptr.h"
+#include "base/notimplemented.h"
 #include "base/strings/utf_string_conversions.h"
 #include "cef/include/cef_dialog_handler.h"
 #include "cef/libcef/browser/browser_host_base.h"

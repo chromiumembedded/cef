@@ -17,10 +17,10 @@ index fbce13c16ad10420f3f8e0df521e3be6979271d1..0512b2f09937ed0410f23d321b57f77d
  std::unique_ptr<permissions::PermissionPrompt> CreatePermissionPrompt(
      content::WebContents* web_contents,
 diff --git chrome/browser/ui/views/permissions/permission_prompt_factory.cc chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-index 13f978218b7a89efeb30c1dd5481018ff1205ac9..6bf2339ae2fd226f09f6bf4c5d9922098de4ef34 100644
+index a14c5b7313a20da159e516ae9f6b83f9417b0329..4a805a0d67836dd7636eb1b40a36f0857e658e1b 100644
 --- chrome/browser/ui/views/permissions/permission_prompt_factory.cc
 +++ chrome/browser/ui/views/permissions/permission_prompt_factory.cc
-@@ -222,11 +222,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
+@@ -223,11 +223,28 @@ std::unique_ptr<permissions::PermissionPrompt> CreateQuietPrompt(
    }
  }
  

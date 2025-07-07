@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index e57951543e9f2b0be5164dde3d4b629b081457cc..a28de9c75366a3b16358972bbfe622a13b9b307c 100644
+index 234b46cdc8d9e77b139c9beb1811a11eee5646da..4714a5de8b1ee08a94ea02c3e1a9f05c6372114c 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -4103,6 +4103,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
@@ -49,7 +49,7 @@ index e57951543e9f2b0be5164dde3d4b629b081457cc..a28de9c75366a3b16358972bbfe622a1
    // Check whether there is an available prerendered page for this navigation if
    // this is not for guest. If it exists, take WebContents pre-created for
    // hosting the prerendered page instead of creating new WebContents.
-@@ -10092,6 +10111,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
+@@ -10023,6 +10042,9 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
    }
  
    CloseListenerManager::DidChangeFocusedFrame(this);
@@ -59,7 +59,7 @@ index e57951543e9f2b0be5164dde3d4b629b081457cc..a28de9c75366a3b16358972bbfe622a1
  }
  
  FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
-@@ -10742,6 +10764,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10673,6 +10695,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
    OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::Resize");
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -71,7 +71,7 @@ index e57951543e9f2b0be5164dde3d4b629b081457cc..a28de9c75366a3b16358972bbfe622a1
    window->SetBounds(gfx::Rect(window->bounds().origin(), new_bounds.size()));
  #elif BUILDFLAG(IS_ANDROID)
    content::RenderWidgetHostView* view = GetRenderWidgetHostView();
-@@ -10754,6 +10781,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
+@@ -10685,6 +10712,11 @@ void WebContentsImpl::Resize(const gfx::Rect& new_bounds) {
  gfx::Size WebContentsImpl::GetSize() {
  #if defined(USE_AURA)
    aura::Window* window = GetNativeView();
@@ -120,14 +120,15 @@ index f1105a13aa0eb6239cf5d00caa5c3ef7d2473cf1..d1dba26bbac1f4195b444879ff081e04
    return gfx::Size(NSWidth(frame), NSHeight(frame));
  }
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index ab2df2fac23584574ca75a30084b3a47c626a1a1..b1e45af82d261bbf927c5c4a982f4cbff71c2ed5 100644
+index c5daa643bd6e222c48f91145d3a6dcd66fc840eb..28be92a1295a360aa1dccb7fa221e21bad6c7129 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -121,11 +121,13 @@ class BrowserPluginGuestDelegate;
+@@ -125,12 +125,14 @@ class BrowserPluginGuestDelegate;
  class GuestPageHolder;
  class RenderFrameHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
+ class RenderWidgetHost;
  class RenderWidgetHostView;
  class ScreenOrientationDelegate;
  class SiteInstance;
@@ -137,7 +138,7 @@ index ab2df2fac23584574ca75a30084b3a47c626a1a1..b1e45af82d261bbf927c5c4a982f4cbf
  class WebUI;
  struct DropData;
  struct MHTMLGenerationParams;
-@@ -279,6 +281,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
+@@ -284,6 +286,10 @@ class WebContents : public PageNavigator, public base::SupportsUserData {
      network::mojom::WebSandboxFlags starting_sandbox_flags =
          network::mojom::WebSandboxFlags::kNone;
  
@@ -180,10 +181,10 @@ index d33274984bf6523beeb3ab5ee586499d224bff3c..47e79413dab7f9463b07149ba6f2c0ea
    // typically happens when popups are created.
    virtual void WebContentsCreated(WebContents* source_contents,
 diff --git content/public/browser/web_contents_observer.h content/public/browser/web_contents_observer.h
-index 7e0dd469a7059ea38120cfd6cd17469a3c06c1fa..25c2b9e2c54ff3737c05f2b4a990ab0e5b5ca1b3 100644
+index 575856fc8972873c31f542b25d7d56d7a33d2ca4..e9253e5cae3bece7a94775b669f3d81fc0e0e852 100644
 --- content/public/browser/web_contents_observer.h
 +++ content/public/browser/web_contents_observer.h
-@@ -255,6 +255,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -254,6 +254,9 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // controlled by the capturing tab.
    virtual void OnCapturedSurfaceControl() {}
  
@@ -193,7 +194,7 @@ index 7e0dd469a7059ea38120cfd6cd17469a3c06c1fa..25c2b9e2c54ff3737c05f2b4a990ab0e
    // This method is invoked when the `blink::WebView` of the current
    // RenderViewHost is ready, e.g. because we recreated it after a crash.
    virtual void RenderViewReady() {}
-@@ -958,6 +961,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
+@@ -957,6 +960,10 @@ class CONTENT_EXPORT WebContentsObserver : public base::CheckedObserver {
    // WebContents has gained/lost focus.
    virtual void OnFocusChangedInPage(FocusedNodeDetails* details) {}
  

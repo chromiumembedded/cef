@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index bc911ad76cd93a79eb13e9f3d2e4378c1659220b..7a927bfedde631af3f9132bf2c647a17435efcbf 100644
+index 59526cd9f264b65937d6b029f167fee32e799087..5f07b9dbf28325f352096827ea0ab0c2d044fc23 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
 @@ -1042,7 +1042,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
@@ -120,12 +120,12 @@ index 55d05c746eb00bf81df7665f466f5ce9ad3079e8..7883a183f274df9c27afd8b3ada4a2b1
  
  }  // namespace gfx
 diff --git ui/views/animation/ink_drop_host.h ui/views/animation/ink_drop_host.h
-index 26734958c1faa868010eddfab6b59f262dbbfca8..10a5d5019083455cefa51bc4bab3cf3bfca717cc 100644
+index 7a05772f6ee8fae5362b3b28c709963c5b620f51..67497d0ddc7976f639721335475878e7eeb724f5 100644
 --- ui/views/animation/ink_drop_host.h
 +++ ui/views/animation/ink_drop_host.h
-@@ -194,6 +194,8 @@ class VIEWS_EXPORT InkDropHost {
-   View* host_view() { return host_view_; }
+@@ -195,6 +195,8 @@ class VIEWS_EXPORT InkDropHost {
    const View* host_view() const { return host_view_; }
+   bool in_attention_state_for_testing() const { return in_attention_state_; }
  
 +  InkDropMode ink_drop_mode() const { return ink_drop_mode_; }
 +
@@ -254,10 +254,10 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d71bea0771 100644
+index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f47112ed13 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -599,7 +599,8 @@ void MenuController::Run(Widget* parent,
+@@ -600,7 +600,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -267,7 +267,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -668,6 +669,7 @@ void MenuController::Run(Widget* parent,
+@@ -669,6 +670,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2409,6 +2411,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2396,6 +2398,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3133,7 +3136,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3120,7 +3123,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
      return;
    }
  
-@@ -3158,6 +3165,7 @@ void MenuController::CloseSubmenu() {
+@@ -3145,6 +3152,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -305,7 +305,7 @@ index 05dfc40b27072ee8f67930508e9005a9ba569348..f6f7c57733bb472f7a737b402af872d7
    }
    if (item->SubmenuIsShowing()) {
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 1fab28142791bf52124b1032786678264c61b628..1ae277c2b6d66ae8eaf18326438d76bdf56762f3 100644
+index 2a42f071fcfad98a3ba0f63ccffcaaba69956d47..3de8c2be460582f1860a98319d26f50bedda46bf 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -146,7 +146,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -318,7 +318,7 @@ index 1fab28142791bf52124b1032786678264c61b628..1ae277c2b6d66ae8eaf18326438d76bd
  
    bool for_drop() const { return for_drop_; }
  
-@@ -748,6 +749,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
+@@ -746,6 +747,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
    // RunType::SEND_GESTURE_EVENTS_TO_OWNER is set.
    gfx::NativeView native_view_for_gestures_ = gfx::NativeView();
  
@@ -367,7 +367,7 @@ index ea82da6dc2f45625c9e8fe958715399e127699d8..575bd9484c2bf3bb72577136e2afae0e
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index 84c5e0c9e509137ffec9e8534659b072c668c6c9..4d4cc966670e521585dd6c2aa53ff04a63690966 100644
+index d22e7595a7f06731c14ace847697a9a8cb3fef73..362d50703c0f34c0d7d8b1324bf9edc72e4bd162 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
 @@ -153,6 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
@@ -789,7 +789,7 @@ index 548bd044909645407e7b6d5175ffbd7164828e6c..977236332264975cf9408ca1c77dc4e6
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index 0dbbd7979ad79a7a74681222fcf36a315f0634ce..c33fb43ea52cbe139e558af90d1f9df22a332ea2 100644
+index 2897bc3816c9e2989829848e556ffaea6e1d0a73..2258c5145b9ec2c0b90b6b44d2f7297a962a9d38 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@

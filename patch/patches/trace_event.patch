@@ -1,8 +1,8 @@
 diff --git base/trace_event/builtin_categories.h base/trace_event/builtin_categories.h
-index 31c41cb8e8cc0d0c43811ce7e97a03f4feb38feb..2afecc782347d20d58205fe4024bac84f2a5de62 100644
+index 467ce5cd72f227ecf7011176ef174a18c2b9d8cc..fbbf2213d8d23d7e5781756fa7b5cba230240f0f 100644
 --- base/trace_event/builtin_categories.h
 +++ base/trace_event/builtin_categories.h
-@@ -96,6 +96,8 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(
+@@ -100,6 +100,8 @@ PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE_WITH_ATTRS(
      perfetto::Category("cc").SetTags("rendering"),
      perfetto::Category("cc.debug").SetTags("debug"),
      perfetto::Category("cdp.perf"),

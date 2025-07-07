@@ -1,8 +1,8 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index 47abbd2835a36325b068c997ba8c2029e5885743..4eb995232a7d836df270b1030c5aa4b5f4437f16 100644
+index 98104faedc8212ab33fd6defc1a5edeef15dcdf9..5f450ef91be3422c8f875d5b49f395e67973077c 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
-@@ -28,6 +28,7 @@
+@@ -27,6 +27,7 @@
  #include "build/branding_buildflags.h"
  #include "build/build_config.h"
  #include "build/util/chromium_git_revision.h"
@@ -10,7 +10,7 @@ index 47abbd2835a36325b068c997ba8c2029e5885743..4eb995232a7d836df270b1030c5aa4b5
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -56,6 +57,10 @@
+@@ -55,6 +56,10 @@
  #include <sys/utsname.h>
  #endif
  
@@ -21,7 +21,7 @@ index 47abbd2835a36325b068c997ba8c2029e5885743..4eb995232a7d836df270b1030c5aa4b5
  namespace embedder_support {
  
  namespace {
-@@ -465,6 +470,13 @@ std::string BuildOSCpuInfo(
+@@ -464,6 +469,13 @@ std::string BuildOSCpuInfo(
  
  std::string GetProductAndVersion(
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {

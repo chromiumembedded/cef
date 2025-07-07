@@ -4,6 +4,7 @@
 
 #include "base/debug/dump_without_crashing.h"
 #include "base/logging.h"
+#include "base/notimplemented.h"
 #include "base/threading/platform_thread.h"
 #include "base/trace_event/trace_event.h"
 #include "cef/include/base/cef_build.h"

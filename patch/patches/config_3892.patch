@@ -1,5 +1,5 @@
 diff --git components/prefs/pref_service.h components/prefs/pref_service.h
-index 0a360f45e89d9f1ac7934915af5cb559abd920c5..c88c7ea9177e5e4158099cdb96ac900159884455 100644
+index 87bacd1abe35a0b3cbacfd3248d885d323feeb44..4ddb1d376fe8bfac05fbcbac6aa09a247d113c8e 100644
 --- components/prefs/pref_service.h
 +++ components/prefs/pref_service.h
 @@ -52,6 +52,10 @@ namespace base {
@@ -13,7 +13,7 @@ index 0a360f45e89d9f1ac7934915af5cb559abd920c5..c88c7ea9177e5e4158099cdb96ac9001
  namespace prefs {
  class ScopedDictionaryPrefUpdate;
  }
-@@ -432,6 +436,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
+@@ -436,6 +440,8 @@ class COMPONENTS_PREFS_EXPORT PrefService {
    // declared as a friend, too.
    friend class PrefChangeRegistrar;
    friend class subtle::PrefMemberBase;
@@ -23,7 +23,7 @@ index 0a360f45e89d9f1ac7934915af5cb559abd920c5..c88c7ea9177e5e4158099cdb96ac9001
    // These are protected so they can only be accessed by the friend
    // classes listed above.
 diff --git components/variations/BUILD.gn components/variations/BUILD.gn
-index 32ce3e7dafda1951f5a376ef0e872a15ebee7ee6..14fec0983015d1c1ad6f29adb0b0f86bba0b96a1 100644
+index be057679b513f13f999a33ac118124e7935dba86..3260be27922174155603c100a8b331105aed6618 100644
 --- components/variations/BUILD.gn
 +++ components/variations/BUILD.gn
 @@ -131,6 +131,7 @@ component("variations") {

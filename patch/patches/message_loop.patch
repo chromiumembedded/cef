@@ -1,5 +1,5 @@
 diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
-index 1a263dc22f472bc12c95f819066b3b4bf0b3eab7..09fa613e35649f85aec1f2b6a5479c4f4639eaab 100644
+index 4e20010e351905ec5c1daa576aecf8d6eeec48ac..588c3dbdcc204f235561290493d6ad0ca64d67cb 100644
 --- base/message_loop/message_pump_win.cc
 +++ base/message_loop/message_pump_win.cc
 @@ -2,6 +2,7 @@
@@ -10,7 +10,7 @@ index 1a263dc22f472bc12c95f819066b3b4bf0b3eab7..09fa613e35649f85aec1f2b6a5479c4f
  #include "base/message_loop/message_pump_win.h"
  
  #include <windows.h>
-@@ -585,7 +586,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
+@@ -583,7 +584,17 @@ bool MessagePumpForUI::ProcessNextWindowsMessage() {
                  ctx.event()->set_chrome_message_pump();
              msg_pump_data->set_sent_messages_in_queue(more_work_is_plausible);
            });
@@ -30,7 +30,7 @@ index 1a263dc22f472bc12c95f819066b3b4bf0b3eab7..09fa613e35649f85aec1f2b6a5479c4f
    }
    if (has_msg) {
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 53a6213a76b92da1f859ac0b90c42756fbf6b785..2177265e9b1b23cae610628945312998bcad92a7 100644
+index 0f5ac15e4b1986e54f60e7a4086ebae05c710d13..69eb4a68fb8da64dd688c9ff5ffafed5945aec92 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(

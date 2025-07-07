@@ -1,8 +1,8 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index b84296cc7e3bb9b7d3e10e476b14a59cf57bbc41..919dab95a6acde7d51f636d065905de734fd4828 100644
+index aed835411f5728c5685baa43eda2dd1585119b18..57dc418d34c25f147a82da6ae9b5dc2c63343f64 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -48,9 +48,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -49,9 +49,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
@@ -18,7 +18,7 @@ index b84296cc7e3bb9b7d3e10e476b14a59cf57bbc41..919dab95a6acde7d51f636d065905de7
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -58,7 +63,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -59,7 +64,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -80,10 +80,10 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index ccee45644b385f40a5c7dcbac1d92ba74e72c647..19012698e0f3f1ac231c57fba65092d74dd275cd 100644
+index 9f18a00af5ce726a4b338689ae75a0196b1a1dba..ddc14277eee2b8440e4ab5b50826fe559cbe2eab 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -276,6 +276,8 @@ viz_component("service") {
+@@ -272,6 +272,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -223,7 +223,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 385074e896f4a2e66dec8f5629a2f60b06affb0a..0583165a8f19d90e369d9bd99a1884db9e6c564c 100644
+index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..b3fbfbb1b828075e2cb192aec88eef94819091ca 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@
@@ -236,7 +236,7 @@ index 385074e896f4a2e66dec8f5629a2f60b06affb0a..0583165a8f19d90e369d9bd99a1884db
  #include "mojo/public/cpp/bindings/associated_remote.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
-@@ -147,6 +149,14 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
+@@ -146,6 +148,14 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
    CreateExternalBeginFrameControllerClient() = 0;
  };
  
@@ -251,7 +251,7 @@ index 385074e896f4a2e66dec8f5629a2f60b06affb0a..0583165a8f19d90e369d9bd99a1884db
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -190,6 +200,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -189,6 +199,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -261,7 +261,7 @@ index 385074e896f4a2e66dec8f5629a2f60b06affb0a..0583165a8f19d90e369d9bd99a1884db
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -631,6 +644,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -630,6 +643,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

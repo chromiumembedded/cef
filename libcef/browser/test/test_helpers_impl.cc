@@ -4,6 +4,7 @@
 
 #include "base/feature_list.h"
 #include "base/files/file_path.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "cef/include/test/cef_test_helpers.h"
 #include "net/base/features.h"

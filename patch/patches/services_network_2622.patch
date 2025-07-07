@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index e1090c36a6fcba47216df837d777880c64d41a98..5e98eee4d7528d3818f184b89791da5f7c68cc30 100644
+index 698be82881ccfe24a484d0e2846785607d9caa6d..241557b85c6e99c2df33108dbbbafae0edd80977 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -55,6 +55,7 @@
@@ -10,7 +10,7 @@ index e1090c36a6fcba47216df837d777880c64d41a98..5e98eee4d7528d3818f184b89791da5f
  #include <utility>
  #include <vector>
  
-@@ -669,6 +670,50 @@ void CookieMonster::SetCookieableSchemes(
+@@ -674,6 +675,50 @@ void CookieMonster::SetCookieableSchemes(
    MaybeRunCookieCallback(std::move(callback), true);
  }
  
@@ -99,10 +99,10 @@ index 441765abb8cd8f213fca52ac8d562ad9b15d621e..1c927eb59cc2aff8a7ee328fe130ef4c
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index fb47ecfba4a4d631fc093e63e637cd9f596fc49d..0896266df56e7edd7918fd6e3c45554fb691573e 100644
+index cf7e823d1ee21a6fa42187373fb3629a8de32a09..692aacf8aa5b3a03c4cc1653e820e8a3f7d48792 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -342,13 +342,13 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -347,13 +347,13 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -122,10 +122,10 @@ index fb47ecfba4a4d631fc093e63e637cd9f596fc49d..0896266df56e7edd7918fd6e3c45554f
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index e9d152aa78f7c58a0071cf5f9eac48427518612d..ce7494f4606ae2ba52ea22acec650ab5568ce540 100644
+index b19bfa46c2ca2a6feecb5471eb48d932665b1863..d19e4e739f527adf013ab32c2f8feff7ecb33190 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2820,22 +2820,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2861,22 +2861,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -169,7 +169,7 @@ index e9d152aa78f7c58a0071cf5f9eac48427518612d..ce7494f4606ae2ba52ea22acec650ab5
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index 444379292d06db40203d0f9c8ec93f64d4b1edc6..46fd47833dcb9189e6c9bc8addfde31b1f36efd8 100644
+index 04512b284adff2550374665a32282330fbb20354..7795795febf4922a74a222d9f7b8ace6c762b5a1 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -362,6 +362,9 @@ struct NetworkContextParams {

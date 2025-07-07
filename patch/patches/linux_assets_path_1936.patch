@@ -25,7 +25,7 @@ index f3a6d25be41ed911d5bb64d4cd62df1aa174e11e..c826aa9e9ab6c0efeacc92054094f5db
      if (base::PathExists(sandbox_candidate))
        sandbox_binary = sandbox_candidate;
 diff --git ui/ozone/common/egl_util.cc ui/ozone/common/egl_util.cc
-index 92b2a6da7828fb8865deacbc7f9441d5385f835b..bf318d19255e04ca74ad5ab65c5b7c7c00db06ee 100644
+index 3226f7caafa02ebd68dd0b14360294d1fb45d06e..63a2305dd8e79dc4d51af4a39a37e92258ec8e6a 100644
 --- ui/ozone/common/egl_util.cc
 +++ ui/ozone/common/egl_util.cc
 @@ -149,7 +149,7 @@ bool LoadDefaultEGLGLES2Bindings(

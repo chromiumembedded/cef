@@ -12,7 +12,7 @@ base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
 
 base::FilePath CefResourceBundleDelegate::GetPathForLocalePack(
     const base::FilePath& pack_path,
-    const std::string& locale) {
+    std::string_view locale) {
   return pack_path;
 }
 

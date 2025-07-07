@@ -1107,7 +1107,15 @@ typedef enum {
   CEF_RESULT_CODE_NORMAL_EXIT_AUTO_DE_ELEVATED = 38,
 #endif
 
-#if CEF_API_ADDED(13800)
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Upon encountering a commit failure in a process, PartitionAlloc terminated
+  /// another process deemed less important.
+  CEF_RESULT_CODE_TERMINATED_BY_OTHER_PROCESS_ON_COMMIT_FAILURE = 39,
+#endif
+
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_RESULT_CODE_CHROME_LAST = 40,
+#elif CEF_API_ADDED(13800)
   CEF_RESULT_CODE_CHROME_LAST = 39,
 #else
   CEF_RESULT_CODE_CHROME_LAST = 38,

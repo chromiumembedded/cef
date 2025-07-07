@@ -4,6 +4,7 @@
 
 #include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
 
+#include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/native/menu_runner_views_aura.h"
 #include "cef/libcef/browser/views/view_util.h"
