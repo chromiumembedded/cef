@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 335ac75b4a4d549c5fb2a88c37dd13e54e735aca..488dd1bd752f3fd4ce0b22feea36ab4e88d19a10 100644
+index f896be9a8d0abbd36c5e1e58e6ad1e35c6e76eb3..d8d185486080722e59127a5439699e9eedf84a25 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -359,6 +359,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
