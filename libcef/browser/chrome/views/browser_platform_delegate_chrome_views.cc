@@ -6,6 +6,7 @@
 
 #include "cef/include/views/cef_window.h"
 #include "cef/libcef/browser/views/window_impl.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/ui/browser.h"
 #include "components/zoom/zoom_controller.h"
@@ -132,7 +133,7 @@ bool CefBrowserPlatformDelegateChromeViews::IsViewsHosted() const {
 
 bool CefBrowserPlatformDelegateChromeViews::IsMovePictureInPictureEnabled()
     const {
-  if (browser_view_) {
+  if (CEF_API_IS_ADDED(13601) && browser_view_) {
     if (auto* delegate = browser_view_->delegate()) {
       return delegate->AllowMoveForPictureInPicture(browser_view_.get());
     }

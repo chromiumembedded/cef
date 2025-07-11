@@ -8,6 +8,7 @@
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/native/menu_runner_views_aura.h"
 #include "cef/libcef/browser/views/view_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "content/browser/renderer_host/render_widget_host_view_aura.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
@@ -34,7 +35,7 @@ void CefBrowserPlatformDelegateNativeAura::InstallRootWindowBoundsCallback() {
 
 std::optional<gfx::Rect>
 CefBrowserPlatformDelegateNativeAura::RootWindowBoundsCallback() {
-  if (browser_) {
+  if (CEF_API_IS_ADDED(13700) && browser_) {
     if (auto client = browser_->client()) {
       if (auto handler = client->GetDisplayHandler()) {
         CefRect rect;
