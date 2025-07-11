@@ -9,6 +9,7 @@
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/native/cursor_util.h"
+#include "cef/libcef/common/api_version_util.h"
 #include "cef/libcef/common/frame_util.h"
 #include "chrome/browser/ui/views/sad_tab_view.h"
 #include "chrome/common/chrome_result_codes.h"
@@ -145,6 +146,9 @@ content::WebContents* CefBrowserContentsDelegate::OpenURLFromTabEx(
 bool CefBrowserContentsDelegate::SetContentsBoundsEx(
     content::WebContents* source,
     const gfx::Rect& bounds) {
+  if (!CEF_API_IS_ADDED(13700)) {
+    return false;
+  }
   if (auto c = client()) {
     if (auto handler = c->GetDisplayHandler()) {
       return handler->OnContentsBoundsChange(
