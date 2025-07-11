@@ -1457,6 +1457,7 @@ if force_config:
         "'custom_vars': {"+
           "'checkout_pgo_profiles': " + ('True' if options.withpgoprofiles else 'False') + ", "+
           "'source_tarball': " + ('True' if options.chromiumarchive != '' else 'False') + ", "+
+          "'siso_version': 'latest', "+
         "}, "+
         "'custom_deps': {}, "+
         "'deps_file': '" + deps_file + "', "+
