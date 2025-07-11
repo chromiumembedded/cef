@@ -145,6 +145,27 @@ std::string safe_strerror(int err) {
 
 const internal::Implementation* g_impl_override = nullptr;
 
+#if defined(OS_WIN)
+using SetLogFatalCrashKeyFunc = void (*)(const char* /*file*/,
+                                         int /*line*/,
+                                         const char* /*message*/);
+
+SetLogFatalCrashKeyFunc SetLogFatalCrashKeyFuncGetter() {
+  static SetLogFatalCrashKeyFunc log_fatal_crash_key_func = []() {
+    // Function exported by bootstrap.exe.
+    return reinterpret_cast<SetLogFatalCrashKeyFunc>(
+        GetProcAddress(GetModuleHandle(NULL), "SetLogFatalCrashKey"));
+  }();
+  return log_fatal_crash_key_func;
+}
+
+void SetLogFatalCrashKey(const char* file, int line, const char* message) {
+  if (auto func = SetLogFatalCrashKeyFuncGetter()) {
+    func(file, line, message);
+  }
+}
+#endif  // defined(OS_WIN)
+
 const char* const log_severity_names[] = {"INFO", "WARNING", "ERROR", "FATAL"};
 static_assert(LOG_NUM_SEVERITIES == std::size(log_severity_names),
               "Incorrect number of log_severity_names");
@@ -256,7 +277,12 @@ ScopedImplementation::~ScopedImplementation() {
   g_impl_override = previous_;
 }
 
-ScopedImplementation::ScopedImplementation() = default;
+ScopedImplementation::ScopedImplementation() {
+#if defined(OS_WIN)
+  // Preload the function pointer so that we do minimal work while crashing.
+  SetLogFatalCrashKeyFuncGetter();
+#endif
+}
 
 void ScopedImplementation::Init(const Implementation* impl) {
   previous_ = g_impl_override;
@@ -387,6 +413,10 @@ void ScopedEarlySupport::log(const char* file,
   }
 
   if (severity == LOG_FATAL) {
+#if defined(OS_WIN)
+    SetLogFatalCrashKey(file, line, message);
+#endif
+
     HandleFatal(log_line);
   }
 }
