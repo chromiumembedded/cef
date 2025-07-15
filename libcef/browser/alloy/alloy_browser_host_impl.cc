@@ -1243,19 +1243,6 @@ void AlloyBrowserHostImpl::DraggableRegionsChanged(
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------
 
-void AlloyBrowserHostImpl::DidFinishNavigation(
-    content::NavigationHandle* navigation_handle) {
-  if (web_contents()) {
-    auto cef_browser_context = CefBrowserContext::FromBrowserContext(
-        web_contents()->GetBrowserContext());
-    if (cef_browser_context) {
-      cef_browser_context->AddVisitedURLs(
-          navigation_handle->GetURL(), navigation_handle->GetRedirectChain(),
-          navigation_handle->GetPageTransition());
-    }
-  }
-}
-
 void AlloyBrowserHostImpl::OnAudioStateChanged(bool audible) {
   if (audible) {
     if (recently_audible_timer_) {

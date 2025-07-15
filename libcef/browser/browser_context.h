@@ -160,12 +160,6 @@ class CefBrowserContext {
                                     CefRefPtr<CefSchemeHandlerFactory> factory);
   void ClearSchemeHandlerFactories();
 
-  // Called from AlloyBrowserHostImpl::DidFinishNavigation to update the table
-  // of visited links.
-  virtual void AddVisitedURLs(const GURL& url,
-                              const std::vector<GURL>& redirect_chain,
-                              ui::PageTransition transition) = 0;
-
   network::mojom::NetworkContext* GetNetworkContext();
 
   CefMediaRouterManager* GetMediaRouterManager();
