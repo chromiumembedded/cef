@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/common/net/url_util.h"
+#include "chrome/browser/history/history_tab_helper.h"
 #include "chrome/browser/task_manager/web_contents_tags.h"
 #include "chrome/browser/ui/tab_helpers.h"
 #include "components/find_in_page/find_tab_helper.h"
@@ -287,4 +288,13 @@ void CefBrowserPlatformDelegateAlloy::AttachHelpers(
 
   // Make the tab show up in the task manager.
   task_manager::WebContentsTags::CreateForTabContents(web_contents);
+
+  // Support visited links. The HistoryTabHelper object is created in
+  // TabHelpers::AttachTabHelpers.
+  if (auto* history_tab_helper =
+          HistoryTabHelper::FromWebContents(web_contents)) {
+    // Bypass the Chrome-specific check in
+    // HistoryTabHelper::DidFinishNavigation.
+    history_tab_helper->SetForceEligibleTabForTesting(true);
+  }
 }
