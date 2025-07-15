@@ -33,7 +33,7 @@
         "setupCommands": [
           {
             "description": "Load lldbinit file",
-            "text": "command source ${workspaceFolder}/.lldbinit",
+            "text": "command source ~/.lldbinit",
             "ignoreFailures": false
           }
         ]
