@@ -279,8 +279,6 @@ class AlloyBrowserHostImpl : public CefBrowserHostBase,
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
-  void DidFinishNavigation(
-      content::NavigationHandle* navigation_handle) override;
   void OnAudioStateChanged(bool audible) override;
   void AccessibilityEventReceived(
       const ui::AXUpdatesAndEvents& details) override;
