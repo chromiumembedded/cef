@@ -248,7 +248,7 @@ utilize clangd with VSCode.
   if platform == 'mac':
     # Setup for lldb.
     # https://chromium.googlesource.com/chromium/src/+/main/docs/lldbinit.md
-    lldbinit_path = os.path.join(src_dir, LLDBINIT)
+    lldbinit_path = os.path.join(os.path.expanduser("~"), LLDBINIT)
     if os.path.isfile(lldbinit_path):
       if not options.force_update:
         print(f'Skipping existing file {LLDBINIT}')
@@ -259,7 +259,8 @@ utilize clangd with VSCode.
     if not os.path.isfile(lldbinit_path):
       content = "# So that lldbinit.py takes precedence.\n" \
                 f"script sys.path[:0] = ['{src_dir}/tools/lldb']\n" \
-                "script import lldbinit"
+                "script import lldbinit\n" \
+                "script import chromium_visualizers"
       write_file(lldbinit_path, content, quiet=quiet)
       change_ct += 1
 
