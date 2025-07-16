@@ -14,14 +14,10 @@
 // Extend views::WebView with a no-argument constructor as required by the
 // CefViewView template.
 class WebViewEx : public views::WebView {
+  METADATA_HEADER(WebViewEx, views::WebView)
+
  public:
-  WebViewEx() : views::WebView(nullptr) {
-    // Mouse events on draggable regions will not be handled by the WebView.
-    // Avoid the resulting DCHECK in NativeViewHost::OnMousePressed by
-    // configuring the NativeViewHost not to process events via the view
-    // hierarchy.
-    holder()->SetCanProcessEventsWithinSubtree(false);
-  }
+  WebViewEx() : views::WebView(nullptr) {}
 };
 
 class CefBrowserViewView

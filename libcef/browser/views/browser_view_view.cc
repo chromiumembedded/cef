@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/views/browser_view_view.h"
 
 #include "cef/libcef/browser/views/browser_view_impl.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 
 CefBrowserViewView::CefBrowserViewView(CefBrowserViewDelegate* cef_delegate,
                                        Delegate* browser_view_delegate)
@@ -53,3 +54,6 @@ void CefBrowserViewView::RemovedFromWidget() {
   ParentClass::RemovedFromWidget();
   browser_view_delegate_->RemovedFromWidget();
 }
+
+BEGIN_METADATA(WebViewEx)
+END_METADATA

@@ -867,23 +867,6 @@ index aa1d3a78d628b6aceaaadd3cf8f83baf2faee1e6..f00e13784abc88a7fe32a22a698fc119
    virtual bool IsToolbarVisible() const = 0;
    virtual bool IsBookmarkBarVisible() const = 0;
    virtual bool IsContentsSeparatorEnabled() const = 0;
-diff --git chrome/browser/ui/views/frame/contents_web_view.cc chrome/browser/ui/views/frame/contents_web_view.cc
-index 1f65552380cdaf192a5f6e9bdd044371314eb8f7..ab520daffdb11bb349c338d53a5a1665ba32fe78 100644
---- chrome/browser/ui/views/frame/contents_web_view.cc
-+++ chrome/browser/ui/views/frame/contents_web_view.cc
-@@ -34,6 +34,12 @@ ContentsWebView::ContentsWebView(content::BrowserContext* browser_context)
-   status_bubble_ = std::make_unique<StatusBubbleViews>(this);
-   status_bubble_->Reposition();
-   web_contents_close_handler_ = std::make_unique<WebContentsCloseHandler>(this);
-+
-+  // Mouse events on draggable regions will not be handled by the WebView.
-+  // Avoid the resulting DCHECK in NativeViewHost::OnMousePressed by
-+  // configuring the NativeViewHost not to process events via the view
-+  // hierarchy.
-+  holder()->SetCanProcessEventsWithinSubtree(false);
- }
- 
- ContentsWebView::~ContentsWebView() = default;
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 index 11b9de59b0ff3657dc709931d72202615c977e0f..806d5585ba3b66b3c09679375449f97b4de599e1 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
