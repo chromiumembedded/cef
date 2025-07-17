@@ -6,6 +6,7 @@
 
 #include "cef/libcef/browser/browser_context.h"
 #include "cef/libcef/browser/context.h"
+#include "cef/libcef/browser/prefs/pref_names.h"
 #include "cef/libcef/browser/prefs/pref_registrar.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/language/core/browser/pref_names.h"
@@ -47,6 +48,9 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
 }
 
 void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+  registry->RegisterBooleanPref(cef::prefs::kEnableStorageNotificationService,
+                                true);
+
   pref_registrar::RegisterCustomPrefs(CEF_PREFERENCES_TYPE_REQUEST_CONTEXT,
                                       registry);
 }

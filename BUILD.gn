@@ -677,6 +677,7 @@ source_set("libcef_static") {
     "libcef/browser/prefs/browser_prefs.h",
     "libcef/browser/prefs/pref_helper.cc",
     "libcef/browser/prefs/pref_helper.h",
+    "libcef/browser/prefs/pref_names.h",
     "libcef/browser/prefs/pref_registrar.cc",
     "libcef/browser/prefs/pref_registrar.h",
     "libcef/browser/prefs/renderer_prefs.cc",
