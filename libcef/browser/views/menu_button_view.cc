@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/views/menu_button_view.h"
 
 #include "cef/libcef/browser/thread_util.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/gfx/canvas.h"
 #include "ui/views/controls/button/menu_button_controller.h"
 #include "ui/views/controls/menu/menu_config.h"
@@ -58,3 +59,9 @@ void CefMenuButtonView::ButtonPressed(const ui::Event& event) {
                                       CefPoint(position.x(), position.y()),
                                       new ButtonPressedLock(this));
 }
+
+BEGIN_METADATA(MenuButtonEx)
+END_METADATA
+
+BEGIN_METADATA(CefMenuButtonView)
+END_METADATA

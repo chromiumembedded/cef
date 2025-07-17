@@ -25,6 +25,8 @@ class CefBrowserViewImpl;
 // views::WebView. See chrome_browser_frame.h for related documentation.
 class ChromeBrowserView
     : public CefViewView<BrowserView, CefBrowserViewDelegate> {
+  METADATA_HEADER(ChromeBrowserView, BrowserView)
+
  public:
   using ParentClass = CefViewView<BrowserView, CefBrowserViewDelegate>;
 

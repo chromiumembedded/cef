@@ -15,6 +15,8 @@
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
 class MenuButtonEx : public views::MenuButton {
+  METADATA_HEADER(MenuButtonEx, views::MenuButton)
+
  public:
   MenuButtonEx()
       : views::MenuButton(base::BindRepeating(
@@ -28,6 +30,8 @@ class MenuButtonEx : public views::MenuButton {
 
 class CefMenuButtonView
     : public CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate> {
+  METADATA_HEADER(CefMenuButtonView, MenuButtonEx)
+
  public:
   using ParentClass = CefLabelButtonView<MenuButtonEx, CefMenuButtonDelegate>;
 

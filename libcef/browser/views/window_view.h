@@ -26,6 +26,8 @@
 class CefWindowView
     : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate>,
       public views::WidgetObserver {
+  METADATA_HEADER(CefWindowView, views::WidgetDelegateView)
+
  public:
   using ParentClass =
       CefPanelView<views::WidgetDelegateView, CefWindowDelegate>;

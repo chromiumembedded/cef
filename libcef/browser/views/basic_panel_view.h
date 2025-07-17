@@ -10,6 +10,8 @@
 #include "cef/libcef/browser/views/panel_view.h"
 
 class CefBasicPanelView : public CefPanelView<views::View, CefPanelDelegate> {
+  METADATA_HEADER(CefBasicPanelView, views::View)
+
  public:
   using ParentClass = CefPanelView<views::View, CefPanelDelegate>;
 

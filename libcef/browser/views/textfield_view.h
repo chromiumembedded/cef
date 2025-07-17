@@ -15,6 +15,8 @@
 class CefTextfieldView
     : public CefViewView<views::Textfield, CefTextfieldDelegate>,
       public views::TextfieldController {
+  METADATA_HEADER(CefTextfieldView, views::Textfield)
+
  public:
   using ParentClass = CefViewView<views::Textfield, CefTextfieldDelegate>;
 

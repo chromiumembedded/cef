@@ -5,6 +5,7 @@
 #include "cef/libcef/browser/views/textfield_view.h"
 
 #include "cef/libcef/browser/browser_event_util.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 
 CefTextfieldView::CefTextfieldView(CefTextfieldDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
@@ -40,3 +41,6 @@ void CefTextfieldView::OnAfterUserAction(views::Textfield* sender) {
     cef_delegate()->OnAfterUserAction(GetCefTextfield());
   }
 }
+
+BEGIN_METADATA(CefTextfieldView)
+END_METADATA

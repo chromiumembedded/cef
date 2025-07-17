@@ -10,6 +10,8 @@
 #include "chrome/browser/ui/views/toolbar/toolbar_view.h"
 
 class CefToolbarViewView : public CefViewView<ToolbarView, CefViewDelegate> {
+  METADATA_HEADER(CefToolbarViewView, ToolbarView)
+
  public:
   using ParentClass = CefViewView<ToolbarView, CefViewDelegate>;
 

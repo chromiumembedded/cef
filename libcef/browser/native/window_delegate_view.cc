@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "content/public/browser/web_contents.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/fill_layout.h"
@@ -99,3 +100,6 @@ void CefWindowDelegateView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
     on_bounds_changed_.Run();
   }
 }
+
+BEGIN_METADATA(CefWindowDelegateView)
+END_METADATA
