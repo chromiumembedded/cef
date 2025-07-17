@@ -57,3 +57,6 @@ void CefBrowserViewView::RemovedFromWidget() {
 
 BEGIN_METADATA(WebViewEx)
 END_METADATA
+
+BEGIN_METADATA(CefBrowserViewView)
+END_METADATA

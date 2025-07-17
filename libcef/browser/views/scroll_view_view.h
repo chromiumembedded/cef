@@ -12,6 +12,8 @@
 
 class CefScrollViewView
     : public CefViewView<views::ScrollView, CefViewDelegate> {
+  METADATA_HEADER(CefScrollViewView, views::ScrollView)
+
  public:
   using ParentClass = CefViewView<views::ScrollView, CefViewDelegate>;
 

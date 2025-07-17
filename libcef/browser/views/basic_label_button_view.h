@@ -14,6 +14,8 @@
 // CefViewView template and extend views::ButtonListener as required by the
 // CefButtonView template.
 class LabelButtonEx : public views::LabelButton {
+  METADATA_HEADER(LabelButtonEx, views::LabelButton)
+
  public:
   LabelButtonEx()
       : views::LabelButton(base::BindRepeating(
@@ -28,6 +30,8 @@ class LabelButtonEx : public views::LabelButton {
 
 class CefBasicLabelButtonView
     : public CefLabelButtonView<LabelButtonEx, CefButtonDelegate> {
+  METADATA_HEADER(CefBasicLabelButtonView, LabelButtonEx)
+
  public:
   using ParentClass = CefLabelButtonView<LabelButtonEx, CefButtonDelegate>;
 

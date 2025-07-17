@@ -6,6 +6,7 @@
 
 #include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 
 ChromeBrowserView::ChromeBrowserView(CefBrowserViewImpl* cef_browser_view)
     : ParentClass(cef_browser_view->delegate()),
@@ -115,3 +116,6 @@ void ChromeBrowserView::WillDestroyToolbar() {
     cef_toolbar_ = nullptr;
   }
 }
+
+BEGIN_METADATA(ChromeBrowserView)
+END_METADATA

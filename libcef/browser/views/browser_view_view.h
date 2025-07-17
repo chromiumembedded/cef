@@ -22,6 +22,8 @@ class WebViewEx : public views::WebView {
 
 class CefBrowserViewView
     : public CefViewView<WebViewEx, CefBrowserViewDelegate> {
+  METADATA_HEADER(CefBrowserViewView, WebViewEx)
+
  public:
   using ParentClass = CefViewView<WebViewEx, CefBrowserViewDelegate>;
 

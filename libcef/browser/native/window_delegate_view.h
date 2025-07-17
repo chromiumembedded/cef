@@ -20,6 +20,8 @@ class WebView;
 // Manages the views-based root window that hosts the web contents. This object
 // will be deleted automatically when the associated root window is destroyed.
 class CefWindowDelegateView : public views::WidgetDelegateView {
+  METADATA_HEADER(CefWindowDelegateView, views::WidgetDelegateView)
+
  public:
   CefWindowDelegateView(SkColor background_color,
                         bool always_on_top,

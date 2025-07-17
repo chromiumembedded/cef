@@ -4,5 +4,10 @@
 
 #include "cef/libcef/browser/views/scroll_view_view.h"
 
+#include "ui/base/metadata/metadata_impl_macros.h"
+
 CefScrollViewView::CefScrollViewView(CefViewDelegate* cef_delegate)
     : ParentClass(cef_delegate) {}
+
+BEGIN_METADATA(CefScrollViewView)
+END_METADATA

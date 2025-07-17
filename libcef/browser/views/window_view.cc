@@ -22,6 +22,7 @@
 #include "cef/libcef/browser/views/widget.h"
 #include "cef/libcef/browser/views/window_impl.h"
 #include "ui/base/hit_test.h"
+#include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/ui_base_types.mojom-shared.h"
 #include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"
@@ -51,6 +52,8 @@ namespace {
 
 // Specialize ClientView to handle Widget-related events.
 class ClientViewEx : public views::ClientView {
+  METADATA_HEADER(ClientViewEx, views::ClientView)
+
  public:
   ClientViewEx(views::Widget* widget,
                views::View* contents_view,
@@ -70,8 +73,13 @@ class ClientViewEx : public views::ClientView {
   const base::WeakPtr<CefWindowView> view_;
 };
 
+BEGIN_METADATA(ClientViewEx)
+END_METADATA
+
 // Extend NativeFrameView with draggable region handling.
 class NativeFrameViewEx : public views::NativeFrameView {
+  METADATA_HEADER(NativeFrameViewEx, views::NativeFrameView)
+
  public:
   NativeFrameViewEx(views::Widget* widget, base::WeakPtr<CefWindowView> view)
       : views::NativeFrameView(widget),
@@ -156,6 +164,9 @@ class NativeFrameViewEx : public views::NativeFrameView {
   const base::WeakPtr<CefWindowView> view_;
 };
 
+BEGIN_METADATA(NativeFrameViewEx)
+END_METADATA
+
 // The area inside the frame border that can be clicked and dragged for resizing
 // the window. Only used in restored mode.
 const int kResizeBorderThickness = 4;
@@ -167,6 +178,8 @@ const int kResizeAreaCornerSize = 16;
 // Implement NonClientFrameView without the system default caption and icon but
 // with a resizable border. Based on AppWindowFrameView and CustomFrameView.
 class CaptionlessFrameView : public views::NonClientFrameView {
+  METADATA_HEADER(CaptionlessFrameView, views::NonClientFrameView)
+
  public:
   CaptionlessFrameView(views::Widget* widget, base::WeakPtr<CefWindowView> view)
       : widget_(widget), view_(std::move(view)) {}
@@ -292,6 +305,9 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   // The bounds of the client view, in this view's coordinates.
   gfx::Rect client_view_bounds_;
 };
+
+BEGIN_METADATA(CaptionlessFrameView)
+END_METADATA
 
 bool IsWindowBorderHit(int code) {
 // On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
@@ -1057,3 +1073,6 @@ void CefWindowView::OnThemeColorsChanged(bool chrome_theme) {
     cef_delegate()->OnThemeColorsChanged(GetCefWindow(), chrome_theme);
   }
 }
+
+BEGIN_METADATA(CefWindowView)
+END_METADATA
