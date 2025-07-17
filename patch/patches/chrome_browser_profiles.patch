@@ -85,10 +85,42 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 88a274f8b05f7c998e6cd0289eb968a95a90d81d..7adeedad98ac27de089a86af5d6c43e97260cb29 100644
+index 88a274f8b05f7c998e6cd0289eb968a95a90d81d..622933dd2743fd30f162035dd602162908cb6bbc 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
-@@ -1022,7 +1022,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -40,6 +40,7 @@
+ #include "base/version.h"
+ #include "build/build_config.h"
+ #include "build/chromeos_buildflags.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/background/background_contents_service_factory.h"
+ #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
+ #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
+@@ -237,6 +238,10 @@
+ #include "chrome/browser/background/extensions/background_mode_manager.h"
+ #endif
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/browser/prefs/pref_names.h"
++#endif
++
+ #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
+ #include "chrome/browser/extensions/extension_special_storage_policy.h"
+ #include "extensions/browser/extension_pref_store.h"
+@@ -277,6 +282,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+ 
+ namespace {
+ 
++#if BUILDFLAG(ENABLE_CEF)
++BASE_FEATURE(kStorageNotificationService,
++             "StorageNotificationService",
++             base::FEATURE_ENABLED_BY_DEFAULT);
++#endif
++
+ #if BUILDFLAG(ENABLE_SESSION_SERVICE)
+ // Delay before we explicitly create the SessionService.
+ static constexpr base::TimeDelta kCreateSessionServiceDelay =
+@@ -1022,7 +1033,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -98,4 +130,17 @@ index 88a274f8b05f7c998e6cd0289eb968a95a90d81d..7adeedad98ac27de089a86af5d6c43e9
 +    NotifyOffTheRecordProfileCreated(raw_otr_profile);
  
    return raw_otr_profile;
+ }
+@@ -1346,6 +1359,12 @@ ProfileImpl::GetStorageNotificationService() {
+ #if BUILDFLAG(IS_ANDROID)
+   return nullptr;
+ #else
++#if BUILDFLAG(ENABLE_CEF)
++  if (!base::FeatureList::IsEnabled(kStorageNotificationService) ||
++      !GetPrefs()->GetBoolean(cef::prefs::kEnableStorageNotificationService)) {
++    return nullptr;
++  }
++#endif
+   return StorageNotificationServiceFactory::GetForBrowserContext(this);
+ #endif
  }
