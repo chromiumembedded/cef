@@ -16,6 +16,7 @@ class CefBrowserPlatformDelegateChromeChildWindow
       CefRefPtr<CefBrowserViewImpl> browser_view);
 
   // CefBrowserPlatformDelegate overrides.
+  void RenderViewReady() override;
   void CloseHostWindow() override;
   CefRefPtr<CefBrowserViewDelegate>
   GetDefaultBrowserViewDelegateForPopupOpener() override;
