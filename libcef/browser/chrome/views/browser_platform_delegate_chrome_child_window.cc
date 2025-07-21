@@ -7,12 +7,23 @@
 #include "cef/include/views/cef_browser_view.h"
 #include "cef/libcef/browser/chrome/views/chrome_child_window.h"
 
+#if defined(USE_AURA)
+#include "cef/libcef/browser/native/browser_platform_delegate_native_aura.h"
+#endif
+
 CefBrowserPlatformDelegateChromeChildWindow::
     CefBrowserPlatformDelegateChromeChildWindow(
         std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
         CefRefPtr<CefBrowserViewImpl> browser_view)
     : CefBrowserPlatformDelegateChromeViews(std::move(native_delegate),
                                             browser_view) {}
+
+void CefBrowserPlatformDelegateChromeChildWindow::RenderViewReady() {
+#if defined(USE_AURA)
+  static_cast<CefBrowserPlatformDelegateNativeAura*>(native_delegate_.get())
+      ->InstallRootWindowBoundsCallback();
+#endif
+}
 
 void CefBrowserPlatformDelegateChromeChildWindow::CloseHostWindow() {
   native_delegate_->CloseHostWindow();

@@ -98,7 +98,6 @@ class ChildWindowDelegate : public CefWindowDelegate {
         static_cast<CefBrowserPlatformDelegateChromeViews*>(platform_delegate);
     native_delegate_ = static_cast<CefBrowserPlatformDelegateNativeAura*>(
         chrome_delegate->native_delegate());
-    native_delegate_->InstallRootWindowBoundsCallback();
 
 #if BUILDFLAG(IS_WIN)
     auto widget = static_cast<CefWindowImpl*>(window_.get())->widget();
