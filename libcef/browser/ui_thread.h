@@ -31,8 +31,7 @@ class CefUIThread final : public base::PlatformThread::Delegate {
 
   bool WaitUntilThreadStarted() const;
 
-  void InitializeBrowserRunner(
-      content::MainFunctionParams main_function_params);
+  int InitializeBrowserRunner(content::MainFunctionParams main_function_params);
 
   void set_shutdown_callback(base::OnceClosure shutdown_callback) {
     shutdown_callback_ = std::move(shutdown_callback);
