@@ -14,7 +14,6 @@
 #include "cef/include/cef_app.h"
 #include "cef/libcef/browser/ui_thread.h"
 #include "cef/libcef/common/chrome/chrome_main_delegate_cef.h"
-#include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/browser/browser_main_runner.h"
@@ -98,11 +97,11 @@ class CefMainRunner final {
   // Used to quit the current base::RunLoop.
   base::OnceClosure quit_callback_;
 
+  bool initialized_ = false;
   int exit_code_ = -1;
 
   std::unique_ptr<ChromeMainDelegateCef> main_delegate_;
 
-  std::unique_ptr<MainThreadStackSamplingProfiler> sampling_profiler_;
   std::unique_ptr<ScopedKeepAlive> keep_alive_;
 
   raw_ptr<CefSettings> settings_ = nullptr;
