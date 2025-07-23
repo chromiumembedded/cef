@@ -390,9 +390,10 @@ bool CefContext::Initialize(const CefMainArgs& args,
                      base::Unretained(this)));
   exit_code_ = main_runner_->exit_code();
 
+  CHECK_EQ(initialized, initialized_);
+
   if (!initialized) {
-    shutting_down_ = true;
-    FinalizeShutdown();
+    Shutdown();
     return false;
   }
 
@@ -532,6 +533,11 @@ void CefContext::OnContextInitialized() {
 }
 
 void CefContext::ShutdownOnUIThread() {
+  // |initialized_| will be false if shutting down after early exit.
+  if (!initialized_) {
+    return;
+  }
+
   CEF_REQUIRE_UIT();
 
   browser_info_manager_->DestroyAllBrowsers();

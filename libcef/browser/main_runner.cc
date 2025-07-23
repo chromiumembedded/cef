@@ -21,6 +21,7 @@
 #include "chrome/browser/chrome_process_singleton.h"
 #include "chrome/chrome_elf/chrome_elf_main.h"
 #include "chrome/common/chrome_result_codes.h"
+#include "chrome/common/profiler/main_thread_stack_sampling_profiler.h"
 #include "components/crash/core/app/crash_switches.h"
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/metrics/persistent_system_profile.h"
@@ -78,6 +79,7 @@ bool CefMainRunner::Initialize(CefSettings* settings,
     return false;
   }
 
+  initialized_ = true;
   return true;
 }
 
@@ -105,8 +107,11 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
     // Main thread and UI thread are the same.
     StartShutdownOnUIThread(std::move(shutdown_on_ui_thread));
 
-    browser_runner_->Shutdown();
-    browser_runner_.reset();
+    // |browser_runner_| may be nullptr when shutting down after early exit.
+    if (browser_runner_) {
+      browser_runner_->Shutdown();
+      browser_runner_.reset();
+    }
 
     FinishShutdownOnUIThread();
   }
@@ -119,7 +124,6 @@ void CefMainRunner::Shutdown(base::OnceClosure shutdown_on_ui_thread,
   std::move(finalize_shutdown).Run();
 
   main_delegate_.reset();
-  sampling_profiler_.reset();
   keep_alive_.reset();
   settings_ = nullptr;
   application_ = nullptr;
@@ -298,11 +302,6 @@ int CefMainRunner::ContentMainRun(bool* initialized,
                int* exit_code) {
               runner->BeforeUIThreadInitialize();
               *exit_code = content::ContentMainRun(runner->main_runner_.get());
-
-              if (*exit_code != content::RESULT_CODE_NORMAL_EXIT) {
-                runner->FinishShutdownOnUIThread();
-              }
-
               event->Signal();
             },
             base::Unretained(this), base::Unretained(&uithread_startup_event),
@@ -314,13 +313,6 @@ int CefMainRunner::ContentMainRun(bool* initialized,
 
     // We need to wait until content::ContentMainRun has finished.
     uithread_startup_event.Wait();
-
-    if (exit_code != content::RESULT_CODE_NORMAL_EXIT) {
-      // content::ContentMainRun was not successful (for example, due to process
-      // singleton relaunch). Stop the UI thread and block until done.
-      ui_thread_->Stop();
-      ui_thread_.reset();
-    }
   } else {
     *initialized = true;
     BeforeUIThreadInitialize();
@@ -338,6 +330,9 @@ int CefMainRunner::ContentMainRun(bool* initialized,
                                    base::Unretained(this),
                                    std::move(context_initialized)));
     }
+  } else {
+    // content::ContentMainRun exited early. Reset initialized state.
+    *initialized = false;
   }
 
   return exit_code;
@@ -353,18 +348,14 @@ void CefMainRunner::BeforeMainInitialize(const CefMainArgs& args) {
 }
 
 bool CefMainRunner::HandleMainMessageLoopQuit() {
-  // May be nullptr if content::ContentMainRun exits early.
-  if (!g_browser_process) {
-    // Proceed with direct execution of the QuitClosure().
-    return false;
-  }
-
   // May be called multiple times. See comments in RunMainMessageLoopBefore.
   keep_alive_.reset();
 
-  // Cancel direct execution of the QuitClosure() in QuitMessageLoop. We
-  // instead wait for all Chrome browser windows to exit.
-  return true;
+  // If we're initialized it means that the BrowserProcessImpl was created and
+  // registered as a KeepAliveStateObserver, in which case we wait for all
+  // Chrome browser windows to exit. Otherwise, continue with direct execution
+  // of the QuitClosure() in QuitMessageLoop.
+  return initialized_;
 }
 
 void CefMainRunner::PreBrowserMain() {
@@ -375,21 +366,24 @@ void CefMainRunner::PreBrowserMain() {
 
 int CefMainRunner::RunMainProcess(
     content::MainFunctionParams main_function_params) {
+  int exit_code;
+
   if (!multi_threaded_message_loop_) {
     // Use our own browser process runner.
     browser_runner_ = content::BrowserMainRunner::Create();
 
     // Initialize browser process state. Results in a call to
     // PreBrowserMain() which creates the UI message loop.
-    int exit_code =
-        browser_runner_->Initialize(std::move(main_function_params));
-    if (exit_code >= 0) {
-      return exit_code;
-    }
+    exit_code = browser_runner_->Initialize(std::move(main_function_params));
   } else {
     // Running on the separate UI thread.
     DCHECK(ui_thread_);
-    ui_thread_->InitializeBrowserRunner(std::move(main_function_params));
+    exit_code =
+        ui_thread_->InitializeBrowserRunner(std::move(main_function_params));
+  }
+
+  if (exit_code >= 0) {
+    return exit_code;
   }
 
   return 0;
@@ -417,17 +411,20 @@ void CefMainRunner::OnContextInitialized(
 
 void CefMainRunner::StartShutdownOnUIThread(
     base::OnceClosure shutdown_on_ui_thread) {
-  CEF_REQUIRE_UIT();
+  // |initialized_| will be false if shutting down after early exit.
+  if (initialized_) {
+    CEF_REQUIRE_UIT();
 
-  // Execute all pending tasks now before proceeding with shutdown. Otherwise,
-  // objects bound to tasks and released at the end of shutdown via
-  // BrowserTaskExecutor::Shutdown may attempt to access other objects that have
-  // already been destroyed (for example, if teardown results in a call to
-  // RenderProcessHostImpl::Cleanup).
-  content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
-      content::BrowserThread::UI);
-  content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
-      content::BrowserThread::IO);
+    // Execute all pending tasks now before proceeding with shutdown. Otherwise,
+    // objects bound to tasks and released at the end of shutdown via
+    // BrowserTaskExecutor::Shutdown may attempt to access other objects that
+    // have already been destroyed (for example, if teardown results in a call
+    // to RenderProcessHostImpl::Cleanup).
+    content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
+        content::BrowserThread::UI);
+    content::BrowserTaskExecutor::RunAllPendingTasksOnThreadForTesting(
+        content::BrowserThread::IO);
+  }
 
   std::move(shutdown_on_ui_thread).Run();
   BeforeUIThreadShutdown();
@@ -445,14 +442,18 @@ void CefMainRunner::FinishShutdownOnUIThread() {
 }
 
 void CefMainRunner::BeforeUIThreadInitialize() {
-  sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
+  static_cast<ChromeContentBrowserClient*>(
+      CefAppManager::Get()->GetContentClient()->browser())
+      ->SetSamplingProfiler(
+          std::make_unique<MainThreadStackSamplingProfiler>());
 }
 
 void CefMainRunner::BeforeUIThreadShutdown() {
-  static_cast<ChromeContentBrowserClientCef*>(
-      CefAppManager::Get()->GetContentClient()->browser())
-      ->CleanupOnUIThread();
+  // |initialized_| will be false if shutting down after early exit.
+  if (initialized_) {
+    static_cast<ChromeContentBrowserClientCef*>(
+        CefAppManager::Get()->GetContentClient()->browser())
+        ->CleanupOnUIThread();
+  }
   main_delegate_->CleanupOnUIThread();
-
-  sampling_profiler_.reset();
 }
