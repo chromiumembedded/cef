@@ -116,8 +116,8 @@ CefRefPtr<CefRequestHandler> GetRequestHandler(CefBrowserHostBase* browser) {
 bool RendererUnresponsive(CefBrowserHostBase* browser,
                           content::RenderWidgetHost* render_widget_host,
                           base::RepeatingClosure hang_monitor_restarter) {
-  // There should be no callback currently.
-  DCHECK(!browser->unresponsive_process_callback());
+  // There may be a callback currently.
+  ResetRendererCallback(browser);
 
   if (auto handler = GetRequestHandler(browser)) {
     CefRefPtr<CefUnresponsiveProcessCallbackImpl> callbackImpl(

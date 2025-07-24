@@ -228,20 +228,20 @@ class CefRequestHandler : public virtual CefBaseRefCounted {
   ///
   /// Called on the browser process UI thread when the render process is
   /// unresponsive as indicated by a lack of input event processing for at
-  /// least 15 seconds. Return false for the default behavior which is an
-  /// indefinite wait with Alloy style or display of the "Page
+  /// least 15 seconds. Return false for the default behavior which is to
+  /// continue waiting with Alloy style or display of the "Page
   /// unresponsive" dialog with Chrome style. Return true and don't
-  /// execute the callback for an indefinite wait without display of the Chrome
+  /// execute the callback to continue waiting without display of the Chrome
   /// style dialog. Return true and call CefUnresponsiveProcessCallback::Wait
-  /// either in this method or at a later time to reset the wait timer,
-  /// potentially triggering another call to this method if the process remains
-  /// unresponsive. Return true and call CefUnresponsiveProcessCallback::
-  /// Terminate either in this method or at a later time to terminate the
-  /// unresponsive process, resulting in a call to OnRenderProcessTerminated.
-  /// OnRenderProcessResponsive will be called if the process becomes responsive
-  /// after this method is called. This functionality depends on the hang
-  /// monitor which can be disabled by passing the `--disable-hang-monitor`
-  /// command-line flag.
+  /// either in this method or at a later time to reset the wait timer.
+  /// In cases where you continue waiting there may be another call to this
+  /// method if the process remains unresponsive. Return true and call
+  /// CefUnresponsiveProcessCallback::Terminate either in this method or at a
+  /// later time to terminate the unresponsive process, resulting in a call to
+  /// OnRenderProcessTerminated. OnRenderProcessResponsive will be called if the
+  /// process becomes responsive after this method is called. This functionality
+  /// depends on the hang monitor which can be disabled by passing the
+  /// `--disable-hang-monitor` command-line flag.
   ///
   /*--cef()--*/
   virtual bool OnRenderProcessUnresponsive(
