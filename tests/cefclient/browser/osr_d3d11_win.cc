@@ -102,7 +102,7 @@ void SwapChain::present(int sync_interval) {
 }
 
 void SwapChain::resize(int width, int height) {
-  if (width <= 0 || height <= 0 || width == width_ || height == height_) {
+  if (width <= 0 || height <= 0 || (width == width_ && height == height_)) {
     return;
   }
   width_ = width;
