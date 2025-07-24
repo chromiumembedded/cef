@@ -327,9 +327,12 @@ base::OnceClosure ChromeContentBrowserClientCef::SelectClientCertificate(
     std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   CEF_REQUIRE_UIT();
 
+  // |web_contents| will be nullptr for requests originating from service
+  // workers. Proceed with default handling in that case.
   CefRefPtr<CefRequestHandler> handler;
   CefRefPtr<CefBrowserHostBase> browser =
-      CefBrowserHostBase::GetBrowserForContents(web_contents);
+      web_contents ? CefBrowserHostBase::GetBrowserForContents(web_contents)
+                   : nullptr;
   if (browser) {
     if (auto client = browser->GetClient()) {
       handler = client->GetRequestHandler();
