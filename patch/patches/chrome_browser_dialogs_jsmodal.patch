@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index dc7205b1011d6bc3b195a3315c7cd7396f994948..f3106cdd120a272ef58732e4f92e4c5f4093931f 100644
+index dc7205b1011d6bc3b195a3315c7cd7396f994948..3c3ad8e8cecb60e6b03fd03f7a673641b600369f 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -6,6 +6,7 @@
@@ -43,7 +43,17 @@ index dc7205b1011d6bc3b195a3315c7cd7396f994948..f3106cdd120a272ef58732e4f92e4c5f
      // It's rare, but there are crashes from where sites are trying to show
      // dialogs in the split second of time between when their Browser is gone
      // and they're gone. In that case, bail. https://crbug.com/1142806
-@@ -96,7 +116,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
+@@ -88,6 +108,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+ }
+ 
+ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
++  if (IsAlloyContents(web_contents_)) {
++    return false;
++  }
+   tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
+   BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
+   return browser &&
+@@ -96,7 +119,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {
