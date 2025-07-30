@@ -212,7 +212,7 @@ index c618c00223779a3d9881c644317fa3f1fc586bca..05b2b1e5d88650634990aa5c7ce70c59
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index fa171a2990d47598dd03045f3cc6fc095b379715..3b170e3d6a9202e7c4b78b308890cf2520b748bf 100644
+index b531a5cc456469eaf366aa70a2fbb7b7b7f22498..81c278be7779637ed2d7620b17077f5a8070ad5c 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -90,10 +90,12 @@ DialogDelegate::DialogDelegate() {
