@@ -485,8 +485,10 @@ class ResourceResponseWrapper : public ResourceResponse {
     }
 
     if (reason_phrase->empty() && *status_code > 0) {
-      *reason_phrase = net::GetHttpReasonPhrase(
-          static_cast<net::HttpStatusCode>(*status_code));
+      if (const char *text = net::GetHttpReasonPhrase(
+              static_cast<net::HttpStatusCode>(*status_code))) {
+        *reason_phrase = text;
+      }
     }
 
     *mime_type = response->GetMimeType();
