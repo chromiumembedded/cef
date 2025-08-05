@@ -64,6 +64,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import os
 import platform as python_platform
+import re
 import shlex
 import sys
 
@@ -95,7 +96,103 @@ def msg(msg):
     print('NOTE: ' + msg)
 
 
-def NameValueListToDict(name_value_list):
+def ParseValue(value_str):
+  """
+  Parse a GN value string and return the appropriate Python type.
+  """
+  value_str = value_str.strip()
+
+  # Handle quoted strings.
+  if (value_str.startswith('"') and value_str.endswith('"')) or \
+     (value_str.startswith("'") and value_str.endswith("'")):
+    # Remove quotes.
+    return value_str[1:-1]
+
+  # Handle boolean values.
+  if value_str.lower() == 'true':
+    return True
+  elif value_str.lower() == 'false':
+    return False
+
+  # Handle numeric values.
+  try:
+    if '.' in value_str:
+      return float(value_str)
+    else:
+      return int(value_str)
+  except ValueError:
+    pass
+
+  # Handle arrays (basic support).
+  if value_str.startswith('[') and value_str.endswith(']'):
+    # Simple array parsing - assumes simple comma-separated values.
+    inner = value_str[1:-1].strip()
+    if not inner:
+      return []
+
+    items = []
+    for item in inner.split(','):
+      item = item.strip()
+      if item:
+        items.append(ParseValue(item))
+    return items
+
+  # Return as string if no other type matches.
+  return value_str
+
+
+def FormatValue(val):
+  """
+  Return the GN value string for a Python value.
+  """
+  if isinstance(val, bool):
+    if val:
+      return 'true'
+    else:
+      return 'false'
+  elif isinstance(val, int) or isinstance(val, float):
+    return val
+  elif isinstance(val, list):
+    return '[' + ', '.join([FormatValue(v) for v in list]) + ']'
+  else:
+    return '"%s"' % val
+  return val
+
+
+def ParseArgsFile(filepath):
+  """
+  Parse a GN args file and return all name/value pairs as a dictionary.
+  """
+  result = {}
+
+  if not os.path.exists(filepath):
+    raise FileNotFoundError(f"File not found: {filepath}")
+
+  with open(filepath, 'r') as f:
+    lines = f.readlines()
+
+  for line in lines:
+    line = line.strip()
+
+    # Skip empty lines and comments.
+    if not line or line.startswith('#'):
+      continue
+
+    # Look for variable assignments (name = value).
+    match = re.match(r'^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$', line)
+    if not match:
+      continue
+
+    var_name = match.group(1)
+    var_value = match.group(2).strip()
+
+    # Parse the value based on its format.
+    result[var_name] = ParseValue(var_value)
+
+  return result
+
+
+def ParseNameValueList(name_value_list):
   """
   Takes an array of strings of the form 'NAME=VALUE' and creates a dictionary
   of the pairs. If a string is simply NAME, then the value in the dictionary
@@ -104,23 +201,13 @@ def NameValueListToDict(name_value_list):
   result = {}
   for item in name_value_list:
     tokens = item.split('=', 1)
+    key = tokens[0].strip()
     if len(tokens) == 2:
-      token_value = tokens[1]
-      if token_value.lower() == 'true':
-        token_value = True
-      elif token_value.lower() == 'false':
-        token_value = False
-      else:
-        # If we can make it an int, use that, otherwise, use the string.
-        try:
-          token_value = int(token_value)
-        except ValueError:
-          pass
-      # Set the variable to the supplied value.
-      result[tokens[0]] = token_value
+      # Parse the value based on its format.
+      result[key] = ParseValue(tokens[1])
     else:
       # No value supplied, treat it as a boolean and set it.
-      result[tokens[0]] = True
+      result[key] = True
   return result
 
 
@@ -143,22 +230,6 @@ def MergeDicts(*dict_args):
   for dictionary in dict_args:
     result.update(dictionary)
   return result
-
-
-def GetValueString(val):
-  """
-  Return the string representation of |val| expected by GN.
-  """
-  if isinstance(val, bool):
-    if val:
-      return 'true'
-    else:
-      return 'false'
-  elif isinstance(val, int):
-    return val
-  else:
-    return '"%s"' % val
-  return val
 
 
 def GetChromiumDefaultArgs(is_debug):
@@ -262,6 +333,11 @@ def GetRecommendedDefaultArgs():
     # https://github.com/chromiumembedded/cef/issues/3803#issuecomment-2980423520
     result['blink_heap_inside_shared_library'] = True
 
+  # This file may exist when building using a source tarball.
+  tarball_args_file = os.path.join(src_dir, 'tarball_args.gn')
+  if os.path.isfile(tarball_args_file):
+    result.update(ParseArgsFile(tarball_args_file))
+
   return result
 
 
@@ -269,7 +345,7 @@ def GetGNEnvArgs():
   """
   Return GN args specified via the GN_DEFINES env variable.
   """
-  return NameValueListToDict(ShlexEnv('GN_DEFINES'))
+  return ParseNameValueList(ShlexEnv('GN_DEFINES'))
 
 
 def GetRequiredArgs():
@@ -314,7 +390,7 @@ def GetMergedArgs(build_args):
   for key in required.keys():
     if key in dict:
       assert dict[key] == required[key], \
-          "%s=%s is required" % (key, GetValueString(required[key]))
+          "%s=%s is required" % (key, FormatValue(required[key]))
 
   return MergeDicts(dict, required)
 
@@ -613,7 +689,7 @@ def GetConfigFileContents(args):
   """
   pairs = []
   for k in sorted(args.keys()):
-    pairs.append("%s=%s" % (k, GetValueString(args[k])))
+    pairs.append("%s=%s" % (k, FormatValue(args[k])))
   return "\n".join(pairs)
 
 
