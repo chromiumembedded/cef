@@ -1,0 +1,63 @@
+diff --git BUILD.gn BUILD.gn
+index bf60ad5b0e6cd7011a0c97f18e2f49763ea07dfd..460190f06f625845a660a869c971e82da67e8186 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -89,6 +89,9 @@ declare_args() {
+ 
+   # Prefix where the artifacts should be installed on the system
+   install_prefix = ""
++
++  angle_commit_id = ""
++  angle_commit_position = "0"
+ }
+ 
+ declare_args() {
+@@ -880,6 +883,8 @@ action("angle_commit_id") {
+     "gen",
+     rebase_path(_commit_id_header, root_build_dir),
+     rebase_path(depfile, root_build_dir),
++    angle_commit_position,
++    angle_commit_id,
+   ]
+ 
+   public_configs = [ ":angle_commit_id_config" ]
+diff --git src/commit_id.py src/commit_id.py
+index 72352f1b18405bde4ba7019aa22e539695f7a4aa..7c7f816dd122d42fb957c61d5b74fbbe3a451806 100755
+--- src/commit_id.py
++++ src/commit_id.py
+@@ -13,7 +13,7 @@ import os
+ 
+ usage = """\
+ Usage: commit_id.py position               - print commit position
+-       commit_id.py gen <output> [depfile] - generate commit.h"""
++       commit_id.py gen <output> [depfile] [commit_position] [commit_id] - generate commit.h"""
+ 
+ 
+ def grab_output(command, cwd):
+@@ -99,15 +99,24 @@ if len(sys.argv) < 3 or operation != 'gen':
+     sys.exit(usage)
+ 
+ output_file = sys.argv[2]
+-depfile = sys.argv[3] if len(sys.argv) == 4 else None
++depfile = sys.argv[3] if len(sys.argv) >= 4 else None
+ commit_id_size = 12
+ commit_date = 'unknown date'
+ commit_position = '0'
+ 
++if len(sys.argv) >= 5:
++  commit_position = sys.argv[4]
++  assert commit_position.isnumeric(), commit_position
++
++commit_id = None
++if len(sys.argv) >= 6 and len(sys.argv[5]) > 0:
++  commit_id = sys.argv[5]
++  assert len(commit_id) == commit_id_size, commit_id
++
+ # If the ANGLE_UPSTREAM_HASH environment variable is set, use it as
+ # commit_id. commit_date will be 'unknown date' and commit_position will be 0
+ # in this case. See details in roll_aosp.sh where commit_id.py is invoked.
+-commit_id = os.environ.get('ANGLE_UPSTREAM_HASH')
++commit_id = os.environ.get('ANGLE_UPSTREAM_HASH', commit_id)
+ # If ANGLE_UPSTREAM_HASH environment variable is not set, use the git command
+ # to get the git hash, when .git is available
+ if git_dir_exists and not commit_id:
