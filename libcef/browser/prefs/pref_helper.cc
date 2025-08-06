@@ -240,6 +240,10 @@ void Registrar::RemoveObserver(std::string_view name,
   }
 }
 
+void Registrar::OnServiceDestroyed(PrefService* service) {
+  Reset();
+}
+
 void Registrar::OnPreferenceChanged(PrefService* service,
                                     std::string_view pref_name) {
   std::string pref_name_str(pref_name);

@@ -12,6 +12,7 @@
 #include "cef/include/cef_registration.h"
 #include "cef/include/internal/cef_types_content_settings.h"
 #include "components/content_settings/core/browser/content_settings_observer.h"
+#include "components/content_settings/core/common/content_settings.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 
 class CefSettingObserver;
@@ -84,6 +85,10 @@ class Registrar final : public content_settings::Observer {
 cef_content_setting_types_t ToCefType(ContentSettingsType type);
 std::optional<ContentSettingsType> FromCefType(
     cef_content_setting_types_t type);
+
+// Convert between cef_content_setting_values_t and ContentSetting.
+cef_content_setting_values_t ToCefValue(ContentSetting value);
+std::optional<ContentSetting> FromCefValue(cef_content_setting_values_t value);
 
 }  // namespace setting_helper
 

@@ -30,7 +30,7 @@ index 4e20010e351905ec5c1daa576aecf8d6eeec48ac..588c3dbdcc204f235561290493d6ad0c
    }
    if (has_msg) {
 diff --git base/task/current_thread.cc base/task/current_thread.cc
-index 0f5ac15e4b1986e54f60e7a4086ebae05c710d13..69eb4a68fb8da64dd688c9ff5ffafed5945aec92 100644
+index e97435f1705a929ec02848b88b4fe05bdf7399e4..0bacc37506436fab4689a342aedf9dbc776f7b5c 100644
 --- base/task/current_thread.cc
 +++ base/task/current_thread.cc
 @@ -51,6 +51,8 @@ void CurrentThread::AddDestructionObserver(
@@ -43,7 +43,7 @@ index 0f5ac15e4b1986e54f60e7a4086ebae05c710d13..69eb4a68fb8da64dd688c9ff5ffafed5
    current_->RemoveDestructionObserver(destruction_observer);
  }
 diff --git base/task/current_thread.h base/task/current_thread.h
-index b6e265e2d7628cdd3e671fbf7b6d4096863ab4d5..d072fae0fd58846f62c4fbd49e61739efd12c7b7 100644
+index bca2544745516cc0831ca091bbc58a115e0650fc..1a9e83abaf69e0439b10bcd762a24f5072d42408 100644
 --- base/task/current_thread.h
 +++ base/task/current_thread.h
 @@ -165,6 +165,12 @@ class BASE_EXPORT CurrentThread {
@@ -72,4 +72,4 @@ index b6e265e2d7628cdd3e671fbf7b6d4096863ab4d5..d072fae0fd58846f62c4fbd49e61739e
 +#endif
  };
  
- #if !BUILDFLAG(IS_NACL)
+ // UI extension of CurrentThread.

@@ -1,8 +1,8 @@
 diff --git sandbox/policy/win/sandbox_win.cc sandbox/policy/win/sandbox_win.cc
-index 4fb8e2a9d7a6e24aeb7148592659981754d027b3..797e5af27ca563ba9519cf6bacd2a24117e1c6ea 100644
+index fe2fcec8faa149744774f989611d880696690c45..c71bbe47db21e3560e265fcd61b8e097c87cab94 100644
 --- sandbox/policy/win/sandbox_win.cc
 +++ sandbox/policy/win/sandbox_win.cc
-@@ -939,6 +939,17 @@ ResultCode SandboxWin::StartSandboxedProcess(
+@@ -937,6 +937,17 @@ ResultCode SandboxWin::StartSandboxedProcess(
      const base::HandlesToInheritVector& handles_to_inherit,
      SandboxDelegate* delegate,
      StartSandboxedProcessCallback result_callback) {
@@ -20,7 +20,7 @@ index 4fb8e2a9d7a6e24aeb7148592659981754d027b3..797e5af27ca563ba9519cf6bacd2a241
    SandboxLaunchTimer timer;
  
    // Avoid making a policy if we won't use it.
-@@ -1015,10 +1026,16 @@ void SandboxWin::FinishStartSandboxedProcess(
+@@ -1013,10 +1024,16 @@ void SandboxWin::FinishStartSandboxedProcess(
  // static
  ResultCode SandboxWin::GetPolicyDiagnostics(
      base::OnceCallback<void(base::Value)> response) {

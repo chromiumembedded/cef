@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index f2719532b35172377d7604f712c4f675e672a816..573cd8ec4b8ce30e1921cfa1f29e07313b11ce2f 100644
+index ed056fc63ba1a6468f4fac7aff39ed6fb76b43df..06ad6e7dc965d08a798aab80edd209706a9ca88f 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -659,7 +659,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -657,7 +657,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,10 +14,10 @@ index f2719532b35172377d7604f712c4f675e672a816..573cd8ec4b8ce30e1921cfa1f29e0731
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 363a7c4ac583f6d19afdbb5af5f1fdbbcf2a9475..1c263547c8f549a34343f848939d7130db98218e 100644
+index b7dfccef78a3d1817808c4328f22fd8449533521..f32cf6c17718fe4f9ea1a012841e336d56b1677f 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -84,6 +84,7 @@ base::LazyInstance<std::set<content::BrowserContext*>>::Leaky
+@@ -91,6 +91,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
  
  namespace {
  
@@ -25,7 +25,7 @@ index 363a7c4ac583f6d19afdbb5af5f1fdbbcf2a9475..1c263547c8f549a34343f848939d7130
  const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
  const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
  const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -104,6 +105,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -111,6 +112,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
    if (*this == PrimaryID() || IsDevTools() ||
@@ -34,7 +34,7 @@ index 363a7c4ac583f6d19afdbb5af5f1fdbbcf2a9475..1c263547c8f549a34343f848939d7130
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
                         base::CompareCase::SENSITIVE)) {
      return true;
-@@ -144,6 +147,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -151,6 +154,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -85,7 +85,7 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 9e7ac544ab2ba1dc06a03f7563b4d6d8852f0a5d..925e90d9a7e82d2e158c547aa8b5de049e236e98 100644
+index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f97bb9aa1f 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -41,6 +41,7 @@

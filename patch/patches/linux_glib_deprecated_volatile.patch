@@ -1,5 +1,5 @@
 diff --git ui/accessibility/platform/BUILD.gn ui/accessibility/platform/BUILD.gn
-index 2d982e757d94976ec68863726db8e8a85b1034e5..3417747a6e87a9e5d3381918efa72829c03cb928 100644
+index 79a01b007924230edf8c0b32945d3fb4e6f2445d..fbf082eb10f47161291498fd2e44d7a033ab24f0 100644
 --- ui/accessibility/platform/BUILD.gn
 +++ ui/accessibility/platform/BUILD.gn
 @@ -358,6 +358,10 @@ component("platform") {
@@ -14,7 +14,7 @@ index 2d982e757d94976ec68863726db8e8a85b1034e5..3417747a6e87a9e5d3381918efa72829
    }
  }
 diff --git ui/gtk/BUILD.gn ui/gtk/BUILD.gn
-index 94d30cc6d300e6bdb963980d3962df4999eefc31..e15e4d214f242aeef8b5aeac087e681b45afd855 100644
+index 799ce76a32dcd4438d3d4057e26f3636842f318e..7a2ebca0f9857777be6bf5ac4e24604d54a40c2d 100644
 --- ui/gtk/BUILD.gn
 +++ ui/gtk/BUILD.gn
 @@ -181,4 +181,8 @@ component("gtk") {

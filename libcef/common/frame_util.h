@@ -13,6 +13,7 @@
 #include "base/logging.h"
 #include "content/public/browser/child_process_host.h"
 #include "content/public/browser/global_routing_id.h"
+#include "ipc/ipc_message.h"
 
 namespace content {
 class NavigationHandle;

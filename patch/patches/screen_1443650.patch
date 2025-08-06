@@ -19,7 +19,7 @@ index 8208c0df3b8405d4e3f5d01b3664c72048b00699..8450effc2afc17abdeba28f3b772e2a7
  
  bool Screen::GetDisplayWithDisplayId(int64_t display_id,
 diff --git ui/display/win/screen_win.cc ui/display/win/screen_win.cc
-index a3b287d975909f860901b2a8b22efcd8eb4e0155..80b2ce772b83586473ac40ebfc49277c22ee2cfc 100644
+index 399591582fa55f870534f7d57b13399c31a0dbf4..8832a044e1cc521e98208f2100e93a703a7e421a 100644
 --- ui/display/win/screen_win.cc
 +++ ui/display/win/screen_win.cc
 @@ -701,7 +701,7 @@ gfx::Rect ScreenWin::ScreenToDIPRect(HWND hwnd,

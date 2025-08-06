@@ -22,6 +22,7 @@
 #include "cef/libcef/renderer/chrome/chrome_content_renderer_client_cef.h"
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
+#include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -44,6 +45,16 @@ namespace {
 
 base::LazyInstance<ChromeContentRendererClientCef>::DestructorAtExit
     g_chrome_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+
+template <typename FeatureType>
+bool IsFeatureEnabledByDefault(const FeatureType& feature) {
+#if BUILDFLAG(FIELDTRIAL_TESTING_ENABLED)
+  // May be enabled via the experiments platform in non-Official builds.
+  return true;
+#else
+  return feature.default_state == base::FEATURE_ENABLED_BY_DEFAULT;
+#endif
+}
 
 void InitLogging(const base::CommandLine* command_line) {
   logging::LogSeverity log_severity = logging::LOGGING_INFO;
@@ -326,24 +337,20 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
     }
 
 #if BUILDFLAG(IS_WIN)
-    {
-      const bool feature_enabled =
-#if BUILDFLAG(FIELDTRIAL_TESTING_ENABLED)
-          // May be enabled via the experiments platform is non-Official builds.
-          true;
-#else
-          net::features::kTcpSocketIoCompletionPortWin.default_state ==
-          base::FEATURE_ENABLED_BY_DEFAULT;
-#endif
-
-      if (feature_enabled) {
-        // Disable TcpSocketIoCompletionPortWin which breaks embedded test
-        // servers. See https://crbug.com/40287434#comment36
-        disable_features.push_back(
-            net::features::kTcpSocketIoCompletionPortWin.name);
-      }
+    if (IsFeatureEnabledByDefault(
+            net::features::kTcpSocketIoCompletionPortWin)) {
+      // Disable TcpSocketIoCompletionPortWin which breaks embedded test
+      // servers. See https://crbug.com/40287434#comment36
+      disable_features.push_back(
+          net::features::kTcpSocketIoCompletionPortWin.name);
     }
 #endif  // BUILDFLAG(IS_WIN)
+
+    if (IsFeatureEnabledByDefault(features::kSideBySide)) {
+      // Disable Split Screen support which crashes during Chrome
+      // browser initialization. See issue #3980.
+      disable_features.push_back(features::kSideBySide.name);
+    }
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());

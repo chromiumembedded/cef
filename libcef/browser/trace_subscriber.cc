@@ -6,6 +6,7 @@
 
 #include "base/files/file_util.h"
 #include "base/task/single_thread_task_runner.h"
+#include "base/trace_event/trace_config.h"
 #include "base/trace_event/trace_event.h"
 #include "cef/include/cef_trace.h"
 #include "cef/libcef/browser/thread_util.h"

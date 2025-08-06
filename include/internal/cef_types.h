@@ -3658,6 +3658,9 @@ typedef enum {
 #if CEF_API_ADDED(13800)
   CEF_CPAIT_LENS_OVERLAY_HOMEWORK,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CPAIT_AI_MODE,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 
@@ -3666,15 +3669,27 @@ typedef enum {
 /// ToolbarButtonType type.
 ///
 typedef enum {
-  CEF_CTBT_CAST,
-#if CEF_API_REMOVED(13600)
-  CEF_CTBT_DOWNLOAD,
-  CEF_CTBT_SEND_TAB_TO_SELF,
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CTBT_CAST_DEPRECATED,
 #else
+  CEF_CTBT_CAST,
+#endif
+#if CEF_API_ADDED(13600)
   CEF_CTBT_DOWNLOAD_DEPRECATED,
   CEF_CTBT_SEND_TAB_TO_SELF_DEPRECATED,
+#else
+  CEF_CTBT_DOWNLOAD,
+  CEF_CTBT_SEND_TAB_TO_SELF,
 #endif
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CTBT_SIDE_PANEL_DEPRECATED,
+  CEF_CTBT_MEDIA,
+  CEF_CTBT_TAB_SEARCH,
+  CEF_CTBT_BATTERY_SAVER,
+  CEF_CTBT_AVATAR,
+#else
   CEF_CTBT_SIDE_PANEL,
+#endif
   CEF_CTBT_NUM_VALUES,
 } cef_chrome_toolbar_button_type_t;
 
@@ -4063,8 +4078,12 @@ typedef enum {
   CEF_TASK_TYPE_EXTENSION,
   /// A browser plugin guest process.
   CEF_TASK_TYPE_GUEST,
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_TASK_TYPE_PLUGIN_DEPRECATED,
+#else
   /// A plugin process.
   CEF_TASK_TYPE_PLUGIN,
+#endif
   /// A sandbox helper process
   CEF_TASK_TYPE_SANDBOX_HELPER,
   /// A dedicated worker running on the renderer process.

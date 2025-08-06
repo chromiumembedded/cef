@@ -1,8 +1,8 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index 8bdef06e92c8508e9fb31939dd3eed09ea15115c..4821bbb7f53e2ecf15a759e41d9f932e76a2e2cc 100644
+index ff36f3719d419935546f22d1d8469f84507516b7..4d44200e610ade6cfce372bc8e69285ad3c08f45 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
-@@ -38,6 +38,7 @@
+@@ -39,6 +39,7 @@
  #include "net/url_request/redirect_info.h"
  #include "net/url_request/redirect_util.h"
  #include "net/url_request/url_request_context.h"
@@ -10,8 +10,8 @@ index 8bdef06e92c8508e9fb31939dd3eed09ea15115c..4821bbb7f53e2ecf15a759e41d9f932e
  
  namespace net {
  
-@@ -50,6 +51,16 @@ base::Value::Dict SourceStreamSetParams(SourceStream* source_stream) {
-   return event_params;
+@@ -59,6 +60,16 @@ const scoped_refptr<base::SingleThreadTaskRunner>& TaskRunner(
+   return base::SingleThreadTaskRunner::GetCurrentDefault();
  }
  
 +bool IsSecureScheme(const GURL& url) {
@@ -27,7 +27,7 @@ index 8bdef06e92c8508e9fb31939dd3eed09ea15115c..4821bbb7f53e2ecf15a759e41d9f932e
  }  // namespace
  
  // Each SourceStreams own the previous SourceStream in the chain, but the
-@@ -335,8 +346,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
+@@ -344,8 +355,7 @@ GURL URLRequestJob::ComputeReferrerForPolicy(
    }
  
    bool secure_referrer_but_insecure_destination =

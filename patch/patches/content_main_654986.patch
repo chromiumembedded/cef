@@ -1,5 +1,5 @@
 diff --git base/process/set_process_title.cc base/process/set_process_title.cc
-index b6389523952a468c6eec59dcf14ee5e7542ab6c2..f9c709624cd0e26edb24945d212e73bd87bfc6ef 100644
+index aacd4a841f3940c27c5c73c03fa9bcc6e56448cc..f4488f8259836a8f3bb5c465df28ca40f2bdd455 100644
 --- base/process/set_process_title.cc
 +++ base/process/set_process_title.cc
 @@ -54,9 +54,6 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
@@ -13,10 +13,10 @@ index b6389523952a468c6eec59dcf14ee5e7542ab6c2..f9c709624cd0e26edb24945d212e73bd
      setproctitle_init(main_argv);
    }
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d426323601327006 100644
+index 37fd2c1125c2661f4089ed11c746e929e6082855..88a76053302ad9ac22e3e1b3496d60e83a2daf71 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -198,16 +198,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -197,16 +197,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -35,7 +35,7 @@ index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d4263236
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -286,7 +280,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -285,7 +279,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -46,7 +46,7 @@ index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d4263236
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -294,14 +290,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -293,14 +289,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -61,7 +61,7 @@ index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d4263236
      InitializeMac();
  #endif
  
-@@ -359,12 +347,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -358,12 +346,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();
@@ -108,7 +108,7 @@ index 3bd846f90f1cc0cf9ed80d5649c0e65e00a20c7c..25bc14d5aeff3f4e333eb6b8d4263236
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index f182b856369cb701bd2c5494a8a675e98f50632e..f4b755e810d46729b28553868ad5587560e3847d 100644
+index 733dfb4b06214f7dfe084c2ef945cad9f914eabb..8fb62860199ff8dad660e031f560f791cc5643e3 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -51,6 +51,7 @@
@@ -119,24 +119,25 @@ index f182b856369cb701bd2c5494a8a675e98f50632e..f4b755e810d46729b28553868ad55875
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/branding_buildflags.h"
-@@ -1381,6 +1382,11 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1318,6 +1319,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  
 +void ContentMainRunnerImpl::ShutdownOnUIThread() {
 +  base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
 +  discardable_shared_memory_manager_.reset();
++  browser_memory_consumer_registry_.reset();
 +}
 +
  // static
  std::unique_ptr<ContentMainRunner> ContentMainRunner::Create() {
    return ContentMainRunnerImpl::Create();
 diff --git content/app/content_main_runner_impl.h content/app/content_main_runner_impl.h
-index cbbc2f3ec12fa0e65891eb76433f349992d06ca5..f097b3cdded2f03847cdb27607965b32741f5001 100644
+index 59ce99e98580925e8f52dfa69356d683a3fa8119..864d956ee315c35c0a78429b835671f384899bd3 100644
 --- content/app/content_main_runner_impl.h
 +++ content/app/content_main_runner_impl.h
-@@ -27,7 +27,7 @@ class DiscardableSharedMemoryManager;
- namespace content {
+@@ -30,7 +30,7 @@ namespace content {
+ class BrowserMemoryConsumerRegistry;
  class MojoIpcSupport;
  
 -class ContentMainRunnerImpl : public ContentMainRunner {
@@ -144,7 +145,7 @@ index cbbc2f3ec12fa0e65891eb76433f349992d06ca5..f097b3cdded2f03847cdb27607965b32
   public:
    static std::unique_ptr<ContentMainRunnerImpl> Create();
  
-@@ -46,6 +46,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
+@@ -49,6 +49,8 @@ class ContentMainRunnerImpl : public ContentMainRunner {
    int Run() override;
    void Shutdown() override;
  

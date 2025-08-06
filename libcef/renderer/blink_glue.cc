@@ -212,8 +212,8 @@ v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
       source, blink::KURL(source_url), blink::KURL(source_url),
       blink::ScriptFetchOptions(), blink::ScriptSourceLocationType::kInternal,
       blink::SanitizeScriptErrors::kDoNotSanitize, /*cache_handler=*/nullptr,
-      WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
-                        WTF::OrdinalNumber::FromZeroBasedInt(0)));
+      blink::TextPosition(blink::OrdinalNumber::FromOneBasedInt(start_line),
+                          blink::OrdinalNumber::FromZeroBasedInt(0)));
 
   // The Rethrow() message is unused due to kDoNotSanitize but it still needs
   // to be non-nullopt for exceptions to be re-thrown as expected.

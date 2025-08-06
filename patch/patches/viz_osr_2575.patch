@@ -80,7 +80,7 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 9f18a00af5ce726a4b338689ae75a0196b1a1dba..ddc14277eee2b8440e4ab5b50826fe559cbe2eab 100644
+index 4017fef63c549b535c1eedd3571e69b7fac6f3e2..62e05b2dcd6e06df2aa8f2280fcfd568ec55b490 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
 @@ -272,6 +272,8 @@ viz_component("service") {
@@ -150,10 +150,10 @@ index f0aca972c4a81c3dfb536e14244daafae21ee716..87b40c9ded9df8894b3c1e919b21869a
  
    TRACE_EVENT_ASYNC_BEGIN0("viz", "SoftwareOutputDeviceWinProxy::Draw", this);
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 130067b91baa360a7234fecfe6342c8239d587b5..44b8e274ef3d44933b1c968d0d2960a260d2b351 100644
+index 0c9dabd7e85042499b60d0a27a506745771bea6f..7179272c66008485fdb2ef15dba7a33a0cf77c7c 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -387,8 +387,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -386,8 +386,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();

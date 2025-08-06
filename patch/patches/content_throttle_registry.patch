@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index 41f3d8bf9e60edd283792e68850a902f7411a1cd..80dba42bb628b150c12bb9c0269baab62c0b7330 100644
+index 63e91183b74bf6430fe1dd6ad8ea5b5a27503e2d..8006d287bba8c736051a1576be7538574354ab0b 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -164,11 +164,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -246,11 +246,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(
@@ -22,10 +22,10 @@ index 41f3d8bf9e60edd283792e68850a902f7411a1cd..80dba42bb628b150c12bb9c0269baab6
  
  bool NavigationThrottleRegistryImpl::HasThrottle(const std::string& name) {
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.h content/browser/renderer_host/navigation_throttle_registry_impl.h
-index fb94e73de38ae34bd7bb29667f7c36010fd3a082..fd6a550464dbbb2620487062cce00fe56b9a43d4 100644
+index 9887ba175cef06096205b5d17be8df1f7b45e139..c9ee6fd29bf03dbcc72b48e902bc3e9a86619e70 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.h
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.h
-@@ -84,7 +84,8 @@ class NavigationThrottleRegistryImpl : public NavigationThrottleRegistryBase {
+@@ -135,7 +135,8 @@ class CONTENT_EXPORT NavigationThrottleRegistryImpl
    // Implements NavigationThrottleRegistry:
    NavigationHandle& GetNavigationHandle() override;
    void AddThrottle(
@@ -34,9 +34,9 @@ index fb94e73de38ae34bd7bb29667f7c36010fd3a082..fd6a550464dbbb2620487062cce00fe5
 +      bool first = false) override;
    bool HasThrottle(const std::string& name) override;
    bool EraseThrottleForTesting(const std::string& name) override;
- 
+   bool IsHTTPOrHTTPS() override;
 diff --git content/public/browser/navigation_throttle_registry.h content/public/browser/navigation_throttle_registry.h
-index d541287beae6717847de91d53f3cf1f5c084f2fa..3132993cf0bd518d3c0c7575676c40ede0ba39da 100644
+index eb84b25e92132ad7cd05ce5e5fd30f9260db989d..872f3f4826dae186a66dfdca1a16727847340ea7 100644
 --- content/public/browser/navigation_throttle_registry.h
 +++ content/public/browser/navigation_throttle_registry.h
 @@ -28,7 +28,8 @@ class CONTENT_EXPORT NavigationThrottleRegistry {

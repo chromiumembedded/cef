@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 59526cd9f264b65937d6b029f167fee32e799087..5f07b9dbf28325f352096827ea0ab0c2d044fc23 100644
+index 3b8185a09b3dec2f22610556b64ff3e37f76361a..8e307c2e7a6acbc317d40f77d3b780f19d17d33f 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1042,7 +1042,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1050,7 +1050,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
        host->button()->GetWidget(), host,
        host->button()->GetAnchorBoundsInScreen(),
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -96,7 +96,7 @@ index 8221222fba3d71dda9848f3c64023e9373c396a1..bf4ebd91d14b670cda85d3c4f8a8e13c
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 55d05c746eb00bf81df7665f466f5ce9ad3079e8..7883a183f274df9c27afd8b3ada4a2b1648edecf 100644
+index 1877ce66a6188fb500dc301a7c5081c1e97d4c32..a72bb741d72ddbf32077c067817a4a928ea1e42b 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -378,6 +378,10 @@ class COMPONENT_EXPORT(GFX) RenderText {
@@ -110,7 +110,7 @@ index 55d05c746eb00bf81df7665f466f5ce9ad3079e8..7883a183f274df9c27afd8b3ada4a2b1
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -1129,6 +1133,8 @@ class COMPONENT_EXPORT(GFX) RenderText {
+@@ -1131,6 +1135,8 @@ class COMPONENT_EXPORT(GFX) RenderText {
  
    // Tell whether or not the |layout_text_| needs an update or is up to date.
    mutable bool layout_text_up_to_date_ = false;
@@ -164,7 +164,7 @@ index 8efaccff40e09e2f9fab9fec3066e16697d7aff9..e420e2f4e80ec0365b1631fcce33399a
    LabelButtonImageContainer* image_container() {
      return image_container_.get();
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index a4982c41f94e574e58ae4139d3af5cb737923250..2301912c6991f38db570076c6df8d268500fe52f 100644
+index 62c2e1969773a54534526c81b8f4bae7dae61716..57572961446a6469ee629d1dd43426701ba40cbd 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -56,12 +56,29 @@ enum LabelPropertyKey {
@@ -254,10 +254,10 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f47112ed13 100644
+index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a35bb628e 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -600,7 +600,8 @@ void MenuController::Run(Widget* parent,
+@@ -601,7 +601,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -267,7 +267,7 @@ index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f4
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -669,6 +670,7 @@ void MenuController::Run(Widget* parent,
+@@ -670,6 +671,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +275,7 @@ index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f4
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2396,6 +2398,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2425,6 +2427,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +283,7 @@ index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f4
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3120,7 +3123,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3149,7 +3152,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +296,7 @@ index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f4
      return;
    }
  
-@@ -3145,6 +3152,7 @@ void MenuController::CloseSubmenu() {
+@@ -3174,6 +3181,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -305,7 +305,7 @@ index 783ecf23f614d5e125ed2fe2e4cfba86dfd7ace2..37b23874a99130bf39fd540c2788e1f4
    }
    if (item->SubmenuIsShowing()) {
 diff --git ui/views/controls/menu/menu_controller.h ui/views/controls/menu/menu_controller.h
-index 2a42f071fcfad98a3ba0f63ccffcaaba69956d47..3de8c2be460582f1860a98319d26f50bedda46bf 100644
+index 0b8f792f0c1c60c106ffc70657f566f6aa97717d..648866ea6c10031c9de3dc045833d69e48646866 100644
 --- ui/views/controls/menu/menu_controller.h
 +++ ui/views/controls/menu/menu_controller.h
 @@ -146,7 +146,8 @@ class VIEWS_EXPORT MenuController final : public gfx::AnimationDelegate,
@@ -403,10 +403,10 @@ index fc1d5fccc3845b204d2a85bc5e00c0ffb4aee0d7..c065cafcd537c4e28a633569e170d65c
  
    explicit MenuHost(SubmenuView* submenu);
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index a2fe435a88ac0a1d065c4fba5cf7eeb89327085f..f1108ff49dfe67656f634e605ba077370be7f7f7 100644
+index 2297e59be7c7403a81b930e9c89cd842b7db92b2..c7a115a58d677e762afac4688ecf316c91cc10f7 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -1169,6 +1169,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
+@@ -1184,6 +1184,15 @@ void MenuItemView::PaintBackground(gfx::Canvas* canvas,
      rounded_rect.setRectRadii(gfx::RectFToSkRect(gfx::RectF(GetLocalBounds())),
                                radii);
      canvas->sk_canvas()->drawRRect(rounded_rect, flags);
@@ -422,7 +422,7 @@ index a2fe435a88ac0a1d065c4fba5cf7eeb89327085f..f1108ff49dfe67656f634e605ba07737
    } else if (paint_as_selected) {
      gfx::Rect item_bounds = GetLocalBounds();
      if (type_ == Type::kActionableSubMenu) {
-@@ -1239,6 +1248,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
+@@ -1254,6 +1263,13 @@ void MenuItemView::PaintMinorIconAndText(gfx::Canvas* canvas, SkColor color) {
  }
  
  SkColor MenuItemView::GetTextColor(bool minor, bool paint_as_selected) const {
@@ -765,7 +765,7 @@ index 63f5dad7e49661ca9b31c092b72daf0b3411b6cf..a1e03a81d7d78b1519eeafc7850de090
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 548bd044909645407e7b6d5175ffbd7164828e6c..977236332264975cf9408ca1c77dc4e60e4c6c51 100644
+index 58cfb36af1c82241294b67509f8f9bb9aa22048c..5e451710a50f33928b806ac8ec0e232c57ced841 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -789,7 +789,7 @@ index 548bd044909645407e7b6d5175ffbd7164828e6c..977236332264975cf9408ca1c77dc4e6
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index 2897bc3816c9e2989829848e556ffaea6e1d0a73..2258c5145b9ec2c0b90b6b44d2f7297a962a9d38 100644
+index b3fa15b412fee09234839cb87d26b881697033fe..a616b3bc53a7a1df47eb3a596bb9b78de7cf31f3 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@

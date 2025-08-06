@@ -10,12 +10,6 @@ base::FilePath CefResourceBundleDelegate::GetPathForResourcePack(
   return pack_path;
 }
 
-base::FilePath CefResourceBundleDelegate::GetPathForLocalePack(
-    const base::FilePath& pack_path,
-    std::string_view locale) {
-  return pack_path;
-}
-
 gfx::Image CefResourceBundleDelegate::GetImageNamed(int resource_id) {
   return gfx::Image();
 }

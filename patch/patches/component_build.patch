@@ -12,7 +12,7 @@ index 7f9fc9cf4d8ee06e67105810dde6474f318975c5..b7999c312aa098a0673726a755f43e87
  
   public:
 diff --git content/browser/renderer_host/input/mouse_wheel_phase_handler.h content/browser/renderer_host/input/mouse_wheel_phase_handler.h
-index d69f9d4641613651e840d53833754f08db33ec77..e88aaf8617c526e615c23822dda938bf2f7f9453 100644
+index 21d404b905170cd92bc10cc74b2faabb09f6c68a..89b915a4795b0449de7b88f023789281d23efd84 100644
 --- content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 +++ content/browser/renderer_host/input/mouse_wheel_phase_handler.h
 @@ -9,6 +9,7 @@
@@ -55,7 +55,7 @@ index 09d80f2ba678df9ab1b9b2b74ad66d4546036fb2..5dbff44c280a145c65146279a971620f
    explicit SyntheticGestureTargetBase(RenderWidgetHostImpl* host);
  
 diff --git third_party/blink/renderer/controller/BUILD.gn third_party/blink/renderer/controller/BUILD.gn
-index 1cec8375b6d86a2df337d4d5fe2266756744be62..e3aa20e8aea63c400ac7e9c5a816dc55aa662392 100644
+index b3c8c5d86e4d2156683f428875f3c3c124efd369..123b98bbeb96ccedacd0e7bb07eb09b5206e6695 100644
 --- third_party/blink/renderer/controller/BUILD.gn
 +++ third_party/blink/renderer/controller/BUILD.gn
 @@ -3,6 +3,7 @@

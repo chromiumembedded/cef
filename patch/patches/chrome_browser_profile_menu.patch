@@ -29,22 +29,22 @@ index 594214f3f917b6e152b0908e3d1c3b84951ea00c..110b9d640f67ed8adecf51616aeb8a35
    SetShowCloseButton(true);
  
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
-index 1cf20c6206d60d06b4c1935c1e2f9086cedbf071..9140d51cb79bd7b3f39dfcb850581d6f476a9ea7 100644
+index d7a04e177509e6a0470926ac7cf512d2c791618b..731a57b70079c40049a76c7bcfe63038fd4579af 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog_coordinator.cc
-@@ -27,6 +27,10 @@ void IncognitoClearBrowsingDataDialogCoordinator::Show(
-           ->toolbar_button_provider()
-           ->GetAvatarToolbarButton();
- 
+@@ -22,6 +22,10 @@ IncognitoClearBrowsingDataDialogCoordinator::
+ void IncognitoClearBrowsingDataDialogCoordinator::Show(
+     IncognitoClearBrowsingDataDialogInterface::Type type,
+     views::View* anchor_view) {
 +  // The full toolbar may not be visible.
-+  if (!avatar_toolbar_button)
++  if (!anchor_view)
 +    return;
 +
    auto bubble = std::make_unique<IncognitoClearBrowsingDataDialog>(
-       avatar_toolbar_button, GetBrowser().profile(), type);
+       anchor_view, profile_, type);
    DCHECK_EQ(nullptr, bubble_tracker_.view());
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index d9defcaa7da0c1deb2b5e6afd71ab96e77651c95..36e4e7799fab1d69b6fafb95557ba2cb8519406c 100644
+index 07a00e7622675d92c4fd0390c362d4f7afbf2fe1..16094b91163d55e7833dbc42e40cfd8014dac8ec 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -30,7 +30,9 @@
@@ -59,17 +59,17 @@ index d9defcaa7da0c1deb2b5e6afd71ab96e77651c95..36e4e7799fab1d69b6fafb95557ba2cb
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index d34758a415fedaf430d925a1278aabbeaa82cd90..df1112c82665abaeace2385f5110e1256b5721ee 100644
+index 8cc8f804727852457765c9c1e2bcab2dac3757a9..9d9104f3b654a257e9c457220a0b00f2df6b697a 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -55,7 +55,9 @@ void ProfileMenuCoordinator::Show(
+@@ -64,7 +64,9 @@ void ProfileMenuCoordinator::Show(
  
    std::unique_ptr<ProfileMenuViewBase> bubble;
-   const bool is_incognito = profile_->IsIncognitoProfile();
+   const bool is_incognito = GetProfile()->IsIncognitoProfile();
 -  if (is_incognito) {
 +  if (is_incognito ||
-+         (profile_->IsOffTheRecord() &&
-+          profile_->GetOTRProfileID().IsUniqueForCEF())) {
++         (GetProfile()->IsOffTheRecord() &&
++          GetProfile()->GetOTRProfileID().IsUniqueForCEF())) {
      bubble =
          std::make_unique<IncognitoMenuView>(avatar_toolbar_button, browser);
    } else {

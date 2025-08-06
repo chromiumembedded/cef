@@ -54,7 +54,8 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
     host_resolver_.set_disconnect_handler(base::BindOnce(
         &ResolveHostHelper::OnComplete, base::Unretained(this), net::ERR_FAILED,
-        net::ResolveErrorInfo(net::ERR_FAILED), std::nullopt, std::nullopt));
+        net::ResolveErrorInfo(net::ERR_FAILED), net::AddressList(),
+        std::vector<net::HostResolverEndpointResult>()));
 
     host_resolver_->ResolveHost(
         network::mojom::HostResolverHost::NewHostPortPair(
@@ -64,11 +65,11 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
   }
 
  private:
-  void OnComplete(int result,
+  void OnComplete(int32_t result,
                   const net::ResolveErrorInfo& resolve_error_info,
-                  const std::optional<net::AddressList>& resolved_addresses,
-                  const std::optional<net::HostResolverEndpointResults>&
-                      endpoint_results_with_metadat) override {
+                  const net::AddressList& resolved_addresses,
+                  const std::vector<net::HostResolverEndpointResult>&
+                      alternative_endpoints) override {
     CEF_REQUIRE_UIT();
 
     host_resolver_.reset();
@@ -76,9 +77,9 @@ class ResolveHostHelper : public network::ResolveHostClientBase {
 
     std::vector<CefString> resolved_ips;
 
-    if (result == net::OK && resolved_addresses.has_value()) {
-      DCHECK(!resolved_addresses->empty());
-      for (const auto& value : *resolved_addresses) {
+    if (result == net::OK && !resolved_addresses.empty()) {
+      DCHECK(!resolved_addresses.empty());
+      for (const auto& value : resolved_addresses) {
         resolved_ips.push_back(value.ToStringWithoutPort());
       }
     }
@@ -564,12 +565,6 @@ cef_content_setting_values_t CefRequestContextImpl::GetContentSetting(
     const CefString& requesting_url,
     const CefString& top_level_url,
     cef_content_setting_types_t content_type) {
-  // Verify that our enums match Chromium's values.
-  static_assert(
-      static_cast<int>(CEF_CONTENT_SETTING_VALUE_NUM_VALUES) ==
-          static_cast<int>(CONTENT_SETTING_NUM_SETTINGS),
-      "Mismatched enum found for CEF_CONTENT_SETTING_VALUE_NUM_VALUES");
-
   if (!VerifyBrowserContext()) {
     return CEF_CONTENT_SETTING_VALUE_DEFAULT;
   }
@@ -599,7 +594,7 @@ cef_content_setting_values_t CefRequestContextImpl::GetContentSetting(
     }
   }
 
-  return static_cast<cef_content_setting_values_t>(value);
+  return setting_helper::ToCefValue(value);
 }
 
 void CefRequestContextImpl::SetContentSetting(
@@ -955,16 +950,19 @@ void CefRequestContextImpl::SetContentSettingInternal(
     return;
   }
 
+  auto content_setting = setting_helper::FromCefValue(value);
+  if (!content_setting) {
+    return;
+  }
+
   if (requesting_url.empty() && top_level_url.empty()) {
-    settings_map->SetDefaultContentSetting(*setting_type,
-                                           static_cast<ContentSetting>(value));
+    settings_map->SetDefaultContentSetting(*setting_type, *content_setting);
   } else {
     GURL requesting_gurl(requesting_url.ToString());
     GURL top_level_gurl(top_level_url.ToString());
     if (requesting_gurl.is_valid() || top_level_gurl.is_valid()) {
       settings_map->SetContentSettingDefaultScope(
-          requesting_gurl, top_level_gurl, *setting_type,
-          static_cast<ContentSetting>(value));
+          requesting_gurl, top_level_gurl, *setting_type, *content_setting);
     }
   }
 }

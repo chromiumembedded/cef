@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 45348adb79a183c39a739caf87c052c87be55451..56ce3821bf033b0f62ceb5e9399c620854d94c91 100644
+index f4c657fe36eba54948cacf9770d9c6c1b55b5fe5..08cdaff402e338ec354a9444aedf5631a56391b8 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -41,7 +41,7 @@ index 45348adb79a183c39a739caf87c052c87be55451..56ce3821bf033b0f62ceb5e9399c6208
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2665,6 +2676,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2672,6 +2683,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();
@@ -59,10 +59,10 @@ index 45348adb79a183c39a739caf87c052c87be55451..56ce3821bf033b0f62ceb5e9399c6208
  
  void RenderWidgetHostViewAura::UpdateFrameSinkIdRegistration() {
 diff --git content/browser/renderer_host/render_widget_host_view_aura.h content/browser/renderer_host/render_widget_host_view_aura.h
-index 33d9c06d52f0ec72caad1866ef97c5fdced1b55b..85a37269f20b7a7c0bfc085b58d7e421bebc3037 100644
+index 7328d8cc05de07a66685ce4ca41a57385b7acc6b..906a62fdd580a8e69dfe8432e718d492b5fb9adc 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.h
 +++ content/browser/renderer_host/render_widget_host_view_aura.h
-@@ -451,6 +451,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
+@@ -449,6 +449,12 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
    }
  #endif  // BUILDFLAG(IS_WIN)
  
@@ -75,7 +75,7 @@ index 33d9c06d52f0ec72caad1866ef97c5fdced1b55b..85a37269f20b7a7c0bfc085b58d7e421
   protected:
    ~RenderWidgetHostViewAura() override;
  
-@@ -874,6 +880,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
+@@ -872,6 +878,8 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
  
    std::optional<display::ScopedDisplayObserver> display_observer_;
  

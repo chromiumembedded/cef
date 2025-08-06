@@ -12,7 +12,7 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 24c0b4e0fe20830a77f40cee237256b62286d2ff..80e964d36a622a3d37f4b30aaccd69da7084dd7d 100644
+index 44f0e3f0d4ed6cee59378d9b03f1410d59bf96c9..2341b72f39f16e5258860bfdb36d4924d7f1027f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -22,8 +22,8 @@ index 24c0b4e0fe20830a77f40cee237256b62286d2ff..80e964d36a622a3d37f4b30aaccd69da
 +import("//cef/libcef/features/features.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
- import("//components/nacl/features.gni")
-@@ -292,6 +293,10 @@ group("gn_all") {
+ import("//device/vr/buildflags/buildflags.gni")
+@@ -282,6 +283,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 836fc187c9c5916156660fcf910de089e2fee2a3..29c8c4029cc2098a74cbb7ee68e417bc3740c4d0 100644
+index e604d83d3e4239de5839dcf321c8cbb94befcc53..28729478ce81ca95fa3e3f22e80f0b80a5fe3ca5 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 836fc187c9c5916156660fcf910de089e2fee2a3..29c8c4029cc2098a74cbb7ee68e417bc
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -498,6 +499,11 @@ template("chrome_extra_paks") {
+@@ -499,6 +500,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  
@@ -152,7 +152,7 @@ index a427371dbe18bcb259a5d0954cee4a084ef453ee..de79612d15df41ba97f66e03b64feae2
    outputs = [
      "$root_out_dir/chrome.7z",
 diff --git tools/grit/grit_args.gni tools/grit/grit_args.gni
-index 8df7cb1eb8e8c23a7a57c26645407eefa6d76ca3..6c21b1aaa9286bb6010717c13607e89d46982fb2 100644
+index 06eb8869ec668deaee75f64a3914afc8da160950..21696a21c34582e194b16da473ca3ad7f6b55e0a 100644
 --- tools/grit/grit_args.gni
 +++ tools/grit/grit_args.gni
 @@ -4,7 +4,9 @@
@@ -165,7 +165,7 @@ index 8df7cb1eb8e8c23a7a57c26645407eefa6d76ca3..6c21b1aaa9286bb6010717c13607e89d
  
  shared_intermediate_dir = rebase_path(root_gen_dir, root_build_dir)
  devtools_grd_path = "$shared_intermediate_dir/$devtools_grd_location"
-@@ -36,6 +38,9 @@ _grit_defines = [
+@@ -35,6 +37,9 @@ _grit_defines = [
    "use_titlecase=${is_mac}",
  
    "is_desktop_android=${is_desktop_android}",

@@ -1,5 +1,5 @@
 diff --git chrome/chrome_elf/BUILD.gn chrome/chrome_elf/BUILD.gn
-index 335a734e4f4544432001981f87b33b956aeafbf8..ef5101aed9e0dcf8ea5c0ecc0308a1cffbe2c47c 100644
+index 218548918c62a93a519d694e3da621a20cfec817..032a920b95f00c37c2f2c5a55c0f0211bddabe14 100644
 --- chrome/chrome_elf/BUILD.gn
 +++ chrome/chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -81,7 +81,7 @@ index 975ad7d990fe9f0c5e1b6d636898b91b9416a5d5..1d75a1250afb70a81d1ca15a85dbbcf7
    g_crash_helper_enabled = true;
    return true;
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index b5d093b5415be6b136b7e2c820e0075726510ded..d9be58aa3a7ad4eccee28217875a308d35ac1983 100644
+index e0681b44838aa58d69977a5a9815e486a65763e2..2ac2b171cbec963523170ccc91e7b1a3d9e77120 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -8,6 +8,8 @@
@@ -105,7 +105,7 @@ index b5d093b5415be6b136b7e2c820e0075726510ded..d9be58aa3a7ad4eccee28217875a308d
    static const auto kIgnoreSwitches = std::to_array<std::string_view>({
        kStringAnnotationsSwitch,
        switches::kEnableLogging,
-@@ -166,6 +170,8 @@ bool IsBoringSwitch(const std::string& flag) {
+@@ -165,6 +169,8 @@ bool IsBoringSwitch(const std::string& flag) {
    return false;
  }
  
@@ -114,7 +114,7 @@ index b5d093b5415be6b136b7e2c820e0075726510ded..d9be58aa3a7ad4eccee28217875a308d
  std::deque<CrashKeyWithName>& GetCommandLineStringAnnotations() {
    static base::NoDestructor<std::deque<CrashKeyWithName>>
        command_line_string_annotations;
-@@ -214,7 +220,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
+@@ -213,7 +219,7 @@ void AppendStringAnnotationsCommandLineSwitch(base::CommandLine* command_line) {
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
    SetStringAnnotations(command_line);
    HandleEnableDisableFeatures(command_line);

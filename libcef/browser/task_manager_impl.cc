@@ -27,7 +27,6 @@ CefTaskManager::TaskType toCefTaskType(task_manager::Task::Type type) {
     case task_manager::Task::ARC:
     case task_manager::Task::CROSTINI:
     case task_manager::Task::PLUGIN_VM:
-    case task_manager::Task::NACL:
       return CEF_TASK_TYPE_UNKNOWN;
     case task_manager::Task::BROWSER:
       return CEF_TASK_TYPE_BROWSER;
@@ -43,8 +42,6 @@ CefTaskManager::TaskType toCefTaskType(task_manager::Task::Type type) {
       return CEF_TASK_TYPE_EXTENSION;
     case task_manager::Task::GUEST:
       return CEF_TASK_TYPE_GUEST;
-    case task_manager::Task::PLUGIN:
-      return CEF_TASK_TYPE_PLUGIN;
     case task_manager::Task::SANDBOX_HELPER:
       return CEF_TASK_TYPE_SANDBOX_HELPER;
     case task_manager::Task::DEDICATED_WORKER:

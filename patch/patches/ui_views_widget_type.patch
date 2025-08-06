@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/chrome_views_delegate_linux.cc chrome/browser/ui/views/chrome_views_delegate_linux.cc
-index 9fc4b34838710d0c890590c45c9b24be0447b318..215eb51cd04d5876ede1f0253efb3226dcc2e72c 100644
+index a7f0aaf4fd356ce54addbf1a8a351664a57739a6..ddb102a70288810e8da772604429ed8594c81330 100644
 --- chrome/browser/ui/views/chrome_views_delegate_linux.cc
 +++ chrome/browser/ui/views/chrome_views_delegate_linux.cc
-@@ -65,6 +65,8 @@ NativeWidgetType GetNativeWidgetTypeForInitParams(
+@@ -70,6 +70,8 @@ NativeWidgetType GetNativeWidgetTypeForInitParams(
    }
  
    return (params.parent &&

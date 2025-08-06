@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index e4537f6dcdfe70125649c1a83a9f7eef5dcb4d90..70d48bd8603895e5d4a9932a44ac105da99336bc 100644
+index c823717d6e98d8270eef5418545e2e7d36652bc0..477c2b1991a537ad70468365bba75fc13f0d8f91 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -4,6 +4,7 @@
@@ -9,8 +9,8 @@ index e4537f6dcdfe70125649c1a83a9f7eef5dcb4d90..70d48bd8603895e5d4a9932a44ac105d
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//chrome/common/request_header_integrity/buildflags.gni")
- import("//components/nacl/features.gni")
-@@ -134,6 +135,7 @@ static_library("renderer") {
+ import("//components/offline_pages/buildflags/features.gni")
+@@ -130,6 +131,7 @@ static_library("renderer") {
      ":process_state",
      "//base/allocator:buildflags",
      "//build:chromeos_buildflags",
@@ -18,7 +18,7 @@ index e4537f6dcdfe70125649c1a83a9f7eef5dcb4d90..70d48bd8603895e5d4a9932a44ac105d
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -248,6 +250,10 @@ static_library("renderer") {
+@@ -244,6 +246,10 @@ static_library("renderer") {
      ]
    }
  
@@ -26,6 +26,6 @@ index e4537f6dcdfe70125649c1a83a9f7eef5dcb4d90..70d48bd8603895e5d4a9932a44ac105d
 +    configs += [ "//cef/libcef/features:config" ]
 +  }
 +
-   if (enable_nacl) {
-     deps += [ "//components/nacl/renderer" ]
- 
+   if (enable_plugins) {
+     sources += [
+       "plugins/chrome_plugin_placeholder.cc",

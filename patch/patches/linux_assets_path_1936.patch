@@ -12,10 +12,10 @@ index 75cafbe0dbd7d4b3dca4c8fe56e17cd836123588..337a10d6a90c38540d4bc02d8f53a31e
    base::File file(exe_dir.Append(path),
                    base::File::FLAG_OPEN | base::File::FLAG_READ);
 diff --git sandbox/linux/suid/client/setuid_sandbox_host.cc sandbox/linux/suid/client/setuid_sandbox_host.cc
-index f3a6d25be41ed911d5bb64d4cd62df1aa174e11e..c826aa9e9ab6c0efeacc92054094f5db6bd70935 100644
+index 5303cafbb3f67cc3e154de363110121019dcb54e..762bba9340dfd0fced22e760097f1e404f55552a 100644
 --- sandbox/linux/suid/client/setuid_sandbox_host.cc
 +++ sandbox/linux/suid/client/setuid_sandbox_host.cc
-@@ -131,7 +131,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
+@@ -128,7 +128,7 @@ bool SetuidSandboxHost::IsDisabledViaEnvironment() {
  base::FilePath SetuidSandboxHost::GetSandboxBinaryPath() {
    base::FilePath sandbox_binary;
    base::FilePath exe_dir;

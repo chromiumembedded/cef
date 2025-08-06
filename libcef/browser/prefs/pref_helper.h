@@ -85,6 +85,7 @@ class Registrar final : public PrefObserver {
   void RemoveObserver(std::string_view name, Registration* registration);
 
   // PrefObserver:
+  void OnServiceDestroyed(PrefService* service) override;
   void OnPreferenceChanged(PrefService* service,
                            std::string_view pref_name) override;
 

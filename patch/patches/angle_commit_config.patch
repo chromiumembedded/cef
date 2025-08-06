@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index ced0f3c22a..5e149f1fc8 100644
+index 69767d6a45bdc6c4350d7286eae205cee5d9d1cf..570f95981424bac4e57a11dc901afe7419ef4df8 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -89,6 +89,9 @@ declare_args() {
@@ -12,7 +12,7 @@ index ced0f3c22a..5e149f1fc8 100644
  }
  
  declare_args() {
-@@ -880,6 +883,8 @@ action("angle_commit_id") {
+@@ -895,6 +898,8 @@ action("angle_commit_id") {
      "gen",
      rebase_path(_commit_id_header, root_build_dir),
      rebase_path(depfile, root_build_dir),
@@ -22,7 +22,7 @@ index ced0f3c22a..5e149f1fc8 100644
  
    public_configs = [ ":angle_commit_id_config" ]
 diff --git src/commit_id.py src/commit_id.py
-index 72352f1b18..7c7f816dd1 100755
+index bb1e2ce746a40e9a269986ffa207365d8aa2cc9d..d826fe79f9328e172770cd0a85cdf3f3b7142810 100755
 --- src/commit_id.py
 +++ src/commit_id.py
 @@ -13,7 +13,7 @@ import os
@@ -34,7 +34,7 @@ index 72352f1b18..7c7f816dd1 100755
  
  
  def grab_output(command, cwd):
-@@ -99,15 +99,24 @@ if len(sys.argv) < 3 or operation != 'gen':
+@@ -126,15 +126,24 @@ if len(sys.argv) < 3 or operation != 'gen':
      sys.exit(usage)
  
  output_file = sys.argv[2]

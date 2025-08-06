@@ -1,8 +1,8 @@
 diff --git chrome/browser/printing/print_backend_service_manager.cc chrome/browser/printing/print_backend_service_manager.cc
-index 03e1bcc361b06e20fc03b9489e02e58fb0364080..f9bf9402fda726bef1b9c1248ae9177ee4ea6a4e 100644
+index e74fac03876879d46c1f939ddecccc9270f8adf6..a2846756b36855b8634988862e2e791fe95fe164 100644
 --- chrome/browser/printing/print_backend_service_manager.cc
 +++ chrome/browser/printing/print_backend_service_manager.cc
-@@ -105,7 +105,15 @@ void MaybeCloneOrCopy(
+@@ -97,7 +97,15 @@ void MaybeCloneOrCopy(
  // to support modal dialogs from OOP.
  uint32_t NativeViewToUint(gfx::NativeView view) {
  #if BUILDFLAG(IS_WIN)

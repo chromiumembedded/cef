@@ -98,11 +98,15 @@ class BrowserDelegate : public content::WebContentsDelegate {
   }
 
   enum class ToolbarButtonType {
-    kCast = 0,
+    kCast_DEPRECATED = 0,
     kDownload_DEPRECATED,
     kSendTabToSelf_DEPRECATED,
-    kSidePanel,
-    kMaxValue = kSidePanel,
+    kSidePanel_DEPRECATED,
+    kMedia,
+    kTabSearch,
+    kBatterySaver,
+    kAvatar,
+    kMaxValue = kAvatar,
   };
 
   // Return true if the toolbar button should be visible.

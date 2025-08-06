@@ -1,5 +1,5 @@
 diff --git chrome/app/chrome_main_delegate.cc chrome/app/chrome_main_delegate.cc
-index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092dcff5866a 100644
+index 5a98b8149ab8574b909754e2f57801a27496cc82..e3afb05c25b34c288476dacd4c31aea3b623a6de 100644
 --- chrome/app/chrome_main_delegate.cc
 +++ chrome/app/chrome_main_delegate.cc
 @@ -42,6 +42,7 @@
@@ -10,7 +10,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  #include "chrome/browser/buildflags.h"
  #include "chrome/browser/chrome_content_browser_client.h"
  #include "chrome/browser/chrome_resource_bundle_helper.h"
-@@ -543,6 +544,7 @@ struct MainFunction {
+@@ -519,6 +520,7 @@ struct MainFunction {
    int (*function)(content::MainFunctionParams);
  };
  
@@ -18,7 +18,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  // Initializes the user data dir. Must be called before InitializeLocalState().
  void InitializeUserDataDir(base::CommandLine* command_line) {
  #if BUILDFLAG(IS_WIN)
-@@ -622,6 +624,7 @@ void InitializeUserDataDir(base::CommandLine* command_line) {
+@@ -598,6 +600,7 @@ void InitializeUserDataDir(base::CommandLine* command_line) {
      command_line->AppendSwitchPath(switches::kUserDataDir, user_data_dir);
  #endif  // BUILDFLAG(IS_WIN)
  }
@@ -26,7 +26,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  
  #if !BUILDFLAG(IS_ANDROID)
  void InitLogging(const std::string& process_type) {
-@@ -741,6 +744,10 @@ ChromeMainDelegate::~ChromeMainDelegate() {
+@@ -717,6 +720,10 @@ ChromeMainDelegate::~ChromeMainDelegate() {
  ChromeMainDelegate::~ChromeMainDelegate() = default;
  #endif  // !BUILDFLAG(IS_ANDROID)
  
@@ -37,7 +37,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
      InvokedIn invoked_in) {
    DUMP_WILL_BE_CHECK(base::ThreadPoolInstance::Get());
-@@ -766,7 +773,7 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -742,7 +749,7 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
      // future session's metrics.
      DeferBrowserMetrics(user_data_dir);
  
@@ -46,7 +46,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
      // In the case the process is not the singleton process, the uninstall tasks
      // need to be executed here. A window will be displayed asking to close all
      // running instances.
-@@ -851,7 +858,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -827,7 +834,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
  
    // Initializes the resource bundle and determines the locale.
    std::string actual_locale = LoadLocalState(
@@ -56,7 +56,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    chrome_feature_list_creator->SetApplicationLocale(actual_locale);
    chrome_feature_list_creator->OverrideCachedUIStrings();
  
-@@ -866,6 +874,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -842,6 +850,8 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
        new net::NetworkChangeNotifierFactoryAndroid());
  #endif
  
@@ -65,7 +65,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    bool record = true;
  #if BUILDFLAG(IS_ANDROID)
    record =
-@@ -874,6 +884,7 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
+@@ -850,6 +860,7 @@ std::optional<int> ChromeMainDelegate::PostEarlyInitialization(
    if (record) {
      chrome_content_browser_client_->startup_data()->RecordCoreSystemProfile();
    }
@@ -73,7 +73,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  
  #if BUILDFLAG(IS_ANDROID)
    UmaSessionStats::OnStartup();
-@@ -920,8 +931,8 @@ void ChromeMainDelegate::CreateThreadPool(std::string_view name) {
+@@ -896,8 +907,8 @@ void ChromeMainDelegate::CreateThreadPool(std::string_view name) {
        std::make_unique<ChromeThreadProfilerClient>());
  
  // `ChromeMainDelegateAndroid::PreSandboxStartup` creates the profiler a little
@@ -84,7 +84,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    // Start the sampling profiler as early as possible - namely, once the thread
    // pool has been created.
    sampling_profiler_ = std::make_unique<MainThreadStackSamplingProfiler>();
-@@ -1321,6 +1332,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1294,6 +1305,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    std::string process_type =
        command_line.GetSwitchValueASCII(switches::kProcessType);
  
@@ -92,7 +92,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    crash_reporter::InitializeCrashKeys();
  
  #if BUILDFLAG(IS_POSIX)
-@@ -1336,6 +1348,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1309,6 +1321,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    if (chrome::ProcessNeedsProfileDir(process_type)) {
      InitializeUserDataDir(base::CommandLine::ForCurrentProcess());
    }
@@ -100,7 +100,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  
    // Register component_updater PathProvider after DIR_USER_DATA overridden by
    // command line flags. Maybe move the chrome PathProvider down here also?
-@@ -1435,7 +1448,8 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1399,7 +1412,8 @@ void ChromeMainDelegate::PreSandboxStartup() {
  #else
      const std::string loaded_locale =
          ui::ResourceBundle::InitSharedInstanceWithLocale(
@@ -110,7 +110,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  
      base::FilePath resources_pack_path;
      base::PathService::Get(chrome::FILE_RESOURCES_PACK, &resources_pack_path);
-@@ -1445,6 +1459,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1409,6 +1423,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
      CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
    }
  
@@ -118,7 +118,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
    // Zygote needs to call InitCrashReporter() in RunZygote().
    if (process_type != switches::kZygoteProcess &&
-@@ -1481,6 +1496,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
+@@ -1445,6 +1460,7 @@ void ChromeMainDelegate::PreSandboxStartup() {
    // After all the platform Breakpads have been initialized, store the command
    // line for crash reporting.
    crash_keys::SetCrashKeysFromCommandLine(command_line);
@@ -126,7 +126,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  
  #if BUILDFLAG(ENABLE_PDF)
    MaybePatchGdiGetFontData();
-@@ -1599,6 +1615,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1546,6 +1562,7 @@ void ChromeMainDelegate::ZygoteForked() {
      SetUpProfilingShutdownHandler();
    }
  
@@ -134,7 +134,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    // Needs to be called after we have chrome::DIR_USER_DATA.  BrowserMain sets
    // this up for the browser process in a different manner.
    const base::CommandLine* command_line =
-@@ -1611,6 +1628,7 @@ void ChromeMainDelegate::ZygoteForked() {
+@@ -1558,6 +1575,7 @@ void ChromeMainDelegate::ZygoteForked() {
  
    // Reset the command line for the newly spawned process.
    crash_keys::SetCrashKeysFromCommandLine(*command_line);
@@ -142,7 +142,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
  }
  
  #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-@@ -1721,6 +1739,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1668,6 +1686,7 @@ void ChromeMainDelegate::InitializeMemorySystem() {
                               : memory_system::DispatcherParameters::
                                     AllocationTraceRecorderInclusion::kIgnore;
  
@@ -150,7 +150,7 @@ index 11b8bf6fc0ffe760e140238781f8436255818081..7c4a8fcb8cf527dff9473743e219092d
    memory_system::Initializer()
        .SetGwpAsanParameters(gwp_asan_boost_sampling, process_type)
        .SetProfilingClientParameters(chrome::GetChannel(),
-@@ -1728,5 +1747,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
+@@ -1675,5 +1694,5 @@ void ChromeMainDelegate::InitializeMemorySystem() {
        .SetDispatcherParameters(memory_system::DispatcherParameters::
                                     PoissonAllocationSamplerInclusion::kEnforce,
                                 allocation_recorder_inclusion, process_type)
@@ -198,7 +198,7 @@ index fa692d8fbfa5a64868fb6338c98df3765f64983a..d7745793dcf96038f55bdf12ad47850b
  #if !BUILDFLAG(IS_ANDROID)
    // The sampling profiler exists until the `ChromeContentBrowserClient` is
 diff --git chrome/app_shim/BUILD.gn chrome/app_shim/BUILD.gn
-index db17714f74137a81bd4a9bb540d55b49a2dd5427..7119e5dba649a9aa94d7f93cfb30a2e8f82650cd 100644
+index 7f185d97c096cb4d125263b92cc6316da358cc46..c255dfd65a04954c7c661cd97c35152ae254fa32 100644
 --- chrome/app_shim/BUILD.gn
 +++ chrome/app_shim/BUILD.gn
 @@ -24,6 +24,7 @@ source_set("app_shim") {
@@ -232,7 +232,7 @@ index 72eb096075a059b986e968916885b39745514fe1..d3866aae87c60976d22a7a67438b1bbe
  
      base::PathService::OverrideAndCreateIfNeeded(
 diff --git chrome/browser/chrome_browser_main.cc chrome/browser/chrome_browser_main.cc
-index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f6265c57d70 100644
+index ca1bcf87342e6409b0cb0bc552779880f0da66e3..dc281ab4d25cea70a6b6fd525786fb2e7e20d590 100644
 --- chrome/browser/chrome_browser_main.cc
 +++ chrome/browser/chrome_browser_main.cc
 @@ -28,6 +28,7 @@
@@ -243,7 +243,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/browser_features.h"
-@@ -435,7 +436,7 @@ void ProcessSingletonNotificationCallbackImpl(
+@@ -430,7 +431,7 @@ void ProcessSingletonNotificationCallbackImpl(
      return;
    }
  
@@ -252,7 +252,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // The uninstall command-line switch is handled by the origin process; see
    // ChromeMainDelegate::PostEarlyInitialization(...). The other process won't
    // be able to become the singleton process and will display a window asking
-@@ -854,7 +855,7 @@ int ChromeBrowserMainParts::OnLocalStateLoaded(
+@@ -849,7 +850,7 @@ int ChromeBrowserMainParts::OnLocalStateLoaded(
        browser_process_->local_state());
    platform_management_service->RefreshCache(base::NullCallback());
  
@@ -261,7 +261,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    if (first_run::IsChromeFirstRun()) {
      bool stats_default;
      if (GoogleUpdateSettings::GetCollectStatsConsentDefault(&stats_default)) {
-@@ -897,6 +898,7 @@ int ChromeBrowserMainParts::ApplyFirstRunPrefs() {
+@@ -892,6 +893,7 @@ int ChromeBrowserMainParts::ApplyFirstRunPrefs() {
  #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
    master_prefs_ = std::make_unique<first_run::MasterPrefs>();
  
@@ -269,7 +269,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    std::unique_ptr<installer::InitialPreferences> installer_initial_prefs =
        startup_data_->chrome_feature_list_creator()->TakeInitialPrefs();
    if (!installer_initial_prefs)
-@@ -930,6 +932,7 @@ int ChromeBrowserMainParts::ApplyFirstRunPrefs() {
+@@ -925,6 +927,7 @@ int ChromeBrowserMainParts::ApplyFirstRunPrefs() {
                              master_prefs_->confirm_to_quit);
    }
  #endif
@@ -277,7 +277,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
  #endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
    return content::RESULT_CODE_NORMAL_EXIT;
  }
-@@ -999,6 +1002,7 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -994,6 +997,7 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  
    browser_process_->browser_policy_connector()->OnResourceBundleCreated();
  
@@ -285,7 +285,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
  // Android does first run in Java instead of native.
  // Chrome OS has its own out-of-box-experience code.
  #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
-@@ -1009,6 +1013,7 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -1004,6 +1008,7 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
      }
    }
  #endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
@@ -293,7 +293,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
  
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE) &&                                   \
      (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-@@ -1399,6 +1404,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1412,6 +1417,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    browser_process_->PreMainMessageLoopRun();
  
  #if BUILDFLAG(IS_WIN)
@@ -301,7 +301,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // If the command line specifies 'uninstall' then we need to work here
    // unless we detect another chrome browser running.
    if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kUninstall)) {
-@@ -1410,6 +1416,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1423,6 +1429,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
      return ChromeBrowserMainPartsWin::HandleIconsCommands(
          *base::CommandLine::ForCurrentProcess());
    }
@@ -309,7 +309,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
  
    ui::SelectFileDialog::SetFactory(
        std::make_unique<ChromeSelectFileDialogFactory>());
-@@ -1432,6 +1439,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1445,6 +1452,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    }
  #endif
  
@@ -317,7 +317,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
            switches::kMakeDefaultBrowser)) {
      bool is_managed = g_browser_process->local_state()->IsManagedPreference(
-@@ -1445,13 +1453,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1458,13 +1466,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
                 ? static_cast<int>(content::RESULT_CODE_NORMAL_EXIT)
                 : static_cast<int>(CHROME_RESULT_CODE_SHELL_INTEGRATION_FAILED);
    }
@@ -333,7 +333,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // We must call DoUpgradeTasks now that we own the browser singleton to
    // finish upgrade tasks (swap) and relaunch if necessary.
    if (upgrade_util::DoUpgradeTasks(*base::CommandLine::ForCurrentProcess()))
-@@ -1495,7 +1504,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1508,7 +1517,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    }
  #endif
  
@@ -342,7 +342,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // Check if there is any machine level Chrome installed on the current
    // machine. If yes and the current Chrome process is user level, we do not
    // allow the user level Chrome to run. So we notify the user and uninstall
-@@ -1577,7 +1586,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1583,7 +1592,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    // Call `PostProfileInit()`and set it up for profiles created later.
    profile_init_manager_ = std::make_unique<ProfileInitManager>(this, profile);
  
@@ -351,7 +351,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // Execute first run specific code after the PrefService has been initialized
    // and preferences have been registered since some of the import code depends
    // on preferences.
-@@ -1598,7 +1607,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1604,7 +1613,7 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
    }
  #endif
  
@@ -360,7 +360,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // Registers Chrome with the Windows Restart Manager, which will restore the
    // Chrome session when the computer is restarted after a system update.
    // This could be run as late as WM_QUERYENDSESSION for system update reboots,
-@@ -1701,6 +1710,11 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1703,6 +1712,11 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
          g_browser_process->profile_manager()->GetLastOpenedProfiles();
    }
  #endif
@@ -372,7 +372,7 @@ index c7c59fa5404992cff8d2b22197563f53155e9381..94dbd57ae9c684458e22c7648fb16f62
    // This step is costly.
    if (browser_creator_->Start(*base::CommandLine::ForCurrentProcess(),
                                base::FilePath(), profile_info,
-@@ -1728,11 +1742,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
+@@ -1730,11 +1744,14 @@ int ChromeBrowserMainParts::PreMainMessageLoopRunImpl() {
  
      // Create the RunLoop for MainMessageLoopRun() to use and transfer
      // ownership of the browser's lifetime to the BrowserProcess.
@@ -424,7 +424,7 @@ index e26e3625c99c839a49620f29196ea9811c9d82bd..c0d4a95607e377e7c68072d80a22d54f
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf842916ef93 100644
+index fa6a75691f2ac8388d48835d98681d3ca7bfb503..403e4fb7196fa1e1b437fad6d7359a5575059782 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -49,6 +49,7 @@
@@ -435,7 +435,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1359,6 +1360,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1357,6 +1358,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -444,7 +444,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1396,6 +1399,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1394,6 +1397,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -456,7 +456,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4898,9 +4906,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4880,9 +4888,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -468,7 +468,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6592,7 +6602,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6521,7 +6531,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
    }
  }
  
@@ -477,7 +477,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6610,6 +6620,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6539,6 +6549,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -486,7 +486,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  }
  
  std::vector<base::FilePath>
-@@ -7760,11 +7772,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7680,11 +7692,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -500,7 +500,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7786,7 +7798,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7706,7 +7718,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -510,7 +510,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7964,7 +7977,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7884,7 +7897,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -520,10 +520,10 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
          base::BindOnce(&ChromeContentBrowserClient::OnKeepaliveTimerFired,
                         weak_factory_.GetWeakPtr(),
 diff --git chrome/browser/chrome_content_browser_client.h chrome/browser/chrome_content_browser_client.h
-index a9043ee8c0ce167c839abcbc49d8cdce5108236b..5b10408e13128d31bbb69ae4f5413ab25c0fb5ce 100644
+index d7a57c5da98b1a008dc26b424eb7f548005c8d95..7f654e6d31b8446c2f8c79521ce8162cdf0c518b 100644
 --- chrome/browser/chrome_content_browser_client.h
 +++ chrome/browser/chrome_content_browser_client.h
-@@ -160,6 +160,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -159,6 +159,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
    ~ChromeContentBrowserClient() override;
  
@@ -532,7 +532,7 @@ index a9043ee8c0ce167c839abcbc49d8cdce5108236b..5b10408e13128d31bbb69ae4f5413ab2
    // TODO(crbug.com/41356866): This file is about calls from content/ out
    // to chrome/ to get values or notify about events, but both of these
    // functions are from chrome/ to chrome/ and don't involve content/ at all.
-@@ -760,7 +762,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -744,7 +746,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
        override;
    void OnNetworkServiceCreated(
        network::mojom::NetworkService* network_service) override;
@@ -541,7 +541,7 @@ index a9043ee8c0ce167c839abcbc49d8cdce5108236b..5b10408e13128d31bbb69ae4f5413ab2
        content::BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -1392,7 +1394,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
+@@ -1373,7 +1375,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
  
  #if !BUILDFLAG(IS_ANDROID)
    uint64_t num_keepalive_requests_ = 0;
@@ -551,7 +551,7 @@ index a9043ee8c0ce167c839abcbc49d8cdce5108236b..5b10408e13128d31bbb69ae4f5413ab2
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 87e90ea501499bbbf026fa5db2e4d81edbb0f2ca..284674cd7627d038efa208c3b73640e9f4eeb984 100644
+index 0e758242353860f8aeb37ffc6225b44e7393a1b8..3c7a17b62f04aad6db5458a0999d42e54ba6de7f 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -15,6 +15,7 @@
@@ -562,7 +562,7 @@ index 87e90ea501499bbbf026fa5db2e4d81edbb0f2ca..284674cd7627d038efa208c3b73640e9
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/accessibility/accessibility_labels_service.h"
  #include "chrome/browser/accessibility/invert_bubble_prefs.h"
-@@ -222,6 +223,10 @@
+@@ -219,6 +220,10 @@
  #include "extensions/browser/pref_names.h"
  #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  
@@ -573,7 +573,7 @@ index 87e90ea501499bbbf026fa5db2e4d81edbb0f2ca..284674cd7627d038efa208c3b73640e9
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -1965,6 +1970,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1883,6 +1888,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -585,7 +585,7 @@ index 87e90ea501499bbbf026fa5db2e4d81edbb0f2ca..284674cd7627d038efa208c3b73640e9
  }
  
  // Register prefs applicable to all profiles.
-@@ -2417,6 +2427,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2335,6 +2345,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

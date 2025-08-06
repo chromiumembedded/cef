@@ -1,5 +1,5 @@
 diff --git ui/views/controls/textfield/textfield.cc ui/views/controls/textfield/textfield.cc
-index e80a6344ab662592a71f0870da2f226e8bf65614..7565d733b1aeb93e6549f1b506307fbb5ab02b34 100644
+index 7c94559eda8c8799c7366399b995863d84b80a87..cb032ed925b7850e608900168de29cb3883c8ea1 100644
 --- ui/views/controls/textfield/textfield.cc
 +++ ui/views/controls/textfield/textfield.cc
 @@ -3133,6 +3133,10 @@ void Textfield::OnEnabledChanged() {

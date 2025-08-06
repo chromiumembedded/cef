@@ -1350,7 +1350,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
 
     mouse_wheel_phase_handler_.SendWheelEndForTouchpadScrollingIfNeeded(false);
     mouse_wheel_phase_handler_.AddPhaseIfNeededAndScheduleEndEvent(
-        mouse_wheel_event, false);
+        mouse_wheel_event, false, /*is_fling_capable=*/false);
 
     if (ShouldRouteEvents()) {
       render_widget_host_->delegate()

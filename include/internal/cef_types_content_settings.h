@@ -324,10 +324,15 @@ typedef enum {
   /// store origin blocklist from review notification permissions feature.
   CEF_CONTENT_SETTING_TYPE_NOTIFICATION_PERMISSION_REVIEW,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_PRIVATE_NETWORK_GUARD_DEPRECATED,
+  CEF_CONTENT_SETTING_TYPE_PRIVATE_NETWORK_CHOOSER_DATA_DEPRECATED,
+#else
   /// Website setting to store permissions granted to access particular devices
   /// in private network.
   CEF_CONTENT_SETTING_TYPE_PRIVATE_NETWORK_GUARD,
   CEF_CONTENT_SETTING_TYPE_PRIVATE_NETWORK_CHOOSER_DATA,
+#endif
 
   /// Website setting which stores whether the browser has observed the user
   /// signing into an identity-provider based on observing the IdP-SignIn-Status
@@ -531,6 +536,18 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_SUSPICIOUS_NOTIFICATION_IDS,
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// To support approximate geolocation, the permission is migrating to use
+  /// permissions with options, which won't be stored as ContentSettings. Upon
+  /// launch of the feature, GEOLOCATION and GEOLOCATION_WITH_OPTIONS should be
+  /// merged.
+  CEF_CONTENT_SETTING_TYPE_GEOLOCATION_WITH_OPTIONS,
+
+  /// Setting for enabling the Device Attributes API. Spec link:
+  /// https://wicg.github.io/WebApiDevice/device_attributes/
+  CEF_CONTENT_SETTING_TYPE_DEVICE_ATTRIBUTES,
+#endif
+
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,
 } cef_content_setting_types_t;
 
@@ -544,7 +561,11 @@ typedef enum {
   CEF_CONTENT_SETTING_VALUE_BLOCK,
   CEF_CONTENT_SETTING_VALUE_ASK,
   CEF_CONTENT_SETTING_VALUE_SESSION_ONLY,
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_VALUE_DETECT_IMPORTANT_CONTENT_DEPRECATED,
+#else
   CEF_CONTENT_SETTING_VALUE_DETECT_IMPORTANT_CONTENT,
+#endif
 
   CEF_CONTENT_SETTING_VALUE_NUM_VALUES,
 } cef_content_setting_values_t;

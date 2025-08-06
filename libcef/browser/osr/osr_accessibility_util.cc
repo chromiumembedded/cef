@@ -80,6 +80,7 @@ struct PopulateAxNodeAttributes {
     switch (attr.first) {
       case ax::mojom::IntAttribute::kNone:
       case ax::mojom::IntAttribute::kMaxLength:
+      case ax::mojom::IntAttribute::kPaintOrder:
         break;
       case ax::mojom::IntAttribute::kScrollX:
       case ax::mojom::IntAttribute::kScrollXMin:
@@ -316,7 +317,7 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
   }
 
   value->SetString("role", ToString(node.role));
-  value->SetList("state", ToCefValue(node.state));
+  value->SetList("state", ToCefValue(node.state.value()));
 
   if (node.relative_bounds.offset_container_id != -1) {
     value->SetInt("offset_container_id",
@@ -368,7 +369,12 @@ CefRefPtr<CefDictionaryValue> ToCefValue(const ui::AXNodeData& node) {
                 func);
 
   // Poupulate Bool Attributes.
-  std::for_each(node.bool_attributes.begin(), node.bool_attributes.end(), func);
+  if (node.bool_attributes) {
+    node.bool_attributes->ForEach(
+        [&func](ax::mojom::BoolAttribute attr, bool value) {
+          func(std::make_pair(attr, value));
+        });
+  }
 
   // Populate int list attributes.
   std::for_each(node.intlist_attributes.begin(), node.intlist_attributes.end(),

@@ -97,7 +97,7 @@ index aa43742055b04c70bcb60bd21f61897b3c6b79a6..e84f21ab963ccf6e54afcb659f5ceccd
    // it will get the locale that should be used potentially from other sources,
    // depending on the platform (e.g. the OS locale on Mac).
 diff --git ui/base/l10n/l10n_util.cc ui/base/l10n/l10n_util.cc
-index ceed3b3e38a3b653fd4d777fddc0c8af71d8fdd0..883a53e37a705cc443496bd091b5f22659f38fb1 100644
+index f663b95cd465c6e1d2dc327fbd1e1d85662d038b..5327afbfd6a5dba073c1d860909926ea8306667b 100644
 --- ui/base/l10n/l10n_util.cc
 +++ ui/base/l10n/l10n_util.cc
 @@ -494,25 +494,7 @@ std::optional<std::string> CheckAndResolveLocale(std::string_view locale,
@@ -105,7 +105,7 @@ index ceed3b3e38a3b653fd4d777fddc0c8af71d8fdd0..883a53e37a705cc443496bd091b5f226
  }
  
 -#if BUILDFLAG(IS_APPLE)
--std::string GetApplicationLocaleInternalMac(const std::string& pref_locale) {
+-std::string GetApplicationLocaleInternalMac(std::string_view pref_locale) {
 -  // Use any override (Cocoa for the browser), otherwise use the preference
 -  // passed to the function.
 -  std::string app_locale = l10n_util::GetLocaleOverride();
@@ -122,18 +122,18 @@ index ceed3b3e38a3b653fd4d777fddc0c8af71d8fdd0..883a53e37a705cc443496bd091b5f226
 -#endif
 -
 -#if !BUILDFLAG(IS_APPLE)
--std::string GetApplicationLocaleInternalNonMac(const std::string& pref_locale) {
-+std::string GetApplicationLocaleInternal(const std::string& pref_locale) {
+-std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
++std::string GetApplicationLocaleInternal(std::string_view pref_locale) {
    std::vector<std::string> candidates;
  
    // We only use --lang and the app pref on Windows.  On Linux, we only
-@@ -579,15 +561,6 @@ std::string GetApplicationLocaleInternalNonMac(const std::string& pref_locale) {
+@@ -578,15 +560,6 @@ std::string GetApplicationLocaleInternalNonMac(std::string_view pref_locale) {
  
    return std::string();
  }
 -#endif  // !BUILDFLAG(IS_APPLE)
 -
--std::string GetApplicationLocaleInternal(const std::string& pref_locale) {
+-std::string GetApplicationLocaleInternal(std::string_view pref_locale) {
 -#if BUILDFLAG(IS_APPLE)
 -  return GetApplicationLocaleInternalMac(pref_locale);
 -#else
@@ -141,5 +141,5 @@ index ceed3b3e38a3b653fd4d777fddc0c8af71d8fdd0..883a53e37a705cc443496bd091b5f226
 -#endif
 -}
  
- std::string GetApplicationLocale(const std::string& pref_locale,
+ std::string GetApplicationLocale(std::string_view pref_locale,
                                   bool set_icu_locale) {

@@ -6,6 +6,7 @@
 #include "cef/libcef/browser/native/cursor_util.h"
 #include "content/common/cursors/webcursor.h"
 #include "content/public/browser/render_widget_host_view.h"
+#include "content/public/browser/web_contents.h"
 #include "ui/base/cursor/cursor_factory.h"
 #include "ui/base/cursor/mojom/cursor_type.mojom.h"
 #include "ui/display/display.h"

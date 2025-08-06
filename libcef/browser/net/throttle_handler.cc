@@ -13,6 +13,7 @@
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/navigation_throttle.h"
 #include "content/public/browser/page_navigator.h"
+#include "content/public/browser/web_contents.h"
 
 namespace throttle {
 

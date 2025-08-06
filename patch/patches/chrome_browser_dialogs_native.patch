@@ -1,8 +1,8 @@
 diff --git chrome/browser/file_select_helper.cc chrome/browser/file_select_helper.cc
-index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e5b03f285 100644
+index 5f5e671978830a0d9044a4c9ec68ba40a5323228..802171258704046336f151a6b72d2e718edfb041 100644
 --- chrome/browser/file_select_helper.cc
 +++ chrome/browser/file_select_helper.cc
-@@ -311,6 +311,12 @@ void FileSelectHelper::OnListDone(int error) {
+@@ -257,6 +257,12 @@ void FileSelectHelper::OnListDone(int error) {
    }
  
    if (dialog_type_ == ui::SelectFileDialog::SELECT_UPLOAD_FOLDER) {
@@ -15,7 +15,7 @@ index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e
      auto model = CreateConfirmationDialog(
          entry->display_name_, std::move(chooser_files),
          base::BindOnce(&FileSelectHelper::PerformContentAnalysisIfNeeded,
-@@ -509,31 +515,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -455,31 +461,51 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    std::vector<base::FilePath::StringType>* extensions =
        &file_type->extensions.back();
  
@@ -71,7 +71,7 @@ index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e
      if (extensions->size() > old_extension_size)
        valid_type_count++;
    }
-@@ -550,12 +576,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -496,12 +522,28 @@ FileSelectHelper::GetFileTypesFromAcceptType(
    //    dialog uses the first extension in the list to form the description,
    //    like "EHTML Files". This is not what we want.
    if (valid_type_count > 1 ||
@@ -104,7 +104,7 @@ index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e
    }
  
    return file_type;
-@@ -565,7 +607,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
+@@ -511,7 +553,8 @@ FileSelectHelper::GetFileTypesFromAcceptType(
  void FileSelectHelper::RunFileChooser(
      content::RenderFrameHost* render_frame_host,
      scoped_refptr<content::FileSelectListener> listener,
@@ -114,7 +114,7 @@ index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e
    Profile* profile = Profile::FromBrowserContext(
        render_frame_host->GetProcess()->GetBrowserContext());
  
-@@ -573,6 +616,7 @@ void FileSelectHelper::RunFileChooser(
+@@ -519,6 +562,7 @@ void FileSelectHelper::RunFileChooser(
    // message.
    scoped_refptr<FileSelectHelper> file_select_helper(
        new FileSelectHelper(profile));
@@ -123,10 +123,10 @@ index 442f4280414a7d5423489903ee753cb1738fc703..2002c397567f0b976b01b4deb5b5527e
                                       params.Clone());
  }
 diff --git chrome/browser/file_select_helper.h chrome/browser/file_select_helper.h
-index 2025d39ac0319effd378f057eabda5106cdb0ab9..7e5e112c2f3f9264f39b85585011b60ddd3bc3ba 100644
+index d6120086e84ca5f1c092ef8fc9342ddbbf638c1b..72b01912b458c06c86d2346a6b654b798140edbc 100644
 --- chrome/browser/file_select_helper.h
 +++ chrome/browser/file_select_helper.h
-@@ -65,7 +65,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -64,7 +64,8 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    static void RunFileChooser(
        content::RenderFrameHost* render_frame_host,
        scoped_refptr<content::FileSelectListener> listener,
@@ -136,7 +136,7 @@ index 2025d39ac0319effd378f057eabda5106cdb0ab9..7e5e112c2f3f9264f39b85585011b60d
  
    // Enumerates all the files in directory.
    static void EnumerateDirectory(
-@@ -340,6 +341,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
+@@ -329,6 +330,9 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
    std::unique_ptr<ScopedTuckPictureInPicture> scoped_tuck_picture_in_picture_;
  #endif  // !BUILDFLAG(IS_ANDROID)
  

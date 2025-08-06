@@ -1,10 +1,10 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index f6f46c4dc501f9f8b0cc72267e78a611452d97cd..8fcb5ad464e9529305ca69dd735073fd6dc732b9 100644
+index 3869eda303ddc08b1f084a7ca77db61fae973017..844ff676b890438de8a534a28b01e14b49bcf943 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -626,6 +626,13 @@ std::optional<ash::KioskAppId> GetAppId(const base::CommandLine& command_line,
+@@ -657,6 +657,13 @@ bool ShouldForceLaunchIntoNewProfileWithEmail(
  }
- #endif  // BUILDFLAG(IS_CHROMEOS)
+ #endif  // !BUILDFLAG(IS_CHROMEOS)
  
 +StartupBrowserCreator::ProcessCommandLineCallback*
 +GetProcessCommandLineCallback() {
@@ -16,7 +16,7 @@ index f6f46c4dc501f9f8b0cc72267e78a611452d97cd..8fcb5ad464e9529305ca69dd735073fd
  }  // namespace
  
  StartupProfileMode StartupProfileModeFromReason(
-@@ -1502,6 +1509,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1541,6 +1548,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index f6f46c4dc501f9f8b0cc72267e78a611452d97cd..8fcb5ad464e9529305ca69dd735073fd
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1511,6 +1524,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1550,6 +1563,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  
@@ -42,7 +42,7 @@ index f6f46c4dc501f9f8b0cc72267e78a611452d97cd..8fcb5ad464e9529305ca69dd735073fd
    StartupProfileMode mode =
        StartupProfileModeFromReason(profile_path_info.reason);
 diff --git chrome/browser/ui/startup/startup_browser_creator.h chrome/browser/ui/startup/startup_browser_creator.h
-index 7f3adc69c404c951db6ad08893b966d08bdc31e7..68f5a01e3bab4626fbf6a04b88b3d6f74c7f691e 100644
+index 3cc4f54a0a332718c914b3b388e202a7f8937955..229b648a1c8c1598fdf8972689a90fadec004b05 100644
 --- chrome/browser/ui/startup/startup_browser_creator.h
 +++ chrome/browser/ui/startup/startup_browser_creator.h
 @@ -9,6 +9,7 @@
@@ -53,7 +53,7 @@ index 7f3adc69c404c951db6ad08893b966d08bdc31e7..68f5a01e3bab4626fbf6a04b88b3d6f7
  #include "base/gtest_prod_util.h"
  #include "base/memory/raw_ptr.h"
  #include "build/build_config.h"
-@@ -134,6 +135,13 @@ class StartupBrowserCreator {
+@@ -135,6 +136,13 @@ class StartupBrowserCreator {
               StartupProfileInfo profile_info,
               const Profiles& last_opened_profiles);
  

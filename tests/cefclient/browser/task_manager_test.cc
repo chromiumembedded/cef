@@ -35,8 +35,8 @@ std::string TaskTypeToString(cef_task_type_t type) {
       return "Extension";
     case CEF_TASK_TYPE_GUEST:
       return "Guest";
-    case CEF_TASK_TYPE_PLUGIN:
-      return "Plugin";
+    case CEF_TASK_TYPE_PLUGIN_DEPRECATED:
+      return "Plugin (Deprecated)";
     case CEF_TASK_TYPE_SANDBOX_HELPER:
       return "Sandbox Helper";
     case CEF_TASK_TYPE_DEDICATED_WORKER:

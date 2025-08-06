@@ -1,5 +1,5 @@
 diff --git chrome/browser/BUILD.gn chrome/browser/BUILD.gn
-index 9f0203e9c680f03ed889ce25f9cb799ac65c3b1b..d6371472c6e6fc81d47c347074a55e17ed3c2080 100644
+index 9c4efeae559f3f752ea9f83904417a35ef436434..e6caf783e995dedc5dc844cbf1a9b33e871f6752 100644
 --- chrome/browser/BUILD.gn
 +++ chrome/browser/BUILD.gn
 @@ -11,6 +11,7 @@ import("//build/config/compiler/pgo/pgo.gni")
@@ -10,7 +10,7 @@ index 9f0203e9c680f03ed889ce25f9cb799ac65c3b1b..d6371472c6e6fc81d47c347074a55e17
  import("//chrome/browser/buildflags.gni")
  import("//chrome/browser/downgrade/buildflags.gni")
  import("//chrome/common/features.gni")
-@@ -1919,6 +1920,7 @@ static_library("browser") {
+@@ -1916,6 +1917,7 @@ static_library("browser") {
      "//build/config/compiler:compiler_buildflags",
      "//build/config/linux/dbus:buildflags",
      "//cc",
@@ -18,7 +18,7 @@ index 9f0203e9c680f03ed889ce25f9cb799ac65c3b1b..d6371472c6e6fc81d47c347074a55e17
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
-@@ -2657,6 +2659,10 @@ static_library("browser") {
+@@ -2691,6 +2693,10 @@ static_library("browser") {
      sources += [ "net/net_error_diagnostics_dialog_stub.cc" ]
    }
  

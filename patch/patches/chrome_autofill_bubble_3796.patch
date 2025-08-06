@@ -1,53 +1,57 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index b695bbd7f1fba..e036a3f53f066 100644
+index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47e6547011 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
-@@ -52,9 +52,13 @@ AutofillBubbleBase* ShowSaveBubble(
+@@ -53,10 +53,15 @@ AutofillBubbleBase* ShowSaveBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
-+  auto* browser = chrome::FindBrowserWithTab(web_contents);
-+  if (!browser) {
++  auto browser_window =
++      BrowserWindow::FindBrowserWindowWithWebContents(web_contents);
++  if (!browser_window) {
 +    return nullptr;
 +  }
    auto controller = std::make_unique<SaveAddressBubbleController>(
        delegate, web_contents, profile, is_migration_to_account);
--  return chrome::FindBrowserWithTab(web_contents)
-+  return browser
-       ->window()
+ 
+-  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
++  return browser_window
        ->GetAutofillBubbleHandler()
        ->ShowSaveAddressProfileBubble(web_contents, std::move(controller),
-@@ -67,9 +71,13 @@ AutofillBubbleBase* ShowUpdateBubble(
+                                      shown_by_user_gesture);
+@@ -68,9 +73,14 @@ AutofillBubbleBase* ShowUpdateBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
-+  auto* browser = chrome::FindBrowserWithTab(web_contents);
-+  if (!browser) {
++  auto browser_window =
++      BrowserWindow::FindBrowserWindowWithWebContents(web_contents);
++  if (!browser_window) {
 +    return nullptr;
 +  }
    auto update_controller = std::make_unique<UpdateAddressBubbleController>(
        delegate, web_contents, profile, original_profile);
--  return chrome::FindBrowserWithTab(web_contents)
-+  return browser
-       ->window()
+-  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
++  return browser_window
        ->GetAutofillBubbleHandler()
        ->ShowUpdateAddressProfileBubble(
-@@ -79,9 +87,13 @@ AutofillBubbleBase* ShowUpdateBubble(
+           web_contents, std::move(update_controller), shown_by_user_gesture);
+@@ -79,9 +89,14 @@ AutofillBubbleBase* ShowUpdateBubble(
  #if BUILDFLAG(ENABLE_DICE_SUPPORT)
  AutofillBubbleBase* ShowSignInPromo(content::WebContents* web_contents,
                                      const AutofillProfile& autofill_profile) {
-+  auto* browser = chrome::FindBrowserWithTab(web_contents);
-+  if (!browser) {
++  auto browser_window =
++      BrowserWindow::FindBrowserWindowWithWebContents(web_contents);
++  if (!browser_window) {
 +    return nullptr;
 +  }
    // TODO(crbug.com/381390420): Expose the `AutofillBubbleHandler` in
    // `BrowserWindowInterface` and use that instead.
--  return chrome::FindBrowserWithTab(web_contents)
-+  return browser
-       ->window()
+-  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
++  return browser_window
        ->GetAutofillBubbleHandler()
        ->ShowAddressSignInPromo(web_contents, autofill_profile);
-@@ -221,8 +233,6 @@ void AddressBubblesController::DoShowBubble() {
+ }
+@@ -229,8 +244,6 @@ void AddressBubblesController::DoShowBubble() {
  
    set_bubble_view(show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));

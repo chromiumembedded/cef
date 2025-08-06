@@ -195,7 +195,7 @@ net::RedirectInfo MakeRedirectInfo(const network::ResourceRequest& request,
   return net::RedirectInfo::ComputeRedirectInfo(
       request.method, request.url, request.site_for_cookies,
       first_party_url_policy, request.referrer_policy, request.referrer.spec(),
-      status_code, location,
+      request.request_initiator, status_code, location,
       net::RedirectUtil::GetReferrerPolicyHeader(headers),
       insecure_scheme_was_upgraded);
 }
@@ -281,7 +281,7 @@ bool MakeCefCookie(const GURL& url,
   if (cookie.has_expires) {
     cookie.expires = CefBaseTime(cookie_expires);
   }
-  cookie.same_site = MakeCefCookieSameSite(pc.SameSite());
+  cookie.same_site = MakeCefCookieSameSite(pc.SameSite().first);
   cookie.priority = MakeCefCookiePriority(pc.Priority());
 
   return true;
