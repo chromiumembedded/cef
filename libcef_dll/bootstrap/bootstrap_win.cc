@@ -8,7 +8,6 @@
 
 #include "base/auto_reset.h"
 #include "base/command_line.h"
-#include "base/debug/crash_logging.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
@@ -35,6 +34,7 @@
 #include "sandbox/policy/mojom/sandbox.mojom.h"
 #include "sandbox/policy/sandbox_type.h"
 #include "sandbox/win/src/sandbox.h"
+#include "third_party/crashpad/crashpad/client/annotation.h"
 
 namespace {
 
@@ -417,11 +417,15 @@ extern "C" __declspec(dllexport) void SetLogFatalCrashKey(const char* file,
     }
   }
 
-  const auto& value = base::StringPrintf("%s:%d: %s", file, line, message);
+  auto value = base::StringPrintf("%s:%d: %s", file, line, message);
+  if (value.back() == '\n') {
+    value.pop_back();
+  }
 
   // Note that we intentionally use LOG_FATAL here (old name for LOGGING_FATAL)
   // as that's understood and used by the crash backend.
-  static auto* const crash_key = base::debug::AllocateCrashKeyString(
-      "LOG_FATAL", base::debug::CrashKeySize::Size1024);
-  base::debug::SetCrashKeyString(crash_key, value);
+  // Using the Crashpad API directly here because base::debug::*CrashKeyString()
+  // doesn't appear to work prior to Chromium initialization.
+  static crashpad::StringAnnotation<1024> log_fatal("LOG_FATAL");
+  log_fatal.Set(value);
 }
