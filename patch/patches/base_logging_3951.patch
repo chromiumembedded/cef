@@ -1,0 +1,59 @@
+diff --git base/logging.cc base/logging.cc
+index dd46cccf28eeffa9aa59e1b99b97b24fbecbcbce..83e93d999f9abc592a1a29230ef86dfdc92c9ff5 100644
+--- base/logging.cc
++++ base/logging.cc
+@@ -425,7 +425,30 @@ void WriteToFd(int fd, const char* data, size_t length) {
+   }
+ }
+ 
++#if BUILDFLAG(IS_WIN)
++using SetLogFatalCrashKeyFunc = void (*)(const char* /*file*/,
++                                         int /*line*/,
++                                         const char* /*message*/);
++
++SetLogFatalCrashKeyFunc SetLogFatalCrashKeyFuncGetter() {
++  static SetLogFatalCrashKeyFunc log_fatal_crash_key_func = []() {
++    // Function exported by bootstrap.exe.
++    return reinterpret_cast<SetLogFatalCrashKeyFunc>(
++        GetProcAddress(GetModuleHandle(NULL), "SetLogFatalCrashKey"));
++  }();
++  return log_fatal_crash_key_func;
++}
++#endif  // BUILDFLAG(IS_WIN)
++
+ void SetLogFatalCrashKey(LogMessage* log_message) {
++#if BUILDFLAG(IS_WIN)
++  if (auto func = SetLogFatalCrashKeyFuncGetter()) {
++    func(log_message->file(), log_message->line(),
++         log_message->str().c_str() + log_message->message_start());
++    return;
++  }
++#endif
++
+   // In case of an out-of-memory condition, this code could be reentered when
+   // constructing and storing the key. Using a static is not thread-safe, but if
+   // multiple threads are in the process of a fatal crash at the same time, this
+@@ -495,6 +518,11 @@ bool BaseInitLoggingImpl(const LoggingSettings& settings) {
+   g_log_format = settings.log_format;
+ #endif
+ 
++#if BUILDFLAG(IS_WIN)
++  // Preload the function pointer so that we do minimal work while crashing.
++  SetLogFatalCrashKeyFuncGetter();
++#endif
++
+   MaybeInitializeVlogInfo();
+ 
+   g_logging_destination = settings.logging_dest;
+diff --git base/logging.h base/logging.h
+index 440fa5ebf331028bed8fa135b7c45531be62b5a4..13ebd3b37f07db791e7876971bc402bb819e0b17 100644
+--- base/logging.h
++++ base/logging.h
+@@ -613,6 +613,7 @@ class BASE_EXPORT LogMessage {
+   std::string str() const { return stream_.str(); }
+   const char* file() const { return file_; }
+   int line() const { return line_; }
++  size_t message_start() const { return message_start_; }
+ 
+   // Gets file:line: message in a format suitable for crash reporting.
+   std::string BuildCrashString() const;
