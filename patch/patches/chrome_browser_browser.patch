@@ -718,7 +718,7 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c
    params.source_contents = source_contents;
    params.url = target_url;
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..f7996b9efc6c68d75acb41893146a159164e45e7 100644
+index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0999ff62b89bab67bf92b618b9e3fc0a0474f38c 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -137,6 +137,15 @@
@@ -783,8 +783,24 @@ index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..f7996b9efc6c68d75acb41893146a159
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
+@@ -552,11 +565,14 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+   user_education_->Init(browser_view);
+ }
+ 
++void BrowserWindowFeatures::TearDownPreToolbarViewDestruction() {
++  lens_overlay_entry_point_controller_.reset();
++}
++
+ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
+   live_tab_context_.reset();
+   upgrade_notification_controller_.reset();
+   memory_saver_opt_in_iph_controller_.reset();
+-  lens_overlay_entry_point_controller_.reset();
+   tab_search_toolbar_button_controller_.reset();
+   profile_menu_coordinator_.reset();
+   toast_service_.reset();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index d1d6ffe68c698442a374963b7e10ee91401c9a24..8386c4bf8a6db181b32c6c5e696407444d6a274c 100644
+index d1d6ffe68c698442a374963b7e10ee91401c9a24..da55ac0c8a080de4921fa4145e2a4c68096d02b4 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -161,6 +161,8 @@ class BrowserWindowFeatures {
@@ -795,6 +811,17 @@ index d1d6ffe68c698442a374963b7e10ee91401c9a24..8386c4bf8a6db181b32c6c5e69640744
 +
    BrowserWindowFeatures(const BrowserWindowFeatures&) = delete;
    BrowserWindowFeatures& operator=(const BrowserWindowFeatures&) = delete;
+ 
+@@ -177,6 +179,10 @@ class BrowserWindowFeatures {
+   // hierarchy in BrowserView.
+   void InitPostBrowserViewConstruction(BrowserView* browser_view);
+ 
++  // Called exactly once to tear down state that depends on the ToolbarView
++  // object.
++  void TearDownPreToolbarViewDestruction();
++
+   // Called exactly once to tear down state that depends on the window object.
+   void TearDownPreBrowserWindowDestruction();
  
 diff --git chrome/browser/ui/browser_window/public/browser_window_interface.h chrome/browser/ui/browser_window/public/browser_window_interface.h
 index b021621eddc6bae32c937570565e3e1c365e777b..21a7c50123a97541a49333400bafeac15deb7b23 100644
