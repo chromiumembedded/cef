@@ -397,7 +397,7 @@ index 3d8a15049d4d2286bbcfefa0e7d9778d69ce4696..66c4789581fe1b54d587466a3fdd5197
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e07648b38ac0 100644
+index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..0b92eac0c350c85d88bd82e884f769487fe2afc2 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -375,10 +375,6 @@ using web_modal::WebContentsModalDialogHost;
@@ -556,7 +556,17 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
      return false;
    }
  
-@@ -3534,6 +3588,9 @@ views::View* BrowserView::GetLensOverlayView() {
+@@ -2433,6 +2487,9 @@ void BrowserView::SetToolbarButtonProvider(ToolbarButtonProvider* provider) {
+ }
+ 
+ void BrowserView::UpdatePageActionIcon(PageActionIconType type) {
++  if (!toolbar_button_provider_) {
++    return;
++  }
+   // When present, the intent chip replaces the intent picker page action icon.
+   if (type == PageActionIconType::kIntentPicker &&
+       toolbar_button_provider()->GetIntentChipButton()) {
+@@ -3534,6 +3591,9 @@ views::View* BrowserView::GetLensOverlayView() {
  }
  
  DownloadBubbleUIController* BrowserView::GetDownloadBubbleUIController() {
@@ -566,7 +576,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
    if (auto* download_controller =
            browser_->GetFeatures().download_toolbar_ui_controller()) {
      return download_controller->bubble_controller();
-@@ -4290,7 +4347,9 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
+@@ -4290,7 +4350,9 @@ void BrowserView::ReparentTopContainerForEndOfImmersive() {
      return;
    }
  
@@ -576,7 +586,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
    top_container()->DestroyLayer();
    AddChildViewAt(top_container(), 0);
    EnsureFocusOrder();
-@@ -4957,11 +5016,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4957,11 +5019,38 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -617,7 +627,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4970,7 +5056,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4970,7 +5059,7 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -626,7 +636,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
                 point_in_contents_web_view_coords.x(),
                 point_in_contents_web_view_coords.y()) ||
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
-@@ -5202,8 +5288,11 @@ void BrowserView::Layout(PassKey) {
+@@ -5202,8 +5291,11 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -639,7 +649,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
  
    // Some of the situations when the BrowserView is laid out are:
    // - Enter/exit immersive fullscreen mode.
-@@ -5270,6 +5359,12 @@ void BrowserView::AddedToWidget() {
+@@ -5270,6 +5362,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->profile());
  #endif
  
@@ -652,7 +662,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
    toolbar_->Init();
  
    if (GetIsNormalType()) {
-@@ -5327,18 +5422,14 @@ void BrowserView::AddedToWidget() {
+@@ -5327,18 +5425,14 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -673,7 +683,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -5758,7 +5849,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
+@@ -5758,7 +5852,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -683,7 +693,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
  }
  
  void BrowserView::RequestFullscreen(bool fullscreen, int64_t display_id) {
-@@ -6279,7 +6372,9 @@ Profile* BrowserView::GetProfile() {
+@@ -6279,7 +6375,9 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -693,7 +703,7 @@ index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..e42d71196aa57b7788d6580e0e83e076
  }
  
  WebContents* BrowserView::GetWebContentsForExclusiveAccess() {
-@@ -6308,6 +6403,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
+@@ -6308,6 +6406,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
