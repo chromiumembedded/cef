@@ -354,7 +354,7 @@ index 3af6daa15995b09207e13afe83e6a2a0f7ef902c..3f311868ef82680345e08aaa40765a8f
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d88cdb9e6 100644
+index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888bfe7df0a 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -26,6 +26,7 @@
@@ -377,7 +377,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
    }
  
-@@ -187,13 +191,23 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -187,9 +191,18 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
    z_order_ = params.EffectiveZOrderLevel();
  
@@ -399,13 +399,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
    message_handler_->Init(parent_hwnd, pixel_bounds);
  
    if (ShouldAddDWMBackdrop()) {
--    DWM_SYSTEMBACKDROP_TYPE backdrop = DWMSBT_TRANSIENTWINDOW;
-+    // Use MAINWINDOW here to avoid persistent titlebar transparency.
-+    DWM_SYSTEMBACKDROP_TYPE backdrop = DWMSBT_MAINWINDOW;
-     HRESULT hr = DwmSetWindowAttribute(GetHWND(), DWMWA_SYSTEMBACKDROP_TYPE,
-                                        &backdrop, sizeof(backdrop));
-     CHECK_EQ(hr, S_OK);
-@@ -206,6 +220,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -206,6 +219,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    InitHost();
    window()->Show();
  
@@ -419,7 +413,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1120,6 +1141,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1120,6 +1140,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -438,7 +432,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
    } else {
      window()->Hide();
    }
-@@ -1141,11 +1174,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1141,11 +1173,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -458,7 +452,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1154,6 +1193,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1154,6 +1192,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -471,7 +465,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1345,9 +1390,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1345,9 +1389,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -491,7 +485,7 @@ index 4bf95e84e52748f48714b6a8a9975aa801a1f3f2..58ca78b8a10b762801abfe06e6dd041d
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index 0d567cbde1ca06d8cc4dd25785e89550d7190744..da8909556bfb9d6f71baceb3c232863d9dd8b00c 100644
+index ed45fcbe7fe204d7d3623dd91ca91093351a014e..671fc3517e0b67bdefe48d6d5b007a066748c03e 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -348,6 +348,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin

@@ -41,7 +41,7 @@ index 24555cea8118e46f31700bbf869754b1ae1cfb20..f5352fefb0b4a78bd873462c56175e13
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac5362975651878b8a 100644
+index 9759f75b2735c0b77076a10003bda8b25ed2310c..b0361058073b9ca1d62bd07a404a3e8625adb896 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -721,10 +721,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -57,8 +57,8 @@ index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac53629756
  }
  
  class SaveAndShareSubMenuModel : public ui::SimpleMenuModel {
-@@ -789,6 +791,57 @@ SaveAndShareSubMenuModel::SaveAndShareSubMenuModel(
-   }
+@@ -794,6 +796,57 @@ bool ArePromotionsEnabled() {
+   return local_state && local_state->GetBoolean(prefs::kPromotionsEnabled);
  }
  
 +#if BUILDFLAG(ENABLE_CEF)
@@ -115,7 +115,7 @@ index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac53629756
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1734,7 +1787,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1739,7 +1792,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac53629756
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1750,6 +1803,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1755,6 +1808,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac53629756
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1913,8 +1990,10 @@ void AppMenuModel::Build() {
+@@ -1919,8 +1996,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 0598ce596c024fa43c3953a4199d251002741585..903b244196e6f879475ee4ac53629756
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -2025,6 +2104,11 @@ void AppMenuModel::Build() {
+@@ -2031,6 +2110,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -868,12 +868,12 @@ index aa1d3a78d628b6aceaaadd3cf8f83baf2faee1e6..f00e13784abc88a7fe32a22a698fc119
    virtual bool IsBookmarkBarVisible() const = 0;
    virtual bool IsContentsSeparatorEnabled() const = 0;
 diff --git chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-index 11b9de59b0ff3657dc709931d72202615c977e0f..806d5585ba3b66b3c09679375449f97b4de599e1 100644
+index db72ac74a4fec4bc4f9904d28596772c74d823c9..d2902bed489dcb1056952458595acde5b5d8fab1 100644
 --- chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
 +++ chrome/browser/ui/views/frame/picture_in_picture_browser_frame_view.cc
-@@ -612,6 +612,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
-     auto_pip_setting_overlay_ =
-         AddChildView(std::move(auto_pip_setting_overlay));
+@@ -620,6 +620,11 @@ PictureInPictureBrowserFrameView::PictureInPictureBrowserFrameView(
+       IsOverlayViewVisible()) {
+     PictureInPictureWindowManager::GetInstance()->ClearCachedBounds();
    }
 +
 +  if (!browser_view->browser()->SupportsWindowFeature(
@@ -883,7 +883,7 @@ index 11b9de59b0ff3657dc709931d72202615c977e0f..806d5585ba3b66b3c09679375449f97b
  }
  
  PictureInPictureBrowserFrameView::~PictureInPictureBrowserFrameView() {
-@@ -743,18 +748,42 @@ gfx::Rect PictureInPictureBrowserFrameView::GetWindowBoundsForClientBounds(
+@@ -751,18 +756,42 @@ gfx::Rect PictureInPictureBrowserFrameView::GetWindowBoundsForClientBounds(
  
  int PictureInPictureBrowserFrameView::NonClientHitTest(
      const gfx::Point& point) {
@@ -934,7 +934,7 @@ index 11b9de59b0ff3657dc709931d72202615c977e0f..806d5585ba3b66b3c09679375449f97b
  
    // Allow dragging and resizing the window.
    int window_component = GetHTComponentForFrame(
-@@ -818,7 +847,8 @@ void PictureInPictureBrowserFrameView::Layout(PassKey) {
+@@ -826,7 +855,8 @@ void PictureInPictureBrowserFrameView::Layout(PassKey) {
    gfx::Rect content_area = GetLocalBounds();
    content_area.Inset(FrameBorderInsets());
    gfx::Rect top_bar = content_area;
@@ -944,7 +944,7 @@ index 11b9de59b0ff3657dc709931d72202615c977e0f..806d5585ba3b66b3c09679375449f97b
    top_bar_container_view_->SetBoundsRect(top_bar);
  #if !BUILDFLAG(IS_ANDROID)
    if (auto_pip_setting_overlay_) {
-@@ -1389,7 +1419,8 @@ gfx::Insets PictureInPictureBrowserFrameView::FrameBorderInsets() const {
+@@ -1397,7 +1427,8 @@ gfx::Insets PictureInPictureBrowserFrameView::FrameBorderInsets() const {
  }
  
  int PictureInPictureBrowserFrameView::GetTopAreaHeight() const {

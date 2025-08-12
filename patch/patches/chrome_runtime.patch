@@ -424,7 +424,7 @@ index e26e3625c99c839a49620f29196ea9811c9d82bd..c0d4a95607e377e7c68072d80a22d54f
 +#endif
  }
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf842916ef93 100644
+index d271eb576b3a4d4ccb163b78a1ff3abbe96fe000..69eb1ade74c7d90c11b0c74d3f2d17e01d7b65a2 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -49,6 +49,7 @@
@@ -435,7 +435,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  #include "chrome/browser/after_startup_task_utils.h"
  #include "chrome/browser/ai/ai_manager.h"
  #include "chrome/browser/app_mode/app_mode_utils.h"
-@@ -1359,6 +1360,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
+@@ -1360,6 +1361,8 @@ ChromeContentBrowserClient::GetPopupNavigationDelegateFactoryForTesting() {
  }
  
  ChromeContentBrowserClient::ChromeContentBrowserClient() {
@@ -444,7 +444,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  #if BUILDFLAG(ENABLE_PLUGINS)
    extra_parts_.push_back(
        std::make_unique<ChromeContentBrowserClientPluginsPart>());
-@@ -1396,6 +1399,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
+@@ -1397,6 +1400,11 @@ ChromeContentBrowserClient::~ChromeContentBrowserClient() {
    }
  }
  
@@ -456,7 +456,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4898,9 +4906,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4905,9 +4913,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -468,7 +468,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6592,7 +6602,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6599,7 +6609,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
    }
  }
  
@@ -477,7 +477,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6610,6 +6620,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6617,6 +6627,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -486,7 +486,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
  }
  
  std::vector<base::FilePath>
-@@ -7760,11 +7772,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7767,11 +7779,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -500,7 +500,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7786,7 +7798,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7793,7 +7805,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -510,7 +510,7 @@ index ab2228ada66cb28c7b9a87757282d3082e533ff1..8f6736892d9a37838f533869340aaf84
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7964,7 +7977,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7971,7 +7984,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
