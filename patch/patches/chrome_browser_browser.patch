@@ -682,7 +682,7 @@ index 690a30d2c9a745ae4e2c75751f14475e1f419e43..16655a41a2a5fd0bce25e07d76b5f5c6
  
  bool IsHostAllowedInIncognito(const GURL& url) {
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
-index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c347017ac 100644
+index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..085201f227e6aaccf0f01004e1499f25ca1fa01f 100644
 --- chrome/browser/ui/browser_tabstrip.cc
 +++ chrome/browser/ui/browser_tabstrip.cc
 @@ -34,9 +34,13 @@ content::WebContents* AddAndReturnTabAt(
@@ -692,11 +692,12 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c
 +  // For CEF use a PageTransition that matches
 +  // CefFrameHostImpl::kPageTransitionExplicit.
    base::TimeTicks new_tab_start_time = base::TimeTicks::Now();
-   NavigateParams params(browser, url.is_empty() ? browser->GetNewTabURL() : url,
+-  NavigateParams params(browser, url.is_empty() ? browser->GetNewTabURL() : url,
 -                        ui::PAGE_TRANSITION_TYPED);
-+                        static_cast<ui::PageTransition>(
-+                            ui::PAGE_TRANSITION_TYPED |
-+                            ui::PAGE_TRANSITION_FROM_ADDRESS_BAR));
++  NavigateParams params(
++      browser, url.is_empty() ? browser->GetNewTabURL() : url,
++      static_cast<ui::PageTransition>(ui::PAGE_TRANSITION_TYPED |
++                                      ui::PAGE_TRANSITION_FROM_ADDRESS_BAR));
    params.disposition = foreground ? WindowOpenDisposition::NEW_FOREGROUND_TAB
                                    : WindowOpenDisposition::NEW_BACKGROUND_TAB;
    params.tabstrip_index = idx;
@@ -706,8 +707,8 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c
  
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (browser && browser->cef_delegate() && new_contents) {
-+    new_contents = browser->cef_delegate()->AddWebContents(
-+        std::move(new_contents));
++    new_contents =
++        browser->cef_delegate()->AddWebContents(std::move(new_contents));
 +    if (!new_contents) {
 +      return nullptr;
 +    }
@@ -717,6 +718,15 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c
    NavigateParams params(browser, std::move(new_contents));
    params.source_contents = source_contents;
    params.url = target_url;
+@@ -115,8 +129,6 @@ void CloseWebContents(Browser* browser,
+                       bool add_to_history) {
+   int index = browser->tab_strip_model()->GetIndexOfWebContents(contents);
+   if (index == TabStripModel::kNoTab) {
+-    DUMP_WILL_BE_NOTREACHED()
+-        << "CloseWebContents called for tab not in our strip";
+     return;
+   }
+ 
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
 index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0fea30666ee7f876c5afa8f5cb94e4e13ee0ca1e 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
