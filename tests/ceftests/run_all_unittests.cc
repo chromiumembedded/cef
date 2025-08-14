@@ -305,7 +305,7 @@ int main(int argc, char* argv[]) {
   // flag on executable targets. This saves significant memory on threads (like
   // those in the Windows thread pool, and others) whose stack size can only be
   // controlled via the linker flag.
-  exit_code = CefRunMainWithPreferredStackSize(main, argc, argv);
+  int exit_code = CefRunMainWithPreferredStackSize(main, argc, argv);
   if (exit_code >= 0) {
     // The fiber has completed so return here.
     return exit_code;
