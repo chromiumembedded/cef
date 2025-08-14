@@ -693,10 +693,10 @@ index 55e5b8a832c9c298066206737f97710ad501945a..9353f74c2ec2fe92a8f7eacf9fa065c0
  
        if (native_widget_delegate->IsDialogBox()) {
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 6c7e1291817f3eea03da90c206bd5b3a9b9d9beb..a93369e364c5a55a36ce460c2f487da9ca069749 100644
+index df17e97666de639f05b92a79ee7fbd4a3da6c64f..aa250d908dda40bfd088dafd785cdb5fb663d42e 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -854,7 +854,11 @@ bool HWNDMessageHandler::IsVisible() const {
+@@ -855,7 +855,11 @@ bool HWNDMessageHandler::IsVisible() const {
  }
  
  bool HWNDMessageHandler::IsActive() const {
@@ -709,7 +709,7 @@ index 6c7e1291817f3eea03da90c206bd5b3a9b9d9beb..a93369e364c5a55a36ce460c2f487da9
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3317,10 +3321,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3336,10 +3340,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::EventType::kMousewheel) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

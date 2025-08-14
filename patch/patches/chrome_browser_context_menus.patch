@@ -1,5 +1,5 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index ac3aa462f533a0b0e52191bb22cc6c4578f7d29a..c9c29eef2b0f40ab0ddd2073c19d463eaf0781b2 100644
+index a8a3e3d67ef0d1d23d80068eca352fbd1dfa7c85..276dae75a97edc6b95f8e77d34f2aa2c2ba9ee68 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
 @@ -364,6 +364,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
@@ -60,7 +60,7 @@ index ac3aa462f533a0b0e52191bb22cc6c4578f7d29a..c9c29eef2b0f40ab0ddd2073c19d463e
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3579,6 +3609,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -3585,6 +3615,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
@@ -88,7 +88,7 @@ index ac3aa462f533a0b0e52191bb22cc6c4578f7d29a..c9c29eef2b0f40ab0ddd2073c19d463e
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index 69f61826e29ff4d5e4bf41316a2ab542b79f246a..69a7fdd8ed44ca01b4c406b031412c78bdf99b6c 100644
+index d8cd08c6c95de92def8f58c884b2893846ab4137..4e371f269032c665c77e415f86c7aa6180f73e70 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -157,7 +157,21 @@ class RenderViewContextMenu
@@ -113,7 +113,7 @@ index 69f61826e29ff4d5e4bf41316a2ab542b79f246a..69a7fdd8ed44ca01b4c406b031412c78
    Profile* GetProfile() const;
  
    // This may return nullptr (e.g. for WebUI dialogs). Virtual to allow tests to
-@@ -495,6 +509,9 @@ class RenderViewContextMenu
+@@ -501,6 +515,9 @@ class RenderViewContextMenu
    //   built.
    bool is_protocol_submenu_valid_ = false;
  

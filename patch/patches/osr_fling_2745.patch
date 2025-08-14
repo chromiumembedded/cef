@@ -44,7 +44,7 @@ index 5fe8cbed9772a0fca0a7cf9f47cf729afc07178b..81a8c21507f7eed29a3c1518fa7a4ae7
    void SetForceEnableZoom(bool);
    void SetDeviceScaleFactor(float device_scale_factor);
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 477389a1cb1d3c328fa6c796174244c70894326a..b7b7edbfbdf5d08fdebfde8c1515fa687aa6f767 100644
+index 507634b2ae66dcc3c926df8d8db7862882f5a0ee..0117f71736552c931180e2308048688a49b1e062 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
