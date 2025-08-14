@@ -423,6 +423,34 @@ index e26e3625c99c839a49620f29196ea9811c9d82bd..c0d4a95607e377e7c68072d80a22d54f
    [AppController.sharedController didEndMainMessageLoop];
 +#endif
  }
+diff --git chrome/browser/chrome_browser_main_win.cc chrome/browser/chrome_browser_main_win.cc
+index c262b6f2b71b2c9bcf187fc84b63e4881e05bfb8..19deee220beb612817b01c2a1cc1d60c2f30d350 100644
+--- chrome/browser/chrome_browser_main_win.cc
++++ chrome/browser/chrome_browser_main_win.cc
+@@ -51,6 +51,7 @@
+ #include "base/win/wrapped_window_proc.h"
+ #include "build/branding_buildflags.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "chrome/browser/about_flags.h"
+ #include "chrome/browser/active_use_util.h"
+ #include "chrome/browser/browser_features.h"
+@@ -372,6 +373,7 @@ void UpdatePwaLaunchersForProfile(const base::FilePath& profile_dir) {
+ }
+ 
+ void MigratePinnedTaskBarShortcutsIfNeeded() {
++#if !BUILDFLAG(ENABLE_CEF)
+   // Update this number when users should go through a taskbar shortcut
+   // migration again. The last reason to do this was crrev.com/798174. @
+   // 86.0.4231.0.
+@@ -392,6 +394,7 @@ void MigratePinnedTaskBarShortcutsIfNeeded() {
+           prefs::kShortcutMigrationVersion, version_info::GetVersionNumber()));
+     }
+   }
++#endif  // !BUILDFLAG(ENABLE_CEF)
+ }
+ 
+ void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
 index a582e4069416d656917776b03b278a77da6392b3..dd40f294813628186919b25b5daf12caf48bb623 100644
 --- chrome/browser/chrome_content_browser_client.cc
