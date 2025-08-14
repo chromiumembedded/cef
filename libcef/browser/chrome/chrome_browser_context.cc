@@ -168,8 +168,14 @@ void ChromeBrowserContext::ProfileCreated(CreateStatus status,
     profile_ = profile;
     profile_->AddObserver(this);
     if (!profile_->IsOffTheRecord()) {
+      // The Profile will only be destroyed if the total KeepAlive refcount is
+      // 0 in ProfileManager::UnloadProfileIfNoKeepAlive. This requires a value
+      // like kProfileCreationFlow so that the kWaitingForFirstBrowserWindow
+      // refcount is reset in ProfileManager::AddKeepAlive (via a call to
+      // ClearFirstBrowserWindowKeepAlive). Otherwise, something else needs
+      // to reset that refcount, like creating a Browser.
       profile_keep_alive_ = std::make_unique<ScopedProfileKeepAlive>(
-          profile_, ProfileKeepAliveOrigin::kAppWindow);
+          profile_, ProfileKeepAliveOrigin::kProfileCreationFlow);
     }
   }
 
