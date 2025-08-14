@@ -718,7 +718,7 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..e2b131048de4be204824f514ee27b58c
    params.source_contents = source_contents;
    params.url = target_url;
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0999ff62b89bab67bf92b618b9e3fc0a0474f38c 100644
+index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0fea30666ee7f876c5afa8f5cb94e4e13ee0ca1e 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -137,6 +137,15 @@
@@ -783,12 +783,15 @@ index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0999ff62b89bab67bf92b618b9e3fc0a
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -552,11 +565,14 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -552,11 +565,17 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
    user_education_->Init(browser_view);
  }
  
 +void BrowserWindowFeatures::TearDownPreToolbarViewDestruction() {
 +  lens_overlay_entry_point_controller_.reset();
++  if (pinned_toolbar_actions_controller_) {
++    pinned_toolbar_actions_controller_->TearDown();
++  }
 +}
 +
  void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
@@ -799,6 +802,17 @@ index 6dbbd5d5e5be13f2f3ed2ee04ffc34013624c502..0999ff62b89bab67bf92b618b9e3fc0a
    tab_search_toolbar_button_controller_.reset();
    profile_menu_coordinator_.reset();
    toast_service_.reset();
+@@ -605,10 +624,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
+   desktop_browser_window_capabilities_.reset();
+   signin_view_controller_->TearDownPreBrowserWindowDestruction();
+ 
+-  if (pinned_toolbar_actions_controller_) {
+-    pinned_toolbar_actions_controller_->TearDown();
+-  }
+-
+   // TODO(crbug.com/423956131): Update reset order once FindBarController is
+   // deterministically constructed.
+   find_bar_controller_.reset();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
 index d1d6ffe68c698442a374963b7e10ee91401c9a24..da55ac0c8a080de4921fa4145e2a4c68096d02b4 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
