@@ -165,7 +165,13 @@ int RunMain(HINSTANCE hInstance,
   // Set the ID for the ICON resource that will be loaded from the main
   // executable and used when creating default Chrome windows such as DevTools
   // and Task Manager. Only used with the Chrome runtime.
+#if defined(CEF_USE_BOOTSTRAP)
+  // Use the default icon from bootstrap.exe.
+  settings.chrome_app_icon_id = 32512;  // IDI_APPLICATION
+#else
+  // Use the default icon from cefclient.exe.
   settings.chrome_app_icon_id = IDR_MAINFRAME;
+#endif
 
   // Create the main message loop object.
   std::unique_ptr<MainMessageLoop> message_loop;
