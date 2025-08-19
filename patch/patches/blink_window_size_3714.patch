@@ -1,0 +1,15 @@
+diff --git third_party/blink/common/widget/constants.cc third_party/blink/common/widget/constants.cc
+index edf292e86fc07e8315acbe5aefab8937d3b09b85..247286a4fa47a769e74d213e8b1654223aca79dc 100644
+--- third_party/blink/common/widget/constants.cc
++++ third_party/blink/common/widget/constants.cc
+@@ -6,7 +6,9 @@
+ 
+ namespace blink {
+ 
+-const int kMinimumWindowSize = 100;
++// Allow JavaScript resize down to kMinWindowSize which applies for Document
++// Picture-in-Picture windows.
++const int kMinimumWindowSize = 52;
+ 
+ // TODO(b/307160156, b/307182741); Investigate where else is the window size
+ // limited to be able to drop this even more until 9 instead 29.
