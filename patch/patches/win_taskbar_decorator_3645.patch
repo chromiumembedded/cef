@@ -1,5 +1,5 @@
 diff --git chrome/browser/taskbar/taskbar_decorator_win.cc chrome/browser/taskbar/taskbar_decorator_win.cc
-index 2612e0be452039bb5e46f76dcbde33147ca56421..0e9f3105db1d6fb5d0912629a7bfe1f039331c8e 100644
+index 2612e0be452039bb5e46f76dcbde33147ca56421..6fb3d3cb0a1e8632d31fc63224150690b50fecc7 100644
 --- chrome/browser/taskbar/taskbar_decorator_win.cc
 +++ chrome/browser/taskbar/taskbar_decorator_win.cc
 @@ -20,12 +20,14 @@
@@ -17,7 +17,7 @@ index 2612e0be452039bb5e46f76dcbde33147ca56421..0e9f3105db1d6fb5d0912629a7bfe1f0
  #include "skia/ext/font_utils.h"
  #include "skia/ext/image_operations.h"
  #include "skia/ext/legacy_display_globals.h"
-@@ -203,6 +205,21 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
+@@ -203,6 +205,22 @@ void UpdateTaskbarDecoration(Profile* profile, gfx::NativeWindow window) {
      return;
    }
  
@@ -25,9 +25,10 @@ index 2612e0be452039bb5e46f76dcbde33147ca56421..0e9f3105db1d6fb5d0912629a7bfe1f0
 +  if (auto browser_view = BrowserView::GetBrowserViewForNativeWindow(window)) {
 +    if (auto browser = browser_view->browser()) {
 +      if (browser->cef_delegate() &&
-+            (browser->is_type_picture_in_picture() ||
++          (browser->cef_delegate()->IsViewsHosted() ||
++           ((browser->is_type_picture_in_picture() ||
 +             browser->is_type_devtools()) &&
-+            browser->cef_delegate()->HasViewsHostedOpener()) {
++            browser->cef_delegate()->HasViewsHostedOpener()))) {
 +        // Don't add taskbar decoration.
 +        taskbar::DrawTaskbarDecoration(window, nullptr);
 +        return;

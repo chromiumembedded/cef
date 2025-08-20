@@ -89,6 +89,7 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
   bool SupportsDraggableRegion() const override;
   const std::optional<SkRegion> GetDraggableRegion() const override;
   void WindowFullscreenStateChanged() override;
+  bool IsViewsHosted() const override;
   bool HasViewsHostedOpener() const override;
   bool OpenURLFromTabEx(content::WebContents* source,
                         const content::OpenURLParams& params,
@@ -158,8 +159,6 @@ class ChromeBrowserDelegate : public cef::BrowserDelegate {
       content::WebContents* web_contents) const;
 
   bool SupportsFramelessPictureInPicture() const;
-
-  bool IsViewsHosted() const;
 
   // Will return nullptr if the Browser is not Views-hosted.
   CefWindowImpl* GetCefWindowImpl() const;
