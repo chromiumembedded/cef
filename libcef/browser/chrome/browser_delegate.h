@@ -163,6 +163,9 @@ class BrowserDelegate : public content::WebContentsDelegate {
   // Called at the end of a fullscreen transition.
   virtual void WindowFullscreenStateChanged() {}
 
+  // Returns true if this browser is Views-hosted.
+  virtual bool IsViewsHosted() const { return false; }
+
   // Returns true if this browser has a Views-hosted opener. Only
   // applicable for Browsers of type picture_in_picture and devtools.
   virtual bool HasViewsHostedOpener() const { return false; }
