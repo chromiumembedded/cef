@@ -354,10 +354,10 @@ index 3af6daa15995b09207e13afe83e6a2a0f7ef902c..3f311868ef82680345e08aaa40765a8f
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888bfe7df0a 100644
+index c1553a02a752f655c1400a3dbdfad6a3ad099e34..a8457dcbfbc1d35f3b9dc79a106a0c200a5b01af 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-@@ -26,6 +26,7 @@
+@@ -27,6 +27,7 @@
  #include "ui/aura/client/aura_constants.h"
  #include "ui/aura/client/cursor_client.h"
  #include "ui/aura/client/focus_client.h"
@@ -365,7 +365,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
  #include "ui/aura/window_event_dispatcher.h"
  #include "ui/base/class_property.h"
  #include "ui/base/cursor/cursor.h"
-@@ -179,7 +180,10 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -180,7 +181,10 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
                          native_widget_delegate_.get());
  
    HWND parent_hwnd = nullptr;
@@ -377,7 +377,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
    }
  
-@@ -187,9 +191,18 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -188,9 +192,18 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
    z_order_ = params.EffectiveZOrderLevel();
  
@@ -399,7 +399,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
    message_handler_->Init(parent_hwnd, pixel_bounds);
  
    if (ShouldAddDWMBackdrop()) {
-@@ -206,6 +219,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
+@@ -215,6 +228,13 @@ void DesktopWindowTreeHostWin::Init(const Widget::InitParams& params) {
    InitHost();
    window()->Show();
  
@@ -413,7 +413,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1120,6 +1140,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1129,6 +1149,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -432,7 +432,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
    } else {
      window()->Hide();
    }
-@@ -1141,11 +1173,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1150,11 +1182,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -452,7 +452,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1154,6 +1192,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1163,6 +1201,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -465,7 +465,7 @@ index 98ec17113051e6c56ffe9338584fb5ad23d5961b..9658b1ac74263eb22c619d32a7692888
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1345,9 +1389,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1354,9 +1398,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;

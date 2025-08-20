@@ -1,5 +1,5 @@
 diff --git third_party/blink/common/widget/constants.cc third_party/blink/common/widget/constants.cc
-index edf292e86fc07..247286a4fa47a 100644
+index edf292e86fc07e8315acbe5aefab8937d3b09b85..247286a4fa47a769e74d213e8b1654223aca79dc 100644
 --- third_party/blink/common/widget/constants.cc
 +++ third_party/blink/common/widget/constants.cc
 @@ -6,7 +6,9 @@

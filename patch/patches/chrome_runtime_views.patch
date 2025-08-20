@@ -397,7 +397,7 @@ index 3d8a15049d4d2286bbcfefa0e7d9778d69ce4696..66c4789581fe1b54d587466a3fdd5197
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 8f8095452f9dcbe67333dcadfd5ce3a42b4cedd5..0b92eac0c350c85d88bd82e884f769487fe2afc2 100644
+index da1d41e56cdfea92213140470ad964a4416bdf87..96bb453003e4d32faec86cf42b06b1c6420d42e0 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -375,10 +375,6 @@ using web_modal::WebContentsModalDialogHost;
