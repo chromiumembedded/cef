@@ -217,25 +217,24 @@ if(OS_MAC)
 #       └── Current -> A
 macro(COPY_MAC_FRAMEWORK target binary_path app_path)
   set(FRAMEWORK_DIR "${app_path}/Contents/Frameworks/Chromium Embedded Framework.framework")
-  set(FRAMEWORK_DIR_A "${FRAMEWORK_DIR}/Versions/A")
   add_custom_command(
     TARGET ${target}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${binary_path}/Chromium Embedded Framework.framework"
-            "${FRAMEWORK_DIR_A}"
-    COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${FRAMEWORK_DIR_A}/Chromium Embedded Framework"
-            "${FRAMEWORK_DIR}/Chromium Embedded Framework"
-    COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${FRAMEWORK_DIR_A}/Libraries"
-            "${FRAMEWORK_DIR}/Libraries"
-    COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${FRAMEWORK_DIR_A}/Resources"
-            "${FRAMEWORK_DIR}/Resources"
-    COMMAND ${CMAKE_COMMAND} -E create_symlink
-            "${FRAMEWORK_DIR_A}"
-            "${FRAMEWORK_DIR}/Versions/Current"
+            "${FRAMEWORK_DIR}/Versions/A"
+    COMMAND cd "${FRAMEWORK_DIR}" && ln -sf
+            "Versions/A/Chromium Embedded Framework"
+            "Chromium Embedded Framework"
+    COMMAND cd "${FRAMEWORK_DIR}" && ln -sf
+            "Versions/A/Libraries"
+            "Libraries"
+    COMMAND cd "${FRAMEWORK_DIR}" && ln -sf
+            "Versions/A/Resources"
+            "Resources"
+    COMMAND cd "${FRAMEWORK_DIR}/Versions" && ln -sf
+            "A"
+            "Current"
     VERBATIM
     )
 endmacro()
