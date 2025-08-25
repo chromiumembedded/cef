@@ -3658,7 +3658,7 @@ typedef enum {
 #if CEF_API_ADDED(13800)
   CEF_CPAIT_LENS_OVERLAY_HOMEWORK,
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14000)
   CEF_CPAIT_AI_MODE,
 #endif
   CEF_CPAIT_NUM_VALUES,
@@ -3669,7 +3669,7 @@ typedef enum {
 /// ToolbarButtonType type.
 ///
 typedef enum {
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14000)
   CEF_CTBT_CAST_DEPRECATED,
 #else
   CEF_CTBT_CAST,
@@ -3681,7 +3681,7 @@ typedef enum {
   CEF_CTBT_DOWNLOAD,
   CEF_CTBT_SEND_TAB_TO_SELF,
 #endif
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14000)
   CEF_CTBT_SIDE_PANEL_DEPRECATED,
   CEF_CTBT_MEDIA,
   CEF_CTBT_TAB_SEARCH,
@@ -4078,7 +4078,7 @@ typedef enum {
   CEF_TASK_TYPE_EXTENSION,
   /// A browser plugin guest process.
   CEF_TASK_TYPE_GUEST,
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14000)
   CEF_TASK_TYPE_PLUGIN_DEPRECATED,
 #else
   /// A plugin process.
