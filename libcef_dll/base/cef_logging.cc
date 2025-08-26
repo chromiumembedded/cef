@@ -29,7 +29,6 @@
 #include <sstream>
 
 #include "include/base/cef_immediate_crash.h"
-#include "include/internal/cef_string_types.h"
 
 namespace cef {
 namespace logging {
@@ -177,7 +176,27 @@ const char* log_severity_name(int severity) {
   return "UNKNOWN";
 }
 
-#if !defined(NDEBUG) && defined(OS_WIN)
+#if defined(OS_WIN)
+std::string WideToUTF8(const std::wstring& wstr) {
+  if (wstr.empty()) {
+    return {};
+  }
+  int size = WideCharToMultiByte(CP_UTF8, 0, wstr.data(),
+                                 static_cast<int>(wstr.size()), nullptr, 0,
+                                 nullptr, nullptr);
+  if (size <= 0) {
+    return {};
+  }
+  std::string utf8(size, '\0');
+  if (WideCharToMultiByte(CP_UTF8, 0, wstr.data(),
+                          static_cast<int>(wstr.size()), &utf8[0], size,
+                          nullptr, nullptr) != size) {
+    return {};
+  }
+  return utf8;
+}
+
+#if !defined(NDEBUG)
 bool IsUser32AndGdi32Available() {
   static const bool is_user32_and_gdi32_available = [] {
     // If win32k syscalls aren't disabled, then user32 and gdi32 are available.
@@ -223,7 +242,8 @@ void DisplayDebugMessageInDialog(const std::string& message) {
     OutputDebugStringW(UTF8ToWide(message).c_str());
   }
 }
-#endif  // !defined(NDEBUG) && defined(OS_WIN)
+#endif  // !defined(NDEBUG)
+#endif  // defined(OS_WIN)
 
 [[noreturn]] void HandleFatal(const std::string& message) {
   // Don't display assertions to the user in release mode. The enduser can't do
@@ -546,26 +566,9 @@ ErrnoLogMessage::~ErrnoLogMessage() {
 }  // namespace logging
 }  // namespace cef
 
-std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
-  const auto length = wstr ? std::char_traits<wchar_t>::length(wstr) : 0U;
-  if (length > 0) {
-    cef_string_utf8_t str = {0};
-    cef_string_wide_to_utf8(wstr, length, &str);
-    out << str.str;
-    cef_string_utf8_clear(&str);
-  }
+#if defined(OS_WIN)
+std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
+  out << cef::logging::WideToUTF8(wstr);
   return out;
 }
-
-#if defined(WCHAR_T_IS_32_BIT)
-std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
-  const auto length = wstr ? std::char_traits<char16_t>::length(wstr) : 0U;
-  if (length > 0) {
-    cef_string_utf8_t str = {0};
-    cef_string_utf16_to_utf8(wstr, length, &str);
-    out << str.str;
-    cef_string_utf8_clear(&str);
-  }
-  return out;
-}
-#endif
+#endif  // defined(OS_WIN)
