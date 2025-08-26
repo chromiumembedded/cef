@@ -17,3 +17,20 @@ index 2f8b1f1a1e32e9245677187fb42503271dbf64e0..86de6df4046ea5dfd7eb118d8b7e9788
                                       cert->certificate());
  }
  
+diff --git chrome/browser/ui/views/extensions/extensions_dialogs_utils.cc chrome/browser/ui/views/extensions/extensions_dialogs_utils.cc
+index b84541333578a8508bebe9e93462f5903d942c3b..c729c5b2ee864b5004caf625b91500e2042ea585 100644
+--- chrome/browser/ui/views/extensions/extensions_dialogs_utils.cc
++++ chrome/browser/ui/views/extensions/extensions_dialogs_utils.cc
+@@ -118,10 +118,9 @@ void ShowDialog(Browser* browser,
+                 std::unique_ptr<ui::DialogModel> dialog_model) {
+   ToolbarButtonProvider* toolbar_button_provider =
+       BrowserView::GetBrowserViewForBrowser(browser)->toolbar_button_provider();
+-  CHECK(toolbar_button_provider);
+ 
+-  views::View* const anchor_view =
+-      toolbar_button_provider->GetDefaultExtensionDialogAnchorView();
++  views::View* const anchor_view = toolbar_button_provider ?
++      toolbar_button_provider->GetDefaultExtensionDialogAnchorView() : nullptr;
+   auto bubble = std::make_unique<views::BubbleDialogModelHost>(
+       std::move(dialog_model), std::move(anchor_view),
+       views::BubbleBorder::TOP_RIGHT);
