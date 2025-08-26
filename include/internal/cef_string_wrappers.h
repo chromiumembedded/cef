@@ -32,6 +32,7 @@
 #pragma once
 
 #include <cstring>
+#include <ostream>
 #include <string>
 
 #include "include/internal/cef_string_types.h"
@@ -849,5 +850,13 @@ class CefStringBase final {
 typedef CefStringBase<CefStringTraitsWide> CefStringWide;
 typedef CefStringBase<CefStringTraitsUTF8> CefStringUTF8;
 typedef CefStringBase<CefStringTraitsUTF16> CefStringUTF16;
+
+// These functions are provided as a convenience for logging, which is where we
+// use streams. Non-ASCII characters will be converted to UTF-8.
+template <class traits>
+inline std::ostream& operator<<(std::ostream& out,
+                                const CefStringBase<traits>& str) {
+  return operator<<(out, str.ToString());
+}
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_STRING_WRAPPERS_H_
