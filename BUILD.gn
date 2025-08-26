@@ -1756,15 +1756,6 @@ if (is_mac) {
     info_plist_target = ":cef_framework_plist"
   }
 } else {
-  config("pdb_larger_than_4gb") {
-    if (is_win && symbol_level == 2) {
-      # These binaries create PDBs larger than 4 GiB. Increasing the PDB page
-      # size allows larger PDBs, but not all tools can handle such large PDBs
-      # yet.
-      ldflags = [ "/pdbpagesize:8192" ]
-    }
-  }
-
   shared_library("libcef") {
     # Necessary because the libcef_test_support target is testonly.
     testonly = true
@@ -1776,7 +1767,6 @@ if (is_mac) {
     configs += [
       ":libcef_autogen_config",
       ":libcef_includes_config",
-      ":pdb_larger_than_4gb",
     ]
 
     if (is_win) {
