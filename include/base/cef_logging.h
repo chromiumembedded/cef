@@ -805,23 +805,21 @@ class ErrnoLogMessage {
 }  // namespace logging
 }  // namespace cef
 
+#if defined(OS_WIN)
 // These functions are provided as a convenience for logging, which is where we
 // use streams (it is against Google style to use streams in other places). It
 // is designed to allow you to emit non-ASCII Unicode strings to the log file,
 // which is normally ASCII. It is relatively slow, so try not to use it for
 // common cases. Non-ASCII characters will be converted to UTF-8 by these
 // operators.
-std::ostream& operator<<(std::ostream& out, const wchar_t* wstr);
-inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
-  return out << wstr.c_str();
+std::ostream& operator<<(std::ostream& out, const std::wstring& wstr);
+inline std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
+  return operator<<(out, std::wstring(wstr));
 }
-#if defined(WCHAR_T_IS_32_BIT)
-std::ostream& operator<<(std::ostream& out, const char16_t* wstr);
-#elif defined(WCHAR_T_IS_16_BIT)
 inline std::ostream& operator<<(std::ostream& out, const char16_t* wstr) {
   return operator<<(out, reinterpret_cast<const wchar_t*>(wstr));
 }
-#endif
+#endif  // defined(OS_WIN)
 
 // The NOTIMPLEMENTED() macro annotates codepaths which have
 // not been implemented yet.
