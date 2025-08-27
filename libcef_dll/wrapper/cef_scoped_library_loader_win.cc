@@ -70,9 +70,9 @@ HMODULE Load(const std::wstring& dll_path,
           dll_info.chrome_version_patch != version_info->chrome_version_patch) {
         LOG(FATAL) << "Failed libcef.dll version check; expected "
                    << version_info->chrome_version_major << "."
-                   << version_info->chrome_version_major << ", got "
+                   << version_info->chrome_version_patch << ", got "
                    << dll_info.chrome_version_major << "."
-                   << dll_info.chrome_version_major;
+                   << dll_info.chrome_version_patch;
       }
     }
 
