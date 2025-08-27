@@ -4,13 +4,16 @@
 
 #include <windows.h>
 
+#include <deque>
 #include <iostream>
 
 #include "base/auto_reset.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/format_macros.h"
 #include "base/logging.h"
+#include "base/no_destructor.h"
 #include "base/process/memory.h"
 #include "base/process/process_info.h"
 #include "base/strings/string_number_conversions.h"
@@ -137,6 +140,84 @@ void CheckDllCodeSigning(
   }
 }
 
+// Return true if we DON'T want to upload this flag to the crash server.
+// Based on chrome/common/crash_keys.cc
+bool IsBoringSwitch(const std::string& flag) {
+  static const auto kIgnoreSwitches = std::to_array<std::string_view>({
+      "string-annotations",
+      "enable-logging",
+      "flag-switches-begin",
+      "flag-switches-end",
+      "log-level",
+      "type",
+      "v",
+      "vmodule",
+      "gpu-preferences",
+      "enable-features",
+      "disable-features",
+  });
+
+  // Just about everything has this, don't bother.
+  if (base::StartsWith(flag, "/prefetch:", base::CompareCase::SENSITIVE)) {
+    return true;
+  }
+
+  if (!base::StartsWith(flag, "--", base::CompareCase::SENSITIVE)) {
+    return false;
+  }
+  size_t end = flag.find("=");
+  size_t len = (end == std::string::npos) ? flag.length() - 2 : end - 2;
+  for (size_t i = 0; i < std::size(kIgnoreSwitches); ++i) {
+    if (flag.compare(2, len, kIgnoreSwitches[i]) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+using SwitchesCrashKeys = std::deque<crashpad::StringAnnotation<64>>;
+SwitchesCrashKeys& GetSwitchesCrashKeys() {
+  static base::NoDestructor<SwitchesCrashKeys> switches_keys;
+  return *switches_keys;
+}
+
+static crashpad::StringAnnotation<4> num_switches_key("bs-num-switches");
+
+// Based on components/crash/core/common/crash_keys.cc
+void SetCrashSwitchesFromCommandLine(const base::CommandLine& command_line) {
+  const base::CommandLine::StringVector& argv = command_line.argv();
+
+  // Set the number of switches in case of uninteresting switches in
+  // command_line.
+  num_switches_key.Set(base::NumberToString(argv.size() - 1));
+
+  size_t key_i = 0;
+
+  // Go through the argv, skipping the exec path. Stop if there are too many
+  // switches to hold in crash keys.
+  for (size_t i = 1; i < argv.size(); ++i) {
+    std::string switch_str = base::WideToUTF8(argv[i]);
+
+    // Skip uninteresting switches.
+    if (IsBoringSwitch(switch_str)) {
+      continue;
+    }
+
+    if (key_i >= GetSwitchesCrashKeys().size()) {
+      static base::NoDestructor<std::deque<std::string>> crash_keys_names;
+      crash_keys_names->emplace_back(
+          base::StringPrintf("bs-switch-%" PRIuS, key_i + 1));
+      GetSwitchesCrashKeys().emplace_back(crash_keys_names->back().c_str());
+    }
+    GetSwitchesCrashKeys()[key_i++].Set(switch_str);
+  }
+
+  // Clear any remaining switches.
+  for (; key_i < GetSwitchesCrashKeys().size(); ++key_i) {
+    GetSwitchesCrashKeys()[key_i].Clear();
+  }
+}
+
 }  // namespace
 
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
@@ -201,6 +282,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if (process_type == kCrashpadHandler) {
     return crashpad_runner::RunAsCrashpadHandler(command_line);
   }
+
+  // Include version info in crash reports.
+  static crashpad::StringAnnotation<64> bs_version("bs-version");
+  bs_version.Set(CEF_VERSION);
+
+  // Include command-line switches in crash reports.
+  SetCrashSwitchesFromCommandLine(command_line);
 
   // IsUnsandboxedSandboxType() can't be used here because its result can be
   // gated behind a feature flag, which are not yet initialized.
