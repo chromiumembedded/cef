@@ -194,17 +194,25 @@ int CefMainRunner::RunAsHelperProcess(const CefMainArgs& args,
     return CEF_RESULT_CODE_BAD_PROCESS_TYPE;
   }
 
-  auto main_delegate = std::make_unique<ChromeMainDelegateCef>(
-      /*runner=*/nullptr, /*settings=*/nullptr, application);
-  BeforeMainInitialize(args);
-
   if (process_type == crash_reporter::switches::kCrashpadHandler) {
     return crashpad_runner::RunAsCrashpadHandler(command_line);
   }
 
+  auto main_delegate = std::make_unique<ChromeMainDelegateCef>(
+      /*runner=*/nullptr, /*settings=*/nullptr, application);
+  BeforeMainInitialize(args);
+
   // Execute the secondary process.
   content::ContentMainParams main_params(main_delegate.get());
 #if BUILDFLAG(IS_WIN)
+  // Configure child processes to be killed by the system after the main process
+  // goes away. The main process uses the default shutdown order, which is
+  // 0x280. Note that lower numbers here mean "kill later" and higher numbers
+  // mean "kill sooner". We want to avoid child processes dying first because
+  // they may be relaunched, resulting in relaunch failures and crashes like
+  // IntentionallyCrashBrowserForUnusableGpuProcess.
+  ::SetProcessShutdownParameters(0x280 - 1, SHUTDOWN_NORETRY);
+
   // Initialize the sandbox services.
   // Match the logic in MainDllLoader::Launch.
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
