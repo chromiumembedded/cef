@@ -412,6 +412,10 @@ extern "C" __declspec(dllexport) void SetLogFatalCrashKey(const char* file,
   // Only log last path component.
   if (file) {
     const char* slash = UNSAFE_TODO(strrchr(file, '\\'));
+    if (!slash) {
+      // Some builds may use forward slashes instead.
+      slash = UNSAFE_TODO(strrchr(file, '/'));
+    }
     if (slash) {
       file = UNSAFE_TODO(slash + 1);
     }
