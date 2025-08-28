@@ -104,7 +104,7 @@ index b65d877234044eafd823542b593dcd7681149e3f..4465a1de87a77da0c7ccdedd412eab96
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index ead97b7634ab102af10618935b0192162de4fd68..e03fba55900a65ca83b6fa2a0743f160966a298a 100644
+index 08ed584f529f787e4a19240fe7627441fd0f2d8a..5d58f5a8e9dca3791f0b2cc717bcb5123577f77c 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -134,7 +134,7 @@ index ead97b7634ab102af10618935b0192162de4fd68..e03fba55900a65ca83b6fa2a0743f160
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/app:chrome_dll_resources",
-@@ -687,6 +693,13 @@ static_library("ui") {
+@@ -688,6 +694,13 @@ static_library("ui") {
      deps += [ "//components/plus_addresses/resources:vector_icons" ]
    }
  
@@ -148,7 +148,7 @@ index ead97b7634ab102af10618935b0192162de4fd68..e03fba55900a65ca83b6fa2a0743f160
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5290,6 +5303,7 @@ static_library("ui") {
+@@ -5291,6 +5304,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",

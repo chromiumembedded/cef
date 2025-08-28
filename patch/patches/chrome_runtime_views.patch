@@ -397,7 +397,7 @@ index 3d8a15049d4d2286bbcfefa0e7d9778d69ce4696..66c4789581fe1b54d587466a3fdd5197
    // regenerated.
    bool RegenerateFrameOnThemeChange(BrowserThemeChangeType theme_change_type);
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index f0ea7d2eabe61d586901918420defe0640330654..da7da70568aeefdd9abcfe9164ea78aff23825b3 100644
+index d2dfb815c086f63f4d08af82a900f46565069637..cb3954a14a7008cc9d34242601e1d3ce368ce0f9 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -371,10 +371,6 @@ using web_modal::WebContentsModalDialogHost;
@@ -703,7 +703,7 @@ index f0ea7d2eabe61d586901918420defe0640330654..da7da70568aeefdd9abcfe9164ea78af
    using_native_frame_ = frame_->ShouldUseNativeFrame();
  
    MaybeInitializeWebUITabStrip();
-@@ -5256,6 +5352,13 @@ void BrowserView::AddedToWidget() {
+@@ -5261,6 +5357,13 @@ void BrowserView::AddedToWidget() {
                  weak_ptr_factory_.GetWeakPtr()));
    }
  
@@ -717,7 +717,7 @@ index f0ea7d2eabe61d586901918420defe0640330654..da7da70568aeefdd9abcfe9164ea78af
    initialized_ = true;
  }
  
-@@ -5682,7 +5785,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
+@@ -5687,7 +5790,9 @@ void BrowserView::ProcessFullscreen(bool fullscreen, const int64_t display_id) {
    // Undo our anti-jankiness hacks and force a re-layout.
    in_process_fullscreen_ = false;
    ToolbarSizeChanged(false);
@@ -728,7 +728,7 @@ index f0ea7d2eabe61d586901918420defe0640330654..da7da70568aeefdd9abcfe9164ea78af
  
    // Reshow the split view after completing the toolbar sizing.
    if (!fullscreen && browser_->tab_strip_model()->IsActiveTabSplit()) {
-@@ -6088,7 +6193,9 @@ Profile* BrowserView::GetProfile() {
+@@ -6093,7 +6198,9 @@ Profile* BrowserView::GetProfile() {
  }
  
  void BrowserView::UpdateUIForTabFullscreen() {
@@ -739,7 +739,7 @@ index f0ea7d2eabe61d586901918420defe0640330654..da7da70568aeefdd9abcfe9164ea78af
  }
  
  WebContents* BrowserView::GetWebContentsForExclusiveAccess() {
-@@ -6100,6 +6207,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
+@@ -6105,6 +6212,9 @@ bool BrowserView::CanUserEnterFullscreen() const {
  }
  
  bool BrowserView::CanUserExitFullscreen() const {
