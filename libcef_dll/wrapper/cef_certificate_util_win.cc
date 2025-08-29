@@ -71,7 +71,7 @@ std::wstring GetBinaryName(const std::wstring& path) {
   if (sep_pos == std::wstring::npos) {
     return path;
   }
-  return path.substr(0, sep_pos);
+  return path.substr(sep_pos + 1);
 }
 
 }  // namespace
