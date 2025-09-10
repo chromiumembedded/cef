@@ -5,6 +5,7 @@
 #include "include/base/cef_callback.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/ceftests/test_handler.h"
+#include "tests/ceftests/test_util.h"
 #include "tests/gtest/include/gtest/gtest.h"
 #include "tests/shared/browser/client_app_browser.h"
 
@@ -1073,6 +1074,9 @@ class AudioTogglePlaybackTest : public AudioTestHandler {
 
 // Test audio output callbacks called on valid threads.
 TEST(AudioOutputTest, AudioOutputTest) {
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
   CefRefPtr<AudioOutputTestHandler> handler = new AudioOutputTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1080,6 +1084,9 @@ TEST(AudioOutputTest, AudioOutputTest) {
 
 // Test audio stream stopped callback is called on browser close.
 TEST(AudioOutputTest, AudioCloseBrowserTest) {
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
   CefRefPtr<AudioCloseBrowserTest> handler = new AudioCloseBrowserTest();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
@@ -1087,6 +1094,9 @@ TEST(AudioOutputTest, AudioCloseBrowserTest) {
 
 // Test audio stream starts/stops properly on certain time bounderies.
 TEST(AudioOutputTest, AudioTogglePlaybackTest) {
+  if (!UseAlloyStyleBrowserGlobal()) {
+    return;
+  }
   CefRefPtr<AudioTogglePlaybackTest> handler = new AudioTogglePlaybackTest();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
