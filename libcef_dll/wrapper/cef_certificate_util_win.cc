@@ -59,6 +59,10 @@ std::wstring ErrorPrefix(DWORD i) {
   return L"\nCertificate " + std::to_wstring(i) + L": ";
 }
 
+std::wstring StatusPrefix(LONG status) {
+  return L"WinVerifyTrust failed (" + std::to_wstring(status) + L"): ";
+}
+
 std::wstring NormalizeError(const std::wstring& err) {
   std::wstring str = err;
   // Replace newlines.
@@ -126,7 +130,7 @@ void GetClientThumbprints(const std::wstring& binary_path,
         }
       }
 
-      info.errors += ErrorPrefix(i) + L"WinVerifyTrust failed: " +
+      info.errors += ErrorPrefix(i) + StatusPrefix(status) +
                      cef_util::GetLastErrorAsString();
 
       // WinVerifyTrust will fail if the signing certificates can't be verified,

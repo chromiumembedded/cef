@@ -44,7 +44,8 @@ HMODULE Load(const std::wstring& dll_path,
 
       FreeLibrary(hModule);
     } else {
-      LOG(FATAL) << "Failed to load libcef.dll";
+      LOG(FATAL) << "Failed to load " << dll_path << " with error "
+                 << ::GetLastError();
     }
   }
 
@@ -79,7 +80,8 @@ HMODULE Load(const std::wstring& dll_path,
     return hModule;
   }
 
-  LOG(FATAL) << "Failed to load libcef.dll";
+  LOG(FATAL) << "Failed to load " << dll_path << " with error "
+             << ::GetLastError();
   return nullptr;
 }
 
