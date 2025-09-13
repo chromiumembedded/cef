@@ -1,5 +1,5 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index c823717d6e98d8270eef5418545e2e7d36652bc0..477c2b1991a537ad70468365bba75fc13f0d8f91 100644
+index 283e1c70773a3403f8ca94cecda63a7018bdedac..5afef920ae4328dcb553c14d59235f71b4b6850e 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
 @@ -4,6 +4,7 @@
@@ -10,7 +10,7 @@ index c823717d6e98d8270eef5418545e2e7d36652bc0..477c2b1991a537ad70468365bba75fc1
  import("//chrome/common/features.gni")
  import("//chrome/common/request_header_integrity/buildflags.gni")
  import("//components/offline_pages/buildflags/features.gni")
-@@ -130,6 +131,7 @@ static_library("renderer") {
+@@ -136,6 +137,7 @@ static_library("renderer") {
      ":process_state",
      "//base/allocator:buildflags",
      "//build:chromeos_buildflags",
@@ -18,7 +18,7 @@ index c823717d6e98d8270eef5418545e2e7d36652bc0..477c2b1991a537ad70468365bba75fc1
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -244,6 +246,10 @@ static_library("renderer") {
+@@ -250,6 +252,10 @@ static_library("renderer") {
      ]
    }
  

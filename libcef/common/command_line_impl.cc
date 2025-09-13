@@ -172,8 +172,11 @@ CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
 
 // static
 CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
   // Uses a singleton reference object.
   static CefRefPtr<CefCommandLineImpl> commandLinePtr;
+#pragma clang diagnostic pop
   if (!commandLinePtr.get()) {
     base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     if (command_line) {

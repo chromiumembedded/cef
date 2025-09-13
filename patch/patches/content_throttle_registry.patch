@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/navigation_throttle_registry_impl.cc content/browser/renderer_host/navigation_throttle_registry_impl.cc
-index 63e91183b74bf6430fe1dd6ad8ea5b5a27503e2d..8006d287bba8c736051a1576be7538574354ab0b 100644
+index 8b7f2a3fe53a0e96e1198c0cd101dcfb54099d49..e2e5793e41903a69dea96463016f4535b492676a 100644
 --- content/browser/renderer_host/navigation_throttle_registry_impl.cc
 +++ content/browser/renderer_host/navigation_throttle_registry_impl.cc
-@@ -246,11 +246,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
+@@ -252,11 +252,16 @@ NavigationHandle& NavigationThrottleRegistryImpl::GetNavigationHandle() {
  }
  
  void NavigationThrottleRegistryImpl::AddThrottle(

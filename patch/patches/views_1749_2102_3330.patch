@@ -1,15 +1,35 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index 3b8185a09b3dec2f22610556b64ff3e37f76361a..8e307c2e7a6acbc317d40f77d3b780f19d17d33f 100644
+index 817eeb7d7fd2d3662520387a8bbe69c4f532a70f..3b349f8891b1259b9c7f3cccdd82d15439bc5821 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1050,7 +1050,9 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
-       host->button()->GetWidget(), host,
-       host->button()->GetAnchorBoundsInScreen(),
+@@ -1050,12 +1050,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+   UMA_HISTOGRAM_ENUMERATION("WrenchMenu.MenuAction", MENU_ACTION_MENU_OPENED,
+                             LIMIT_MENU_ACTION);
+ 
+-  menu_runner_->RunMenuAt(
+-      host->button()->GetWidget(), host,
+-      host->button()->GetAnchorBoundsInScreen(),
+-      views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
+-      /*native_view_for_gestures=*/gfx::NativeView(), /*corners=*/std::nullopt,
+-      "Chrome.AppMenu.MenuHostInitToNextFramePresented");
++  menu_runner_->RunMenuAt(host->button()->GetWidget(), host,
++                          host->button()->GetAnchorBoundsInScreen(),
++                          views::MenuAnchorPosition::kTopRight,
++                          ui::mojom::MenuSourceType::kNone,
++                          /*native_view_for_gestures=*/gfx::NativeView(),
++                          /*parent_widget=*/gfx::kNullAcceleratedWidget,
++                          /*corners=*/std::nullopt,
++                          "Chrome.AppMenu.MenuHostInitToNextFramePresented");
+ }
+ 
+ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1067,7 +1069,8 @@ void AppMenu::RunMenu(views::Widget* parent,
+   menu_runner_->RunMenuAt(
+       parent, nullptr, anchor_screen_bounds,
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
 -      /*native_view_for_gestures=*/gfx::NativeView(), /*corners=*/std::nullopt,
 +      /*native_view_for_gestures=*/gfx::NativeView(),
-+      /*parent_widget=*/gfx::kNullAcceleratedWidget,
-+      /*corners=*/std::nullopt,
++      /*parent_widget=*/gfx::kNullAcceleratedWidget, /*corners=*/std::nullopt,
        "Chrome.AppMenu.MenuHostInitToNextFramePresented");
  }
  
@@ -254,10 +274,10 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a35bb628e 100644
+index a4b272aa24dc59e68451d72adaf08df4d1657925..8556236b730fba011d1b8fac60d5d343e2d38f5b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -601,7 +601,8 @@ void MenuController::Run(Widget* parent,
+@@ -628,7 +628,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -267,7 +287,7 @@ index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -670,6 +671,7 @@ void MenuController::Run(Widget* parent,
+@@ -697,6 +698,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -275,7 +295,7 @@ index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2425,6 +2427,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2451,6 +2453,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -283,7 +303,7 @@ index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3149,7 +3152,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3182,7 +3185,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -296,7 +316,7 @@ index c206a2ebcb069616be1205efc261ec060249f35b..1ffd86b6a37dab04fb386d1dcfe5167a
      return;
    }
  
-@@ -3174,6 +3181,7 @@ void MenuController::CloseSubmenu() {
+@@ -3207,6 +3214,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -367,7 +387,7 @@ index ea82da6dc2f45625c9e8fe958715399e127699d8..575bd9484c2bf3bb72577136e2afae0e
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_host.cc ui/views/controls/menu/menu_host.cc
-index d22e7595a7f06731c14ace847697a9a8cb3fef73..362d50703c0f34c0d7d8b1324bf9edc72e4bd162 100644
+index 4114ed2e5e125a736671065418a16e0365e9b057..2a21f10e351214b8754dfe56eab11fc426ebd459 100644
 --- ui/views/controls/menu/menu_host.cc
 +++ ui/views/controls/menu/menu_host.cc
 @@ -153,6 +153,8 @@ void MenuHost::InitMenuHost(const InitParams& init_params) {
@@ -567,7 +587,7 @@ index 87739aa15210faf8666d28199f393532ec580a57..e785faf160c2ef01bd0b1bcf3d734e8f
  }
  
 diff --git ui/views/controls/menu/menu_runner.h ui/views/controls/menu/menu_runner.h
-index cb9d9d46eea37694b93514ad08c39fa7542953cf..a9ffb74761fce1069142464be76e63922a9d43ba 100644
+index 693657f4ad253a12fb0b051a1f148040f93d0e8d..447d786e6d98770e4bcfbe777d038ee4c893ddd2 100644
 --- ui/views/controls/menu/menu_runner.h
 +++ ui/views/controls/menu/menu_runner.h
 @@ -164,6 +164,8 @@ class VIEWS_EXPORT MenuRunner {
@@ -765,7 +785,7 @@ index 63f5dad7e49661ca9b31c092b72daf0b3411b6cf..a1e03a81d7d78b1519eeafc7850de090
        content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
  
 diff --git ui/views/test/ui_controls_factory_desktop_aura_ozone.cc ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
-index 58cfb36af1c82241294b67509f8f9bb9aa22048c..5e451710a50f33928b806ac8ec0e232c57ced841 100644
+index 1bcbc6e008d5353278ffaa35f820f2153580dd83..bb7b74887f61ab5b44c5a9f9c98a2c25b46b992d 100644
 --- ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 +++ ui/views/test/ui_controls_factory_desktop_aura_ozone.cc
 @@ -15,6 +15,7 @@
@@ -782,14 +802,14 @@ index 58cfb36af1c82241294b67509f8f9bb9aa22048c..5e451710a50f33928b806ac8ec0e232c
  
 +#if !BUILDFLAG(ENABLE_CEF)
    auto* screen = views::test::TestDesktopScreenOzone::GetInstance();
-   DCHECK_EQ(screen, display::Screen::GetScreen());
+   DCHECK_EQ(screen, display::Screen::Get());
    screen->set_cursor_screen_point(gfx::Point(screen_x, screen_y));
 +#endif
  
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index b3fa15b412fee09234839cb87d26b881697033fe..a616b3bc53a7a1df47eb3a596bb9b78de7cf31f3 100644
+index ee028fccef7dcc9c3522d09e503d2ac49ffd329a..004b6f9c54d2916d3224b5f7ad580cb4627e3122 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@

@@ -44,7 +44,7 @@ index 5fe8cbed9772a0fca0a7cf9f47cf729afc07178b..81a8c21507f7eed29a3c1518fa7a4ae7
    void SetForceEnableZoom(bool);
    void SetDeviceScaleFactor(float device_scale_factor);
 diff --git content/browser/renderer_host/input/fling_scheduler.cc content/browser/renderer_host/input/fling_scheduler.cc
-index 477389a1cb1d3c328fa6c796174244c70894326a..b7b7edbfbdf5d08fdebfde8c1515fa687aa6f767 100644
+index 79df9203ec3b63fbfb30ceb0c402d7cd4595c628..60abc7b2ac845bc02d03b343719b2ce5ddd3be88 100644
 --- content/browser/renderer_host/input/fling_scheduler.cc
 +++ content/browser/renderer_host/input/fling_scheduler.cc
 @@ -98,6 +98,9 @@ void FlingScheduler::ProgressFlingOnBeginFrameIfneeded(
@@ -58,10 +58,10 @@ index 477389a1cb1d3c328fa6c796174244c70894326a..b7b7edbfbdf5d08fdebfde8c1515fa68
      return nullptr;
    }
 diff --git content/browser/renderer_host/render_widget_host_impl.cc content/browser/renderer_host/render_widget_host_impl.cc
-index c28aa525c51e9be757d5d8f8e5a60857b7a451d4..8a8b980ed6d9be6317cdd7751a2d53b5a1fcb053 100644
+index 817b5da3f10faf0770274f3e03a3a0cd3400f135..8221d7b24fd0c05d6b4d3b6d2715987df0f313c0 100644
 --- content/browser/renderer_host/render_widget_host_impl.cc
 +++ content/browser/renderer_host/render_widget_host_impl.cc
-@@ -3799,6 +3799,11 @@ void RenderWidgetHostImpl::StopFling() {
+@@ -3802,6 +3802,11 @@ void RenderWidgetHostImpl::StopFling() {
    GetRenderInputRouter()->StopFling();
  }
  
@@ -74,10 +74,10 @@ index c28aa525c51e9be757d5d8f8e5a60857b7a451d4..8a8b980ed6d9be6317cdd7751a2d53b5
      uint16_t angle,
      display::mojom::ScreenOrientation type) {
 diff --git content/browser/renderer_host/render_widget_host_impl.h content/browser/renderer_host/render_widget_host_impl.h
-index f07055487abd76b2a72ba555ff1b5bcd996bbd3a..7a4cb4866edffbbc8ef88a92b6f863fcb61f23b9 100644
+index 43c840283b1f7ac39c2ecec5741cc206c64a064e..bcba730c0e8026cb10bc284dc998d16aa8c259c5 100644
 --- content/browser/renderer_host/render_widget_host_impl.h
 +++ content/browser/renderer_host/render_widget_host_impl.h
-@@ -853,6 +853,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+@@ -856,6 +856,7 @@ class CONTENT_EXPORT RenderWidgetHostImpl
  
    void ProgressFlingIfNeeded(base::TimeTicks current_time);
    void StopFling();

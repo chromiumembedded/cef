@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
-index cc58a303a78b6bcfcc18e78b612ce1bf42a6b58c..7755e58c8651ca4df690efd7f6c3e1fcade8fb5f 100644
+index 85f4bc37b37c9b612c9fbb2de71a8a655296897d..1bd78e1aca240abda97203bfebb6f1701a09ea4a 100644
 --- chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 +++ chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 @@ -99,7 +99,7 @@ javascript_dialogs::AppModalDialogView* CreateViewsJavaScriptDialog(
@@ -12,7 +12,7 @@ index cc58a303a78b6bcfcc18e78b612ce1bf42a6b58c..7755e58c8651ca4df690efd7f6c3e1fc
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 521974da2d7202c04854f7f4b6cbce8cb4f07dc3..816a8e67a16f6228d46181fae54d9640dcf8d810 100644
+index 319bf7dcdd88c3407d2a3268f4bd28985cca8808..bbd434b9d78e239965daf2e97d4c098a31ab2307 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -104,10 +104,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -54,7 +54,7 @@ index 521974da2d7202c04854f7f4b6cbce8cb4f07dc3..816a8e67a16f6228d46181fae54d9640
 -
 -    // Adjust the dialog bound to ensure it remains visible on the display.
 -    const gfx::Rect display_work_area =
--        display::Screen::GetScreen()
+-        display::Screen::Get()
 -            ->GetDisplayNearestView(dialog_host->GetHostView())
 -            .work_area();
 -    if (!display_work_area.Contains(dialog_screen_bounds)) {
@@ -81,7 +81,7 @@ index 521974da2d7202c04854f7f4b6cbce8cb4f07dc3..816a8e67a16f6228d46181fae54d9640
 +    // with any display clamp its position to be fully on the nearest display.
 +    gfx::Rect display_rect = gfx::Rect(position, size);
 +    const display::Display display =
-+        display::Screen::GetScreen()->GetDisplayNearestView(
++        display::Screen::Get()->GetDisplayNearestView(
 +            dialog_host->GetHostView());
 +    const gfx::Rect work_area = display.work_area();
 +    if (!work_area.Contains(display_rect))
@@ -195,7 +195,7 @@ index 2b495a8ab092c820ba470fa6be9bb79ca4497d0f..01a28aca853d0786aeafa12dc6b68e03
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index c618c00223779a3d9881c644317fa3f1fc586bca..05b2b1e5d88650634990aa5c7ce70c59bc27805e 100644
+index 6dc7394a171d1181d2ee35074fa7afb9e90d0a77..3c05b2a5e77fd6e2027aa1dbae18cec178143cfb 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
 @@ -35,6 +35,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {

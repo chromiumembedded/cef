@@ -23,10 +23,10 @@ index 87bacd1abe35a0b3cbacfd3248d885d323feeb44..4ddb1d376fe8bfac05fbcbac6aa09a24
    // These are protected so they can only be accessed by the friend
    // classes listed above.
 diff --git components/variations/BUILD.gn components/variations/BUILD.gn
-index a927581364186faaf108ca9e278e99acebb4813b..2125da146e769902c8f1cb97fcffc10ae5653db2 100644
+index 5ae80aba8b1d63a9917c023fdb78efb7a13c359e..5167b9acee1f16777b883df8b5ebe790e6c3e0cb 100644
 --- components/variations/BUILD.gn
 +++ components/variations/BUILD.gn
-@@ -131,6 +131,7 @@ component("variations") {
+@@ -134,6 +134,7 @@ component("variations") {
      ":buildflags",
      ":variations_mojom",
      "proto",

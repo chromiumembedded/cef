@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index f4c657fe36eba54948cacf9770d9c6c1b55b5fe5..08cdaff402e338ec354a9444aedf5631a56391b8 100644
+index 1ae2c9328679f12cfe7068c6ea0f1589314bc6f0..c00ba4a70ed7e631c6383f31c5303781dc6150fb 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -8,6 +8,7 @@
@@ -18,7 +18,7 @@ index f4c657fe36eba54948cacf9770d9c6c1b55b5fe5..08cdaff402e338ec354a9444aedf5631
  #include "content/public/common/page_visibility_state.h"
  #include "services/service_manager/public/cpp/interface_provider.h"
  #include "third_party/blink/public/common/input/web_input_event.h"
-@@ -754,6 +756,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
+@@ -753,6 +755,9 @@ gfx::Rect RenderWidgetHostViewAura::GetViewBounds() {
  void RenderWidgetHostViewAura::UpdateBackgroundColor() {
    CHECK(GetBackgroundColor());
  
@@ -28,7 +28,7 @@ index f4c657fe36eba54948cacf9770d9c6c1b55b5fe5..08cdaff402e338ec354a9444aedf5631
    SkColor color = *GetBackgroundColor();
    window_->layer()->SetColor(color);
  }
-@@ -1103,6 +1108,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
+@@ -1102,6 +1107,12 @@ void RenderWidgetHostViewAura::TransformPointToRootSurface(gfx::PointF* point) {
  }
  
  gfx::Rect RenderWidgetHostViewAura::GetBoundsInRootWindow() {
@@ -41,7 +41,7 @@ index f4c657fe36eba54948cacf9770d9c6c1b55b5fe5..08cdaff402e338ec354a9444aedf5631
    aura::Window* top_level = window_->GetToplevelWindow();
    gfx::Rect bounds(top_level->GetBoundsInScreen());
  
-@@ -2672,6 +2683,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
+@@ -2670,6 +2681,16 @@ void RenderWidgetHostViewAura::CreateAuraWindow(aura::client::WindowType type) {
    window_->layer()->SetColor(GetBackgroundColor() ? *GetBackgroundColor()
                                                    : SK_ColorWHITE);
    UpdateFrameSinkIdRegistration();

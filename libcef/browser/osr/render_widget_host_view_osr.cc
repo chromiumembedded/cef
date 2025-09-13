@@ -1563,7 +1563,7 @@ void CefRenderWidgetHostViewOSR::SetWindowFrameInScreen(const gfx::Rect& rect) {
 void CefRenderWidgetHostViewOSR::ShowSharePicker(
     const std::string& title,
     const std::string& text,
-    const std::string& url,
+    const GURL& url,
     const std::vector<std::string>& file_paths,
     blink::mojom::ShareService::ShareCallback callback) {
   std::move(callback).Run(blink::mojom::ShareError::INTERNAL_ERROR);

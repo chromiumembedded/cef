@@ -1,8 +1,8 @@
 diff --git ui/display/screen.cc ui/display/screen.cc
-index 8208c0df3b8405d4e3f5d01b3664c72048b00699..8450effc2afc17abdeba28f3b772e2a72953fa28 100644
+index ee5ae0e83a6c9e7525d60a853caef6adf56721c8..6d14e500eb7be9f65633feb12f92580b5d725eeb 100644
 --- ui/display/screen.cc
 +++ ui/display/screen.cc
-@@ -104,13 +104,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
+@@ -109,13 +109,13 @@ base::TimeDelta Screen::CalculateIdleTime() const {
  gfx::Rect Screen::ScreenToDIPRectInWindow(gfx::NativeWindow window,
                                            const gfx::Rect& screen_rect) const {
    float scale = GetDisplayNearestWindow(window).device_scale_factor();

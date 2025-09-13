@@ -31,11 +31,6 @@ const char kPrefString[] = "string";
 const char kPrefList[] = "list";
 const char kPrefDict[] = "dict";
 
-std::string* PendingAction() {
-  static std::string str;
-  return &str;
-}
-
 CefRefPtr<CefValue> CreateBoolValue(bool value) {
   auto val = CefValue::Create();
   val->SetBool(value);
@@ -108,6 +103,7 @@ void ValidateReset(CefRefPtr<CefPreferenceManager> context, const char* name) {
 void ValidateBool(CefRefPtr<CefPreferenceManager> context,
                   bool set,
                   bool expected,
+                  const char* action,
                   const char* name = kPrefTestBool) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
@@ -121,12 +117,13 @@ void ValidateBool(CefRefPtr<CefPreferenceManager> context,
   auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_BOOL, value->GetType());
-  EXPECT_EQ(expected, value->GetBool()) << *PendingAction();
+  EXPECT_EQ(expected, value->GetBool()) << action;
 }
 
 void ValidateInt(CefRefPtr<CefPreferenceManager> context,
                  bool set,
                  int expected,
+                 const char* action,
                  const char* name = kPrefTestInt) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
@@ -140,12 +137,13 @@ void ValidateInt(CefRefPtr<CefPreferenceManager> context,
   auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_INT, value->GetType());
-  EXPECT_EQ(expected, value->GetInt()) << *PendingAction();
+  EXPECT_EQ(expected, value->GetInt()) << action;
 }
 
 void ValidateDouble(CefRefPtr<CefPreferenceManager> context,
                     bool set,
                     double expected,
+                    const char* action,
                     const char* name = kPrefTestDouble) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
@@ -160,12 +158,13 @@ void ValidateDouble(CefRefPtr<CefPreferenceManager> context,
   auto value = context->GetPreference(name);
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_DOUBLE, value->GetType());
-  EXPECT_EQ(expected, value->GetDouble()) << *PendingAction();
+  EXPECT_EQ(expected, value->GetDouble()) << action;
 }
 
 void ValidateString(CefRefPtr<CefPreferenceManager> context,
                     bool set,
                     const std::string& expected,
+                    const char* action,
                     const char* name = kPrefTestString) {
   EXPECT_TRUE(context->HasPreference(name));
   EXPECT_TRUE(context->CanSetPreference(name));
@@ -181,7 +180,7 @@ void ValidateString(CefRefPtr<CefPreferenceManager> context,
   EXPECT_TRUE(value.get());
   EXPECT_EQ(VTYPE_STRING, value->GetType());
   EXPECT_STREQ(expected.c_str(), value->GetString().ToString().c_str())
-      << *PendingAction();
+      << action;
 }
 
 void ValidateList(CefRefPtr<CefPreferenceManager> context,
@@ -229,6 +228,7 @@ void ValidateDict(CefRefPtr<CefPreferenceManager> context,
 
 void ValidateNoExist(CefRefPtr<CefPreferenceManager> context,
                      bool set,
+                     const char* action,
                      const char* name = kPrefTestNoExist) {
   EXPECT_FALSE(context->HasPreference(name));
   EXPECT_FALSE(context->CanSetPreference(name));
@@ -240,7 +240,7 @@ void ValidateNoExist(CefRefPtr<CefPreferenceManager> context,
   }
 
   auto value = context->GetPreference(name);
-  EXPECT_FALSE(value.get()) << *PendingAction();
+  EXPECT_FALSE(value.get()) << action;
 }
 
 void PopulateRootDefaults(CefRefPtr<CefDictionaryValue> val) {
@@ -266,10 +266,11 @@ void ValidateRoot(CefRefPtr<CefDictionaryValue> root,
 // Validate getting default values.
 void ValidateDefaults(CefRefPtr<CefPreferenceManager> context,
                       bool reset,
-                      CefRefPtr<CefWaitableEvent> event) {
+                      CefRefPtr<CefWaitableEvent> event,
+                      const char* action = "") {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI,
-                base::BindOnce(ValidateDefaults, context, reset, event));
+    CefPostTask(TID_UI, base::BindOnce(ValidateDefaults, context, reset, event,
+                                       action));
     return;
   }
 
@@ -285,13 +286,13 @@ void ValidateDefaults(CefRefPtr<CefPreferenceManager> context,
 
   // Test default values.
   // Should match the values in CefBrowserPrefStore::CreateService.
-  ValidateBool(context, false, true);
-  ValidateInt(context, false, 2);
-  ValidateDouble(context, false, 5.0);
-  ValidateString(context, false, "default");
+  ValidateBool(context, false, true, action);
+  ValidateInt(context, false, 2, action);
+  ValidateDouble(context, false, 5.0, action);
+  ValidateString(context, false, "default", action);
   ValidateList(context, false, CefListValue::Create());
   ValidateDict(context, false, CefDictionaryValue::Create());
-  ValidateNoExist(context, false);
+  ValidateNoExist(context, false, action);
 
   // Expected value of the tests root.
   CefRefPtr<CefDictionaryValue> expected = CefDictionaryValue::Create();
@@ -341,9 +342,10 @@ void PopulateRootSet(CefRefPtr<CefDictionaryValue> val) {
 
 // Validate getting and setting values.
 void ValidateSetGet(CefRefPtr<CefPreferenceManager> context,
-                    CefRefPtr<CefWaitableEvent> event) {
+                    CefRefPtr<CefWaitableEvent> event,
+                    const char* action = "") {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(ValidateSetGet, context, event));
+    CefPostTask(TID_UI, base::BindOnce(ValidateSetGet, context, event, action));
     return;
   }
 
@@ -355,13 +357,13 @@ void ValidateSetGet(CefRefPtr<CefPreferenceManager> context,
 
   // Test setting/getting values.
   // Should match the values in PopulateRootSet and ValidateGet.
-  ValidateBool(context, true, true);
-  ValidateInt(context, true, 65);
-  ValidateDouble(context, true, 54.5443);
-  ValidateString(context, true, "My test string");
+  ValidateBool(context, true, true, action);
+  ValidateInt(context, true, 65, action);
+  ValidateDouble(context, true, 54.5443, action);
+  ValidateString(context, true, "My test string", action);
   ValidateList(context, true, list_val);
   ValidateDict(context, true, dict_val);
-  ValidateNoExist(context, true);
+  ValidateNoExist(context, true, action);
 
   // Expected value of the tests root.
   CefRefPtr<CefDictionaryValue> expected = CefDictionaryValue::Create();
@@ -378,9 +380,10 @@ void ValidateSetGet(CefRefPtr<CefPreferenceManager> context,
 
 // Validate getting values.
 void ValidateGet(CefRefPtr<CefPreferenceManager> context,
-                 CefRefPtr<CefWaitableEvent> event) {
+                 CefRefPtr<CefWaitableEvent> event,
+                 const char* action) {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::BindOnce(ValidateGet, context, event));
+    CefPostTask(TID_UI, base::BindOnce(ValidateGet, context, event, action));
     return;
   }
 
@@ -392,13 +395,13 @@ void ValidateGet(CefRefPtr<CefPreferenceManager> context,
 
   // Test getting values.
   // Should match the values in PopulateRootSet and ValidateSetGet.
-  ValidateBool(context, false, true);
-  ValidateInt(context, false, 65);
-  ValidateDouble(context, false, 54.5443);
-  ValidateString(context, false, "My test string");
+  ValidateBool(context, false, true, action);
+  ValidateInt(context, false, 65, action);
+  ValidateDouble(context, false, 54.5443, action);
+  ValidateString(context, false, "My test string", action);
   ValidateList(context, false, list_val);
   ValidateDict(context, false, dict_val);
-  ValidateNoExist(context, false);
+  ValidateNoExist(context, false, action);
 
   // Expected value of the tests root.
   CefRefPtr<CefDictionaryValue> expected = CefDictionaryValue::Create();
@@ -519,31 +522,25 @@ TEST(PreferenceTest, RequestContextGlobalSetGetShared) {
   event->Wait();
 
   // Set/get the values on the first context.
-  *PendingAction() = "Set/get the values on the first context";
-  ValidateSetGet(context, event);
+  ValidateSetGet(context, event, "Set/get the values on the first context");
   event->Wait();
 
   // Get the values from the 2nd and 3rd contexts. They should be the same.
-  *PendingAction() = "Get the values from the 2nd context.";
-  ValidateGet(context2, event);
+  ValidateGet(context2, event, "Get the values from the 2nd context.");
   event->Wait();
-  *PendingAction() = "Get the values from the 3rd context.";
-  ValidateGet(context3, event);
+  ValidateGet(context3, event, "Get the values from the 3rd context.");
   event->Wait();
 
   // Get the values from the 4th context.
-  *PendingAction() = "Get the values from the 4th context.";
-
   // Prefs set via an incognito profile will become an overlay on top of the
   // global (parent) profile. The incognito profile shares the prefs in this
   // case because they were set via the global profile.
-  ValidateGet(context4, event);
+  ValidateGet(context4, event, "Get the values from the 4th context.");
 
   event->Wait();
 
   // Reset to the default values.
-  *PendingAction() = "Reset to the default values.";
-  ValidateDefaults(context, true, event);
+  ValidateDefaults(context, true, event, "Reset to the default values.");
   event->Wait();
 }
 
@@ -613,28 +610,24 @@ TEST(PreferenceTest, RequestContextCustomSetGetShared) {
   event->Wait();
 
   // Set/get the values on the first context.
-  *PendingAction() = "Set/get the values on the first context";
-  ValidateSetGet(context, event);
+  ValidateSetGet(context, event, "Set/get the values on the first context");
   event->Wait();
 
   // Get the values from the 2nd and 3d contexts. They should be the same.
-  *PendingAction() = "Get the values from the 2nd context.";
-  ValidateGet(context2, event);
+  ValidateGet(context2, event, "Get the values from the 2nd context.");
   event->Wait();
-  *PendingAction() = "Get the values from the 3rd context.";
-  ValidateGet(context3, event);
+  ValidateGet(context3, event, "Get the values from the 3rd context.");
   event->Wait();
 
   // Get the values from the 4th context. They should be at the default.
   // This works with Chrome style because the preference changes only
   // exist in the other incognito profile's overlay.
-  *PendingAction() = "Get the values from the 4th context.";
-  ValidateDefaults(context4, false, event);
+  ValidateDefaults(context4, false, event,
+                   "Get the values from the 4th context.");
   event->Wait();
 
   // Reset to the default values.
-  *PendingAction() = "Reset to the default values.";
-  ValidateDefaults(context, true, event);
+  ValidateDefaults(context, true, event, "Reset to the default values.");
   event->Wait();
 }
 

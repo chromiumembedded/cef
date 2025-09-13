@@ -256,10 +256,10 @@ index 0cff2435770edb7a2d913cf37e3118ecc3fda815..648678e152338791296249c678b74a1f
                          base::RepeatingClosure handler) {
      ConfigureProxyIfNecessary();
 diff --git mojo/public/cpp/bindings/lib/multiplex_router.cc mojo/public/cpp/bindings/lib/multiplex_router.cc
-index 09ca485ab9ec2641aa783dbdc1800d18239687b0..9ec966e561a6ac6bbccc2af7b6f9c860a8b119d8 100644
+index 4bde894ff2d2b86c51a70e90eac7ee8f6c95e11b..cea9cd915b29ab72e080ce3ef9cec8fe81d208bc 100644
 --- mojo/public/cpp/bindings/lib/multiplex_router.cc
 +++ mojo/public/cpp/bindings/lib/multiplex_router.cc
-@@ -89,6 +89,12 @@ class MultiplexRouter::InterfaceEndpoint
+@@ -86,6 +86,12 @@ class MultiplexRouter::InterfaceEndpoint
      disconnect_reason_ = disconnect_reason;
    }
  
@@ -272,7 +272,7 @@ index 09ca485ab9ec2641aa783dbdc1800d18239687b0..9ec966e561a6ac6bbccc2af7b6f9c860
    base::SequencedTaskRunner* task_runner() const { return task_runner_.get(); }
  
    InterfaceEndpointClient* client() const { return client_; }
-@@ -244,6 +250,7 @@ class MultiplexRouter::InterfaceEndpoint
+@@ -259,6 +265,7 @@ class MultiplexRouter::InterfaceEndpoint
    bool handle_created_;
  
    std::optional<DisconnectReason> disconnect_reason_;
@@ -280,7 +280,7 @@ index 09ca485ab9ec2641aa783dbdc1800d18239687b0..9ec966e561a6ac6bbccc2af7b6f9c860
  
    // The task runner on which |client_|'s methods can be called.
    scoped_refptr<base::SequencedTaskRunner> task_runner_;
-@@ -841,6 +848,8 @@ void MultiplexRouter::OnPipeConnectionError(bool force_async_dispatch) {
+@@ -885,6 +892,8 @@ void MultiplexRouter::OnPipeConnectionError(bool force_async_dispatch) {
        for (uint64_t request_id : request_ids)
          endpoint->client()->ForgetAsyncRequest(request_id);
  
@@ -289,7 +289,7 @@ index 09ca485ab9ec2641aa783dbdc1800d18239687b0..9ec966e561a6ac6bbccc2af7b6f9c860
        tasks_.push_back(Task::CreateNotifyErrorTask(endpoint.get()));
      }
  
-@@ -1031,7 +1040,7 @@ bool MultiplexRouter::ProcessNotifyErrorTask(
+@@ -1075,7 +1084,7 @@ bool MultiplexRouter::ProcessNotifyErrorTask(
      // It is safe to call into |client| without the lock. Because |client| is
      // always accessed on the same sequence, including DetachEndpointClient().
      MayAutoUnlock unlocker(&lock_);

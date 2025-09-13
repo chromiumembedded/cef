@@ -1,8 +1,8 @@
 diff --git gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-index 31543b5b018313d2e5890f599109bd48d7bc5e64..f4c0a0050de0e5e59d12bc286c7f0bf20532f16b 100644
+index bb33e469e2d38ee4a23b19acfa52f962a5e9c854..6327fd2a9bbc14b3b70288998a5392fea4acb547 100644
 --- gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
 +++ gpu/ipc/service/gpu_memory_buffer_factory_dxgi.cc
-@@ -166,7 +166,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
+@@ -152,7 +152,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index 31543b5b018313d2e5890f599109bd48d7bc5e64..f4c0a0050de0e5e59d12bc286c7f0bf2
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -180,7 +181,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
+@@ -166,7 +167,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |
@@ -24,21 +24,12 @@ index 31543b5b018313d2e5890f599109bd48d7bc5e64..f4c0a0050de0e5e59d12bc286c7f0bf2
    Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture;
  
 diff --git media/video/renderable_gpu_memory_buffer_video_frame_pool.cc media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-index 46c48aa7d08b336f577f81163bf4cc0596a0b2fb..c1098fbc5ea57031f2e153379ae0baaddd3bbe5f 100644
+index 4de36674acee427da3a43891f780102d7e08d9cb..636af87341f053dae0b660227d701b0dda6e9fd7 100644
 --- media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
 +++ media/video/renderable_gpu_memory_buffer_video_frame_pool.cc
-@@ -182,7 +182,7 @@ bool FrameResources::Initialize(VideoPixelFormat format,
+@@ -194,6 +194,23 @@ bool FrameResources::Initialize(VideoPixelFormat format,
  
-   auto* context = pool_->GetContext();
- 
--  constexpr gfx::BufferUsage kBufferUsage =
-+  gfx::BufferUsage buffer_usage =
- #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
-       gfx::BufferUsage::SCANOUT_VEA_CPU_READ
- #else
-@@ -193,6 +193,23 @@ bool FrameResources::Initialize(VideoPixelFormat format,
-   const gfx::Size coded_size =
-       GetCodedSizeForVideoPixelFormat(format, visible_size_);
+   gfx::BufferUsage buffer_usage = gfx::BufferUsage::SCANOUT_CPU_READ_WRITE;
  
 +#if BUILDFLAG(IS_WIN)
 +  // For CEF OSR feature, currently there's no other place in chromium use RGBA.
@@ -57,15 +48,6 @@ index 46c48aa7d08b336f577f81163bf4cc0596a0b2fb..c1098fbc5ea57031f2e153379ae0baad
 +  }
 +#endif
 +
-   gpu::SharedImageUsageSet usage =
- #if BUILDFLAG(IS_MAC)
-       gpu::SHARED_IMAGE_USAGE_MACOS_VIDEO_TOOLBOX |
-@@ -230,7 +247,7 @@ bool FrameResources::Initialize(VideoPixelFormat format,
-       VideoPixelFormatToSharedImageFormat(format).value();
- 
-   shared_image_ = context->CreateSharedImage(
--      coded_size, kBufferUsage, si_format, color_space, usage, sync_token_);
-+      coded_size, buffer_usage, si_format, color_space, usage, sync_token_);
-   if (!shared_image_) {
-     DLOG(ERROR) << "Failed to allocate shared image for frame: visible_size="
-                 << visible_size_.ToString()
+ #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+   buffer_usage = gfx::BufferUsage::SCANOUT_VEA_CPU_READ;
+ #elif BUILDFLAG(IS_LINUX)

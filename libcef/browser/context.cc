@@ -38,11 +38,15 @@ CefContext* g_context = nullptr;
 int g_exit_code = -1;
 
 #if DCHECK_IS_ON()
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
 // When the process terminates check if CefShutdown() has been called.
 class CefShutdownChecker {
  public:
-  ~CefShutdownChecker() { DCHECK(!g_context) << "CefShutdown was not called"; }
+  ~CefShutdownChecker() { 
+    DCHECK(!g_context) << "CefShutdown was not called"; }
 } g_shutdown_checker;
+#pragma clang diagnostic pop
 #endif  // DCHECK_IS_ON()
 
 #if BUILDFLAG(IS_WIN)

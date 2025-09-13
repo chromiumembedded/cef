@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47e6547011 100644
+index 9a959e457fd148bcde186fe01b67ea19dddaf683..8421a07350b8385dc659890eae0f701b88c38820 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
-@@ -53,10 +53,15 @@ AutofillBubbleBase* ShowSaveBubble(
+@@ -56,10 +56,15 @@ AutofillBubbleBase* ShowSaveBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -19,7 +19,7 @@ index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47
        ->GetAutofillBubbleHandler()
        ->ShowSaveAddressProfileBubble(web_contents, std::move(controller),
                                       shown_by_user_gesture);
-@@ -68,9 +73,14 @@ AutofillBubbleBase* ShowUpdateBubble(
+@@ -71,9 +76,14 @@ AutofillBubbleBase* ShowUpdateBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -35,7 +35,7 @@ index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47
        ->GetAutofillBubbleHandler()
        ->ShowUpdateAddressProfileBubble(
            web_contents, std::move(update_controller), shown_by_user_gesture);
-@@ -79,9 +89,14 @@ AutofillBubbleBase* ShowUpdateBubble(
+@@ -82,9 +92,14 @@ AutofillBubbleBase* ShowUpdateBubble(
  #if BUILDFLAG(ENABLE_DICE_SUPPORT)
  AutofillBubbleBase* ShowSignInPromo(content::WebContents* web_contents,
                                      const AutofillProfile& autofill_profile) {
@@ -51,7 +51,7 @@ index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47
        ->GetAutofillBubbleHandler()
        ->ShowAddressSignInPromo(web_contents, autofill_profile);
  }
-@@ -229,8 +244,6 @@ void AddressBubblesController::DoShowBubble() {
+@@ -232,8 +247,6 @@ void AddressBubblesController::DoShowBubble() {
  
    set_bubble_view(show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));
@@ -59,4 +59,4 @@ index e39e892b7f94eabe9be026b45bfb46c8eb8437f6..a82221a9208baf808a2cc46e4c3d6a47
 -  CHECK(bubble_view());
  }
  
- void AddressBubblesController::SetUpAndShowBubble(
+ BubbleType AddressBubblesController::GetBubbleType() const {

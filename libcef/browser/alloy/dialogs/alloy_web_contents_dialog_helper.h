@@ -27,8 +27,8 @@ class AlloyWebContentsDialogHelper
 
   // web_modal::WebContentsModalDialogManagerDelegate methods:
   bool IsWebContentsVisible(content::WebContents* web_contents) override;
-  web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost()
-      override;
+  web_modal::WebContentsModalDialogHost* GetWebContentsModalDialogHost(
+      content::WebContents* web_contents) override;
 
   // web_modal::WebContentsModalDialogHost methods:
   gfx::NativeView GetHostView() const override;

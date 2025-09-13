@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index ed056fc63ba1a6468f4fac7aff39ed6fb76b43df..06ad6e7dc965d08a798aab80edd209706a9ca88f 100644
+index 9fda414965e1b4b24b23c90af9b844acdd072bdd..108a111b2315dbc092ec2174800d19aab43046b3 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -657,7 +657,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -646,7 +646,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -52,7 +52,7 @@ index b7dfccef78a3d1817808c4328f22fd8449533521..f32cf6c17718fe4f9ea1a012841e336d
  Profile::OTRProfileID Profile::OTRProfileID::CreateUniqueForDevTools() {
    return CreateUnique(kDevToolsOTRProfileIDPrefix);
 diff --git chrome/browser/profiles/profile.h chrome/browser/profiles/profile.h
-index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36ed60b82a6 100644
+index 3b29c4bc2d4a7e569e652f592fda15f9c8256188..fb4e91a6eb3c76f81623d08e45eec11963d37218 100644
 --- chrome/browser/profiles/profile.h
 +++ chrome/browser/profiles/profile.h
 @@ -93,6 +93,10 @@ class Profile : public content::BrowserContext {
@@ -66,7 +66,7 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
      // Creates a unique OTR profile id to be used for DevTools browser contexts.
      static OTRProfileID CreateUniqueForDevTools();
  
-@@ -502,6 +506,9 @@ class Profile : public content::BrowserContext {
+@@ -501,6 +505,9 @@ class Profile : public content::BrowserContext {
    static Profile* FromJavaObject(const jni_zero::JavaRef<jobject>& obj);
    jni_zero::ScopedJavaLocalRef<jobject> GetJavaObject() const;
  #endif  // BUILDFLAG(IS_ANDROID)
@@ -76,7 +76,7 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
   protected:
    // Creates an OffTheRecordProfile which points to this Profile.
    static std::unique_ptr<Profile> CreateOffTheRecordProfile(
-@@ -513,7 +520,6 @@ class Profile : public content::BrowserContext {
+@@ -512,7 +519,6 @@ class Profile : public content::BrowserContext {
    static PrefStore* CreateExtensionPrefStore(Profile*,
                                               bool incognito_pref_store);
  
@@ -85,7 +85,7 @@ index 7e700d9b9ed8662a5d8599579e053ff4c9cf560e..99f8cb55f7c9e9ce3cc6e56277e5c36e
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f97bb9aa1f 100644
+index a71f1f268f6478b4cdb0135c566e4fcdecd35c6d..d1ee7d73740829b8f68363b74017b1e6a8b48857 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -41,6 +41,7 @@
@@ -96,7 +96,7 @@ index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f9
  #include "chrome/browser/background/background_contents_service_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
-@@ -235,6 +236,10 @@
+@@ -236,6 +237,10 @@
  #include "chrome/browser/background/extensions/background_mode_manager.h"
  #endif
  
@@ -107,7 +107,7 @@ index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f9
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  #include "chrome/browser/extensions/extension_special_storage_policy.h"
  #include "extensions/browser/extension_pref_store.h"
-@@ -275,6 +280,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+@@ -276,6 +281,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f9
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -1017,7 +1028,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1005,7 +1016,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index 5286d886b7ebdd51cb22048d9a8acdc06436a7b4..7218a3abf779dc55b2cf9337d577e3f9
  
    return raw_otr_profile;
  }
-@@ -1341,6 +1354,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1337,6 +1350,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

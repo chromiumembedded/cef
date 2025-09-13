@@ -37,7 +37,8 @@ bool AlloyWebContentsDialogHelper::IsWebContentsVisible(
 }
 
 web_modal::WebContentsModalDialogHost*
-AlloyWebContentsDialogHelper::GetWebContentsModalDialogHost() {
+AlloyWebContentsDialogHelper::GetWebContentsModalDialogHost(
+    content::WebContents* web_contents) {
   return this;
 }
 

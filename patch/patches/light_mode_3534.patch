@@ -48,10 +48,10 @@ index 8eca0f15ad724bfe7b3f83b361984f581f79c347..214eb82df050d5b41efffb8aef44d8ba
  }
  
 diff --git ui/gtk/native_theme_gtk.cc ui/gtk/native_theme_gtk.cc
-index a28c128deecd39585b9e54552ffd8986da0df554..e8c8a9825b0feda16b4f36df9590ffe105da2fdf 100644
+index 9693faf3e397d98807146c320975bca241445afb..774c43fd1a67ef68ad90b5eac4e0827b7b74a05e 100644
 --- ui/gtk/native_theme_gtk.cc
 +++ ui/gtk/native_theme_gtk.cc
-@@ -157,9 +157,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
+@@ -156,9 +156,11 @@ void NativeThemeGtk::OnThemeChanged(GtkSettings* settings,
    // have a light variant and aren't affected by the setting.  Because of this,
    // experimentally check if the theme is dark by checking if the window
    // background color is dark.
@@ -67,10 +67,10 @@ index a28c128deecd39585b9e54552ffd8986da0df554..e8c8a9825b0feda16b4f36df9590ffe1
  
    // GTK doesn't have a native high contrast setting.  Rather, it's implied by
 diff --git ui/native_theme/native_theme.cc ui/native_theme/native_theme.cc
-index 3f8801c6042ef2b20635838e4d4c572d89b94601..c1bcab30a63aae47ffa1dcbfa31b379412911085 100644
+index e761050d9afbbc6d1c25dd8ec6a2a90d548c1195..23bd4923520a688bc66ea621c1a5da206c23a80a 100644
 --- ui/native_theme/native_theme.cc
 +++ ui/native_theme/native_theme.cc
-@@ -146,6 +146,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
+@@ -139,6 +139,7 @@ void NativeTheme::NotifyOnNativeThemeUpdated() {
    color_provider_manager.ResetColorProviderCache();
    native_theme_observers_.Notify(&NativeThemeObserver::OnNativeThemeUpdated,
                                   this);
@@ -78,7 +78,7 @@ index 3f8801c6042ef2b20635838e4d4c572d89b94601..c1bcab30a63aae47ffa1dcbfa31b3794
  
    RecordNumColorProvidersInitializedDuringOnNativeThemeUpdated(
        color_provider_manager.num_providers_initialized() -
-@@ -293,6 +294,13 @@ bool NativeTheme::IsForcedDarkMode() {
+@@ -318,6 +319,13 @@ bool NativeTheme::IsForcedDarkMode() {
    return kIsForcedDarkMode;
  }
  
@@ -93,10 +93,10 @@ index 3f8801c6042ef2b20635838e4d4c572d89b94601..c1bcab30a63aae47ffa1dcbfa31b3794
    static bool kIsForcedHighContrast =
        base::CommandLine::ForCurrentProcess()->HasSwitch(
 diff --git ui/native_theme/native_theme.h ui/native_theme/native_theme.h
-index 97cceb20da0fccf0603cf2d4b1c8985314b1e850..7c2282840ff56239f80c33b86f6a4bff55db409a 100644
+index cbe76bbc68692228072fa69a8562c290e571505e..80f047de2f3ba8c48880dd7de5562701ead2a00e 100644
 --- ui/native_theme/native_theme.h
 +++ ui/native_theme/native_theme.h
-@@ -636,6 +636,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
+@@ -622,6 +622,9 @@ class COMPONENT_EXPORT(NATIVE_THEME) NativeTheme {
    // Calculates and returns the use overlay scrollbar setting.
    static bool CalculateUseOverlayScrollbar();
  
@@ -107,10 +107,10 @@ index 97cceb20da0fccf0603cf2d4b1c8985314b1e850..7c2282840ff56239f80c33b86f6a4bff
    explicit NativeTheme(
        bool should_only_use_dark_colors,
 diff --git ui/native_theme/native_theme_mac.mm ui/native_theme/native_theme_mac.mm
-index e41728dd8166362be0d2af7cd3df46a0c7384f12..a6396a778cae60f2b5d324fa7ef1b81973cf1130 100644
+index e12701fe87bcd15a0db1c51b0885e5128cc84d71..e98f3d25e022ec50208d6694e08fa3a07711be4a 100644
 --- ui/native_theme/native_theme_mac.mm
 +++ ui/native_theme/native_theme_mac.mm
-@@ -632,11 +632,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
+@@ -626,11 +626,15 @@ void NativeThemeMac::PaintSelectedMenuItem(
  
  void NativeThemeMac::InitializeDarkModeStateAndObserver() {
    __block auto theme = this;
@@ -129,10 +129,10 @@ index e41728dd8166362be0d2af7cd3df46a0c7384f12..a6396a778cae60f2b5d324fa7ef1b819
          theme->NotifyOnNativeThemeUpdated();
        }];
 diff --git ui/native_theme/native_theme_win.cc ui/native_theme/native_theme_win.cc
-index 0c6d689295a03fc088b57487037d85f4d634a5f4..dd63350a153c5c5fa75313120bc6460292e8e825 100644
+index 0ca923fb1b402ce7a5b112600b86e79b02d96168..660cbd9359d24b3ed4538808c84512a6769421d5 100644
 --- ui/native_theme/native_theme_win.cc
 +++ ui/native_theme/native_theme_win.cc
-@@ -694,7 +694,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -675,7 +675,10 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
    // Windows high contrast modes are entirely different themes,
    // so let them take priority over dark mode.
    // ...unless --force-dark-mode was specified in which case caveat emptor.
@@ -144,7 +144,7 @@ index 0c6d689295a03fc088b57487037d85f4d634a5f4..dd63350a153c5c5fa75313120bc64602
      return false;
    }
    return NativeTheme::ShouldUseDarkColors();
-@@ -702,7 +705,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
+@@ -683,7 +686,7 @@ bool NativeThemeWin::ShouldUseDarkColors() const {
  
  NativeTheme::PreferredColorScheme
  NativeThemeWin::CalculatePreferredColorScheme() const {
@@ -153,15 +153,13 @@ index 0c6d689295a03fc088b57487037d85f4d634a5f4..dd63350a153c5c5fa75313120bc64602
      return NativeTheme::CalculatePreferredColorScheme();
    }
  
-@@ -1688,9 +1691,10 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
+@@ -1664,8 +1667,9 @@ void NativeThemeWin::RegisterColorFilteringRegkeyObserver() {
  }
  
  void NativeThemeWin::UpdateDarkModeStatus() {
 -  bool dark_mode_enabled = false;
--  bool system_dark_mode_enabled = false;
 -  if (hkcu_themes_regkey_.Valid()) {
 +  bool dark_mode_enabled = ShouldUseDarkColors();
-+  bool system_dark_mode_enabled = ShouldUseDarkColors();
 +  if (supports_windows_dark_mode_ && !IsForcedDarkMode() &&
 +      hkcu_themes_regkey_.Valid()) {
      DWORD apps_use_light_theme = 1;

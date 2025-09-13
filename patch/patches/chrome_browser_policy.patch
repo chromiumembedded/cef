@@ -356,10 +356,10 @@ index 8dbf958c189ddbbf1b6271b0215c796a992d694c..6eaccc6688eca9d6c00d4f746df7e429
      *dir = base::FilePath(policy::path_parser::ExpandPathVariables(value));
      return true;
 diff --git chrome/common/chrome_paths.cc chrome/common/chrome_paths.cc
-index fb894029791eb26931345535f739a8bbb0542a7d..22b612206f1dd342ede343571a4c62836670e025 100644
+index 54a8f45791ea0a8ee0ed23e3a1387d8686ba873b..43d45b2fac2f2387ef6a342662b2112a866f1f1e 100644
 --- chrome/common/chrome_paths.cc
 +++ chrome/common/chrome_paths.cc
-@@ -436,7 +436,8 @@ bool PathProvider(int key, base::FilePath* result) {
+@@ -407,7 +407,8 @@ bool PathProvider(int key, base::FilePath* result) {
        break;
      }
  #endif
@@ -370,7 +370,7 @@ index fb894029791eb26931345535f739a8bbb0542a7d..22b612206f1dd342ede343571a4c6283
        cur = base::FilePath(policy::kPolicyPath);
        break;
 diff --git chrome/common/chrome_paths.h chrome/common/chrome_paths.h
-index 6798df56455ebf76b29211d59c3e439161869586..0234fa5c41dfe1dc228a00450c22544334b0c106 100644
+index 9b3e9be1f14c1d40c31a93c27db966fb7ff96e44..9e47a5f07529fc8a27c9cc727a856336db76368c 100644
 --- chrome/common/chrome_paths.h
 +++ chrome/common/chrome_paths.h
 @@ -7,6 +7,7 @@

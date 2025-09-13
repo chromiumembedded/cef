@@ -44,13 +44,13 @@ index d7a04e177509e6a0470926ac7cf512d2c791618b..731a57b70079c40049a76c7bcfe63038
        anchor_view, profile_, type);
    DCHECK_EQ(nullptr, bubble_tracker_.view());
 diff --git chrome/browser/ui/views/profiles/incognito_menu_view.cc chrome/browser/ui/views/profiles/incognito_menu_view.cc
-index 07a00e7622675d92c4fd0390c362d4f7afbf2fe1..16094b91163d55e7833dbc42e40cfd8014dac8ec 100644
+index 1e9703686d17c56e8772dccbea843d2cda4bb750..e346c38ed16efa4105daef1cce2c283ddc3ec95b 100644
 --- chrome/browser/ui/views/profiles/incognito_menu_view.cc
 +++ chrome/browser/ui/views/profiles/incognito_menu_view.cc
 @@ -30,7 +30,9 @@
- IncognitoMenuView::IncognitoMenuView(views::Button* anchor_button,
+ IncognitoMenuView::IncognitoMenuView(ui::TrackedElement* anchor_element,
                                       Browser* browser)
-     : ProfileMenuViewBase(anchor_button, browser) {
+     : ProfileMenuViewBase(anchor_element, browser) {
 -  CHECK(profile().IsIncognitoProfile());
 +  CHECK(profile().IsIncognitoProfile() ||
 +        (profile().IsOffTheRecord() &&
@@ -59,10 +59,10 @@ index 07a00e7622675d92c4fd0390c362d4f7afbf2fe1..16094b91163d55e7833dbc42e40cfd80
                                   ax::mojom::NameFrom::kAttribute);
  
 diff --git chrome/browser/ui/views/profiles/profile_menu_coordinator.cc chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-index 8cc8f804727852457765c9c1e2bcab2dac3757a9..9d9104f3b654a257e9c457220a0b00f2df6b697a 100644
+index 66487d48f141d540366f66ad1b411e282c1ed886..924295a0a47e239b334105b9ddccb8b29738718f 100644
 --- chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
 +++ chrome/browser/ui/views/profiles/profile_menu_coordinator.cc
-@@ -64,7 +64,9 @@ void ProfileMenuCoordinator::Show(
+@@ -63,7 +63,9 @@ void ProfileMenuCoordinator::Show(
  
    std::unique_ptr<ProfileMenuViewBase> bubble;
    const bool is_incognito = GetProfile()->IsIncognitoProfile();

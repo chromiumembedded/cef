@@ -1,5 +1,5 @@
 diff --git third_party/blink/public/web/web_element.h third_party/blink/public/web/web_element.h
-index 72a0c1098486b63f6d0c92a680263c1682bc5e91..786e110d4b53f186b2c9e35815a0a72020461bfb 100644
+index c815617ca66eed330360f459f7f757ace87903bf..607836579e35cb33bd027b6039f48c1509de5706 100644
 --- third_party/blink/public/web/web_element.h
 +++ third_party/blink/public/web/web_element.h
 @@ -83,6 +83,9 @@ class BLINK_EXPORT WebElement : public WebNode {
@@ -13,10 +13,10 @@ index 72a0c1098486b63f6d0c92a680263c1682bc5e91..786e110d4b53f186b2c9e35815a0a720
    void Focus();
  
 diff --git third_party/blink/renderer/core/exported/web_element.cc third_party/blink/renderer/core/exported/web_element.cc
-index 8bf6641a642f7772fb9cd8d4165052a8107b25f1..9703cf7218a09ac26616bd34ed165383cc330894 100644
+index c6e27a41cfd1bd4c99cfe4075f5e1ca31af48fe0..696768fa96a5031458f9bcec324acca5b39c9545 100644
 --- third_party/blink/renderer/core/exported/web_element.cc
 +++ third_party/blink/renderer/core/exported/web_element.cc
-@@ -124,6 +124,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
+@@ -126,6 +126,24 @@ void WebElement::SetAttribute(const WebString& attr_name,
                                    IGNORE_EXCEPTION_FOR_TESTING);
  }
  

@@ -1,8 +1,8 @@
 diff --git gclient.py gclient.py
-index d637db468b7d604e31663792f6a2eeaf612b796c..74573a9ba22db51b668241496bf36269631a9b20 100755
+index ab632608f80b88a9a3656ed997ed707cef689ff2..61c32bec4d72162e6091945793a5d5b87f76d7bd 100755
 --- gclient.py
 +++ gclient.py
-@@ -1001,7 +1001,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+@@ -1000,7 +1000,8 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
          if self.git_dependencies_state == gclient_eval.SUBMODULES:
              deps.update(self.ParseGitSubmodules())
  
@@ -12,7 +12,7 @@ index d637db468b7d604e31663792f6a2eeaf612b796c..74573a9ba22db51b668241496bf36269
              # Git submodules are used - get their state.
              self._known_dependency_diff = self.CreateSCM().GetSubmoduleDiff()
              self._dependency_index_state = self.CreateSCM(
-@@ -1219,7 +1220,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
+@@ -1218,7 +1219,7 @@ class Dependency(gclient_utils.WorkItem, DependencySettings):
              self.FuzzyMatchUrl(revision_overrides), None)
          if not revision_override and not self.managed:
              revision_override = 'unmanaged'

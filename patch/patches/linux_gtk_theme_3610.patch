@@ -1,8 +1,8 @@
 diff --git ui/gtk/gtk_ui.cc ui/gtk/gtk_ui.cc
-index 0905fa385e466eeea08a37cd0ec74511fc8b7b5f..ee32cd9ea962f7a8f79393e31547b58b3263c7d8 100644
+index e440c784c9c797fc0e1d34f60c1f9f78b9d32adb..2af628f1e63d7fd555130e09d109d7ef7cf58b66 100644
 --- ui/gtk/gtk_ui.cc
 +++ ui/gtk/gtk_ui.cc
-@@ -35,6 +35,7 @@
+@@ -31,6 +31,7 @@
  #include "base/observer_list.h"
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_split.h"
@@ -10,7 +10,7 @@ index 0905fa385e466eeea08a37cd0ec74511fc8b7b5f..ee32cd9ea962f7a8f79393e31547b58b
  #include "chrome/browser/themes/theme_properties.h"  // nogncheck
  #include "third_party/skia/include/core/SkBitmap.h"
  #include "third_party/skia/include/core/SkColor.h"
-@@ -364,10 +365,15 @@ bool GtkUi::Initialize() {
+@@ -360,10 +361,15 @@ bool GtkUi::Initialize() {
    };
  
    GtkSettings* settings = gtk_settings_get_default();

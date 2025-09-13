@@ -13,10 +13,10 @@ index aacd4a841f3940c27c5c73c03fa9bcc6e56448cc..f4488f8259836a8f3bb5c465df28ca40
      setproctitle_init(main_argv);
    }
 diff --git content/app/content_main.cc content/app/content_main.cc
-index 37fd2c1125c2661f4089ed11c746e929e6082855..88a76053302ad9ac22e3e1b3496d60e83a2daf71 100644
+index 47ffb24940071be6f3747a85022a2b226ae8b63b..7d89f8606b37761649e44bfabff5f7a2472faffb 100644
 --- content/app/content_main.cc
 +++ content/app/content_main.cc
-@@ -197,16 +197,10 @@ ContentMainParams::~ContentMainParams() = default;
+@@ -189,16 +189,10 @@ ContentMainParams::~ContentMainParams() = default;
  ContentMainParams::ContentMainParams(ContentMainParams&&) = default;
  ContentMainParams& ContentMainParams::operator=(ContentMainParams&&) = default;
  
@@ -35,7 +35,7 @@ index 37fd2c1125c2661f4089ed11c746e929e6082855..88a76053302ad9ac22e3e1b3496d60e8
  
    // A flag to indicate whether Main() has been called before. On Android, we
    // may re-run Main() without restarting the browser process. This flag
-@@ -285,7 +279,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -277,7 +271,9 @@ NO_STACK_PROTECTOR int RunContentProcess(
      // default, "C", locale.
      setlocale(LC_NUMERIC, "C");
  
@@ -46,7 +46,7 @@ index 37fd2c1125c2661f4089ed11c746e929e6082855..88a76053302ad9ac22e3e1b3496d60e8
  #endif
  
  #if BUILDFLAG(IS_WIN)
-@@ -293,14 +289,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -285,14 +281,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
  #endif
  
  #if BUILDFLAG(IS_MAC)
@@ -61,7 +61,7 @@ index 37fd2c1125c2661f4089ed11c746e929e6082855..88a76053302ad9ac22e3e1b3496d60e8
      InitializeMac();
  #endif
  
-@@ -358,12 +346,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
+@@ -343,12 +331,44 @@ NO_STACK_PROTECTOR int RunContentProcess(
  
    if (IsSubprocess())
      CommonSubprocessInit();

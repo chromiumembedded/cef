@@ -62,7 +62,8 @@ BLINK_EXPORT v8::Local<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source_url,
     int start_line,
     v8::Local<v8::Context> context,
-    v8::TryCatch& tryCatch);
+    v8::TryCatch& tryCatch,
+    v8::Isolate* isolate);
 
 BLINK_EXPORT v8::MicrotaskQueue* GetMicrotaskQueue(
     v8::Local<v8::Context> context);

@@ -62,7 +62,7 @@ void SetPrivate(v8::Local<v8::Context> context,
                 v8::Local<v8::Object> obj,
                 const char* key,
                 v8::Local<v8::Value> value) {
-  v8::Isolate* isolate = context->GetIsolate();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   obj->SetPrivate(context,
                   v8::Private::ForApi(
                       isolate, v8::String::NewFromUtf8(
@@ -76,7 +76,7 @@ bool GetPrivate(v8::Local<v8::Context> context,
                 v8::Local<v8::Object> obj,
                 const char* key,
                 v8::Local<v8::Value>* result) {
-  v8::Isolate* isolate = context->GetIsolate();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   return obj
       ->GetPrivate(context,
                    v8::Private::ForApi(
@@ -117,7 +117,6 @@ class CefV8IsolateManager {
   scoped_refptr<CefV8ContextState> GetContextState(
       v8::Local<v8::Context> context) {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
-    DCHECK(context.IsEmpty() || isolate_ == context->GetIsolate());
 
     if (context.IsEmpty()) {
       if (isolate_->InContext()) {
@@ -141,7 +140,6 @@ class CefV8IsolateManager {
 
   void ReleaseContext(v8::Local<v8::Context> context) {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
-    DCHECK_EQ(isolate_, context->GetIsolate());
 
     int hash = context->Global()->GetIdentityHash();
     ContextMap::iterator it = context_map_.find(hash);
@@ -738,7 +736,7 @@ class CefV8ExceptionImpl : public CefV8Exception {
       return;
     }
 
-    v8::Isolate* isolate = context->GetIsolate();
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
     GetCefString(isolate, message->Get(), message_);
     v8::MaybeLocal<v8::String> source_line = message->GetSourceLine(context);
     if (!source_line.IsEmpty()) {
@@ -1121,7 +1119,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   try_catch.SetVerbose(true);
 
   v8::Local<v8::Value> func_rv = blink_glue::ExecuteV8ScriptAndReturnValue(
-      source, source_url, start_line, context, try_catch);
+      source, source_url, start_line, context, try_catch, isolate);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
@@ -1618,7 +1616,7 @@ void CefV8ValueImpl::InitFromV8Value(v8::Local<v8::Context> context,
   } else if (value->IsFalse()) {
     InitBool(false);
   } else if (value->IsBoolean()) {
-    InitBool(value->ToBoolean(context->GetIsolate())->Value());
+    InitBool(value->ToBoolean(v8::Isolate::GetCurrent())->Value());
   } else if (value->IsInt32()) {
     InitInt(value->ToInt32(context).ToLocalChecked()->Value());
   } else if (value->IsUint32()) {
@@ -1631,7 +1629,7 @@ void CefV8ValueImpl::InitFromV8Value(v8::Local<v8::Context> context,
         value->ToNumber(context).ToLocalChecked()->Value()));
   } else if (value->IsString()) {
     CefString rv;
-    GetCefString(context->GetIsolate(),
+    GetCefString(v8::Isolate::GetCurrent(),
                  value->ToString(context).ToLocalChecked(), rv);
     InitString(rv);
   } else if (value->IsObject()) {

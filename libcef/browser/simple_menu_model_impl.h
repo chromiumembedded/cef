@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_BROWSER_SIMPLE_MENU_MODEL_IMPL_H_
 #pragma once
 
+#include <map>
 #include <optional>
 #include <vector>
 

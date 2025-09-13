@@ -1,5 +1,5 @@
 diff --git chrome/browser/download/chrome_download_manager_delegate.cc chrome/browser/download/chrome_download_manager_delegate.cc
-index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7af2ec0c33 100644
+index 02436533c3202b0eed13a21b142dc108ba1a3450..fab60792c2a8e89756038ab3135b6ffcec1bec88 100644
 --- chrome/browser/download/chrome_download_manager_delegate.cc
 +++ chrome/browser/download/chrome_download_manager_delegate.cc
 @@ -31,6 +31,7 @@
@@ -10,9 +10,9 @@ index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7a
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/download/download_core_service.h"
  #include "chrome/browser/download/download_core_service_factory.h"
-@@ -173,6 +174,10 @@
- #endif  // BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
- #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
+@@ -174,6 +175,10 @@
+ 
+ #include "base/android/device_info.h"
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/download_manager_delegate.h"
@@ -21,7 +21,7 @@ index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7a
  using content::BrowserThread;
  using content::DownloadManager;
  using download::DownloadItem;
-@@ -564,6 +569,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
+@@ -568,6 +573,11 @@ ChromeDownloadManagerDelegate::ChromeDownloadManagerDelegate(Profile* profile)
    download_dialog_bridge_ = std::make_unique<DownloadDialogBridge>();
    download_message_bridge_ = std::make_unique<DownloadMessageBridge>();
  #endif
@@ -33,7 +33,7 @@ index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7a
  }
  
  ChromeDownloadManagerDelegate::~ChromeDownloadManagerDelegate() {
-@@ -627,6 +637,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
+@@ -631,6 +641,9 @@ void ChromeDownloadManagerDelegate::Shutdown() {
      download_manager_->RemoveObserver(this);
      download_manager_ = nullptr;
    }
@@ -43,7 +43,7 @@ index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7a
  }
  
  void ChromeDownloadManagerDelegate::OnDownloadCanceledAtShutdown(
-@@ -695,6 +708,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
+@@ -699,6 +712,12 @@ bool ChromeDownloadManagerDelegate::DetermineDownloadTarget(
      ReportPDFLoadStatus(PDFLoadStatus::kTriggeredNoGestureDriveByDownload);
    }
  
@@ -56,7 +56,7 @@ index ad332583d077d6d01845dc0d638c4724790c17ee..7af2fab022f43791bc20e63ccbb78b7a
    DownloadTargetDeterminer::CompletionCallback target_determined_callback =
        base::BindOnce(&ChromeDownloadManagerDelegate::OnDownloadTargetDetermined,
                       weak_ptr_factory_.GetWeakPtr(), download->GetId(),
-@@ -1222,8 +1241,13 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
+@@ -1226,8 +1245,13 @@ void ChromeDownloadManagerDelegate::OpenDownload(DownloadItem* download) {
      return;
    }
  

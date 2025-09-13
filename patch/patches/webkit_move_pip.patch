@@ -1,10 +1,10 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index c8d27cfee8ef3fe244291f4667b59df1037c359b..a3fce5f381cd369368eab15187dc153957e9fcb0 100644
+index b3553c0783a7b00e055f82ef0b72bd866284473d..ef577a0f5176d985b55b7b4cf2a76d8da5634471 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -475,6 +475,11 @@ class BLINK_EXPORT WebView {
-   virtual void SetPageAttributionSupport(
-       network::mojom::AttributionSupport support) = 0;
+@@ -484,6 +484,11 @@ class BLINK_EXPORT WebView {
+   // for testing.
+   virtual std::optional<uint64_t> CanvasNoiseTokenForTesting() = 0;
  
 +  // Sets whether to allow the use of JavaScript moveTo/By() and resizeTo/By()
 +  // (without user activation) with Document picture-in-picture popups.
@@ -15,12 +15,12 @@ index c8d27cfee8ef3fe244291f4667b59df1037c359b..a3fce5f381cd369368eab15187dc1539
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 5c8a5d7f9b675a460740643fc26d778a08ef7112..4c86829ee57febf46b4bbd71b32f79fa4465bd55 100644
+index 883269126ff93c26765ab62013035c6193f8adbb..d3afd4b4aa0a05a9a1efefa4e5efecbf445ae0c7 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
-@@ -323,6 +323,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
-   void UpdateColorProviders(
-       const ColorProviderColorMaps& color_provider_colors) override;
+@@ -328,6 +328,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+ 
+   std::optional<uint64_t> CanvasNoiseTokenForTesting() override;
  
 +  void SetMovePictureInPictureEnabled(bool enabled) override {
 +    move_pip_enabled_ = enabled;
@@ -32,7 +32,7 @@ index 5c8a5d7f9b675a460740643fc26d778a08ef7112..4c86829ee57febf46b4bbd71b32f79fa
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -1010,6 +1017,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1018,6 +1025,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // CSS property.
    bool supports_draggable_regions_ = false;
  
@@ -42,7 +42,7 @@ index 5c8a5d7f9b675a460740643fc26d778a08ef7112..4c86829ee57febf46b4bbd71b32f79fa
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8b842c60c 100644
+index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1eeb14191 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
 @@ -52,6 +52,7 @@
@@ -61,7 +61,7 @@ index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
  #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
  #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -1995,8 +1997,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -1974,8 +1976,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -72,7 +72,7 @@ index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -2016,8 +2019,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -1995,8 +1998,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -83,7 +83,7 @@ index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -2040,7 +2044,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -2019,7 +2023,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -93,7 +93,7 @@ index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -2068,7 +2073,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -2047,7 +2052,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -103,7 +103,7 @@ index 23a95863dc888a9ffb4b09c2b034665ef1186f7c..34a861b32425fd809b933d0df659f4d8
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2538,6 +2544,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2517,6 +2523,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  

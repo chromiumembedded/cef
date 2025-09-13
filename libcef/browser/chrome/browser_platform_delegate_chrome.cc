@@ -54,7 +54,8 @@ web_modal::WebContentsModalDialogHost*
 CefBrowserPlatformDelegateChrome::GetWebContentsModalDialogHost() const {
   if (chrome_browser_) {
     ChromeWebModalDialogManagerDelegate* manager = chrome_browser_;
-    return manager->GetWebContentsModalDialogHost();
+    return manager->GetWebContentsModalDialogHost(
+        chrome_browser_->tab_strip_model()->GetActiveWebContents());
   }
   DCHECK(false);
   return nullptr;

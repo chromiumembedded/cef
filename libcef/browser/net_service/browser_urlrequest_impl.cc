@@ -232,7 +232,7 @@ class CefBrowserURLRequest::Context
       url_loader_network_observer =
           static_cast<content::StoragePartitionImpl*>(
               browser_context->GetDefaultStoragePartition())
-              ->CreateURLLoaderNetworkObserverForServiceWorker(
+              ->CreateURLLoaderNetworkObserverForServiceOrSharedWorker(
                   content::ChildProcessHost::kInvalidUniqueID, url::Origin());
     }
 
@@ -424,7 +424,8 @@ class CefBrowserURLRequest::Context
       // Match the previous behavior of sending download progress notifications
       // for UR_FLAG_NO_DOWNLOAD_DATA requests but not HEAD requests.
       if (request_->GetMethod().ToString() != "HEAD") {
-        download_data_size_ = headers->GetContentLength();
+        download_data_size_ =
+            headers->GetContentLength().value_or(base::ByteCount(-1)).InBytes();
         OnDownloadProgress(0);
       }
 

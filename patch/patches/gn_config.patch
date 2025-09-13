@@ -12,7 +12,7 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 44f0e3f0d4ed6cee59378d9b03f1410d59bf96c9..2341b72f39f16e5258860bfdb36d4924d7f1027f 100644
+index 70cfcf4e1a1c7e12ab7fdf4660f2b47f48361f6d..dc123a1fbb85557e069f87871945890b067313b5 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -19,6 +19,7 @@ import("//build/config/ui.gni")
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index e604d83d3e4239de5839dcf321c8cbb94befcc53..28729478ce81ca95fa3e3f22e80f0b80a5fe3ca5 100644
+index 5b62eedbd32d2ed887071c963bd64742b03b439b..edeb0449531cdc7730744375c65762c6365354ac 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -102,7 +102,7 @@ index e604d83d3e4239de5839dcf321c8cbb94befcc53..28729478ce81ca95fa3e3f22e80f0b80
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 3588fa340be0c0bc975d6aeaa9aac7ee659c5bd3..7fcb9072c2392a6609356f49cd3bba9791eed6b2 100644
+index e115d4fbb151e2e94d21aa3c436c939e62cfe6ab..b024d72f9227ae0821b66012231b792dea525256 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
 @@ -5,6 +5,7 @@
@@ -113,9 +113,9 @@ index 3588fa340be0c0bc975d6aeaa9aac7ee659c5bd3..7fcb9072c2392a6609356f49cd3bba97
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -104,6 +105,10 @@ template("chrome_repack_locales") {
-       source_patterns += [ "${root_gen_dir}/components/strings/search_engine_descriptions_strings_" ]
-       deps += [ "//components/strings:search_engine_descriptions_strings" ]
+@@ -106,6 +107,10 @@ template("chrome_repack_locales") {
+         "//third_party/search_engines_data:search_engine_descriptions_strings",
+       ]
      }
 +    if (enable_cef) {
 +      source_patterns += [ "${root_gen_dir}/cef/cef_strings_" ]

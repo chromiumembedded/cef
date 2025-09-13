@@ -1,5 +1,5 @@
 diff --git components/embedder_support/user_agent_utils.cc components/embedder_support/user_agent_utils.cc
-index c9338f0d14a0cc3dabf59321749435a3b2e381fc..d9621f718d5fb74685a01052ffc06635c1bca5f4 100644
+index 8c44d2265b3d3d02f507661517218bec8e6a0164..07dd90da1fc36c069857047ffd724e24a79630d6 100644
 --- components/embedder_support/user_agent_utils.cc
 +++ components/embedder_support/user_agent_utils.cc
 @@ -27,6 +27,7 @@
@@ -10,9 +10,9 @@ index c9338f0d14a0cc3dabf59321749435a3b2e381fc..d9621f718d5fb74685a01052ffc06635
  #include "components/embedder_support/pref_names.h"
  #include "components/embedder_support/switches.h"
  #include "components/policy/core/common/policy_pref_names.h"
-@@ -60,6 +61,10 @@
- #include "device/vr/public/cpp/features.h"
- #endif  // BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_VR)
+@@ -55,6 +56,10 @@
+ #include <sys/utsname.h>
+ #endif
  
 +#if BUILDFLAG(ENABLE_CEF)
 +constexpr char kUserAgentProductAndVersion[] = "user-agent-product";
@@ -21,7 +21,7 @@ index c9338f0d14a0cc3dabf59321749435a3b2e381fc..d9621f718d5fb74685a01052ffc06635
  namespace embedder_support {
  
  namespace {
-@@ -476,6 +481,13 @@ std::string BuildOSCpuInfo(
+@@ -474,6 +479,13 @@ std::string BuildOSCpuInfo(
  
  std::string GetProductAndVersion(
      UserAgentReductionEnterprisePolicyState user_agent_reduction) {
