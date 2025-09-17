@@ -452,7 +452,7 @@ index 452389727dd3e269ab7934dcead3e5b7cb70cbce..3125567f24cb1ff78e6b08200ab50a9a
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95a14ed04e 100644
+index 9561349c6c5c29016c63072bb07d87bf5e8889b1..e4d2ed1c819228c0de735e7030ff18e0e1b1f246 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -48,6 +48,7 @@
@@ -484,7 +484,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
  // static
  void ChromeContentBrowserClient::RegisterLocalStatePrefs(
      PrefRegistrySimple* registry) {
-@@ -4776,9 +4784,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
+@@ -4777,9 +4785,11 @@ void ChromeContentBrowserClient::BrowserURLHandlerCreated(
                            &search::HandleNewTabURLReverseRewrite);
  #endif  // BUILDFLAG(IS_ANDROID)
  
@@ -496,7 +496,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
  }
  
  base::FilePath ChromeContentBrowserClient::GetDefaultDownloadDirectory() {
-@@ -6487,7 +6497,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
+@@ -6488,7 +6498,7 @@ void ChromeContentBrowserClient::OnNetworkServiceCreated(
    }
  }
  
@@ -505,7 +505,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
      content::BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -6505,6 +6515,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
+@@ -6506,6 +6516,8 @@ void ChromeContentBrowserClient::ConfigureNetworkContextParams(
      network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
      network_context_params->accept_language = GetApplicationLocale();
    }
@@ -514,7 +514,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
  }
  
  std::vector<base::FilePath>
-@@ -7658,11 +7670,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7659,11 +7671,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -528,7 +528,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7684,7 +7696,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7685,7 +7697,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -538,7 +538,7 @@ index e856d9cf62853161c7824dea8ed7f3c5872385da..c6d489a87e7609b5883458e4ba91ef95
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -7862,7 +7875,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -7863,7 +7876,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
