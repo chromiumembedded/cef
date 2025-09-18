@@ -333,6 +333,12 @@ def GetRecommendedDefaultArgs():
     # https://github.com/chromiumembedded/cef/issues/3803#issuecomment-2980423520
     result['blink_heap_inside_shared_library'] = True
 
+    # We disable clang modules because CEF targets C++17 and Chromium builds
+    # with C++20. Mixing C++17 and C++20 leads to build errors with modules.
+    # Could be removed when CEF targets C++20.
+    # https://github.com/chromiumembedded/cef/issues/3611
+    result['use_clang_modules'] = False
+
   # This file may exist when building using a source tarball.
   tarball_args_file = os.path.join(src_dir, 'tarball_args.gn')
   if os.path.isfile(tarball_args_file):
