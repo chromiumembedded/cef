@@ -575,7 +575,10 @@ def GetConfigArgs(args, is_debug, cpu):
         # slightly different functionality. This arg is equivalent to passing
         # `--enable-features=PartitionAllocBackupRefPtr` on the command-line.
         add_args['enable_backup_ref_ptr_feature_flag'] = True
-      else:
+
+      # BRP requires the allocator shim, which is not compatible with the Win
+      # dbg CRT; see //build_overrides/partition_alloc.gni.
+      elif not (is_debug and platform == 'windows'):
         # Use a global table to track all live raw_ptr/raw_ref instances to help
         # debug dangling pointers. This requires PA-E.
         add_args['enable_backup_ref_ptr_instance_tracer'] = True
