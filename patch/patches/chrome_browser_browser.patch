@@ -641,10 +641,18 @@ index 636b265a6813b01a44930ae73655523b739cafd2..9e77a5e2695fa0eb71a557b641c0955e
  
    UnloadController unload_controller_;
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
-index 5843ab79fb1b4ae3f17be0711071122bf38030c3..7b07c79dd82dff98d52e4fa255be5f0cc3c80345 100644
+index 5843ab79fb1b4ae3f17be0711071122bf38030c3..a1979c606e683e4509b45f85b511d6c2bf3c6947 100644
 --- chrome/browser/ui/browser_navigator.cc
 +++ chrome/browser/ui/browser_navigator.cc
-@@ -256,6 +256,10 @@ std::tuple<Browser*, int> GetBrowserAndTabForDisposition(
+@@ -31,6 +31,7 @@
+ #include "chrome/browser/ui/browser_finder.h"
+ #include "chrome/browser/ui/browser_navigator_params.h"
+ #include "chrome/browser/ui/browser_window.h"
++#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
+ #include "chrome/browser/ui/location_bar/location_bar.h"
+ #include "chrome/browser/ui/singleton_tabs.h"
+ #include "chrome/browser/ui/status_bubble.h"
+@@ -256,6 +257,10 @@ std::tuple<Browser*, int> GetBrowserAndTabForDisposition(
  
        browser_params.pip_options = pip_options;
  
@@ -655,7 +663,7 @@ index 5843ab79fb1b4ae3f17be0711071122bf38030c3..7b07c79dd82dff98d52e4fa255be5f0c
        const BrowserWindow* const browser_window = params.browser->window();
        const gfx::NativeWindow native_window =
            browser_window ? browser_window->GetNativeWindow()
-@@ -544,7 +548,17 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
+@@ -544,7 +549,17 @@ std::unique_ptr<content::WebContents> CreateTargetContents(
    }
  #endif
  
@@ -674,6 +682,18 @@ index 5843ab79fb1b4ae3f17be0711071122bf38030c3..7b07c79dd82dff98d52e4fa255be5f0c
  }
  
  bool IsHostAllowedInIncognito(const GURL& url) {
+@@ -909,6 +924,11 @@ base::WeakPtr<content::NavigationHandle> Navigate(NavigateParams* params) {
+     // navigation happens in a different tab to the link click.
+     apps::SetLinkCapturingSourceDisposition(tab_to_insert->GetContents(),
+                                             params->disposition);
++
++    // With CEF the BrowserView is created before the TabModel, so we need a
++    // separate initialization of objects that depend on TabModel.
++    params->browser->GetFeatures().InitPostTabModelConstruction(
++        &params->browser->GetBrowserView());
+   }
+ 
+   if (params->source_contents == contents_to_navigate_or_insert) {
 diff --git chrome/browser/ui/browser_tabstrip.cc chrome/browser/ui/browser_tabstrip.cc
 index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..085201f227e6aaccf0f01004e1499f25ca1fa01f 100644
 --- chrome/browser/ui/browser_tabstrip.cc
@@ -721,7 +741,7 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..085201f227e6aaccf0f01004e1499f25
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 25ab77d11fddc8d797c0f7013d4772fe86d36844..5ada3d4842cbe2f201e39a129fe3d34f434bd31f 100644
+index 25ab77d11fddc8d797c0f7013d4772fe86d36844..456bc4109d02e9f7e301e986776e459ccd2034c3 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -155,6 +155,15 @@
@@ -783,10 +803,38 @@ index 25ab77d11fddc8d797c0f7013d4772fe86d36844..5ada3d4842cbe2f201e39a129fe3d34f
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -657,6 +670,13 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -626,12 +639,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+           GetUserDataFactory().CreateInstance<ActorOverlayWindowController>(
+               *browser_, browser_, std::move(container_overlay_view_pairs));
+     }
+-
+-    data_protection_ui_controller_ =
+-        GetUserDataFactory()
+-            .CreateInstance<
+-                enterprise_data_protection::DataProtectionUIController>(
+-                *browser_view->browser(), browser_view);
+   }
+ 
+ #if !BUILDFLAG(IS_CHROMEOS)
+@@ -657,6 +664,28 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
    user_education_->Init(browser_view);
  }
  
++void BrowserWindowFeatures::InitPostTabModelConstruction(
++    BrowserView* browser_view) {
++  const bool supports_toolbar = IsNormalBrowser(browser_view->browser());
++
++  if (supports_toolbar) {
++    if (!data_protection_ui_controller_) {
++        data_protection_ui_controller_ =
++            GetUserDataFactory()
++                .CreateInstance<
++                    enterprise_data_protection::DataProtectionUIController>(
++                    *browser_view->browser(), browser_view);
++    }
++  }
++}
++
 +void BrowserWindowFeatures::TearDownPreToolbarViewDestruction() {
 +  lens_overlay_entry_point_controller_.reset();
 +  if (pinned_toolbar_actions_controller_) {
@@ -797,7 +845,7 @@ index 25ab77d11fddc8d797c0f7013d4772fe86d36844..5ada3d4842cbe2f201e39a129fe3d34f
  void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
    accelerator_provider_ = nullptr;
    extension_keybinding_registry_.reset();
-@@ -664,7 +684,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
+@@ -664,7 +693,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
    live_tab_context_.reset();
    upgrade_notification_controller_.reset();
    memory_saver_opt_in_iph_controller_.reset();
@@ -805,7 +853,7 @@ index 25ab77d11fddc8d797c0f7013d4772fe86d36844..5ada3d4842cbe2f201e39a129fe3d34f
    tab_search_toolbar_button_controller_.reset();
    profile_menu_coordinator_.reset();
    toast_service_.reset();
-@@ -723,10 +742,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
+@@ -723,10 +751,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
    // Destroy fullscreen control host before exclusive access manager.
    fullscreen_control_host_.reset();
  
@@ -817,7 +865,7 @@ index 25ab77d11fddc8d797c0f7013d4772fe86d36844..5ada3d4842cbe2f201e39a129fe3d34f
    // deterministically constructed.
    find_bar_controller_.reset();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 27a8bfbe11337049f009430ed748303c0f658e07..9809aba000c4accc939418beecbec8bba8a8a847 100644
+index 27a8bfbe11337049f009430ed748303c0f658e07..3259c854b4342c08ef304bb900c612a19b8c5a4b 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -185,6 +185,8 @@ class BrowserWindowFeatures {
@@ -829,10 +877,15 @@ index 27a8bfbe11337049f009430ed748303c0f658e07..9809aba000c4accc939418beecbec8bb
    BrowserWindowFeatures(const BrowserWindowFeatures&) = delete;
    BrowserWindowFeatures& operator=(const BrowserWindowFeatures&) = delete;
  
-@@ -201,6 +203,10 @@ class BrowserWindowFeatures {
+@@ -201,6 +203,15 @@ class BrowserWindowFeatures {
    // hierarchy in BrowserView.
    void InitPostBrowserViewConstruction(BrowserView* browser_view);
  
++  // Initialize features that depend on the tab model object being created. May
++  // be called multiple times (on TabModel ceation via Navigate). With CEF this
++  // will be called after BrowserView construction.
++  void InitPostTabModelConstruction(BrowserView* browser_view);
++
 +  // Called exactly once to tear down state that depends on the ToolbarView
 +  // object.
 +  void TearDownPreToolbarViewDestruction();
