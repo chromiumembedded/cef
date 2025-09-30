@@ -24,6 +24,20 @@ index 277089b5023f74963a6f6766a0aeb1eaae771aa0..82b256b8b5ac95734299c8e33244bb0f
  }
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
+diff --git services/network/cors/cors_url_loader_factory.cc services/network/cors/cors_url_loader_factory.cc
+index 3d1be11b19bde1ef9d5438324d0c6d8cf13d6080..97ba2d574125857e143e37645ae4804f90638282 100644
+--- services/network/cors/cors_url_loader_factory.cc
++++ services/network/cors/cors_url_loader_factory.cc
+@@ -627,7 +627,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
+           net::LOAD_DISABLE_CACHE | net::LOAD_PREFETCH |
+           net::LOAD_IGNORE_LIMITS | net::LOAD_DO_NOT_USE_EMBEDDED_IDENTITY |
+           net::LOAD_SUPPORT_ASYNC_REVALIDATION |
+-          net::LOAD_RESTRICTED_PREFETCH_FOR_MAIN_FRAME)) {
++          net::LOAD_RESTRICTED_PREFETCH_FOR_MAIN_FRAME |
++          net::LOAD_DO_NOT_SEND_COOKIES | net::LOAD_DO_NOT_SAVE_COOKIES)) {
+       mojo::ReportBadMessage(
+           "CorsURLLoaderFactory: Untrusted caller using restricted load flag");
+       return false;
 diff --git services/network/public/cpp/resource_request.cc services/network/public/cpp/resource_request.cc
 index 4c6da7daa167e8e687d43b6c59948fdc694052f7..d18d000347d559c146e6f273223f77f3fa5e3c31 100644
 --- services/network/public/cpp/resource_request.cc
