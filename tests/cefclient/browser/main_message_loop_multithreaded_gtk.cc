@@ -15,7 +15,14 @@ namespace client {
 
 namespace {
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
 base::Lock g_global_lock;
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 base::PlatformThreadId g_global_lock_thread = kInvalidPlatformThreadId;
 
 void lock_enter() {

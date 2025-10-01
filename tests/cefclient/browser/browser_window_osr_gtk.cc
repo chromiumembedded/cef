@@ -32,7 +32,14 @@ namespace {
 
 // Static BrowserWindowOsrGtk::EventFilter needs to forward touch events
 // to correct browser, so we maintain a vector of all windows.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexit-time-destructors"
+#endif
 std::vector<BrowserWindowOsrGtk*> g_browser_windows;
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 int GetCefStateModifiers(guint state) {
   int modifiers = 0;
