@@ -274,7 +274,7 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index a4b272aa24dc59e68451d72adaf08df4d1657925..8556236b730fba011d1b8fac60d5d343e2d38f5b 100644
+index 93cf226a421c0bd3497eab4691cb771d87427196..9d5f8c51a1b96d317683e6bb4585e51bc0ba8b1b 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -628,7 +628,8 @@ void MenuController::Run(Widget* parent,
@@ -303,7 +303,7 @@ index a4b272aa24dc59e68451d72adaf08df4d1657925..8556236b730fba011d1b8fac60d5d343
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3182,7 +3185,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3187,7 +3190,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index a4b272aa24dc59e68451d72adaf08df4d1657925..8556236b730fba011d1b8fac60d5d343
      return;
    }
  
-@@ -3207,6 +3214,7 @@ void MenuController::CloseSubmenu() {
+@@ -3212,6 +3219,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {

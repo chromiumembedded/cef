@@ -354,7 +354,7 @@ index 8432836c973c94d720f415887c16a518b0c068a4..de1bafadcdf0522abf4babd09944bb7b
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0ce3de7e89 100644
+index fe64d96d492ee86c885f7489e6c0e5127abf23aa..c8ef86a9aba88f952879a9ef7013c2332adc40f0 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -27,6 +27,7 @@
@@ -413,7 +413,7 @@ index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0c
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1145,6 +1165,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1161,6 +1181,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -432,7 +432,7 @@ index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0c
    } else {
      window()->Hide();
    }
-@@ -1166,11 +1198,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1182,11 +1214,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -452,7 +452,7 @@ index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0c
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1179,6 +1217,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1195,6 +1233,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -465,7 +465,7 @@ index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0c
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1378,9 +1422,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1394,9 +1438,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -485,10 +485,10 @@ index 5d0c67f54a321ecb945b04f4981e93ea1e4c8d84..fc219635dadea26b1ad8f957c74fea0c
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index dcda976f4c3cc0ba6bcf015d5bf7435df009ae30..ee46454b62728757de7831983214d701962f987c 100644
+index 6b05322677d512088cf42f4b1d80813a244641bc..766dc44d37c3098dcd0a5bdb403cc62886bc0a73 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -349,6 +349,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -350,6 +350,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window is allow to take screenshots, by default is true.
    bool allow_screenshots_ = true;
  
@@ -693,7 +693,7 @@ index 55e5b8a832c9c298066206737f97710ad501945a..9353f74c2ec2fe92a8f7eacf9fa065c0
  
        if (native_widget_delegate->IsDialogBox()) {
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 7f4aac3aed53b53d8b8d6bc9b5c507e63906060d..ef4f933dc70bfd5d61e7e22e043ee2c081a62c91 100644
+index cd0207176f93053c80455ea6135e0a2c7d803f44..a1c54fc782f845195081416a4921b0c8e1c44b4f 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -855,7 +855,11 @@ bool HWNDMessageHandler::IsVisible() const {
@@ -709,7 +709,7 @@ index 7f4aac3aed53b53d8b8d6bc9b5c507e63906060d..ef4f933dc70bfd5d61e7e22e043ee2c0
  }
  
  bool HWNDMessageHandler::IsMinimized() const {
-@@ -3336,10 +3340,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -3339,10 +3343,13 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
    } else if (event.type() == ui::EventType::kMousewheel) {
      ui::MouseWheelEvent mouse_wheel_event(msg);
      // Reroute the mouse wheel to the window under the pointer if applicable.

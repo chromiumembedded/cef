@@ -12,7 +12,7 @@ index 0146da153549132ee839e02510ada32f9323da6d..e7df13c8d31d0d3317d358f6c7039f4b
      version.Set("V8-Version", V8_VERSION_STRING);
      std::string host = info.GetHeaderValue("host");
 diff --git content/browser/loader/navigation_url_loader_impl.cc content/browser/loader/navigation_url_loader_impl.cc
-index 63deb59292d69e26074f5c404db7bba810de2027..597964dc482d784667d077266110e0e5a09ae23b 100644
+index 8eaaec01efcb5cd2467a1425c32ed62f8f1b4fc7..d844e3831f45016ce9276f56981e5260d84f3647 100644
 --- content/browser/loader/navigation_url_loader_impl.cc
 +++ content/browser/loader/navigation_url_loader_impl.cc
 @@ -1300,7 +1300,7 @@ NavigationURLLoaderImpl::CreateNonNetworkLoaderFactory(
@@ -47,7 +47,7 @@ index 63deb59292d69e26074f5c404db7bba810de2027..597964dc482d784667d077266110e0e5
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 750edc0c6767ab6a59d010b4f3f02770e50450b0..ddbf862d32489c79b243f09fc51bf45199f4e408 100644
+index 051c38ebaa87ffad9db0d5f11d17be75edb16b90..3c8bcc526dc63387810d140b8071c3b99db55803 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
 @@ -1201,7 +1201,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
@@ -68,10 +68,10 @@ index 750edc0c6767ab6a59d010b4f3f02770e50450b0..ddbf862d32489c79b243f09fc51bf451
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index eb7b1fdf7c3b3373201db40f03fc498c4ee08d25..3cc2b4bec7d5d5d86b35cd41996c79f0a124d8a3 100644
+index a124c1b19e21fba64c87122ff6d583df73d7007d..c92f1fc096d78c3d1e099b4bbdb3e4a2cbf654c8 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
-@@ -1453,6 +1453,12 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -1457,6 +1457,12 @@ class CONTENT_EXPORT ContentBrowserClient {
        bool opener_suppressed,
        bool* no_javascript_access);
  
@@ -84,7 +84,7 @@ index eb7b1fdf7c3b3373201db40f03fc498c4ee08d25..3cc2b4bec7d5d5d86b35cd41996c79f0
    // Allows the embedder to return a delegate for the SpeechRecognitionManager.
    // The delegate will be owned by the manager. It's valid to return nullptr.
    virtual SpeechRecognitionManagerDelegate*
-@@ -2274,7 +2280,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2278,7 +2284,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -93,7 +93,7 @@ index eb7b1fdf7c3b3373201db40f03fc498c4ee08d25..3cc2b4bec7d5d5d86b35cd41996c79f0
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2527,6 +2533,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2531,6 +2537,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -116,7 +116,7 @@ index eb7b1fdf7c3b3373201db40f03fc498c4ee08d25..3cc2b4bec7d5d5d86b35cd41996c79f0
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2597,6 +2619,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2601,6 +2623,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

@@ -85,7 +85,7 @@ index 3b29c4bc2d4a7e569e652f592fda15f9c8256188..fb4e91a6eb3c76f81623d08e45eec119
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index a71f1f268f6478b4cdb0135c566e4fcdecd35c6d..d1ee7d73740829b8f68363b74017b1e6a8b48857 100644
+index 00b5b11b5f9f6832d9643ae3730cfbf2551e71b2..b9350e2ef555fbdc10c010990bcc824db7bf18a3 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -41,6 +41,7 @@
@@ -131,7 +131,7 @@ index a71f1f268f6478b4cdb0135c566e4fcdecd35c6d..d1ee7d73740829b8f68363b74017b1e6
  
    return raw_otr_profile;
  }
-@@ -1337,6 +1350,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1350,6 +1363,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

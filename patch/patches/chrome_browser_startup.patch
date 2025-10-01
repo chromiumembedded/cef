@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index 4e73a019f990be661d177fb59bdc9b9603275dd6..b06b18dd513e8fa5354d8f3d219744daf0914c52 100644
+index 2a10728ee12e6fb47070c6c30d32564351894d89..201cb298d7f0591dba0dbc759a80fdb20385b559 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
 @@ -657,6 +657,13 @@ bool ShouldForceLaunchIntoNewProfileWithEmail(
