@@ -45,6 +45,7 @@ class CefCommandLineImpl
   void AppendSwitch(const CefString& name) override;
   void AppendSwitchWithValue(const CefString& name,
                              const CefString& value) override;
+  void RemoveSwitch(const CefString& name) override;
   bool HasArguments() override;
   void GetArguments(ArgumentList& arguments) override;
   void AppendArgument(const CefString& argument) override;

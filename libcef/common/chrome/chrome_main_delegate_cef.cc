@@ -9,6 +9,7 @@
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
+#include "base/containers/contains.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/threading/threading_features.h"
@@ -356,14 +357,17 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
       DCHECK(!base::FeatureList::GetInstance());
       std::string disable_features_str =
           command_line->GetSwitchValueASCII(switches::kDisableFeatures);
-      for (auto feature_str : disable_features) {
-        if (!disable_features_str.empty()) {
-          disable_features_str += ",";
+      if (!disable_features_str.empty()) {
+        for (std::string_view feature_name :
+             base::FeatureList::SplitFeatureListString(disable_features_str)) {
+          if (!base::Contains(disable_features, feature_name)) {
+            disable_features.emplace_back(feature_name);
+          }
         }
-        disable_features_str += feature_str;
       }
+      command_line->RemoveSwitch(switches::kDisableFeatures);
       command_line->AppendSwitchASCII(switches::kDisableFeatures,
-                                      disable_features_str);
+                                      base::JoinString(disable_features, ","));
     }
   }
 

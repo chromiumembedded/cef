@@ -61,6 +61,8 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line,
   EXPECT_TRUE(has3);
   EXPECT_TRUE(has4);
 
+  switches.clear();
+
   EXPECT_TRUE(command_line->HasArguments());
 
   CefCommandLine::ArgumentList args;
@@ -70,6 +72,11 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line,
   EXPECT_EQ(expected_arg1, arg0);
   std::string arg1 = args[1];
   EXPECT_EQ(expected_arg2, arg1);
+
+  command_line->RemoveSwitch("switch1");
+  EXPECT_FALSE(command_line->HasSwitch("switch1"));
+  command_line->GetSwitches(switches);
+  EXPECT_EQ((size_t)3, switches.size());
 
   command_line->Reset();
   EXPECT_FALSE(command_line->HasSwitches());

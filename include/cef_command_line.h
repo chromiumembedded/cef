@@ -182,6 +182,15 @@ class CefCommandLine : public virtual CefBaseRefCounted {
   virtual void AppendSwitchWithValue(const CefString& name,
                                      const CefString& value) = 0;
 
+#if CEF_API_ADDED(CEF_NEXT)
+  ///
+  /// Remove a switch from the command line. If no such switch is present, this
+  /// has no effect.
+  ///
+  /*--cef(added=next)--*/
+  virtual void RemoveSwitch(const CefString& name) = 0;
+#endif
+
   ///
   /// True if there are remaining command line arguments.
   ///

@@ -130,6 +130,11 @@ void CefCommandLineImpl::AppendSwitchWithValue(const CefString& name,
 #endif
 }
 
+void CefCommandLineImpl::RemoveSwitch(const CefString& name) {
+  CEF_VALUE_VERIFY_RETURN_VOID(true);
+  mutable_value()->RemoveSwitch(base::ToLowerASCII(name.ToString()));
+}
+
 bool CefCommandLineImpl::HasArguments() {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return (const_value().GetArgs().size() > 0);

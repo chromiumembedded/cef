@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 #include "include/base/cef_callback.h"
 #include "include/cef_parser.h"
@@ -37,6 +38,20 @@
 
 namespace {
 
+void UpdateFeatureFlags(const CefRefPtr<CefCommandLine>& command_line,
+                        const std::string& flag,
+                        const std::vector<std::string>& features) {
+  std::string features_str = command_line->GetSwitchValue(flag);
+  for (const auto& feature_name : features) {
+    if (!features_str.empty()) {
+      features_str += ",";
+    }
+    features_str += feature_name;
+  }
+  command_line->RemoveSwitch(flag);
+  command_line->AppendSwitchWithValue(flag, features_str);
+}
+
 // Browser-side app delegate.
 class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
  public:
@@ -52,6 +67,16 @@ class URLRequestBrowserTest : public client::ClientAppBrowser::Delegate {
     // WebContents because they slow down test runs.
     command_line->AppendSwitch(
         "disable-component-extensions-with-background-pages");
+
+    std::vector<std::string> enable_features = {
+        // Disable permission dialogs for local network access. These dialogs
+        // interfere with tests that send cross-origin requests to a localhost
+        // server. We can't use CEF_CONTENT_SETTING_TYPE_LOCAL_NETWORK_ACCESS
+        // for this because that only works with HTTP/S schemes and the tests
+        // also use custom schemes (for example, CorsTest.IframeNone*ToServer).
+        "LocalNetworkAccessChecks:LocalNetworkAccessChecksWarn/true",
+    };
+    UpdateFeatureFlags(command_line, "enable-features", enable_features);
   }
 
  private:
