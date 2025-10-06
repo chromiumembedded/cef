@@ -139,7 +139,7 @@ void CefRunMessageLoop();
 /*--cef()--*/
 void CefQuitMessageLoop();
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14100)
 ///
 /// Set to true before calling OS APIs on the CEF UI thread that will enter a
 /// native message loop (see usage restrictions below). Set to false after
@@ -170,7 +170,7 @@ void CefQuitMessageLoop();
 ///   Otherwise, it will be executed right after task #1 completes at "thread
 ///   message loop level".
 ///
-/*--cef(added=next)--*/
+/*--cef(added=14100)--*/
 void CefSetNestableTasksAllowed(bool allowed);
 
 #ifdef __cplusplus
