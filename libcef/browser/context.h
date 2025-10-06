@@ -8,9 +8,11 @@
 
 #include <list>
 #include <map>
+#include <optional>
 #include <string>
 
 #include "base/observer_list.h"
+#include "base/task/current_thread.h"
 #include "base/threading/platform_thread.h"
 #include "cef/include/cef_app.h"
 #include "cef/libcef/browser/main_runner.h"
@@ -87,6 +89,9 @@ class CefContext {
   // Normalize and validate request context settings for user-created contexts.
   void NormalizeRequestContextSettings(CefRequestContextSettings* settings);
 
+  // See CefSetNestableTasksAllowed documentation.
+  void SetNestableTasksAllowed(bool allowed);
+
   // Manage observer objects. The observer must either outlive this object or
   // remove itself before destruction. These methods can only be called on the
   // UI thread.
@@ -119,6 +124,10 @@ class CefContext {
   std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
   std::unique_ptr<pref_helper::Registrar> pref_registrar_;
   std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
+
+  std::optional<
+      base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop>
+      nestable_tasks_allowed_;
 
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer>::Unchecked observers_;

@@ -743,6 +743,37 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd,
       self->OnSize(wParam == SIZE_MINIMIZED);
       break;
 
+    case WM_SIZING:
+    case WM_ENTERSIZEMOVE:
+    case WM_EXITSIZEMOVE:
+      if (self->browser_window_) {
+        // |browser_hwnd| may be nullptr if the browser has not yet been
+        // created.
+        if (auto browser_hwnd = self->browser_window_->GetWindowHandle()) {
+          // Trigger resize-related notifications.
+          PostMessage(browser_hwnd, message, wParam, lParam);
+        }
+      }
+      break;
+
+    case WM_SYSCOMMAND:
+      // Only necessary when running on the UI thread.
+      if (CefCurrentlyOn(TID_UI)) {
+        // Windows uses the 4 lower order bits of |wParam| for type-specific
+        // information so we must exclude this when comparing.
+        static constexpr int sc_mask = 0xFFF0;
+        if ((wParam & sc_mask) == SC_MOVE || (wParam & sc_mask) == SC_SIZE) {
+          // Allow application tasks to run in the drag-induced nested message
+          // loop that will be triggered here. Otherwise, redraw (and other
+          // notifications) will be blocked until the nested loop exits. This
+          // should be reentrancy safe because no other C++ symbols are on the
+          // stack.
+          CefScopedSetNestableTasksAllowed allowed;
+          return DefWindowProc(hWnd, WM_SYSCOMMAND, wParam, lParam);
+        }
+      }
+      break;
+
     case WM_MOVING:
     case WM_MOVE:
       self->OnMove();

@@ -139,6 +139,52 @@ void CefRunMessageLoop();
 /*--cef()--*/
 void CefQuitMessageLoop();
 
+#if CEF_API_ADDED(CEF_NEXT)
+///
+/// Set to true before calling OS APIs on the CEF UI thread that will enter a
+/// native message loop (see usage restrictions below). Set to false after
+/// exiting the native message loop. On Windows, use the CefSetOSModalLoop
+/// function instead in cases like native top menus where resize of the browser
+/// content is not required, or in cases like printer APIs where reentrancy
+/// safety cannot be guaranteed.
+///
+/// Nested processing of Chromium tasks is disabled by default because common
+/// controls and/or printer functions may use nested native message loops that
+/// lead to unplanned reentrancy. This function re-enables nested processing in
+/// the scope of an upcoming native message loop. It must only be used in cases
+/// where the stack is reentrancy safe and processing nestable tasks is
+/// explicitly safe. Do not use in cases (like the printer example) where an OS
+/// API may experience unplanned reentrancy as a result of a new task executing
+/// immediately.
+///
+/// For instance,
+/// - The UI thread is running a message loop.
+/// - It receives a task #1 and executes it.
+/// - The task #1 implicitly starts a nested message loop. For example, via
+///   Windows APIs such as MessageBox or GetSaveFileName, or default handling
+///   of a user-initiated drag/resize operation (e.g. DefWindowProc handling of
+///   WM_SYSCOMMAND for SC_MOVE/SC_SIZE).
+/// - The UI thread receives a task #2 before or while in this second message
+///   loop.
+/// - With NestableTasksAllowed set to true, the task #2 will run right away.
+///   Otherwise, it will be executed right after task #1 completes at "thread
+///   message loop level".
+///
+/*--cef(added=next)--*/
+void CefSetNestableTasksAllowed(bool allowed);
+
+#ifdef __cplusplus
+///
+/// Scoped helper for calling CefSetNestableTasksAllowed.
+///
+class CefScopedSetNestableTasksAllowed final {
+ public:
+  CefScopedSetNestableTasksAllowed() { CefSetNestableTasksAllowed(true); }
+  ~CefScopedSetNestableTasksAllowed() { CefSetNestableTasksAllowed(false); }
+};
+#endif  // __cplusplus
+#endif
+
 ///
 /// Implement this interface to provide handler implementations. Methods will be
 /// called by the process and/or thread indicated.

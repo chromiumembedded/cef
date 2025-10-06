@@ -168,6 +168,9 @@ int CefRunMainWithPreferredStackSize(mainPtr main, int argc, char* argv[]);
 ///
 /// Set to true before calling Windows APIs like TrackPopupMenu that enter a
 /// modal message loop. Set to false after exiting the modal message loop.
+/// Use the CefSetNestableTasksAllowed function instead in cases where the
+/// browser content may be resized during native message loop execution (see
+/// that function for usage restrictions).
 ///
 void CefSetOSModalLoop(bool osModalLoop);
 

@@ -43,8 +43,7 @@ int g_exit_code = -1;
 // When the process terminates check if CefShutdown() has been called.
 class CefShutdownChecker {
  public:
-  ~CefShutdownChecker() { 
-    DCHECK(!g_context) << "CefShutdown was not called"; }
+  ~CefShutdownChecker() { DCHECK(!g_context) << "CefShutdown was not called"; }
 } g_shutdown_checker;
 #pragma clang diagnostic pop
 #endif  // DCHECK_IS_ON()
@@ -336,6 +335,15 @@ void CefSetOSModalLoop(bool osModalLoop) {
 
 #endif  // BUILDFLAG(IS_WIN)
 
+void CefSetNestableTasksAllowed(bool allowed) {
+  if (!CONTEXT_STATE_VALID()) {
+    DCHECK(false) << "context not valid";
+    return;
+  }
+
+  g_context->SetNestableTasksAllowed(allowed);
+}
+
 // CefContext
 
 CefContext::CefContext() = default;
@@ -499,6 +507,17 @@ void CefContext::NormalizeRequestContextSettings(
   // The |root_cache_path| value was already normalized in Initialize.
   const base::FilePath& root_cache_path = CefString(&settings_.root_cache_path);
   NormalizeCachePathAndSet(settings->cache_path, root_cache_path);
+}
+
+void CefContext::SetNestableTasksAllowed(bool allowed) {
+  CEF_REQUIRE_UIT();
+  CHECK(allowed != nestable_tasks_allowed_.has_value())
+      << "Invalid attempt at CefSetNestableTasksAllowed reentrancy";
+  if (allowed) {
+    nestable_tasks_allowed_.emplace();
+  } else {
+    nestable_tasks_allowed_.reset();
+  }
 }
 
 void CefContext::AddObserver(Observer* observer) {

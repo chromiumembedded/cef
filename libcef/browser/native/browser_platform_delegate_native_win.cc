@@ -12,6 +12,7 @@
 #include "base/files/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/task/current_thread.h"
 #include "base/win/win_util.h"
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/context.h"
@@ -614,6 +615,33 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(HWND hwnd,
                      SWP_NOZORDER);
       }
       return 0;
+
+    case WM_SIZING:
+    case WM_ENTERSIZEMOVE:
+    case WM_EXITSIZEMOVE:
+      if (platform_delegate && platform_delegate->window_widget_) {
+        // Trigger resize-related notifications.
+        PostMessage(HWNDForWidget(platform_delegate->window_widget_), message,
+                    wParam, lParam);
+      }
+      break;
+
+    case WM_SYSCOMMAND: {
+      // Windows uses the 4 lower order bits of |wParam| for type-specific
+      // information so we must exclude this when comparing.
+      static constexpr int sc_mask = 0xFFF0;
+      if ((wParam & sc_mask) == SC_MOVE || (wParam & sc_mask) == SC_SIZE) {
+        // Allow application tasks to run in the drag-induced nested message
+        // loop that will be triggered here. Otherwise, redraw (and other
+        // notifications) will be blocked until the nested loop exits. This
+        // should be reentrancy safe because no other C++ symbols are on the
+        // stack.
+        base::CurrentThread::ScopedAllowApplicationTasksInNativeNestedLoop
+            allow;
+        return DefWindowProc(hwnd, WM_SYSCOMMAND, wParam, lParam);
+      }
+      break;
+    }
 
     case WM_MOVING:
     case WM_MOVE:
