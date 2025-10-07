@@ -654,8 +654,11 @@ void StreamReaderURLLoader::HeadersComplete(int orig_status_code,
   }
 
   auto pending_response = network::mojom::URLResponseHead::New();
-  pending_response->request_start = base::TimeTicks::Now();
-  pending_response->response_start = base::TimeTicks::Now();
+  base::TimeTicks now = base::TimeTicks::Now();
+  pending_response->request_start = now;
+  pending_response->response_start = now;
+  // blink depends this to caculate the request completion time.
+  pending_response->load_timing.request_start = now;
 
   auto headers = MakeResponseHeaders(
       status_code, status_text, mime_type, charset, content_length,
