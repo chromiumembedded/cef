@@ -6,12 +6,14 @@
 
 #include <deque>
 #include <iostream>
+#include <optional>
 
 #include "base/auto_reset.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/format_macros.h"
+#include "base/hash/sha1.h"
 #include "base/logging.h"
 #include "base/no_destructor.h"
 #include "base/process/memory.h"
@@ -37,9 +39,12 @@
 #include "sandbox/policy/mojom/sandbox.mojom.h"
 #include "sandbox/policy/sandbox_type.h"
 #include "sandbox/win/src/sandbox.h"
+#include "third_party/boringssl/src/include/openssl/sha.h"
 #include "third_party/crashpad/crashpad/client/annotation.h"
 
 namespace {
+
+constexpr size_t kBufferSize = 64 * 1024;  // 64KB chunks
 
 // Sets the current working directory for the process to the directory holding
 // the executable if this is the browser process. This avoids leaking a handle
@@ -112,6 +117,36 @@ std::wstring NormalizeError(const std::wstring& err) {
   return str;
 }
 
+// Calculate SHA1 hash of file content using 64KB chunks to avoid loading
+// entire file into memory. Returns nullopt if file cannot be read.
+std::optional<std::string> CalculateFileSHA1(const base::FilePath& file_path) {
+  base::File file(file_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
+  if (!file.IsValid()) {
+    return std::nullopt;
+  }
+
+  size_t bytes_read = 0;
+  std::vector<uint8_t> buf(kBufferSize);
+  const size_t file_size = file.GetLength();
+  SHA_CTX sha1_ctx;
+  SHA1_Init(&sha1_ctx);
+  while (bytes_read < file_size) {
+    std::optional<size_t> bytes_currently_read =
+        file.ReadAtCurrentPos(base::as_writable_byte_span(buf));
+
+    if (!bytes_currently_read.has_value()) {
+      return std::nullopt;
+    }
+
+    SHA1_Update(&sha1_ctx, buf.data(), bytes_currently_read.value());
+    bytes_read += bytes_currently_read.value();
+  }
+
+  std::array<uint8_t, base::kSHA1Length> digest;
+  SHA1_Final(digest.data(), &sha1_ctx);
+  return base::HexEncode(digest);
+}
+
 // Verify DLL code signing requirements.
 void CheckDllCodeSigning(
     const base::FilePath& dll_path,
@@ -130,12 +165,16 @@ void CheckDllCodeSigning(
          base::WideToUTF16(dll_thumbprints.errors)});
     ShowError(FormatErrorString(IDS_ERROR_INVALID_CERT, subst));
 #endif
-    if (dll_thumbprints.errors.empty()) {
+    const auto sha1 = CalculateFileSHA1(dll_path);
+    if (!sha1.has_value()) {
+      LOG(FATAL) << "Failed to read file: " << dll_path.value();
+    } else if (dll_thumbprints.errors.empty()) {
       LOG(FATAL) << "Failed " << dll_path.value()
-                 << " certificate requirements";
+                 << " certificate requirements. SHA1: " << sha1.value();
     } else {
       LOG(FATAL) << "Failed " << dll_path.value() << " certificate checks: "
-                 << NormalizeError(dll_thumbprints.errors);
+                 << NormalizeError(dll_thumbprints.errors)
+                 << ". SHA1: " << sha1.value();
     }
   }
 }
