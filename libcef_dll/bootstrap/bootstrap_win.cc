@@ -218,6 +218,23 @@ void SetCrashSwitchesFromCommandLine(const base::CommandLine& command_line) {
   }
 }
 
+struct DllLoadResult {
+  HMODULE module = nullptr;
+  std::wstring used_path;
+};
+
+constexpr DWORD kNormalLoad = 0;
+
+template <DWORD LoadFlags>
+DllLoadResult LoadClientDll(const std::wstring& dll_name,
+                            const base::FilePath& exe_path) {
+  DllLoadResult result;
+  result.used_path = exe_path.DirName().Append(dll_name + L".dll").value();
+  result.module = ::LoadLibraryEx(result.used_path.c_str(), nullptr,
+                                  LoadFlags | LOAD_WITH_ALTERED_SEARCH_PATH);
+  return result;
+}
+
 }  // namespace
 
 #if defined(CEF_BUILD_BOOTSTRAP_CONSOLE)
@@ -351,9 +368,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
                    << NormalizeError(exe_thumbprints.errors);
       }
     }
-  }
 
-  if (!is_sandboxed) {
     // Check chrome_elf.dll which should be preloaded to support crash
     // reporting.
     if (HMODULE hModule = ::LoadLibrary(L"chrome_elf")) {
@@ -383,9 +398,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     // only option that doesn't execute DllMain while still allowing us
     // retrieve the path using GetModuleFileName. No execution of the DLL
     // should be attempted while loaded in this mode.
-    if (HMODULE hModule = ::LoadLibraryEx(dll_name.c_str(), nullptr,
-                                          DONT_RESOLVE_DLL_REFERENCES)) {
-      const auto& dll_path = bootstrap_util::GetModulePath(hModule);
+    const auto result =
+        LoadClientDll<DONT_RESOLVE_DLL_REFERENCES>(dll_name, exe_path);
+    if (result.module) {
+      const auto& dll_path = bootstrap_util::GetModulePath(result.module);
 
       if (!bootstrap_util::IsModulePathAllowed(dll_path, exe_path)) {
 #if DCHECK_IS_ON()
@@ -398,7 +414,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
       CheckDllCodeSigning(dll_path, exe_thumbprints);
 
-      FreeLibrary(hModule);
+      FreeLibrary(result.module);
     } else {
 #if DCHECK_IS_ON()
       const auto subst = std::to_array<std::u16string>(
@@ -406,7 +422,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
            base::WideToUTF16(cef_util::GetLastErrorAsString())});
       ShowError(FormatErrorString(IDS_ERROR_LOAD_FAILED, subst));
 #endif
-      LOG(FATAL) << "Failed to load " << dll_name << ".dll with error "
+      LOG(FATAL) << "Failed to load " << result.used_path << " with error "
                  << ::GetLastError();
     }
   }
@@ -419,9 +435,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   using kProcType = decltype(&RunWinMain);
 #endif
 
-  // Load the client DLL normally.
-  if (HMODULE hModule = ::LoadLibrary(dll_name.c_str())) {
-    if (auto* pFunc = (kProcType)::GetProcAddress(hModule, kProcName)) {
+  const auto result = LoadClientDll<kNormalLoad>(dll_name, exe_path);
+  if (result.module) {
+    if (auto* pFunc = (kProcType)::GetProcAddress(result.module, kProcName)) {
       // Initialize the sandbox services.
       // Match the logic in MainDllLoader::Launch.
       sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
@@ -460,8 +476,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       }
 #endif
 
-      LOG(FATAL) << "Failed to find " << kProcName << " in " << dll_name
-                 << ".dll with error " << ::GetLastError();
+      LOG(FATAL) << "Failed to find " << kProcName << " in " << result.used_path
+                 << " with error " << ::GetLastError();
     }
   } else {
 #if DCHECK_IS_ON()
@@ -473,7 +489,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     }
 #endif
 
-    LOG(FATAL) << "Failed to load " << dll_name << ".dll with error "
+    LOG(FATAL) << "Failed to load " << result.used_path << " with error "
                << ::GetLastError();
   }
 
