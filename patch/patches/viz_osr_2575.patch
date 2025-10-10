@@ -30,7 +30,7 @@ index aed835411f5728c5685baa43eda2dd1585119b18..57dc418d34c25f147a82da6ae9b5dc2c
      gpu::SurfaceHandle child_window) {
    NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 7236eee85fdbb285a9873138075183d37c129666..729bc100acbe1a7bcb5c0361c026f56a92ef9f5a 100644
+index 07fe1ea0e8e5f28428a164eedc28d4e5150ab13b..b481d538bf37a075a4ca70a354eb4107b4bd6f0a 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
 @@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
@@ -54,7 +54,7 @@ index 7236eee85fdbb285a9873138075183d37c129666..729bc100acbe1a7bcb5c0361c026f56a
  #endif
  
 diff --git components/viz/host/layered_window_updater_impl.cc components/viz/host/layered_window_updater_impl.cc
-index 8f726bde2cb5da6acfe630006af0fc3a09811d6c..0737835d1e9d11b408da63a35d57f3c0e8ca5684 100644
+index 36b9e09ca63aeec83c381918be2dbc933611e6ee..a0552011f89babfe7c731b85e8897f44d776c4fc 100644
 --- components/viz/host/layered_window_updater_impl.cc
 +++ components/viz/host/layered_window_updater_impl.cc
 @@ -46,7 +46,7 @@ void LayeredWindowUpdaterImpl::OnAllocatedSharedMemory(
@@ -80,10 +80,10 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 4017fef63c549b535c1eedd3571e69b7fac6f3e2..62e05b2dcd6e06df2aa8f2280fcfd568ec55b490 100644
+index 9271b252a1a00d654b89d1212eea6d871eec1a5c..62694c7b4d76cad2ce0c0ec5d5b569ec222ded2b 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -272,6 +272,8 @@ viz_component("service") {
+@@ -275,6 +275,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -134,10 +134,10 @@ index 07502f4ff2afd53a43d8f0ab68d4c4c39f6c0737..cfcabb11cf001a24ddd1ec0cad48f0bf
    HWND child_hwnd;
    auto device = CreateSoftwareOutputDeviceWin(
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index 9119e302ad073a3b22ba47f800e7214b580e122b..2725ca1d67f78f1d5ea2cb0dc4193dc98dbbc437 100644
+index 838031388c4c20bbcf068210559cb2018a661cd6..51b98d8e755c732db95151030a5e580f89b7a40d 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
-@@ -157,8 +157,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
+@@ -156,8 +156,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
    if (!canvas_)
      return;
  
@@ -150,10 +150,10 @@ index 9119e302ad073a3b22ba47f800e7214b580e122b..2725ca1d67f78f1d5ea2cb0dc4193dc9
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 0c9dabd7e85042499b60d0a27a506745771bea6f..7179272c66008485fdb2ef15dba7a33a0cf77c7c 100644
+index d8f825a29c50f47a35ef2ff4dc03c0a8d27d877d..e34d86da3254bcd943778d39bc1b36ea943a8a67 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -386,8 +386,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -381,8 +381,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -191,10 +191,10 @@ index c608918dfbf9afe4ca94f4b5b3a67dfc68ce1d73..49012891abbf6bfd4282607224334f63
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index e063835e87f08e6a2359886a96d7b78954e3d5b2..ec1de608884dcb308fefd956940f52c68a443115 100644
+index 78a96bff9ba9e24dababf758ba38f9b430b39a14..4326be6a16ba271685b1cf332d1d6b7fa26ebc32 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -113,13 +113,15 @@ interface DisplayPrivate {
+@@ -114,13 +114,15 @@ interface DisplayPrivate {
  
  // DisplayClient allows privileged clients to receive events from the Display.
  interface DisplayClient {
@@ -223,7 +223,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 0d1fd44c615041039579691802012b8ef96dc9b5..1ce27d52045b34535fbeb8465b67d50e814d7a61 100644
+index 986569ff285a2a5be21e715dacf6072de92ebe79..ea04e6ea6c98fbcb19f47562624b7622e0e076ac 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@
@@ -261,7 +261,7 @@ index 0d1fd44c615041039579691802012b8ef96dc9b5..1ce27d52045b34535fbeb8465b67d50e
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -636,6 +649,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -635,6 +648,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

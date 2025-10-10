@@ -61,7 +61,7 @@ void WriteTempFileAndView(const std::string& data) {
 
 gfx::Rect GetDisplayWorkAreaNearestPoint(gfx::Point dip_point) {
   const auto display =
-      display::Screen::GetScreen()->GetDisplayNearestPoint(dip_point);
+      display::Screen::Get()->GetDisplayNearestPoint(dip_point);
   // Work area in DIP.
   return display.work_area();
 }
@@ -438,8 +438,8 @@ CefBrowserPlatformDelegateNativeWin::GetRootWindowBounds() {
           auto* top_level =
               window_widget_->GetNativeWindow()->GetToplevelWindow();
           gfx::Rect bounds(root_rect);
-          bounds = display::Screen::GetScreen()->ScreenToDIPRectInWindow(
-              top_level, bounds);
+          bounds = display::Screen::Get()->ScreenToDIPRectInWindow(top_level,
+                                                                   bounds);
           return bounds;
         }
       }

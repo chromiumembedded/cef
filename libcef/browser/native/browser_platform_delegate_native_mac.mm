@@ -198,8 +198,7 @@ void GetNSBoundsInDisplay(const gfx::Rect& dip_bounds,
                           NSRect& frame_rect,
                           NSRect& content_rect) {
   // Identify the closest display.
-  const auto display =
-      display::Screen::GetScreen()->GetDisplayMatching(dip_bounds);
+  const auto display = display::Screen::Get()->GetDisplayMatching(dip_bounds);
   const auto& display_bounds = display.bounds();
   const auto& display_work_area = display.work_area();
 

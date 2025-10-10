@@ -221,7 +221,7 @@ display::Display GetDisplayNearestPoint(const gfx::Point& point,
         display::win::GetScreenWin()->ScreenToDIPPoint(gfx::PointF(point)));
   }
 #endif
-  return display::Screen::GetScreen()->GetDisplayNearestPoint(find_point);
+  return display::Screen::Get()->GetDisplayNearestPoint(find_point);
 }
 
 display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
@@ -233,7 +233,7 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
         display::win::GetScreenWin()->ScreenToDIPRect(nullptr, find_bounds);
   }
 #endif
-  return display::Screen::GetScreen()->GetDisplayMatching(find_bounds);
+  return display::Screen::Get()->GetDisplayMatching(find_bounds);
 }
 
 void ConvertPointFromPixels(gfx::Point* point, float device_scale_factor) {
@@ -416,7 +416,8 @@ bool ShouldUseDarkTheme(views::Widget* widget) {
   }
 
   // Use the native theme value.
-  return widget->GetNativeTheme()->ShouldUseDarkColors();
+  return widget->GetNativeTheme()->preferred_color_scheme() ==
+         ui::NativeTheme::PreferredColorScheme::kDark;
 }
 
 }  // namespace view_util

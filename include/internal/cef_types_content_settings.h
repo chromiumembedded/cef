@@ -548,6 +548,18 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_DEVICE_ATTRIBUTES,
 #endif
 
+#if CEF_API_ADDED(CEF_NEXT)
+  /// Stores per-origin state for permission heuristics. Currently used for
+  /// auto-granting geolocation element permission request after repeated
+  /// temporary grants.
+  CEF_CONTENT_SETTING_TYPE_PERMISSION_ACTIONS_HISTORY,
+
+  /// Website setting to indicate whether the user has selected "show original"
+  /// when suspicious warning is shown. If the user has selected this, the
+  /// notification permission will not be revoked based on suspicious verdict.
+  CEF_CONTENT_SETTING_TYPE_SUSPICIOUS_NOTIFICATION_SHOW_ORIGINAL,
+#endif
+
   CEF_CONTENT_SETTING_TYPE_NUM_VALUES,
 } cef_content_setting_types_t;
 

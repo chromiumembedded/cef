@@ -14,7 +14,7 @@ index 6a1b3f5267b0d82d6763743f85815686942daa7e..d9cfa012c97564a4bb905b46c0c4d97f
               ? profile_metrics::BrowserProfileType::kRegular
               : profile_metrics::BrowserProfileType::kIncognito;
 diff --git chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
-index 594214f3f917b6e152b0908e3d1c3b84951ea00c..110b9d640f67ed8adecf51616aeb8a355415a8aa 100644
+index fd79aca5a42e69c7190af6d4d9855e9becf4a050..70a4c6b40507336dea75ea61930e47177674f90f 100644
 --- chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 +++ chrome/browser/ui/views/incognito_clear_browsing_data_dialog.cc
 @@ -31,7 +31,9 @@ IncognitoClearBrowsingDataDialog::IncognitoClearBrowsingDataDialog(

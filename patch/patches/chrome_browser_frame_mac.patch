@@ -1,16 +1,16 @@
-diff --git chrome/browser/ui/views/frame/browser_frame_mac.h chrome/browser/ui/views/frame/browser_frame_mac.h
-index a95ee56a5539ce705ad677a8029cb63464f6e274..e148aedaaee8bfc5c1b474e411f0c6a333f43178 100644
---- chrome/browser/ui/views/frame/browser_frame_mac.h
-+++ chrome/browser/ui/views/frame/browser_frame_mac.h
+diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.h chrome/browser/ui/views/frame/browser_native_widget_mac.h
+index 1423d061aa00c5e8c58bceb09f36d517821f8d06..dd7e20ed4850153fe5e1cc2d69acfd5299bc2693 100644
+--- chrome/browser/ui/views/frame/browser_native_widget_mac.h
++++ chrome/browser/ui/views/frame/browser_native_widget_mac.h
 @@ -11,6 +11,7 @@
  #include "ui/base/mojom/window_show_state.mojom-forward.h"
  #include "ui/views/widget/native_widget_mac.h"
  
 +class Browser;
- class BrowserFrame;
+ class BrowserWidget;
  class BrowserView;
  @class BrowserWindowTouchBarController;
-@@ -56,6 +57,21 @@ class BrowserFrameMac : public views::NativeWidgetMac,
+@@ -57,6 +58,21 @@ class BrowserNativeWidgetMac : public views::NativeWidgetMac,
    bool ShouldUseInitialVisibleOnAllWorkspaces() const override;
    void AnnounceTextInInProcessWindow(const std::u16string& text) override;
  
@@ -30,14 +30,14 @@ index a95ee56a5539ce705ad677a8029cb63464f6e274..e148aedaaee8bfc5c1b474e411f0c6a3
 +      bool is_before_first_responder);
 +
   protected:
-   ~BrowserFrameMac() override;
+   ~BrowserNativeWidgetMac() override;
  
-diff --git chrome/browser/ui/views/frame/browser_frame_mac.mm chrome/browser/ui/views/frame/browser_frame_mac.mm
-index 8e8db3d6c807b2c3773a208cf528f55a90eecc07..55950c4983ecbb1a2176041f1f65393483c02275 100644
---- chrome/browser/ui/views/frame/browser_frame_mac.mm
-+++ chrome/browser/ui/views/frame/browser_frame_mac.mm
-@@ -193,7 +193,14 @@ void BrowserFrameMac::OnWidgetDestroyed(views::Widget* widget) {
- void BrowserFrameMac::ValidateUserInterfaceItem(
+diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+index 0f8f75c1986b0a64f53c6feefe296fe0eb309f0b..21871aa60fdd71b566a005f7d4235633b4b4c4bd 100644
+--- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
++++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+@@ -194,7 +194,14 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
+ void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
 -  Browser* browser = browser_view_->browser();
@@ -45,14 +45,14 @@ index 8e8db3d6c807b2c3773a208cf528f55a90eecc07..55950c4983ecbb1a2176041f1f653934
 +}
 +
 +// static
-+void BrowserFrameMac::ValidateUserInterfaceItem(
++void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
 +    Browser* browser,
 +    int32_t tag,
 +    remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
    if (!chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -323,8 +330,16 @@ bool BrowserFrameMac::WillExecuteCommand(
+@@ -333,8 +340,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -62,7 +62,7 @@ index 8e8db3d6c807b2c3773a208cf528f55a90eecc07..55950c4983ecbb1a2176041f1f653934
 +}
  
 +// static
-+bool BrowserFrameMac::WillExecuteCommand(
++bool BrowserNativeWidgetMac::WillExecuteCommand(
 +    Browser* browser,
 +    int32_t command,
 +    WindowOpenDisposition window_open_disposition,
@@ -70,7 +70,7 @@ index 8e8db3d6c807b2c3773a208cf528f55a90eecc07..55950c4983ecbb1a2176041f1f653934
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -356,13 +371,21 @@ bool BrowserFrameMac::ExecuteCommand(
+@@ -366,13 +381,21 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -80,7 +80,7 @@ index 8e8db3d6c807b2c3773a208cf528f55a90eecc07..55950c4983ecbb1a2176041f1f653934
 +}
 + 
 +// static
-+bool BrowserFrameMac::ExecuteCommand(
++bool BrowserNativeWidgetMac::ExecuteCommand(
 +    Browser* browser,
 +    int32_t command,
 +    WindowOpenDisposition window_open_disposition,

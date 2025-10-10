@@ -22,7 +22,7 @@ class WebView;
 class CefBrowserViewImpl;
 
 // A variant of CefBrowserViewView that extends BrowserView instead of
-// views::WebView. See chrome_browser_frame.h for related documentation.
+// views::WebView. See chrome_browser_widget.h for related documentation.
 class ChromeBrowserView
     : public CefViewView<BrowserView, CefBrowserViewDelegate> {
   METADATA_HEADER(ChromeBrowserView, BrowserView)
@@ -38,7 +38,7 @@ class ChromeBrowserView
   ChromeBrowserView& operator=(const ChromeBrowserView&) = delete;
 
   // Called by ChromeBrowserHostImpl.
-  void InitBrowser(std::unique_ptr<Browser> browser);
+  void InitBrowser(Browser* browser);
   void Destroyed();
 
   // View methods:

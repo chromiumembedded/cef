@@ -1,10 +1,10 @@
 diff --git third_party/blink/public/web/web_view.h third_party/blink/public/web/web_view.h
-index b3553c0783a7b00e055f82ef0b72bd866284473d..ef577a0f5176d985b55b7b4cf2a76d8da5634471 100644
+index 9c0fe6ad62872f05cfb1179b4b979139008976d2..19aa70c666420803503434119362bec2de7da312 100644
 --- third_party/blink/public/web/web_view.h
 +++ third_party/blink/public/web/web_view.h
-@@ -484,6 +484,11 @@ class BLINK_EXPORT WebView {
+@@ -485,6 +485,11 @@ class BLINK_EXPORT WebView {
    // for testing.
-   virtual std::optional<uint64_t> CanvasNoiseTokenForTesting() = 0;
+   virtual std::optional<NoiseToken> CanvasNoiseTokenForTesting() = 0;
  
 +  // Sets whether to allow the use of JavaScript moveTo/By() and resizeTo/By()
 +  // (without user activation) with Document picture-in-picture popups.
@@ -15,12 +15,12 @@ index b3553c0783a7b00e055f82ef0b72bd866284473d..ef577a0f5176d985b55b7b4cf2a76d8d
    ~WebView() = default;
  };
 diff --git third_party/blink/renderer/core/exported/web_view_impl.h third_party/blink/renderer/core/exported/web_view_impl.h
-index 883269126ff93c26765ab62013035c6193f8adbb..d3afd4b4aa0a05a9a1efefa4e5efecbf445ae0c7 100644
+index 83e4be6692496d1d05dcd4110009c68763683128..1ebe7476d871a25415f93cf02d6542e70db4a1b4 100644
 --- third_party/blink/renderer/core/exported/web_view_impl.h
 +++ third_party/blink/renderer/core/exported/web_view_impl.h
 @@ -328,6 +328,13 @@ class CORE_EXPORT WebViewImpl final : public WebView,
  
-   std::optional<uint64_t> CanvasNoiseTokenForTesting() override;
+   std::optional<NoiseToken> CanvasNoiseTokenForTesting() override;
  
 +  void SetMovePictureInPictureEnabled(bool enabled) override {
 +    move_pip_enabled_ = enabled;
@@ -32,7 +32,7 @@ index 883269126ff93c26765ab62013035c6193f8adbb..d3afd4b4aa0a05a9a1efefa4e5efecbf
    void DispatchPersistedPageshow(base::TimeTicks navigation_start);
    void DispatchPagehide(mojom::blink::PagehideDispatch pagehide_dispatch);
    void HookBackForwardCacheEviction(bool hook);
-@@ -1018,6 +1025,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
+@@ -1020,6 +1027,8 @@ class CORE_EXPORT WebViewImpl final : public WebView,
    // CSS property.
    bool supports_draggable_regions_ = false;
  
@@ -42,7 +42,7 @@ index 883269126ff93c26765ab62013035c6193f8adbb..d3afd4b4aa0a05a9a1efefa4e5efecbf
    base::ObserverList<WebViewObserver> observers_;
  };
 diff --git third_party/blink/renderer/core/frame/local_dom_window.cc third_party/blink/renderer/core/frame/local_dom_window.cc
-index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1eeb14191 100644
+index 0dcd971d7176e45ae24112f015e69868fc2cd247..ed5f493c70ac9bd0d7910985b1dbd87ecd8c2b85 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.cc
 +++ third_party/blink/renderer/core/frame/local_dom_window.cc
 @@ -52,6 +52,7 @@
@@ -61,7 +61,7 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
  #include "third_party/blink/renderer/core/html/custom/custom_element_registry.h"
  #include "third_party/blink/renderer/core/html/fenced_frame/fence.h"
  #include "third_party/blink/renderer/core/html/forms/form_controller.h"
-@@ -1974,8 +1976,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
+@@ -2004,8 +2006,9 @@ void LocalDOMWindow::moveBy(int x, int y) const {
      return;
    }
  
@@ -72,7 +72,7 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -1995,8 +1998,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
+@@ -2025,8 +2028,9 @@ void LocalDOMWindow::moveTo(int x, int y) const {
      return;
    }
  
@@ -83,7 +83,7 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
  
    LocalFrame* frame = GetFrame();
    Page* page = frame->GetPage();
-@@ -2019,7 +2023,8 @@ void LocalDOMWindow::resizeBy(int x,
+@@ -2049,7 +2053,8 @@ void LocalDOMWindow::resizeBy(int x,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -93,7 +93,7 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeBy() requires user activation in document picture-in-picture");
-@@ -2047,7 +2052,8 @@ void LocalDOMWindow::resizeTo(int width,
+@@ -2077,7 +2082,8 @@ void LocalDOMWindow::resizeTo(int width,
    }
  
    if (IsPictureInPictureWindow()) {
@@ -103,7 +103,7 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
        exception_state.ThrowDOMException(
            DOMExceptionCode::kNotAllowedError,
            "resizeTo() requires user activation in document picture-in-picture");
-@@ -2517,6 +2523,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
+@@ -2547,6 +2553,12 @@ DOMWindow* LocalDOMWindow::openPictureInPictureWindow(
        To<LocalDOMWindow>(result.frame->DomWindow());
    pip_dom_window->SetIsPictureInPictureWindow();
  
@@ -117,10 +117,10 @@ index 68ab3d483fe60671de50ec8952a0f71f103e4ad3..8d8af762f2bc2b1e9c76cd8e09210ab1
    pip_dom_window->document()->SetCompatibilityMode(
        entered_window->document()->GetCompatibilityMode());
 diff --git third_party/blink/renderer/core/frame/local_dom_window.h third_party/blink/renderer/core/frame/local_dom_window.h
-index e4e4738182c279d7917e012a6f023f063e37ebf1..dc1c50533c3df8d174c08f123fbdca5152244672 100644
+index 6bda0205669de3c7bea2e09a5f6236db8b52b546..8fed5ee43b991d95c3975dc606351c8d691983b4 100644
 --- third_party/blink/renderer/core/frame/local_dom_window.h
 +++ third_party/blink/renderer/core/frame/local_dom_window.h
-@@ -586,6 +586,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -589,6 +589,11 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
  
    void SetIsPictureInPictureWindow();
  
@@ -132,7 +132,7 @@ index e4e4738182c279d7917e012a6f023f063e37ebf1..dc1c50533c3df8d174c08f123fbdca51
    // Return the viewport size including scrollbars.
    gfx::Size GetViewportSize() const;
  
-@@ -692,6 +697,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
+@@ -695,6 +700,8 @@ class CORE_EXPORT LocalDOMWindow final : public DOMWindow,
    // https://wicg.github.io/document-picture-in-picture/
    bool is_picture_in_picture_window_ = false;
  

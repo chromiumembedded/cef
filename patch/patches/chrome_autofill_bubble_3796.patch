@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index 9a959e457fd148bcde186fe01b67ea19dddaf683..8421a07350b8385dc659890eae0f701b88c38820 100644
+index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd026cbd1f 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
-@@ -56,10 +56,15 @@ AutofillBubbleBase* ShowSaveBubble(
+@@ -55,11 +55,15 @@ AutofillBubbleBase* ShowSaveBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -12,14 +12,15 @@ index 9a959e457fd148bcde186fe01b67ea19dddaf683..8421a07350b8385dc659890eae0f701b
 +    return nullptr;
 +  }
    auto controller = std::make_unique<SaveAddressBubbleController>(
-       delegate, web_contents, profile, is_migration_to_account);
+       delegate, web_contents, profile, save_address_bubble_type);
  
 -  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
-+  return browser_window
-       ->GetAutofillBubbleHandler()
+-      ->GetAutofillBubbleHandler()
++  return browser_window->GetAutofillBubbleHandler()
        ->ShowSaveAddressProfileBubble(web_contents, std::move(controller),
                                       shown_by_user_gesture);
-@@ -71,9 +76,14 @@ AutofillBubbleBase* ShowUpdateBubble(
+ }
+@@ -70,10 +74,14 @@ AutofillBubbleBase* ShowUpdateBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -31,11 +32,12 @@ index 9a959e457fd148bcde186fe01b67ea19dddaf683..8421a07350b8385dc659890eae0f701b
    auto update_controller = std::make_unique<UpdateAddressBubbleController>(
        delegate, web_contents, profile, original_profile);
 -  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
-+  return browser_window
-       ->GetAutofillBubbleHandler()
+-      ->GetAutofillBubbleHandler()
++  return browser_window->GetAutofillBubbleHandler()
        ->ShowUpdateAddressProfileBubble(
            web_contents, std::move(update_controller), shown_by_user_gesture);
-@@ -82,9 +92,14 @@ AutofillBubbleBase* ShowUpdateBubble(
+ }
+@@ -81,11 +89,15 @@ AutofillBubbleBase* ShowUpdateBubble(
  #if BUILDFLAG(ENABLE_DICE_SUPPORT)
  AutofillBubbleBase* ShowSignInPromo(content::WebContents* web_contents,
                                      const AutofillProfile& autofill_profile) {
@@ -47,16 +49,33 @@ index 9a959e457fd148bcde186fe01b67ea19dddaf683..8421a07350b8385dc659890eae0f701b
    // TODO(crbug.com/381390420): Expose the `AutofillBubbleHandler` in
    // `BrowserWindowInterface` and use that instead.
 -  return BrowserWindow::FindBrowserWindowWithWebContents(web_contents)
-+  return browser_window
-       ->GetAutofillBubbleHandler()
-       ->ShowAddressSignInPromo(web_contents, autofill_profile);
+-      ->GetAutofillBubbleHandler()
+-      ->ShowAddressSignInPromo(web_contents, autofill_profile);
++  return browser_window->GetAutofillBubbleHandler()->ShowAddressSignInPromo(
++      web_contents, autofill_profile);
  }
-@@ -232,8 +247,6 @@ void AddressBubblesController::DoShowBubble() {
+ #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
  
-   set_bubble_view(show_bubble_view_callback_.Run(
+@@ -235,8 +247,6 @@ void AddressBubblesController::DoShowBubble() {
+ 
+   SetBubbleView(*show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));
 -
 -  CHECK(bubble_view());
  }
  
  BubbleType AddressBubblesController::GetBubbleType() const {
+@@ -301,7 +311,12 @@ void AddressBubblesController::SetUpBubble(
+ }
+ 
+ void AddressBubblesController::MaybeShowIOSDektopAddressPromo() {
+-  Browser* browser = BrowserWindow::FindBrowserWindowWithWebContents(web_contents())->AsBrowserView()->browser();
++  auto browser_window =
++      BrowserWindow::FindBrowserWindowWithWebContents(web_contents());
++  if (!browser_window) {
++    return;
++  }
++  Browser* browser = browser_window->AsBrowserView()->browser();
+ 
+   // Verify if user is eligible for iOS promo, and attempt showing if they are.
+   ios_promos_utils::VerifyIOSPromoEligibility(IOSPromoType::kAddress, browser);

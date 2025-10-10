@@ -1,5 +1,5 @@
 diff --git chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
-index fa1a9aec7cca692683c1a56d201b00974ad866fb..ec0d65954fe0af48cc018d8486617b944281219b 100644
+index 5bb67663975391ad97ccd9f831ab5ef8ef5ce39f..8a456cb9d6e51ba8a2e5f19b6b5f730a16196fad 100644
 --- chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 +++ chrome/renderer/printing/chrome_print_render_frame_helper_delegate.cc
 @@ -26,12 +26,31 @@
@@ -36,7 +36,7 @@ index fa1a9aec7cca692683c1a56d201b00974ad866fb..ec0d65954fe0af48cc018d8486617b94
  // Returns the PDF object element if the parent of `frame` is the PDF extension
  // frame.
  blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
-@@ -54,6 +73,10 @@ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
+@@ -56,6 +75,10 @@ blink::WebElement ChromePrintRenderFrameHelperDelegate::GetPdfElement(
  }
  
  bool ChromePrintRenderFrameHelperDelegate::IsPrintPreviewEnabled() {

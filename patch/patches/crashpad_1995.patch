@@ -210,10 +210,10 @@ index 7c890b331be4aaaf20c7efe8a4bcc2f6e9012b7a..75d22156605d31bcd04a293168661067
  
  }  // namespace crash_reporter
 diff --git components/crash/core/app/crashpad.cc components/crash/core/app/crashpad.cc
-index 99218d8687f29a52df09d02ab0b662f369016798..26dcd6cae208b011c4754fadea520416cb738154 100644
+index dbe996b5c13ad1944c73ed41d9327b54539604cd..81d83e45bf49f55a45e90a2e2f6bc3817f3f8651 100644
 --- components/crash/core/app/crashpad.cc
 +++ components/crash/core/app/crashpad.cc
-@@ -132,7 +132,8 @@ bool InitializeCrashpadImpl(bool initial_client,
+@@ -133,7 +133,8 @@ bool InitializeCrashpadImpl(bool initial_client,
    // fallback. Forwarding is turned off for debug-mode builds even for the
    // browser process, because the system's crash reporter can take a very long
    // time to chew on symbols.
@@ -224,7 +224,7 @@ index 99218d8687f29a52df09d02ab0b662f369016798..26dcd6cae208b011c4754fadea520416
          ->set_system_crash_reporter_forwarding(crashpad::TriState::kDisabled);
    }
 diff --git components/crash/core/app/crashpad_linux.cc components/crash/core/app/crashpad_linux.cc
-index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b46bee760 100644
+index d4d3555891b19d61676465c856055fb04e0168bc..68914d91147fbb53bbc8f9b742cd551b326cae27 100644
 --- components/crash/core/app/crashpad_linux.cc
 +++ components/crash/core/app/crashpad_linux.cc
 @@ -23,6 +23,7 @@
@@ -235,7 +235,7 @@ index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b
  #include "sandbox/linux/services/namespace_sandbox.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -164,11 +165,10 @@ bool PlatformCrashpadInitialization(
+@@ -165,11 +166,10 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetCrashDumpLocation(database_path);
      crash_reporter_client->GetCrashMetricsLocation(&metrics_path);
  
@@ -250,7 +250,7 @@ index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b
  
      // When --use-cros-crash-reporter is set (below), the handler passes dumps
      // to ChromeOS's /sbin/crash_reporter which in turn passes the dump to
-@@ -184,8 +184,8 @@ bool PlatformCrashpadInitialization(
+@@ -185,8 +185,8 @@ bool PlatformCrashpadInitialization(
      crash_reporter_client->GetProductInfo(&product_info);
  
      std::map<std::string, std::string> annotations;
@@ -261,7 +261,7 @@ index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b
  
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
      // Empty means stable.
-@@ -202,7 +202,20 @@ bool PlatformCrashpadInitialization(
+@@ -203,7 +203,20 @@ bool PlatformCrashpadInitialization(
        annotations["channel"] = product_info.channel;
      }
  
@@ -283,7 +283,7 @@ index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b
  
  #if BUILDFLAG(IS_CHROMEOS_DEVICE)
      // Chromium OS: save board and builder path for 'tast symbolize'.
-@@ -239,6 +252,12 @@ bool PlatformCrashpadInitialization(
+@@ -240,6 +253,12 @@ bool PlatformCrashpadInitialization(
      }
  #endif
  
@@ -294,10 +294,10 @@ index 5d9b3bd5386ecbdb74cc470dbe65308c3afa0a61..e5aee47e1942cf3ccdf2572d46d0d70b
 +    crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
      CHECK(client.StartHandler(handler_path, *database_path, metrics_path, url,
-                               annotations, arguments, false, false));
-   } else {
+                               annotations, arguments, false, false,
+                               attachments));
 diff --git components/crash/core/app/crashpad_mac.mm components/crash/core/app/crashpad_mac.mm
-index 42fe73aefe44f218d6a5e8cb1550ff48859c4b70..9f150e30336ef63346a415e7803fd180f250700d 100644
+index 3b131e1fc804a55c80b3b2704686270211fcf9fb..c2a7dd560f841aaa7d4f74ea831a5758c01310c3 100644
 --- components/crash/core/app/crashpad_mac.mm
 +++ components/crash/core/app/crashpad_mac.mm
 @@ -17,10 +17,13 @@
@@ -369,7 +369,7 @@ index 42fe73aefe44f218d6a5e8cb1550ff48859c4b70..9f150e30336ef63346a415e7803fd180
      }  // @autoreleasepool
      return process_annotations;
    }();
-@@ -142,10 +160,10 @@ bool PlatformCrashpadInitialization(
+@@ -145,10 +163,10 @@ bool PlatformCrashpadInitialization(
  
    if (initial_client) {
      @autoreleasepool {
@@ -384,7 +384,7 @@ index 42fe73aefe44f218d6a5e8cb1550ff48859c4b70..9f150e30336ef63346a415e7803fd180
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -174,6 +192,12 @@ bool PlatformCrashpadInitialization(
+@@ -177,6 +195,12 @@ bool PlatformCrashpadInitialization(
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -398,7 +398,7 @@ index 42fe73aefe44f218d6a5e8cb1550ff48859c4b70..9f150e30336ef63346a415e7803fd180
            handler_path, *database_path, metrics_path, url,
            GetProcessSimpleAnnotations(), arguments, true, false);
 diff --git components/crash/core/app/crashpad_win.cc components/crash/core/app/crashpad_win.cc
-index 5b811cbbc51544cbff7c2e99c3a7ced824990002..e35f8f663b92ed5768990e5e731f241fad4d3514 100644
+index a7af39181e259b4c793fa9a39cb95e4f86ac47d1..398a08918df751d757f85bffa6baa5ff4a1348a6 100644
 --- components/crash/core/app/crashpad_win.cc
 +++ components/crash/core/app/crashpad_win.cc
 @@ -38,8 +38,8 @@ void GetPlatformCrashpadAnnotations(
@@ -426,7 +426,7 @@ index 5b811cbbc51544cbff7c2e99c3a7ced824990002..e35f8f663b92ed5768990e5e731f241f
  #endif
  }
  
-@@ -112,13 +114,14 @@ bool PlatformCrashpadInitialization(
+@@ -113,13 +115,14 @@ bool PlatformCrashpadInitialization(
        exe_file = base::FilePath(exe_file_path);
      }
  
@@ -446,7 +446,7 @@ index 5b811cbbc51544cbff7c2e99c3a7ced824990002..e35f8f663b92ed5768990e5e731f241f
        if (!user_data_dir.empty()) {
          start_arguments.push_back(std::string("--user-data-dir=") +
                                    user_data_dir);
-@@ -128,9 +131,12 @@ bool PlatformCrashpadInitialization(
+@@ -129,9 +132,12 @@ bool PlatformCrashpadInitialization(
                app_launch_prefetch::SubprocessType::kCrashpad)));
      } else {
        base::FilePath exe_dir = exe_file.DirName();

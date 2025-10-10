@@ -49,6 +49,7 @@ class CefWindowView : public CefPanelView<views::View, CefWindowDelegate>,
   // |cef_delegate| may be nullptr.
   // |window_delegate| must be non-nullptr.
   CefWindowView(CefWindowDelegate* cef_delegate, Delegate* window_delegate);
+  ~CefWindowView() override;
 
   CefWindowView(const CefWindowView&) = delete;
   CefWindowView& operator=(const CefWindowView&) = delete;
@@ -66,8 +67,7 @@ class CefWindowView : public CefPanelView<views::View, CefWindowDelegate>,
   void WindowClosing();
   views::View* GetContentsView();
   views::ClientView* CreateClientView(views::Widget* widget);
-  std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView(
-      views::Widget* widget);
+  std::unique_ptr<views::FrameView> CreateFrameView(views::Widget* widget);
   bool ShouldDescendIntoChildForEventHandling(gfx::NativeView child,
                                               const gfx::Point& location);
 
@@ -115,8 +115,8 @@ class CefWindowView : public CefPanelView<views::View, CefWindowDelegate>,
   // Called from CefOverlayViewHost::SetOverlayBounds().
   void OnOverlayBoundsChanged();
 
-  // Returns the NonClientFrameView for this Window. May be nullptr.
-  views::NonClientFrameView* GetNonClientFrameView() const;
+  // Returns the FrameView for this Window. May be nullptr.
+  views::FrameView* GetFrameView() const;
 
   // Optionally modify the bounding box for the Chrome Find bar.
   void UpdateFindBarBoundingBox(gfx::Rect* bounds) const;

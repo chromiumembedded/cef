@@ -380,7 +380,7 @@ void CefWindowImpl::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
 }
 
 void CefWindowImpl::Detach() {
-  // OnDeleteDelegate should always be called before Detach().
+  // OnWindowViewDeleted should always be called before Detach().
   DCHECK(!widget_);
 
   ParentClass::Detach();
@@ -589,14 +589,11 @@ CefRect CefWindowImpl::GetClientAreaBoundsInScreen() {
   if (widget_) {
     gfx::Rect bounds = widget_->GetClientAreaBoundsInScreen();
 
-    views::NonClientFrameView* non_client_frame_view =
-        root_view()->GetNonClientFrameView();
-    if (non_client_frame_view) {
-      // When using a custom drawn NonClientFrameView the native Window will not
+    if (auto* frame_view = root_view()->GetFrameView()) {
+      // When using a custom drawn FrameView the native Window will not
       // know the actual client bounds. Adjust the native Window bounds for the
       // reported client bounds.
-      const gfx::Rect& client_bounds =
-          non_client_frame_view->GetBoundsForClientView();
+      const gfx::Rect& client_bounds = frame_view->GetBoundsForClientView();
       bounds.set_origin(bounds.origin() + client_bounds.OffsetFromOrigin());
       bounds.set_size(client_bounds.size());
     }

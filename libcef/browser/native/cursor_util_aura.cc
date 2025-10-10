@@ -61,7 +61,7 @@ display::Display GetDisplay(CefRefPtr<CefBrowser> browser) {
     if (auto view = web_contents->GetRenderWidgetHostView()) {
       // Windowless browsers always return nullptr from GetNativeView().
       if (!browser_impl->IsWindowless()) {
-        return display::Screen::GetScreen()->GetDisplayNearestView(
+        return display::Screen::Get()->GetDisplayNearestView(
             view->GetNativeView());
       }
 

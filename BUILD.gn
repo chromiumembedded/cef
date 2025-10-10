@@ -544,10 +544,12 @@ source_set("libcef_static") {
     "libcef/browser/chrome/views/browser_platform_delegate_chrome_child_window.h",
     "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.cc",
     "libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h",
-    "libcef/browser/chrome/views/chrome_browser_frame.cc",
-    "libcef/browser/chrome/views/chrome_browser_frame.h",
+    "libcef/browser/chrome/views/chrome_browser_frame_view.cc",
+    "libcef/browser/chrome/views/chrome_browser_frame_view.h",
     "libcef/browser/chrome/views/chrome_browser_view.cc",
     "libcef/browser/chrome/views/chrome_browser_view.h",
+    "libcef/browser/chrome/views/chrome_browser_widget.cc",
+    "libcef/browser/chrome/views/chrome_browser_widget.h",
     "libcef/browser/chrome/views/chrome_child_window.cc",
     "libcef/browser/chrome/views/chrome_child_window.h",
     "libcef/browser/chrome/views/chrome_views_util.cc",
@@ -1034,7 +1036,6 @@ source_set("libcef_static") {
     ]
 
     deps += [
-      "//build/config/freetype",
       "//third_party/fontconfig",
     ]
 

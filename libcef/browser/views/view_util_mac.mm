@@ -43,7 +43,7 @@ gfx::NativeView GetNativeView(views::Widget* widget) {
 }
 
 CefWindowHandle GetWindowHandle(views::Widget* widget) {
-  // |view| is a wrapper type from native_widget_types.h.
+  // |view| is a wrapper type from native_ui_types.h.
   auto view = GetNativeView(widget);
   if (view) {
     return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE(view.GetNativeNSView());
@@ -52,7 +52,7 @@ CefWindowHandle GetWindowHandle(views::Widget* widget) {
 }
 
 CefWindowHandle GetWindowHandle(gfx::NativeWindow window) {
-  // |window| is a wrapper type from native_widget_types.h.
+  // |window| is a wrapper type from native_ui_types.h.
   if (window) {
     NSWindow* nswindow = window.GetNativeNSWindow();
     return CAST_NSVIEW_TO_CEF_WINDOW_HANDLE([nswindow contentView]);

@@ -99,10 +99,10 @@ index 441765abb8cd8f213fca52ac8d562ad9b15d621e..1c927eb59cc2aff8a7ee328fe130ef4c
    // reset to null.
    const CookieAccessDelegate* cookie_access_delegate() const {
 diff --git services/network/cookie_manager.cc services/network/cookie_manager.cc
-index cf7e823d1ee21a6fa42187373fb3629a8de32a09..692aacf8aa5b3a03c4cc1653e820e8a3f7d48792 100644
+index 3ecc53285b872e1eab24e6ef8ab522063d2c4ed1..e6a14a3f4a41e0353b2b490a24c9a0e3247d74fd 100644
 --- services/network/cookie_manager.cc
 +++ services/network/cookie_manager.cc
-@@ -347,13 +347,13 @@ void CookieManager::AllowFileSchemeCookies(
+@@ -348,13 +348,13 @@ void CookieManager::AllowFileSchemeCookies(
      AllowFileSchemeCookiesCallback callback) {
    OnSettingsWillChange();
  
@@ -122,10 +122,10 @@ index cf7e823d1ee21a6fa42187373fb3629a8de32a09..692aacf8aa5b3a03c4cc1653e820e8a3
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index 26019db9116d02a3ef4899ff697b7d1060eba046..c518caa297d7c5a071f973e340524634a3100265 100644
+index ec828e8fe98bcaf000ca3ae46656b731a8c2f014..eb45481e9fe7fc74ab7d3510c0183478ebe0ba8e 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2870,22 +2870,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2896,22 +2896,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -169,7 +169,7 @@ index 26019db9116d02a3ef4899ff697b7d1060eba046..c518caa297d7c5a071f973e340524634
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index a28ff5cd43ef84d3b0d24d2828b7fdad628f8d27..a2eee5e477dc17c639b10b4e7089af3db77088f2 100644
+index be0062591b94a77de5afbe8a776bfd366c3dd7a9..7fb887edfec9783333c185e95bfe758ccdf6ab97 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
 @@ -370,6 +370,9 @@ struct NetworkContextParams {

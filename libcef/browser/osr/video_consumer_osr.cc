@@ -11,9 +11,9 @@
 #include "ui/gfx/skbitmap_operations.h"
 
 #if BUILDFLAG(IS_WIN)
-#include "ipc/service/gpu_memory_buffer_factory_dxgi.h"
+#include "gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.h"
 #elif BUILDFLAG(IS_APPLE)
-#include "ipc/service/gpu_memory_buffer_factory_io_surface.h"
+#include "gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_io_surface.h"
 #endif
 
 namespace {

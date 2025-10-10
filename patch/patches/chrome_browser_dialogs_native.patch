@@ -177,7 +177,7 @@ index f9c0d03193a6373437b1509b882a93855c58bd8d..f32f02d216120f0f954be712f706b569
    return CreateSelectFileDialog(listener, std::move(policy));
  }
 diff --git ui/shell_dialogs/select_file_dialog.h ui/shell_dialogs/select_file_dialog.h
-index eb3d997598631b220c3566748f23a5cdac3e4692..e3002e471e8420d88d2f11ab3c367010eb79ed1b 100644
+index b0f4b3df0a4f10b306ba2d25e5fd51440a25bcd4..7fbb2be86bce8cf7676c0166a5510335ab94e0b5 100644
 --- ui/shell_dialogs/select_file_dialog.h
 +++ ui/shell_dialogs/select_file_dialog.h
 @@ -96,7 +96,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDialog
@@ -271,7 +271,7 @@ index 5da67cfb7362d01fac8d0be4565d319087ec3cf9..6e618083bc851ba2d9a11adebfeb8ac1
          std::make_unique<remote_cocoa::SelectFileDialogBridge>(ns_window),
          std::move(receiver));
 diff --git ui/shell_dialogs/select_file_dialog_win.cc ui/shell_dialogs/select_file_dialog_win.cc
-index e3bd03f336eddcab530a5dd8b31503dcaa92027e..afc421d99112f5cf6ec34edaa5f4b29789e1b267 100644
+index 31f112849c9dd8a3325d0f01e92ca734643be5d0..82fc1c36ee4ee20e32a7834a2320fb3fabefcd4f 100644
 --- ui/shell_dialogs/select_file_dialog_win.cc
 +++ ui/shell_dialogs/select_file_dialog_win.cc
 @@ -251,6 +251,8 @@ void SelectFileDialogImpl::SelectFileImpl(

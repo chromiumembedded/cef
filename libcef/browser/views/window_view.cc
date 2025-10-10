@@ -25,6 +25,7 @@
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/ui_base_types.mojom-shared.h"
 #include "ui/display/screen.h"
+#include "ui/gfx/image/image_skia.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 
@@ -175,10 +176,10 @@ const int kResizeBorderThickness = 4;
 // used in restored mode.
 const int kResizeAreaCornerSize = 16;
 
-// Implement NonClientFrameView without the system default caption and icon but
+// Implement FrameView without the system default caption and icon but
 // with a resizable border. Based on AppWindowFrameView and CustomFrameView.
-class CaptionlessFrameView : public views::NonClientFrameView {
-  METADATA_HEADER(CaptionlessFrameView, views::NonClientFrameView)
+class CaptionlessFrameView : public views::FrameView {
+  METADATA_HEADER(CaptionlessFrameView, views::FrameView)
 
  public:
   CaptionlessFrameView(views::Widget* widget, base::WeakPtr<CefWindowView> view)
@@ -263,7 +264,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
 
   void Layout(views::View::PassKey) override {
     client_view_bounds_.SetRect(0, 0, width(), height());
-    LayoutSuperclass<views::NonClientFrameView>(this);
+    LayoutSuperclass<views::FrameView>(this);
   }
 
   gfx::Size CalculatePreferredSize(
@@ -360,7 +361,7 @@ void UpdateModalDialogPosition(views::Widget* widget,
     // with any display clamp its position to be fully on the nearest display.
     gfx::Rect display_rect = gfx::Rect(position, size);
     const display::Display display =
-        display::Screen::GetScreen()->GetDisplayNearestView(
+        display::Screen::Get()->GetDisplayNearestView(
             view_util::GetNativeView(host_widget));
     const gfx::Rect work_area = display.work_area();
     if (!work_area.Contains(display_rect)) {
@@ -443,9 +444,9 @@ class CefWindowWidgetDelegate : public views::WidgetDelegate {
     return window_view_->CreateClientView(widget);
   }
 
-  std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView(
+  std::unique_ptr<views::FrameView> CreateFrameView(
       views::Widget* widget) override {
-    return window_view_->CreateNonClientFrameView(widget);
+    return window_view_->CreateFrameView(widget);
   }
 
   bool ShouldDescendIntoChildForEventHandling(
@@ -500,6 +501,8 @@ CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
       is_alloy_style_(ComputeAlloyStyle(cef_delegate)) {
   DCHECK(window_delegate_);
 }
+
+CefWindowView::~CefWindowView() = default;
 
 void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   DCHECK(!GetWidget());
@@ -795,14 +798,14 @@ views::ClientView* CefWindowView::CreateClientView(views::Widget* widget) {
                           weak_ptr_factory_.GetWeakPtr());
 }
 
-std::unique_ptr<views::NonClientFrameView>
-CefWindowView::CreateNonClientFrameView(views::Widget* widget) {
+std::unique_ptr<views::FrameView> CefWindowView::CreateFrameView(
+    views::Widget* widget) {
   if (is_frameless_) {
     // Custom frame type that doesn't render a caption.
     return std::make_unique<CaptionlessFrameView>(
         widget, weak_ptr_factory_.GetWeakPtr());
   } else if (widget->ShouldUseNativeFrame()) {
-    // DesktopNativeWidgetAura::CreateNonClientFrameView() returns
+    // DesktopNativeWidgetAura::CreateFrameView() returns
     // NativeFrameView by default. Extend that type.
     return std::make_unique<NativeFrameViewEx>(widget,
                                                weak_ptr_factory_.GetWeakPtr());
@@ -819,7 +822,7 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
   if (is_frameless_) {
     // If the window is resizable it should claim mouse events that fall on the
     // window border.
-    views::NonClientFrameView* ncfv = GetNonClientFrameView();
+    views::FrameView* ncfv = GetFrameView();
     if (ncfv) {
       int result = ncfv->NonClientHitTest(location);
       if (IsWindowBorderHit(result)) {
@@ -1007,7 +1010,7 @@ void CefWindowView::OnOverlayBoundsChanged() {
   InvalidateExclusionRegions();
 }
 
-views::NonClientFrameView* CefWindowView::GetNonClientFrameView() const {
+views::FrameView* CefWindowView::GetFrameView() const {
   const views::Widget* widget = GetWidget();
   if (!widget) {
     return nullptr;

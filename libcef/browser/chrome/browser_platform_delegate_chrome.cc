@@ -93,7 +93,7 @@ void CefBrowserPlatformDelegateChrome::SendMouseWheelEvent(
 gfx::Point CefBrowserPlatformDelegateChrome::GetScreenPoint(
     const gfx::Point& view,
     bool want_dip_coords) const {
-  auto screen = display::Screen::GetScreen();
+  auto screen = display::Screen::Get();
 
   // Get device (pixel) coordinates.
   auto screen_rect = screen->DIPToScreenRectInWindow(

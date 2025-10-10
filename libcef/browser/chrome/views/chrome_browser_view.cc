@@ -4,7 +4,7 @@
 
 #include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
 
-#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_widget.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 
@@ -19,12 +19,12 @@ ChromeBrowserView::~ChromeBrowserView() {
   }
 }
 
-void ChromeBrowserView::InitBrowser(std::unique_ptr<Browser> browser) {
+void ChromeBrowserView::InitBrowser(Browser* browser) {
   DCHECK(!web_view_);
 
-  // Initialize the BrowserFrame and BrowserView.
-  auto chrome_widget = static_cast<ChromeBrowserFrame*>(GetWidget());
-  chrome_widget->Init(this, std::move(browser));
+  // Initialize the BrowserWidget and BrowserView.
+  auto chrome_widget = static_cast<ChromeBrowserWidget*>(GetWidget());
+  chrome_widget->Init(this, browser);
 
   // Retrieve the views::WebView that was created by the above initializations.
   web_view_ = cef_browser_view_->web_view();

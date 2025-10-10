@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index 0e8979e65375b36bd3c14fcc635ef59947d71d66..fe3b03619db4295113b2105a9353c115bb6b48a6 100644
+index abe59af800b7ebd9d137420724e6deb2483e658f..c45800a3b8cee849c7edc5ace34c45fa8860925c 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -7,6 +7,7 @@
@@ -10,7 +10,7 @@ index 0e8979e65375b36bd3c14fcc635ef59947d71d66..fe3b03619db4295113b2105a9353c115
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_list.h"
  #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-@@ -29,6 +30,22 @@
+@@ -30,6 +31,22 @@
  #include "chrome/browser/safe_browsing/user_interaction_observer.h"
  #endif
  
@@ -33,9 +33,9 @@ index 0e8979e65375b36bd3c14fcc635ef59947d71d66..fe3b03619db4295113b2105a9353c115
  JavaScriptTabModalDialogManagerDelegateDesktop::
      JavaScriptTabModalDialogManagerDelegateDesktop(
          content::WebContents* web_contents)
-@@ -88,6 +105,9 @@ void JavaScriptTabModalDialogManagerDelegateDesktop::SetTabNeedsAttention(
- bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
-   Browser* browser = BrowserList::GetInstance()->GetLastActive();
+@@ -90,6 +107,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+   BrowserWindowInterface* browser =
+       GetLastActiveBrowserWindowInterfaceWithAnyProfile();
    if (!browser) {
 +    if (IsAlloyContents(web_contents_)) {
 +      return true;
@@ -43,7 +43,7 @@ index 0e8979e65375b36bd3c14fcc635ef59947d71d66..fe3b03619db4295113b2105a9353c115
      // It's rare, but there are crashes from where sites are trying to show
      // dialogs in the split second of time between when their Browser is gone
      // and they're gone. In that case, bail. https://crbug.com/1142806
-@@ -105,6 +125,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+@@ -107,6 +127,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
@@ -53,7 +53,7 @@ index 0e8979e65375b36bd3c14fcc635ef59947d71d66..fe3b03619db4295113b2105a9353c115
    tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
    BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
    return browser &&
-@@ -113,7 +136,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
+@@ -115,7 +138,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {

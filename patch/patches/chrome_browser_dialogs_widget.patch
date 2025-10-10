@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
-index 85f4bc37b37c9b612c9fbb2de71a8a655296897d..1bd78e1aca240abda97203bfebb6f1701a09ea4a 100644
+index d6e0cbb8efbfd88707efe834bc7dab56c52e606e..254e43478393e87860e01c85d203f0435ad68a5f 100644
 --- chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 +++ chrome/browser/ui/views/chrome_javascript_app_modal_view_factory_views.cc
 @@ -99,7 +99,7 @@ javascript_dialogs::AppModalDialogView* CreateViewsJavaScriptDialog(
@@ -12,7 +12,7 @@ index 85f4bc37b37c9b612c9fbb2de71a8a655296897d..1bd78e1aca240abda97203bfebb6f170
      // on the screen, we can't actually attach to it.
      parent_window = nullptr;
 diff --git components/constrained_window/constrained_window_views.cc components/constrained_window/constrained_window_views.cc
-index 319bf7dcdd88c3407d2a3268f4bd28985cca8808..bbd434b9d78e239965daf2e97d4c098a31ab2307 100644
+index 9aae8250ba6bf364855ba53ecc9e817d40d9699e..09bd18e56e49df8bee669343abccf9ed190d9760 100644
 --- components/constrained_window/constrained_window_views.cc
 +++ components/constrained_window/constrained_window_views.cc
 @@ -104,10 +104,17 @@ class ModalDialogHostObserverViews : public ModalDialogHostObserver {
@@ -167,10 +167,10 @@ index 319bf7dcdd88c3407d2a3268f4bd28985cca8808..bbd434b9d78e239965daf2e97d4c098a
      DCHECK_EQ(parent_view, host->GetHostView());
      std::unique_ptr<ModalDialogHostObserver> observer =
 diff --git components/constrained_window/native_web_contents_modal_dialog_manager_views.cc components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-index 2b495a8ab092c820ba470fa6be9bb79ca4497d0f..01a28aca853d0786aeafa12dc6b68e03118776a0 100644
+index ed77d7f5fbee2ab4e84b82c9ce9baaf20189b020..75d8e7a8f1370016c4f605c93925623b43e24d17 100644
 --- components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
 +++ components/constrained_window/native_web_contents_modal_dialog_manager_views.cc
-@@ -190,9 +190,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
+@@ -189,9 +189,20 @@ void NativeWebContentsModalDialogManagerViews::HostChanged(
    if (host_) {
      host_->AddObserver(this);
  
@@ -195,7 +195,7 @@ index 2b495a8ab092c820ba470fa6be9bb79ca4497d0f..01a28aca853d0786aeafa12dc6b68e03
  
      OnPositionRequiresUpdate();
 diff --git components/web_modal/modal_dialog_host.h components/web_modal/modal_dialog_host.h
-index 6dc7394a171d1181d2ee35074fa7afb9e90d0a77..3c05b2a5e77fd6e2027aa1dbae18cec178143cfb 100644
+index cc25afde6afb9027efaed4ef8d23046433231305..8fb54dc6040bb9f2f2bb322204798abfb621eb80 100644
 --- components/web_modal/modal_dialog_host.h
 +++ components/web_modal/modal_dialog_host.h
 @@ -35,6 +35,12 @@ class WEB_MODAL_EXPORT ModalDialogHost {
@@ -212,7 +212,7 @@ index 6dc7394a171d1181d2ee35074fa7afb9e90d0a77..3c05b2a5e77fd6e2027aa1dbae18cec1
    virtual gfx::Point GetDialogPosition(const gfx::Size& size) = 0;
  
 diff --git ui/views/window/dialog_delegate.cc ui/views/window/dialog_delegate.cc
-index e4e013ff587b63c1985bc90f382e14a21d36ddf5..5ebaa732678674284f26ec693800eb165fac54c2 100644
+index 30b7e26cf48af97da712b6c5a70bc5453518fdd5..0920cf9e7dd401fd7dc1f657a40c42f8544c609f 100644
 --- ui/views/window/dialog_delegate.cc
 +++ ui/views/window/dialog_delegate.cc
 @@ -90,10 +90,12 @@ DialogDelegate::DialogDelegate() {
@@ -280,7 +280,7 @@ index e4e013ff587b63c1985bc90f382e14a21d36ddf5..5ebaa732678674284f26ec693800eb16
    // Web-modal (ui::mojom::ModalType::kChild) dialogs with parents are marked as
    // child widgets to prevent top-level window behavior (independent movement,
 diff --git ui/views/window/dialog_delegate.h ui/views/window/dialog_delegate.h
-index b41fce35f90627f52da55e639d85fde0c06e58c3..8c2fee5954c7df3b3bd2a5f9163aa56ebae6d24c 100644
+index 9c8dfb1a4937b0bdb6b8b32de83dfa4f85e8e65a..e8bb65b50bfce13c37ff38c8e65801efe254bd08 100644
 --- ui/views/window/dialog_delegate.h
 +++ ui/views/window/dialog_delegate.h
 @@ -308,13 +308,18 @@ class VIEWS_EXPORT DialogDelegate : public WidgetDelegate {

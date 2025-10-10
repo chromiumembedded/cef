@@ -10,7 +10,7 @@
 // static
 CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   CEF_REQUIRE_UIT_RETURN(nullptr);
-  return new CefDisplayImpl(display::Screen::GetScreen()->GetPrimaryDisplay());
+  return new CefDisplayImpl(display::Screen::Get()->GetPrimaryDisplay());
 }
 
 // static
@@ -35,7 +35,7 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
 // static
 size_t CefDisplay::GetDisplayCount() {
   CEF_REQUIRE_UIT_RETURN(0U);
-  return static_cast<size_t>(display::Screen::GetScreen()->GetNumDisplays());
+  return static_cast<size_t>(display::Screen::Get()->GetNumDisplays());
 }
 
 // static
@@ -45,7 +45,7 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay>>& displays) {
   displays.clear();
 
   using DisplayVector = std::vector<display::Display>;
-  DisplayVector vec = display::Screen::GetScreen()->GetAllDisplays();
+  DisplayVector vec = display::Screen::Get()->GetAllDisplays();
   for (const auto& i : vec) {
     displays.push_back(new CefDisplayImpl(i));
   }

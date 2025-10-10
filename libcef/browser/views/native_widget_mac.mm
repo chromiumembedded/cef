@@ -12,7 +12,7 @@
 #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
 #import "chrome/browser/ui/cocoa/browser_window_command_handler.h"
 #import "chrome/browser/ui/cocoa/chrome_command_dispatcher_delegate.h"
-#include "chrome/browser/ui/views/frame/browser_frame_mac.h"
+#include "chrome/browser/ui/views/frame/browser_native_widget_mac.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #import "components/remote_cocoa/app_shim/native_widget_ns_window_bridge.h"
 #import "ui/views/cocoa/native_widget_mac_ns_window_host.h"
@@ -49,8 +49,8 @@ void CefNativeWidgetMac::ValidateUserInterfaceItem(
     return;
   }
 
-  return BrowserFrameMac::ValidateUserInterfaceItem(browser_view_->browser(),
-                                                    tag, result);
+  return BrowserNativeWidgetMac::ValidateUserInterfaceItem(
+      browser_view_->browser(), tag, result);
 }
 
 bool CefNativeWidgetMac::WillExecuteCommand(
@@ -61,9 +61,9 @@ bool CefNativeWidgetMac::WillExecuteCommand(
     return false;
   }
 
-  return BrowserFrameMac::WillExecuteCommand(browser_view_->browser(), command,
-                                             window_open_disposition,
-                                             is_before_first_responder);
+  return BrowserNativeWidgetMac::WillExecuteCommand(
+      browser_view_->browser(), command, window_open_disposition,
+      is_before_first_responder);
 }
 
 bool CefNativeWidgetMac::ExecuteCommand(
@@ -74,9 +74,9 @@ bool CefNativeWidgetMac::ExecuteCommand(
     return false;
   }
 
-  return BrowserFrameMac::ExecuteCommand(browser_view_->browser(), command,
-                                         window_open_disposition,
-                                         is_before_first_responder);
+  return BrowserNativeWidgetMac::ExecuteCommand(
+      browser_view_->browser(), command, window_open_disposition,
+      is_before_first_responder);
 }
 
 NativeWidgetMacNSWindow* CefNativeWidgetMac::CreateNSWindow(
@@ -142,12 +142,12 @@ void CefNativeWidgetMac::OnWindowInitialized() {
   // work even if a browser_view_ is not created later.
   // The initialized_ check is necessary because the method can be called twice:
   // 1. From NativeWidgetMac::InitNativeWidget
-  // 2. From ChromeBrowserFrame::Init
+  // 2. From ChromeBrowserWidget::Init
   if (initialized_) {
     return;
   }
 
-  // From BrowserFrameMac::OnWindowInitialized.
+  // From BrowserNativeWidgetMac::OnWindowInitialized.
   if (auto* bridge = GetInProcessNSWindowBridge()) {
     bridge->SetCommandDispatcher([[ChromeCommandDispatcherDelegate alloc] init],
                                  [[BrowserWindowCommandHandler alloc] init]);

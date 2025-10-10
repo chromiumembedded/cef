@@ -52,8 +52,8 @@ CefRefPtr<CefX509CertPrincipal> CefX509CertificateImpl::GetIssuer() {
 
 CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetSerialNumber() {
   if (cert_) {
-    const std::string& serial = cert_->serial_number();
-    return CefBinaryValue::Create(serial.c_str(), serial.size());
+    const auto& serial = cert_->serial_number();
+    return CefBinaryValue::Create(serial.data(), serial.size());
   }
   return nullptr;
 }

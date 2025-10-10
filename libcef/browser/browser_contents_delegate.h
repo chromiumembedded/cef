@@ -147,7 +147,8 @@ class CefBrowserContentsDelegate : public content::WebContentsDelegate,
       const std::vector<blink::mojom::FaviconURLPtr>& candidates) override;
   void OnWebContentsFocused(
       content::RenderWidgetHost* render_widget_host) override;
-  void OnFocusChangedInPage(content::FocusedNodeDetails* details) override;
+  void OnFocusChangedInPage(
+      const content::FocusedNodeDetails& details) override;
   bool TakeFocus(content::WebContents* source, bool reverse) override;
   void WebContentsDestroyed() override;
 

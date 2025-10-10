@@ -8,8 +8,8 @@
 #include "base/notimplemented.h"
 #include "cef/libcef/browser/browser_platform_delegate.h"
 #include "cef/libcef/browser/chrome/browser_platform_delegate_chrome.h"
-#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
 #include "cef/libcef/browser/chrome/views/chrome_browser_view.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_widget.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 #include "cef/libcef/common/net/url_util.h"
@@ -431,7 +431,7 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
   chrome_params.cef_params = base::MakeRefCounted<DelegateCreateParams>(params);
 
   // Configure Browser creation to use the existing Views-based
-  // Widget/BrowserFrame (ChromeBrowserFrame) and BrowserView/BrowserWindow
+  // Widget/BrowserWidget (ChromeBrowserWidget) and BrowserView/BrowserWindow
   // (ChromeBrowserView). See views/chrome_browser_frame.h for related
   // documentation.
   ChromeBrowserView* chrome_browser_view = nullptr;
@@ -450,22 +450,26 @@ Browser* ChromeBrowserHostImpl::CreateBrowser(
     chrome_params.window = chrome_browser_view;
 
     auto chrome_widget =
-        static_cast<ChromeBrowserFrame*>(chrome_browser_view->GetWidget());
-    chrome_browser_view->set_frame(chrome_widget);
+        static_cast<ChromeBrowserWidget*>(chrome_browser_view->GetWidget());
+
+    // The BrowserView won't actually own the BrowserWidget because we modify
+    // the behavior in BrowserView::DeleteBrowserWindow. Instead, the
+    // BrowserWidget is owned by CefWindowWidgetDelegate.
+    chrome_browser_view->set_browser_widget(base::WrapUnique(chrome_widget));
   }
 
   // Create the Browser. This will indirectly create the ChomeBrowserDelegate.
   // The same params will be used to create a new Browser if the tab is dragged
   // out of the existing Browser. The returned Browser is owned by the
-  // associated BrowserView.
-  auto browser = Browser::Create(chrome_params);
+  // BrowserManagerService.
+  auto* browser = Browser::Create(chrome_params);
 
   bool show_browser = true;
 
   if (chrome_browser_view) {
-    // Initialize the BrowserFrame and BrowserView and create the controls that
+    // Initialize the BrowserWidget and BrowserView and create the controls that
     // require access to the Browser.
-    chrome_browser_view->InitBrowser(base::WrapUnique(browser));
+    chrome_browser_view->InitBrowser(browser);
 
     // Don't set theme colors in ContentsWebView::UpdateBackgroundColor.
     chrome_browser_view->contents_web_view()->SetBackgroundVisible(false);

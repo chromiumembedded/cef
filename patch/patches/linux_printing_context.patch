@@ -100,7 +100,7 @@ index d41d350bca4bf1664970a1881141d316affe875d..729546b0069f20c2b160857d28fcdc5b
  }
  
 diff --git ui/linux/linux_ui.h ui/linux/linux_ui.h
-index c4805571bc162627258c725a2c8641a6bf8b0e06..57b967a9e5962265ba898038b3bd87f6afbc0121 100644
+index 13a03faae0fceb60365ba01bbd3d80cbb1d32f53..0122add333840ab531bb1284cacb647941c00e81 100644
 --- ui/linux/linux_ui.h
 +++ ui/linux/linux_ui.h
 @@ -20,6 +20,10 @@
@@ -114,7 +114,7 @@ index c4805571bc162627258c725a2c8641a6bf8b0e06..57b967a9e5962265ba898038b3bd87f6
  // The main entrypoint into Linux toolkit specific code. GTK/QT code should only
  // be executed behind this interface.
  
-@@ -62,9 +66,27 @@ class WindowButtonOrderObserver;
+@@ -58,9 +62,27 @@ class WindowButtonOrderObserver;
  class WindowFrameProvider;
  enum class TextEditCommand;
  
@@ -143,7 +143,7 @@ index c4805571bc162627258c725a2c8641a6bf8b0e06..57b967a9e5962265ba898038b3bd87f6
   public:
    // Describes the window management actions that could be taken in response to
    // a middle click in the non client area.
-@@ -150,14 +172,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
+@@ -144,14 +166,6 @@ class COMPONENT_EXPORT(LINUX_UI) LinuxUi {
    // Returns a map of KeyboardEvent code to KeyboardEvent key values.
    virtual base::flat_map<std::string, std::string> GetKeyboardLayoutMap() = 0;
  

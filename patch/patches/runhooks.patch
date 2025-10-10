@@ -1,15 +1,15 @@
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d6598893c06a6ee6d30d9db771a2ef1ddbe4782f..0b1adcf999dac39ee7171b146df5f39137edb398 100644
+index e0b7c03a522040d58afdf82cbe20acc38f96b43e..f1583a4f4dcd04bbf4c12c1a567a245a76a0f908 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -166,13 +166,17 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
+@@ -168,13 +168,17 @@ def _LoadToolchainEnv(cpu, toolchain_root, sdk_dir, target_store):
            del os.environ['LIB']
          if 'LIBPATH' in os.environ:
            del os.environ['LIBPATH']
--      other_path = os.path.normpath(os.path.join(
-+      script_path = os.path.normpath(os.path.join(
-                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
-                                         'VC/Auxiliary/Build/vcvarsall.bat'))
+-      other_path = os.path.normpath(
++      script_path = os.path.normpath(
+           os.path.join(os.environ['GYP_MSVS_OVERRIDE_PATH'],
+                        'VC/Auxiliary/Build/vcvarsall.bat'))
 -      if not os.path.exists(other_path):
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
@@ -26,7 +26,7 @@ index d6598893c06a6ee6d30d9db771a2ef1ddbe4782f..0b1adcf999dac39ee7171b146df5f391
      if (cpu != 'x64'):
        # x64 is default target CPU thus any other CPU requires a target set
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 507eacf81dc1e99fde4b0cf3ee3fbb96c6ac511e..c338a7940cf58ace2c1b6dfb866e58c71e87f9bb 100755
+index 724dfff9c3a3068b2f06eedd8e5f77289d8df20f..169920b2fd0b05204d24ae361dce5c37c78feaf6 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -136,9 +136,16 @@ def SetEnvironmentAndGetRuntimeDllDirs():

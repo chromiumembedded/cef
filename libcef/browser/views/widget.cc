@@ -4,7 +4,7 @@
 
 #include "cef/libcef/browser/views/widget.h"
 
-#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_widget.h"
 #include "cef/libcef/browser/views/view_util.h"
 #include "cef/libcef/browser/views/widget_impl.h"
 #include "cef/libcef/browser/views/window_impl.h"
@@ -32,7 +32,7 @@ ui::ColorProviderKey::SchemeVariant GetSchemeVariant(
 // static
 CefWidget* CefWidget::Create(CefWindowView* window_view) {
   if (window_view->IsChromeStyle()) {
-    return new ChromeBrowserFrame(window_view);
+    return new ChromeBrowserWidget(window_view);
   }
   return new CefWidgetImpl(window_view);
 }
@@ -46,7 +46,7 @@ CefWidget* CefWidget::GetForWidget(views::Widget* widget) {
         widget = widget_view->GetWidget();
       }
       if (window_view->IsChromeStyle()) {
-        return static_cast<ChromeBrowserFrame*>(widget);
+        return static_cast<ChromeBrowserWidget*>(widget);
       }
       return static_cast<CefWidgetImpl*>(widget);
     }
@@ -58,7 +58,7 @@ CefWidget* CefWidget::GetForWidget(views::Widget* widget) {
 ui::ColorProviderKey CefWidget::GetColorProviderKey(
     const ui::ColorProviderKey& widget_key,
     Profile* profile) {
-  // Based on BrowserFrame::GetColorProviderKey.
+  // Based on BrowserWidget::GetColorProviderKey.
   auto key = widget_key;
 
   const auto* theme_service = ThemeServiceFactory::GetForProfile(profile);

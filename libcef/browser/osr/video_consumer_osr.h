@@ -36,8 +36,8 @@ class CefVideoConsumerOSR : public viz::mojom::FrameSinkVideoConsumer {
   void OnFrameWithEmptyRegionCapture() override {}
   void OnStopped() override {}
   void OnLog(const std::string& message) override {}
-  void OnNewSubCaptureTargetVersion(
-      uint32_t sub_capture_target_version) override {}
+  void OnNewCaptureVersion(
+      const media::CaptureVersion& capture_version) override {}
 
   const bool use_shared_texture_;
 

@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index ba6d088aad6503e6f31b51e97f4651b62fa9a72f..103d5887e59dff1d44da8430391d82865d1c6e32 100644
+index 3b613887f34beab9c8020435e60e4a91e35c35bf..a0ab95dc90cefa91f8c2d83131e6dfda481abd02 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -10,7 +10,7 @@ index ba6d088aad6503e6f31b51e97f4651b62fa9a72f..103d5887e59dff1d44da8430391d8286
  #include "chrome/browser/extensions/api/automation_internal/chrome_automation_internal_api_delegate.h"
  #include "chrome/browser/extensions/api/declarative_content/chrome_content_rules_registry.h"
  #include "chrome/browser/extensions/api/declarative_content/default_content_predicate_evaluators.h"
-@@ -84,6 +85,10 @@
+@@ -89,6 +90,10 @@
  #include "chromeos/ash/components/settings/cros_settings.h"
  #endif
  
@@ -21,7 +21,7 @@ index ba6d088aad6503e6f31b51e97f4651b62fa9a72f..103d5887e59dff1d44da8430391d8286
  #if BUILDFLAG(ENABLE_PRINTING)
  #include "chrome/browser/printing/printing_init.h"
  #endif
-@@ -300,7 +305,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
+@@ -338,7 +343,11 @@ ChromeExtensionsAPIClient::CreateGuestViewManagerDelegate() const {
  std::unique_ptr<MimeHandlerViewGuestDelegate>
  ChromeExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
      MimeHandlerViewGuest* guest) const {
@@ -34,10 +34,10 @@ index ba6d088aad6503e6f31b51e97f4651b62fa9a72f..103d5887e59dff1d44da8430391d8286
  
  std::unique_ptr<WebViewGuestDelegate>
 diff --git chrome/browser/extensions/api/tabs/tabs_api_non_android.cc chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a550769a84511 100644
+index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb2900a41652 100644
 --- chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-@@ -867,11 +867,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -842,11 +842,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -52,7 +52,7 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
  
    web_contents_ = contents;
  
-@@ -894,13 +893,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -869,13 +868,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
      }
  
@@ -68,7 +68,7 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab
      // if the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -921,7 +920,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -896,7 +895,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
    }
  
@@ -77,7 +77,7 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -956,7 +955,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -931,7 +930,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -86,7 +86,7 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -977,7 +976,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -952,7 +951,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -96,7 +96,7 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
          !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-@@ -994,7 +994,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -970,7 +970,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
  
  #if BUILDFLAG(FULL_SAFE_BROWSING)
      tabs_internal::NotifyExtensionTelemetry(
@@ -106,10 +106,10 @@ index 81be27611aff68fbfec4330f1eb26beb8a0d1734..1babf3815a258eb90d1cfc653f7a5507
          js_callstack());
  #endif
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index 2454cf9cf0cec8531bc047e1d5e90cd43767e09d..81d4d9edee4732605ec84b8a99683f790dca1fd2 100644
+index b7fcdfcf881ae311b298cbb3e855eeab36c43dcb..352650bc3942ba190af21da669d77c6174dd6b3b 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -66,6 +66,7 @@
+@@ -67,6 +67,7 @@
  #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
  #include "base/types/expected_macros.h"
@@ -117,9 +117,9 @@ index 2454cf9cf0cec8531bc047e1d5e90cd43767e09d..81d4d9edee4732605ec84b8a99683f79
  #include "chrome/browser/browser_process.h"  // nogncheck
  #include "chrome/browser/extensions/tab_helper.h"
  #include "chrome/browser/platform_util.h"  // nogncheck
-@@ -101,6 +102,10 @@
- #include "extensions/common/manifest_handlers/options_page_info.h"
- #endif
+@@ -102,6 +103,10 @@
+ 
+ static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
  
 +#if BUILDFLAG(ENABLE_CEF)
 +#include "cef/libcef/browser/chrome/extensions/chrome_extension_util.h"
@@ -128,21 +128,22 @@ index 2454cf9cf0cec8531bc047e1d5e90cd43767e09d..81d4d9edee4732605ec84b8a99683f79
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -927,6 +932,14 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -929,6 +934,15 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+     }
    }
  #endif  // BUILDFLAG(IS_ANDROID)
- 
++
 +#if BUILDFLAG(ENABLE_CEF)
 +  if (cef::GetAlloyTabById(tab_id, profile, include_incognito, out_contents)) {
 +    // |out_window| and |out_tab_index| are tied to a specific Browser window,
 +    // which doesn't exist for an Alloy style browser.
 +    return true;
 +  }
-+#endif  // BUILDFLAG(ENABLE_CEF)
++#endif
 +
-   if (base::FeatureList::IsEnabled(blink::features::kPrerender2InNewTab)) {
-     // Prerendering tab is not visible and it cannot be in `TabStripModel`, if
-     // the tab id exists as a prerendering tab, and the API will returns
+   // Prerendering tab is not visible and it cannot be in `TabStripModel`, if the
+   // tab id exists as a prerendering tab, and the API will returns
+   // `api::tabs::TAB_INDEX_NONE` for `out_tab_index` and a valid `WebContents`.
 diff --git chrome/browser/ui/tab_helpers.h chrome/browser/ui/tab_helpers.h
 index ec26ac19c07801af29e8f755fcbc9f71be17dee1..928536d17dbb15cee42aacc2bac5a57576514109 100644
 --- chrome/browser/ui/tab_helpers.h

@@ -1,8 +1,8 @@
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.cc chrome/browser/renderer_context_menu/render_view_context_menu.cc
-index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db46c828a14 100644
+index 7bc37d1c1574b6ff02dcce60986b4d3b40904793..ed98cb491dac0b6a6309770f27c086d560988303 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -364,6 +364,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
+@@ -372,6 +372,18 @@ base::OnceCallback<void(RenderViewContextMenu*)>* GetMenuShownCallback() {
    return callback.get();
  }
  
@@ -21,7 +21,7 @@ index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db4
  enum class UmaEnumIdLookupType {
    GeneralEnumId,
    ContextSpecificEnumId,
-@@ -638,6 +650,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
+@@ -646,6 +658,10 @@ int FindUMAEnumValueForCommand(int id, UmaEnumIdLookupType type) {
      return 1;
    }
  
@@ -32,7 +32,7 @@ index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db4
    id = CollapseCommandsForUMA(id);
    const auto& map = GetIdcToUmaMap(type);
    auto it = map.find(id);
-@@ -906,6 +922,14 @@ RenderViewContextMenu::RenderViewContextMenu(
+@@ -914,6 +930,14 @@ RenderViewContextMenu::RenderViewContextMenu(
                      : nullptr;
  #endif  // BUILDFLAG(IS_CHROMEOS)
  
@@ -47,7 +47,7 @@ index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db4
    observers_.AddObserver(&autofill_context_menu_manager_);
  }
  
-@@ -1269,6 +1293,12 @@ void RenderViewContextMenu::InitMenu() {
+@@ -1277,6 +1301,12 @@ void RenderViewContextMenu::InitMenu() {
      autofill_client->HideAutofillSuggestions(
          autofill::SuggestionHidingReason::kContextMenuOpened);
    }
@@ -60,7 +60,7 @@ index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db4
  }
  
  Profile* RenderViewContextMenu::GetProfile() const {
-@@ -3601,6 +3631,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
+@@ -3616,6 +3646,26 @@ void RenderViewContextMenu::RemoveObserverForTesting(
    observers_.RemoveObserver(observer);
  }
  
@@ -88,7 +88,7 @@ index 13e3d24373380eb8a6bd044a9781469d54af0022..53afd9341f024a7e1ae20444ea056db4
  RenderViewContextMenu::GetHandlersForLinkUrl() {
    custom_handlers::ProtocolHandlerRegistry::ProtocolHandlerList handlers =
 diff --git chrome/browser/renderer_context_menu/render_view_context_menu.h chrome/browser/renderer_context_menu/render_view_context_menu.h
-index c8c2cc374421abe0504b7fb6c6d5b4e5d1afe95e..59e99e0cb5cc8db049236cac28723bb43dd7cb2d 100644
+index 83427a57d44f250c5d9f86d2aac31460f8e50423..e97f2ab97fd27ff9435ce0e44096f029b0826f1e 100644
 --- chrome/browser/renderer_context_menu/render_view_context_menu.h
 +++ chrome/browser/renderer_context_menu/render_view_context_menu.h
 @@ -152,7 +152,21 @@ class RenderViewContextMenu
@@ -162,10 +162,10 @@ index 2e34cf104fbe68248486c33c99a831ff046d42d2..850489d12a4582923c113f4a4ec6e1fe
    [menu_controller_ cancel];
  }
 diff --git chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
-index fb86992cee93f8c4225db01a40b5ef031052f475..fe674fe471cc46cdff420beaeccfa1694b51afee 100644
+index d3bdffdbf66145c888741c3d060b9a9210a8424b..58760dc4d6287d74651475e339cca3c99c335382 100644
 --- chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
 +++ chrome/browser/ui/cocoa/renderer_context_menu/render_view_context_menu_mac_remote_cocoa.h
-@@ -27,6 +27,7 @@ class RenderViewContextMenuMacRemoteCocoa : public RenderViewContextMenuMac {
+@@ -33,6 +33,7 @@ class RenderViewContextMenuMacRemoteCocoa : public RenderViewContextMenuMac {
  
    // RenderViewContextMenu:
    void Show() override;

@@ -8,7 +8,7 @@
 
 #include "base/memory/raw_ptr.h"
 #include "cef/include/internal/cef_types_wrappers.h"
-#include "ui/gfx/native_widget_types.h"
+#include "ui/gfx/native_ui_types.h"
 #include "ui/touch_selection/touch_handle.h"
 #include "ui/touch_selection/touch_handle_orientation.h"
 #include "ui/touch_selection/ui_touch_selection_export.h"

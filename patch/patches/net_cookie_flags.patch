@@ -1,20 +1,20 @@
 diff --git net/base/load_flags_list.h net/base/load_flags_list.h
-index 6e118835cc725dec9289811fbbb08410c0852a51..24e5463606f0cc646b74fb1584c2472fe07ef5f6 100644
+index c10df92f30b1292a8243f376025e81afcefba78d..59e6208b3954635076022807edfc9a305c8c22af 100644
 --- net/base/load_flags_list.h
 +++ net/base/load_flags_list.h
-@@ -116,4 +116,7 @@ LOAD_FLAG(DISABLE_SHARED_DICTIONARY_AFTER_CROSS_ORIGIN_REDIRECT, 1 << 17)
- // CRL, and OCSP requests in order to prevent circular dependencies.
- LOAD_FLAG(SHOULD_BYPASS_HSTS, 1 << 18)
+@@ -123,4 +123,7 @@ LOAD_FLAG(SHOULD_BYPASS_HSTS, 1 << 18)
+ // compromised renderer concern is acceptable.
+ LOAD_FLAG(IS_MAIN_FRAME_ORIGIN_RECENTLY_ACCESSED, 1 << 19)
  
 +// This load will not send any cookies. For CEF usage.
 +LOAD_FLAG(DO_NOT_SEND_COOKIES, 1 << 19)
 +
  // See note at top of file about why adding LoadFlags is often a bad idea.
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index 277089b5023f74963a6f6766a0aeb1eaae771aa0..82b256b8b5ac95734299c8e33244bb0fadd102b7 100644
+index ee26839c00587dc237393d995a03085109b74076..d126d1551a0503f7d1846df742fa679bbb8ec9cf 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -2171,7 +2171,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -2208,7 +2208,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
@@ -25,10 +25,10 @@ index 277089b5023f74963a6f6766a0aeb1eaae771aa0..82b256b8b5ac95734299c8e33244bb0f
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/cors/cors_url_loader_factory.cc services/network/cors/cors_url_loader_factory.cc
-index 3d1be11b19bde1ef9d5438324d0c6d8cf13d6080..97ba2d574125857e143e37645ae4804f90638282 100644
+index c7a1cd8a4720f01cae92f5448daa44becc357014..d9ab6b7015405f71a198c78c02fd87c9c91bb80c 100644
 --- services/network/cors/cors_url_loader_factory.cc
 +++ services/network/cors/cors_url_loader_factory.cc
-@@ -627,7 +627,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
+@@ -637,7 +637,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
            net::LOAD_DISABLE_CACHE | net::LOAD_PREFETCH |
            net::LOAD_IGNORE_LIMITS | net::LOAD_DO_NOT_USE_EMBEDDED_IDENTITY |
            net::LOAD_SUPPORT_ASYNC_REVALIDATION |

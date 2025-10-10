@@ -69,7 +69,7 @@ index f633265e3d207d2802e1faf60abcf83f39cdf104..7d759d855922211aacb200bc1194a42b
  // chrome://terms
  class TermsUIConfig : public AboutUIConfigBase {
 diff --git chrome/browser/ui/webui/chrome_web_ui_configs.cc chrome/browser/ui/webui/chrome_web_ui_configs.cc
-index a9e23b54aaf499b9b337faed26ede00a1228ccd2..e916c873318f587f0d4c7fb0fc00003926816ce4 100644
+index 746ec07198b151b02d19ad89428127cd3ae6b749..c8c7fa4d371e3c6a60c9993472ace82717685609 100644
 --- chrome/browser/ui/webui/chrome_web_ui_configs.cc
 +++ chrome/browser/ui/webui/chrome_web_ui_configs.cc
 @@ -6,6 +6,7 @@
@@ -80,7 +80,7 @@ index a9e23b54aaf499b9b337faed26ede00a1228ccd2..e916c873318f587f0d4c7fb0fc000039
  #include "chrome/browser/optimization_guide/optimization_guide_internals_ui.h"
  #include "chrome/browser/ui/webui/about/about_ui.h"
  #include "chrome/browser/ui/webui/accessibility/accessibility_ui.h"
-@@ -225,6 +226,9 @@ void RegisterChromeWebUIConfigs() {
+@@ -226,6 +227,9 @@ void RegisterChromeWebUIConfigs() {
    map.AddWebUIConfig(std::make_unique<BluetoothInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<BrowsingTopicsInternalsUIConfig>());
    map.AddWebUIConfig(std::make_unique<chromeos::DeviceLogUIConfig>());
@@ -105,7 +105,7 @@ index 85b06a40a8bb8a68d230de9b6ca465fa11e5850d..c9f612af6ada5390f6ffa3748f0a26f5
  #if !BUILDFLAG(IS_ANDROID)
        kChromeUIManagementHost,
 diff --git chrome/common/webui_url_constants.h chrome/common/webui_url_constants.h
-index f2b84ac2411b661af10da09d7298eef02e6fb323..89b7f31bcef504179d31efc7c1b82fd4262ae631 100644
+index de9e7825e979eae506124098d571ea8b25aa9382..2fa18e7632db0d10cd9c3ad65228c375736aeaca 100644
 --- chrome/common/webui_url_constants.h
 +++ chrome/common/webui_url_constants.h
 @@ -18,6 +18,7 @@
@@ -116,7 +116,7 @@ index f2b84ac2411b661af10da09d7298eef02e6fb323..89b7f31bcef504179d31efc7c1b82fd4
  #include "chrome/common/buildflags.h"
  #include "components/enterprise/buildflags/buildflags.h"
  #include "components/signin/public/base/signin_buildflags.h"
-@@ -172,6 +173,10 @@ inline constexpr char kChromeUIInterstitialHost[] = "interstitials";
+@@ -174,6 +175,10 @@ inline constexpr char kChromeUIInterstitialHost[] = "interstitials";
  inline constexpr char kChromeUIInterstitialURL[] = "chrome://interstitials/";
  inline constexpr char kChromeUIKillHost[] = "kill";
  inline constexpr char kChromeUILauncherInternalsHost[] = "launcher-internals";

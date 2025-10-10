@@ -406,7 +406,7 @@ class CefBrowserHostBase : public CefBrowserHost,
 
   // Returns the top-level native window for this browser. With windowed
   // browsers this will be an aura::Window* on Aura platforms (Windows/Linux)
-  // and an NSWindow wrapper object from native_widget_types.h on MacOS. With
+  // and an NSWindow wrapper object from native_ui_types.h on MacOS. With
   // windowless browsers this method will always return an empty value.
   gfx::NativeWindow GetTopLevelNativeWindow() const;
 

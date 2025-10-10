@@ -108,7 +108,7 @@ index 47ffb24940071be6f3747a85022a2b226ae8b63b..7d89f8606b37761649e44bfabff5f7a2
  }
  
 diff --git content/app/content_main_runner_impl.cc content/app/content_main_runner_impl.cc
-index 733dfb4b06214f7dfe084c2ef945cad9f914eabb..8fb62860199ff8dad660e031f560f791cc5643e3 100644
+index 86bb51dbba93f87b09b5c0003e9d700a277615dc..14f44c587648aa101f78701930f6fd7bb5002e4c 100644
 --- content/app/content_main_runner_impl.cc
 +++ content/app/content_main_runner_impl.cc
 @@ -51,6 +51,7 @@
@@ -119,7 +119,7 @@ index 733dfb4b06214f7dfe084c2ef945cad9f914eabb..8fb62860199ff8dad660e031f560f791
  #include "base/time/time.h"
  #include "base/trace_event/trace_event.h"
  #include "build/branding_buildflags.h"
-@@ -1318,6 +1319,12 @@ void ContentMainRunnerImpl::Shutdown() {
+@@ -1329,6 +1330,12 @@ void ContentMainRunnerImpl::Shutdown() {
    is_shutdown_ = true;
  }
  

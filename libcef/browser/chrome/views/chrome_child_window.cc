@@ -7,7 +7,7 @@
 #include "cef/libcef/browser/chrome/views/browser_platform_delegate_chrome_views.h"
 #include "cef/libcef/browser/views/browser_view_impl.h"
 #include "cef/libcef/browser/views/window_impl.h"
-#include "ui/gfx/native_widget_types.h"
+#include "ui/gfx/native_ui_types.h"
 
 #if BUILDFLAG(IS_WIN)
 #include "cef/libcef/browser/native/browser_platform_delegate_native_win.h"

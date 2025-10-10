@@ -18,7 +18,7 @@ class Widget;
 // Interface that provides access to common CEF-specific Widget functionality.
 // Alloy and Chrome styles use different views::Widget inheritance so we can't
 // cast types directly. Implemented by CefWidgetImpl for Alloy style and
-// ChromeBrowserFrame for Chrome style.
+// ChromeBrowserWidget for Chrome style.
 class CefWidget {
  public:
   // Called from CefWindowView::CreateWidget.

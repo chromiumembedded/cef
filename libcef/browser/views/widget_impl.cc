@@ -24,7 +24,7 @@ CefWidgetImpl::~CefWidgetImpl() {
 void CefWidgetImpl::Initialized() {
   initialized_ = true;
 
-  // Based on BrowserFrame::InitBrowserFrame.
+  // Based on BrowserWidget::InitBrowserFrame.
   // This is the first call that will trigger theme-related client callbacks.
 #if BUILDFLAG(IS_LINUX)
   // Calls ThemeChanged() or OnNativeThemeUpdated().
@@ -101,7 +101,7 @@ const ui::ThemeProvider* CefWidgetImpl::GetThemeProvider() const {
     return Widget::GetThemeProvider();
   }
 
-  // Based on BrowserFrame::GetThemeProvider.
+  // Based on BrowserWidget::GetThemeProvider.
   return &ThemeService::GetThemeProviderForProfile(profile);
 }
 
@@ -112,7 +112,7 @@ ui::ColorProviderKey::ThemeInitializerSupplier* CefWidgetImpl::GetCustomTheme()
     return Widget::GetCustomTheme();
   }
 
-  // Based on BrowserFrame::GetCustomTheme.
+  // Based on BrowserWidget::GetCustomTheme.
   auto* theme_service = ThemeServiceFactory::GetForProfile(profile);
   return theme_service->UsingDeviceTheme() ? nullptr
                                            : theme_service->GetThemeSupplier();
@@ -165,7 +165,7 @@ void CefWidgetImpl::NotifyThemeColorsChanged(bool chrome_theme,
 }
 
 void CefWidgetImpl::SelectNativeTheme() {
-  // Based on BrowserFrame::SelectNativeTheme.
+  // Based on BrowserWidget::SelectNativeTheme.
 #if BUILDFLAG(IS_LINUX)
   ui::NativeTheme* native_theme = ui::NativeTheme::GetInstanceForNativeUi();
 

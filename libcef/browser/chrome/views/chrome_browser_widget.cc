@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "cef/libcef/browser/chrome/views/chrome_browser_frame.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_widget.h"
 
 #include "cef/libcef/browser/chrome/chrome_browser_host_impl.h"
+#include "cef/libcef/browser/chrome/views/chrome_browser_frame_view.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "cef/libcef/browser/views/window_view.h"
 #include "chrome/browser/themes/theme_service.h"
@@ -19,25 +20,29 @@
 #include "ui/views/widget/native_widget_private.h"
 #endif
 
-ChromeBrowserFrame::ChromeBrowserFrame(CefWindowView* window_view)
+ChromeBrowserWidget::ChromeBrowserWidget(CefWindowView* window_view)
     : window_view_(window_view) {}
 
-ChromeBrowserFrame::~ChromeBrowserFrame() {
+ChromeBrowserWidget::~ChromeBrowserWidget() {
   DCHECK(associated_profiles_.empty());
 }
 
-void ChromeBrowserFrame::Init(BrowserView* browser_view,
-                              std::unique_ptr<Browser> browser) {
+void ChromeBrowserWidget::Init(BrowserView* browser_view, Browser* browser) {
   DCHECK(browser_view);
   DCHECK(browser);
 
-  DCHECK(!BrowserFrame::browser_view());
+  DCHECK(!BrowserWidget::browser_view());
 
-  // Initialize BrowserFrame state.
+  // Initialize BrowserWidget state.
   SetBrowserView(browser_view);
 
+  // Stub implementation of BrowserFrameView that is not actually added to the
+  // views hierarchy.
+  frame_view_ = std::make_unique<ChromeBrowserFrameView>(this, browser_view);
+  SetBrowserFrameView(frame_view_.get());
+
   // Initialize BrowserView state.
-  browser_view->InitBrowser(std::move(browser));
+  browser_view->InitBrowser(browser);
 
 #if BUILDFLAG(IS_MAC)
   // Initialize native window state.
@@ -53,10 +58,10 @@ void ChromeBrowserFrame::Init(BrowserView* browser_view,
 #endif  // BUILDFLAG(IS_MAC)
 }
 
-void ChromeBrowserFrame::Initialized() {
+void ChromeBrowserWidget::Initialized() {
   initialized_ = true;
 
-  // Based on BrowserFrame::InitBrowserFrame.
+  // Based on BrowserWidget::InitBrowserWidget.
   // This is the first call that will trigger theme-related client callbacks.
 #if BUILDFLAG(IS_LINUX)
   // Calls ThemeChanged() or OnNativeThemeUpdated().
@@ -67,7 +72,7 @@ void ChromeBrowserFrame::Initialized() {
 #endif
 }
 
-void ChromeBrowserFrame::AddAssociatedProfile(Profile* profile) {
+void ChromeBrowserWidget::AddAssociatedProfile(Profile* profile) {
   DCHECK(profile);
 
   // Always call ThemeChanged() when the Chrome style BrowserView is added.
@@ -97,7 +102,7 @@ void ChromeBrowserFrame::AddAssociatedProfile(Profile* profile) {
   }
 }
 
-void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* profile) {
+void ChromeBrowserWidget::RemoveAssociatedProfile(Profile* profile) {
   DCHECK(profile);
   ProfileMap::iterator it = associated_profiles_.find(profile);
   if (it == associated_profiles_.end()) {
@@ -124,7 +129,7 @@ void ChromeBrowserFrame::RemoveAssociatedProfile(Profile* profile) {
   }
 }
 
-Profile* ChromeBrowserFrame::GetThemeProfile() const {
+Profile* ChromeBrowserWidget::GetThemeProfile() const {
   // Always prefer the Browser Profile, if any.
   if (browser_view()) {
     return browser_view()->GetProfile();
@@ -135,7 +140,7 @@ Profile* ChromeBrowserFrame::GetThemeProfile() const {
   return nullptr;
 }
 
-bool ChromeBrowserFrame::ToggleFullscreenMode() {
+bool ChromeBrowserWidget::ToggleFullscreenMode() {
   if (browser_view()) {
     // Toggle fullscreen mode via the Chrome command for consistent behavior.
     chrome::ToggleFullscreenMode(browser_view()->browser());
@@ -144,28 +149,27 @@ bool ChromeBrowserFrame::ToggleFullscreenMode() {
   return false;
 }
 
-void ChromeBrowserFrame::UserChangedTheme(
+void ChromeBrowserWidget::UserChangedTheme(
     BrowserThemeChangeType theme_change_type) {
   // Callback from Browser::OnThemeChanged() and OnNativeThemeUpdated().
 
   // Calls ThemeChanged() and possibly SelectNativeTheme().
-  BrowserFrame::UserChangedTheme(theme_change_type);
+  BrowserWidget::UserChangedTheme(theme_change_type);
 
   NotifyThemeColorsChanged(/*chrome_theme=*/!native_theme_change_);
 }
 
-views::internal::RootView* ChromeBrowserFrame::CreateRootView() {
-  // Bypass the BrowserFrame implementation.
+views::internal::RootView* ChromeBrowserWidget::CreateRootView() {
+  // Bypass the BrowserWidget implementation.
   return views::Widget::CreateRootView();
 }
 
-std::unique_ptr<views::NonClientFrameView>
-ChromeBrowserFrame::CreateNonClientFrameView() {
-  // Bypass the BrowserFrame implementation.
-  return views::Widget::CreateNonClientFrameView();
+std::unique_ptr<views::FrameView> ChromeBrowserWidget::CreateFrameView() {
+  // Bypass the BrowserWidget implementation.
+  return views::Widget::CreateFrameView();
 }
 
-void ChromeBrowserFrame::Activate() {
+void ChromeBrowserWidget::Activate() {
   if (browser_view() && browser_view()->browser() &&
       browser_view()->browser()->is_type_devtools()) {
     if (auto browser_host = ChromeBrowserHostImpl::GetBrowserForBrowser(
@@ -183,23 +187,65 @@ void ChromeBrowserFrame::Activate() {
   }
 
   // Proceed with default handling.
-  BrowserFrame::Activate();
+  BrowserWidget::Activate();
 }
 
-void ChromeBrowserFrame::OnNativeWidgetDestroyed() {
-  // Remove the listener registration added in BrowserView::InitBrowser().
+void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
   if (browser_view()) {
+    // Remove the listener registration added in BrowserView::InitBrowser().
     if (auto focus_manager = browser_view()->GetFocusManager()) {
       focus_manager->RemoveFocusChangeListener(browser_view());
     }
-  }
 
-  window_view_ = nullptr;
-  SetBrowserView(nullptr);
-  BrowserFrame::OnNativeWidgetDestroyed();
+    // Proceed with Browser-related object teardown. Order of destruction
+    // is BrowserView, BrowserWidget (this), Browser.
+
+    // Release the unique_ptr reference that BrowserView holds to BrowserWidget
+    // as the BrowserView will be destroyed first.
+    browser_view()->DeleteBrowserWindow();
+
+    // Destruction logic from BrowserWidget::OnNativeWidgetDestroyed.
+    Browser* const browser = browser_view()->browser();
+    browser->set_force_skip_warning_user_on_close(true);
+    browser->OnWindowClosing();
+
+    // Invoke the pre-window-destruction lifecycle hook before the BrowserView
+    // and BrowserWidget are destroyed.
+    browser->GetFeatures().TearDownPreBrowserWindowDestruction();
+
+    // Release the unique_ptr reference that Browser holds to BrowserView
+    // (BrowserWindow) as the BrowserView will be destroyed first.
+    browser->ReleaseBrowserWindow();
+
+    // Release raw_ptr<> references to the BrowserView before it's destroyed.
+    window_view_ = nullptr;
+    SetBrowserView(nullptr);
+
+    // Delete the stub BrowserFrameView implementation.
+    if (frame_view_) {
+      SetBrowserFrameView(nullptr);
+      frame_view_.reset();
+    }
+
+    // Proceed with Widget destruction. Results in a call to
+    // CefWindowWidgetDelegate::WidgetIsZombie which tears down the views
+    // hierarchy (deletes BrowserView, etc) and deletes BrowserWidget.
+    // Intentionally skipping BrowserWidget::OnNativeWidgetDestroyed here as the
+    // logic is incorporated inline.
+    Widget::OnNativeWidgetDestroyed();
+    // BrowserView and BrowserWidget have been destroyed at this point.
+
+    browser->SynchronouslyDestroyBrowser();
+    // Browser has been destroyed at this point.
+  } else {
+    // Intentionally skipping BrowserWidget::OnNativeWidgetDestroyed here
+    // because |browser_view()| is nullptr.
+    Widget::OnNativeWidgetDestroyed();
+  }
 }
 
-void ChromeBrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
+void ChromeBrowserWidget::OnNativeThemeUpdated(
+    ui::NativeTheme* observed_theme) {
   // TODO: Reduce the frequency of this callback on Windows/Linux.
   // See https://issues.chromium.org/issues/40280130#comment7
 
@@ -208,15 +254,15 @@ void ChromeBrowserFrame::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
   native_theme_change_ = true;
 
   // Calls UserChangedTheme().
-  BrowserFrame::OnNativeThemeUpdated(observed_theme);
+  BrowserWidget::OnNativeThemeUpdated(observed_theme);
 
   native_theme_change_ = false;
 }
 
-ui::ColorProviderKey ChromeBrowserFrame::GetColorProviderKey() const {
+ui::ColorProviderKey ChromeBrowserWidget::GetColorProviderKey() const {
   if (browser_view()) {
     // Use the default Browser implementation.
-    return BrowserFrame::GetColorProviderKey();
+    return BrowserWidget::GetColorProviderKey();
   }
 
   const auto& widget_key = Widget::GetColorProviderKey();
@@ -226,7 +272,7 @@ ui::ColorProviderKey ChromeBrowserFrame::GetColorProviderKey() const {
   return widget_key;
 }
 
-void ChromeBrowserFrame::OnThemeChanged() {
+void ChromeBrowserWidget::OnThemeChanged() {
   if (browser_view()) {
     // Ignore these notifications if we have a Browser.
     return;
@@ -238,7 +284,7 @@ void ChromeBrowserFrame::OnThemeChanged() {
   NotifyThemeColorsChanged(/*chrome_theme=*/true);
 }
 
-void ChromeBrowserFrame::OnColorProviderCacheResetMissed() {
+void ChromeBrowserWidget::OnColorProviderCacheResetMissed() {
   // Ignore calls during Widget::Init().
   if (!initialized_) {
     return;
@@ -247,12 +293,12 @@ void ChromeBrowserFrame::OnColorProviderCacheResetMissed() {
   NotifyThemeColorsChanged(/*chrome_theme=*/false);
 }
 
-void ChromeBrowserFrame::NotifyThemeColorsChanged(bool chrome_theme) {
+void ChromeBrowserWidget::NotifyThemeColorsChanged(bool chrome_theme) {
   if (window_view_) {
     window_view_->OnThemeColorsChanged(chrome_theme);
 
     // Call ThemeChanged() asynchronously to avoid possible reentrancy.
-    CEF_POST_TASK(TID_UI, base::BindOnce(&ChromeBrowserFrame::ThemeChanged,
+    CEF_POST_TASK(TID_UI, base::BindOnce(&ChromeBrowserWidget::ThemeChanged,
                                          weak_ptr_factory_.GetWeakPtr()));
   }
 }
