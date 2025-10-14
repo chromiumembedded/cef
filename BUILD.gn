@@ -1179,6 +1179,9 @@ config("libcef_dll_wrapper_config") {
   # Chromium (and libcef) may build with a newer C++ version so this helps to
   # avoid accidental usage of new/unsupported language features in sample apps.
   # For Chromium defaults see //build/config/compiler/BUILD.gn.
+  #
+  # Mixing C++17 and C++20 leads to build errors with modules enabled. Dependent
+  # targets must therefore also set use_libcxx_modules = false (see issue #3611).
   if (is_win) {
     cflags_cc = [ "/std:c++17" ]
   } else {
@@ -1222,6 +1225,9 @@ static_library("libcef_dll_wrapper") {
   public_configs = [ ":libcef_dll_wrapper_config" ]
 
   deps = [ ":cef_make_headers" ]
+
+  # Disable clang modules for this target (see issue #3611).
+  use_libcxx_modules = false
 }
 
 
@@ -1902,6 +1908,9 @@ if (is_mac) {
         if (defined(invoker.helper_defines)) {
           defines = invoker.helper_defines
         }
+
+        # Disable clang modules for this target (see issue #3611).
+        use_libcxx_modules = false
       }
     }
 
@@ -1996,6 +2005,9 @@ if (is_mac) {
       }
 
       info_plist_target = ":${app_name}_plist"
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
     }
   }
 
@@ -2278,6 +2290,9 @@ if (is_mac) {
       "CEF_USE_SANDBOX",
     ]
 
+    # Disable clang modules for this target (see issue #3611).
+    use_libcxx_modules = false
+
     if (is_win) {
       sources += includes_win +
                  gypi_paths2.includes_wrapper_win +
@@ -2419,6 +2434,9 @@ if (is_mac) {
           "/DELAYLOAD:opengl32.dll",
         ]
       }
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
     }
   }
 
@@ -2443,6 +2461,9 @@ if (is_mac) {
     defines = [
       "CEF_USE_SANDBOX",
     ]
+
+    # Disable clang modules for this target (see issue #3611).
+    use_libcxx_modules = false
 
     if (is_win) {
       sources += includes_win +
@@ -2529,6 +2550,9 @@ if (is_mac) {
         "shlwapi.lib",
         "rpcrt4.lib",
       ]
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
     }
   }
 
@@ -2565,6 +2589,9 @@ if (is_mac) {
       "CEF_USE_SANDBOX",
       "CEF_TESTS_IN_SRC_DIRECTORY",
     ]
+
+    # Disable clang modules for this target (see issue #3611).
+    use_libcxx_modules = false
 
     if (is_win) {
       sources += gypi_paths2.includes_wrapper_win +
@@ -2648,6 +2675,9 @@ if (is_mac) {
         "//build/config/win:delayloads",
         "//build/config/win:delayloads_not_for_child_dll",
       ]
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
     }
   }
 }
