@@ -7,7 +7,7 @@
 #include "base/no_destructor.h"
 #include "cef/libcef/browser/browser_host_base.h"
 #include "cef/libcef/browser/context.h"
-#include "cef/libcef/browser/native/window_delegate_view.h"
+#include "cef/libcef/browser/native/native_widget_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -76,13 +76,14 @@ bool CefBrowserPlatformDelegateNativeLinux::CreateHostWindow() {
   // Add a reference that will be released in BrowserDestroyed().
   browser_->AddRef();
 
-  CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
+  auto* widget_delegate = new CefNativeWidgetDelegate(
       GetBackgroundColor(), window_x11_->TopLevelAlwaysOnTop(),
       GetBoundsChangedCallback(), GetWidgetDeleteCallback());
-  delegate_view->Init(static_cast<gfx::AcceleratedWidget>(window_info_.window),
-                      web_contents_, gfx::Rect(gfx::Point(), rect.size()));
+  widget_delegate->Init(
+      static_cast<gfx::AcceleratedWidget>(window_info_.window), web_contents_,
+      gfx::Rect(gfx::Point(), rect.size()));
 
-  window_widget_ = delegate_view->GetWidget();
+  window_widget_ = widget_delegate->GetWidget();
   window_widget_->Show();
 
   window_x11_->Show();

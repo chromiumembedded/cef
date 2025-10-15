@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
-#include "cef/libcef/browser/native/window_delegate_view.h"
+#include "cef/libcef/browser/native/native_widget_delegate.h"
 
 #include <utility>
 
@@ -13,7 +13,44 @@
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/widget.h"
 
-CefWindowDelegateView::CefWindowDelegateView(
+// Owned by the Widget, via CefNativeWidgetDelegate.
+class CefNativeContentsView : public views::View {
+  METADATA_HEADER(CefNativeContentsView, views::View)
+
+ public:
+  explicit CefNativeContentsView(CefNativeWidgetDelegate* window_delegate)
+      : window_delegate_(window_delegate) {}
+
+  CefNativeContentsView(const CefNativeContentsView&) = delete;
+  CefNativeContentsView& operator=(const CefNativeContentsView&) = delete;
+
+ private:
+  // View methods:
+  void ViewHierarchyChanged(
+      const views::ViewHierarchyChangedDetails& details) override {
+    if (details.is_add && details.child == this) {
+      SetBackground(
+          views::CreateSolidBackground(window_delegate_->background_color_));
+      SetLayoutManager(std::make_unique<views::FillLayout>());
+      AddChildView(window_delegate_->web_view_.get());
+    }
+  }
+
+  void OnBoundsChanged(const gfx::Rect& previous_bounds) override {
+    views::View::OnBoundsChanged(previous_bounds);
+    if (!window_delegate_->on_bounds_changed_.is_null()) {
+      window_delegate_->on_bounds_changed_.Run();
+    }
+  }
+
+ private:
+  raw_ptr<CefNativeWidgetDelegate> window_delegate_;
+};
+
+BEGIN_METADATA(CefNativeContentsView)
+END_METADATA
+
+CefNativeWidgetDelegate::CefNativeWidgetDelegate(
     SkColor background_color,
     bool always_on_top,
     base::RepeatingClosure on_bounds_changed,
@@ -23,9 +60,12 @@ CefWindowDelegateView::CefWindowDelegateView(
       on_bounds_changed_(std::move(on_bounds_changed)),
       on_delete_(std::move(on_delete)) {}
 
-void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
-                                 content::WebContents* web_contents,
-                                 const gfx::Rect& bounds) {
+void CefNativeWidgetDelegate::Init(gfx::AcceleratedWidget parent_widget,
+                                   content::WebContents* web_contents,
+                                   const gfx::Rect& bounds) {
+  DCHECK(!contents_view_);
+  contents_view_ = new CefNativeContentsView(this);
+
   DCHECK(!web_view_);
   web_view_ = new views::WebView(web_contents->GetBrowserContext());
   web_view_->SetWebContents(web_contents);
@@ -33,13 +73,13 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
 
   SetCanResize(true);
 
-  views::Widget* widget = new views::Widget;
+  widget_ = std::make_unique<views::Widget>();
 
   // See CalculateWindowStylesFromInitParams in
   // ui/views/widget/widget_hwnd_utils.cc for the conversion of |params| to
   // Windows style flags.
   views::Widget::InitParams params(
-      views::Widget::InitParams::NATIVE_WIDGET_OWNS_WIDGET);
+      views::Widget::InitParams::CLIENT_OWNS_WIDGET);
   params.parent_widget = parent_widget;
   params.bounds = bounds;
   params.delegate = this;
@@ -59,47 +99,26 @@ void CefWindowDelegateView::Init(gfx::AcceleratedWidget parent_widget,
                                   : ui::ZOrderLevel::kNormal;
 
   // Results in a call to InitContent().
-  widget->Init(std::move(params));
+  widget_->Init(std::move(params));
 
   // |widget| should now be associated with |this|.
-  DCHECK_EQ(widget, GetWidget());
+  DCHECK_EQ(widget_.get(), GetWidget());
   // |widget| must be top-level for focus handling to work correctly.
-  DCHECK(widget->is_top_level());
+  DCHECK(widget_->is_top_level());
   // |widget| must be activatable for focus handling to work correctly.
-  DCHECK(widget->widget_delegate()->CanActivate());
-
-  // WidgetDelegate::DeleteDelegate() will execute the registered callback.
-  RegisterDeleteDelegateCallback(
-      RegisterDeleteCallbackPassKey(),
-      base::BindOnce(&CefWindowDelegateView::DeleteDelegate,
-                     base::Unretained(this)));
+  DCHECK(widget_->widget_delegate()->CanActivate());
 }
 
-void CefWindowDelegateView::InitContent() {
-  SetBackground(views::CreateSolidBackground(background_color_));
-  SetLayoutManager(std::make_unique<views::FillLayout>());
-  AddChildView(web_view_.get());
-}
+void CefNativeWidgetDelegate::WidgetIsZombie(views::Widget* widget) {
+  contents_view_ = nullptr;
+  web_view_ = nullptr;
 
-void CefWindowDelegateView::DeleteDelegate() {
+  // This triggers deletion of contained Views.
+  widget_.reset();
+
   if (!on_delete_.is_null()) {
     std::move(on_delete_).Run();
   }
-}
 
-void CefWindowDelegateView::ViewHierarchyChanged(
-    const views::ViewHierarchyChangedDetails& details) {
-  if (details.is_add && details.child == this) {
-    InitContent();
-  }
+  delete this;
 }
-
-void CefWindowDelegateView::OnBoundsChanged(const gfx::Rect& previous_bounds) {
-  views::WidgetDelegateView::OnBoundsChanged(previous_bounds);
-  if (!on_bounds_changed_.is_null()) {
-    on_bounds_changed_.Run();
-  }
-}
-
-BEGIN_METADATA(CefWindowDelegateView)
-END_METADATA

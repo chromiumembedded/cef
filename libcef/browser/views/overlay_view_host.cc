@@ -187,15 +187,13 @@ void CefOverlayViewHost::Init(views::View* host_view,
 
   cef_controller_ = new CefOverlayControllerImpl(this, view);
 
-  // Initialize the Widget. |widget_| will be deleted by the NativeWidget or
-  // when WidgetDelegate::DeleteDelegate() deletes |this|.
+  // Initialize the Widget. It will be deleted in WidgetIsZombie().
   widget_ = std::make_unique<ThemeCopyingWidget>(window_view_->GetWidget());
   views::Widget::InitParams params(
-      views::Widget::InitParams::NATIVE_WIDGET_OWNS_WIDGET,
+      views::Widget::InitParams::CLIENT_OWNS_WIDGET,
       views::Widget::InitParams::TYPE_CONTROL);
   params.delegate = this;
   params.name = "CefOverlayViewHost";
-  params.ownership = views::Widget::InitParams::WIDGET_OWNS_NATIVE_WIDGET;
   params.parent = window_view_->GetWidget()->GetNativeView();
   params.opacity = views::Widget::InitParams::WindowOpacity::kTranslucent;
   params.activatable = can_activate
@@ -213,13 +211,6 @@ void CefOverlayViewHost::Init(views::View* host_view,
 
   host_view_ = host_view;
   view_util::SetHostView(widget_.get(), host_view);
-
-  // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
-  // registered DeleteDelegate callback.
-  SetOwnedByWidget(OwnedByWidgetPassKey());
-  RegisterDeleteDelegateCallback(
-      RegisterDeleteCallbackPassKey(),
-      base::BindOnce(&CefOverlayViewHost::Cleanup, base::Unretained(this)));
 
   if (window_view_->IsChromeStyle()) {
     // Some attributes associated with a Chrome toolbar are located via the
@@ -388,4 +379,10 @@ void CefOverlayViewHost::Cleanup() {
     window_view_ = nullptr;
     host_view_ = nullptr;
   }
+}
+
+void CefOverlayViewHost::WidgetIsZombie(views::Widget* widget) {
+  widget_.reset();
+  Cleanup();
+  delete this;
 }

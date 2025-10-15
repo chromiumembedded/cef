@@ -389,6 +389,110 @@ bool ComputeAlloyStyle(CefWindowDelegate* cef_delegate) {
 
 }  // namespace
 
+// Manages the views-based root window. This object will be deleted when the
+// associated root window is destroyed.
+class CefWindowWidgetDelegate : public views::WidgetDelegate {
+ public:
+  CefWindowWidgetDelegate(CefWindowView* window_view,
+                          std::unique_ptr<views::Widget> widget)
+      : window_view_(window_view), widget_(std::move(widget)) {}
+
+  CefWindowWidgetDelegate(const CefWindowWidgetDelegate&) = delete;
+  CefWindowWidgetDelegate& operator=(const CefWindowWidgetDelegate&) = delete;
+
+ private:
+  // WidgetDelegate methods:
+  bool CanMinimize() const override { return window_view_->CanMinimize(); }
+
+  bool CanMaximize() const override { return window_view_->CanMaximize(); }
+
+  std::u16string GetWindowTitle() const override {
+    return window_view_->title_;
+  }
+
+  ui::ImageModel GetWindowIcon() override {
+    if (!window_view_->window_icon_) {
+      return views::WidgetDelegate::GetWindowIcon();
+    }
+    auto image_skia =
+        static_cast<CefImageImpl*>(window_view_->window_icon_.get())
+            ->GetForced1xScaleRepresentation(
+                window_view_->GetDisplay().device_scale_factor());
+    return ui::ImageModel::FromImageSkia(image_skia);
+  }
+
+  ui::ImageModel GetWindowAppIcon() override {
+    if (!window_view_->window_app_icon_) {
+      return views::WidgetDelegate::GetWindowAppIcon();
+    }
+    auto image_skia =
+        static_cast<CefImageImpl*>(window_view_->window_app_icon_.get())
+            ->GetForced1xScaleRepresentation(
+                window_view_->GetDisplay().device_scale_factor());
+    return ui::ImageModel::FromImageSkia(image_skia);
+  }
+
+  void WindowClosing() override {
+    window_view_->WindowClosing();
+    views::WidgetDelegate::WindowClosing();
+  }
+
+  views::View* GetContentsView() override { return window_view_.get(); }
+
+  views::ClientView* CreateClientView(views::Widget* widget) override {
+    return window_view_->CreateClientView(widget);
+  }
+
+  std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView(
+      views::Widget* widget) override {
+    return window_view_->CreateNonClientFrameView(widget);
+  }
+
+  bool ShouldDescendIntoChildForEventHandling(
+      gfx::NativeView child,
+      const gfx::Point& location) override {
+    return window_view_->ShouldDescendIntoChildForEventHandling(child,
+                                                                location);
+  }
+
+  bool MaybeGetMinimumSize(gfx::Size* size) const override {
+#if BUILDFLAG(IS_LINUX)
+    // Resize is disabled on Linux by returning the preferred size as the
+    // min/max size.
+    if (!CanResize()) {
+      *size = window_view_->CalculatePreferredSize({});
+      return true;
+    }
+#endif
+    return false;
+  }
+
+  bool MaybeGetMaximumSize(gfx::Size* size) const override {
+#if BUILDFLAG(IS_LINUX)
+    // Resize is disabled on Linux by returning the preferred size as the
+    // min/max size.
+    if (!CanResize()) {
+      *size = window_view_->CalculatePreferredSize({});
+      return true;
+    }
+#endif
+    return false;
+  }
+
+  void WidgetIsZombie(views::Widget* widget) override {
+    window_view_->DeleteDelegate();
+    window_view_ = nullptr;
+
+    // This triggers deletion of contained Views.
+    widget_.reset();
+
+    delete this;
+  }
+
+  raw_ptr<CefWindowView> window_view_;
+  std::unique_ptr<views::Widget> widget_;
+};
+
 CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
                              Delegate* window_delegate)
     : ParentClass(cef_delegate),
@@ -400,14 +504,14 @@ CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
 void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   DCHECK(!GetWidget());
 
-  // |widget| is owned by the NativeWidget and will be destroyed in response to
-  // a native destruction message.
+  // |widget| is owned by the CefWindowWidgetDelegate and will be destroyed in
+  // response to a native destruction message.
   CefWidget* cef_widget = CefWidget::Create(this);
   views::Widget* widget = cef_widget->GetWidget();
 
   views::Widget::InitParams params(
-      views::Widget::InitParams::NATIVE_WIDGET_OWNS_WIDGET);
-  params.delegate = this;
+      views::Widget::InitParams::CLIENT_OWNS_WIDGET);
+  params.delegate = new CefWindowWidgetDelegate(this, base::WrapUnique(widget));
 
   views::Widget* host_widget = nullptr;
 
@@ -433,13 +537,6 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
   } else {
     params.type = views::Widget::InitParams::TYPE_WINDOW;
   }
-
-  // Cause WidgetDelegate::DeleteDelegate() to delete |this| after executing the
-  // registered DeleteDelegate callback.
-  SetOwnedByWidget(OwnedByWidgetPassKey());
-  RegisterDeleteDelegateCallback(
-      RegisterDeleteCallbackPassKey(),
-      base::BindOnce(&CefWindowView::DeleteDelegate, base::Unretained(this)));
 
   if (cef_delegate()) {
     CefRefPtr<CefWindow> cef_window = GetCefWindow();
@@ -528,7 +625,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
           // DesktopWindowTreeHostLinux::InitModalType). See the X11-specific
           // implementation below that may work with some window managers.
           if (cef_delegate()->IsWindowModalDialog(cef_window)) {
-            SetModalType(ui::mojom::ModalType::kWindow);
+            params.delegate->SetModalType(ui::mojom::ModalType::kWindow);
           }
 #endif
 
@@ -552,7 +649,7 @@ void CefWindowView::CreateWidget(gfx::AcceleratedWidget parent_widget) {
     params.activatable = views::Widget::InitParams::Activatable::kYes;
   }
 
-  SetCanResize(can_resize);
+  params.delegate->SetCanResize(can_resize);
 
 #if BUILDFLAG(IS_WIN)
   if (is_frameless_) {
@@ -661,30 +758,6 @@ bool CefWindowView::CanMaximize() const {
   return cef_delegate()->CanMaximize(GetCefWindow());
 }
 
-std::u16string CefWindowView::GetWindowTitle() const {
-  return title_;
-}
-
-ui::ImageModel CefWindowView::GetWindowIcon() {
-  if (!window_icon_) {
-    return ParentClass::GetWindowIcon();
-  }
-  auto image_skia =
-      static_cast<CefImageImpl*>(window_icon_.get())
-          ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
-  return ui::ImageModel::FromImageSkia(image_skia);
-}
-
-ui::ImageModel CefWindowView::GetWindowAppIcon() {
-  if (!window_app_icon_) {
-    return ParentClass::GetWindowAppIcon();
-  }
-  auto image_skia =
-      static_cast<CefImageImpl*>(window_app_icon_.get())
-          ->GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
-  return ui::ImageModel::FromImageSkia(image_skia);
-}
-
 void CefWindowView::WindowClosing() {
   // Close any overlays now, before the Widget is destroyed.
   // Use a copy of the array because the original may be modified while
@@ -709,8 +782,6 @@ void CefWindowView::WindowClosing() {
 #endif
 
   window_delegate_->OnWindowClosing();
-
-  views::WidgetDelegateView::WindowClosing();
 }
 
 views::View* CefWindowView::GetContentsView() {
@@ -762,30 +833,6 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
          !draggable_region_->contains(location.x(), location.y());
 }
 
-bool CefWindowView::MaybeGetMinimumSize(gfx::Size* size) const {
-#if BUILDFLAG(IS_LINUX)
-  // Resize is disabled on Linux by returning the preferred size as the min/max
-  // size.
-  if (!CanResize()) {
-    *size = CalculatePreferredSize({});
-    return true;
-  }
-#endif
-  return false;
-}
-
-bool CefWindowView::MaybeGetMaximumSize(gfx::Size* size) const {
-#if BUILDFLAG(IS_LINUX)
-  // Resize is disabled on Linux by returning the preferred size as the min/max
-  // size.
-  if (!CanResize()) {
-    *size = CalculatePreferredSize({});
-    return true;
-  }
-#endif
-  return false;
-}
-
 void CefWindowView::ViewHierarchyChanged(
     const views::ViewHierarchyChangedDetails& details) {
   if (details.child == this) {
@@ -806,7 +853,7 @@ void CefWindowView::OnThemeChanged() {
 
   if (!initialized) {
     // Skip the CefViewView logic.
-    views::WidgetDelegateView::OnThemeChanged();
+    views::View::OnThemeChanged();
   } else {
     ParentClass::OnThemeChanged();
   }

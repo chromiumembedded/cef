@@ -619,39 +619,10 @@ index 31709448e70a4213d1e9dedcb26ac27c4829a32c..e096adb33ebd6df4eac23fc8580a01ce
    // Deactivates the widget, making the next window in the Z order the active
    // window.
 diff --git ui/views/widget/widget_delegate.h ui/views/widget/widget_delegate.h
-index ff9c5abfdb02d9798b1491e2bbc296f2c7c74398..0054e59c3b6db9e793bc56c617dbe0bf9b7eae0f 100644
+index ff9c5abfdb02d9798b1491e2bbc296f2c7c74398..7032da5efaf0215e84fd95f950b279320c322ddc 100644
 --- ui/views/widget/widget_delegate.h
 +++ ui/views/widget/widget_delegate.h
-@@ -24,6 +24,9 @@
- #include "ui/views/widget/widget.h"
- 
- class AutoPipSettingView;
-+class CefOverlayViewHost;
-+class CefWindowDelegateView;
-+class CefWindowView;
- class DesktopMediaPickerDialogView;
- class DigitalIdentityMultiStepDialogDelegate;
- class ExtensionsMenuCoordinator;
-@@ -375,6 +378,8 @@ class VIEWS_EXPORT WidgetDelegate {
-     // These existing cases are "grandfathered in", but there shouldn't be more.
-     // See comments atop `SetOwnedByWidget()`.
-     friend class ::AutoPipSettingView;
-+    friend class ::CefOverlayViewHost;
-+    friend class ::CefWindowView;
-     friend class ::DigitalIdentityMultiStepDialogDelegate;
- #if !BUILDFLAG(IS_CHROMEOS)
-     friend class ::DownloadBubbleContentsViewTest;
-@@ -467,6 +472,9 @@ class VIEWS_EXPORT WidgetDelegate {
-     // DO NOT ADD TO THIS LIST!
-     // These existing cases are "grandfathered in", but there shouldn't be more.
-     // See comments atop `RegisterDeleteDelegateCallback()`.
-+    friend class ::CefOverlayViewHost;
-+    friend class ::CefWindowDelegateView;
-+    friend class ::CefWindowView;
-     friend class ::DesktopMediaPickerDialogView;
-     friend class ::MediaGalleriesDialogViews;
-     friend class ::PresentationReceiverWindowView;
-@@ -791,6 +799,10 @@ class VIEWS_EXPORT WidgetDelegate {
+@@ -791,6 +791,10 @@ class VIEWS_EXPORT WidgetDelegate {
    // Returns true if the title text should be centered.
    bool ShouldCenterWindowTitleText() const;
  
@@ -662,22 +633,6 @@ index ff9c5abfdb02d9798b1491e2bbc296f2c7c74398..0054e59c3b6db9e793bc56c617dbe0bf
    bool focus_traverses_out() const { return params_.focus_traverses_out; }
    bool enable_arrow_key_traversal() const {
      return params_.enable_arrow_key_traversal;
-@@ -920,7 +932,6 @@ class VIEWS_EXPORT WidgetDelegateView : public WidgetDelegate, public View {
-   const Widget* GetWidget() const override;
-   View* GetContentsView() override;
- 
-- private:
-   // DO NOT ADD TO THIS LIST!
-   // These existing cases are "grandfathered in", but there shouldn't be more.
-   // See comments atop class.
-@@ -988,6 +999,7 @@ class VIEWS_EXPORT WidgetDelegateView : public WidgetDelegate, public View {
- 
-   WidgetDelegateView();
- 
-+ private:
-   static WdvPassKey CreatePassKey() { return WdvPassKey(); }
- };
- 
 diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
 index 55e5b8a832c9c298066206737f97710ad501945a..9353f74c2ec2fe92a8f7eacf9fa065c0f921a735 100644
 --- ui/views/widget/widget_hwnd_utils.cc

@@ -12,7 +12,6 @@
 #include "cef/include/views/cef_overlay_controller.h"
 #include "cef/include/views/cef_view.h"
 #include "ui/views/view_observer.h"
-#include "ui/views/widget/unique_widget_ptr.h"
 #include "ui/views/widget/widget_delegate.h"
 
 class CefWindowView;
@@ -59,6 +58,9 @@ class CefOverlayViewHost : public views::WidgetDelegate,
 
   void Cleanup();
 
+  // views::WidgetDelegate methods:
+  void WidgetIsZombie(views::Widget* widget) override;
+
   // The CefWindowView that created us.
   raw_ptr<CefWindowView> window_view_;
 
@@ -72,7 +74,7 @@ class CefOverlayViewHost : public views::WidgetDelegate,
 
   // The Widget implementation that is created and maintained by the overlay.
   // It contains |view_|.
-  views::UniqueWidgetPtr widget_;
+  std::unique_ptr<views::Widget> widget_;
 
   CefRefPtr<CefOverlayController> cef_controller_;
 

@@ -17,7 +17,7 @@
 #include "cef/libcef/browser/alloy/alloy_browser_host_impl.h"
 #include "cef/libcef/browser/context.h"
 #include "cef/libcef/browser/geometry_util.h"
-#include "cef/libcef/browser/native/window_delegate_view.h"
+#include "cef/libcef/browser/native/native_widget_delegate.h"
 #include "cef/libcef/browser/thread_util.h"
 #include "components/input/native_web_keyboard_event.h"
 #include "third_party/blink/public/common/input/web_mouse_event.h"
@@ -217,13 +217,13 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
   bool always_on_top =
       (top_level_window_ex_styles & WS_EX_TOPMOST) == WS_EX_TOPMOST;
 
-  CefWindowDelegateView* delegate_view = new CefWindowDelegateView(
+  auto* widget_delegate = new CefNativeWidgetDelegate(
       GetBackgroundColor(), always_on_top, GetBoundsChangedCallback(),
       GetWidgetDeleteCallback());
-  delegate_view->Init(window_info_.window, web_contents_,
-                      gfx::Rect(0, 0, dip_rect.width(), dip_rect.height()));
+  widget_delegate->Init(window_info_.window, web_contents_,
+                        gfx::Rect(0, 0, dip_rect.width(), dip_rect.height()));
 
-  window_widget_ = delegate_view->GetWidget();
+  window_widget_ = widget_delegate->GetWidget();
 
   const HWND widget_hwnd = HWNDForWidget(window_widget_);
   DCHECK(widget_hwnd);

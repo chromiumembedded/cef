@@ -21,16 +21,15 @@
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
 
-// Manages the views-based root window. This object will be deleted
-// automatically when the associated root window is destroyed.
-class CefWindowView
-    : public CefPanelView<views::WidgetDelegateView, CefWindowDelegate>,
-      public views::WidgetObserver {
-  METADATA_HEADER(CefWindowView, views::WidgetDelegateView)
+class CefWindowWidgetDelegate;
+
+// Owned by the Widget, via CefWindowWidgetDelegate.
+class CefWindowView : public CefPanelView<views::View, CefWindowDelegate>,
+                      public views::WidgetObserver {
+  METADATA_HEADER(CefWindowView, views::View)
 
  public:
-  using ParentClass =
-      CefPanelView<views::WidgetDelegateView, CefWindowDelegate>;
+  using ParentClass = CefPanelView<views::View, CefWindowDelegate>;
 
   class Delegate {
    public:
@@ -61,22 +60,16 @@ class CefWindowView
   // CefViewView::GetCefView.
   CefRefPtr<CefWindow> GetCefWindow() const;
 
-  // views::WidgetDelegate methods:
-  bool CanMinimize() const override;
-  bool CanMaximize() const override;
-  std::u16string GetWindowTitle() const override;
-  ui::ImageModel GetWindowIcon() override;
-  ui::ImageModel GetWindowAppIcon() override;
-  void WindowClosing() override;
-  views::View* GetContentsView() override;
-  views::ClientView* CreateClientView(views::Widget* widget) override;
+  // views::WidgetDelegate methods forwarded from CefWindowWidgetDelegate:
+  bool CanMinimize() const;
+  bool CanMaximize() const;
+  void WindowClosing();
+  views::View* GetContentsView();
+  views::ClientView* CreateClientView(views::Widget* widget);
   std::unique_ptr<views::NonClientFrameView> CreateNonClientFrameView(
-      views::Widget* widget) override;
-  bool ShouldDescendIntoChildForEventHandling(
-      gfx::NativeView child,
-      const gfx::Point& location) override;
-  bool MaybeGetMinimumSize(gfx::Size* size) const override;
-  bool MaybeGetMaximumSize(gfx::Size* size) const override;
+      views::Widget* widget);
+  bool ShouldDescendIntoChildForEventHandling(gfx::NativeView child,
+                                              const gfx::Point& location);
 
   // views::View methods:
   void ViewHierarchyChanged(
@@ -147,6 +140,8 @@ class CefWindowView
   Delegate* window_delegate() const { return window_delegate_.get(); }
 
  private:
+  friend class CefWindowWidgetDelegate;
+
   // Called after Widget teardown starts, before |this| is deleted.
   void DeleteDelegate();
 

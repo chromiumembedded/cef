@@ -96,10 +96,10 @@
 // (CefView::IsAttached() now returns true).
 //
 // When a parent views::View is deleted all child views::Views in the view
-// hierarchy are also deleted (see [1] for exceptions). When this happens the
-// ref-counted CefViewImpl reference held by the views::View is released. The
-// CefViewImpl is deleted if the client kept no references, otherwise the
-// CefViewImpl is marked as invalid (CefView::IsValid() now returns false).
+// hierarchy are also deleted. When this happens the ref-counted CefViewImpl
+// reference held by the views::View is released. The CefViewImpl is deleted if
+// the client kept no references, otherwise the CefViewImpl is marked as invalid
+// (CefView::IsValid() now returns false).
 //
 // When a views::View is removed from the view hierarchy (via
 // CefPanel::RemoveChildView or similar) the initial ownership state is
@@ -115,15 +115,6 @@
 // CefLayout and the underling views::LayoutManager objects are owned by the
 // views::View that they're assigned to. This relationship is managed using the
 // layout_util:: functions in layout_util.[cc|h].
-//
-// [1] By default views::View objects are deleted when the parent views::View
-//     object is deleted. However, this behavior can be changed either
-//     explicitly by calling set_owned_by_client() or implicitly by using
-//     interfaces like WidgetDelegateView (where WidgetDelegate is-a View, and
-//     the View is deleted when the native Widget is destroyed). CEF
-//     implementations that utilize this behavior must take special care with
-//     object ownership management.
-//
 //
 // To implement a new CefView-derived class:
 //
