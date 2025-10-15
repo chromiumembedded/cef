@@ -89,8 +89,14 @@
       "linux": "f0f231efab94eb818114490804b13fce61ab7f4e",
       "mac": "9537beb8d28175dca77510c03f5bea55617a9f22",
       "windows": "2948bec685a469a829d99eb1e6b08ede0ff9b197"
+    },
+    "14200": {
+      "comment": "Added October 15, 2025.",
+      "linux": "18761cd4725392883e0d77a1db53b08a4cae7ac6",
+      "mac": "4ef1c19a09a8ca2e523fea4f79215a6934de1071",
+      "windows": "1ce1d0945fb904ca48c16e2c2bdbbf25bfb7b12e"
     }
   },
-  "last": "14100",
+  "last": "14200",
   "min": "13300"
 }

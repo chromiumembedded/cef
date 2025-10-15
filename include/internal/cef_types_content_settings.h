@@ -548,7 +548,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_DEVICE_ATTRIBUTES,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14200)
   /// Stores per-origin state for permission heuristics. Currently used for
   /// auto-granting geolocation element permission request after repeated
   /// temporary grants.
