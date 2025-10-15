@@ -452,7 +452,7 @@ index c262b6f2b71b2c9bcf187fc84b63e4881e05bfb8..19deee220beb612817b01c2a1cc1d60c
  
  void MaybeBlockDynamicCodeForBrowserProcess() {
 diff --git chrome/browser/chrome_content_browser_client.cc chrome/browser/chrome_content_browser_client.cc
-index 8ff652b164f00b24dbc2bc8cf7532f67c39155be..2f87b2a5b26335de8ae04af029cb5769cf92c266 100644
+index 0ab10486a183cb4b7a2ec231278fc1df7e9d5118..d73a012c952d8284a138d866d159ec5be0bf369b 100644
 --- chrome/browser/chrome_content_browser_client.cc
 +++ chrome/browser/chrome_content_browser_client.cc
 @@ -52,6 +52,7 @@
@@ -514,7 +514,7 @@ index 8ff652b164f00b24dbc2bc8cf7532f67c39155be..2f87b2a5b26335de8ae04af029cb5769
  }
  
  std::vector<base::FilePath>
-@@ -7838,11 +7850,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
+@@ -7844,11 +7856,11 @@ void ChromeContentBrowserClient::OnKeepaliveRequestStarted(
    const auto now = base::TimeTicks::Now();
    const auto timeout = GetKeepaliveTimerTimeout(context);
    keepalive_deadline_ = std::max(keepalive_deadline_, now + timeout);
@@ -528,7 +528,7 @@ index 8ff652b164f00b24dbc2bc8cf7532f67c39155be..2f87b2a5b26335de8ae04af029cb5769
            FROM_HERE, keepalive_deadline_ - now,
            base::BindOnce(
                &ChromeContentBrowserClient::OnKeepaliveTimerFired,
-@@ -7864,7 +7876,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
+@@ -7870,7 +7882,8 @@ void ChromeContentBrowserClient::OnKeepaliveRequestFinished() {
    --num_keepalive_requests_;
    if (num_keepalive_requests_ == 0) {
      DVLOG(1) << "Stopping the keepalive timer";
@@ -538,7 +538,7 @@ index 8ff652b164f00b24dbc2bc8cf7532f67c39155be..2f87b2a5b26335de8ae04af029cb5769
      // This deletes the keep alive handle attached to the timer function and
      // unblock the shutdown sequence.
    }
-@@ -8043,7 +8056,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
+@@ -8049,7 +8062,7 @@ void ChromeContentBrowserClient::OnKeepaliveTimerFired(
    const auto now = base::TimeTicks::Now();
    const auto then = keepalive_deadline_;
    if (now < then) {
@@ -579,7 +579,7 @@ index 5122dd0f178d872a18754656a703708c735160ff..5c586c3f9c8dac59be49dda942af7508
  #endif
  
 diff --git chrome/browser/prefs/browser_prefs.cc chrome/browser/prefs/browser_prefs.cc
-index 06d2f8f3f3375e21bb40197173d8907b368de793..de669447efc75d50650b67c8200ce50c7146e1ab 100644
+index 12845dd2464bb94054a6108980d389b522a808d9..bb63b4fdbb5837d6fa4448ae04c87312f19546c9 100644
 --- chrome/browser/prefs/browser_prefs.cc
 +++ chrome/browser/prefs/browser_prefs.cc
 @@ -17,6 +17,7 @@
@@ -601,7 +601,7 @@ index 06d2f8f3f3375e21bb40197173d8907b368de793..de669447efc75d50650b67c8200ce50c
  #if BUILDFLAG(ENABLE_EXTENSIONS)
  #include "chrome/browser/accessibility/animation_policy_prefs.h"
  #include "chrome/browser/apps/platform_apps/shortcut_manager.h"
-@@ -2005,6 +2010,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -2025,6 +2030,11 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
  
    // This is intentionally last.
    RegisterLocalStatePrefsForMigration(registry);
@@ -613,7 +613,7 @@ index 06d2f8f3f3375e21bb40197173d8907b368de793..de669447efc75d50650b67c8200ce50c
  }
  
  // Register prefs applicable to all profiles.
-@@ -2467,6 +2477,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2490,6 +2500,10 @@ void RegisterUserProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
                                const std::string& locale) {
    RegisterProfilePrefs(registry, locale);
  

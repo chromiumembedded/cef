@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 918cba00632563e2feb8e9d613a60cf51da3bf88..412731efd48b2c4f62817ca86fc6ee8e72ebd667 100644
+index deb531f8832e3a5608a2da490cdf457540c24fe4..be84f8c1efe28dda7f3f2ddf55de48425ca60312 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
 @@ -513,6 +513,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
@@ -24,7 +24,7 @@ index 918cba00632563e2feb8e9d613a60cf51da3bf88..412731efd48b2c4f62817ca86fc6ee8e
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1392,11 +1400,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1396,11 +1404,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -41,7 +41,7 @@ index 918cba00632563e2feb8e9d613a60cf51da3bf88..412731efd48b2c4f62817ca86fc6ee8e
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f5a905fb9 100644
+index bf15ae963c7e494fa2fab541f73669e276cacec5..5d8a5f420910d29bd00fd67cb2b403b64126429f 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
 @@ -745,10 +745,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
@@ -115,7 +115,7 @@ index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1768,7 +1821,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1775,7 +1828,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1784,6 +1837,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1791,6 +1844,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -1954,8 +2031,10 @@ void AppMenuModel::Build() {
+@@ -1961,8 +2038,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -2069,6 +2148,11 @@ void AppMenuModel::Build() {
+@@ -2076,6 +2155,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -179,10 +179,10 @@ index 5e2779b3a41000c78fd1454da876823638d43390..2d9810f2f2fbfd916471d329ed86916f
  }
  
 diff --git chrome/browser/ui/toolbar/app_menu_model.h chrome/browser/ui/toolbar/app_menu_model.h
-index f7700da7a2743a32044923ab8572ca72e6d46a14..5095a7f83b329013e4043415c40af977e5d91468 100644
+index 5a24e264ac3becc7fb5f65684705a71ed47d8d77..7190e6152f5df94314a989c18ad462e79131a61a 100644
 --- chrome/browser/ui/toolbar/app_menu_model.h
 +++ chrome/browser/ui/toolbar/app_menu_model.h
-@@ -230,6 +230,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -231,6 +231,7 @@ class AppMenuModel : public ui::SimpleMenuModel,
    void ExecuteCommand(int command_id, int event_flags) override;
    bool IsCommandIdChecked(int command_id) const override;
    bool IsCommandIdEnabled(int command_id) const override;
@@ -190,7 +190,7 @@ index f7700da7a2743a32044923ab8572ca72e6d46a14..5095a7f83b329013e4043415c40af977
    bool IsCommandIdAlerted(int command_id) const override;
    bool GetAcceleratorForCommandId(int command_id,
                                    ui::Accelerator* accelerator) const override;
-@@ -269,6 +270,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
+@@ -270,6 +271,8 @@ class AppMenuModel : public ui::SimpleMenuModel,
    void LogSafetyHubInteractionMetrics(safety_hub::SafetyHubModuleType sh_module,
                                        int event_flags);
  

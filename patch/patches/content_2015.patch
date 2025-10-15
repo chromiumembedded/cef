@@ -68,7 +68,7 @@ index 68bafbcd65301fd26f18e433057d69ae9d63a078..e69dbe192101f1bd5869e2e063bfe09a
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 4e28e77778a2d16ab3dc30806cfe9dc7d0433389..43603b20ea4e202f9873251af175d94597515e66 100644
+index 7658c8045ad4687ffc2923061ee8310bf76c1190..1d92c4e65830bd330d8145749696affefa6337ad 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1452,6 +1452,12 @@ class CONTENT_EXPORT ContentBrowserClient {

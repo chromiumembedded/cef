@@ -274,7 +274,7 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f816675a341 100644
+index 9bb09e12baa7fc8f6ae71f2e64af05dc8236d803..086e644780cba15611af2866a305893f77e7271e 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
 @@ -628,7 +628,8 @@ void MenuController::Run(Widget* parent,
@@ -295,7 +295,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2458,6 +2460,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2465,6 +2467,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -303,7 +303,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3194,7 +3197,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3201,7 +3204,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
      return;
    }
  
-@@ -3219,6 +3226,7 @@ void MenuController::CloseSubmenu() {
+@@ -3226,6 +3233,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
