@@ -273,10 +273,18 @@ index 077855979045d4862abd099ec16befa0fcecff65..69f369b06c29e65dead98a52cc8b743e
    return host ? host->GetAcceleratedWidget() : nullptr;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-index dfc327588c74d43893820a97056780ece2b22de5..15ab0ee328f34571a7d78276dd5a57c2717beaa4 100644
+index dfc327588c74d43893820a97056780ece2b22de5..41ce5eab4af68e22fe5f43d509fb0e2cde5212ed 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_linux.cc
-@@ -194,6 +194,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
+@@ -25,6 +25,7 @@
+ #include "ui/display/screen.h"
+ #include "ui/events/event.h"
+ #include "ui/linux/linux_ui.h"
++#include "ui/ozone/platform_selection.h"
+ #include "ui/platform_window/extensions/wayland_extension.h"
+ #include "ui/platform_window/extensions/x11_extension.h"
+ #include "ui/platform_window/platform_window.h"
+@@ -194,6 +195,18 @@ Widget::MoveLoopResult DesktopWindowTreeHostLinux::RunMoveLoop(
    return result;
  }
  
@@ -295,11 +303,16 @@ index dfc327588c74d43893820a97056780ece2b22de5..15ab0ee328f34571a7d78276dd5a57c2
  void DesktopWindowTreeHostLinux::DispatchEvent(ui::Event* event) {
    // In Windows, the native events sent to chrome are separated into client
    // and non-client versions of events, which we record on our LocatedEvent
-@@ -334,6 +346,10 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
+@@ -334,6 +347,15 @@ void DesktopWindowTreeHostLinux::AddAdditionalInitProperties(
  
    properties->wayland_app_id = params.wayland_app_id;
  
-+  if (!properties->parent_widget) {
++  // See CEF issue #3937.
++  if (std::string(ui::GetOzonePlatformName()) == "wayland") {
++    if (!properties->parent_widget) {
++      properties->parent_widget = params.parent_widget;
++    }
++  } else {
 +    properties->parent_widget = params.parent_widget;
 +  }
 +
