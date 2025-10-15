@@ -24,10 +24,12 @@
 #include "chrome/browser/metrics/chrome_feature_list_creator.h"
 #include "chrome/browser/policy/chrome_browser_policy_connector.h"
 #include "chrome/browser/ui/ui_features.h"
+#include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/embedder_support/switches.h"
+#include "components/lens/lens_features.h"
 #include "components/variations/service/buildflags.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/features.h"
@@ -55,6 +57,14 @@ bool IsFeatureEnabledByDefault(const FeatureType& feature) {
 #else
   return feature.default_state == base::FEATURE_ENABLED_BY_DEFAULT;
 #endif
+}
+
+template <typename FeatureType>
+void DisableFeatureByDefault(const FeatureType& feature,
+                             std::vector<std::string>& disable_features) {
+  if (IsFeatureEnabledByDefault(feature)) {
+    disable_features.push_back(feature.name);
+  }
 }
 
 void InitLogging(const base::CommandLine* command_line) {
@@ -329,29 +339,26 @@ std::optional<int> ChromeMainDelegateCef::BasicStartupComplete() {
 
     std::vector<std::string> disable_features;
 
-    if (!!settings_->multi_threaded_message_loop &&
-        base::kEnableHangWatcher.default_state ==
-            base::FEATURE_ENABLED_BY_DEFAULT) {
+    if (!!settings_->multi_threaded_message_loop) {
       // Disable EnableHangWatcher when running with multi-threaded-message-loop
       // to avoid shutdown crashes (see issue #3403).
-      disable_features.push_back(base::kEnableHangWatcher.name);
+      DisableFeatureByDefault(base::kEnableHangWatcher, disable_features);
     }
 
 #if BUILDFLAG(IS_WIN)
-    if (IsFeatureEnabledByDefault(
-            net::features::kTcpSocketIoCompletionPortWin)) {
-      // Disable TcpSocketIoCompletionPortWin which breaks embedded test
-      // servers. See https://crbug.com/40287434#comment36
-      disable_features.push_back(
-          net::features::kTcpSocketIoCompletionPortWin.name);
-    }
+    // Disable TcpSocketIoCompletionPortWin which breaks embedded test servers.
+    // See https://crbug.com/40287434#comment36
+    DisableFeatureByDefault(net::features::kTcpSocketIoCompletionPortWin,
+                            disable_features);
 #endif  // BUILDFLAG(IS_WIN)
 
-    if (IsFeatureEnabledByDefault(features::kSideBySide)) {
-      // Disable Split Screen support which crashes during Chrome
-      // browser initialization. See issue #3980.
-      disable_features.push_back(features::kSideBySide.name);
-    }
+    // Disable features that crash during Chrome browser initialization.
+    // -- Split Screen support. See issue #3980.
+    DisableFeatureByDefault(features::kSideBySide, disable_features);
+    // -- "Gemini in Chrome" Actor UI support. See issue #3982.
+    DisableFeatureByDefault(features::kGlicActorUi, disable_features);
+    // -- "Search with Google Lens" support.
+    DisableFeatureByDefault(lens::features::kLensOverlay, disable_features);
 
     if (!disable_features.empty()) {
       DCHECK(!base::FeatureList::GetInstance());
