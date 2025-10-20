@@ -222,6 +222,7 @@ class CefRenderWidgetHostViewOSR
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<viz::HostDisplayClient> CreateHostDisplayClient() override;
+  bool UseProxyOutputDevice() override;
 
   // TextInputManager::Observer implementation.
   void OnUpdateTextInputStateCalled(
