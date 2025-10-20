@@ -1058,6 +1058,10 @@ CefRenderWidgetHostViewOSR::CreateHostDisplayClient() {
   return base::WrapUnique(host_display_client_.get());
 }
 
+bool CefRenderWidgetHostViewOSR::UseProxyOutputDevice() {
+  return true;
+}
+
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (background_color_ == SK_ColorTRANSPARENT) {
     SetBackgroundColor(background_color_);
