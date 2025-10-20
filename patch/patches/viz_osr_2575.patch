@@ -1,24 +1,19 @@
 diff --git components/viz/host/host_display_client.cc components/viz/host/host_display_client.cc
-index aed835411f5728c5685baa43eda2dd1585119b18..57dc418d34c25f147a82da6ae9b5dc2c63343f64 100644
+index aed835411f5728c5685baa43eda2dd1585119b18..fcdd1331e37e97089af21929ee360a2df3083299 100644
 --- components/viz/host/host_display_client.cc
 +++ components/viz/host/host_display_client.cc
-@@ -49,9 +49,14 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
+@@ -49,9 +49,9 @@ void HostDisplayClient::OnDisplayReceivedCALayerParams(
  }
  #endif
  
 -#if BUILDFLAG(IS_WIN)
-+void HostDisplayClient::UseProxyOutputDevice(
-+    UseProxyOutputDeviceCallback callback) {
-+  std::move(callback).Run(false);
-+}
-+
  void HostDisplayClient::CreateLayeredWindowUpdater(
      mojo::PendingReceiver<mojom::LayeredWindowUpdater> receiver) {
 +#if BUILDFLAG(IS_WIN)
    if (!NeedsToUseLayerWindow(widget_)) {
      DLOG(ERROR) << "HWND shouldn't be using a layered window";
      return;
-@@ -59,7 +64,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
+@@ -59,7 +59,10 @@ void HostDisplayClient::CreateLayeredWindowUpdater(
  
    layered_window_updater_ =
        std::make_unique<LayeredWindowUpdaterImpl>(widget_, std::move(receiver));
@@ -30,19 +25,10 @@ index aed835411f5728c5685baa43eda2dd1585119b18..57dc418d34c25f147a82da6ae9b5dc2c
      gpu::SurfaceHandle child_window) {
    NOTREACHED();
 diff --git components/viz/host/host_display_client.h components/viz/host/host_display_client.h
-index 7236eee85fdbb285a9873138075183d37c129666..729bc100acbe1a7bcb5c0361c026f56a92ef9f5a 100644
+index 7236eee85fdbb285a9873138075183d37c129666..82b40484c347d03c8a7cea61775616e5c925b32c 100644
 --- components/viz/host/host_display_client.h
 +++ components/viz/host/host_display_client.h
-@@ -39,16 +39,17 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
-   gfx::AcceleratedWidget widget() const { return widget_; }
- #endif
- 
-- private:
-   // mojom::DisplayClient implementation:
-+  void UseProxyOutputDevice(UseProxyOutputDeviceCallback callback) override;
-+
- #if BUILDFLAG(IS_APPLE)
-   void OnDisplayReceivedCALayerParams(
+@@ -46,9 +46,9 @@ class VIZ_HOST_EXPORT HostDisplayClient : public mojom::DisplayClient {
        const gfx::CALayerParams& ca_layer_params) override;
  #endif
  
@@ -92,8 +78,22 @@ index 4017fef63c549b535c1eedd3571e69b7fac6f3e2..62e05b2dcd6e06df2aa8f2280fcfd568
    ]
  
    defines = [ "VIZ_SERVICE_IMPLEMENTATION" ]
+diff --git components/viz/service/display_embedder/output_surface_provider.h components/viz/service/display_embedder/output_surface_provider.h
+index 7fbb05e606fc26364c674c6330b8a5eb9c016fb3..027feba29a4daec872d5fb59aafe9dc5c29f1141 100644
+--- components/viz/service/display_embedder/output_surface_provider.h
++++ components/viz/service/display_embedder/output_surface_provider.h
+@@ -42,7 +42,8 @@ class OutputSurfaceProvider {
+       mojom::DisplayClient* display_client,
+       DisplayCompositorMemoryAndTaskController* gpu_dependency,
+       const RendererSettings& renderer_settings,
+-      const DebugRendererSettings* debug_settings) = 0;
++      const DebugRendererSettings* debug_settings,
++      bool use_proxy_output_device) = 0;
+ 
+   virtual gpu::SharedImageManager* GetSharedImageManager() = 0;
+   virtual gpu::SyncPointManager* GetSyncPointManager() = 0;
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.cc components/viz/service/display_embedder/output_surface_provider_impl.cc
-index 07502f4ff2afd53a43d8f0ab68d4c4c39f6c0737..cfcabb11cf001a24ddd1ec0cad48f0bf71fceb17 100644
+index 07502f4ff2afd53a43d8f0ab68d4c4c39f6c0737..3149c44c839a0dc7cf78a203d7c505a94c04b9de 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.cc
 +++ components/viz/service/display_embedder/output_surface_provider_impl.cc
 @@ -17,6 +17,7 @@
@@ -104,35 +104,72 @@ index 07502f4ff2afd53a43d8f0ab68d4c4c39f6c0737..cfcabb11cf001a24ddd1ec0cad48f0bf
  #include "components/viz/common/display/renderer_settings.h"
  #include "components/viz/common/features.h"
  #include "components/viz/common/frame_sinks/begin_frame_source.h"
-@@ -30,6 +31,7 @@
- #include "gpu/command_buffer/service/scheduler_sequence.h"
- #include "gpu/config/gpu_finch_features.h"
- #include "gpu/ipc/common/surface_handle.h"
-+#include "mojo/public/cpp/bindings/sync_call_restrictions.h"
- #include "ui/base/ui_base_switches.h"
+@@ -93,7 +94,8 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
+     mojom::DisplayClient* display_client,
+     DisplayCompositorMemoryAndTaskController* gpu_dependency,
+     const RendererSettings& renderer_settings,
+-    const DebugRendererSettings* debug_settings) {
++    const DebugRendererSettings* debug_settings,
++    bool use_proxy_output_device) {
+ #if BUILDFLAG(IS_CHROMEOS)
+   if (surface_handle == gpu::kNullSurfaceHandle)
+     return std::make_unique<OutputSurfaceUnified>();
+@@ -101,7 +103,8 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
  
- #if BUILDFLAG(IS_WIN)
-@@ -144,6 +146,20 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+   if (!gpu_compositing) {
+     return std::make_unique<SoftwareOutputSurface>(
+-        CreateSoftwareOutputDeviceForPlatform(surface_handle, display_client));
++        CreateSoftwareOutputDeviceForPlatform(surface_handle, display_client,
++                                              use_proxy_output_device));
+   } else {
+     DCHECK(gpu_dependency);
+ 
+@@ -140,10 +143,20 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
+ std::unique_ptr<SoftwareOutputDevice>
+ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
+     gpu::SurfaceHandle surface_handle,
+-    mojom::DisplayClient* display_client) {
++    mojom::DisplayClient* display_client,
++    bool use_proxy_output_device) {
    if (headless_)
      return std::make_unique<SoftwareOutputDevice>();
  
-+  {
-+    mojo::ScopedAllowSyncCallForTesting allow_sync;
++  if (use_proxy_output_device) {
 +    DCHECK(display_client);
-+    bool use_proxy_output_device = false;
-+    if (display_client->UseProxyOutputDevice(&use_proxy_output_device) &&
-+        use_proxy_output_device) {
-+      mojo::PendingRemote<mojom::LayeredWindowUpdater> layered_window_updater;
-+      display_client->CreateLayeredWindowUpdater(
-+          layered_window_updater.InitWithNewPipeAndPassReceiver());
-+      return std::make_unique<SoftwareOutputDeviceProxy>(
-+          std::move(layered_window_updater));
-+    }
++    mojo::PendingRemote<mojom::LayeredWindowUpdater> layered_window_updater;
++    display_client->CreateLayeredWindowUpdater(
++        layered_window_updater.InitWithNewPipeAndPassReceiver());
++    return std::make_unique<SoftwareOutputDeviceProxy>(
++        std::move(layered_window_updater));
 +  }
 +
  #if BUILDFLAG(IS_WIN)
    HWND child_hwnd;
    auto device = CreateSoftwareOutputDeviceWin(
+diff --git components/viz/service/display_embedder/output_surface_provider_impl.h components/viz/service/display_embedder/output_surface_provider_impl.h
+index e4b46a79560e7698a6400b2ab8a57f38205a8718..8cb033874632dcaf2c02f618a8805cf247c9d7b8 100644
+--- components/viz/service/display_embedder/output_surface_provider_impl.h
++++ components/viz/service/display_embedder/output_surface_provider_impl.h
+@@ -54,7 +54,8 @@ class VIZ_SERVICE_EXPORT OutputSurfaceProviderImpl
+       mojom::DisplayClient* display_client,
+       DisplayCompositorMemoryAndTaskController* gpu_dependency,
+       const RendererSettings& renderer_settings,
+-      const DebugRendererSettings* debug_settings) override;
++      const DebugRendererSettings* debug_settings,
++      bool use_proxy_output_device) override;
+ 
+   gpu::SharedImageManager* GetSharedImageManager() override;
+   gpu::SyncPointManager* GetSyncPointManager() override;
+@@ -63,7 +64,8 @@ class VIZ_SERVICE_EXPORT OutputSurfaceProviderImpl
+  private:
+   std::unique_ptr<SoftwareOutputDevice> CreateSoftwareOutputDeviceForPlatform(
+       gpu::SurfaceHandle surface_handle,
+-      mojom::DisplayClient* display_client);
++      mojom::DisplayClient* display_client,
++      bool use_proxy_output_device);
+ 
+   const raw_ptr<GpuServiceImpl> gpu_service_impl_;
+ 
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
 index 9119e302ad073a3b22ba47f800e7214b580e122b..2725ca1d67f78f1d5ea2cb0dc4193dc98dbbc437 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
@@ -149,11 +186,53 @@ index 9119e302ad073a3b22ba47f800e7214b580e122b..2725ca1d67f78f1d5ea2cb0dc4193dc9
    waiting_on_draw_ack_ = true;
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
+diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
+index 346e41638ffefe5e5945aa3cfe0ec38887041a0b..972c2a24df1e841ffdf2d8bb93c9c75ac74dc7a8 100644
+--- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
++++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
+@@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
+       params->gpu_compositing, params->widget);
+   auto output_surface = output_surface_provider->CreateOutputSurface(
+       params->widget, params->gpu_compositing, display_client.get(),
+-      display_controller.get(), params->renderer_settings, debug_settings);
++      display_controller.get(), params->renderer_settings, debug_settings,
++      params->use_proxy_output_device);
+ 
+   // Creating output surface failed. The host can send a new request, possibly
+   // with a different compositing mode.
+diff --git components/viz/test/test_output_surface_provider.cc components/viz/test/test_output_surface_provider.cc
+index 47db87ff98bf8b3e76a1780e6a3c243be589eb03..4a1dbf7996ffacbc62e744fcb9c2aab8f4c36b8c 100644
+--- components/viz/test/test_output_surface_provider.cc
++++ components/viz/test/test_output_surface_provider.cc
+@@ -30,7 +30,8 @@ std::unique_ptr<OutputSurface> TestOutputSurfaceProvider::CreateOutputSurface(
+     mojom::DisplayClient* display_client,
+     DisplayCompositorMemoryAndTaskController* display_controller,
+     const RendererSettings& renderer_settings,
+-    const DebugRendererSettings* debug_settings) {
++    const DebugRendererSettings* debug_settings,
++    bool use_proxy_output_device) {
+   if (gpu_compositing) {
+     return FakeSkiaOutputSurface::Create3d();
+   } else {
+diff --git components/viz/test/test_output_surface_provider.h components/viz/test/test_output_surface_provider.h
+index 399fba1a3d4e601dc2cdd5f1f4def8b7fd7a3011..e784943296025be191918397b3f4164ecae3ff1d 100644
+--- components/viz/test/test_output_surface_provider.h
++++ components/viz/test/test_output_surface_provider.h
+@@ -32,7 +32,8 @@ class TestOutputSurfaceProvider : public OutputSurfaceProvider {
+       mojom::DisplayClient* display_client,
+       DisplayCompositorMemoryAndTaskController* display_controller,
+       const RendererSettings& renderer_settings,
+-      const DebugRendererSettings* debug_settings) override;
++      const DebugRendererSettings* debug_settings,
++      bool use_proxy_output_device) override;
+   gpu::SharedImageManager* GetSharedImageManager() override;
+   gpu::SyncPointManager* GetSyncPointManager() override;
+   gpu::Scheduler* GetGpuScheduler() override;
 diff --git content/browser/compositor/viz_process_transport_factory.cc content/browser/compositor/viz_process_transport_factory.cc
-index 0c9dabd7e85042499b60d0a27a506745771bea6f..7179272c66008485fdb2ef15dba7a33a0cf77c7c 100644
+index 0c9dabd7e85042499b60d0a27a506745771bea6f..2a95de6f06b4c1ae3e4f08d3e58ddae25aa79586 100644
 --- content/browser/compositor/viz_process_transport_factory.cc
 +++ content/browser/compositor/viz_process_transport_factory.cc
-@@ -386,8 +386,13 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
+@@ -386,8 +386,15 @@ void VizProcessTransportFactory::OnEstablishedGpuChannel(
    mojo::AssociatedRemote<viz::mojom::DisplayPrivate> display_private;
    root_params->display_private =
        display_private.BindNewEndpointAndPassReceiver();
@@ -162,6 +241,8 @@ index 0c9dabd7e85042499b60d0a27a506745771bea6f..7179272c66008485fdb2ef15dba7a33a
 +  if (compositor->delegate()) {
 +    compositor_data.display_client =
 +        compositor->delegate()->CreateHostDisplayClient();
++    root_params->use_proxy_output_device =
++        compositor->delegate()->UseProxyOutputDevice();
 +  } else {
 +    compositor_data.display_client =
 +        std::make_unique<HostDisplayClient>(compositor);
@@ -191,19 +272,10 @@ index c608918dfbf9afe4ca94f4b5b3a67dfc68ce1d73..49012891abbf6bfd4282607224334f63
    // For destroying the GL context/surface that draw to a platform window before
    // the platform window is destroyed.
 diff --git services/viz/privileged/mojom/compositing/display_private.mojom services/viz/privileged/mojom/compositing/display_private.mojom
-index e063835e87f08e6a2359886a96d7b78954e3d5b2..ec1de608884dcb308fefd956940f52c68a443115 100644
+index e063835e87f08e6a2359886a96d7b78954e3d5b2..34bcf67726f64466d11a56d7a315ce7e05a0cb3d 100644
 --- services/viz/privileged/mojom/compositing/display_private.mojom
 +++ services/viz/privileged/mojom/compositing/display_private.mojom
-@@ -113,13 +113,15 @@ interface DisplayPrivate {
- 
- // DisplayClient allows privileged clients to receive events from the Display.
- interface DisplayClient {
-+  [Sync]
-+  UseProxyOutputDevice() => (bool success);
-+
-   // Called when new Core Animation Layer params are received.
-   [EnableIf=is_apple]
-   OnDisplayReceivedCALayerParams(gfx.mojom.CALayerParams ca_layer_params);
+@@ -119,7 +119,6 @@ interface DisplayClient {
  
    // Creates a LayeredWindowUpdater implementation to draw into a layered
    // window.
@@ -211,6 +283,19 @@ index e063835e87f08e6a2359886a96d7b78954e3d5b2..ec1de608884dcb308fefd956940f52c6
    CreateLayeredWindowUpdater(pending_receiver<LayeredWindowUpdater> receiver);
  
    // Sends the created child window to the browser process so that it can be
+diff --git services/viz/privileged/mojom/compositing/frame_sink_manager.mojom services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
+index 4f1e9c6c4aad3a4c3d52d57f1234841471a4649e..3ea91972f3c7b16e5abbba2d6de1181b8ec0da88 100644
+--- services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
++++ services/viz/privileged/mojom/compositing/frame_sink_manager.mojom
+@@ -61,6 +61,8 @@ struct RootCompositorFrameSinkParams {
+   // `external_begin_frame_controller` is set.
+   pending_associated_remote<ExternalBeginFrameControllerClient>?
+       external_begin_frame_controller_client;
++
++   bool use_proxy_output_device = false;
+ };
+ 
+ // The FrameSinkManager interface is a privileged interface that allows the
 diff --git services/viz/privileged/mojom/compositing/layered_window_updater.mojom services/viz/privileged/mojom/compositing/layered_window_updater.mojom
 index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05456071f3 100644
 --- services/viz/privileged/mojom/compositing/layered_window_updater.mojom
@@ -223,7 +308,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..b3fbfbb1b828075e2cb192aec88eef94819091ca 100644
+index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..6804ffa21611f6c957b858eb6328c25995a6de72 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@
@@ -236,13 +321,14 @@ index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..b3fbfbb1b828075e2cb192aec88eef94
  #include "mojo/public/cpp/bindings/associated_remote.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "services/viz/privileged/mojom/compositing/display_private.mojom.h"
-@@ -146,6 +148,14 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
+@@ -146,6 +148,15 @@ class COMPOSITOR_EXPORT ExternalBeginFrameControllerClientFactory {
    CreateExternalBeginFrameControllerClient() = 0;
  };
  
 +class COMPOSITOR_EXPORT CompositorDelegate {
 + public:
 +  virtual std::unique_ptr<viz::HostDisplayClient> CreateHostDisplayClient() = 0;
++  virtual bool UseProxyOutputDevice() = 0;
 +
 + protected:
 +  virtual ~CompositorDelegate() {}
@@ -251,7 +337,7 @@ index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..b3fbfbb1b828075e2cb192aec88eef94
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -189,6 +199,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -189,6 +200,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -261,7 +347,7 @@ index f1a4674323d96bc6a1a291b0aaa4c2a35b20648e..b3fbfbb1b828075e2cb192aec88eef94
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -630,6 +643,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -630,6 +644,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

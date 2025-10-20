@@ -31,9 +31,7 @@ class CefHostDisplayClientOSR : public viz::HostDisplayClient {
   gfx::Size GetPixelSize() const;
 
  private:
-  // mojom::DisplayClient implementation.
-  void UseProxyOutputDevice(UseProxyOutputDeviceCallback callback) override;
-
+  // viz::HostDisplayClient implementation.
   void CreateLayeredWindowUpdater(
       mojo::PendingReceiver<viz::mojom::LayeredWindowUpdater> receiver)
       override;
