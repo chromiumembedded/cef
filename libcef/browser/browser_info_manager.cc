@@ -409,6 +409,15 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
           global_token));
 }
 
+void CefBrowserInfoManager::OnMainFrameCreated(
+    const content::GlobalRenderFrameHostToken& global_token,
+    scoped_refptr<CefBrowserInfo> browser_info) {
+  DCHECK(frame_util::IsValidGlobalToken(global_token));
+  DCHECK(browser_info);
+
+  ContinueNewBrowserInfo(global_token, browser_info, /*is_excluded=*/false);
+}
+
 // static
 void CefBrowserInfoManager::CheckExcludedNewBrowserInfoOnUIThread(
     const content::GlobalRenderFrameHostToken& global_token) {
