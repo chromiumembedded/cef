@@ -107,13 +107,14 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // PendingPopup for more information. Returns true for custom handling.
   bool AddWebContents(content::WebContents* source_contents);
 
-  // Called from CefBrowserManager::GetNewBrowserInfo for delivering
-  // browser info to the renderer process. If the browser info already exists
-  // the response will be sent immediately. Otherwise, the response will be sent
-  // when CreatePopupBrowserInfo creates the browser info. The info will already
-  // exist for explicitly created browsers. It may sometimes already exist for
-  // traditional popup browsers depending on timing. See comments on
-  // PendingPopup for more information.
+  // Called from CefBrowserManager::GetNewBrowserInfo for delivering browser
+  // info to the renderer process. If the browser info already exists the
+  // response will be sent immediately. Otherwise, the response will be sent
+  // either when CreatePopupBrowserInfo creates the browser info or when
+  // OnMainFrameCreated is called. The info may already exist for explicitly
+  // created browsers, and it may also be available for traditional popups
+  // depending on timing. See comments on PendingPopup and OnMainFrameCreated
+  // for further details.
   void OnGetNewBrowserInfo(
       const content::GlobalRenderFrameHostToken& global_token,
       cef::mojom::BrowserManager::GetNewBrowserInfoCallback callback);
@@ -124,6 +125,13 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Called from CefContext::FinishShutdownOnUIThread() to destroy all browsers.
   void DestroyAllBrowsers();
+
+  // Called from CefBrowserInfo::MaybeCreateFrame when a frame is created.
+  // In rare cases this may be called after OnGetNewBrowserInfo and complete a
+  // pending request.
+  void OnMainFrameCreated(
+      const content::GlobalRenderFrameHostToken& global_token,
+      scoped_refptr<CefBrowserInfo> browser_info);
 
   // Returns the CefBrowserInfo matching the specified ID/token or nullptr if no
   // match is found. It is allowed to add new callers of this method but

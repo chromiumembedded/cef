@@ -201,6 +201,13 @@ void CefBrowserInfo::MaybeCreateFrame(content::RenderFrameHost* host) {
 
   // And finally set the ownership.
   frame_info_set_.insert(base::WrapUnique(frame_info));
+
+  if (is_main_frame) {
+    if (auto* manager = CefBrowserInfoManager::GetInstance()) {
+      manager->OnMainFrameCreated(host->GetGlobalFrameToken(),
+                                  scoped_refptr<CefBrowserInfo>(this));
+    }
+  }
 }
 
 void CefBrowserInfo::FrameHostStateChanged(
