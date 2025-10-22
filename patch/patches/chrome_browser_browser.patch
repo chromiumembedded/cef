@@ -648,6 +648,26 @@ index 81a247cded1dd321f1003221f02a5c3a0c5a3312..781084d30a85c08131a1f57b223a4eff
    CreationSource creation_source_ = CreationSource::kUnknown;
  
    UnloadController unload_controller_;
+diff --git chrome/browser/ui/browser_finder.cc chrome/browser/ui/browser_finder.cc
+index e8f375ea668d2f6c71c8f88860ec7e41999f29fe..aba57411a9f9e185310fb089c317e8c4a64a8ddb 100644
+--- chrome/browser/ui/browser_finder.cc
++++ chrome/browser/ui/browser_finder.cc
+@@ -309,7 +309,14 @@ Browser* FindBrowserWithWindow(gfx::NativeWindow window) {
+ Browser* FindBrowserWithActiveWindow() {
+   BrowserWindowInterface* browser =
+       GetLastActiveBrowserWindowInterfaceWithAnyProfile();
+-  return browser && browser->GetWindow()->IsActive()
++  // With CEF, |browser->GetWindow()| may return nullptr during Browser
++  // destruction because the BrowserWindow is destroyed first (in
++  // ChromeBrowserWidget::OnNativeWidgetDestroyed). If multiple BrowserWidgets
++  // are destroyed at the same time then multiple calls to
++  // SynchronouslyDestroyBrowser may be pending execution. In that case, the
++  // first call to this method may find another Browser that is also pending
++  // destruction (has no associated BrowserWindow).
++  return browser && browser->GetWindow() && browser->GetWindow()->IsActive()
+              ? browser->GetBrowserForMigrationOnly()
+              : nullptr;
+ }
 diff --git chrome/browser/ui/browser_navigator.cc chrome/browser/ui/browser_navigator.cc
 index 7c630f5f7a9d0784d36531b93f9d07f26939a8e9..74e9865eb8e1ed75a977c142d566f7ba3ff6ec5f 100644
 --- chrome/browser/ui/browser_navigator.cc

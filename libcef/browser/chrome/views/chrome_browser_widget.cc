@@ -234,9 +234,9 @@ void ChromeBrowserWidget::OnNativeWidgetDestroyed() {
     // logic is incorporated inline.
     Widget::OnNativeWidgetDestroyed();
     // BrowserView and BrowserWidget have been destroyed at this point.
-
-    browser->SynchronouslyDestroyBrowser();
-    // Browser has been destroyed at this point.
+    // Browser will be destroyed asynchronously when
+    // Browser::SynchronouslyDestroyBrowser executes as a result of calling
+    // Browser::OnWindowClosing above.
   } else {
     // Intentionally skipping BrowserWidget::OnNativeWidgetDestroyed here
     // because |browser_view()| is nullptr.
