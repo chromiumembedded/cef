@@ -5,6 +5,7 @@ You are assisting with updating CEF (Chromium Embedded Framework) patches to wor
 ## Quick Start
 
 When the user asks you to update patches, they will provide:
+
 - Old Chromium version (e.g., `139.0.7258.0`)
 - New Chromium version (e.g., `140.0.7339.0`)
 - Output from `patch_updater.py` (either as a file or text)
@@ -16,6 +17,7 @@ Your job is to systematically fix all failed patches.
 ### What are CEF Patches?
 
 CEF maintains patch files in `cef/patch/patches/` that modify Chromium source code to add CEF-specific functionality. When Chromium updates, these patches must be updated because:
+
 - Code at the patched locations has changed
 - Files have been moved, renamed, or deleted
 - APIs have changed requiring different patch approaches
@@ -46,6 +48,7 @@ python3 analyze_patch_output.py patch_output.txt \
 **If the user provides pre-analyzed output, use it directly.**
 
 The summary shows:
+
 - Total patches and success rate
 - List of failed patches
 - Specific files and line numbers that failed
@@ -95,6 +98,7 @@ cat {file_path}.rej
 ```
 
 **Interpretation:**
+
 - Lines with no prefix = context (unchanged code)
 - Lines with `+` = changes CEF wants to add
 - Lines with `-` = changes CEF wants to remove
@@ -113,6 +117,7 @@ git diff --no-prefix \
 ```
 
 This shows you:
+
 - Why the patch failed (code was moved/changed/removed)
 - Where to apply the CEF changes in the new code
 - If the approach needs to change
@@ -156,6 +161,7 @@ git log --full-history -1 -- {file_path}
 ```
 
 Then either:
+
 - **File was moved:** Update the patch file to reference the new path
 - **File was deleted:** Remove that section from the patch, or find where functionality moved
 - **File was split:** Apply changes to the appropriate new files
@@ -176,6 +182,7 @@ python patch_updater.py --resave --patch views_widget
 ```
 
 **This will:**
+
 - Regenerate the patch file based on your manual changes
 - Update line numbers and offsets
 - Validate the patch can now be applied
@@ -216,6 +223,7 @@ Based on typical Chromium updates:
 - **Simple patches** (context shifts, minor refactoring): 5-15 minutes each
 - **Complex patches** (file moves, major refactors, API changes): 30-60 minutes each
 - **Total patch fixing**: 1-3 hours typically
+
   - Minor updates: Usually < 10 patches fail
   - Major updates: Can be 10-20+ patches
 
@@ -230,6 +238,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 **Cause:** Chromium refactored the code (renamed variables, restructured logic)
 
 **Fix:**
+
 - Find the equivalent location in the refactored code
 - Apply the CEF changes adapted to the new structure
 - May need to update variable names or function calls
@@ -241,6 +250,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 **Cause:** Chromium moved or renamed the file
 
 **Fix:**
+
 1. Use `git log --full-history -1 -- {old_path}` to find what happened
 2. Visit `https://crrev.com/{commit_hash}` to see the change
 3. Edit the patch file in a text editor to update the file paths
@@ -253,6 +263,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 **Cause:** Chromium changed an API (new parameters, return types, etc.)
 
 **Fix:**
+
 - Update CEF patch to match new API signature
 - Check if calling code in CEF also needs updates
 - May need to add/remove parameters
@@ -264,6 +275,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 **Cause:** Chromium removed or replaced the feature
 
 **Fix:**
+
 - Search for replacement functionality in new Chromium
 - May need to completely redesign the patch approach
 - Consult with user if CEF loses critical functionality
@@ -275,6 +287,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 **Cause:** Significant code was added/removed earlier in the file
 
 **Fix:**
+
 - The failed hunks likely conflict with the changes that caused the offset
 - Manually apply those specific hunks
 - Resave will automatically correct all offsets
@@ -282,21 +295,25 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 ## Working with Different File Types
 
 ### C++ Source Files (.cc, .cpp, .h)
+
 - Most common
 - Watch for: API changes, refactoring, moved code
 - Use IDE or editor to ensure syntax is correct after manual edits
 
 ### Build Files (.gn, BUILD.gn)
+
 - Patch failures often due to target reorganization
 - Check if dependencies were renamed or moved
 - Verify target still exists: `gn ls out/Default //path/to:target`
 
 ### Python Scripts (.py)
+
 - Less common to fail
 - Usually involve build tooling
 - Test the script still runs if possible
 
 ### Mojo Files (.mojom)
+
 - Interface definitions
 - Changes often cascade to implementation files
 - May need to update both .mojom and implementing .cc files
@@ -418,6 +435,7 @@ Attempted fixes:
 ### Provide Error Details
 
 When reporting errors, include:
+
 - Patch name
 - File path and line number
 - Full error message
@@ -438,10 +456,12 @@ Patches are successfully updated when:
 Once all patches apply successfully, the next steps are:
 
 1. **Build CEF** - Patches are fixed, but there may be compile errors
+
    - Use: `autoninja -k 0 -C out/Debug_GN_x64 cef` (from chromium/src)
    - If .gn files changed, run `cef/create_debug.bat` (Windows) or `./cef/create_debug.sh` (Linux/Mac) first
 
 2. **Fix compile errors** - Update CEF code in `cef/` directory to work with new Chromium
+
    - This is a **separate task** with different instructions
    - See: `CLAUDE_BUILD_INSTRUCTIONS.md` for the build error fixing phase
    - Only modify files in the `cef/` directory during this phase
@@ -500,22 +520,26 @@ Moving to patch 2/9: views_widget
 ## Troubleshooting
 
 **"I can't find the context from the reject file"**
+
 - The code was significantly refactored
 - Search for key function/variable names
 - Look at the Chromium diff to see where code moved
 
 **"The patch keeps failing even after my fix"**
+
 - You may have fixed the wrong location
 - Check that you're editing the correct file
 - Ensure your changes exactly match what the reject file specifies
 - Make sure you're in the right branch/version of Chromium
 
 **"Multiple hunks in one file are failing"**
+
 - Fix them all before resaving
 - Work top-to-bottom in the file
 - Resave once after all hunks in that file are fixed
 
 **"I'm not sure if my fix is correct"**
+
 - Does it preserve the CEF functionality? (Look at what the patch is trying to do)
 - Does it make sense in the context of the new Chromium code?
 - You can optionally test compilation (see Testing Patches below)
@@ -529,6 +553,7 @@ While not required during the patch update phase, you can verify your patches co
 CEF uses a separate build directory. The default is `Debug_GN_x64` (Windows) or `Debug_GN_arm64` (Mac ARM) or equivalent for other platforms.
 
 **If .gn files changed, regenerate build files first:**
+
 ```bash
 # From chromium/src directory:
 
@@ -581,6 +606,7 @@ A reject file shows hunks that couldn't be applied:
 ```
 
 **How to read this:**
+
 - `--- ui/views/widget/widget.cc` = File being patched
 - `@@ -480,7 +480,8 @@` = Location (old line 480, new line 480)
 - Lines with no prefix = Context for finding the right location
@@ -588,6 +614,7 @@ A reject file shows hunks that couldn't be applied:
 - `+  is_top_level_ = !params.child ||` = Add this line (and the next)
 
 **How to apply:**
+
 1. Open `ui/views/widget/widget.cc`
 2. Search for the context: `params.child |= (params.type == InitParams::TYPE_CONTROL);`
 3. Find the line: `is_top_level_ = !params.child;`

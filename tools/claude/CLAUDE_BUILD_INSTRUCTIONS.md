@@ -7,6 +7,7 @@ You are assisting with fixing CEF build errors after updating to a new Chromium 
 ## Quick Start
 
 When the user asks you to fix build errors, they will provide:
+
 - Old Chromium version (e.g., `139.0.7258.0`)
 - New Chromium version (e.g., `140.0.7339.0`)
 - Build target (usually `cef`, `cefclient`, `cefsimple`, or `ceftests`)
@@ -19,6 +20,7 @@ Your job is to fix all compile errors in the `cef/` directory so the build succe
 ### What Phase Is This?
 
 The CEF update process has distinct phases:
+
 1. ✓ **Patch fixing** (COMPLETED) - Updated Chromium source files to apply CEF patches
    - See `CLAUDE_PATCH_INSTRUCTIONS.md` if patches are not yet fixed
 2. → **Build error fixing** (CURRENT) - Update CEF source code to work with new Chromium APIs
@@ -28,6 +30,7 @@ The CEF update process has distinct phases:
 ### What Changed?
 
 During the Chromium update, APIs changed:
+
 - Function signatures (new/removed parameters)
 - Class names and namespaces
 - Header file locations
@@ -42,10 +45,12 @@ Your task is to update CEF code in the `cef/` directory to work with these chang
 ### Files You Can Modify
 
 **✓ YES - Modify these:**
+
 - Any file in the `cef/` directory
 - This includes `cef/libcef/`, `cef/tests/`, `cef/include/`, etc.
 
 **✗ NO - Never modify these:**
+
 - Any Chromium file outside the `cef/` directory
 - Files in `chrome/`, `content/`, `ui/`, `base/`, etc.
 - Patch files (those were fixed in the previous phase)
@@ -86,6 +91,7 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 ```
 
 **Command explanation:**
+
 - `autoninja` - Parallel build tool (faster than ninja)
 - `-k 0` - Continue building other targets on error (don't stop at first failure)
 - `-C out/Debug_GN_x64` - Build directory (replace with your actual output directory)
@@ -96,6 +102,7 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 ### Step 3: Analyze Build Errors
 
 The build output shows compile errors. Focus on:
+
 - **File path** - Which file has the error
 - **Line number** - Where the error is
 - **Error message** - What's wrong
@@ -125,6 +132,7 @@ cef/libcef/browser/browser_host_impl.cc:123:45: error: 'CreateParams' has no mem
 ```
 
 This tells you:
+
 - **File:** `cef/libcef/browser/browser_host_impl.cc`
 - **Line:** 123, column 45
 - **Problem:** `CreateParams` struct no longer has `initial_size` member
@@ -132,7 +140,6 @@ This tells you:
 #### B. Investigate What Changed in Chromium
 
 See what changed in the relevant Chromium file:
-
 ```bash
 # From chromium/src directory:
 # Find which Chromium file defines CreateParams (usually from includes or namespace)
@@ -145,6 +152,7 @@ git diff --no-prefix \
 ```
 
 Look for:
+
 - Was the member renamed?
 - Was it moved to a different struct/class?
 - Was the API changed entirely?
@@ -198,6 +206,7 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 **If the error is fixed:** Move to the next error.
 
 **If the error persists or new errors appear:**
+
 - Review your fix
 - Check if you modified the right file/line
 - Consider if there are related changes needed
@@ -251,6 +260,7 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 ```
 
 **Success criteria:**
+
 - Build completes without errors
 - Output shows completion (e.g., "ninja: build stopped", "Done.", or similar platform-specific message)
 - Exit code is 0
@@ -265,6 +275,7 @@ Based on typical Chromium updates:
 - **API signature changes**: Moderate (5-15 minutes per error)
 - **Major API refactoring**: Complex (30+ minutes to understand and fix)
 - **Total build error fixing**: 2-6 hours typically
+
   - Minor updates: 20-50 errors typical
   - Major updates: 100+ errors possible
 
@@ -291,6 +302,7 @@ error: 'base::BindOnce' was not declared
 ```
 
 **How to find the right header:**
+
 - Error message often hints at the type name
 - Search Chromium codebase for the type definition
 - Use tools like `gn refs` or IDE "Go to Definition"
@@ -315,6 +327,7 @@ auto* contents = CreateWebContents(params, browser_context_);
 ```
 
 **How to find the new signature:**
+
 - Use `git diff` on the Chromium header file
 - Look at how Chromium itself calls the function
 - Check the function declaration in the current code
@@ -448,6 +461,7 @@ controller->GoToEntryAtOffset(offset, needs_reload, base::TimeTicks::Now());
 ```
 
 Common additions:
+
 - Timestamps: `base::TimeTicks::Now()`
 - User gesture flags: `true` or `false`
 - Callback parameters: Create appropriate callback
@@ -616,6 +630,7 @@ if (!use_static_angle) {
 **Common errors:** Missing includes, API changes, signature mismatches
 
 **Tips:**
+
 - Read error message carefully - it usually tells you exactly what's wrong
 - Use IDE or compiler's "fix suggestions" when available
 - Format code after changes: Run `python tools/fix_style.py` from the `chromium/src/cef` directory
@@ -627,6 +642,7 @@ if (!use_static_angle) {
 **Common errors:** Forward declaration issues, missing types
 
 **Tips:**
+
 - Public API headers (`cef/include/`) should maintain backward compatibility when possible
 - Internal headers can be changed freely
 - Update both declaration (.h) and definition (.cc) files
@@ -638,6 +654,7 @@ if (!use_static_angle) {
 **Common errors:** Missing dependencies, wrong target names, unknown variables
 
 **Tips:**
+
 - Validate with: `gn check out/Debug_GN_x64` (from chromium/src)
 - Find target: `gn ls out/Debug_GN_x64 //cef/...` (from chromium/src)
 - Find dependencies: `gn refs out/Debug_GN_x64 //some/target` (from chromium/src)
@@ -649,6 +666,7 @@ if (!use_static_angle) {
 **Common errors:** Syntax errors, import changes
 
 **Tips:**
+
 - Less common to have errors during Chromium updates
 - Test with: `python3 script.py --help`
 
@@ -751,15 +769,18 @@ The build is successful when:
 Once the build is successful, the next steps are:
 
 1. **Run CEF tests** - Verify functionality
+
    - `ceftests` - Unit tests
    - `cefclient` - Sample application
    - Manual testing of key features
 
 2. **Build other configurations** - If only Debug was built
+
    - Release build
    - Other platforms (if applicable)
 
 3. **Submit changes** - Create PR
+
    - Commit message format
    - Code review process
 
@@ -778,29 +799,34 @@ The user will guide you through these next steps.
 ## Troubleshooting
 
 **"Build is very slow"**
+
 - Use `autoninja` instead of `ninja` (automatic parallelization)
 - Ensure you're building only the `cef` target, not `all`
 - Check system resources (CPU, disk space)
 
 **"Same error keeps coming back"**
+
 - Make sure you saved the file
 - Make sure you're editing the right file (check path carefully)
 - Make sure you rebuilt after the change
 - Clear build cache if needed (rare): `rm -rf out/Debug_GN_x64/obj/cef`
 
 **"Too many errors to handle"**
+
 - Focus on one pattern at a time
 - Fix all instances of that pattern
 - Rebuild and see how many remain
 - Repeat with next pattern
 
 **"Error in generated file"**
+
 - Generated files are in `out/Debug_GN_x64/gen/`
 - Don't edit generated files directly
 - Find the source template or generator and fix that
 - Regenerate by cleaning and rebuilding
 
 **"Linker errors instead of compile errors"**
+
 - These come after all compilation succeeds
 - Usually missing dependencies in BUILD.gn
 - Or unimplemented functions

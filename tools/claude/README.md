@@ -2,6 +2,10 @@
 
 This directory contains tools and instructions for using Claude Code to assist with CEF (Chromium Embedded Framework) development, particularly during Chromium version updates.
 
+***
+[TOC]
+***
+
 ## Prerequisites
 
 - Chromium checkout with CEF integration
@@ -60,6 +64,7 @@ After running `patch_updater.py` and seeing failures:
    ```
 
    **Finding version numbers:**
+
    - See [Identifying the target Chromium version](https://bitbucket.org/chromiumembedded/cef/wiki/ChromiumUpdate.md#markdown-header-a-identify-the-target-chromium-version)
    - Old version: Check `chrome/VERSION` before the Chromium update
    - New version: Check `chrome/VERSION` after the Chromium update
@@ -75,6 +80,7 @@ After running `patch_updater.py` and seeing failures:
    > **Note:** Use full paths from `chromium/src` when attaching files with `@` syntax.
 
 4. **Claude will:**
+
    - Analyze the failures
    - Create a TODO list of patches to fix
    - Systematically fix each patch by reading reject files
@@ -104,6 +110,7 @@ After all patches are fixed and you're ready to build:
    ```
 
 3. **Claude will:**
+
    - Parse build errors and create a TODO list
    - Systematically fix each error
    - Use `git diff` to understand Chromium API changes
@@ -199,6 +206,7 @@ python3 analyze_patch_output.py patch_output.txt \
 ```
 
 **Output:**
+
 - Statistics (success rate, number of failures)
 - List of failed patches with specific files and line numbers
 - Ready-to-run commands for investigation
@@ -214,6 +222,7 @@ python3 analyze_patch_output.py patch_output.txt \
 ```
 
 **Output:**
+
 - Numbered list of patches to fix
 - Step-by-step actions for each file
 - Commands to run for investigation
@@ -229,6 +238,7 @@ python3 analyze_patch_output.py patch_output.txt \
 ```
 
 **Output:**
+
 - Machine-readable structured data
 - Can be parsed by other tools
 - Useful for CI/CD integration
@@ -257,6 +267,7 @@ This allows Claude to generate accurate `git diff` commands.
 ### 2. Attach Relevant Files
 
 Use `@filename` to attach files Claude should read (use full paths from `chromium/src`):
+
 - `@cef/tools/claude/patch_output.txt` - Raw patch_updater.py output
 - `@cef/tools/claude/build_output.txt` - Raw build output
 - `@chrome/browser/file.cc.rej` - Specific reject file for complex issues
@@ -264,6 +275,7 @@ Use `@filename` to attach files Claude should read (use full paths from `chromiu
 ### 3. Let Claude Work Systematically
 
 Don't interrupt mid-stream unless necessary. Claude will:
+
 - Create TODO lists
 - Work through items one by one
 - Report progress regularly
@@ -336,16 +348,14 @@ Then share relevant sections with Claude if needed.
 Based on typical Chromium updates:
 
 - **Patch fixing**: 1-3 hours (depending on number of failures)
-  - Minor updates (X.Y.Z): Usually < 10 patches fail
-  - Major updates (X.Y.0): Can be 10-20+ patches
-
+    - Minor updates (X.Y.Z): Usually < 10 patches fail
+    - Major updates (X.Y.0): Can be 10-20+ patches
 - **Build error fixing**: 2-6 hours (depending on API changes)
-  - Minor updates: 20-50 errors typical
-  - Major updates: 100+ errors possible
-
+    - Minor updates: 20-50 errors typical
+    - Major updates: 100+ errors possible
 - **Total with Claude**: 3-9 hours of active work
-  - Claude works faster than manual fixing
-  - Most time is reading/understanding Chromium changes
+    - Claude works faster than manual fixing
+    - Most time is reading/understanding Chromium changes
 
 ## Troubleshooting
 
@@ -362,6 +372,7 @@ and what's unclear about the Chromium changes?
 ### "Patch keeps failing even after Claude fixes it"
 
 Check that:
+
 1. Files were actually saved (use `Read` tool to verify)
 2. Claude is editing the right files (full path check)
 3. The fix matches the reject file exactly
