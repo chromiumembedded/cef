@@ -1,8 +1,8 @@
 diff --git DEPS DEPS
-index 77a7e7b862bde15af00d3cc34c629e9eaee2eed6..711ca6012331930e4705a7145be0295eef086dca 100644
+index 217a7148924452e9365f83800a7be0c047b2d367..6fb8a982cc322f9e094e234d1c636cf35034ea17 100644
 --- DEPS
 +++ DEPS
-@@ -4187,6 +4187,7 @@ hooks = [
+@@ -4198,6 +4198,7 @@ hooks = [
      # Update LASTCHANGE.
      'name': 'lastchange',
      'pattern': '.',
@@ -10,7 +10,7 @@ index 77a7e7b862bde15af00d3cc34c629e9eaee2eed6..711ca6012331930e4705a7145be0295e
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-o', 'src/build/util/LASTCHANGE'],
    },
-@@ -4194,7 +4195,7 @@ hooks = [
+@@ -4205,7 +4206,7 @@ hooks = [
      # Update lastchange_commit_position.h (only for CrOS).
      'name': 'lastchange_commit_position_cros',
      'pattern': '.',
@@ -19,7 +19,7 @@ index 77a7e7b862bde15af00d3cc34c629e9eaee2eed6..711ca6012331930e4705a7145be0295e
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'CHROMIUM',
                 '--commit-position-header',
-@@ -4204,6 +4205,7 @@ hooks = [
+@@ -4215,6 +4216,7 @@ hooks = [
      # Update GPU lists version string (for gpu/config).
      'name': 'gpu_lists_version',
      'pattern': '.',
@@ -27,7 +27,7 @@ index 77a7e7b862bde15af00d3cc34c629e9eaee2eed6..711ca6012331930e4705a7145be0295e
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'GPU_LISTS_VERSION',
                 '--revision-id-only',
-@@ -4213,6 +4215,7 @@ hooks = [
+@@ -4224,6 +4226,7 @@ hooks = [
      # Update skia_commit_hash.h.
      'name': 'lastchange_skia',
      'pattern': '.',
@@ -35,11 +35,11 @@ index 77a7e7b862bde15af00d3cc34c629e9eaee2eed6..711ca6012331930e4705a7145be0295e
      'action': ['python3', 'src/build/util/lastchange.py',
                 '-m', 'SKIA_COMMIT_HASH',
                 '-s', 'src/third_party/skia',
-@@ -4222,6 +4225,7 @@ hooks = [
+@@ -4233,6 +4236,7 @@ hooks = [
      # Update dawn_version.h.
      'name': 'lastchange_dawn',
      'pattern': '.',
 +    'condition': 'not source_tarball',
      'action': ['python3', 'src/build/util/lastchange.py',
+                '-m', 'DAWN_COMMIT_HASH',
                 '-s', 'src/third_party/dawn',
-                '--revision', 'src/gpu/webgpu/DAWN_VERSION'],

@@ -105,7 +105,7 @@ index a2bf7a5c6914caff33100ed922170aff1f2705b1..72675755649b760535b0fdce959f8e61
    OverrideAndSyncDevToolsRendererPrefs();
  }
 diff --git chrome/browser/ui/BUILD.gn chrome/browser/ui/BUILD.gn
-index 27ed707c71f2e75d939833212f20e1ce5eb01ae2..5cbc9613bc0c910f68f38214d7fb6211dc516f5d 100644
+index f4531197ae5e1438c35a101d2c86c9b6edd1953f..8155027baf6395314c05ed5e5778eca76ddd2bfb 100644
 --- chrome/browser/ui/BUILD.gn
 +++ chrome/browser/ui/BUILD.gn
 @@ -7,6 +7,7 @@ import("//build/config/compiler/compiler.gni")
@@ -149,7 +149,7 @@ index 27ed707c71f2e75d939833212f20e1ce5eb01ae2..5cbc9613bc0c910f68f38214d7fb6211
    # TODO(crbug.com/41437292): Remove this circular dependency.
    # Any circular includes must depend on the target "//chrome/browser:browser_public_dependencies".
    # These are all-platform circular includes.
-@@ -5146,6 +5159,7 @@ static_library("ui") {
+@@ -5148,6 +5161,7 @@ static_library("ui") {
    if (enable_printing) {
      deps += [
        "//components/printing/browser",
@@ -769,7 +769,7 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..085201f227e6aaccf0f01004e1499f25
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 8c4ecc7069f8fa536a71b2033f5a24b3aa315ea9..95cd979fa112f89829db9cc7e28f57f22a05fd26 100644
+index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d360cadc1 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -184,6 +184,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
@@ -788,9 +788,9 @@ index 8c4ecc7069f8fa536a71b2033f5a24b3aa315ea9..95cd979fa112f89829db9cc7e28f57f2
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -404,10 +413,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
- 
-   Profile* const profile = browser_->GetProfile();
+@@ -412,10 +421,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+         browser_view, exclusive_access_manager_.get());
+   }
  
 +  const bool supports_toolbar = IsNormalBrowser(browser);
 +
@@ -799,10 +799,10 @@ index 8c4ecc7069f8fa536a71b2033f5a24b3aa315ea9..95cd979fa112f89829db9cc7e28f57f2
    // instantiated in this block.
 -  if (browser->is_type_normal()) {
 +  if (supports_toolbar) {
-     BrowserView* browser_view = BrowserView::GetBrowserViewForBrowser(browser);
- 
      if (IsChromeLabsEnabled()) {
-@@ -472,7 +483,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+       chrome_labs_coordinator_ =
+           std::make_unique<ChromeLabsCoordinator>(browser);
+@@ -473,7 +484,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        // Browser::GetBrowserView, which always returns a non-null BrowserView
        // in production, but this crashes during unittests using
        // BrowserWithTestWindowTest; these should eventually be refactored.
@@ -811,7 +811,7 @@ index 8c4ecc7069f8fa536a71b2033f5a24b3aa315ea9..95cd979fa112f89829db9cc7e28f57f2
          tab_search_toolbar_button_controller_ =
              std::make_unique<TabSearchToolbarButtonController>(
                  browser_view, browser_view->GetTabSearchBubbleHost());
-@@ -537,7 +548,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -538,7 +549,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  

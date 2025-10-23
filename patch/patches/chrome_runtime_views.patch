@@ -200,7 +200,7 @@ index 5a24e264ac3becc7fb5f65684705a71ed47d8d77..7190e6152f5df94314a989c18ad462e7
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 4fbd1e03819a62da6d99bd6e074b537257c45747..d83c0ac5a133ddefbf3d367a46f0ce2e6d2fe5f2 100644
+index 09d102ec8a6c4c4263a9759ef4afae619fb98848..c8b0def6fb3a1d7fc5e76fbfbd36efba102cab49 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -382,10 +382,6 @@ using web_modal::WebContentsModalDialogHost;

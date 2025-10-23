@@ -352,7 +352,7 @@ index 5c57268b37e2acdb30b09dd525a0eefc11f39112..e844ce5a4cd3aa9144065cfbefa9db4d
    base::WeakPtrFactory<DesktopWindowTreeHostLinux> weak_factory_{this};
  };
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
-index 13fd65bff10382bfb3aacfc584010c579ac6cb81..f860795e360bedb1acee0c03c490a8ad29fb3e8a 100644
+index 3c3b51cae50d7a5959a8145628da917bf0b3da8c..d6d1a3a1b5ad304bd169e0018c992fa395c52d05 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_platform.cc
 @@ -281,8 +281,8 @@ void DesktopWindowTreeHostPlatform::Init(const Widget::InitParams& params) {
@@ -367,7 +367,7 @@ index 13fd65bff10382bfb3aacfc584010c579ac6cb81..f860795e360bedb1acee0c03c490a8ad
  
    // Calculate initial bounds.
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb9e5a53cd 100644
+index 55caef964e9302e939a1580494e753fac347c99e..9e58937aecb3bb0a1421f2f0463c479042056c28 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -27,6 +27,7 @@
@@ -426,7 +426,7 @@ index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb
    // Stack immediately above its parent so that it does not cover other
    // root-level windows, with the exception of menus, to allow them to be
    // displayed on top of other windows.
-@@ -1156,6 +1176,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
+@@ -1160,6 +1180,18 @@ void DesktopWindowTreeHostWin::HandleWindowMinimizedOrRestored(bool restored) {
  
    if (restored) {
      window()->Show();
@@ -445,7 +445,7 @@ index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb
    } else {
      window()->Hide();
    }
-@@ -1177,11 +1209,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -1181,11 +1213,17 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -465,7 +465,7 @@ index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
-@@ -1190,6 +1228,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
+@@ -1194,6 +1232,12 @@ bool DesktopWindowTreeHostWin::HandleMouseEvent(ui::MouseEvent* event) {
      return true;
    }
  
@@ -478,7 +478,7 @@ index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb
    SendEventToSink(event);
    return event->handled();
  }
-@@ -1389,9 +1433,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
+@@ -1393,9 +1437,17 @@ void DesktopWindowTreeHostWin::SetBoundsInDIP(const gfx::Rect& bounds) {
    // positions in variable-DPI situations. See https://crbug.com/1224715 for
    // details.
    aura::Window* root = nullptr;
@@ -498,10 +498,10 @@ index 35469ecb01a680315b2f92e2599a3b56b5fc7549..f4ce8e3623c08a2d13299c68f6bfc8fb
  }
  
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index b65ced55f997d5064b9d9338190567f8c264fce8..72b4361f6806d6892dad7bbfcfa83865462bc046 100644
+index 8b34b44095ba7884947d5e83da847783126b3e62..6d101fa29426e63de2ef2ee66e665cb77689de26 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -349,6 +349,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -350,6 +350,14 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window is allow to take screenshots, by default is true.
    bool allow_screenshots_ = true;
  
@@ -517,10 +517,10 @@ index b65ced55f997d5064b9d9338190567f8c264fce8..72b4361f6806d6892dad7bbfcfa83865
    // the implementation of ::ShowCursor() is based on a counter, so making this
    // member static ensures that ::ShowCursor() is always called exactly once
 diff --git ui/views/widget/native_widget_mac.mm ui/views/widget/native_widget_mac.mm
-index e8d57d929172e6d3c99f1c87e4ff202e62711af2..b12beab1848a6b394865aee5bb424056f1bf1fd8 100644
+index 488b205376cedcd4d4b264059f8e03f9e15c5c5f..232b0377065fe97a2935b76b3e0edf606e8cd01f 100644
 --- ui/views/widget/native_widget_mac.mm
 +++ ui/views/widget/native_widget_mac.mm
-@@ -752,6 +752,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
+@@ -743,6 +743,7 @@ void NativeWidgetMac::Show(ui::mojom::WindowShowState show_state,
        break;
      case ui::mojom::WindowShowState::kMaximized:
      case ui::mojom::WindowShowState::kFullscreen:
@@ -529,7 +529,7 @@ index e8d57d929172e6d3c99f1c87e4ff202e62711af2..b12beab1848a6b394865aee5bb424056
        break;
      case ui::mojom::WindowShowState::kEnd:
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 7e1bfe1f3754562a77615ab7ba83c23f719050b7..49804a1f5dcf137bc5aca0047c2d39550c6a96d4 100644
+index c4736f55672975201cf248c34086e8ba38a96d26..490a0459d21c523283ce369c65489cd3f5904d12 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -222,8 +222,8 @@ ui::ZOrderLevel Widget::InitParams::EffectiveZOrderLevel() const {
@@ -582,7 +582,7 @@ index 7e1bfe1f3754562a77615ab7ba83c23f719050b7..49804a1f5dcf137bc5aca0047c2d3955
      }
    }
  
-@@ -1964,10 +1975,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
+@@ -1968,10 +1979,16 @@ void Widget::OnNativeWidgetParentChanged(gfx::NativeView parent) {
  }
  
  gfx::Size Widget::GetMinimumSize() const {
@@ -599,7 +599,7 @@ index 7e1bfe1f3754562a77615ab7ba83c23f719050b7..49804a1f5dcf137bc5aca0047c2d3955
    return non_client_view_ ? non_client_view_->GetMaximumSize() : gfx::Size();
  }
  
-@@ -2256,7 +2273,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
+@@ -2260,7 +2277,8 @@ bool Widget::SetInitialFocus(ui::mojom::WindowShowState show_state) {
    View* v = widget_delegate_->GetInitiallyFocusedView();
    if (!focus_on_creation_ ||
        show_state == ui::mojom::WindowShowState::kInactive ||
@@ -610,7 +610,7 @@ index 7e1bfe1f3754562a77615ab7ba83c23f719050b7..49804a1f5dcf137bc5aca0047c2d3955
      // focus when the window is restored.
      if (v) {
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index ce34d038564570f4edc8e36fd29524bd93c0b462..8ad7ca96b31ea5943338f5a5669ebf200692197c 100644
+index 098b42f0d484f72650da06838616858d3cf8de6d..928ca2338d5ace07dae7e9638d40761ea19c2dd4 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -438,6 +438,8 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
