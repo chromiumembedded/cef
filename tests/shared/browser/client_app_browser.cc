@@ -92,7 +92,7 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
         command_line->AppendSwitchWithValue(switches::kUseAngle, "gl-egl");
       }
       if (!command_line->HasSwitch(switches::kOzonePlatform)) {
-        command_line->AppendSwitchWithValue(switches::kOzonePlatform, "X11");
+        command_line->AppendSwitchWithValue(switches::kOzonePlatform, "x11");
       }
     }
 #endif
