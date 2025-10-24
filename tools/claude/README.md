@@ -24,6 +24,33 @@ python setup_claude.py
 
 This copies `CLAUDE.md` to the project root (`chromium/src/CLAUDE.md`), enabling Claude Code to understand the Chromium/CEF codebase structure. You only need to run this once per environment (or when updating to a new CEF version).
 
+**Create build configuration helper scripts:**
+
+These scripts simplify regenerating build files after .gn file changes.
+
+**Linux/Mac** - Create `chromium/src/cef/create_debug.sh`:
+
+```bash
+#!/bin/bash
+export GN_OUT_CONFIGS=Debug_GN_arm64
+./cef_create_projects.sh
+```
+
+> **Note:** Replace `Debug_GN_arm64` with your platform's build config (e.g., `Debug_GN_x64` for x64 builds).
+
+**Windows** - Create `chromium/src/cef/create_debug.bat`:
+
+```bat
+set GN_OUT_CONFIGS=Debug_GN_x64
+call cef_create_projects.bat
+```
+
+Make the scripts executable (Linux/Mac):
+
+```bash
+chmod +x cef/create_debug.sh
+```
+
 > **Note:** All paths in this document are relative to `chromium/src` unless otherwise specified.
 
 ## Overview
