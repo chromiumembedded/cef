@@ -237,7 +237,7 @@ for patch in patches:
         # Apply the patch file.
         msg('Applying patch to %s' % patch_root_abs)
         patch_string = open(patch_file, 'rb').read()
-        result = exec_cmd('patch -p0', patch_root_abs, patch_string)
+        result = exec_cmd('patch -p0 --batch --forward', patch_root_abs, patch_string)
 
         if len(converted_files) > 0:
           # Restore Windows line endings in converted files so that the diff is
@@ -299,7 +299,8 @@ for patch in patches:
         cmd = 'git add -N %s' % ' '.join(added_paths)
         result = exec_cmd(cmd, patch_root_abs)
         if result['err'] != '' and result['err'].find('warning:') != 0:
-          raise Exception('Failed to add paths: %s' % result['err'])
+          msg('Failed to add paths: %s' % result['err'])
+          continue
 
       # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
