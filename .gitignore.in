@@ -53,3 +53,6 @@ Thumbs.db
 # CEF generated files
 .ccls-cache/
 /cef_api_untracked.json
+/tools/claude/patch_analysis.txt
+/tools/claude/patch_output.txt
+/tools/claude/build_output.txt

@@ -51,8 +51,21 @@ The summary shows:
 
 - Total patches and success rate
 - List of failed patches
+- **Original file list** for each patch (showing which files had problems ✗ vs. applied successfully ✓)
+- **Automatic file movement detection** - when a file is missing, it tries to detect if it was moved/renamed
 - Specific files and line numbers that failed
 - Ready-to-run commands for investigation
+
+The original file list is especially useful when you need to regenerate a patch - you'll know exactly which files should be included.
+
+**File Movement Detection:**
+When a file is missing, the analyzer automatically detects simple renames and directory moves. If detected:
+```
+✗ chrome/browser/ui/views/frame/browser_view_layout.cc (FILE MISSING)
+   → Detected new location: chrome/browser/ui/views/frame/layout/browser_view_layout.cc
+```
+
+**Note:** Detection only works for simple renames. File deletions, splits, merges, and complex refactorings will show as missing. Use `git log --full-history` to investigate. See README.md for complete details on detection limitations.
 
 ### Step 2: Create a Fix Plan
 
@@ -72,13 +85,46 @@ Work through patches **one at a time** to avoid confusion.
 
 For each failed patch, follow this process:
 
-#### A. Understand What Failed
+#### ⚠️ CRITICAL WARNING: Understanding .cefbak Files
 
-Read the reject file to see what changes couldn't be applied:
+You will see `.cefbak` files in the working directory. **These contain OLD code from BEFORE the Chromium update!**
+
+**DO NOT restore from .cefbak files** - they will corrupt your patch with code from the previous Chromium version.
 
 ```bash
-cat {file_path}.rej
+# ❌ WRONG - This will break everything!
+cp chrome/browser/ui/browser.cc.cefbak chrome/browser/ui/browser.cc
+
+# ✅ CORRECT - Only use .rej files to see what changes to apply
+cat chrome/browser/ui/browser.cc.rej
 ```
+
+**What are .cefbak files?**
+
+- Created by `patch_updater.py` when it backs up files before reverting them
+- Contain CEF-modified code from Chromium version **{old_version}** (the OLD version)
+- Used internally by patch_updater.py for its own operations
+- **NEVER manually restore these files**
+
+**What should you use instead?**
+
+- `.rej` files - show what CEF changes need to be applied
+- `git diff` - compare Chromium versions to see what changed
+- Current files in working tree (after patch_updater.py applies successful patches)
+
+#### A. Understand What Failed
+
+Read the **COMPLETE** reject file to see what changes couldn't be applied:
+
+```bash
+# Read the ENTIRE reject file, not just part of it
+cat {file_path}.rej
+
+# Count how many hunks failed - you must fix ALL of them
+grep "^@@" {file_path}.rej | wc -l
+```
+
+**CRITICAL:** You must apply **ALL** failed hunks, not just some of them. Count the hunks and check them off as you apply each one.
 
 **Reject File Format (Unified Diff):**
 ```
@@ -157,39 +203,138 @@ if (find_bar_bounds.IsEmpty()) {
 When a file is missing, investigate what happened:
 
 ```bash
-git log --full-history -1 -- {file_path}
+# See what happened to the file (shows renames, deletions, etc.)
+git log --full-history -1 --stat -- {file_path}
 ```
 
 Then either:
 
-- **File was moved:** Update the patch file to reference the new path
-- **File was deleted:** Remove that section from the patch, or find where functionality moved
-- **File was split:** Apply changes to the appropriate new files
+- **File was moved/renamed:**
 
-#### D. Resave the Patch
+    **Complete workflow:**
 
-After fixing the Chromium source files, regenerate the patch:
+    1. **Identify the new location:**
+
+       - Check patch_analysis.txt - it may show "→ Detected new location: {new_path}"
+       - Or run: `git log --follow --all --name-status -- {file_path}`
+
+    2. **Read the reject file:** `cat {old_file_path}.rej`
+
+    3. **Apply changes to the NEW location** (use Edit tool, apply ALL hunks)
+
+    4. **Get the complete original file list:**
+
+       - Look at patch_analysis.txt under "Original files in patch (X total)"
+       - Shows which files were in the patch (✓ = applied, ✗ = failed)
+       - You need ALL of these files in your regenerated patch
+
+    5. **Manually regenerate the entire patch:**
+       ```bash
+       # From chromium/src directory:
+       # Build git diff command with ALL files at their current locations
+       git diff --no-prefix --relative -- \
+         {successful_file1} \
+         {successful_file2} \
+         {manually_fixed_file} \
+         {new_location_of_moved_file1} \
+         > cef/patch/patches/{patch_name}.patch
+       ```
+
+    6. **Verify:**
+       ```bash
+       # File count should match original
+       grep "^diff --git" cef/patch/patches/{patch_name}.patch | wc -l
+       # Test it applies
+       python3 cef/tools/patch_updater.py --patch {patch_name}
+       ```
+
+    **Important:**
+
+    - ❌ **DO NOT** use `--add` for moved files (often fails)
+    - ❌ **DO NOT** include old file paths in git diff
+    - ✅ **DO** use patch_analysis.txt to find complete original file list
+
+- **File was deleted:** (automatic detection won't catch this) Remove that section from the patch, or find where functionality moved
+- **File was split:** (automatic detection won't catch this) Apply changes to appropriate new files and manually regenerate
+
+#### D. Resave and Verify the Patch
+
+After fixing the Chromium source files, follow these verification steps:
+
+**1. Resave the patch:**
 
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py --resave --patch {patch_name_without_extension}
+python3 patch_updater.py --resave --patch {patch_name_without_extension}
 ```
 
 Example:
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py --resave --patch views_widget
+python3 patch_updater.py --resave --patch views_widget
 ```
 
-**This will:**
+This will:
 
 - Regenerate the patch file based on your manual changes
 - Update line numbers and offsets
 - Validate the patch can now be applied
 
-**If the resave succeeds:** Move to the next patch.
+**2. REQUIRED: Verify File Coverage**
 
-**If the resave fails:** You have more failures to fix in this patch. Repeat step 3.
+Run verify_patch.py to ensure all failed files are included in the regenerated patch:
+
+```bash
+# From chromium/src/cef/tools/claude directory:
+python3 verify_patch.py patch_output.txt --patch {patch_name} \
+  --old-version {old_version} --new-version {new_version}
+```
+
+Example:
+```bash
+# From chromium/src/cef/tools/claude directory:
+python3 verify_patch.py patch_output.txt --patch views_widget \
+  --old-version 142.0.7444.0 --new-version 143.0.7491.0
+```
+
+**This checks:**
+
+- All files that had failures are included in the regenerated patch
+- Files that moved are included at their new locations
+- Provides clear ✓/✗ status for each file
+
+**What it does NOT check:** Whether the actual content changes from .rej files are correct (next step).
+
+**If verification fails:**
+
+- Check which files are missing from the output
+- Verify you included all files in your git diff command
+- For moved files, ensure you used the NEW file paths
+- Re-run the git diff with the missing files
+
+**Note:** "File NOT in patch" warnings may be expected for deletions, splits, or merges. See README.md for detection limitations.
+
+**3. REQUIRED: Verify Content Changes**
+
+Manually verify that ALL changes from the .rej file(s) are in the new patch:
+
+```bash
+# Review what's in the new patch file
+cat cef/patch/patches/{patch_name}.patch
+
+# OR review your git diff to see what changes were captured
+git diff {file_path}
+```
+
+**Check that:**
+
+1. Every `+` line from the `.rej` file is now in the new patch
+2. Every `-` line from the `.rej` file is now in the new patch
+3. The context matches (the surrounding unchanged lines)
+
+**If ANY changes from the .rej file are missing:** You missed applying some hunks manually. Go back to step 3C, apply the missing changes, and resave again.
+
+**If ALL checks pass (file coverage + content verification):** The patch is complete. Move to the next patch.
 
 ### Step 4: Track Progress
 
@@ -207,21 +352,47 @@ Report progress to the user periodically, especially after completing each patch
 
 ### Step 5: Final Verification
 
-After all patches are fixed, verify everything applies cleanly:
+After you've fixed all patches from your TODO list, verify that ALL patches now apply cleanly by regenerating the analysis:
 
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py
+# Regenerate patch output
+python3 patch_updater.py > claude/patch_output.txt 2>&1
+
+# Regenerate analysis
+cd claude
+python3 analyze_patch_output.py patch_output.txt \
+  --old-version {old_version} \
+  --new-version {new_version} \
+  --no-color > patch_analysis.txt
 ```
 
-This should complete with no `!!!! WARNING:` messages.
+**Review patch_analysis.txt:**
+
+**Success criteria:**
+
+- "Success rate: 100%" at the top of patch_analysis.txt
+- No patches listed under "Failed patches" section
+- Summary shows all patches applied successfully
+
+**If you still see failures in patch_analysis.txt:**
+
+- You missed a patch - check which one(s) failed
+- Add the remaining failed patches to your TODO list
+- Continue fixing them using Step 3
+
+**If successful (100% success rate):**
+
+- All patches now apply cleanly to Chromium {new_version}
+- Ready to proceed to Phase 2: Build Error Fixing (see CLAUDE_BUILD_INSTRUCTIONS.md)
+- Report completion to the user with summary statistics
 
 ## Time Expectations
 
 Based on typical Chromium updates:
 
-- **Simple patches** (context shifts, minor refactoring): 5-15 minutes each
-- **Complex patches** (file moves, major refactors, API changes): 30-60 minutes each
+- **Simple patches** (context shifts, minor refactoring): few minutes each (mostly automatic)
+- **Complex patches** (file moves, major refactors, API changes): 15-30 minutes each (may require user guidance/correction)
 - **Total patch fixing**: 1-3 hours typically
 
   - Minor updates: Usually < 10 patches fail
@@ -251,10 +422,13 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 
 **Fix:**
 
-1. Use `git log --full-history -1 -- {old_path}` to find what happened
-2. Visit `https://crrev.com/{commit_hash}` to see the change
-3. Edit the patch file in a text editor to update the file paths
-4. Resave the patch
+1. Find what happened: `git log --full-history -1 --stat -- {old_path}`
+2. Look for "Renamed" or new file location in the output
+3. Read the changes that need to be applied: `cat {old_path}.rej`
+4. Manually apply those changes to the file at its NEW location
+5. Manually regenerate the entire patch (see section C under "For Missing Files" above)
+
+**IMPORTANT:** When files are moved, the `--add` approach often fails. Manually regenerate the patch instead.
 
 ### Pattern 3: API Changes
 
@@ -323,7 +497,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 1. **Only modify Chromium source files** (outside `cef/` directory) when applying patch changes
 2. **Never skip patches** - every failed patch must be fixed
 3. **One patch at a time** - don't try to fix multiple patches simultaneously
-4. **Always resave** after manual fixes - never edit patch files directly (except for path changes)
+4. **Always resave** after manual fixes - never manually edit patch files. **Exception:** When files are moved/renamed, manually regenerate the entire patch using `git diff` (see troubleshooting section below)
 5. **Verify context** - make sure the CEF changes make sense in the new Chromium code
 6. **Preserve CEF intent** - understand what the patch is trying to accomplish, not just mechanically apply it
 
@@ -339,7 +513,8 @@ python3 analyze_patch_output.py {output_file} \
 ### Generate systematic fix plan:
 ```bash
 # From chromium/src/cef/tools/claude directory:
-python3 analyze_patch_output.py {output_file} --fix-plan
+python3 analyze_patch_output.py {output_file} --fix-plan \
+  --old-version {old_version} --new-version {new_version}
 ```
 
 ### View reject file:
@@ -358,33 +533,45 @@ git diff --no-prefix \
 ### Investigate missing file:
 ```bash
 # From chromium/src directory:
-git log --full-history -1 -- {file_path}
+# See what happened (shows renames, deletions, etc.)
+git log --full-history -1 --stat -- {file_path}
+
+# Or view full commit details
 git show {commit_hash}
-# Or visit: https://crrev.com/{commit_hash}
 ```
 
 ### Resave individual patch:
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py --resave --patch {patch_name}
+python3 patch_updater.py --resave --patch {patch_name}
+```
+
+### Verify file coverage (REQUIRED after resave):
+```bash
+# From chromium/src/cef/tools/claude directory:
+python3 verify_patch.py patch_output.txt --patch {patch_name} \
+  --old-version {old_version} --new-version {new_version}
 ```
 
 ### Resave all patches:
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py --resave
+python3 patch_updater.py --resave
 ```
 
 ### Verify all patches apply:
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py
+python3 patch_updater.py
 ```
 
 ### Add files to existing patch:
 ```bash
 # From chromium/src/cef/tools directory:
-python patch_updater.py --resave --patch {name} --add {path1} --add {path2}
+python3 patch_updater.py --resave --patch {name} --add {path1} --add {path2}
+
+# Note: This often fails when files were moved/renamed.
+# If it fails, manually regenerate the patch instead (see troubleshooting section)
 ```
 
 ### Create new patch file:
@@ -446,7 +633,7 @@ When reporting errors, include:
 
 Patches are successfully updated when:
 
-1. ✓ `python patch_updater.py` completes without warnings
+1. ✓ `python3 patch_updater.py` completes without warnings
 2. ✓ All patches apply cleanly (no `.rej` files created)
 3. ✓ Chromium source files contain all necessary CEF modifications
 4. ✓ You can explain what each significant change was and why it was needed
@@ -500,8 +687,10 @@ Starting with patch 1/9: runhooks
 [Checks Chromium changes]
 [Applies manual fix]
 [Resaves patch]
+[Verifies file coverage with verify_patch.py]
+[Verifies content changes]
 
-✓ Fixed runhooks successfully
+✓ Fixed runhooks successfully - all files included, all changes applied
 
 Moving to patch 2/9: views_widget
 
@@ -514,8 +703,9 @@ Moving to patch 2/9: views_widget
 2. **Read reject files carefully** - They tell you exactly what to add
 3. **Check Chromium changes** - Understand why it failed before fixing
 4. **Resave frequently** - After each patch, not all at once
-5. **Keep notes** - Track what you did for each patch
-6. **Pattern recognition** - Similar patches often fail for similar reasons
+5. **Always verify** - Run verify_patch.py after every resave to catch missing files early
+6. **Keep notes** - Track what you did for each patch
+7. **Pattern recognition** - Similar patches often fail for similar reasons
 
 ## Troubleshooting
 
@@ -537,12 +727,57 @@ Moving to patch 2/9: views_widget
 - Fix them all before resaving
 - Work top-to-bottom in the file
 - Resave once after all hunks in that file are fixed
+- **IMPORTANT:** After resaving, verify ALL hunks are in the new patch by comparing with the .rej file
+
+**"The patch applies cleanly but I think I missed some changes"**
+
+- The resaved patch only contains what you actually changed
+- If you missed applying some hunks, they're gone from the patch
+- Compare the new patch with the original .rej file to verify all changes are present
+- Use: `cat cef/patch/patches/{patch_name}.patch` and visually check against the .rej file
 
 **"I'm not sure if my fix is correct"**
 
 - Does it preserve the CEF functionality? (Look at what the patch is trying to do)
 - Does it make sense in the context of the new Chromium code?
 - You can optionally test compilation (see Testing Patches below)
+
+**"Failed to create patch file: no such path in the working tree"**
+
+**Symptom:** `patch_updater.py --resave --patch {name} --add {new_path}` fails with "no such path in the working tree"
+
+**Cause:** The patch still references old file paths that no longer exist (files were moved/renamed)
+
+**Solution:** Manually regenerate the patch with correct file paths:
+
+1. Check what files are currently in the patch:
+   ```bash
+   grep "^diff --git" cef/patch/patches/{patch_name}.patch
+   ```
+
+2. Check what files you've actually modified:
+   ```bash
+   git diff --name-only | grep {relevant_pattern}
+   ```
+
+3. Create new patch with correct paths:
+   ```bash
+   # From chromium/src directory:
+   # List ALL files that should be in the patch
+   git diff --no-prefix --relative {file1} {file2} {file3} ... > /tmp/temp.patch
+
+   # Back up the old patch
+   cp cef/patch/patches/{patch_name}.patch cef/patch/patches/{patch_name}.patch.bak
+
+   # Replace with new patch
+   cp /tmp/temp.patch cef/patch/patches/{patch_name}.patch
+   ```
+
+4. Verify it works:
+   ```bash
+   cd cef/tools
+   python3 patch_updater.py --patch {patch_name}
+   ```
 
 ## Testing Patches (Optional)
 
@@ -587,38 +822,6 @@ The `-k 0` flag continues building other targets even if some fail, which is use
 - **Required** after all patches are fixed (next phase of the update)
 
 Note: Build errors are a **separate phase** from patch errors. Fix all patches first, then move to fixing build errors.
-
-## Reference: Reject File Format Details
-
-A reject file shows hunks that couldn't be applied:
-
-```
---- ui/views/widget/widget.cc
-+++ ui/views/widget/widget.cc
-@@ -480,7 +480,8 @@ void Widget::Init(InitParams params) {
-   }
-
-   params.child |= (params.type == InitParams::TYPE_CONTROL);
--  is_top_level_ = !params.child;
-+  is_top_level_ = !params.child ||
-+                  params.parent_widget != gfx::kNullAcceleratedWidget;
-   is_headless_ = params.ShouldInitAsHeadless();
-```
-
-**How to read this:**
-
-- `--- ui/views/widget/widget.cc` = File being patched
-- `@@ -480,7 +480,8 @@` = Location (old line 480, new line 480)
-- Lines with no prefix = Context for finding the right location
-- `-  is_top_level_ = !params.child;` = Remove this line
-- `+  is_top_level_ = !params.child ||` = Add this line (and the next)
-
-**How to apply:**
-
-1. Open `ui/views/widget/widget.cc`
-2. Search for the context: `params.child |= (params.type == InitParams::TYPE_CONTROL);`
-3. Find the line: `is_top_level_ = !params.child;`
-4. Replace it with the two-line version from the reject file
 
 ---
 

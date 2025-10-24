@@ -633,7 +633,7 @@ if (!use_static_angle) {
 
 - Read error message carefully - it usually tells you exactly what's wrong
 - Use IDE or compiler's "fix suggestions" when available
-- Format code after changes: Run `python tools/fix_style.py` from the `chromium/src/cef` directory
+- Format code after changes: Run `python3 tools/fix_style.py` from the `chromium/src/cef` directory
 
 ### C++ Header Files (.h)
 
