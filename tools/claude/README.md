@@ -160,35 +160,35 @@ After all patches are fixed and you're ready to build:
 
 ### Starting Patch Fixing
 
-**Basic:**
+**With analysis output (see Quick Start):**
 ```
 Please update patches from 139.0.7258.0 to 140.0.7339.0
-using @cef/tools/claude/CLAUDE_PATCH_INSTRUCTIONS.md
+using the instructions in @cef/tools/claude/CLAUDE_PATCH_INSTRUCTIONS.md
+
+Here's the patch output analysis: @cef/tools/claude/patch_analysis.txt
 ```
 
-**With pre-analyzed output:**
+**With raw output:**
 ```
-I've run patch_updater.py and captured the output. Please fix the failed
-patches using the instructions in @cef/tools/claude/CLAUDE_PATCH_INSTRUCTIONS.md
+Please update patches from 139.0.7258.0 to 140.0.7339.0
+using the instructions in @cef/tools/claude/CLAUDE_PATCH_INSTRUCTIONS.md
 
-Versions: 139.0.7258.0 → 140.0.7339.0
-Raw output: @cef/tools/claude/patch_output.txt
-```
+Raw patch output: @cef/tools/claude/patch_output.txt
 
-**With analyzer:**
-```
-Please fix the CEF patches for the Chromium update from 139.0.7258.0 to 140.0.7339.0.
-
-First, analyze this patch output:
-@cef/tools/claude/patch_output.txt
-
-Then follow the instructions in:
-@cef/tools/claude/CLAUDE_PATCH_INSTRUCTIONS.md
-
-Use the analyze_patch_output.py script to get a structured view of failures.
+Please run analyze_patch_output.py first to understand what failed.
 ```
 
 ### Starting Build Error Fixing
+
+**With build output (see Quick Start):**
+```
+The patches are all fixed. Now please fix the build errors using the
+instructions in @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
+
+Build output: @cef/tools/claude/build_output.txt
+Target: cef
+Out dir: Debug_GN_x64
+```
 
 **Basic:**
 ```
@@ -197,16 +197,6 @@ Please fix CEF build errors using @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
 Build target: cef
 Output directory: Debug_GN_x64
 Chromium version: 139.0.7258.0 → 140.0.7339.0
-```
-
-**With build output:**
-```
-The patches are all fixed. Now please fix the build errors using the
-instructions in @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
-
-Build output: @cef/tools/claude/build_output.txt
-Target: cef
-Out dir: Debug_GN_x64
 ```
 
 ### Mid-Stream Prompts
