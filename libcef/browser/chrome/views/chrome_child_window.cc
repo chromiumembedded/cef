@@ -70,6 +70,12 @@ class ChildWindowDelegate : public CefWindowDelegate {
 #endif
   }
 
+  void ClearNativeDelegate() override {
+#if defined(USE_AURA)
+    native_delegate_ = nullptr;
+#endif
+  }
+
   CefRect GetInitialBounds(CefRefPtr<CefWindow> window) override {
     CefRect initial_bounds(window_info_.bounds);
     if (initial_bounds.IsEmpty()) {
