@@ -30,6 +30,20 @@ CEF maintains patch files in `cef/patch/patches/` that modify Chromium source co
 4. You resave the updated patches
 5. Repeat until all patches apply cleanly
 
+## CRITICAL: Working Directory Awareness
+
+**BEFORE running ANY command with `cd` or relative paths:**
+
+1. ✓ **Check current directory:** `pwd`
+2. ✓ **Determine the correct path** from your current location
+3. ✓ **Execute the command** with the correct path
+
+**Never assume your current directory. Always verify first.**
+
+Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
+- From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
+- From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
+
 ## Step-by-Step Workflow
 
 ### Step 1: Analyze the Patch Output
@@ -494,12 +508,13 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 
 ## Important Rules
 
-1. **Only modify Chromium source files** (outside `cef/` directory) when applying patch changes
-2. **Never skip patches** - every failed patch must be fixed
-3. **One patch at a time** - don't try to fix multiple patches simultaneously
-4. **Always resave** after manual fixes - never manually edit patch files. **Exception:** When files are moved/renamed, manually regenerate the entire patch using `git diff` (see troubleshooting section below)
-5. **Verify context** - make sure the CEF changes make sense in the new Chromium code
-6. **Preserve CEF intent** - understand what the patch is trying to accomplish, not just mechanically apply it
+1. **ALWAYS run `pwd` before using `cd` or relative paths** - Never assume your current directory location. Verify first, then navigate.
+2. **Only modify Chromium source files** (outside `cef/` directory) when applying patch changes
+3. **Never skip patches** - every failed patch must be fixed
+4. **One patch at a time** - don't try to fix multiple patches simultaneously
+5. **Always resave** after manual fixes - never manually edit patch files. **Exception:** When files are moved/renamed, manually regenerate the entire patch using `git diff` (see troubleshooting section below)
+6. **Verify context** - make sure the CEF changes make sense in the new Chromium code
+7. **Preserve CEF intent** - understand what the patch is trying to accomplish, not just mechanically apply it
 
 ## Helper Commands Reference
 

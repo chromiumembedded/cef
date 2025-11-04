@@ -40,6 +40,20 @@ During the Chromium update, APIs changed:
 
 Your task is to update CEF code in the `cef/` directory to work with these changes.
 
+## CRITICAL: Working Directory Awareness
+
+**BEFORE running ANY command with `cd` or relative paths:**
+
+1. ✓ **Check current directory:** `pwd`
+2. ✓ **Determine the correct path** from your current location
+3. ✓ **Execute the command** with the correct path
+
+**Never assume your current directory. Always verify first.**
+
+Relative paths like `cd cef/tools/claude` behave differently depending on where you are:
+- From `chromium/src`: navigates to `chromium/src/cef/tools/claude` ✓
+- From `chromium/src/cef/tools`: tries to navigate to `chromium/src/cef/tools/cef/tools/claude` ✗
+
 ## Important Constraints
 
 ### Files You Can Modify
@@ -834,13 +848,14 @@ The user will guide you through these next steps.
 
 ## Important Reminders
 
-1. **Only modify CEF code** - Files in `cef/` directory only
-2. **No patch changes** - Patches were fixed in previous phase
-3. **Build frequently** - After every fix or small batch of fixes
-4. **Ask for help** - After 3 attempts or 5 minutes on same error
-5. **Track progress** - Keep TODO list updated
-6. **Report regularly** - User needs to know status
-7. **Stay organized** - Group similar errors, work systematically
+1. **ALWAYS run `pwd` before using `cd` or relative paths** - Never assume your current directory location. Verify first, then navigate.
+2. **Only modify CEF code** - Files in `cef/` directory only
+3. **No patch changes** - Patches were fixed in previous phase
+4. **Build frequently** - After every fix or small batch of fixes
+5. **Ask for help** - After 3 attempts or 5 minutes on same error
+6. **Track progress** - Keep TODO list updated
+7. **Report regularly** - User needs to know status
+8. **Stay organized** - Group similar errors, work systematically
 
 ---
 
