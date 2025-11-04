@@ -253,11 +253,15 @@ for patch in patches:
         if result['err'] != '':
           raise Exception('Failed to apply patch file: %s' % result['err'])
         sys.stdout.write(result['out'])
-        if result['out'].find('FAILED') != -1:
+        # Check both exit code and output for failures
+        if result['ret'] != 0 or result['out'].lower().find('failed') != -1:
           failed_lines = []
           for line in result['out'].split('\n'):
-            if line.find('FAILED') != -1:
+            if line.lower().find('failed') != -1:
               failed_lines.append(line.strip())
+          if not failed_lines:
+            # Exit code indicates failure but no FAILED lines found
+            failed_lines.append('Patch command exited with code %d' % result['ret'])
           warn('Failed to apply %s, fix manually and run with --resave' % \
                patch['name'])
           failed_patches[patch['name']] = failed_lines
