@@ -1,5 +1,5 @@
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..2dbbdb0c995171b443486db98a26c995ef65ef89 100644
+index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..1391b7a3a040f2bf8338080ccaaf6fbbf0de5d01 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
 @@ -39,6 +39,7 @@
@@ -18,10 +18,10 @@ index f65b7e6eccd2ef33c9addb5797aab62e75fd3803..2dbbdb0c995171b443486db98a26c995
 +  if (!url.has_scheme()) {
 +    return false;
 +  }
-+  if (GURL::SchemeIsCryptographic(url.scheme_piece())) {
++  if (GURL::SchemeIsCryptographic(url.scheme())) {
 +    return true;
 +  }
-+  return base::Contains(url::GetSecureSchemes(), url.scheme_piece());
++  return base::Contains(url::GetSecureSchemes(), url.scheme());
 +}
 +
  }  // namespace

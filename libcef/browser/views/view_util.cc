@@ -308,10 +308,10 @@ bool ConvertPointToWindow(views::View* view, gfx::Point* point) {
   views::View::ConvertPointToWidget(view, point);
 
   if (widget->non_client_view()) {
-    views::NonClientFrameView* non_client_frame_view =
+    views::FrameView* non_client_frame_view =
         widget->non_client_view()->frame_view();
     if (non_client_frame_view) {
-      // When using a custom drawn NonClientFrameView the native Window will not
+      // When using a custom drawn FrameView the native Window will not
       // know the actual client bounds. Adjust the native Window bounds for the
       // reported client bounds.
       const gfx::Rect& client_bounds =
@@ -330,10 +330,10 @@ bool ConvertPointFromWindow(views::View* view, gfx::Point* point) {
   }
 
   if (widget->non_client_view()) {
-    views::NonClientFrameView* non_client_frame_view =
+    views::FrameView* non_client_frame_view =
         widget->non_client_view()->frame_view();
     if (non_client_frame_view) {
-      // When using a custom drawn NonClientFrameView the native Window will not
+      // When using a custom drawn FrameView the native Window will not
       // know the actual client bounds. Adjust the native Window bounds for the
       // reported client bounds.
       const gfx::Rect& client_bounds =

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/views/toolbar/app_menu.cc chrome/browser/ui/views/toolbar/app_menu.cc
-index cfb761704d4752ed76ee451c5d22c36bc14ab3f9..3b78eb327c3624b1b1dcb1bfbc1262bed2f18e47 100644
+index a7e467da7bdbba283c2b305f733106f373e8e3af..e77c1cf12b26b932a8d09d5b5aa5585961b4c422 100644
 --- chrome/browser/ui/views/toolbar/app_menu.cc
 +++ chrome/browser/ui/views/toolbar/app_menu.cc
-@@ -1050,12 +1050,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
+@@ -1061,12 +1061,14 @@ void AppMenu::RunMenu(views::MenuButtonController* host) {
    UMA_HISTOGRAM_ENUMERATION("WrenchMenu.MenuAction", MENU_ACTION_MENU_OPENED,
                              LIMIT_MENU_ACTION);
  
@@ -23,7 +23,7 @@ index cfb761704d4752ed76ee451c5d22c36bc14ab3f9..3b78eb327c3624b1b1dcb1bfbc1262be
  }
  
  void AppMenu::RunMenu(views::Widget* parent,
-@@ -1067,7 +1069,8 @@ void AppMenu::RunMenu(views::Widget* parent,
+@@ -1078,7 +1080,8 @@ void AppMenu::RunMenu(views::Widget* parent,
    menu_runner_->RunMenuAt(
        parent, nullptr, anchor_screen_bounds,
        views::MenuAnchorPosition::kTopRight, ui::mojom::MenuSourceType::kNone,
@@ -251,7 +251,7 @@ index 62c2e1969773a54534526c81b8f4bae7dae61716..57572961446a6469ee629d1dd4342670
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e7439a0b5c25 100644
+index ba801bba5ecc118d916a882365f86e89142189f0..7bab8c063a9cf7b3028a4740231880bf9260b477 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
 @@ -241,6 +241,10 @@ class VIEWS_EXPORT Label : public View,
@@ -274,10 +274,10 @@ index b4cb7c83a3e4ccf1852933de1a5f9c3def789104..562e096930147ba023c0996494e4e743
    std::unique_ptr<SelectionController> selection_controller_;
  
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f816675a341 100644
+index 4fd9d4eb67842ac4232d1fe4cbb3da60c2d8c9bb..cb5db80965436715cbb321d956e09299874c3e1a 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -628,7 +628,8 @@ void MenuController::Run(Widget* parent,
+@@ -601,7 +601,8 @@ void MenuController::Run(Widget* parent,
                           ui::mojom::MenuSourceType source_type,
                           MenuType menu_type,
                           bool is_nested_drag,
@@ -287,7 +287,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
    exit_type_ = ExitType::kNone;
    possible_drag_ = false;
    drag_in_progress_ = false;
-@@ -697,6 +698,7 @@ void MenuController::Run(Widget* parent,
+@@ -670,6 +671,7 @@ void MenuController::Run(Widget* parent,
      }
  
      native_view_for_gestures_ = native_view_for_gestures;
@@ -295,7 +295,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
  
      // Only create a MenuPreTargetHandler for non-nested menus. Nested menus
      // will use the existing one.
-@@ -2458,6 +2460,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
+@@ -2444,6 +2446,7 @@ void MenuController::OpenMenuImpl(MenuItemView* item, bool show) {
      params.do_capture = do_capture;
      params.native_view_for_gestures = native_view_for_gestures_;
      params.owned_window_anchor = anchor;
@@ -303,7 +303,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
      if (item->GetParentMenuItem()) {
        params.context = item->GetWidget();
        // (crbug.com/1414232) The item to be open is a submenu. Make sure
-@@ -3194,7 +3197,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
+@@ -3175,7 +3178,11 @@ MenuItemView* MenuController::FindInitialSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -316,7 +316,7 @@ index f827a572f1edf0d62dd9aeddbb4adc638144814e..3952cfff9394b5a0849e641de8317f81
      return;
    }
  
-@@ -3219,6 +3226,7 @@ void MenuController::CloseSubmenu() {
+@@ -3200,6 +3207,7 @@ void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
    if (!item->GetParentMenuItem()) {
@@ -809,7 +809,7 @@ index 8038c157ff59292c242c41b86394e5e19cf6d640..ca46ede189e018c9ed571717e9a7e084
    if (root_location != root_current_location &&
        !g_ozone_ui_controls_test_helper->MustUseUiControlsForMoveCursorTo() &&
 diff --git ui/views/view.h ui/views/view.h
-index 7f70b4f6062e369e2198fc12ff507786283a13c7..2d2d65461ca60e9b200ddceedabdfe55abe71b16 100644
+index 4fada89e37b9c63f7690fbbdd2ef4ecf86b5d756..c84c9afdd0d4214da3972816d8c0f5606b68f840 100644
 --- ui/views/view.h
 +++ ui/views/view.h
 @@ -26,6 +26,7 @@

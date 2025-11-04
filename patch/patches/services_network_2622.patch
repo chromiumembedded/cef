@@ -1,5 +1,5 @@
 diff --git net/cookies/cookie_monster.cc net/cookies/cookie_monster.cc
-index 227b2bed2b6e4ba6f666a6b31d1b9be1dc701d9b..5da5e7bd4e3faaed0cbb871d062b564b36087100 100644
+index 1df40f07d9eca4400185be33c15036266eebcc45..74a553dfe0e528aa99bd5fb7a2ace11a1887fcd9 100644
 --- net/cookies/cookie_monster.cc
 +++ net/cookies/cookie_monster.cc
 @@ -55,6 +55,7 @@
@@ -122,10 +122,10 @@ index 3ecc53285b872e1eab24e6ef8ab522063d2c4ed1..e6a14a3f4a41e0353b2b490a24c9a0e3
  
  void CookieManager::SetForceKeepSessionState() {
 diff --git services/network/network_context.cc services/network/network_context.cc
-index ec828e8fe98bcaf000ca3ae46656b731a8c2f014..eb45481e9fe7fc74ab7d3510c0183478ebe0ba8e 100644
+index 71cef856b5d4311124bc8bf30bf6c0f73b990b13..7475c4fcdfdcfad0c4fb267fbbb0603c7d521488 100644
 --- services/network/network_context.cc
 +++ services/network/network_context.cc
-@@ -2896,22 +2896,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
+@@ -2911,22 +2911,26 @@ URLRequestContextOwner NetworkContext::MakeURLRequestContext(
              pref_service.get(), network_service_->network_quality_estimator());
    }
  
@@ -169,10 +169,10 @@ index ec828e8fe98bcaf000ca3ae46656b731a8c2f014..eb45481e9fe7fc74ab7d3510c0183478
    base::FilePath transport_security_persister_file_name;
    if (GetFullDataFilePath(params_->file_paths,
 diff --git services/network/public/mojom/network_context.mojom services/network/public/mojom/network_context.mojom
-index be0062591b94a77de5afbe8a776bfd366c3dd7a9..7fb887edfec9783333c185e95bfe758ccdf6ab97 100644
+index f6f90744b2faab08fd44f7b0ecc9c271abf62813..fe0574e7b72b2a2e578f7c13f86e7ec23f6b5ebf 100644
 --- services/network/public/mojom/network_context.mojom
 +++ services/network/public/mojom/network_context.mojom
-@@ -370,6 +370,9 @@ struct NetworkContextParams {
+@@ -369,6 +369,9 @@ struct NetworkContextParams {
    // cookies. Otherwise it should be false.
    bool persist_session_cookies = false;
  

@@ -6,19 +6,23 @@
 #define CEF_LIBCEF_COMMON_NET_SCHEME_REGISTRATION_H_
 #pragma once
 
-#include <string>
-#include <vector>
+#include <string_view>
 
 namespace scheme {
 
 // Returns true if the specified |scheme| is handled internally.
-bool IsInternalHandledScheme(const std::string& scheme);
+bool IsInternalHandledScheme(std::string_view scheme);
 
 // Returns true if the specified |scheme| is a registered standard scheme.
-bool IsStandardScheme(const std::string& scheme);
+//
+// NOTE: This method is a convenience for implicitly converting std::string
+// values to the std::optional<std::string_view> argument expected by the
+// exported variant of url::IsStandardScheme(). Callers that already have a
+// std::string_view value can call url::IsStandardScheme() directly.
+bool IsStandardScheme(std::string_view scheme);
 
 // Returns true if the specified |scheme| is a registered CORS enabled scheme.
-bool IsCorsEnabledScheme(const std::string& scheme);
+bool IsCorsEnabledScheme(std::string_view scheme);
 
 }  // namespace scheme
 

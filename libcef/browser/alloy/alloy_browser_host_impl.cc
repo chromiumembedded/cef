@@ -605,7 +605,7 @@ bool AlloyBrowserHostImpl::MaybeAllowNavigation(
   }
 
   if (!is_guest_view && params.url.SchemeIs(content::kChromeUIScheme) &&
-      !IsAllowedWebUIHost(params.url.host_piece())) {
+      !IsAllowedWebUIHost(params.url.host())) {
     // Block navigation to non-allowlisted WebUI pages.
     LOG(WARNING) << "Navigation to " << params.url.spec()
                  << " is blocked in Alloy-style browser.";

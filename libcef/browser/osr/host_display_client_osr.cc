@@ -9,7 +9,7 @@
 #include "base/memory/raw_ptr.h"
 #include "base/memory/shared_memory_mapping.h"
 #include "cef/libcef/browser/osr/render_widget_host_view_osr.h"
-#include "components/viz/common/resources/resource_sizes.h"
+#include "components/viz/common/resources/shared_image_format_utils.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "services/viz/privileged/mojom/compositing/layered_window_updater.mojom.h"
 #include "skia/ext/platform_canvas.h"
@@ -74,9 +74,9 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
     const gfx::Size& pixel_size,
     base::UnsafeSharedMemoryRegion region) {
   // Make sure |pixel_size| is sane.
-  size_t expected_bytes;
-  if (!viz::ResourceSizes::MaybeSizeInBytes(
-          pixel_size, viz::SinglePlaneFormat::kRGBA_8888, &expected_bytes)) {
+  auto expected_bytes = SharedMemorySizeForSharedImageFormat(
+      viz::SinglePlaneFormat::kRGBA_8888, pixel_size);
+  if (!expected_bytes) {
     DLOG(ERROR) << "OnAllocatedSharedMemory with size that overflows";
     return;
   }
@@ -86,7 +86,7 @@ void CefLayeredWindowUpdaterOSR::OnAllocatedSharedMemory(
     DLOG(ERROR) << "Shared memory mapping failed.";
     return;
   }
-  if (mapping.size() < expected_bytes) {
+  if (mapping.size() < expected_bytes.value()) {
     DLOG(ERROR) << "Shared memory size was less than expected.";
     return;
   }

@@ -85,9 +85,9 @@ CefRefPtr<CefSchemeHandlerFactory> CefIOThreadState::GetSchemeHandlerFactory(
     return nullptr;
   }
 
-  const std::string& scheme_lower = url.scheme();
-  const std::string& domain_lower =
-      url.IsStandard() ? url.host() : std::string();
+  const std::string scheme_lower(url.scheme());
+  const std::string domain_lower =
+      url.IsStandard() ? std::string(url.host()) : std::string();
 
   if (!domain_lower.empty()) {
     // Sanity check.

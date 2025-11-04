@@ -1,5 +1,5 @@
 diff --git chrome/browser/win/app_icon.cc chrome/browser/win/app_icon.cc
-index db721b75aad6f2141e45f60b219910a364806fc1..fac8b38c7dde77f6c5aff7dab681adcc0e105ff7 100644
+index 85b5979a621b1b933baa805bc03a98cd5bd2175d..ca3afb0146facec382edcd0d10ed63ba2c2ac6cf 100644
 --- chrome/browser/win/app_icon.cc
 +++ chrome/browser/win/app_icon.cc
 @@ -18,13 +18,26 @@ int GetAppIconResourceId() {

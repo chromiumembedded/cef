@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/autofill/address_bubbles_controller.cc chrome/browser/ui/autofill/address_bubbles_controller.cc
-index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd026cbd1f 100644
+index d55c44968e5056deb51f93d526847eb15b7b823e..f38b73eac2ed031fe3e6da8d3c59b19cda30bbd9 100644
 --- chrome/browser/ui/autofill/address_bubbles_controller.cc
 +++ chrome/browser/ui/autofill/address_bubbles_controller.cc
-@@ -55,11 +55,15 @@ AutofillBubbleBase* ShowSaveBubble(
+@@ -56,11 +56,15 @@ AutofillBubbleBase* ShowSaveBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -20,7 +20,7 @@ index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd
        ->ShowSaveAddressProfileBubble(web_contents, std::move(controller),
                                       shown_by_user_gesture);
  }
-@@ -70,10 +74,14 @@ AutofillBubbleBase* ShowUpdateBubble(
+@@ -71,10 +75,14 @@ AutofillBubbleBase* ShowUpdateBubble(
      content::WebContents* web_contents,
      bool shown_by_user_gesture,
      base::WeakPtr<AddressBubbleControllerDelegate> delegate) {
@@ -37,7 +37,7 @@ index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd
        ->ShowUpdateAddressProfileBubble(
            web_contents, std::move(update_controller), shown_by_user_gesture);
  }
-@@ -81,11 +89,15 @@ AutofillBubbleBase* ShowUpdateBubble(
+@@ -82,11 +90,15 @@ AutofillBubbleBase* ShowUpdateBubble(
  #if BUILDFLAG(ENABLE_DICE_SUPPORT)
  AutofillBubbleBase* ShowSignInPromo(content::WebContents* web_contents,
                                      const AutofillProfile& autofill_profile) {
@@ -56,7 +56,7 @@ index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd
  }
  #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
  
-@@ -235,8 +247,6 @@ void AddressBubblesController::DoShowBubble() {
+@@ -244,8 +256,6 @@ void AddressBubblesController::DoShowBubble() {
  
    SetBubbleView(*show_bubble_view_callback_.Run(
        web_contents(), shown_by_user_gesture_, GetWeakPtr()));
@@ -65,11 +65,14 @@ index f468baf5acd91c285d712bbfc5b54d666fdefc60..3a6734111faf38a4ddf72d9f7d5274fd
  }
  
  BubbleType AddressBubblesController::GetBubbleType() const {
-@@ -301,7 +311,12 @@ void AddressBubblesController::SetUpBubble(
+@@ -312,10 +322,12 @@ void AddressBubblesController::SetUpBubble(
  }
  
  void AddressBubblesController::MaybeShowIOSDektopAddressPromo() {
--  Browser* browser = BrowserWindow::FindBrowserWindowWithWebContents(web_contents())->AsBrowserView()->browser();
+-  Browser* browser =
+-      BrowserWindow::FindBrowserWindowWithWebContents(web_contents())
+-          ->AsBrowserView()
+-          ->browser();
 +  auto browser_window =
 +      BrowserWindow::FindBrowserWindowWithWebContents(web_contents());
 +  if (!browser_window) {

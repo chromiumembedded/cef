@@ -12,18 +12,18 @@ index ae58a0b0a64ae1fdb3f9cd8587041d71a121c6b9..35e01ee64e5d75496b687870abb6a42d
  
        "//google_apis/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 788cbfa2d309564234cd83ee09641880ee765b73..39d0e57a65f9c2cf428dfce958150aa518f5a53f 100644
+index f86761b03e76d5f352fd1fa72e850f7f3723fa86..26e13b359379d12550070dfc4bf861f2337311a9 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -20,6 +20,7 @@ import("//build/config/ui.gni")
+@@ -21,6 +21,7 @@ import("//build/config/ui.gni")
  import("//build/gn_logs.gni")
  import("//build/toolchain/rbe.gni")
  import("//build/util/generate_wrapper.gni")
 +import("//cef/libcef/features/features.gni")
+ import("//chrome/browser/buildflags.gni")
  import("//chrome/enterprise_companion/buildflags.gni")
  import("//components/enterprise/buildflags/buildflags.gni")
- import("//device/vr/buildflags/buildflags.gni")
-@@ -283,6 +284,10 @@ group("gn_all") {
+@@ -285,6 +286,10 @@ group("gn_all") {
  
      deps += root_extra_deps
  
@@ -78,7 +78,7 @@ index bd411669389525e8f03eb329a4cf700ad89b62f3..fba7843d79796b903b592b69e2e1f2c7
  
  visual_studio_version_logs = [ "windows_sdk_version=${windows_sdk_version}" ]
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 13aef8dc3c4754a1dc2ad3412f4c98c4cd70ac0a..b05a9c90d44bcd6aaf7ae18473a15b7d9743dab2 100644
+index df7f468e9557a87019ee5796addaf661e3e47d00..fa83cf04fd97542805cb4b72eeb237bf5d95d1ba 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -5,6 +5,7 @@
@@ -89,7 +89,7 @@ index 13aef8dc3c4754a1dc2ad3412f4c98c4cd70ac0a..b05a9c90d44bcd6aaf7ae18473a15b7d
  import("//chrome/browser/buildflags.gni")
  import("//chrome/common/features.gni")
  import("//components/compose/features.gni")
-@@ -504,6 +505,11 @@ template("chrome_extra_paks") {
+@@ -506,6 +507,11 @@ template("chrome_extra_paks") {
        deps += [ "//components/headless/command_handler" ]
      }
  
@@ -102,18 +102,18 @@ index 13aef8dc3c4754a1dc2ad3412f4c98c4cd70ac0a..b05a9c90d44bcd6aaf7ae18473a15b7d
        sources += [
          "$root_gen_dir/chrome/extensions_resources.pak",
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 61a700a6894ec1a5b20fc0f6e96372865697dd34..cee9aaf41d66dd290e3c959ecbffa3dc656990c1 100644
+index 03fad836d3ee83e643dbe9cd5d0f2426aacfab97..e21ec561beddeb43bbcf93ad127fa82089836c9e 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
-@@ -5,6 +5,7 @@
+@@ -4,6 +4,7 @@
+ 
  import("//build/config/chrome_build.gni")
- import("//build/config/features.gni")
  import("//build/config/ui.gni")
 +import("//cef/libcef/features/features.gni")
  import("//extensions/buildflags/buildflags.gni")
  import("//tools/grit/repack.gni")
  
-@@ -106,6 +107,10 @@ template("chrome_repack_locales") {
+@@ -105,6 +106,10 @@ template("chrome_repack_locales") {
          "//third_party/search_engines_data:search_engine_descriptions_strings",
        ]
      }
@@ -125,10 +125,10 @@ index 61a700a6894ec1a5b20fc0f6e96372865697dd34..cee9aaf41d66dd290e3c959ecbffa3dc
        source_patterns +=
            [ "${root_gen_dir}/extensions/strings/extensions_strings_" ]
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 93cfcfeffc0b7b23cf2a8365ee4a6a2b08e86672..91233c1acb40c2bdee2a0169f1be7e54e43804e7 100644
+index 5f9acdb7f355036ba23859ccbe26f7d2bce3b90d..8a33b46e4f7ea54dc83b32f1ed3d3ce7649b3840 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -7,6 +7,7 @@ import("//build/config/features.gni")
+@@ -6,6 +6,7 @@ import("//build/config/compiler/compiler.gni")
  import("//build/config/python.gni")
  import("//build/config/ui.gni")
  import("//build/timestamp.gni")
@@ -136,7 +136,7 @@ index 93cfcfeffc0b7b23cf2a8365ee4a6a2b08e86672..91233c1acb40c2bdee2a0169f1be7e54
  import("//chrome/process_version_rc_template.gni")
  import("//third_party/dawn/scripts/dawn_features.gni")
  import("//third_party/ffmpeg/ffmpeg_options.gni")
-@@ -149,11 +150,13 @@ action("mini_installer_archive") {
+@@ -148,11 +149,13 @@ action("mini_installer_archive") {
      "$root_out_dir/chrome.dll",
      "$root_out_dir/chrome_elf.dll",
      "$root_out_dir/chrome.exe",

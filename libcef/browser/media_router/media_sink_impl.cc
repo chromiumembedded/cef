@@ -50,7 +50,7 @@ void GetSinkInternalAndContinue(
       const auto& dial_data = sink_internal->dial_data();
       CefString(&device_info.ip_address) = dial_data.ip_address.ToString();
       if (dial_data.app_url.is_valid() && dial_data.app_url.has_port()) {
-        base::StringToInt(dial_data.app_url.port_piece(), &device_info.port);
+        base::StringToInt(dial_data.app_url.port(), &device_info.port);
       }
       CefString(&device_info.model_name) = dial_data.model_name;
     }

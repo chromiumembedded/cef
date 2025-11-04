@@ -12,7 +12,7 @@
 
 namespace scheme {
 
-bool IsInternalHandledScheme(const std::string& scheme) {
+bool IsInternalHandledScheme(std::string_view scheme) {
   static const char* schemes[] = {
       url::kAboutScheme,
       url::kBlobScheme,
@@ -39,14 +39,13 @@ bool IsInternalHandledScheme(const std::string& scheme) {
   return false;
 }
 
-bool IsStandardScheme(const std::string& scheme) {
-  url::Component scheme_comp(0, scheme.length());
-  return url::IsStandard(scheme.c_str(), scheme_comp);
+bool IsStandardScheme(std::string_view scheme) {
+  return url::IsStandard(scheme);
 }
 
 // Should return the same value as SecurityOrigin::isLocal and
 // SchemeRegistry::shouldTreatURLSchemeAsCorsEnabled.
-bool IsCorsEnabledScheme(const std::string& scheme) {
+bool IsCorsEnabledScheme(std::string_view scheme) {
   return base::Contains(url::GetCorsEnabledSchemes(), scheme);
 }
 

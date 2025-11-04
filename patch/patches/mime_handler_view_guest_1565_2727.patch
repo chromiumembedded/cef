@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_view.h content/browser/web_contents/web_contents_view.h
-index 678d95bc9dde6b55748ef754bfc62a8a3829c321..850801c4f5b88bb929fac5c651bcde3852a1be63 100644
+index 0a533eed309c8b5df845415e1062023f2ada2fd2..0eeaeef96672240a262df3932a1361a4513932c6 100644
 --- content/browser/web_contents/web_contents_view.h
 +++ content/browser/web_contents/web_contents_view.h
 @@ -26,7 +26,7 @@ struct DropData;
@@ -12,7 +12,7 @@ index 678d95bc9dde6b55748ef754bfc62a8a3829c321..850801c4f5b88bb929fac5c651bcde38
    virtual ~WebContentsView() = default;
  
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
-index 3e689ad6bdb51ccd7419eb87e4ba2cdbf2f1a8e9..9c93616fbd4904031f095ece1d129984fb8d759b 100644
+index 23705fa50cf79865b68d8352f6ec72444ca5233e..17f62c03dadf740dc41f0d20a8be9455a4ab3c18 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest.cc
 @@ -197,6 +197,8 @@ void MimeHandlerViewGuest::CreateInnerPage(

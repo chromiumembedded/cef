@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/chrome_views_delegate_linux.cc chrome/browser/ui/views/chrome_views_delegate_linux.cc
-index a7f0aaf4fd356ce54addbf1a8a351664a57739a6..ddb102a70288810e8da772604429ed8594c81330 100644
+index 8e068b986b08a93c2d8415e34d517e16d8ca01b6..3c68c31fd1038ba011f45c385ebde45f371d8052 100644
 --- chrome/browser/ui/views/chrome_views_delegate_linux.cc
 +++ chrome/browser/ui/views/chrome_views_delegate_linux.cc
 @@ -70,6 +70,8 @@ NativeWidgetType GetNativeWidgetTypeForInitParams(
@@ -10,7 +10,7 @@ index a7f0aaf4fd356ce54addbf1a8a351664a57739a6..ddb102a70288810e8da772604429ed85
 +           params.type == views::Widget::InitParams::TYPE_BUBBLE) &&
            params.type != views::Widget::InitParams::TYPE_MENU &&
            params.type != views::Widget::InitParams::TYPE_TOOLTIP)
-              ? NativeWidgetType::NATIVE_WIDGET_AURA
+              ? NativeWidgetType::kNativeWidgetAura
 diff --git ui/views/test/desktop_test_views_delegate_aura.cc ui/views/test/desktop_test_views_delegate_aura.cc
 index 18281d9a3002647786ca99b2b2bd7bef104154a0..5e86ab38b9e35044a879475846ed8d600352a1e5 100644
 --- ui/views/test/desktop_test_views_delegate_aura.cc

@@ -17,6 +17,7 @@
 #include "ui/base/window_open_disposition.h"
 
 class Browser;
+class BrowserWindowInterface;
 class Profile;
 
 namespace content {
@@ -42,7 +43,7 @@ class BrowserDelegate : public content::WebContentsDelegate {
   static std::unique_ptr<BrowserDelegate> Create(
       Browser* browser,
       scoped_refptr<CreateParams> cef_params,
-      const Browser* opener);
+      const BrowserWindowInterface* opener);
 
   // Optionally override Browser creation in
   // DevToolsWindow::CreateDevToolsBrowser. The returned Browser, if any, will

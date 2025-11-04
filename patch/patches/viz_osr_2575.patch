@@ -66,10 +66,10 @@ index 8af69cac78b7488d28f1f05ccb174793fe5148cd..9f74e511c263d147b5fbe81fe100d217
   private:
    const HWND hwnd_;
 diff --git components/viz/service/BUILD.gn components/viz/service/BUILD.gn
-index 9271b252a1a00d654b89d1212eea6d871eec1a5c..62694c7b4d76cad2ce0c0ec5d5b569ec222ded2b 100644
+index 40718df4d3d7092309ea7027ae6c59a7963fd03c..a276ac4305da50a53f9a859077f2180d8d5ddc5d 100644
 --- components/viz/service/BUILD.gn
 +++ components/viz/service/BUILD.gn
-@@ -275,6 +275,8 @@ viz_component("service") {
+@@ -276,6 +276,8 @@ viz_component("service") {
      "transitions/surface_animation_manager.h",
      "transitions/transferable_resource_tracker.cc",
      "transitions/transferable_resource_tracker.h",
@@ -147,7 +147,7 @@ index 07502f4ff2afd53a43d8f0ab68d4c4c39f6c0737..3149c44c839a0dc7cf78a203d7c505a9
    HWND child_hwnd;
    auto device = CreateSoftwareOutputDeviceWin(
 diff --git components/viz/service/display_embedder/output_surface_provider_impl.h components/viz/service/display_embedder/output_surface_provider_impl.h
-index e4b46a79560e7698a6400b2ab8a57f38205a8718..8cb033874632dcaf2c02f618a8805cf247c9d7b8 100644
+index f49bbc5d568f0cb323a22997a949e2cae8f35d59..1ae39ed5164c89f075b61ce63f2ffb709a8de0a8 100644
 --- components/viz/service/display_embedder/output_surface_provider_impl.h
 +++ components/viz/service/display_embedder/output_surface_provider_impl.h
 @@ -54,7 +54,8 @@ class VIZ_SERVICE_EXPORT OutputSurfaceProviderImpl
@@ -171,7 +171,7 @@ index e4b46a79560e7698a6400b2ab8a57f38205a8718..8cb033874632dcaf2c02f618a8805cf2
    const raw_ptr<GpuServiceImpl> gpu_service_impl_;
  
 diff --git components/viz/service/display_embedder/software_output_device_win.cc components/viz/service/display_embedder/software_output_device_win.cc
-index 838031388c4c20bbcf068210559cb2018a661cd6..51b98d8e755c732db95151030a5e580f89b7a40d 100644
+index b5154321105f08335b67ad2d552afa61337a4976..66048e7ca6a149c267debe333976178c45ab651a 100644
 --- components/viz/service/display_embedder/software_output_device_win.cc
 +++ components/viz/service/display_embedder/software_output_device_win.cc
 @@ -156,8 +156,9 @@ void SoftwareOutputDeviceWinProxy::EndPaintDelegated(
@@ -187,10 +187,10 @@ index 838031388c4c20bbcf068210559cb2018a661cd6..51b98d8e755c732db95151030a5e580f
  
    TRACE_EVENT_BEGIN("viz", "SoftwareOutputDeviceWinProxy::Draw",
 diff --git components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-index 03f18d799eb8887f8435624eb7da4547e85aef08..d31d9237914d844de26083e9ffa44f05857763f9 100644
+index d8f845998240032f668324665d61b2efd60c0e1c..978fbcf6bb8529381f988b9104459a9bcbd754ea 100644
 --- components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
 +++ components/viz/service/frame_sinks/root_compositor_frame_sink_impl.cc
-@@ -130,7 +130,8 @@ RootCompositorFrameSinkImpl::Create(
+@@ -131,7 +131,8 @@ RootCompositorFrameSinkImpl::Create(
        params->gpu_compositing, params->widget);
    auto output_surface = output_surface_provider->CreateOutputSurface(
        params->widget, params->gpu_compositing, display_client.get(),
@@ -308,7 +308,7 @@ index 2f462f0deb5fc8a637457243fb5d5849fc214d14..695869b83cefaa24af93a2e11b39de05
 +  Draw(gfx.mojom.Rect damage_rect) => ();
  };
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 986569ff285a2a5be21e715dacf6072de92ebe79..9757277a5c66b9a32374c286845a25820a59f486 100644
+index 010a30bcd09ca39215f0b31ec59425067a2392a4..6ea02fb704e074289ccfebfd974929e48ca857b6 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -34,7 +34,9 @@
@@ -337,7 +337,7 @@ index 986569ff285a2a5be21e715dacf6072de92ebe79..9757277a5c66b9a32374c286845a2582
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -195,6 +206,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -189,6 +200,9 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -347,7 +347,7 @@ index 986569ff285a2a5be21e715dacf6072de92ebe79..9757277a5c66b9a32374c286845a2582
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -635,6 +649,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
+@@ -630,6 +644,8 @@ class COMPOSITOR_EXPORT Compositor : public base::PowerSuspendObserver,
        simple_begin_frame_observers_;
    std::unique_ptr<ui::HostBeginFrameObserver> host_begin_frame_observer_;
  

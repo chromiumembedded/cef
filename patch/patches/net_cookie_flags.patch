@@ -11,10 +11,10 @@ index c10df92f30b1292a8243f376025e81afcefba78d..59e6208b3954635076022807edfc9a30
 +
  // See note at top of file about why adding LoadFlags is often a bad idea.
 diff --git net/url_request/url_request_http_job.cc net/url_request/url_request_http_job.cc
-index ee26839c00587dc237393d995a03085109b74076..d126d1551a0503f7d1846df742fa679bbb8ec9cf 100644
+index f02b9cc7669d20882e52ef497e83b2a2f37aa9a4..238caa30ec2e32f9b8689d4f8208b92f502bf5be 100644
 --- net/url_request/url_request_http_job.cc
 +++ net/url_request/url_request_http_job.cc
-@@ -2208,7 +2208,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
+@@ -2216,7 +2216,8 @@ bool URLRequestHttpJob::ShouldAddCookieHeader() const {
    // Read cookies whenever allow_credentials() is true, even if the PrivacyMode
    // is being overridden by NetworkDelegate and will eventually block them, as
    // blocked cookies still need to be logged in that case.
@@ -25,10 +25,10 @@ index ee26839c00587dc237393d995a03085109b74076..d126d1551a0503f7d1846df742fa679b
  
  bool URLRequestHttpJob::ShouldRecordPartitionedCookieUsage() const {
 diff --git services/network/cors/cors_url_loader_factory.cc services/network/cors/cors_url_loader_factory.cc
-index c7a1cd8a4720f01cae92f5448daa44becc357014..d9ab6b7015405f71a198c78c02fd87c9c91bb80c 100644
+index d50de805cddfd5d0f987ec5cf82039eec29280a3..b3ffa8203a6d8cd7a00a61996ffeb43f9b399cc9 100644
 --- services/network/cors/cors_url_loader_factory.cc
 +++ services/network/cors/cors_url_loader_factory.cc
-@@ -637,7 +637,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
+@@ -649,7 +649,8 @@ bool CorsURLLoaderFactory::IsValidRequest(const ResourceRequest& request,
            net::LOAD_DISABLE_CACHE | net::LOAD_PREFETCH |
            net::LOAD_IGNORE_LIMITS | net::LOAD_DO_NOT_USE_EMBEDDED_IDENTITY |
            net::LOAD_SUPPORT_ASYNC_REVALIDATION |

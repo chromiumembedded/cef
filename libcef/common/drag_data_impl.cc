@@ -48,13 +48,13 @@ bool CefDragDataImpl::IsReadOnly() {
 
 bool CefDragDataImpl::IsLink() {
   base::AutoLock lock_scope(lock_);
-  return (data_.url.is_valid() &&
+  return (!data_.url_infos.empty() && data_.url_infos[0].url.is_valid() &&
           data_.file_contents_content_disposition.empty());
 }
 
 bool CefDragDataImpl::IsFragment() {
   base::AutoLock lock_scope(lock_);
-  return (!data_.url.is_valid() &&
+  return ((data_.url_infos.empty() || !data_.url_infos[0].url.is_valid()) &&
           data_.file_contents_content_disposition.empty() &&
           data_.filenames.empty());
 }
@@ -67,12 +67,13 @@ bool CefDragDataImpl::IsFile() {
 
 CefString CefDragDataImpl::GetLinkURL() {
   base::AutoLock lock_scope(lock_);
-  return data_.url.spec();
+  return !data_.url_infos.empty() ? CefString(data_.url_infos[0].url.spec())
+                                  : CefString();
 }
 
 CefString CefDragDataImpl::GetLinkTitle() {
   base::AutoLock lock_scope(lock_);
-  return data_.url_title;
+  return !data_.url_infos.empty() ? data_.url_infos[0].title : std::u16string();
 }
 
 CefString CefDragDataImpl::GetLinkMetadata() {
@@ -153,13 +154,19 @@ bool CefDragDataImpl::GetFilePaths(std::vector<CefString>& paths) {
 void CefDragDataImpl::SetLinkURL(const CefString& url) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.url = GURL(url.ToString());
+  if (data_.url_infos.empty()) {
+    data_.url_infos.emplace_back();
+  }
+  data_.url_infos[0].url = GURL(url.ToString());
 }
 
 void CefDragDataImpl::SetLinkTitle(const CefString& title) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  data_.url_title = title.ToString16();
+  if (data_.url_infos.empty()) {
+    data_.url_infos.emplace_back();
+  }
+  data_.url_infos[0].title = title.ToString16();
 }
 
 void CefDragDataImpl::SetLinkMetadata(const CefString& data) {

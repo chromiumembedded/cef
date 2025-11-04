@@ -33,10 +33,10 @@ index 9c2b92be1dd0797d6e7867f3c9f7c6a0f2421984..adfda85e74ea891842dc28b95e13176b
        GetWebContents()->GetPrimaryMainFrame()->GetRenderWidgetHost();
    DCHECK(rwhi);
 diff --git content/browser/browser_plugin/browser_plugin_guest.h content/browser/browser_plugin/browser_plugin_guest.h
-index 7f3083029d45e7a0d45b989a07013709a7be2f1d..94a5cbed96a101ae873381ae080aba43c174d9cc 100644
+index 1a747643586a66c32e0940d2a3132e22386c53d6..d3bffdb38c4dd0b81d0fb964d8518dd4ceeb0d97 100644
 --- content/browser/browser_plugin/browser_plugin_guest.h
 +++ content/browser/browser_plugin/browser_plugin_guest.h
-@@ -70,6 +70,8 @@ class BrowserPluginGuest : public WebContentsObserver {
+@@ -69,6 +69,8 @@ class BrowserPluginGuest : public WebContentsObserver {
    WebContentsImpl* GetWebContents() const;
    RenderFrameHostImpl* GetProspectiveOuterDocument();
  
@@ -45,7 +45,7 @@ index 7f3083029d45e7a0d45b989a07013709a7be2f1d..94a5cbed96a101ae873381ae080aba43
   private:
    // BrowserPluginGuest is a WebContentsObserver of |web_contents| and
    // |web_contents| has to stay valid for the lifetime of BrowserPluginGuest.
-@@ -80,6 +82,8 @@ class BrowserPluginGuest : public WebContentsObserver {
+@@ -79,6 +81,8 @@ class BrowserPluginGuest : public WebContentsObserver {
  
    // May be null during guest destruction.
    const base::WeakPtr<BrowserPluginGuestDelegate> delegate_;

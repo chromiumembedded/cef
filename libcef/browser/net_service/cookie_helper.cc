@@ -220,7 +220,7 @@ bool IsCookieableScheme(
   if (cookieable_schemes) {
     // The client has explicitly registered the full set of schemes that should
     // be supported.
-    const auto url_scheme = url.scheme_piece();
+    const auto url_scheme = url.scheme();
     for (auto scheme : *cookieable_schemes) {
       if (url_scheme == scheme) {
         return true;

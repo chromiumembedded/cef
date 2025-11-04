@@ -1,8 +1,8 @@
 diff --git chrome/browser/profiles/off_the_record_profile_impl.cc chrome/browser/profiles/off_the_record_profile_impl.cc
-index 078a4dbaddead1a13302eea898aad3976db5b163..5f1df8f894c7b7e3179e52117e523c111c7c8932 100644
+index e24af233c5cf8438beed4605ddd2747dae08636d..80692da8ff106fb7c146d16ef3596673e2ec554f 100644
 --- chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -641,7 +641,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
+@@ -644,7 +644,9 @@ std::unique_ptr<Profile> Profile::CreateOffTheRecordProfile(
  #endif
    if (!profile)
      profile = std::make_unique<OffTheRecordProfileImpl>(parent, otr_profile_id);
@@ -14,10 +14,10 @@ index 078a4dbaddead1a13302eea898aad3976db5b163..5f1df8f894c7b7e3179e52117e523c11
  }
  
 diff --git chrome/browser/profiles/profile.cc chrome/browser/profiles/profile.cc
-index 546c9c2792c7080932c7d9a13b223b76e7e06ad4..29f0f71f60265cc3a2eed705274c3f3a9de4f175 100644
+index 54bfe133099be11c51b310dc9e91b3d42cc1c706..c27500f05a071bbb3d96962b2042b9fbfe11a9c6 100644
 --- chrome/browser/profiles/profile.cc
 +++ chrome/browser/profiles/profile.cc
-@@ -92,6 +92,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
+@@ -94,6 +94,7 @@ std::set<content::BrowserContext*>& GetProfileInstances() {
  
  namespace {
  
@@ -25,7 +25,7 @@ index 546c9c2792c7080932c7d9a13b223b76e7e06ad4..29f0f71f60265cc3a2eed705274c3f3a
  const char kDevToolsOTRProfileIDPrefix[] = "Devtools::BrowserContext";
  const char kMediaRouterOTRProfileIDPrefix[] = "MediaRouter::Presentation";
  const char kTestOTRProfileIDPrefix[] = "Test::OTR";
-@@ -112,6 +113,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
+@@ -114,6 +115,8 @@ bool Profile::OTRProfileID::AllowsBrowserWindows() const {
    // DevTools::BrowserContext, MediaRouter::Presentation, and
    // CaptivePortal::Signin are exceptions to this ban.
    if (*this == PrimaryID() || IsDevTools() ||
@@ -34,7 +34,7 @@ index 546c9c2792c7080932c7d9a13b223b76e7e06ad4..29f0f71f60265cc3a2eed705274c3f3a
        base::StartsWith(profile_id_, kMediaRouterOTRProfileIDPrefix,
                         base::CompareCase::SENSITIVE)) {
      return true;
-@@ -152,6 +155,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
+@@ -154,6 +157,16 @@ Profile::OTRProfileID Profile::OTRProfileID::CreateUnique(
        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str()));
  }
  
@@ -85,7 +85,7 @@ index 806ecfcc64489871cdafef3ee375cf00f83097ef..6ab6734c851e4d610945051fc5965bf9
  
    // Returns whether the user has signed in this profile to an account.
 diff --git chrome/browser/profiles/profile_impl.cc chrome/browser/profiles/profile_impl.cc
-index d1dc8ca618fba98373ca79b13afed70290347800..dc81984dc236932e69feb8330e062dd6884dc6f3 100644
+index 87cbd88c640904883e7fc1f7d617dc85c31a1ad2..b8d4b33b610a096a27a0c0172f71f3ac8df917fa 100644
 --- chrome/browser/profiles/profile_impl.cc
 +++ chrome/browser/profiles/profile_impl.cc
 @@ -41,6 +41,7 @@
@@ -96,7 +96,7 @@ index d1dc8ca618fba98373ca79b13afed70290347800..dc81984dc236932e69feb8330e062dd6
  #include "chrome/browser/background/background_contents_service_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_factory.h"
  #include "chrome/browser/background_fetch/background_fetch_delegate_impl.h"
-@@ -235,6 +236,10 @@
+@@ -234,6 +235,10 @@
  #include "chrome/browser/background/extensions/background_mode_manager.h"
  #endif
  
@@ -107,7 +107,7 @@ index d1dc8ca618fba98373ca79b13afed70290347800..dc81984dc236932e69feb8330e062dd6
  #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
  #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"
  #include "chrome/browser/extensions/extension_special_storage_policy.h"
-@@ -276,6 +281,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
+@@ -273,6 +278,12 @@ class ScopedAllowBlockingForProfile : public base::ScopedAllowBlocking {};
  
  namespace {
  
@@ -120,7 +120,7 @@ index d1dc8ca618fba98373ca79b13afed70290347800..dc81984dc236932e69feb8330e062dd6
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  // Delay before we explicitly create the SessionService.
  static constexpr base::TimeDelta kCreateSessionServiceDelay =
-@@ -1005,7 +1016,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
+@@ -1000,7 +1011,9 @@ Profile* ProfileImpl::GetOffTheRecordProfile(const OTRProfileID& otr_profile_id,
  
    otr_profiles_[otr_profile_id] = std::move(otr_profile);
  
@@ -131,7 +131,7 @@ index d1dc8ca618fba98373ca79b13afed70290347800..dc81984dc236932e69feb8330e062dd6
  
    return raw_otr_profile;
  }
-@@ -1348,6 +1361,12 @@ ProfileImpl::GetStorageNotificationService() {
+@@ -1343,6 +1356,12 @@ ProfileImpl::GetStorageNotificationService() {
  #if BUILDFLAG(IS_ANDROID)
    return nullptr;
  #else

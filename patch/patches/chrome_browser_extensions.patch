@@ -1,5 +1,5 @@
 diff --git chrome/browser/extensions/api/chrome_extensions_api_client.cc chrome/browser/extensions/api/chrome_extensions_api_client.cc
-index 3b613887f34beab9c8020435e60e4a91e35c35bf..a0ab95dc90cefa91f8c2d83131e6dfda481abd02 100644
+index a1b0085dda4cedfa9d90e09aa524b248e938dff0..49d150753ea77a008550162f80ba9be4135b299b 100644
 --- chrome/browser/extensions/api/chrome_extensions_api_client.cc
 +++ chrome/browser/extensions/api/chrome_extensions_api_client.cc
 @@ -16,6 +16,7 @@
@@ -34,10 +34,10 @@ index 3b613887f34beab9c8020435e60e4a91e35c35bf..a0ab95dc90cefa91f8c2d83131e6dfda
  
  std::unique_ptr<WebViewGuestDelegate>
 diff --git chrome/browser/extensions/api/tabs/tabs_api_non_android.cc chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb2900a41652 100644
+index 7b824f2b3b2e3225284b3b7234262170c730bcd9..f5ea72bf767280f2fb7830ce2623178720344b4c 100644
 --- chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
 +++ chrome/browser/extensions/api/tabs/tabs_api_non_android.cc
-@@ -842,11 +842,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -854,11 +854,10 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    }
  
    // tabs_internal::GetTabById may return a null window for prerender tabs.
@@ -52,7 +52,7 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
  
    web_contents_ = contents;
  
-@@ -869,13 +868,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -881,13 +880,13 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
        return RespondNow(Error(ExtensionTabUtil::kTabStripNotEditableError));
      }
  
@@ -68,7 +68,7 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab
      // if the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -896,7 +895,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -908,7 +907,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          kCannotUpdateMuteCaptured, base::NumberToString(tab_id))));
    }
  
@@ -77,7 +77,7 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
      int opener_id = *params->update_properties.opener_tab_id;
      WebContents* opener_contents = nullptr;
      if (opener_id == tab_id) {
-@@ -931,7 +930,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -943,7 +942,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
          ->SetAutoDiscardable(state);
    }
  
@@ -86,7 +86,7 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
      // Bug fix for crbug.com/1197888. Don't let the extension update the tab if
      // the user is dragging tabs.
      if (!ExtensionTabUtil::IsTabStripEditable()) {
-@@ -952,7 +951,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -964,7 +963,8 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
    // Navigate the tab to a new location if the url is different.
    if (params->update_properties.url) {
      std::string updated_url = *params->update_properties.url;
@@ -96,7 +96,7 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
          !IsURLAllowedInIncognito(GURL(updated_url))) {
        return RespondNow(Error(ErrorUtils::FormatErrorMessage(
            tabs_constants::kURLsNotAllowedInIncognitoError, updated_url)));
-@@ -970,7 +970,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
+@@ -982,7 +982,7 @@ ExtensionFunction::ResponseAction TabsUpdateFunction::Run() {
  
  #if BUILDFLAG(FULL_SAFE_BROWSING)
      tabs_internal::NotifyExtensionTelemetry(
@@ -106,18 +106,18 @@ index fd85a00b66f8c78add11aedc8d4fc0ed0919b21d..e30ef507c87e354edb15e19cb26fdb29
          js_callstack());
  #endif
 diff --git chrome/browser/extensions/extension_tab_util.cc chrome/browser/extensions/extension_tab_util.cc
-index b7fcdfcf881ae311b298cbb3e855eeab36c43dcb..352650bc3942ba190af21da669d77c6174dd6b3b 100644
+index f2e516b808acebca96df355ee08900ba4f413179..419304a8bbf9b1d8981446779c4555cd331b0240 100644
 --- chrome/browser/extensions/extension_tab_util.cc
 +++ chrome/browser/extensions/extension_tab_util.cc
-@@ -67,6 +67,7 @@
- #include "base/strings/stringprintf.h"
- #include "base/strings/utf_string_conversions.h"
+@@ -62,6 +62,7 @@
+ #include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #else
  #include "base/types/expected_macros.h"
 +#include "cef/libcef/features/features.h"
- #include "chrome/browser/browser_process.h"  // nogncheck
- #include "chrome/browser/extensions/tab_helper.h"
- #include "chrome/browser/platform_util.h"  // nogncheck
-@@ -102,6 +103,10 @@
+ #include "chrome/browser/renderer_host/chrome_navigation_ui_data.h"
+ #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
+ #include "chrome/browser/tab_group_sync/tab_group_sync_service_factory.h"
+@@ -87,6 +88,10 @@
  
  static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
  
@@ -128,7 +128,7 @@ index b7fcdfcf881ae311b298cbb3e855eeab36c43dcb..352650bc3942ba190af21da669d77c61
  using content::NavigationEntry;
  using content::WebContents;
  using extensions::mojom::APIPermissionID;
-@@ -929,6 +934,15 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
+@@ -903,6 +908,15 @@ bool ExtensionTabUtil::GetTabById(int tab_id,
      }
    }
  #endif  // BUILDFLAG(IS_ANDROID)

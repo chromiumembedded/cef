@@ -1,16 +1,16 @@
 diff --git chrome/renderer/BUILD.gn chrome/renderer/BUILD.gn
-index 2da7268c3fec02c33431a5a4eb8a4acef8c46163..8f00369b906719e764414096442aba858b711def 100644
+index 811b6a58be86311c44ae2e6c90d7db63735fb076..f694ffe8bc1486fed58f41aa6d13560a38ff765d 100644
 --- chrome/renderer/BUILD.gn
 +++ chrome/renderer/BUILD.gn
-@@ -4,6 +4,7 @@
+@@ -3,6 +3,7 @@
+ # found in the LICENSE file.
  
  import("//build/config/buildflags_paint_preview.gni")
- import("//build/config/features.gni")
 +import("//cef/libcef/features/features.gni")
  import("//chrome/common/features.gni")
  import("//chrome/common/request_header_integrity/buildflags.gni")
  import("//components/offline_pages/buildflags/features.gni")
-@@ -136,6 +137,7 @@ static_library("renderer") {
+@@ -135,6 +136,7 @@ static_library("renderer") {
      ":process_state",
      "//base/allocator:buildflags",
      "//build:chromeos_buildflags",
@@ -18,7 +18,7 @@ index 2da7268c3fec02c33431a5a4eb8a4acef8c46163..8f00369b906719e764414096442aba85
      "//chrome:resources",
      "//chrome:strings",
      "//chrome/common",
-@@ -256,6 +258,10 @@ static_library("renderer") {
+@@ -255,6 +257,10 @@ static_library("renderer") {
      ]
    }
  

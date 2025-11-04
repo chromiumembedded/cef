@@ -10,12 +10,6 @@
 #include "media/capture/mojom/video_capture_types.mojom.h"
 #include "ui/gfx/skbitmap_operations.h"
 
-#if BUILDFLAG(IS_WIN)
-#include "gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.h"
-#elif BUILDFLAG(IS_APPLE)
-#include "gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_io_surface.h"
-#endif
-
 namespace {
 
 // Helper to always call Done() at the end of OnFrameCaptured().

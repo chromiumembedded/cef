@@ -33,10 +33,10 @@ index 1423d061aa00c5e8c58bceb09f36d517821f8d06..dd7e20ed4850153fe5e1cc2d69acfd52
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index 0f8f75c1986b0a64f53c6feefe296fe0eb309f0b..21871aa60fdd71b566a005f7d4235633b4b4c4bd 100644
+index b9111a1631a1511ed4ef132d722d27343a7ebffa..1db09bee0d0750d4c8a24cc53aba7b55c5ed1b82 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-@@ -194,7 +194,14 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
+@@ -196,7 +196,14 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
  void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
      int32_t tag,
      remote_cocoa::mojom::ValidateUserInterfaceItemResult* result) {
@@ -52,7 +52,7 @@ index 0f8f75c1986b0a64f53c6feefe296fe0eb309f0b..21871aa60fdd71b566a005f7d4235633
    if (!chrome::SupportsCommand(browser, tag)) {
      result->enable = false;
      return;
-@@ -333,8 +340,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
+@@ -348,8 +355,16 @@ bool BrowserNativeWidgetMac::WillExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {
@@ -70,7 +70,7 @@ index 0f8f75c1986b0a64f53c6feefe296fe0eb309f0b..21871aa60fdd71b566a005f7d4235633
    if (is_before_first_responder) {
      // The specification for this private extensions API is incredibly vague.
      // For now, we avoid triggering chrome commands prior to giving the
-@@ -366,13 +381,21 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
+@@ -381,13 +396,21 @@ bool BrowserNativeWidgetMac::ExecuteCommand(
      int32_t command,
      WindowOpenDisposition window_open_disposition,
      bool is_before_first_responder) {

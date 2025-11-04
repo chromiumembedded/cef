@@ -391,10 +391,10 @@ index 9b3e9be1f14c1d40c31a93c27db966fb7ff96e44..9e47a5f07529fc8a27c9cc727a856336
                       // policy files that allow sys-admins
                       // to set policies for chrome. This directory
 diff --git components/policy/BUILD.gn components/policy/BUILD.gn
-index b9d5654a206d2bae12b6e7b9e6e3635e99568b3c..5b91b567e45ff40197caf150445518a52e19b333 100644
+index 966203a8b132d67e4f1a1c75381d024ddede9741..ccbcbc35dc6e6235d28f9c88c59453538aa21d96 100644
 --- components/policy/BUILD.gn
 +++ components/policy/BUILD.gn
-@@ -263,6 +263,7 @@ static_library("generated") {
+@@ -262,6 +262,7 @@ static_library("generated") {
      ":cloud_policy_proto_generated_compile",
      ":policy_code_generate",
      "//base",

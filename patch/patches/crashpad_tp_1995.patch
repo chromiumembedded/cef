@@ -40,10 +40,10 @@ index b362e0aadbadd8d0f812d86cd5024c3ea9cf7dda..1588232a6e4d418d4f338d64a3bdf6da
    virtual ~PruneCondition() {}
  
 diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
-index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d9ae6bdf4 100644
+index 38da08b8b5736fcf548c96606037141510ca55bc..7a4052cbd0a0457ac134d4ef0e078caadf79a008 100644
 --- third_party/crashpad/crashpad/client/settings.cc
 +++ third_party/crashpad/crashpad/client/settings.cc
-@@ -122,7 +122,7 @@ struct Settings::Data {
+@@ -122,7 +122,7 @@ struct SettingsReader::Data {
    // Version number only used for incompatible changes to Data. Do not change
    // this when adding additional fields at the end. Modifying `kSettingsVersion`
    // will wipe away the entire struct when reading from other versions.
@@ -52,7 +52,7 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
  
    enum Options : uint32_t {
      kUploadsEnabled = 1 << 0,
-@@ -133,6 +133,9 @@ struct Settings::Data {
+@@ -133,6 +133,9 @@ struct SettingsReader::Data {
             options(0),
             padding_0(0),
             last_upload_attempt_time(0),
@@ -62,7 +62,7 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
             client_id() {}
  
    uint32_t magic;
-@@ -140,6 +143,9 @@ struct Settings::Data {
+@@ -140,6 +143,9 @@ struct SettingsReader::Data {
    uint32_t options;
    uint32_t padding_0;
    int64_t last_upload_attempt_time;  // time_t
@@ -72,12 +72,12 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
    UUID client_id;
  };
  
-@@ -239,6 +245,56 @@ bool Settings::IsLockExpired(const base::FilePath& file_path,
+@@ -297,6 +303,56 @@ bool Settings::IsLockExpired(const base::FilePath& file_path,
  }
  #endif  // !CRASHPAD_FLOCK_ALWAYS_SUPPORTED
  
 +bool Settings::GetNextUploadAttemptTime(time_t* time) {
-+  DCHECK(initialized_.is_valid());
++  DCHECK(initialized().is_valid());
 +
 +  Data settings;
 +  if (!OpenAndReadSettings(&settings))
@@ -89,7 +89,7 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
 +}
 +
 +bool Settings::SetNextUploadAttemptTime(time_t time) {
-+  DCHECK(initialized_.is_valid());
++  DCHECK(initialized().is_valid());
 +
 +  Data settings;
 +  ScopedLockedFileHandle handle = OpenForWritingAndReadSettings(&settings);
@@ -102,19 +102,19 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
 +}
 +
 +bool Settings::GetBackoffStep(int* step) {
-+  DCHECK(initialized_.is_valid());
++  DCHECK(initialized().is_valid());
 +
 +  Data settings;
 +  if (!OpenAndReadSettings(&settings))
 +    return false;
 +
-+  *step = InRangeCast<int>(settings.backoff_step,
-+                           std::numeric_limits<int>::max());
++  *step =
++      InRangeCast<int>(settings.backoff_step, std::numeric_limits<int>::max());
 +  return true;
 +}
 +
 +bool Settings::SetBackoffStep(int step) {
-+  DCHECK(initialized_.is_valid());
++  DCHECK(initialized().is_valid());
 +
 +  Data settings;
 +  ScopedLockedFileHandle handle = OpenForWritingAndReadSettings(&settings);
@@ -130,10 +130,10 @@ index 76d77c86072d5eca43f492cdf2ea2fbca069f0dd..9cb6be87eb46f8c289d85a448de4eb0d
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      const internal::MakeScopedLockedFileHandleOptions& options,
 diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
-index 39b2de869d225877b9582400dfeab64318a3f9b5..5a4e621c650eeb0b89533707ef507a83387ed2e8 100644
+index 7da179de2e751cb65f3bd2371a8b462c04879e7b..18442b7bc8fbfe82ef80971d18e00dc37e401a52 100644
 --- third_party/crashpad/crashpad/client/settings.h
 +++ third_party/crashpad/crashpad/client/settings.h
-@@ -156,6 +156,11 @@ class Settings {
+@@ -196,6 +196,11 @@ class Settings final : public SettingsReader {
                              time_t lockfile_ttl);
  #endif  // !CRASHPAD_FLOCK_ALWAYS_SUPPORTED
  
@@ -143,10 +143,10 @@ index 39b2de869d225877b9582400dfeab64318a3f9b5..5a4e621c650eeb0b89533707ef507a83
 +  bool SetBackoffStep(int step);
 +
   private:
-   struct Data;
- 
+   // This must be constructed with MakeScopedLockedFileHandle(). It both unlocks
+   // and closes the file on destruction. Note that on Fuchsia, this handle DOES
 diff --git third_party/crashpad/crashpad/handler/BUILD.gn third_party/crashpad/crashpad/handler/BUILD.gn
-index b3fc5d11e6fa5d12a6719e90acdcc774a4c30c29..8d2f7e4a26800e43c4685c2287412edb28e300a9 100644
+index 1427ce5f88283d572a129dba3aad0a465cbff514..fcea4addde1f6e64aa05454719a84f96f0ff49ea 100644
 --- third_party/crashpad/crashpad/handler/BUILD.gn
 +++ third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -12,6 +12,7 @@
@@ -182,10 +182,10 @@ index b3fc5d11e6fa5d12a6719e90acdcc774a4c30c29..8d2f7e4a26800e43c4685c2287412edb
  
  if (crashpad_is_android) {
 diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-index 8350d0761ac186eb725c153dc9abe903267e1031..9fc26214c4c0a5967eae24a719098029f9a4ab45 100644
+index bec8714263779d57bfff5ba83cfe26776acf3732..939837e6836e25fcf5e0b42412f39693a24ac831 100644
 --- third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
 +++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.cc
-@@ -296,6 +296,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
+@@ -297,6 +297,8 @@ CrashReportUploadThread::UploadResult CrashReportUploadThread::UploadReport(
    if (minidump_process_snapshot.Initialize(reader)) {
      parameters =
          BreakpadHTTPFormParametersFromMinidump(&minidump_process_snapshot);

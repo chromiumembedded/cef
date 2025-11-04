@@ -819,7 +819,7 @@ namespace cef {
 std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     Browser* browser,
     scoped_refptr<CreateParams> cef_params,
-    const Browser* opener) {
+    const BrowserWindowInterface* opener) {
   CefBrowserCreateParams create_params;
 
   // Parameters from ChromeBrowserHostImpl::Create, or nullptr if the Browser
@@ -834,8 +834,17 @@ std::unique_ptr<BrowserDelegate> BrowserDelegate::Create(
     params->create_params_.browser_view = nullptr;
   }
 
+  // We could just `static_cast<Browser*>(opener)`, but we follow the
+  // recommended approach instead.
+  Browser* opener_browser = nullptr;
+  if (opener) {
+    auto* browser_view = BrowserView::GetBrowserViewForBrowser(opener);
+    CHECK(browser_view);
+    opener_browser = browser_view->browser();
+  }
+
   return std::make_unique<ChromeBrowserDelegate>(browser, create_params,
-                                                 opener);
+                                                 opener_browser);
 }
 
 // static

@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/startup/startup_browser_creator.cc chrome/browser/ui/startup/startup_browser_creator.cc
-index 6ff41e1296678de683d7b54e7b9b70f21b1fee2d..f534633302f1a0f29895dc41fdc8e2b09658e2c0 100644
+index 6d9a9c09ff966ec0c80bb1bd03b2b636d8cfc76b..1395c61286115b8cc8c781bed9063852d5987db9 100644
 --- chrome/browser/ui/startup/startup_browser_creator.cc
 +++ chrome/browser/ui/startup/startup_browser_creator.cc
-@@ -658,6 +658,13 @@ bool ShouldForceLaunchIntoNewProfileWithEmail(
+@@ -662,6 +662,13 @@ bool ShouldForceLaunchIntoNewProfileWithEmail(
  }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -16,7 +16,7 @@ index 6ff41e1296678de683d7b54e7b9b70f21b1fee2d..f534633302f1a0f29895dc41fdc8e2b0
  }  // namespace
  
  StartupBrowserCreator::StartupBrowserCreator() = default;
-@@ -1519,6 +1526,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
+@@ -1543,6 +1550,12 @@ void StartupBrowserCreator::ProcessCommandLineWithProfile(
        {profile, mode}, last_opened_profiles);
  }
  
@@ -29,7 +29,7 @@ index 6ff41e1296678de683d7b54e7b9b70f21b1fee2d..f534633302f1a0f29895dc41fdc8e2b0
  // static
  void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      const base::CommandLine& command_line,
-@@ -1528,6 +1541,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
+@@ -1552,6 +1565,11 @@ void StartupBrowserCreator::ProcessCommandLineAlreadyRunning(
      return;
    }
  

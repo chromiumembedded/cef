@@ -386,18 +386,24 @@ typedef enum {
   /// Content Setting for 3PC accesses granted via 3PC deprecation trial.
   CEF_CONTENT_SETTING_TYPE_TPCD_TRIAL,
 
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_TRIAL_DEPRECATED,
+#else
   /// Content Setting for 3PC accesses granted via top-level 3PC deprecation
   /// trial. Similar to TPCD_TRIAL, but applicable at the page-level for the
   /// lifetime of the page that served the token, rather than being specific to
   /// a requesting-origin/top-level-site combination and persistent.
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_TRIAL,
+#endif
 
-/// Content Setting for a first-party origin trial that allows websites to
-/// enable third-party cookie deprecation.
-/// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
-///                  blocked otherwise).
-/// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
-#if CEF_API_ADDED(13601)
+#if CEF_API_ADDED(CEF_NEXT)
+  CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL_DEPRECATED,
+#elif CEF_API_ADDED(13601)
+  /// Content Setting for a first-party origin trial that allows websites to
+  /// enable third-party cookie deprecation.
+  /// ALLOW (default): no effect (e.g. third-party cookies allowed, if not
+  ///                  blocked otherwise).
+  /// BLOCK: third-party cookies blocked, but 3PCD mitigations enabled.
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL,
 #else
   CEF_CONTENT_SETTING_TOP_LEVEL_TPCD_ORIGIN_TRIAL,

@@ -34,6 +34,7 @@
 #include <cstring>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 #include "include/internal/cef_string_types.h"
 
@@ -666,6 +667,15 @@ class CefStringBase final {
     }
     AllocIfNeeded();
     return traits::from_string(str, string_);
+  }
+
+  ///
+  /// Set this string's data from an existing std::string_view. Data will be
+  /// always copied. Translation will occur if necessary based on the underlying
+  /// string type.
+  ///
+  bool FromString(std::string_view str) {
+    return FromString(str.data(), str.length());
   }
 
   ///

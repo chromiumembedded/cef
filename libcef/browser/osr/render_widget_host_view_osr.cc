@@ -277,7 +277,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     // For child/popup views this will be called from the associated InitAs*()
     // method.
     SetRootLayerSize(false /* force */);
-    if (!render_widget_host_->is_hidden()) {
+    if (!render_widget_host_->IsHidden()) {
       Show();
     }
   }
@@ -543,7 +543,7 @@ void CefRenderWidgetHostViewOSR::OnPresentCompositorFrame() {}
 
 void CefRenderWidgetHostViewOSR::OnDidUpdateVisualPropertiesComplete(
     const cc::RenderFrameMetadata& metadata) {
-  if (host()->is_hidden()) {
+  if (host()->IsHidden()) {
     // When an embedded child responds, we want to accept its changes to the
     // viz::LocalSurfaceId. However we do not want to embed surfaces while
     // hidden. Nor do we want to embed invalid ids when we are evicted. Becoming
@@ -741,7 +741,8 @@ uint32_t CefRenderWidgetHostViewOSR::GetCaptureSequenceNumber() const {
 void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Rect& src_rect,
     const gfx::Size& output_size,
-    base::OnceCallback<void(const SkBitmap&)> callback) {
+    base::OnceCallback<void(const viz::CopyOutputBitmapWithMetadata&)>
+        callback) {
   if (delegated_frame_host_) {
     delegated_frame_host_->CopyFromCompositingSurface(src_rect, output_size,
                                                       std::move(callback));

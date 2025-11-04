@@ -789,7 +789,8 @@ class InterceptedRequestHandlerWrapper : public InterceptedRequestHandler {
       // Does the scheme factory want to handle the request?
       resource_handler = state->scheme_factory_->Create(
           init_state_->browser_, init_state_->frame_,
-          state->request_->url.scheme(), state->pending_request_.get());
+          std::string(state->request_->url.scheme()),
+          state->pending_request_.get());
     }
 
     std::unique_ptr<ResourceResponse> resource_response;

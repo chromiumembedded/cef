@@ -16,7 +16,7 @@ index b6875fb50d180291f7a2154e473563add704cb72..11a1713cd46ce2b17c0d501c90a73335
        std::move(dialog_model), std::move(anchor_view),
        views::BubbleBorder::TOP_RIGHT);
 diff --git chrome/browser/ui/views/certificate_selector.cc chrome/browser/ui/views/certificate_selector.cc
-index b24b673375533e636bcde90a5ed89934dcbc8189..ae222f08894a67ea8d0dfd6a064852dc8ed143de 100644
+index d40d79b895ecc4a6eb5348240bd95901f746c9fe..81c838ffde565f76b02d69ed23609c912d80ef57 100644
 --- chrome/browser/ui/views/certificate_selector.cc
 +++ chrome/browser/ui/views/certificate_selector.cc
 @@ -344,8 +344,13 @@ void CertificateSelector::ViewCertButtonPressed() {

@@ -46,7 +46,9 @@ bool CefCreateNewTempDirectory(const CefString& prefix,
     return false;
   }
   base::FilePath result;
-  if (base::CreateNewTempDirectory(prefix, &result)) {
+  base::FilePath::StringType prefix_str = prefix;
+  if (base::CreateNewTempDirectory(base::FilePath::StringViewType(prefix_str),
+                                   &result)) {
     new_temp_path = result.value();
     return true;
   }

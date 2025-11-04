@@ -1,8 +1,8 @@
-diff --git gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.cc gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.cc
-index d000749c9ca25c4b668afd399cd2fb30cef2c66f..2fbbdcfdb45ea996311e0785de3229e31ed2437e 100644
---- gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.cc
-+++ gpu/command_buffer/service/shared_image/gpu_memory_buffer_factory_dxgi.cc
-@@ -170,7 +170,8 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
+diff --git gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
+index 157a7e3a7cf9d07b41e386d56b85cf185a53957b..e6e0290f1b32d5b7408bd9653cedffa46a306b0c 100644
+--- gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
++++ gpu/command_buffer/service/shared_image/d3d_image_backing_factory.cc
+@@ -381,7 +381,8 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
    // so make sure that the usage is one that we support.
    DCHECK(usage == gfx::BufferUsage::GPU_READ ||
           usage == gfx::BufferUsage::SCANOUT ||
@@ -12,7 +12,7 @@ index d000749c9ca25c4b668afd399cd2fb30cef2c66f..2fbbdcfdb45ea996311e0785de3229e3
        << "Incorrect usage, usage=" << gfx::BufferUsageToString(usage);
  
    D3D11_TEXTURE2D_DESC desc = {
-@@ -184,7 +185,9 @@ gfx::GpuMemoryBufferHandle GpuMemoryBufferFactoryDXGI::CreateNativeGmbHandle(
+@@ -395,7 +396,9 @@ gfx::GpuMemoryBufferHandle D3DImageBackingFactory::CreateGpuMemoryBufferHandle(
        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
        0,
        D3D11_RESOURCE_MISC_SHARED_NTHANDLE |

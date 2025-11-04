@@ -6,7 +6,8 @@
 
 #include "base/memory/shared_memory_mapping.h"
 #include "base/trace_event/trace_event.h"
-#include "components/viz/common/resources/resource_sizes.h"
+#include "components/viz/common/resources/shared_image_format.h"
+#include "components/viz/common/resources/shared_image_format_utils.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
 #include "mojo/public/cpp/system/platform_handle.h"
 #include "skia/ext/platform_canvas.h"
@@ -17,7 +18,7 @@
 #include <windows.h>
 
 #include "skia/ext/skia_utils_win.h"
-#include "ui/gfx/gdi_util.h"
+#include "ui/gfx/win/gdi_util.h"
 #include "ui/gfx/win/hwnd_util.h"
 #endif
 
@@ -62,14 +63,14 @@ void SoftwareOutputDeviceProxy::Resize(const gfx::Size& viewport_pixel_size,
 
   canvas_.reset();
 
-  size_t required_bytes;
-  if (!ResourceSizes::MaybeSizeInBytes(viewport_pixel_size_,
-                                       SinglePlaneFormat::kRGBA_8888,
-                                       &required_bytes)) {
+  auto bytes = SharedMemorySizeForSharedImageFormat(
+      SinglePlaneFormat::kRGBA_8888, viewport_pixel_size_);
+  if (!bytes) {
     DLOG(ERROR) << "Invalid viewport size " << viewport_pixel_size_.ToString();
     return;
   }
 
+  auto required_bytes = bytes.value();
   base::UnsafeSharedMemoryRegion region =
       base::UnsafeSharedMemoryRegion::Create(required_bytes);
   if (!region.IsValid()) {

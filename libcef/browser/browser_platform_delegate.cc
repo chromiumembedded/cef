@@ -103,6 +103,11 @@ void CefBrowserPlatformDelegate::WebContentsCreated(
 
   DCHECK(!web_contents_);
   web_contents_ = web_contents;
+
+  // Enable support for draggable regions.
+  // TODO(cef): This has performance consequences so consider making it
+  // configurable (e.g. only enabled for frameless windows). See issue #3636.
+  web_contents->SetSupportsDraggableRegions(true);
 }
 
 void CefBrowserPlatformDelegate::AddNewContents(

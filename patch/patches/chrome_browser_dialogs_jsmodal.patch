@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
-index abe59af800b7ebd9d137420724e6deb2483e658f..c45800a3b8cee849c7edc5ace34c45fa8860925c 100644
+index e2c1088e806c7187a27012c061d2ee629b51805c..f64adc2c888c38e4b180d12479412fcbb619994b 100644
 --- chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 +++ chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.cc
 @@ -7,6 +7,7 @@
@@ -33,7 +33,7 @@ index abe59af800b7ebd9d137420724e6deb2483e658f..c45800a3b8cee849c7edc5ace34c45fa
  JavaScriptTabModalDialogManagerDelegateDesktop::
      JavaScriptTabModalDialogManagerDelegateDesktop(
          content::WebContents* web_contents)
-@@ -90,6 +107,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+@@ -81,6 +98,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
    BrowserWindowInterface* browser =
        GetLastActiveBrowserWindowInterfaceWithAnyProfile();
    if (!browser) {
@@ -43,7 +43,7 @@ index abe59af800b7ebd9d137420724e6deb2483e658f..c45800a3b8cee849c7edc5ace34c45fa
      // It's rare, but there are crashes from where sites are trying to show
      // dialogs in the split second of time between when their Browser is gone
      // and they're gone. In that case, bail. https://crbug.com/1142806
-@@ -107,6 +127,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
+@@ -98,6 +118,9 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsWebContentsForemost() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
@@ -53,7 +53,7 @@ index abe59af800b7ebd9d137420724e6deb2483e658f..c45800a3b8cee849c7edc5ace34c45fa
    tabs::TabInterface* tab = tabs::TabInterface::GetFromContents(web_contents_);
    BrowserWindowInterface* browser = tab->GetBrowserWindowInterface();
    return browser &&
-@@ -115,7 +138,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
+@@ -106,7 +129,11 @@ bool JavaScriptTabModalDialogManagerDelegateDesktop::IsApp() {
  }
  
  bool JavaScriptTabModalDialogManagerDelegateDesktop::CanShowModalUI() {
