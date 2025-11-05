@@ -282,30 +282,6 @@ python3 analyze_patch_output.py patch_output.txt \
 - Ready-to-run commands for investigation
 - Clear next steps
 
-### Systematic Fix Plan
-
-```bash
-# For viewing in terminal (with colors):
-python3 analyze_patch_output.py patch_output.txt \
-  --old-version 142.0.7444.0 \
-  --new-version 143.0.7491.0 \
-  --fix-plan
-
-# For saving to file (without ANSI colors):
-python3 analyze_patch_output.py patch_output.txt \
-  --old-version 142.0.7444.0 \
-  --new-version 143.0.7491.0 \
-  --fix-plan \
-  --no-color > patch_analysis.txt
-```
-
-**Output:**
-
-- Numbered list of patches to fix
-- Step-by-step actions for each file
-- Commands to run for investigation
-- Resave commands for each patch
-
 ### JSON Format (for tools/scripts)
 
 ```bash

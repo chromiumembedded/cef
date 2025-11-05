@@ -540,13 +540,6 @@ python3 analyze_patch_output.py {output_file} \
   --old-version {old_version} --new-version {new_version}
 ```
 
-### Generate systematic fix plan:
-```bash
-# From chromium/src/cef/tools/claude directory:
-python3 analyze_patch_output.py {output_file} --fix-plan \
-  --old-version {old_version} --new-version {new_version}
-```
-
 ### View reject file:
 ```bash
 # From chromium/src directory:

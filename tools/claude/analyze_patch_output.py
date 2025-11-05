@@ -505,63 +505,6 @@ class PatchOutputAnalyzer:
 
         return json.dumps(report, indent=2)
 
-    def generate_fix_plan(self) -> str:
-        """Generate a systematic fix plan for AI agents."""
-        stats = self.get_statistics()
-
-        if stats['failed'] == 0:
-            return "No fixes needed - all patches applied successfully!"
-
-        lines = []
-        lines.append("SYSTEMATIC FIX PLAN")
-        lines.append("=" * 80)
-        lines.append(f"Total patches to fix: {stats['failed']}")
-        lines.append(f"Total files requiring manual edits: {stats['total_files_with_failures']}")
-        lines.append("")
-
-        for i, patch in enumerate(stats['failed_patches'], 1):
-            lines.append(f"PATCH {i}/{stats['failed']}: {patch.patch_name}")
-            lines.append("-" * 80)
-
-            for j, file_failure in enumerate(patch.files_with_failures, 1):
-                lines.append(f"\n  FILE {i}.{j}: {file_failure.file_path}")
-
-                if file_failure.missing:
-                    lines.append(f"    STATUS: Missing file")
-                    if file_failure.reject_file:
-                        lines.append(f"    REJECT FILE: {file_failure.reject_file}")
-                    lines.append(f"    ACTION:")
-                    lines.append(f"      1. Find what happened: git log --full-history -1 --stat -- {file_failure.file_path}")
-                    lines.append(f"      2. Look for 'Renamed' or see new file location in the commit")
-                    if file_failure.reject_file:
-                        lines.append(f"      3. Read the changes to apply: cat {file_failure.reject_file}")
-                        lines.append(f"      4. Manually apply those changes to the file at its NEW location")
-                        lines.append(f"      5. Add the new file path to patch: python3 patch_updater.py --resave --patch {patch.patch_name} --add <new_path>")
-                    else:
-                        lines.append(f"      3. If file was deleted, determine if patch section is still needed")
-                        lines.append(f"      4. If not needed, just resave the patch (it will exclude the missing file)")
-                else:
-                    hunk_count = file_failure.total_hunks_failed if file_failure.total_hunks_failed > 0 else len(file_failure.failed_hunks)
-                    lines.append(f"    STATUS: {hunk_count} hunk(s) failed")
-                    lines.append(f"    REJECT FILE: {file_failure.reject_file}")
-                    lines.append(f"    ACTION:")
-                    lines.append(f"      1. Read reject file: cat {file_failure.reject_file}")
-                    lines.append(f"      2. Read current file: cat {file_failure.file_path}")
-                    lines.append(f"      3. See what changed in Chromium:")
-                    lines.append(f"         git diff --no-prefix refs/tags/{self.old_version}...refs/tags/{self.new_version} -- {file_failure.file_path}")
-                    lines.append(f"      4. Manually apply the CEF changes from .rej to the current file")
-                    lines.append(f"      5. Verify changes make sense in new context")
-
-            lines.append(f"\n  RESAVE COMMAND:")
-            lines.append(f"    python3 patch_updater.py --resave --patch {patch.patch_name}")
-            lines.append("")
-
-        lines.append("=" * 80)
-        lines.append("After fixing all patches, verify with: python3 patch_updater.py")
-        lines.append("")
-
-        return '\n'.join(lines)
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -576,11 +519,6 @@ def main():
         '--json',
         action='store_true',
         help='Output JSON format instead of human-readable summary'
-    )
-    parser.add_argument(
-        '--fix-plan',
-        action='store_true',
-        help='Generate a systematic fix plan'
     )
     parser.add_argument(
         '--no-color',
@@ -631,8 +569,6 @@ def main():
     # Generate report
     if args.json:
         print(analyzer.generate_json_report())
-    elif args.fix_plan:
-        print(analyzer.generate_fix_plan())
     else:
         print(analyzer.generate_summary_report(colorize=not args.no_color))
 

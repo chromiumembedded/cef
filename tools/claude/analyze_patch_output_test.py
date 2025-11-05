@@ -336,29 +336,6 @@ patching file 'test.cc'
         self.assertIn('Successful: 1', summary)
         self.assertIn('ALL PATCHES APPLIED SUCCESSFULLY', summary)
 
-    def test_fix_plan_generation(self):
-        """Test fix plan generation"""
-        output = """
---> Reading patch file /path/to/patches/test.patch
---> Applying patch to /path/to/src
-patching file 'test.cc'
-Hunk #1 FAILED at 100
-1 out of 1 hunk FAILED -- saving rejects to file test.cc.rej
---> Saving changes to /path/to/patches/test.patch
-"""
-        analyzer = PatchOutputAnalyzer(output,
-                                      old_version='139.0.0.0',
-                                      new_version='140.0.0.0')
-        analyzer.parse()
-
-        fix_plan = analyzer.generate_fix_plan()
-
-        self.assertIn('SYSTEMATIC FIX PLAN', fix_plan)
-        self.assertIn('PATCH 1/1: test', fix_plan)
-        self.assertIn('FILE 1.1: test.cc', fix_plan)
-        self.assertIn('1 hunk(s) failed', fix_plan)
-        self.assertIn('test.cc.rej', fix_plan)
-
     def test_mixed_failures(self):
         """Test patch with both missing files and hunk failures"""
         output = """
