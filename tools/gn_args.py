@@ -153,7 +153,7 @@ def FormatValue(val):
   elif isinstance(val, int) or isinstance(val, float):
     return val
   elif isinstance(val, list):
-    return '[' + ', '.join([FormatValue(v) for v in list]) + ']'
+    return '[' + ', '.join([FormatValue(v) for v in val]) + ']'
   else:
     return '"%s"' % val
   return val
