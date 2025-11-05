@@ -71,14 +71,16 @@ These tools help Claude Code systematically work through both phases.
 - **`README.md`** - This file
 
 ### Python Tools
+- **`analyze_build_output.py`** - Analyze and format ninja build output with error index
 - **`analyze_patch_output.py`** - Analyze and format `patch_updater.py` output with file movement detection
-- **`verify_patch.py`** - Verify that regenerated patches include all changes from reject files
 - **`patch_utils.py`** - Shared utilities for patch analysis tools (file movement detection)
+- **`verify_patch.py`** - Verify that regenerated patches include all changes from reject files
 
 ### Test Files
+- **`analyze_build_output_test.py`** - Unit tests for analyze_build_output.py
 - **`analyze_patch_output_test.py`** - Unit tests for analyze_patch_output.py
-- **`verify_patch_test.py`** - Unit tests for verify_patch.py
 - **`patch_utils_test.py`** - Unit tests for patch_utils.py
+- **`verify_patch_test.py`** - Unit tests for verify_patch.py
 
 ## Quick Start
 
@@ -139,21 +141,36 @@ After all patches are fixed and you're ready to build:
 
    > **Note:** Replace `out/Debug_GN_x64` with your actual build output directory (common: `out/Debug_GN_x64`, `out/Debug_GN_arm64`)
 
-2. **Prompt Claude Code:**
+2. **Analyze the output and save it:**
+   ```bash
+   # From chromium/src/cef/tools/claude directory:
+   python3 analyze_build_output.py build_output.txt \
+     --old-version 139.0.7258.0 \
+     --new-version 140.0.7339.0 \
+     --no-color > build_analysis.txt
+   ```
+
+   **Finding version numbers:** Same as Phase 1 - check `chrome/VERSION` before/after the Chromium update.
+
+3. **Prompt Claude Code:**
    ```
    Please fix build errors for the 139.0.7258.0 to 140.0.7339.0 update
    using the instructions in @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
 
-   Here's the build output: @cef/tools/claude/build_output.txt
+   Here's the build error analysis: @cef/tools/claude/build_analysis.txt
    ```
 
-3. **Claude will:**
+   > **Note:** Use full paths from `chromium/src` when attaching files with `@` syntax.
 
-   - Parse build errors and create a TODO list
-   - Systematically fix each error
+4. **Claude will:**
+
+   - Analyze the error index
+   - Create a TODO list of files to fix
+   - Systematically fix each file
    - Use `git diff` to understand Chromium API changes
    - Update CEF source code (files in `cef/` directory only)
-   - Rebuild frequently to verify fixes
+   - Rebuild individual files to verify fixes
+   - Rebuild all only after each file compiles successfully
    - Report progress regularly
 
 ## Example Prompts
@@ -180,23 +197,26 @@ Please run analyze_patch_output.py first to understand what failed.
 
 ### Starting Build Error Fixing
 
-**With build output (see Quick Start):**
+**With analysis output (see Quick Start):**
 ```
 The patches are all fixed. Now please fix the build errors using the
 instructions in @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
 
-Build output: @cef/tools/claude/build_output.txt
+Build error analysis: @cef/tools/claude/build_analysis.txt
 Target: cef
 Out dir: Debug_GN_x64
 ```
 
-**Basic:**
+**With raw output:**
 ```
-Please fix CEF build errors using @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
+Please fix build errors for the 139.0.7258.0 to 140.0.7339.0 update
+using the instructions in @cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md
 
-Build target: cef
-Output directory: Debug_GN_x64
-Chromium version: 139.0.7258.0 → 140.0.7339.0
+Raw build output: @cef/tools/claude/build_output.txt
+Target: cef
+Out dir: Debug_GN_x64
+
+Please run analyze_build_output.py first to understand what failed.
 ```
 
 ### Mid-Stream Prompts
@@ -221,7 +241,7 @@ Please focus on the chrome_runtime_views patch - it has the most failures.
 Can you explain why the views_widget patch failed and what changes you made?
 ```
 
-## Analyzer Script Usage
+## Patch Analyzer Script Usage
 
 The `analyze_patch_output.py` script transforms verbose patch output into useful formats and detects file movements:
 
@@ -463,9 +483,11 @@ Please summarize all the changes you made, organized by category.
 
 Claude can provide a detailed summary for documentation or commit messages.
 
-### 6. Use the Analyzer Proactively
+### 6. Use the Analyzers Proactively
 
-Run the analyzer yourself first to understand the scope:
+Run the analyzers yourself first to understand the scope:
+
+**For patches:**
 ```bash
 # From chromium/src/cef/tools/claude directory:
 # View in terminal:
@@ -480,7 +502,125 @@ python3 analyze_patch_output.py patch_output.txt \
   --no-color > patch_analysis.txt
 ```
 
+**For build errors:**
+```bash
+# From chromium/src/cef/tools/claude directory:
+# View in terminal:
+python3 analyze_build_output.py build_output.txt \
+  --old-version 139.0.7258.0 \
+  --new-version 140.0.7339.0
+
+# Or save for Claude:
+python3 analyze_build_output.py build_output.txt \
+  --old-version 139.0.7258.0 \
+  --new-version 140.0.7339.0 \
+  --no-color > build_analysis.txt
+```
+
 Then share relevant sections with Claude if needed.
+
+## Build Analyzer Script Usage
+
+The `analyze_build_output.py` script transforms verbose ninja build output into a concise error index with line references:
+
+### Required Arguments
+
+- **`--old-version`**: Old Chromium version tag (e.g., `142.0.7444.0`)
+- **`--new-version`**: New Chromium version tag (e.g., `143.0.7499.0`)
+
+These enable generation of useful `git diff` commands in the workflow instructions.
+
+### Optional Arguments
+
+- **`--no-color`**: Disable color output (use when saving to files)
+- **`--json`**: Output machine-readable JSON format
+
+### Human-Readable Summary (Default)
+
+```bash
+# For viewing in terminal (with colors):
+python3 analyze_build_output.py build_output.txt \
+  --old-version 142.0.7444.0 \
+  --new-version 143.0.7499.0
+
+# For saving to file (without ANSI colors):
+python3 analyze_build_output.py build_output.txt \
+  --old-version 142.0.7444.0 \
+  --new-version 143.0.7499.0 \
+  --no-color > build_analysis.txt
+```
+
+**Output:**
+
+- Statistics (total errors, files with errors)
+- Files sorted by error count (most errors first)
+- Line number references to build_output.txt for each error
+- Build targets for rebuilding individual files
+- Clear workflow instructions
+
+**Example:**
+```
+================================================================================
+CEF BUILD ERROR INDEX
+================================================================================
+Build output file: build_output.txt
+Total errors: 46
+Files with errors: 16
+
+ERRORS BY FILE (ordered by error count):
+--------------------------------------------------------------------------------
+
+1. cef/libcef/common/parser_impl.cc - 8 error(s)
+   Rebuild: autoninja -C out/Debug_GN_arm64 obj/cef/libcef_static/parser_impl.o
+   • Line 39 → build_output.txt:1045
+   • Line 40 → build_output.txt:1057
+   ...
+
+WORKFLOW:
+1. Read error details: Read build_output.txt at line <error_line>
+2. Investigate Chromium changes: git diff --no-prefix refs/tags/...
+3. Fix the error(s) in the file
+4. Rebuild just that file using the command shown above
+5. If successful, move to next file and repeat
+6. After all files compile successfully, rebuild all: autoninja -C out/Debug_GN_arm64 cef
+```
+
+### JSON Format (for tools/scripts)
+
+```bash
+python3 analyze_build_output.py build_output.txt \
+  --old-version 142.0.7444.0 \
+  --new-version 143.0.7499.0 \
+  --json
+```
+
+**Output:**
+
+- Machine-readable structured data
+- File paths, error counts, and build targets
+- Source line numbers and build_output.txt line references
+- Can be parsed by other tools
+- Useful for CI/CD integration
+
+### Pipe from build command
+
+```bash
+# From chromium/src directory:
+# Direct to terminal (with colors):
+autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | \
+  tee cef/tools/claude/build_output.txt | \
+  python3 cef/tools/claude/analyze_build_output.py \
+  --old-version 142.0.7444.0 \
+  --new-version 143.0.7499.0
+
+# Save both raw and analyzed output:
+autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | \
+  tee cef/tools/claude/build_output.txt | \
+  python3 cef/tools/claude/analyze_build_output.py \
+  --old-version 142.0.7444.0 \
+  --new-version 143.0.7499.0 \
+  --no-color > cef/tools/claude/build_analysis.txt
+```
 
 ## Workflow Overview
 
@@ -503,7 +643,8 @@ Then share relevant sections with Claude if needed.
    └─> Captures errors in build_output.txt
 
 5. Fix build errors with Claude
-   ├─> Prompt: "@CLAUDE_BUILD_INSTRUCTIONS.md"
+   ├─> Analyze output with analyze_build_output.py → build_analysis.txt
+   ├─> Prompt: "@CLAUDE_BUILD_INSTRUCTIONS.md" with @build_analysis.txt
    ├─> Claude fixes errors one by one
    └─> Verify: Build succeeds
 
@@ -608,7 +749,7 @@ Usage: `git cef-patches` or `git cef-analyze output.txt`
 2. **Commit incrementally** - After patches are fixed, before build errors
 3. **Document major changes** - Note significant API changes in commit messages
 4. **Test thoroughly** - Run ceftests after build succeeds
-5. **Save output** - Keep patch_output.txt, patch_analysis.txt, and build_output.txt for reference
+5. **Save output** - Keep patch_output.txt, patch_analysis.txt, build_output.txt, and build_analysis.txt for reference
 6. **Review Claude's changes** - Understand what was changed and why
 
 ## Getting Help

@@ -48,7 +48,9 @@ Relative paths like `cd cef/tools/claude` behave differently depending on where 
 
 ### Step 1: Analyze the Patch Output
 
-**If provided with raw `patch_updater.py` output:**
+**If the user provides pre-analyzed output (patch_analysis.txt), use it directly.**
+
+**If provided with raw `patch_updater.py` output (patch_output.txt):**
 
 Run the analyzer to get a clear summary:
 
@@ -56,10 +58,25 @@ Run the analyzer to get a clear summary:
 # From chromium/src/cef/tools/claude directory:
 python3 analyze_patch_output.py patch_output.txt \
   --old-version {old_version} \
-  --new-version {new_version}
+  --new-version {new_version} \
+  --no-color > patch_analysis.txt
 ```
 
-**If the user provides pre-analyzed output, use it directly.**
+**If the user hasn't provided either file:**
+
+Ask the user to provide either the raw patch output or run patch_updater.py yourself:
+
+```bash
+# From chromium/src/cef/tools directory:
+python3 patch_updater.py > claude/patch_output.txt 2>&1
+
+# Then analyze it:
+cd claude
+python3 analyze_patch_output.py patch_output.txt \
+  --old-version {old_version} \
+  --new-version {new_version} \
+  --no-color > patch_analysis.txt
+```
 
 The summary shows:
 
@@ -366,15 +383,13 @@ Report progress to the user periodically, especially after completing each patch
 
 ### Step 5: Final Verification
 
-After you've fixed all patches from your TODO list, verify that ALL patches now apply cleanly by regenerating the analysis:
+After you've fixed all patches from your TODO list, verify that ALL patches now apply cleanly by re-running patch_updater.py and regenerating the analysis:
 
 ```bash
 # From chromium/src/cef/tools directory:
-# Regenerate patch output
 python3 patch_updater.py > claude/patch_output.txt 2>&1
 
-# Regenerate analysis
-cd claude
+# From chromium/src/cef/tools/claude directory:
 python3 analyze_patch_output.py patch_output.txt \
   --old-version {old_version} \
   --new-version {new_version} \

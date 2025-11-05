@@ -97,11 +97,11 @@ cef\create_debug.bat
 
 ### Step 2: Run Initial Build
 
-Establish a baseline by running the build:
+Establish a baseline by running the build and capturing output:
 
 ```bash
 # From chromium/src directory:
-autoninja -k 0 -C out/Debug_GN_x64 cef
+autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | tee cef/tools/claude/build_output.txt
 ```
 
 **Command explanation:**
@@ -110,12 +110,47 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 - `-k 0` - Continue building other targets on error (don't stop at first failure)
 - `-C out/Debug_GN_x64` - Build directory (replace with your actual output directory)
 - `cef` - Target to build
+- `2>&1 | tee` - Capture both stdout and stderr to file while showing in terminal
 
 **Expected result:** Build will fail with compile errors. This is normal.
 
+**Note:** If the user already provided `build_output.txt`, you can skip this step.
+
 ### Step 3: Analyze Build Errors
 
-The build output shows compile errors. Focus on:
+**Option A: Use the analyzer script (recommended):**
+
+The user will typically provide a `build_analysis.txt` file created with `analyze_build_output.py`.
+
+**If the user did NOT provide `build_analysis.txt`**, you should create it:
+```bash
+# From chromium/src/cef/tools/claude directory:
+python3 analyze_build_output.py build_output.txt \
+  --old-version {old_version} \
+  --new-version {new_version} \
+  --no-color > build_analysis.txt
+```
+
+The `build_analysis.txt` file contains:
+
+- Concise error index sorted by file
+- Line number references to `build_output.txt` for full error details
+- Build targets for rebuilding individual files
+- Clear workflow instructions
+
+**Example format:**
+```
+1. cef/libcef/common/parser_impl.cc - 8 error(s)
+   Rebuild: autoninja -C out/Debug_GN_x64 obj/cef/libcef_static/parser_impl.o
+   • Line 39 → build_output.txt:1045
+   • Line 40 → build_output.txt:1057
+```
+
+Use this index to create your TODO list. Read the referenced lines in `build_output.txt` for complete error details.
+
+**Option B: Parse raw build output:**
+
+If not using the analyzer, parse the build output manually. Focus on:
 
 - **File path** - Which file has the error
 - **Line number** - Where the error is
@@ -210,20 +245,40 @@ See "Common Build Error Patterns" section for more examples.
 
 #### D. Rebuild to Verify
 
-After each fix (or batch of related fixes), rebuild:
+After each fix (or batch of related fixes), **rebuild just that file** (not the entire `cef` target):
 
 ```bash
 # From chromium/src directory:
-autoninja -k 0 -C out/Debug_GN_x64 cef
+# Use the build target from the error index or FAILED line
+autoninja -C out/Debug_GN_x64 obj/cef/libcef_static/file.o
 ```
 
-**If the error is fixed:** Move to the next error.
+**Examples:**
+```bash
+# For cef/libcef/browser/browser_host_impl.cc:
+autoninja -C out/Debug_GN_x64 obj/cef/libcef_static/browser_host_impl.o
+
+# For cef/libcef/common/parser_impl.cc:
+autoninja -C out/Debug_GN_x64 obj/cef/libcef_static/parser_impl.o
+```
+
+**If using build_analysis.txt**, the correct rebuild command is shown for each file.
+
+**If the file compiles successfully:** Move to the next file.
 
 **If the error persists or new errors appear:**
 
 - Review your fix
 - Check if you modified the right file/line
 - Consider if there are related changes needed
+
+**Special cases:**
+
+- **No build target available:** If `build_analysis.txt` shows "(no build target available)", the error didn't have a FAILED line. Rebuild the entire `cef` target to verify: `autoninja -C out/Debug_GN_x64 cef`
+
+- **Header file errors (.h):** If you fix a header file, you may need to rebuild all .cc files that include it. The safest approach is to rebuild the entire `cef` target after fixing header files, or rebuild multiple related .o files.
+
+**IMPORTANT:** Do NOT rebuild the entire `cef` target until ALL individual files compile successfully. Rebuilding individual files is much faster and provides immediate feedback on your fixes.
 
 ### Step 5: Track Progress
 
@@ -266,11 +321,13 @@ The 'initial_size' member was removed, and size is now set via SetBounds().
 
 ### Step 7: Final Verification
 
-Once all errors are fixed, do a final build to ensure success:
+**IMPORTANT:** Only proceed to this step AFTER all individual files compile successfully.
+
+Once all individual files compile without errors, rebuild the entire `cef` target to ensure success:
 
 ```bash
 # From chromium/src directory:
-autoninja -k 0 -C out/Debug_GN_x64 cef
+autoninja -k 0 -C out/Debug_GN_x64 cef 2>&1 | tee cef/tools/claude/build_output.txt
 ```
 
 **Success criteria:**
@@ -280,6 +337,23 @@ autoninja -k 0 -C out/Debug_GN_x64 cef
 - Exit code is 0
 - Zero compile errors
 - Warnings are acceptable (but note any new warnings)
+
+**If the final rebuild fails with many errors:**
+
+This can happen due to linker errors, template instantiation errors, or errors in files not in the original build output.
+
+1. **Analyze the new errors:**
+   ```bash
+   # From chromium/src/cef/tools/claude directory:
+   python3 analyze_build_output.py build_output.txt \
+     --old-version {old_version} \
+     --new-version {new_version} \
+     --no-color > build_analysis.txt
+   ```
+
+2. **Return to Step 3** with the updated error index and repeat the process
+
+3. **Report to user** if the errors are significantly different from the original set
 
 ## Time Expectations
 
@@ -293,7 +367,7 @@ Based on typical Chromium updates:
   - Minor updates: 20-50 errors typical
   - Major updates: 100+ errors possible
 
-Rebuild frequently to track progress. Some errors will disappear as root causes are fixed.
+Rebuild individual files frequently to track progress. Some errors will disappear as root causes are fixed.
 
 ## Common Build Error Patterns
 
@@ -688,23 +762,24 @@ if (!use_static_angle) {
 
 ### Single Error
 
-Fix, rebuild, verify, move to next error.
+Fix, rebuild that file, verify, move to next error.
 
 ### Multiple Related Errors
 
-If many errors are from the same root cause (e.g., all missing the same include), fix them all at once, then rebuild.
+If many errors are from the same root cause (e.g., all missing the same include), fix them all at once, then rebuild those files.
 
 ### Cascading Errors
 
-Some errors cause other errors. Fix the first error, rebuild, and many others may disappear.
+Some errors cause other errors. Fix the first error, rebuild that file, and many others may disappear.
 
 ### Efficient Workflow
 
 1. **Scan all errors** - Identify patterns
 2. **Group by pattern** - Missing includes, API changes, etc.
 3. **Fix by group** - All missing includes, then all signature changes
-4. **Rebuild after each group** - Verify progress
+4. **Rebuild files in that group** - Verify progress for those files
 5. **Adjust strategy** - If a fix causes new errors, rethink approach
+6. **Final rebuild** - Only after ALL files compile, rebuild entire `cef` target
 
 ## Communication Guidelines
 
@@ -806,7 +881,7 @@ The user will guide you through these next steps.
 2. **Use patterns** - Similar errors often have similar fixes
 3. **Check Chromium first** - See how Chromium adapted to its own changes
 4. **Group related fixes** - Fix all missing includes at once
-5. **Rebuild frequently** - Catch cascading issues early
+5. **Rebuild individual files frequently** - Catch cascading issues early with fast rebuilds
 6. **Use search** - Find all usages of an API to fix them together
 7. **Keep notes** - Track what patterns you've seen
 
@@ -815,21 +890,22 @@ The user will guide you through these next steps.
 **"Build is very slow"**
 
 - Use `autoninja` instead of `ninja` (automatic parallelization)
-- Ensure you're building only the `cef` target, not `all`
+- Build individual file targets (`.o` files) during fixing, not the entire `cef` target
+- Only build the full `cef` target after all files compile successfully
 - Check system resources (CPU, disk space)
 
 **"Same error keeps coming back"**
 
 - Make sure you saved the file
 - Make sure you're editing the right file (check path carefully)
-- Make sure you rebuilt after the change
+- Make sure you rebuilt that specific file after the change
 - Clear build cache if needed (rare): `rm -rf out/Debug_GN_x64/obj/cef`
 
 **"Too many errors to handle"**
 
 - Focus on one pattern at a time
 - Fix all instances of that pattern
-- Rebuild and see how many remain
+- Rebuild those individual files and see how many remain
 - Repeat with next pattern
 
 **"Error in generated file"**
@@ -851,12 +927,13 @@ The user will guide you through these next steps.
 1. **ALWAYS run `pwd` before using `cd` or relative paths** - Never assume your current directory location. Verify first, then navigate.
 2. **Only modify CEF code** - Files in `cef/` directory only
 3. **No patch changes** - Patches were fixed in previous phase
-4. **Build frequently** - After every fix or small batch of fixes
+4. **Build individual files frequently** - After every fix or small batch of fixes (rebuild just those files, not entire `cef` target)
 5. **Ask for help** - After 3 attempts or 5 minutes on same error
 6. **Track progress** - Keep TODO list updated
 7. **Report regularly** - User needs to know status
 8. **Stay organized** - Group similar errors, work systematically
+9. **Final rebuild only after all files compile** - Rebuild entire `cef` target only when ALL individual files build successfully
 
 ---
 
-**You are now ready to fix CEF build errors! Work systematically, build frequently, and report progress as you go.**
+**You are now ready to fix CEF build errors! Work systematically, rebuild individual files frequently, and report progress as you go.**
