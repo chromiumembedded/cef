@@ -188,6 +188,7 @@ TEST(RequestTest, SetGetHeaderByName) {
 
 namespace {
 
+const char kStartUrl[] = "https://tests.com/start.html";
 const char kTestUrl[] = "https://tests.com/run.html";
 
 void CreateRequest(CefRefPtr<CefRequest>& request) {
@@ -224,12 +225,15 @@ class RequestSendRecvTestHandler : public TestHandler {
     // Create the test request.
     CreateRequest(request_);
 
+    AddResource(kStartUrl, "<html><body>SendRecv Start</body></html>",
+                "text/html");
+
     const std::string& resource = "<html><body>SendRecv Test</body></html>";
     response_length_ = static_cast<int64_t>(resource.size());
     AddResource(kTestUrl, resource, "text/html");
 
-    // Create the browser.
-    CreateBrowser("about:blank");
+    // Create the browser using a URL in the same origin.
+    CreateBrowser(kStartUrl);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -249,13 +253,15 @@ class RequestSendRecvTestHandler : public TestHandler {
       CefRefPtr<CefCallback> callback) override {
     EXPECT_IO_THREAD();
 
-    request_id_ = request->GetIdentifier();
-    DCHECK_GT(request_id_, 0U);
+    if (IsTestUrl(request)) {
+      request_id_ = request->GetIdentifier();
+      DCHECK_GT(request_id_, 0U);
 
-    TestRequest(request);
-    EXPECT_FALSE(request->IsReadOnly());
+      TestRequest(request);
+      EXPECT_FALSE(request->IsReadOnly());
 
-    got_before_resource_load_.yes();
+      got_before_resource_load_.yes();
+    }
 
     return RV_CONTINUE;
   }
@@ -266,10 +272,12 @@ class RequestSendRecvTestHandler : public TestHandler {
       CefRefPtr<CefRequest> request) override {
     EXPECT_IO_THREAD();
 
-    TestRequest(request);
-    EXPECT_TRUE(request->IsReadOnly());
+    if (IsTestUrl(request)) {
+      TestRequest(request);
+      EXPECT_TRUE(request->IsReadOnly());
 
-    got_resource_handler_.yes();
+      got_resource_handler_.yes();
+    }
 
     return TestHandler::GetResourceHandler(browser, frame, request);
   }
@@ -280,12 +288,14 @@ class RequestSendRecvTestHandler : public TestHandler {
                           CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
 
-    TestRequest(request);
-    EXPECT_FALSE(request->IsReadOnly());
-    TestResponse(response);
-    EXPECT_TRUE(response->IsReadOnly());
+    if (IsTestUrl(request)) {
+      TestRequest(request);
+      EXPECT_FALSE(request->IsReadOnly());
+      TestResponse(response);
+      EXPECT_TRUE(response->IsReadOnly());
 
-    got_resource_response_.yes();
+      got_resource_response_.yes();
+    }
 
     return false;
   }
@@ -297,12 +307,15 @@ class RequestSendRecvTestHandler : public TestHandler {
       CefRefPtr<CefResponse> response) override {
     EXPECT_IO_THREAD();
 
-    TestRequest(request);
-    EXPECT_TRUE(request->IsReadOnly());
-    TestResponse(response);
-    EXPECT_TRUE(response->IsReadOnly());
+    if (IsTestUrl(request)) {
+      TestRequest(request);
+      EXPECT_TRUE(request->IsReadOnly());
+      TestResponse(response);
+      EXPECT_TRUE(response->IsReadOnly());
 
-    got_resource_response_filter_.yes();
+      got_resource_response_filter_.yes();
+    }
+
     return nullptr;
   }
 
@@ -314,8 +327,7 @@ class RequestSendRecvTestHandler : public TestHandler {
                               int64_t received_content_length) override {
     EXPECT_IO_THREAD();
 
-    if (request->GetResourceType() == RT_FAVICON) {
-      // Ignore favicon requests.
+    if (!IsTestUrl(request)) {
       return;
     }
 
@@ -332,14 +344,18 @@ class RequestSendRecvTestHandler : public TestHandler {
   }
 
  private:
-  void TestRequest(CefRefPtr<CefRequest> request) {
+  bool IsTestUrl(CefRefPtr<CefRequest> request) const {
+    return request->GetURL().ToString() == kTestUrl;
+  }
+
+  void TestRequest(CefRefPtr<CefRequest> request) const {
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(request_id_, request->GetIdentifier());
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
     EXPECT_EQ(TT_FORM_SUBMIT, request->GetTransitionType());
   }
 
-  void TestResponse(CefRefPtr<CefResponse> response) {
+  void TestResponse(CefRefPtr<CefResponse> response) const {
     EXPECT_EQ(200, response->GetStatus());
     EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str());
     EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
