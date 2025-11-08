@@ -42,7 +42,15 @@ class PatchVerifier:
                  old_version: str = None, new_version: str = None):
         self.patch_name = patch_name
         self.patch_output_text = patch_output_text
-        self.patch_dir = patch_dir or os.path.join(os.getcwd(), '..', '..', 'patch', 'patches')
+        # If patch_dir not specified, calculate relative to script location
+        if not patch_dir:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # Script is in chromium/src/cef/tools/claude/
+            # Patches are in chromium/src/cef/patch/patches/
+            # Go up: claude/ -> tools/ -> cef/, then to patch/patches/
+            cef_dir = os.path.dirname(os.path.dirname(script_dir))
+            patch_dir = os.path.join(cef_dir, 'patch', 'patches')
+        self.patch_dir = patch_dir
         self.patch_file = os.path.join(self.patch_dir, f"{patch_name}.patch")
         self.project_root = project_root
         self.old_version = old_version
