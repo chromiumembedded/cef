@@ -424,7 +424,7 @@ index e26e3625c99c839a49620f29196ea9811c9d82bd..c0d4a95607e377e7c68072d80a22d54f
 +#endif
  }
 diff --git chrome/browser/chrome_browser_main_win.cc chrome/browser/chrome_browser_main_win.cc
-index c262b6f2b71b2c9bcf187fc84b63e4881e05bfb8..19deee220beb612817b01c2a1cc1d60c2f30d350 100644
+index cb90cc6c0a6b62b459699a6260088ba4039e1d9a..36296f54cd63ce8657f1e8798f75ea9843974514 100644
 --- chrome/browser/chrome_browser_main_win.cc
 +++ chrome/browser/chrome_browser_main_win.cc
 @@ -51,6 +51,7 @@
@@ -435,7 +435,7 @@ index c262b6f2b71b2c9bcf187fc84b63e4881e05bfb8..19deee220beb612817b01c2a1cc1d60c
  #include "chrome/browser/about_flags.h"
  #include "chrome/browser/active_use_util.h"
  #include "chrome/browser/browser_features.h"
-@@ -372,6 +373,7 @@ void UpdatePwaLaunchersForProfile(const base::FilePath& profile_dir) {
+@@ -373,6 +374,7 @@ void UpdatePwaLaunchersForProfile(const base::FilePath& profile_dir) {
  }
  
  void MigratePinnedTaskBarShortcutsIfNeeded() {
@@ -443,7 +443,7 @@ index c262b6f2b71b2c9bcf187fc84b63e4881e05bfb8..19deee220beb612817b01c2a1cc1d60c
    // Update this number when users should go through a taskbar shortcut
    // migration again. The last reason to do this was crrev.com/798174. @
    // 86.0.4231.0.
-@@ -392,6 +394,7 @@ void MigratePinnedTaskBarShortcutsIfNeeded() {
+@@ -393,6 +395,7 @@ void MigratePinnedTaskBarShortcutsIfNeeded() {
            prefs::kShortcutMigrationVersion, version_info::GetVersionNumber()));
      }
    }
