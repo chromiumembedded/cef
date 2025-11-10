@@ -216,6 +216,11 @@ class BuildOutputAnalyzer:
 
 
 def main():
+    # Fix Windows encoding for Unicode output
+    if sys.platform == 'win32':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
     parser = argparse.ArgumentParser(
         description='Analyze ninja build output and create error index with line references'
     )

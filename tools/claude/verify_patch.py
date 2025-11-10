@@ -193,6 +193,11 @@ class PatchVerifier:
 
 
 def main():
+    # Fix Windows encoding for Unicode output
+    if sys.platform == 'win32':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
     parser = argparse.ArgumentParser(
         description='Verify that a regenerated patch includes all changes from failed files'
     )

@@ -507,6 +507,11 @@ class PatchOutputAnalyzer:
 
 
 def main():
+    # Fix Windows encoding for Unicode output
+    if sys.platform == 'win32':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
     parser = argparse.ArgumentParser(
         description='Analyze patch_updater.py output and generate formatted reports'
     )
