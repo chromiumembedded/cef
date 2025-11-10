@@ -386,7 +386,7 @@ typedef enum {
   /// Content Setting for 3PC accesses granted via 3PC deprecation trial.
   CEF_CONTENT_SETTING_TYPE_TPCD_TRIAL,
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14300)
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_TRIAL_DEPRECATED,
 #else
   /// Content Setting for 3PC accesses granted via top-level 3PC deprecation
@@ -396,7 +396,7 @@ typedef enum {
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_TRIAL,
 #endif
 
-#if CEF_API_ADDED(CEF_NEXT)
+#if CEF_API_ADDED(14300)
   CEF_CONTENT_SETTING_TYPE_TOP_LEVEL_TPCD_ORIGIN_TRIAL_DEPRECATED,
 #elif CEF_API_ADDED(13601)
   /// Content Setting for a first-party origin trial that allows websites to
