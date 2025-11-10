@@ -52,6 +52,7 @@ class BuildAnalysis:
     total_files: int = 0
     files: Dict[str, FileErrors] = field(default_factory=dict)
     build_output_file: str = "build_output.txt"
+    build_directory: str = "out/Debug_GN_x64"  # Default, will be detected from build output
 
 
 class BuildOutputAnalyzer:
@@ -66,6 +67,23 @@ class BuildOutputAnalyzer:
     def parse(self, output_text: str):
         """Parse build output and create error index."""
         lines = output_text.split('\n')
+
+        # Detect build directory from ninja output
+        # Example: ninja: Entering directory `out/Debug_GN_x64'
+        build_dir_found = False
+        for line in lines:
+            dir_match = re.search(r"ninja: Entering directory [`']([^`']+)", line)
+            if dir_match:
+                self.analysis.build_directory = dir_match.group(1)
+                build_dir_found = True
+                break
+
+        if not build_dir_found:
+            raise ValueError(
+                "Could not detect build directory from build output. "
+                "Expected to find a line like: ninja: Entering directory `out/Debug_GN_x64'\n"
+                "Make sure the build output file contains the full ninja output."
+            )
 
         # First pass: extract build targets from FAILED lines
         # Map from source file basename to build target
@@ -160,7 +178,7 @@ class BuildOutputAnalyzer:
         for i, file_errors in enumerate(sorted_files, 1):
             lines.append(f'\n{BOLD}{i}.{RESET} {CYAN}{file_errors.file_path}{RESET} - {RED}{file_errors.error_count} error(s){RESET}')
             if file_errors.build_target:
-                lines.append(f'   {BOLD}Rebuild:{RESET} autoninja -C out/Debug_GN_arm64 {file_errors.build_target}')
+                lines.append(f'   {BOLD}Rebuild:{RESET} autoninja -C {self.analysis.build_directory} {file_errors.build_target}')
 
             for error in file_errors.errors:
                 lines.append(f'   • Line {error.line_number} '
@@ -178,12 +196,12 @@ class BuildOutputAnalyzer:
         lines.append(f'3. Fix the error(s) in the file')
         lines.append('')
         lines.append(f'4. Rebuild just that file using the command shown above')
-        lines.append(f'   {CYAN}Example: autoninja -C out/Debug_GN_arm64 obj/cef/libcef_static/file.o{RESET}')
+        lines.append(f'   {CYAN}Example: autoninja -C {self.analysis.build_directory} obj/cef/libcef_static/file.o{RESET}')
         lines.append('')
         lines.append(f'5. If successful, move to next file and repeat')
         lines.append('')
         lines.append(f'6. After all files compile successfully, rebuild all:')
-        lines.append(f'   {CYAN}autoninja -C out/Debug_GN_arm64 cef{RESET}')
+        lines.append(f'   {CYAN}autoninja -C {self.analysis.build_directory} cef{RESET}')
         lines.append('')
         lines.append(f'{CYAN}Detailed instructions:{RESET} cef/tools/claude/CLAUDE_BUILD_INSTRUCTIONS.md')
         lines.append('=' * 80)
