@@ -259,7 +259,7 @@ void SetCrashSwitchesFromCommandLine(const base::CommandLine& command_line) {
 
 struct DllLoadResult {
   HMODULE module = nullptr;
-  std::wstring used_path;
+  base::FilePath used_path;
 };
 
 constexpr DWORD kNormalLoad = 0;
@@ -268,8 +268,8 @@ template <DWORD LoadFlags>
 DllLoadResult LoadClientDll(const std::wstring& dll_name,
                             const base::FilePath& exe_path) {
   DllLoadResult result;
-  result.used_path = exe_path.DirName().Append(dll_name + L".dll").value();
-  result.module = ::LoadLibraryEx(result.used_path.c_str(), nullptr,
+  result.used_path = exe_path.DirName().Append(dll_name + L".dll");
+  result.module = ::LoadLibraryEx(result.used_path.value().c_str(), nullptr,
                                   LoadFlags | LOAD_WITH_ALTERED_SEARCH_PATH);
   return result;
 }
@@ -461,8 +461,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
            base::WideToUTF16(cef_util::GetLastErrorAsString())});
       ShowError(FormatErrorString(IDS_ERROR_LOAD_FAILED, subst));
 #endif
-      LOG(FATAL) << "Failed to load " << result.used_path << " with error "
-                 << ::GetLastError();
+      const auto sha1 = CalculateFileSHA1(result.used_path);
+      if (!sha1.has_value()) {
+        LOG(FATAL) << "Failed to read file: " << result.used_path.value();
+      } else {
+        LOG(FATAL) << "Failed to load " << result.used_path.value()
+                   << " with error " << ::GetLastError()
+                   << " SHA1: " << sha1.value();
+      }
     }
   }
 
@@ -515,8 +521,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
       }
 #endif
 
-      LOG(FATAL) << "Failed to find " << kProcName << " in " << result.used_path
-                 << " with error " << ::GetLastError();
+      LOG(FATAL) << "Failed to find " << kProcName << " in "
+                 << result.used_path.value() << " with error "
+                 << ::GetLastError();
     }
   } else {
 #if DCHECK_IS_ON()
@@ -528,8 +535,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     }
 #endif
 
-    LOG(FATAL) << "Failed to load " << result.used_path << " with error "
-               << ::GetLastError();
+    const auto sha1 = CalculateFileSHA1(result.used_path);
+    if (!sha1.has_value()) {
+      LOG(FATAL) << "Failed to read file: " << result.used_path.value();
+    } else {
+      LOG(FATAL) << "Failed to load " << result.used_path.value()
+                 << " with error " << ::GetLastError()
+                 << " SHA1: " << sha1.value();
+    }
   }
 
   // LOG(FATAL) is [[noreturn]], so we never reach this point.
