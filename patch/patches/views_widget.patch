@@ -61,10 +61,10 @@ index 2df873ca51d147beab1dc7456cc1701458ac64a3..1e9ff454b080aafbf6528a4ae96ad6e7
      case ui::mojom::WindowShowState::kMaximized:
        return kSerializedShowStateMaximized;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index f556526212ec09c888256a26942db32eb4bfd708..91f001101face03ffddbe9caf28f3ba40ed72bd7 100644
+index 3ecec27f95b95d567feacd1077f4620e570fd5d6..154d93b257e195b5868ca89b616d0974e3d1434d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -613,6 +613,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
+@@ -628,6 +628,14 @@ float RenderWidgetHostViewBase::GetScaleOverrideForCapture() const {
    return scale_override_for_capture_;
  }
  

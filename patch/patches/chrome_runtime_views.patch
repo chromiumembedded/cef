@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/browser_command_controller.cc chrome/browser/ui/browser_command_controller.cc
-index 4879d8661826c08cc3c238a769f588dde3249751..0fd67dce61d34a87055d8cb70df131d3a4767b4a 100644
+index 1d2bdbf0e9a1e600e532874d58c6f9fd95fb2d8a..c17d41a3fa6f94de914e33edf9209e2e083a8b85 100644
 --- chrome/browser/ui/browser_command_controller.cc
 +++ chrome/browser/ui/browser_command_controller.cc
-@@ -513,6 +513,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -514,6 +514,7 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    // choose to not implement CommandUpdaterDelegate inside this class and
    // therefore command_updater_ doesn't have the delegate set).
    if (!SupportsCommand(id) || !IsCommandEnabled(id)) {
@@ -10,7 +10,7 @@ index 4879d8661826c08cc3c238a769f588dde3249751..0fd67dce61d34a87055d8cb70df131d3
      return false;
    }
  
-@@ -530,6 +531,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
+@@ -531,6 +532,13 @@ bool BrowserCommandController::ExecuteCommandWithDisposition(
    DCHECK(command_updater_.IsCommandEnabled(id))
        << "Invalid/disabled command " << id;
  
@@ -24,7 +24,7 @@ index 4879d8661826c08cc3c238a769f588dde3249751..0fd67dce61d34a87055d8cb70df131d3
    // The order of commands in this switch statement must match the function
    // declaration order in browser.h!
    switch (id) {
-@@ -1398,11 +1406,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
+@@ -1404,11 +1412,13 @@ void BrowserCommandController::TabRestoreServiceLoaded(
  // BrowserCommandController, private:
  
  bool BrowserCommandController::IsShowingMainUI() {
@@ -41,10 +41,10 @@ index 4879d8661826c08cc3c238a769f588dde3249751..0fd67dce61d34a87055d8cb70df131d3
  
  void BrowserCommandController::InitCommandState() {
 diff --git chrome/browser/ui/toolbar/app_menu_model.cc chrome/browser/ui/toolbar/app_menu_model.cc
-index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90eadf4ba4e 100644
+index 6aa533116f5e1a86b1f120fd83979269bf0ff1d5..62865280be4483472cd3834dc850c3f0ab454222 100644
 --- chrome/browser/ui/toolbar/app_menu_model.cc
 +++ chrome/browser/ui/toolbar/app_menu_model.cc
-@@ -774,10 +774,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
+@@ -781,10 +781,12 @@ FindAndEditSubMenuModel::FindAndEditSubMenuModel(
      ui::SimpleMenuModel::Delegate* delegate)
      : SimpleMenuModel(delegate) {
    AddItemWithStringIdAndVectorIcon(this, IDC_FIND, IDS_FIND, kSearchMenuIcon);
@@ -57,7 +57,7 @@ index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90e
  }
  
  class SaveAndShareSubMenuModel : public ui::SimpleMenuModel {
-@@ -847,6 +849,57 @@ bool ArePromotionsEnabled() {
+@@ -854,6 +856,57 @@ bool ArePromotionsEnabled() {
    return local_state && local_state->GetBoolean(prefs::kPromotionsEnabled);
  }
  
@@ -115,7 +115,7 @@ index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90e
  }  // namespace
  
  ////////////////////////////////////////////////////////////////////////////////
-@@ -1810,7 +1863,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
+@@ -1817,7 +1870,7 @@ bool AppMenuModel::IsCommandIdChecked(int command_id) const {
    return false;
  }
  
@@ -124,7 +124,7 @@ index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90e
    GlobalError* error =
        GlobalErrorServiceFactory::GetForProfile(browser_->profile())
            ->GetGlobalErrorByMenuItemCommandID(command_id);
-@@ -1826,6 +1879,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
+@@ -1833,6 +1886,30 @@ bool AppMenuModel::IsCommandIdEnabled(int command_id) const {
    }
  }
  
@@ -155,7 +155,7 @@ index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90e
  bool AppMenuModel::IsCommandIdAlerted(int command_id) const {
    if (command_id == IDC_VIEW_PASSWORDS ||
        command_id == IDC_SHOW_PASSWORD_MANAGER) {
-@@ -2007,8 +2084,10 @@ void AppMenuModel::Build() {
+@@ -2014,8 +2091,10 @@ void AppMenuModel::Build() {
                                     IDS_CLEAR_BROWSING_DATA,
                                     kTrashCanRefreshIcon);
  
@@ -166,7 +166,7 @@ index 67a53f3d8a89222d334161ac1b54363f2fb42726..97253d06254950b1f8306f94f19dc90e
    AddSeparator(ui::NORMAL_SEPARATOR);
  
    AddItemWithStringIdAndVectorIcon(this, IDC_PRINT, IDS_PRINT, kPrintMenuIcon);
-@@ -2122,6 +2201,11 @@ void AppMenuModel::Build() {
+@@ -2129,6 +2208,11 @@ void AppMenuModel::Build() {
    }
  #endif  // !BUILDFLAG(IS_CHROMEOS)
  
@@ -200,7 +200,7 @@ index b0658fdc10557144ebdbab8784f49fc521b41881..47393d17e01c5538ac76bc242956ab0b
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914e580c983 100644
+index 7d08328e323f0ba487d1ef7d9e5d570e6fc663fa..5848894ac1bb4c7faab537fb3d8f6a04fb04385f 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -837,13 +837,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -346,7 +346,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
    if (auto* download_controller =
            browser_->GetFeatures().download_toolbar_ui_controller()) {
      return download_controller->bubble_controller();
-@@ -4244,9 +4306,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4264,9 +4326,10 @@ bool BrowserView::GetSavedWindowPlacement(
  views::View* BrowserView::GetContentsView() {
    if (multi_contents_view_) {
      return multi_contents_view_->GetActiveContentsView();
@@ -358,7 +358,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4422,9 +4485,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4442,9 +4505,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -384,7 +384,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4722,11 +4798,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4742,11 +4818,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -423,7 +423,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4735,9 +4836,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4755,9 +4856,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -435,7 +435,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -4985,7 +5085,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5005,7 +5105,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -446,7 +446,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5054,6 +5156,12 @@ void BrowserView::AddedToWidget() {
+@@ -5074,6 +5176,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -459,7 +459,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5136,12 +5244,6 @@ void BrowserView::AddedToWidget() {
+@@ -5156,12 +5264,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -472,7 +472,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5175,6 +5277,13 @@ void BrowserView::AddedToWidget() {
+@@ -5195,6 +5297,13 @@ void BrowserView::AddedToWidget() {
                  weak_ptr_factory_.GetWeakPtr()));
    }
  
@@ -487,7 +487,7 @@ index 113ef3c6f9ab190fd778c8116781ff221e362c72..4f5172d183a82dbbd00dc36827529914
  }
  
 diff --git chrome/browser/ui/views/frame/browser_view.h chrome/browser/ui/views/frame/browser_view.h
-index 00750f25304ae217803ea644abc959f20d9984e1..65e23c02ab93b3f8110fe818b0d2ea13a05bf265 100644
+index 0de463d3617458616572b43bab2ff8129b903070..978c9595f44afa939f388c23969c1b14dd6ecb71 100644
 --- chrome/browser/ui/views/frame/browser_view.h
 +++ chrome/browser/ui/views/frame/browser_view.h
 @@ -139,7 +139,9 @@ class BrowserView : public BrowserWindow,
@@ -500,7 +500,7 @@ index 00750f25304ae217803ea644abc959f20d9984e1..65e23c02ab93b3f8110fe818b0d2ea13
    BrowserView(const BrowserView&) = delete;
    BrowserView& operator=(const BrowserView&) = delete;
    ~BrowserView() override;
-@@ -852,10 +854,16 @@ class BrowserView : public BrowserWindow,
+@@ -850,10 +852,16 @@ class BrowserView : public BrowserWindow,
    bool IsLockedFullscreen() const;
  #endif
  
@@ -518,7 +518,7 @@ index 00750f25304ae217803ea644abc959f20d9984e1..65e23c02ab93b3f8110fe818b0d2ea13
   private:
    // Do not friend BrowserViewLayout. Use the BrowserViewLayoutDelegate
    // interface to keep these two classes decoupled and testable.
-@@ -1098,11 +1106,13 @@ class BrowserView : public BrowserWindow,
+@@ -1099,11 +1107,13 @@ class BrowserView : public BrowserWindow,
    class ExclusiveAccessContextImpl;
    std::unique_ptr<ExclusiveAccessContextImpl> exclusive_access_context_;
  

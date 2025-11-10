@@ -765,7 +765,7 @@ index 85cfa1a8c26c24e4c19c77b617ee587fb792018c..092bf32df74818541f91eae8830c03f6
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8aa888abb 100644
+index 7288caf07dbef1864ed929bf570c786537a4f306..6d8bee074fd7820d85304c47d50460980dd0d787 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -197,6 +197,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
@@ -784,7 +784,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -422,6 +431,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -423,6 +432,9 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
  #endif
  
    Profile* const profile = browser_->GetProfile();
@@ -794,7 +794,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
    BrowserView* const browser_view =
        BrowserView::GetBrowserViewForBrowser(browser);
    if (browser_view) {
-@@ -434,7 +446,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -435,7 +447,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
    // Features that are only enabled for normal browser windows (e.g. a window
    // with an omnibox and a tab strip). By default most features should be
    // instantiated in this block.
@@ -803,7 +803,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -565,7 +577,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -566,7 +578,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -812,7 +812,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -679,7 +691,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -680,7 +692,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        GetUserDataFactory().CreateInstanceWithFactoryMethod(
            *browser_, &chrome::CreateImmersiveModeController, browser_view);
  
@@ -823,7 +823,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -746,12 +760,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -747,12 +761,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
                *browser_, browser_, std::move(container_overlay_view_pairs));
      }
  
@@ -836,7 +836,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
      if (features::HasTabSearchToolbarButton()) {
        tab_search_toolbar_button_controller_ =
            std::make_unique<TabSearchToolbarButtonController>(browser_view);
-@@ -791,6 +799,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -792,6 +800,38 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
        browser_view);
  }
  
@@ -876,7 +876,7 @@ index a53780472a4a17a6402243e8db65a40a55b248a6..f9ac9dbc3d0d57cfbc911398525ef7b8
    // Tear down embedder features first, in reverse order of initialization.
    embedder_browser_window_features_->TearDownPreBrowserWindowDestruction();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 69b30a09b10c78ca35a6fd04f01197af6bec4838..dca0da72e980db9707c0d54bc4c8e7be9e990b5a 100644
+index d453fd157b0d625bbcacc45e913c4a99d0c227b3..a7b7ffa1db2614c40f6327899edce1e58a2b73a2 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -136,6 +136,9 @@ namespace commerce {
