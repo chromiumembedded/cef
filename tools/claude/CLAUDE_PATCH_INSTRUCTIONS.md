@@ -229,6 +229,17 @@ gfx::Rect find_bar_bounds = browser_view_->GetFindBarBoundingBox();
 if (find_bar_bounds.IsEmpty()) {
 ```
 
+**IMPORTANT: Preserve Code Style**
+
+When manually applying changes, match the existing file's style (line wrapping, indentation, spacing). After making manual edits to C++/Python/Java files, run the code formatter on the specific files you edited:
+
+```bash
+# From chromium/src directory:
+git cl format {file_path}
+```
+
+For other file types (.gn, .mojom, etc.), manually match the existing style since auto-formatting is not available.
+
 **For Missing Files:**
 
 When a file is missing, investigate what happened:
@@ -310,6 +321,45 @@ This will:
 - Regenerate the patch file based on your manual changes
 - Update line numbers and offsets
 - Validate the patch can now be applied
+
+**1.5 Format the manually edited files:**
+
+After manually editing files but before resaving the patch, run the code formatter on supported file types:
+
+**Supported file types** (auto-formattable with `git cl format`):
+
+- C/C++/Objective-C++: `.cc`, `.cpp`, `.c`, `.h`, `.hpp`, `.mm`
+- Python: `.py`
+- Java: `.java`
+
+**Unsupported file types** (must manually match existing style):
+
+- GN build files: `.gn`, `BUILD.gn`
+- Mojo files: `.mojom`
+- Shell scripts, text files, etc.
+
+```bash
+# From chromium/src directory:
+# Format only the C++/Python/Java file(s) you manually edited
+git cl format {file_path}
+
+# If you manually edited multiple formattable files for this patch:
+git cl format {file_path1} {file_path2}
+```
+
+**IMPORTANT:**
+
+- Only format files you manually edited, not all changed files
+- Only use `git cl format` on supported file types
+- For .gn, .mojom, and other unsupported types, carefully match existing indentation and style manually
+
+Review the formatting changes:
+
+```bash
+git diff {file_path}
+```
+
+If the formatter made changes, they should be minimal (line wrapping, spacing). If it makes large changes, verify your manual edits are still correct.
 
 **2. REQUIRED: Verify File Coverage**
 
@@ -521,6 +571,27 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 - Changes often cascade to implementation files
 - May need to update both .mojom and implementing .cc files
 
+### Code Style Considerations
+
+**C++/Python/Java files** (auto-formattable):
+
+- Run `git cl format {file_path}` after manual edits
+- Match existing line length (usually 80 characters)
+- For C++: Look at surrounding code for bracket placement and include ordering
+
+**GN/BUILD files** (manual formatting only):
+
+- **No auto-formatter available** - carefully match existing style
+- Maintain alphabetical ordering in lists
+- Match indentation (usually 2 spaces)
+- Preserve comment formatting
+- Pay special attention to line wrapping
+
+**Mojo files** (manual formatting only):
+
+- Match existing indentation and line wrapping
+- Follow patterns from surrounding interface definitions
+
 ## Important Rules
 
 1. **ALWAYS run `pwd` before using `cd` or relative paths** - Never assume your current directory location. Verify first, then navigate.
@@ -530,6 +601,7 @@ Work systematically and don't rush. Understanding the Chromium changes is more i
 5. **Always resave** after manual fixes - never manually edit patch files. **Exception:** When files are moved/renamed, manually regenerate the entire patch using `git diff` (see troubleshooting section below)
 6. **Verify context** - make sure the CEF changes make sense in the new Chromium code
 7. **Preserve CEF intent** - understand what the patch is trying to accomplish, not just mechanically apply it
+8. **Preserve code style** - Match the existing file's line wrapping, indentation, and formatting style. Run `git cl format {file_path}` on manually edited C++/Python/Java files before resaving. For .gn and .mojom files, manually match the existing style.
 
 ## Helper Commands Reference
 
