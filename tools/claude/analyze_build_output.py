@@ -82,8 +82,13 @@ class BuildOutputAnalyzer:
 
         # Second pass: process errors
         for line_idx, line in enumerate(lines, 1):
-            # Match error lines: file:line:col: error: message
+            # Match error lines in both Unix and Windows formats:
+            # Unix:    file:line:col: error: message
+            # Windows: file(line,col): error: message
             error_match = re.match(r'^([^:]+):(\d+):(?:\d+:)? error: (.+)$', line)
+            if not error_match:
+                error_match = re.match(r'^([^(]+)\((\d+),(?:\d+)\): error: (.+)$', line)
+
             if error_match:
                 file_path = error_match.group(1)
                 source_line = int(error_match.group(2))

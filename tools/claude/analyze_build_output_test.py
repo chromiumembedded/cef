@@ -417,6 +417,140 @@ FAILED: f2ad0dfd-cfaf-4070-91c0-ab3ee0614ec7 "./obj/cef/libcef_static/parser_imp
         self.assertEqual(file_errors.errors[2].line_number, 41)
 
 
+class TestWindowsErrorFormat(unittest.TestCase):
+    """Test cases for Windows-style error format: file(line,col): error: message"""
+
+    def test_single_windows_error(self):
+        """Test parsing a single Windows-style compilation error"""
+        output = """
+FAILED: 466b678a-0d52-4ca8-9ca8-26a0169bdf71 "./obj/third_party/blink/renderer/controller/controller/blink_glue.obj" CXX obj/third_party/blink/renderer/controller/controller/blink_glue.obj
+../../cef/libcef/renderer/blink_glue.cc(325,8): error: no member named 'SetUseExternalPopupMenusForTesting' in 'blink::ChromeClient'
+  322 |   static_cast<blink::WebViewImpl*>(view)
+1 error generated.
+"""
+        analyzer = BuildOutputAnalyzer('test_output.txt')
+        analyzer.parse(output)
+
+        self.assertEqual(analyzer.analysis.total_errors, 1)
+        self.assertEqual(analyzer.analysis.total_files, 1)
+
+        file_path = 'cef/libcef/renderer/blink_glue.cc'
+        self.assertIn(file_path, analyzer.analysis.files)
+
+        file_errors = analyzer.analysis.files[file_path]
+        self.assertEqual(file_errors.error_count, 1)
+        self.assertEqual(file_errors.build_target, 'obj/third_party/blink/renderer/controller/controller/blink_glue.obj')
+
+        error = file_errors.errors[0]
+        self.assertEqual(error.line_number, 325)
+        self.assertEqual(error.error_line, 3)  # Line 3 in the output
+
+    def test_multiple_windows_errors_one_file(self):
+        """Test parsing multiple Windows-style errors in one file"""
+        output = """
+FAILED: abc123 "./obj/cef/libcef_static/drag_data.obj" CXX obj/cef/libcef_static/drag_data.obj
+../../cef/libcef/common/drag_data_impl.cc(51,17): error: no member named 'url' in 'content::DropData'
+   51 |   return (data_.url.is_valid() &&
+      |           ~~~~~ ^
+../../cef/libcef/common/drag_data_impl.cc(57,18): error: no member named 'url' in 'content::DropData'
+   57 |   return (!data_.url.is_valid() &&
+      |            ~~~~~ ^
+2 errors generated.
+"""
+        analyzer = BuildOutputAnalyzer('test_output.txt')
+        analyzer.parse(output)
+
+        self.assertEqual(analyzer.analysis.total_errors, 2)
+        self.assertEqual(analyzer.analysis.total_files, 1)
+
+        file_path = 'cef/libcef/common/drag_data_impl.cc'
+        file_errors = analyzer.analysis.files[file_path]
+        self.assertEqual(file_errors.error_count, 2)
+        self.assertEqual(len(file_errors.errors), 2)
+
+        self.assertEqual(file_errors.errors[0].line_number, 51)
+        self.assertEqual(file_errors.errors[1].line_number, 57)
+
+    def test_multiple_windows_files(self):
+        """Test parsing Windows-style errors from multiple files"""
+        output = """
+FAILED: abc123 "./obj/cef/libcef_static/file1.obj" CXX obj/cef/libcef_static/file1.obj
+../../cef/libcef/browser/file1.cc(10,5): error: unknown type name 'Foo'
+   10 |     Foo bar;
+      |     ^
+1 error generated.
+
+FAILED: def456 "./obj/cef/libcef_static/file2.obj" CXX obj/cef/libcef_static/file2.obj
+../../cef/libcef/browser/file2.cc(20,10): error: use of undeclared identifier 'baz'
+   20 |   return baz();
+      |          ^
+1 error generated.
+"""
+        analyzer = BuildOutputAnalyzer('test_output.txt')
+        analyzer.parse(output)
+
+        self.assertEqual(analyzer.analysis.total_errors, 2)
+        self.assertEqual(analyzer.analysis.total_files, 2)
+
+        self.assertIn('cef/libcef/browser/file1.cc', analyzer.analysis.files)
+        self.assertIn('cef/libcef/browser/file2.cc', analyzer.analysis.files)
+
+    def test_mixed_unix_and_windows_errors(self):
+        """Test parsing mix of Unix and Windows style errors"""
+        output = """
+FAILED: abc123 "./obj/cef/libcef_static/file1.o" CXX obj/cef/libcef_static/file1.o
+../../cef/libcef/browser/file1.cc:10:5: error: Unix-style error
+   10 |     Foo bar;
+      |     ^
+1 error generated.
+
+FAILED: def456 "./obj/cef/libcef_static/file2.obj" CXX obj/cef/libcef_static/file2.obj
+../../cef/libcef/browser/file2.cc(20,10): error: Windows-style error
+   20 |   return baz();
+      |          ^
+1 error generated.
+"""
+        analyzer = BuildOutputAnalyzer('test_output.txt')
+        analyzer.parse(output)
+
+        self.assertEqual(analyzer.analysis.total_errors, 2)
+        self.assertEqual(analyzer.analysis.total_files, 2)
+
+        # Both Unix and Windows formats should be detected
+        self.assertIn('cef/libcef/browser/file1.cc', analyzer.analysis.files)
+        self.assertIn('cef/libcef/browser/file2.cc', analyzer.analysis.files)
+
+        # Verify line numbers are correct for both formats
+        file1_errors = analyzer.analysis.files['cef/libcef/browser/file1.cc']
+        file2_errors = analyzer.analysis.files['cef/libcef/browser/file2.cc']
+        self.assertEqual(file1_errors.errors[0].line_number, 10)
+        self.assertEqual(file2_errors.errors[0].line_number, 20)
+
+    def test_real_world_windows_blink_glue_error(self):
+        """Test parsing the real Windows error from build_output.txt"""
+        output = """
+FAILED: 466b678a-0d52-4ca8-9ca8-26a0169bdf71 "./obj/third_party/blink/renderer/controller/controller/blink_glue.obj" CXX obj/third_party/blink/renderer/controller/controller/blink_glue.obj
+err: exit=1
+../../cef/libcef/renderer/blink_glue.cc(325,8): error: no member named 'SetUseExternalPopupMenusForTesting' in 'blink::ChromeClient'
+  322 |   static_cast<blink::WebViewImpl*>(view)
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  323 |       ->GetPage()
+      |       ~~~~~~~~~~~
+  324 |       ->GetChromeClient()
+      |       ~~~~~~~~~~~~~~~~~~~
+  325 |       .SetUseExternalPopupMenusForTesting(value);
+      |        ^
+1 error generated.
+"""
+        analyzer = BuildOutputAnalyzer('build_output.txt')
+        analyzer.parse(output)
+
+        self.assertEqual(analyzer.analysis.total_errors, 1)
+        file_errors = analyzer.analysis.files['cef/libcef/renderer/blink_glue.cc']
+        self.assertEqual(file_errors.errors[0].line_number, 325)
+        self.assertEqual(file_errors.errors[0].error_line, 4)  # Error is on line 4 of the output
+
+
 class TestEdgeCases(unittest.TestCase):
     """Test edge cases and error handling"""
 
