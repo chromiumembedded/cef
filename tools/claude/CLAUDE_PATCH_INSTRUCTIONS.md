@@ -240,6 +240,24 @@ git cl format {file_path}
 
 For other file types (.gn, .mojom, etc.), manually match the existing style since auto-formatting is not available.
 
+**CRITICAL: Integrate with Current Code**
+
+The reject file shows the OLD Chromium code context. The current file may have:
+
+- New safety checks or validation
+- Refactored variable names or structure
+- Improved error handling
+- Additional functionality
+
+When applying CEF changes:
+
+- ✓ **DO** add the CEF-specific code (lines with `+` in .rej)
+- ✓ **DO** preserve all improvements in the current Chromium code
+- ✗ **DON'T** remove new Chromium code that wasn't in the .rej context
+- ✗ **DON'T** blindly copy context from .rej - adapt CEF changes to current code structure
+
+If you notice safety improvements in the current code (null checks, validation, etc.), keep them AND add the CEF functionality.
+
 **For Missing Files:**
 
 When a file is missing, investigate what happened:
