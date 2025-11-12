@@ -57,9 +57,10 @@ cc_library(
 )
 
 # Objective-C sources
-objc_library(
+declare_objc_library(
     name = "BrowserLibMac_ObjC",
     srcs = srcs_browser_mac,  # .m files
+    enable_cxx17 = False,  # Pure Objective-C, not Objective-C++
     target_compatible_with = [
         "@platforms//os:macos",
     ],
