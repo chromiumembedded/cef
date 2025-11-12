@@ -42,7 +42,7 @@ srcs_renderer_mac = [
 #
 
 # Pure C sources
-cc_library(
+declare_cc_library(
     name = "BrowserLibMac_C",
     srcs = srcs_browser,  # Pure .c files
     target_compatible_with = [
@@ -77,7 +77,7 @@ alias(
 )
 
 # Pure C helper process sources
-cc_library(
+declare_cc_library(
     name = "RendererLibMac",
     srcs = srcs_renderer_mac,
     target_compatible_with = [
