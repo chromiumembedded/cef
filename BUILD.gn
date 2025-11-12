@@ -1131,11 +1131,11 @@ source_set("libcef_static") {
 # libcef_dll_wrapper static targets.
 #
 
-# Minimal target for loading the CEF library dynamically on macOS.
-# This provides just the cef_load_library/cef_unload_library functions
-# without the full C++ wrapper.
 if (is_mac) {
-  static_library("cef_library_loader") {
+  # Minimal target for loading the CEF framework dynamically on macOS.
+  # This provides just the necessary C API functions without the full
+  # C++ wrapper.
+  static_library("cef_capi_library_loader") {
     # Necessary because the generated file includes test API headers.
     testonly = true
 
@@ -1153,7 +1153,10 @@ if (is_mac) {
     deps = [ ":cef_make_headers" ]
   }
 
-  static_library("cef_sandbox_loader") {
+  # Minimal target for loading the CEF sandbox dynamically on macOS.
+  # This provides just the necessary C API functions without the full
+  # C++ wrapper.
+  static_library("cef_capi_sandbox_loader") {
     # Necessary because the generated file includes test API headers.
     testonly = true
 
@@ -1161,6 +1164,8 @@ if (is_mac) {
       "include/cef_sandbox_mac.h",
       "libcef_dll/wrapper/cef_scoped_sandbox_context_mac.mm",
     ]
+
+    defines = [ "WRAPPING_CEF_SHARED" ]
 
     configs += [ ":libcef_includes_config" ]
     public_configs = [ ":libcef_includes_config" ]
@@ -2258,8 +2263,8 @@ if (is_mac) {
                      includes_mac_capi +
                      gypi_paths2.cefsimple_capi_sources_mac_helper
     helper_deps = [
-      ":cef_library_loader",
-      ":cef_sandbox_loader",
+      ":cef_capi_library_loader",
+      ":cef_capi_sandbox_loader",
     ]
     helper_defines = [
       "CEF_USE_SANDBOX",
@@ -2272,7 +2277,7 @@ if (is_mac) {
               gypi_paths2.cefsimple_capi_sources_common +
               gypi_paths2.cefsimple_capi_sources_mac
     deps = [
-      ":cef_library_loader",
+      ":cef_capi_library_loader",
       ":cefsimple_capi_resources_bundle_data",
       ":cefsimple_capi_resources_bundle_data_english",
       ":cefsimple_capi_xibs",
@@ -2644,6 +2649,56 @@ if (is_mac) {
     }
   }
 
+  if (is_win) {
+    # Like the "cefsimple" executable target, but building a DLL to be loaded by
+    # bootstrap.exe.
+    shared_library("cefsimple_dll") {
+      # Necessary because the libcef target is testonly.
+      testonly = true
+
+      output_name = "cefsimple"
+
+      sources = includes_common +
+                includes_win +
+                gypi_paths2.includes_wrapper +
+                gypi_paths2.includes_wrapper_win +
+                gypi_paths2.cefsimple_sources_common +
+                gypi_paths2.cefsimple_sources_win +
+                gypi_paths2.cefsimple_sources_resources_win_rc
+
+      deps = [
+        ":bootstrap",
+        ":libcef",
+        ":libcef_dll_wrapper",
+      ]
+
+      defines = [
+        "CEF_USE_BOOTSTRAP",
+      ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
+
+      libs = [
+        "comctl32.lib",
+        "shlwapi.lib",
+        "rpcrt4.lib",
+      ]
+
+      # Disable clang modules for this target (see issue #3611).
+      use_libcxx_modules = false
+    }
+  }
+
+
+  #
+  # cefsimple_capi targets (Pure C API implementation).
+  #
+
   executable("cefsimple_capi") {
     # Necessary because the libcef target is testonly.
     testonly = true
@@ -2713,49 +2768,6 @@ if (is_mac) {
   }
 
   if (is_win) {
-    # Like the "cefsimple" executable target, but building a DLL to be loaded by
-    # bootstrap.exe.
-    shared_library("cefsimple_dll") {
-      # Necessary because the libcef target is testonly.
-      testonly = true
-
-      output_name = "cefsimple"
-
-      sources = includes_common +
-                includes_win +
-                gypi_paths2.includes_wrapper +
-                gypi_paths2.includes_wrapper_win +
-                gypi_paths2.cefsimple_sources_common +
-                gypi_paths2.cefsimple_sources_win +
-                gypi_paths2.cefsimple_sources_resources_win_rc
-
-      deps = [
-        ":bootstrap",
-        ":libcef",
-        ":libcef_dll_wrapper",
-      ]
-
-      defines = [
-        "CEF_USE_BOOTSTRAP",
-      ]
-
-      # Delay-load as many DLLs as possible for sandbox and startup perf
-      # improvements.
-      configs += [
-        "//build/config/win:delayloads",
-        "//build/config/win:delayloads_not_for_child_dll",
-      ]
-
-      libs = [
-        "comctl32.lib",
-        "shlwapi.lib",
-        "rpcrt4.lib",
-      ]
-
-      # Disable clang modules for this target (see issue #3611).
-      use_libcxx_modules = false
-    }
-
     # Like the "cefsimple_capi" executable target, but building a DLL to be loaded by
     # bootstrap.exe.
     shared_library("cefsimple_capi_dll") {
