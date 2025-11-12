@@ -330,8 +330,8 @@ group("cef") {
       ":bootstrap",
       ":bootstrapc",
       ":cefclient_dll",
-      ":cefclient_capi_dll",
       ":cefsimple_dll",
+      ":cefsimple_capi_dll",
       ":ceftests_dll",
     ]
   }
@@ -2655,6 +2655,8 @@ if (is_mac) {
       ":libcef",
     ]
 
+    configs += [ ":libcef_includes_config" ]
+
     defines = [
       "CEF_USE_SANDBOX",
     ]
@@ -2780,6 +2782,7 @@ if (is_mac) {
       # Delay-load as many DLLs as possible for sandbox and startup perf
       # improvements.
       configs += [
+        ":libcef_includes_config",
         "//build/config/win:delayloads",
         "//build/config/win:delayloads_not_for_child_dll",
       ]

@@ -5,8 +5,8 @@
 #include <windows.h>
 
 #include "include/capi/cef_app_capi.h"
-#include "include/capi/cef_sandbox_win.h"
 #include "include/cef_api_hash.h"
+#include "include/cef_sandbox_win.h"
 #include "tests/cefsimple_capi/simple_app.h"
 
 static int RunMain(HINSTANCE hInstance,
@@ -29,12 +29,18 @@ static int RunMain(HINSTANCE hInstance,
     return 1;
   }
 
+  // Add reference before cef_execute_process. Both cef_execute_process and
+  // cef_initialize will take ownership of a reference, so we need 2 total.
+  app->app.base.add_ref(&app->app.base);
+
   // CEF applications have multiple sub-processes (render, GPU, etc) that share
   // the same executable. This function checks the command-line and, if this is
   // a sub-process, executes the appropriate logic.
   exit_code = cef_execute_process(&main_args, &app->app, sandbox_info);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.
+    // cef_execute_process took ownership of one reference.
+    // Release only the additional reference we added.
     app->app.base.release(&app->app.base);
     return exit_code;
   }
@@ -112,11 +118,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 #if defined(CEF_USE_SANDBOX)
   // Manage the life span of the sandbox information object. This is necessary
   // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-  cef_sandbox_info_t scoped_sandbox = {};
   sandbox_info = cef_sandbox_info_create();
-  if (sandbox_info) {
-    scoped_sandbox = *(cef_sandbox_info_t*)sandbox_info;
-  }
 #endif
 
   int result = RunMain(hInstance, lpCmdLine, nCmdShow, sandbox_info);

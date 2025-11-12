@@ -31,6 +31,7 @@ declare_dll(
     ],
     copts = [
         "/std:c11",  # cefsimple_capi requires C11 for stdatomic.h
+        "/experimental:c11atomics",  # Enable C11 atomics support in MSVC
     ],
     local_defines = [
         # Enable use of the bootstrap executable.

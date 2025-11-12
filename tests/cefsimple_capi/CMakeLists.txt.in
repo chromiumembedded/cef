@@ -64,6 +64,10 @@ endif()
 if(OS_WINDOWS)
   # Add /std:c11 for C files.
   list(APPEND CEF_C_COMPILER_FLAGS "/std:c11")
+  # Remove C++ standard flag since this is a C-only target.
+  # The Visual Studio generator sets both <LanguageStandard> and <LanguageStandard_C>
+  # properties, and <LanguageStandard> takes precedence when compiling C files.
+  list(REMOVE_ITEM CEF_CXX_COMPILER_FLAGS "/std:c++17")
 endif()
 
 
@@ -233,6 +237,13 @@ if(OS_WINDOWS)
 
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
   target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+
+  # Enable C11 atomics support (required for stdatomic.h in MSVC).
+  # Must use set_property instead of CEF_C_COMPILER_FLAGS because the Visual Studio
+  # generator doesn't properly handle this flag when passed through generator expressions.
+  if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    set_property(TARGET ${CEF_TARGET} APPEND PROPERTY COMPILE_OPTIONS "/experimental:c11atomics")
+  endif()
 
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")

@@ -39,12 +39,18 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  // Add reference before cef_execute_process. Both cef_execute_process and
+  // cef_initialize will take ownership of a reference, so we need 2 total.
+  app->app.base.add_ref(&app->app.base);
+
   // CEF applications have multiple sub-processes (render, GPU, etc) that share
   // the same executable. This function checks the command-line and, if this is
   // a sub-process, executes the appropriate logic.
   int exit_code = cef_execute_process(&main_args, &app->app, NULL);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.
+    // cef_execute_process took ownership of one reference.
+    // Release only the additional reference we added.
     app->app.base.release(&app->app.base);
     return exit_code;
   }
