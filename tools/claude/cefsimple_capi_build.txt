@@ -1,0 +1,121 @@
+offline mode
+ninja: Entering directory `out/Debug_GN_arm64'
+
+
+loading fs state done 1.183934542s
+loading/recompacting deps log done 4.25µs
+schedule pending:1+ready:0 (node:70879 edge:2)
+
+build start: Ready 1 Pending 1
+[0/2] 1.33s S Regenerating ninja files
+[0/2] 5.22s F Regenerating ninja files
+rebuild manifest finished	
+ 3.98s Regenerating ninja files
+
+
+
+load siso config done 230.3565ms
+load build.ninja done 519.460541ms
+schedule pending:1+ready:0 (node:355643 edge:2)
+
+build start: Ready 1 Pending 1
+rebuild manifest finished	
+schedule pending:1+ready:0 (node:355643 edge:9)
+
+build start: Ready 8242 Pending 73337
+[0/8309] 8.14s S OBJCXX obj/cef/cef_sandbox/sandbox_mac.o
+[0/3778] 8.25s S OBJCXX obj/cef/libcef_dll_wrapper/cef_scoped_sandbox_context_mac.o
+[0/3486] 8.27s S OBJCXX obj/cef/cef_sandbox_loader/cef_scoped_sandbox_context_mac.o
+[0/1899] 8.31s S CC obj/cef/cefsimple_capi_helper_app_renderer_executable/process_helper_mac.o
+[0/1712] 8.33s S CC obj/cef/cefsimple_capi_helper_app_default_executable/process_helper_mac.o
+[0/1237] 8.37s S CC obj/cef/cefsimple_capi_helper_app_plugin_executable/process_helper_mac.o
+[0/1154] 8.39s S CC obj/cef/cefsimple_capi_helper_app_gpu_executable/process_helper_mac.o
+[0/1128] 8.39s S CC obj/cef/cefsimple_capi_helper_app_alerts_executable/process_helper_mac.o
+[0/992] 8.43s F CC obj/cef/cefsimple_capi_helper_app_plugin_executable/process_helper_mac.o
+[1/990] 8.44s F CC obj/cef/cefsimple_capi_helper_app_default_executable/process_helper_mac.o
+[2/985] 8.44s F CC obj/cef/cefsimple_capi_helper_app_renderer_executable/process_helper_mac.o
+[3/403] 8.45s F CC obj/cef/cefsimple_capi_helper_app_gpu_executable/process_helper_mac.o
+[4/318] 8.46s F CC obj/cef/cefsimple_capi_helper_app_alerts_executable/process_helper_mac.o
+[5/318] 8.49s F OBJCXX obj/cef/cef_sandbox/sandbox_mac.o
+[6/318] 8.50s S SOLINK libcef_sandbox.dylib libcef_sandbox.dylib.TOC
+[6/318] 8.56s F OBJCXX obj/cef/libcef_dll_wrapper/cef_scoped_sandbox_context_mac.o
+[7/318] 8.56s S AR obj/cef/libcef_dll_wrapper.a
+[7/318] 8.56s F OBJCXX obj/cef/cef_sandbox_loader/cef_scoped_sandbox_context_mac.o
+[8/318] 8.56s S AR obj/cef/libcef_sandbox_loader.a
+[8/318] 8.61s F AR obj/cef/libcef_sandbox_loader.a
+[9/318] 8.70s F AR obj/cef/libcef_dll_wrapper.a
+[10/318] 8.70s S LINK obj/cef/cefsimple_capi_helper_app_renderer_executable/cefsimple_capi Helper (Renderer)
+[10/318] 8.70s S LINK obj/cef/cefsimple_capi_helper_app_default_executable/cefsimple_capi Helper
+[10/318] 8.70s S LINK obj/cef/cefsimple_capi_helper_app_gpu_executable/cefsimple_capi Helper (GPU)
+[10/318] 8.70s S LINK obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)
+[10/318] 8.70s S LINK obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)
+[10/318] 8.79s F SOLINK libcef_sandbox.dylib libcef_sandbox.dylib.TOC
+[10/318] 8.79s S COPY libcef_sandbox.dylib cef_intermediates/libcef_sandbox.dylib
+[11/318] 8.79s F COPY libcef_sandbox.dylib cef_intermediates/libcef_sandbox.dylib
+[12/271] 8.81s S COPY_BUNDLE_DATA cef_intermediates/libcef_sandbox.dylib 'Chromium Embedded Framework.framework/Versions/A/Libraries/libcef_sandbox.dylib'
+[12/219] 8.81s F COPY_BUNDLE_DATA cef_intermediates/libcef_sandbox.dylib 'Chromium Embedded Framework.framework/Versions/A/Libraries/libcef_sandbox.dylib'
+[13/71] 8.86s F LINK obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)	
+FAILED: 4c0369ed-8cc9-498b-a255-184983e3ab70 "./obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)" LINK obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)
+err: exit=1
+TOOL_VERSION=1748642914 ../../build/toolchain/apple/linker_driver.py -Wcrl,driver,../../third_party/llvm-build/Release+Asserts/bin/clang++ -Wcrl,strippath,../../third_party/llvm-build/Release+Asserts/bin/llvm-strip -Wcrl,installnametoolpath,../../third_party/llvm-build/Release+Asserts/bin/llvm-install-name-tool  -rpath @executable_path/../../../../../.. -Wl,--no-warn-duplicate-rpath -Wl,-no_warn_duplicate_libraries -Werror -fuse-ld=lld -Wl,-fatal_warnings -Wl,--color-diagnostics -Wl,--strict-auto-link -Wl,--no-call-graph-profile-sort --target=arm64-apple-macos -Wl,-fixup_chains -Wl,-mllvm,-enable-machine-outliner=never -no-canonical-prefixes -nostdlib++ -isysroot ../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk -mmacos-version-min=12.0 -Wl,-ObjC -o "obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)" "@obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin).rsp" 
+build step: link "./obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)"
+stderr:
+ld64.lld: error: undefined symbol: simple_handler_platform_title_change
+>>> referenced by simple_handler.c:153 (../../cef/tests/cefsimple_capi/simple_handler.c:153)
+>>>               obj/cef/cefsimple_capi_helper_app_plugin_executable/simple_handler.o:(symbol display_handler_on_title_change+0x44)
+
+ld64.lld: error: undefined symbol: simple_handler_platform_show_window
+>>> referenced by simple_handler.c:577 (../../cef/tests/cefsimple_capi/simple_handler.c:577)
+>>>               obj/cef/cefsimple_capi_helper_app_plugin_executable/simple_handler.o:(symbol simple_handler_show_main_window+0x48)
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+Traceback (most recent call last):
+  File "/Users/marshall/code/chromium_git/chromium/src/out/Debug_GN_arm64/../../build/toolchain/apple/linker_driver.py", line 545, in <module>
+    LinkerDriver(sys.argv).run()
+  File "/Users/marshall/code/chromium_git/chromium/src/out/Debug_GN_arm64/../../build/toolchain/apple/linker_driver.py", line 200, in run
+    subprocess.check_call([self._driver_path] +
+  File "/Users/marshall/code/depot_tools/bootstrap-2@3.11.8.chromium.35_bin/python3/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['../../third_party/llvm-build/Release+Asserts/bin/clang++', '-rpath', '@executable_path/../../../../../..', '-Wl,--no-warn-duplicate-rpath', '-Wl,-no_warn_duplicate_libraries', '-Werror', '-fuse-ld=lld', '-Wl,-fatal_warnings', '-Wl,--color-diagnostics', '-Wl,--strict-auto-link', '-Wl,--no-call-graph-profile-sort', '--target=arm64-apple-macos', '-Wl,-fixup_chains', '-Wl,-mllvm,-enable-machine-outliner=never', '-no-canonical-prefixes', '-nostdlib++', '-isysroot', '../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk', '-mmacos-version-min=12.0', '-Wl,-ObjC', '-o', 'obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin)', '@obj/cef/cefsimple_capi_helper_app_plugin_executable/cefsimple_capi Helper (Plugin).rsp']' returned non-zero exit status 1.
+
+
+[13/71] 8.86s F LINK obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)	
+FAILED: 0147677d-d51e-433f-be4f-c50424b261f2 "./obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)" LINK obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)
+err: exit=1
+TOOL_VERSION=1748642914 ../../build/toolchain/apple/linker_driver.py -Wcrl,driver,../../third_party/llvm-build/Release+Asserts/bin/clang++ -Wcrl,strippath,../../third_party/llvm-build/Release+Asserts/bin/llvm-strip -Wcrl,installnametoolpath,../../third_party/llvm-build/Release+Asserts/bin/llvm-install-name-tool  -rpath @executable_path/../../../../../.. -Wl,--no-warn-duplicate-rpath -Wl,-no_warn_duplicate_libraries -Werror -fuse-ld=lld -Wl,-fatal_warnings -Wl,--color-diagnostics -Wl,--strict-auto-link -Wl,--no-call-graph-profile-sort --target=arm64-apple-macos -Wl,-fixup_chains -Wl,-mllvm,-enable-machine-outliner=never -no-canonical-prefixes -nostdlib++ -isysroot ../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk -mmacos-version-min=12.0 -Wl,-ObjC -o "obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)" "@obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts).rsp" 
+build step: link "./obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)"
+stderr:
+ld64.lld: error: undefined symbol: simple_handler_platform_title_change
+>>> referenced by simple_handler.c:153 (../../cef/tests/cefsimple_capi/simple_handler.c:153)
+>>>               obj/cef/cefsimple_capi_helper_app_alerts_executable/simple_handler.o:(symbol display_handler_on_title_change+0x44)
+
+ld64.lld: error: undefined symbol: simple_handler_platform_show_window
+>>> referenced by simple_handler.c:577 (../../cef/tests/cefsimple_capi/simple_handler.c:577)
+>>>               obj/cef/cefsimple_capi_helper_app_alerts_executable/simple_handler.o:(symbol simple_handler_show_main_window+0x48)
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+Traceback (most recent call last):
+  File "/Users/marshall/code/chromium_git/chromium/src/out/Debug_GN_arm64/../../build/toolchain/apple/linker_driver.py", line 545, in <module>
+    LinkerDriver(sys.argv).run()
+  File "/Users/marshall/code/chromium_git/chromium/src/out/Debug_GN_arm64/../../build/toolchain/apple/linker_driver.py", line 200, in run
+    subprocess.check_call([self._driver_path] +
+  File "/Users/marshall/code/depot_tools/bootstrap-2@3.11.8.chromium.35_bin/python3/lib/python3.11/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['../../third_party/llvm-build/Release+Asserts/bin/clang++', '-rpath', '@executable_path/../../../../../..', '-Wl,--no-warn-duplicate-rpath', '-Wl,-no_warn_duplicate_libraries', '-Werror', '-fuse-ld=lld', '-Wl,-fatal_warnings', '-Wl,--color-diagnostics', '-Wl,--strict-auto-link', '-Wl,--no-call-graph-profile-sort', '--target=arm64-apple-macos', '-Wl,-fixup_chains', '-Wl,-mllvm,-enable-machine-outliner=never', '-no-canonical-prefixes', '-nostdlib++', '-isysroot', '../../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk', '-mmacos-version-min=12.0', '-Wl,-ObjC', '-o', 'obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts)', '@obj/cef/cefsimple_capi_helper_app_alerts_executable/cefsimple_capi Helper (Alerts).rsp']' returned non-zero exit status 1.
+
+
+[15/71] 8.87s F LINK obj/cef/cefsimple_capi_helper_app_default_executable/cefsimple_capi Helper
+[15/71] 8.87s F LINK obj/cef/cefsimple_capi_helper_app_gpu_executable/cefsimple_capi Helper (GPU)
+[15/71] 8.88s F LINK obj/cef/cefsimple_capi_helper_app_renderer_executable/cefsimple_capi Helper (Renderer)
+build failed	
+
+	
+local:15 remote:0 cache:0 cache-write:0(err:0) fallback:0 retry:0 skip:81508
+fs: ops: 12261(err:2630) / r:2806(err:0) 26.65MiB / w:8(err:0) 13.76KiB
+
+
+shutdown cloud logging/monitoring done 7.75µs
+
+ 9.14s Build Failure: 15 done, 2 failed, 56 remaining - 1.64/s
+ 2 steps failed: exit=1
+see ./out/Debug_GN_arm64/siso_output for full command line and output
+ or ./out/Debug_GN_arm64/siso.INFO
+use ./out/Debug_GN_arm64/siso_failed_commands.sh to re-run failed commands

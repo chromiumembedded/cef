@@ -51,6 +51,22 @@ int cef_load_library(const char* path);
 ///
 int cef_unload_library(void);
 
+///
+/// Load the CEF library from the expected app bundle location relative to the
+/// executable. Pass |helper| as 1 for helper processes or 0 for the main
+/// process. Returns an opaque handle on success or NULL on failure. The
+/// returned handle should be passed to cef_scoped_library_loader_free()
+/// immediately before process termination. This is a wrapper around
+/// CefScopedLibraryLoader for C API users.
+///
+void* cef_scoped_library_loader_create(int helper);
+
+///
+/// Destroy the specified library loader handle created by
+/// cef_scoped_library_loader_create().
+///
+void cef_scoped_library_loader_free(void* loader);
+
 #ifdef __cplusplus
 }
 #endif
