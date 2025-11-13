@@ -166,7 +166,7 @@ index 8e9c4ced0e595f972281c84adfbbd7a2d5845d60..c8b516a6ab53af015ff7f7e77418170c
        base::BindRepeating(&RenderThreadImpl::OnRendererInterfaceReceiver,
                            base::Unretained(this)));
 diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
-index 93bb9ba86074d5105cca072d08588ff6e58caa6f..e53e3f627d1f8b7c569b1776f056ab8c56ac7ca4 100644
+index 2af1a6ccf74608dd3554dbc0c16b5aac64051093..7826667c3c2d148d855b7e64caee511ed79480a2 100644
 --- content/renderer/renderer_blink_platform_impl.cc
 +++ content/renderer/renderer_blink_platform_impl.cc
 @@ -1073,6 +1073,15 @@ SkBitmap* RendererBlinkPlatformImpl::GetSadPageBitmap() {
