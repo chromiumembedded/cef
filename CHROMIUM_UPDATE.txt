@@ -27,6 +27,7 @@
   # Files in the chromium/src directory that should be evaluated for changes.
   # Similar changes may need to be applied to the CEF source code.
   'files': [
+    'build/config/win/BUILD.gn',
     'components/content_settings/core/common/content_settings_types.mojom',
     'components/permissions/request_type.h',
     'content/browser/renderer_host/render_widget_host_view_base.*',

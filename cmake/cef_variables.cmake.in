@@ -446,29 +446,38 @@ if(OS_WINDOWS)
     /DELAYLOAD:libcef.dll
 
     # "delayloads" target.
+    /DELAYLOAD:api-ms-win-core-synch-l1-2-0.dll
     /DELAYLOAD:api-ms-win-core-winrt-error-l1-1-0.dll
     /DELAYLOAD:api-ms-win-core-winrt-l1-1-0.dll
     /DELAYLOAD:api-ms-win-core-winrt-string-l1-1-0.dll
     /DELAYLOAD:advapi32.dll
+    /DELAYLOAD:bcryptprimitives.dll
     /DELAYLOAD:comctl32.dll
     /DELAYLOAD:comdlg32.dll
     /DELAYLOAD:credui.dll
     /DELAYLOAD:cryptui.dll
     /DELAYLOAD:d3d11.dll
+    /DELAYLOAD:d3d12.dll
     /DELAYLOAD:d3d9.dll
+    /DELAYLOAD:dbghelp.dll
+    /DELAYLOAD:dcomp.dll
     /DELAYLOAD:dwmapi.dll
     /DELAYLOAD:dxgi.dll
     /DELAYLOAD:dxva2.dll
     /DELAYLOAD:esent.dll
+    /DELAYLOAD:fontsub.dll
     /DELAYLOAD:gdi32.dll
     /DELAYLOAD:hid.dll
     /DELAYLOAD:imagehlp.dll
     /DELAYLOAD:imm32.dll
+    /DELAYLOAD:mmdevapi.dll
     /DELAYLOAD:msi.dll
     /DELAYLOAD:netapi32.dll
     /DELAYLOAD:ncrypt.dll
     /DELAYLOAD:ole32.dll
     /DELAYLOAD:oleacc.dll
+    /DELAYLOAD:oleaut32.dll
+    /DELAYLOAD:pdh.dll
     /DELAYLOAD:propsys.dll
     /DELAYLOAD:psapi.dll
     /DELAYLOAD:rpcrt4.dll
@@ -490,11 +499,9 @@ if(OS_WINDOWS)
 
     # "delayloads_not_for_child_dll" target.
     /DELAYLOAD:crypt32.dll
-    /DELAYLOAD:dbghelp.dll
     /DELAYLOAD:dhcpcsvc.dll
     /DELAYLOAD:dwrite.dll
     /DELAYLOAD:iphlpapi.dll
-    /DELAYLOAD:oleaut32.dll
     /DELAYLOAD:secur32.dll
     /DELAYLOAD:userenv.dll
     /DELAYLOAD:winhttp.dll
