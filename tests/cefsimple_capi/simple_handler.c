@@ -21,8 +21,21 @@ static simple_handler_t* g_instance = NULL;
 //
 // Browser list management helpers.
 //
+// REF-COUNTING RULES FOR BROWSER LIST:
+//
+// browser_list_add():
+//   - Takes a browser pointer and ADDS a reference (list takes ownership)
+//   - Ref count change: +1 (one new reference owned by the list)
+//   - Caller must still release their own reference if they have one
+//
+// browser_list_remove():
+//   - Finds the browser in the list and RELEASES the list's reference
+//   - Ref count change: -1 (list gives up ownership)
+//   - Does NOT modify the browser parameter's reference (caller still owns it)
+//
 
 // Add a browser to the list.
+// Adds a reference - the list takes ownership of one reference.
 static void browser_list_add(simple_handler_t* handler,
                              cef_browser_t* browser) {
   if (!handler || !browser) {
@@ -42,11 +55,16 @@ static void browser_list_add(simple_handler_t* handler,
     handler->browser_capacity = new_capacity;
   }
 
-  // Add the browser (keep the reference we received).
+  // Add a reference for the list.
+  // The list now owns one reference to this browser.
+  browser->base.add_ref(&browser->base);
+
+  // Store the browser pointer.
   handler->browser_list[handler->browser_count++] = browser;
 }
 
 // Remove a browser from the list.
+// Releases the list's reference - does not affect the caller's reference.
 static void browser_list_remove(simple_handler_t* handler,
                                 cef_browser_t* browser) {
   if (!handler || !browser) {
@@ -55,8 +73,12 @@ static void browser_list_remove(simple_handler_t* handler,
 
   // Find and remove the browser.
   for (size_t i = 0; i < handler->browser_count; ++i) {
+    // Add a reference before calling is_same, since CEF functions take
+    // ownership of parameters passed to them.
+    browser->base.add_ref(&browser->base);
+
     if (handler->browser_list[i]->is_same(handler->browser_list[i], browser)) {
-      // Release the browser reference.
+      // Release the list's reference to this browser.
       handler->browser_list[i]->base.release(&handler->browser_list[i]->base);
 
       // Shift remaining elements.
@@ -207,8 +229,12 @@ life_span_handler_on_after_created(cef_life_span_handler_t* self,
   simple_life_span_handler_t* handler = (simple_life_span_handler_t*)self;
 
   // Add to the list of existing browsers.
-  // We keep the reference CEF gave us (don't release it).
+  // browser_list_add adds its own reference, so we can release the parameter.
   browser_list_add(handler->parent, browser);
+
+  // Release the browser callback parameter.
+  // The list has its own reference now.
+  browser->base.release(&browser->base);
 }
 
 int CEF_CALLBACK life_span_handler_do_close(cef_life_span_handler_t* self,
@@ -221,10 +247,10 @@ int CEF_CALLBACK life_span_handler_do_close(cef_life_span_handler_t* self,
     handler->parent->is_closing = 1;
   }
 
-  // Release the browser reference.
+  // Release the browser callback parameter before returning.
   browser->base.release(&browser->base);
 
-  // Allow the close.
+  // Allow the close. Return false to proceed with closing.
   return 0;
 }
 
@@ -234,13 +260,16 @@ life_span_handler_on_before_close(cef_life_span_handler_t* self,
   simple_life_span_handler_t* handler = (simple_life_span_handler_t*)self;
 
   // Remove from the list of existing browsers.
-  // This also releases the browser reference that CEF passed us.
+  // This releases the list's reference to the browser.
   browser_list_remove(handler->parent, browser);
 
   if (handler->parent->browser_count == 0) {
     // All browser windows have closed. Quit the application message loop.
     cef_quit_message_loop();
   }
+
+  // Release the browser callback parameter before returning.
+  browser->base.release(&browser->base);
 }
 
 simple_life_span_handler_t* life_span_handler_create(simple_handler_t* parent) {
