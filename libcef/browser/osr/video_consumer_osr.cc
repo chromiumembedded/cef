@@ -39,6 +39,7 @@ CefVideoConsumerOSR::CefVideoConsumerOSR(CefRenderWidgetHostViewOSR* view,
       view_(view),
       video_capturer_(view->CreateVideoCapturer()) {
   video_capturer_->SetFormat(media::PIXEL_FORMAT_ARGB);
+  video_capturer_->SetAnimationFpsLockIn(false, 0.0);
 
   // Always use the highest resolution within constraints that doesn't exceed
   // the source size.
