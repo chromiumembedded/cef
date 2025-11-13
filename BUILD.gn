@@ -306,6 +306,12 @@ includes_mac = gypi_paths2.includes_mac + gypi_paths2.includes_mac_capi
 includes_linux = gypi_paths2.includes_linux + gypi_paths2.includes_linux_capi
 includes_win = gypi_paths2.includes_win + gypi_paths2.includes_win_capi
 
+# CAPI-only includes for pure C implementations.
+includes_common_capi = gypi_paths2.includes_common_capi + gypi_paths2.includes_capi
+includes_mac_capi = gypi_paths2.includes_mac_capi
+includes_linux_capi = gypi_paths2.includes_linux_capi
+includes_win_capi = gypi_paths2.includes_win_capi
+
 #
 # Targets that will be built when depending on "//cef".
 #
@@ -314,6 +320,7 @@ group("cef") {
   testonly = true
   deps = [
     ":cefsimple",
+    ":cefsimple_capi",
     ":ceftests",
     ":libcef_static_unittests",
   ]
@@ -324,6 +331,7 @@ group("cef") {
       ":bootstrapc",
       ":cefclient_dll",
       ":cefsimple_dll",
+      ":cefsimple_capi_dll",
       ":ceftests_dll",
     ]
   }
@@ -1123,6 +1131,49 @@ source_set("libcef_static") {
 # libcef_dll_wrapper static targets.
 #
 
+if (is_mac) {
+  # Minimal target for loading the CEF framework dynamically on macOS.
+  # This provides just the necessary C API functions without the full
+  # C++ wrapper.
+  static_library("cef_capi_library_loader") {
+    # Necessary because the generated file includes test API headers.
+    testonly = true
+
+    sources = [
+      "include/wrapper/cef_library_loader.h",
+      "libcef_dll/wrapper/libcef_dll_dylib.cc",
+      "libcef_dll/wrapper/cef_scoped_library_loader_mac.mm",
+    ]
+
+    defines = [ "WRAPPING_CEF_SHARED" ]
+
+    configs += [ ":libcef_includes_config" ]
+    public_configs = [ ":libcef_includes_config" ]
+
+    deps = [ ":cef_make_headers" ]
+  }
+
+  # Minimal target for loading the CEF sandbox dynamically on macOS.
+  # This provides just the necessary C API functions without the full
+  # C++ wrapper.
+  static_library("cef_capi_sandbox_loader") {
+    # Necessary because the generated file includes test API headers.
+    testonly = true
+
+    sources = [
+      "include/cef_sandbox_mac.h",
+      "libcef_dll/wrapper/cef_scoped_sandbox_context_mac.mm",
+    ]
+
+    defines = [ "WRAPPING_CEF_SHARED" ]
+
+    configs += [ ":libcef_includes_config" ]
+    public_configs = [ ":libcef_includes_config" ]
+
+    deps = [ ":cef_make_headers" ]
+  }
+}
+
 # Configuration that will be applied to all targets that build autogen files.
 config("libcef_autogen_config") {
   if (is_clang) {
@@ -1886,7 +1937,6 @@ if (is_mac) {
 
         deps = [
           ":cef_make_headers",
-          ":libcef_dll_wrapper",
         ]
         if (defined(invoker.helper_deps)) {
           deps += invoker.helper_deps
@@ -1907,6 +1957,10 @@ if (is_mac) {
 
         if (defined(invoker.helper_defines)) {
           defines = invoker.helper_defines
+        }
+
+        if (defined(invoker.helper_cflags_c)) {
+          cflags_c = invoker.helper_cflags_c
         }
 
         # Disable clang modules for this target (see issue #3611).
@@ -1941,6 +1995,9 @@ if (is_mac) {
         }
         if (defined(invoker.helper_defines)) {
           helper_defines = invoker.helper_defines
+        }
+        if (defined(invoker.helper_cflags_c)) {
+          helper_cflags_c = invoker.helper_cflags_c
         }
 
         helper_name_suffix = _helper_suffix
@@ -1986,10 +2043,8 @@ if (is_mac) {
 
       sources = invoker.sources
 
-      public_deps = [ ":libcef_dll_wrapper" ]
       deps = [
         ":cef_make_headers",
-        ":libcef_dll_wrapper",
         ":${app_name}_framework_bundle_data",
       ]
       if (defined(invoker.deps)) {
@@ -2002,6 +2057,10 @@ if (is_mac) {
 
       if (defined(invoker.defines)) {
         defines = invoker.defines
+      }
+
+      if (defined(invoker.cflags_c)) {
+        cflags_c = invoker.cflags_c
       }
 
       info_plist_target = ":${app_name}_plist"
@@ -2059,6 +2118,9 @@ if (is_mac) {
                      gypi_paths2.shared_sources_mac_helper +
                      gypi_paths2.cefclient_sources_common +
                      gypi_paths2.cefclient_sources_renderer
+    helper_deps = [
+      ":libcef_dll_wrapper",
+    ]
     helper_defines = [
       "CEF_USE_SANDBOX",
     ]
@@ -2075,6 +2137,7 @@ if (is_mac) {
               gypi_paths2.cefclient_sources_common +
               gypi_paths2.cefclient_sources_mac
     deps = [
+      ":libcef_dll_wrapper",
       ":cefclient_resources_bundle_data",
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
@@ -2131,6 +2194,9 @@ if (is_mac) {
                      gypi_paths2.includes_wrapper +
                      gypi_paths2.includes_wrapper_mac +
                      gypi_paths2.cefsimple_sources_mac_helper
+    helper_deps = [
+      ":libcef_dll_wrapper",
+    ]
     helper_defines = [
       "CEF_USE_SANDBOX",
     ]
@@ -2143,6 +2209,7 @@ if (is_mac) {
               gypi_paths2.cefsimple_sources_common +
               gypi_paths2.cefsimple_sources_mac
     deps = [
+      ":libcef_dll_wrapper",
       ":cefsimple_resources_bundle_data",
       ":cefsimple_resources_bundle_data_english",
       ":cefsimple_xibs",
@@ -2153,6 +2220,75 @@ if (is_mac) {
     defines = [
       "CEF_USE_SANDBOX",
     ]
+  }
+
+
+  #
+  # cefsimple_capi app targets (Pure C API implementation).
+  #
+
+  bundle_data("cefsimple_capi_resources_bundle_data") {
+    sources = [
+      "tests/cefsimple_capi/mac/cefsimple_capi.icns",
+    ]
+
+    outputs = [
+      "{{bundle_resources_dir}}/{{source_file_part}}",
+    ]
+  }
+
+  bundle_data("cefsimple_capi_resources_bundle_data_english") {
+    sources = [
+      "tests/cefsimple_capi/mac/English.lproj/InfoPlist.strings",
+    ]
+
+    outputs = [
+      "{{bundle_resources_dir}}/English.lproj/{{source_file_part}}",
+    ]
+  }
+
+  mac_xib_bundle_data("cefsimple_capi_xibs") {
+    sources = [
+      "tests/cefsimple_capi/mac/English.lproj/MainMenu.xib",
+    ]
+    output_path = "{{bundle_resources_dir}}/English.lproj"
+  }
+
+  cef_app("cefsimple_capi") {
+    # Necessary because the cef_framework target is testonly.
+    testonly = true
+
+    helper_info_plist = "tests/cefsimple_capi/mac/helper-Info.plist.in"
+    helper_sources = includes_common_capi +
+                     includes_mac_capi +
+                     gypi_paths2.cefsimple_capi_sources_mac_helper
+    helper_deps = [
+      ":cef_capi_library_loader",
+      ":cef_capi_sandbox_loader",
+    ]
+    helper_defines = [
+      "CEF_USE_SANDBOX",
+    ]
+    helper_cflags_c = [ "-std=c11" ]
+
+    info_plist = "tests/cefsimple_capi/mac/Info.plist.in"
+    sources = includes_common_capi +
+              includes_mac_capi +
+              gypi_paths2.cefsimple_capi_sources_common +
+              gypi_paths2.cefsimple_capi_sources_mac
+    deps = [
+      ":cef_capi_library_loader",
+      ":cefsimple_capi_resources_bundle_data",
+      ":cefsimple_capi_resources_bundle_data_english",
+      ":cefsimple_capi_xibs",
+    ]
+    frameworks = [
+      "AppKit.framework",
+    ]
+    defines = [
+      "CEF_USE_SANDBOX",
+    ]
+    cflags_c = [ "-std=c11" ]
   }
 
 
@@ -2197,6 +2333,7 @@ if (is_mac) {
                      gypi_paths2.ceftests_sources_mac_helper +
                      gypi_paths2.ceftests_sources_mac_helper_shared
     helper_deps = [
+      ":libcef_dll_wrapper",
       ":gtest_teamcity",
       "//testing/gtest",
     ]
@@ -2219,6 +2356,7 @@ if (is_mac) {
               gypi_paths2.ceftests_sources_common +
               gypi_paths2.ceftests_sources_mac
     deps = [
+      ":libcef_dll_wrapper",
       ":ceftests_resources_bundle_data",
       ":ceftests_resources_bundle_data_english",
       ":ceftests_xibs",
@@ -2553,6 +2691,122 @@ if (is_mac) {
 
       # Disable clang modules for this target (see issue #3611).
       use_libcxx_modules = false
+    }
+  }
+
+
+  #
+  # cefsimple_capi targets (Pure C API implementation).
+  #
+
+  executable("cefsimple_capi") {
+    # Necessary because the libcef target is testonly.
+    testonly = true
+
+    sources = includes_common_capi +
+              gypi_paths2.cefsimple_capi_sources_common
+
+    deps = [
+      ":libcef",
+    ]
+
+    configs += [ ":libcef_includes_config" ]
+
+    defines = [
+      "CEF_USE_SANDBOX",
+    ]
+
+    if (is_win) {
+      sources += includes_win_capi +
+                 gypi_paths2.cefsimple_capi_sources_win +
+                 gypi_paths2.cefsimple_capi_sources_resources_win_rc
+
+      # Set /SUBSYSTEM:WINDOWS.
+      configs -= [ "//build/config/win:console" ]
+      configs += [ "//build/config/win:windowed" ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
+
+      deps += [
+        ":cef_sandbox",
+        "//build/win:default_exe_manifest",
+      ]
+
+      libs = [
+        "comctl32.lib",
+        "shlwapi.lib",
+        "rpcrt4.lib",
+      ]
+
+      # Use C11 standard for C files.
+      cflags_c = [ "/std:c11" ]
+    }
+
+    if (is_linux) {
+      sources += includes_linux_capi +
+                 gypi_paths2.cefsimple_capi_sources_linux
+
+      if (ozone_platform_x11) {
+        libs = [
+          "X11",
+        ]
+      }
+
+      if (!is_component_build) {
+        # Set rpath to find our own libfreetype even in a non-component build.
+        configs += [ "//build/config/gcc:rpath_for_built_shared_libraries" ]
+      }
+
+      # Use C11 standard for C files.
+      cflags_c = [ "-std=c11" ]
+    }
+  }
+
+  if (is_win) {
+    # Like the "cefsimple_capi" executable target, but building a DLL to be loaded by
+    # bootstrap.exe.
+    shared_library("cefsimple_capi_dll") {
+      # Necessary because the libcef target is testonly.
+      testonly = true
+
+      output_name = "cefsimple_capi"
+
+      sources = includes_common_capi +
+                includes_win_capi +
+                gypi_paths2.cefsimple_capi_sources_common +
+                gypi_paths2.cefsimple_capi_sources_win +
+                gypi_paths2.cefsimple_capi_sources_resources_win_rc
+
+      deps = [
+        ":bootstrap",
+        ":libcef",
+      ]
+
+      defines = [
+        "CEF_USE_BOOTSTRAP",
+      ]
+
+      # Delay-load as many DLLs as possible for sandbox and startup perf
+      # improvements.
+      configs += [
+        ":libcef_includes_config",
+        "//build/config/win:delayloads",
+        "//build/config/win:delayloads_not_for_child_dll",
+      ]
+
+      libs = [
+        "comctl32.lib",
+        "shlwapi.lib",
+        "rpcrt4.lib",
+      ]
+
+      # Use C11 standard for C files.
+      cflags_c = [ "/std:c11" ]
     }
   }
 

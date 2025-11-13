@@ -158,9 +158,14 @@ int cef_load_library(const char* path) {
   if (g_libcef_handle)
     return 0;
 
+  if (!path) {
+    fprintf(stderr, "cef_load_library: Invalid path argument");
+    return 0;
+  }
+
   g_libcef_handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
   if (!g_libcef_handle) {
-    fprintf(stderr, "dlopen %s: %s\\n", path, dlerror());
+    fprintf(stderr, "cef_load_library: dlopen %s: %s\\n", path, dlerror());
     return 0;
   }
 

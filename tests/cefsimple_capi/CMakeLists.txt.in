@@ -1,0 +1,256 @@
+# Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+#
+# Source files.
+#
+
+# cefsimple_capi sources.
+{{
+  'prefix': 'cefsimple_capi',
+  'set': 'CEFSIMPLE_CAPI_SRCS',
+  'includes': [
+    'cefsimple_capi_sources_common',
+    'cefsimple_capi_sources_win:WINDOWS',
+    'cefsimple_capi_sources_resources_win_rc:WINDOWS',
+    'cefsimple_capi_sources_mac:MAC',
+    'cefsimple_capi_sources_linux:LINUX',
+  ],
+}}
+
+# cefsimple_capi helper sources.
+{{
+  'prefix': 'cefsimple_capi_helper',
+  'includes': [
+    'cefsimple_capi_sources_mac_helper:MAC',
+  ],
+}}
+
+# cefsimple_capi resources.
+{{
+  'prefix': 'cefsimple_capi_resources',
+  'set': 'CEFSIMPLE_CAPI_RESOURCES_SRCS',
+  'includes': [
+    'cefsimple_capi_bundle_resources_mac:MAC',
+  ],
+}}
+
+
+#
+# Shared configuration.
+#
+
+# Target executable names.
+set(CEF_TARGET "cefsimple_capi")
+if(OS_MAC)
+  set(CEF_HELPER_TARGET "cefsimple_capi_Helper")
+  set(CEF_HELPER_OUTPUT_NAME "cefsimple_capi Helper")
+else()
+  # Logical target used to link the libcef library.
+  ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
+endif()
+
+# Determine the target output directory.
+SET_CEF_TARGET_OUT_DIR()
+
+# cefsimple_capi requires C11 for stdatomic.h and other C11 features.
+# Override the default C99 standard set by CEF.
+if(OS_LINUX OR OS_MAC)
+  # Replace -std=c99 with -std=c11 for C files.
+  list(REMOVE_ITEM CEF_C_COMPILER_FLAGS "-std=c99")
+  list(APPEND CEF_C_COMPILER_FLAGS "-std=c11")
+endif()
+if(OS_WINDOWS)
+  # Add /std:c11 for C files.
+  list(APPEND CEF_C_COMPILER_FLAGS "/std:c11")
+  # Remove C++ standard flag since this is a C-only target.
+  # The Visual Studio generator sets both <LanguageStandard> and <LanguageStandard_C>
+  # properties, and <LanguageStandard> takes precedence when compiling C files.
+  list(REMOVE_ITEM CEF_CXX_COMPILER_FLAGS "/std:c++17")
+endif()
+
+
+#
+# Linux configuration.
+#
+
+if(OS_LINUX)
+  # Executable target.
+  add_executable(${CEF_TARGET} ${CEFSIMPLE_CAPI_SRCS})
+  SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+
+  # Set rpath so that libraries can be placed next to the executable.
+  set_target_properties(${CEF_TARGET} PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+    RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR}
+    C_STANDARD 11
+    C_STANDARD_REQUIRED ON
+    )
+
+  # Copy binary and resource files to the target output directory.
+  COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
+  COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
+  if (EXISTS "${CEF_BINARY_DIR}/libminigbm.so")
+    COPY_FILES("${CEF_TARGET}" "libminigbm.so" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
+  endif()
+
+  # Set SUID permissions on the chrome-sandbox target.
+  SET_LINUX_SUID_PERMISSIONS("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
+endif()
+
+
+#
+# Mac OS X configuration.
+#
+
+if(OS_MAC)
+  option(OPTION_USE_ARC "Build with ARC (automatic Reference Counting) on macOS." ON)
+  if(OPTION_USE_ARC)
+    list(APPEND CEF_COMPILER_FLAGS
+      -fobjc-arc
+      )
+    set_target_properties(${target} PROPERTIES
+      CLANG_ENABLE_OBJC_ARC "YES"
+      )
+  endif()
+
+  # Output path for the main app bundle.
+  set(CEF_APP "${CEF_TARGET_OUT_DIR}/${CEF_TARGET}.app")
+
+  # Variables referenced from the main Info.plist file.
+  set(EXECUTABLE_NAME "${CEF_TARGET}")
+  set(PRODUCT_NAME "${CEF_TARGET}")
+
+  # Main app bundle target.
+  add_executable(${CEF_TARGET} MACOSX_BUNDLE ${CEFSIMPLE_CAPI_RESOURCES_SRCS} ${CEFSIMPLE_CAPI_SRCS})
+  SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
+  target_link_libraries(${CEF_TARGET} libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+  set_target_properties(${CEF_TARGET} PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist.in
+    C_STANDARD 11
+    C_STANDARD_REQUIRED ON
+    XCODE_ATTRIBUTE_GCC_C_LANGUAGE_STANDARD "c11"
+    )
+
+  # Copy the CEF framework into the Frameworks directory and create the necessary symlinks.
+  COPY_MAC_FRAMEWORK("${CEF_TARGET}" "${CEF_BINARY_DIR}" "${CEF_APP}")
+
+  # Create the multiple Helper app bundle targets.
+  foreach(_suffix_list ${CEF_HELPER_APP_SUFFIXES})
+    # Convert to a list and extract the suffix values.
+    string(REPLACE ":" ";" _suffix_list ${_suffix_list})
+    list(GET _suffix_list 0 _name_suffix)
+    list(GET _suffix_list 1 _target_suffix)
+    list(GET _suffix_list 2 _plist_suffix)
+
+    # Define Helper target and output names.
+    set(_helper_target "${CEF_HELPER_TARGET}${_target_suffix}")
+    set(_helper_output_name "${CEF_HELPER_OUTPUT_NAME}${_name_suffix}")
+
+    # Create Helper-specific variants of the helper-Info.plist file. Do this
+    # manually because the configure_file command (which is executed as part of
+    # MACOSX_BUNDLE_INFO_PLIST) uses global env variables and would insert the
+    # wrong values with multiple targets.
+    set(_helper_info_plist "${CMAKE_CURRENT_BINARY_DIR}/helper-Info${_target_suffix}.plist")
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/mac/helper-Info.plist.in" _plist_contents)
+    string(REPLACE "\${EXECUTABLE_NAME}" "${_helper_output_name}" _plist_contents ${_plist_contents})
+    string(REPLACE "\${PRODUCT_NAME}" "${_helper_output_name}" _plist_contents ${_plist_contents})
+    string(REPLACE "\${BUNDLE_ID_SUFFIX}" "${_plist_suffix}" _plist_contents ${_plist_contents})
+    file(WRITE ${_helper_info_plist} ${_plist_contents})
+
+    # Create Helper executable target.
+    add_executable(${_helper_target} MACOSX_BUNDLE ${CEFSIMPLE_CAPI_HELPER_SRCS})
+    SET_EXECUTABLE_TARGET_PROPERTIES(${_helper_target})
+    add_dependencies(${_helper_target} libcef_dll_wrapper)
+    target_link_libraries(${_helper_target} libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+    set_target_properties(${_helper_target} PROPERTIES
+      MACOSX_BUNDLE_INFO_PLIST ${_helper_info_plist}
+      OUTPUT_NAME ${_helper_output_name}
+      C_STANDARD 11
+      C_STANDARD_REQUIRED ON
+      XCODE_ATTRIBUTE_GCC_C_LANGUAGE_STANDARD "c11"
+      )
+
+    # Add the Helper as a dependency of the main executable target.
+    add_dependencies(${CEF_TARGET} "${_helper_target}")
+
+    # Copy the Helper app bundle into the Frameworks directory.
+    add_custom_command(
+      TARGET ${CEF_TARGET}
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+              "${CEF_TARGET_OUT_DIR}/${_helper_output_name}.app"
+              "${CEF_APP}/Contents/Frameworks/${_helper_output_name}.app"
+      VERBATIM
+      )
+  endforeach()
+
+  # Manually process and copy over resource files.
+  # The Xcode generator can support this via the set_target_properties RESOURCE
+  # directive but that doesn't properly handle nested resource directories.
+  # Remove these prefixes from input file paths.
+  set(PREFIXES "mac/")
+  COPY_MAC_RESOURCES("${CEFSIMPLE_CAPI_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
+endif()
+
+
+#
+# Windows configuration.
+#
+
+if(OS_WINDOWS)
+  if(USE_SANDBOX)
+    # Shared library (DLL) target.
+    add_library(${CEF_TARGET} SHARED ${CEFSIMPLE_CAPI_SRCS})
+    SET_LIBRARY_TARGET_PROPERTIES(${CEF_TARGET})
+    set_target_properties(${CEF_TARGET} PROPERTIES
+      C_STANDARD 11
+      C_STANDARD_REQUIRED ON
+      )
+
+    # Copy and rename the bootstrap binary.
+    COPY_SINGLE_FILE(${CEF_TARGET} ${CEF_BINARY_DIR}/bootstrap.exe ${CEF_TARGET_OUT_DIR}/${CEF_TARGET}.exe)
+
+    if (CMAKE_GENERATOR MATCHES "Visual Studio")
+      # Make the bootstrap binary the default command for the Visual Studio debugger.
+      set_target_properties(${CEF_TARGET} PROPERTIES
+        VS_DEBUGGER_COMMAND "$<TARGET_FILE_DIR:${CEF_TARGET}>/${CEF_TARGET}.exe"
+      )
+    endif()
+  else()
+    # Executable target.
+    add_executable(${CEF_TARGET} WIN32 ${CEFSIMPLE_CAPI_SRCS})
+    SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
+    set_target_properties(${CEF_TARGET} PROPERTIES
+      C_STANDARD 11
+      C_STANDARD_REQUIRED ON
+      )
+
+    # Add the custom manifest files to the executable.
+    ADD_WINDOWS_MANIFEST("${CMAKE_CURRENT_SOURCE_DIR}/win" "${CEF_TARGET}" "exe")
+  endif()
+
+  add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
+
+  # Enable C11 atomics support (required for stdatomic.h in MSVC).
+  # Must use set_property instead of CEF_C_COMPILER_FLAGS because the Visual Studio
+  # generator doesn't properly handle this flag when passed through generator expressions.
+  if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    set_property(TARGET ${CEF_TARGET} APPEND PROPERTY COMPILE_OPTIONS "/experimental:c11atomics")
+  endif()
+
+  # Copy binary and resource files to the target output directory.
+  COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
+  COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
+
+  if(USE_SANDBOX)
+    # Set LPAC ACLs required for Windows sandbox support.
+    SET_LPAC_ACLS("${CEF_TARGET}")
+  endif()
+endif()

@@ -1,0 +1,68 @@
+# Copyright (c) 2025 The Chromium Embedded Framework Authors. All rights
+# reserved. Use of this source code is governed by a BSD-style license that
+# can be found in the LICENSE file.
+
+PRODUCT_NAME = "cefsimple_capi"
+PKG_NAME = "//tests/{}".format(PRODUCT_NAME)
+
+# Allow access from the parent package only.
+package(default_visibility = [
+    "{}:__pkg__".format(PKG_NAME),
+])
+
+#
+# Windows DLL target (sandbox enabled).
+#
+
+load("//bazel/win:exe_helpers.bzl", "declare_dll")
+
+declare_dll(
+    name = PRODUCT_NAME,
+    srcs = [
+        "{}:SrcsWin".format(PKG_NAME),
+    ],
+    rc_file = "cefsimple.rc",
+    resources_srcs = [
+        "cefsimple.ico",
+        "small.ico",
+    ],
+    resources_deps = [
+        "{}:ResourceH".format(PKG_NAME),
+    ],
+    copts = [
+        "/std:c11",  # cefsimple_capi requires C11 for stdatomic.h
+        "/experimental:c11atomics",  # Enable C11 atomics support in MSVC
+    ],
+    local_defines = [
+        # Enable use of the bootstrap executable.
+        "CEF_USE_BOOTSTRAP",
+    ],
+)
+
+#
+# Windows executable target (sandbox disabled).
+#
+
+# load("//bazel/win:exe_helpers.bzl", "declare_exe")
+#
+# declare_exe(
+#     name = PRODUCT_NAME,
+#     srcs = [
+#         "{}:SrcsWin".format(PKG_NAME),
+#     ],
+#     rc_file = "cefsimple.rc",
+#     manifest_srcs = [
+#         "compatibility.manifest",
+#         "cefsimple.exe.manifest",
+#     ],
+#     resources_srcs = [
+#         "cefsimple.ico",
+#         "small.ico",
+#     ],
+#     resources_deps = [
+#         "{}:ResourceH".format(PKG_NAME),
+#     ],
+#     linkopts = [
+#         "/SUBSYSTEM:WINDOWS",
+#     ],
+# )

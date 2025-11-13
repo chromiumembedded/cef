@@ -966,6 +966,10 @@ if mode == 'standard':
   cefsimple_dir = os.path.join(tests_dir, 'cefsimple')
   make_dir(cefsimple_dir, options.quiet)
 
+  # create the tests/cefsimple_capi directory
+  cefsimple_capi_dir = os.path.join(tests_dir, 'cefsimple_capi')
+  make_dir(cefsimple_capi_dir, options.quiet)
+
   # create the tests/ceftests directory
   ceftests_dir = os.path.join(tests_dir, 'ceftests')
   make_dir(ceftests_dir, options.quiet)
@@ -995,6 +999,10 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
                       'tests/cefsimple/', cefsimple_dir, options.quiet)
 
+  # transfer common cefsimple_capi files
+  transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_common'], \
+                      'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
+
   # transfer common ceftests files
   transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_common'], \
                       'tests/ceftests/', ceftests_dir, options.quiet)
@@ -1009,6 +1017,9 @@ if mode == 'standard':
                            variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple', 'CMakeLists.txt.in'), \
                          os.path.join(cefsimple_dir, 'CMakeLists.txt'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple_capi', 'CMakeLists.txt.in'), \
+                         os.path.join(cefsimple_capi_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'gtest', 'CMakeLists.txt.in'), \
                          os.path.join(tests_dir, 'gtest', 'CMakeLists.txt'), \
@@ -1196,6 +1207,12 @@ elif platform == 'windows':
                         cef_paths2['cefsimple_sources_resources_win_rc'],
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
+    # transfer cefsimple_capi files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_win'] +
+                        cef_paths2['cefsimple_capi_sources_resources_win'] +
+                        cef_paths2['cefsimple_capi_sources_resources_win_rc'],
+                        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
+
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'] +
                         cef_paths2['ceftests_sources_resources_win'] +
@@ -1350,6 +1367,17 @@ elif platform == 'mac':
              os.path.join(cefsimple_dir, 'mac'), \
              options.quiet)
 
+    # transfer cefsimple_capi files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_mac'], \
+                        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_mac_helper'], \
+                        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
+
+    # transfer cefsimple_capi/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/cefsimple_capi/mac'), \
+             os.path.join(cefsimple_capi_dir, 'mac'), \
+             options.quiet)
+
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_mac'], \
                         'tests/ceftests/', ceftests_dir, options.quiet)
@@ -1447,6 +1475,10 @@ elif platform == 'linux':
     # transfer cefsimple files
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
+
+    # transfer cefsimple_capi files
+    transfer_gypi_files(cef_dir, cef_paths2['cefsimple_capi_sources_linux'], \
+                        'tests/cefsimple_capi/', cefsimple_capi_dir, options.quiet)
 
     # transfer ceftests files
     transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_linux'], \

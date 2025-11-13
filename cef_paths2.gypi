@@ -494,6 +494,51 @@
       'tests/cefsimple/cefsimple_linux.cc',
       'tests/cefsimple/simple_handler_linux.cc',
     ],
+    'cefsimple_capi_sources_common': [
+      'tests/cefsimple_capi/ref_counted.h',
+      'tests/cefsimple_capi/simple_app.c',
+      'tests/cefsimple_capi/simple_app.h',
+      'tests/cefsimple_capi/simple_browser_list.c',
+      'tests/cefsimple_capi/simple_browser_list.h',
+      'tests/cefsimple_capi/simple_display_handler.c',
+      'tests/cefsimple_capi/simple_handler.c',
+      'tests/cefsimple_capi/simple_handler.h',
+      'tests/cefsimple_capi/simple_life_span_handler.c',
+      'tests/cefsimple_capi/simple_load_handler.c',
+      'tests/cefsimple_capi/simple_utils.h',
+      'tests/cefsimple_capi/simple_views.c',
+      'tests/cefsimple_capi/simple_views.h',
+    ],
+    'cefsimple_capi_sources_win': [
+      'tests/cefsimple_capi/cefsimple_win.c',
+      'tests/cefsimple_capi/resource.h',
+      'tests/cefsimple_capi/simple_handler_win.c',
+    ],
+    'cefsimple_capi_sources_resources_win': [
+      'tests/cefsimple_capi/win/cefsimple.exe.manifest',
+      'tests/cefsimple_capi/win/cefsimple.ico',
+      'tests/cefsimple_capi/win/small.ico',
+    ],
+    'cefsimple_capi_sources_resources_win_rc': [
+      'tests/cefsimple_capi/win/cefsimple.rc',
+    ],
+    'cefsimple_capi_sources_mac': [
+      'tests/cefsimple_capi/cefsimple_mac.m',
+      'tests/cefsimple_capi/simple_handler_mac.m',
+    ],
+    'cefsimple_capi_sources_mac_helper': [
+      'tests/cefsimple_capi/process_helper_mac.c',
+    ],
+    'cefsimple_capi_bundle_resources_mac': [
+      'tests/cefsimple_capi/mac/cefsimple_capi.icns',
+      'tests/cefsimple_capi/mac/English.lproj/InfoPlist.strings',
+      'tests/cefsimple_capi/mac/English.lproj/MainMenu.xib',
+      'tests/cefsimple_capi/mac/Info.plist.in',
+    ],
+    'cefsimple_capi_sources_linux': [
+      'tests/cefsimple_capi/cefsimple_linux.c',
+      'tests/cefsimple_capi/simple_handler_linux.c',
+    ],
     'ceftests_data_resources': [
       'tests/ceftests/resources/net/data/ssl/certificates/expired_cert.pem',
       'tests/ceftests/resources/net/data/ssl/certificates/localhost_cert.pem',

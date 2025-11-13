@@ -75,3 +75,20 @@ CefScopedLibraryLoader::~CefScopedLibraryLoader() {
     cef_unload_library();
   }
 }
+
+// C API wrapper functions for use with pure C code.
+void* cef_scoped_library_loader_create(int helper) {
+  CefScopedLibraryLoader* loader = new CefScopedLibraryLoader();
+  bool success = helper ? loader->LoadInHelper() : loader->LoadInMain();
+  if (!success) {
+    delete loader;
+    return nullptr;
+  }
+  return loader;
+}
+
+void cef_scoped_library_loader_free(void* loader) {
+  if (loader) {
+    delete static_cast<CefScopedLibraryLoader*>(loader);
+  }
+}

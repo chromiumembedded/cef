@@ -111,3 +111,19 @@ bool CefScopedSandboxContext::Initialize(int argc, char** argv) {
   sandbox_context_ = SandboxInitialize(library_handle_, argc, argv);
   return !!sandbox_context_;
 }
+
+// C API wrapper functions for use with pure C code.
+void* cef_scoped_sandbox_initialize(int argc, char** argv) {
+  CefScopedSandboxContext* context = new CefScopedSandboxContext();
+  if (!context->Initialize(argc, argv)) {
+    delete context;
+    return nullptr;
+  }
+  return context;
+}
+
+void cef_scoped_sandbox_destroy(void* sandbox_context) {
+  if (sandbox_context) {
+    delete static_cast<CefScopedSandboxContext*>(sandbox_context);
+  }
+}

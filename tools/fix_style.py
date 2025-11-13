@@ -12,7 +12,7 @@ from git_util import get_changed_files
 from yapf_util import yapf_format
 
 # File extensions that can be formatted.
-DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.h|.*\.java|.*\.mm|.*\.py)$"
+DEFAULT_LINT_WHITELIST_REGEX = r"(.*\.cpp|.*\.cc|.*\.c|.*\.h|.*\.java|.*\.mm|.*\.m|.*\.py)$"
 DEFAULT_LINT_BLACKLIST_REGEX = r"$^"
 
 # Directories containing these path components will be ignored.
