@@ -14,6 +14,7 @@
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_task_capi.h"
 #include "tests/cefsimple_capi/ref_counted.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 
 // Global instance pointer.
 static simple_handler_t* g_instance = NULL;
@@ -38,9 +39,8 @@ static simple_handler_t* g_instance = NULL;
 // Adds a reference - the list takes ownership of one reference.
 static void browser_list_add(simple_handler_t* handler,
                              cef_browser_t* browser) {
-  if (!handler || !browser) {
-    return;
-  }
+  CHECK(handler);
+  CHECK(browser);
 
   // Ensure capacity.
   if (handler->browser_count >= handler->browser_capacity) {
@@ -48,9 +48,7 @@ static void browser_list_add(simple_handler_t* handler,
         handler->browser_capacity == 0 ? 4 : handler->browser_capacity * 2;
     cef_browser_t** new_list = (cef_browser_t**)realloc(
         handler->browser_list, new_capacity * sizeof(cef_browser_t*));
-    if (!new_list) {
-      return;
-    }
+    CHECK(new_list);
     handler->browser_list = new_list;
     handler->browser_capacity = new_capacity;
   }
@@ -67,9 +65,8 @@ static void browser_list_add(simple_handler_t* handler,
 // Releases the list's reference - does not affect the caller's reference.
 static void browser_list_remove(simple_handler_t* handler,
                                 cef_browser_t* browser) {
-  if (!handler || !browser) {
-    return;
-  }
+  CHECK(handler);
+  CHECK(browser);
 
   // Find and remove the browser.
   for (size_t i = 0; i < handler->browser_count; ++i) {
@@ -179,9 +176,7 @@ void CEF_CALLBACK display_handler_on_title_change(cef_display_handler_t* self,
 simple_display_handler_t* display_handler_create(simple_handler_t* parent) {
   simple_display_handler_t* handler =
       (simple_display_handler_t*)calloc(1, sizeof(simple_display_handler_t));
-  if (!handler) {
-    return NULL;
-  }
+  CHECK(handler);
 
   // Initialize base structure.
   handler->handler.base.size = sizeof(cef_display_handler_t);
@@ -275,9 +270,7 @@ life_span_handler_on_before_close(cef_life_span_handler_t* self,
 simple_life_span_handler_t* life_span_handler_create(simple_handler_t* parent) {
   simple_life_span_handler_t* handler = (simple_life_span_handler_t*)calloc(
       1, sizeof(simple_life_span_handler_t));
-  if (!handler) {
-    return NULL;
-  }
+  CHECK(handler);
 
   // Initialize base structure.
   handler->handler.base.size = sizeof(cef_life_span_handler_t);
@@ -379,9 +372,7 @@ void CEF_CALLBACK load_handler_on_load_error(cef_load_handler_t* self,
 simple_load_handler_t* load_handler_create(simple_handler_t* parent) {
   simple_load_handler_t* handler =
       (simple_load_handler_t*)calloc(1, sizeof(simple_load_handler_t));
-  if (!handler) {
-    return NULL;
-  }
+  CHECK(handler);
 
   // Initialize base structure.
   handler->handler.base.size = sizeof(cef_load_handler_t);
@@ -450,9 +441,7 @@ simple_handler_get_load_handler(cef_client_t* self) {
 simple_handler_t* simple_handler_create(int is_alloy_style) {
   simple_handler_t* handler =
       (simple_handler_t*)calloc(1, sizeof(simple_handler_t));
-  if (!handler) {
-    return NULL;
-  }
+  CHECK(handler);
 
   // Initialize base structure.
   handler->client.base.size = sizeof(cef_client_t);
@@ -469,8 +458,11 @@ simple_handler_t* simple_handler_create(int is_alloy_style) {
 
   // Create sub-handlers.
   handler->display_handler = display_handler_create(handler);
+  CHECK(handler->display_handler);
   handler->life_span_handler = life_span_handler_create(handler);
+  CHECK(handler->life_span_handler);
   handler->load_handler = load_handler_create(handler);
+  CHECK(handler->load_handler);
 
   // Initialize other fields.
   handler->is_alloy_style = is_alloy_style;
@@ -539,17 +531,13 @@ void CEF_CALLBACK close_browsers_task_execute(cef_task_t* self) {
 
 void simple_handler_close_all_browsers(simple_handler_t* handler,
                                        int force_close) {
-  if (!handler) {
-    return;
-  }
+  CHECK(handler);
 
   if (!cef_currently_on(TID_UI)) {
     // Execute on the UI thread.
     close_browsers_task_t* task =
         (close_browsers_task_t*)calloc(1, sizeof(close_browsers_task_t));
-    if (!task) {
-      return;
-    }
+    CHECK(task);
 
     task->task.base.size = sizeof(cef_task_t);
     task->task.base.add_ref = close_browsers_task_add_ref;
@@ -582,7 +570,8 @@ void simple_handler_close_all_browsers(simple_handler_t* handler,
 }
 
 void simple_handler_show_main_window(simple_handler_t* handler) {
-  if (!handler || handler->browser_count == 0) {
+  CHECK(handler);
+  if (handler->browser_count == 0) {
     return;
   }
 

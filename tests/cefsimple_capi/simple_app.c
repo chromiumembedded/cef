@@ -15,6 +15,7 @@
 #include "include/capi/views/cef_window_capi.h"
 #include "tests/cefsimple_capi/ref_counted.h"
 #include "tests/cefsimple_capi/simple_handler.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 #include "tests/cefsimple_capi/simple_views.h"
 
 // Implement reference counting functions for simple_app_t.
@@ -87,9 +88,7 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
     cef_browser_process_handler_t* self) {
   // Get the global command line.
   cef_command_line_t* command_line = cef_command_line_get_global();
-  if (!command_line) {
-    return;
-  }
+  CHECK(command_line);
 
   // Check if Alloy style will be used.
   cef_string_t alloy_switch = {};
@@ -99,9 +98,7 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
 
   // Create the client handler.
   simple_handler_t* client_handler = simple_handler_create(use_alloy_style);
-  if (!client_handler) {
-    return;
-  }
+  CHECK(client_handler);
 
   // The client_handler is stored globally via simple_handler_get_instance().
   // GetDefaultClient() will retrieve it from there when needed.
@@ -146,6 +143,7 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
     // Create the BrowserView using Views framework.
     simple_browser_view_delegate_t* browser_view_delegate =
         browser_view_delegate_create(runtime_style);
+    CHECK(browser_view_delegate);
 
     // Create the browser view.
     // We transfer our client_handler and browser_view_delegate references to
@@ -202,12 +200,11 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
       // We transfer our browser_view reference to the window delegate.
       simple_window_delegate_t* window_delegate = window_delegate_create(
           browser_view, runtime_style, initial_show_state);
+      CHECK(window_delegate);
 
-      if (window_delegate) {
-        // Create the window.
-        // We transfer our window_delegate reference to CEF.
-        cef_window_create_top_level(&window_delegate->delegate);
-      }
+      // Create the window.
+      // We transfer our window_delegate reference to CEF.
+      cef_window_create_top_level(&window_delegate->delegate);
     }
   } else {
     // Information used when creating the native window.
@@ -273,9 +270,7 @@ simple_browser_process_handler_t* browser_process_handler_create(void) {
   simple_browser_process_handler_t* handler =
       (simple_browser_process_handler_t*)calloc(
           1, sizeof(simple_browser_process_handler_t));
-  if (!handler) {
-    return NULL;
-  }
+  CHECK(handler);
 
   // Initialize base structure.
   handler->handler.base.size = sizeof(cef_browser_process_handler_t);
@@ -300,9 +295,7 @@ simple_browser_process_handler_t* browser_process_handler_create(void) {
 // Creates the application instance.
 simple_app_t* simple_app_create(void) {
   simple_app_t* app = (simple_app_t*)calloc(1, sizeof(simple_app_t));
-  if (!app) {
-    return NULL;
-  }
+  CHECK(app);
 
   // Initialize base structure.
   app->app.base.size = sizeof(cef_app_t);
@@ -316,6 +309,7 @@ simple_app_t* simple_app_create(void) {
 
   // Create the browser process handler.
   app->browser_process_handler = browser_process_handler_create();
+  CHECK(app->browser_process_handler);
 
   // Initialize with ref count of 1.
   atomic_store(&app->ref_count, 1);

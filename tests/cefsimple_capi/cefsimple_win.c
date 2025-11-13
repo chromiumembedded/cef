@@ -8,6 +8,7 @@
 #include "include/cef_api_hash.h"
 #include "include/cef_sandbox_win.h"
 #include "tests/cefsimple_capi/simple_app.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 
 static int RunMain(HINSTANCE hInstance,
                    LPTSTR lpCmdLine,
@@ -25,9 +26,7 @@ static int RunMain(HINSTANCE hInstance,
 
   // Create the application instance.
   simple_app_t* app = simple_app_create();
-  if (!app) {
-    return 1;
-  }
+  CHECK(app);
 
   // Add reference before cef_execute_process. Both cef_execute_process and
   // cef_initialize will take ownership of a reference, so we need 2 total.

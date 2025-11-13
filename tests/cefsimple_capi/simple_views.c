@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "tests/cefsimple_capi/ref_counted.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 
 //
 // Browser View Delegate Implementation
@@ -102,9 +103,7 @@ simple_browser_view_delegate_t* browser_view_delegate_create(
   simple_browser_view_delegate_t* delegate =
       (simple_browser_view_delegate_t*)calloc(
           1, sizeof(simple_browser_view_delegate_t));
-  if (!delegate) {
-    return NULL;
-  }
+  CHECK(delegate);
 
   // Initialize base structure.
   delegate->delegate.base.base.size = sizeof(cef_browser_view_delegate_t);
@@ -317,9 +316,7 @@ simple_window_delegate_t* window_delegate_create(
     cef_show_state_t initial_show_state) {
   simple_window_delegate_t* delegate =
       (simple_window_delegate_t*)calloc(1, sizeof(simple_window_delegate_t));
-  if (!delegate) {
-    return NULL;
-  }
+  CHECK(delegate);
 
   // Initialize base structure.
   delegate->delegate.base.base.base.size = sizeof(cef_window_delegate_t);

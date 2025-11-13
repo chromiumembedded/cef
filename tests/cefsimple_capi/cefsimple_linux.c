@@ -10,6 +10,7 @@
 
 #include "include/capi/cef_app_capi.h"
 #include "include/cef_api_hash.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 
 #if defined(CEF_X11)
 static int XErrorHandlerImpl(Display* display, XErrorEvent* event) {
@@ -35,9 +36,7 @@ int main(int argc, char* argv[]) {
 
   // Create the application instance.
   simple_app_t* app = simple_app_create();
-  if (!app) {
-    return 1;
-  }
+  CHECK(app);
 
   // Add reference before cef_execute_process. Both cef_execute_process and
   // cef_initialize will take ownership of a reference, so we need 2 total.

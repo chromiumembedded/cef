@@ -11,6 +11,7 @@
 #include "include/wrapper/cef_library_loader.h"
 #include "tests/cefsimple_capi/simple_app.h"
 #include "tests/cefsimple_capi/simple_handler.h"
+#include "tests/cefsimple_capi/simple_utils.h"
 
 // Receives notifications from the application.
 @interface SimpleAppDelegate : NSObject <NSApplicationDelegate>
@@ -123,9 +124,7 @@ int main(int argc, char* argv[]) {
 
     // Create the application instance.
     simple_app_t* app = simple_app_create();
-    if (!app) {
-      return 1;
-    }
+    CHECK(app);
 
     // Specify CEF global settings here.
     cef_settings_t settings = {};
