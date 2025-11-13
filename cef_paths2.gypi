@@ -500,6 +500,8 @@
       'tests/cefsimple_capi/simple_app.h',
       'tests/cefsimple_capi/simple_handler.c',
       'tests/cefsimple_capi/simple_handler.h',
+      'tests/cefsimple_capi/simple_views.c',
+      'tests/cefsimple_capi/simple_views.h',
     ],
     'cefsimple_capi_sources_win': [
       'tests/cefsimple_capi/cefsimple_win.c',

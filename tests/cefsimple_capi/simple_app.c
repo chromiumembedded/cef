@@ -11,8 +11,11 @@
 
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_command_line_capi.h"
+#include "include/capi/views/cef_browser_view_capi.h"
+#include "include/capi/views/cef_window_capi.h"
 #include "tests/cefsimple_capi/ref_counted.h"
 #include "tests/cefsimple_capi/simple_handler.h"
+#include "tests/cefsimple_capi/simple_views.h"
 
 // Implement reference counting functions for simple_app_t.
 IMPLEMENT_ADDREF(simple_app_t, simple_app, ref_count)
@@ -125,6 +128,7 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
   }
 
   // Check if Views framework should be used.
+  // Views is enabled by default (add `--use-native` to disable).
   cef_string_t native_switch = {};
   cef_string_from_ascii("use-native", 10, &native_switch);
   int use_native = command_line->has_switch(command_line, &native_switch);
@@ -132,11 +136,80 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
 
   int use_views = !use_native;
 
-  // For now, we'll only support native window creation to keep it simple.
-  // Views framework support can be added later.
-  use_views = 0;
+  // Determine runtime style.
+  cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
+  if (use_alloy_style) {
+    runtime_style = CEF_RUNTIME_STYLE_ALLOY;
+  }
 
-  if (!use_views) {
+  if (use_views) {
+    // Create the BrowserView using Views framework.
+    simple_browser_view_delegate_t* browser_view_delegate =
+        browser_view_delegate_create(runtime_style);
+
+    // Create the browser view.
+    // We transfer our client_handler and browser_view_delegate references to
+    // CEF. CEF will release them when the browser view is destroyed.
+    cef_browser_view_t* browser_view = cef_browser_view_create(
+        &client_handler->client, &url, &browser_settings, NULL, NULL,
+        &browser_view_delegate->delegate);
+
+    // Note: We DON'T release browser_view_delegate here - we transferred
+    // ownership to CEF.
+
+    if (browser_view) {
+      // Optionally configure the initial show state.
+      cef_show_state_t initial_show_state = CEF_SHOW_STATE_NORMAL;
+      cef_string_t show_state_switch = {};
+      cef_string_from_ascii("initial-show-state", 18, &show_state_switch);
+      cef_string_userfree_t show_state_value =
+          command_line->get_switch_value(command_line, &show_state_switch);
+      cef_string_clear(&show_state_switch);
+
+      if (show_state_value && show_state_value->length > 0) {
+        // Check for "minimized"
+        cef_string_t minimized = {};
+        cef_string_from_ascii("minimized", 9, &minimized);
+        if (cef_string_utf16_cmp(show_state_value, &minimized) == 0) {
+          initial_show_state = CEF_SHOW_STATE_MINIMIZED;
+        }
+        cef_string_clear(&minimized);
+
+        // Check for "maximized"
+        cef_string_t maximized = {};
+        cef_string_from_ascii("maximized", 9, &maximized);
+        if (cef_string_utf16_cmp(show_state_value, &maximized) == 0) {
+          initial_show_state = CEF_SHOW_STATE_MAXIMIZED;
+        }
+        cef_string_clear(&maximized);
+
+#if defined(OS_MAC)
+        // Hidden show state is only supported on macOS.
+        cef_string_t hidden = {};
+        cef_string_from_ascii("hidden", 6, &hidden);
+        if (cef_string_utf16_cmp(show_state_value, &hidden) == 0) {
+          initial_show_state = CEF_SHOW_STATE_HIDDEN;
+        }
+        cef_string_clear(&hidden);
+#endif
+      }
+
+      if (show_state_value) {
+        cef_string_userfree_free(show_state_value);
+      }
+
+      // Create the Window. It will show itself after creation.
+      // We transfer our browser_view reference to the window delegate.
+      simple_window_delegate_t* window_delegate = window_delegate_create(
+          browser_view, runtime_style, initial_show_state);
+
+      if (window_delegate) {
+        // Create the window.
+        // We transfer our window_delegate reference to CEF.
+        cef_window_create_top_level(&window_delegate->delegate);
+      }
+    }
+  } else {
     // Information used when creating the native window.
     cef_window_info_t window_info = {};
     window_info.size = sizeof(cef_window_info_t);
@@ -159,11 +232,7 @@ void CEF_CALLBACK browser_process_handler_on_context_initialized(
     window_info.bounds.height = 600;
 #endif
 
-    // Determine runtime style.
-    cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
-    if (use_alloy_style) {
-      runtime_style = CEF_RUNTIME_STYLE_ALLOY;
-    }
+    // Use the runtime style determined earlier.
     window_info.runtime_style = runtime_style;
 
     // Create the browser window.
