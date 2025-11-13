@@ -24,7 +24,7 @@ static int RunMain(HINSTANCE hInstance,
   cef_main_args_t main_args = {};
   main_args.instance = hInstance;
 
-  // Create the application instance.
+  // Create the application instance (with 1 reference).
   simple_app_t* app = simple_app_create();
   CHECK(app);
 
@@ -56,7 +56,8 @@ static int RunMain(HINSTANCE hInstance,
   // fails or if early exit is desired (for example, due to process singleton
   // relaunch behavior).
   if (!cef_initialize(&main_args, &settings, &app->app, sandbox_info)) {
-    app->app.base.release(&app->app.base);
+    // cef_initialize took ownership of the remaining app reference so we don't
+    // need to release any.
     return cef_get_exit_code();
   }
 
@@ -67,9 +68,9 @@ static int RunMain(HINSTANCE hInstance,
   // Shut down CEF.
   cef_shutdown();
 
-  // Note: We DON'T release the app here.
-  // We transferred our creation reference to CEF via cef_initialize.
-  // CEF will release it during cef_shutdown().
+  // Note: We DON'T release the app here. The 2 total references have been
+  // given to cef_execute_process and cef_initialize. If cef_initialize
+  // succeeded the final reference will be released during cef_shutdown.
 
   return 0;
 }

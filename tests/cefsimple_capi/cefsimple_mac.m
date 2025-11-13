@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    // Create the application instance.
+    // Create the application instance (with 1 reference).
     simple_app_t* app = simple_app_create();
     CHECK(app);
 
@@ -141,7 +141,8 @@ int main(int argc, char* argv[]) {
     // fails or if early exit is desired (for example, due to process singleton
     // relaunch behavior).
     if (!cef_initialize(&main_args, &settings, &app->app, NULL)) {
-      app->app.base.release(&app->app.base);
+      // cef_initialize took ownership of the app reference so we don't need to
+      // release any.
       return cef_get_exit_code();
     }
 
@@ -167,9 +168,9 @@ int main(int argc, char* argv[]) {
 #endif  // !__has_feature(objc_arc)
     delegate = nil;
 
-    // Note: We DON'T release the app here.
-    // We transferred our creation reference to CEF via cef_initialize.
-    // CEF will release it during cef_shutdown().
+    // Note: We DON'T release the app here. The single reference has been given
+    // cef_initialize. If cef_initialize succeeded then that reference will be
+    // released during cef_shutdown.
   }  // @autoreleasepool
 
   // Unload the CEF framework library.

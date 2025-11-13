@@ -43,6 +43,8 @@ int main(int argc, char* argv[]) {
   main_args.argv = argv;
 
   // Execute the sub-process.
+  // NOTE: It's fine to pass a NULL app pointer here because cefsimple doesn't
+  // implement any renderer-side callbacks (CefRenderProcessHandler, etc).
   int result = cef_execute_process(&main_args, NULL, NULL);
 
   // Unload the CEF framework library.
