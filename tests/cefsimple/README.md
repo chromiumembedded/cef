@@ -58,36 +58,6 @@ For complete API documentation, see [GeneralUsage](https://bitbucket.org/chromiu
 - **simple_handler_mac.mm** - macOS-specific handler implementation
 - **process_helper_mac.cc** - Helper process entry point
 
-## Building
-
-From the Chromium `src` directory:
-
-```bash
-# Debug build (x64)
-autoninja -C out/Debug_GN_x64 cefsimple
-
-# Debug build (ARM64 on macOS)
-autoninja -C out/Debug_GN_arm64 cefsimple
-
-# Release build
-autoninja -C out/Release_GN_x64 cefsimple
-```
-
-## Running
-
-```bash
-# macOS
-out/Debug_GN_arm64/cefsimple.app/Contents/MacOS/cefsimple
-
-# Linux
-out/Debug_GN_x64/cefsimple
-
-# Windows
-out/Debug_GN_x64/cefsimple.exe
-```
-
-Expected behavior: Opens a window displaying https://www.google.com
-
 ## Key Features
 
 - **Automatic reference counting** - CefRefPtr handles object lifetime
