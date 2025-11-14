@@ -67,6 +67,7 @@ These tools help Claude Code systematically work through both phases.
 ### Documentation
 - **`CLAUDE_PATCH_INSTRUCTIONS.md`** - Complete guide for fixing patch failures
 - **`CLAUDE_BUILD_INSTRUCTIONS.md`** - Complete guide for fixing build errors
+- **`CLAUDE_WIKI_INSTRUCTIONS.md`** - Bitbucket wiki formatting guidelines for Claude agents
 - **`CLAUDE.md`** - General Claude Code instructions for Chromium/CEF
 - **`README.md`** - This file
 
