@@ -38,8 +38,14 @@ if [ "$(uname)" == "Darwin" ]; then
 fi
 
 # Generate snapshot_blob.bin.
-echo 'Running mksnapshot...'
+echo "Running mksnapshot ${args[@]} ${@:2}"
 ./mksnapshot "${args[@]}" "${@:2}"
+MKSNAPSHOT_EXIT_CODE=$?
+if [ $MKSNAPSHOT_EXIT_CODE -ne 0 ]; then
+  echo "Error: mksnapshot failed with exit code $MKSNAPSHOT_EXIT_CODE"
+  popd > /dev/null
+  exit 1
+fi
 
 # Determine the architecture suffix, if any.
 suffix=''
@@ -55,8 +61,14 @@ fi
 OUT_FILE=v8_context_snapshot${suffix}.bin
 
 # Generate v8_context_snapshot.bin.
-echo 'Running v8_context_snapshot_generator...'
+echo "Running v8_context_snapshot_generator --output_file=$OUT_FILE"
 ./v8_context_snapshot_generator --output_file=$OUT_FILE
+GENERATOR_EXIT_CODE=$?
+if [ $GENERATOR_EXIT_CODE -ne 0 ]; then
+  echo "Error: v8_context_snapshot_generator failed with exit code $GENERATOR_EXIT_CODE"
+  popd > /dev/null
+  exit 1
+fi
 
 popd > /dev/null
 
