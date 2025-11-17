@@ -769,7 +769,7 @@ index 52971bbc6f3ac75c0bfe4e225c1a1f054c705beb..085201f227e6aaccf0f01004e1499f25
    }
  
 diff --git chrome/browser/ui/browser_window/internal/browser_window_features.cc chrome/browser/ui/browser_window/internal/browser_window_features.cc
-index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d360cadc1 100644
+index 78ce2144cc87fd588539a1613c8ba08e3eb8b3e4..116ab46c18ed8e67ea8ccb98d01b8ab50ad12fb0 100644
 --- chrome/browser/ui/browser_window/internal/browser_window_features.cc
 +++ chrome/browser/ui/browser_window/internal/browser_window_features.cc
 @@ -184,6 +184,15 @@ class BrowserWindowFeatures::ExtensionKeybindingRegistryDelegateTabStrip final
@@ -788,7 +788,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
  void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
    // This is used only for the controllers which will be created on demand
    // later.
-@@ -412,10 +421,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -413,10 +422,12 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
          browser_view, exclusive_access_manager_.get());
    }
  
@@ -802,7 +802,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
      if (IsChromeLabsEnabled()) {
        chrome_labs_coordinator_ =
            std::make_unique<ChromeLabsCoordinator>(browser);
-@@ -473,7 +484,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -474,7 +485,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        // Browser::GetBrowserView, which always returns a non-null BrowserView
        // in production, but this crashes during unittests using
        // BrowserWithTestWindowTest; these should eventually be refactored.
@@ -811,7 +811,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
          tab_search_toolbar_button_controller_ =
              std::make_unique<TabSearchToolbarButtonController>(
                  browser_view, browser_view->GetTabSearchBubbleHost());
-@@ -538,7 +549,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
+@@ -539,7 +550,7 @@ void BrowserWindowFeatures::InitPostWindowConstruction(Browser* browser) {
        browser, browser->GetTabStripModel(), profile, browser->GetWindow(),
        browser->GetType(), browser->app_name(), browser->GetSessionID());
  
@@ -820,7 +820,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
      toast_service_ = std::make_unique<ToastService>(browser);
    }
  
-@@ -634,7 +645,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -635,7 +646,9 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
    immersive_mode_controller_ =
        chrome::CreateImmersiveModeController(browser_view);
  
@@ -831,7 +831,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
  #if BUILDFLAG(ENABLE_GLIC)
      glic::GlicKeyedService* glic_service =
          glic::GlicKeyedService::Get(browser_view->GetProfile());
-@@ -686,12 +699,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -687,12 +700,6 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
            GetUserDataFactory().CreateInstance<ActorUiWindowController>(
                *browser_, browser_, std::move(container_overlay_view_pairs));
      }
@@ -844,7 +844,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
    }
  
  #if !BUILDFLAG(IS_CHROMEOS)
-@@ -719,6 +726,20 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
+@@ -720,6 +727,20 @@ void BrowserWindowFeatures::InitPostBrowserViewConstruction(
    find_bar_owner_ = std::make_unique<FindBarOwnerViews>(browser_view);
  }
  
@@ -866,7 +866,7 @@ index 5faac625aac70458dde69996da487e265f18e994..c0be2130a9660d2ae5c179d2dcdb271d
    accelerator_provider_ = nullptr;
    extension_keybinding_registry_.reset();
 diff --git chrome/browser/ui/browser_window/public/browser_window_features.h chrome/browser/ui/browser_window/public/browser_window_features.h
-index 19048c9478592d9866dab70230116ecc4e6f5f66..8e06efb9ebb17b6c751a52b086e014451ff00e3d 100644
+index 035cef53fec4760b281b3cd3252cd1d2d6b4b96c..e28a2f66bb5d31b8f387eed93e2733de4af847f7 100644
 --- chrome/browser/ui/browser_window/public/browser_window_features.h
 +++ chrome/browser/ui/browser_window/public/browser_window_features.h
 @@ -194,6 +194,8 @@ class BrowserWindowFeatures {
