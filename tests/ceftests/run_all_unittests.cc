@@ -127,9 +127,7 @@ class ScopedPlatformSetup final {
 };
 #endif  // defined(OS_MAC)
 
-int RunMain(int argc,
-            char* argv[],
-            void* sandbox_info) {
+int RunMain(int argc, char* argv[], void* sandbox_info) {
   int exit_code;
 
 #if CEF_API_VERSION != CEF_EXPERIMENTAL
@@ -205,6 +203,12 @@ int RunMain(int argc,
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 #endif
 
+  // Initialize the testing framework. Do this before calling CefInitialize
+  // so that stack symbolization is initialized in the correct order (e.g.
+  // GTest calls absl::InitializeSymbolizer before Chromium calls
+  // base::debug::EnableInProcessStackDumping).
+  test_suite.InitMainProcess();
+
   // Initialize CEF.
   if (!CefInitialize(main_args, settings, app, sandbox_info)) {
     exit_code = CefGetExitCode();
@@ -223,9 +227,6 @@ int RunMain(int argc,
       << (UseViewsGlobal() ? "Views" : "Native") << "-hosted (not a warning)";
 
   std::unique_ptr<client::MainMessageLoop> message_loop;
-
-  // Initialize the testing framework.
-  test_suite.InitMainProcess();
 
   int retval;
 
