@@ -486,6 +486,14 @@ void CefRequestContextImpl::ClearCertificateExceptions(
                      this, callback));
 }
 
+void CefRequestContextImpl::ClearHttpCache(
+    CefRefPtr<CefCompletionCallback> callback) {
+  GetBrowserContext(
+      content::GetUIThreadTaskRunner({}),
+      base::BindOnce(&CefRequestContextImpl::ClearHttpCacheInternal, this,
+                     callback));
+}
+
 void CefRequestContextImpl::ClearHttpAuthCredentials(
     CefRefPtr<CefCompletionCallback> callback) {
   GetBrowserContext(
@@ -844,6 +852,20 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
     CEF_POST_TASK(CEF_UIT,
                   base::BindOnce(&CefCompletionCallback::OnComplete, callback));
   }
+}
+
+void CefRequestContextImpl::ClearHttpCacheInternal(
+    CefRefPtr<CefCompletionCallback> callback,
+    CefBrowserContext::Getter browser_context_getter) {
+  auto browser_context = browser_context_getter.Run();
+  if (!browser_context) {
+    return;
+  }
+
+  browser_context->GetNetworkContext()->ClearHttpCache(
+      /*start_time=*/base::Time(), /*end_time=*/base::Time::Max(),
+      /*filter=*/nullptr,
+      base::BindOnce(&CefCompletionCallback::OnComplete, callback));
 }
 
 void CefRequestContextImpl::ClearHttpAuthCredentialsInternal(

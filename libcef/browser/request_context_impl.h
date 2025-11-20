@@ -116,6 +116,7 @@ class CefRequestContextImpl : public CefRequestContext {
   bool ClearSchemeHandlerFactories() override;
   void ClearCertificateExceptions(
       CefRefPtr<CefCompletionCallback> callback) override;
+  void ClearHttpCache(CefRefPtr<CefCompletionCallback> callback) override;
   void ClearHttpAuthCredentials(
       CefRefPtr<CefCompletionCallback> callback) override;
   void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
@@ -195,6 +196,8 @@ class CefRequestContextImpl : public CefRequestContext {
   void ClearCertificateExceptionsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext::Getter browser_context_getter);
+  void ClearHttpCacheInternal(CefRefPtr<CefCompletionCallback> callback,
+                              CefBrowserContext::Getter browser_context_getter);
   void ClearHttpAuthCredentialsInternal(
       CefRefPtr<CefCompletionCallback> callback,
       CefBrowserContext::Getter browser_context_getter);

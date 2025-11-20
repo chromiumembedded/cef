@@ -2838,6 +2838,19 @@ class RequestTestHandler : public TestHandler {
       // test runs when using the global request context.
       test_runner_->GetRequestContext()->ClearHttpAuthCredentials(
           new TestCompletionCallback(
+              base::BindOnce(&RequestTestHandler::MaybeClearCache, this)));
+      return;
+    }
+
+    MaybeClearCache();
+  }
+
+  void MaybeClearCache() {
+    if (context_mode_ == CONTEXT_GLOBAL) {
+      // Clear the HTTP cache to avoid leaking state between test runs when
+      // using the global request context.
+      test_runner_->GetRequestContext()->ClearHttpCache(
+          new TestCompletionCallback(
               base::BindOnce(&RequestTestHandler::DestroyTest, this)));
       return;
     }
