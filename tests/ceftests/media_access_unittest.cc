@@ -49,6 +49,8 @@ class TestSetup {
   TestSetup() = default;
 
   // CONFIGURATION
+  // True if we expect a call to OnMediaAccessChange.
+  bool expect_change = false;
 
   // True if a user gesture is required for the getDisplayMedia call.
   bool needs_user_gesture = false;
@@ -67,7 +69,9 @@ class TestSetup {
 
   // Method callbacks.
   TrackCallback got_request;
-  TrackCallback got_change;
+  size_t got_change_ct = 0;
+  TrackCallback got_audio_access;
+  TrackCallback got_video_access;
 
   // JS success state.
   TrackCallback got_js_success;
@@ -115,7 +119,7 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         EXPECT_FALSE(test_setup_->got_js_timeout);
         test_setup_->got_js_timeout.yes();
       }
-      DestroyTest();
+      MaybeDestroyTest();
       return RV_CANCEL;
     }
 
@@ -130,9 +134,11 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
         " if(!data) {"
         "   data = {};"
         " }"
+        " const dataStr = JSON.stringify(data);"
+        " console.log('onResult: ' + val + ' ' + dataStr);"
         " document.location = "
         "`https://tests/"
-        "exit?result=${val}&data=${encodeURIComponent(JSON.stringify(data))}`;"
+        "exit?result=${val}&data=${encodeURIComponent(dataStr)}`;"
         "}"
         "function runTest() {";
 
@@ -148,9 +154,11 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
 
     page +=
         ".then(function(stream) {"
+        "  const audioLen = stream.getAudioTracks().length;"
+        "  const videoLen = stream.getVideoTracks().length;"
+        "  stream.getTracks().forEach(track => track.stop());"
         "  onResult(`SUCCESS`, {got_audio_track: "
-        "stream.getAudioTracks().length "
-        "> 0, got_video_track: stream.getVideoTracks().length > 0});"
+        "audioLen > 0, got_video_track: videoLen > 0});"
         "})"
         ".catch(function(err) {"
         "  console.log(err.toString());"
@@ -251,10 +259,29 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
                            bool has_video_access,
                            bool has_audio_access) override {
     EXPECT_UI_THREAD();
-    EXPECT_EQ(got_video_device() || got_video_desktop(), has_video_access);
-    EXPECT_EQ(got_audio_device() || got_audio_desktop(), has_audio_access);
-    EXPECT_FALSE(test_setup_->got_change);
-    test_setup_->got_change.yes();
+    if (!has_video_access && !has_audio_access) {
+      // Skip no-op calls.
+      return;
+    }
+
+    if (has_video_access) {
+      test_setup_->got_video_access.yes();
+    }
+    if (has_audio_access) {
+      test_setup_->got_audio_access.yes();
+    }
+    test_setup_->got_change_ct++;
+    MaybeDestroyTest();
+  }
+
+  void MaybeDestroyTest() {
+    if (test_setup_->expect_change && test_setup_->got_change_ct == 0U) {
+      return;
+    }
+    if (!js_complete()) {
+      return;
+    }
+    DestroyTest();
   }
 
   void DestroyTest() override {
@@ -269,6 +296,20 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
     } else {
       // Expect a single JS outcome.
       EXPECT_EQ(1U, js_outcome_ct);
+    }
+
+    if (test_setup_->expect_change) {
+      // One or more calls to OnMediaAccessChange.
+      EXPECT_EQ(got_video_device() || got_video_desktop(),
+                test_setup_->got_video_access);
+      EXPECT_EQ(got_audio_device() || got_audio_desktop(),
+                test_setup_->got_audio_access);
+      EXPECT_GT(test_setup_->got_change_ct, 0U);
+    } else {
+      // No call to OnMediaAccessChange.
+      EXPECT_EQ(false, test_setup_->got_video_access);
+      EXPECT_EQ(false, test_setup_->got_audio_access);
+      EXPECT_EQ(test_setup_->got_change_ct, 0U);
     }
 
     TestHandler::DestroyTest();
@@ -299,6 +340,11 @@ class MediaAccessTestHandler : public TestHandler, public CefPermissionHandler {
   }
   bool got_video_desktop() const {
     return response_ & CEF_MEDIA_PERMISSION_DESKTOP_VIDEO_CAPTURE;
+  }
+
+  bool js_complete() const {
+    return test_setup_->got_js_success || test_setup_->got_js_error ||
+           test_setup_->got_js_timeout;
   }
 
   CefRefPtr<CefDictionaryValue> ParseURLData(const std::string& url) {
@@ -347,7 +393,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningFalse) {
     EXPECT_STREQ("NotAllowedError: Permission denied",
                  test_setup.js_error_str.c_str());
   }
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenNoCallback) {
@@ -364,7 +409,6 @@ TEST(MediaAccessTest, DeviceFailureWhenNoCallback) {
 
   // No JS result.
   EXPECT_TRUE(test_setup.got_request);
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermission) {
@@ -382,7 +426,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermission) {
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("NotAllowedError: Permission denied",
                test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermissionAsync) {
@@ -401,7 +444,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningNoPermissionAsync) {
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("NotAllowedError: Permission denied",
                test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
@@ -416,7 +458,6 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingAudioButReturningVideo) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
@@ -431,7 +472,6 @@ TEST(MediaAccessTest, DeviceFailureWhenRequestingVideoButReturningAudio) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
@@ -448,7 +488,6 @@ TEST(MediaAccessTest, DevicePartialFailureReturningVideo) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
@@ -465,7 +504,6 @@ TEST(MediaAccessTest, DevicePartialFailureReturningAudio) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
@@ -482,7 +520,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture1) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
@@ -499,7 +536,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture2) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
@@ -514,7 +550,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture3) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
@@ -529,7 +564,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture4) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
@@ -544,7 +578,6 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture5) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
@@ -559,11 +592,11 @@ TEST(MediaAccessTest, DeviceFailureWhenReturningScreenCapture6) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioOnly) {
   TestSetup test_setup;
+  test_setup.expect_change = true;
 
   CefRefPtr<MediaAccessTestHandler> handler = new MediaAccessTestHandler(
       &test_setup, CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE,
@@ -575,11 +608,11 @@ TEST(MediaAccessTest, DeviceSuccessAudioOnly) {
   EXPECT_TRUE(test_setup.got_js_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_FALSE(test_setup.got_video);
-  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessVideoOnly) {
   TestSetup test_setup;
+  test_setup.expect_change = true;
 
   CefRefPtr<MediaAccessTestHandler> handler = new MediaAccessTestHandler(
       &test_setup, CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE,
@@ -591,11 +624,11 @@ TEST(MediaAccessTest, DeviceSuccessVideoOnly) {
   EXPECT_TRUE(test_setup.got_js_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
-  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioVideo) {
   TestSetup test_setup;
+  test_setup.expect_change = true;
 
   CefRefPtr<MediaAccessTestHandler> handler =
       new MediaAccessTestHandler(&test_setup,
@@ -610,11 +643,11 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideo) {
   EXPECT_TRUE(test_setup.got_js_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
-  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DeviceSuccessAudioVideoAsync) {
   TestSetup test_setup;
+  test_setup.expect_change = true;
   test_setup.continue_async = true;
 
   CefRefPtr<MediaAccessTestHandler> handler =
@@ -630,7 +663,6 @@ TEST(MediaAccessTest, DeviceSuccessAudioVideoAsync) {
   EXPECT_TRUE(test_setup.got_js_success);
   EXPECT_TRUE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
-  EXPECT_TRUE(test_setup.got_change);
 }
 
 // Screen capture tests
@@ -650,7 +682,6 @@ TEST(MediaAccessTest, DesktopFailureWhenReturningNoPermission) {
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("NotAllowedError: Permission denied",
                test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
@@ -666,11 +697,11 @@ TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   TestSetup test_setup;
+  test_setup.expect_change = true;
   test_setup.needs_user_gesture = true;
 
   CefRefPtr<MediaAccessTestHandler> handler =
@@ -685,7 +716,6 @@ TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   EXPECT_TRUE(test_setup.got_js_success);
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
-  EXPECT_TRUE(test_setup.got_change);
 }
 
 TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
@@ -703,7 +733,6 @@ TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
   EXPECT_TRUE(test_setup.got_request);
   EXPECT_TRUE(test_setup.got_js_error);
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
-  EXPECT_FALSE(test_setup.got_change);
 }
 
 // Entry point for creating media access browser test objects.

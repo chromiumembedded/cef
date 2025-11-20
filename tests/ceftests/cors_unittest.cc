@@ -506,7 +506,7 @@ class CorsTestHandler : public RoutingTestHandler {
 
     EXPECT_TRUE(expected) << "Unexpected console message: "
                           << message.ToString();
-    return false;
+    return TestHandler::OnConsoleMessage(browser, level, message, source, line);
   }
 
  protected:

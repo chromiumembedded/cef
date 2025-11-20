@@ -304,6 +304,20 @@ TestHandler::~TestHandler() {
   test_handler_count_--;
 }
 
+bool TestHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                                   cef_log_severity_t level,
+                                   const CefString& message,
+                                   const CefString& source,
+                                   int line) {
+  // Log console messages to stdout ourselves. We skip the default Chromium
+  // content::LogConsoleMessage() implementation because it ignores messages
+  // from incognito Profiles.
+  std::cout << "CONSOLE: \"" << message.ToString()
+            << "\", source: " << source.ToString() << " (" << line << ")"
+            << std::endl;
+  return true;
+}
+
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   EXPECT_UI_THREAD();
 

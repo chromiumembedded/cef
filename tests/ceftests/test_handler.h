@@ -150,6 +150,13 @@ class TestHandler : public CefClient,
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
   CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 
+  // CefDisplayHandler methods
+  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
+                        cef_log_severity_t level,
+                        const CefString& message,
+                        const CefString& source,
+                        int line) override;
+
   // CefLifeSpanHandler methods
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
