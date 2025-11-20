@@ -260,6 +260,19 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
   DISALLOW_COPY_AND_ASSIGN(TestTextfieldDelegate);
 };
 
+void SendKeyEvents(CefRefPtr<CefWindow> window) {
+  // Send the contents of |kTestInputMessage| to the textfield.
+  for (size_t i = 0; i < sizeof(kTestInputMessage) - 1; ++i) {
+    int keycode;
+    uint32_t modifiers;
+    TranslateKey(kTestInputMessage[i], &keycode, &modifiers);
+    window->SendKeyPress(keycode, modifiers);
+  }
+
+  // Send return to end the text input.
+  window->SendKeyPress(VKEY_RETURN, 0);
+}
+
 void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   CefRefPtr<CefTextfield> textfield =
       CefTextfield::CreateTextfield(new TestTextfieldDelegate());
@@ -284,16 +297,9 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   // Give input focus to the textfield.
   textfield->RequestFocus();
 
-  // Send the contents of |kTestInputMessage| to the textfield.
-  for (size_t i = 0; i < sizeof(kTestInputMessage) - 1; ++i) {
-    int keycode;
-    uint32_t modifiers;
-    TranslateKey(kTestInputMessage[i], &keycode, &modifiers);
-    window->SendKeyPress(keycode, modifiers);
-  }
-
-  // Send return to end the text input.
-  window->SendKeyPress(VKEY_RETURN, 0);
+  // Continue after a short delay so that the focus change completes before we
+  // attempt to send key events.
+  CefPostDelayedTask(TID_UI, base::BindOnce(&SendKeyEvents, window), 100);
 }
 
 void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
