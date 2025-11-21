@@ -236,6 +236,12 @@ class AccessibilityTestHandler : public TestHandler,
         0);
 
     got_hide_edit_box_.yes();
+
+    // Destroy the test in the likely event that we don't get a call to
+    // OnAccessibilityLocationChange. See issue #3545.
+    CefPostDelayedTask(
+        TID_UI, base::BindOnce(&AccessibilityTestHandler::DestroyTest, this),
+        500);
   }
 
   void SetFocusOnEditBox(CefRefPtr<CefBrowser> browser) {
@@ -418,7 +424,8 @@ class AccessibilityTestHandler : public TestHandler,
     if (test_type_ == TEST_LOCATION_CHANGE) {
       EXPECT_GT(edit_box_id_, 0);
       EXPECT_TRUE(got_hide_edit_box_);
-      EXPECT_TRUE(got_accessibility_location_change_);
+      // Hasn't been called since M117. See issue #3545.
+      EXPECT_FALSE(got_accessibility_location_change_);
     }
     TestHandler::DestroyTest();
   }
