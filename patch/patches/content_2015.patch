@@ -47,10 +47,10 @@ index 293c883f265046c5e380dae28b6f2175023b10bd..1f0c86ebd5449cec22b14b428ec038ac
      return std::make_pair(
          /*is_cacheable=*/false,
 diff --git content/public/browser/content_browser_client.cc content/public/browser/content_browser_client.cc
-index 04743790f731409790d9431a24aa86c34786e935..0cf50861088562e5315a8155124df20d5f5029b7 100644
+index ce566b12fd3ccc20d9067b4cfe205c69c50a0770..da6d96fe072e0af828985a98093d941fb02c7ab3 100644
 --- content/public/browser/content_browser_client.cc
 +++ content/public/browser/content_browser_client.cc
-@@ -1214,7 +1214,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
+@@ -1218,7 +1218,7 @@ ContentBrowserClient::CreateURLLoaderHandlerForServiceWorkerNavigationPreload(
  void ContentBrowserClient::OnNetworkServiceCreated(
      network::mojom::NetworkService* network_service) {}
  
@@ -59,7 +59,7 @@ index 04743790f731409790d9431a24aa86c34786e935..0cf50861088562e5315a8155124df20d
      BrowserContext* context,
      bool in_memory,
      const base::FilePath& relative_partition_path,
-@@ -1223,6 +1223,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
+@@ -1227,6 +1227,7 @@ void ContentBrowserClient::ConfigureNetworkContextParams(
          cert_verifier_creation_params) {
    network_context_params->user_agent = GetUserAgentBasedOnPolicy(context);
    network_context_params->accept_language = "en-us,en";
@@ -68,7 +68,7 @@ index 04743790f731409790d9431a24aa86c34786e935..0cf50861088562e5315a8155124df20d
  
  std::vector<base::FilePath>
 diff --git content/public/browser/content_browser_client.h content/public/browser/content_browser_client.h
-index 240f842dc84dc95564acbd8a1aeb9560d3820137..2d78f9c00e47b14e299e13eee44d07b5f74062cc 100644
+index 7db63bec76a49e9df23b9497dd51b520167db22d..91b7bbce3997e449f34a871c7d216d29aaf5b7dc 100644
 --- content/public/browser/content_browser_client.h
 +++ content/public/browser/content_browser_client.h
 @@ -1464,6 +1464,12 @@ class CONTENT_EXPORT ContentBrowserClient {
@@ -84,7 +84,7 @@ index 240f842dc84dc95564acbd8a1aeb9560d3820137..2d78f9c00e47b14e299e13eee44d07b5
    // Allows the embedder to return a delegate for the SpeechRecognitionManager.
    // The delegate will be owned by the manager. It's valid to return nullptr.
    virtual SpeechRecognitionManagerDelegate*
-@@ -2295,7 +2301,7 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2298,7 +2304,7 @@ class CONTENT_EXPORT ContentBrowserClient {
    //
    // If |relative_partition_path| is the empty string, it means this needs to
    // create the default NetworkContext for the BrowserContext.
@@ -93,7 +93,7 @@ index 240f842dc84dc95564acbd8a1aeb9560d3820137..2d78f9c00e47b14e299e13eee44d07b5
        BrowserContext* context,
        bool in_memory,
        const base::FilePath& relative_partition_path,
-@@ -2548,6 +2554,22 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2551,6 +2557,22 @@ class CONTENT_EXPORT ContentBrowserClient {
        const net::IsolationInfo& isolation_info,
        mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory);
  
@@ -116,7 +116,7 @@ index 240f842dc84dc95564acbd8a1aeb9560d3820137..2d78f9c00e47b14e299e13eee44d07b5
    // Creates an OverlayWindow to be used for video or Picture-in-Picture.
    // This window will house the content shown when in Picture-in-Picture mode.
    // This will return a new OverlayWindow.
-@@ -2618,6 +2640,10 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -2621,6 +2643,10 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Used as part of the user agent string.
    virtual std::string GetProduct();
  

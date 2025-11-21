@@ -200,7 +200,7 @@ index b0658fdc10557144ebdbab8784f49fc521b41881..47393d17e01c5538ac76bc242956ab0b
    // Adds actionable global error menu items to the menu.
    // Examples: Extension permissions and sign in errors.
 diff --git chrome/browser/ui/views/frame/browser_view.cc chrome/browser/ui/views/frame/browser_view.cc
-index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f629ad022 100644
+index 90b8dbac885c1145265ed75faa878feacd0fd207..d3e8cf6c931b1f9ad82bbbb3a07bde4a9bbbb945 100644
 --- chrome/browser/ui/views/frame/browser_view.cc
 +++ chrome/browser/ui/views/frame/browser_view.cc
 @@ -837,13 +837,23 @@ class BrowserView::AccessibilityModeObserver : public ui::AXModeObserver {
@@ -346,7 +346,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
    if (auto* download_controller =
            browser_->GetFeatures().download_toolbar_ui_controller()) {
      return download_controller->bubble_controller();
-@@ -4273,9 +4335,10 @@ bool BrowserView::GetSavedWindowPlacement(
+@@ -4275,9 +4337,10 @@ bool BrowserView::GetSavedWindowPlacement(
  views::View* BrowserView::GetContentsView() {
    if (multi_contents_view_) {
      return multi_contents_view_->GetActiveContentsView();
@@ -358,7 +358,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
  }
  
  views::ClientView* BrowserView::CreateClientView(views::Widget* widget) {
-@@ -4451,9 +4514,22 @@ void BrowserView::DeleteBrowserWindow() {
+@@ -4453,9 +4516,22 @@ void BrowserView::DeleteBrowserWindow() {
    // before the frame is destroyed to mitigate UAF risk.
    browser_widget_->SaveWindowPlacementIfNeeded();
  
@@ -384,7 +384,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
  }
  
  void BrowserView::SetForceShowBookmarkBarFlag(
-@@ -4768,11 +4844,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
+@@ -4770,11 +4846,36 @@ void BrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
  bool BrowserView::ShouldDescendIntoChildForEventHandling(
      gfx::NativeView child,
      const gfx::Point& location) {
@@ -423,7 +423,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
      // Draggable regions are defined relative to the web contents.
      gfx::Point point_in_contents_web_view_coords(location);
      views::View::ConvertPointToTarget(GetWidget()->GetRootView(),
-@@ -4781,9 +4882,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
+@@ -4783,9 +4884,8 @@ bool BrowserView::ShouldDescendIntoChildForEventHandling(
  
      // Draggable regions should be ignored for clicks into any browser view's
      // owned widgets, for example alerts, permission prompts or find bar.
@@ -435,7 +435,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
             WidgetOwnedByAnchorContainsPoint(point_in_contents_web_view_coords);
    }
  
-@@ -5031,7 +5131,9 @@ void BrowserView::Layout(PassKey) {
+@@ -5033,7 +5133,9 @@ void BrowserView::Layout(PassKey) {
  
    // TODO(jamescook): Why was this in the middle of layout code?
    toolbar_->location_bar()->omnibox_view()->SetFocusBehavior(
@@ -446,7 +446,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
    GetFrameView()->UpdateMinimumSize();
  
    // Some of the situations when the BrowserView is laid out are:
-@@ -5100,6 +5202,12 @@ void BrowserView::AddedToWidget() {
+@@ -5102,6 +5204,12 @@ void BrowserView::AddedToWidget() {
    SetThemeProfileForWindow(GetNativeWindow(), browser_->GetProfile());
  #endif
  
@@ -459,7 +459,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
    toolbar_->Init();
  
    UpdateTabSearchBubbleHost();
-@@ -5182,12 +5290,6 @@ void BrowserView::AddedToWidget() {
+@@ -5184,12 +5292,6 @@ void BrowserView::AddedToWidget() {
  
    EnsureFocusOrder();
  
@@ -472,7 +472,7 @@ index ca0bba30c5058ff4e1230502540f60a154878b95..9ed88f28ede105741c83b5dd0140a62f
  #if !BUILDFLAG(IS_CHROMEOS)
    browser_->GetFeatures().download_toolbar_ui_controller()->Init();
  #endif
-@@ -5221,6 +5323,13 @@ void BrowserView::AddedToWidget() {
+@@ -5223,6 +5325,13 @@ void BrowserView::AddedToWidget() {
                  weak_ptr_factory_.GetWeakPtr()));
    }
  

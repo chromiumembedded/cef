@@ -33,7 +33,7 @@ index 1423d061aa00c5e8c58bceb09f36d517821f8d06..dd7e20ed4850153fe5e1cc2d69acfd52
    ~BrowserNativeWidgetMac() override;
  
 diff --git chrome/browser/ui/views/frame/browser_native_widget_mac.mm chrome/browser/ui/views/frame/browser_native_widget_mac.mm
-index 527af25f6a489a883fc73a3ce92b7fe50e3e3f19..773f1db330783c4101824949b51e4200fad1b15f 100644
+index f4a8b323fb6e0647750fbfcffd530a8bbe5b5010..739c127aa36a8feee99303b586aa68d82cb1821b 100644
 --- chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 +++ chrome/browser/ui/views/frame/browser_native_widget_mac.mm
 @@ -209,7 +209,15 @@ void BrowserNativeWidgetMac::OnWidgetDestroyed(views::Widget* widget) {
