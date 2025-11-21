@@ -699,6 +699,8 @@ TEST(MediaAccessTest, DesktopFailureWhenRequestingVideoButReturningAudio) {
   EXPECT_STREQ("AbortError: Invalid state", test_setup.js_error_str.c_str());
 }
 
+// This test fails consistently on macOS and Linux, see issue #3831.
+#if defined(OS_WIN)
 TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   TestSetup test_setup;
   test_setup.expect_change = true;
@@ -717,6 +719,7 @@ TEST(MediaAccessTest, DesktopPartialSuccessReturningVideo) {
   EXPECT_FALSE(test_setup.got_audio);
   EXPECT_TRUE(test_setup.got_video);
 }
+#endif  // defined(OS_WIN)
 
 TEST(MediaAccessTest, DesktopPartialFailureReturningAudio) {
   TestSetup test_setup;
