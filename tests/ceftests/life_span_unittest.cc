@@ -195,12 +195,14 @@ TEST(LifeSpanTest, DoCloseAllow) {
   EXPECT_TRUE(handler->got_after_created_);
   if (handler->use_alloy_style_browser()) {
     EXPECT_TRUE(handler->got_do_close_);
+    // Delivery of the testQuery message from the onunload event races browser
+    // destruction with Chrome style browsers, see issue #4037.
+    EXPECT_TRUE(handler->got_unload_message_);
   } else {
     EXPECT_FALSE(handler->got_do_close_);
   }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_FALSE(handler->got_before_unload_dialog_);
-  EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
 
@@ -216,12 +218,14 @@ TEST(LifeSpanTest, DoCloseAllowForce) {
   EXPECT_TRUE(handler->got_after_created_);
   if (handler->use_alloy_style_browser()) {
     EXPECT_TRUE(handler->got_do_close_);
+    // Delivery of the testQuery message from the onunload event races browser
+    // destruction with Chrome style browsers, see issue #4037.
+    EXPECT_TRUE(handler->got_unload_message_);
   } else {
     EXPECT_FALSE(handler->got_do_close_);
   }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_FALSE(handler->got_before_unload_dialog_);
-  EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
 
@@ -307,12 +311,14 @@ TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
   EXPECT_TRUE(handler->got_after_created_);
   if (handler->use_alloy_style_browser()) {
     EXPECT_TRUE(handler->got_do_close_);
+    // Delivery of the testQuery message from the onunload event races browser
+    // destruction with Chrome style browsers, see issue #4037.
+    EXPECT_TRUE(handler->got_unload_message_);
   } else {
     EXPECT_FALSE(handler->got_do_close_);
   }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_TRUE(handler->got_before_unload_dialog_);
-  EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
 
@@ -353,12 +359,14 @@ TEST(LifeSpanTest, OnUnloadAllow) {
   EXPECT_TRUE(handler->got_after_created_);
   if (handler->use_alloy_style_browser()) {
     EXPECT_TRUE(handler->got_do_close_);
+    // Delivery of the testQuery message from the onunload event races browser
+    // destruction with Chrome style browsers, see issue #4037.
+    EXPECT_TRUE(handler->got_unload_message_);
   } else {
     EXPECT_FALSE(handler->got_do_close_);
   }
   EXPECT_TRUE(handler->got_before_close_);
   EXPECT_TRUE(handler->got_before_unload_dialog_);
-  EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
 
