@@ -231,7 +231,10 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
       TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
 
       EXPECT_EQ(keycode, event.windows_key_code);
+      // Shift modifier is sometimes missing on macOS, see issue #2774.
+#if !defined(OS_MAC)
       EXPECT_EQ(modifiers, event.modifiers);
+#endif
     }
 
     return false;
