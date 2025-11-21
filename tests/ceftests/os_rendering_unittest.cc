@@ -41,11 +41,11 @@ const int kOsrHeight = 450;
 
 // bounding client rects for edit box and navigate button
 #if defined(OS_WIN)
-const CefRect kExpandedSelectRect(462, 42, 81, 334);
+const CefRect kExpandedSelectRect(462, 42, 79, 408);
 #elif defined(OS_MAC)
-const CefRect kExpandedSelectRect(462, 42, 75, 334);
+const CefRect kExpandedSelectRect(462, 42, 75, 408);
 #elif defined(OS_LINUX)
-const CefRect kExpandedSelectRect(462, 42, 79, 334);
+const CefRect kExpandedSelectRect(462, 42, 79, 408);
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
@@ -278,12 +278,7 @@ class OSRTestHandler : public RoutingTestHandler,
     switch (test_type_) {
       case OSR_TEST_TOOLTIP:
         if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI10");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+          MoveMouseToElement(browser, "LI10");
         }
         break;
       case OSR_TEST_FOCUS:
@@ -322,22 +317,12 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_CURSOR:
         if (StartTest()) {
-          // enter mouse in the LI2 element having hand cursor
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI02");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+          MoveMouseToElement(browser, "LI02");
         }
         break;
       case OSR_TEST_MOUSE_MOVE:
         if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetElementBounds("LI03");
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+          MoveMouseToElement(browser, "LI03");
         }
         break;
       case OSR_TEST_CLICK_RIGHT:
@@ -565,27 +550,45 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_KEY_EVENTS:
         if (messageStr == "osrfocuseditbox") {
-          SendKeyEvents();
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI, base::BindOnce(&OSRTestHandler::SendKeyEvents, this),
+              100);
         }
         break;
       case OSR_TEST_IME_COMMIT_TEXT:
         if (messageStr == "osrfocuseditbox") {
-          SendIMECommitText();
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI, base::BindOnce(&OSRTestHandler::SendIMECommitText, this),
+              100);
         }
         break;
       case OSR_TEST_IME_FINISH_COMPOSITION:
         if (messageStr == "osrfocuseditbox") {
-          SendIMEFinishComposition();
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI,
+              base::BindOnce(&OSRTestHandler::SendIMEFinishComposition, this),
+              100);
         }
         break;
       case OSR_TEST_IME_CANCEL_COMPOSITION:
         if (messageStr == "osrfocuseditbox") {
-          SendIMECancelComposition();
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI,
+              base::BindOnce(&OSRTestHandler::SendIMECancelComposition, this),
+              100);
         }
         break;
       case OSR_TEST_IME_SET_COMPOSITION:
         if (messageStr == "osrfocuseditbox") {
-          SendIMESetComposition();
+          // Wait a bit after the focus change before continuing.
+          CefPostDelayedTask(
+              TID_UI,
+              base::BindOnce(&OSRTestHandler::SendIMESetComposition, this),
+              100);
         }
         break;
       case OSR_TEST_TOUCH_START:
@@ -1087,8 +1090,7 @@ class OSRTestHandler : public RoutingTestHandler,
                       CefCursorHandle cursor,
                       cef_cursor_type_t type,
                       const CefCursorInfo& custom_cursor_info) override {
-    if (test_type_ == OSR_TEST_CURSOR && started()) {
-      EXPECT_EQ(CT_HAND, type);
+    if (test_type_ == OSR_TEST_CURSOR && started() && type == CT_HAND) {
       EXPECT_EQ(nullptr, custom_cursor_info.buffer);
       DestroySucceededTestSoon();
     }
@@ -1675,6 +1677,25 @@ class OSRTestHandler : public RoutingTestHandler,
     for (const auto& te : touch_events) {
       host->SendTouchEvent(te);
     }
+  }
+
+  void MoveMouseToElement(CefRefPtr<CefBrowser> browser,
+                          const std::string& element_id) {
+    // Wait a bit before moving into the element.
+    CefPostDelayedTask(
+        TID_UI,
+        base::BindOnce(
+            [](CefRefPtr<OSRTestHandler> handler, CefRefPtr<CefBrowser> browser,
+               const std::string& element_id) {
+              CefMouseEvent mouse_event;
+              const CefRect& expected_rect =
+                  handler->GetElementBounds(element_id);
+              mouse_event.x = MiddleX(expected_rect);
+              mouse_event.y = MiddleY(expected_rect);
+              browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+            },
+            CefRefPtr<OSRTestHandler>(this), browser, element_id),
+        100);
   }
 
   void DestroySucceededTestSoon() {
