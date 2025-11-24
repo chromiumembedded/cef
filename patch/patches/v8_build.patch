@@ -1,5 +1,5 @@
 diff --git BUILD.gn BUILD.gn
-index f2f72a02c61d64f75d6a3304b48b6a7ee5eef18d..642ca2f2c43d2b17dc099b484cb11289f0237bfc 100644
+index 83e67156818386c98dd37adab63b02021ca0b252..f4acd5763b142c62f38cdeaf75c5c9f32d5d466f 100644
 --- BUILD.gn
 +++ BUILD.gn
 @@ -12,6 +12,7 @@ import("//build/config/riscv.gni")
